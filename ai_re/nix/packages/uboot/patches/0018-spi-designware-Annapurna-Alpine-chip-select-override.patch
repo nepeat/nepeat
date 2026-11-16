@@ -1,0 +1,122 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Sun, 15 Nov 2026 04:30:00 +0000
+Subject: [PATCH] spi: designware: Annapurna Alpine chip select override and
+ deselect
+
+Two things the Alpine SSI (and a firmware that ran before U-Boot) need:
+- CS override: the Alpine SSI drops chip select between FIFO refills unless
+  its CS override register (0xf4) is set; Linux spi-dw does this for
+  "amazon,alpine-dw-apb-ssi" (DW_SPI_CAP_CS_OVERRIDE) and al-boot stage3
+  leaves it at 0xf. Match that compatible and write 0xf at probe.
+- Deselect: the transfer code loads the TX FIFO before it writes SER, and
+  nothing cleared SER: a slave select left set by earlier firmware made the
+  first command start on a chip still selected. al-boot stage3 reads the boot
+  flash through the SSI's memory-mapped window and turns the CS override on
+  just before it jumps, so on the DMC-12 the first RDID read ff ff ff and the
+  SPI env failed to load (every later command worked: each transfer ends with
+  SER = 0). The Annapurna HAL the vendor U-Boot uses writes SER = 0 with the
+  SSI disabled before every transfer. Clear SER, with the SSI disabled, in
+  probe before the per-variant init and at the start of every mem-op
+  transfer; the Alpine init reports a select it found set
+  ("SSI:   slave select 0x1 left set by the firmware, cleared").
+
+Scope: alpine-v2 (generic driver code).
+---
+ drivers/spi/designware_spi.c | 41 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+
+diff --git a/drivers/spi/designware_spi.c b/drivers/spi/designware_spi.c
+index 0df9a4f..ddab21e 100644
+--- a/drivers/spi/designware_spi.c
++++ b/drivers/spi/designware_spi.c
+@@ -54,6 +54,7 @@
+ #define DW_SPI_DMARDLR			0x54
+ #define DW_SPI_IDR			0x58
+ #define DW_SPI_VERSION			0x5c
++#define DW_SPI_CS_OVERRIDE		0xf4	/* Annapurna Alpine only */
+ #define DW_SPI_DR			0x60
+ 
+ /* Bit fields in CTRLR0 */
+@@ -137,6 +138,7 @@ struct dw_spi_priv {
+ 	void *rx;
+ 	void *rx_end;
+ 	u32 fifo_len;			/* depth of the FIFO buffer */
++	u32 ser_at_probe;		/* slave select found set at probe */
+ 	u32 max_xfer;			/* Maximum transfer size (in bits) */
+ 
+ 	int bits_per_word;
+@@ -210,6 +212,31 @@ static int dw_spi_apb_k210_init(struct udevice *bus, struct dw_spi_priv *priv)
+ 	return dw_spi_apb_init(bus, priv);
+ }
+ 
++/*
++ * Annapurna Labs Alpine: the SSI deasserts chip select between FIFO
++ * refills unless the CS override (explicit deselect) is on. Linux spi-dw
++ * (DW_SPI_CAP_CS_OVERRIDE) and the Alpine boot firmware write 0xf.
++ */
++static int dw_spi_alpine_init(struct udevice *bus, struct dw_spi_priv *priv)
++{
++	u32 ser = priv->ser_at_probe;
++	int ret;
++
++	/*
++	 * al-boot stage3 reads the boot flash through the SSI's memory-mapped
++	 * window (0xf8000000) and can start its application with SER still
++	 * set; probe clears it. Report it: a select left set made the
++	 * first command after a cold stage3 boot read ff ff ff.
++	 */
++	if (ser)
++		printf("SSI:   slave select %#x left set by the firmware, cleared\n", ser);
++	ret = dw_spi_apb_init(bus, priv);
++
++	if (!ret)
++		dw_write(priv, DW_SPI_CS_OVERRIDE, 0xf);
++	return ret;
++}
++
+ static int dw_spi_dwc_init(struct udevice *bus, struct dw_spi_priv *priv)
+ {
+ 	priv->max_xfer = 32;
+@@ -269,6 +296,13 @@ static void spi_hw_init(struct udevice *bus, struct dw_spi_priv *priv)
+ {
+ 	dw_write(priv, DW_SPI_SSIENR, 0);
+ 	dw_write(priv, DW_SPI_IMR, 0);
++	/*
++	 * Deselect every chip. The transfer code loads the TX FIFO before it
++	 * writes SER, so a slave select left set by earlier firmware would
++	 * start the first command on a chip that is still selected, e.g. in
++	 * the middle of a memory-mapped read the boot loader left open.
++	 */
++	dw_write(priv, DW_SPI_SER, 0);
+ 	dw_write(priv, DW_SPI_SSIENR, 1);
+ 
+ 	/*
+@@ -375,6 +409,10 @@ static int dw_spi_probe(struct udevice *bus)
+ 
+ 	if (!init)
+ 		return -EINVAL;
++	/* Deselect every chip before anything else (see spi_hw_init). */
++	priv->ser_at_probe = dw_read(priv, DW_SPI_SER);
++	dw_write(priv, DW_SPI_SSIENR, 0);
++	dw_write(priv, DW_SPI_SER, 0);
+ 	ret = init(bus, priv);
+ 	if (ret)
+ 		return ret;
+@@ -613,6 +651,8 @@ static int dw_spi_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
+ 		op->data.nbytes);
+ 
+ 	dw_write(priv, DW_SPI_SSIENR, 0);
++	/* no chip selected while the FIFO is loaded (the Alpine HAL does this too) */
++	dw_write(priv, DW_SPI_SER, 0);
+ 	dw_write(priv, DW_SPI_CTRLR0, cr0);
+ 	if (read)
+ 		dw_write(priv, DW_SPI_CTRLR1, op->data.nbytes - 1);
+@@ -769,6 +809,7 @@ static const struct dm_spi_ops dw_spi_ops = {
+ };
+ 
+ static const struct udevice_id dw_spi_ids[] = {
++	{ .compatible = "amazon,alpine-dw-apb-ssi", .data = (ulong)dw_spi_alpine_init },
+ 	/* Generic compatible strings */
+ 
+ 	{ .compatible = "snps,dw-apb-ssi", .data = (ulong)dw_spi_apb_init },

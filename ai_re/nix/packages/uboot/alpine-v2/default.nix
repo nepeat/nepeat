@@ -53,7 +53,7 @@ let
     CONFIG_CMD_SF=y
     # CONFIG_CMD_SF_TEST is not set
     # CONFIG_CMD_SPI is not set
-    # Persistent env in CS0, redundant, in the one writable window (patch 0029):
+    # Persistent env in CS0, redundant, in the one writable window (patch 0019):
     # 0xf90000-0xfaffff, the blank tail of the BOOT_APP 1 slot (its object ends at
     # 0xb53a11, the slot at 0xfb0000). The factory env pair at 0xfd0000/0xfe0000
     # stays the vendor U-Boot's. Bad CRC / blank: the compiled-in default env.
@@ -124,10 +124,10 @@ in rec {
   };
 
   # The chainload build plus what the vendor U-Boot does for us today
-  # (patches 0022-0028): external PCIe port 0 RC init (kept if the
+  # (patches 0017-0020): external PCIe port 0 RC init (kept if the
   # firmware already trained the link, "alpcie reinit" redoes it), MUIO
   # pinmux replay, SoC GPIO 22 high, CCU writes before Linux, read-only SPI NOR (sf probe/read
-  # only, non-read SPI commands refused) except the env window (0029, saveenv). One binary
+  # only, non-read SPI commands refused) except the env window (0019, saveenv). One binary
   # for both entries: chainloaded in RAM after the vendor U-Boot (test) and
   # as al-boot stage3's application (dmc12-stage3app), flashed by spi-upgrade.py.
   dmc12-selfinit = mk {

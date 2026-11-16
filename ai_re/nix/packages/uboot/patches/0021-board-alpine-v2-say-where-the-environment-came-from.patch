@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: ai_re <ai_re@localhost>
-Date: Sun, 15 Nov 2026 18:00:00 -0800
-Subject: [PATCH 31/35] board: alpine-v2: say where the environment came from
+Date: Sun, 15 Nov 2026 04:30:00 +0000
+Subject: [PATCH] board: alpine-v2: say where the environment came from
 
 With the env in SPI flash (ENV_IS_IN_SPI_FLASH), board_late_init prints
 "Env:   SPI flash, copy at <offset>" or "Env:   compiled-in default" and
@@ -18,7 +18,7 @@ Scope: alpine-v2.
  create mode 100644 board/amazon/alpine-v2/env-report.c
 
 diff --git a/board/amazon/alpine-v2/Makefile b/board/amazon/alpine-v2/Makefile
-index 0c3406c2..ecb935f2 100644
+index 0c3406c..ecb935f 100644
 --- a/board/amazon/alpine-v2/Makefile
 +++ b/board/amazon/alpine-v2/Makefile
 @@ -5,3 +5,4 @@ obj-$(CONFIG_ALPINE_V2_ETH_HANDOFF) += eth-handoff.o
@@ -27,7 +27,7 @@ index 0c3406c2..ecb935f2 100644
  endif
 +obj-$(CONFIG_ENV_IS_IN_SPI_FLASH) += env-report.o
 diff --git a/board/amazon/alpine-v2/alpine-v2.c b/board/amazon/alpine-v2/alpine-v2.c
-index 9394e6c2..b1e4c3da 100644
+index 9394e6c..b1e4c3d 100644
 --- a/board/amazon/alpine-v2/alpine-v2.c
 +++ b/board/amazon/alpine-v2/alpine-v2.c
 @@ -195,6 +195,8 @@ int board_late_init(void)
@@ -41,7 +41,7 @@ index 9394e6c2..b1e4c3da 100644
  
 diff --git a/board/amazon/alpine-v2/env-report.c b/board/amazon/alpine-v2/env-report.c
 new file mode 100644
-index 00000000..8fe7afbe
+index 0000000..8fe7afb
 --- /dev/null
 +++ b/board/amazon/alpine-v2/env-report.c
 @@ -0,0 +1,31 @@
@@ -77,7 +77,7 @@ index 00000000..8fe7afbe
 +	env_set("env_source", src);
 +}
 diff --git a/board/amazon/alpine-v2/soc-init.h b/board/amazon/alpine-v2/soc-init.h
-index 15d4444e..3be8a659 100644
+index 15d4444..3be8a65 100644
 --- a/board/amazon/alpine-v2/soc-init.h
 +++ b/board/amazon/alpine-v2/soc-init.h
 @@ -6,5 +6,6 @@ int alpine_v2_muio_init(bool verbose);

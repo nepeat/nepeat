@@ -1,8 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: ai_re <ai_re@localhost>
-Date: Sun, 15 Nov 2026 12:00:00 -0800
-Subject: [PATCH 22/35] pci: add the Annapurna Labs Alpine V2 external PCIe
- root complex
+Date: Sun, 15 Nov 2026 04:30:00 +0000
+Subject: [PATCH] pci: add the Annapurna Labs Alpine V2 external PCIe root
+ complex
 
 Root complex driver for the Alpine V2 external PCIe ports, bound to the
 node mainline Linux pcie-al uses ("amazon,al-alpine-v2-pcie": config,
@@ -106,7 +106,7 @@ Scope: alpine-v2.
  create mode 100644 drivers/pci/pcie_alpine_v2_serror.S
 
 diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
-index 2b2ccdf4..deb6f299 100644
+index 2b2ccdf..deb6f29 100644
 --- a/drivers/pci/Kconfig
 +++ b/drivers/pci/Kconfig
 @@ -111,6 +111,23 @@ config PCI_SCAN_SHOW
@@ -134,7 +134,7 @@ index 2b2ccdf4..deb6f299 100644
  	bool "Generic ECAM-based PCI host controller support"
  	help
 diff --git a/drivers/pci/Makefile b/drivers/pci/Makefile
-index e6d71fd1..051dfd02 100644
+index e6d71fd..051dfd0 100644
 --- a/drivers/pci/Makefile
 +++ b/drivers/pci/Makefile
 @@ -12,6 +12,10 @@ obj-$(CONFIG_X86) += pci_x86.o pci_rom.o
@@ -150,7 +150,7 @@ index e6d71fd1..051dfd02 100644
  obj-$(CONFIG_PCIE_CDNS_TI) += pcie_cdns_ti.o
 diff --git a/drivers/pci/al_pcie/Makefile b/drivers/pci/al_pcie/Makefile
 new file mode 100644
-index 00000000..533be688
+index 0000000..533be68
 --- /dev/null
 +++ b/drivers/pci/al_pcie/Makefile
 @@ -0,0 +1,19 @@
@@ -175,7 +175,7 @@ index 00000000..533be688
 +			-Wno-unused-but-set-variable
 diff --git a/drivers/pci/al_pcie/al_hal_common.h b/drivers/pci/al_pcie/al_hal_common.h
 new file mode 100644
-index 00000000..f9b40cc6
+index 0000000..f9b40cc
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_common.h
 @@ -0,0 +1,151 @@
@@ -332,7 +332,7 @@ index 00000000..f9b40cc6
 +#endif				/* __AL_HAL_COMMON_H__ */
 diff --git a/drivers/pci/al_pcie/al_hal_pbs_regs.h b/drivers/pci/al_pcie/al_hal_pbs_regs.h
 new file mode 100644
-index 00000000..769416bd
+index 0000000..769416b
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pbs_regs.h
 @@ -0,0 +1,6430 @@
@@ -6768,7 +6768,7 @@ index 00000000..769416bd
 +
 diff --git a/drivers/pci/al_pcie/al_hal_pbs_utils.c b/drivers/pci/al_pcie/al_hal_pbs_utils.c
 new file mode 100644
-index 00000000..27e15603
+index 0000000..27e1560
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pbs_utils.c
 @@ -0,0 +1,110 @@
@@ -6884,7 +6884,7 @@ index 00000000..27e15603
 +
 diff --git a/drivers/pci/al_pcie/al_hal_pbs_utils.h b/drivers/pci/al_pcie/al_hal_pbs_utils.h
 new file mode 100644
-index 00000000..22d795ee
+index 0000000..22d795e
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pbs_utils.h
 @@ -0,0 +1,165 @@
@@ -7055,7 +7055,7 @@ index 00000000..22d795ee
 +/** @} end of PBS group */
 diff --git a/drivers/pci/al_pcie/al_hal_pcie.c b/drivers/pci/al_pcie/al_hal_pcie.c
 new file mode 100644
-index 00000000..b5539ddb
+index 0000000..b5539dd
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pcie.c
 @@ -0,0 +1,4398 @@
@@ -11459,7 +11459,7 @@ index 00000000..b5539ddb
 +}
 diff --git a/drivers/pci/al_pcie/al_hal_pcie.h b/drivers/pci/al_pcie/al_hal_pcie.h
 new file mode 100644
-index 00000000..ba2aef7f
+index 0000000..ba2aef7
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pcie.h
 @@ -0,0 +1,1983 @@
@@ -13448,7 +13448,7 @@ index 00000000..ba2aef7f
 +/** @} end of grouppcie group */
 diff --git a/drivers/pci/al_pcie/al_hal_pcie_axi_reg.h b/drivers/pci/al_pcie/al_hal_pcie_axi_reg.h
 new file mode 100644
-index 00000000..399eef9c
+index 0000000..399eef9
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pcie_axi_reg.h
 @@ -0,0 +1,2095 @@
@@ -15549,7 +15549,7 @@ index 00000000..399eef9c
 +/** @} end of ... group */
 diff --git a/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev1.h b/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev1.h
 new file mode 100644
-index 00000000..8fca2794
+index 0000000..8fca279
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev1.h
 @@ -0,0 +1,14 @@
@@ -15569,7 +15569,7 @@ index 00000000..8fca2794
 +
 diff --git a/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev2.c b/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev2.c
 new file mode 100644
-index 00000000..cd45a535
+index 0000000..cd45a53
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev2.c
 @@ -0,0 +1,11 @@
@@ -15586,7 +15586,7 @@ index 00000000..cd45a535
 +
 diff --git a/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev2.h b/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev2.h
 new file mode 100644
-index 00000000..ab9594dc
+index 0000000..ab9594d
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev2.h
 @@ -0,0 +1,14 @@
@@ -15606,7 +15606,7 @@ index 00000000..ab9594dc
 +
 diff --git a/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev3.c b/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev3.c
 new file mode 100644
-index 00000000..1d2318c7
+index 0000000..1d2318c
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev3.c
 @@ -0,0 +1,11 @@
@@ -15623,7 +15623,7 @@ index 00000000..1d2318c7
 +
 diff --git a/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev3.h b/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev3.h
 new file mode 100644
-index 00000000..0d679762
+index 0000000..0d67976
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev3.h
 @@ -0,0 +1,14 @@
@@ -15643,7 +15643,7 @@ index 00000000..0d679762
 +
 diff --git a/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev4.h b/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev4.h
 new file mode 100644
-index 00000000..bfbbb1cb
+index 0000000..bfbbb1c
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev4.h
 @@ -0,0 +1,14 @@
@@ -15663,7 +15663,7 @@ index 00000000..bfbbb1cb
 +
 diff --git a/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev5.h b/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev5.h
 new file mode 100644
-index 00000000..8ae41bfc
+index 0000000..8ae41bf
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_rev5.h
 @@ -0,0 +1,14 @@
@@ -15683,7 +15683,7 @@ index 00000000..8ae41bfc
 +
 diff --git a/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_revx.h b/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_revx.h
 new file mode 100644
-index 00000000..a32cf8bb
+index 0000000..a32cf8b
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pcie_reg_ptr_set_revx.h
 @@ -0,0 +1,350 @@
@@ -16039,7 +16039,7 @@ index 00000000..a32cf8bb
 +
 diff --git a/drivers/pci/al_pcie/al_hal_pcie_regs.h b/drivers/pci/al_pcie/al_hal_pcie_regs.h
 new file mode 100644
-index 00000000..fb19df29
+index 0000000..fb19df2
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pcie_regs.h
 @@ -0,0 +1,563 @@
@@ -16608,7 +16608,7 @@ index 00000000..fb19df29
 +#endif
 diff --git a/drivers/pci/al_pcie/al_hal_pcie_regs_fields.h b/drivers/pci/al_pcie/al_hal_pcie_regs_fields.h
 new file mode 100644
-index 00000000..d321cafc
+index 0000000..d321caf
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pcie_regs_fields.h
 @@ -0,0 +1,345 @@
@@ -16959,7 +16959,7 @@ index 00000000..d321cafc
 +#endif
 diff --git a/drivers/pci/al_pcie/al_hal_pcie_w_reg.h b/drivers/pci/al_pcie/al_hal_pcie_w_reg.h
 new file mode 100644
-index 00000000..20ce61cd
+index 0000000..20ce61c
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_pcie_w_reg.h
 @@ -0,0 +1,1738 @@
@@ -18703,7 +18703,7 @@ index 00000000..20ce61cd
 +
 diff --git a/drivers/pci/al_pcie/al_hal_plat_services.h b/drivers/pci/al_pcie/al_hal_plat_services.h
 new file mode 100644
-index 00000000..b9a746ae
+index 0000000..b9a746a
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_plat_services.h
 @@ -0,0 +1,108 @@
@@ -18817,7 +18817,7 @@ index 00000000..b9a746ae
 +#endif
 diff --git a/drivers/pci/al_pcie/al_hal_plat_types.h b/drivers/pci/al_pcie/al_hal_plat_types.h
 new file mode 100644
-index 00000000..63e9a0c0
+index 0000000..63e9a0c
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_plat_types.h
 @@ -0,0 +1,31 @@
@@ -18854,7 +18854,7 @@ index 00000000..63e9a0c0
 +#endif
 diff --git a/drivers/pci/al_pcie/al_hal_reg_utils.h b/drivers/pci/al_pcie/al_hal_reg_utils.h
 new file mode 100644
-index 00000000..433b682d
+index 0000000..433b682
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_reg_utils.h
 @@ -0,0 +1,230 @@
@@ -19090,7 +19090,7 @@ index 00000000..433b682d
 +
 diff --git a/drivers/pci/al_pcie/al_hal_types.h b/drivers/pci/al_pcie/al_hal_types.h
 new file mode 100644
-index 00000000..fcc3836e
+index 0000000..fcc3836
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_types.h
 @@ -0,0 +1,108 @@
@@ -19204,7 +19204,7 @@ index 00000000..fcc3836e
 +#endif				/* __TYPES_H__ */
 diff --git a/drivers/pci/al_pcie/al_hal_unit_adapter_regs.h b/drivers/pci/al_pcie/al_hal_unit_adapter_regs.h
 new file mode 100644
-index 00000000..4f9d27b5
+index 0000000..4f9d27b
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_hal_unit_adapter_regs.h
 @@ -0,0 +1,943 @@
@@ -20153,7 +20153,7 @@ index 00000000..4f9d27b5
 +#endif
 diff --git a/drivers/pci/al_pcie/al_init_pcie_rc.c b/drivers/pci/al_pcie/al_init_pcie_rc.c
 new file mode 100644
-index 00000000..95b6444c
+index 0000000..95b6444
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_init_pcie_rc.c
 @@ -0,0 +1,186 @@
@@ -20345,7 +20345,7 @@ index 00000000..95b6444c
 +}
 diff --git a/drivers/pci/al_pcie/al_init_pcie_rc.h b/drivers/pci/al_pcie/al_init_pcie_rc.h
 new file mode 100644
-index 00000000..40cc748d
+index 0000000..40cc748
 --- /dev/null
 +++ b/drivers/pci/al_pcie/al_init_pcie_rc.h
 @@ -0,0 +1,54 @@
@@ -20405,7 +20405,7 @@ index 00000000..40cc748d
 +#endif
 diff --git a/drivers/pci/pcie_alpine_v2.c b/drivers/pci/pcie_alpine_v2.c
 new file mode 100644
-index 00000000..adc2ea20
+index 0000000..adc2ea2
 --- /dev/null
 +++ b/drivers/pci/pcie_alpine_v2.c
 @@ -0,0 +1,464 @@
@@ -20875,7 +20875,7 @@ index 00000000..adc2ea20
 +#endif
 diff --git a/drivers/pci/pcie_alpine_v2_serror.S b/drivers/pci/pcie_alpine_v2_serror.S
 new file mode 100644
-index 00000000..42b8f9f8
+index 0000000..42b8f9f
 --- /dev/null
 +++ b/drivers/pci/pcie_alpine_v2_serror.S
 @@ -0,0 +1,89 @@

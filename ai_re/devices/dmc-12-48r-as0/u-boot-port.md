@@ -1,5 +1,7 @@
 # upstream U-Boot on the DMC-12: RAM chainload (2026-11-15)
 
+> Patch numbers in this file dated before 2026-11-15 21:00 are the pre-squash series; map: `../../nix/packages/uboot/README.md`.
+
 **Goal of this stage:** the factory U-Boot 2015.07 (`ALPINE_DB>`) loads upstream
 U-Boot 2026.10 into RAM and jumps to it. The new U-Boot boots Linux the modern way:
 raw arm64 `Image` + `booti`, extlinux via `bootflow scan`, from the SATA SSD's ext4.
@@ -595,7 +597,7 @@ I2C writes to the CPLD) quiets them first, if wanted.
 `hardware.dmc12.bootLoader = "chainload"`
 ([boot-chainload.nix](../../nix/modules/boards/dmc12/boot-chainload.nix),
 [disk.nix](../../nix/modules/boards/dmc12/disk.nix)); output
-`path:./nix#dmc12-disk-image-chainload`. The default image stays `uboot-menu`.
+`dmc12-disk-image-chainload` (root flake, `reimage.md`). The default image is now `standard` (SPI U-Boot).
 The factory U-Boot never reads ext4 in this mode (its ext4 is flaky, TFTP is slow).
 
 | part | LBA / size | content |

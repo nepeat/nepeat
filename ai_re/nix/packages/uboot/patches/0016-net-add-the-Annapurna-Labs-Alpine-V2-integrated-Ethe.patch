@@ -1,8 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: ai_re <ai_re@localhost>
-Date: Sun, 15 Nov 2026 06:18:14 -0800
-Subject: [PATCH 20/21] net: add the Annapurna Labs Alpine V2 integrated
- Ethernet (al_eth)
+Date: Sun, 15 Nov 2026 04:30:00 +0000
+Subject: [PATCH] net: add the Annapurna Labs Alpine V2 integrated Ethernet
+ (al_eth)
 
 A DM Ethernet driver for PCI 1c36:0001 (Ethernet unit revision 2) on
 Annapurna's HAL. The HAL subset (eth main, UDMA main/config, IOFIC,
@@ -11,7 +11,6 @@ driver; al_hal_plat_services.h and al_hal_plat_types.h are U-Boot shims.
 HAL assertions print the condition and latch a flag instead of stopping
 the board; the driver then refuses to touch the DMA until the next start.
 
-Scope: one port in a 1G MAC mode without an MDIO PHY (RGMII, or SGMII as
 the board params say), fixed link, one polled TX and RX queue on UDMA 0.
 No SerDes, no link management, no interrupts. The port's mode comes from
 the board params, which the handoff code (alpine_v2_eth_handoff_one())
@@ -96,7 +95,7 @@ Scope: alpine-v2.
  create mode 100644 drivers/net/al_eth/al_hal_unit_adapter_regs.h
 
 diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index faa08e9e..e25368fe 100644
+index faa08e9..e25368f 100644
 --- a/drivers/net/Kconfig
 +++ b/drivers/net/Kconfig
 @@ -217,6 +217,17 @@ config DM9000_USE_16BIT
@@ -118,7 +117,7 @@ index faa08e9e..e25368fe 100644
  	bool "Synopsys DWC Ethernet QOS device support"
  	select PHYLIB
 diff --git a/drivers/net/Makefile b/drivers/net/Makefile
-index 4c1f4094..4313a256 100644
+index 4c1f409..4313a25 100644
 --- a/drivers/net/Makefile
 +++ b/drivers/net/Makefile
 @@ -17,6 +17,7 @@ obj-$(CONFIG_CORTINA_NI_ENET) += cortina_ni.o
@@ -131,7 +130,7 @@ index 4c1f4094..4313a256 100644
  obj-$(CONFIG_DWC_ETH_QOS_IMX) += dwc_eth_qos_imx.o
 diff --git a/drivers/net/al_eth/Makefile b/drivers/net/al_eth/Makefile
 new file mode 100644
-index 00000000..4866e9e6
+index 0000000..4866e9e
 --- /dev/null
 +++ b/drivers/net/al_eth/Makefile
 @@ -0,0 +1,13 @@
@@ -150,7 +149,7 @@ index 00000000..4866e9e6
 +CFLAGS_al_hal_eth_main.o += -Wno-unused-function -Wno-unused-variable
 diff --git a/drivers/net/al_eth/al_eth.c b/drivers/net/al_eth/al_eth.c
 new file mode 100644
-index 00000000..a5e5d3db
+index 0000000..a5e5d3d
 --- /dev/null
 +++ b/drivers/net/al_eth/al_eth.c
 @@ -0,0 +1,688 @@
@@ -844,7 +843,7 @@ index 00000000..a5e5d3db
 +U_BOOT_PCI_DEVICE(al_eth, al_eth_supported);
 diff --git a/drivers/net/al_eth/al_hal_common.h b/drivers/net/al_eth/al_hal_common.h
 new file mode 100644
-index 00000000..e5d64c88
+index 0000000..e5d64c8
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_common.h
 @@ -0,0 +1,83 @@
@@ -933,7 +932,7 @@ index 00000000..e5d64c88
 +#endif				/* __AL_HAL_COMMON_H__ */
 diff --git a/drivers/net/al_eth/al_hal_eth.h b/drivers/net/al_eth/al_hal_eth.h
 new file mode 100644
-index 00000000..97a13cf5
+index 0000000..97a13cf
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_eth.h
 @@ -0,0 +1,2749 @@
@@ -3688,7 +3687,7 @@ index 00000000..97a13cf5
 +/** @} end of Ethernet group */
 diff --git a/drivers/net/al_eth/al_hal_eth_alu.h b/drivers/net/al_eth/al_hal_eth_alu.h
 new file mode 100644
-index 00000000..2f5f1fa2
+index 0000000..2f5f1fa
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_eth_alu.h
 @@ -0,0 +1,95 @@
@@ -3789,7 +3788,7 @@ index 00000000..2f5f1fa2
 +/** @} end of Ethernet group */
 diff --git a/drivers/net/al_eth/al_hal_eth_ec_regs.h b/drivers/net/al_eth/al_hal_eth_ec_regs.h
 new file mode 100644
-index 00000000..b807553f
+index 0000000..b807553
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_eth_ec_regs.h
 @@ -0,0 +1,4484 @@
@@ -8279,7 +8278,7 @@ index 00000000..b807553f
 +
 diff --git a/drivers/net/al_eth/al_hal_eth_mac_regs.h b/drivers/net/al_eth/al_hal_eth_mac_regs.h
 new file mode 100644
-index 00000000..08ab2f6a
+index 0000000..08ab2f6
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_eth_mac_regs.h
 @@ -0,0 +1,2093 @@
@@ -10378,7 +10377,7 @@ index 00000000..08ab2f6a
 +/** @} end of Ethernet group */
 diff --git a/drivers/net/al_eth/al_hal_eth_main.c b/drivers/net/al_eth/al_hal_eth_main.c
 new file mode 100644
-index 00000000..ce706e6c
+index 0000000..ce706e6
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_eth_main.c
 @@ -0,0 +1,6393 @@
@@ -16777,7 +16776,7 @@ index 00000000..ce706e6c
 +
 diff --git a/drivers/net/al_eth/al_hal_iofic.c b/drivers/net/al_eth/al_hal_iofic.c
 new file mode 100644
-index 00000000..f70fb382
+index 0000000..f70fb38
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_iofic.c
 @@ -0,0 +1,351 @@
@@ -17134,7 +17133,7 @@ index 00000000..f70fb382
 +/** @} end of interrupt controller group */
 diff --git a/drivers/net/al_eth/al_hal_iofic.h b/drivers/net/al_eth/al_hal_iofic.h
 new file mode 100644
-index 00000000..2f2696d5
+index 0000000..2f2696d
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_iofic.h
 @@ -0,0 +1,260 @@
@@ -17400,7 +17399,7 @@ index 00000000..2f2696d5
 +/** @} end of interrupt controller group */
 diff --git a/drivers/net/al_eth/al_hal_iofic_regs.h b/drivers/net/al_eth/al_hal_iofic_regs.h
 new file mode 100644
-index 00000000..4153dc3e
+index 0000000..4153dc3
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_iofic_regs.h
 @@ -0,0 +1,217 @@
@@ -17623,7 +17622,7 @@ index 00000000..4153dc3e
 +
 diff --git a/drivers/net/al_eth/al_hal_plat_services.h b/drivers/net/al_eth/al_hal_plat_services.h
 new file mode 100644
-index 00000000..429fff61
+index 0000000..429fff6
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_plat_services.h
 @@ -0,0 +1,87 @@
@@ -17716,7 +17715,7 @@ index 00000000..429fff61
 +#endif
 diff --git a/drivers/net/al_eth/al_hal_plat_types.h b/drivers/net/al_eth/al_hal_plat_types.h
 new file mode 100644
-index 00000000..8bc308ff
+index 0000000..8bc308f
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_plat_types.h
 @@ -0,0 +1,41 @@
@@ -17763,7 +17762,7 @@ index 00000000..8bc308ff
 +#endif
 diff --git a/drivers/net/al_eth/al_hal_reg_utils.h b/drivers/net/al_eth/al_hal_reg_utils.h
 new file mode 100644
-index 00000000..dce59be3
+index 0000000..dce59be
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_reg_utils.h
 @@ -0,0 +1,202 @@
@@ -17971,7 +17970,7 @@ index 00000000..dce59be3
 +
 diff --git a/drivers/net/al_eth/al_hal_types.h b/drivers/net/al_eth/al_hal_types.h
 new file mode 100644
-index 00000000..c9e98868
+index 0000000..c9e9886
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_types.h
 @@ -0,0 +1,116 @@
@@ -18093,7 +18092,7 @@ index 00000000..c9e98868
 +#endif				/* __TYPES_H__ */
 diff --git a/drivers/net/al_eth/al_hal_udma.h b/drivers/net/al_eth/al_hal_udma.h
 new file mode 100644
-index 00000000..d78b2b49
+index 0000000..d78b2b4
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_udma.h
 @@ -0,0 +1,666 @@
@@ -18765,7 +18764,7 @@ index 00000000..d78b2b49
 +/** @} end of UDMA group */
 diff --git a/drivers/net/al_eth/al_hal_udma_config.c b/drivers/net/al_eth/al_hal_udma_config.c
 new file mode 100644
-index 00000000..d0752dbc
+index 0000000..d0752db
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_udma_config.c
 @@ -0,0 +1,1175 @@
@@ -19946,7 +19945,7 @@ index 00000000..d0752dbc
 +}
 diff --git a/drivers/net/al_eth/al_hal_udma_config.h b/drivers/net/al_eth/al_hal_udma_config.h
 new file mode 100644
-index 00000000..79fae6d3
+index 0000000..79fae6d
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_udma_config.h
 @@ -0,0 +1,508 @@
@@ -20460,7 +20459,7 @@ index 00000000..79fae6d3
 +#endif /* __AL_HAL_UDMA_CONFIG_H__ */
 diff --git a/drivers/net/al_eth/al_hal_udma_iofic.c b/drivers/net/al_eth/al_hal_udma_iofic.c
 new file mode 100644
-index 00000000..806e7dd3
+index 0000000..806e7dd
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_udma_iofic.c
 @@ -0,0 +1,150 @@
@@ -20616,7 +20615,7 @@ index 00000000..806e7dd3
 +/** @} end of UDMA group */
 diff --git a/drivers/net/al_eth/al_hal_udma_iofic.h b/drivers/net/al_eth/al_hal_udma_iofic.h
 new file mode 100644
-index 00000000..03bf145c
+index 0000000..03bf145
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_udma_iofic.h
 @@ -0,0 +1,726 @@
@@ -21348,7 +21347,7 @@ index 00000000..03bf145c
 +/** @} end of UDMA group */
 diff --git a/drivers/net/al_eth/al_hal_udma_iofic_regs.h b/drivers/net/al_eth/al_hal_udma_iofic_regs.h
 new file mode 100644
-index 00000000..7d991e62
+index 0000000..7d991e6
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_udma_iofic_regs.h
 @@ -0,0 +1,65 @@
@@ -21419,7 +21418,7 @@ index 00000000..7d991e62
 +
 diff --git a/drivers/net/al_eth/al_hal_udma_main.c b/drivers/net/al_eth/al_hal_udma_main.c
 new file mode 100644
-index 00000000..2eafbc1f
+index 0000000..2eafbc1
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_udma_main.c
 @@ -0,0 +1,597 @@
@@ -22022,7 +22021,7 @@ index 00000000..2eafbc1f
 +/** @} end of UDMA group */
 diff --git a/drivers/net/al_eth/al_hal_udma_regs.h b/drivers/net/al_eth/al_hal_udma_regs.h
 new file mode 100644
-index 00000000..fac49ca6
+index 0000000..fac49ca
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_udma_regs.h
 @@ -0,0 +1,103 @@
@@ -22131,7 +22130,7 @@ index 00000000..fac49ca6
 +/** @} end of UDMA group */
 diff --git a/drivers/net/al_eth/al_hal_udma_regs_gen.h b/drivers/net/al_eth/al_hal_udma_regs_gen.h
 new file mode 100644
-index 00000000..53c3c463
+index 0000000..53c3c46
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_udma_regs_gen.h
 @@ -0,0 +1,426 @@
@@ -22563,7 +22562,7 @@ index 00000000..53c3c463
 +#endif /* __AL_HAL_UDMA_GEN_REG_H */
 diff --git a/drivers/net/al_eth/al_hal_udma_regs_m2s.h b/drivers/net/al_eth/al_hal_udma_regs_m2s.h
 new file mode 100644
-index 00000000..3687ba42
+index 0000000..3687ba4
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_udma_regs_m2s.h
 @@ -0,0 +1,1158 @@
@@ -23727,7 +23726,7 @@ index 00000000..3687ba42
 +#endif /* __AL_HAL_UDMA_M2S_REG_H */
 diff --git a/drivers/net/al_eth/al_hal_udma_regs_s2m.h b/drivers/net/al_eth/al_hal_udma_regs_s2m.h
 new file mode 100644
-index 00000000..64d008c7
+index 0000000..64d008c
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_udma_regs_s2m.h
 @@ -0,0 +1,997 @@
@@ -24730,7 +24729,7 @@ index 00000000..64d008c7
 +#endif /* __AL_HAL_UDMA_S2M_REG_H */
 diff --git a/drivers/net/al_eth/al_hal_unit_adapter_regs.h b/drivers/net/al_eth/al_hal_unit_adapter_regs.h
 new file mode 100644
-index 00000000..4e555e5e
+index 0000000..4e555e5
 --- /dev/null
 +++ b/drivers/net/al_eth/al_hal_unit_adapter_regs.h
 @@ -0,0 +1,433 @@
@@ -25167,6 +25166,3 @@ index 00000000..4e555e5e
 +#endif
 +
 +#endif
--- 
-2.56.0
-

@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: ai_re <ai_re@localhost>
 Date: Sun, 15 Nov 2026 04:30:00 +0000
-Subject: [PATCH 15/16] sysreset: add the Edgecore DMC-12 board CPLD reset
+Subject: [PATCH] sysreset: add the Edgecore DMC-12 board CPLD reset
 
 The DMC-12-48R-AS0 resets the whole board when its I2C CPLD gets 1 in
 register 0x29 and then 0x28 (the vendor kernel's al-dmc12-reboot
@@ -18,7 +18,7 @@ Scope: dmc12.
  create mode 100644 drivers/sysreset/sysreset_dmc12_cpld.c
 
 diff --git a/drivers/sysreset/Kconfig b/drivers/sysreset/Kconfig
-index 16ef434a..0df80c51 100644
+index 16ef434..0df80c5 100644
 --- a/drivers/sysreset/Kconfig
 +++ b/drivers/sysreset/Kconfig
 @@ -124,6 +124,14 @@ config VPL_SYSRESET_GPIO
@@ -37,7 +37,7 @@ index 16ef434a..0df80c51 100644
  	bool "Enable support for MAX77663 PMIC System Reset"
  	depends on DM_PMIC_MAX77663
 diff --git a/drivers/sysreset/Makefile b/drivers/sysreset/Makefile
-index d18a5d52..b5e3d334 100644
+index d18a5d5..b5e3d33 100644
 --- a/drivers/sysreset/Makefile
 +++ b/drivers/sysreset/Makefile
 @@ -10,6 +10,7 @@ obj-$(CONFIG_SANDBOX) += sysreset_sandbox.o
@@ -50,7 +50,7 @@ index d18a5d52..b5e3d334 100644
  obj-$(CONFIG_SYSRESET_MPC83XX) += sysreset_mpc83xx.o
 diff --git a/drivers/sysreset/sysreset_dmc12_cpld.c b/drivers/sysreset/sysreset_dmc12_cpld.c
 new file mode 100644
-index 00000000..178ceccf
+index 0000000..178cecc
 --- /dev/null
 +++ b/drivers/sysreset/sysreset_dmc12_cpld.c
 @@ -0,0 +1,54 @@

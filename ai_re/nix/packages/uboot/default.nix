@@ -35,27 +35,15 @@ let
     { scope = "t208x"; file = "0012-board-t208xrdb-add-spltest-bring-up-command.patch"; }
     { scope = "as7760"; file = "0013-board-t208xrdb-Accton-AS7760-32X-board-identity.patch"; }
     { scope = "alpine-v2"; file = "0014-arm-add-a-chainloaded-Annapurna-Labs-Alpine-V2-targe.patch"; }
-    { scope = "dmc12"; file = "0015-sysreset-add-the-Edgecore-DMC-12-board-CPLD-reset.patch"; }
-    { scope = "dmc12"; file = "0016-board-Edgecore-DMC-12-48R-AS0-on-the-Alpine-V2-chain.patch"; }
-    { scope = "alpine-v2"; file = "0017-board-alpine-v2-boot-the-initrd-and-FDT-in-place.patch"; }
-    { scope = "alpine-v2"; file = "0018-board-alpine-v2-hand-the-al_eth-board-params-and-MAC.patch"; }
-    { scope = "dmc12"; file = "0019-board-dmc12-describe-al_eth-port-1-for-the-board-par.patch"; }
-    { scope = "alpine-v2"; file = "0020-net-add-the-Annapurna-Labs-Alpine-V2-integrated-Ethe.patch"; }
-    { scope = "dmc12"; file = "0021-configs-alpine_v2_dmc12-network-through-al_eth.patch"; }
-    { scope = "alpine-v2"; file = "0022-pci-add-the-Annapurna-Labs-Alpine-V2-external-PCIe-r.patch"; }
-    { scope = "alpine-v2"; file = "0023-spi-designware-Annapurna-Alpine-chip-select-override.patch"; }
-    { scope = "alpine-v2"; file = "0024-mtd-spi-optional-read-only-SPI-NOR.patch"; }
-    { scope = "alpine-v2"; file = "0025-board-alpine-v2-MUIO-pinmux-and-CCU-setup-in-place-o.patch"; }
-    { scope = "dmc12"; file = "0026-board-dmc12-MUIO-pins-and-external-PCIe-port-0-param.patch"; }
-    { scope = "alpine-v2"; file = "0027-board-alpine-v2-SoC-GPIO-lines-from-the-DT-at-board-.patch"; }
-    { scope = "dmc12"; file = "0028-board-dmc12-SoC-GPIO-22-high-as-the-vendor-board-cfg.patch"; }
-    { scope = "alpine-v2"; file = "0029-mtd-spi-write-window-for-the-read-only-SPI-NOR.patch"; }
-    { scope = "alpine-v2"; file = "0030-spi-designware-no-slave-selected-while-the-TX-FIFO-i.patch"; }
-    { scope = "alpine-v2"; file = "0031-board-alpine-v2-say-where-the-environment-came-from.patch"; }
-    { scope = "alpine-v2"; file = "0032-mtd-spi-read-only-SPI-NOR-exact-allowlist-address-wi.patch"; }
-    { scope = "alpine-v2"; file = "0033-spi-designware-deselect-before-the-controller-init.patch"; }
-    { scope = "alpine-v2"; file = "0034-board-alpine-v2-GPIO-init-writes-value-direction-val.patch"; }
-    { scope = "dmc12"; file = "0035-board-dmc12-pin-the-boot-flash-SSI-as-spi0.patch"; }
+    { scope = "alpine-v2"; file = "0015-board-alpine-v2-hand-the-al_eth-board-params-and-MAC.patch"; }
+    { scope = "alpine-v2"; file = "0016-net-add-the-Annapurna-Labs-Alpine-V2-integrated-Ethe.patch"; }
+    { scope = "alpine-v2"; file = "0017-pci-add-the-Annapurna-Labs-Alpine-V2-external-PCIe-r.patch"; }
+    { scope = "alpine-v2"; file = "0018-spi-designware-Annapurna-Alpine-chip-select-override.patch"; }
+    { scope = "alpine-v2"; file = "0019-mtd-spi-read-only-SPI-NOR-with-an-optional-write-win.patch"; }
+    { scope = "alpine-v2"; file = "0020-board-alpine-v2-SoC-init-from-the-DT-in-place-of-the.patch"; }
+    { scope = "alpine-v2"; file = "0021-board-alpine-v2-say-where-the-environment-came-from.patch"; }
+    { scope = "dmc12"; file = "0022-sysreset-add-the-Edgecore-DMC-12-board-CPLD-reset.patch"; }
+    { scope = "dmc12"; file = "0023-board-Edgecore-DMC-12-48R-AS0-on-the-Alpine-V2-targe.patch"; }
   ];
   patchesFor = scopes: map (s: builtins.path { path = ./patches + "/${s.file}"; name = s.file; })
     (builtins.filter (s: builtins.elem s.scope scopes) series);

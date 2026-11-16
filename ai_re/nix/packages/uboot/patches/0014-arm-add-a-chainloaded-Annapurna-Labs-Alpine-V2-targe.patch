@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: ai_re <ai_re@localhost>
 Date: Sun, 15 Nov 2026 04:30:00 +0000
-Subject: [PATCH 14/16] arm: add a chainloaded Annapurna Labs Alpine V2 target
+Subject: [PATCH] arm: add a chainloaded Annapurna Labs Alpine V2 target
 
 A second-stage U-Boot for Alpine V2 boards (4x Cortex-A57), started by
 the vendor's U-Boot 2015.07 (al-boot 2.60) after al-boot has trained
@@ -26,7 +26,14 @@ v0.1 monitor. No low-level init:
 - alpine-v2-u-boot.dtsi: bootph-all for the console path of the
   mainline alpine-v2.dtsi, for a board's -u-boot.dtsi to include.
 
-Scope: alpine-v2 (any Alpine V2 board built on mainline alpine-v2.dtsi).
+booti/bootm otherwise copy the initrd and the FDT to the top of the
+first bank. The load addresses in the env already keep them clear of
+the kernel and of reserved memory, so skip the copy (saves copying a
+large initrd, and nothing lands near the firmware ranges). The
+"don't relocate" value must be the 64-bit all-ones: 0xffffffff is
+read as a 4 GiB limit on arm64.
+
+Scope: alpine-v2.
 ---
  arch/arm/Kconfig                     |  18 +++
  arch/arm/dts/alpine-v2-u-boot.dtsi   |  18 +++
@@ -34,10 +41,10 @@ Scope: alpine-v2 (any Alpine V2 board built on mainline alpine-v2.dtsi).
  board/amazon/alpine-v2/MAINTAINERS   |   5 +
  board/amazon/alpine-v2/Makefile      |   3 +
  board/amazon/alpine-v2/alpine-v2.c   | 213 +++++++++++++++++++++++++++
- board/amazon/alpine-v2/alpine-v2.env |  20 +++
+ board/amazon/alpine-v2/alpine-v2.env |  26 ++++
  board/amazon/alpine-v2/lowlevel.S    |  66 +++++++++
  include/configs/alpine-v2.h          |  11 ++
- 9 files changed, 369 insertions(+)
+ 9 files changed, 375 insertions(+)
  create mode 100644 arch/arm/dts/alpine-v2-u-boot.dtsi
  create mode 100644 board/amazon/alpine-v2/Kconfig
  create mode 100644 board/amazon/alpine-v2/MAINTAINERS
@@ -48,7 +55,7 @@ Scope: alpine-v2 (any Alpine V2 board built on mainline alpine-v2.dtsi).
  create mode 100644 include/configs/alpine-v2.h
 
 diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 1b474a34..6561cacd 100644
+index 1b474a3..6561cac 100644
 --- a/arch/arm/Kconfig
 +++ b/arch/arm/Kconfig
 @@ -1440,6 +1440,23 @@ config TARGET_CORSTONE1000
@@ -85,7 +92,7 @@ index 1b474a34..6561cacd 100644
  source "board/bosch/shc/Kconfig"
 diff --git a/arch/arm/dts/alpine-v2-u-boot.dtsi b/arch/arm/dts/alpine-v2-u-boot.dtsi
 new file mode 100644
-index 00000000..92e26092
+index 0000000..92e2609
 --- /dev/null
 +++ b/arch/arm/dts/alpine-v2-u-boot.dtsi
 @@ -0,0 +1,18 @@
@@ -109,7 +116,7 @@ index 00000000..92e26092
 +};
 diff --git a/board/amazon/alpine-v2/Kconfig b/board/amazon/alpine-v2/Kconfig
 new file mode 100644
-index 00000000..ed8f2f67
+index 0000000..ed8f2f6
 --- /dev/null
 +++ b/board/amazon/alpine-v2/Kconfig
 @@ -0,0 +1,15 @@
@@ -130,7 +137,7 @@ index 00000000..ed8f2f67
 +endif
 diff --git a/board/amazon/alpine-v2/MAINTAINERS b/board/amazon/alpine-v2/MAINTAINERS
 new file mode 100644
-index 00000000..444805cf
+index 0000000..444805c
 --- /dev/null
 +++ b/board/amazon/alpine-v2/MAINTAINERS
 @@ -0,0 +1,5 @@
@@ -141,7 +148,7 @@ index 00000000..444805cf
 +F:	arch/arm/dts/alpine-v2-u-boot.dtsi
 diff --git a/board/amazon/alpine-v2/Makefile b/board/amazon/alpine-v2/Makefile
 new file mode 100644
-index 00000000..52ed7174
+index 0000000..52ed717
 --- /dev/null
 +++ b/board/amazon/alpine-v2/Makefile
 @@ -0,0 +1,3 @@
@@ -150,7 +157,7 @@ index 00000000..52ed7174
 +obj-y	:= alpine-v2.o lowlevel.o
 diff --git a/board/amazon/alpine-v2/alpine-v2.c b/board/amazon/alpine-v2/alpine-v2.c
 new file mode 100644
-index 00000000..115d4379
+index 0000000..115d437
 --- /dev/null
 +++ b/board/amazon/alpine-v2/alpine-v2.c
 @@ -0,0 +1,213 @@
@@ -369,10 +376,10 @@ index 00000000..115d4379
 +}
 diff --git a/board/amazon/alpine-v2/alpine-v2.env b/board/amazon/alpine-v2/alpine-v2.env
 new file mode 100644
-index 00000000..a93a3723
+index 0000000..62b9b7f
 --- /dev/null
 +++ b/board/amazon/alpine-v2/alpine-v2.env
-@@ -0,0 +1,20 @@
+@@ -0,0 +1,26 @@
 +/*
 + * Load addresses for bootstd/extlinux/booti. All sit in the first 3 GiB
 + * bank, clear of the firmware ranges in /reserved-memory (0x0 and
@@ -393,9 +400,15 @@ index 00000000..a93a3723
 +kernel_comp_addr_r=0x20000000
 +kernel_comp_size=0x4000000
 +ramdisk_addr_r=0x30000000
++/*
++ * Use the initrd and FDT where they were loaded (all ones, 64-bit:
++ * 0xffffffff would be a 4 GiB limit, not "don't relocate").
++ */
++fdt_high=0xffffffffffffffff
++initrd_high=0xffffffffffffffff
 diff --git a/board/amazon/alpine-v2/lowlevel.S b/board/amazon/alpine-v2/lowlevel.S
 new file mode 100644
-index 00000000..f45f901d
+index 0000000..f45f901
 --- /dev/null
 +++ b/board/amazon/alpine-v2/lowlevel.S
 @@ -0,0 +1,66 @@
@@ -467,7 +480,7 @@ index 00000000..f45f901d
 +ENDPROC(save_boot_params)
 diff --git a/include/configs/alpine-v2.h b/include/configs/alpine-v2.h
 new file mode 100644
-index 00000000..39192df3
+index 0000000..39192df
 --- /dev/null
 +++ b/include/configs/alpine-v2.h
 @@ -0,0 +1,11 @@

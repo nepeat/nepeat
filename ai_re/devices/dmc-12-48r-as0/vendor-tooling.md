@@ -1,5 +1,7 @@
 # Factory hardware tooling vs `board-dmc12`
 
+> Patch numbers in this file dated before 2026-11-15 21:00 are the pre-squash series; map: `../../nix/packages/uboot/README.md`.
+
 From factory OS 1.0.526.0 (newest seen; the u01 SSD image) unless marked, with 457
 differences. Live values are u01's (2026-11-15, `inventory/u01/`). "Module" means
 `ai_re/nix/modules/boards/dmc12` as imported (first iteration).

@@ -1,6 +1,6 @@
 # Annapurna Labs PCIe HAL 3.4 (reference copy)
 
-The files U-Boot patch 0022 (`drivers/pci/al_pcie/`) builds, verbatim. The
+The files U-Boot patch 0017 (`drivers/pci/al_pcie/`) builds, verbatim. The
 `pcie-init` test checks that the copies inside the patch equal these, and
 builds `al_init_pcie_rc.c` against them on the host.
 

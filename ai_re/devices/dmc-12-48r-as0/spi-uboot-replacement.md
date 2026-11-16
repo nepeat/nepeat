@@ -1,5 +1,7 @@
 # Replacing the boot U-Boot in SPI NOR: boot chain, object format, plan
 
+> Patch numbers in this file dated before 2026-11-15 21:00 are the pre-squash series; map: `../../nix/packages/uboot/README.md`.
+
 Static analysis only (2026-11-15). Nothing was written to flash. Hardware facts quoted from
 the read-only answers in [spi-recovery.md](spi-recovery.md) ("Hardware answers")
 (the sibling file for recovery, watchdogs, OTP, CS1 and programmers; not repeated here).

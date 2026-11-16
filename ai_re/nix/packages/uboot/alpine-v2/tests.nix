@@ -27,7 +27,7 @@
 #  pcie-init: ./pcie-test, al_init_pcie_rc.c (from the series) on the
 #          verbatim HAL (./al-pcie-hal) against a register model: cold,
 #          warm (factory state) and stuck-link runs, factory AXI words
-#          reproduced; and the HAL copy inside patch 0022 is verbatim.
+#          reproduced; and the HAL copy inside patch 0017 is verbatim.
 let
   cross = pkgs.pkgsCross.aarch64-multiplatform;
   binutils = cross.buildPackages.binutils-unwrapped;
@@ -284,14 +284,14 @@ let
     b=${si}/u-boot.bin
     grep -aqF 'SF: erase %#llx+%#llx outside the write window, refused' $b
     grep -aqF 'SF: write %#llx+%#zx outside the write window, refused' $b
-    # cold stage3 boot: no slave left selected before the first command (0030);
-    # the env origin is printed and in $env_source (0031)
+    # cold stage3 boot: no slave left selected before the first command (0018);
+    # the env origin is printed and in $env_source (0021)
     grep -aq 'slave select %#x left set by the firmware, cleared' $b
     grep -aq 'Env:   SPI flash, copy at %#x' $b
     grep -aq 'Env:   compiled-in default' $b
     grep -q ' alpine_v2_env_report$' syms.txt
     fn board_late_init | grep -q 'bl.*<alpine_v2_env_report>' || { echo "elf: board_late_init does not report the env"; exit 1; }
-    # Instruction order (0030/0033): probe stores SER (+0x10) = 0 before it calls the
+    # Instruction order (0018): probe stores SER (+0x10) = 0 before it calls the
     # variant init (blr); exec_op stores SER = 0 after the first SSIENR (+0x08) = 0 and
     # before the first DR (+0x60) write; GPIO init stores DATA before and after DIR (+0x400).
     for f in dw_spi_probe dw_spi_exec_op alpine_v2_gpio_init; do fn $f > $f.dis; done
@@ -459,7 +459,7 @@ let
       t/al_init_pcie_rc.c t/al_hal_pcie.c t/al_hal_pbs_utils.c \
       t/al_hal_pcie_reg_ptr_set_rev2.c t/al_hal_pcie_reg_ptr_set_rev3.c
     ./run | tee log.txt
-    echo "hal: ok ($n files in patch 0022 identical to al-pcie-hal/)" | tee -a log.txt
+    echo "hal: ok ($n files in patch 0017 identical to al-pcie-hal/)" | tee -a log.txt
     mkdir $out; cp log.txt $out/
   '';
 in pkgs.linkFarm "alpine-v2-uboot-tests" [

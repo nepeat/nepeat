@@ -1,0 +1,271 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Sun, 15 Nov 2026 04:30:00 +0000
+Subject: [PATCH] board: Edgecore DMC-12-48R-AS0 on the Alpine V2 target
+
+U-Boot additions to the board's Linux DTS (arch/arm/dts/alpine-v2-dmc12.dts,
+copied in at build time from the Linux board tree, not part of this patch),
+in alpine-v2-dmc12-u-boot.dtsi:
+- 4 GiB /memory as the vendor loader reports it, its firmware memreserves as
+  /reserved-memory, the CPLD reset under i2c-4 / 0x68 and an sp805
+  wdt-reboot fallback;
+- al_eth: PCI 00:01.0, integrated Ethernet port 1, the only port the vendor
+  board-cfg enables: phy-mode "rgmii" + fixed-link 1000 full-duplex (board
+  params 60000001 00000004 00000000), to the uplink PHY pair the CPLD
+  manages; the MAC from the board EEPROM (24c02 at i2c-7 / 0x51 behind the
+  0x70 ch3 -> 0x71 ch2 muxes, ONIE base MAC = the factory env's eth1addr);
+- only with the matching options (else the DT is unchanged): the MUIO pin
+  functions the vendor pinctrl_init allocates (pin 0 fn 2 SPI CS1 = second
+  boot flash, pin 1 fn 2 SPI CS2 = TPM, pins 20/21 fn 2 UART1 = front LCD,
+  pin 22 fn 0 = GPIO); SoC GPIO 22 output high (vendor dt.0 gpio_init
+  <0x16 1 1>: PL061 @0xfd889000 line 6, CPLD_JTAG_EN, the line cpldupd uses
+  around CPLD JTAG updates); external PCIe port 0 gen 1 x1 (the Pericom
+  12d8:400c bridge to the USB hosts of the 48 CP2108 ports); the SSI at
+  25 MHz (U-Boot caps transfers at the controller value, 500 kHz when
+  absent) and aliases/spi0 = that SSI, so "sf probe 0:x", ENV_SPI_BUS and the
+  write window's bus number don't depend on probe order.
+
+alpine_v2_dmc12_defconfig: TEXT_BASE 0x08000000 (the vendor "loadaddr"),
+console on UART0 (500 MHz, 32-bit registers) plus a debug UART that skips
+init; standard boot (extlinux, scripts) over PCI ECAM -> AHCI -> SCSI with
+ext4/FAT, booti, sysboot; I2C with the pca954x muxes and I2C_EEPROM; legacy
+network with al_eth ("al_eth1": dhcp, tftpboot, ping, wget with the port from
+env httpdstp), PCI enumerated at init. No ethernet bootdev ("bootflow scan"
+stays disk-only: nothing on the LAN can steer a default boot), no MMC, no
+EFI, no PSCI reset, sp805 present but never auto-started; env nowhere (the
+stage3 build adds the SPI env and write window in its Kconfig fragment).
+
+Scope: dmc12.
+---
+ arch/arm/dts/alpine-v2-dmc12-u-boot.dtsi | 144 +++++++++++++++++++++++
+ configs/alpine_v2_dmc12_defconfig        |  70 +++++++++++
+ 2 files changed, 214 insertions(+)
+ create mode 100644 arch/arm/dts/alpine-v2-dmc12-u-boot.dtsi
+ create mode 100644 configs/alpine_v2_dmc12_defconfig
+
+diff --git a/arch/arm/dts/alpine-v2-dmc12-u-boot.dtsi b/arch/arm/dts/alpine-v2-dmc12-u-boot.dtsi
+new file mode 100644
+index 0000000..bef5009
+--- /dev/null
++++ b/arch/arm/dts/alpine-v2-dmc12-u-boot.dtsi
+@@ -0,0 +1,144 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * U-Boot additions for the Edgecore DMC-12-48R-AS0. The board DTS itself
++ * (alpine-v2-dmc12.dts) is the Linux one, copied in at build time.
++ */
++
++#include "alpine-v2-u-boot.dtsi"
++
++/ {
++	/*
++	 * 4 GiB soldered DDR4 (al-boot stage2: "DRAM total size: 4GB"):
++	 * 3 GiB below the PCIe/I/O window, 1 GiB at 8 GiB. Same banks as the
++	 * vendor loader's /memory.
++	 */
++	memory@0 {
++		device_type = "memory";
++		reg = <0x0 0x00000000 0x0 0xc0000000>,
++		      <0x2 0x00000000 0x0 0x40000000>;
++	};
++
++	/*
++	 * Firmware-owned ranges: the vendor loader's /memreserve/ list
++	 * (unit u01, al-boot 2.60.4), minus the entries that are only its own
++	 * DTB and initrd. What they hold (PSCI monitor, trace buffer, ...) is
++	 * not known; U-Boot stays clear of them and ft_board_setup() copies
++	 * them into the OS DTB's reserve map.
++	 */
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		al-boot@0 {
++			reg = <0x0 0x00000000 0x0 0x00100000>;
++		};
++		al-boot@2000000 {
++			reg = <0x0 0x02000000 0x0 0x00100000>;
++		};
++		al-boot@b0000000 {
++			reg = <0x0 0xb0000000 0x0 0x08000000>;
++		};
++		al-boot@b8000000 {
++			reg = <0x0 0xb8000000 0x0 0x08000000>;
++		};
++	};
++
++	/* Fallback reset: the SoC sp805 (the vendor's alpine-reboot does this). */
++	wdt-reboot {
++		compatible = "wdt-reboot";
++		wdt = <&{/soc/io-bus@fc000000/watchdog@188c000}>;
++	};
++};
++
++/*
++ * Integrated Ethernet port 1 (PCI 00:01.0, the only one enabled in the
++ * vendor board-cfg): RGMII at a fixed 1000/full to the uplink PHY pair the
++ * CPLD manages; no MDIO PHY, no SerDes. Describes the al_eth "board
++ * params" for when the firmware left none. The MAC is the ONIE EEPROM's
++ * base address (TLV 0x24), the factory env's eth1addr.
++ */
++&{/soc/pci@fbc00000} {
++	ethernet@1,0 {
++		reg = <0x0800 0 0 0 0>;
++		phy-mode = "rgmii";
++		amazon,mac-eeprom = <&{/soc/io-bus@fc000000/i2c@1880000/i2c-mux@70/i2c@3/i2c-mux@71/i2c@2/eeprom@51}>;
++
++		fixed-link {
++			speed = <1000>;
++			full-duplex;
++		};
++	};
++};
++
++/* Board CPLD (i2c-4 / 0x68): whole-board reset, tried before the sp805. */
++&mux70_3 {
++	cpld@68 {
++		compatible = "edgecore,dmc12-cpld";
++		reg = <0x68>;
++	};
++};
++
++#ifdef CONFIG_ALPINE_V2_MUIO_INIT
++/ {
++	/*
++	 * MUIO functions the vendor board-cfg pinctrl_init allocates
++	 * (dt.0 board-cfg, factory U-Boot iface table): if_spim_a_ss_1 =
++	 * pin 0 fn 2 (SPI CS1, the second boot flash), if_spim_a_ss_2 =
++	 * pin 1 fn 2 (SPI CS2, the TPM), if_uart_1 = pins 20/21 fn 2 (the
++	 * front LCD). u01 at the factory prompt: mux_sel_0 = 0x22,
++	 * mux_sel_2 = 0x00220000.
++	 */
++	muio@fd8a8000 {
++		compatible = "amazon,alpine-v2-muio";
++		reg = <0x0 0xfd8a8000 0x0 0x1000>;
++		amazon,pins = <0 2>, <1 2>, <20 2>, <21 2>,
++			      <22 0>;	/* GPIO 22: GPIO function, as gpio_board_init */
++	};
++};
++#endif
++
++#ifdef CONFIG_PCIE_ALPINE_V2
++/*
++ * External PCIe port 0 (Pericom 12d8:400c -> OHCI/EHCI -> CP2108s):
++ * board-cfg pcie/port0 is gen 1, width 1.
++ */
++&pcie_external0 {
++	amazon,port-id = <0>;
++	amazon,link-gen = <1>;
++	amazon,link-lanes = <1>;
++};
++#endif
++
++#ifdef CONFIG_DESIGNWARE_SPI
++/*
++ * U-Boot's DW SSI caps every transfer at the controller's own
++ * spi-max-frequency, 500 kHz when absent (u01: 16 MiB in ~260 s). The
++ * flashes are read at 25 MHz, as Linux does.
++ */
++&spi0 {
++	spi-max-frequency = <25000000>;
++};
++
++/* seq 0 is the boot flash SSI: "sf probe 0:x", ENV_SPI_BUS and the write window rely on it */
++/ {
++	aliases {
++		spi0 = &spi0;
++	};
++};
++#endif
++
++#ifdef CONFIG_ALPINE_V2_GPIO_INIT
++/ {
++	/*
++	 * dt.0 board-cfg gpio_init gpio-list = <0x16 0x01 0x01>: SoC GPIO 22
++	 * (PL061 gpio2 line 6, CPLD_JTAG_EN, cpldupd's line) output, high.
++	 * Only the vendor U-Boot sets it; stage2 and stage3 do not.
++	 */
++	gpio-init {
++		compatible = "amazon,alpine-v2-gpio-init";
++		gpio-controllers = <&gpio0 &gpio1 &gpio2 &gpio3 &gpio4 &gpio5>;
++		amazon,gpio-list = <22 1 1>;
++	};
++};
++#endif
+diff --git a/configs/alpine_v2_dmc12_defconfig b/configs/alpine_v2_dmc12_defconfig
+new file mode 100644
+index 0000000..8bac96d
+--- /dev/null
++++ b/configs/alpine_v2_dmc12_defconfig
+@@ -0,0 +1,70 @@
++CONFIG_ARM=y
++CONFIG_TARGET_ALPINE_V2=y
++CONFIG_TEXT_BASE=0x08000000
++CONFIG_NR_DRAM_BANKS=2
++CONFIG_SYS_MALLOC_LEN=0x2000000
++CONFIG_SYS_MALLOC_F_LEN=0x4000
++CONFIG_ENV_SIZE=0x10000
++CONFIG_DEFAULT_DEVICE_TREE="alpine-v2-dmc12"
++CONFIG_SYS_LOAD_ADDR=0x10000000
++CONFIG_DEBUG_UART_BASE=0xfd883000
++CONFIG_DEBUG_UART_CLOCK=500000000
++CONFIG_DEBUG_UART=y
++CONFIG_SYS_BOOTM_LEN=0x10000000
++CONFIG_SUPPORT_RAW_INITRD=y
++CONFIG_BOOTSTD_FULL=y
++CONFIG_BOOTDELAY=3
++CONFIG_USE_BOOTCOMMAND=y
++CONFIG_BOOTCOMMAND="bootflow scan -lb"
++CONFIG_DEFAULT_FDT_FILE="amazon/alpine-v2-dmc12.dtb"
++CONFIG_BOARD_LATE_INIT=y
++# CONFIG_EFI_LOADER is not set
++# CONFIG_PSCI_RESET is not set
++CONFIG_CMD_BOOTI=y
++CONFIG_CMD_SYSBOOT=y
++# CONFIG_CMD_SAVEENV is not set
++CONFIG_CMD_I2C=y
++CONFIG_CMD_PCI=y
++CONFIG_CMD_SCSI=y
++CONFIG_CMD_WDT=y
++CONFIG_CMD_CACHE=y
++CONFIG_CMD_EXT4=y
++CONFIG_CMD_FAT=y
++CONFIG_CMD_FS_GENERIC=y
++CONFIG_CMD_PART=y
++CONFIG_CMD_MEMINFO=y
++# CONFIG_MMC is not set
++CONFIG_ENV_IS_NOWHERE=y
++CONFIG_NET_LEGACY=y
++CONFIG_AL_ETH=y
++CONFIG_CMD_DHCP=y
++CONFIG_CMD_TFTPBOOT=y
++CONFIG_CMD_PING=y
++CONFIG_CMD_WGET=y
++# CONFIG_BOOTDEV_ETH is not set
++CONFIG_AHCI=y
++CONFIG_AHCI_PCI=y
++CONFIG_SCSI_AHCI=y
++CONFIG_SCSI=y
++CONFIG_CLK=y
++CONFIG_DM_I2C=y
++CONFIG_SYS_I2C_DW=y
++CONFIG_I2C_MUX=y
++CONFIG_I2C_MUX_PCA954x=y
++CONFIG_MISC=y
++CONFIG_I2C_EEPROM=y
++CONFIG_PCI=y
++CONFIG_PCI_INIT_R=y
++CONFIG_PCIE_ECAM_GENERIC=y
++CONFIG_DEBUG_UART_SHIFT=2
++CONFIG_DEBUG_UART_ANNOUNCE=y
++CONFIG_DEBUG_UART_SKIP_INIT=y
++CONFIG_DEBUG_UART_NS16550=y
++CONFIG_SYS_NS16550=y
++CONFIG_SYS_NS16550_MEM32=y
++CONFIG_SYSRESET=y
++CONFIG_SYSRESET_DMC12_CPLD=y
++CONFIG_SYSRESET_WATCHDOG=y
++CONFIG_WDT=y
++# CONFIG_WATCHDOG_AUTOSTART is not set
++CONFIG_WDT_SP805=y
