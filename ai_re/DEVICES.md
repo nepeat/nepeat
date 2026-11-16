@@ -12,7 +12,7 @@ device's Status changes, update its row and column here in the same turn.
 | [cs8210-32x](devices/cs8210-32x/PROGRESS.md) | Celestica CS8210-32X, 32x400G, Teralynx 7 | NixOS on SSD; vendor SDK by hand; 10G links + LACP proven; unplugged since the 2026-11-11 house-network incident |
 | [dmc-12-48r-as0](devices/dmc-12-48r-as0/PROGRESS.md) | DMC-12-48R-AS0 48-port console server, Annapurna Alpine V2 | NixOS (mainline 7.3) on SSD; our upstream U-Boot 2026.10 boots from SPI (IPXE slot, `spi-upgrade.py`, factory U-Boot kept as the `u` escape); `reimage.py` one-shot install |
 | [delta-tn48m](devices/delta-tn48m/PROGRESS.md) | Delta TN48M, 48x1G + 4x10G, Prestera AC3X | NixOS boots unattended (chainloaded mainline U-Boot); front ports admin-down; SoC secure-boot fused |
-| [edge-core-7760-32x](devices/edge-core-7760-32x/PROGRESS.md) | Edge-Core AS7760-32X, 32x100G, Tomahawk, T2080 | NixOS on SD, upstream U-Boot in NOR; OpenBCM + sai-openbcm; SONiC bring-up target |
+| [edge-core-7760-32x](devices/edge-core-7760-32x/PROGRESS.md) | Edge-Core AS7760-32X, 32x100G, Tomahawk, T2080 | NixOS on SD, upstream U-Boot in NOR; SONiC (NixOS services) on sai-openbcm at boot: L2/LAG/L3/BGP/BFD/ACL on the chip over a lab loop; console not live (DMC-12 port 48) |
 | [eqam-400b](devices/eqam-400b/) | Blonder Tongue EQAM-400B edge QAM | no PROGRESS; newer-firmware search incomplete (`search-state.json`) |
 | [hikvision-DS-2CD2T22WD-I5](devices/hikvision-DS-2CD2T22WD-I5/PROGRESS.md) | Hikvision 2 MP bullet camera | recovered, on V5.5.82 with root shell ([WRITEUP](devices/hikvision-DS-2CD2T22WD-I5/WRITEUP.md)) |
 | [lenovo-flex5-14alc05](devices/lenovo-flex5-14alc05/PROGRESS.md) | Lenovo Flex 5 laptop, bricked BIOS | recovered 2026-07-20, closed |
@@ -21,7 +21,7 @@ device's Status changes, update its row and column here in the same turn.
 | [netvue-ni-3421](devices/netvue-ni-3421/PROGRESS.md) | Netvue pan/tilt Wi-Fi camera | full flash dump verified and analysed |
 | [perle-scr1618](devices/perle-scr1618/PROGRESS.md) | Perle IOLAN SCR1618 console server | firmware question answered (4.5.G4); rootfs analysed, offline |
 | [raritan-px3-5475v](devices/raritan-px3-5475v/PROGRESS.md) | Raritan PX3 rack PDU | firmware analysed offline; no CLI escape found |
-| [sonic-nixos](devices/sonic-nixos/PROGRESS.md) | subproject: SONiC switch stack as NixOS services | syncd drives the AS7760 ASIC via sai-openbcm; swss/orchagent next |
+| [sonic-nixos](devices/sonic-nixos/PROGRESS.md) | subproject: SONiC switch stack as NixOS services | full control plane + FRR on the AS7760 at boot (sai-openbcm); QoS, warm reboot, line-rate tests open |
 | [steam-deck-lcd](devices/steam-deck-lcd/PROGRESS.md) | Steam Deck LCD, bricked BIOS | recovery planned, not attempted |
 | [za-816s-4-w](devices/za-816s-4-w/PROGRESS.md) | dual Ingenic T31 PTZ Wi-Fi camera | both flashes dumped; console access TODO |
 
@@ -39,28 +39,28 @@ link the evidence.
 | OS now | NixOS 26.11 on SD | NixOS 26.11 on SSD (unplugged) | NixOS unstable on SSD | OpenWrt 25.12.1, RAM only | stock Meraki |
 | boot path | upstream U-Boot 2026.10 in NOR | vendor U-Boot 2018.05 | vendor U-Boot (signed, fused) → mainline U-Boot 2026.10 chainload | vendor CFE netboot | vendor LinuxLoader |
 | NOS / dataplane driver | OpenBCM 6.5.27 + sai-openbcm | vendor SDK (chroot) + open ipd | mainline `prestera` + fw 4.1 | Broadcom SDK + native-network controller | stock |
-| ports up (real links) | yes: 10G + 25G (2026-11-14) [^a1] | yes: 10G breakouts (2026-11-10/11); 400G no [^c1] | no: 52 netdevs, admin-down | no: MAC loopback only [^b1] | unknown |
+| ports up (real links) | yes: 10G + 25G (2026-11-14), 25G under SONiC (2026-11-15); 100G untested [^a1] | yes: 10G breakouts (2026-11-10/11); 400G no [^c1] | no: 52 netdevs, admin-down | no: MAC loopback only [^b1] | unknown |
 | L2 VLAN | yes: SDK + SAI (2026-11-15) [^a2] | chip-capable [^c2] | unknown [^t1] | yes (2026-11-09) [^b1] | unknown |
 | LAG (hardware) | yes: LACP PortChannel over the lab loop, LAG members in the ASIC (2026-11-15) [^a2] | chip-capable [^c2] | unknown [^t1] | unknown | unknown |
-| LACP (control plane) | no: teamd/teammgrd packaging in progress | partial: Linux bond over CPU netdevs, failover verified [^c3] | unknown [^t1] | unknown | unknown |
+| LACP (control plane) | yes: teamd/teammgrd PortChannels over the lab loop, teamd respawn (2026-11-15) [^a2] | partial: Linux bond over CPU netdevs, failover verified [^c3] | unknown [^t1] | unknown | unknown |
 | L3 routing | yes: VRFs, routed in the ASIC, ECMP, BGP/static via FRR over the lab loop (2026-11-15) [^a2] | chip-capable: Linux routes on CPU only [^c2] | unknown [^t1] | partial: IPv4 hardware routing in MAC loopback [^b1] | unknown |
 | ACL | yes: ingress ACL drop + counters, CoPP policers on the field processor (2026-11-15) [^a2] | unknown | unknown [^t1] | chip-capable: not offloaded [^b1] | unknown |
 | QoS | chip-capable | unknown | unknown [^t1] | unknown | unknown |
 | BFD | yes: software (FRR bfdd), < 1 s BGP failover over the lab loop (2026-11-15) [^a2] | unknown | unknown | unknown | unknown |
 | KNET / CPU netdevs | yes: KNET TX/RX (2026-11-14) | yes: `fpp*` via ipd, ~1.6 Gb/s CPU path [^c3] | partial: netdevs exist, no traffic | partial: SDK/TAP, KNET compiled out [^b1] | unknown |
-| SAI | partial: switch, 32 ports, VLAN, RIF [^a2] | no: vendor SAI is amd64 only | no | no | no |
-| SONiC stack | partial: runs at boot as NixOS services; 25G link, LACP PortChannel, VLAN on the chip (2026-11-15); no FRR yet [^a2] | no | no | no | no |
+| SAI | partial: sai-openbcm: ports, L2/VLAN/FDB, LAG, L3/VRF/ECMP, ingress ACL, policers, temperatures; no QoS, buffers, mirror, tunnels [^a2] | no: vendor SAI is amd64 only | no | no | no |
+| SONiC stack | partial: at boot as NixOS services: swss, FRR (BGP, static, BFD), pmon, LLDP, crash recovery on the chip (2026-11-15); no QoS, warm reboot [^a2] | no | no | no | no |
 | fan control | yes: fand, board + ASIC zones [^a3] | yes: incl. ASIC die (2026-11-10) [^c4] | yes: fancontrol, PWM floor 96 | unknown | unknown |
 | ASIC temperature | yes: 8 PVTMON, also over SAI under syncd (2026-11-15) [^a3] | yes: MCP3425 diode (2026-11-10) [^c4] | unknown | unknown | unknown |
 | board sensors | yes: 4x LM75 [^a3] | yes: LM75s + I2C hwmon [^c4] | yes: tmp1075/ADT7473, 35-40 °C | unknown | unknown |
 | optics EEPROM | yes: `as7760-qsfp` (2026-11-14) [^a4] | yes: `cs8210-qsfp`, SFF-8636/8472 (2026-11-10) [^c5] | unknown | unknown | unknown |
 | QSFP reset/presence | yes: CPLD#1 (2026-11-15) [^a4] | yes: I2C FPGA (2026-11-10) [^c5] | unknown (SFP+ cages) | unknown | unknown |
 | LPMODE | no pin; SFF-8636 soft path untested [^a4] | partial: FPGA bit mapped, not exercised [^c5] | n/a (SFP+) | unknown | unknown |
-| LEDs | no: factory LED program not loaded | unknown | unknown | unknown | unknown |
+| LEDs | partial: public port LED program loaded by syncd at SDK init, not checked by eye; CPLD LEDs no | unknown | unknown | unknown | unknown |
 | metrics / exporter | yes: node-exporter + `switch_*`, `fand_*`, `switch_asic_*` [^a5] | unknown | unknown | unknown | unknown |
 
 [^a1]: Port 1 breakout to port 32 via QSA, set up with `bcm.user`: [sonic-nixos/PROGRESS.md](devices/sonic-nixos/PROGRESS.md).
-[^a2]: Smoke test through syncd: [transcript](devices/sonic-nixos/sai-openbcm-hw-20261115.txt); supported/stubbed SAI table in [sai-openbcm README](nix/packages/sai-openbcm/README.md); target answers in [sonic.md](devices/edge-core-7760-32x/sonic.md).
+[^a2]: Through SONiC on sai-openbcm over the lab loop (cage 1 breakout leg into cage 32, both ends on the switch), 2026-11-15: evidence files listed in the Status of [sonic-nixos/PROGRESS.md](devices/sonic-nixos/PROGRESS.md); SAI coverage in the [sai-openbcm README](nix/packages/sai-openbcm/README.md).
 [^a3]: [edge-core-7760-32x/thermal.md](devices/edge-core-7760-32x/thermal.md). `openbcm-asic-temp` holds the SDK lock; stop it before `bcm.user`/syncd.
 [^a4]: [edge-core-7760-32x/qsfp-control.md](devices/edge-core-7760-32x/qsfp-control.md).
 [^a5]: Scraped by the lab VictoriaMetrics, see [tools/README.md](tools/README.md).

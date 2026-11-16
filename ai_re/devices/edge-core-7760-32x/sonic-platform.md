@@ -4,8 +4,9 @@ What `board-as7760` adds to `services.sonic` ([module](../../nix/modules/boards/
 the board's `sonic_platform` ([code](../../nix/modules/boards/as7760/sonic_platform/)), the pmon
 daemons, the front-panel LED program at SDK init, LLDP. Generic parts:
 [switch/sonic README](../../nix/modules/switch/sonic/README.md#platform-pmon-and-lldp).
-**VM-tested only** (fake board, [evidence](../sonic-nixos/sonic-platform-vm-20261115.txt)); nothing here has run on
-the switch yet.
+VM-tested on a fake board ([evidence](../sonic-nixos/sonic-platform-vm-20261115.txt)); on the switch
+2026-11-15 the CLI, transceiver, LLDP and fand checks below passed ([evidence](../sonic-nixos/sonic-as7760-platform-frr-recovery-20261115.txt));
+the LEDs (step 8) were not checked by eye, the PSU pull test (step 6) not run.
 
 ## sources per object
 
@@ -14,11 +15,11 @@ the switch yet.
 | 6 fan drawers x 2 rotors | hwmon `as7760_fan` (rpm, fault = drawer absent or rotor stopped); fand's `/run/fand/state.json` (expected rpm, duty) | **none**: `set_speed`/LEDs refuse; no thermal manager, so thermalctld runs no fan policy |
 | thermals board_1..3, cpu_board | hwmon `lm75` at 0x48..0x4b | none (thresholds 45/50 C mirror fand's board zone) |
 | thermal asic | `/run/asic/temperature` (reader or syncd) | none (95/100 C, fand's ASIC zone) |
-| PSU 1/2 | CPLD#1 0x02 (bits from the AS7712/AS7716 siblings, **unverified here**) | none |
-
-PSU check on the switch (2026-11-15): PSU 1 OK, PSU 2 "NOT OK" with CPLD#1 0x02 = 0x28 (both present, only PSU 1 power-good); the owner confirmed PSU 2 has no power cord, so the bit mapping (present bits 1/0 active low, power-good 3+5 / 2+4) matches the hardware.
+| PSU 1/2 | CPLD#1 0x02 (bits from the AS7712/AS7716 siblings; power-good checked on the switch, below) | none |
 | 32 cages | CPLD#1 ModPrsL/ResetL ([qsfp-control.md](qsfp-control.md)); EEPROM via as7760-qsfp's bus map, combined I2C transfers | ResetL pulse (`sfputil reset`), SFF-8636 bytes 86-126 (TX disable, byte 93 low power), SFP A2h 110-127 |
 | syseeprom | ONIE TlvInfo in NOR `hw-info` (/dev/mtdN, read-only) | none |
+
+PSU check on the switch (2026-11-15): PSU 1 OK, PSU 2 "NOT OK" with CPLD#1 0x02 = 0x28 (both present, only PSU 1 power-good); the owner confirmed PSU 2 has no power cord, so the bit mapping (present bits 1/0 active low, power-good 3+5 / 2+4) matches the hardware.
 
 Direction of airflow: not reported (fan CPLD 0x10 polarity unknown). PSU
 model/serial/voltage: N/A (no PMBus devices in the DT).

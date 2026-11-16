@@ -39,7 +39,7 @@ fault. Found on the way: orchagent's BfdMonitorOrch parses STATE_DB
 BFD_SESSION_TABLE (strict field list), and staticroutebfd needs ~1 s to stop, so
 nothing may be ordered after it (else `config reload` raced; vm-frr caught it). Cross-build: [sonic-bfd-cross-20261115.txt](sonic-bfd-cross-20261115.txt) (+1.2 MB).
 
-## switch test (AS7760, not run yet)
+## switch test (AS7760; run 2026-11-15, [result](sonic-as7760-bfd-20261115.txt))
 
 Lab loop as in [vrf-ecmp-test.md](vrf-ecmp-test.md): Ethernet1/1 (Ethernet0,
 default VRF, 10.0.0.0/31) <-> Ethernet32/1 (Ethernet124, Vrf-test, 10.0.0.1/31),
@@ -131,6 +131,8 @@ sonic-db-cli CONFIG_DB del 'BGP_NEIGHBOR|10.0.0.1' 'BGP_NEIGHBOR|Vrf-test|10.0.0
 config interface ip remove Ethernet1/1 10.0.0.0/31; config vrf del Vrf-test
 ```
 
-Open: not on hardware yet; IPv6 BFD and multihop untested (bfdd supports both;
+On the switch (2026-11-15): as expected for steps 2, 4, 5; step 3 (port shutdown)
+logged Down 4.5-4.7 s after its T0, which includes the CLI call, not ~1 s.
+Open: IPv6 BFD and multihop untested (bfdd supports both;
 staticroutebfd multihop via `bfd.staticRoute.multihop`); bfdsyncd polls
 (event-driven would need FRR's zapi or mgmtd notifications).

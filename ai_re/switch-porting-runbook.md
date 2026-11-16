@@ -106,17 +106,17 @@ Goal: every board device is bound, monitored, or listed as absent or unknown. Fa
   - how: repeat the vendor's exact write sequence from disassembly. Treat unknown registers as unknown.
 - [ ] Temperature sensors bound and labelled, cross-checked against a bootloader-prompt readout.
 - [ ] Monitor service: 100% on any sensor/rotor fault or on exit (`ExecStopPost`). Hold a guarded quiet duty only once measured.
-  - e.g. on the AS7760: 80% while all board sensors read ≤40 °C, 100% at 45 °C. Not a tuned curve.
+  - e.g. on the AS7760: first 80% while all board sensors read ≤40 °C, 100% at 45 °C; now fand's curve from the hardware minimum (thermal.md).
 - [ ] Feed ASIC die temperature (on-die PVTMON via the SDK) into the fan policy as a required sensor: no reading = full speed.
   - e.g. on the AS7760: `openbcm-asic-temp` (attach only) → `/run/asic/temperature` → fand zone `asic`. Test it after a cold power cycle, not only after an SDK session.
 - [ ] Module EEPROM tool: port → mux/channel map from the vendor table, SFF-8636/SFF-8472 decode, JSON output, hot-inserted modules.
   - how: open /dev/i2c-N with `I2C_SLAVE_FORCE` next to at24. at24 binds only at boot, and "busy" is not "empty".
-- [ ] QSFP reset/LPMode/presence/interrupt lines via the CPLD *(not yet done on AS7760)*.
+- [ ] QSFP reset/LPMode/presence/interrupt lines via the CPLD (AS7760: reset/presence/interrupt done; no LPMODE pin, SFF-8636 soft low power untested).
 - [ ] Board identity: find where MAC/serial really live (AS7760: ONIE TLV in a NOR partition, not the declared I2C EEPROM). Make the loader pass them on.
-- [ ] LEDs: system/management LEDs (CPLD) and port LEDs (ASIC LED processor program) *(not yet done on AS7760)*.
+- [ ] LEDs: system/management LEDs (CPLD) and port LEDs (ASIC LED processor program) (AS7760: the public port LED program loads at SDK init, not checked by eye; CPLD LEDs *not yet done*).
 - [ ] CPLDs: map versions and reset registers read-only. Don't run vendor reset commands you haven't verified.
 - [ ] RTC: it enumerates, but on the AS7760 the oscillator is disabled. Set and enable it deliberately *(not yet done on AS7760)*.
-- [ ] Watchdog (SoC or CPLD), PSU status, TPM, GPIO/SPI wiring *(not yet done on AS7760)*.
+- [ ] PSU status (AS7760: CPLD#1 bits, power-good checked with one PSU unplugged). Watchdog (SoC or CPLD), TPM, GPIO/SPI wiring *(not yet done on AS7760)*.
 - **Gate:** a service watches fans and temperatures and fails to full speed, and the I2C map in PROGRESS marks each device bound, absent or unknown.
 
 ## Phase 4b: Monitoring (do before changing fan policy)
@@ -127,7 +127,7 @@ Goal: the device's health is scraped and kept, so thermal and fan changes are ju
   - optics per port: presence, info (type, vendor, part), temperature, supply voltage, and for active optics per-lane rx power / tx bias;
   - fans: controller duty in percent, per-rotor rpm and fault with front/rear labels, thermal-service failsafe state;
   - board/CPU temperatures with friendly labels (the sensors.d names);
-  - ASIC die temperature (needs the SDK running) *(not yet done on AS7760)*;
+  - ASIC die temperature (needs the SDK attached; AS7760: `switch_asic_*` from the reader or syncd);
   - PSU presence/status, CPLD/board health registers where known *(not yet done on AS7760)*;
   - load, memory, uptime, disk and NIC counters come from node-exporter itself.
   Prefer generic names (`switch_optic_temperature_celsius{port=}`, `switch_fan_rpm{rotor=}`) with board specifics in labels, so dashboards carry over between boards.
@@ -155,8 +155,9 @@ Goal: front-panel ports as Linux netdevs passing frames over real cables, all bu
   keep the other ports disabled, use an experimental ethertype (`0x88b5`), and disable the ports again afterwards.
   - how: read both module EEPROMs first, force speed with autoneg off, use SerDes diagnostics (eye/lock) to tell the cable apart from config.
 - [ ] Check the port mode's per-lane speed limits before blaming optics or adapters.
-- [ ] 100G on real cables, FEC, all lanes, pre-emphasis, the LED program, SDK interrupts instead of polling, throughput, soak runs *(not yet done on AS7760)*.
-- [ ] Nix packages for the SDK modules and userspace (done). Load them at boot from a NixOS module *(not yet done on AS7760: hand-loaded)*.
+- [ ] 100G on real cables, FEC, all lanes, SDK interrupts instead of polling, throughput, soak runs *(not yet done on AS7760; pre-emphasis and the LED program come with the SDK init since 2026-11-15)*.
+- [ ] Load test that is really load: a MAC-loopback broadcast storm is throttled (see gotchas). Use a traffic generator or real line-rate peers *(not yet done on AS7760)*.
+- [ ] Nix packages for the SDK modules and userspace, loaded at boot from a NixOS module (AS7760: `switch/openbcm.nix`).
 - **Gate:** frames cross between two front-panel netdevs over a real cable, ASIC counters match, no errors, and everything is reproducible with nix build.
 
 ## Phase 6: NixOS integration (shared ai_re/nix tree)
@@ -210,9 +211,12 @@ Goal: the switch stack running as native NixOS services, first on the virtual SA
   (open SDK + thin SAI, smaller open driver, emulation) and record where each claim came from.
 - [ ] Pin every upstream rev in one file. Build each library natively, then cross. Smoke-test on the target, because big-endian bugs only show there.
 - [ ] Database layer on the target (done on AS7760: swss-common + redis). TCP access to redis (failed, undiagnosed).
-- [ ] sairedis with the virtual SAI (builds; the SAI metadata generator needs its XML::Simple mode with current doxygen), then swss/orchagent *(not yet run on AS7760)*.
-- [ ] Thin SAI over the open SDK (ports, L2, then L3) *(not yet done on AS7760)*.
-- [ ] Platform API (fans, thermals, optics, LEDs) exposed to the NOS from the Phase 4 drivers *(not yet done on AS7760)*.
+- [ ] sairedis with the virtual SAI (the SAI metadata generator needs its XML::Simple mode with current doxygen), then swss/orchagent: in a VM first, then on the target (AS7760: at boot since 2026-11-15).
+- [ ] Thin SAI over the open SDK (ports, L2, then L3), with a fake backend so orchagent can run in a VM against it (AS7760: sai-openbcm; L2, LAG, VRF/ECMP, ACL/CoPP on the chip).
+- [ ] Generate the SDK config from the NOS's port list (one source of truth for breakout); check each global key the public base sets against what your SDK build has.
+- [ ] A way into the SDK while the NOS owns the chip (AS7760: `openbcm-diag`, a diag-shell socket inside syncd). Without it routing bugs are guesswork.
+- [ ] Platform API (fans, thermals, PSUs, optics, syseeprom) exposed to the NOS from the Phase 4 drivers, read-only towards fan control (AS7760: pmon on the switch).
+- [ ] Routing stack (FRR + FPM), BFD, crash recovery as the NOS's supervisors do it, each tested over a real cable (AS7760: lab loop, 2026-11-15).
 - **Gate:** the stack's daemons come up on the target with the virtual SAI, and ASIC-backed ports appear only after Phase 5's gate.
 
 ## Phase 9: Docs, commits, publishing hygiene
@@ -237,8 +241,8 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
 - [ ] Send the platform-generic U-Boot fixes upstream (e.g. DM ns16550 clock divisor, VID/PCI config guards, pre-relocation I2C for SPD) *(not yet done on AS7760)*.
 - [ ] A real board target instead of patching the reference board's code *(partly: identity patch only)*.
 - [ ] Bootloader static + QEMU tests wired into `nix flake check`, so every patch change runs them.
-- [ ] A quiet fan curve driven by ASIC die temperature plus board sensors, validated under traffic load *(not yet done on AS7760)*.
-- [ ] Hot-plug handling for optics: bind at24 on insertion, CPLD module control, and a port LED program loaded from your own file *(not yet done on AS7760)*.
+- [ ] A quiet fan curve driven by ASIC die temperature plus board sensors, validated under traffic load *(AS7760: curve done; the only load test was throttled)*.
+- [ ] Hot-plug handling for optics: bind at24 on insertion, CPLD module control, and a port LED program loaded from your own file *(AS7760: CPLD control and the public LED program; no at24 hot-bind)*.
 - [ ] fw_`printenv`/fw_setenv on the target (needs a trimmed u-boot-tools cross-build) *(not yet done on AS7760)*.
 - [ ] Send the board DT/machine match to mainline Linux *(not yet done on AS7760)*.
 - [ ] Cold DDR init test without flashing (SPL run from CPC-as-SRAM). Tried: it faulted in the SPL reset path, unresolved and moot once NOR boot worked.
@@ -301,6 +305,28 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
 - No 25G link, blamed on the adapter → the chosen port mode limited those lanes to 10G → check lane speeds in the mode's config first.
 - SDK build failed on NixOS → makefiles hard-code `/bin/echo`, `/usr/bin/test`, and use `-Werror` → path rewrite script, relaxed warnings.
 - Driver warns that maxpayload exceeds the device's capability → module parameters didn't match the factory's → load with the vendor's values.
+- Every route add succeeded and nothing was routed (`l3 defip show` empty) → the public config.bcm sets `l3_alpm_enable=2`, the SDK
+  was built without ALPM: tables laid out for ALPM, routes written where the chip never looks → drop the key (or build ALPM), make
+  the SAI refuse the combination, and look at the hardware route table after the first route.
+- Every unicast frame to the router MAC dropped (ARP replies, pings to the switch's own IP) → SDK init leaves per-port
+  V4L3/V6L3 off, and the my-station entry didn't terminate ARP → enable L3 on every front-panel port at init, station entry
+  with IPv4 + IPv6 + ARP; read PORT_TAB and the RIPC4/RDBGC counters to see where frames die.
+- A MAC-loopback "storm" gave only mild load → each port receives its own pause frames, and even with pause off the
+  queues drop most of it (~240 Mbit/s forwarded per port) → not a worst case; use real line-rate traffic.
+- The diag shell hung at `tx 64` with all ports in loopback (also with PHY loopback) → the storm filled the egress
+  queue; `tx 1` returns → seed with one packet, and expect to reset the chip (`init all`) afterwards.
+- LACP never selected a member on a same-switch loop → libteam refuses to aggregate with its own system MAC → give one
+  end its own system MAC for the test.
+
+**NOS stack (SONiC on NixOS)**
+- No KNET netdevs after a deploy → `nixos-rebuild` restarted only the changed orchagent while syncd kept running
+  (SONiC restarts swss together with syncd) → tie syncd to orchagent (`PartOf`), and make every syncd start cold
+  (flush APPL/ASIC/COUNTERS DBs), or the APPLY VIEW fails and orchagent loops.
+- BGP stuck in Connect, BFD never up → the NixOS firewall dropped TCP 179 and UDP 3784/3785/4784 on the switch
+  interfaces → open them on every interface except management.
+- Every port VLAN read back as 0 on big-endian → orchagent wrote a `u16` attribute through the `u32` union member →
+  check every `.value.<member>` against the SAI header's type (swss patch 0001); test on the BE target, not only x86.
+- Two SONiC ends' BFD sessions never came up → upstream bgpcfgd creates passive sessions → make one side active.
 
 **Hardware and thermal**
 - sensors printed PWM 255 as 128% → generic display bug → trust raw sysfs and the board tool.

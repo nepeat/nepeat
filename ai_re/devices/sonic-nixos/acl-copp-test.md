@@ -1,8 +1,8 @@
-# ACL + CoPP policers on the AS7760: switch test (2026-11-15, not run yet)
+# ACL + CoPP policers on the AS7760: switch test (2026-11-15)
 
 What [sai-openbcm's field processor code](../../nix/packages/sai-openbcm/README.md#acl-and-copp-field-processor)
-should do on the chip. Fake-tested only ([VM](sonic-acl-fake-vm-20261115.txt));
-the parent runs this. Setup: the lab loop and VRFs of
+should do on the chip ([VM](sonic-acl-fake-vm-20261115.txt)). Run on the switch 2026-11-15:
+[result](sonic-as7760-acl-copp-20261115.txt) (ARP over its cap: 818/s, open). Setup: the lab loop and VRFs of
 [vrf-ecmp-test.md](vrf-ecmp-test.md) (Ethernet1/1 = Ethernet0 in the default VRF,
 10.0.0.0/31; Ethernet32/1 = Ethernet124 in Vrf-test, 10.0.0.1/31; iBGP between
 them up), the new system deployed (syncd restarts with it), and

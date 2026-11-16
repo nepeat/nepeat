@@ -1,4 +1,7 @@
-# VRF + ECMP on the AS7760: switch test (design, 2026-11-15)
+# VRF + ECMP on the AS7760: switch test (2026-11-15)
+
+Run on the switch 2026-11-15 after two failed tries ([1](vrf-hw-try1-20261115.txt),
+[2](vrf-hw-try2-20261115.txt)): [result](sonic-as7760-l3-ecmp-bgp-20261115.txt).
 
 Lab loop: Ethernet1/1 (Ethernet0) <-> Ethernet32/1 (Ethernet124), 25G. One
 cable, both ends on this switch: Ethernet32/1 goes into `Vrf-test`,

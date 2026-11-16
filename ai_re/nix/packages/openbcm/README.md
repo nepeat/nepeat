@@ -10,7 +10,7 @@ Switch Software License; kernel modules GPL-2). Not vendored here.
 | `kmods.nix` | BDE + KNET modules for the target kernel. Load and pass traffic on the AS7760. |
 | `bcm-user` | the diag shell, linking the whole SDK (ppc64 big-endian only so far). Attaches, inits and switches on the AS7760. |
 | `configs` | `config.bcm` generators: `configs.tomahawk` makes a Tomahawk config from SONiC ports and a public reference config ([below](#configs)). Used by the AS7760 board for SAI_INIT_CONFIG_FILE. |
-| `libsdk { }` | the same SDK userspace as `lib/libsdk.so` (the SDK's own `BCM_COMPILE_SHARED_LIB` rule, objects built `-fPIC`), public headers under `include/openbcm/`, and the exact `-D` flags it was compiled with in `share/openbcm/cflags`. Used by [sai-openbcm](../sai-openbcm/README.md). Cross-builds; not run on hardware yet. |
+| `libsdk { }` | the same SDK userspace as `lib/libsdk.so` (the SDK's own `BCM_COMPILE_SHARED_LIB` rule, objects built `-fPIC`), public headers under `include/openbcm/`, and the exact `-D` flags it was compiled with in `share/openbcm/cflags`. Used by [sai-openbcm](../sai-openbcm/README.md). Cross-builds; runs on the AS7760 inside syncd (2026-11-15). |
 
 ```sh
 nix build path:./nix#as7760-openbcm-kmods path:./nix#as7760-bcm-user

@@ -1,7 +1,8 @@
 # Edge-Core 7760-32X — archived journal
 
-Older [PROGRESS.md](PROGRESS.md) entries, moved verbatim on 2026-11-14 (paths
-like `nixos/…` now live under `ai_re/nix/`). Newest first.
+Older [PROGRESS.md](PROGRESS.md) entries, moved verbatim (on 2026-11-14; paths
+like `nixos/…` now live under `ai_re/nix/`), newest first; at the end, the
+reference sections moved on 2026-11-15.
 
 ## 2026-11-14 (night) — NixOS on the SD card (RAM root, near-zero SD writes); SD identity; U-Boot feasibility
 
@@ -187,3 +188,41 @@ See [SDK research and compile evidence](sdk-research/README.md).
 - Acquisition helper: [acquire.py](acquire.py). Read-only device streams via `nc`, controlled entirely through tmux/tio. Exact byte counts, independent source SHA-256, transfer hash and saved-file reread hash must agree before a `.partial` becomes final. Local `dumps/manifest.jsonl` records verified files.
 - Raw captures and images are git-ignored: U-Boot environment contains SSH host private keys. Device directory mode 0700. No firmware/environment writes requested. ONIE itself may perform automatic boot-time actions; this is a post-initial-boot snapshot, not a claim of forensic write blocking.
 
+## Sections moved from PROGRESS.md on 2026-11-15 (written 2026-11-14)
+
+### Access
+
+- `tmux attach -t serial-7760` (inside tmux: `tmux switch-client -t serial-7760`). Persistent `sudo tio` needed because user lacks dialout group.
+- **115200 8N1, no flow control confirmed by readable boot and shell interaction**. FTDI FT232R `B0016Y5Q`, `/dev/ttyUSB0`, using stable `/dev/serial/by-id/` name. Existing user-connected cable; no wiring changes. Electrical levels unmeasured; verify before internal probing.
+- Raw ongoing session: local `serial-20261114-020529.txt`. Earlier non-sudo connection failed with permission denied before power-on.
+- Power: `lab-power 1 …` (`switch.server_room_lab_plug`); credentials loaded locally, never included in records.
+- ONIE management DHCP: `10.60.2.253`, eth0. Installer discovery stopped. Root serial shell needs no login.
+
+### Acquisition notes
+
+- All eight NOR partitions passed source/transfer/saved-file SHA-256 verification. `dumps/nor-full-128MiB.bin` is their concatenation in physical order: 134217728 bytes, SHA-256 `9e3f9f75108109c2e4252994a425db45b244ae817ab12da221f7d95458d55588`.
+- EEPROM TCP stream ended at zero bytes; a direct `dd` to RAM confirmed the driver timeout. No EEPROM image claimed.
+- An attempted `head` of `/usr/bin/onie-syseeprom` encountered an ELF executable and emitted binary bytes to serial; interrupted with Ctrl-C. This affects the ongoing interaction log only; the separately saved initial boot is clean.
+- SD acquisition resumed with `python3 acquire.py mmcblk0.img`, leaving completed flash files intact.
+- Vendor ONIE FIT DTB and initramfs extracted locally under `dumps/` for inspection. Two SATA controller nodes are declared in the DTB, but no SATA disk was enumerated in this boot.
+
+### Verified outcome and current state
+
+- Whole SD image: `dumps/mmcblk0.img`, **7,948,206,080 bytes**, SHA-256 `71d5a5e68426ba177a2249f6501eec0a3246cafead186aca9b77162be6f1cb46`. Device reread, network-transfer hash, and saved-file reread hash all agree. Transfer approximately 22.8 MB/s; source hashing took several more minutes.
+- Checksums: local `dumps/SHA256SUMS`; per-source verification: `dumps/manifest.jsonl`.
+- Direct U-Boot capture: local `uboot-private.txt` (version/compiler, bdinfo, command help, environment, CFI flash map, SD, SATA, USB and hardware TLV). Full environment also exists in the verified `mtd6.bin`; pre-imaging ONIE inventory in `inventory-private.txt`.
+- **No additional SATA or USB storage identified.** U-Boot SATA0 and SATA1 report `No RDY`, blank model/serial and unavailable capacity. USB scan reports zero storage devices. `nand info` lists none. User clarified storage type had not been physically confirmed.
+- Left powered on at **`LOADER=>` in `serial-7760`**, with logging active. No `saveenv`, flash programming, SD writes, or filesystem mounts issued. U-Boot peripheral initialization changes runtime state only.
+- Remaining uncertainty: declared 24c256 EEPROM times out; GPIO SPI device hardware role not established. These are not claimed as acquired storage.
+
+### Contents inspection
+
+- SD FAT32 partition: start sector 8192, 15515648 sectors. Root contains only `log/`, with six files totaling **35,745,057 bytes**; **7,902,887,936 bytes free**. File timestamps are unset (1980-01-01), not trustworthy history dates.
+- Logs: `stress-dram_3.dat`, `stress-dram_3.log`, `stress-dram_3.html`, `exec_unit.log`, empty `stress-dram_3.sum`, `stress-dram_3_result.html.sum`. Extracted from the local image using mtools into ignored `dumps/sd-files/`, without mounting the source.
+- DRAM stress logs record **11 PASS cycles**, then the start of cycle 12 without a final result. They include DDR read/write tests, `stressapp 86400 64`, temperature readings and restart steps. This is historical diagnostic evidence, not a newly performed memory test.
+- `diag` is a legacy PowerPC Linux multi-image dated 2017-11-23 UTC: kernel (4765966 bytes), initramfs (21950570), DTB (38612).
+- `onie` is a FIT containing the 2018 vendor PowerPC kernel, initramfs and DTB.
+- `open` is a big-endian JFFS2 filesystem, extracted successfully with Jefferson into ignored `dumps/open-jffs2/` (27 directory entries / inode groups, no reported CRC errors). It holds `/log`, `/script`, `/post`, and `/post.cfg`, not an installed switch NOS. Manufacturing scenario `mfg_F2B` reports **10 PASS cycles**; `stress-dram` reports **1 PASS cycle**. Final manufacturing report includes passing fan airflow, I2C, SD card, power module, management port, RTC, TPM, switch loopback and quick DRAM tests. It identifies Accton Diagnostic Image **0.2.2.9**. These are historical results. `post.cfg` selects `stress-dram_3`.
+- Added `mtools` and `jefferson` to the nix devshell for FAT32/JFFS2 inspection; re-entered the shell. The first mtools inspection used an already-installed host executable from inside the devshell.
+
+- Contents inspection used only local copies and read-only U-Boot listings. No diagnostic/stress scripts were executed. A preliminary Nix package query was terminated after stalling; normal devshell evaluation successfully installed the required tools.

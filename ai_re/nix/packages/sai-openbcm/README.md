@@ -5,16 +5,13 @@ headers sairedis is pinned to) on top of Broadcom's source-available OpenBCM
 SDK 6.5.27, so SONiC's `syncd` can drive the BCM56930 (Tomahawk, driver
 BCM56960_A0) of the AS7760-32X from its big-endian ppc64 control plane, where
 no vendor SAI binary exists. Status: builds natively (fake) and cross
-(openbcm); everything above the SDK is tested on x86_64 with the fake
-backend; smoke-tested on the AS7760 (2026-11-15: switch create, ports, VLAN, RIF;
-[sonic-nixos PROGRESS](../../../devices/sonic-nixos/PROGRESS.md)). LAG, SAI
-temperatures, the syncd temperature publisher and `--shutdown-at` are
-fake-tested only. orchagent and the rest of `services.sonic` run on the fake
-backend (VM test, [below](#what-orchagent-reads)) and on the switch (sonic-nixos
-PROGRESS). VRFs and next-hop groups (ECMP), 2026-11-15: fake-tested (unit + VM),
-not yet on the switch. Policers, CoPP policing and ingress ACLs on the
-field processor ([below](#acl-and-copp-field-processor)), 2026-11-15:
-fake-tested (unit + VM), SDK calls compiled and linked, not yet on the switch.
+(openbcm); everything above the SDK is unit- and VM-tested on x86_64 with the
+fake backend. On the AS7760 it runs `services.sonic` at boot; on the chip
+(2026-11-15, one 25G lab loop): ports, VLAN, LAG (LACP under orchagent), port
+router interfaces, VRFs, routes via next hops and ECMP groups, ingress ACLs
+with counters, CoPP policers, SAI temperatures and the temperature publisher
+(evidence: Status of [sonic-nixos PROGRESS](../../../devices/sonic-nixos/PROGRESS.md)).
+`openbcm-asic-temp --shutdown-at` has never fired on hardware.
 
 ## Design
 
@@ -266,17 +263,19 @@ CXXFLAGS=-I<SAI/experimental> check`.
   1 switch, 33 ports, 256 queues, 256 IPGs, VLANs 1+100, 32 VLAN members, 32
   bridge ports, 1 router interface, and a `port_state_change` notification.
 
-## Running on the AS7760 (main session)
+## Running syncd by hand on the AS7760
 
-Prerequisites: the openbcm kmods for the running kernel, the cross-built
-`sairedis-openbcm` closure (it pulls in sai-openbcm and libsdk), redis, the
-swss-common `database_config.json`, and the factory SDK config
-(`config-32x100.bcm` or the 128x25 one). **The config file is not in this
-repo**; copy it from the extracted factory image (`nixos-build/vendor-root/etc/knet/`).
+Normally `services.sonic` runs syncd (board `as7760`). By hand, for SAI-level
+tests (`tests/sai_smoke.py`, sonic-nixos `sai_lag_temp_smoke.py`): the openbcm
+kmods, the cross-built `sairedis-openbcm` closure (it pulls in sai-openbcm and
+libsdk), redis, the swss-common `database_config.json`, and an SDK config: the
+generated one (`SAI_INIT_CONFIG_FILE` in the system's `sai.profile` under
+`/usr/share/sonic`) or a factory file (not in this repo).
 
-1. Nothing else may own the ASIC: `systemctl stop openbcm-asic-temp` (fand
-   goes to 100% until syncd's publisher writes the file, see step 3), no
-   `bcm.user` running. On the
+1. Nothing else may own the ASIC: `systemctl stop sonic.target`, then
+   `systemctl stop openbcm-asic-temp` (restartOnStop starts it 10 s after
+   syncd stops; fand goes to 100% until syncd's publisher writes the file, see
+   step 3), no `bcm.user` running. On the
    NixOS system the modules and nodes are already there; by hand:
    `insmod linux-kernel-bde.ko himem=0 maxpayload=128 dmasize=16M`,
    `insmod linux-user-bde.ko`, `insmod linux-bcm-knet.ko`;
@@ -341,9 +340,9 @@ hardware.
 
 ## Known gaps and risks
 
-- **Hardware coverage is one smoke test** (2026-11-15, steps above). Expect SDK API
-  return codes to need tuning (e.g. FEC controls, port speed changes that need
-  FlexPort, `bcm_port_resource` vs `SOC_INFO` lanes).
+- **Hardware coverage** (2026-11-15): one 25G lab loop, both ends on the same
+  switch. Not exercised: FEC controls, port speed changes that need FlexPort,
+  `bcm_port_resource` vs `SOC_INFO` lanes, 100G cables, line rate.
 - **Endianness**: only `sdk_glue.c` converts to SDK types; IPv4 addresses
   are assembled from network-order bytes into host integers (`bcm_ip_t`), MACs
   and IPv6 are byte arrays, so the code is byte-order agnostic. The SDK's own
@@ -353,19 +352,21 @@ hardware.
 - **KNET**: netifs are TX_LOCAL_PORT on the port (bypass switch logic) with the
   port's PVID; RX only for packets the ASIC sends to the CPU, which needs traps
   or CPU VLAN membership. LACP and LLDP are trapped (L2 user entries; "init
-  all" already sends 01:80:c2:00:00:0x to the CPU); BGP and other L3
-  protocol traps are not programmed (no switch control on this path; would
-  need FP rules), so those control-plane protocols are incomplete. Packets
+  all" already sends 01:80:c2:00:00:0x to the CPU); BGP, BFD, SSH and other
+  traffic to the switch's own addresses have no trap of their own and reach
+  the CPU through the IP2ME host/route entries (CoPP meters them with field
+  entries, above); BGP and BFD work this way on the chip. Packets
   not taken by a KNET filter are dropped by our RX handler (no SAI packet API).
 - **LAG**: `INGRESS_DISABLE` is the SDK's `BCM_TRUNK_MEMBER_INGRESS_DISABLE`:
   frames received on that member are handled as from a plain port (not
   dropped, learned on the port, which has no SAI bridge port, so no FDB
   event). Trunk hashing is fixed (RTAG 6); LAG hash attributes are stubs.
-  Not run on hardware or under orchagent yet.
+  On the chip: LAG + member egress disable through syncd, LACP PortChannels
+  under orchagent (2026-11-15); INGRESS_DISABLE not exercised there.
 - **orchagent on big-endian**: PortsOrch writes `attr.value.u32` for the
   `sai_uint16_t` PORT_VLAN_ID (port and LAG); sairedis serializes `.u16`,
   which on ppc64 is the upper half, i.e. 0. We reject VLAN 0
-  (`INVALID_ATTR_VALUE`); orchagent needs a patch (`.u16 = pvid`).
+  (`INVALID_ATTR_VALUE`); fixed in orchagent by swss patch 0001 (nix/packages/sonic/swss).
 - **Threads**: SDK linkscan, counter, L2X and RX threads run inside syncd; our
   callbacks only queue. `remove_switch` unregisters callbacks but cannot
   detach the SDK (no clean detach path); a second create in the same process
@@ -380,13 +381,13 @@ hardware.
   VLAN has IPv4/IPv6 L3 enabled. Not an L2 entry with the L3 bit
   (`BCM_L3_ADD_TO_ARL`): it sits on the CPU port, and PORT_TAB's static-move
   drop would discard every frame with SA = router MAC, which on the
-  same-switch loop is all of them. Unverified on the chip; check with
+  same-switch loop is all of them. Works on the chip (2026-11-15); debug with
   `openbcm-diag` (sonic-nixos vrf-ecmp-test.md, "debug").
-- **VRF / ECMP on hardware** (2026-11-15: fake only): the VRF binding is the
+- **VRF / ECMP on hardware** (both work on the chip, 2026-11-15): the VRF binding is the
   SDK's (`l3a_vrf` on the L3 interface: VLAN_TAB VRF_ID or the L3_IIF entry of
   the internal VLAN); ECMP groups use the SDK's default group size
   (`max_paths` 0) and are replaced in place (`BCM_L3_REPLACE|WITH_ID`).
-  Neither is proven on the BCM56930 yet; the free ECMP member count reads the
+  The hash spread is unseen (on the loop both members egress one port); the free ECMP member count reads the
   SDK's L3 software table (`bcm_int/esw/firebolt.h`), an internal structure.
   ECMP hashing is the SDK default (no hash attributes programmed).
 - **Not implemented**: QoS (DSCP/TC maps, TC->queue, schedulers, WRED),
@@ -396,15 +397,14 @@ hardware.
   [capacities](#what-orchagent-reads) and takes its "unsupported" paths.
   QoS is left out on purpose (owner: low priority): SONiC only programs it
   when CONFIG_DB has QOS tables, which the Nix base does not load.
-- **ACL / CoPP on hardware** (2026-11-15: fake only, SDK calls compiled and
-  linked): unverified on the BCM56930 are the IFP group widths for the
-  table qualifier sets, the in-ports semantics (data = ports, mask = all, as
-  the SDK's own callers use it), `DstL3Egress` = the CPU egress object for
-  "routed to the CPU" (IP2ME, BGP, ...; group created without it if the SDK
-  refuses, those traps then unpoliced), packet-mode meters taking pps in the
-  kbits fields, and meter sharing between the entries of one CoPP group
-  (if the SDK refuses, the entry gets its own copy: per-entry, not
-  per-group, rate). Test plan: sonic-nixos [acl-copp-test.md](../../../devices/sonic-nixos/acl-copp-test.md).
+- **ACL / CoPP on hardware** (2026-11-15, [acl-copp-test.md](../../../devices/sonic-nixos/acl-copp-test.md)):
+  an L3 ACL bound to one port drops and counts; IP2ME policing (packet-mode
+  meter, `DstL3Egress` = the CPU egress object) holds a 66k pps flood to
+  ~110/s at 100 pps. Open: ARP passes its 600 pps cap (818/s; probably the
+  flood copy to the CPU, which the CoPP entry does not meter). Not checked
+  on the chip: IFP group widths for wider qualifier sets, in-ports on a LAG
+  or several ports, and meter sharing between one CoPP group's entries (if the
+  SDK refuses, each entry gets its own copy: per-entry, not per-group, rate).
 - **pysairedis callbacks**: pysairedis' own notification trampolines build
   Python objects without the GIL and crash when libsairedis calls them from
   its notification thread (seen with Python 3.14). `tests/sai_smoke.py`

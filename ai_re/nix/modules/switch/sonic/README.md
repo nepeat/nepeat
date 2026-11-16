@@ -27,8 +27,10 @@ redis-sonic ─ sonic-config-loader (oneshot: Nix base + saved file -> CONFIG_DB
 All are `sonic-*.service`, `PartOf=sonic.target`. A downstream unit
 `BindsTo` its upstream and the upstream `Upholds` it, so a syncd or
 orchagent crash restarts everything below it (SONiC restarts the swss/teamd
-containers with syncd). Consequence: `systemctl stop sonic-orchagent` is
-undone by syncd; stop `sonic.target` instead. The loader is not restarted by
+containers with syncd). syncd is also `PartOf` orchagent ([recovery.nix](recovery.nix)):
+a requested stop or restart of orchagent (e.g. `nixos-rebuild switch` with a
+changed orchagent unit) takes syncd along, since orchagent against a running
+syncd left no KNET netdevs. Stop `sonic.target` to stop the stack. The loader is not restarted by
 `systemctl restart sonic.target` or `nixos-rebuild switch` (unsaved runtime
 config survives both).
 
@@ -103,8 +105,9 @@ module; `config vrf add Vrf-x`, `config interface vrf bind <port> Vrf-x`.
 At start vrfmgrd removes VRF devices it did not create and moves the `local`
 ip rule from pref 0 to 1001, as on SONiC. `flexCounters`
 ([counters.nix](counters.nix)): FLEX_COUNTER_TABLE groups seeded into
-CONFIG_DB (default: PORT only, what sai-openbcm answers), so syncd polls port
-stats from boot; `counterpoll` + `config save` override them.
+CONFIG_DB (default: PORT only; sai-openbcm also answers ACL counters, which
+`counterpoll acl enable` turns on), so syncd polls port stats from boot;
+`counterpoll` + `config save` override them.
 
 ## files
 
@@ -124,7 +127,9 @@ ranges `Ethernet1/1-4` and `Ethernet1/3-3/1` (missing subports are gaps) in
 nix build -L --impure --expr 'let f = builtins.getFlake "path:'$PWD'/nix"; pkgs = import f.inputs.nixpkgs { system = "x86_64-linux"; };
   in import ./nix/modules/switch/sonic/tests/eval.nix { inherit pkgs; }'   # breakout assertions, YANG failure, sdkConfig plumbing
 # same with tests/vm.nix: two VMs (switch 3 GB + LACP peer 1 GB), ~8 min
+# tests/vm-openbcm-fake.nix: vm.nix's checks on sai-openbcm's fake backend (args: sai-openbcm README)
 # tests/vm-openbcm-fake-l3.nix: one VM on sai-openbcm's fake: VRF, ECMP group, flex counters, CLI lists
+# tests/vm-openbcm-fake-acl.nix: CoPP policers + an L3 ACL through orchagent on the fake
 # tests/vm-frr.nix: switch 3 GB + peer 1 GB (FRR): eBGP over a PortChannel, routes to APPL/ASIC_DB,
 #   static routes, config interface ip remove, crash recovery, config reload w/o saved file, ~25 min
 # tests/vm-platform.nix: one VM (3 GB, vs): pmon on the fake AS7760 board, show platform/transceiver, LLDP self-loop
@@ -135,7 +140,8 @@ nix build -L --impure --expr 'let f = builtins.getFlake "path:'$PWD'/nix"; pkgs 
 
 ## hardware
 
-Kernel: `NET_VRF` (vrfmgrd; module `vrf`, loaded by vrf.nix), `BRIDGE` + `BRIDGE_VLAN_FILTERING` (vlanmgrd), `VLAN_8021Q`,
+Runs on the AS7760 at boot (wiring: [boards/as7760](../../boards/as7760/default.nix);
+results: devices/sonic-nixos/PROGRESS.md). Kernel: `NET_VRF` (vrfmgrd; module `vrf`, loaded by vrf.nix), `BRIDGE` + `BRIDGE_VLAN_FILTERING` (vlanmgrd), `VLAN_8021Q`,
 `NET_TEAM` + `NET_TEAM_MODE_LOADBALANCE` (teamd), `DUMMY`; `TUN` for the
 virtual SAI (`kernelModules` loads them). Vendor SAI: `sai.kind = "vendor"`,
 `sai.package = sonic.sairedis-openbcm libsai`, `sai.libraryPath`,
@@ -163,7 +169,9 @@ bgpcfgd configures no BGP_NEIGHBOR until these exist: `DEVICE_METADATA`
 `BGP_DEVICE_GLOBAL|STATE` (both seeded: LeafRouter, SONiC's init_cfg
 values) and **Loopback0** (`config loopback add Loopback0`). bgp_asn and
 Loopback0 are read into bgpd.conf at FRR start (`systemctl restart
-sonic-frr-config` after changing them).
+sonic-frr-config` after changing them). Firewall: `frr.openFirewall` (default
+on) accepts TCP 179 on every interface except `frr.managementInterfaces`
+(`eth0`); without it the NixOS firewall drops BGP and sessions stay in Connect.
 
 ## BFD (software)
 
@@ -222,6 +230,7 @@ neighbors|table` call lldpctl directly. Packages: [packages/sonic/platform](../.
 
 ## not here (yet)
 
-buffermgrd/buffer profiles, vxlan/nat/sflow/macsec managers,
+QoS (sai-openbcm has no maps/schedulers), buffermgrd/buffer profiles, vxlan/nat/sflow/macsec managers,
+`show acl`/`aclshow` (acl-loader needs pyangbind, not packaged),
 frrcfgd/unified FRR mode, BFD offload to the ASIC, swssconfig's switch.json, ledd/pcied/chassisd, SNMP, warm reboot, multi-ASIC,
 breakout at runtime (a split takes effect at the next SDK init: `sonic-nix reload`).

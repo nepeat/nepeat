@@ -1,44 +1,36 @@
 # Edge-Core 7760-32X
 
-Start with Status below; [HANDOFF.md](HANDOFF.md) has console/build recipes and
-longer background.
+Start with Status below; [HANDOFF.md](HANDOFF.md) has access, deploy and recovery
+for the next session.
 
 ## Status (2026-11-15)
 
 - **Runs:** upstream U-Boot 2026.10 in boot NOR (`uboot-as7760-nor`, sha256
-  `2c0d7387…`, crc32 `31a7d1c9`) → standard boot (`nos_bootcmd=bootflow scan
-  -lb`, extlinux on SD p1) → NixOS 26.11 on the SD (8 CPUs, 16 GiB, 0 failed units).
-- **Reach:** serial: none right now (cable moved to the DMC-12 project
-  2026-11-15; AS7760 console = DMC-12 port 48, not live yet; was tmux
-  `serial-7760`, 115200 8N1, prompt `=>`); `sudo ssh root@10.60.2.253`; outlet `switch.server_room_lab_plug`.
-- **Change it:** Nix is in [ai_re/nix](../../nix/README.md);
-  `./deploy.sh` (system), `./flash_uboot.py` (U-Boot, with checks + backup),
-  `./chainload_uboot.py` (try a U-Boot build in RAM first).
-- **Recover:** previous upstream build + env in
-  `dumps/flash-backup-20261114-pre-0013/`; restore with `flash_uboot.py --restore`
-  from a working prompt, else flash clip/JTAG at NOR offset 0x7F40000. Going back
-  to the factory U-Boot (`dumps/mtd7.bin`, kept as evidence) is **unsupported**
-  since 2026-11-15; flash_uboot.py refuses it.
-  SD original: `dumps/mmcblk0.img`. ONIE in NOR is untouched (`run onie_bootcmd`).
-- **ASIC:** PCIe MMIO to the BCM56930 works since the device-tree aperture fix
-  (0xc_4000_0000, matching U-Boot's LAW); OpenBCM BDE modules load and
-  enumerate it. See [../sonic-nixos/PROGRESS.md](../sonic-nixos/PROGRESS.md).
-- **Fans / health:** `fand.service` (Rust; board + ASIC die temperature zones,
-  100% on fault or exit) holds the 53.3% hardware minimum at ~31 °C board /
-  ~40 °C ASIC; see [thermal.md](thermal.md). The ASIC reader
-  (`openbcm-asic-temp`) holds the SDK lock: stop it before `bcm.user`/syncd.
-  node-exporter on :9100 (+ `switch_*`, `fand_*` metrics) is scraped by the lab
-  VictoriaMetrics; Grafana dashboards per [tools/README.md](../../tools/README.md).
-- **SONiC:** on at boot since 2026-11-15 (`services.sonic`, generated
-  config.bcm, cages 1/32 split 4x25G for the lab loop); see
-  [../sonic-nixos/PROGRESS.md](../sonic-nixos/PROGRESS.md). pmon, LED program
-  and LLDP are built in but untested on the switch: [sonic-platform.md](sonic-platform.md).
-- **Todo:** a worst-case thermal test with line-rate traffic (the
-  2026-11-15 loopback storm was throttled, mild load only); the software
-  over-temperature PLL shutdown test (held, needs the console).
-- **Open:** `WARNING: adjusting available memory` at boot is stock mpc85xx
-  behaviour (lowmem cap), harmless; other T2080 boards (K2 cards) need their
-  own DDR/DT patches, later. Details: [u-boot-port.md](u-boot-port.md).
+  `2c0d7387…`, crc32 `31a7d1c9`) → `bootflow scan -lb` → extlinux on SD p1 →
+  NixOS 26.11 ([config](../../nix/configs/as7760/configuration.nix)), 0 failed units.
+  At boot: OpenBCM kmods, fand, node-exporter :9100 (lab VictoriaMetrics) and SONiC
+  (`services.sonic`, syncd owns the ASIC: [sonic-nixos](../sonic-nixos/PROGRESS.md)).
+- **Reach:** `sudo ssh root@10.60.2.253`. Serial: the cable is on DMC-12 port 48, not
+  served yet (ask the DMC-12 session); until then no U-Boot work or risky reboots.
+  Power: `lab-power 1 …` (`tools/lab_power.py`). Details: [HANDOFF.md](HANDOFF.md).
+- **Change it:** `./deploy.sh` (Nix in [ai_re/nix](../../nix/README.md)),
+  `./flash_uboot.py` (U-Boot, from the console), `./chainload_uboot.py` (RAM test first).
+- **Recover:** NixOS: `nixos-rebuild --rollback` or an older extlinux entry (console).
+  U-Boot: `flash_uboot.py --restore` (`dumps/flash-backup-20261114-pre-0013/`) from a
+  prompt, else clip/JTAG at NOR 0x7F40000. Factory U-Boot (`dumps/mtd7.bin`) restore is
+  unsupported since 2026-11-15. SD original `dumps/mmcblk0.img`; ONIE untouched.
+- **Fans:** fand (board + ASIC zones, 100% on fault) at the 53.3% minimum, ~30 °C board,
+  ~42 °C ASIC; ASIC reading from syncd, else `openbcm-asic-temp` ([thermal.md](thermal.md)).
+- **Front panel:** only the lab loop (cage 1 4x25G breakout, leg 1 into a QSA in cage
+  32, 25G); PSU 2 has no power cord.
+- **Runbook** ([switch-porting-runbook.md](../../switch-porting-runbook.md)): gates 1-3, 4b, 5, 6
+  hold; 4 short of RTC, watchdog, TPM, CPLD LEDs; 0 lost its console on 2026-11-15; 7 done
+  but restore-from-Linux and a JTAG rehearsal; 8 past its gate (SONiC on the ASIC).
+- **Held / todo:** the software over-temperature PLL shutdown (`openbcm-asic-temp
+  --shutdown-at`, never fired on hardware) waits for the console; a worst-case thermal
+  test needs line-rate traffic (the 2026-11-15 loopback storm was throttled).
+- **Open:** `WARNING: adjusting available memory` at boot is stock mpc85xx (harmless);
+  other T2080 boards need their own DDR/DT patches ([u-boot-port.md](u-boot-port.md)).
 
 ## 2026-11-15 (night) — new kernel booted, loopback load test (mild)
 
@@ -221,15 +213,7 @@ longer background.
 Older entries (first boot, acquisition, RAM boots, netboot, RX misdiagnosis,
 RAM-root SD image): [HISTORY.md](HISTORY.md).
 
-## Access
-
-- `tmux attach -t serial-7760` (inside tmux: `tmux switch-client -t serial-7760`). Persistent `sudo tio` needed because user lacks dialout group.
-- **115200 8N1, no flow control confirmed by readable boot and shell interaction**. FTDI FT232R `B0016Y5Q`, `/dev/ttyUSB0`, using stable `/dev/serial/by-id/` name. Existing user-connected cable; no wiring changes. Electrical levels unmeasured; verify before internal probing.
-- Raw ongoing session: local `serial-20261114-020529.txt`. Earlier non-sudo connection failed with permission denied before power-on.
-- Power: `lab-power 1 …` (`switch.server_room_lab_plug`); credentials loaded locally, never included in records.
-- ONIE management DHCP: `10.60.2.253`, eth0. Installer discovery stopped. Root serial shell needs no login.
-
-## NOR map
+## NOR map (reference)
 
 | MTD | Offset | Bytes | Name |
 | --- | --- | --- | --- |
@@ -244,31 +228,4 @@ RAM-root SD image): [HISTORY.md](HISTORY.md).
 
 `/etc/fw_env.config`: `/dev/mtd6 0x0 0x2000 0x20000`.
 
-## Acquisition notes
-
-- All eight NOR partitions passed source/transfer/saved-file SHA-256 verification. `dumps/nor-full-128MiB.bin` is their concatenation in physical order: 134217728 bytes, SHA-256 `9e3f9f75108109c2e4252994a425db45b244ae817ab12da221f7d95458d55588`.
-- EEPROM TCP stream ended at zero bytes; a direct `dd` to RAM confirmed the driver timeout. No EEPROM image claimed.
-- An attempted `head` of `/usr/bin/onie-syseeprom` encountered an ELF executable and emitted binary bytes to serial; interrupted with Ctrl-C. This affects the ongoing interaction log only; the separately saved initial boot is clean.
-- SD acquisition resumed with `python3 acquire.py mmcblk0.img`, leaving completed flash files intact.
-- Vendor ONIE FIT DTB and initramfs extracted locally under `dumps/` for inspection. Two SATA controller nodes are declared in the DTB, but no SATA disk was enumerated in this boot.
-
-## Verified outcome and current state
-
-- Whole SD image: `dumps/mmcblk0.img`, **7,948,206,080 bytes**, SHA-256 `71d5a5e68426ba177a2249f6501eec0a3246cafead186aca9b77162be6f1cb46`. Device reread, network-transfer hash, and saved-file reread hash all agree. Transfer approximately 22.8 MB/s; source hashing took several more minutes.
-- Checksums: local `dumps/SHA256SUMS`; per-source verification: `dumps/manifest.jsonl`.
-- Direct U-Boot capture: local `uboot-private.txt` (version/compiler, bdinfo, command help, environment, CFI flash map, SD, SATA, USB and hardware TLV). Full environment also exists in the verified `mtd6.bin`; pre-imaging ONIE inventory in `inventory-private.txt`.
-- **No additional SATA or USB storage identified.** U-Boot SATA0 and SATA1 report `No RDY`, blank model/serial and unavailable capacity. USB scan reports zero storage devices. `nand info` lists none. User clarified storage type had not been physically confirmed.
-- Left powered on at **`LOADER=>` in `serial-7760`**, with logging active. No `saveenv`, flash programming, SD writes, or filesystem mounts issued. U-Boot peripheral initialization changes runtime state only.
-- Remaining uncertainty: declared 24c256 EEPROM times out; GPIO SPI device hardware role not established. These are not claimed as acquired storage.
-
-## Contents inspection
-
-- SD FAT32 partition: start sector 8192, 15515648 sectors. Root contains only `log/`, with six files totaling **35,745,057 bytes**; **7,902,887,936 bytes free**. File timestamps are unset (1980-01-01), not trustworthy history dates.
-- Logs: `stress-dram_3.dat`, `stress-dram_3.log`, `stress-dram_3.html`, `exec_unit.log`, empty `stress-dram_3.sum`, `stress-dram_3_result.html.sum`. Extracted from the local image using mtools into ignored `dumps/sd-files/`, without mounting the source.
-- DRAM stress logs record **11 PASS cycles**, then the start of cycle 12 without a final result. They include DDR read/write tests, `stressapp 86400 64`, temperature readings and restart steps. This is historical diagnostic evidence, not a newly performed memory test.
-- `diag` is a legacy PowerPC Linux multi-image dated 2017-11-23 UTC: kernel (4765966 bytes), initramfs (21950570), DTB (38612).
-- `onie` is a FIT containing the 2018 vendor PowerPC kernel, initramfs and DTB.
-- `open` is a big-endian JFFS2 filesystem, extracted successfully with Jefferson into ignored `dumps/open-jffs2/` (27 directory entries / inode groups, no reported CRC errors). It holds `/log`, `/script`, `/post`, and `/post.cfg`, not an installed switch NOS. Manufacturing scenario `mfg_F2B` reports **10 PASS cycles**; `stress-dram` reports **1 PASS cycle**. Final manufacturing report includes passing fan airflow, I2C, SD card, power module, management port, RTC, TPM, switch loopback and quick DRAM tests. It identifies Accton Diagnostic Image **0.2.2.9**. These are historical results. `post.cfg` selects `stress-dram_3`.
-- Added `mtools` and `jefferson` to the nix devshell for FAT32/JFFS2 inspection; re-entered the shell. The first mtools inspection used an already-installed host executable from inside the devshell.
-
-- Contents inspection used only local copies and read-only U-Boot listings. No diagnostic/stress scripts were executed. A preliminary Nix package query was terminated after stalling; normal devshell evaluation successfully installed the required tools.
+Access notes and the 2026-11-14 acquisition record (hashes, contents): [HISTORY.md](HISTORY.md#sections-moved-from-progressmd-on-2026-11-15-written-2026-11-14).
