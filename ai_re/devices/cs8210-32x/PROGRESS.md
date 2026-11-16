@@ -25,6 +25,8 @@
 
 ## todo / standing notes
 
+- **In flight (2026-11-15):** node exporter + metrics target (agent); 400G + MACsec on the cage 1 <-> 16 loop (agent; only cages 1 and 16 are populated, re-check before every SDK start); SONiC on NixOS with a Teralynx SAI (agent, offline first); U-Boot replacement (scheme A' in boot-chain.md, no write planned yet); vendor-prompt batch (UART route R, uC readouts, CPLD v15/v2 register dump, cpld-diff.md); switch-porting-runbook.md refresh from the AS7760.
+
 - **External PCIe INTx (2026-11-15, from the DMC-12 USB finding):** on the DMC-12 (Alpine V2) the factory DT routes external-PCIe INTx through an Annapurna IOFIC that mainline lacks, so its USB only ran from the EHCI 100 ms watchdog. Here the ASIC (0001:01:00.0, `ipd`) has legacy irq 17 = GIC SPI 73, today only PME/AER on it (SDK not running); the FPGAs have no driver. Check `/proc/interrupts` for ipd while `cs8210-switch` runs, and compare with the vendor DT's interrupt-map. On-SoC devices are fine: AHCI and ttyS0 count interrupts, al_eth uses MSI-X.
 
 - **Fans** (user request 2026-11-09: slow them down, the unit is very loud at the
