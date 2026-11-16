@@ -6,7 +6,8 @@
 # (< 1.5 s, hold time 90 s) on 100% loss / link down at the peer, a live BFD
 # toggle, static routes with BFD (STATIC_ROUTE bfd=true, default VRF and
 # Vrf-test) leaving and re-entering APPL_DB with their sessions, the firewall
-# rule, bfdd/bfdsyncd CPU.
+# rule, BGP_NEIGHBOR local_asn (live and at creation; replace-as/no-prepend AS
+# paths), teamd respawn keeping a PortChannel's mac_addr, bfdd/bfdsyncd CPU.
 # Links: eth1+eth2 = PortChannel0001 (BGP, default VRF), eth3 = Ethernet7/1
 # (BGP, Vrf-test), eth4 = Ethernet8/1 (static route, default VRF), eth5 =
 # Ethernet9/1 (static route, Vrf-test). Static and BGP BFD never share a peer

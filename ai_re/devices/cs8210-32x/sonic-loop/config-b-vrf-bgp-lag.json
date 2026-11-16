@@ -35,22 +35,28 @@
  },
  "BGP_NEIGHBOR": {
   "Vrf-a|10.0.1.1": {
-   "asn": "65200",
+   "asn": "65201",
    "name": "vrf-b",
    "local_addr": "10.0.1.0",
    "keepalive": "3",
    "holdtime": "9",
    "admin_status": "up",
-   "bfd": "true"
+   "bfd": "true",
+   "local_asn": "65101",
+   "local_as_no_prepend": "true",
+   "local_as_replace_as": "true"
   },
   "Vrf-b|10.0.1.0": {
-   "asn": "65100",
+   "asn": "65101",
    "name": "vrf-a",
    "local_addr": "10.0.1.1",
    "keepalive": "3",
    "holdtime": "9",
    "admin_status": "up",
-   "bfd": "true"
+   "bfd": "true",
+   "local_asn": "65201",
+   "local_as_no_prepend": "true",
+   "local_as_replace_as": "true"
   }
  },
  "FLEX_COUNTER_TABLE": {
@@ -292,5 +298,21 @@
    "mac_addr": "02:00:00:00:0b:02"
   },
   "PortChannel2|10.0.1.1/31": {}
+ },
+ "STATIC_ROUTE": {
+  "Vrf-a|10.66.1.0/24": {
+   "blackhole": "true"
+  },
+  "Vrf-b|10.66.2.0/24": {
+   "blackhole": "true"
+  }
+ },
+ "BGP_GLOBALS": {
+  "Vrf-a": {
+   "local_asn": "65100"
+  },
+  "Vrf-b": {
+   "local_asn": "65100"
+  }
  }
 }

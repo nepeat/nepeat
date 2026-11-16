@@ -90,12 +90,20 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-16 — SONiC at boot (generation), bgpcfgd local_asn
+
+- Generation: `hardware.cs8210.sonic.enable`, `autoStart` now the default. Boot order: pcie-errors -> cage/FPGA guard -> Credo -> syncd (waits for /dev/ipd). Nix base CONFIG_DB: Ethernet0/120 admin up with RS FEC, the other 30 down. The vendor stack's bond0/vrf-fp are off with SONiC; `cs8210-switch` stays a `Conflicts=` alternative ([sonic.md](sonic.md) "Running it").
+- bgpcfgd: BGP_NEIGHBOR `local_asn` (+ `local_as_no_prepend`/`_replace_as`) at creation and live (patches 0004/0005, not upstream). The loop configs need no vtysh: eBGP on both sides, one-hop BFD, STATIC_ROUTE blackholes advertise the loopback subnets. Tests: bgpcfgd suite 2794 passed (3 upstream BFD-passive cases deselected), vm-bfd 120/120 (local_asn, teamd MAC), chip.
+- Chip, hand-run before the deploy: BGP/BFD/LACP up with no vtysh, local_asn removed and restored live, orchagent kill -> syncd restart in 15 s, reload without a saved file = the Nix base ([evidence](sai-hw-sonic-boot-20261116.txt)).
+- Found and fixed: a teamd respawn reset the PortChannel's mac_addr (routing over it stayed dead); a networkd restart deletes vrfmgrd's local rule, which leaves the host unreachable. I caused a 25 s outage checking that (the hand-run had left the rule at pref 1001); restored over the console.
+- Pending: deploy + two reboots (parent), then the boot checks.
+
 ### 2026-11-16 — SONiC on our own SAI: full stack + 2 h soak on the chip
 
 - Owner decision: native SAI (sai-teralynx), all features ourselves. Phases A–C: [sai-features.md](sai-features.md) (chip/mock/missing per object), evidence `sai-hw-*-20261116.txt`, isai oracle [sai-oracle.md](sai-oracle.md); Marvell isai under qemu kept as a reference ([sai-qemu.md](sai-qemu.md)).
 - SONiC hand-run ([sonic.md](sonic.md), `scripts/sonic-handrun.sh`): VRF eBGP + BFD over the 400G loop on ports and on LACP PortChannels, ACL drop, DSCP->queue, CoPP ARP policer, counters + CRM in COUNTERS_DB. 2 h soak, 11 flaps: BGP/BFD back 1–7 s after each, no loss outside flaps, daemon memory flat ([sai-hw-sonic-soak-20261116.txt](sai-hw-sonic-soak-20261116.txt)).
 - **FPGA stall** ([sai-hw-fpga-stall-20261116.txt](sai-hw-fpga-stall-20261116.txt)): the I2C FPGA (0002:01:00.0) stopped answering (PCIe completion timeouts; each access then stalls the whole SoC for seconds, all-ones made xcvrd see 32 cages). Trigger not found (likely concurrent unserialised reads). Now: every access under one lock, a root-port health check and a dead marker that stops all access until reboot; recovery = power cycle (done 2026-11-16 17:00Z).
-- By hand still: bgpcfgd has no local_asn (vtysh local-as/allowas-in). Each RIF needs its own MAC on the loop.
+- Each RIF needs its own MAC on the loop. (The vtysh local-as/allowas-in lines are gone: local_asn, entry above.)
 
 ### 2026-11-16 — MACsec: engine capabilities, hitless rekey, MKA (hardware)
 

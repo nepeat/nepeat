@@ -1,0 +1,52 @@
+CS8210 SONiC at boot + bgpcfgd BGP_NEIGHBOR local_asn, 2026-11-16 (box time PST)
+Area: sonic-boot (nix/nixos/module/cs8210/sonic autoStart, machine cs8210, ai_re switch/sonic recovery.nix + networkd,
+packages/sonic/routing patches 0004/0005). Raw transcripts: analysis/sonic-boot/ (git-ignored), sha256 below.
+
+== 1. Hand-run before the deploy (lease 12:18-12:26, cages: present=00008001 = 1 and 16 only)
+Closure /nix/store/kmfvsga97w7kwbmpj9yhznpnr55fva4w-nixos-system-cs8210-sd-card-26.11.20261114.2f709fe
+(clean worktree of HEAD 3511f48 + this area's files), scripts/sonic-handrun.sh up with
+sonic-loop/config-b-vrf-bgp-lag.json (local_asn on both VRF neighbors, STATIC_ROUTE blackholes; no vtysh at all):
+* Vrf-a 10.0.1.1 (AS 65201) and Vrf-b 10.0.1.0 (AS 65101) Established ~40 s after the start, 1 prefix each way.
+  bgpd config from bgpcfgd: "neighbor 10.0.1.1 remote-as 65201" / "local-as 65101 no-prepend replace-as" / "bfd".
+* BFD both single hop on PortChannel1/2, up (the hand-run needed ebgp-multihop + a bfd re-toggle before).
+* 10.66.1.0/24 in Vrf-b: AS path "65101" only (replace-as), external, zebra offloaded=true, APPL_DB ROUTE_TABLE
+  and 6 ASIC_DB ROUTE_ENTRY objects for 10.66.x; Loopback2 -> Loopback1 ping 50/50; LACP selected/active on both.
+* Live: hdel local_asn on Vrf-a|10.0.1.1 -> bgpcfgd "no neighbor 10.0.1.1 local-as", both sessions Idle (bad peer AS);
+  hset local_asn 65101 -> "neighbor 10.0.1.1 local-as 65101 no-prepend replace-as", Established again in ~9 s, BFD up.
+  No bgpcfgd errors. (ev1.txt a2ddfc4a, ev2.txt cc910681)
+* orchagent kill -9 -> "orchagent failed (signal KILL): restarting syncd", new syncd, BGP 2/2 + BFD up 15 s after the
+  kill, LACP up, ping 20/20, 0 failed units. (ev3.txt dd87c60f)
+* sonic-nix reload with no saved file: Nix base only (6 tables, 38 keys): Ethernet0/120 admin up fec rs oper up, the
+  other 30 admin down, no VRFs, no BGP_NEIGHBOR; saved file back + reload: BGP 2/2 in ~8 s. (ev4.txt e395bdb6)
+* teamd kill -9 (PortChannel1): sonic-teamd-watch respawned it, but teamd -o reset the netdev MAC to the system MAC
+  (0e:48:c6:7a:55:ce) while the RIF kept PORTCHANNEL_INTERFACE mac_addr 02:00:00:00:0b:01: Vrf-b's neighbor entry
+  for 10.0.1.0 got the system MAC, BFD/BGP down and not back in 60 s. Fixed in recovery.nix (restore the MAC after
+  the respawn); rerun with /nix/store/ihkg388m90vyb1qkl7wnnsw2l2cxjgqq-nixos-system-cs8210-sd-card-26.11.20261114.2f709fe:
+  "PortChannel1: MAC 02:00:00:00:0b:01 restored", BGP 2/2 + BFD up 3 s after the kill, ping 20/20. (ev4, ev5.txt 0d106f8f)
+* Left: chip stopped (no syncd/orchagent/phy_server/innovium.user), cs8210-switch inactive, ipd legacy_abi=Y, lease released.
+  Hand-run leftovers (handrun "down" does not remove them): Bridge, dummy, Loopback0-2 netdevs; the host lldpd failed once
+  on the second "up" (restarted). handrun "down" also leaves vrfmgrd's local rule at pref 1001 (restored to 0 by hand).
+
+== 2. networkd deletes vrfmgrd's local rule (found 12:11, outage ~25 s, my mistake)
+The box still had the hand-run's "1001: from all lookup local" as its only local rule (vrfmgrd had moved it from pref 0;
+sonic-handrun.sh down does not move it back). I restarted systemd-networkd to check ManageForeign* behaviour without
+checking that first: networkd removed the 1001 rule (and a test blackhole route in table 1234) as foreign, the host
+had no local table rule, SSH and ARP for 10.60.2.190 stopped. Restored through the console (consoled run cs8210
+"ip rule add pref 0 table local"). Fix: services.sonic sets networkd ManageForeignRoutingPolicyRules/Routes=false
+(any networkd + SONiC box: a networkd restart on deploy would cut the host off).
+
+== 3. Offline tests (workstation, x86)
+* routing.bgpcfgd-tests: upstream sonic-bgpcfgd suite on the patched bgpcfgd + shipped templates + ours
+  (tests/test_sonic_nixos_local_as.py, 4 template cases param_local_as_*): 2794 passed, 3 deselected (upstream's
+  passive-by-default BfdMgr cases; patch 0003 makes sessions active).
+* vm-bfd (switch + FRR peer): 120 PASS, 0 FAIL, incl. local_asn live (peer remote-as 65150, path to the peer "65150",
+  path received "65200": replace-as / no-prepend), re-created from CONFIG_DB (template), removed live; one-hop BFD;
+  teamd kill -9 with PORTCHANNEL_INTERFACE mac_addr: "MAC 02:00:00:00:0a:01 restored", BGP + BFD back.
+* vm-openbcm-fake (AS7760 frontend, regression): 86 PASS, 0 FAIL.
+* sonic-loop configs merged with the cs8210 Nix base: YANG OK (config-a 23 tables, config-b 26); without
+  BGP_GLOBALS the BGP_NEIGHBOR VRF leafref fails, so both carry BGP_GLOBALS|Vrf-a/Vrf-b local_asn 65100 (YANG only).
+* AS7760 toplevel drv r8vgabw6 -> b6jlrgmi: bgpcfgd + FRR templates (patches 0004/0005), sonic-teamd-watch
+  (MAC restore), networkd.conf (ManageForeign*=false); nothing else.
+  805ecdcbf120696e0a0ffd863836bb8ac8c0a3736f506fd6f583174d689297d9  vm-bfd-20261116.txt
+  aae306b9769e9470492a33c267201d9c4b388560b96a92456a672a1835d685d5  vm-openbcm-fake-20261116.txt
+  e4d14d4a8a1a42be7972c050ad7c02603624981eebd5db815618770d78c9212f  bgpcfgd-tests-20261116.txt

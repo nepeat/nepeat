@@ -274,6 +274,7 @@ Bring-up order: each step in a VM first where the fake backend covers it, then o
 - [ ] Recovery as the NOS's supervisors do it: kill teamd, orchagent and syncd; `config reload` with and without a saved file; a deploy that touches orchagent; a reboot.
   Each must end with every netdev back and 0 failed units (AS7760: teamd, orchagent, reload without a saved file, 2026-11-15). Warm reboot *(not yet done on AS7760)*.
 - [ ] Soak: hours with routing, BFD and the pollers running, each daemon's RSS trended (`sonic.routing.malloc-trace` for a grower). The bfdd leak showed up only here.
+- [ ] SONiC at boot is the end state of phase 8: the board's generation starts the stack after its guards (cages/house network, bus health), the vendor stack stays a `Conflicts=` alternative, a safe Nix base CONFIG_DB (only cabled ports up), and two reboots plus the recovery checks above pass from boot (AS7760: 2026-11-15; CS8210: 2026-11-16, `devices/cs8210-32x/sonic.md`).
 - **Gate:** the stack's daemons come up on the target with the virtual SAI, and ASIC-backed ports appear only after Phase 5's gate.
 - **Gate (in service):** every step above passes on the chip and the soak shows no daemon growing *(AS7760: open; the bfdd fix isn't deployed, warm reboot not built)*.
 

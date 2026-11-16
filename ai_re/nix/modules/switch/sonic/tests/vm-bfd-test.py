@@ -286,6 +286,69 @@ wait("... static routes back in APPL_DB", "redis-cli -s /var/run/redis/redis.soc
 wait("... BGP both Established", established("10.0.0.2") + " && " + established("10.1.0.2", "Vrf-test"), timeout=120)
 check("orchagent not restarted by any of this", units_report()["sonic-orchagent"].endswith(" 0"), units_report())
 
+# ---------------------------------------------------------------- 10a. BGP_NEIGHBOR local_asn (bgpcfgd patches 0004/0005)
+# Vrf-test's neighbor presents AS 65150 instead of 65100 (no-prepend replace-as): set live
+# (0005), then re-created from CONFIG_DB (template, 0004), then removed live.
+NB = "BGP_NEIGHBOR|Vrf-test|10.1.0.2"
+def peer_remote_as(asn):
+    sh("vtysh -c 'conf t' -c 'router bgp 65200' -c 'neighbor 10.1.0.1 remote-as %s'" % asn, peer)
+def peer_nb():
+    return json.loads(vtysh("show bgp neighbors 10.1.0.1 json", peer)).get("10.1.0.1", {})
+sh("sonic-db-cli CONFIG_DB hset '%s' local_asn 65150 local_as_no_prepend true local_as_replace_as true" % NB)
+wait("local_asn set live: bgpd has 'neighbor 10.1.0.2 local-as 65150 no-prepend replace-as'",
+     "vtysh -c 'show running-config' | grep -q '^ neighbor 10.1.0.2 local-as 65150 no-prepend replace-as$'", timeout=30,
+     detail_cmd="vtysh -c 'show running-config'; journalctl -b -u sonic-bgpcfgd --no-pager | tail -20")
+check("... no 'Can't update the peer' from bgpcfgd", "Can't update the peer" not in journal(["sonic-bgpcfgd"], 400), journal(["sonic-bgpcfgd"], 20))
+peer_remote_as(65150)
+wait("... peer (remote-as 65150): BGP Vrf-test Established", established("10.1.0.2", "Vrf-test"), timeout=120,
+     detail_cmd="vtysh -c 'show bgp vrf Vrf-test summary'")
+check("... the peer sees AS 65150", peer_nb().get("remoteAs") == 65150, peer_nb().get("remoteAs"))
+# a route from the switch to the peer: replace-as, the path is 65150 only
+SADV = "198.51.100.0/24"
+sh("sonic-db-cli CONFIG_DB hset 'STATIC_ROUTE|Vrf-test|%s' blackhole true" % SADV)
+wait("... peer learns %s with AS path 65150 (replace-as: no 65100)" % SADV,
+     "vtysh -c 'show bgp ipv4 unicast %s json' | grep -q '\"string\":\"65150\"'" % SADV, timeout=60, m=peer,
+     detail_cmd="vtysh -c 'show bgp ipv4 unicast %s'" % SADV)
+wait("... switch: 192.0.2.0/24 in Vrf-test with path 65200 (no-prepend)",
+     "vtysh -c 'show bgp vrf Vrf-test ipv4 unicast 192.0.2.0/24 json' | grep -q '\"string\":\"65200\"'", timeout=60,
+     detail_cmd="vtysh -c 'show bgp vrf Vrf-test ipv4 unicast 192.0.2.0/24'")
+wait_bfd("... BFD 10.1.0.2 (Vrf-test) up again", "10.1.0.2", "Vrf-test")
+s = bfd_peer("10.1.0.2", "Vrf-test") or {}
+check("... BFD session single hop (eBGP with local-as)", not s.get("multihop") and s.get("interface") == "Ethernet24", s)
+# re-created: DEL, then SET with local_asn (rendered by the template)
+f = hgetall(4, NB)
+sh("sonic-db-cli CONFIG_DB del '%s'" % NB)
+wait("BGP_NEIGHBOR deleted: neighbor 10.1.0.2 gone from bgpd", "! vtysh -c 'show running-config' | grep -q 'neighbor 10.1.0.2 '", timeout=30)
+sh("sonic-db-cli CONFIG_DB hset '%s' %s" % (NB, " ".join("%s %s" % kv for kv in f.items())))
+wait("re-created with local_asn: the template renders the local-as line", "vtysh -c 'show running-config' | grep -q '^ neighbor 10.1.0.2 local-as 65150 no-prepend replace-as$'", timeout=30,
+     detail_cmd="vtysh -c 'show running-config'")
+wait("... BGP Vrf-test Established", established("10.1.0.2", "Vrf-test"), timeout=120)
+# removed live: back to AS 65100
+sh("sonic-db-cli CONFIG_DB hdel '%s' local_asn" % NB)
+wait("local_asn removed live: no local-as line", "! vtysh -c 'show running-config' | grep -q 'neighbor 10.1.0.2 local-as'", timeout=30,
+     detail_cmd="journalctl -b -u sonic-bgpcfgd --no-pager | tail -20")
+peer_remote_as(65100)
+wait("... peer (remote-as 65100): Established", established("10.1.0.2", "Vrf-test"), timeout=120)
+wait("... peer: path to %s is 65100 again" % SADV, "vtysh -c 'show bgp ipv4 unicast %s json' | grep -q '\"string\":\"65100\"'" % SADV, timeout=60, m=peer)
+sh("sonic-db-cli CONFIG_DB del 'STATIC_ROUTE|Vrf-test|%s'" % SADV)
+wait_bfd("... BFD 10.1.0.2 up", "10.1.0.2", "Vrf-test")
+
+# ---------------------------------------------------------------- 10b. teamd respawn keeps PORTCHANNEL_INTERFACE mac_addr
+PMAC = "02:00:00:00:0a:01"
+sh("sonic-db-cli CONFIG_DB hset 'PORTCHANNEL_INTERFACE|PortChannel0001' mac_addr %s" % PMAC)
+wait("intfmgrd: PortChannel0001 has mac_addr %s" % PMAC, "ip -br link show PortChannel0001 | grep -q %s" % PMAC, timeout=30,
+     detail_cmd="ip -br link show PortChannel0001")
+sh("ip neigh flush dev bond0", peer)
+wait("... BGP 10.0.0.2 Established", established("10.0.0.2"), timeout=120)
+tp = sh("cat /run/teamd/PortChannel0001.pid")[1].strip()
+sh("kill -9 %s" % tp)
+wait("teamd killed: respawned", "p=$(cat /run/teamd/PortChannel0001.pid) && [ \"$p\" != %s ] && kill -0 $p" % tp, timeout=60,
+     detail_cmd="journalctl -b -u sonic-teamd-watch --no-pager | tail -20")
+wait("... PortChannel0001 MAC still %s (teamd -o resets it; the watcher restores it)" % PMAC, "ip -br link show PortChannel0001 | grep -q %s" % PMAC, timeout=10,
+     detail_cmd="ip -br link show PortChannel0001; journalctl -b -u sonic-teamd-watch --no-pager | tail")
+wait("... BGP 10.0.0.2 Established", established("10.0.0.2"), timeout=120)
+wait_bfd("... BFD 10.0.0.2 up", "10.0.0.2")
+
 # ---------------------------------------------------------------- 10. CPU (4 sessions at 300 ms) and logs
 def ticks(pid):
     return int(sh("awk '{print $14+$15}' /proc/%s/stat" % pid)[1].strip() or 0)

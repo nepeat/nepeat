@@ -41,7 +41,11 @@ not a requested stop) restarts syncd and so everything below it, as SONiC
 restarts swss with syncd (orchagent alone left the KNET netdevs gone). A dead
 teamd is respawned by `sonic-teamd-watch` with its old arguments plus `-o`
 (take over the team netdev: IP, VLANs and members stay, other PortChannels
-untouched; tlm_teamd reconnects); after 3 failed tries teammgrd restarts.
+untouched; tlm_teamd reconnects; the netdev MAC, which `-o` resets to the system
+MAC, is put back for a PORTCHANNEL_INTERFACE `mac_addr`); after 3 failed tries
+teammgrd restarts. With systemd-networkd the module turns off its
+ManageForeignRoutingPolicyRules/Routes: a networkd restart deleted vrfmgrd's
+local rule (pref 1001) and so every local delivery, SSH included (CS8210).
 
 ## ownership
 
@@ -136,7 +140,9 @@ nix build -L --impure --expr 'let f = builtins.getFlake "path:'$PWD'/nix"; pkgs 
 #   static routes, config interface ip remove, crash recovery, config reload w/o saved file, ~25 min
 # tests/vm-platform.nix: one VM (3 GB, vs): pmon on the fake AS7760 board, show platform/transceiver, LLDP self-loop
 # tests/vm-bfd.nix: switch 3 GB + peer 1 GB (FRR bfdd): BGP+BFD over a PortChannel and a Vrf-test port, BGP down
-#   in < 1 s on loss/link down, static routes with BFD in/out of APPL_DB, live toggle, restarts, FEATURE|bgp CoPP traps, ~5 min
+#   in < 1 s on loss/link down, static routes with BFD in/out of APPL_DB, live toggle, restarts, FEATURE|bgp CoPP traps,
+#   BGP_NEIGHBOR local_asn, teamd respawn keeping mac_addr, ~6 min
+# bgpcfgd + FRR templates: (import ./nix/packages/sonic { inherit pkgs; }).routing.bgpcfgd-tests (upstream's suite + ours, ~1 min)
 # tests/vm-bfdd-leak.nix: bfdd heap/RSS flat over N min (args: minutes, mode configured|bgp, trace, ppc64Pkgs =
 #   the AS7760 pkgs to run the switch's ppc64 binaries under qemu-user); devices/sonic-nixos/bfdd-leak.md
 # AS7760 config.bcm generator: nix/modules/boards/as7760/sdk-config-test.nix (command in its header)
@@ -176,7 +182,9 @@ values) and **Loopback0** (`config loopback add Loopback0`). `FEATURE|bgp`
 is seeded enabled (init_cfg.json), so coppmgrd installs the bgp/bgpv6 CoPP
 traps (sai-openbcm polices them as BGP, not as generic IP2ME). bgp_asn and
 Loopback0 are read into bgpd.conf at FRR start (`systemctl restart
-sonic-frr-config` after changing them). Firewall: `frr.openFirewall` (default
+sonic-frr-config` after changing them). BGP_NEIGHBOR `local_asn` (+ `local_as_no_prepend`,
+`local_as_replace_as`, the YANG fields) -> `neighbor <ip> local-as N [no-prepend [replace-as]]`, at
+creation and live (packages/sonic/routing patches 0004/0005; upstream bgpcfgd ignores them). Firewall: `frr.openFirewall` (default
 on) accepts TCP 179 on every interface except `frr.managementInterfaces`
 (`eth0`); without it the NixOS firewall drops BGP and sessions stay in Connect.
 
