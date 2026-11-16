@@ -20,13 +20,31 @@ untracked=$(git -C "$repo" ls-files --others --exclude-standard -- ai_re/flake.n
   ai_re/nix/configs ai_re/nix/modules/profiles ai_re/nix/modules/platforms ai_re/nix/modules/boards/dmc12 \
   ai_re/nix/modules/thermal ai_re/nix/modules/monitoring ai_re/nix/packages/linux-alpine \
   ai_re/nix/packages/al-eth ai_re/nix/packages/dmc12-metrics ai_re/nix/packages/dmc12-cpld-reset \
-  ai_re/nix/packages/fastfetch-tiny rust/crates/fand rust/consoled)
+  ai_re/nix/packages/fastfetch-tiny rust/consoled)
 if [ -n "$untracked" ]; then
   echo "deploy.sh: untracked files the flake would not see (git add -N them):" >&2
   echo "$untracked" >&2
   exit 1
 fi
-flake="git+file://$repo?dir=ai_re"
+# Build from the committed HEAD only: a git flake would otherwise include uncommitted edits
+# of tracked files, i.e. whatever another session has in progress (e.g. fand). Our own paths
+# must be committed first.
+dirty=$(git -C "$repo" status --porcelain --untracked-files=no -- ai_re/flake.nix ai_re/nix/default.nix \
+  ai_re/nix/configs ai_re/nix/modules/profiles ai_re/nix/modules/platforms ai_re/nix/modules/boards/dmc12 \
+  ai_re/nix/modules/thermal ai_re/nix/modules/monitoring ai_re/nix/packages/linux-alpine \
+  ai_re/nix/packages/al-eth ai_re/nix/packages/dmc12-metrics ai_re/nix/packages/dmc12-cpld-reset \
+  ai_re/nix/packages/fastfetch-tiny rust/consoled)
+others=$(git -C "$repo" status --porcelain --untracked-files=no -- rust/crates/fand)
+if [ -n "$others" ]; then
+  echo "deploy.sh: note: fand has uncommitted edits (another session's work); building the committed fand" >&2
+fi
+if [ -n "$dirty" ]; then
+  echo "deploy.sh: uncommitted changes in paths this system is built from (commit them, or wait for their owner):" >&2
+  echo "$dirty" >&2
+  exit 1
+fi
+rev=$(git -C "$repo" rev-parse HEAD)
+flake="git+file://$repo?dir=ai_re&rev=$rev"
 build=(nix build --no-link --print-out-paths "$flake#nixosConfigurations.$attr.config.system.build.toplevel")
 if [ -n "${NIX_BUILD_LOCK:-}" ]; then out=$(flock "$NIX_BUILD_LOCK" "${build[@]}"); else out=$("${build[@]}"); fi
 opts=(-o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR)
@@ -39,5 +57,5 @@ if [ "$action" != test ]; then
 fi
 "${ssh[@]}" "$out/bin/switch-to-configuration" "$action"
 after=$(written)
-echo "deploy.sh: $action $out on $ip; SSD writes during deploy: $(( (after - before) / 2 )) KiB"
+echo "deploy.sh: $action $out (rev ${rev:0:8}) on $ip; SSD writes during deploy: $(( (after - before) / 2 )) KiB"
 if [ "$action" = boot ]; then echo "deploy.sh: reboot the box to use it"; fi
