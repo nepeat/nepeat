@@ -237,7 +237,9 @@ neighbors|table` call lldpctl directly. Packages: [packages/sonic/platform](../.
 
 ## not here (yet)
 
-QoS (sai-openbcm has no maps/schedulers), buffermgrd/buffer profiles, vxlan/nat/sflow/macsec managers,
+buffermgrd only as `buffers.enable` (traditional model: CONFIG_DB BUFFER_* -> APPL_DB, `buffers.pgProfileLookup`;
+on for the CS8210; without it portsorch keeps ports with BUFFER_QUEUE / BUFFER_PG entries admin down),
+the dynamic buffer model, vxlan/nat/sflow/macsec managers,
 `show acl`/`aclshow` (acl-loader needs pyangbind, not packaged),
 frrcfgd/unified FRR mode, BFD offload to the ASIC, swssconfig's switch.json, ledd/pcied/chassisd, SNMP, warm reboot, multi-ASIC,
 breakout at runtime (a split takes effect at the next SDK init: `sonic-nix reload`).

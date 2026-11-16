@@ -67,10 +67,29 @@ in {
       });
       # One process on the ASIC: the vendor bring-up stops while syncd runs.
       sai.conflicts = mkDefault [ "cs8210-switch.service" ];
+      # Traditional buffer model (BUFFER_* in CONFIG_DB, as SONiC's default QoS
+      # config): buffermgrd copies them to APPL_DB, else bufferorch never marks
+      # the ports ready and they stay admin down (chip 2026-11-16). The lookup
+      # rows only feed lossless PG profiles, which this init config cannot
+      # program (no lossless DTM partition: kept, not programmed).
+      buffers.enable = mkDefault true;
+      buffers.pgProfileLookup = mkDefault (pkgs.writeText "cs8210-pg_profile_lookup.ini" ''
+        # PG lossless profiles (not programmed on this init config, see sai-features.md)
+        # speed cable size xon xoff threshold xon_offset
+        400000 5m 18796 0 236800 0 3112
+        100000 5m 18796 0 165200 0 3112
+        40000 5m 18796 0 80000 0 3112
+        25000 5m 18796 0 60000 0 3112
+        10000 5m 18796 0 40000 0 3112
+      '');
       sai.profile = lib.mapAttrs (_: mkDefault) {
         SAI_OPENBCM_BACKEND = "openbcm";
         SAI_TERALYNX_LIBIFCS = "${cfg.sdkDir}/libifcs.so";
         SAI_TERALYNX_CONFIG_APPEND = "${cfg.runDir}/isg.yaml";
+        # The libsai's read-only diag shell (copp, acl, counters <devport>, mirror):
+        # openbcm-diag /run/sai-teralynx/diag.sock <command>
+        SAI_OPENBCM_DIAG_SOCKET = "/run/sai-teralynx/diag.sock";
+        SAI_TERALYNX_RUN_DIR = "/run/sai-teralynx";
       } // {
         # Generated with the IFCS config; init commands in the vendor's order:
         # rx_eq_fine_tune, the pre-emphasis tables, link training.

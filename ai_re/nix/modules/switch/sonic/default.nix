@@ -176,7 +176,8 @@ let
   # tlm_teamd: teamd state -> STATE_DB LAG_TABLE (runner.active, ...), which
   # "show interfaces portchannel" reads.
   managers = [ "portmgrd" "intfmgrd" "vlanmgrd" "nbrmgrd" "teammgrd" "teamsyncd" "tlm_teamd" "neighsyncd" "fdbsyncd" ]
-    ++ optional cfg.copp.enable "coppmgrd";
+    ++ optional cfg.copp.enable "coppmgrd"
+    ++ optional cfg.buffers.enable "buffermgrd";
   unit = n: "sonic-${n}.service";
 in {
   imports = [ ./frr.nix ./recovery.nix ./vrf.nix ./counters.nix ./pmon.nix ./lldp.nix ./bfd.nix ./metrics.nix ];
@@ -246,6 +247,22 @@ in {
     tablesWithoutYang = mkOption { type = types.listOf types.str; default = [ ]; description = "Tables allowed in settings without a YANG model (not validated)."; };
     redisDatabases = mkOption { type = types.ints.positive; default = 20; description = "Number of redis databases (SONiC's DB map uses ids up to 18)."; };
     copp.enable = mkOption { type = types.bool; default = true; description = "Run coppmgrd with SONiC's default copp_cfg.json (traps LACP/ARP/... to the CPU)."; };
+    buffers = {
+      enable = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Run buffermgrd (the traditional buffer model: CONFIG_DB BUFFER_* -> APPL_DB, lossless PG
+          profiles from pgProfileLookup). Without it CONFIG_DB BUFFER_QUEUE / BUFFER_PG entries never
+          reach orchagent and portsorch keeps their ports admin down (bufferorch "not ready").
+        '';
+      };
+      pgProfileLookup = mkOption {
+        type = types.nullOr types.path;
+        default = null;
+        description = "pg_profile_lookup.ini (speed cable size xon xoff threshold xon_offset), buffermgrd -l.";
+      };
+    };
     sai = {
       kind = mkOption { type = types.enum [ "vs" "vendor" ]; default = "vs"; description = "vs: the virtual SAI in sonic.sairedis; vendor: sai.package's syncd linked to a libsai."; };
       package = mkOption {
@@ -453,7 +470,8 @@ in {
       };
     } // listToAttrs (map (n: nameValuePair "sonic-${n}" (daemon {
       description = "SONiC ${n}";
-      exec = "${swss}/bin/${n}";
+      exec = "${swss}/bin/${n}" + lib.optionalString (n == "buffermgrd" && cfg.buffers.pgProfileLookup != null)
+        " -l ${cfg.buffers.pgProfileLookup}";
       bindsTo = unit "orchagent";
       after = optional (n == "teamsyncd" || n == "tlm_teamd") (unit "teammgrd");
       extra = optionalAttrs (n == "teammgrd") {

@@ -42,8 +42,10 @@ let
       };
   sonic = import (aiRe + "/packages/sonic") { pkgs = spkgs; };
   sai = spkgs.callPackage (aiRe + "/packages/sai-teralynx") { inherit sonic; };
-  sdkDir = config.hardware.cs8210.sonic.sdkDir; # inside the chroot root
   sdkRoot = "/var/lib/cs8210-sdk/root";
+  sdkDir = config.hardware.cs8210.sonic.sdkDir; # host path, under sdkRoot
+  # the same directory as seen inside the SDK chroot (the Credo tools run there)
+  sdkDirChroot = lib.removePrefix sdkRoot sdkDir;
   ports = config.system.build.sonic.ports;
 
   # Credo c-phy spec for cages 1-16 from the SONiC ports (<n>x<speed>G per
@@ -81,10 +83,13 @@ let
 
   credoUp = pkgs.writeShellScript "sonic-cs8210-credo-up" ''
     set -euo pipefail
-    SDK=${sdkDir}
+    SDK=${sdkDirChroot}
     cs8210-sdk-chroot /bin/bash -c "
       set -e
       cd $SDK
+      # A FIFO left by a phy_server that is gone makes the loader's write to
+      # it block forever (open() for writing without a reader; chip 2026-11-16).
+      pgrep -x phy_server >/dev/null || rm -f /tmp/cls_phy_fifo
       ./c-phy/auto_load_user.sh -m '${credo}' -e macsecbypass -l
       # phy_server busy-loops on its FIFO once the last writer is gone;
       # hold one open (same as cs8210-switch-up).
@@ -104,7 +109,7 @@ let
     "
   '';
   credoDown = pkgs.writeShellScript "sonic-cs8210-credo-down" ''
-    cs8210-sdk-chroot /bin/bash -c "cd ${sdkDir} && ./c-phy/auto_load_user.sh -r" || true
+    cs8210-sdk-chroot /bin/bash -c "cd ${sdkDirChroot} && ./c-phy/auto_load_user.sh -r" || true
     for _ in $(seq 1 20); do pgrep -x phy_server >/dev/null || exit 0; sleep 1; done
     pkill -x phy_server || true
   '';
@@ -132,7 +137,8 @@ let
       systemctl restart sonic-syncd || echo "restart of sonic-syncd failed"
     done
   '';
-  runtimePath = "/run/current-system/sw/bin";
+  # systemd.services.<n>.path appends /bin and /sbin: the profile root, not its bin
+  runtimePath = "/run/current-system/sw";
 in
 {
   imports = [
@@ -202,10 +208,10 @@ in
         # libyaml-0.so.2, libz.so; libstdc++ and glibc come with syncd.
         libraryPath = [
           "${sai}/lib"
-          "${sdkRoot}${sdkDir}"
-          "${spkgs.jansson}/lib"
-          "${spkgs.libyaml}/lib"
-          "${spkgs.zlib}/lib"
+          sdkDir   # libAAPL.so (a host path: syncd runs outside the chroot)
+          "${lib.getLib spkgs.jansson}/lib"   # getLib: jansson's default output is -dev
+          "${lib.getLib spkgs.libyaml}/lib"
+          "${lib.getLib spkgs.zlib}/lib"
         ];
         # sai.conflicts (cs8210-switch), the profile and the IFCS config
         # come from the board layer (ai_re boards/cs8210/sonic.nix).
