@@ -11,14 +11,19 @@
 #          Annapurna HAL in ../../al-eth/src, compiled for the host; and
 #          the HAL copy inside the driver patch is verbatim.
 #  qemu:   ./qemu-test.py on QEMU virt with the same board code.
-#  selfinit: dmc12-selfinit (external PCIe init, MUIO/CCU, read-only SPI
-#          NOR): config, linked/absent code (no SPI write/erase path, no
-#          sf write/erase/update/protect), DT additions, IPXE slot fit;
+#  selfinit: dmc12-selfinit (external PCIe init, MUIO/GPIO/CCU, SPI NOR
+#          read-only except the env window): config, linked/absent code
+#          (no lock/SR-write/quad-enable code, no sf write/erase/update/
+#          protect), instruction order of the SSI and GPIO writes, DT
+#          additions, IPXE slot fit, chainload u-boot.bin identity;
 #          dmc12-stage3app: alboot.py check, the wrapped data is that
 #          u-boot.bin byte for byte.
 #  spi-window: ./window-test, the write-window range check and spi-mem
-#          command filter (include/spi_flash_window.h) at every boundary
-#          and against a reference model.
+#          command filter (include/spi_flash_window.h): boundaries, every
+#          opcode x address width x dummy x direction, random requests.
+#  sandbox-window: the series on U-Boot sandbox with the emulated
+#          MX25U12835F: erase/write/raw-op attempts inside and outside the
+#          window; the backing file may change only inside it.
 #  pcie-init: ./pcie-test, al_init_pcie_rc.c (from the series) on the
 #          verbatim HAL (./al-pcie-hal) against a register model: cold,
 #          warm (factory state) and stuck-link runs, factory AXI words
@@ -203,6 +208,12 @@ let
              CMD_FDT LZMA CMD_MII CMD_ELF CMD_LOADS; do
       ! grep -q "^CONFIG_$k=y" $c || { echo "config: CONFIG_$k is on"; exit 1; }
     done
+    # The chainload build is the one u01 ran in RAM and the disk image ships: its bytes
+    # are pinned. Change these on purpose only (u-boot-port.md "what exists").
+    sha256sum ${d}/u-boot.bin ${d}/u-boot.uimage | awk '{print $1}' | tr '\n' ' ' > chain.txt
+    [ "$(cat chain.txt)" = "f4b4b4f3af25c8d85d6bc6585902b0ed4e8f8f5e6849fd109ca83d857a41e009 062428a9304388e877abbb70cfb66bf5cab4b11404148eb12f84a8e1d6824b52 " ] || \
+      { echo "chainload: bytes changed: $(cat chain.txt)"; exit 1; }
+    echo "chainload: ok (u-boot.bin f4b4b4f3, uimage 062428a9, unchanged)"
     # the stage3 app must fit the 512 KiB IPXE slot with >= 16 KiB to spare
     sz=$(stat -c %s ${s3}/u-boot-ipxe-08000000.fimg)
     [ "$sz" -le $((0x80000 - 0x4000)) ] || { echo "size: .fimg $sz B leaves < 16 KiB in the IPXE slot"; exit 1; }
@@ -213,6 +224,8 @@ let
               ENV_SPI_MAX_HZ=25000000 CMD_SAVEENV=y SPI_FLASH_WRITE_WINDOW=y \
               SPI_FLASH_WRITE_WINDOW_BUS=0 SPI_FLASH_WRITE_WINDOW_CS=0 \
               SPI_FLASH_WRITE_WINDOW_START=0xf90000 SPI_FLASH_WRITE_WINDOW_SIZE=0x20000 \
+              SPI_FLASH_WRITE_WINDOW_JEDEC=0xc22538 SPI_FLASH_WRITE_WINDOW_CHIP_SIZE=0x1000000 \
+              ENV_ADDR=0x0 \
               CMD_EXT4=y CMD_LOADB=y CMD_WGET=y CMD_I2C=y CMD_PCI=y BOOTMETH_EXTLINUX=y \
               'LOCALVERSION="-dmc12-selfinit"' PCIE_ALPINE_V2=y CMD_ALPINE_V2_PCIE=y PCI_INIT_R=y \
               ALPINE_V2_MUIO_INIT=y ALPINE_V2_GPIO_INIT=y ALPINE_V2_CCU_IO_COHERENCY=y CMD_ALPINE_V2=y \
@@ -231,6 +244,7 @@ let
         assert off + sect <= 0xfd0000 or off >= 0x1000000, f"{off:#x} hits the factory env"
     assert abs(h("ENV_OFFSET") - h("ENV_OFFSET_REDUND")) >= sect
     assert ws >= 0xb5f000 and ws + wz <= 0xfb0000, "window outside the blank BOOT_APP 1 tail"
+    assert ws % 0x10000 == 0 and wz % 0x10000 == 0, "window not 64 KiB aligned"
     print(f"env: ok (copies {h('ENV_OFFSET'):#x}/{h('ENV_OFFSET_REDUND'):#x} x {sect:#x} inside window {ws:#x}+{wz:#x}; factory env 0xfd0000-0xfeffff untouched)")
     PY
     echo "config: ok (PCIe RC init, MUIO/CCU, read-only SF except the env window; no SF lock/unlock, env in SPI)"
@@ -260,26 +274,16 @@ let
     # board_init: MUIO pin functions, then the GPIO list (the vendor order)
     [ "$(fn board_init | grep -oE 'bl.*<alpine_v2_(muio|gpio)_init>' | sed 's/.*<//; s/>//' | tr '\n' ' ')" = \
       "alpine_v2_muio_init alpine_v2_gpio_init " ] || { echo "elf: board_init order"; exit 1; }
-    # No lock/SR/quad-enable/SST code and no sf write paths. The NOR erase/program
-    # code exists only behind the window check: if spi_nor_erase/spi_nor_write
-    # are not inlined, their only callers are the window hooks and their
-    # address is never taken (no relocation of it).
+    # No lock/SR/quad-enable/SST code and no sf write paths. That erase/program
+    # only happens inside the window is shown by sandbox-window, not here.
     for s in sst_write sst_write_byteprogram write_sr write_sr_and_check macronix_quad_enable \
              stm_lock stm_unlock spi_flash_update spi_flash_update_block do_spi_flash_erase \
              do_spi_protect do_spi_flash_test; do
       ! grep -q " $s$" syms.txt || { echo "elf: $s is linked"; exit 1; }
     done
-    aarch64-unknown-linux-gnu-readelf -rW ${si}/u-boot > rela.txt
-    for s in spi_nor_erase spi_nor_write spi_nor_erase_chip spi_nor_erase_sector; do
-      a=$(awk -v s=$s '$3 == s {print $1}' syms.txt)
-      [ -n "$a" ] || continue
-      bad=$(awk -v s="<$s>" '/^[0-9a-f]+ <.*>:$/ {f = $2} $0 ~ "bl.*" s {print f}' dis.txt |
-            grep -vxE '<(spi_nor_ro_erase|spi_nor_ro_write|spi_nor_erase)>:' || true)
-      [ -z "$bad" ] || { echo "elf: $s called from $bad"; exit 1; }
-      ! grep -qi "$(sed 's/^0*//' <<<"$a")$" rela.txt || { echo "elf: address of $s taken"; exit 1; }
-    done
     b=${si}/u-boot.bin
-    grep -aq 'outside the write window, refused' $b
+    grep -aqF 'SF: erase %#llx+%#llx outside the write window, refused' $b
+    grep -aqF 'SF: write %#llx+%#zx outside the write window, refused' $b
     # cold stage3 boot: no slave left selected before the first command (0030);
     # the env origin is printed and in $env_source (0031)
     grep -aq 'slave select %#x left set by the firmware, cleared' $b
@@ -287,10 +291,40 @@ let
     grep -aq 'Env:   compiled-in default' $b
     grep -q ' alpine_v2_env_report$' syms.txt
     fn board_late_init | grep -q 'bl.*<alpine_v2_env_report>' || { echo "elf: board_late_init does not report the env"; exit 1; }
-    # spi_hw_init and dw_spi_exec_op both store 0 to SER (+0x10) before loading the FIFO
-    for f in dw_spi_probe dw_spi_exec_op; do
-      fn $f | grep -qE 'str\s+wzr, \[x[0-9]+, #16\]' || { echo "elf: $f does not clear SER"; exit 1; }
-    done
+    # Instruction order (0030/0033): probe stores SER (+0x10) = 0 before it calls the
+    # variant init (blr); exec_op stores SER = 0 after the first SSIENR (+0x08) = 0 and
+    # before the first DR (+0x60) write; GPIO init stores DATA before and after DIR (+0x400).
+    for f in dw_spi_probe dw_spi_exec_op alpine_v2_gpio_init; do fn $f > $f.dis; done
+    python3 - <<'PY'
+    import re
+    def ins(f):
+        # "addr:\tbytes \tmnemonic\toperands" -> "mnemonic\toperands"
+        return [l.split("\t", 2)[2] if l.count("\t") >= 2 else l for l in open(f + ".dis")]
+    def first(lines, pat, after=-1):
+        for i, l in enumerate(lines):
+            if i > after and re.search(pat, l):
+                return i
+        raise SystemExit(f"elf: no /{pat}/ after {after}")
+    p = ins("dw_spi_probe")
+    blr = first(p, r"\bblr\b")
+    off = first(p, r"str\s+wzr, \[x\d+, #8\]")
+    ser = first(p, r"str\s+wzr, \[x\d+, #16\]", off)
+    assert off < ser < blr, f"probe: SSIENR=0 {off}, SER=0 {ser}, variant init {blr}"
+    # SER = 0 must sit inside the SSIENR = 0 ... SSIENR = 1 window that precedes the
+    # FIFO load (the end-of-transfer SER = 0 can be laid out earlier in the code)
+    e = ins("dw_spi_exec_op")
+    off = first(e, r"str\s+wzr, \[x\d+, #8\]")
+    on = first(e, r"str\s+w\d+, \[x\d+, #8\]", off)
+    ser = first(e, r"str\s+wzr, \[x\d+, #16\]", off)
+    dr = first(e, r"str\s+w\d+, \[x\d+, #96\]|bl\s+\S+ <dw_writer>", on)
+    assert off < ser < on < dr, f"exec_op: SSIENR=0 {off}, SER=0 {ser}, SSIENR=1 {on}, DR {dr}"
+    g = ins("alpine_v2_gpio_init")
+    stores = [i for i, l in enumerate(g) if re.search(r"\bstr\s+w\d+, \[x\d+(, x\d+)?\]$", l.strip())]
+    d = first(g, r"\bstr\s+w\d+, \[x\d+, #1024\]")
+    assert any(i < d for i in stores) and any(i > d for i in stores), \
+        f"gpio: DATA stores {stores} not on both sides of DIR at {d}"
+    print("order: ok (SER cleared before the SSI variant init and before each transfer's FIFO load; GPIO value, direction, value)")
+    PY
     ! grep -aqE 'sf (write|erase|update|protect) |destructive test' $b || { echo "sf write help present"; exit 1; }
     grep -aq 'read-only build: no write, erase, update or protect' $b
     grep -aq 'spi-mem: read-only build, opcode %02x refused' $b
@@ -318,6 +352,7 @@ let
     [ "$(fdtget $t $p reg-names)" = "config controller dbi" ]
     [ "$(fdtget $t $p amazon,link-gen) $(fdtget $t $p amazon,link-lanes) $(fdtget $t $p amazon,port-id)" = "1 1 0" ]
     sp=/soc/io-bus@fc000000/spi@1882000
+    [ "$(fdtget $t /aliases spi0)" = $sp ] || { echo "dt: spi0 alias"; exit 1; }
     fdtget $t $sp compatible | grep -q amazon,alpine-dw-apb-ssi
     [ "$(fdtget $t $sp/flash@0 spi-max-frequency) $(fdtget $t $sp/flash@1 spi-max-frequency)" = "25000000 25000000" ]
     # the controller caps every transfer (500 kHz default: 16 MiB took 260 s on u01)
@@ -358,6 +393,35 @@ let
     mkdir ub; (cd ub && patch -s -p1 < ../w.diff)
     $CC -O2 -Wall -Werror -Iub/include -o run $test/window-test.c
     ./run | tee log.txt
+    mkdir $out; cp log.txt $out/
+  '';
+
+  # The series on U-Boot sandbox (native), read-only SPI NOR + the DMC-12 write
+  # window, the sandbox flash emulating an MX25U12835F, plus a test-only command
+  # (./sandbox-window/sfwtest.c, never in a board build) that drives the flash
+  # like code would. ./sandbox-window/run.py checks the results and that the
+  # backing file changes only inside the window.
+  sandboxUBoot = (pkgs.buildUBoot {
+    defconfig = "sandbox_defconfig";
+    extraConfig = builtins.readFile ./sandbox-window/sandbox.config;
+    extraPatches = alpine.patches;
+    extraMeta.platforms = [ "x86_64-linux" ];
+    filesToInstall = [ "u-boot" "u-boot.dtb" ".config" ];
+  }).overrideAttrs (o: {
+    pname = "uboot-sandbox-spi-window";
+    postPatch = o.postPatch + ''
+      cp ${./sandbox-window/sfwtest.c} cmd/sfwtest.c
+      echo 'obj-$(CONFIG_SANDBOX) += sfwtest.o' >> cmd/Makefile
+      substituteInPlace arch/sandbox/dts/sandbox.dtsi \
+        --replace-fail '"spansion,m25p16", "jedec,spi-nor"' '"macronix,mx25u12835f", "jedec,spi-nor"'
+    '';
+  });
+  sandboxWindow = pkgs.runCommand "alpine-v2-uboot-sandbox-window" {
+    nativeBuildInputs = [ pkgs.python3 ];
+  } ''
+    set -euo pipefail
+    grep -qx CONFIG_SPI_FLASH_WRITE_WINDOW=y ${sandboxUBoot}/.config
+    python3 ${./sandbox-window/run.py} ${sandboxUBoot}/u-boot ${sandboxUBoot}/u-boot.dtb | tee log.txt
     mkdir $out; cp log.txt $out/
   '';
 
@@ -405,4 +469,5 @@ in pkgs.linkFarm "alpine-v2-uboot-tests" [
   { name = "selfinit"; path = selfinit; }
   { name = "pcie-init"; path = pcieInit; }
   { name = "spi-window"; path = windowTest; }
+  { name = "sandbox-window"; path = sandboxWindow; }
 ]

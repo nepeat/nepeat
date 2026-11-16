@@ -52,6 +52,10 @@ let
     { scope = "alpine-v2"; file = "0029-mtd-spi-write-window-for-the-read-only-SPI-NOR.patch"; }
     { scope = "alpine-v2"; file = "0030-spi-designware-no-slave-selected-while-the-TX-FIFO-i.patch"; }
     { scope = "alpine-v2"; file = "0031-board-alpine-v2-say-where-the-environment-came-from.patch"; }
+    { scope = "alpine-v2"; file = "0032-mtd-spi-read-only-SPI-NOR-exact-allowlist-address-wi.patch"; }
+    { scope = "alpine-v2"; file = "0033-spi-designware-deselect-before-the-controller-init.patch"; }
+    { scope = "alpine-v2"; file = "0034-board-alpine-v2-GPIO-init-writes-value-direction-val.patch"; }
+    { scope = "dmc12"; file = "0035-board-dmc12-pin-the-boot-flash-SSI-as-spi0.patch"; }
   ];
   patchesFor = scopes: map (s: builtins.path { path = ./patches + "/${s.file}"; name = s.file; })
     (builtins.filter (s: builtins.elem s.scope scopes) series);

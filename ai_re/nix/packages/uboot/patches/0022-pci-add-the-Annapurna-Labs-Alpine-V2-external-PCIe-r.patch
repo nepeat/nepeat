@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: ai_re <ai_re@localhost>
 Date: Sun, 15 Nov 2026 12:00:00 -0800
-Subject: [PATCH 22/26] pci: add the Annapurna Labs Alpine V2 external PCIe
+Subject: [PATCH 22/35] pci: add the Annapurna Labs Alpine V2 external PCIe
  root complex
 
 Root complex driver for the Alpine V2 external PCIe ports, bound to the

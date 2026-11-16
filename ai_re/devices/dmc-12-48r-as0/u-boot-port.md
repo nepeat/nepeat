@@ -150,15 +150,18 @@ stage3's application ([spi-uboot-replacement.md](spi-uboot-replacement.md) §4).
   - **0026 `dmc12`:** DT under `#ifdef`: MUIO pins 0, 1 (SPI CS1/CS2), 20, 21 (UART1)
     fn 2 = the factory's `pinctrl_init` result (u01 dump: mux_sel_0 0x22, mux_sel_2
     0x00220000); PCIe port 0 gen1 x1.
-  - **0027 `alpine-v2` / 0028 `dmc12`, SoC GPIO 22 high** (not yet run on hardware). The
+  - **0027 `alpine-v2` / 0028 `dmc12`, SoC GPIO 22 high** (ran cold as stage3's app on u01
+    since the 15:30 SPI install: `GPIO:  22 out 1 (was in 1)`, then `dir 40 data cf`). The
     factory `board_init` runs `dt_based_init_gpio` (0x01101d50) right after the pinctrl
     and before SGPO and PCIe: for each dt.0 `gpio_init gpio-list` triplet (only
     `<0x16 0x01 0x01>`: GPIO 22, out, 1) `gpio_board_init` (0x01107f50) gives MUIO pin 22
     the GPIO function (iface 0x3a, fn 0), then `gpio_direction_output` (0x0115d998)
     sets PL061 DIR, then DATA. Ours: MUIO list gets `<22 0>`, and an
     `amazon,alpine-v2-gpio-init` node (same triplet, the 6 PL061 banks by phandle) is
-    applied in board_init after the MUIO, before PCI, value first, then direction (no
-    glitch to the stale latch). Boot line `GPIO:  22 out 1 (was out 1)` after the factory;
+    applied in board_init after the MUIO, before PCI: value, direction, value again (0034,
+    as Linux gpio-pl061; no glitch to the stale latch), then DIR/DATA read back. The boot
+    line shows the read-back state (`GPIO:  22 out 1 (was out 1)` after the factory) and
+    a mismatch prints `GPIO:  22 MISMATCH: wanted out 1`;
     `alpine state` shows `GPIO 22: out 1 (DT wants out 1)`. GPIO 22 is PL061 @0xfd889000
     line 6 = `CPLD_JTAG_EN`, the line `cpldupd` uses around MachXO3 JTAG updates;
     the factory-initialised state is `dir 40 data cf` (line 6 out, high).
@@ -182,16 +185,17 @@ stage3's application ([spi-uboot-replacement.md](spi-uboot-replacement.md) §4).
     enable, disable, enable, start, and those words end bit-identical. Stuck link:
     error at "link up wait" after 1 s, port left stopped/shut down/disabled. Also: the
     21 HAL files in patch 0022 are identical to `al-pcie-hal/`.
-  - **selfinit:** config (PCIe/MUIO/CCU/read-only SF on; no SF lock/unlock/SFDP/soft
-    reset, no `sspi`/`mtd`, env nowhere); symbols present (drivers, commands, init,
-    SError drain, -EROFS stubs) and absent (`spi_nor_erase`, `spi_nor_write`,
-    `spi_nor_write_data`, `write_sr`, `macronix_quad_enable`, `stm_lock`,
-    `spi_flash_update`, the `sf` erase/protect/test handlers); no `sf write|erase|
-    update|protect` help text; DT (MUIO, PCIe props, SSI compatible, 25 MHz flashes;
-    the chainload DT has none of it); both `.fimg` carry u-boot.bin verbatim and fit.
+  - **selfinit:** config (PCIe/MUIO/GPIO/CCU on, SF read-only except the env window, no SF
+    lock/unlock/SFDP/soft reset, no `sspi`/`mtd`, env in SPI); symbols present (drivers,
+    commands, init, SError drain, window hooks) and absent (`write_sr`,
+    `macronix_quad_enable`, `stm_lock`, `spi_flash_update`, the `sf`
+    erase/protect/test handlers); no `sf write|erase|update|protect` help text;
+    instruction order of the SSI SER clears and the GPIO value/direction writes; DT
+    (MUIO, GPIO, PCIe props, SSI compatible, `spi0` alias, 25 MHz; the chainload DT has
+    none of it); both `.fimg` carry u-boot.bin verbatim and fit; chainload bytes pinned.
+    The window itself: `spi-window` and `sandbox-window` (env section).
   - Not covered offline: the DM PCI glue, the SError drain, the SSI and the CCI —
-    QEMU models none of them. `write_enable` is still linked (octal-DTR/4-byte paths
-    this chip never takes; SPI_MEM_READ_ONLY refuses the opcode anyway).
+    QEMU models none of them (the SPI NOR layers are covered by `sandbox-window`).
 
 ### RAM test (main agent; nothing written to flash)
 
@@ -231,7 +235,7 @@ the factory does). The HAL's Amazon 2017 files carry no licence header; they shi
 MikroTik's GPL kernel source (licence call for the owner before anything is published
 upstream).
 
-## persistent environment in SPI (RAM chainload OK on u01; cold stage3 fix built, not yet run)
+## persistent environment in SPI (works on u01 cold since 2026-11-15 18:45)
 
 `#uboot-dmc12-selfinit` keeps its environment in SPI CS0, so `saveenv` at `=>` persists.
 
@@ -291,17 +295,40 @@ upstream).
   escape) run `sf probe 0:0; sf erase 0xf90000 0x20000`. The factory `sf probe` writes SR 0
   (spi-recovery.md §5), and the window is blank in the backup, so this is a clean reset to
   defaults.
+- **Review hardening (0032–0035, 2026-11-15):** read allowlist = what this build sends
+  (0x03, 0x0b, 0x9f, 0x05; 0x35 dropped: on the MX25U12835F it is EQIO, enter QPI); the
+  window filter ties address width to opcode (3 bytes for 0x02/0x20/0x52/0xd8, 4 for
+  0x12/0x21/0x5c/0xdc), no dummy, no data on erase; the spi-nor hooks also require JEDEC
+  `c22538`, a 16 MiB chip and 3-byte addressing (`SPI_FLASH_WRITE_WINDOW_JEDEC` /
+  `_CHIP_SIZE`), and a refused EN4B is fatal at probe; SER is cleared in probe before
+  the SSI variant init; `aliases/spi0` pins the SSI to seq 0.
+- **Build after 0032–0035:** `#uboot-dmc12-selfinit`
+  `/nix/store/xr04i9x6wkdd0gmrlzd40nh4n59yscii-…-2026.10` (u-boot.bin `72b8c42b…`, uimage
+  `e197aecb…`); `#uboot-dmc12-stage3app` `/nix/store/k1d4mrzrfrqs14bfpphwv3zga1yv59b7-…`
+  (`-08000000.fimg` `a0328d81…`, `-01100000.fimg` `8ed45511…`, 488548 B, 35740 B free).
+  Not yet run on hardware.
+- **`$env_source` and saveenv:** a `saveenv` stores whatever `env_source` holds; it is
+  rewritten at every boot from the real origin, so a stored value is never read. Not
+  excluded from the save (U-Boot has no per-variable "volatile" flag).
 - **Offline proof (`#uboot-alpine-v2-tests`):**
-  - `spi-window`: the header on the host. Every boundary of the window, the factory env and
-    UBOOT ranges, SR/chip-erase/lock/reset opcodes, and 2M random requests against a
-    128-bit reference model.
-  - `selfinit`: the env config, both copies inside the window and clear of 0xfd0000,
-    the window inside the blank BOOT_APP 1 tail, and the refusal string.
-  - In this build `spi_nor_erase`/`spi_nor_write` are inlined into the window hooks (no
-    symbols); if they ever stop being inlined, the test requires that only those hooks
-    call them and that no relocation takes their address.
-  - Not proven offline: the DW SSI write path (WREN/PP/erase on the wire), erase timing,
-    and the env load/save itself on hardware.
+  - `spi-window`: the header on the host. Every boundary, the factory env and UBOOT
+    ranges, then every opcode × address width 0–8 × dummy 0–2 × direction × 13 addresses ×
+    5 lengths against an independently written whitelist (194 of 1.35M allowed), and 2M
+    random requests (3-/4-byte program, 4K/32K/64K erase, mismatched widths) against a
+    128-bit model.
+  - `sandbox-window`: the series on U-Boot sandbox with the window and an emulated
+    MX25U12835F, driven by a test-only command (`sandbox-window/sfwtest.c`, never in a
+    board build) through the same `spi_flash_erase/write` calls the env uses and through
+    raw `spi_mem_exec_op`. Inside the window erase/program work; outside (below, above,
+    straddling, chip, factory env), SR writes, chip erase, EQIO, EN4B, reset, a 4-byte
+    address with a 3-byte opcode and a dummy byte all fail; the backing file differs
+    only inside 0xf90000–0xfaffff.
+  - `selfinit`: env config, both copies inside the 64 KiB-aligned window and clear of
+    0xfd0000, the window inside the blank BOOT_APP 1 tail, `ENV_ADDR=0x0`, both refusal
+    strings, and instruction order (SER cleared before the variant init and between the
+    first SSIENR=0 and the first DR write; GPIO value, direction, value).
+  - Not proven offline: the DW SSI write path on the wire and erase timing (hardware did:
+    saves, persistence, cold loads).
 
 ### RAM test (main agent)
 

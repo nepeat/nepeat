@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: ai_re <ai_re@localhost>
 Date: Sun, 15 Nov 2026 18:00:00 -0800
-Subject: [PATCH 30/31] spi: designware: no slave selected while the TX FIFO is
+Subject: [PATCH 30/35] spi: designware: no slave selected while the TX FIFO is
  loaded
 
 The transfer code loads the TX FIFO before it writes SER, and nothing

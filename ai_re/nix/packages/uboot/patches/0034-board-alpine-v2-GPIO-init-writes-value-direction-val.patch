@@ -1,0 +1,49 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Sun, 15 Nov 2026 20:00:00 -0800
+Subject: [PATCH 34/35] board: alpine-v2: GPIO init writes value, direction,
+ value and reads back
+
+As Linux gpio-pl061 does for an output: value, direction, value again.
+The boot line now shows what the bank reads back, not what was asked for,
+and a mismatch is printed ("GPIO:  22 MISMATCH: wanted out 1").
+
+Scope: alpine-v2.
+---
+ board/amazon/alpine-v2/soc-init.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/board/amazon/alpine-v2/soc-init.c b/board/amazon/alpine-v2/soc-init.c
+index 540573b1..d4d5dc25 100644
+--- a/board/amazon/alpine-v2/soc-init.c
++++ b/board/amazon/alpine-v2/soc-init.c
+@@ -142,17 +142,26 @@ int alpine_v2_gpio_init(bool verbose)
+ 			printf("GPIO:  %u: no PL061 bank in the DT\n", gpio);
+ 			return -EINVAL;
+ 		}
++		u32 rdir, rdata;
++
+ 		dir = readl(base + PL061_DIR);
+ 		data = readl(base + PL061_DATA(line)) >> line & 1;
+ 		if (out) {
++			/* value, direction, value again (as Linux gpio-pl061) */
+ 			writel(val << line, base + PL061_DATA(line));
+ 			writel(dir | BIT(line), base + PL061_DIR);
++			writel(val << line, base + PL061_DATA(line));
+ 		} else {
+ 			writel(dir & ~BIT(line), base + PL061_DIR);
+ 		}
+-		printf("GPIO:  %u %s%s (was %s %lu)\n", gpio, out ? "out " : "in",
+-		       out ? (val ? "1" : "0") : "", dir & BIT(line) ? "out" : "in",
+-		       (ulong)data);
++		/* report what the bank reads back, not what was asked for */
++		rdir = readl(base + PL061_DIR) >> line & 1;
++		rdata = readl(base + PL061_DATA(line)) >> line & 1;
++		printf("GPIO:  %u %s %u (was %s %lu)\n", gpio, rdir ? "out" : "in",
++		       rdata, dir & BIT(line) ? "out" : "in", (ulong)data);
++		if (rdir != !!out || (out && rdata != val))
++			printf("GPIO:  %u MISMATCH: wanted %s %u\n", gpio,
++			       out ? "out" : "in", out ? val : 0);
+ 	}
+ 	return 0;
+ }

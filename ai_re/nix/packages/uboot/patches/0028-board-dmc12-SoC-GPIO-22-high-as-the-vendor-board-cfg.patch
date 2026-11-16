@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: ai_re <ai_re@localhost>
 Date: Sun, 15 Nov 2026 13:00:00 -0800
-Subject: [PATCH 28/28] board: dmc12: SoC GPIO 22 high, as the vendor board-cfg
+Subject: [PATCH 28/35] board: dmc12: SoC GPIO 22 high, as the vendor board-cfg
  gpio_init
 
 dt.0 board-cfg gpio_init gpio-list = <0x16 0x01 0x01>: SoC GPIO 22

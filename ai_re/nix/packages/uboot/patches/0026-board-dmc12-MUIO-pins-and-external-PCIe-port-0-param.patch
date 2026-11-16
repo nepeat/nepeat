@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: ai_re <ai_re@localhost>
 Date: Sun, 15 Nov 2026 12:00:00 -0800
-Subject: [PATCH 26/26] board: dmc12: MUIO pins and external PCIe port 0
+Subject: [PATCH 26/35] board: dmc12: MUIO pins and external PCIe port 0
  parameters
 
 Only when the matching options are on (the DT of a build without them

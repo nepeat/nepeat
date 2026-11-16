@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: ai_re <ai_re@localhost>
 Date: Sun, 15 Nov 2026 12:00:00 -0800
-Subject: [PATCH 24/26] mtd: spi: optional read-only SPI NOR
+Subject: [PATCH 24/35] mtd: spi: optional read-only SPI NOR
 
 SPI_FLASH_READ_ONLY (needs SPI_FLASH_LOCK and SPI_FLASH_UNLOCK_ALL off)
 for a board whose boot flash must be readable but never writable from

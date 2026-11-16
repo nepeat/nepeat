@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: ai_re <ai_re@localhost>
 Date: Sun, 15 Nov 2026 17:00:00 -0800
-Subject: [PATCH] mtd: spi: write window for the read-only SPI NOR
+Subject: [PATCH 29/35] mtd: spi: write window for the read-only SPI NOR
 
 SPI_FLASH_WRITE_WINDOW (on top of SPI_FLASH_READ_ONLY): one range of one
 chip (_BUS, _CS, _START, _SIZE) may be erased and programmed, e.g. to keep
