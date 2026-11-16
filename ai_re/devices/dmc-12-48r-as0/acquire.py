@@ -33,10 +33,10 @@ if not (len(UNIT) == 3 and UNIT[0] == "u" and UNIT[1:].isdigit()):
 DUMPS = ROOT / "dumps" / UNIT
 HOST = take("--host") if "--compress" not in sys.argv else None  # rdinit-shell DHCP lease
 SECTOR = 512
-ITEMS = [  # (source, file, size in bytes, as reported by the box)
+ITEMS = [  # (source, file, size in bytes, as reported by the box; None = whatever it reports)
     ("/dev/mtd0", "mtd0.bin", 16777216),
     ("/dev/mtd1", "mtd1.bin", 16777216),
-    ("/dev/sda", "sda.img", 62533296 * SECTOR),
+    ("/dev/sda", "sda.img", None),  # SSDs differ per unit (u01: 62533296 sectors, 32 GB)
 ]
 # Bounded threads: -T0 (32 threads, ~1.7 GB RSS on a 32 GB image) plus a big
 # nix build ran the host out of memory on 2026-11-15 and took the user session
@@ -96,6 +96,7 @@ if sys.argv[1:2] == ["--compress"]:
     name, digest = sys.argv[2], sys.argv[3]
     index, (source, _, size) = next((i, it) for i, it in enumerate(ITEMS) if it[1] == name)
     dest = DUMPS / name
+    size = size or dest.stat().st_size
     if dest.stat().st_size != size or sha256_file(dest) != digest:
         raise SystemExit(f"{name}: raw file no longer matches {digest}")
     compress(name, source, size, digest, f"socat tcp :{19100 + index} from rdinit shell")
@@ -109,6 +110,11 @@ for index, (source, name, size) in enumerate(ITEMS):
         continue
     reported = box(f"cat /sys/class/{'mtd/' + source[5:] if 'mtd' in source else 'block/sda'}/size").split()
     reported = int(reported[-1]) * (1 if "mtd" in source else SECTOR)
+    if size is None:
+        if reported <= 0:
+            raise SystemExit(f"{name}: box reports {reported} bytes")
+        size = reported
+        print(f"{name}: box reports {size} bytes ({size // SECTOR} sectors)", flush=True)
     if reported != size:
         raise SystemExit(f"{name}: box reports {reported} bytes, expected {size}")
 

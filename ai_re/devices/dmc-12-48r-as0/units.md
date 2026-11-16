@@ -27,20 +27,22 @@ reads in `inventory/<unit>/`.
 | burn-in anomalies | port 30 failed 1 of 3 serial loopback runs |
 | sda.img sha256 | `46dac8f9…` (`dumps/u01/SHA256SUMS`) |
 | mtd0 / mtd1 sha256 | `b66dbca5…` / `9c3a9556…` |
-| now (2026-11-15) | **NixOS on SSD** via chainloaded U-Boot (`inventory/u01/reimage.jsonl`); factory SSD in `dumps/u01/` |
+| now (2026-11-15) | **our U-Boot in SPI (IPXE) + NixOS standard boot** (`inventory/u01/spi-upgrade.jsonl`, `reimage.jsonl`); factory SSD in `dumps/u01/`; lab console server |
 
 Kernel 1.0.99.0 vs 1.0.101.0: the same source rebuilt (66 bytes differ:
 build host/date). The real changes between OS 457 and 526 are in userspace (see PROGRESS).
 
-## Collecting a new unit (read-only)
-1. `lab-power N …` for its plug (add it to `tools/lab_power.py`), console in
-   `serial-dmc12`, cold boot captured.
-2. `./powercycle_to_uboot.py` → `printenv` to `inventory/<unit>/uboot-printenv-private.txt`;
-   `version`, `uc_get_version`, `uc_get_secure`, `uc_watchdog_get_status`,
-   `flash_contents_toc_print`.
-3. rdinit shell (PROGRESS Status). Then `acquire.py --unit <unit> --host <ip>`.
-   EEPROM, DTB, SPD and `/proc/config.gz` via `fetch_small.py`. CPLD
-   registers as in `inventory/u01/cpld-regs.txt`.
+## New units
+1. Hands: unit id sticker; the box on a switchable lab plug (`tools/lab_power.py`; plug 1 = CS8210,
+   plug 2 = u01, so a new unit needs a third plug or u01 off its plug); the FTDI console cable
+   on its front console port (tmux `serial-dmc12`); mgmt port on the lab LAN.
+2. `./provision.py --unit u02 --plug N` (resumable, `--yes` for agents; steps in its docstring):
+   factory capture (env, uC/TOC info, mtd0/mtd1/sda, DTB/EEPROM/SPD/config) → standard image on
+   the SSD → `spi-upgrade.py` rehearse + install → smoke. Each write asks for the unit id.
+   It assumes the box's DHCP lease is the same in the rdinit shell and in NixOS (same MAC: true
+   on u01); if not, rerun with `--ip`.
+3. Service tag from the chassis label into `units-private.txt`. CPLD registers as in
+   `inventory/u01/cpld-regs.txt` (`i2cget -y 4 0x68 …` from NixOS: read-only).
 4. Offline: image headers (`dumpimage -l`) of every uImage on sda1, `ls` of
    `/boot/*`, check for operator config (dirty or clean), `dmc12_diag_log` results.
    Copy any image not already archived (compare sha256) to `dumps/<unit>/factory-os/`.

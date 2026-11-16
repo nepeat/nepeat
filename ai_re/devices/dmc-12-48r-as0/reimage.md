@@ -12,6 +12,9 @@ nix build "$R#dmc12-netboot"    -o devices/dmc-12-48r-as0/nixos-build/result-net
 nix build "$R#dmc12-disk-image" -o devices/dmc-12-48r-as0/nixos-build/result-disk-standard
 # units without our U-Boot in SPI: the chainload layout (u-boot-port.md "on-disk boot"):
 nix build "$R#dmc12-disk-image-chainload" -o devices/dmc-12-48r-as0/nixos-build/result-disk-chainload
+# new units (provision.py): our U-Boot for the chainload and for the SPI IPXE slot
+nix build "$R#uboot-dmc12-chainload"  -o devices/dmc-12-48r-as0/nixos-build/result-uboot-dmc12-chainload
+nix build "$R#uboot-dmc12-stage3app"  -o devices/dmc-12-48r-as0/nixos-build/result-uboot-dmc12-stage3app
 ```
 The default `--image` is the standard build (needs `spi-upgrade.py install` on the unit first; the
 script checks); pass `--image nixos-build/result-disk-chainload` otherwise.
@@ -23,6 +26,7 @@ script checks); pass `--image nixos-build/result-disk-chainload` otherwise.
   build artefacts only; no keys, no dumps).
 
 ## Per unit
+New units: `provision.py` runs all of this in order (units.md "New units"); by hand:
 1. **Original state first.** Capture it read-only per `units.md` (`acquire.py`:
    sda, mtd0, mtd1) and add the serial to `units-private.txt`. The script
    refuses to write without both.
@@ -40,6 +44,9 @@ What it writes, and only after confirmation:
   `inventory/<unit>/uboot-printenv-before-reimage-private.txt`.
 
 Everything before `write` is non-destructive: the netboot runs from RAM.
+`--spi-next` (what provision.py uses): a standard image on a unit whose SPI still has only the
+factory U-Boot. It writes the disk and skips setenv/boot. Until `spi-upgrade.py install`
+succeeds, the box can't boot from disk (rehearse boots it from RAM); to undo, "Back to factory".
 It records the result in `inventory/<unit>/reimage.jsonl`.
 
 ## Back to factory

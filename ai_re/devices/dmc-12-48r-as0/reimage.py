@@ -218,7 +218,9 @@ def step_preflight(args, st):
     st["toplevel"] = (args.netboot / "toplevel").read_text().strip()
     st["loader"] = factory_env(args.image)["loader"]
     st["spi_uboot"] = spi_uboot(args.unit) if not missing else False
-    if st["loader"] == "standard" and not st["spi_uboot"]:
+    if args.spi_next and st["spi_uboot"]:
+        raise Fail(f"--spi-next is for units without our U-Boot in SPI; {args.unit} has it: drop the flag")
+    if st["loader"] == "standard" and not st["spi_uboot"] and not args.spi_next:
         raise Fail(f"{args.image} is a standard-boot image, but {args.unit} has no U-Boot in SPI "
                    "(spi-upgrade.py install), or use a chainload image")
     if st["spi_uboot"] and args.plug is None:
@@ -533,6 +535,10 @@ def main():
     p.add_argument("--to", dest="stop", choices=STEPS, default="record")
     p.add_argument("--ip", help="netbooted box address, when resuming after 'netboot'")
     p.add_argument("--no-backup-gate", metavar="REASON")
+    p.add_argument("--spi-next", action="store_true",
+                   help="new unit, standard image, no U-Boot in SPI yet: write the disk and stop "
+                        "(no setenv/boot: the factory U-Boot can't boot it); spi-upgrade.py "
+                        "rehearse/install boot it next (provision.py)")
     p.add_argument("--yes", action="store_true")
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--json", action="store_true")
@@ -542,8 +548,14 @@ def main():
     if args.plug is None and not args.no_power:
         p.error("give --plug N or --no-power")
     steps = STEPS[STEPS.index(args.start):STEPS.index(args.stop) + 1]
+    if args.spi_next:
+        if not args.image.exists():
+            p.error(f"{args.image} missing (reimage.md: Before the first unit)")
+        if factory_env(args.image)["loader"] != "standard":
+            p.error("--spi-next is for standard-boot images")
+        steps = [s for s in steps if s not in ("setenv", "boot")]
     args.steps = steps
-    st = {"unit": args.unit, "steps": []}
+    st = {"unit": args.unit, "steps": [], "spi_next": args.spi_next}
     if args.ip:
         st["ip"] = args.ip
     if args.dry_run:
