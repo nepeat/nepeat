@@ -37,8 +37,10 @@ fi
 timeout=@timeout@
 numGenerations=@numGenerations@
 dtbName=@dtbName@
+# Staging dir under /boot: "nixos" alone; "nixos-uboot" when extlinux shares /boot ("both").
+kdir=@kernelsDir@
 
-mkdir -p "$target/nixos"
+mkdir -p "$target/$kdir"
 
 # Convert /nix/store/<hash>-<name>/file to <hash>-<name>-<file>.
 cleanName() {
@@ -55,7 +57,7 @@ declare -A filesCopied
 copyToKernelsDir() {
     local src
     src=$(readlink -f "$1")
-    local dst="$target/nixos/$(cleanName "$src")"
+    local dst="$target/$kdir/$(cleanName "$src")"
     if ! test -e "$dst"; then
         local dstTmp="$dst.tmp.$$"
         cp -r "$src" "$dstTmp"
@@ -74,7 +76,7 @@ copyToKernelsDir() {
 stageKernel() {
     local src
     src=$(readlink -f "$1")
-    local dst="$target/nixos/$(cleanName "$src").uImage"
+    local dst="$target/$kdir/$(cleanName "$src").uImage"
     if ! test -e "$dst"; then
         local dstTmp="$dst.tmp.$$"
         # Uncompressed (-C none): bootm only memmoves it to 0x04200000 (2 MiB aligned), so the
@@ -100,7 +102,7 @@ stageKernel() {
 stageInitrd() {
     local src
     src=$(readlink -f "$1")
-    local dst="$target/nixos/$(cleanName "$src").uImage"
+    local dst="$target/$kdir/$(cleanName "$src").uImage"
     if ! test -e "$dst"; then
         local dstTmp="$dst.tmp.$$"
         # > /dev/null — see stageKernel for why mkimage stdout is muted.
@@ -152,9 +154,9 @@ addEntry() {
     # spaces — the inner quotes don't conflict because the outer
     # bootmenu_N= record is a single env var, NOT a shell word.
     local cmd
-    cmd="ext4load scsi 0:1 0x10000000 /nixos/$kernel"
-    cmd="$cmd; ext4load scsi 0:1 0x20000000 /nixos/$initrd"
-    cmd="$cmd; ext4load scsi 0:1 0x04078000 /nixos/$dtb"
+    cmd="ext4load scsi 0:1 0x10000000 /$kdir/$kernel"
+    cmd="$cmd; ext4load scsi 0:1 0x20000000 /$kdir/$initrd"
+    cmd="$cmd; ext4load scsi 0:1 0x04078000 /$kdir/$dtb"
     cmd="$cmd; setenv bootargs 'init=$path/init $extraParams'"
     cmd="$cmd; setenv initrd_high 0xffffffffffffffff"
     cmd="$cmd; setenv fdt_high 0xffffffffffffffff"
@@ -195,7 +197,7 @@ install -m 0644 -T @bootScr@ "$target/boot.scr" 2>/dev/null \
     || cp -f @bootScr@ "$target/boot.scr"
 
 # GC: drop /boot/nixos/* not referenced by any active generation.
-for fn in "$target/nixos"/*; do
+for fn in "$target/$kdir"/*; do
     if ! test "${filesCopied[$fn]}" = 1; then
         echo "[dmc12-uboot-menu] removing stale boot file: $fn"
         chmod +w -- "$fn"

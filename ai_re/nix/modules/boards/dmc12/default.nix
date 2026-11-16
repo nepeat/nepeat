@@ -14,6 +14,13 @@
     ./console-server.nix   # consoled: the 48 serial ports over ssh
   ];
 
+  # Stage 1 is plain ext4 on the SSD: no LVM, no LUKS unlock via TPM2/FIDO2 (they pull in
+  # lvm2, cryptsetup, openssl, libfido2: ~1/3 of the initrd). zstd -19: smaller /boot copies.
+  boot.initrd.services.lvm.enable = lib.mkDefault false;
+  boot.initrd.systemd.tpm2.enable = lib.mkDefault false;
+  boot.initrd.systemd.fido2.enable = lib.mkDefault false;
+  boot.initrd.compressorArgs = lib.mkDefault [ "-19" "-T0" ];
+
   hardware.alpineV2 = {
     # allnoconfig + explicit (packages/linux-alpine); lean is the fallback.
     kernelVariant = lib.mkDefault "minimal";   # hosts needing more (TUN/WireGuard VPNs): "lean"

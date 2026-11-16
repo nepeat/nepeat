@@ -40,11 +40,14 @@
 # This module sets system.build.installBootLoader so NixOS calls our
 # builder.sh during activation. We do NOT set system.boot.loader.id as
 # load-bearing — the activation machinery only requires installBootLoader.
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, modulesPath, ... }:
 
 let
+  # "both": this layout in /boot/nixos-uboot next to nixpkgs' extlinux in /boot/nixos (bootloader.nix).
+  both = config.hardware.dmc12.bootLoader == "both";
   timeout = 5;            # seconds; passed to bootmenu_delay
-  numGenerations = 20;    # how many past gens to expose in the menu
+  numGenerations = if both then 1 else 20;   # past gens in the menu (both: /boot holds two layouts)
+  kernelsDir = if both then "nixos-uboot" else "nixos";
 
   # Static U-Boot script. mkimage-wrapped, ~200 bytes. Only changes if
   # we edit this file; never per-generation.
@@ -103,22 +106,38 @@ let
       timeout = toString timeout;
       numGenerations = toString numGenerations;
       dtbName = config.hardware.deviceTree.name;
+      inherit kernelsDir;
       bootScr = "${bootScr}";
     };
   };
   builder = mkBuilder pkgs;
+
+  # "both": nixpkgs' extlinux builder (as generic-extlinux-compatible calls it) for our U-Boot's
+  # standard boot, current + 1 previous generation, in /boot/nixos.
+  extlinuxBuilder = import (modulesPath + "/system/boot/loader/generic-extlinux-compatible/extlinux-conf-builder.nix") { inherit lib pkgs; };
+  extlinuxArgs = "-g 1 -t 3 -n ${config.hardware.deviceTree.name}";
+  # Order matters: our builder first (stages /boot/nixos-uboot, then swaps in u-boot.menu), then
+  # extlinux, whose clean-up removes /boot/nixos files it doesn't own (e.g. a previous uboot-menu
+  # layout) only once the new menu no longer points at them.
+  bothInstaller = pkgs.writeScript "install-dmc12-both.sh" ''
+    #!${pkgs.runtimeShell}
+    set -e
+    ${builder} "$1"
+    ${extlinuxBuilder} ${extlinuxArgs} -d /boot -c "$1"
+    ${import ../compress-kernels.nix { inherit pkgs; }} /boot
+  '';
 in {
-  config = lib.mkIf (config.hardware.dmc12.bootLoader == "uboot-menu") {
+  config = lib.mkIf (config.hardware.dmc12.bootLoader == "uboot-menu" || both) {
     # NixOS's activation calls this with the new toplevel as $1.
     # mkForce so we win over any default (extlinux-compat etc.) that
     # might also bind to system.build.installBootLoader.
-    system.build.installBootLoader = lib.mkForce builder;
+    system.build.installBootLoader = lib.mkForce (if both then bothInstaller else builder);
     # Same builder for the build host: disk.nix runs it with -d to stage /boot.
     system.build.dmc12BootBuilderNative = mkBuilder pkgs.buildPackages;
 
     # Quietens NixOS's "no bootloader configured" warning. The id is
     # cosmetic — only system.build.installBootLoader is load-bearing.
-    system.boot.loader.id = lib.mkForce "dmc12-uboot-menu";
+    system.boot.loader.id = lib.mkForce (if both then "dmc12-both" else "dmc12-uboot-menu");
 
     # Inspectable handle:
     #   nix build .#nixosConfigurations.<host>.config.system.build.dmc12UbootMenu

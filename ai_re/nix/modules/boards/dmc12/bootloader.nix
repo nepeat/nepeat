@@ -2,7 +2,7 @@
 { lib, ... }:
 {
   options.hardware.dmc12.bootLoader = lib.mkOption {
-    type = lib.types.enum [ "standard" "uboot-menu" "chainload" ];
+    type = lib.types.enum [ "standard" "uboot-menu" "chainload" "both" ];
     default = "standard";
     description = ''
       How NixOS boots from the SSD (disk.nix):
@@ -17,6 +17,10 @@
       (scsi read, slots A/B) and bootm's it; that boots a raw Image through
       extlinux on sda2 (boot-chainload.nix, u-boot-port.md). Built as the
       dmc12-disk-image-chainload output.
+      "both": the uboot-menu layout (in /boot/nixos-uboot) and the standard extlinux one (in
+      /boot/nixos) side by side, so either U-Boot boots this disk: for moving a factory-SPI unit
+      to our U-Boot (deploy both -> spi-upgrade.py install -> reboot -> "standard"). Each keeps
+      the current and one previous generation (/boot space: ~2x per generation).
     '';
   };
 }

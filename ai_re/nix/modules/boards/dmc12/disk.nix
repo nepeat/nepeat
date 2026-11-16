@@ -194,5 +194,6 @@ in
     standard = standardImage;
     chainload = chainloadImage;
     uboot-menu = ubootMenuImage;
+    both = throw "dmc12: no disk image for bootLoader = \"both\" (a transition layout for an installed disk; build \"standard\" or \"uboot-menu\")";
   }.${config.hardware.dmc12.bootLoader};
 }
