@@ -47,6 +47,9 @@ Edgecore/Accton 48-port serial console server on an Annapurna Alpine V2 "K2C-AB"
 - **Cold start (no factory U-Boot): GPIO 22 is an input** and 3 MUIO pins differ; our U-Boot sets both,
   and does its own PCIe RC init. [hw, first SPI boot]
 - **Fans fail safe:** with no OS the CPLD runs them full speed until the WDT flag 0x2a is cleared. [hw]
+- **Our U-Boot's env:** redundant 2 × 64 KiB at 0xf90000/0xfa0000 (blank tail of BOOT_APP 1), the only
+  SPI range our U-Boot can write (patch 0029). MX25U12835F: min 100,000 erase/program cycles per sector
+  (datasheet Rev. 1.8 §14) = 200k saves; never `fw_setenv`/`saveenv` periodically. `u-boot-port.md`
 - **SPI upgrade path:** our U-Boot in IPXE 0/1 + BOOT_MODE (64 KiB TOC slot, first sector used); factory
   UBOOT stays as the `u` escape. Installed on u01 [hw]; `spi-upgrade.py`, `spi-upgrade-plan.md`.
 

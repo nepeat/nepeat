@@ -1,29 +1,20 @@
 # DMC-12-48R-AS0 serial console server
 
 ## Status
-- **u01 boots our U-Boot from SPI (2026-11-15, `spi-upgrade.py install`)**: stage3 → our self-init
-  U-Boot 2026.10 in IPXE 0 (BOOT_MODE app 0x110) → extlinux on sda2 → NixOS root sda3; login ≈ 38 s.
-  Holding `u` at stage3 (`stage3keys.py --key u`) gives the untouched factory U-Boot, whose env still
-  chainloads our U-Boot from raw sda1 (`reimage.py` install, `reimage.md`). Back to the factory boot:
-  `spi-upgrade.py rollback --write`. Original state: `dumps/u01/` (`reimage.md` "Back to factory").
-- **Board quirks/features at a glance:** `board-notes.md`.
-- **Self-init U-Boot (RAM, 2026-11-15, transcript `serial-chainload-20261115-123112.txt`): full checklist
-  passes.** Read-only `sf read` of CS0/CS1 CRC-exact vs the backups (08145ce6, 3d086ac6, whole CS1
-  db9e4937; ~60 KB/s, 260 s per chip), MUIO as the DT wants, CCU set from cleared, `alpcie reinit`
-  trains the link with our init + full USB tree rescan (0 SErrors), then NixOS booted from SSD on that
-  link: smoke 15/15, 48 ports. (AXI +0x30 differs only as the last config bus accessed.) SPI at
-  25 MHz (09baad0): 16 MiB in 6.2 s, CRCs still exact; whole checklist passes unattended.
-- **Route A works (2026-11-15, `uartboot.py`, zero SPI writes):** production stage3 re-entered from a RAM
-  copy of the flash. Fix chain: clear the resume watermark (FPU), RMR.AA64=1 at stage3 entry, and request
-  stage3's CPU0 reset without the WFI wait (0x00010013). Results: factory U-Boot from RAM ("recovery boot
-  command!"); **exp 3: BOOT_MODE app 0x10000005 honoured, `u` forces app 5 back ("User request for loading
-  U-Boot!")**, i.e. the escape hatch is proven; **exp 4: our self-init U-Boot as stage3's app (x0=0, EL2) →
-  alpcie reinit → extlinux → NixOS: smoke 15/15, 4 CPUs, no dmesg warnings.** Caveat: the factory U-Boot ran
-  once before each Route A test, so a PCIe start with no factory init at all is still untested.
-- **SPI upgrade:** `spi-upgrade.py` (spec `spi-upgrade-plan.md`, gates `spi-upgrade-gates.json`, journal
-  `inventory/u01/spi-upgrade.jsonl`). CS0 now = backup + IPXE 0 + BOOT_MODE (crc32 0..0xfd0000
-  `161a8c6d`). Open: a clip read of CS0 was skipped (owner); IPXE 1 blank. Boot chain (preloader EEPROM, DDR, DT diff, APCEA/BOOT_APP):
-  `boot-chain-details.md`; cross-device: `../../alpine-v2-boot-chain.md`.
+- **u01 (2026-11-15): stage3 → our U-Boot 2026.10 from SPI → standard boot (`bootflow scan`) →
+  nixpkgs extlinux on sda1 → NixOS root sda2**; login ≈ 38 s, soak 3/3. Disk: `dmc12-disk-image`
+  (`hardware.dmc12.bootLoader = "standard"`, installed with `reimage.py`).
+- **SPI slots** (`spi-upgrade.py slots`; spec `spi-upgrade-plan.md`, journal `inventory/u01/spi-upgrade.jsonl`):
+  IPXE 0 = env build af039fd **[active]**, IPXE 1 = trimmed build f5901b0 (fallback), UBOOT 0/1 =
+  factory 2015.07. `switch --to ipxe0|ipxe1|factory`, `update` (writes the inactive slot), `rollback`.
+  Holding `u` at stage3 = factory U-Boot (recovery prompt; it can't boot the standard disk).
+- **Open:** env load fails at boot in the stage3-app path (`unrecognized JEDEC id bytes: ff, ff, ff`
+  → defaults; `saveenv` at the prompt works) — U-Boot agent root-causing; no clip read of CS0 yet
+  (`spi-upgrade.py clipcheck`); no `switch-to-configuration` in the closure (no `nixos-rebuild`
+  on the box); Linux `fw_setenv` (phase 2) not started.
+- **Board quirks/features at a glance:** `board-notes.md`. Route A / stage3 keys: `uart-boot.md`;
+  our U-Boot (checklist, env, recovery): `u-boot-port.md`; boot chain: `boot-chain-details.md`,
+  `../../alpine-v2-boot-chain.md`.
 - Console: tmux `serial-dmc12`, tio on the FTDI `B0016Y5Q` (by-id path) at **115200 8N1**,
   confirmed from a readable boot. Captures go to `serial-*.txt` (git-ignored, may
   hold env/keys). The AS7760's console is cabled to **DMC-12 port 48**: read-only
@@ -202,6 +193,19 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-15 17:40: **slots, standard boot, SPI env.** (1) Selfinit trimmed (f5901b0, 41 KiB free in
+  the slot), RAM test PASS, rehearsed and `update`d into IPXE 1 (app 0x10000110); the running copy was
+  CRC-proven at `=>` (`crc32 0x08000000 0x60000`). (2) Standard boot (f9aac05): `dmc12-disk-image` =
+  sda1 /boot (generic-extlinux-compatible) + sda2 root, no raw partition/factory env; reimaged u01
+  (`reimage.py` reaches the factory prompt via `u`), smoke PASS, soak 3/3; chainload image drvPath
+  unchanged. (3) `spi-upgrade.py slots` + `switch` (8464421, 4bfb078): live ipxe1→ipxe0→ipxe1,
+  CRC-proven, escape OK. (4) SPI env (af039fd, patch 0029 write window 0xf90000+0x20000 in the blank
+  BOOT_APP 1 tail): chainload RAM test saved twice, persisted over a power-cycle, CS0 outside the window
+  bit-identical; rolled into IPXE 0. **Bug:** as stage3's app the env load probes SPI too early
+  (`unrecognized JEDEC id bytes: ff, ff, ff`, defaults used); `sf probe` at the prompt works. Wear:
+  MX25U12835F min 100,000 erase/program cycles (datasheet Rev. 1.8 §14), redundant env = 200k saves.
+  Harness bugs found and fixed on the way: stale-screen matches (console.py clears history per
+  command; match after a marker instead) in rehearse, reimage boot, switch.
 - 2026-11-15 16:00: soak from SPI, 6/6 PASS (power, warm CPLD reboot, 30 s cold): login 37.7–40.2 s, smoke clean,
   CPLD WDT flag 0x01 and uC 50–56 °C as before (`inventory/u01/soak.jsonl`; soak.py now matches the selfinit
   banner too).
