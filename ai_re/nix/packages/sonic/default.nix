@@ -34,5 +34,6 @@ let
     python = pkgs.callPackage ./python { sonic = self; };
     routing = import ./routing { inherit pkgs; sonic = self; };   # FRR + bgpcfgd (./routing/default.nix)
     platform = pkgs.callPackage ./platform { sonic = self; };      # pmon daemons, platform CLI, LLDP (./platform/default.nix)
+    metrics = pkgs.callPackage ./metrics { };                      # sonic_* textfile producer (./metrics/default.nix)
   };
 in self

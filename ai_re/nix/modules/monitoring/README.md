@@ -40,6 +40,7 @@ gets `/run/prometheus-textfile-<name>/` (kept between runs) for caches.
 | --- | --- | --- |
 | `boards/as7760/monitoring.nix` | [as7760-metrics](../../packages/as7760-metrics/README.md) | `switch_*`: optics, fans, board LM75s (board-neutral names) |
 | `boards/dmc12/monitoring.nix` | [dmc12-metrics](../../packages/dmc12-metrics/README.md) | `dmc12_*`: CPLD fans/PSUs/alarms/WDT flag, labelled temperatures, P1..P48 |
+| `switch/sonic/metrics.nix` (any board with `services.sonic`) | [sonic-metrics](../../packages/sonic/metrics/README.md) | `sonic_*`: ports, counters, PortChannels, BGP, BFD, LLDP, optics, ACL/CoPP, routes, conflicts, unit restarts (from redis) |
 
 Producers are read-only and cheap (one run per interval, no daemon); a
 board's hardware owner (fan control, interrupt monitor) keeps every write.

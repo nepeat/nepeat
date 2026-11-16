@@ -1261,6 +1261,213 @@
         "showPercentChange": false,
         "percentChangeColorMode": "standard"
       }
+    },
+    {
+      "id": 15,
+      "type": "stat",
+      "title": "SONiC",
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 24,
+        "h": 3
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "max(sonic_up{job=\"$job\"})",
+          "legendFormat": "SONiC redis",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "sum(sonic_port_oper_up{job=\"$job\"})",
+          "legendFormat": "ports up",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "sum(sonic_portchannel_oper_up{job=\"$job\"})",
+          "legendFormat": "PortChannels up",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "sum(sonic_bgp_neighbor_established{job=\"$job\"})",
+          "legendFormat": "BGP established",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "sum(sonic_bfd_session_up{job=\"$job\"})",
+          "legendFormat": "BFD up",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "sum(sonic_routes{job=\"$job\"})",
+          "legendFormat": "routes",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "refId": "F"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "max(sonic_nix_conflicts{job=\"$job\"})",
+          "legendFormat": "config conflicts",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "refId": "G"
+        }
+      ],
+      "description": "SONiC state of this job (sonic-metrics producer, services.sonic). Click for the SONiC switch dashboard. Empty: the job runs no SONiC.",
+      "links": [
+        {
+          "title": "SONiC switch",
+          "url": "/d/ai-re-sonic/sonic-switch?var-job=${job}&${__url_time_range}",
+          "targetBlank": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "noValue": "no SONiC on this job",
+          "custom": {},
+          "links": [
+            {
+              "title": "SONiC switch",
+              "url": "/d/ai-re-sonic/sonic-switch?var-job=${job}&${__url_time_range}",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SONiC redis"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "DOWN",
+                        "color": "red",
+                        "index": 0
+                      },
+                      "1": {
+                        "text": "UP",
+                        "color": "green",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "config conflicts"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "orange",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "value_and_name",
+        "orientation": "vertical",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard"
+      }
     }
   ]
 }

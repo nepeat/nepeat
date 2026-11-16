@@ -1,0 +1,212 @@
+# sonic-metrics (services.sonic.metrics): unit test, VM test, dashboard queries, neutrality (2026-11-15)
+# Producer: nix/packages/sonic/metrics (README there); module nix/modules/switch/sonic/metrics.nix.
+
+## 1. unit test: real redis-server + fake SONiC dump, promtool strict lint
+# nix build ... pkgs.callPackage ./nix/packages/sonic/metrics/test.nix { }  -> /nix/store/mbbdqpwa453fk5ksl8x4vwkfawg7bj20-sonic-metrics-test
+PASS exit 0, nothing on stderr
+INFO 633 samples, 35 ports, 0.049 s wall (Python start-up included), collect 0.0064 s
+PASS sonic_up 1
+PASS all 13 collectors succeeded
+PASS device info
+PASS config initialized, ports init done
+PASS one sonic_port_info per CONFIG_DB port
+PASS port labels: SONiC name + alias
+PASS Ethernet0 admin up, oper up, 25G
+PASS Ethernet24 admin up, oper down
+PASS Ethernet8 admin down, 100G, mtu 9100
+PASS PortInitDone/PortConfigDone are no ports
+PASS counters for every port
+PASS rx packets = ucast + non-ucast
+PASS rx errors / tx bytes (large integer exact)
+PASS counters are TYPE counter
+PASS PortChannel0001 oper up, 2 members, 1 selected
+PASS member selected/enabled with alias
+PASS BFD default/default/10.0.0.1 Up (3)
+PASS BFD Ethernet0 session Down (1), alias label
+PASS BFD Vrf-test Admin_Down (0)
+PASS BFD timers in seconds
+PASS BGP neighbors from CONFIG_DB (3, both VRFs)
+PASS BGP 10.0.0.1 Established (6) with its name
+PASS BGP 'Idle (Admin)' -> 1, admin down
+PASS no state for the Vrf-test neighbor (bgpmon: default VRF only)
+PASS LLDP neighbors per port
+PASS LLDP remote of Ethernet1/1 = Ethernet32/1
+PASS LLDP mgmt port listed, LLDP_LOC_CHASSIS not
+PASS transceiver presence for every port, 3 present
+PASS SR4 info + DOM
+PASS DAC: N/A DOM gives no sample
+PASS TRANSCEIVER_DOM_TEMPERATURE fallback
+PASS ACL rules: info, active
+PASS ACL counter R1: 40 packets, 4080 bytes
+PASS CoPP groups: cir, traps
+PASS CoPP trap counter
+PASS APPL routes by VRF/family
+PASS ASIC routes by family
+PASS conflicts 2 (by table), notes 1
+PASS services: active, restarts, start time
+PASS redis missing: exit 0, sonic_up 0, no table families
+PASS redis missing: conflicts + services still there
+PASS redis missing: says why on stderr
+PASS broken COUNTERS_PORT_NAME_MAP: counters collector 0, others fine
+PASS no conflicts file / systemctl: their collectors 0
+INFO best of 5: 0.042 s wall, 0.0027 s collect (35 ports)
+PASS collect < 0.25 s on the build host (the e6500 is ~10x slower; budget 2 s)
+SUMMARY: 0 failed: []
+PASS exit 0, nothing on stderr
+INFO 2028 samples, 128 ports, 0.050 s wall (Python start-up included), collect 0.0112 s
+PASS sonic_up 1
+PASS all 13 collectors succeeded
+PASS device info
+PASS config initialized, ports init done
+PASS one sonic_port_info per CONFIG_DB port
+PASS port labels: SONiC name + alias
+PASS Ethernet0 admin up, oper up, 25G
+PASS Ethernet24 admin up, oper down
+PASS Ethernet8 admin down, 100G, mtu 9100
+PASS PortInitDone/PortConfigDone are no ports
+PASS counters for every port
+PASS rx packets = ucast + non-ucast
+PASS rx errors / tx bytes (large integer exact)
+PASS counters are TYPE counter
+PASS PortChannel0001 oper up, 2 members, 1 selected
+PASS member selected/enabled with alias
+PASS BFD default/default/10.0.0.1 Up (3)
+PASS BFD Ethernet0 session Down (1), alias label
+PASS BFD Vrf-test Admin_Down (0)
+PASS BFD timers in seconds
+PASS BGP neighbors from CONFIG_DB (3, both VRFs)
+PASS BGP 10.0.0.1 Established (6) with its name
+PASS BGP 'Idle (Admin)' -> 1, admin down
+PASS no state for the Vrf-test neighbor (bgpmon: default VRF only)
+PASS LLDP neighbors per port
+PASS LLDP remote of Ethernet1/1 = Ethernet32/1
+PASS LLDP mgmt port listed, LLDP_LOC_CHASSIS not
+PASS transceiver presence for every port, 3 present
+PASS SR4 info + DOM
+PASS DAC: N/A DOM gives no sample
+PASS TRANSCEIVER_DOM_TEMPERATURE fallback
+PASS ACL rules: info, active
+PASS ACL counter R1: 40 packets, 4080 bytes
+PASS CoPP groups: cir, traps
+PASS CoPP trap counter
+PASS APPL routes by VRF/family
+PASS ASIC routes by family
+PASS conflicts 2 (by table), notes 1
+PASS services: active, restarts, start time
+PASS redis missing: exit 0, sonic_up 0, no table families
+PASS redis missing: conflicts + services still there
+PASS redis missing: says why on stderr
+PASS broken COUNTERS_PORT_NAME_MAP: counters collector 0, others fine
+PASS no conflicts file / systemctl: their collectors 0
+INFO best of 5: 0.041 s wall, 0.0056 s collect (128 ports)
+PASS collect < 0.25 s on the build host (the e6500 is ~10x slower; budget 2 s)
+SUMMARY: 0 failed: []
+promtool check metrics: ok (4 files: full, no redis, degraded, 128 ports)
+
+## 2. VM test: nix/modules/switch/sonic/tests/vm-metrics.nix (switch 3 GB + peer 1 GB, vs SAI, ~100 s)
+# third run; runs 1-2 failed on (a) xcvrd's space-padded vendor/model (now stripped) and
+# (b) a check that assumed a bgp CoPP trap (not installed: no CONFIG_DB FEATURE|bgp, see PROGRESS)
+PASS producer timer active
+PASS config portchannel add PortChannel0001
+PASS config portchannel member add PortChannel0001 Ethernet5/1
+PASS config portchannel member add PortChannel0001 Ethernet6/1
+PASS config interface startup Ethernet5/1
+PASS config interface startup Ethernet6/1
+PASS config interface ip add PortChannel0001 10.0.0.1/24
+PASS config vrf add Vrf-test
+PASS config interface vrf bind Ethernet7/1 Vrf-test
+PASS config interface startup Ethernet7/1
+PASS config interface ip add Ethernet7/1 10.1.0.1/24
+PASS config loopback add Loopback0
+PASS config interface ip add Loopback0 10.255.0.1/32
+PASS CONFIG_DB BGP_NEIGHBOR|10.0.0.2
+PASS CONFIG_DB BGP_NEIGHBOR|Vrf-test|10.1.0.2
+INFO counterpoll acl enable rc=0
+PASS BGP 10.0.0.2 Established (bgpmon: STATE_DB NEIGH_STATE_TABLE)
+PASS BFD Up in STATE_DB
+PASS BGP Vrf-test 10.1.0.2 Established (FRR)
+PASS LACP: both members selected
+PASS LLDP: peer seen on Ethernet16
+PASS xcvrd: TRANSCEIVER_DOM_SENSOR Ethernet124
+PASS ACL rule Active
+PASS conflicts.json lists the hostname
+PASS lldp-syncd restarted (NRestarts 1)
+PASS producer run succeeds
+INFO sonic.prom: 734 samples, 58270 bytes
+sonic_up 1
+sonic_bfd_session_state{vrf="default",interface="PortChannel0001",alias="",peer="10.0.0.2"} 3
+sonic_bgp_neighbor_state{vrf="default",neighbor="10.0.0.2",name="peer-pc"} 6
+sonic_routes{vrf="Vrf-test",family="ipv4"} 2
+sonic_routes{vrf="Vrf-test",family="ipv6"} 1
+sonic_routes{vrf="default",family="ipv4"} 3
+sonic_routes{vrf="default",family="ipv6"} 1
+sonic_asic_routes{family="ipv4"} 8
+sonic_asic_routes{family="ipv6"} 4
+sonic_nix_conflicts 1
+sonic_service_restarts{unit="sonic-lldp-syncd.service"} 1
+sonic_service_restarts{unit="sonic-lldpd.service"} 0
+sonic_service_restarts{unit="sonic-lldpmgrd.service"} 0
+sonic_collector_success{collector="device"} 1
+sonic_collector_success{collector="ports"} 1
+sonic_collector_success{collector="counters"} 1
+sonic_collector_success{collector="portchannels"} 1
+sonic_collector_success{collector="bfd"} 1
+sonic_collector_success{collector="bgp"} 1
+sonic_collector_success{collector="lldp"} 1
+sonic_collector_success{collector="transceivers"} 1
+sonic_collector_success{collector="acl"} 1
+sonic_collector_success{collector="copp"} 1
+sonic_collector_success{collector="routes"} 1
+sonic_collector_success{collector="conflicts"} 1
+sonic_collector_success{collector="services"} 1
+sonic_collect_duration_seconds 0.0871
+PASS promtool check metrics (strict lint)
+PASS sonic_up 1
+PASS all 13 collectors succeeded
+PASS one sonic_port_info per CONFIG_DB port (35)
+PASS Ethernet16 / Ethernet5/1 admin + oper up
+PASS an admin-down port is oper down
+PASS counters: Ethernet16 rx/tx packets > 0
+PASS PortChannel0001 oper up, 2 members selected + enabled
+PASS BFD default/PortChannel0001/10.0.0.2 Up (3)
+PASS BGP 10.0.0.2 Established (6), name peer-pc
+PASS BGP Vrf-test neighbor: configured, no state (bgpmon: default VRF only)
+PASS LLDP: Ethernet5/1 neighbor = the peer
+PASS transceivers: Ethernet0 + Ethernet124 present, SR4 at 30.5 C
+PASS ACL rule DROPTEST/R1: DROP, active
+INFO ACL counter (vs SAI): []
+INFO APPL_DB COPP_TABLE keys: COPP_TABLE:queue4_group2 COPP_TABLE:queue4_group1 COPP_TABLE:queue1_group3 COPP_TABLE:queue3_group1 COPP_TABLE:default COPP_TABLE:queue1_group1
+INFO COPP_TABLE:queue4_group1: cbs 6000 cir 6000 meter_type packets mode sr_tcm queue 4 red_action drop trap_action trap trap_priority 4 trap_ids lacp
+INFO STATE_DB COPP: COPP_GROUP_TABLE|queue4_group2 COPP_TRAP_TABLE|arp_req COPP_TRAP_CAPABILITY_TABLE|traps COPP_TRAP_TABLE|ip2me COPP_TRAP_TABLE|ttl_error COPP_TRAP_TABLE|neigh_discovery COPP_TRAP_TABLE|neighbor_miss COPP_GROUP_TABLE|default COPP_TRAP_TABLE|arp COPP_GROUP_TABLE|queue3_group1 COPP_TRAP_TABLE|lldp COPP_GROUP_TABLE|queue1_group1 COPP_TRAP_TABLE|lacp COPP_TRAP_TABLE|arp_resp COPP_GROUP_TABLE|queue1_group3 COPP_GROUP_TABLE|queue4_group1 COPP_TRAP_TABLE|udld
+INFO CONFIG_DB COPP:
+INFO FEATURE: FEATURE|lldp
+PASS CoPP: groups from coppmgrd, LACP trap in queue4_group1 (cir 6000)
+INFO CoPP traps mapped: ['arp_req', 'arp_resp', 'ip2me', 'lacp', 'lldp', 'neigh_discovery', 'neighbor_miss', 'udld']
+PASS routes: default VRF = APPL_DB ROUTE_TABLE count (4), 192.0.2.0/24 learned
+PASS routes: Vrf-test >= 1, ASIC ipv4 >= 3
+PASS conflicts: >= 1, DEVICE_METADATA
+PASS services: lldp-syncd restarts >= 1, orchagent active, start times
+PASS collect duration < 1 s in the VM
+INFO exporter: 732 sonic_ samples, producer run 0.166 s (collect 0.087 s)
+PASS exporter serves sonic_* (sonic_up 1, BGP state)
+PASS conflict cleared
+PASS after the restore: sonic_nix_conflicts 0
+PASS redis stopped: run succeeds, sonic_up 0, services still reported
+SUMMARY: 0 failed: []
+/nix/store/5fh4yv7yw7vkq4fkl7pn1an6w3plxsxf-vm-test-run-sonic-metrics
+
+## 3. dashboard tools/grafana/dashboards/sonic.json: every query against a scratch VictoriaMetrics
+# (127.0.0.1:18428, scratch storage, the unit test's metrics.prom imported 6x at 60 s steps; lab VM untouched)
+# 72 queries: 70 ok with data; 2 empty as expected (no discards in the data; "Unit starts" at an instant with a 1m window)
+# Grafana: /api/dashboards/uid/ai-re-sonic -> provisioned, folder ai_re, 40 panels;
+#          ai-re-lab-overview -> new last panel "SONiC" (207 lines added, none changed)
+
+## 4. neutrality
+# drvPath of every existing VM test with and without the metrics.nix import (a copy of nix/): SAME for
+#   vm.nix vm-openbcm-fake.nix vm-openbcm-fake-l3.nix vm-frr.nix vm-platform.nix vm-bfd.nix vm-openbcm-fake-acl.nix
+# as7760-netboot toplevel: nix store diff-closures (without -> with):
+#   sonic_metrics.py: ∅ → ε, 28.0 KiB
+#   textfile-producer: ∅ → ε
+#   unit-prometheus-textfile-sonic.service: ∅ → ε
+#   unit-prometheus-textfile-sonic.timer: ∅ → ε
+# with: /nix/store/y1alqhbwrw92mrr8886w6kr9zfq4w912-nixos-system-as7760-26.11.20261111.d4f25a3

@@ -24,16 +24,32 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 - **Test / debug:** `openbcm-diag <cmd>` = SDK diag shell inside syncd
   ([how](vrf-ecmp-test.md#debug-sdk-state-while-syncd-owns-the-chip-2026-11-15)); `sonic-nix-diff`
   = CONFIG_DB vs Nix ([ownership](config-ownership.md)); VM tests in `nix/modules/switch/sonic/tests`
-  (vs: vm, vm-frr, vm-bfd, vm-platform; sai-openbcm fake: vm-openbcm-fake, -l3, -acl), sai-openbcm
+  (vs: vm, vm-frr, vm-bfd, vm-platform, vm-metrics; sai-openbcm fake: vm-openbcm-fake, -l3, -acl), sai-openbcm
   unit tests + test-syncd. Switch scripts: [vrf-ecmp](vrf-ecmp-test.md), [acl-copp](acl-copp-test.md),
   [bfd](bfd.md), [platform](../edge-core-7760-32x/sonic-platform.md).
+- **Metrics:** `sonic_*` from redis via the node exporter (producer `sonic`, [sonic-metrics](../../nix/packages/sonic/metrics/README.md)),
+  Grafana `ai-re-sonic`; VM-tested, not yet deployed to the AS7760 ([evidence](sonic-metrics-20261115.txt)).
 - **Change it:** the AS7760's `deploy.sh`; a changed orchagent restarts syncd too (links flap).
 - **Open:** ARP passes its 600 pps CoPP cap (818/s); not built: QoS (low priority), buffers,
   egress ACLs, ACL ranges/redirect/mirror, runtime breakout, warm reboot; `show acl` fails
   (pyangbind), no `aclshow`; untested: traffic between real hosts, line rate, 100G, FEC,
-  IPv6/multihop BFD, port LEDs by eye; `sonic-db-cli PING` over TCP fails (unix socket fine).
+  IPv6/multihop BFD, port LEDs by eye; `sonic-db-cli PING` over TCP fails (unix socket fine);
+  no CONFIG_DB `FEATURE|bgp` (seen in the VM), so coppmgrd installs no bgp/bgpv6 CoPP traps.
 - **Not in the repo:** factory SDK configs, rc/LED/pre-emphasis scripts and `bcm.user`
   (AS7760 `nixos-build/vendor-root/`, unused now), Broadcom SAI `.deb`s (amd64, by URL).
+
+## 2026-11-15 (late) — SONiC metrics and the Grafana dashboard (VM only)
+
+- `services.sonic.metrics` ([metrics.nix](../../nix/modules/switch/sonic/metrics.nix)): textfile producer
+  [sonic-metrics](../../nix/packages/sonic/metrics/README.md), stdlib Python reading redis directly; on by
+  default with the node exporter (the AS7760 has it). Ports (name + alias), counters, PortChannels, BGP, BFD,
+  LLDP, optics, ACL/CoPP, routes, conflicts, unit restarts; `sonic_up 0` without redis.
+- Unit test (real redis + fake dump, 128 ports: 6 ms of redis reads on x86) and VM test `tests/vm-metrics.nix`
+  (PortChannel + BGP/BFD to a peer, Vrf-test, LLDP, fake optics, ACL, a conflict, a killed unit, redis
+  stopped): pass; producer run 0.17 s in the VM. Existing VM tests: same drvPath; AS7760 closure +28 KiB
+  ([evidence](sonic-metrics-20261115.txt)). Dashboard `ai-re-sonic` (tools/grafana), SONiC panel on the lab overview.
+- Found: bgpmon covers the default VRF only (VRF neighbors: config, no state); no bgp CoPP trap (Status, Open);
+  vs SAI gives no ACL counter values. Switch check: [README](../../nix/packages/sonic/metrics/README.md#check).
 
 ## 2026-11-15 (evening, night) — the stack on the chip: platform, FRR, recovery, routing, ACL/CoPP, BFD
 
