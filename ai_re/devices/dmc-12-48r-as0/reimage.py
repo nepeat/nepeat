@@ -19,7 +19,12 @@ Steps (see reimage.md):
              (--via factory: the old path, factory U-Boot + TFTP, no chainload)
   write      [WRITES SSD] stream disk.img.zst to /dev/sda over ssh, verify sha256 on the box
   setenv     [WRITES SPI ENV] nixos_boot (from the image) + bootcmd = run nixos_boot; run dmc12_bootdisk
+             (standard-boot images: no env change, just a reboot into our SPI U-Boot)
   boot       boot from the SSD, check NixOS came up on the board DT, then smoke.py
+
+Units with our U-Boot in SPI (spi-upgrade.py) reach the factory prompt through the stage3 `u`
+key; that needs --plug. Standard-boot images (loader.txt = standard, the default
+dmc12-disk-image) need that SPI install.
   record     append the result to inventory/<unit>/reimage.jsonl
 
 Gates: no `write` unless dumps/<unit>/manifest.jsonl lists verified sda.img,
@@ -142,6 +147,8 @@ def expected_serial(unit):
 
 def factory_env(image):
     """The two env values this disk image needs (exact stored strings)."""
+    if (image / "loader.txt").exists() and (image / "loader.txt").read_text().strip() == "standard":
+        return {"loader": "standard"}
     p = image / "factory-env.txt"
     if not p.exists():
         return {"nixos_boot": NIXOS_BOOT, "bootcmd": BOOTCMD, "loader": "uboot-menu"}
@@ -149,6 +156,23 @@ def factory_env(image):
     if set(env) != {"nixos_boot", "bootcmd"} or "'" in env["nixos_boot"] + env["bootcmd"]:
         raise Fail(f"unexpected contents in {p}")
     return {**env, "loader": "chainload"}
+
+
+def spi_upgrade():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("spi_upgrade", ROOT / "spi-upgrade.py")
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def spi_uboot(unit):
+    """True when this unit's SPI journal says stage3 boots our U-Boot (BOOT_MODE -> IPXE)."""
+    su = spi_upgrade()
+    img, unknown = su.model(unit)
+    if unknown:
+        raise Fail(f"spi-upgrade journal of {unit} has unknown ranges {unknown}: spi-upgrade.py status first")
+    return su.boot_mode_app(img) != su.UBOOT_ID
 
 
 def step_preflight(args, st):
@@ -180,6 +204,13 @@ def step_preflight(args, st):
         st["image_bytes"] = int((args.image / "disk.img.bytes").read_text())
     st["toplevel"] = (args.netboot / "toplevel").read_text().strip()
     st["loader"] = factory_env(args.image)["loader"]
+    st["spi_uboot"] = spi_uboot(args.unit) if not missing else False
+    if st["loader"] == "standard" and not st["spi_uboot"]:
+        raise Fail(f"{args.image} is a standard-boot image, but {args.unit} has no U-Boot in SPI "
+                   "(spi-upgrade.py install), or use a chainload image")
+    if st["spi_uboot"] and args.plug is None:
+        raise Fail("this unit boots our U-Boot from SPI: the factory prompt needs the `u` key at "
+                   "power-on, so give --plug")
 
 
 def step_stage(args, st):
@@ -204,6 +235,13 @@ def step_stage(args, st):
 def step_uboot(args, st):
     if args.no_power and pane().rstrip().endswith("ALPINE_DB>"):
         say(args, "already at the factory U-Boot prompt")
+        return
+    if st.get("spi_uboot"):
+        say(args, f"power-cycling lab plug {args.plug} with `u` at stage3 (our U-Boot is in SPI)")
+        import argparse as _ap
+        seen = spi_upgrade().stage3_u(_ap.Namespace(plug=args.plug, off=12, ip=st.get("ip")))
+        if not {"factory", "prompt"} <= seen or "ours" in seen:
+            raise Fail(f"`u` did not reach the factory prompt: {sorted(seen)}")
         return
     cmd = [sys.executable, str(ROOT / "powercycle_to_uboot.py")]
     if args.no_power:
@@ -372,6 +410,19 @@ def step_write(args, st):
 
 
 def step_setenv(args, st):
+    if factory_env(args.image)["loader"] == "standard":
+        # Nothing to store: our SPI U-Boot's standard boot finds /extlinux on sda1.
+        clear_pane()
+        if "ip" in st:
+            ssh(st, "sync; systemctl reboot", timeout=30)   # CPLD board reset
+        else:
+            subprocess.run([sys.executable, str(AIRE / "tools" / "lab_power.py"), str(args.plug), "off"],
+                           check=True, capture_output=True)
+            time.sleep(12)
+            subprocess.run([sys.executable, str(AIRE / "tools" / "lab_power.py"), str(args.plug), "on"],
+                           check=True, capture_output=True)
+        st["setenv"] = "not needed (standard boot)"
+        return
     if "ip" in st:
         ssh(st, "systemctl reboot", timeout=30)  # CPLD board reset via the shutdown hook
         args.no_power = True
@@ -397,12 +448,15 @@ def step_setenv(args, st):
 
 
 def step_boot(args, st):
-    clear_pane()
-    subprocess.run(["tmux", "send-keys", "-t", SESSION, "-l", "boot"], check=True)
-    subprocess.run(["tmux", "send-keys", "-t", SESSION, "Enter"], check=True)
-    chain = factory_env(args.image)["loader"] == "chainload"
-    # chainload: preamble (bootp) + scsi read, then upstream U-Boot's extlinux menu
-    wait_pane(r"U-Boot 2026\.10-dmc12-chainload" if chain else r"DMC-12 NixOS bootmenu", 180)
+    loader = factory_env(args.image)["loader"]
+    if loader == "standard":   # step_setenv rebooted the box (pane cleared there)
+        wait_pane(r"U-Boot 2026\.10-dmc12-selfinit", 180)
+    else:
+        clear_pane()
+        subprocess.run(["tmux", "send-keys", "-t", SESSION, "-l", "boot"], check=True)
+        subprocess.run(["tmux", "send-keys", "-t", SESSION, "Enter"], check=True)
+        # chainload: preamble (bootp) + scsi read, then upstream U-Boot's extlinux menu
+        wait_pane(r"U-Boot 2026\.10-dmc12-chainload" if loader == "chainload" else r"DMC-12 NixOS bootmenu", 180)
     wait_pane(r"root@dmc12[^\n]*#", 600)
     out = console("cat /proc/device-tree/model; echo; findmnt -no SOURCE /; systemctl is-system-running",
                   prompt="# ", timeout=120)
@@ -448,7 +502,9 @@ def main():
     p.add_argument("--plug", type=int, help="lab-power plug number (else --no-power)")
     p.add_argument("--no-power", action="store_true", help="you reset the box yourself")
     p.add_argument("--netboot", type=pathlib.Path, default=ROOT / "nixos-build/result-netboot")
-    p.add_argument("--image", type=pathlib.Path, default=ROOT / "nixos-build/result-disk-chainload")
+    p.add_argument("--image", type=pathlib.Path, default=ROOT / "nixos-build/result-disk-standard",
+                   help="disk image build (standard: dmc12-disk-image; units without our SPI U-Boot: "
+                        "result-disk-chainload = dmc12-disk-image-chainload)")
     p.add_argument("--uboot", type=pathlib.Path, default=ROOT / "nixos-build/result-uboot-dmc12-chainload",
                    help="upstream U-Boot build (u-boot.uimage) for the chainload")
     p.add_argument("--via", choices=["chainload", "factory"], default="chainload",

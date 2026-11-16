@@ -57,7 +57,20 @@ if args.banner is None:
 
 # u01 SPI backups (dumps/u01/SHA256SUMS: mtd0 b66dbca5..., mtd1 9c3a9556...), zlib CRC32.
 # CS0 0xfd0000-0xfeffff is the env pair, which reimage.py edits: compare below it.
-CRC_CS0_BELOW_ENV = "08145ce6"   # mtd0[0:0xfd0000]
+# CS0 below the env changes with spi-upgrade.py writes: expect what its model (backup + the
+# journaled writes) says, 08145ce6 = the untouched mtd0[0:0xfd0000].
+def _cs0_model_crc(unit="u01"):
+    import importlib.util, zlib
+    spec = importlib.util.spec_from_file_location("spi_upgrade", HERE / "spi-upgrade.py")
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    img, unknown = m.model(unit)
+    if unknown:
+        raise SystemExit(f"spi-upgrade journal has unknown ranges {unknown}: spi-upgrade.py status first")
+    return f"{zlib.crc32(img):08x}"
+
+
+CRC_CS0_BELOW_ENV = _cs0_model_crc()
 CRC_CS1_FULL = "db9e4937"        # mtd1[0:0x1000000]
 CRC_CS1_BELOW_ENV = "3d086ac6"   # mtd1[0:0xfd0000]
 SELFINIT_STEPS = [
