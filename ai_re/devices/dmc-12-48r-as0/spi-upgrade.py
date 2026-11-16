@@ -9,6 +9,10 @@ Modes (all through the logged tmux pane `serial-dmc12`, like reimage.py):
   install   first install: IPXE 0 + BOOT_MODE (app 0x110)
   update    write the inactive IPXE instance, validate, then flip BOOT_MODE
   rollback  erase BOOT_MODE: stage3 boots the untouched factory U-Boot again
+  switch    --to ipxe0|ipxe1|factory: rewrite only BOOT_MODE (the target slot must hold a valid
+            object that already booted on this unit, or was rehearsed with that BOOT_MODE)
+  slots     what is in UBOOT/IPXE/BOOT_MODE per the verified model (--live: also power-cycle,
+            stop our U-Boot and prove by CRC which slot is running)
   clipcheck offline: compare external-programmer dumps of CS0 (--dump, twice) with the model
 
 Nothing is written without --write: every read-only step runs and the write commands are printed.
@@ -57,7 +61,7 @@ USER_U = r"User request for loading U-Boot"
 BAD = r"Kernel panic|Synchronous Abort|### ERROR|Unknown command|Wrong Image"
 GATES = ROOT / "spi-upgrade-gates.json"
 GATE_NAMES = ("clip_read", "review", "gpio22", "cold_pcie")
-WRITE_MODES = ("install", "update", "rollback")
+WRITE_MODES = ("install", "update", "rollback", "switch")
 DONT_POWER_OFF = ("do NOT power off: the factory U-Boot is still running and can restore the region "
                   "from the backup (spi-recovery.md, the `sf update` recipe)")
 
@@ -510,6 +514,85 @@ def escape(a, st):
 
 
 # ---- modes ------------------------------------------------------------------------------------
+def slot_obj(img, n):
+    """(object bytes, None) of IPXE n per the model, or (None, why)."""
+    off, mx = IPXE_SLOTS[n]
+    s, f = alboot.check_object(img, off, mx, IPXE)
+    if s != "OK":
+        return None, s
+    return bytes(img[off:off + alboot.HDR + f["size"] + 4]), None
+
+
+def booted(unit, data, app):
+    """A journal record proving these bytes booted here with this BOOT_MODE app."""
+    for r in journal(unit):
+        if r.get("payload_sha256") != sha(data) or r.get("app") != hex(app) or r.get("failed"):
+            continue
+        if (r.get("kind") == "rehearsal" and r.get("pass")) or \
+           (r.get("kind") in ("install", "update", "switch") and r.get("boot")):
+            return r
+    return None
+
+
+def running_slot(a, img):
+    """Power-cycle, stop our U-Boot at `=>`, CRC its loaded image at 0x08000000 against both IPXE
+    objects, then `boot`. Both builds print the same banner, the bytes don't lie."""
+    n_text = 0x60000          # text + rodata: not touched before relocation (bss overlays .rela)
+    power(a, "off")
+    time.sleep(a.off)
+    tmux("clear-history", "-t", SESSION)
+    base = counts([OURS])
+    power(a, "on")
+    deadline = time.monotonic() + 120
+    while time.monotonic() < deadline:
+        t = reimage.pane()
+        if len(re.findall(OURS, t)) > base[OURS] and "Hit any key" in t[t.rfind("U-Boot 2026"):]:
+            break
+        time.sleep(0.1)
+    else:
+        raise Fail("our U-Boot did not come up")
+    tmux("send-keys", "-t", SESSION, "-l", " ")
+    deadline = time.monotonic() + 10
+    while not reimage.pane().rstrip().endswith("=>") and time.monotonic() < deadline:
+        time.sleep(0.2)
+    got = uartboot.crc_of(reimage.console(f"crc32 {PAYLOAD_LOAD:#x} {n_text:#x}", prompt="=>"))
+    which = "unknown"
+    for n in IPXE_SLOTS:
+        obj, _ = slot_obj(img, n)
+        if obj and zlib.crc32(obj[alboot.HDR:alboot.HDR + n_text]) == got:
+            which = f"ipxe{n}"
+    tmux("send-keys", "-t", SESSION, "-l", "boot")
+    tmux("send-keys", "-t", SESSION, "Enter")
+    return which
+
+
+def mode_slots(a, st, img, unknown):
+    app = boot_mode_app(img)
+    active = "factory (UBOOT 0)" if app == UBOOT_ID else \
+        f"ipxe{app >> 28}" if app & 0x0FFFFFFF == IPXE else f"app {app:#x} (unknown)"
+    st["boot_mode"] = f"app {app:#x} -> {active}"
+    for oid, n in ((UBOOT_ID, 0), (UBOOT_ID, 1), (IPXE, 0), (IPXE, 1)):
+        off, mx = uartboot.slot(img, oid, n)
+        s, f = alboot.check_object(img, off, mx, oid)
+        name = f"{alboot.NAMES[oid].lower()}{n}"
+        if s != "OK":
+            st[name] = f"@{off:#x} {mx // 1024} KiB: {s}"
+            continue
+        obj = bytes(img[off:off + alboot.HDR + f["size"] + 4])
+        ver = re.search(rb"U-Boot 20\d\d\.\d\d[\w.-]*", obj)
+        who = next((r for r in reversed(journal(a.unit)) if r.get("kind") == "write"
+                    and r.get("phase") == "intent" and r.get("off") == off), None)
+        st[name] = (f"@{off:#x} {mx // 1024} KiB: {ver.group().decode() if ver else '?'}, {len(obj):#x} B, "
+                    f"{mx - len(obj)} B free, sha256 {sha(obj)[:16]}"
+                    + (f", written {who['t'][:16]}" if who else ", factory")
+                    + (" [ACTIVE]" if name == active or (oid == UBOOT_ID and n == 0 and app == UBOOT_ID) else ""))
+    st["unknown"] = unknown
+    last = next((r for r in reversed(journal(a.unit)) if r.get("cs0_after") or r.get("cs0")), None)
+    st["last_full_read"] = f"{last['t'][:16]} {last.get('cs0_after') or last.get('cs0')}" if last else "none"
+    if a.live:
+        st["running"] = running_slot(a, img)
+
+
 def mode_clipcheck(a, st, img, unknown):
     """Programmer dumps (box unpowered, 1.8 V, spi-recovery.md): equal to each other and to the
     model below the env; differing 4 KiB sectors are listed with the TOC object they belong to."""
@@ -618,10 +701,25 @@ def mode_rehearse(a, st, img, unknown):
 
 def mode_write(a, st, img, unknown):
     bm_lo, bm_hi = BOOT_MODE_OFF, BOOT_MODE_OFF + SECTOR
+    if a.mode == "switch" and a.to == "factory":
+        a.mode = "rollback"
     if a.mode == "rollback":
         targets = [(bm_lo, bm_hi)]
         if not any(overlaps(u, bm_lo, bm_hi) for u in unknown) and boot_mode_app(img) == UBOOT_ID:
             raise Fail("BOOT_MODE is already blank/invalid: stage3 boots the factory U-Boot")
+    elif a.mode == "switch":
+        if any(overlaps(u, bm_lo, bm_hi) for u in unknown):
+            raise Fail("BOOT_MODE is an unknown range: `switch --to factory` (rollback) first")
+        inst = int(a.to[-1])
+        data, why = slot_obj(img, inst)
+        if data is None:
+            raise Fail(f"IPXE {inst} holds no valid object ({why}): nothing to switch to")
+        app = IPXE | inst << 28
+        if boot_mode_app(img) == app:
+            raise Fail(f"BOOT_MODE already selects IPXE {inst}")
+        bm = boot_mode_obj(app)
+        targets = [(bm_lo, bm_hi)]
+        st.update(inst=inst, app=hex(app), payload_sha256=sha(data), bootmode_sha256=sha(bm))
     else:
         inst, app, data, bm = plan(a, img)
         off, mx = IPXE_SLOTS[inst]
@@ -632,7 +730,10 @@ def mode_write(a, st, img, unknown):
             raise Fail(f"unknown flash ranges {stray} outside this run's targets: status/rollback first")
     open_, over = gates(a)
     blockers = [] if a.mode == "rollback" else [f"gate {g} open in {GATES.name}" for g in open_]
-    if a.mode != "rollback" and not rehearsed(a.unit, data, bm):
+    if a.mode == "switch":
+        if not (booted(a.unit, data, app) or rehearsed(a.unit, data, bm)):
+            blockers.append(f"IPXE {inst} never booted here with app {app:#x} and wasn't rehearsed so")
+    elif a.mode != "rollback" and not rehearsed(a.unit, data, bm):
         blockers.append("no passing rehearsal (boot + escape) of these exact bytes on this unit")
     st["gate_overrides"] = over
     if blockers and a.write:
@@ -648,6 +749,17 @@ def mode_write(a, st, img, unknown):
     try:
         if a.mode == "rollback":
             new = write_region(a, img, bm_lo, SECTOR, b"", 0, "erase BOOT_MODE")
+        elif a.mode == "switch":
+            stage(a, {"spi-upgrade-bootmode.obj": bm})
+            tftp(a, A_BOOTMODE, "spi-upgrade-bootmode.obj", bm)
+            try:
+                new = write_region(a, img, bm_lo, SECTOR, bm, A_BOOTMODE, f"BOOT_MODE app {app:#x}")
+                st["bootmode_live"] = a.write
+            except Fail as e:
+                if a.write:
+                    new = bootmode_clear(a, img, str(e))
+                    st["bootmode_recovered"] = True
+                raise
         else:
             stage(a, {"spi-upgrade-ipxe.fimg": data, "spi-upgrade-bootmode.obj": bm})
             tftp(a, A_PAYLOAD, "spi-upgrade-ipxe.fimg", data)
@@ -678,12 +790,18 @@ def mode_write(a, st, img, unknown):
     if a.ip:
         smoke(a, st)
     if a.mode != "rollback":
+        st["running"] = running_slot(a, new)        # which IPXE copy really runs
+        if st["running"] != f"ipxe{st['inst']}":
+            raise Fail(f"BOOT_MODE selects IPXE {st['inst']} but {st['running']} is running")
+        wait_boot(a, {}, 300, want_ours=True, after="=> boot")
         escape(a, st)
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("mode", choices=["status", "rehearse", "clipcheck", *WRITE_MODES])
+    p.add_argument("mode", choices=["status", "slots", "rehearse", "clipcheck", *WRITE_MODES])
+    p.add_argument("--to", choices=["ipxe0", "ipxe1", "factory"], help="switch: the slot to boot")
+    p.add_argument("--live", action="store_true", help="slots: also prove which slot runs (power-cycles)")
     p.add_argument("--unit", required=True)
     p.add_argument("--plug", type=int, help="lab-power plug of this unit (all modes but clipcheck)")
     p.add_argument("--dump", type=pathlib.Path, action="append", default=[],
@@ -701,7 +819,9 @@ def main():
     p.add_argument("--read-timeout", type=int, default=600, help="seconds for a 16 MiB factory sf read")
     p.add_argument("--json", action="store_true")
     a = p.parse_args()
-    if a.mode != "clipcheck" and a.plug is None:
+    if a.mode == "switch" and not a.to:
+        p.error("switch needs --to ipxe0|ipxe1|factory")
+    if a.mode not in ("clipcheck", "slots") and a.plug is None or (a.mode == "slots" and a.live and a.plug is None):
         p.error(f"{a.mode} needs --plug")
     if a.mode in ("rehearse", "install", "update") and not a.ip:
         p.error(f"{a.mode} needs --ip (smoke test after boot)")
@@ -712,7 +832,8 @@ def main():
     try:
         img, unknown = model(a.unit)
         check_layout(img)
-        {"status": mode_status, "rehearse": mode_rehearse, "clipcheck": mode_clipcheck}.get(
+        {"status": mode_status, "rehearse": mode_rehearse, "clipcheck": mode_clipcheck,
+         "slots": mode_slots}.get(
             a.mode, mode_write)(a, st, img, unknown)
     except KeyboardInterrupt:
         st["failed"] = "interrupted. " + (DONT_POWER_OFF if a.write else "")

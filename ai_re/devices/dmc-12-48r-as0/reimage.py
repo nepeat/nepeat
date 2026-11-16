@@ -121,6 +121,19 @@ def wait_pane(pattern, timeout):
     raise Fail(f"timed out after {timeout}s waiting for /{pattern}/ on the console")
 
 
+def wait_after(marker, pattern, timeout):
+    """Like wait_pane, but only in the text after the newest `marker` match: the visible
+    screen survives clear_pane, so an old login prompt there must not count."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        t = pane()
+        starts = [m.end() for m in re.finditer(marker, t)]
+        if starts and re.search(pattern, t[starts[-1]:]):
+            return
+        time.sleep(1)
+    raise Fail(f"timed out after {timeout}s waiting for /{pattern}/ after /{marker}/ on the console")
+
+
 def manifest_ok(unit):
     path = ROOT / "dumps" / unit / "manifest.jsonl"
     if not path.exists():
@@ -450,7 +463,10 @@ def step_setenv(args, st):
 def step_boot(args, st):
     loader = factory_env(args.image)["loader"]
     if loader == "standard":   # step_setenv rebooted the box (pane cleared there)
-        wait_pane(r"U-Boot 2026\.10-dmc12-selfinit", 180)
+        banner = r"U-Boot 2026\.10-dmc12-selfinit"
+        wait_pane(banner, 180)
+        wait_after(banner, r"Starting kernel", 120)    # nothing typed before the kernel runs
+        wait_after(banner, r"root@dmc12[^\n]*#", 600)
     else:
         clear_pane()
         subprocess.run(["tmux", "send-keys", "-t", SESSION, "-l", "boot"], check=True)
