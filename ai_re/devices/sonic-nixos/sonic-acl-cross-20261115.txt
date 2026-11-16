@@ -1,0 +1,44 @@
+# sai-openbcm with ACL / policers / CoPP, cross build for the AS7760 (ppc64 BE, libsdk 6.5.27), 2026-11-15
+# expr: the README's X= (nixosConfigurations.as7760 pkgs, ob.libsdk {}), attribute libsai; linked with -Wl,-z,defs
+out: /nix/store/vv1rwxm4cdc1l3rvjvq9f34yrrgj8zdk-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+lib/libsai.so.1.0.0: ELF 64-bit MSB shared object, PowerPC64 ELFv2, 832736 bytes
+references: libsdk 2g5lynabfnvfdz8y8vr6vjg2189y0sj4-openbcm-libsdk-powerpc64-unknown-linux-gnuabielfv2-6.5.27, glibc, gcc-lib
+# field processor / meter symbols libsai imports (37); all defined in libsdk.so (nm -D --defined-only): yes
+bcm_field_action_add
+bcm_field_entry_create
+bcm_field_entry_destroy
+bcm_field_entry_install
+bcm_field_entry_policer_attach
+bcm_field_entry_policer_detach_all
+bcm_field_entry_prio_set
+bcm_field_entry_remove
+bcm_field_entry_stat_attach
+bcm_field_entry_stat_detach
+bcm_field_group_create
+bcm_field_group_destroy
+bcm_field_qualify_DstIp
+bcm_field_qualify_DstIp6
+bcm_field_qualify_DstL3Egress
+bcm_field_qualify_DstMac
+bcm_field_qualify_EtherType
+bcm_field_qualify_IcmpTypeCode
+bcm_field_qualify_InPorts
+bcm_field_qualify_IpProtocol
+bcm_field_qualify_IpType
+bcm_field_qualify_L4DstPort
+bcm_field_qualify_L4SrcPort
+bcm_field_qualify_OuterVlanId
+bcm_field_qualify_SrcIp
+bcm_field_qualify_SrcIp6
+bcm_field_qualify_SrcMac
+bcm_field_qualify_TcpControl
+bcm_field_qualify_Tos
+bcm_field_qualify_Ttl
+bcm_field_stat_create
+bcm_field_stat_destroy
+bcm_field_stat_sync_get
+bcm_policer_config_t_init
+bcm_policer_create
+bcm_policer_destroy
+bcm_policer_set
+# sdk_glue.c also passes gcc -fsyntax-only -Wall with the SDK's cflags on x86_64 (no warnings)

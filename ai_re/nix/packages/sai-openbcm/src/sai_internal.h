@@ -262,6 +262,49 @@ struct NhgMemberObj {
     StubMap stub;
 };
 
+// Policers (SDK meters) and the ingress field processor (sai_acl.cpp).
+struct PolicerObj {
+    int32_t meter = SAI_METER_TYPE_PACKETS, mode = SAI_POLICER_MODE_SR_TCM;
+    int32_t color = SAI_POLICER_COLOR_SOURCE_AWARE;
+    uint64_t cir = 0, cbs = 0, pir = 0, pbs = 0;
+    int32_t green = SAI_PACKET_ACTION_FORWARD, yellow = SAI_PACKET_ACTION_FORWARD, red = SAI_PACKET_ACTION_FORWARD;
+    int pid = -1;                 // backend policer
+};
+struct AclTableObj {
+    int32_t stage = SAI_ACL_STAGE_INGRESS;
+    std::vector<int32_t> bind_types, action_types;
+    std::set<sai_attr_id_t> fields;     // SAI_ACL_TABLE_ATTR_FIELD_* set to true
+    std::vector<int32_t> range_types;   // FIELD_ACL_RANGE_TYPE: kept (AclOrch always asks for L4 port ranges)
+    uint32_t size = 0;
+    int gid = -1;                       // SDK field group
+    std::vector<sai_object_id_t> entries;
+};
+struct AclFieldVal {
+    sai_acl_field_data_t d;
+    std::vector<sai_object_id_t> objs;  // object lists (IN_PORTS) copied
+};
+struct AclEntryObj {
+    sai_object_id_t table = 0;
+    uint32_t priority = 0;
+    bool admin = true;
+    std::map<sai_attr_id_t, AclFieldVal> fields;            // enabled matches
+    std::map<sai_attr_id_t, sai_acl_action_data_t> actions; // enabled actions
+    int eid = -1;                       // installed SDK entry, -1 = none
+    std::string key;                    // what eid was installed with
+};
+struct AclCounterObj {
+    sai_object_id_t table = 0, entry = 0;
+    bool packets = false, bytes = false;
+    uint64_t base_packets = 0, base_bytes = 0;  // carried over SDK entry re-creation
+};
+struct AclGroupObj {
+    int32_t stage = SAI_ACL_STAGE_INGRESS, type = SAI_ACL_TABLE_GROUP_TYPE_PARALLEL;
+    std::vector<int32_t> bind_types;
+    std::vector<sai_object_id_t> members;
+};
+struct AclGroupMemberObj { sai_object_id_t group = 0, table = 0; uint32_t priority = 0; };
+struct CoppEntry { int eid = -1; sai_object_id_t policer = 0; };
+
 // --------------------------------------------------------------- events
 struct Event {
     enum { Link, Fdb, Stop } kind;
@@ -315,6 +358,17 @@ struct Ctx {
     std::map<sai_object_id_t, NhgObj> nhgs;
     std::map<sai_object_id_t, NhgMemberObj> nhg_members;
     std::set<uint16_t> internal_vlans;                  // allocated for port RIFs
+    std::map<sai_object_id_t, PolicerObj> policers;
+    std::map<sai_object_id_t, AclTableObj> acl_tables;
+    std::map<sai_object_id_t, AclEntryObj> acl_entries;
+    std::map<sai_object_id_t, AclCounterObj> acl_counters;
+    std::map<sai_object_id_t, AclGroupObj> acl_groups;
+    std::map<sai_object_id_t, AclGroupMemberObj> acl_group_members;
+    std::map<sai_object_id_t, sai_object_id_t> acl_bind;  // PORT/LAG -> ingress ACL table group (or table)
+    int acl_next_prio = 1;                              // SDK group priority per table, creation order
+    int copp_gid = -1;                                  // SDK field group of the CoPP policing rules
+    bool copp_dst_cpu = false;                          // that group can match "routed to the CPU"
+    std::map<std::string, CoppEntry> copp;              // installed CoPP rules by rule key
     int switch_station = -1;
     std::map<sai_object_type_t, uint64_t> next_index;
 
@@ -383,6 +437,8 @@ extern const sai_next_hop_api_t next_hop_api;
 extern const sai_route_api_t route_api;
 extern const sai_next_hop_group_api_t nhg_api;
 extern const sai_lag_api_t lag_api;
+extern const sai_policer_api_t policer_api;
+extern const sai_acl_api_t acl_api;
 
 // Cross-object helpers implemented in the object files.
 void switch_build_objects();                         // after backend init
@@ -419,5 +475,14 @@ sai_status_t vlan_member_create_internal(sai_object_id_t vlan, sai_object_id_t b
                                          bool program, sai_object_id_t* out);
 sai_status_t l3_switch_mac_changed(const uint8_t old_mac[6]);
 TrapKind trap_kind(int32_t sai_trap_type);
+// ACL binding (PORT / LAG INGRESS_ACL) and CoPP policing, sai_acl.cpp.
+sai_status_t acl_bind_set(sai_object_id_t obj, bool ingress, sai_object_id_t acl, uint32_t attr_index);
+sai_object_id_t acl_bind_get(sai_object_id_t obj, bool ingress);
+void acl_reprogram();                                // after binding / LAG membership changes
+void copp_refresh();                                 // after trap / trap group / policer changes
+bool policer_valid(sai_object_id_t oid);
+void acl_clear_objects();                            // switch removal
+bool acl_table_field_supported(sai_attr_id_t table_field);
+std::vector<int32_t> acl_ingress_actions();          // SAI_ACL_ACTION_TYPE_* implemented
 
 } // namespace ob

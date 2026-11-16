@@ -43,6 +43,7 @@
 #include <bcm/stack.h>
 #include <bcm/trunk.h>
 #include <bcm/field.h>
+#include <bcm/policer.h>
 #include <soc/tomahawk.h>
 #include <bcm_int/control.h>
 #include <bcm_int/esw/firebolt.h>   /* L3 software tables: ECMP member accounting */
@@ -1120,3 +1121,214 @@ int ob_sdk_l3_ecmp_destroy(int unit, int ecmp_id)
     e.ecmp_intf = (bcm_if_t)ecmp_id;
     return bcm_l3_egress_ecmp_destroy(unit, &e);
 }
+
+/* ------------------------------------------------------------------ FP */
+static const int fp_qual_map[OB_FPQ_COUNT] = {
+    bcmFieldQualifyInPorts, bcmFieldQualifyEtherType, bcmFieldQualifyIpType, bcmFieldQualifyIpProtocol,
+    bcmFieldQualifySrcIp, bcmFieldQualifyDstIp, bcmFieldQualifySrcIp6, bcmFieldQualifyDstIp6,
+    bcmFieldQualifyL4SrcPort, bcmFieldQualifyL4DstPort, bcmFieldQualifyTcpControl, bcmFieldQualifyIcmpTypeCode,
+    bcmFieldQualifyTos, bcmFieldQualifyDstMac, bcmFieldQualifySrcMac, bcmFieldQualifyOuterVlanId,
+    bcmFieldQualifyTtl, bcmFieldQualifyDstL3Egress};
+
+/* Auto mode (bcm_field_group_create): the SDK widens the group (double /
+ * triple slices) as the qualifier set needs. */
+int ob_sdk_fp_group_create(int unit, uint32_t q, int priority, int* gid)
+{
+    bcm_field_qset_t qset;
+    bcm_field_group_t g = 0;
+    int i, rv;
+    BCM_FIELD_QSET_INIT(qset);
+    BCM_FIELD_QSET_ADD(qset, bcmFieldQualifyStageIngress);
+    for (i = 0; i < OB_FPQ_COUNT; i++)
+        if (q & (1u << i)) BCM_FIELD_QSET_ADD(qset, fp_qual_map[i]);
+    rv = bcm_field_group_create(unit, qset, priority, &g);
+    if (rv < 0) return rv;
+    *gid = (int)g;
+    return BCM_E_NONE;
+}
+
+int ob_sdk_fp_group_destroy(int unit, int gid) { return bcm_field_group_destroy(unit, (bcm_field_group_t)gid); }
+
+static bcm_ip_t ip4_be(const uint8_t* a)
+{
+    return ((bcm_ip_t)a[0] << 24) | ((bcm_ip_t)a[1] << 16) | ((bcm_ip_t)a[2] << 8) | (bcm_ip_t)a[3];
+}
+
+static int fp_qualify(int unit, bcm_field_entry_t e, const ob_fp_rule_t* r)
+{
+    int rv = BCM_E_NONE, i;
+#define HAS(q) (r->present & (1u << (q)))
+#define Q(call) do { if ((rv = (call)) < 0) return rv; } while (0)
+    if (HAS(OB_FPQ_INPORTS)) {
+        bcm_pbmp_t d, m;
+        BCM_PBMP_CLEAR(d);
+        for (i = 0; i < r->nports; i++) BCM_PBMP_PORT_ADD(d, r->ports[i]);
+        BCM_PBMP_ASSIGN(m, PBMP_PORT_ALL(unit));   /* data = ports to match, mask = all (any of data) */
+        Q(bcm_field_qualify_InPorts(unit, e, d, m));
+    }
+    if (HAS(OB_FPQ_ETHERTYPE)) Q(bcm_field_qualify_EtherType(unit, e, r->ether, r->ether_mask));
+    if (HAS(OB_FPQ_IPTYPE)) {
+        static const bcm_field_IpType_t t[] = {bcmFieldIpTypeIp, bcmFieldIpTypeNonIp, bcmFieldIpTypeIpv4Any,
+                                               bcmFieldIpTypeIpv4Not, bcmFieldIpTypeIpv6, bcmFieldIpTypeIpv6Not,
+                                               bcmFieldIpTypeArp, bcmFieldIpTypeArpRequest, bcmFieldIpTypeArpReply};
+        if (r->ip_type < 0 || r->ip_type >= (int)(sizeof(t) / sizeof(t[0]))) return BCM_E_PARAM;
+        Q(bcm_field_qualify_IpType(unit, e, t[r->ip_type]));
+    }
+    if (HAS(OB_FPQ_IPPROTO)) Q(bcm_field_qualify_IpProtocol(unit, e, r->proto, r->proto_mask));
+    if (HAS(OB_FPQ_SRCIP)) Q(bcm_field_qualify_SrcIp(unit, e, ip4_be(r->src), ip4_be(r->src_mask)));
+    if (HAS(OB_FPQ_DSTIP)) Q(bcm_field_qualify_DstIp(unit, e, ip4_be(r->dst), ip4_be(r->dst_mask)));
+    if (HAS(OB_FPQ_SRCIP6)) {
+        bcm_ip6_t a, m;
+        memcpy(a, r->src, 16); memcpy(m, r->src_mask, 16);
+        Q(bcm_field_qualify_SrcIp6(unit, e, a, m));
+    }
+    if (HAS(OB_FPQ_DSTIP6)) {
+        bcm_ip6_t a, m;
+        memcpy(a, r->dst, 16); memcpy(m, r->dst_mask, 16);
+        Q(bcm_field_qualify_DstIp6(unit, e, a, m));
+    }
+    if (HAS(OB_FPQ_L4SRC)) Q(bcm_field_qualify_L4SrcPort(unit, e, r->l4_src, r->l4_src_mask));
+    if (HAS(OB_FPQ_L4DST)) Q(bcm_field_qualify_L4DstPort(unit, e, r->l4_dst, r->l4_dst_mask));
+    if (HAS(OB_FPQ_TCP)) Q(bcm_field_qualify_TcpControl(unit, e, r->tcp, r->tcp_mask));
+    if (HAS(OB_FPQ_ICMP)) Q(bcm_field_qualify_IcmpTypeCode(unit, e, r->icmp, r->icmp_mask));
+    if (HAS(OB_FPQ_TOS)) Q(bcm_field_qualify_Tos(unit, e, r->tos, r->tos_mask));
+    if (HAS(OB_FPQ_DSTMAC)) {
+        bcm_mac_t a, m;
+        memcpy(a, r->dmac, 6); memcpy(m, r->dmac_mask, 6);
+        Q(bcm_field_qualify_DstMac(unit, e, a, m));
+    }
+    if (HAS(OB_FPQ_SRCMAC)) {
+        bcm_mac_t a, m;
+        memcpy(a, r->smac, 6); memcpy(m, r->smac_mask, 6);
+        Q(bcm_field_qualify_SrcMac(unit, e, a, m));
+    }
+    if (HAS(OB_FPQ_VLAN)) Q(bcm_field_qualify_OuterVlanId(unit, e, r->vlan, r->vlan_mask));
+    if (HAS(OB_FPQ_TTL)) Q(bcm_field_qualify_Ttl(unit, e, r->ttl, r->ttl_mask));
+    if (HAS(OB_FPQ_DSTEGRESS)) Q(bcm_field_qualify_DstL3Egress(unit, e, (bcm_if_t)r->dst_egress));
+#undef HAS
+    return rv;
+}
+
+static int fp_actions(int unit, bcm_field_entry_t e, const ob_fp_rule_t* r)
+{
+    int rv = BCM_E_NONE;
+    if (r->drop) Q(bcm_field_action_add(unit, e, bcmFieldActionDrop, 0, 0));
+    if (r->drop_cancel) Q(bcm_field_action_add(unit, e, bcmFieldActionDropCancel, 0, 0));
+    if (r->copy_cpu) Q(bcm_field_action_add(unit, e, bcmFieldActionCopyToCpu, 0, 0));
+    if (r->policer >= 0) {
+        /* Colours: drop, or (CoPP) only cancel the copy to the CPU. */
+        if (r->green_drop)
+            Q(bcm_field_action_add(unit, e, r->cpu_copy_only ? bcmFieldActionGpCopyToCpuCancel : bcmFieldActionGpDrop, 0, 0));
+        if (r->yellow_drop)
+            Q(bcm_field_action_add(unit, e, r->cpu_copy_only ? bcmFieldActionYpCopyToCpuCancel : bcmFieldActionYpDrop, 0, 0));
+        if (r->red_drop)
+            Q(bcm_field_action_add(unit, e, r->cpu_copy_only ? bcmFieldActionRpCopyToCpuCancel : bcmFieldActionRpDrop, 0, 0));
+    }
+    return rv;
+}
+
+int ob_sdk_fp_entry_create(int unit, int gid, const ob_fp_rule_t* r, int* eid, int* stat_id)
+{
+    bcm_field_entry_t e = 0;
+    int rv, stat = -1;
+    *stat_id = -1;
+    rv = bcm_field_entry_create(unit, (bcm_field_group_t)gid, &e);
+    if (rv < 0) return rv;
+    if ((rv = bcm_field_entry_prio_set(unit, e, r->priority)) < 0) goto fail;
+    if ((rv = fp_qualify(unit, e, r)) < 0) goto fail;
+    if ((rv = fp_actions(unit, e, r)) < 0) goto fail;
+    if (r->counter) {
+        bcm_field_stat_t s[2] = {bcmFieldStatPackets, bcmFieldStatBytes};
+        if ((rv = bcm_field_stat_create(unit, (bcm_field_group_t)gid, 2, s, &stat)) < 0) goto fail;
+        if ((rv = bcm_field_entry_stat_attach(unit, e, stat)) < 0) goto fail;
+    }
+    if (r->policer >= 0 && (rv = bcm_field_entry_policer_attach(unit, e, 0, (bcm_policer_t)r->policer)) < 0) goto fail;
+    if ((rv = bcm_field_entry_install(unit, e)) < 0) goto fail;
+    *eid = (int)e;
+    *stat_id = stat;
+    return BCM_E_NONE;
+fail:
+    if (r->policer >= 0) bcm_field_entry_policer_detach_all(unit, e);
+    if (stat >= 0) {
+        bcm_field_entry_stat_detach(unit, e, stat);
+        bcm_field_stat_destroy(unit, stat);
+    }
+    bcm_field_entry_destroy(unit, e);
+    return rv;
+}
+
+int ob_sdk_fp_entry_destroy(int unit, int eid, int stat_id)
+{
+    bcm_field_entry_t e = (bcm_field_entry_t)eid;
+    int rv;
+    bcm_field_entry_remove(unit, e);   /* out of the TCAM first */
+    bcm_field_entry_policer_detach_all(unit, e);
+    if (stat_id >= 0) bcm_field_entry_stat_detach(unit, e, stat_id);
+    rv = bcm_field_entry_destroy(unit, e);
+    if (stat_id >= 0) bcm_field_stat_destroy(unit, stat_id);
+    return rv;
+}
+
+int ob_sdk_fp_stat_get(int unit, int stat_id, uint64_t* packets, uint64_t* bytes)
+{
+    uint64 p = 0, b = 0;
+    int rv;
+    if ((rv = bcm_field_stat_sync_get(unit, stat_id, bcmFieldStatPackets, &p)) < 0) return rv;
+    if ((rv = bcm_field_stat_sync_get(unit, stat_id, bcmFieldStatBytes, &b)) < 0) return rv;
+    *packets = p;
+    *bytes = b;
+    return BCM_E_NONE;
+}
+#undef Q
+
+/* ------------------------------------------------------------ meters */
+static uint32 kbits(uint64_t bytes)   /* bytes(/s) -> kbits(/s), rounded up */
+{
+    uint64_t k = (bytes * 8 + 999) / 1000;
+    return k > 0xffffffffu ? 0xffffffffu : (uint32)k;
+}
+static uint32 cap32(uint64_t v) { return v > 0xffffffffu ? 0xffffffffu : (uint32)v; }
+
+/* Packet mode (BCM_POLICER_MODE_PACKETS): the kbits fields carry packets/s
+ * and packets. srTCM refills its excess bucket at the committed rate. */
+static void policer_fill(bcm_policer_config_t* pc, const ob_policer_cfg_t* c)
+{
+    uint32 (*conv)(uint64_t) = c->packets ? cap32 : kbits;
+    bcm_policer_config_t_init(pc);
+    pc->flags = (c->packets ? BCM_POLICER_MODE_PACKETS : BCM_POLICER_MODE_BYTES) |
+                (c->color_blind ? BCM_POLICER_COLOR_BLIND : 0);
+    pc->ckbits_sec = conv(c->cir);
+    pc->ckbits_burst = conv(c->cbs);
+    if (c->tr_tcm) {
+        pc->mode = bcmPolicerModeTrTcm;
+        pc->pkbits_sec = conv(c->pir);
+        pc->pkbits_burst = conv(c->pbs);
+    } else if (c->pbs) {
+        pc->mode = bcmPolicerModeSrTcm;
+        pc->pkbits_sec = pc->ckbits_sec;
+        pc->pkbits_burst = conv(c->pbs);
+    } else {
+        pc->mode = bcmPolicerModeCommitted;
+    }
+}
+
+int ob_sdk_policer_create(int unit, const ob_policer_cfg_t* c, int* pid)
+{
+    bcm_policer_config_t pc;
+    bcm_policer_t id = 0;
+    int rv;
+    policer_fill(&pc, c);
+    rv = bcm_policer_create(unit, &pc, &id);
+    if (rv < 0) return rv;
+    *pid = (int)id;
+    return BCM_E_NONE;
+}
+
+int ob_sdk_policer_set(int unit, int pid, const ob_policer_cfg_t* c)
+{
+    bcm_policer_config_t pc;
+    policer_fill(&pc, c);
+    return bcm_policer_set(unit, (bcm_policer_t)pid, &pc);
+}
+
+int ob_sdk_policer_destroy(int unit, int pid) { return bcm_policer_destroy(unit, (bcm_policer_t)pid); }

@@ -29,6 +29,14 @@ namespace ob {
 #define STP_ATTR(a) SAI_STP_ATTR_##a
 #define LAG_ATTR(a) SAI_LAG_ATTR_##a
 #define LAG_MEMBER_ATTR(a) SAI_LAG_MEMBER_ATTR_##a
+#define POLICER_ATTR(a) SAI_POLICER_ATTR_##a
+#define ACL_TABLE_ATTR(a) SAI_ACL_TABLE_ATTR_##a
+#define ACL_ENTRY_ATTR(a) SAI_ACL_ENTRY_ATTR_##a
+#define ACL_COUNTER_ATTR(a) SAI_ACL_COUNTER_ATTR_##a
+#define ACL_TABLE_GROUP_ATTR(a) SAI_ACL_TABLE_GROUP_ATTR_##a
+#define ACL_TABLE_GROUP_MEMBER_ATTR(a) SAI_ACL_TABLE_GROUP_MEMBER_ATTR_##a
+// ACL match fields (sai_acl.cpp field_qual): table create/get, entry create/set/get.
+#define ACL_FIELD(f) C(ACL_TABLE, FIELD_##f, true, false, true), C(ACL_ENTRY, FIELD_##f, true, true, true)
 
 const std::vector<AttrCap>& attr_caps()
 {
@@ -132,6 +140,51 @@ const std::vector<AttrCap>& attr_caps()
         C(HOSTIF_TRAP, TRAP_TYPE, true, false, true),
         C(HOSTIF_TRAP, PACKET_ACTION, true, true, true),
         C(HOSTIF_TRAP_GROUP, QUEUE, true, true, true),
+        C(HOSTIF_TRAP_GROUP, POLICER, true, true, true),
+        C(PORT, INGRESS_ACL, false, true, true),
+        C(LAG, INGRESS_ACL, true, true, true),
+
+        C(POLICER, METER_TYPE, true, false, true),
+        C(POLICER, MODE, true, false, true),
+        C(POLICER, COLOR_SOURCE, true, false, true),
+        C(POLICER, CBS, true, true, true),
+        C(POLICER, CIR, true, true, true),
+        C(POLICER, PBS, true, true, true),
+        C(POLICER, PIR, true, true, true),
+        C(POLICER, GREEN_PACKET_ACTION, true, true, true),
+        C(POLICER, YELLOW_PACKET_ACTION, true, true, true),
+        C(POLICER, RED_PACKET_ACTION, true, true, true),
+
+        C(ACL_TABLE, ACL_STAGE, true, false, true),
+        C(ACL_TABLE, ACL_BIND_POINT_TYPE_LIST, true, false, true),
+        C(ACL_TABLE, ACL_ACTION_TYPE_LIST, true, false, true),
+        C(ACL_TABLE, SIZE, true, false, true),
+        C(ACL_TABLE, ENTRY_LIST, false, false, true),
+        ACL_FIELD(SRC_IP), ACL_FIELD(DST_IP), ACL_FIELD(SRC_IPV6), ACL_FIELD(DST_IPV6),
+        ACL_FIELD(L4_SRC_PORT), ACL_FIELD(L4_DST_PORT), ACL_FIELD(IP_PROTOCOL), ACL_FIELD(IPV6_NEXT_HEADER),
+        ACL_FIELD(ETHER_TYPE), ACL_FIELD(TCP_FLAGS), ACL_FIELD(ICMP_TYPE), ACL_FIELD(ICMP_CODE),
+        ACL_FIELD(ICMPV6_TYPE), ACL_FIELD(ICMPV6_CODE), ACL_FIELD(DSCP), ACL_FIELD(ECN), ACL_FIELD(TOS),
+        ACL_FIELD(ACL_IP_TYPE), ACL_FIELD(SRC_MAC), ACL_FIELD(DST_MAC), ACL_FIELD(OUTER_VLAN_ID),
+        ACL_FIELD(TTL), ACL_FIELD(IN_PORTS), ACL_FIELD(IN_PORT),
+        C(ACL_TABLE, FIELD_ACL_RANGE_TYPE, true, false, true),   // kept; ACL_RANGE objects are not supported
+        C(ACL_ENTRY, TABLE_ID, true, false, true),
+        C(ACL_ENTRY, PRIORITY, true, true, true),
+        C(ACL_ENTRY, ADMIN_STATE, true, true, true),
+        C(ACL_ENTRY, ACTION_PACKET_ACTION, true, true, true),
+        C(ACL_ENTRY, ACTION_COUNTER, true, true, true),
+        C(ACL_ENTRY, ACTION_SET_POLICER, true, true, true),
+        C(ACL_COUNTER, TABLE_ID, true, false, true),
+        C(ACL_COUNTER, ENABLE_PACKET_COUNT, true, false, true),
+        C(ACL_COUNTER, ENABLE_BYTE_COUNT, true, false, true),
+        C(ACL_COUNTER, PACKETS, true, true, true),
+        C(ACL_COUNTER, BYTES, true, true, true),
+        C(ACL_TABLE_GROUP, ACL_STAGE, true, false, true),
+        C(ACL_TABLE_GROUP, ACL_BIND_POINT_TYPE_LIST, true, false, true),
+        C(ACL_TABLE_GROUP, TYPE, true, false, true),
+        C(ACL_TABLE_GROUP, MEMBER_LIST, false, false, true),
+        C(ACL_TABLE_GROUP_MEMBER, ACL_TABLE_GROUP_ID, true, false, true),
+        C(ACL_TABLE_GROUP_MEMBER, ACL_TABLE_ID, true, false, true),
+        C(ACL_TABLE_GROUP_MEMBER, PRIORITY, true, false, true),
 
         C(VIRTUAL_ROUTER, ADMIN_V4_STATE, true, true, true),
         C(VIRTUAL_ROUTER, ADMIN_V6_STATE, true, true, true),

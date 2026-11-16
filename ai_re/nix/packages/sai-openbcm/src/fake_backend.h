@@ -123,10 +123,26 @@ public:
     sai_status_t l3_ecmp_update(int ecmp_id, const std::vector<int>& egress) override;
     sai_status_t l3_ecmp_destroy(int ecmp_id) override;
 
+    sai_status_t fp_group_create(const std::vector<FpQual>& qset, int priority, int& gid) override;
+    sai_status_t fp_group_destroy(int gid) override;
+    sai_status_t fp_entry_create(int gid, const FpRule& r, int& eid) override;
+    sai_status_t fp_entry_destroy(int eid) override;
+    sai_status_t fp_entry_counter(int eid, uint64_t& packets, uint64_t& bytes) override;
+    sai_status_t policer_create(const PolicerCfg& cfg, int& pid) override;
+    sai_status_t policer_set(int pid, const PolicerCfg& cfg) override;
+    sai_status_t policer_destroy(int pid) override;
+
     // ---- test hooks (not part of the backend interface) ----
     void inject_link(int hw, bool up);                 // e.g. cable pulled
     void inject_fdb(const FdbEvent& ev);               // hardware learn/age
     void set_stat(int hw, PortStat s, uint64_t v);
+    void fp_hit(int eid, uint64_t packets, uint64_t bytes);   // traffic on an entry (counter)
+    struct FpGroup { uint32_t qset = 0; int priority = 0; };
+    struct FpEntry { int gid; FpRule rule; uint64_t packets = 0, bytes = 0; };
+    struct Policer { PolicerCfg cfg; };
+    std::map<int, FpGroup> fp_groups;
+    std::map<int, FpEntry> fp_entries;
+    std::map<int, Policer> policers;
     std::mutex mu;                                     // guards everything below
     std::vector<int> temps;                            // current, tenths of C
     bool temp_fail = false;                            // reads fail (sensor gone)
@@ -170,6 +186,7 @@ private:
     int next_tid_ = 1;
     int next_netif_ = 1, next_filter_ = 2, next_intf_ = 1, next_station_ = 1, next_egress_ = 100002;
     int next_ecmp_ = 200000;                           // the SDK's multipath id range
+    int next_fp_group_ = 1, next_fp_entry_ = 1, next_policer_ = 1;
     int cpu_egress_ = -1, drop_egress_ = -1;
 };
 

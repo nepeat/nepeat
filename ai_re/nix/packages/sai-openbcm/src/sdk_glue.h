@@ -159,6 +159,50 @@ int ob_sdk_l3_route_delete(int unit, int vrf, int v6, const uint8_t* addr, const
 int ob_sdk_l3_ecmp_set(int unit, int* ecmp_id, int replace, const int* egress, int n);
 int ob_sdk_l3_ecmp_destroy(int unit, int ecmp_id);
 
+/* Ingress field processor (ACL tables, CoPP) and meters. Qualifier bits in
+ * ob::FpQual order; addresses in network order (IPv4: first 4 bytes). */
+enum {
+    OB_FPQ_INPORTS, OB_FPQ_ETHERTYPE, OB_FPQ_IPTYPE, OB_FPQ_IPPROTO, OB_FPQ_SRCIP, OB_FPQ_DSTIP, OB_FPQ_SRCIP6,
+    OB_FPQ_DSTIP6, OB_FPQ_L4SRC, OB_FPQ_L4DST, OB_FPQ_TCP, OB_FPQ_ICMP, OB_FPQ_TOS, OB_FPQ_DSTMAC, OB_FPQ_SRCMAC,
+    OB_FPQ_VLAN, OB_FPQ_TTL, OB_FPQ_DSTEGRESS, OB_FPQ_COUNT
+};
+enum { OB_FP_IP, OB_FP_NON_IP, OB_FP_IPV4, OB_FP_NON_IPV4, OB_FP_IPV6, OB_FP_NON_IPV6, OB_FP_ARP, OB_FP_ARP_REQUEST,
+       OB_FP_ARP_REPLY };
+typedef struct {
+    uint32_t present;
+    uint16_t ether, ether_mask;
+    int ip_type;                        /* OB_FP_IP.. */
+    uint8_t proto, proto_mask;
+    uint8_t src[16], src_mask[16], dst[16], dst_mask[16];
+    uint16_t l4_src, l4_src_mask, l4_dst, l4_dst_mask;
+    uint8_t tcp, tcp_mask;
+    uint16_t icmp, icmp_mask;
+    uint8_t tos, tos_mask;
+    uint8_t dmac[6], dmac_mask[6], smac[6], smac_mask[6];
+    uint16_t vlan, vlan_mask;
+    uint8_t ttl, ttl_mask;
+    int dst_egress;                     /* OB_FPQ_DSTEGRESS: L3 egress object the lookup chose */
+    const int* ports;                   /* OB_FPQ_INPORTS */
+    int nports;
+    int priority;
+    int drop, drop_cancel, copy_cpu, counter;
+    int policer;                        /* -1: none */
+    int green_drop, yellow_drop, red_drop, cpu_copy_only;
+} ob_fp_rule_t;
+int ob_sdk_fp_group_create(int unit, uint32_t qset, int priority, int* gid);
+int ob_sdk_fp_group_destroy(int unit, int gid);
+/* Installed on success; *stat_id: the entry's packet/byte counter or -1. */
+int ob_sdk_fp_entry_create(int unit, int gid, const ob_fp_rule_t* r, int* eid, int* stat_id);
+int ob_sdk_fp_entry_destroy(int unit, int eid, int stat_id);
+int ob_sdk_fp_stat_get(int unit, int stat_id, uint64_t* packets, uint64_t* bytes);
+typedef struct {
+    int tr_tcm, packets, color_blind;   /* sr_tcm with pbs 0: one bucket (committed) */
+    uint64_t cir, cbs, pir, pbs;        /* packets/s + packets, or bytes/s + bytes */
+} ob_policer_cfg_t;
+int ob_sdk_policer_create(int unit, const ob_policer_cfg_t* c, int* pid);
+int ob_sdk_policer_set(int unit, int pid, const ob_policer_cfg_t* c);
+int ob_sdk_policer_destroy(int unit, int pid);
+
 #ifdef __cplusplus
 }
 #endif

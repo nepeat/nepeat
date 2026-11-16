@@ -1,0 +1,69 @@
+# sai-openbcm ACL + CoPP on the fake backend under services.sonic, 2026-11-15
+# VM test nix/modules/switch/sonic/tests/vm-openbcm-fake-acl.nix (script vm-acl-test.py), one VM 3 GB.
+# Run 1: CoPP 7/7, ACL table create refused (AclOrch adds FIELD_ACL_RANGE_TYPE to every
+#   ingress table; libsai said ATTR_NOT_SUPPORTED_0+12) -> table keeps the range types, ACL_RANGE
+#   objects stay NOT_SUPPORTED. Run 2: ACL counters not polled (ACL_STAT_COUNTER off by default)
+#   -> test runs "counterpoll acl enable". Run 3 (below): 28/28.
+# syncd = sairedis-openbcm built against the previous libsai (the libsai under test is first in
+# LD_LIBRARY_PATH, as vm-openbcm-fake.nix allows); the regression runs rebuild it.
+# Unit tests (libsai checkPhase, same source): 2355 checks, 0 failures.
+# Each libsai line shows twice (SAI_OPENBCM_LOG_STDERR=1: stderr and syslog both reach the console).
+switch # [    8.690416] syncd[678]: sai-openbcm NOTICE api=12: CoPP: 0 field entries, 0 policers (field group -1)
+switch # [    8.690963] syncd[678]: sai-openbcm NOTICE api=12: CoPP: 0 field entries, 0 policers (field group -1)
+switch # [   10.120415] syncd[678]: sai-openbcm NOTICE api=17: policer 1: sr_tcm packets cir 600 cbs 600 pir 0 pbs 0
+switch # [   10.124170] syncd[678]: sai-openbcm NOTICE api=17: policer 2: sr_tcm packets cir 6000 cbs 6000 pir 0 pbs 0
+switch # [   10.128332] syncd[678]: sai-openbcm NOTICE api=12: CoPP: 1 field entries, 1 policers (field group 1)
+switch # [   10.131597] syncd[678]: sai-openbcm NOTICE api=17: policer 3: sr_tcm packets cir 200 cbs 200 pir 0 pbs 0
+switch # [   10.134586] syncd[678]: sai-openbcm NOTICE api=17: policer 4: sr_tcm packets cir 100 cbs 100 pir 0 pbs 0
+switch # [   10.139188] syncd[678]: sai-openbcm NOTICE api=17: policer 5: sr_tcm packets cir 6000 cbs 6000 pir 0 pbs 0
+switch # [   10.142119] syncd[678]: sai-openbcm NOTICE api=12: CoPP: 2 field entries, 2 policers (field group 1)
+switch # [   10.145315] syncd[678]: sai-openbcm NOTICE api=17: policer 6: sr_tcm packets cir 600 cbs 600 pir 0 pbs 0
+switch # [   10.148286] syncd[678]: sai-openbcm NOTICE api=12: CoPP: 3 field entries, 3 policers (field group 1)
+switch # [   10.149610] syncd[678]: sai-openbcm NOTICE api=12: CoPP: 4 field entries, 3 policers (field group 1)
+switch # [   10.152713] syncd[678]: sai-openbcm NOTICE api=12: CoPP: 9 field entries, 3 policers (field group 1)
+switch # [   10.322233] syncd[678]: sai-openbcm NOTICE api=17: policer 1: sr_tcm packets cir 600 cbs 600 pir 0 pbs 0
+switch # [   10.325007] syncd[678]: sai-openbcm NOTICE api=17: policer 2: sr_tcm packets cir 6000 cbs 6000 pir 0 pbs 0
+switch # [   10.328209] syncd[678]: sai-openbcm NOTICE api=12: CoPP: 1 field entries, 1 policers (field group 1)
+switch # [   10.331917] syncd[678]: sai-openbcm NOTICE api=17: policer 3: sr_tcm packets cir 200 cbs 200 pir 0 pbs 0
+switch # [   10.338457] syncd[678]: sai-openbcm NOTICE api=17: policer 4: sr_tcm packets cir 100 cbs 100 pir 0 pbs 0
+switch # [   10.346449] syncd[678]: sai-openbcm NOTICE api=17: policer 5: sr_tcm packets cir 6000 cbs 6000 pir 0 pbs 0
+switch # [   10.350962] syncd[678]: sai-openbcm NOTICE api=12: CoPP: 2 field entries, 2 policers (field group 1)
+switch # [   10.355255] syncd[678]: sai-openbcm NOTICE api=17: policer 6: sr_tcm packets cir 600 cbs 600 pir 0 pbs 0
+switch # [   10.358803] syncd[678]: sai-openbcm NOTICE api=12: CoPP: 3 field entries, 3 policers (field group 1)
+switch # [   10.360302] syncd[678]: sai-openbcm NOTICE api=12: CoPP: 4 field entries, 3 policers (field group 1)
+switch # [   10.361659] syncd[678]: sai-openbcm NOTICE api=12: CoPP: 9 field entries, 3 policers (field group 1)
+PASS units active, no restarts
+policers: 6
+PASS CoPP: one policer per COPP_GROUP with a meter (>= 6)
+PASS CoppOrch: no policer errors
+PASS trap groups carry their policer
+syncd CoPP: [('3', '3'), ('4', '3'), ('9', '3')]
+PASS libsai: CoPP field entries for the policed traps
+PASS libsai: policers programmed (sr_tcm packets)
+PASS STATE_DB: ingress ACL actions from the SAI
+switch # [   26.106545] syncd[678]: sai-openbcm NOTICE api=11: ACL table: SDK field group 2, 11 match fields
+switch # [   26.108254] syncd[678]: sai-openbcm NOTICE api=11: ACL table: SDK field group 2, 11 match fields
+PASS one ACL_TABLE
+PASS ACL table: ingress, DST_IP/L4 fields
+PASS advertised match fields kept (OUTER_VLAN_ID, TCP_FLAGS)
+PASS ACL table group + member
+PASS Ethernet8 bound to the table group
+PASS one ACL_ENTRY
+PASS entry: DST_IP 10.9.9.9/32, DROP, counter, priority
+PASS ACL counter object
+PASS STATE_DB ACL_RULE_TABLE status Active
+PASS libsai: SDK field entry installed on 1 port, drop, counted
+PASS counterpoll acl enable
+PASS syncd polls SAI_ACL_COUNTER_ATTR_PACKETS
+INFO show acl rule rc=1: t openconfig_acl
+switch # [   28.463243] syncd[678]: sai-openbcm NOTICE api=11: ACL table: SDK field group 3, 10 match fields
+switch # [   28.464728] syncd[678]: sai-openbcm NOTICE api=11: ACL table: SDK field group 3, 10 match fields
+PASS config acl add table (L3V6)
+PASS ASIC_DB: 2 ACL tables
+PASS L3V6 table: DST_IPV6 field
+PASS entry + counter removed
+PASS config acl remove table
+PASS tables, groups removed; Ethernet8 unbound
+PASS orchagent: no ACL errors
+PASS still no restarts
+0 failures: []

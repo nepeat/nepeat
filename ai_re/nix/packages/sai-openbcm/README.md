@@ -12,7 +12,9 @@ temperatures, the syncd temperature publisher and `--shutdown-at` are
 fake-tested only. orchagent and the rest of `services.sonic` run on the fake
 backend (VM test, [below](#what-orchagent-reads)) and on the switch (sonic-nixos
 PROGRESS). VRFs and next-hop groups (ECMP), 2026-11-15: fake-tested (unit + VM),
-not yet on the switch.
+not yet on the switch. Policers, CoPP policing and ingress ACLs on the
+field processor ([below](#acl-and-copp-field-processor)), 2026-11-15:
+fake-tested (unit + VM), SDK calls compiled and linked, not yet on the switch.
 
 ## Design
 
@@ -108,8 +110,8 @@ C/S/G = create/set/get. *stub* = stored and returned, not programmed.
 
 | object | supported | stubbed | not supported |
 | --- | --- | --- | --- |
-| SWITCH | create (INIT_SWITCH=true only), remove; G: TYPE, PORT_NUMBER, PORT_LIST, CPU_PORT, MAX_NUMBER_OF_SUPPORTED_PORTS, DEFAULT_VIRTUAL_ROUTER_ID, DEFAULT_VLAN_ID, DEFAULT_1Q_BRIDGE_ID, DEFAULT_STP_INST_ID, DEFAULT_TRAP_GROUP, PORT_MAX_MTU, OPER_STATUS, QOS_MAX_NUMBER_OF_TRAFFIC_CLASSES, NUMBER_OF_(UNICAST_)QUEUES, MAX_NUMBER_OF_TEMP_SENSORS, TEMP_LIST / MAX_TEMP / AVERAGE_TEMP (live PVTMON read, whole C rounded); the capacity attributes orchagent reads ([table below](#what-orchagent-reads)): ACL_ENTRY_MINIMUM/MAXIMUM_PRIORITY, TOTAL_BUFFER_SIZE, AVAILABLE_IPV4/IPV6_ROUTE/NEXTHOP/NEIGHBOR_ENTRY, AVAILABLE_FDB_ENTRY, AVAILABLE_NEXT_HOP_GROUP(_MEMBER)_ENTRY (live), NUMBER_OF_ECMP_GROUPS, ECMP_MEMBERS, MAX_ECMP_MEMBER_COUNT (SDK), and the honest zeros MAX_ACL_ACTION_COUNT, ACL_STAGE_INGRESS/EGRESS (no actions); C/S/G: SRC_MAC_ADDRESS, FDB_AGING_TIME, all *_NOTIFY pointers (port state + FDB events are raised) | ECMP/LAG hash seed/algorithm/offset, RESTART_WARM, WARM_RECOVER, PRE_SHUTDOWN, FAST_API_ENABLE, UNINIT_DATA_PLANE_ON_REMOVAL, VXLAN_DEFAULT_PORT, BCAST/MCAST_CPU_FLOOD_ENABLE, SWITCHING_MODE, FDB_*_MISS_PACKET_ACTION, COUNTER_REFRESH_INTERVAL, SWITCH_ID, SWITCH_PROFILE_ID; HARDWARE_ACCESS_BUS etc. ignored at create; SWITCH_HARDWARE_INFO returns empty | ECMP_HASH/LAG_HASH objects, VXLAN_DEFAULT_ROUTER_MAC, MAX_STP_INSTANCE, ACL resource lists (AVAILABLE_ACL_TABLE*), NAT/IPMC/L2MC/MY_SID available counts, ACL table priority range, switch stats, INIT_SWITCH=false |
-| PORT | G: TYPE, HW_LANE_LIST (SDK physical lanes), OPER_STATUS (live), SPEED/OPER_SPEED (live), SUPPORTED_SPEED, SUPPORTED_FEC_MODE, SUPPORTED_AUTO_NEG_MODE, QOS_NUMBER_OF_QUEUES, QOS_QUEUE_LIST, NUMBER_OF_INGRESS_PRIORITY_GROUPS, INGRESS_PRIORITY_GROUP_LIST, QOS_NUMBER_OF_SCHEDULER_GROUPS (0); S/G: ADMIN_STATE, SPEED, MTU (frame max = MTU + 8), FEC_MODE (NONE/RS/FC), AUTO_NEG_MODE, PORT_VLAN_ID, LOOPBACK_MODE (NONE/MAC/PHY); stats: IF_IN/OUT_{OCTETS,UCAST,NON_UCAST,BROADCAST,MULTICAST,DISCARDS,ERRORS}, IF_IN_UNKNOWN_PROTOS (read; clear-all) | MEDIA_TYPE, INTERFACE_TYPE, DEFAULT_VLAN_PRIORITY, DROP_(UN)TAGGED, LINK_TRAINING_ENABLE, GLOBAL_FLOW_CONTROL_MODE, PRIORITY_FLOW_CONTROL, UPDATE_DSCP, FULL_DUPLEX_MODE, IPG, PKT_TX_ENABLE, HOST_TX_SIGNAL_ENABLE, AUTO_NEG_FEC_MODE_OVERRIDE | create/remove (breakout), ADVERTISED_SPEED, PORT_SERDES, QoS map/policer/buffer bindings, PFC, per-counter clear, stats_ext READ_AND_CLEAR |
+| SWITCH | create (INIT_SWITCH=true only), remove; G: TYPE, PORT_NUMBER, PORT_LIST, CPU_PORT, MAX_NUMBER_OF_SUPPORTED_PORTS, DEFAULT_VIRTUAL_ROUTER_ID, DEFAULT_VLAN_ID, DEFAULT_1Q_BRIDGE_ID, DEFAULT_STP_INST_ID, DEFAULT_TRAP_GROUP, PORT_MAX_MTU, OPER_STATUS, QOS_MAX_NUMBER_OF_TRAFFIC_CLASSES, NUMBER_OF_(UNICAST_)QUEUES, MAX_NUMBER_OF_TEMP_SENSORS, TEMP_LIST / MAX_TEMP / AVERAGE_TEMP (live PVTMON read, whole C rounded); the capacity attributes orchagent reads ([table below](#what-orchagent-reads)): ACL_ENTRY_MINIMUM/MAXIMUM_PRIORITY, TOTAL_BUFFER_SIZE, AVAILABLE_IPV4/IPV6_ROUTE/NEXTHOP/NEIGHBOR_ENTRY, AVAILABLE_FDB_ENTRY, AVAILABLE_NEXT_HOP_GROUP(_MEMBER)_ENTRY (live), NUMBER_OF_ECMP_GROUPS, ECMP_MEMBERS, MAX_ECMP_MEMBER_COUNT (SDK), MAX_ACL_ACTION_COUNT, ACL_STAGE_INGRESS/EGRESS (ingress: PACKET_ACTION, COUNTER, SET_POLICER; egress: none); C/S/G: SRC_MAC_ADDRESS, FDB_AGING_TIME, all *_NOTIFY pointers (port state + FDB events are raised) | ECMP/LAG hash seed/algorithm/offset, RESTART_WARM, WARM_RECOVER, PRE_SHUTDOWN, FAST_API_ENABLE, UNINIT_DATA_PLANE_ON_REMOVAL, VXLAN_DEFAULT_PORT, BCAST/MCAST_CPU_FLOOD_ENABLE, SWITCHING_MODE, FDB_*_MISS_PACKET_ACTION, COUNTER_REFRESH_INTERVAL, SWITCH_ID, SWITCH_PROFILE_ID; HARDWARE_ACCESS_BUS etc. ignored at create; SWITCH_HARDWARE_INFO returns empty | ECMP_HASH/LAG_HASH objects, VXLAN_DEFAULT_ROUTER_MAC, MAX_STP_INSTANCE, ACL resource lists (AVAILABLE_ACL_TABLE*), NAT/IPMC/L2MC/MY_SID available counts, ACL table priority range, switch stats, INIT_SWITCH=false |
+| PORT | G: TYPE, HW_LANE_LIST (SDK physical lanes), OPER_STATUS (live), SPEED/OPER_SPEED (live), SUPPORTED_SPEED, SUPPORTED_FEC_MODE, SUPPORTED_AUTO_NEG_MODE, QOS_NUMBER_OF_QUEUES, QOS_QUEUE_LIST, NUMBER_OF_INGRESS_PRIORITY_GROUPS, INGRESS_PRIORITY_GROUP_LIST, QOS_NUMBER_OF_SCHEDULER_GROUPS (0); S/G: ADMIN_STATE, SPEED, MTU (frame max = MTU + 8), FEC_MODE (NONE/RS/FC), AUTO_NEG_MODE, PORT_VLAN_ID, LOOPBACK_MODE (NONE/MAC/PHY), INGRESS_ACL (table group or table; EGRESS_ACL null only); stats: IF_IN/OUT_{OCTETS,UCAST,NON_UCAST,BROADCAST,MULTICAST,DISCARDS,ERRORS}, IF_IN_UNKNOWN_PROTOS (read; clear-all) | MEDIA_TYPE, INTERFACE_TYPE, DEFAULT_VLAN_PRIORITY, DROP_(UN)TAGGED, LINK_TRAINING_ENABLE, GLOBAL_FLOW_CONTROL_MODE, PRIORITY_FLOW_CONTROL, UPDATE_DSCP, FULL_DUPLEX_MODE, IPG, PKT_TX_ENABLE, HOST_TX_SIGNAL_ENABLE, AUTO_NEG_FEC_MODE_OVERRIDE | create/remove (breakout), ADVERTISED_SPEED, PORT_SERDES, QoS map/policer/buffer bindings, PFC, per-counter clear, stats_ext READ_AND_CLEAR |
 | QUEUE / INGRESS_PRIORITY_GROUP | 8 + 8 per port, G: TYPE, INDEX, PORT, PARENT_SCHEDULER_NODE / PORT, INDEX, BUFFER_PROFILE (null) | | set, stats, scheduler groups |
 | VLAN | C/R; C/G VLAN_ID; G MEMBER_LIST, STP_INSTANCE (default); the CPU is a tagged member of every VLAN | LEARN_DISABLE, MAX_LEARNED_ADDRESSES, flood control types, MCAST lookup key types, META_DATA, CUSTOM_IGMP_SNOOPING_ENABLE | stats, flood groups, ACL bindings |
 | VLAN_MEMBER | C/R/G; VLAN_TAGGING_MODE UNTAGGED/TAGGED (S re-programs) | | PRIORITY_TAGGED |
@@ -118,7 +120,7 @@ C/S/G = create/set/get. *stub* = stored and returned, not programmed.
 | FDB_ENTRY | C/R/S/G on .1Q VLANs (port or trunk destination): TYPE (STATIC/DYNAMIC), BRIDGE_PORT_ID, PACKET_ACTION (FORWARD/DROP); flush by bridge port / VLAN / type; LEARNED/MOVE/AGED notifications from the SDK's L2 callbacks | META_DATA, ALLOW_MAC_MOVE | .1D (bridge bv_id), flush of static-only on hardware (SDK has no static-only delete) |
 | STP | default instance G: VLAN_LIST, BRIDGE_ID, PORT_LIST (empty) | | create, STP ports |
 | HOSTIF | type NETDEV on a front-panel PORT = KNET netif (TX to the port) + RX filter on the ingress port (LAG members keep theirs: teamd runs on them); C/G NAME, OBJ_ID, TYPE; C/S/G OPER_STATUS (netdev carrier via /proc/bcm/knet/link), VLAN_TAG (STRIP/KEEP/ORIGINAL: filter re-created), QUEUE (kept) | | FD, GENETLINK, LAG/VLAN objects, packet RX/TX API |
-| HOSTIF_TRAP_GROUP | default + C/R/S/G: ADMIN_STATE, QUEUE (kept) | | POLICER (no policer objects) |
+| HOSTIF_TRAP_GROUP | default + C/R/S/G: ADMIN_STATE, QUEUE (kept), POLICER (CoPP field entries for the group's traps, [below](#acl-and-copp-field-processor)) | | |
 | HOSTIF_TRAP | C/R/S/G TRAP_TYPE, PACKET_ACTION, TRAP_PRIORITY, TRAP_GROUP. Programmed: ARP request/response, DHCP, IGMP, MLD, IPv6 ND (switch controls); LACP, LLDP (exact L2 user entry, BPDU flag: CPU only, or discard when not trapped; removed: discard) | all other trap types are kept but **not programmed** (BGP, ... rely on SDK defaults / routes to CPU) | user-defined traps |
 | HOSTIF_TABLE_ENTRY | C/R/G (kept): WILDCARD + NETDEV_PHYSICAL/LOGICAL_PORT is what the per-port KNET filters already do | other types/channels kept, not programmed | set |
 | VIRTUAL_ROUTER | SDK VRF id (default VR = VRF 0, others 1..`l3info_max_vrf`); C/R; C/S/G SRC_MAC_ADDRESS (default for RIFs created without one), ADMIN_V4/V6_STATE (true only) | VIOLATION_TTL1/IP_OPTIONS_PACKET_ACTION, UNKNOWN_L3_MULTICAST_PACKET_ACTION | ADMIN_V4/V6_STATE false, labels |
@@ -128,19 +130,62 @@ C/S/G = create/set/get. *stub* = stored and returned, not programmed.
 | ROUTE_ENTRY (M2) | any VR (route in its VRF), IPv4/IPv6, C/R/S/G PACKET_ACTION (FORWARD/DROP/TRAP), NEXT_HOP_ID = next hop (may sit in another VR: route leak), next-hop group (ECMP group; drop while it has no resolved member), RIF (connected: to CPU), CPU port (IP2ME) | META_DATA | |
 | NEXT_HOP_GROUP | type ECMP: SDK ECMP group (`bcm_l3_egress_ecmp_create`, routes BCM_L3_MULTIPATH) over the egress objects of the members' resolved next hops, created with the first resolved member, updated in place, destroyed with the last; C/R; G TYPE, NEXT_HOP_COUNT, NEXT_HOP_MEMBER_LIST | | other types (ordered, fine-grain, protection, ...), counters, bulk APIs |
 | NEXT_HOP_GROUP_MEMBER | C/R/G NEXT_HOP_GROUP_ID; C/S/G NEXT_HOP_ID, WEIGHT (repetitions of the egress object; more paths than the chip's group size are cut, with a warning); unresolved next hops are kept and join when their neighbor appears | SEQUENCE_ID | CONFIGURED/OBSERVED_ROLE, MONITORED_OBJECT, bulk create/remove |
-| LAG | SDK trunk (bcm_trunk_*, PSC RTAG 6 = src+dst IP); C/R; G PORT_LIST (LAG_MEMBER ids); C/S/G PORT_VLAN_ID (every member); INGRESS/EGRESS_ACL null only | DEFAULT_VLAN_PRIORITY, DROP_(UN)TAGGED, TPID | SYSTEM_PORT_AGGREGATE_ID, hash/ARS, labels, sampling, ACLs |
+| LAG | SDK trunk (bcm_trunk_*, PSC RTAG 6 = src+dst IP); C/R; G PORT_LIST (LAG_MEMBER ids); C/S/G PORT_VLAN_ID (every member), INGRESS_ACL (applies to every member, follows membership; EGRESS_ACL null only) | DEFAULT_VLAN_PRIORITY, DROP_(UN)TAGGED, TPID | SYSTEM_PORT_AGGREGATE_ID, hash/ARS, labels, sampling, ACLs |
 | LAG_MEMBER | C/R/G LAG_ID, PORT_ID; C/S/G EGRESS_DISABLE, INGRESS_DISABLE (BCM_TRUNK_MEMBER_*); a joining port takes the LAG's VLANs, PVID, learning and RIF VLAN, a leaving one drops them (PVID 1, learning HW) | WEIGHT | bulk create/remove |
-| everything else (ACL, QoS maps, buffers, policers, mirror, tunnels, ...) | | | `sai_api_query` -> NOT_IMPLEMENTED |
+| POLICER | SDK meter (`bcm_policer_create`, one per SAI policer, shared by its field entries); C/R/S/G: METER_TYPE PACKETS/BYTES, MODE SR_TCM/TR_TCM, COLOR_SOURCE (create-only), CIR, CBS, PIR, PBS, GREEN/YELLOW/RED_PACKET_ACTION (FORWARD/DROP) | | STORM_CONTROL, stats (sai_query_stats_capability: none), counter action lists |
+| ACL_TABLE | ingress only, bind points PORT/LAG; one SDK field group (auto width, qualifiers = the table's match fields + in-ports); C/R/G: ACL_STAGE, ACL_BIND_POINT_TYPE_LIST, ACL_ACTION_TYPE_LIST, SIZE (kept), match fields SRC/DST_IP(V6), L4_SRC/DST_PORT, IP_PROTOCOL, IPV6_NEXT_HEADER, ETHER_TYPE, TCP_FLAGS, ICMP(V6)_TYPE/CODE, DSCP, ECN, TOS, ACL_IP_TYPE, SRC/DST_MAC, OUTER_VLAN_ID, TTL, IN_PORT(S); G ENTRY_LIST | | egress, ranges (ACL_RANGE: NOT_SUPPORTED), other fields, AVAILABLE_ACL_ENTRY/COUNTER (CRM: unsupported) |
+| ACL_ENTRY | one SDK field entry on the ports the table is bound to (none: not installed); C/R/S/G: PRIORITY (SDK entry priority), ADMIN_STATE, the table's match fields, ACTION_PACKET_ACTION (DROP/DENY, FORWARD/TRANSIT = drop cancel, COPY/LOG, TRAP), ACTION_COUNTER, ACTION_SET_POLICER (colour drops) | | redirect, mirror, set-TC/DSCP, every other action |
+| ACL_COUNTER | packets + bytes of its entry's SDK counter (carried over when the entry is re-created); C/R/G TABLE_ID, ENABLE_PACKET/BYTE_COUNT; C/S/G PACKETS, BYTES (set = from now on read this value) | | one counter shared by several entries |
+| ACL_TABLE_GROUP / _MEMBER | PARALLEL (every SDK group is looked up); C/R/G STAGE (ingress), BIND_POINT_TYPE_LIST (kept, not checked), TYPE, MEMBER_LIST / GROUP_ID, TABLE_ID, PRIORITY (kept) | | SEQUENTIAL, chain groups |
+| everything else (QoS maps, schedulers, buffers, WRED, mirror, tunnels, ...) | | | `sai_api_query` -> NOT_IMPLEMENTED |
 
 Global: `sai_api_initialize/query/uninitialize`, `sai_log_set`,
 `sai_object_type_query`, `sai_switch_id_query`, `sai_query_api_version`
 (1.19.2), `sai_dbg_generate_dump` (text dump of the object model),
 `sai_query_attribute_capability`, `sai_query_attribute_enum_values_capability`
-(PORT FEC_MODE/LOOPBACK_MODE, HOSTIF TYPE, RIF TYPE), `sai_query_stats_capability`
+(PORT FEC_MODE/LOOPBACK_MODE, HOSTIF TYPE, RIF TYPE, ACL_TABLE_GROUP TYPE, ACL_ENTRY
+ACTION_PACKET_ACTION, ACL_TABLE ACL_STAGE, POLICER MODE/METER_TYPE), `sai_query_stats_capability`
 (PORT). `sai_object_type_get_availability`, `sai_get_maximum_attribute_count`,
 `sai_get_object_count`, `sai_get_object_key`: NOT_SUPPORTED. The bulk-stats /
 `query_stats_st_capability` / TAM entry points are deliberately absent, so
 syncd's configure leaves them out (VendorSai then uses its null paths).
+
+## ACL and CoPP (field processor)
+
+[src/sai_acl.cpp](src/sai_acl.cpp); backend: `fp_group_*`, `fp_entry_*`,
+`policer_*` (fake: in-memory with Tomahawk-like limits, 12 groups; openbcm:
+`bcm_field_*` / `bcm_policer_*` in `sdk_glue.c`). All in the ingress field
+processor (IFP); every SDK group is looked up, so SAI table groups are
+PARALLEL.
+
+- **ACL**: table = SDK field group (priority = creation order, below CoPP),
+  entry = SDK field entry with in-ports = the ports its table is bound to
+  (PORT/LAG INGRESS_ACL -> table group -> member tables; LAG: its member
+  ports, re-programmed when membership changes). An unbound or admin-down
+  entry is not installed. Any change re-creates the SDK entry; its counter
+  value is folded into the SAI counter first.
+- **CoPP**: a trap group's POLICER meters its traps' CPU-bound packets with
+  entries in one CoPP field group (priority 1000), the SAI policer's SDK
+  meter attached to all of them (one shared bucket). Matches: ARP
+  request/reply (IpType), ND/MLD (ICMPv6 type), DHCP/DHCPv6 (UDP port), IGMP,
+  LACP/LLDP/EAPOL (EtherType), STP (BPDU MAC), and, qualified with
+  "routed to the CPU egress object" (`DstL3Egress`): BGP/BGPv6, SSH, SNMP,
+  BFD (L4 port, priority 150) and IP2ME (everything else to the CPU,
+  priority 100; neighbor-miss glean traffic also lands here). Red (yellow,
+  green) packets per the policer's actions: for traps the CPU gets as a copy
+  (switch controls: ARP, ND, DHCP, IGMP, MLD) only the copy is cancelled
+  (`RpCopyToCpuCancel`), the others are dropped (`RpDrop`). Trap types
+  without a match (TTL error, UDLD, sample packet, NAT, ...) are not policed
+  (INFO log). syncd logs `CoPP: N field entries, P policers`.
+- Default SONiC CoPP (`copp_cfg.json`): every group has an sr_tcm packet
+  policer (CoppOrch creates one per group it installs: 6 in the VM). ARP + ND
+  share 600 pps, LACP + BGP 6000, LLDP 100, DHCP 100, IP2ME 6000. VM (no
+  BGP/LLDP traps): 9 CoPP entries on 3 policers.
+- ACL counters reach COUNTERS_DB only with `counterpoll acl enable` (the
+  ACL_STAT_COUNTER group is off unless `services.sonic.flexCounters` seeds it).
+- AclOrch adds FIELD_ACL_RANGE_TYPE (L4 port ranges) to every ingress table:
+  accepted and kept, but ACL_RANGE objects are NOT_SUPPORTED, so a rule with
+  `L4_SRC/DST_PORT_RANGE` fails (single ports work).
 
 ## What orchagent reads
 
@@ -152,9 +197,9 @@ orchagent does later. Values: openbcm = SDK at run time, fake = constants in
 
 | SWITCH attribute | answer | orchagent path (why this answer) |
 | --- | --- | --- |
-| ACL_ENTRY_MINIMUM/MAXIMUM_PRIORITY | openbcm: BCM_FIELD_ENTRY_PRIO_LOWEST..HIGHEST (0..0x7fffffff); fake: same | AclOrch::init, fatal if the get fails. A chip fact; ACL objects stay NOT_IMPLEMENTED (sai_api_query) |
-| MAX_ACL_ACTION_COUNT, ACL_STAGE_INGRESS/EGRESS | 0, empty action lists | queryAclActionCapability: records no supported actions in STATE_DB (NOT_SUPPORTED would make it assume the default set); MAC-move guard soft-disables itself |
-| ACL table match fields (attribute capability) | not advertised | AclTableTypeBuilder skips every match field ("not supported by the platform") |
+| ACL_ENTRY_MINIMUM/MAXIMUM_PRIORITY | openbcm: BCM_FIELD_ENTRY_PRIO_LOWEST..HIGHEST (0..0x7fffffff); fake: same | AclOrch::init, fatal if the get fails |
+| MAX_ACL_ACTION_COUNT, ACL_STAGE_INGRESS/EGRESS | 3; ingress PACKET_ACTION, COUNTER, SET_POLICER (list not mandatory), egress none | queryAclActionCapability -> STATE_DB ACL_STAGE_CAPABILITY_TABLE; rules with other actions are refused by AclOrch; MAC-move guard (needs SET_DO_NOT_LEARN) soft-disables itself |
+| ACL table match fields (attribute capability) | the fields in the ACL_TABLE row (create) | AclTableTypeBuilder keeps only these in its table types (L3/L3V6 keep all theirs; MCLAG loses OUT_PORTS, PFCWD/DROP lose TC) |
 | NUMBER_OF_ECMP_GROUPS, ECMP_MEMBERS, MAX_ECMP_MEMBER_COUNT | openbcm: bcm_l3_info max ECMP groups / paths per group, L3_ECMP table entries; fake: 4096 / 64 / 16384 | RouteOrch caps its groups at NUMBER_OF_ECMP_GROUPS (beyond: a multipath route on one next hop) and logs MAX_ECMP_MEMBER_COUNT. All three go to syncd's log at init (openbcm) |
 | AVAILABLE_NEXT_HOP_GROUP(_MEMBER)_ENTRY | openbcm: bcmSwitchObjectEcmpMax - EcmpCurrent; L3_ECMP entries without a reference in the SDK's L3 software table (what a group reserves, not only its members); fake: capacity minus groups / member entries | CRM |
 | TOTAL_BUFFER_SIZE | openbcm: `_TH_MMU_TOTAL_CELLS` x `_TH_MMU_BYTES_PER_CELL` (16384 KB, Tomahawk only, else not supported); fake: same | BufferOrch: STATE_DB BUFFER_MAX_PARAM_TABLE mmu_size, read by buffermgrd (not run). No buffer pools/profiles are implemented |
@@ -164,7 +209,7 @@ orchagent does later. Values: openbcm = SDK at run time, fake = constants in
 | AVAILABLE_FDB_ENTRY | bcmSwitchObjectL2EntryMax - L2EntryCurrent; fake: 32768 minus L2 | CRM |
 | MAX_STP_INSTANCE | not supported | StpOrch logs "initialization failure" and has no default STP instance (STP is not implemented; stpmgrd is not run) |
 | AVAILABLE_SNAT/DNAT_ENTRY, ECMP_HASH, LAG_HASH, hash algorithm enum capabilities, ACL resource lists | not supported | NAT off, hash objects absent (trunk hash fixed, RTAG 6), CRM marks the resource unsupported |
-| HOSTIF QUEUE, queue stats (WRED), trap-type enum capability, policer stats | not advertised / not supported | warnings only; CoppOrch falls back to its default trap list |
+| HOSTIF QUEUE, queue stats (WRED), trap-type enum capability, policer stats | not advertised / not supported | warnings only; CoppOrch falls back to its default trap list, COPP policer counters off |
 
 ## Building and testing (no hardware)
 
@@ -177,6 +222,7 @@ nix build --impure --expr "$N sonic.sairedis-openbcm libsai"
 nix build --impure --expr "$N import $PWD/nix/packages/sai-openbcm/test-syncd.nix { pkgs = p; inherit sonic; }"   # VM test (needs kvm)
 # services.sonic (orchagent and all) on the fake, see its header:
 nix build -L --impure --expr "$N import $PWD/nix/modules/switch/sonic/tests/vm-openbcm-fake.nix { pkgs = p; inherit sonic libsai; }"
+# CoPP policers + an L3 ACL through orchagent on the fake (vm-openbcm-fake-acl.nix, same args)
 
 X='let f = builtins.getFlake "path:'$PWD'/nix"; s = f.nixosConfigurations.as7760; pk = s.pkgs;
    ob = import '$PWD'/nix/packages/openbcm { pkgs = pk; }; sonic = import '$PWD'/nix/packages/sonic { pkgs = pk; };
@@ -209,6 +255,11 @@ CXXFLAGS=-I<SAI/experimental> check`.
   removal), capability table, capacity attributes (values, free counts
   following the model, the still-unsupported ones), fake NETDEV/WIRE profile
   validation, dump, remove/re-create.
+- `tests/test_acl.inc` (in test_sai): policer attributes, CoPP rules per trap
+  type / action / group (shared meter, colour actions, IP2ME priority), ACL
+  table qualifier sets, entries installed only when bound, PORT / direct /
+  LAG binding following membership, counters carried over re-creation,
+  in-use checks, every advertised ACL / POLICER get.
 - `test-syncd.nix` (NixOS VM): redis on `/var/run/redis/redis.sock`, syncd
   (`-SUu -z redis_sync`) on the fake, `tests/sai_smoke.py` (the
   sai_smoke.py calls with assertions, plus admin-up of port 0), then ASIC_DB:
@@ -338,13 +389,22 @@ hardware.
   Neither is proven on the BCM56930 yet; the free ECMP member count reads the
   SDK's L3 software table (`bcm_int/esw/firebolt.h`), an internal structure.
   ECMP hashing is the SDK default (no hash attributes programmed).
-- **Not implemented**: ACL, QoS/buffers/
-  schedulers/policers (CoPP has no rate limits), port breakout, warm boot
+- **Not implemented**: QoS (DSCP/TC maps, TC->queue, schedulers, WRED),
+  buffers, egress ACLs, ACL ranges/redirect/mirror, port breakout, warm boot
   (`RESTART_WARM` is only stored), mirror, tunnels, sFlow, STP instances.
   orchagent survives all of them (VM test): it reads the
-  [capacities](#what-orchagent-reads) and takes its "unsupported" paths, but
-  logs an ERROR per CoPP trap group with a policer (`create` on
-  SAI_API_POLICER: NOT_IMPLEMENTED, plus a failed `sai_failure_dump.sh`).
+  [capacities](#what-orchagent-reads) and takes its "unsupported" paths.
+  QoS is left out on purpose (owner: low priority): SONiC only programs it
+  when CONFIG_DB has QOS tables, which the Nix base does not load.
+- **ACL / CoPP on hardware** (2026-11-15: fake only, SDK calls compiled and
+  linked): unverified on the BCM56930 are the IFP group widths for the
+  table qualifier sets, the in-ports semantics (data = ports, mask = all, as
+  the SDK's own callers use it), `DstL3Egress` = the CPU egress object for
+  "routed to the CPU" (IP2ME, BGP, ...; group created without it if the SDK
+  refuses, those traps then unpoliced), packet-mode meters taking pps in the
+  kbits fields, and meter sharing between the entries of one CoPP group
+  (if the SDK refuses, the entry gets its own copy: per-entry, not
+  per-group, rate). Test plan: sonic-nixos [acl-copp-test.md](../../../devices/sonic-nixos/acl-copp-test.md).
 - **pysairedis callbacks**: pysairedis' own notification trampolines build
   Python objects without the GIL and crash when libsairedis calls them from
   its notification thread (seen with Python 3.14). `tests/sai_smoke.py`

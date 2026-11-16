@@ -1,0 +1,13 @@
+# Regression runs after the sai-openbcm ACL / policer / CoPP change, 2026-11-15 (final sources)
+# Each under the shared build lock + memgate; sairedis-openbcm rebuilt against the new libsai.
+# vm.nix, vm-frr.nix, vm-platform.nix use the virtual SAI (no sai-openbcm in them): not rerun.
+cross: PASS 0, FAIL 0; === cross EXIT=0
+  out /nix/store/vv1rwxm4cdc1l3rvjvq9f34yrrgj8zdk-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+vm-openbcm-fake-acl: PASS 27, FAIL 0; 0 failures: [] | === vm-openbcm-fake-acl EXIT=0
+  out /nix/store/ab8k0sm3rlhd5nkzmswn7y550m6j24xp-vm-test-run-sonic-acl-openbcm-fake
+vm-openbcm-fake-l3: PASS 37, FAIL 0; PASS no VR/NHG create failures in the logs | SUMMARY: 0 failures: [] | === vm-openbcm-fake-l3 EXIT=0
+  out /nix/store/b3a627chnyv9935kyv9jd5n4i9dw5pbx-vm-test-run-sonic-l3-openbcm-fake
+vm-openbcm-fake: PASS 86, FAIL 0; SAI openbcm-fake: N/A CHECKS: 3 ['4x25G split ports Ethernet0..3', 'lanemap.ini', 'Ethernet1/3-3/1 left Ethernet1/1, 1/2 alone'] | FAILED CHECKS: 0 [] | === vm-openbcm-fake EXIT=0
+  out /nix/store/kx5qsbrw11fg22i8hsws16hixd4yf0rj-vm-test-run-sonic-control-plane-openbcm-fake
+test-syncd: PASS 0, FAIL 0; === test-syncd EXIT=0
+  out /nix/store/53hgqkhhgh37396hgym57m6bchz2f4v8-vm-test-run-sai-openbcm-syncd-fake

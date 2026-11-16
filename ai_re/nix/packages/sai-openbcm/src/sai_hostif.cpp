@@ -169,9 +169,9 @@ static sai_status_t trap_group_attr(TrapGroupObj& g, const sai_attribute_t& a, u
     switch (a.id) {
     case SAI_HOSTIF_TRAP_GROUP_ATTR_ADMIN_STATE: g.admin = a.value.booldata; return SAI_STATUS_SUCCESS;
     case SAI_HOSTIF_TRAP_GROUP_ATTR_QUEUE: g.queue = a.value.u32; return SAI_STATUS_SUCCESS;
-    case SAI_HOSTIF_TRAP_GROUP_ATTR_POLICER:
-        if (a.value.oid != SAI_NULL_OBJECT_ID) return attr_not_supported(i);   // no policer objects
-        g.policer = 0;
+    case SAI_HOSTIF_TRAP_GROUP_ATTR_POLICER:   // CoPP: field entries per trap (sai_acl.cpp)
+        if (a.value.oid != SAI_NULL_OBJECT_ID && !policer_valid(a.value.oid)) return attr_invalid(i);
+        g.policer = a.value.oid;
         return SAI_STATUS_SUCCESS;
     default: return attr_not_supported(i);
     }
@@ -213,7 +213,9 @@ static sai_status_t set_hostif_trap_group_attribute(_In_ sai_object_id_t id, _In
         TrapGroupObj* g = lookup(ctx().trap_groups, id);
         if (!g) return SAI_STATUS_INVALID_OBJECT_ID;
         if (!attr) return SAI_STATUS_INVALID_PARAMETER;
-        return trap_group_attr(*g, *attr, 0);
+        sai_status_t st = trap_group_attr(*g, *attr, 0);
+        if (st == SAI_STATUS_SUCCESS && attr->id == SAI_HOSTIF_TRAP_GROUP_ATTR_POLICER) copp_refresh();
+        return st;
     });
 }
 
@@ -279,6 +281,7 @@ static sai_status_t create_hostif_trap(_Out_ sai_object_id_t* id, _In_ sai_objec
         sai_object_id_t oid = c.alloc(SAI_OBJECT_TYPE_HOSTIF_TRAP);
         c.traps[oid] = t;
         *id = oid;
+        copp_refresh();
         return SAI_STATUS_SUCCESS;
     });
 }
@@ -291,6 +294,7 @@ static sai_status_t remove_hostif_trap(_In_ sai_object_id_t id)
         if (!t) return SAI_STATUS_INVALID_OBJECT_ID;
         if (t->programmed) c.be->trap_set(trap_kind(t->type), false);
         c.traps.erase(id);
+        copp_refresh();
         return SAI_STATUS_SUCCESS;
     });
 }
@@ -306,12 +310,14 @@ static sai_status_t set_hostif_trap_attribute(_In_ sai_object_id_t id, _In_ cons
         case SAI_HOSTIF_TRAP_ATTR_PACKET_ACTION: {
             sai_status_t st = trap_program(*t, attr->value.s32);
             if (st == SAI_STATUS_SUCCESS) t->action = attr->value.s32;
+            copp_refresh();
             return st;
         }
         case SAI_HOSTIF_TRAP_ATTR_TRAP_PRIORITY: t->priority = attr->value.u32; return SAI_STATUS_SUCCESS;
         case SAI_HOSTIF_TRAP_ATTR_TRAP_GROUP:
             if (attr->value.oid && !c.trap_groups.count(attr->value.oid)) return attr_invalid(0);
             t->group = attr->value.oid ? attr->value.oid : c.default_trap_group;
+            copp_refresh();
             return SAI_STATUS_SUCCESS;
         default: return attr_not_supported(0);
         }

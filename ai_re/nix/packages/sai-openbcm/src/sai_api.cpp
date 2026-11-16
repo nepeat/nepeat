@@ -220,6 +220,8 @@ sai_status_t sai_api_query(_In_ sai_api_t api, _Out_ void** api_method_table)
     case SAI_API_ROUTE: t = &route_api; break;
     case SAI_API_LAG: t = &lag_api; break;
     case SAI_API_NEXT_HOP_GROUP: t = &nhg_api; break;
+    case SAI_API_POLICER: t = &policer_api; break;
+    case SAI_API_ACL: t = &acl_api; break;
     default:
         *api_method_table = nullptr;
         return SAI_STATUS_NOT_IMPLEMENTED;
@@ -272,6 +274,9 @@ sai_status_t sai_dbg_generate_dump(_In_ const char* dump_file_name)
           << " next_hops " << c.next_hops.size() << " routes " << c.routes.size() << " lags " << c.lags.size()
           << " lag_members " << c.lag_members.size() << " virtual_routers " << c.vrs.size()
           << " next_hop_groups " << c.nhgs.size() << " next_hop_group_members " << c.nhg_members.size() << "\n";
+        f << "policers " << c.policers.size() << " acl_tables " << c.acl_tables.size() << " acl_entries "
+          << c.acl_entries.size() << " acl_counters " << c.acl_counters.size() << " acl_table_groups "
+          << c.acl_groups.size() << " acl_bindings " << c.acl_bind.size() << " copp_entries " << c.copp.size() << "\n";
         for (auto& l : c.lags) f << "lag " << std::hex << l.first << std::dec << " trunk " << l.second.tid
                                  << " members " << l.second.members.size() << " pvid " << l.second.pvid << "\n";
         for (auto& h : c.hostifs)
@@ -317,6 +322,16 @@ sai_status_t sai_query_attribute_enum_values_capability(_In_ sai_object_id_t, _I
         v = {SAI_HOSTIF_TYPE_NETDEV};
     else if (object_type == SAI_OBJECT_TYPE_ROUTER_INTERFACE && attr_id == SAI_ROUTER_INTERFACE_ATTR_TYPE)
         v = {SAI_ROUTER_INTERFACE_TYPE_PORT, SAI_ROUTER_INTERFACE_TYPE_VLAN, SAI_ROUTER_INTERFACE_TYPE_LOOPBACK};
+    else if (object_type == SAI_OBJECT_TYPE_ACL_TABLE_GROUP && attr_id == SAI_ACL_TABLE_GROUP_ATTR_TYPE)
+        v = {SAI_ACL_TABLE_GROUP_TYPE_PARALLEL};
+    else if (object_type == SAI_OBJECT_TYPE_ACL_ENTRY && attr_id == SAI_ACL_ENTRY_ATTR_ACTION_PACKET_ACTION)
+        v = {SAI_PACKET_ACTION_DROP, SAI_PACKET_ACTION_FORWARD, SAI_PACKET_ACTION_COPY, SAI_PACKET_ACTION_TRAP};
+    else if (object_type == SAI_OBJECT_TYPE_ACL_TABLE && attr_id == SAI_ACL_TABLE_ATTR_ACL_STAGE)
+        v = {SAI_ACL_STAGE_INGRESS};
+    else if (object_type == SAI_OBJECT_TYPE_POLICER && attr_id == SAI_POLICER_ATTR_MODE)
+        v = {SAI_POLICER_MODE_SR_TCM, SAI_POLICER_MODE_TR_TCM};
+    else if (object_type == SAI_OBJECT_TYPE_POLICER && attr_id == SAI_POLICER_ATTR_METER_TYPE)
+        v = {SAI_METER_TYPE_PACKETS, SAI_METER_TYPE_BYTES};
     else
         return SAI_STATUS_NOT_SUPPORTED;
     return fill_list(*enum_values_capability, v);

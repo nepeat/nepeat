@@ -120,6 +120,10 @@ static sai_status_t port_set_one(PortObj& p, const sai_attribute_t& a, uint32_t 
         if (st == SAI_STATUS_SUCCESS) p.loopback = a.value.s32;
         return attr_backend_status(st, i);
     }
+    case SAI_PORT_ATTR_INGRESS_ACL:
+    case SAI_PORT_ATTR_EGRESS_ACL:
+        if (p.cpu) return attr_not_supported(i);
+        return acl_bind_set(p.oid, a.id == SAI_PORT_ATTR_INGRESS_ACL, a.value.oid, i);
     default:
         break;
     }
@@ -179,6 +183,8 @@ static sai_status_t port_get_one(PortObj& p, sai_attribute_t& a, uint32_t i)
     case SAI_PORT_ATTR_NUMBER_OF_INGRESS_PRIORITY_GROUPS: a.value.u32 = (uint32_t)p.ipgs.size(); return SAI_STATUS_SUCCESS;
     case SAI_PORT_ATTR_INGRESS_PRIORITY_GROUP_LIST: return fill_list(a.value.objlist, p.ipgs);
     case SAI_PORT_ATTR_QOS_NUMBER_OF_SCHEDULER_GROUPS: a.value.u32 = 0; return SAI_STATUS_SUCCESS;
+    case SAI_PORT_ATTR_INGRESS_ACL:
+    case SAI_PORT_ATTR_EGRESS_ACL: a.value.oid = acl_bind_get(p.oid, a.id == SAI_PORT_ATTR_INGRESS_ACL); return SAI_STATUS_SUCCESS;
     case SAI_PORT_ATTR_QOS_SCHEDULER_GROUP_LIST: {
         std::vector<sai_object_id_t> none;
         return fill_list(a.value.objlist, none);

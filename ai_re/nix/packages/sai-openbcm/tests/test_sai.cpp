@@ -203,7 +203,7 @@ static void test_init_and_backend_selection()
     OK(sai_api_initialize(0, &g_smt));
     CHECK_EQ(sai_api_initialize(0, &g_smt), SAI_STATUS_FAILURE);
     CHECK_EQ(sai_api_query(SAI_API_SWITCH, nullptr), SAI_STATUS_INVALID_PARAMETER);
-    CHECK_EQ(sai_api_query(SAI_API_ACL, &t), SAI_STATUS_NOT_IMPLEMENTED);
+    CHECK_EQ(sai_api_query(SAI_API_MIRROR, &t), SAI_STATUS_NOT_IMPLEMENTED);
     query_apis();
     sai_api_version_t v = 0;
     OK(sai_query_api_version(&v));
@@ -1312,6 +1312,10 @@ static void test_capabilities()
         uint64_t buf[64];
         a.value.objlist.count = 64;   // works for every list type (same layout: count + pointer)
         a.value.objlist.list = (sai_object_id_t*)buf;
+        if (c.id == SAI_SWITCH_ATTR_ACL_STAGE_INGRESS || c.id == SAI_SWITCH_ATTR_ACL_STAGE_EGRESS) {
+            a.value.aclcapability.action_list.count = 64;   // a list inside a struct
+            a.value.aclcapability.action_list.list = (int32_t*)buf;
+        }
         sai_status_t st = c.ot == SAI_OBJECT_TYPE_SWITCH ? sw->get_switch_attribute(oid, 1, &a)
                           : c.ot == SAI_OBJECT_TYPE_PORT ? pa->get_port_attribute(oid, 1, &a)
                           : c.ot == SAI_OBJECT_TYPE_LAG  ? la->get_lag_attribute(oid, 1, &a)
@@ -1763,7 +1767,7 @@ static void test_capacity()
     both[1].id = SAI_SWITCH_ATTR_ACL_ENTRY_MAXIMUM_PRIORITY;
     OK(sw->get_switch_attribute(g_sw, 2, both));
     CHECK(both[0].value.u32 < both[1].value.u32);
-    CHECK_EQ(get(SAI_SWITCH_ATTR_MAX_ACL_ACTION_COUNT).value.u32, 0u);
+    CHECK_EQ(get(SAI_SWITCH_ATTR_MAX_ACL_ACTION_COUNT).value.u32, 3u);   // test_acl checks the lists
     int32_t acts[8];
     for (sai_attr_id_t st : {SAI_SWITCH_ATTR_ACL_STAGE_INGRESS, SAI_SWITCH_ATTR_ACL_STAGE_EGRESS}) {
         sai_attribute_t a;
@@ -1772,7 +1776,7 @@ static void test_capacity()
         a.value.aclcapability.action_list.count = 8;
         a.value.aclcapability.action_list.list = acts;
         OK(sw->get_switch_attribute(g_sw, 1, &a));
-        CHECK_EQ(a.value.aclcapability.action_list.count, 0u);
+        CHECK_EQ(a.value.aclcapability.action_list.count, st == SAI_SWITCH_ATTR_ACL_STAGE_INGRESS ? 3u : 0u);
         CHECK(!a.value.aclcapability.is_action_list_mandatory);
     }
     // ECMP: the fake's limits (test_ecmp checks the free counts as groups come and go)
@@ -1840,6 +1844,8 @@ static void test_capacity()
     CHECK_EQ(get(SAI_SWITCH_ATTR_AVAILABLE_IPV4_NEIGHBOR_ENTRY).value.u32, n4);
 }
 
+#include "test_acl.inc"
+
 // SAI_OPENBCM_DIAG_SOCKET: one command per connection, output back, a few refused.
 static std::string diag_cmd(const std::string& path, const std::string& line)
 {
@@ -1905,6 +1911,8 @@ int main()
     test_temperature();
     test_capabilities();
     test_capacity();
+    test_policer_copp();
+    test_acl();
     test_diag();
     test_dump_and_teardown();
     std::printf("%d checks, %d failures\n", g_checks, g_fail);

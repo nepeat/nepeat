@@ -130,9 +130,11 @@ static sai_status_t create_lag(_Out_ sai_object_id_t* id, _In_ sai_object_id_t, 
                 if (a.value.u16 < 1 || a.value.u16 > 4094) return attr_invalid(i);
                 l.pvid = a.value.u16;
                 break;
-            case SAI_LAG_ATTR_INGRESS_ACL:
+            case SAI_LAG_ATTR_INGRESS_ACL:   // bound after the LAG exists, below
             case SAI_LAG_ATTR_EGRESS_ACL:
-                if (a.value.oid != SAI_NULL_OBJECT_ID) return attr_not_supported(i);   // no ACLs
+                if (a.id == SAI_LAG_ATTR_EGRESS_ACL && a.value.oid != SAI_NULL_OBJECT_ID) return attr_not_supported(i);
+                if (a.value.oid != SAI_NULL_OBJECT_ID && !c.acl_groups.count(a.value.oid) && !c.acl_tables.count(a.value.oid))
+                    return attr_invalid(i);
                 break;
             default: {
                 sai_status_t st = stub_store(lag_stubs, l.stub, a, i);
@@ -145,6 +147,8 @@ static sai_status_t create_lag(_Out_ sai_object_id_t* id, _In_ sai_object_id_t, 
         l.oid = c.alloc(SAI_OBJECT_TYPE_LAG);
         c.lags[l.oid] = l;
         *id = l.oid;
+        if (const sai_attribute_t* acl = find_attr(n, attrs, SAI_LAG_ATTR_INGRESS_ACL))
+            if (acl->value.oid) acl_bind_set(l.oid, true, acl->value.oid, 0);
         OB_NOTICE(SAI_API_LAG, "LAG created (trunk %d)", l.tid);
         return SAI_STATUS_SUCCESS;
     });
@@ -162,6 +166,7 @@ static sai_status_t remove_lag(_In_ sai_object_id_t id)
         sai_status_t st = c.be->lag_destroy(l->tid);
         if (st != SAI_STATUS_SUCCESS && st != SAI_STATUS_ITEM_NOT_FOUND) return st;
         c.lags.erase(id);
+        if (c.acl_bind.erase(id)) acl_reprogram();
         return SAI_STATUS_SUCCESS;
     });
 }
@@ -178,7 +183,7 @@ static sai_status_t set_lag_attribute(_In_ sai_object_id_t id, _In_ const sai_at
             return attr_backend_status(attach_pvid_set(id, attr->value.u16), 0);
         case SAI_LAG_ATTR_INGRESS_ACL:
         case SAI_LAG_ATTR_EGRESS_ACL:
-            return attr->value.oid == SAI_NULL_OBJECT_ID ? SAI_STATUS_SUCCESS : attr_not_supported(0);
+            return acl_bind_set(id, attr->id == SAI_LAG_ATTR_INGRESS_ACL, attr->value.oid, 0);
         case SAI_LAG_ATTR_PORT_LIST: return attr_invalid(0);   // read-only
         default: return stub_store(lag_stubs, l->stub, *attr, 0);
         }
@@ -198,7 +203,7 @@ static sai_status_t get_lag_attribute(_In_ sai_object_id_t id, _In_ uint32_t n, 
             case SAI_LAG_ATTR_PORT_LIST: st = fill_list(a.value.objlist, l->members); break;
             case SAI_LAG_ATTR_PORT_VLAN_ID: a.value.u16 = l->pvid; break;
             case SAI_LAG_ATTR_INGRESS_ACL:
-            case SAI_LAG_ATTR_EGRESS_ACL: a.value.oid = SAI_NULL_OBJECT_ID; break;
+            case SAI_LAG_ATTR_EGRESS_ACL: a.value.oid = acl_bind_get(id, a.id == SAI_LAG_ATTR_INGRESS_ACL); break;
             default: st = stub_load(lag_stubs, l->stub, a, i); break;
             }
             if (st != SAI_STATUS_SUCCESS) return st;
@@ -272,6 +277,7 @@ static sai_status_t create_lag_member(_Out_ sai_object_id_t* id, _In_ sai_object
             return st;
         }
         *id = oid;
+        acl_reprogram();   // ACLs bound to the LAG now cover this port
         OB_NOTICE(SAI_API_LAG, "LAG trunk %d: member %s (egress %s, ingress %s)", l->tid, p->sdk_name.c_str(),
                   m.egress_disable ? "off" : "on", m.ingress_disable ? "off" : "on");
         return SAI_STATUS_SUCCESS;
@@ -298,6 +304,7 @@ static sai_status_t remove_lag_member(_In_ sai_object_id_t id)
             p->lag = 0;
         }
         c.lag_members.erase(id);
+        acl_reprogram();
         return SAI_STATUS_SUCCESS;
     });
 }

@@ -335,6 +335,7 @@ void switch_clear_objects()
     c.trap_groups.clear(); c.traps.clear(); c.table_entries.clear(); c.queues.clear(); c.ipgs.clear();
     c.rifs.clear(); c.neighbors.clear(); c.next_hops.clear(); c.routes.clear(); c.internal_vlans.clear();
     c.vrs.clear(); c.nhgs.clear(); c.nhg_members.clear();
+    acl_clear_objects();
     c.next_index.clear(); c.switch_stub.clear(); c.notify.clear();
     c.port_state_cb = nullptr; c.fdb_cb = nullptr;
     c.switch_station = -1;
@@ -529,8 +530,7 @@ static sai_status_t get_capacity(uint32_t i, sai_attribute_t& a, bool& handled)
     switch (a.id) {
     case SAI_SWITCH_ATTR_ACL_ENTRY_MINIMUM_PRIORITY:
     case SAI_SWITCH_ATTR_ACL_ENTRY_MAXIMUM_PRIORITY: {
-        // The SDK's field entry priority range. AclOrch needs it to start;
-        // ACL tables/entries themselves are not implemented (ACL API).
+        // The SDK's field entry priority range (ACL entries, sai_acl.cpp).
         ChipLimits l;
         sai_status_t st = c.be->chip_limits(l);
         if (st != SAI_STATUS_SUCCESS) return attr_backend_status(st, i);
@@ -538,13 +538,15 @@ static sai_status_t get_capacity(uint32_t i, sai_attribute_t& a, bool& handled)
         return SAI_STATUS_SUCCESS;
     }
     case SAI_SWITCH_ATTR_MAX_ACL_ACTION_COUNT:
-        a.value.u32 = 0;   // no ACL actions: AclOrch records none as supported
+        a.value.u32 = (uint32_t)acl_ingress_actions().size();
         return SAI_STATUS_SUCCESS;
     case SAI_SWITCH_ATTR_ACL_STAGE_INGRESS:
     case SAI_SWITCH_ATTR_ACL_STAGE_EGRESS: {
+        // Ingress: the field processor's actions; no egress ACLs.
         a.value.aclcapability.is_action_list_mandatory = false;
-        std::vector<int32_t> none;
-        return fill_list(a.value.aclcapability.action_list, none);
+        std::vector<int32_t> acts;
+        if (a.id == SAI_SWITCH_ATTR_ACL_STAGE_INGRESS) acts = acl_ingress_actions();
+        return fill_list(a.value.aclcapability.action_list, acts);
     }
     case SAI_SWITCH_ATTR_NUMBER_OF_ECMP_GROUPS:
     case SAI_SWITCH_ATTR_ECMP_MEMBERS:

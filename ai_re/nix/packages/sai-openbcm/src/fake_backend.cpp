@@ -79,6 +79,7 @@ sai_status_t FakeBackend::init(const BackendConfig& cfg, LinkCallback link_cb, F
     fdb_cb_ = std::move(fdb_cb);
     port_state.clear(); vlans.clear(); l2.clear(); netifs.clear(); traps.clear();
     intfs.clear(); stations.clear(); egress.clear(); hosts.clear(); routes.clear(); ecmps.clear(); lags.clear();
+    fp_groups.clear(); fp_entries.clear(); policers.clear();
     temps.clear();
     for (int i = 0; i < 8; i++) temps.push_back(400 + 15 * i);
     temp_fail = false;
@@ -801,6 +802,101 @@ sai_status_t FakeBackend::l3_ecmp_destroy(int ecmp_id)
     for (auto& r : routes) if (r.second == ecmp_id) return SAI_STATUS_OBJECT_IN_USE;
     if (!ecmps.erase(ecmp_id)) return SAI_STATUS_ITEM_NOT_FOUND;
     return SAI_STATUS_SUCCESS;
+}
+
+// Field processor: Tomahawk-like limits (12 IFP slices -> groups, entries
+// in all), qualifiers checked against the group's set, ports must exist.
+static constexpr size_t FAKE_FP_GROUPS = 12, FAKE_FP_ENTRIES = 2048, FAKE_POLICERS = 1024;
+
+sai_status_t FakeBackend::fp_group_create(const std::vector<FpQual>& qset, int priority, int& gid)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (fp_groups.size() >= FAKE_FP_GROUPS) return SAI_STATUS_INSUFFICIENT_RESOURCES;
+    FpGroup grp;
+    for (auto q : qset) grp.qset |= 1u << (int)q;
+    grp.priority = priority;
+    gid = next_fp_group_++;
+    fp_groups[gid] = grp;
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t FakeBackend::fp_group_destroy(int gid)
+{
+    std::lock_guard<std::mutex> g(mu);
+    for (auto& e : fp_entries) if (e.second.gid == gid) return SAI_STATUS_OBJECT_IN_USE;
+    return fp_groups.erase(gid) ? SAI_STATUS_SUCCESS : SAI_STATUS_ITEM_NOT_FOUND;
+}
+
+sai_status_t FakeBackend::fp_entry_create(int gid, const FpRule& r, int& eid)
+{
+    std::lock_guard<std::mutex> g(mu);
+    auto grp = fp_groups.find(gid);
+    if (grp == fp_groups.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+    if (r.m.present & ~grp->second.qset) return SAI_STATUS_NOT_SUPPORTED;   // qualifier not in the group
+    if (fp_entries.size() >= FAKE_FP_ENTRIES) return SAI_STATUS_TABLE_FULL;
+    if (r.policer >= 0 && !policers.count(r.policer)) return SAI_STATUS_INVALID_PARAMETER;
+    for (int p : r.m.ports) if (!port(p)) return SAI_STATUS_INVALID_PORT_NUMBER;
+    if (r.m.has(FpQual::InPorts) && r.m.ports.empty()) return SAI_STATUS_INVALID_PARAMETER;
+    eid = next_fp_entry_++;
+    fp_entries[eid] = FpEntry{gid, r, 0, 0};
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t FakeBackend::fp_entry_destroy(int eid)
+{
+    std::lock_guard<std::mutex> g(mu);
+    return fp_entries.erase(eid) ? SAI_STATUS_SUCCESS : SAI_STATUS_ITEM_NOT_FOUND;
+}
+
+sai_status_t FakeBackend::fp_entry_counter(int eid, uint64_t& packets, uint64_t& bytes)
+{
+    std::lock_guard<std::mutex> g(mu);
+    auto it = fp_entries.find(eid);
+    if (it == fp_entries.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+    if (!it->second.rule.counter) return SAI_STATUS_NOT_SUPPORTED;
+    packets = it->second.packets;
+    bytes = it->second.bytes;
+    return SAI_STATUS_SUCCESS;
+}
+
+static bool policer_cfg_ok(const PolicerCfg& c)
+{
+    if (c.cir == 0 && c.cbs == 0) return false;          // a meter that passes nothing is a mistake
+    return !c.tr_tcm || c.pir >= c.cir;                    // RFC 2698: PIR >= CIR
+}
+
+sai_status_t FakeBackend::policer_create(const PolicerCfg& cfg, int& pid)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!policer_cfg_ok(cfg)) return SAI_STATUS_INVALID_PARAMETER;
+    if (policers.size() >= FAKE_POLICERS) return SAI_STATUS_INSUFFICIENT_RESOURCES;
+    pid = next_policer_++;
+    policers[pid] = Policer{cfg};
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t FakeBackend::policer_set(int pid, const PolicerCfg& cfg)
+{
+    std::lock_guard<std::mutex> g(mu);
+    auto it = policers.find(pid);
+    if (it == policers.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+    if (!policer_cfg_ok(cfg)) return SAI_STATUS_INVALID_PARAMETER;
+    it->second.cfg = cfg;
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t FakeBackend::policer_destroy(int pid)
+{
+    std::lock_guard<std::mutex> g(mu);
+    for (auto& e : fp_entries) if (e.second.rule.policer == pid) return SAI_STATUS_OBJECT_IN_USE;
+    return policers.erase(pid) ? SAI_STATUS_SUCCESS : SAI_STATUS_ITEM_NOT_FOUND;
+}
+
+void FakeBackend::fp_hit(int eid, uint64_t packets, uint64_t bytes)
+{
+    std::lock_guard<std::mutex> g(mu);
+    auto it = fp_entries.find(eid);
+    if (it != fp_entries.end()) { it->second.packets += packets; it->second.bytes += bytes; }
 }
 
 void FakeBackend::inject_link(int hw, bool up)

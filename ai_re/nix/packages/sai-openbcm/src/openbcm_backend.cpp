@@ -12,7 +12,10 @@
 #include "sdk_glue.h"
 
 #include <cstdio>
+#include <algorithm>
 #include <cstdlib>
+#include <cstring>
+#include <map>
 #include <mutex>
 #include <unistd.h>
 
@@ -322,7 +325,151 @@ public:
     sai_status_t l3_ecmp_update(int id, const std::vector<int>& m) override { RV(ob_sdk_l3_ecmp_set(unit_, &id, 1, m.data(), (int)m.size())); return SAI_STATUS_SUCCESS; }
     sai_status_t l3_ecmp_destroy(int id) override { RV(ob_sdk_l3_ecmp_destroy(unit_, id)); return SAI_STATUS_SUCCESS; }
 
+    // ---- field processor + meters
+    sai_status_t fp_group_create(const std::vector<FpQual>& qset, int priority, int& gid) override
+    {
+        uint32_t q = 0;
+        for (auto x : qset) q |= 1u << (int)x;
+        RV(ob_sdk_fp_group_create(unit_, q, priority, &gid));
+        OB_NOTICE(SAI_API_ACL, "field group %d: priority %d, qualifiers 0x%x", gid, priority, q);
+        return SAI_STATUS_SUCCESS;
+    }
+    sai_status_t fp_group_destroy(int gid) override { RV(ob_sdk_fp_group_destroy(unit_, gid)); return SAI_STATUS_SUCCESS; }
+
+    sai_status_t fp_entry_create(int gid, const FpRule& r, int& eid) override
+    {
+        ob_fp_rule_t c;
+        to_c(r, c);
+        int stat = -1, clone = -1;
+        int rv = ob_sdk_fp_entry_create(unit_, gid, &c, &eid, &stat);
+        if (rv < 0 && r.policer >= 0 && (rv == OB_E_CONFIG || rv == OB_E_PARAM) && policer_users_[r.policer] > 0) {
+            // The SDK shares a meter only between entries of one slice: this
+            // entry gets a copy of it (same rates, its own bucket).
+            auto it = policer_cfg_.find(r.policer);
+            if (it != policer_cfg_.end() && ob_sdk_policer_create(unit_, &it->second, &clone) == OB_E_NONE) {
+                c.policer = clone;
+                rv = ob_sdk_fp_entry_create(unit_, gid, &c, &eid, &stat);
+                if (rv < 0) {
+                    ob_sdk_policer_destroy(unit_, clone);
+                    clone = -1;
+                } else {
+                    OB_WARN(SAI_API_POLICER, "policer %d: the SDK refused to share it; entry %d meters with copy %d",
+                            r.policer, eid, clone);
+                }
+            }
+        }
+        if (rv < 0) {
+            OB_ERR(SAI_API_ACL, "field entry in group %d: %s", gid, ob_sdk_errmsg(rv));
+            return map_rv(rv);
+        }
+        entries_[eid] = Entry{stat, r.policer, clone};
+        if (r.policer >= 0) policer_users_[r.policer]++;
+        return SAI_STATUS_SUCCESS;
+    }
+    sai_status_t fp_entry_destroy(int eid) override
+    {
+        auto it = entries_.find(eid);
+        if (it == entries_.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+        int rv = ob_sdk_fp_entry_destroy(unit_, eid, it->second.stat);
+        if (it->second.clone >= 0) ob_sdk_policer_destroy(unit_, it->second.clone);
+        if (it->second.policer >= 0) policer_users_[it->second.policer]--;
+        entries_.erase(it);
+        RV(rv);
+        return SAI_STATUS_SUCCESS;
+    }
+    sai_status_t fp_entry_counter(int eid, uint64_t& packets, uint64_t& bytes) override
+    {
+        auto it = entries_.find(eid);
+        if (it == entries_.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+        if (it->second.stat < 0) return SAI_STATUS_NOT_SUPPORTED;
+        RV(ob_sdk_fp_stat_get(unit_, it->second.stat, &packets, &bytes));
+        return SAI_STATUS_SUCCESS;
+    }
+    sai_status_t policer_create(const PolicerCfg& cfg, int& pid) override
+    {
+        ob_policer_cfg_t c = to_c(cfg);
+        RV(ob_sdk_policer_create(unit_, &c, &pid));
+        policer_cfg_[pid] = c;
+        return SAI_STATUS_SUCCESS;
+    }
+    sai_status_t policer_set(int pid, const PolicerCfg& cfg) override
+    {
+        ob_policer_cfg_t c = to_c(cfg);
+        RV(ob_sdk_policer_set(unit_, pid, &c));
+        policer_cfg_[pid] = c;
+        for (auto& e : entries_)
+            if (e.second.policer == pid && e.second.clone >= 0) RV(ob_sdk_policer_set(unit_, e.second.clone, &c));
+        return SAI_STATUS_SUCCESS;
+    }
+    sai_status_t policer_destroy(int pid) override
+    {
+        if (policer_users_[pid] > 0) return SAI_STATUS_OBJECT_IN_USE;
+        RV(ob_sdk_policer_destroy(unit_, pid));
+        policer_cfg_.erase(pid);
+        policer_users_.erase(pid);
+        return SAI_STATUS_SUCCESS;
+    }
+
 private:
+    struct Entry { int stat = -1, policer = -1, clone = -1; };
+    std::map<int, Entry> entries_;              // field entries we installed
+    std::map<int, ob_policer_cfg_t> policer_cfg_;
+    std::map<int, int> policer_users_;          // policer -> entries attached
+
+    static ob_policer_cfg_t to_c(const PolicerCfg& p)
+    {
+        ob_policer_cfg_t c;
+        std::memset(&c, 0, sizeof(c));
+        c.tr_tcm = p.tr_tcm;
+        c.packets = p.packets;
+        c.color_blind = p.color_blind;
+        c.cir = p.cir; c.cbs = p.cbs; c.pir = p.pir; c.pbs = p.pbs;
+        return c;
+    }
+    static int ip_type(int32_t t)
+    {
+        switch (t) {
+        case SAI_ACL_IP_TYPE_IP: return OB_FP_IP;
+        case SAI_ACL_IP_TYPE_NON_IP: return OB_FP_NON_IP;
+        case SAI_ACL_IP_TYPE_IPV4ANY: return OB_FP_IPV4;
+        case SAI_ACL_IP_TYPE_NON_IPV4: return OB_FP_NON_IPV4;
+        case SAI_ACL_IP_TYPE_IPV6ANY: return OB_FP_IPV6;
+        case SAI_ACL_IP_TYPE_NON_IPV6: return OB_FP_NON_IPV6;
+        case SAI_ACL_IP_TYPE_ARP: return OB_FP_ARP;
+        case SAI_ACL_IP_TYPE_ARP_REQUEST: return OB_FP_ARP_REQUEST;
+        case SAI_ACL_IP_TYPE_ARP_REPLY: return OB_FP_ARP_REPLY;
+        default: return -1;
+        }
+    }
+    void to_c(const FpRule& r, ob_fp_rule_t& c) const
+    {
+        static_assert((int)FpQual::Count == OB_FPQ_COUNT, "FpQual and OB_FPQ_* differ");
+        const FpMatch& m = r.m;
+        std::memset(&c, 0, sizeof(c));
+        c.present = m.present;
+        c.ether = m.ether; c.ether_mask = m.ether_mask;
+        c.ip_type = ip_type(m.ip_type);
+        c.proto = m.proto; c.proto_mask = m.proto_mask;
+        std::memcpy(c.src, m.src.addr, 16); std::memcpy(c.src_mask, m.src_mask.addr, 16);
+        std::memcpy(c.dst, m.dst.addr, 16); std::memcpy(c.dst_mask, m.dst_mask.addr, 16);
+        c.l4_src = m.l4_src; c.l4_src_mask = m.l4_src_mask; c.l4_dst = m.l4_dst; c.l4_dst_mask = m.l4_dst_mask;
+        c.tcp = m.tcp; c.tcp_mask = m.tcp_mask;
+        c.icmp = m.icmp; c.icmp_mask = m.icmp_mask;
+        c.tos = m.tos; c.tos_mask = m.tos_mask;
+        std::memcpy(c.dmac, m.dmac, 6); std::memcpy(c.dmac_mask, m.dmac_mask, 6);
+        std::memcpy(c.smac, m.smac, 6); std::memcpy(c.smac_mask, m.smac_mask, 6);
+        c.vlan = m.vlan; c.vlan_mask = m.vlan_mask;
+        c.ttl = m.ttl; c.ttl_mask = m.ttl_mask;
+        c.dst_egress = cpu_egress_;   // DstCpu: what the L3 lookup picked is the CPU egress object
+        c.ports = m.ports.data();
+        c.nports = (int)m.ports.size();
+        c.priority = (int)std::min<uint32_t>(r.priority, 0x7fffffff);
+        c.drop = r.drop; c.drop_cancel = r.drop_cancel; c.copy_cpu = r.copy_cpu; c.counter = r.counter;
+        c.policer = r.policer;
+        c.green_drop = r.green_drop; c.yellow_drop = r.yellow_drop; c.red_drop = r.red_drop;
+        c.cpu_copy_only = r.cpu_copy_only;
+    }
+
     // Called from SDK threads (linkscan, L2X): only queue.
     static void on_link(void* self, int port, int up)
     {

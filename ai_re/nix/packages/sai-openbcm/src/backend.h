@@ -113,6 +113,50 @@ struct ChipLimits {
     uint32_t ecmp_members = 0;      // member entries across all groups
 };
 
+// Field processor (ingress): ACL tables and CoPP policing. A group is one
+// SDK field group with a qualifier set; an entry is installed at create
+// (destroyed and re-created to change it; the SAI layer carries counters
+// over). Data and masks in network order like IpAddr.
+enum class FpQual : uint8_t {
+    InPorts, EtherType, IpType, IpProtocol, SrcIp, DstIp, SrcIp6, DstIp6, L4SrcPort, L4DstPort,
+    TcpFlags, IcmpTypeCode, Tos, DstMac, SrcMac, OuterVlan, Ttl, DstCpu, Count
+};
+// IpType values (as SAI_ACL_IP_TYPE_*): the backend maps them.
+struct FpMatch {
+    uint32_t present = 0;           // bit (1 << FpQual)
+    uint16_t ether = 0, ether_mask = 0;
+    int32_t ip_type = 0;            // sai_acl_ip_type_t
+    uint8_t proto = 0, proto_mask = 0;
+    IpAddr src, src_mask, dst, dst_mask;
+    uint16_t l4_src = 0, l4_src_mask = 0, l4_dst = 0, l4_dst_mask = 0;
+    uint8_t tcp = 0, tcp_mask = 0;
+    uint16_t icmp = 0, icmp_mask = 0;   // type << 8 | code
+    uint8_t tos = 0, tos_mask = 0;      // DSCP << 2 | ECN
+    uint8_t dmac[6] = {0}, dmac_mask[6] = {0}, smac[6] = {0}, smac_mask[6] = {0};
+    uint16_t vlan = 0, vlan_mask = 0;
+    uint8_t ttl = 0, ttl_mask = 0;
+    std::vector<int> ports;         // InPorts (SDK logical ports); DstCpu: routed/host hit to the CPU egress
+    bool has(FpQual q) const { return (present >> (int)q) & 1u; }
+    void set(FpQual q) { present |= 1u << (int)q; }
+};
+struct FpRule {
+    uint32_t priority = 0;          // within the group, higher wins
+    FpMatch m;
+    bool drop = false, drop_cancel = false, copy_cpu = false;
+    bool counter = false;           // packets + bytes
+    int policer = -1;               // backend policer id
+    // Policer colours: drop green / yellow / red packets; with cpu_copy_only
+    // only their copy to the CPU is cancelled (CoPP: forwarding untouched).
+    bool green_drop = false, yellow_drop = false, red_drop = false, cpu_copy_only = false;
+};
+// SDK meter. packets: rates in packets/s and bursts in packets, else bytes/s and bytes.
+struct PolicerCfg {
+    bool tr_tcm = false;            // else sr_tcm (two colours when pbs == 0)
+    bool packets = true;
+    bool color_blind = false;       // else colour aware (packets arrive green)
+    uint64_t cir = 0, cbs = 0, pir = 0, pbs = 0;
+};
+
 using LinkCallback = std::function<void(int hw_port, bool up)>;
 using FdbCallback = std::function<void(const FdbEvent&)>;
 
@@ -219,6 +263,18 @@ public:
     virtual sai_status_t l3_ecmp_create(const std::vector<int>& egress, int& ecmp_id) = 0;
     virtual sai_status_t l3_ecmp_update(int ecmp_id, const std::vector<int>& egress) = 0;
     virtual sai_status_t l3_ecmp_destroy(int ecmp_id) = 0;
+
+    // Field processor + meters (see FpRule). fp_group_create: priority orders
+    // groups (higher wins on conflicting actions; all groups are looked up).
+    virtual sai_status_t fp_group_create(const std::vector<FpQual>& qset, int priority, int& gid) = 0;
+    virtual sai_status_t fp_group_destroy(int gid) = 0;
+    virtual sai_status_t fp_entry_create(int gid, const FpRule& r, int& eid) = 0;
+    virtual sai_status_t fp_entry_destroy(int eid) = 0;
+    virtual sai_status_t fp_entry_counter(int eid, uint64_t& packets, uint64_t& bytes) = 0;
+    // A policer may be attached to several entries (one shared meter).
+    virtual sai_status_t policer_create(const PolicerCfg& cfg, int& pid) = 0;
+    virtual sai_status_t policer_set(int pid, const PolicerCfg& cfg) = 0;
+    virtual sai_status_t policer_destroy(int pid) = 0;
 };
 
 // Factories. make_openbcm_backend() returns nullptr when this libsai was
