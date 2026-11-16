@@ -113,20 +113,37 @@ let
     installPhase = "install -Dm755 -t $out/bin sai-bench";
   };
 
+  # The oracle (../sai-teralynx/oracle): the same SAI script on both SAIs with
+  # their libifcs calls traced. isai: tracer generated from its ctypes file,
+  # LD_PRELOAD'ed in the guest (ISAI_QEMU_PRELOAD); ours: the tracer for our
+  # backend's table (SAI_TERALYNX_IFCS_TRACE) and the runner on our libsai.
+  oracle-isai = pkgs.callPackage ../sai-teralynx/oracle {
+    saiInc = "${libsai}/include/sai";
+    saiLib = libsai;
+    abi = "isai-6.2.0";
+    ctypes = "${libsai}/share/isai/pyctypes/ifcs_ctypes.py";
+  };
+  oracle-ours = cross.callPackage ../sai-teralynx/oracle {
+    saiInc = sai-teralynx.saiHeaders;
+    saiLib = sai-teralynx;
+    abi = "ifcs-0.12.41";
+  };
+
   self = {
     qemu-ipd = qemuFor cross;          # for the CS8210 (aarch64 host)
     qemu-ipd-native = qemuFor pkgs;    # same patches, x86_64 host: offline tests
-    inherit isai libsai ortools-stub devmem smoke syncd syncd-202505 sai-teralynx bench-native;
+    inherit isai libsai ortools-stub devmem smoke syncd syncd-202505 sai-teralynx bench-native oracle-isai oracle-ours;
 
     # arm64 runner: isai-qemu PROGRAM [ARGS...] (see sai-qemu.md, phase 2)
     runner = cross.writeShellScriptBin "isai-qemu" ''
       # Run an amd64 program (isai-smoke, syncd) here under qemu-ipd:
       # guest_base 0 (ipd ioctls carry pointers), no AVX in the guest CPU,
       # device-safe code generation, device-safe memcpy for the guest only.
+      # ISAI_QEMU_PRELOAD: more guest libraries to preload (the oracle's tracer).
       : "${"$"}{QEMU_IPD_STRICT:=1}"
       export QEMU_IPD_STRICT
       exec ${self.qemu-ipd}/bin/qemu-x86_64 -B 0 -cpu Nehalem \
-        -E LD_PRELOAD=${devmem}/lib/libipd-devmem.so \
+        -E LD_PRELOAD=${devmem}/lib/libipd-devmem.so${"$"}{ISAI_QEMU_PRELOAD:+:${"$"}ISAI_QEMU_PRELOAD} \
         "$@"
     '';
     # arm64 bin/syncd that runs the amd64 upstream syncd (202505, SAI 1.16 ABI)

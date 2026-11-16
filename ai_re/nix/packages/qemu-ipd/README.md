@@ -8,7 +8,7 @@ and the hardware plan: [devices/cs8210-32x/sai-qemu.md](../../../devices/cs8210-
 |---|---|
 | `qemu-ipd` | arm64 `qemu-x86_64` (cross-built) with `patches/` |
 | `qemu-ipd-native` | the same patches on x86_64, for the tests |
-| `runner` | arm64 `isai-qemu PROGRAM ARGS`: `-B 0 -cpu Nehalem`, `QEMU_IPD_STRICT=1`, guest `LD_PRELOAD` of devmem |
+| `runner` | arm64 `isai-qemu PROGRAM ARGS`: `-B 0 -cpu Nehalem`, `QEMU_IPD_STRICT=1`, guest `LD_PRELOAD` of devmem (+ `ISAI_QEMU_PRELOAD`) |
 | `devmem` | amd64 `libipd-devmem.so` ([guest/devmem.c](guest/devmem.c)) |
 | `ortools-stub` | amd64 `libortools.so.9` stand-in ([guest/ortools-stub.nix](guest/ortools-stub.nix)) |
 | `isai`, `libsai` | [../isai-amd64](../isai-amd64/default.nix): isai 6.2.0 debs, unpacked, libsai with RUNPATHs |
@@ -17,6 +17,7 @@ and the hardware plan: [devices/cs8210-32x/sai-qemu.md](../../../devices/cs8210-
 | `syncd-202505` | sairedis of SONiC 202505 (SAI 1.16.1) on this libsai, doxygen 1.9.5 (`doxygen-1_9`), [capability patch](patches/sairedis-202505-capability-unknown-attr.patch) |
 | `syncd-runner` | arm64 `bin/syncd` = isai-qemu + syncd-202505 (services.sonic.sai.package; [sonic-isai.nix](sonic-isai.nix)) |
 | `bench-native`, `sai-teralynx` | [tools/sai_bench.cpp](tools/sai_bench.cpp) on our SAI (arm64); the amd64 build is in `smoke` |
+| `oracle-isai`, `oracle-ours` | libifcs call tracer + SAI script runner for isai (amd64, generated from its pyctypes) and ours (arm64): [oracle](../sai-teralynx/oracle/README.md) |
 | `guest` | the amd64 closure to copy to the box |
 | `tests.{layout,passthrough,codegen,aarch64}` | offline tests, see [tests/default.nix](tests/default.nix) |
 
