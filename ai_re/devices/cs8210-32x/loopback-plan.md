@@ -1,6 +1,7 @@
 # Loopback test plan (DACs between front ports)
 
-Status: **plan only, nothing run.** Written 2026-11-10 before the cables
+Status: superseded 2026-11-15 by the 400G DAC loop on cages 1 and 16: results in
+[macsec-400g.md](macsec-400g.md). Written 2026-11-10 before the cables
 arrive. No script yet on purpose: the Credo/SAI tooling is still changing
 (`credo-sai/`). Turn this into `cs8210-loopback` once that settles.
 

@@ -25,9 +25,9 @@
 
 ## todo / standing notes
 
-- **In flight (2026-11-15):** node exporter built, not deployed yet (log entry "node exporter"), then the ai-re-metrics target; 400G + MACsec on the cage 1 <-> 16 loop (agent; only cages 1 and 16 are populated, re-check before every SDK start); SONiC on NixOS with a Teralynx SAI (agent, offline first); U-Boot replacement (scheme A' in boot-chain.md, no write planned yet); vendor-prompt batch (UART route R, uC readouts, CPLD v15/v2 register dump, cpld-diff.md); switch-porting-runbook.md refresh from the AS7760.
+- **In flight (2026-11-15):** node exporter built, not deployed yet (log entry "node exporter"), then the ai-re-metrics target; 400G + MACsec on the cage 1 <-> 16 loop done by hand, see [macsec-400g.md](macsec-400g.md) (only cages 1 and 16 are populated, re-check before every SDK start); SONiC on NixOS with a Teralynx SAI (agent, offline first); U-Boot replacement (scheme A' in boot-chain.md, no write planned yet); vendor-prompt batch (UART route R, uC readouts, CPLD v15/v2 register dump, cpld-diff.md); switch-porting-runbook.md refresh from the AS7760.
 
-- **External PCIe INTx (2026-11-15, from the DMC-12 USB finding):** on the DMC-12 (Alpine V2) the factory DT routes external-PCIe INTx through an Annapurna IOFIC that mainline lacks, so its USB only ran from the EHCI 100 ms watchdog. Here the ASIC (0001:01:00.0, `ipd`) has legacy irq 17 = GIC SPI 73, today only PME/AER on it (SDK not running); the FPGAs have no driver. Check `/proc/interrupts` for ipd while `cs8210-switch` runs, and compare with the vendor DT's interrupt-map. On-SoC devices are fine: AHCI and ttyS0 count interrupts, al_eth uses MSI-X.
+- **External PCIe INTx (2026-11-15, from the DMC-12 USB finding):** on the DMC-12 (Alpine V2) the factory DT routes external-PCIe INTx through an Annapurna IOFIC that mainline lacks, so its USB only ran from the EHCI 100 ms watchdog. Here the ASIC (0001:01:00.0, `ipd`) has legacy irq 17 = GIC SPI 73, today only PME/AER on it (SDK not running); the FPGAs have no driver. With `cs8210-switch` running (2026-11-15) ipd uses 8 MSI-X vectors (napi and pic fire, legacy irq 17 unused), so INTx does not matter for the ASIC. On-SoC devices are fine: AHCI and ttyS0 count interrupts, al_eth uses MSI-X.
 
 - **Fans** (user request 2026-11-09: slow them down, the unit is very loud at the
   CPLD power-on default; keep them quiet). Linux holds PWM 127 (~50%, ~11k rpm)
@@ -60,8 +60,8 @@ front-panel netdevs `fpp1`..`fpp32`, Credo MACsec PHYs on ports 1-16 with
 firmware loaded, in MACsec bypass.**
 Fans temperature-controlled including the ASIC die (about 55% at idle).
 **First link 2026-11-10: cage 17 (QSA + 10G DAC) up at 10G, LLDP received from the neighbour (entry (p)).**
-Not working / unproven: 400G links, forwarding between ports, TX traffic beyond LLDP, Linux offload,
-real MACsec keying, aux SPI flash, second NIC.
+**400G 2026-11-15: cage 1 <-> 16 DAC at ~386 Gb/s per direction through both Credo PHYs, also with static-key MACsec (GCM-AES-128/256), by hand ([macsec-400g.md](macsec-400g.md)).**
+Not working / unproven: MKA / hitless rekey, MACsec config at boot, Linux offload, aux SPI flash, second NIC.
 Config: `nepeat/nix`, flake output `cs8210`. The vendor userland lives only on
 the switch (`/var/lib/cs8210-sdk/root`). ONIE in SPI flash is intact and is
 the fallback boot; the factory DIAGOS exists only as the 2026-10-17 image.
@@ -88,6 +88,15 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-15 — 400G + MACsec on the cage 1 <-> 16 DAC
+
+- Module: one Mellanox CAB-Q400-P1M 1 m passive 400G-CR8 DAC between cages 1 and 16 (both MACsec ports).
+- Credo line side `copper_1x400G` (line LT), runtime drop-in only: link up on every start, RS-544, 0 uncorrectable.
+- ASIC-generated traffic (new `scripts/loop400_fwd.py` + `scripts/l2frames.py`): ~386 Gb/s each way, 0 errors, bypass and MACsec alike (the vendor 48 B IPG sets the rate). CPU path 2.8 Gb/s TCP; **fpp MTU 9462 drops TSO frames >= 9216 B** (use 9000).
+- Static-key MACsec with our own keys (`scripts/credo_macsec.py`, vendor phy_shell SA commands, loaded live): ciphertext + SecTAG seen with one end in bypass; wrong key drops with InPktsNotValid. Rekey needs an SDK restart; MKA blocked on an SA install/delete path.
+- New option `hardware.cs8210.vendorSdk.phyPostLoad` (not deployed). Box left with cs8210-switch stopped, drop-in removed.
+- Details and evidence: [macsec-400g.md](macsec-400g.md).
 
 ### 2026-11-15 — vendor-prompt batch: Route R works, stage3 keys, uC, CPLD live dump
 
@@ -1656,8 +1665,8 @@ rather than committed.
 
 ## next useful work
 
-1. Link + traffic test once QSFP-DD optics/DACs arrive (CPU path on fpp*,
-   then port-to-port forwarding).
+1. MACsec beyond static keys (MKA, rekey) and a fpp MTU <= 9198; see
+   [macsec-400g.md](macsec-400g.md) "Not done".
 2. Credo slice temperatures and the ASC10 voltage/temperature monitors.
 3. Populate `/var/lib/cs8210-sdk/root` reproducibly (extract from the `onie`
    MTD on the box) instead of by hand; decide on enabling the service at boot.
