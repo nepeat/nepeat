@@ -20,8 +20,6 @@ import socket
 import sys
 import time
 
-from swsscommon import swsscommon
-
 VTY = os.environ.get("BFDD_VTY", "/run/frr/bfdd.vty")
 INTERVAL = int(os.environ.get("BFDSYNCD_INTERVAL_MS", "200")) / 1000.0
 RESYNC = 10.0      # s: re-check STATE_DB (orchagent's BfdOrch clears the table at start)
@@ -88,9 +86,34 @@ def entries(peers):
     return out, diag
 
 
+class DryTable:
+    """BFDSYNCD_DRY_RUN=1: no redis, only the bfdd side (tests/vm-bfdd-leak.nix)."""
+
+    def __init__(self):
+        self.d = {}
+
+    def getKeys(self):
+        return list(self.d)
+
+    def get(self, key):
+        return (key in self.d, list(self.d.get(key, {}).items()))
+
+    def set(self, key, fvs):
+        self.d[key] = dict(fvs)
+
+    def _del(self, key):
+        self.d.pop(key, None)
+
+
 def main():
-    db = swsscommon.DBConnector("STATE_DB", 0, False)
-    tbl = swsscommon.Table(db, TABLE)
+    if os.environ.get("BFDSYNCD_DRY_RUN") == "1":
+        tbl = DryTable()
+        pairs = list
+    else:
+        from swsscommon import swsscommon
+        db = swsscommon.DBConnector("STATE_DB", 0, False)
+        tbl = swsscommon.Table(db, TABLE)
+        pairs = swsscommon.FieldValuePairs
     vty = Vty(VTY)
     published = {}
     next_resync = 0.0
@@ -129,7 +152,7 @@ def main():
         for key, v in cur.items():
             old = published.get(key)
             if old != v:
-                tbl.set(key, swsscommon.FieldValuePairs(list(v.items())))
+                tbl.set(key, pairs(list(v.items())))
                 if old is None or old["state"] != v["state"]:
                     log("bfdsyncd: %s %s -> %s (diag %s, local %s, %s/%s ms x%s)" % (
                         key, old["state"] if old else "new", v["state"], diag[key] or "-",

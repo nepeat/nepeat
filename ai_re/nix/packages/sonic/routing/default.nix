@@ -34,7 +34,23 @@ let
     "0026-SONiC-ONLY-Translate-tableid-for-dplane-route-notify"
   ];
 
+  # json-c 0.19's new iterative json_object_put() frees non-empty containers
+  # inside assert(), so with NDEBUG (nixpkgs' Release build) every JSON object
+  # or array that had members leaks with all its children: bfdd grew ~2.9
+  # MB/min under bfdsyncd's "show bfd peers json" polling on the AS7760
+  # (devices/sonic-nixos/bfdd-leak.md). Upstream fixes after the 0.19 tag
+  # (json-c f291fa81c6 = PR #936, and the #934 follow-ups 3aa996b5b6,
+  # 0c3a5a1994). Drop once nixpkgs ships a json-c with them.
+  json-c = pkgs.json_c.overrideAttrs (o: {
+    patches = (o.patches or [ ]) ++ [
+      ./patches/json-c-0001-free-objects-outside-assert-in-json_object_put.patch
+      ./patches/json-c-0002-clear-user_delete-in-put_maybe_free.patch
+      ./patches/json-c-0003-clear-userdata-in-put_maybe_free.patch
+    ];
+  });
+
   frr = (pkgs.frr.override {
+    json_c = json-c;
     snmpSupport = false; rpkiSupport = false; scriptingSupport = false;
     watchfrrSupport = false;              # systemd restarts the daemons
     irdpSupport = false;
@@ -120,5 +136,5 @@ let
   # LD_PRELOAD heap profiler (leak hunting on the target, ./malloc-trace).
   malloc-trace = pkgs.callPackage ./malloc-trace { };
 in {
-  inherit frr templates templateDir bgpcfgd bfdsyncd sonicFrrPatches constants malloc-trace;
+  inherit frr json-c templates templateDir bgpcfgd bfdsyncd sonicFrrPatches constants malloc-trace;
 }

@@ -17,7 +17,14 @@
 #   inside the x86 VM; vtysh stays native.
 , sonic ? import ../../../../packages/sonic { inherit pkgs; }, ppc64Pkgs ? null, heaptrack ? false
 , target ? if ppc64Pkgs != null then import ../../../../packages/sonic { pkgs = ppc64Pkgs; } else sonic
-, frr ? target.routing.frr }:
+, frr ? target.routing.frr
+  # bfdsyncd polling bfdd as on the switch (dry run: no redis), the client that
+  # exposed json-c 0.19's container leak; unpatchedJsonC: FRR against nixpkgs'
+  # json-c (the leak reproduces).
+, bfdsyncd ? true, pollMs ? 200, unpatchedJsonC ? false }:
+let
+  frrUsed = if unpatchedJsonC then frr.override { json_c = (if ppc64Pkgs != null then ppc64Pkgs else pkgs).json_c; } else frr;
+in
 pkgs.testers.runNixOSTest {
   name = "sonic-bfdd-leak";
   nodes.dut = { lib, pkgs, ... }: {
@@ -67,7 +74,7 @@ pkgs.testers.runNixOSTest {
         after = [ "loop-vrf.service" ] ++ lib.optional (name != "mgmtd") "frr-mgmtd.service"
           ++ lib.optional (name == "bfdd") "frr-zebra.service";
         requires = [ "loop-vrf.service" ];
-        serviceConfig.ExecStart = "${frr}/libexec/frr/${name} ${args}";
+        serviceConfig.ExecStart = "${frrUsed}/libexec/frr/${name} ${args}";
         serviceConfig.Restart = "no";
       };
     in {
@@ -87,10 +94,17 @@ pkgs.testers.runNixOSTest {
         '';
       };
       frr-mgmtd = d "mgmtd" "-P 0";
+      bfdsyncd = lib.mkIf bfdsyncd {
+        wantedBy = [ "multi-user.target" ];
+        after = [ "frr-bfdd.service" ];
+        bindsTo = [ "frr-bfdd.service" ];
+        environment = { BFDSYNCD_DRY_RUN = "1"; BFDSYNCD_INTERVAL_MS = toString pollMs; };
+        serviceConfig.ExecStart = "${target.routing.bfdsyncd}/bin/bfdsyncd";
+      };
       frr-bgpd = lib.mkIf (mode == "bgp") ((d "bgpd" "-P 0") // { after = [ "frr-zebra.service" "frr-bfdd.service" ]; });
       frr-zebra = d "zebra" "-P 0";
       frr-bfdd = if heaptrack then (d "bfdd" "-P 0") // {
-        serviceConfig.ExecStart = "${pkgs.heaptrack}/bin/heaptrack --record-only -o /var/lib/heaptrack/bfdd ${frr}/libexec/frr/bfdd -P 0";
+        serviceConfig.ExecStart = "${pkgs.heaptrack}/bin/heaptrack --record-only -o /var/lib/heaptrack/bfdd ${frrUsed}/libexec/frr/bfdd -P 0";
         serviceConfig.StateDirectory = "heaptrack";
         serviceConfig.KillSignal = "SIGTERM";
       } else lib.recursiveUpdate (d "bfdd" "-P 0") (lib.optionalAttrs trace {
