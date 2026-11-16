@@ -19,6 +19,12 @@ void test_hostif(Env& e)
     OK(ha->create_hostif(&hif, s, 3, h));
     CHECK(has(m_log(), "ifcs_netdev_create h=") && has(m_log(), "name=Ethernet0 devport=1"));
     CHECK(has(m_log(), " tag=1"));            // SAI default STRIP
+    // system traps as isai sets them (once, before the first netdev): MTU and
+    // L2 source miss off, TTL and IPv4 options on
+    CHECK(has(m_log(), "ifcs_hostif_trap_attr_set h=0x18200017 id=1 u32=0"));
+    CHECK(has(m_log(), "ifcs_hostif_trap_attr_set h=0x18200010 id=1 u32=0"));
+    CHECK(has(m_log(), "ifcs_hostif_trap_attr_set h=0x18200011 id=1 u32=1"));
+    CHECK(has(m_log(), "ifcs_hostif_trap_attr_set h=0x18200014 id=1 u32=1"));
     a.id = SAI_HOSTIF_ATTR_OPER_STATUS;
     a.value.booldata = true;
     OK(ha->set_hostif_attribute(hif, &a));

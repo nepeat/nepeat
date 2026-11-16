@@ -14,6 +14,7 @@ void test_switch_init(Env& e)
         "ifcs_init cfg=" + run + "/config.yaml log=sai-teralynx boot=0 first=# generated init config",
         "ifcs_log_function_register",
         "ifcs_node_create node=0 count=0 attrs=null",
+        "ifcs_node_attr_set node=0 count=1 id=82 u32=1",   // multicast LAG resolution: only before ENABLE
         "ifcs_attr_t_init",
         "ifcs_attr_t_id_set id=0",
         "ifcs_attr_t_value_data_set 1",
@@ -47,8 +48,8 @@ void test_switch_init(Env& e)
     CHECK(has(log, "ifcs_linkscan_event_register_notify node=0"));
     CHECK(has(log, "ifcs_l2_event_register_notify node=0"));
     CHECK(has(log, "ifcs_stp_port_add stp=0x100 members=4 attrs=1 state=3"));
-    CHECK(has(log, "ifcs_l2vni_create vni=1 count=2 stp=0x100"));
-    CHECK(has(log, "ifcs_l2vni_member_add vni=1 n=1 first=0x3e2003e8"));   // CPU sysport 1000 in VLAN 1
+    CHECK(has(log, "ifcs_l2vni_create vni=1 count=4 stp=0x100"));
+    CHECK(!has(log, "ifcs_l2vni_member_add vni=1 n=1 first=0x3e2003e8"));  // the CPU is in no VLAN (traps bring what it needs)
 
 }
 

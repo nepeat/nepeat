@@ -36,6 +36,7 @@ ifcs_status_t mock_create_obj(const char* what, ifcs_handle_t* h, uint32_t c)
 
 /* ------------------------------------------------------------- state */
 int g_inited, g_node, g_enabled;
+int g_mlr;   /* MULTICAST_LAG_RESOLUTION_ENABLE: only before ENABLE (mock_l2.c checks it for LAG mc_dests) */
 uint32_t next_handle = 0x100;
 static uint32_t g_aging;
 static int temp_reads;
@@ -72,7 +73,7 @@ ifcs_status_t ifcs_init(const char* cfg, const char* log_name, int boot, uint32_
     mock_port_reset();
     return IFCS_SUCCESS;
 }
-ifcs_status_t ifcs_deinit(int t) { mock_logf("ifcs_deinit type=%d", t); g_inited = 0; g_node = 0; g_enabled = 0; return IFCS_SUCCESS; }
+ifcs_status_t ifcs_deinit(int t) { mock_logf("ifcs_deinit type=%d", t); g_inited = 0; g_node = 0; g_enabled = 0; g_mlr = 0; return IFCS_SUCCESS; }
 ifcs_status_t ifcs_node_create(ifcs_node_id_t n, uint32_t c, ifcs_attr_t* a)
 {
     mock_logf("ifcs_node_create node=%u count=%u attrs=%s", n, c, a ? "ptr" : "null");
@@ -86,6 +87,10 @@ ifcs_status_t ifcs_node_attr_set(ifcs_node_id_t n, uint32_t c, ifcs_attr_t* a)
         mock_logf("ifcs_node_attr_set node=%u count=%u id=%u u32=%u", n, c, a[i].id, a[i].value.u32);
         if (a[i].id == IFCS_NODE_ATTR_ENABLE) g_enabled = a[i].value.data;
         if (a[i].id == IFCS_NODE_ATTR_L2_ENTRY_AGING_INTERVAL) g_aging = a[i].value.u32;
+        if (a[i].id == IFCS_NODE_ATTR_MULTICAST_LAG_RESOLUTION_ENABLE) {
+            if (g_enabled) return IFCS_UNSUPPORTED;
+            g_mlr = a[i].value.data;
+        }
     }
     return g_node ? IFCS_SUCCESS : IFCS_UNINIT;
 }

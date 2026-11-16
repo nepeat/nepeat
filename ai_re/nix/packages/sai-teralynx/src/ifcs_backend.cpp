@@ -184,6 +184,54 @@ public:
     sai_status_t policer_set(int pid, const PolicerCfg& cfg) override { return acl_.policer_set(pid, cfg); }
     sai_status_t policer_destroy(int pid) override { return acl_.policer_destroy(pid); }
 
+    // QoS / buffers (tl_qos.cpp)
+    bool qos_supported() const override { return true; }
+    sai_status_t qos_map_create(QosMapKind k, const std::vector<QosMapEntry>& e, int& id) override { return qos_.map_create(k, e, id); }
+    sai_status_t qos_map_update(int id, const std::vector<QosMapEntry>& e) override { return qos_.map_update(id, e); }
+    sai_status_t qos_map_destroy(int id) override { return qos_.map_destroy(id); }
+    sai_status_t port_qos_map_set(int hw, QosMapKind k, int id) override { return qos_.port_map_set(hw, k, id); }
+    sai_status_t port_default_tc_set(int hw, uint8_t tc) override { return qos_.default_tc_set(hw, tc); }
+    sai_status_t port_pfc_set(int hw, bool separate, uint8_t tx, uint8_t rx) override { return qos_.pfc_set(hw, separate, tx, rx); }
+    sai_status_t queue_scheduler_set(int hw, int q, const SchedCfg* s) override { return qos_.queue_sched_set(hw, q, s); }
+    sai_status_t port_scheduler_set(int hw, const SchedCfg* s) override { return qos_.port_sched_set(hw, s); }
+    sai_status_t wred_create(const WredCfg& w, int& id) override { return qos_.wred_create(w, id); }
+    sai_status_t wred_update(int id, const WredCfg& w) override { return qos_.wred_update(id, w); }
+    sai_status_t wred_destroy(int id) override { return qos_.wred_destroy(id); }
+    sai_status_t queue_wred_set(int hw, int q, int id) override { return qos_.queue_wred_set(hw, q, id); }
+    sai_status_t queue_buffer_set(int hw, int q, const BufferCfg* b) override { return qos_.queue_buffer_set(hw, q, b); }
+    sai_status_t pg_buffer_set(int hw, int pg, const BufferCfg* b) override { return qos_.pg_buffer_set(hw, pg, b); }
+    sai_status_t queue_stats_get(int hw, int q, uint32_t n, const sai_stat_id_t* ids, uint64_t* out) override
+    {
+        return qos_.queue_stats_get(hw, q, n, ids, out);
+    }
+    sai_status_t queue_stats_clear(int hw, int q, uint32_t n, const sai_stat_id_t* ids) override
+    {
+        return qos_.queue_stats_clear(hw, q, n, ids);
+    }
+    sai_status_t pg_stats_get(int hw, int pg, uint32_t n, const sai_stat_id_t* ids, uint64_t* out) override
+    {
+        return qos_.pg_stats_get(hw, pg, n, ids, out);
+    }
+    sai_status_t pg_stats_clear(int hw, int pg, uint32_t n, const sai_stat_id_t* ids) override
+    {
+        return qos_.pg_stats_clear(hw, pg, n, ids);
+    }
+    sai_status_t port_pfc_stat_get(int hw, int prio, bool tx, uint64_t& v) override { return qos_.pfc_stat_get(hw, prio, tx, v); }
+
+    // mirror / sampling (tl_mirror.cpp)
+    bool mirror_supported() const override { return true; }
+    sai_status_t mirror_create(const MirrorCfg& m, int& id) override { return mirror_.create(m, id); }
+    sai_status_t mirror_update(int id, const MirrorCfg& m) override { return mirror_.update(id, m); }
+    sai_status_t mirror_destroy(int id) override { return mirror_.destroy(id); }
+    sai_status_t port_mirror_set(int hw, bool ingress, const std::vector<int>& ids) override
+    {
+        return mirror_.port_set(hw, ingress, ids);
+    }
+    sai_status_t sample_create(uint32_t rate, int& id) override { return mirror_.sample_create(rate, id); }
+    sai_status_t sample_update(int id, uint32_t rate) override { return mirror_.sample_update(id, rate); }
+    sai_status_t sample_destroy(int id) override { return mirror_.sample_destroy(id); }
+    sai_status_t port_sample_set(int hw, bool ingress, int id) override { return mirror_.port_sample_set(hw, ingress, id); }
+
 private:
     Core c_;
     SwitchArea sw_;

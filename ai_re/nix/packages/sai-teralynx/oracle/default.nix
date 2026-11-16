@@ -15,7 +15,8 @@ stdenv.mkDerivation {
     root = ./..;
     # what the build reads (the drivers and docs do not rebuild it)
     fileset = lib.fileset.unions [ ./gen_tracer.py ./trace_rt.c ./trace_rt.h ./sai_script.cpp ./oracle.py ./scripts
-                                   ../src/ifcs_api.h ../tools/trap_frames.c ];
+                                   ../src/ifcs_api.h ../src/ifcs_api_qos.h ../tools/trap_frames.c ../tools/l3_frames.c
+                                   ../tools/qos_frames.c ];
   };
   nativeBuildInputs = [ buildPackages.python3 ];
   dontConfigure = true;
@@ -34,12 +35,16 @@ stdenv.mkDerivation {
     $CXX -O2 -std=c++17 -Wall -I${saiInc} -I${saiInc}/../experimental -I${nlohmann_json}/include \
       -o sai-script sai_script.cpp -L${saiLib}/lib -lsai -Wl,-rpath,${saiLib}/lib -ldl -lpthread
     $CC -O2 -Wall -o trap-frames ../tools/trap_frames.c -lpthread
+    $CC -O2 -Wall -o l3-frames ../tools/l3_frames.c
+    $CC -O2 -Wall -o qos-frames ../tools/qos_frames.c -lpthread
     runHook postBuild
   '';
   installPhase = ''
     install -Dm755 libifcs-trace.so $out/lib/libifcs-trace.so
     install -Dm755 sai-script $out/bin/sai-script
     install -Dm755 trap-frames $out/bin/trap-frames
+    install -Dm755 l3-frames $out/bin/l3-frames
+    install -Dm755 qos-frames $out/bin/qos-frames
     install -Dm644 trace_gen.c $out/share/ifcs-oracle/trace_gen.c
     install -Dm755 oracle.py $out/share/ifcs-oracle/oracle.py
     cp -r scripts $out/share/ifcs-oracle/scripts

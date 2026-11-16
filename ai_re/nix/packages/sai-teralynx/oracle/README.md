@@ -14,7 +14,7 @@ makes, step by step, and diff them. No vendor code is read or copied; traces are
 | `oracle.py` | `diff OURS ISAI`, `show TRACE`, `summary TRACE`: attribute ids and counter ids to names (from each version's pyctypes, local), dynamic handles renamed by order of use, per-step diff, functions only one side calls |
 | `box-run.sh` | box side: one script on one SAI as a transient unit; refuses unless only cages 1 and 16 hold modules; isai runs reload ipd with `legacy_abi=0` and always restore it |
 | `run-oracle.sh` | workstation side: build (memory gate, 4 cores), `nix copy`, run ours and/or isai, fetch, diff |
-| `scripts/*.json` | `perf` (link state, speed, counters), `temperature`, `traps` (SONiC's CoPP groups and traps), `traps-hw` (frames over the loop with `trap-frames`, CoPP counters, a policer) |
+| `scripts/*.json` | `perf` (link state, speed, counters), `temperature`, `traps` (SONiC's CoPP groups and traps), `traps-hw` (frames over the loop with `trap-frames`, CoPP counters, a policer); `acl` (aclorch-style tables, groups, entries, ranges, egress: the IFCS form), `hostif-counters` (IGMP/MLD/NEIGHBOR_MISS traps, every port stat id, CPU queues), `acl-hw` (ACL actions and matches, IGMP/MLD traps, system traps, counters, frames over the loop with `trap-frames` and `tools/raw_frames.c`), `hostif-create` (create-mode netdevs); `qos` / `mirror` / `sflow-genetlink` (isai's QoS, mirror, sFlow sequences), `qos-hw` (ours on the loop with `tools/qos_frames.c`: classification, shapers, DWRR / strict, mirror copies, sFlow samples), `lag-l2` (LAG, members, LAG in VLANs, FDB, flush, RIF on a LAG, hash; no traffic), `l2lag-hw` (CPU out of flood groups, learning/aging over the loop, teamd LACP between two LAGs with `l2lag-teamd.sh`, copied to `/run/l2lag/` on the box) |
 | `default.nix` | the tracer + runner (+ `trap-frames`) for one ABI; built as `oracle-ours` / `oracle-isai` in qemu-ipd |
 
 ## Use
@@ -37,12 +37,12 @@ Profiles (on the box, tmpfs): `PROFILE_OURS` (default `/run/bench/native-error.p
 
 `{"name": "...", "steps": [ ... ]}`, a step is `{"op": ..., "desc": ...}`:
 `create_switch` / `remove_switch`, `create` (`type`, `attrs`, `as`), `set` (`obj`, `attr`),
-`get` (`obj`, `attr`/`attrs`, `as` keeps an oid or an oid list), `remove`, `stats` (`obj`, `ids`),
+`get` (`obj`, `attr`/`attrs`, `as` keeps an oid or an oid list), `remove`, `stats` (`obj`, `ids`), `stats_cap` (`type`: the stat ids the SAI reports),
 `create_route` / `set_route` / `remove_route` (`vr`, `prefix`), `create_neighbor` /
 `remove_neighbor` (`rif`, `ip`), `foreach` (`list`, `as`, `steps`, `max`), `repeat`, `sleep`,
 `exec` (a shell command while the switch is up; `$ORACLE` = the oracle store path), `diag` (one
 command on `SAI_OPENBCM_DIAG_SOCKET`). An attribute is `["NAME", "type", value]`: types `bool u8 u16
-u32 s32 u64 oid mac ip chardata oidlist u32list ptr`; values by name for the enums in the runner's
+u32 s32 u64 oid mac ip chardata oidlist u32list s32list u32range aclfield aclaction ptr`, and `s8`, `oids` (a list of objects: `["$a", "$b"]`), `qosmap` (`[["dscp", 46, "tc", 5], ...]`, fields tc dscp dot1p prio pg queue color); op `qstats` reads queue / PG / buffer pool counters; value names that several enums share (DYNAMIC, GENETLINK) go as numbers (aclfield `{"ip4": "10.0.0.0", "mask": "255.0.0.0"}`, `{"u8"|"u16"|"u32"|"s32": v, "mask": m}`, `{"ip6"|"mac": ...}`, `{"oids": [...]}`; aclaction `{"s32": "DROP"}`, `{"oid": "$c"}`); values by name for the enums in the runner's
 table or numbers; objects as `"$name"`, `"$list[3]"`, `"switch"`. `may_fail` marks a step whose
 failure is expected.
 

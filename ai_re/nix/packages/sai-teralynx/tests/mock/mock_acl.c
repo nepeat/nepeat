@@ -6,6 +6,7 @@
 #define MOCK_IBS 6
 static int n_aces, n_meters, n_counters;
 static uint64_t counter_packets = 0;   /* test hook: every counter reads this */
+static int fail_next_ace;              /* test hook: the next ace_create fails */
 
 int mock_acl_aces(void) { return n_aces; }
 int mock_acl_meters(void) { return n_meters; }
@@ -36,8 +37,12 @@ ifcs_status_t ifcs_acl_match_profile_create(ifcs_node_id_t n, ifcs_handle_t* h, 
     (void)n;
     *h = next_handle++;
     const ifcs_attr_t* t = find(c, a, IFCS_ACL_MATCH_PROFILE_ATTR_MATCH_TYPES);
-    mock_logf("ifcs_acl_match_profile_create h=0x%x types=%u width=%u", *h, t ? t->value.u32_list.count : 0,
-              find_u32(c, a, IFCS_ACL_MATCH_PROFILE_ATTR_MAX_WIDTH, 0));
+    char ty[256] = "";
+    size_t o = 0;
+    for (uint32_t i = 0; t && i < t->value.u32_list.count && o + 6 < sizeof(ty); i++)
+        o += (size_t)snprintf(ty + o, sizeof(ty) - o, "%s%u", i ? "," : "", t->value.u32_list.arr[i]);
+    mock_logf("ifcs_acl_match_profile_create h=0x%x types=%u width=%u sharing=%u list=%s", *h, t ? t->value.u32_list.count : 0,
+              find_u32(c, a, IFCS_ACL_MATCH_PROFILE_ATTR_MAX_WIDTH, 0), find_u32(c, a, IFCS_ACL_MATCH_PROFILE_ATTR_PORT_SHARING, 0), ty);
     return IFCS_SUCCESS;
 }
 ifcs_status_t ifcs_acl_match_profile_delete(ifcs_node_id_t n, ifcs_handle_t h) { (void)n; mock_logf("ifcs_acl_match_profile_delete h=0x%x", h); return IFCS_SUCCESS; }
@@ -54,8 +59,9 @@ ifcs_status_t ifcs_acl_table_create(ifcs_node_id_t n, ifcs_handle_t* h, uint32_t
 {
     (void)n;
     *h = next_handle++;
-    mock_logf("ifcs_acl_table_create h=0x%x scope=%u type=%u size=%u", *h, find_u32(c, a, IFCS_ACL_TABLE_ATTR_SCOPE, 9),
-              find_u32(c, a, IFCS_ACL_TABLE_ATTR_TYPE, 9), find_u32(c, a, IFCS_ACL_TABLE_ATTR_SIZE, 0));
+    mock_logf("ifcs_acl_table_create h=0x%x scope=%u type=%u size=%u prio=%u meters=%u", *h, find_u32(c, a, IFCS_ACL_TABLE_ATTR_SCOPE, 9),
+              find_u32(c, a, IFCS_ACL_TABLE_ATTR_TYPE, 9), find_u32(c, a, IFCS_ACL_TABLE_ATTR_SIZE, 0),
+              find_u32(c, a, IFCS_ACL_TABLE_ATTR_PRIORITY, 0), find_u32(c, a, IFCS_ACL_TABLE_ATTR_MAX_METERS, 0));
     return IFCS_SUCCESS;
 }
 ifcs_status_t ifcs_acl_table_delete(ifcs_node_id_t n, ifcs_handle_t h) { (void)n; mock_logf("ifcs_acl_table_delete h=0x%x", h); return IFCS_SUCCESS; }
@@ -85,12 +91,14 @@ ifcs_status_t ifcs_acl_match_create(ifcs_node_id_t n, ifcs_handle_t* h, uint32_t
 {
     (void)n;
     *h = next_handle++;
-    char v[80] = "";
+    char v[80] = "", k[80] = "";
     const ifcs_attr_t* val = find(c, a, IFCS_ACL_MATCH_ATTR_VALUE);
     if (val) hexs(v, sizeof(v), val->value.u8_list.arr, val->value.u8_list.count);
+    const ifcs_attr_t* msk = find(c, a, IFCS_ACL_MATCH_ATTR_MASK);
+    if (msk) hexs(k, sizeof(k), msk->value.u8_list.arr, msk->value.u8_list.count);
     const ifcs_attr_t* obj = find(c, a, IFCS_ACL_MATCH_ATTR_OBJECT);
-    mock_logf("ifcs_acl_match_create h=0x%x type=%u value=%s object=0x%x", *h, find_u32(c, a, IFCS_ACL_MATCH_ATTR_TYPE, 999), v,
-              obj ? obj->value.handle : 0);
+    mock_logf("ifcs_acl_match_create h=0x%x type=%u value=%s object=0x%x mask=%s", *h, find_u32(c, a, IFCS_ACL_MATCH_ATTR_TYPE, 999), v,
+              obj ? obj->value.handle : 0, k);
     return find(c, a, IFCS_ACL_MATCH_ATTR_MATCH_PROFILE) ? IFCS_SUCCESS : IFCS_PARAM;
 }
 ifcs_status_t ifcs_acl_match_delete(ifcs_node_id_t n, ifcs_handle_t h) { (void)n; mock_logf("ifcs_acl_match_delete h=0x%x", h); return IFCS_SUCCESS; }
@@ -154,7 +162,9 @@ ifcs_status_t ifcs_acl_counter_stats_get(ifcs_node_id_t n, ifcs_handle_t h, uint
                                          uint64_t* v, uint32_t* got)
 {
     (void)n; (void)h;
-    for (uint32_t i = 0; i < c; i++) v[i] = ids[i] == IFCS_ACL_COUNTER_STATS_ID_RED_PACKETS ? counter_packets / 2 : counter_packets;
+    for (uint32_t i = 0; i < c; i++)
+        v[i] = ids[i] == IFCS_ACL_COUNTER_STATS_ID_RED_PACKETS ? counter_packets / 2
+             : ids[i] == IFCS_ACL_COUNTER_STATS_ID_BYTES ? counter_packets * 64 : counter_packets;
     if (got) *got = c;
     return IFCS_SUCCESS;
 }
@@ -166,6 +176,7 @@ ifcs_status_t ifcs_ace_create(ifcs_node_id_t n, ifcs_handle_t* h, uint32_t c, if
     const ifcs_attr_t* x = find(c, a, IFCS_ACE_ATTR_ACTION_SET);
     mock_logf("ifcs_ace_create h=0x%x ib=%u prio=%u matches=%u actions=%u", *h, find_u32(c, a, IFCS_ACE_ATTR_IB, 99),
               find_u32(c, a, IFCS_ACE_ATTR_PRIORITY, 0), m ? m->value.handle_list.count : 0, x ? x->value.handle_list.count : 0);
+    if (fail_next_ace) { fail_next_ace = 0; n_aces++; return IFCS_RESOURCE_FULL; }
     n_aces++;
     return IFCS_SUCCESS;
 }
@@ -180,5 +191,36 @@ ifcs_status_t ifcs_acl_ace_remove(ifcs_node_id_t n, ifcs_handle_t acl, uint32_t 
 {
     (void)n; (void)l;
     mock_logf("ifcs_acl_ace_remove acl=0x%x n=%u", acl, m);
+    return IFCS_SUCCESS;
+}
+
+/* SAI ACL tables: port binding, counter clear, ACE attribute set */
+static int n_bound;
+int mock_acl_bound(void) { return n_bound; }
+void mock_acl_fail_next_ace(void) { fail_next_ace = 1; }
+ifcs_status_t ifcs_acl_port_add(ifcs_node_id_t n, ifcs_handle_t acl, uint32_t m, ifcs_handle_t* l, uint32_t c, ifcs_attr_t* a)
+{
+    (void)n; (void)c; (void)a;
+    for (uint32_t i = 0; i < m; i++) mock_logf("ifcs_acl_port_add acl=0x%x sysport=0x%x", acl, l[i]);
+    n_bound += (int)m;
+    return IFCS_SUCCESS;
+}
+ifcs_status_t ifcs_acl_port_remove(ifcs_node_id_t n, ifcs_handle_t acl, uint32_t m, ifcs_handle_t* l)
+{
+    (void)n;
+    for (uint32_t i = 0; i < m; i++) mock_logf("ifcs_acl_port_remove acl=0x%x sysport=0x%x", acl, l[i]);
+    n_bound -= (int)m;
+    return IFCS_SUCCESS;
+}
+ifcs_status_t ifcs_acl_counter_stats_clear(ifcs_node_id_t n, ifcs_handle_t h, uint32_t c, ifcs_acl_counter_stats_id_t* ids)
+{
+    (void)n; (void)ids;
+    mock_logf("ifcs_acl_counter_stats_clear h=0x%x n=%u", h, c);
+    return IFCS_SUCCESS;
+}
+ifcs_status_t ifcs_ace_attr_set(ifcs_node_id_t n, ifcs_handle_t h, uint32_t c, ifcs_attr_t* a)
+{
+    (void)n;
+    mock_logf("ifcs_ace_attr_set h=0x%x count=%u id=%u", h, c, c ? a[0].id : 999);
     return IFCS_SUCCESS;
 }

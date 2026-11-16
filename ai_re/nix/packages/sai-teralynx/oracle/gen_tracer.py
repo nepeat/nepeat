@@ -63,6 +63,10 @@ def emit_args(kinds, cnt, sizes, names):
 # ---------------------------------------------------------------- our header
 def from_header(path):
     txt = open(path).read()
+    # area headers ifcs_api.h includes (ifcs_api_<area>.h) declare more entry points
+    import os
+    for inc in re.findall(r'^#include "(ifcs_api_\w+\.h)"', txt, re.M):
+        txt += "\n" + open(os.path.join(os.path.dirname(path), inc)).read()
     fns = []
     for m in re.finditer(r"IFCS_FN\(\s*([^,]+?)\s*,\s*(\w+)\s*,\s*\((.*?)\)\)\s*$", txt, re.M | re.S):
         ret, name, args = m.group(1).strip(), m.group(2), m.group(3)

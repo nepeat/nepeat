@@ -12,6 +12,7 @@
 
 #include "tl_acl.h"
 #include "tl_hostif.h"
+#include "tl_counters.h"
 #include "tl_l2.h"
 #include "tl_l3.h"
 #include "tl_port.h"
@@ -151,6 +152,7 @@ sai_status_t SwitchArea::init(const BackendConfig& cfg, LinkCallback link_cb, Fd
         deinit();
         return map_reason(r);
     }
+    c_.l2->pre_enable();   // node attributes that must precede ENABLE (tl_l2.h)
     ifcs_attr_t en;
     c_.L.ifcs_attr_t_init(&en);
     c_.L.ifcs_attr_t_id_set(&en, IFCS_NODE_ATTR_ENABLE);
@@ -399,7 +401,7 @@ sai_status_t SwitchArea::shell(const std::string& cmd, std::string& out)
     while (is >> w) t.push_back(w);
     char b[256];
     if (t.empty() || t[0] == "help") {
-        out = "commands: ports | devport <id> | temp | help (read-only)\n";
+        out = "commands: ports | devport <id> | temp | copp | acl | counters <devport> | help (read-only)\n";
         return SAI_STATUS_SUCCESS;
     }
     if (!c_.initialized) {
@@ -418,6 +420,14 @@ sai_status_t SwitchArea::shell(const std::string& cmd, std::string& out)
     }
     if (t[0] == "copp") {
         out = c_.hostif->trap_report();
+        return SAI_STATUS_SUCCESS;
+    }
+    if (t[0] == "acl") {   // SAI ACL tables (tl_acl.cpp)
+        out = c_.acl->report();
+        return SAI_STATUS_SUCCESS;
+    }
+    if (t[0] == "counters" && t.size() == 2) {   // every mapped SAI port counter + CPU queues (tl_counters.cpp)
+        out = counters_report(c_, std::atoi(t[1].c_str()));
         return SAI_STATUS_SUCCESS;
     }
     if (t[0] == "ports" || (t[0] == "devport" && t.size() == 2)) {

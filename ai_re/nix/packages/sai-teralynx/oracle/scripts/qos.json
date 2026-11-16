@@ -1,0 +1,2296 @@
+{
+ "name": "qos: QoS maps, schedulers + scheduler groups, WRED, buffer pools/profiles, PFC, queue/PG/pool counters on Ethernet0 (no traffic)",
+ "steps": [
+  {
+   "op": "create_switch",
+   "attrs": [
+    [
+     "INIT_SWITCH",
+     "bool",
+     true
+    ],
+    [
+     "PORT_STATE_CHANGE_NOTIFY",
+     "ptr",
+     "port_state"
+    ],
+    [
+     "SWITCH_SHUTDOWN_REQUEST_NOTIFY",
+     "ptr",
+     "shutdown"
+    ]
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "ports"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[15]",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "sleep",
+   "ms": 3000
+  },
+  {
+   "op": "get",
+   "obj": "$ports[0]",
+   "attrs": [
+    [
+     "QOS_NUMBER_OF_QUEUES",
+     "u32"
+    ],
+    [
+     "NUMBER_OF_INGRESS_PRIORITY_GROUPS",
+     "u32"
+    ],
+    [
+     "QOS_NUMBER_OF_SCHEDULER_GROUPS",
+     "u32"
+    ]
+   ],
+   "desc": "counts"
+  },
+  {
+   "op": "get",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_QUEUE_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "q"
+  },
+  {
+   "op": "get",
+   "obj": "$ports[0]",
+   "attr": [
+    "INGRESS_PRIORITY_GROUP_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "pg"
+  },
+  {
+   "op": "get",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_SCHEDULER_GROUP_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "sg"
+  },
+  {
+   "op": "foreach",
+   "list": "sg",
+   "as": "g",
+   "max": 24,
+   "steps": [
+    {
+     "op": "get",
+     "obj": "$g",
+     "attrs": [
+      [
+       "CHILD_COUNT",
+       "u32"
+      ],
+      [
+       "LEVEL",
+       "u8"
+      ],
+      [
+       "MAX_CHILDS",
+       "u8"
+      ],
+      [
+       "PARENT_NODE",
+       "oid"
+      ],
+      [
+       "PORT_ID",
+       "oid"
+      ]
+     ],
+     "may_fail": true
+    },
+    {
+     "op": "get",
+     "obj": "$g",
+     "attr": [
+      "CHILD_LIST",
+      "oidlist",
+      64
+     ],
+     "may_fail": true
+    }
+   ]
+  },
+  {
+   "op": "foreach",
+   "list": "q",
+   "as": "qq",
+   "max": 24,
+   "steps": [
+    {
+     "op": "get",
+     "obj": "$qq",
+     "attrs": [
+      [
+       "TYPE",
+       "s32"
+      ],
+      [
+       "INDEX",
+       "u8"
+      ],
+      [
+       "PARENT_SCHEDULER_NODE",
+       "oid"
+      ]
+     ],
+     "may_fail": true
+    }
+   ]
+  },
+  {
+   "op": "foreach",
+   "list": "pg",
+   "as": "p",
+   "max": 8,
+   "steps": [
+    {
+     "op": "get",
+     "obj": "$p",
+     "attrs": [
+      [
+       "INDEX",
+       "u8"
+      ],
+      [
+       "PORT",
+       "oid"
+      ]
+     ],
+     "may_fail": true
+    }
+   ]
+  },
+  {
+   "op": "create",
+   "type": "QOS_MAP",
+   "desc": "DSCP_TO_TC dscp>>3",
+   "as": "m_dscp",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "DSCP_TO_TC"
+    ],
+    [
+     "MAP_TO_VALUE_LIST",
+     "qosmap",
+     [
+      [
+       "dscp",
+       0,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       1,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       2,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       3,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       4,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       5,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       6,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       7,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       8,
+       "tc",
+       1
+      ],
+      [
+       "dscp",
+       9,
+       "tc",
+       1
+      ],
+      [
+       "dscp",
+       10,
+       "tc",
+       1
+      ],
+      [
+       "dscp",
+       11,
+       "tc",
+       1
+      ],
+      [
+       "dscp",
+       12,
+       "tc",
+       1
+      ],
+      [
+       "dscp",
+       13,
+       "tc",
+       1
+      ],
+      [
+       "dscp",
+       14,
+       "tc",
+       1
+      ],
+      [
+       "dscp",
+       15,
+       "tc",
+       1
+      ],
+      [
+       "dscp",
+       16,
+       "tc",
+       2
+      ],
+      [
+       "dscp",
+       17,
+       "tc",
+       2
+      ],
+      [
+       "dscp",
+       18,
+       "tc",
+       2
+      ],
+      [
+       "dscp",
+       19,
+       "tc",
+       2
+      ],
+      [
+       "dscp",
+       20,
+       "tc",
+       2
+      ],
+      [
+       "dscp",
+       21,
+       "tc",
+       2
+      ],
+      [
+       "dscp",
+       22,
+       "tc",
+       2
+      ],
+      [
+       "dscp",
+       23,
+       "tc",
+       2
+      ],
+      [
+       "dscp",
+       24,
+       "tc",
+       3
+      ],
+      [
+       "dscp",
+       25,
+       "tc",
+       3
+      ],
+      [
+       "dscp",
+       26,
+       "tc",
+       3
+      ],
+      [
+       "dscp",
+       27,
+       "tc",
+       3
+      ],
+      [
+       "dscp",
+       28,
+       "tc",
+       3
+      ],
+      [
+       "dscp",
+       29,
+       "tc",
+       3
+      ],
+      [
+       "dscp",
+       30,
+       "tc",
+       3
+      ],
+      [
+       "dscp",
+       31,
+       "tc",
+       3
+      ],
+      [
+       "dscp",
+       32,
+       "tc",
+       4
+      ],
+      [
+       "dscp",
+       33,
+       "tc",
+       4
+      ],
+      [
+       "dscp",
+       34,
+       "tc",
+       4
+      ],
+      [
+       "dscp",
+       35,
+       "tc",
+       4
+      ],
+      [
+       "dscp",
+       36,
+       "tc",
+       4
+      ],
+      [
+       "dscp",
+       37,
+       "tc",
+       4
+      ],
+      [
+       "dscp",
+       38,
+       "tc",
+       4
+      ],
+      [
+       "dscp",
+       39,
+       "tc",
+       4
+      ],
+      [
+       "dscp",
+       40,
+       "tc",
+       5
+      ],
+      [
+       "dscp",
+       41,
+       "tc",
+       5
+      ],
+      [
+       "dscp",
+       42,
+       "tc",
+       5
+      ],
+      [
+       "dscp",
+       43,
+       "tc",
+       5
+      ],
+      [
+       "dscp",
+       44,
+       "tc",
+       5
+      ],
+      [
+       "dscp",
+       45,
+       "tc",
+       5
+      ],
+      [
+       "dscp",
+       46,
+       "tc",
+       5
+      ],
+      [
+       "dscp",
+       47,
+       "tc",
+       5
+      ],
+      [
+       "dscp",
+       48,
+       "tc",
+       6
+      ],
+      [
+       "dscp",
+       49,
+       "tc",
+       6
+      ],
+      [
+       "dscp",
+       50,
+       "tc",
+       6
+      ],
+      [
+       "dscp",
+       51,
+       "tc",
+       6
+      ],
+      [
+       "dscp",
+       52,
+       "tc",
+       6
+      ],
+      [
+       "dscp",
+       53,
+       "tc",
+       6
+      ],
+      [
+       "dscp",
+       54,
+       "tc",
+       6
+      ],
+      [
+       "dscp",
+       55,
+       "tc",
+       6
+      ],
+      [
+       "dscp",
+       56,
+       "tc",
+       7
+      ],
+      [
+       "dscp",
+       57,
+       "tc",
+       7
+      ],
+      [
+       "dscp",
+       58,
+       "tc",
+       7
+      ],
+      [
+       "dscp",
+       59,
+       "tc",
+       7
+      ],
+      [
+       "dscp",
+       60,
+       "tc",
+       7
+      ],
+      [
+       "dscp",
+       61,
+       "tc",
+       7
+      ],
+      [
+       "dscp",
+       62,
+       "tc",
+       7
+      ],
+      [
+       "dscp",
+       63,
+       "tc",
+       7
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_DSCP_TO_TC_MAP",
+    "oid",
+    "$m_dscp"
+   ]
+  },
+  {
+   "op": "create",
+   "type": "QOS_MAP",
+   "desc": "TC_TO_QUEUE identity",
+   "as": "m_tcq",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "TC_TO_QUEUE"
+    ],
+    [
+     "MAP_TO_VALUE_LIST",
+     "qosmap",
+     [
+      [
+       "tc",
+       0,
+       "queue",
+       0
+      ],
+      [
+       "tc",
+       1,
+       "queue",
+       1
+      ],
+      [
+       "tc",
+       2,
+       "queue",
+       2
+      ],
+      [
+       "tc",
+       3,
+       "queue",
+       3
+      ],
+      [
+       "tc",
+       4,
+       "queue",
+       4
+      ],
+      [
+       "tc",
+       5,
+       "queue",
+       5
+      ],
+      [
+       "tc",
+       6,
+       "queue",
+       6
+      ],
+      [
+       "tc",
+       7,
+       "queue",
+       7
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_TC_TO_QUEUE_MAP",
+    "oid",
+    "$m_tcq"
+   ]
+  },
+  {
+   "op": "create",
+   "type": "QOS_MAP",
+   "desc": "TC_TO_QUEUE swap 1<->2",
+   "as": "m_tcq2",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "TC_TO_QUEUE"
+    ],
+    [
+     "MAP_TO_VALUE_LIST",
+     "qosmap",
+     [
+      [
+       "tc",
+       0,
+       "queue",
+       0
+      ],
+      [
+       "tc",
+       1,
+       "queue",
+       2
+      ],
+      [
+       "tc",
+       2,
+       "queue",
+       1
+      ],
+      [
+       "tc",
+       3,
+       "queue",
+       3
+      ],
+      [
+       "tc",
+       4,
+       "queue",
+       4
+      ],
+      [
+       "tc",
+       5,
+       "queue",
+       5
+      ],
+      [
+       "tc",
+       6,
+       "queue",
+       6
+      ],
+      [
+       "tc",
+       7,
+       "queue",
+       7
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "desc": "non-identity tc->queue",
+   "attr": [
+    "QOS_TC_TO_QUEUE_MAP",
+    "oid",
+    "$m_tcq2"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$m_tcq2",
+   "desc": "map change tc 5 -> q 6",
+   "attr": [
+    "MAP_TO_VALUE_LIST",
+    "qosmap",
+    [
+     [
+      "tc",
+      0,
+      "queue",
+      0
+     ],
+     [
+      "tc",
+      1,
+      "queue",
+      2
+     ],
+     [
+      "tc",
+      2,
+      "queue",
+      1
+     ],
+     [
+      "tc",
+      3,
+      "queue",
+      3
+     ],
+     [
+      "tc",
+      4,
+      "queue",
+      4
+     ],
+     [
+      "tc",
+      5,
+      "queue",
+      6
+     ],
+     [
+      "tc",
+      6,
+      "queue",
+      6
+     ],
+     [
+      "tc",
+      7,
+      "queue",
+      7
+     ]
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "QOS_MAP",
+   "desc": "DOT1P_TO_TC identity",
+   "as": "m_d1p",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "DOT1P_TO_TC"
+    ],
+    [
+     "MAP_TO_VALUE_LIST",
+     "qosmap",
+     [
+      [
+       "dot1p",
+       0,
+       "tc",
+       0
+      ],
+      [
+       "dot1p",
+       1,
+       "tc",
+       1
+      ],
+      [
+       "dot1p",
+       2,
+       "tc",
+       2
+      ],
+      [
+       "dot1p",
+       3,
+       "tc",
+       3
+      ],
+      [
+       "dot1p",
+       4,
+       "tc",
+       4
+      ],
+      [
+       "dot1p",
+       5,
+       "tc",
+       5
+      ],
+      [
+       "dot1p",
+       6,
+       "tc",
+       6
+      ],
+      [
+       "dot1p",
+       7,
+       "tc",
+       7
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_DOT1P_TO_TC_MAP",
+    "oid",
+    "$m_d1p"
+   ]
+  },
+  {
+   "op": "create",
+   "type": "QOS_MAP",
+   "desc": "TC_TO_PRIORITY_GROUP",
+   "as": "m_tcpg",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "TC_TO_PRIORITY_GROUP"
+    ],
+    [
+     "MAP_TO_VALUE_LIST",
+     "qosmap",
+     [
+      [
+       "tc",
+       0,
+       "pg",
+       0
+      ],
+      [
+       "tc",
+       1,
+       "pg",
+       0
+      ],
+      [
+       "tc",
+       2,
+       "pg",
+       0
+      ],
+      [
+       "tc",
+       3,
+       "pg",
+       3
+      ],
+      [
+       "tc",
+       4,
+       "pg",
+       4
+      ],
+      [
+       "tc",
+       5,
+       "pg",
+       0
+      ],
+      [
+       "tc",
+       6,
+       "pg",
+       0
+      ],
+      [
+       "tc",
+       7,
+       "pg",
+       0
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_TC_TO_PRIORITY_GROUP_MAP",
+    "oid",
+    "$m_tcpg"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "QOS_MAP",
+   "desc": "PFC_PRIORITY_TO_QUEUE",
+   "as": "m_pfcq",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "PFC_PRIORITY_TO_QUEUE"
+    ],
+    [
+     "MAP_TO_VALUE_LIST",
+     "qosmap",
+     [
+      [
+       "prio",
+       0,
+       "queue",
+       0
+      ],
+      [
+       "prio",
+       1,
+       "queue",
+       1
+      ],
+      [
+       "prio",
+       2,
+       "queue",
+       2
+      ],
+      [
+       "prio",
+       3,
+       "queue",
+       3
+      ],
+      [
+       "prio",
+       4,
+       "queue",
+       4
+      ],
+      [
+       "prio",
+       5,
+       "queue",
+       5
+      ],
+      [
+       "prio",
+       6,
+       "queue",
+       6
+      ],
+      [
+       "prio",
+       7,
+       "queue",
+       7
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_PFC_PRIORITY_TO_QUEUE_MAP",
+    "oid",
+    "$m_pfcq"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "QOS_MAP",
+   "desc": "PFC_PRIORITY_TO_PRIORITY_GROUP",
+   "as": "m_pfcpg",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "PFC_PRIORITY_TO_PRIORITY_GROUP"
+    ],
+    [
+     "MAP_TO_VALUE_LIST",
+     "qosmap",
+     [
+      [
+       "prio",
+       0,
+       "pg",
+       0
+      ],
+      [
+       "prio",
+       1,
+       "pg",
+       1
+      ],
+      [
+       "prio",
+       2,
+       "pg",
+       2
+      ],
+      [
+       "prio",
+       3,
+       "pg",
+       3
+      ],
+      [
+       "prio",
+       4,
+       "pg",
+       4
+      ],
+      [
+       "prio",
+       5,
+       "pg",
+       5
+      ],
+      [
+       "prio",
+       6,
+       "pg",
+       6
+      ],
+      [
+       "prio",
+       7,
+       "pg",
+       7
+      ]
+     ]
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_PFC_PRIORITY_TO_PRIORITY_GROUP_MAP",
+    "oid",
+    "$m_pfcpg"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$m_dscp",
+   "desc": "dscp 46 -> tc 5",
+   "attr": [
+    "MAP_TO_VALUE_LIST",
+    "qosmap",
+    [
+     [
+      "dscp",
+      0,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      1,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      2,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      3,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      4,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      5,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      6,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      7,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      8,
+      "tc",
+      1
+     ],
+     [
+      "dscp",
+      9,
+      "tc",
+      1
+     ],
+     [
+      "dscp",
+      10,
+      "tc",
+      1
+     ],
+     [
+      "dscp",
+      11,
+      "tc",
+      1
+     ],
+     [
+      "dscp",
+      12,
+      "tc",
+      1
+     ],
+     [
+      "dscp",
+      13,
+      "tc",
+      1
+     ],
+     [
+      "dscp",
+      14,
+      "tc",
+      1
+     ],
+     [
+      "dscp",
+      15,
+      "tc",
+      1
+     ],
+     [
+      "dscp",
+      16,
+      "tc",
+      2
+     ],
+     [
+      "dscp",
+      17,
+      "tc",
+      2
+     ],
+     [
+      "dscp",
+      18,
+      "tc",
+      2
+     ],
+     [
+      "dscp",
+      19,
+      "tc",
+      2
+     ],
+     [
+      "dscp",
+      20,
+      "tc",
+      2
+     ],
+     [
+      "dscp",
+      21,
+      "tc",
+      2
+     ],
+     [
+      "dscp",
+      22,
+      "tc",
+      2
+     ],
+     [
+      "dscp",
+      23,
+      "tc",
+      2
+     ],
+     [
+      "dscp",
+      24,
+      "tc",
+      3
+     ],
+     [
+      "dscp",
+      25,
+      "tc",
+      3
+     ],
+     [
+      "dscp",
+      26,
+      "tc",
+      3
+     ],
+     [
+      "dscp",
+      27,
+      "tc",
+      3
+     ],
+     [
+      "dscp",
+      28,
+      "tc",
+      3
+     ],
+     [
+      "dscp",
+      29,
+      "tc",
+      3
+     ],
+     [
+      "dscp",
+      30,
+      "tc",
+      3
+     ],
+     [
+      "dscp",
+      31,
+      "tc",
+      3
+     ],
+     [
+      "dscp",
+      32,
+      "tc",
+      4
+     ],
+     [
+      "dscp",
+      33,
+      "tc",
+      4
+     ],
+     [
+      "dscp",
+      34,
+      "tc",
+      4
+     ],
+     [
+      "dscp",
+      35,
+      "tc",
+      4
+     ],
+     [
+      "dscp",
+      36,
+      "tc",
+      4
+     ],
+     [
+      "dscp",
+      37,
+      "tc",
+      4
+     ],
+     [
+      "dscp",
+      38,
+      "tc",
+      4
+     ],
+     [
+      "dscp",
+      39,
+      "tc",
+      4
+     ],
+     [
+      "dscp",
+      40,
+      "tc",
+      5
+     ],
+     [
+      "dscp",
+      41,
+      "tc",
+      5
+     ],
+     [
+      "dscp",
+      42,
+      "tc",
+      5
+     ],
+     [
+      "dscp",
+      43,
+      "tc",
+      5
+     ],
+     [
+      "dscp",
+      44,
+      "tc",
+      5
+     ],
+     [
+      "dscp",
+      45,
+      "tc",
+      5
+     ],
+     [
+      "dscp",
+      46,
+      "tc",
+      5
+     ],
+     [
+      "dscp",
+      47,
+      "tc",
+      5
+     ],
+     [
+      "dscp",
+      48,
+      "tc",
+      6
+     ],
+     [
+      "dscp",
+      49,
+      "tc",
+      6
+     ],
+     [
+      "dscp",
+      50,
+      "tc",
+      6
+     ],
+     [
+      "dscp",
+      51,
+      "tc",
+      6
+     ],
+     [
+      "dscp",
+      52,
+      "tc",
+      6
+     ],
+     [
+      "dscp",
+      53,
+      "tc",
+      6
+     ],
+     [
+      "dscp",
+      54,
+      "tc",
+      6
+     ],
+     [
+      "dscp",
+      55,
+      "tc",
+      6
+     ],
+     [
+      "dscp",
+      56,
+      "tc",
+      7
+     ],
+     [
+      "dscp",
+      57,
+      "tc",
+      7
+     ],
+     [
+      "dscp",
+      58,
+      "tc",
+      7
+     ],
+     [
+      "dscp",
+      59,
+      "tc",
+      7
+     ],
+     [
+      "dscp",
+      60,
+      "tc",
+      7
+     ],
+     [
+      "dscp",
+      61,
+      "tc",
+      7
+     ],
+     [
+      "dscp",
+      62,
+      "tc",
+      7
+     ],
+     [
+      "dscp",
+      63,
+      "tc",
+      7
+     ]
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_DEFAULT_TC",
+    "u8",
+    1
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "PRIORITY_FLOW_CONTROL",
+    "u8",
+    24
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "SCHEDULER",
+   "desc": "DWRR 20",
+   "as": "s_dwrr",
+   "attrs": [
+    [
+     "SCHEDULING_TYPE",
+     "s32",
+     "DWRR"
+    ],
+    [
+     "SCHEDULING_WEIGHT",
+     "u8",
+     20
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "SCHEDULER",
+   "desc": "STRICT",
+   "as": "s_sp",
+   "attrs": [
+    [
+     "SCHEDULING_TYPE",
+     "s32",
+     "STRICT"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "SCHEDULER",
+   "desc": "shaper 1 Gbit/s",
+   "as": "s_shape",
+   "attrs": [
+    [
+     "METER_TYPE",
+     "s32",
+     "BYTES"
+    ],
+    [
+     "MAX_BANDWIDTH_RATE",
+     "u64",
+     125000000
+    ],
+    [
+     "MAX_BANDWIDTH_BURST_RATE",
+     "u64",
+     65536
+    ]
+   ]
+  },
+  {
+   "op": "foreach",
+   "list": "sg",
+   "as": "g",
+   "max": 24,
+   "steps": [
+    {
+     "op": "set",
+     "obj": "$g",
+     "attr": [
+      "SCHEDULER_PROFILE_ID",
+      "oid",
+      "$s_dwrr"
+     ],
+     "may_fail": true
+    }
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$q[3]",
+   "attr": [
+    "SCHEDULER_PROFILE_ID",
+    "oid",
+    "$s_sp"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$s_dwrr",
+   "desc": "weight 50",
+   "attr": [
+    "SCHEDULING_WEIGHT",
+    "u8",
+    50
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_SCHEDULER_PROFILE_ID",
+    "oid",
+    "$s_shape"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "WRED",
+   "desc": "green ECN",
+   "as": "w",
+   "attrs": [
+    [
+     "GREEN_ENABLE",
+     "bool",
+     true
+    ],
+    [
+     "GREEN_MIN_THRESHOLD",
+     "u32",
+     100000
+    ],
+    [
+     "GREEN_MAX_THRESHOLD",
+     "u32",
+     2000000
+    ],
+    [
+     "GREEN_DROP_PROBABILITY",
+     "u32",
+     5
+    ],
+    [
+     "ECN_MARK_MODE",
+     "s32",
+     "GREEN"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$q[3]",
+   "attr": [
+    "WRED_PROFILE_ID",
+    "oid",
+    "$w"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$w",
+   "attr": [
+    "GREEN_MAX_THRESHOLD",
+    "u32",
+    3000000
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "BUFFER_POOL",
+   "desc": "ingress lossless",
+   "as": "pool_in",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "SIZE",
+     "u64",
+     20000000
+    ],
+    [
+     "THRESHOLD_MODE",
+     "s32",
+     1
+    ],
+    [
+     "XOFF_SIZE",
+     "u64",
+     2000000
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "BUFFER_POOL",
+   "desc": "egress lossless",
+   "as": "pool_eg",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "EGRESS"
+    ],
+    [
+     "SIZE",
+     "u64",
+     20000000
+    ],
+    [
+     "THRESHOLD_MODE",
+     "s32",
+     1
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "BUFFER_POOL",
+   "desc": "egress lossy",
+   "as": "pool_ly",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "EGRESS"
+    ],
+    [
+     "SIZE",
+     "u64",
+     10000000
+    ],
+    [
+     "THRESHOLD_MODE",
+     "s32",
+     1
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "BUFFER_PROFILE",
+   "desc": "pg lossless",
+   "as": "bp_pg",
+   "attrs": [
+    [
+     "POOL_ID",
+     "oid",
+     "$pool_in"
+    ],
+    [
+     "RESERVED_BUFFER_SIZE",
+     "u64",
+     1248
+    ],
+    [
+     "THRESHOLD_MODE",
+     "s32",
+     1
+    ],
+    [
+     "SHARED_DYNAMIC_TH",
+     "s8",
+     0
+    ],
+    [
+     "XOFF_TH",
+     "u64",
+     100000
+    ],
+    [
+     "XON_TH",
+     "u64",
+     18432
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$pg[3]",
+   "attr": [
+    "BUFFER_PROFILE",
+    "oid",
+    "$bp_pg"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "BUFFER_PROFILE",
+   "desc": "q lossless",
+   "as": "bp_q",
+   "attrs": [
+    [
+     "POOL_ID",
+     "oid",
+     "$pool_eg"
+    ],
+    [
+     "RESERVED_BUFFER_SIZE",
+     "u64",
+     0
+    ],
+    [
+     "THRESHOLD_MODE",
+     "s32",
+     1
+    ],
+    [
+     "SHARED_DYNAMIC_TH",
+     "s8",
+     7
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$q[3]",
+   "attr": [
+    "BUFFER_PROFILE_ID",
+    "oid",
+    "$bp_q"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "BUFFER_PROFILE",
+   "desc": "q lossy",
+   "as": "bp_ly",
+   "attrs": [
+    [
+     "POOL_ID",
+     "oid",
+     "$pool_ly"
+    ],
+    [
+     "RESERVED_BUFFER_SIZE",
+     "u64",
+     1518
+    ],
+    [
+     "THRESHOLD_MODE",
+     "s32",
+     1
+    ],
+    [
+     "SHARED_DYNAMIC_TH",
+     "s8",
+     3
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$q[0]",
+   "attr": [
+    "BUFFER_PROFILE_ID",
+    "oid",
+    "$bp_ly"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$bp_ly",
+   "attr": [
+    "SHARED_DYNAMIC_TH",
+    "s8",
+    1
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_INGRESS_BUFFER_PROFILE_LIST",
+    "oids",
+    [
+     "$bp_pg"
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_EGRESS_BUFFER_PROFILE_LIST",
+    "oids",
+    [
+     "$bp_q"
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "qstats",
+   "obj": "$q[3]",
+   "ids": [
+    "PACKETS",
+    "BYTES",
+    "DROPPED_PACKETS",
+    "DROPPED_BYTES"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "qstats",
+   "obj": "$q[3]",
+   "ids": [
+    "CURR_OCCUPANCY_BYTES",
+    "WATERMARK_BYTES",
+    "SHARED_WATERMARK_BYTES"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "qstats",
+   "obj": "$q[3]",
+   "ids": [
+    "WRED_ECN_MARKED_PACKETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "qstats",
+   "obj": "$pg[3]",
+   "ids": [
+    "PACKETS",
+    "BYTES",
+    "CURR_OCCUPANCY_BYTES",
+    "WATERMARK_BYTES",
+    "SHARED_WATERMARK_BYTES",
+    "XOFF_ROOM_WATERMARK_BYTES",
+    "DROPPED_PACKETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "qstats",
+   "obj": "$pool_in",
+   "ids": [
+    "CURR_OCCUPANCY_BYTES",
+    "WATERMARK_BYTES"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "qstats",
+   "obj": "$pool_ly",
+   "ids": [
+    "WATERMARK_BYTES",
+    "XOFF_ROOM_WATERMARK_BYTES"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "get",
+   "obj": "$q[3]",
+   "attrs": [
+    [
+     "WRED_PROFILE_ID",
+     "oid"
+    ],
+    [
+     "BUFFER_PROFILE_ID",
+     "oid"
+    ],
+    [
+     "SCHEDULER_PROFILE_ID",
+     "oid"
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_INGRESS_BUFFER_PROFILE_LIST",
+    "oids",
+    []
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_EGRESS_BUFFER_PROFILE_LIST",
+    "oids",
+    []
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$q[0]",
+   "attr": [
+    "BUFFER_PROFILE_ID",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$q[3]",
+   "attr": [
+    "BUFFER_PROFILE_ID",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$pg[3]",
+   "attr": [
+    "BUFFER_PROFILE",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$bp_ly",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$bp_q",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$bp_pg",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$pool_ly",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$pool_eg",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$pool_in",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$q[3]",
+   "attr": [
+    "WRED_PROFILE_ID",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$w",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_SCHEDULER_PROFILE_ID",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$q[3]",
+   "attr": [
+    "SCHEDULER_PROFILE_ID",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "foreach",
+   "list": "sg",
+   "as": "g",
+   "max": 24,
+   "steps": [
+    {
+     "op": "set",
+     "obj": "$g",
+     "attr": [
+      "SCHEDULER_PROFILE_ID",
+      "oid",
+      "null"
+     ],
+     "may_fail": true
+    }
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$s_shape",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$s_sp",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$s_dwrr",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "PRIORITY_FLOW_CONTROL",
+    "u8",
+    0
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_DSCP_TO_TC_MAP",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_TC_TO_QUEUE_MAP",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_DOT1P_TO_TC_MAP",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_TC_TO_PRIORITY_GROUP_MAP",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_PFC_PRIORITY_TO_QUEUE_MAP",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "QOS_PFC_PRIORITY_TO_PRIORITY_GROUP_MAP",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$m_dscp",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$m_tcq",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$m_d1p",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$m_tcpg",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$m_pfcq",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$m_pfcpg",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$m_tcq2",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[15]",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "remove_switch"
+  }
+ ]
+}

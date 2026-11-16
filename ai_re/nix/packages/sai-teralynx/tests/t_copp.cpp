@@ -127,12 +127,48 @@ void test_copp(Env& e)
     CHECK_EQ(count(m_log(), "type=59 value=00b3"), 6u);         // src port 179
     CHECK_EQ(count(m_log(), "type=98 value= object=" + ip2me.substr(0, ip2me.find(' '))), 12u);
 
-    // ---- a trap type without a mapping is kept, not programmed
+    // ---- a trap type without a mapping is kept, not programmed (isai refuses SAMPLEPACKET too)
     m_log_clear();
     aces = m_aces();
-    make_trap(e, SAI_HOSTIF_TRAP_TYPE_IGMP_TYPE_QUERY, SAI_PACKET_ACTION_TRAP, grp);
+    make_trap(e, SAI_HOSTIF_TRAP_TYPE_SAMPLEPACKET, SAI_PACKET_ACTION_TRAP, grp);
     CHECK_EQ(m_aces(), aces);
     CHECK(!has(m_log(), "ifcs_acl_"));
+
+    // ---- IGMP / MLD: ether type + protocol + message type in L4 byte 1, as isai's ACEs
+    m_log_clear();
+    sai_object_id_t igmp = make_trap(e, SAI_HOSTIF_TRAP_TYPE_IGMP_TYPE_QUERY, SAI_PACKET_ACTION_TRAP, grp1);
+    CHECK_EQ(m_aces(), aces + 6);
+    CHECK_EQ(count(m_log(), "type=18 value=0800"), 6u);
+    CHECK_EQ(count(m_log(), "type=56 value=02"), 6u);
+    CHECK_EQ(count(m_log(), "type=61 value=11"), 6u);
+    m_log_clear();
+    make_trap(e, SAI_HOSTIF_TRAP_TYPE_IGMP_TYPE_V3_REPORT, SAI_PACKET_ACTION_TRAP, grp1);
+    CHECK_EQ(count(m_log(), "type=61 value=22"), 6u);
+    m_log_clear();
+    make_trap(e, SAI_HOSTIF_TRAP_TYPE_MLD_V2_REPORT, SAI_PACKET_ACTION_TRAP, grp1);
+    CHECK_EQ(count(m_log(), "type=18 value=86dd"), 6u);
+    CHECK_EQ(count(m_log(), "type=56 value=3a"), 6u);
+    CHECK_EQ(count(m_log(), "type=61 value=8f"), 6u);
+    make_trap(e, SAI_HOSTIF_TRAP_TYPE_IPV6_MLD_V1_V2, SAI_PACKET_ACTION_TRAP, grp1);
+    OK(ha->remove_hostif_trap(igmp));
+
+    // ---- NEIGHBOR_MISS: a hostif trap of its own (glean), the group's queue, an ACE on it
+    m_log_clear();
+    sai_object_id_t nm = make_trap(e, SAI_HOSTIF_TRAP_TYPE_NEIGHBOR_MISS, SAI_PACKET_ACTION_TRAP, grp1);
+    std::string l3 = m_log();
+    size_t gq = l3.find("ifcs_hostif_trap_create h=");
+    CHECK(gq != std::string::npos);
+    std::string glean = gq != std::string::npos ? l3.substr(gq + 26, l3.find(' ', gq + 26) - gq - 26) : "?";
+    CHECK(has(l3, "ifcs_hostif_trap_attr_set h=" + glean + " id=0 u32=1"));
+    CHECK_EQ(count(l3, "type=98 value= object=" + glean), 6u);
+    CHECK(glean != ip2me.substr(0, ip2me.find(' ')));
+    m_log_clear();
+    OK(ha->remove_hostif_trap(nm));
+    CHECK(has(m_log(), "ifcs_hostif_trap_attr_set h=" + glean + " id=0 u32=0"));   // back to queue 0, kept
+    CHECK(!has(m_log(), "ifcs_hostif_trap_delete"));
+
+    // ---- diag "copp": the CPU queue counters (which queue a trap's frames used)
+    // (t_counters.cpp reads it through the diag socket)
 
     // ---- group queue change: the trap follows (attr_set on its hostif trap)
     m_log_clear();

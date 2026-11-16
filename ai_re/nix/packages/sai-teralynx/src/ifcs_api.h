@@ -245,8 +245,17 @@ enum { IFCS_INTF_ATTR_TYPE = 0, IFCS_INTF_ATTR_FORWARDING_INSTANCE = 3, IFCS_INT
        IFCS_INTF_ATTR_TRANSPORT_MAC = 5, IFCS_INTF_ATTR_IPV4_UNICAST_ENABLE = 18, IFCS_INTF_ATTR_IPV6_UNICAST_ENABLE = 20,
        IFCS_INTF_ATTR_MTU = 24 };
 enum { IFCS_INTF_TYPE_L3PORT = 0, IFCS_INTF_TYPE_SVI = 1 };
+enum {                                 /* ifcs_intf_stats_id_e (subset) */
+    IFCS_INTF_STATS_ID_L3INTF_INGRESS_PKTS = 20, IFCS_INTF_STATS_ID_L3INTF_INGRESS_BYTES = 21,
+    IFCS_INTF_STATS_ID_L3INTF_EGRESS_IPV4_PKTS = 28, IFCS_INTF_STATS_ID_L3INTF_EGRESS_IPV4_BYTES = 29,
+    IFCS_INTF_STATS_ID_L3INTF_EGRESS_IPV6_PKTS = 30, IFCS_INTF_STATS_ID_L3INTF_EGRESS_IPV6_BYTES = 31,
+};
+typedef int ifcs_intf_stats_id_t;
 enum { IFCS_NEXTHOP_ATTR_INTF = 2, IFCS_NEXTHOP_ATTR_DEST_MAC = 3, IFCS_NEXTHOP_ATTR_LOCAL_DESTINATION = 5 };
-enum { IFCS_ROUTE_ENTRY_ATTR_NEXTHOP = 0, IFCS_ROUTE_ENTRY_ATTR_FWD_POLICY = 1, IFCS_ROUTE_ENTRY_ATTR_CTC_POLICY = 2 };
+enum { IFCS_ROUTE_ENTRY_ATTR_NEXTHOP = 0, IFCS_ROUTE_ENTRY_ATTR_FWD_POLICY = 1, IFCS_ROUTE_ENTRY_ATTR_CTC_POLICY = 2,
+       IFCS_ROUTE_ENTRY_ATTR_TTL_CHECK_PROFILE = 6 };                       /* TTL_CHECK_PROFILE u32 (cmds/route_entry.py) */
+enum { IFCS_L3VNI_ATTR_IPV4_UNICAST_TTL_CHECK_FAIL_CTC = 5, IFCS_L3VNI_ATTR_IPV6_UNICAST_TTL_CHECK_FAIL_CTC = 7 };   /* data */
+enum { IFCS_NODE_ATTR_TTL_CHECK_PROFILE_1_THRESHOLD = 107 };                /* u32 */
 enum { IFCS_HOSTIF_TRAP_ATTR_QUEUE_NUM = 0, IFCS_HOSTIF_TRAP_ATTR_ENABLE = 1 };   /* QUEUE_NUM u32, ENABLE data */
 enum { IFCS_HOSTIF_TRAP_STATS_ID_RX_PACKET_COUNT = 0, IFCS_HOSTIF_TRAP_STATS_ID_RX_BYTE_COUNT = 1 };
 /* ifcs_hostif_trap_e: system (drop/exception) traps; handle = IFCS_HANDLE(HOSTIF, HOSTIF_TRAP, reason) */
@@ -303,6 +312,71 @@ typedef struct { uint32_t green, yellow, red; ifcs_handle_t pp_drop_reason; uint
 typedef int ifcs_acl_counter_stats_id_t;
 typedef int ifcs_hostif_trap_stats_id_t;
 enum { IFCS_ECMP_MEMBER_ATTR_WEIGHT = 0 };
+
+/* -------------------------------------------- L2 extras, LAG, entropy (hash)
+ * pyctypes 0.12.41; call forms: isai 6.2.0 on this chip (oracle lag-l2). */
+enum { IFCS_L2VNI_ATTR_LEARN_ENABLE = 2, IFCS_L2VNI_ATTR_L2_ENTRY_MAX_LEARN_COUNT = 5 };   /* data, u32 */
+enum { IFCS_LAG_ATTR_MEMBER_COUNT = 2 };
+enum { IFCS_LAG_MEMBER_ATTR_TYPE = 0 };
+enum { IFCS_LAG_MEMBER_TYPE_PRIMARY = 0, IFCS_LAG_MEMBER_TYPE_SECONDARY = 1 };
+enum {                                 /* ifcs_node_attr_id_e, entropy */
+    IFCS_NODE_ATTR_ENTROPY_SEED = 35,                     /* u32 */
+    IFCS_NODE_ATTR_MULTICAST_LAG_RESOLUTION_ENABLE = 82,  /* data */
+    IFCS_NODE_ATTR_ENTROPY_SELECT_IPV4_TCP_OR_UDP = 84,   /* handle: extended field list */
+    IFCS_NODE_ATTR_ENTROPY_SELECT_IPV4_NON_TCP_OR_UDP = 85,
+    IFCS_NODE_ATTR_ENTROPY_SELECT_IPV6_TCP_OR_UDP = 86,
+    IFCS_NODE_ATTR_ENTROPY_SELECT_IPV6_NON_TCP_OR_UDP = 87,
+    IFCS_NODE_ATTR_ENTROPY_SELECT_NON_IP = 88,
+};
+enum {                                 /* ifcs_extended_field_e */
+    IFCS_EXTENDED_FIELD_MAC_DA = 0, IFCS_EXTENDED_FIELD_MAC_SA = 1, IFCS_EXTENDED_FIELD_SVID = 2,
+    IFCS_EXTENDED_FIELD_CVID = 3, IFCS_EXTENDED_FIELD_ETHERTYPE = 4, IFCS_EXTENDED_FIELD_IPV4_DESTINATION_IP = 5,
+    IFCS_EXTENDED_FIELD_IPV4_SOURCE_IP = 6, IFCS_EXTENDED_FIELD_IPV4_PROTOCOL = 7,
+    IFCS_EXTENDED_FIELD_IPV6_DESTINATION_IP = 8, IFCS_EXTENDED_FIELD_IPV6_SOURCE_IP = 9,
+    IFCS_EXTENDED_FIELD_IPV6_NEXTHEADER = 10, IFCS_EXTENDED_FIELD_IPV6_FLOW_LABEL = 11,
+    IFCS_EXTENDED_FIELD_TCP_OR_UDP_SOURCE_PORT = 12, IFCS_EXTENDED_FIELD_TCP_OR_UDP_DESTINATION_PORT = 13,
+    IFCS_EXTENDED_FIELD_SOURCE_SYSPORT = 16, IFCS_EXTENDED_FIELD_MAX = 17,
+};
+enum { IFCS_EXTENDED_FIELD_LIST_ATTR_ELEMENTS = 0 };      /* u32_list */
+
+/* ------------------------------------- user ACLs, CPU queues, port counters
+ * pyctypes 0.12.41; call forms: isai 6.2.0 on this chip (oracle acl,
+ * hostif-counters, 2026-11-16). One node-scope table per SAI ACL table,
+ * PORT_SHARING profile, the ACL bound to ports with ifcs_acl_port_add. */
+enum {                                 /* ifcs_acl_match_type_e, more */
+    IFCS_ACL_MATCH_TYPE_INGRESS_SYSPORT = 0, IFCS_ACL_MATCH_TYPE_INGRESS_L2_INTERFACE = 4,
+    IFCS_ACL_MATCH_TYPE_SOURCE_MAC_ADDRESS = 16, IFCS_ACL_MATCH_TYPE_VLAN_ID = 21, IFCS_ACL_MATCH_TYPE_ARP_OPERATION = 25,
+    IFCS_ACL_MATCH_TYPE_L3_TYPE = 27, IFCS_ACL_MATCH_TYPE_SOURCE_IPV4_ADDRESS = 28,
+    IFCS_ACL_MATCH_TYPE_DESTINATION_IPV4_ADDRESS = 29, IFCS_ACL_MATCH_TYPE_SOURCE_IPV6_ADDRESS = 30,
+    IFCS_ACL_MATCH_TYPE_DESTINATION_IPV6_ADDRESS = 31, IFCS_ACL_MATCH_TYPE_INGRESS_L3_TTL = 46,
+    IFCS_ACL_MATCH_TYPE_DSCP = 54, IFCS_ACL_MATCH_TYPE_ECN = 55, IFCS_ACL_MATCH_TYPE_L4_BYTE2 = 62,
+    IFCS_ACL_MATCH_TYPE_TCP_FLAGS = 68,
+};
+enum { IFCS_ACL_MATCH_L3_TYPE_IPV4 = 4, IFCS_ACL_MATCH_L3_TYPE_IPV6 = 6 };   /* +1: with options / extension headers */
+enum { IFCS_ACL_MATCH_PROFILE_ATTR_PORT_SHARING = 1 };
+enum { IFCS_ACL_COUNTER_MODE_COLOR_BLIND = 0 };
+enum { IFCS_HOSTIF_TRAP_FWD_L2_SRC_MISS_MOVE = 16, IFCS_HOSTIF_TRAP_FWD_IPV4_OPTIONS_DETECTED = 20 };
+typedef uint32_t ifcs_cpu_queue_t;
+typedef int ifcs_cpu_queue_stats_id_t;
+enum {                                 /* ifcs_cpu_queue_stats_id_e (0.12.41) */
+    IFCS_CPU_QUEUE_STATS_ID_TOTAL_USE_COUNT = 0, IFCS_CPU_QUEUE_STATS_ID_TOTAL_USE_WATERMARK = 1,
+    IFCS_CPU_QUEUE_STATS_ID_PACKET_DROP_COUNT = 2, IFCS_CPU_QUEUE_STATS_ID_CELL_DROP_COUNT = 3,
+    IFCS_CPU_QUEUE_STATS_ID_PACKET_TX_COUNT = 4, IFCS_CPU_QUEUE_STATS_ID_BYTE_TX_COUNT = 5,
+};
+enum {                                 /* ifcs_devport_stats_id_e, the rest SAI port counters use */
+    IFCS_DEVPORT_STATS_ID_RX_FRAMES_ALL = 0, IFCS_DEVPORT_STATS_ID_RX_FRAMES_OK = 1, IFCS_DEVPORT_STATS_ID_RX_FRAMES_PAUSE = 6,
+    IFCS_DEVPORT_STATS_ID_RX_FRAMES_LEN_LT_64 = 9, IFCS_DEVPORT_STATS_ID_RX_FRAMES_LEN_64 = 10,   /* .. LEN_GE_9216 = 20 */
+    IFCS_DEVPORT_STATS_ID_RX_FRAMES_PFC0 = 21, IFCS_DEVPORT_STATS_ID_RX_TIME_PFC0 = 29,          /* PFC1..7 follow */
+    IFCS_DEVPORT_STATS_ID_RX_FRAMES_ERR_CRC = 38, IFCS_DEVPORT_STATS_ID_RX_FRAMES_ERR_RUNT = 40,
+    IFCS_DEVPORT_STATS_ID_RX_FRAMES_ERR_OVER = 41, IFCS_DEVPORT_STATS_ID_RX_KRPFEC_CORRECTED_CW_COUNT = 52,
+    IFCS_DEVPORT_STATS_ID_RX_KRPFEC_UNCORRECTED_CW_COUNT = 53, IFCS_DEVPORT_STATS_ID_RX_KRPFEC_CW_SYMBOL_ERR = 54,
+    IFCS_DEVPORT_STATS_ID_TX_FRAMES_ALL = 63, IFCS_DEVPORT_STATS_ID_TX_FRAMES_OK = 64, IFCS_DEVPORT_STATS_ID_TX_FRAMES_PAUSE = 69,
+    IFCS_DEVPORT_STATS_ID_TX_FRAMES_LEN_LT_64 = 72, IFCS_DEVPORT_STATS_ID_TX_FRAMES_LEN_64 = 73,   /* .. LEN_GE_9216 = 83 */
+    IFCS_DEVPORT_STATS_ID_TX_FRAMES_PFC0 = 84, IFCS_DEVPORT_STATS_ID_TX_TIME_PFC0 = 92,
+    IFCS_DEVPORT_STATS_ID_TX_FRAMES_ERR_CRC = 101, IFCS_DEVPORT_STATS_ID_TX_FRAMES_ERR_OVER = 105,
+    IFCS_DEVPORT_STATS_ID_TX_BYTES_OK = 107, IFCS_DEVPORT_STATS_ID_AQM_GREEN_PACKET_DROP_COUNT = 108,
+    IFCS_DEVPORT_STATS_ID_AQM_YELLOW_PACKET_DROP_COUNT = 109, IFCS_DEVPORT_STATS_ID_AQM_RED_PACKET_DROP_COUNT = 110,
+};
 
 /* ------------------------------------------------------- function pointers */
 #define IFCS_FN(ret, name, args) typedef ret(*name##_fn) args;
@@ -405,10 +479,30 @@ IFCS_FN(ifcs_status_t, ifcs_ecmp_delete, (ifcs_node_id_t, ifcs_handle_t))
 IFCS_FN(ifcs_status_t, ifcs_ecmp_member_add, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
 IFCS_FN(ifcs_status_t, ifcs_ecmp_member_remove, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_handle_t*))
 IFCS_FN(ifcs_status_t, ifcs_ecmp_usage_get, (ifcs_node_id_t, uint32_t, ifcs_attr_t*, ifcs_usage_t*))
+IFCS_FN(ifcs_status_t, ifcs_stp_port_remove, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_handle_t*))
+IFCS_FN(ifcs_status_t, ifcs_lag_create, (ifcs_node_id_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_lag_delete, (ifcs_node_id_t, ifcs_handle_t))
+IFCS_FN(ifcs_status_t, ifcs_lag_member_add, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_lag_member_remove, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_handle_t*))
+IFCS_FN(ifcs_status_t, ifcs_extended_field_list_create, (ifcs_node_id_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_extended_field_list_delete, (ifcs_node_id_t, ifcs_handle_t))
+IFCS_FN(ifcs_status_t, ifcs_ecmp_member_replace, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_intf_stats_get, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_intf_stats_id_t*, uint64_t*, uint32_t*))
+IFCS_FN(ifcs_status_t, ifcs_intf_stats_clear, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_intf_stats_id_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_port_add, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_port_remove, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_handle_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_counter_stats_clear, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_acl_counter_stats_id_t*))
+IFCS_FN(ifcs_status_t, ifcs_ace_attr_set, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_cpu_queue_stats_get, (ifcs_node_id_t, ifcs_cpu_queue_t, uint32_t, ifcs_cpu_queue_stats_id_t*, uint64_t*, uint32_t*))
 #undef IFCS_FN
+
+#include "ifcs_api_qos.h"   /* QoS / buffers, mirror / sampling (tl_qos, tl_mirror) */
 
 /* Every entry point above, in one X-macro list (dlsym table, mock, tests). */
 #define IFCS_SYMBOLS(X) \
+    IFCS_SYMBOLS_QOS(X) \
+    X(ifcs_acl_port_add) X(ifcs_acl_port_remove) X(ifcs_acl_counter_stats_clear) X(ifcs_ace_attr_set) \
+    X(ifcs_cpu_queue_stats_get) \
     X(ifcs_init) X(ifcs_deinit) X(ifcs_node_create) X(ifcs_node_attr_set) X(ifcs_node_attr_get) \
     X(ifcs_attr_t_init) X(ifcs_attr_t_id_set) X(ifcs_attr_t_value_data_set) X(ifcs_status_to_string) \
     X(ifcs_log_function_register) X(ifcs_devport_attr_set) X(ifcs_devport_attr_get) X(ifcs_devport_stats_get) \
@@ -433,7 +527,10 @@ IFCS_FN(ifcs_status_t, ifcs_ecmp_usage_get, (ifcs_node_id_t, uint32_t, ifcs_attr
     X(ifcs_acl_action_create) X(ifcs_acl_action_delete) X(ifcs_acl_meter_create) X(ifcs_acl_meter_delete) \
     X(ifcs_acl_meter_attr_set) X(ifcs_acl_counter_create) X(ifcs_acl_counter_delete) X(ifcs_acl_counter_stats_get) \
     X(ifcs_ace_create) X(ifcs_ace_delete) X(ifcs_acl_ace_add) X(ifcs_acl_ace_remove) \
-    X(ifcs_ecmp_create) X(ifcs_ecmp_delete) X(ifcs_ecmp_member_add) X(ifcs_ecmp_member_remove) X(ifcs_ecmp_usage_get)
+    X(ifcs_ecmp_create) X(ifcs_ecmp_delete) X(ifcs_ecmp_member_add) X(ifcs_ecmp_member_remove) X(ifcs_ecmp_usage_get) \
+    X(ifcs_stp_port_remove) X(ifcs_lag_create) X(ifcs_lag_delete) X(ifcs_lag_member_add) X(ifcs_lag_member_remove) \
+    X(ifcs_extended_field_list_create) X(ifcs_extended_field_list_delete) \
+    X(ifcs_intf_stats_get) X(ifcs_intf_stats_clear) X(ifcs_ecmp_member_replace)
 
 #ifdef __cplusplus
 }

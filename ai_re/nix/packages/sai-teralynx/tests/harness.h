@@ -145,6 +145,10 @@ void test_hostif(Env& e);           // t_hostif.cpp
 void test_l2(Env& e);               // t_l2.cpp
 void test_l3(Env& e);               // t_l3.cpp
 void test_lag(Env& e);              // t_lag.cpp
-void test_copp(Env& e);             // t_copp.cpp: hostif traps, trap groups, policers (CoPP)
+void test_copp(Env& e);
+void test_qos(Env& e);             // t_qos.cpp: QoS maps, schedulers, WRED, buffers, queue / PG counters
+void test_mirror(Env& e);          // t_mirror.cpp: SPAN, ERSPAN, SAMPLEPACKET             // t_copp.cpp: hostif traps, trap groups, policers (CoPP)
+void test_acl(Env& e);              // t_acl.cpp: SAI ACL tables, entries, counters (fp groups)
+void test_counters(Env& e);         // t_counters.cpp: port counters by SAI id, CPU queues, diag shell
 void test_switch_misc(Env& e);      // t_switch.cpp: temperatures, table usage
 void test_switch_remove(Env& e);    // t_switch.cpp: remove_switch order

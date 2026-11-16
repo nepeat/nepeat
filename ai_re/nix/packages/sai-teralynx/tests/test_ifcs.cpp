@@ -132,6 +132,9 @@ int main(int argc, char** argv)
     g_profile["SAI_TERALYNX_CONFIG_APPEND"] = isg;
     g_profile["SAI_TERALYNX_INIT_CMDS"] = cmd1 + ":" + cmd2;
     g_profile["SAI_TERALYNX_LINK_STATUS"] = "cached";   // t_port.cpp tests the cache (the default reads IFCS)
+    if ((dir + "/diag.sock").size() < 100) g_profile["SAI_OPENBCM_DIAG_SOCKET"] = dir + "/diag.sock";   // t_counters.cpp
+    g_profile["SAI_TERALYNX_HASH_FIELDS"] = "src_ip,dst_ip,ip_protocol,l4_src_port,l4_dst_port,in_port";   // t_lag.cpp
+    g_profile["SAI_TERALYNX_HASH_SEED"] = "10";
     OK(sw->create_switch(&s, 3, ca));
     void* mh = g_mock = dlopen(mock.c_str(), RTLD_NOW | RTLD_NOLOAD);
     CHECK(mh != nullptr);
@@ -157,6 +160,10 @@ int main(int argc, char** argv)
     test_l3(e);
     test_lag(e);
     test_copp(e);
+    test_acl(e);
+    test_qos(e);
+    test_mirror(e);
+    test_counters(e);
     test_switch_misc(e);
 
     // TEST_IFCS_DUMP=1: print every IFCS call the backend made (before removal)

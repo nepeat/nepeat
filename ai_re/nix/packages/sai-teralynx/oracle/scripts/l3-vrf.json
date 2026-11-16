@@ -1,0 +1,897 @@
+{
+ "name": "l3-vrf: RIF A in VRF red, RIF B in VRF blue, leaked routes, the same prefix in both VRFs, isolation",
+ "steps": [
+  {
+   "op": "create_switch",
+   "attrs": [
+    [
+     "INIT_SWITCH",
+     "bool",
+     true
+    ],
+    [
+     "PORT_STATE_CHANGE_NOTIFY",
+     "ptr",
+     "port_state"
+    ],
+    [
+     "SWITCH_SHUTDOWN_REQUEST_NOTIFY",
+     "ptr",
+     "shutdown"
+    ]
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "ports"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "CPU_PORT",
+    "oid"
+   ],
+   "as": "cpu"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_VIRTUAL_ROUTER_ID",
+    "oid"
+   ],
+   "as": "vr"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_VLAN_ID",
+    "oid"
+   ],
+   "as": "vlan1"
+  },
+  {
+   "op": "get",
+   "obj": "$vlan1",
+   "desc": "VLAN 1 members",
+   "attr": [
+    "MEMBER_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "vmembers"
+  },
+  {
+   "op": "foreach",
+   "list": "vmembers",
+   "as": "m",
+   "steps": [
+    {
+     "op": "remove",
+     "obj": "$m",
+     "desc": "VLAN 1 member"
+    }
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "desc": "mtu",
+   "attr": [
+    "MTU",
+    "u32",
+    9100
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "desc": "fec rs",
+   "attr": [
+    "FEC_MODE",
+    "s32",
+    "RS"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[15]",
+   "desc": "mtu",
+   "attr": [
+    "MTU",
+    "u32",
+    9100
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[15]",
+   "desc": "fec rs",
+   "attr": [
+    "FEC_MODE",
+    "s32",
+    "RS"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[15]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif0",
+   "desc": "Ethernet0",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[0]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet0"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif1",
+   "desc": "Ethernet120",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[15]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet120"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "g_q4",
+   "desc": "queue 4",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "g_q1",
+   "desc": "queue 1",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     1
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_arpq",
+   "desc": "ARP_REQUEST",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "ARP_REQUEST"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "COPY"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q4"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_arpr",
+   "desc": "ARP_RESPONSE",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "ARP_RESPONSE"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "COPY"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q4"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_nd",
+   "desc": "IPV6_NEIGHBOR_DISCOVERY",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "IPV6_NEIGHBOR_DISCOVERY"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "COPY"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q4"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_ip2me",
+   "desc": "IP2ME",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "IP2ME"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q1"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_ttl",
+   "desc": "TTL_ERROR",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "TTL_ERROR"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q1"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_mtu",
+   "desc": "L3_MTU_ERROR",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "L3_MTU_ERROR"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q1"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "VIRTUAL_ROUTER",
+   "as": "red",
+   "desc": "VRF red",
+   "attrs": []
+  },
+  {
+   "op": "create",
+   "type": "VIRTUAL_ROUTER",
+   "as": "blue",
+   "desc": "VRF blue",
+   "attrs": []
+  },
+  {
+   "op": "create_route",
+   "desc": "red default DROP",
+   "vr": "$red",
+   "prefix": "0.0.0.0/0",
+   "attrs": [
+    [
+     "PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "blue default DROP",
+   "vr": "$blue",
+   "prefix": "0.0.0.0/0",
+   "attrs": [
+    [
+     "PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "red v6 default DROP",
+   "vr": "$red",
+   "prefix": "::/0",
+   "attrs": [
+    [
+     "PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "blue v6 default DROP",
+   "vr": "$blue",
+   "prefix": "::/0",
+   "attrs": [
+    [
+     "PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ROUTER_INTERFACE",
+   "as": "rifA",
+   "desc": "RIF A (red) on Ethernet0",
+   "attrs": [
+    [
+     "VIRTUAL_ROUTER_ID",
+     "oid",
+     "$red"
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PORT"
+    ],
+    [
+     "PORT_ID",
+     "oid",
+     "$ports[0]"
+    ],
+    [
+     "SRC_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:01:0a"
+    ],
+    [
+     "MTU",
+     "u32",
+     9100
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ROUTER_INTERFACE",
+   "as": "rifB",
+   "desc": "RIF B (blue) on Ethernet120",
+   "attrs": [
+    [
+     "VIRTUAL_ROUTER_ID",
+     "oid",
+     "$blue"
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PORT"
+    ],
+    [
+     "PORT_ID",
+     "oid",
+     "$ports[15]"
+    ],
+    [
+     "SRC_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:01:0b"
+    ],
+    [
+     "MTU",
+     "u32",
+     9100
+    ]
+   ]
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "10.1.0.2 H1 (red)",
+   "rif": "$rifA",
+   "ip": "10.1.0.2",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0a:02"
+    ]
+   ]
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "10.2.0.2 H2 (blue)",
+   "rif": "$rifB",
+   "ip": "10.2.0.2",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0b:02"
+    ]
+   ]
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "fc00:2::2 H2 (blue)",
+   "rif": "$rifB",
+   "ip": "fc00:2::2",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0b:02"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP",
+   "as": "nh1",
+   "desc": "10.1.0.2",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "IP"
+    ],
+    [
+     "IP",
+     "ip",
+     "10.1.0.2"
+    ],
+    [
+     "ROUTER_INTERFACE_ID",
+     "oid",
+     "$rifA"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP",
+   "as": "nh2",
+   "desc": "10.2.0.2",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "IP"
+    ],
+    [
+     "IP",
+     "ip",
+     "10.2.0.2"
+    ],
+    [
+     "ROUTER_INTERFACE_ID",
+     "oid",
+     "$rifB"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP",
+   "as": "nh2v6",
+   "desc": "fc00:2::2",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "IP"
+    ],
+    [
+     "IP",
+     "ip",
+     "fc00:2::2"
+    ],
+    [
+     "ROUTER_INTERFACE_ID",
+     "oid",
+     "$rifB"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "red 10.2.0.0/24 -> nh2 (leak to blue)",
+   "vr": "$red",
+   "prefix": "10.2.0.0/24",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh2"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "blue 10.1.0.0/24 -> nh1 (leak to red)",
+   "vr": "$blue",
+   "prefix": "10.1.0.0/24",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh1"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "red 10.50.0.0/16 -> nh2",
+   "vr": "$red",
+   "prefix": "10.50.0.0/16",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh2"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "blue 10.50.0.0/16 -> nh1 (same prefix)",
+   "vr": "$blue",
+   "prefix": "10.50.0.0/16",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh1"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "red 10.60.0.0/16 -> nh2 (red only)",
+   "vr": "$red",
+   "prefix": "10.60.0.0/16",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh2"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "red 2001:db8:50::/48 -> nh2v6",
+   "vr": "$red",
+   "prefix": "2001:db8:50::/48",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh2v6"
+    ]
+   ]
+  },
+  {
+   "op": "sleep",
+   "ms": 12000
+  },
+  {
+   "op": "get",
+   "obj": "$ports[0]",
+   "desc": "oper Ethernet0",
+   "attr": [
+    "OPER_STATUS",
+    "s32"
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "$ports[15]",
+   "desc": "oper Ethernet120",
+   "attr": [
+    "OPER_STATUS",
+    "s32"
+   ]
+  },
+  {
+   "op": "exec",
+   "desc": "red: 10.2.0.2 leaked (expect Ethernet0, dmac H2)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet120 rx=Ethernet0,Ethernet120 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.2.0.2 count=100 pps=1000",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "blue: 10.1.0.2 leaked (expect Ethernet120, dmac H1)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet0 rx=Ethernet0,Ethernet120 dmac=02:00:00:00:01:0b smac=02:00:00:00:0b:02 src=10.2.0.2 dst=10.1.0.2 count=100 pps=1000",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "red: 10.50.0.1 (expect Ethernet0, H2)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet120 rx=Ethernet0,Ethernet120 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.50.0.1 count=100 pps=1000",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "blue: 10.50.0.1 (expect Ethernet120, H1)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet0 rx=Ethernet0,Ethernet120 dmac=02:00:00:00:01:0b smac=02:00:00:00:0b:02 src=10.2.0.2 dst=10.50.0.1 count=100 pps=1000",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "red: 10.60.0.1 (expect Ethernet0)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet120 rx=Ethernet0,Ethernet120 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.60.0.1 count=100 pps=1000",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "blue: 10.60.0.1 (not in blue: expect dropped)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet0 rx=Ethernet0,Ethernet120 dmac=02:00:00:00:01:0b smac=02:00:00:00:0b:02 src=10.2.0.2 dst=10.60.0.1 count=100 pps=1000",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "red v6 2001:db8:50::1 (expect Ethernet0)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet120 rx=Ethernet0,Ethernet120 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=fc00:1::2 dst=2001:db8:50::1 count=100 pps=1000",
+   "may_fail": true
+  },
+  {
+   "op": "diag",
+   "cmd": "copp"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$red",
+   "prefix": "10.2.0.0/24"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$red",
+   "prefix": "10.50.0.0/16"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$red",
+   "prefix": "10.60.0.0/16"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$red",
+   "prefix": "2001:db8:50::/48"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$red",
+   "prefix": "0.0.0.0/0"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$red",
+   "prefix": "::/0"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$blue",
+   "prefix": "10.1.0.0/24"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$blue",
+   "prefix": "10.50.0.0/16"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$blue",
+   "prefix": "0.0.0.0/0"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$blue",
+   "prefix": "::/0"
+  },
+  {
+   "op": "remove",
+   "obj": "$nh1"
+  },
+  {
+   "op": "remove",
+   "obj": "$nh2"
+  },
+  {
+   "op": "remove",
+   "obj": "$nh2v6"
+  },
+  {
+   "op": "remove_neighbor",
+   "rif": "$rifA",
+   "ip": "10.1.0.2"
+  },
+  {
+   "op": "remove_neighbor",
+   "rif": "$rifB",
+   "ip": "10.2.0.2"
+  },
+  {
+   "op": "remove_neighbor",
+   "rif": "$rifB",
+   "ip": "fc00:2::2"
+  },
+  {
+   "op": "remove",
+   "obj": "$rifA"
+  },
+  {
+   "op": "remove",
+   "obj": "$rifB"
+  },
+  {
+   "op": "remove",
+   "obj": "$red"
+  },
+  {
+   "op": "remove",
+   "obj": "$blue"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_arpq"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_arpr"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_nd"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_ip2me"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_ttl"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_mtu"
+  },
+  {
+   "op": "remove",
+   "obj": "$g_q4"
+  },
+  {
+   "op": "remove",
+   "obj": "$g_q1"
+  },
+  {
+   "op": "remove",
+   "obj": "$hif0"
+  },
+  {
+   "op": "remove",
+   "obj": "$hif1"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "desc": "admin down",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[15]",
+   "desc": "admin down",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "remove_switch"
+  }
+ ]
+}

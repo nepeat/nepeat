@@ -184,7 +184,7 @@ sai_status_t PortArea::learn_set(int hw, Learn mode)
 static const int k_stat_ids[] = {
     IFCS_DEVPORT_STATS_ID_RX_BYTES_ALL, IFCS_DEVPORT_STATS_ID_RX_FRAMES_UNICAST, IFCS_DEVPORT_STATS_ID_RX_FRAMES_MULTICAST,
     IFCS_DEVPORT_STATS_ID_RX_FRAMES_BROADCAST, IFCS_DEVPORT_STATS_ID_RX_FRAMES_DROP, IFCS_DEVPORT_STATS_ID_RX_FRAMES_ERR_ANY,
-    IFCS_DEVPORT_STATS_ID_TX_BYTES_ALL, IFCS_DEVPORT_STATS_ID_TX_FRAMES_UNICAST, IFCS_DEVPORT_STATS_ID_TX_FRAMES_MULTICAST,
+    IFCS_DEVPORT_STATS_ID_TX_BYTES_OK, IFCS_DEVPORT_STATS_ID_TX_FRAMES_UNICAST, IFCS_DEVPORT_STATS_ID_TX_FRAMES_MULTICAST,
     IFCS_DEVPORT_STATS_ID_TX_FRAMES_BROADCAST, IFCS_DEVPORT_STATS_ID_TX_FRAMES_DROP, IFCS_DEVPORT_STATS_ID_TX_FRAMES_ERR_ANY,
 };
 static constexpr uint32_t N_STAT_IDS = sizeof(k_stat_ids) / sizeof(k_stat_ids[0]);
@@ -234,7 +234,7 @@ sai_status_t PortArea::stat_get(int hw, PortStat s, uint64_t& v)
     case PortStat::InUnknownProtos: v = 0; break;   // no such MAC counter
     case PortStat::InBroadcastPkts: v = x[IFCS_DEVPORT_STATS_ID_RX_FRAMES_BROADCAST]; break;
     case PortStat::InMulticastPkts: v = x[IFCS_DEVPORT_STATS_ID_RX_FRAMES_MULTICAST]; break;
-    case PortStat::OutOctets: v = x[IFCS_DEVPORT_STATS_ID_TX_BYTES_ALL]; break;
+    case PortStat::OutOctets: v = x[IFCS_DEVPORT_STATS_ID_TX_BYTES_OK]; break;   // as isai (RX side: BYTES_ALL)
     case PortStat::OutUcastPkts: v = x[IFCS_DEVPORT_STATS_ID_TX_FRAMES_UNICAST]; break;
     case PortStat::OutNonUcastPkts:
         v = x[IFCS_DEVPORT_STATS_ID_TX_FRAMES_MULTICAST] + x[IFCS_DEVPORT_STATS_ID_TX_FRAMES_BROADCAST];
