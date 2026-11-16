@@ -45,6 +45,24 @@ def link(root, rel_link, rel_target):
     os.symlink(t, lp)
 
 
+def root_port_config():
+    """4 KiB config space of the I2C FPGA's root port (0002:00:00.0, live
+    2026-11-16): capability list -> PM at 0x40 -> MSI 0x50 -> PCIe at 0x70
+    (DevSta 0x7a = 0, LnkCap 0x7c DLLLA reporting, LnkSta 0x82 = 0x3012,
+    data link active); AER at 0x100 (UESta 0x104 = 0)."""
+    c = bytearray(4096)
+    c[0:4] = struct.pack("<HH", 0x1c36, 0x0031)
+    c[6] = 0x10                                              # status: capability list
+    c[0x34] = 0x40
+    c[0x40:0x42] = bytes([0x01, 0x50])
+    c[0x50:0x52] = bytes([0x05, 0x70])
+    c[0x70:0x72] = bytes([0x10, 0x00])
+    c[0x7c:0x80] = struct.pack("<I", 0x00736c12)
+    c[0x82:0x84] = struct.pack("<H", 0x3012)
+    c[0x100:0x104] = struct.pack("<I", 0x0001 | 2 << 16 | 0x148 << 20)
+    return bytes(c)
+
+
 def tlv():
     fields = [(0x21, b"CS8210-32X-UN-00"), (0x22, b"R3181-F9003-01"), (0x23, b"R3181-G0001-02TH0321110078"),
               (0x24, bytes.fromhex("0c48c67a55ce")), (0x25, b"04/28/2021 00:00:00"), (0x26, b"\x02"),
@@ -192,8 +210,15 @@ def build(root):
             b = 0x10 + 0x10 * n
             r[b], r[b + 1], r[b + 2] = front, rear, 127
         put(root, "/i2c/fan_%s.bin" % board, bytes(r))
-    # I2C FPGA on PCI
-    pci = "/sys/bus/pci/devices/0002:01:00.0"
+    # I2C FPGA on PCI, behind its root port (as in sysfs: the bus entry is a
+    # link into the device tree, the parent directory is the root port)
+    rp = "/sys/devices/platform/soc/fb700000.pcie/pci0002:00/0002:00:00.0"
+    pci = rp + "/0002:01:00.0"
+    put(root, rp + "/config", root_port_config())
+    put(root, rp + "/vendor", "0x1c36\n")
+    put(root, rp + "/device", "0x0031\n")
+    link(root, "/sys/bus/pci/devices/0002:00:00.0", rp)
+    link(root, "/sys/bus/pci/devices/0002:01:00.0", pci)
     cfg = bytearray(64)
     cfg[0:4] = struct.pack("<HH", 0x1d0f, 0x8571)
     cfg[4] = 0x06                                            # memory decode + bus master on

@@ -43,10 +43,6 @@ in {
       platformPackage = mkDefault platformPackage;
       # Read-only platform: CMIS state machine writes are refused (it would retry forever).
       args.xcvrd = mkDefault [ "--skip_cmis_mgr" ];
-      # No xcvrd by default: in the first full run on the chip (2026-11-16) it
-      # took 114 % CPU with 55 % of all CPU time in hard IRQs, and SSH to the
-      # box timed out until the stack stopped (devices/cs8210-32x/sonic.md).
-      daemons = mkDefault [ "thermalctld" "psud" "syseepromd" ];
       environment = {
         CS8210_ASIC_TEMP_FILE = pcfg.asicTemperatureFile;
         CS8210_BOARD_HIGH_C = toString (fan.highTemp or 55);

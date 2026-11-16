@@ -64,9 +64,39 @@ let
   allowed = lib.concatMapStringsSep " " toString cfg.allowedCages;
   guard = pkgs.writeShellScript "sonic-cs8210-cage-guard" ''
     set -eu
+    # A dead I2C FPGA (2026-11-16) turns every access into a PCIe completion
+    # timeout that stalls the whole SoC for seconds. Its root port's config
+    # space is on the SoC (never stalls): data link down, DevSta
+    # NonFatal/Fatal or AER CmpltTO there, or the platform's marker
+    # (ai_re/nix/modules/boards/cs8210/sonic_platform/fpga.py), and the
+    # FPGA is left alone.
+    dead=/run/cs8210-qsfp.dead
+    if [ -e $dead ]; then
+      echo "cage guard: I2C FPGA marked dead ($dead: $(cat $dead)); not starting syncd" >&2
+      exit 1
+    fi
+    ep=""
+    for d in /sys/bus/pci/devices/*; do
+      if [ "$(cat $d/vendor)" = 0x1d0f ] && [ "$(cat $d/device)" = 0x8571 ]; then ep=$d; fi
+    done
+    [ -n "$ep" ] || { echo "cage guard: no I2C FPGA (1d0f:8571) on PCI" >&2; exit 1; }
+    rp=$(basename "$(dirname "$(readlink -f "$ep")")")
+    read -r devsta lnkcap lnksta uesta <<< "$(setpci -s "$rp" CAP_EXP+0x0a.w CAP_EXP+0x0c.l CAP_EXP+0x12.w ECAP_AER+0x04.l | tr '\n' ' ')"
+    if (( 0x$devsta & 0x6 )) || (( 0x$uesta & 0x4000 )) || { (( 0x$lnkcap & 0x100000 )) && ! (( 0x$lnksta & 0x2000 )); }; then
+      msg="root port $rp DevSta=$devsta LnkSta=$lnksta AER UESta=$uesta (cage guard)"
+      echo "$(date +%Y-%m-%dT%H:%M:%S) $(basename "$ep"): $msg" > $dead
+      echo "cage guard: I2C FPGA not answering: $msg; not starting syncd" >&2
+      exit 1
+    fi
     # cs8210-qsfp --enable only turns on PCI memory decode of the I2C FPGA
-    # (sysfs enable); the status table is MMIO reads.
-    raw=$(cs8210-qsfp --enable | sed -n 's/^raw: present=\([0-9a-f]*\) .*/\1/p')
+    # (sysfs enable); the status table is MMIO reads. It refuses while
+    # xcvrd holds the shared flock for a transfer: retry.
+    out=""
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+      out=$(cs8210-qsfp --enable 2>&1) && break
+      sleep 0.5
+    done
+    raw=$(printf '%s\n' "$out" | sed -n 's/^raw: present=\([0-9a-f]*\) .*/\1/p')
     [ -n "$raw" ] || { echo "cage guard: cannot read cage presence" >&2; exit 1; }
     bad=""
     for c in $(seq 1 32); do
@@ -233,11 +263,18 @@ in
         requiredBy = [ "sonic-syncd.service" ];
         before = [ "sonic-syncd.service" ];
         partOf = [ "sonic.target" ];
-        path = [ pkgs.gnused pkgs.coreutils runtimePath ];
+        path = [ pkgs.gnused pkgs.coreutils pkgs.pciutils runtimePath ];
         serviceConfig = {
           Type = "oneshot";
           ExecStart = guard;
         };
+      };
+      # xcvrd is the one FPGA user under SONiC; it starts once the guard and
+      # the Credo bring-up are done, so nothing else on the box is busy with
+      # PCIe/MDIO when it first reads the cages (the 2026-11-16 FPGA loss
+      # happened while all three ran at once).
+      sonic-xcvrd = mkIf (lib.elem "xcvrd" config.services.sonic.pmon.daemons) {
+        after = [ "sonic-cs8210-credo.service" ] ++ lib.optional (cfg.allowedCages != null) "sonic-cs8210-guard.service";
       };
       sonic-cs8210-credo = {
         description = "CS8210: Credo MACsec PHYs (cages 1-16) in MACsec bypass for SONiC";

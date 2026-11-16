@@ -30,7 +30,10 @@ class Chassis(ChassisBase):
         self._psu_list = [Psu(i) for i in range(1, 5)]
         self._sfp_list = [None] + [Sfp(p) for p in range(1, NUM_PORTS + 1)]
         self._eeprom = None
-        self._present = self._presence()
+        # Not read here: every pmon daemon builds a Chassis, and only xcvrd
+        # uses the cages (fpga.py: one FPGA user at a time). get_change_event
+        # takes its baseline on the first poll.
+        self._present = None
 
     # ------------------------------------------------------------ identity
     def get_eeprom(self):

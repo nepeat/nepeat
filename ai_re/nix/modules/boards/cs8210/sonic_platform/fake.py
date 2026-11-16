@@ -9,10 +9,13 @@ answers fpga.py's register protocol, so the tests run the real code paths.
                               pages 1, 2, ... (byte 127 = selected page); an SFP
                               (byte 0 = 0x03, e.g. in a QSA) has A2h (0x51) at 256-511
   <root>/fpga/sideband.json   {"reset": mask, "lpmode": mask, "int": mask,
-                              "uninit": [cages whose channel is at power-up values]}
+                              "uninit": [cages whose channel is at power-up values],
+                              "dead": true: every read 0xffffffff, as a PCIe
+                              completion timeout returns here}
   <root>/fpga/writes.txt      every BAR0 write, "offset value" (hex), appended
 """
 import errno
+import fcntl
 import json
 import os
 
@@ -51,6 +54,20 @@ class FakeBar:
         self.ch = {}                    # (channel, reg) -> value
         self.wbuf = [bytearray(F.BUF_MAX) for _ in range(n)]
         self.rbuf = [bytearray(F.BUF_MAX) for _ in range(n)]
+        self.reads = 0                  # BAR0 reads so far
+        self.unlocked = []              # accesses made without cs8210-qsfp's flock
+
+    def _check_lock(self, off):
+        """fpga.py must hold the flock for every access: a second open file
+        description of the lock file must not get it."""
+        fd = os.open(F.lock_path(), os.O_RDWR | os.O_CREAT, 0o600)
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            self.unlocked.append(off)
+        except BlockingIOError:
+            pass
+        finally:
+            os.close(fd)
 
     # ------------------------------------------------------------ state files
     def _sb(self):
@@ -76,6 +93,10 @@ class FakeBar:
     # ------------------------------------------------------------ word access
     def __getitem__(self, idx):
         off = idx * 4
+        self.reads += 1
+        self._check_lock(off)
+        if self._sb().get("dead"):
+            return F.ALL_ONES
         if off < F.CH_BASE:
             sb = self._sb()
             return {F.R_VERSION: self.VERSION, F.R_PRESENT: self._present(), F.R_RESET: sb.get("reset", 0),
@@ -90,8 +111,11 @@ class FakeBar:
 
     def __setitem__(self, idx, val):
         off = idx * 4
+        self._check_lock(off)
         with open(self.dir + "/writes.txt", "a") as f:
             f.write("%#x %#x\n" % (off, val))
+        if self._sb().get("dead"):
+            return                                  # posted write into the void
         if F.WBUF <= off < F.WBUF + F.NCH * F.BUF_STRIDE:
             ch, i = divmod(off - F.WBUF, F.BUF_STRIDE)
             self.wbuf[ch][i:i + 4] = val.to_bytes(4, "little")

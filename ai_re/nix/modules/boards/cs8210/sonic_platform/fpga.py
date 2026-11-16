@@ -12,6 +12,20 @@ An access the vendor driver never makes is an unacknowledged MMIO on this
 SoC (SError, kernel panic), hence the allowlist and the decode check before
 every session.
 
+Every BAR0 access, sideband reads included, happens under cs8210-qsfp's
+flock: one access at a time system-wide, as through the vendor driver's
+mutex. Only xcvrd (and the CLI) get here; Chassis() reads nothing.
+
+A dead FPGA (2026-11-16: its PCIe link stopped answering while SONiC
+started) turns every BAR or config access into a completion timeout that
+stalls the whole SoC for seconds; xcvrd then saw 32 "present" cages and
+kept the box unusable. So before each session the upstream root port's
+own config space (on the SoC, never stalls) is checked: link down
+(DLLLA clear), DevSta NonFatal/Fatal or AER UESta CmpltTO means the FPGA
+is gone. That, or 0xffffffff from the version / start / status / profile
+registers, writes DEAD_FILE; while it exists no process touches the FPGA
+(cleared by a reboot: /run is a tmpfs; the root port bits are sticky).
+
   cage P (1..32) = FPGA channel P-1 = sideband bit P-1
   0x140 present (1 = module), 0x160 IntL (raw, polarity unconfirmed),
   0x170 LPMode (1 = asserted, inferred), 0x178 ResetL (1 = held in reset;
@@ -32,6 +46,8 @@ import errno
 import fcntl
 import mmap
 import os
+import sys
+import threading
 import time
 
 from . import hw
@@ -57,6 +73,15 @@ WRITE_CH_PREPARE = {C_MRESET, C_PROFSEL, C_PROFILE}
 
 LOCK_FILE = os.environ.get("CS8210_QSFP_LOCK", "/run/lock/cs8210-qsfp.lock")   # cs8210-qsfp's
 LOCK_WAIT = 5.0
+DEAD_FILE = os.environ.get("CS8210_QSFP_DEAD_FILE", "/run/cs8210-qsfp.dead")
+SIDEBAND_TTL = float(os.environ.get("CS8210_QSFP_SIDEBAND_TTL", "0.25"))   # s a snapshot is reused
+ALL_ONES = 0xFFFFFFFF
+
+# upstream root port: PCIe capability registers and AER
+EXP_DEVSTA, EXP_LNKCAP, EXP_LNKSTA = 0x0A, 0x0C, 0x12
+DEVSTA_NONFATAL_FATAL = 0x6
+LNKCAP_DLLLA, LNKSTA_DLLLA = 1 << 20, 1 << 13
+AER_UESTA, UE_CMPLT_TO = 0x04, 1 << 14
 
 
 class FpgaUnavailable(OSError):
@@ -86,6 +111,62 @@ def chb(port):
     return CH_BASE + (port - 1) * CH_STRIDE
 
 
+def lock_path():
+    lp = hw.path(LOCK_FILE)
+    return lp if os.path.isdir(os.path.dirname(lp)) else hw.path("/tmp/cs8210-qsfp.lock")
+
+
+def pcie_caps(cfg):
+    """(PCIe capability offset, AER extended capability offset) in a config
+    space image; None for one that is absent."""
+    exp = aer = None
+    if len(cfg) >= 0x40 and cfg[6] & 0x10:                 # status: capability list
+        p, seen = cfg[0x34] & 0xFC, set()
+        while p and p not in seen and p + 2 <= len(cfg):
+            seen.add(p)
+            if cfg[p] == 0x10:
+                exp = p
+                break
+            p = cfg[p + 1] & 0xFC
+    p, seen = 0x100, set()
+    while p >= 0x100 and p + 4 <= len(cfg) and p not in seen:
+        seen.add(p)
+        h = int.from_bytes(cfg[p:p + 4], "little")
+        if h in (0, ALL_ONES):
+            break
+        if h & 0xFFFF == 0x0001:
+            aer = p
+            break
+        p = (h >> 20) & 0xFFC
+    return exp, aer
+
+
+def upstream_problem(cfg, exp, aer):
+    """Why the root port says the device behind it is gone, or None."""
+    u16 = lambda o: int.from_bytes(cfg[o:o + 2], "little")          # noqa: E731
+    u32 = lambda o: int.from_bytes(cfg[o:o + 4], "little")          # noqa: E731
+    why = []
+    if exp is not None:
+        if u16(exp + EXP_DEVSTA) & DEVSTA_NONFATAL_FATAL:
+            why.append("DevSta %#06x (non-fatal/fatal error)" % u16(exp + EXP_DEVSTA))
+        if u32(exp + EXP_LNKCAP) & LNKCAP_DLLLA and not u16(exp + EXP_LNKSTA) & LNKSTA_DLLLA:
+            why.append("LnkSta %#06x (data link down)" % u16(exp + EXP_LNKSTA))
+    if aer is not None and u32(aer + AER_UESTA) & UE_CMPLT_TO:
+        why.append("AER UESta %#010x (completion timeout)" % u32(aer + AER_UESTA))
+    return "; ".join(why) or None
+
+
+def dead_reason():
+    """DEAD_FILE's text when the FPGA was marked dead, else None."""
+    try:
+        with open(hw.path(DEAD_FILE)) as f:
+            return f.read().strip() or "marked dead"
+    except FileNotFoundError:
+        return None
+    except OSError as e:
+        return "marked dead (%s)" % e
+
+
 class Fpga:
     def __init__(self):
         self.pci_root = hw.path("/sys/bus/pci/devices")
@@ -93,6 +174,11 @@ class Fpga:
         self.v32 = None
         self._map = self._fd = None
         self.problem = None              # last reason the FPGA could not be used
+        self.version = None              # R_VERSION as first read
+        self._up = None                  # (root port config path, PCIe cap, AER cap)
+        self._sb = None                  # (monotonic time, sideband snapshot)
+        self._tl = threading.local()     # locked() depth per thread
+        self._said_dead = False
 
     # ------------------------------------------------------------ PCI
     def _find(self):
@@ -117,12 +203,51 @@ class Fpga:
             c = f.read(6)
         return int.from_bytes(c[4:6], "little")
 
+    def _dead(self, why):
+        """Record that the FPGA stopped answering (DEAD_FILE) and refuse."""
+        p = hw.path(DEAD_FILE)
+        msg = "%s %s: %s" % (time.strftime("%Y-%m-%dT%H:%M:%S"), self.bdf, why)
+        try:
+            os.makedirs(os.path.dirname(p), exist_ok=True)
+            tmp = "%s.%d" % (p, os.getpid())
+            with open(tmp, "w") as f:
+                f.write(msg + "\n")
+            os.replace(tmp, p)
+        except OSError:
+            pass
+        if not self._said_dead:
+            self._said_dead = True
+            sys.stderr.write("cs8210 sonic_platform: I2C FPGA not answering, no further access: %s\n" % msg)
+        raise FpgaUnavailable(errno.EIO, "I2C FPGA dead: " + why)
+
+    def _upstream(self, d):
+        """The root port's view of the link (its config space is on the SoC)."""
+        if self._up is None:
+            rp = os.path.dirname(os.path.realpath(d)) + "/config"
+            exp = aer = None
+            if os.path.exists(rp):
+                with open(rp, "rb") as f:
+                    exp, aer = pcie_caps(f.read(4096))
+            self._up = (rp, exp, aer)
+        rp, exp, aer = self._up
+        if exp is None and aer is None:
+            return None                  # no root port status here (unknown topology)
+        with open(rp, "rb") as f:
+            cfg = f.read(4096 if aer is not None else 0x100)
+        return upstream_problem(cfg, exp, aer)
+
     def check(self):
         """PCI checks before a session; raises FpgaUnavailable unless BAR0
         decode is on (turning it on only with CS8210_QSFP_PREPARE=1)."""
+        why = dead_reason()
+        if why is not None:
+            raise FpgaUnavailable(errno.EIO, "I2C FPGA marked dead (%s): %s" % (hw.path(DEAD_FILE), why))
         if self.bdf is None:
             self.bdf = self._find()
         d = os.path.join(self.pci_root, self.bdf)
+        why = self._upstream(d)
+        if why is not None:
+            self._dead("root port " + why)
         if os.path.exists(d + "/driver"):
             raise FpgaUnavailable(errno.EBUSY, "%s is bound to a kernel driver" % self.bdf)
         with open(d + "/resource") as f:
@@ -163,21 +288,44 @@ class Fpga:
             raise ValueError("BAR0+%#x write not allowed" % off)
         self.v32[off // 4] = val & 0xFFFFFFFF
 
+    def r32_live(self, off, what):
+        """r32 of a register that is never all ones while the FPGA answers."""
+        v = self.r32(off)
+        if v == ALL_ONES:
+            self._dead("%s (BAR0+%#x) reads 0xffffffff" % (what, off))
+        return v
+
     def sideband(self):
-        """{"present", "reset", "lpmode", "int"}: 32-bit masks, bit P-1 = cage P."""
-        self.check()
-        return {"present": self.r32(R_PRESENT), "reset": self.r32(R_RESET),
-                "lpmode": self.r32(R_LPMODE), "int": self.r32(R_INT)}
+        """{"present", "reset", "lpmode", "int"}: 32-bit masks, bit P-1 = cage P.
+        A snapshot is reused for SIDEBAND_TTL s (xcvrd asks per port)."""
+        sb = self._sb
+        if sb is not None and time.monotonic() - sb[0] < SIDEBAND_TTL:
+            return sb[1]
+        with self.locked():
+            v = self.r32_live(R_VERSION, "version")
+            if self.version is None:
+                self.version = v
+            elif v != self.version:
+                self._dead("version register changed %#x -> %#x" % (self.version, v))
+            snap = {"present": self.r32(R_PRESENT), "reset": self.r32(R_RESET),
+                    "lpmode": self.r32(R_LPMODE), "int": self.r32(R_INT)}
+        self._sb = (time.monotonic(), snap)
+        return snap
 
     # ------------------------------------------------------------ I2C
     @contextlib.contextmanager
     def locked(self):
-        """cs8210-qsfp's flock (so the tool and the platform never interleave
-        transactions), then the PCI checks."""
-        lp = hw.path(LOCK_FILE)
-        if not os.path.isdir(os.path.dirname(lp)):
-            lp = hw.path("/tmp/cs8210-qsfp.lock")
-        fd = os.open(lp, os.O_RDWR | os.O_CREAT, 0o600)
+        """cs8210-qsfp's flock (every BAR0 access, any process or thread,
+        one at a time), then the PCI checks. Re-entrant within a thread."""
+        tl = self._tl
+        if getattr(tl, "depth", 0):
+            tl.depth += 1
+            try:
+                yield self
+            finally:
+                tl.depth -= 1
+            return
+        fd = os.open(lock_path(), os.O_RDWR | os.O_CREAT, 0o600)
         try:
             deadline = time.monotonic() + LOCK_WAIT
             while True:
@@ -188,14 +336,17 @@ class Fpga:
                     if time.monotonic() > deadline:
                         raise FpgaUnavailable(errno.EBUSY, "%s held (cs8210-qsfp running?)" % lp)
                     time.sleep(0.05)
+            tl.depth = 1
             self.check()
             yield self
         finally:
+            tl.depth = 0
             os.close(fd)
 
     def _ready(self, port):
         b = chb(port)
-        ok = (self.r32(b + C_PROFILE) == PROBE_PROFILE and not self.r32(b + C_MRESET) & 1
+        ok = (self.r32_live(b + C_PROFILE, "cage %d clock profile" % port) == PROBE_PROFILE
+              and not self.r32(b + C_MRESET) & 1
               and self.r32(b + C_PROFSEL) & 3 != 3 and not self.r32(b + C_START) & START_BUSY)
         if ok:
             return
@@ -221,10 +372,10 @@ class Fpga:
         busy = True
         for _ in range(POLLS):
             time.sleep(0.001)
-            if not self.r32(b + C_START) & START_BUSY:
+            if not self.r32_live(b + C_START, "cage %d start" % port) & START_BUSY:
                 busy = False
                 break
-        st = self.r32(b + C_STATUS)
+        st = self.r32_live(b + C_STATUS, "cage %d status" % port)
         if st & STATUS_ERR:
             raise I2cError(errno.ENXIO, "cage %d addr %#x off %#x: NACK" % (port, addr, off))
         if busy:

@@ -7,8 +7,10 @@ Run by the package's passthru.tests.unit.
 import json
 import os
 import shutil
+import struct
 import sys
 import tempfile
+import threading
 import time
 import unittest
 
@@ -57,6 +59,7 @@ class Board(unittest.TestCase):
 
     def setUp(self):
         hw.QSFP_PREPARE = False
+        fpga.SIDEBAND_TTL = 0                              # every call reads the FPGA
         writes()
 
     def test_inventory(self):
@@ -314,6 +317,136 @@ class Board(unittest.TestCase):
             os.rename(p + ".out", p)
         self.assertEqual(c.get_change_event(3000), (True, {"sfp": {"16": "1"}}))
         self.assertEqual(c.get_port_or_cage_type(1), 0x800)    # QSFP-DD
+
+
+RP_CFG = "/sys/devices/platform/soc/fb700000.pcie/pci0002:00/0002:00:00.0/config"
+
+
+class FpgaSafety(unittest.TestCase):
+    """The 2026-11-16 stall: the I2C FPGA stopped answering, every access then
+    stalled the SoC, and xcvrd (32 cages "present", all ones) kept reading."""
+
+    def setUp(self):
+        hw.QSFP_PREPARE = False
+        fpga.SIDEBAND_TTL = 0
+        self.dead = fake(fpga.DEAD_FILE)
+        self.rp = fake(RP_CFG)
+        self.rp_orig = rd(self.rp, "rb")
+        self.sbf = fake("/fpga/sideband.json")
+        self.sb_orig = rd(self.sbf)
+        fpga._fpga = None                                  # a fresh process
+        writes()
+
+    def tearDown(self):
+        wr(self.rp, self.rp_orig)
+        wr(self.sbf, self.sb_orig)
+        if os.path.exists(self.dead):
+            os.remove(self.dead)
+        fpga._fpga = None
+
+    def chassis(self):
+        return sonic_platform.platform.Platform().get_chassis()
+
+    def reads(self):
+        bar = fpga.fpga().v32
+        return 0 if bar is None else bar.reads
+
+    def set_rp(self, off, fmt, val):
+        b = bytearray(self.rp_orig)
+        b[off:off + struct.calcsize(fmt)] = struct.pack(fmt, val)
+        wr(self.rp, bytes(b))
+
+    def kill(self):
+        sb = json.loads(self.sb_orig)
+        sb["dead"] = True
+        wr(self.sbf, json.dumps(sb))
+
+    def test_chassis_init_reads_nothing(self):
+        self.chassis()                                     # what psud/thermalctld/syseepromd do
+        self.assertIsNone(fpga._fpga)
+
+    def test_every_access_under_the_lock(self):
+        c = self.chassis()
+        errs = []
+
+        def work(p):
+            try:
+                for _ in range(5):
+                    s = c.get_sfp(p)
+                    s.invalidate()
+                    if s.get_transceiver_info() is None:
+                        errs.append(p)
+                    c._presence()
+            except Exception as e:                         # noqa: BLE001
+                errs.append(repr(e))
+        ts = [threading.Thread(target=work, args=(p,)) for p in (1, 16, 17, 20)]
+        for t in ts:
+            t.start()
+        for t in ts:
+            t.join()
+        self.assertEqual(errs, [17] * 5)                   # 17: channel not initialised (no prepare)
+        self.assertGreater(self.reads(), 100)
+        self.assertEqual(fpga.fpga().v32.unlocked, [])
+
+    def test_sideband_snapshot_reused(self):
+        fpga.SIDEBAND_TTL = 60
+        c = self.chassis()
+        self.assertEqual(sum(c.get_sfp(p).get_presence() for p in range(1, 33)), 5)
+        self.assertEqual(self.reads(), 5)                  # version + 4 masks, once
+
+    def test_root_port_completion_timeout(self):
+        self.set_rp(0x7a, "<H", 0x0002)                    # DevSta NonFatalErr
+        c = self.chassis()
+        self.assertFalse(c.get_sfp(1).get_presence())
+        self.assertIsNone(c._presence())
+        self.assertIsNone(c.get_sfp(16).read_eeprom(0, 1))
+        self.assertIsNone(fpga.fpga().v32)                 # BAR0 never mapped
+        self.assertIn("non-fatal", rd(self.dead))
+        wr(self.rp, self.rp_orig)                          # bits cleared by hand: the marker holds
+        fpga._fpga = None
+        self.assertFalse(c.get_sfp(1).get_presence())
+        self.assertIsNone(fpga.fpga().v32)
+        self.assertIn("marked dead", fpga.fpga().problem)
+        os.remove(self.dead)
+        self.set_rp(0x104, "<I", 1 << 14)                  # AER CmpltTO alone
+        fpga._fpga = None
+        self.assertFalse(c.get_sfp(1).get_presence())
+        self.assertIn("completion timeout", rd(self.dead))
+
+    def test_link_down(self):
+        self.set_rp(0x82, "<H", 0x1012)                    # DLLLA clear
+        self.assertFalse(self.chassis().get_sfp(1).get_presence())
+        self.assertIn("data link down", rd(self.dead))
+        self.assertIsNone(fpga.fpga().v32)
+
+    def test_all_ones_stops_after_one_read(self):
+        self.kill()
+        c = self.chassis()
+        for _ in range(20):                                # xcvrd's loops
+            self.assertIsNone(c._presence())
+            for p in (1, 5, 16):
+                s = c.get_sfp(p)
+                s.invalidate()
+                self.assertFalse(s.get_presence())
+                self.assertIsNone(s.read_eeprom(0, 1))
+        self.assertEqual(self.reads(), 1)                  # the version register, once
+        self.assertIn("version", rd(self.dead))
+        self.assertEqual(writes(), [])
+
+    def test_dies_mid_session(self):
+        fpga.SIDEBAND_TTL = 60
+        c = self.chassis()
+        s = c.get_sfp(1)
+        s.invalidate()
+        self.assertTrue(s.get_presence())                  # snapshot while alive
+        self.kill()
+        self.assertIsNone(s.read_eeprom(0, 1))             # first transfer read: all ones
+        n = self.reads()
+        self.assertLessEqual(n, 7)
+        self.assertIn("clock profile", rd(self.dead))
+        for p in (1, 16):
+            self.assertIsNone(c.get_sfp(p).read_eeprom(0, 1))
+        self.assertEqual(self.reads(), n)                  # nothing more
 
 
 if __name__ == "__main__":

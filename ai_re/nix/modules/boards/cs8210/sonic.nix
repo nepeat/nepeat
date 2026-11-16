@@ -67,6 +67,9 @@ in {
       });
       # One process on the ASIC: the vendor bring-up stops while syncd runs.
       sai.conflicts = mkDefault [ "cs8210-switch.service" ];
+      # BGP/BFD stay closed on the management port and on the CPU card's
+      # 10G link to ASIC devport 129 (not a SONiC port).
+      frr.managementInterfaces = mkDefault [ "enp0s1" "enp0s3" ];
       # Traditional buffer model (BUFFER_* in CONFIG_DB, as SONiC's default QoS
       # config): buffermgrd copies them to APPL_DB, else bufferorch never marks
       # the ports ready and they stay admin down (chip 2026-11-16). The lookup
