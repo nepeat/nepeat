@@ -159,6 +159,10 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-16 13:50: `dmc12-firmware` is a standalone package too (`nix/packages/dmc12-firmware`; the board module
+  uses it, payload drv unchanged): `nix run --refresh 'github:nepeat/nepeat?dir=ai_re#dmc12-firmware' -- status`
+  on any DMC-12. Built that way it detects the disk layout from /boot (`bootLoader=… (detected from /boot)`).
+  Checked on u01: status correct (standard), install = no-op. It still needs the firmware windows in the running DT.
 - 2026-11-16 13:30: **U-Boot builds reproducible on any build host** (f13a8d5; every U-Boot incl. AS7760, TN48M):
   the cross prefix in CC_VERSION_STRING shifted the image, so a native aarch64 build (p01/comin) differed from the
   x86 cross one. Now byte-identical (d3df4b80); `dmc12-firmware` pins it. Rehearsed on u01: A/B update IPXE 0 ->

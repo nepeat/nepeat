@@ -31,6 +31,10 @@
           inherit (systems) nixosConfigurations;
           packages.x86_64-linux =
             aiRe.packagesFor (import nixpkgs-systems { system = "x86_64-linux"; }) // systems.packages;
+          # On a DMC-12: nix run --refresh 'github:nepeat/nepeat?dir=ai_re#dmc12-firmware' -- status
+          packages.aarch64-linux.dmc12-firmware = (import ./nix/packages/dmc12-firmware {
+            pkgs = import nixpkgs-systems { system = "aarch64-linux"; };
+          }).tool;
         });
     in
     nixpkgs.lib.recursiveUpdate shared (flake-utils.lib.eachDefaultSystem (system:

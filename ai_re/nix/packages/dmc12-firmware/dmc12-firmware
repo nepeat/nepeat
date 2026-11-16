@@ -27,6 +27,13 @@ set -euo pipefail
 export PATH=@path@
 P=@payloads@
 BOOTLOADER=@bootLoader@
+if [ "$BOOTLOADER" = auto ]; then   # standalone build (nix run): infer the layout from /boot
+    if [ -f /boot/extlinux/extlinux.conf ] && [ -f /boot/boot.scr ]; then BOOTLOADER=both
+    elif [ -f /boot/extlinux/extlinux.conf ]; then BOOTLOADER=standard
+    elif [ -f /boot/boot.scr ]; then BOOTLOADER=uboot-menu
+    else BOOTLOADER=unknown; fi
+    BOOTLOADER_SRC=" (detected from /boot)"
+fi
 JOURNAL=/var/lib/dmc12-firmware/journal.jsonl
 HDR=72                    # al-boot object header (0x48 B)
 SECTOR=4096               # stage3 reads BOOT_MODE's first sector only
@@ -201,7 +208,7 @@ status() {
     done
     echo "running:   $(running_ours && echo "our U-Boot $(tr -d '\0' < /proc/device-tree/chosen/u-boot,version)" || echo 'factory U-Boot (or unknown)')"
     echo "payload:   U-Boot $(cat "$P/version") ($(cut -c1-16 "$P/ipxe.sha256"))"
-    echo "disk:      bootLoader=$BOOTLOADER; ours $(disk_for ours && echo can || echo can NOT) boot it, factory $(disk_for factory && echo can || echo can NOT)"
+    echo "disk:      bootLoader=$BOOTLOADER${BOOTLOADER_SRC:-}; ours $(disk_for ours && echo can || echo can NOT) boot it, factory $(disk_for factory && echo can || echo can NOT)"
     if ( check_chip && check_pins ) 2>/dev/null; then echo "flash:     MX25U12835F, read-only regions match their pins"; else echo "flash:     chip or pins DO NOT match (writes refused)"; fi
 }
 
