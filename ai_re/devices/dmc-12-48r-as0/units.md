@@ -41,6 +41,8 @@ build host/date). The real changes between OS 457 and 526 are in userspace (see 
   to u01's factory dump except the factory env pair** (0xfd0000/0xfe0000, per-unit). Same al-boot 2.60.4,
   U-Boot 2015.07-alpine_db-2.60.4, BOOT_MODE -> UBOOT 0, IPXE 0/1 blank. uC not read. `inventory/p01/firmware.json`; collected with `fw-inventory.py collect --busybox /dev/shm/... --no-sudo`
   and `cpld-readback.py --emit-sh` (static busybox in RAM, removed after).
+  **2026-11-16 14:03: our U-Boot in IPXE 0** (`dmc12-firmware install`, payload d3df4b80, proven; IPXE 1 blank;
+  disk still `both`, so the factory U-Boot (`u` at stage3) boots it too). Journal: `/var/lib/dmc12-firmware/journal.jsonl` on p01.
   Seen there: `/run` 100% full (journald volatile 961 MB, no cap) and the USB INTx bug (EHCI 1 irq in
   41 d: serial byte loss under sustained output; fix = 494d188).
 

@@ -159,6 +159,9 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-16 14:05: **p01 runs our U-Boot from SPI.** Forge 41a06a5 (lock c337363) deployed by comin, one reboot
+  for the DT windows (status: factory, IPXE 0/1 blank, pins match, disk `both`), `dmc12-firmware install` (owner)
+  -> IPXE 0, reboot -> `running: our U-Boot`, proof recorded 14:03. Next, owner's call: `bootLoader = "standard"`.
 - 2026-11-16 13:50: `dmc12-firmware` is a standalone package too (`nix/packages/dmc12-firmware`; the board module
   uses it, payload drv unchanged): `nix run --refresh 'github:nepeat/nepeat?dir=ai_re#dmc12-firmware' -- status`
   on any DMC-12. Built that way it detects the disk layout from /boot (`bootLoader=… (detected from /boot)`).
