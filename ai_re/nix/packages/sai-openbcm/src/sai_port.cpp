@@ -52,13 +52,26 @@ bool port_stat_supported(sai_stat_id_t id)
     PortStat s;
     int prio;
     bool tx;
+    if (ctx().be && ctx().be->port_stat_by_id(id)) return true;
     if (port_pfc_stat(id, prio, tx)) return ctx().be && ctx().be->qos_supported();
     return map_stat(id, s);
 }
 
 sai_status_t port_stats_get(int hw, uint32_t n, const sai_stat_id_t* ids, uint64_t* out)
 {
+    // Ids the backend reads by SAI id: one call for all of them.
+    std::vector<sai_stat_id_t> by_id;
+    std::vector<uint32_t> at;
+    for (uint32_t i = 0; i < n; i++)
+        if (ctx().be->port_stat_by_id(ids[i])) { by_id.push_back(ids[i]); at.push_back(i); }
+    if (!by_id.empty()) {
+        std::vector<uint64_t> v(by_id.size());
+        sai_status_t st = ctx().be->port_stats_by_id(hw, (uint32_t)by_id.size(), by_id.data(), v.data());
+        if (st != SAI_STATUS_SUCCESS) return st;
+        for (size_t k = 0; k < at.size(); k++) out[at[k]] = v[k];
+    }
     for (uint32_t i = 0; i < n; i++) {
+        if (!by_id.empty() && ctx().be->port_stat_by_id(ids[i])) continue;
         PortStat s;
         int prio;
         bool tx;

@@ -50,6 +50,11 @@ static std::string rule_key(const FpRule& r)
     for (int x : r.mirror_ingress) put(s, x);
     put(s, -1);
     for (int x : r.mirror_egress) put(s, x);
+    put(s, m.l4_src_range); put(s, m.l4_src_min); put(s, m.l4_src_max);
+    put(s, m.l4_dst_range); put(s, m.l4_dst_min); put(s, m.l4_dst_max);
+    put(s, -2);
+    for (int p : m.out_ports) put(s, p);
+    put(s, r.redirect); put(s, r.redirect_egress); put(s, r.set_tc); put(s, r.set_dscp);
     return s;
 }
 
@@ -475,7 +480,14 @@ static FpQual field_qual(sai_attr_id_t f, bool& ok)
     default: ok = false; return FpQual::Count;
     }
 }
-bool acl_table_field_supported(sai_attr_id_t f) { bool ok; field_qual(f, ok); return ok; }
+static bool fp_cap(FpCap k) { return ctx().be && ctx().be->fp_supported(k); }
+
+// Fields outside FpQual (FpCap::OutPorts): the egress port of an egress table.
+static bool extra_field(sai_attr_id_t f)
+{
+    return (f == SAI_ACL_TABLE_ATTR_FIELD_OUT_PORTS || f == SAI_ACL_TABLE_ATTR_FIELD_OUT_PORT) && fp_cap(FpCap::OutPorts);
+}
+bool acl_table_field_supported(sai_attr_id_t f) { bool ok; field_qual(f, ok); return ok || extra_field(f); }
 
 static const int32_t acl_actions[] = {SAI_ACL_ACTION_TYPE_PACKET_ACTION, SAI_ACL_ACTION_TYPE_COUNTER,
                                       SAI_ACL_ACTION_TYPE_SET_POLICER};
@@ -486,7 +498,16 @@ std::vector<int32_t> acl_ingress_actions()
         v.push_back(SAI_ACL_ACTION_TYPE_MIRROR_INGRESS);
         v.push_back(SAI_ACL_ACTION_TYPE_MIRROR_EGRESS);
     }
+    if (fp_cap(FpCap::Redirect)) v.push_back(SAI_ACL_ACTION_TYPE_REDIRECT);
+    if (fp_cap(FpCap::SetTc)) v.push_back(SAI_ACL_ACTION_TYPE_SET_TC);
+    if (fp_cap(FpCap::SetDscp)) v.push_back(SAI_ACL_ACTION_TYPE_SET_DSCP);
     return v;
+}
+// Egress tables (FpCap::Egress): drop / forward and counters.
+std::vector<int32_t> acl_egress_actions()
+{
+    if (!fp_cap(FpCap::Egress)) return {};
+    return {SAI_ACL_ACTION_TYPE_PACKET_ACTION, SAI_ACL_ACTION_TYPE_COUNTER};
 }
 
 static bool is_table_field(sai_attr_id_t id)
@@ -522,7 +543,7 @@ static sai_status_t create_acl_table(_Out_ sai_object_id_t* id, _In_ sai_object_
             }
             switch (a.id) {
             case SAI_ACL_TABLE_ATTR_ACL_STAGE:
-                if (a.value.s32 != SAI_ACL_STAGE_INGRESS) {
+                if (a.value.s32 != SAI_ACL_STAGE_INGRESS && !(a.value.s32 == SAI_ACL_STAGE_EGRESS && fp_cap(FpCap::Egress))) {
                     OB_ERR(SAI_API_ACL, "ACL table: stage %d not supported (ingress only)", a.value.s32);
                     return attr_not_supported(i);
                 }
@@ -538,19 +559,44 @@ static sai_status_t create_acl_table(_Out_ sai_object_id_t* id, _In_ sai_object_
             case SAI_ACL_TABLE_ATTR_ACL_ACTION_TYPE_LIST:
                 if (a.value.s32list.count && !a.value.s32list.list) return attr_invalid(i);
                 t.action_types.assign(a.value.s32list.list, a.value.s32list.list + a.value.s32list.count);
-                for (int32_t act : t.action_types)
-                    if (std::find(std::begin(acl_actions), std::end(acl_actions), act) == std::end(acl_actions))
-                        return attr_not_supported(i);
                 break;
             case SAI_ACL_TABLE_ATTR_SIZE: t.size = a.value.u32; break;
             default: return attr_not_supported(i);
             }
         }
         if (!has_stage) return SAI_STATUS_MANDATORY_ATTRIBUTE_MISSING;
-        std::set<FpQual> q = {FpQual::InPorts};
-        for (auto f : t.fields) { bool ok; q.insert(field_qual(f, ok)); }
+        bool egress = t.stage == SAI_ACL_STAGE_EGRESS;
+        std::vector<int32_t> allowed = egress ? acl_egress_actions() : acl_ingress_actions();
+        if (!fp_cap(FpCap::Redirect) && !fp_cap(FpCap::SetTc) && !fp_cap(FpCap::SetDscp) && !egress)
+            allowed.assign(std::begin(acl_actions), std::end(acl_actions));   // the original rule
+        for (size_t k = 0; k < t.action_types.size(); k++)
+            if (std::find(allowed.begin(), allowed.end(), t.action_types[k]) == allowed.end()) {
+                OB_ERR(SAI_API_ACL, "ACL table: action type %d not supported", t.action_types[k]);
+                uint32_t ai = 0;
+                find_attr(n, attrs, SAI_ACL_TABLE_ATTR_ACL_ACTION_TYPE_LIST, &ai);
+                return attr_not_supported(ai);
+            }
+        FpGroupExtra x;
+        x.egress = egress;
+        if (fp_cap(FpCap::Ranges))
+            for (int32_t rt : t.range_types) {
+                if (rt == SAI_ACL_RANGE_TYPE_L4_SRC_PORT_RANGE) x.src_range = true;
+                if (rt == SAI_ACL_RANGE_TYPE_L4_DST_PORT_RANGE) x.dst_range = true;
+            }
+        x.out_ports = t.fields.count(SAI_ACL_TABLE_ATTR_FIELD_OUT_PORTS) || t.fields.count(SAI_ACL_TABLE_ATTR_FIELD_OUT_PORT);
+        for (int32_t act : t.action_types) {
+            if (act == SAI_ACL_ACTION_TYPE_REDIRECT) x.redirect = true;
+            if (act == SAI_ACL_ACTION_TYPE_SET_TC) x.set_tc = true;
+            if (act == SAI_ACL_ACTION_TYPE_SET_DSCP) x.set_dscp = true;
+            if (act == SAI_ACL_ACTION_TYPE_MIRROR_INGRESS || act == SAI_ACL_ACTION_TYPE_MIRROR_EGRESS) x.mirror = true;
+        }        std::set<FpQual> q = {FpQual::InPorts};
+        for (auto f : t.fields) {
+            if (extra_field(f)) continue;
+            bool ok;
+            q.insert(field_qual(f, ok));
+        }
         int prio = c.acl_next_prio++;
-        sai_status_t st = c.be->fp_group_create(std::vector<FpQual>(q.begin(), q.end()), prio, t.gid);
+        sai_status_t st = c.be->fp_group_create_ex(std::vector<FpQual>(q.begin(), q.end()), prio, x, t.gid);
         if (st != SAI_STATUS_SUCCESS) {
             OB_ERR(SAI_API_ACL, "ACL table (%zu match fields): SDK field group create failed (%d)", t.fields.size(), st);
             return st;
@@ -618,7 +664,15 @@ static sai_status_t get_acl_table_attribute(_In_ sai_object_id_t id, _In_ uint32
             case SAI_ACL_TABLE_ATTR_ACL_ACTION_TYPE_LIST: st = fill_list(a.value.s32list, t->action_types); break;
             case SAI_ACL_TABLE_ATTR_SIZE: a.value.u32 = t->size; break;
             case SAI_ACL_TABLE_ATTR_ENTRY_LIST: st = fill_list(a.value.objlist, t->entries); break;
-            default: return attr_not_supported(i);   // AVAILABLE_ACL_ENTRY/COUNTER: CRM marks them unsupported
+            case SAI_ACL_TABLE_ATTR_AVAILABLE_ACL_ENTRY: {
+                uint32_t free = 0;
+                st = ctx().be->fp_group_free(t->gid, free);   // NOT_SUPPORTED: CRM marks it unsupported
+                if (st == SAI_STATUS_NOT_SUPPORTED) return attr_not_supported(i);
+                if (st != SAI_STATUS_SUCCESS) return st;
+                a.value.u32 = free;
+                break;
+            }
+            default: return attr_not_supported(i);   // AVAILABLE_ACL_COUNTER: CRM marks it unsupported
             }
             if (st != SAI_STATUS_SUCCESS) return st;
         }
@@ -633,7 +687,9 @@ static std::set<int> table_ports(sai_object_id_t table)
 {
     auto& c = ctx();
     std::set<int> out;
-    for (auto& b : c.acl_bind) {
+    const AclTableObj* t = lookup(c.acl_tables, table);
+    const auto& binds = t && t->stage == SAI_ACL_STAGE_EGRESS ? c.acl_bind_egress : c.acl_bind;
+    for (auto& b : binds) {
         bool hit = b.second == table;
         if (!hit && oid_type(b.second) == SAI_OBJECT_TYPE_ACL_TABLE_GROUP)
             for (auto& m : c.acl_group_members)
@@ -656,7 +712,7 @@ static void field_ip(const sai_acl_field_data_t& d, bool v6, IpAddr& a, IpAddr& 
 static bool entry_rule(const AclEntryObj& e, FpRule& r)
 {
     auto& c = ctx();
-    if (!e.admin) return false;
+    if (!e.admin && !fp_cap(FpCap::EntryEnable)) return false;   // else installed and switched off
     std::set<int> ports = table_ports(e.table);
     FpMatch& m = r.m;
     r.priority = e.priority;
@@ -703,6 +759,24 @@ static bool entry_rule(const AclEntryObj& e, FpRule& r)
         case SAI_ACL_ENTRY_ATTR_FIELD_DST_MAC: m.set(FpQual::DstMac); std::memcpy(m.dmac, d.data.mac, 6); std::memcpy(m.dmac_mask, d.mask.mac, 6); break;
         case SAI_ACL_ENTRY_ATTR_FIELD_OUTER_VLAN_ID: m.set(FpQual::OuterVlan); m.vlan = d.data.u16 & 0xfff; m.vlan_mask = d.mask.u16 & 0xfff; break;
         case SAI_ACL_ENTRY_ATTR_FIELD_TTL: m.set(FpQual::Ttl); m.ttl = d.data.u8; m.ttl_mask = d.mask.u8; break;
+        case SAI_ACL_ENTRY_ATTR_FIELD_ACL_RANGE_TYPE:
+            for (auto o : f.second.objs) {
+                const AclRangeObj* rg = lookup(c.acl_ranges, o);
+                if (!rg) continue;
+                if (rg->type == SAI_ACL_RANGE_TYPE_L4_SRC_PORT_RANGE) {
+                    m.l4_src_range = true; m.l4_src_min = (uint16_t)rg->min; m.l4_src_max = (uint16_t)rg->max;
+                } else if (rg->type == SAI_ACL_RANGE_TYPE_L4_DST_PORT_RANGE) {
+                    m.l4_dst_range = true; m.l4_dst_min = (uint16_t)rg->min; m.l4_dst_max = (uint16_t)rg->max;
+                }
+            }
+            break;
+        case SAI_ACL_ENTRY_ATTR_FIELD_OUT_PORTS:
+        case SAI_ACL_ENTRY_ATTR_FIELD_OUT_PORT: {
+            std::set<int> o;
+            for (auto p : f.second.objs) for (int hw : attach_phys(p)) o.insert(hw);
+            m.out_ports.assign(o.begin(), o.end());
+            break;
+        }
         case SAI_ACL_ENTRY_ATTR_FIELD_IN_PORTS:
         case SAI_ACL_ENTRY_ATTR_FIELD_IN_PORT: {
             std::set<int> in;
@@ -730,6 +804,17 @@ static bool entry_rule(const AclEntryObj& e, FpRule& r)
             }
             break;
         case SAI_ACL_ENTRY_ATTR_ACTION_COUNTER: r.counter = a.second.parameter.oid != SAI_NULL_OBJECT_ID; break;
+        case SAI_ACL_ENTRY_ATTR_ACTION_REDIRECT: {
+            sai_object_id_t o = a.second.parameter.oid;
+            if (oid_type(o) == SAI_OBJECT_TYPE_NEXT_HOP) {
+                if (NextHopObj* nh = lookup(c.next_hops, o)) { r.redirect = nh->egress; r.redirect_egress = true; }
+            } else {
+                r.redirect = attach_dest(o);   // port or LAG
+            }
+            break;
+        }
+        case SAI_ACL_ENTRY_ATTR_ACTION_SET_TC: r.set_tc = a.second.parameter.u8; break;
+        case SAI_ACL_ENTRY_ATTR_ACTION_SET_DSCP: r.set_dscp = a.second.parameter.u8 & 0x3f; break;
         case SAI_ACL_ENTRY_ATTR_ACTION_SET_POLICER:
             if (PolicerObj* p = lookup(c.policers, a.second.parameter.oid)) apply_colors(r, *p, false);
             break;
@@ -785,9 +870,30 @@ static sai_status_t entry_program(AclEntryObj& e)
     FpRule r;
     if (!entry_rule(e, r)) { entry_uninstall(e); return SAI_STATUS_SUCCESS; }
     std::string key = rule_key(r);
-    if (e.eid >= 0 && key == e.key) return SAI_STATUS_SUCCESS;
+    bool want_on = e.admin;
+    if (e.eid >= 0 && key == e.key) {
+        if (fp_cap(FpCap::EntryEnable) && want_on != e.hw_enabled) {
+            sai_status_t st = c.be->fp_entry_enable(e.eid, want_on);
+            if (st != SAI_STATUS_SUCCESS) return st;
+            e.hw_enabled = want_on;
+        }
+        return SAI_STATUS_SUCCESS;
+    }
     AclTableObj* t = lookup(c.acl_tables, e.table);
     if (!t) return SAI_STATUS_INVALID_OBJECT_ID;
+    if (e.eid >= 0 && fp_cap(FpCap::EntryUpdate)) {   // in place: the SDK counter keeps counting
+        sai_status_t st = c.be->fp_entry_update(e.eid, r);
+        if (st == SAI_STATUS_SUCCESS) {
+            e.key = key;
+            if (fp_cap(FpCap::EntryEnable) && want_on != e.hw_enabled) {
+                st = c.be->fp_entry_enable(e.eid, want_on);
+                if (st != SAI_STATUS_SUCCESS) return st;
+                e.hw_enabled = want_on;
+            }
+            return SAI_STATUS_SUCCESS;
+        }
+        OB_WARN(SAI_API_ACL, "ACL entry: in-place update failed (%d), re-creating it", st);
+    }
     int eid = -1;
     entry_uninstall(e);   // the SDK entry is re-created (counters folded in)
     sai_status_t st = c.be->fp_entry_create(t->gid, r, eid);
@@ -798,6 +904,12 @@ static sai_status_t entry_program(AclEntryObj& e)
     }
     e.eid = eid;
     e.key = key;
+    e.hw_enabled = true;
+    if (!want_on) {   // FpCap::EntryEnable (entry_rule installs admin-down entries only then)
+        sai_status_t es = c.be->fp_entry_enable(eid, false);
+        if (es == SAI_STATUS_SUCCESS) e.hw_enabled = false;
+        else OB_ERR(SAI_API_ACL, "ACL entry: disabling SDK entry %d failed (%d)", eid, es);
+    }
     OB_NOTICE(SAI_API_ACL, "ACL entry: SDK entry %d in group %d, priority %u, %zu ports%s%s%s", eid, t->gid, e.priority,
               r.m.ports.size(), r.drop ? ", drop" : "", r.copy_cpu ? ", copy to CPU" : "", r.counter ? ", counted" : "");
     return SAI_STATUS_SUCCESS;
@@ -824,6 +936,26 @@ static sai_status_t entry_attr(AclEntryObj& e, sai_object_id_t self, const AclTa
                                uint32_t i)
 {
     auto& c = ctx();
+    if (a.id == SAI_ACL_ENTRY_ATTR_FIELD_ACL_RANGE_TYPE) {   // ACL_RANGE objects (FpCap::Ranges)
+        if (!fp_cap(FpCap::Ranges)) return attr_not_supported(i);
+        if (!a.value.aclfield.enable) { e.fields.erase(a.id); return SAI_STATUS_SUCCESS; }
+        const sai_object_list_t& l = a.value.aclfield.data.objlist;
+        if (l.count && !l.list) return attr_invalid(i);
+        AclFieldVal v;
+        v.d = a.value.aclfield;
+        v.d.data.objlist.list = nullptr;
+        v.objs.assign(l.list, l.list + l.count);
+        for (auto o : v.objs) {
+            const AclRangeObj* rg = lookup(c.acl_ranges, o);
+            if (!rg) return attr_invalid(i);
+            if (t && std::find(t->range_types.begin(), t->range_types.end(), rg->type) == t->range_types.end()) {
+                OB_ERR(SAI_API_ACL, "ACL entry: range type %d is not one of its table's", rg->type);
+                return attr_invalid(i);
+            }
+        }
+        e.fields[a.id] = v;
+        return SAI_STATUS_SUCCESS;
+    }
     if (is_entry_field(a.id)) {
         sai_attr_id_t tf = entry_to_table_field(a.id);
         if (!acl_table_field_supported(tf)) return attr_not_supported(i);
@@ -840,12 +972,19 @@ static sai_status_t entry_attr(AclEntryObj& e, sai_object_id_t self, const AclTa
             v.objs.assign(l.list, l.list + l.count);
         } else if (a.id == SAI_ACL_ENTRY_ATTR_FIELD_IN_PORT) {
             v.objs.push_back(a.value.aclfield.data.oid);
+        } else if (a.id == SAI_ACL_ENTRY_ATTR_FIELD_OUT_PORTS) {
+            const sai_object_list_t& l = a.value.aclfield.data.objlist;
+            if (l.count && !l.list) return attr_invalid(i);
+            v.objs.assign(l.list, l.list + l.count);
+        } else if (a.id == SAI_ACL_ENTRY_ATTR_FIELD_OUT_PORT) {
+            v.objs.push_back(a.value.aclfield.data.oid);
         }
         for (auto o : v.objs) {   // front-panel ports (LAG members too) or LAGs
             PortObj* p = oid_type(o) == SAI_OBJECT_TYPE_PORT ? lookup(c.ports, o) : nullptr;
             if (!(p && !p->cpu) && !(oid_type(o) == SAI_OBJECT_TYPE_LAG && c.lags.count(o))) return attr_invalid(i);
         }
-        if (a.id == SAI_ACL_ENTRY_ATTR_FIELD_IN_PORTS) v.d.data.objlist.list = nullptr;   // never keep the caller's pointer
+        if (a.id == SAI_ACL_ENTRY_ATTR_FIELD_IN_PORTS || a.id == SAI_ACL_ENTRY_ATTR_FIELD_OUT_PORTS)
+            v.d.data.objlist.list = nullptr;   // never keep the caller's pointer
         e.fields[a.id] = v;
         return SAI_STATUS_SUCCESS;
     }
@@ -885,6 +1024,22 @@ static sai_status_t entry_attr(AclEntryObj& e, sai_object_id_t self, const AclTa
             e.actions[a.id] = d;
             return SAI_STATUS_SUCCESS;
         }
+        case SAI_ACL_ENTRY_ATTR_ACTION_REDIRECT: {
+            if (!fp_cap(FpCap::Redirect)) return attr_not_supported(i);
+            sai_object_id_t o = a.value.aclaction.parameter.oid;
+            bool ok = (oid_type(o) == SAI_OBJECT_TYPE_NEXT_HOP && c.next_hops.count(o)) ||
+                      ((oid_type(o) == SAI_OBJECT_TYPE_PORT || oid_type(o) == SAI_OBJECT_TYPE_LAG) && attach_valid(o));
+            if (!ok) return attr_invalid(i);
+            break;
+        }
+        case SAI_ACL_ENTRY_ATTR_ACTION_SET_TC:
+            if (!fp_cap(FpCap::SetTc)) return attr_not_supported(i);
+            if (a.value.aclaction.parameter.u8 > 7) return attr_invalid(i);
+            break;
+        case SAI_ACL_ENTRY_ATTR_ACTION_SET_DSCP:
+            if (!fp_cap(FpCap::SetDscp)) return attr_not_supported(i);
+            if (a.value.aclaction.parameter.u8 > 63) return attr_invalid(i);
+            break;
         default:
             OB_ERR(SAI_API_ACL, "ACL entry: action %d not supported", a.id);
             return attr_not_supported(i);
@@ -989,12 +1144,13 @@ static sai_status_t get_acl_entry_attribute(_In_ sai_object_id_t id, _In_ uint32
         for (uint32_t i = 0; i < n; i++) {
             sai_attribute_t& a = attrs[i];
             if (is_entry_field(a.id)) {
-                if (!acl_table_field_supported(entry_to_table_field(a.id))) return attr_not_supported(i);
+                bool ranges = a.id == SAI_ACL_ENTRY_ATTR_FIELD_ACL_RANGE_TYPE && fp_cap(FpCap::Ranges);
+                if (!ranges && !acl_table_field_supported(entry_to_table_field(a.id))) return attr_not_supported(i);
                 auto it = e->fields.find(a.id);
                 if (it == e->fields.end()) { a.value.aclfield.enable = false; continue; }
                 sai_object_list_t keep = a.value.aclfield.data.objlist;
                 a.value.aclfield = it->second.d;
-                if (a.id == SAI_ACL_ENTRY_ATTR_FIELD_IN_PORTS) {
+                if (a.id == SAI_ACL_ENTRY_ATTR_FIELD_IN_PORTS || a.id == SAI_ACL_ENTRY_ATTR_FIELD_OUT_PORTS || ranges) {
                     a.value.aclfield.data.objlist = keep;
                     sai_status_t st = fill_list(a.value.aclfield.data.objlist, it->second.objs);
                     if (st != SAI_STATUS_SUCCESS) return st;
@@ -1133,7 +1289,8 @@ static sai_status_t create_acl_table_group(_Out_ sai_object_id_t* id, _In_ sai_o
             const sai_attribute_t& a = attrs[i];
             switch (a.id) {
             case SAI_ACL_TABLE_GROUP_ATTR_ACL_STAGE:
-                if (a.value.s32 != SAI_ACL_STAGE_INGRESS) return attr_not_supported(i);
+                if (a.value.s32 != SAI_ACL_STAGE_INGRESS && !(a.value.s32 == SAI_ACL_STAGE_EGRESS && fp_cap(FpCap::Egress)))
+                    return attr_not_supported(i);
                 g.stage = a.value.s32;
                 hs = true;
                 break;
@@ -1279,19 +1436,27 @@ static sai_status_t get_acl_table_group_member_attribute(_In_ sai_object_id_t id
 sai_status_t acl_bind_set(sai_object_id_t obj, bool ingress, sai_object_id_t acl, uint32_t i)
 {
     auto& c = ctx();
-    if (!ingress) return acl == SAI_NULL_OBJECT_ID ? SAI_STATUS_SUCCESS : attr_not_supported(i);   // no egress ACL
+    if (!ingress && !fp_cap(FpCap::Egress))
+        return acl == SAI_NULL_OBJECT_ID ? SAI_STATUS_SUCCESS : attr_not_supported(i);   // no egress ACL
     if (acl != SAI_NULL_OBJECT_ID && !c.acl_groups.count(acl) && !c.acl_tables.count(acl)) return attr_invalid(i);
-    if (acl == SAI_NULL_OBJECT_ID) c.acl_bind.erase(obj);
-    else c.acl_bind[obj] = acl;
+    if (acl != SAI_NULL_OBJECT_ID) {   // the ACL's stage must be the binding's
+        int32_t want = ingress ? SAI_ACL_STAGE_INGRESS : SAI_ACL_STAGE_EGRESS;
+        const AclGroupObj* g = lookup(c.acl_groups, acl);
+        const AclTableObj* t = lookup(c.acl_tables, acl);
+        if ((g && g->stage != want) || (t && t->stage != want)) return attr_invalid(i);
+    }
+    auto& binds = ingress ? c.acl_bind : c.acl_bind_egress;
+    if (acl == SAI_NULL_OBJECT_ID) binds.erase(obj);
+    else binds[obj] = acl;
     acl_reprogram();
     return SAI_STATUS_SUCCESS;
 }
 
 sai_object_id_t acl_bind_get(sai_object_id_t obj, bool ingress)
 {
-    if (!ingress) return SAI_NULL_OBJECT_ID;
-    auto it = ctx().acl_bind.find(obj);
-    return it == ctx().acl_bind.end() ? SAI_NULL_OBJECT_ID : it->second;
+    const auto& binds = ingress ? ctx().acl_bind : ctx().acl_bind_egress;
+    auto it = binds.find(obj);
+    return it == binds.end() ? SAI_NULL_OBJECT_ID : it->second;
 }
 
 void acl_clear_objects()
@@ -1299,19 +1464,86 @@ void acl_clear_objects()
     auto& c = ctx();
     c.policers.clear(); c.acl_tables.clear(); c.acl_entries.clear(); c.acl_counters.clear();
     c.acl_groups.clear(); c.acl_group_members.clear(); c.acl_bind.clear(); c.copp.clear();
+    c.acl_bind_egress.clear(); c.acl_ranges.clear();
     c.acl_next_prio = 1;
     c.copp_gid = -1;
     c.copp_dst_cpu = false;
 }
 
 // ------------------------------------------------------------ ranges
-static sai_status_t create_acl_range(_Out_ sai_object_id_t*, _In_ sai_object_id_t, _In_ uint32_t, _In_ const sai_attribute_t*)
+// L4 port ranges: only with a backend that has them (FpCap::Ranges); an
+// entry's FIELD_ACL_RANGE_TYPE lists them (FpMatch l4_src/dst_range).
+static sai_status_t create_acl_range(_Out_ sai_object_id_t* id, _In_ sai_object_id_t, _In_ uint32_t n,
+                                     _In_ const sai_attribute_t* attrs)
 {
-    return SAI_STATUS_NOT_SUPPORTED;   // no L4 port ranges (orchagent's L3/L3V6 tables do not use them)
+    return guarded(SAI_API_ACL, __func__, [&]() -> sai_status_t {
+        auto& c = ctx();
+        if (!fp_cap(FpCap::Ranges)) return SAI_STATUS_NOT_SUPPORTED;
+        if (!id || (n && !attrs)) return SAI_STATUS_INVALID_PARAMETER;
+        AclRangeObj r;
+        bool ht = false, hl = false;
+        for (uint32_t i = 0; i < n; i++) {
+            switch (attrs[i].id) {
+            case SAI_ACL_RANGE_ATTR_TYPE:
+                if (attrs[i].value.s32 != SAI_ACL_RANGE_TYPE_L4_SRC_PORT_RANGE &&
+                    attrs[i].value.s32 != SAI_ACL_RANGE_TYPE_L4_DST_PORT_RANGE)
+                    return attr_not_supported(i);
+                r.type = attrs[i].value.s32;
+                ht = true;
+                break;
+            case SAI_ACL_RANGE_ATTR_LIMIT:
+                r.min = attrs[i].value.u32range.min;
+                r.max = attrs[i].value.u32range.max;
+                if (r.min > r.max || r.max > 0xffff) return attr_invalid(i);
+                hl = true;
+                break;
+            default: return attr_not_supported(i);
+            }
+        }
+        if (!ht || !hl) return SAI_STATUS_MANDATORY_ATTRIBUTE_MISSING;
+        sai_object_id_t oid = c.alloc(SAI_OBJECT_TYPE_ACL_RANGE);
+        c.acl_ranges[oid] = r;
+        *id = oid;
+        return SAI_STATUS_SUCCESS;
+    });
 }
-static sai_status_t remove_acl_range(_In_ sai_object_id_t) { return SAI_STATUS_INVALID_OBJECT_ID; }
-static sai_status_t set_acl_range_attribute(_In_ sai_object_id_t, _In_ const sai_attribute_t*) { return SAI_STATUS_INVALID_OBJECT_ID; }
-static sai_status_t get_acl_range_attribute(_In_ sai_object_id_t, _In_ uint32_t, _Inout_ sai_attribute_t*) { return SAI_STATUS_INVALID_OBJECT_ID; }
+static sai_status_t remove_acl_range(_In_ sai_object_id_t id)
+{
+    return guarded(SAI_API_ACL, __func__, [&]() -> sai_status_t {
+        auto& c = ctx();
+        if (!c.acl_ranges.count(id)) return SAI_STATUS_INVALID_OBJECT_ID;
+        for (auto& e : c.acl_entries) {
+            auto f = e.second.fields.find(SAI_ACL_ENTRY_ATTR_FIELD_ACL_RANGE_TYPE);
+            if (f != e.second.fields.end() && std::count(f->second.objs.begin(), f->second.objs.end(), id))
+                return SAI_STATUS_OBJECT_IN_USE;
+        }
+        c.acl_ranges.erase(id);
+        return SAI_STATUS_SUCCESS;
+    });
+}
+static sai_status_t set_acl_range_attribute(_In_ sai_object_id_t id, _In_ const sai_attribute_t*)
+{
+    return guarded(SAI_API_ACL, __func__, [&]() -> sai_status_t {
+        if (!ctx().acl_ranges.count(id)) return SAI_STATUS_INVALID_OBJECT_ID;
+        return attr_invalid(0);   // create only
+    });
+}
+static sai_status_t get_acl_range_attribute(_In_ sai_object_id_t id, _In_ uint32_t n, _Inout_ sai_attribute_t* attrs)
+{
+    return guarded(SAI_API_ACL, __func__, [&]() -> sai_status_t {
+        AclRangeObj* r = lookup(ctx().acl_ranges, id);
+        if (!r) return SAI_STATUS_INVALID_OBJECT_ID;
+        if (n && !attrs) return SAI_STATUS_INVALID_PARAMETER;
+        for (uint32_t i = 0; i < n; i++) {
+            switch (attrs[i].id) {
+            case SAI_ACL_RANGE_ATTR_TYPE: attrs[i].value.s32 = r->type; break;
+            case SAI_ACL_RANGE_ATTR_LIMIT: attrs[i].value.u32range.min = r->min; attrs[i].value.u32range.max = r->max; break;
+            default: return attr_not_supported(i);
+            }
+        }
+        return SAI_STATUS_SUCCESS;
+    });
+}
 static sai_status_t create_chain_group(_Out_ sai_object_id_t*, _In_ sai_object_id_t, _In_ uint32_t, _In_ const sai_attribute_t*)
 {
     return SAI_STATUS_NOT_SUPPORTED;

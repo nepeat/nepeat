@@ -547,10 +547,9 @@ static sai_status_t get_capacity(uint32_t i, sai_attribute_t& a, bool& handled)
         return SAI_STATUS_SUCCESS;
     case SAI_SWITCH_ATTR_ACL_STAGE_INGRESS:
     case SAI_SWITCH_ATTR_ACL_STAGE_EGRESS: {
-        // Ingress: the field processor's actions; no egress ACLs.
+        // The field processor's actions per stage (egress: none unless the backend has egress tables).
         a.value.aclcapability.is_action_list_mandatory = false;
-        std::vector<int32_t> acts;
-        if (a.id == SAI_SWITCH_ATTR_ACL_STAGE_INGRESS) acts = acl_ingress_actions();
+        std::vector<int32_t> acts = a.id == SAI_SWITCH_ATTR_ACL_STAGE_INGRESS ? acl_ingress_actions() : acl_egress_actions();
         return fill_list(a.value.aclcapability.action_list, acts);
     }
     case SAI_SWITCH_ATTR_NUMBER_OF_ECMP_GROUPS:

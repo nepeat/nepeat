@@ -359,7 +359,9 @@ struct AclEntryObj {
     std::map<sai_attr_id_t, std::vector<sai_object_id_t>> action_objs;   // object-list actions (MIRROR_*) copied
     int eid = -1;                       // installed SDK entry, -1 = none
     std::string key;                    // what eid was installed with
+    bool hw_enabled = true;             // FpCap::EntryEnable: the installed entry's state
 };
+struct AclRangeObj { int32_t type = 0; uint32_t min = 0, max = 0; };   // ACL_RANGE (FpCap::Ranges)
 struct AclCounterObj {
     sai_object_id_t table = 0, entry = 0;
     bool packets = false, bytes = false;
@@ -444,6 +446,8 @@ struct Ctx {
     std::map<sai_object_id_t, AclGroupObj> acl_groups;
     std::map<sai_object_id_t, AclGroupMemberObj> acl_group_members;
     std::map<sai_object_id_t, sai_object_id_t> acl_bind;  // PORT/LAG -> ingress ACL table group (or table)
+    std::map<sai_object_id_t, sai_object_id_t> acl_bind_egress;  // PORT/LAG -> egress ACL (FpCap::Egress)
+    std::map<sai_object_id_t, AclRangeObj> acl_ranges;
     int acl_next_prio = 1;                              // SDK group priority per table, creation order
     int copp_gid = -1;                                  // SDK field group of the CoPP policing rules
     bool copp_dst_cpu = false;                          // that group can match "routed to the CPU"
@@ -534,6 +538,7 @@ void events_stop();
 void push_event(const Event& e);
 sai_status_t port_stats_get(int hw, uint32_t n, const sai_stat_id_t* ids, uint64_t* out);
 bool port_stat_supported(sai_stat_id_t id);
+bool rif_stat_supported(sai_stat_id_t id);           // sai_l3.cpp: SAI_ROUTER_INTERFACE_STAT_*
 // Attachments: a front-panel PORT that is not a LAG member, or a LAG.
 bool attach_valid(sai_object_id_t obj);
 int attach_dest(sai_object_id_t obj);                // port hw or lag_dest(tid); -1 if neither
@@ -571,6 +576,7 @@ bool policer_valid(sai_object_id_t oid);
 void acl_clear_objects();                            // switch removal
 bool acl_table_field_supported(sai_attr_id_t table_field);
 std::vector<int32_t> acl_ingress_actions();          // SAI_ACL_ACTION_TYPE_* implemented
+std::vector<int32_t> acl_egress_actions();           // the same for egress tables (empty: no egress ACL)
 // QoS (sai_qos.cpp): per-port attributes (handled = the attribute is a QoS
 // one), the scheduler groups built with the switch, teardown.
 sai_status_t port_qos_set(PortObj& p, const sai_attribute_t& a, uint32_t i, bool& handled);

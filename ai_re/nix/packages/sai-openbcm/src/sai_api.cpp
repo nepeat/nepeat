@@ -350,10 +350,12 @@ sai_status_t sai_query_stats_capability(_In_ sai_object_id_t, _In_ sai_object_ty
     if (!stats_capability) return SAI_STATUS_INVALID_PARAMETER;
     if (object_type == SAI_OBJECT_TYPE_QUEUE || object_type == SAI_OBJECT_TYPE_INGRESS_PRIORITY_GROUP)
         return qos_stats_capability(object_type, stats_capability);
-    if (object_type != SAI_OBJECT_TYPE_PORT) return SAI_STATUS_NOT_SUPPORTED;
+    if (object_type != SAI_OBJECT_TYPE_PORT && object_type != SAI_OBJECT_TYPE_ROUTER_INTERFACE)
+        return SAI_STATUS_NOT_SUPPORTED;
+    bool rif = object_type == SAI_OBJECT_TYPE_ROUTER_INTERFACE;
     std::vector<sai_stat_capability_t> v;
-    for (uint32_t id = 0; id < 0x100; id++)
-        if (port_stat_supported(id)) {
+    for (uint32_t id = 0; id < 0x200; id++)
+        if (rif ? rif_stat_supported(id) : port_stat_supported(id)) {
             sai_stat_capability_t s;
             s.stat_enum = id;
             s.stat_modes = SAI_STATS_MODE_READ;

@@ -136,6 +136,11 @@ struct FpMatch {
     uint16_t vlan = 0, vlan_mask = 0;
     uint8_t ttl = 0, ttl_mask = 0;
     std::vector<int> ports;         // InPorts (SDK logical ports); DstCpu: routed/host hit to the CPU egress
+    // Only with Backend::fp_supported (FpCap): L4 port ranges (inclusive),
+    // egress ports of an egress table entry (OUT_PORTS). Not in present.
+    bool l4_src_range = false, l4_dst_range = false;
+    uint16_t l4_src_min = 0, l4_src_max = 0, l4_dst_min = 0, l4_dst_max = 0;
+    std::vector<int> out_ports;
     bool has(FpQual q) const { return (present >> (int)q) & 1u; }
     void set(FpQual q) { present |= 1u << (int)q; }
 };
@@ -151,6 +156,20 @@ struct FpRule {
     // Mirror sessions (backend ids from mirror_create) the matched packets
     // are mirrored to; only set when the backend has mirror_supported().
     std::vector<int> mirror_ingress, mirror_egress;
+    // Only with Backend::fp_supported (FpCap): redirect to a dest (port /
+    // lag_dest) or, with redirect_egress, an L3 egress object (next hop);
+    // set the traffic class / DSCP (-1: leave).
+    int redirect = -1;
+    bool redirect_egress = false;
+    int set_tc = -1, set_dscp = -1;
+};
+// Optional field-processor features (Backend::fp_supported).
+enum class FpCap : uint8_t { Ranges, Redirect, SetTc, SetDscp, Egress, OutPorts, EntryEnable, EntryUpdate };
+// What a table needs beyond its qualifier set (fp_group_create_ex).
+struct FpGroupExtra {
+    bool egress = false, src_range = false, dst_range = false, out_ports = false;
+    bool redirect = false, set_tc = false, set_dscp = false, mirror = false;
+    bool any() const { return egress || src_range || dst_range || out_ports || redirect || set_tc || set_dscp || mirror; }
 };
 // SDK meter. packets: rates in packets/s and bursts in packets, else bytes/s and bytes.
 struct PolicerCfg {
@@ -433,6 +452,61 @@ public:
     virtual sai_status_t vlan_flood_set(uint16_t vid, FloodKind kind, bool on)
     {
         (void)vid; (void)kind; (void)on;
+        return SAI_STATUS_NOT_SUPPORTED;
+    }
+
+    // ---- Optional L3 / counter / ACL extras. Each default keeps the
+    // behaviour from before the hook existed.
+    // Router interface counters (SAI_ROUTER_INTERFACE_STAT_*) of an L3
+    // interface (l3_intf_create's id); clear: read and reset.
+    virtual bool l3_intf_stat_supported(sai_stat_id_t id) const { (void)id; return false; }
+    virtual sai_status_t l3_intf_stats(int intf_id, uint32_t n, const sai_stat_id_t* ids, uint64_t* out, bool clear)
+    {
+        (void)intf_id; (void)n; (void)ids; (void)out; (void)clear;
+        return SAI_STATUS_NOT_SUPPORTED;
+    }
+    // RIF ADMIN_V4/V6_STATE: IPv4 / IPv6 routing on an L3 interface
+    // (NOT_SUPPORTED: the SAI layer only stores them).
+    virtual sai_status_t l3_intf_admin_set(int intf_id, bool v4, bool v6)
+    {
+        (void)intf_id; (void)v4; (void)v6;
+        return SAI_STATUS_NOT_SUPPORTED;
+    }
+    // The shared CPU egress of glean: routes to a connected subnet and next
+    // hops without a neighbor (NEIGHBOR_MISS). Default: the IP2ME one.
+    virtual sai_status_t l3_egress_glean(int& egress_id) { return l3_egress_cpu(egress_id); }
+    // Port counters by SAI id beyond PortStat: ids with port_stat_by_id()
+    // come from port_stats_by_id, the rest from port_stat_get as before.
+    virtual bool port_stat_by_id(sai_stat_id_t id) const { (void)id; return false; }
+    virtual sai_status_t port_stats_by_id(int hw, uint32_t n, const sai_stat_id_t* ids, uint64_t* out)
+    {
+        (void)hw; (void)n; (void)ids; (void)out;
+        return SAI_STATUS_NOT_SUPPORTED;
+    }
+    // Field-processor extras (FpCap, FpGroupExtra, the FpMatch / FpRule
+    // members marked "only with fp_supported").
+    virtual bool fp_supported(FpCap cap) const { (void)cap; return false; }
+    virtual sai_status_t fp_group_create_ex(const std::vector<FpQual>& qset, int priority, const FpGroupExtra& x, int& gid)
+    {
+        if (x.any()) return SAI_STATUS_NOT_SUPPORTED;
+        return fp_group_create(qset, priority, gid);
+    }
+    // EntryUpdate: change an installed entry in place (its counter keeps
+    // counting); EntryEnable: switch it off / on without removing it.
+    virtual sai_status_t fp_entry_update(int eid, const FpRule& r)
+    {
+        (void)eid; (void)r;
+        return SAI_STATUS_NOT_SUPPORTED;
+    }
+    virtual sai_status_t fp_entry_enable(int eid, bool on)
+    {
+        (void)eid; (void)on;
+        return SAI_STATUS_NOT_SUPPORTED;
+    }
+    // Free entries in a group (ACL_TABLE AVAILABLE_ACL_ENTRY).
+    virtual sai_status_t fp_group_free(int gid, uint32_t& entries)
+    {
+        (void)gid; (void)entries;
         return SAI_STATUS_NOT_SUPPORTED;
     }
 };

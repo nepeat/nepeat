@@ -308,6 +308,14 @@ static sai_status_t create_rif(_Out_ sai_object_id_t* id, _In_ sai_object_id_t, 
             sai_status_t st = ensure_switch_station();
             if (st == SAI_STATUS_SUCCESS && !mac_eq(r.mac, c.src_mac)) st = c.be->l3_station_add(r.mac, r.station);
             if (st == SAI_STATUS_SUCCESS) st = c.be->l3_intf_create(r.mac, r.vid, r.mtu, r.vrf, r.intf);
+            if (st == SAI_STATUS_SUCCESS && (!r.v4 || !r.v6)) {
+                sai_status_t a = c.be->l3_intf_admin_set(r.intf, r.v4, r.v6);
+                if (a != SAI_STATUS_SUCCESS && a != SAI_STATUS_NOT_SUPPORTED) {
+                    c.be->l3_intf_destroy(r.intf);
+                    r.intf = -1;
+                    st = a;
+                }
+            }
             if (st != SAI_STATUS_SUCCESS) {
                 if (r.station >= 0) c.be->l3_station_delete(r.station);
                 rif_undo_port_vlan(r);
@@ -379,8 +387,18 @@ static sai_status_t set_rif(_In_ sai_object_id_t id, _In_ const sai_attribute_t*
             std::memcpy(r->mac, attr->value.mac, 6);
             return SAI_STATUS_SUCCESS;
         }
-        case SAI_ROUTER_INTERFACE_ATTR_ADMIN_V4_STATE: r->v4 = attr->value.booldata; return SAI_STATUS_SUCCESS;
-        case SAI_ROUTER_INTERFACE_ATTR_ADMIN_V6_STATE: r->v6 = attr->value.booldata; return SAI_STATUS_SUCCESS;
+        case SAI_ROUTER_INTERFACE_ATTR_ADMIN_V4_STATE:
+        case SAI_ROUTER_INTERFACE_ATTR_ADMIN_V6_STATE: {
+            bool v4 = attr->id == SAI_ROUTER_INTERFACE_ATTR_ADMIN_V4_STATE ? attr->value.booldata : r->v4;
+            bool v6 = attr->id == SAI_ROUTER_INTERFACE_ATTR_ADMIN_V6_STATE ? attr->value.booldata : r->v6;
+            if (r->intf >= 0 && (v4 != r->v4 || v6 != r->v6)) {
+                sai_status_t st = c.be->l3_intf_admin_set(r->intf, v4, v6);   // NOT_SUPPORTED: stored only
+                if (st != SAI_STATUS_SUCCESS && st != SAI_STATUS_NOT_SUPPORTED) return attr_backend_status(st, 0);
+            }
+            r->v4 = v4;
+            r->v6 = v6;
+            return SAI_STATUS_SUCCESS;
+        }
         default: {
             const StubDef* d = find_stub(rif_stubs, NSTUB(rif_stubs), attr->id);
             if (!d) return attr_not_supported(0);
@@ -422,10 +440,48 @@ static sai_status_t get_rif(_In_ sai_object_id_t id, _In_ uint32_t n, _Inout_ sa
     });
 }
 
-static sai_status_t no_rif_stats(_In_ sai_object_id_t, _In_ uint32_t, _In_ const sai_stat_id_t*, _Out_ uint64_t*)
+// RIF counters: the backend's L3 interface counters (l3_intf_stats);
+// loopback RIFs (no interface) and backends without them: NOT_SUPPORTED.
+static sai_status_t rif_stats(sai_object_id_t id, uint32_t n, const sai_stat_id_t* ids, uint64_t* out, bool clear)
 {
-    return SAI_STATUS_NOT_SUPPORTED;
+    auto& c = ctx();
+    RifObj* r = lookup(c.rifs, id);
+    if (!r) return SAI_STATUS_INVALID_OBJECT_ID;
+    if (n && !ids) return SAI_STATUS_INVALID_PARAMETER;
+    for (uint32_t i = 0; i < n; i++)
+        if (!c.be->l3_intf_stat_supported(ids[i])) return SAI_STATUS_NOT_SUPPORTED;
+    if (r->intf < 0) return SAI_STATUS_NOT_SUPPORTED;
+    std::vector<uint64_t> tmp(n);
+    sai_status_t st = c.be->l3_intf_stats(r->intf, n, ids, out ? out : tmp.data(), clear);
+    return st;
 }
+
+static sai_status_t get_rif_stats(_In_ sai_object_id_t id, _In_ uint32_t n, _In_ const sai_stat_id_t* ids,
+                                  _Out_ uint64_t* out)
+{
+    return guarded(SAI_API_ROUTER_INTERFACE, __func__, [&]() -> sai_status_t {
+        if (n && !out) return SAI_STATUS_INVALID_PARAMETER;
+        return rif_stats(id, n, ids, out, false);
+    });
+}
+
+static sai_status_t get_rif_stats_ext(_In_ sai_object_id_t id, _In_ uint32_t n, _In_ const sai_stat_id_t* ids,
+                                      _In_ sai_stats_mode_t mode, _Out_ uint64_t* out)
+{
+    return guarded(SAI_API_ROUTER_INTERFACE, __func__, [&]() -> sai_status_t {
+        if (n && !out) return SAI_STATUS_INVALID_PARAMETER;
+        return rif_stats(id, n, ids, out, mode == SAI_STATS_MODE_READ_AND_CLEAR);
+    });
+}
+
+static sai_status_t clear_rif_stats(_In_ sai_object_id_t id, _In_ uint32_t n, _In_ const sai_stat_id_t* ids)
+{
+    return guarded(SAI_API_ROUTER_INTERFACE, __func__, [&]() -> sai_status_t {
+        return rif_stats(id, n, ids, nullptr, true);
+    });
+}
+
+bool rif_stat_supported(sai_stat_id_t id) { return ctx().be && ctx().be->l3_intf_stat_supported(id); }
 
 static sai_router_interface_api_t make_rif_api()
 {
@@ -435,7 +491,9 @@ static sai_router_interface_api_t make_rif_api()
     a.remove_router_interface = remove_rif;
     a.set_router_interface_attribute = set_rif;
     a.get_router_interface_attribute = get_rif;
-    a.get_router_interface_stats = no_rif_stats;
+    a.get_router_interface_stats = get_rif_stats;
+    a.get_router_interface_stats_ext = get_rif_stats_ext;
+    a.clear_router_interface_stats = clear_rif_stats;
     return a;
 }
 const sai_router_interface_api_t rif_api = make_rif_api();
@@ -494,10 +552,11 @@ static sai_status_t neighbor_egress(const NeighborKey& k, NeighborObj& o, int32_
 
 static bool egress_shared(int egress)
 {
-    int cpu = -1, drop = -1;
+    int cpu = -1, drop = -1, glean = -1;
     ctx().be->l3_egress_cpu(cpu);
     ctx().be->l3_egress_drop(drop);
-    return egress == cpu || egress == drop;
+    ctx().be->l3_egress_glean(glean);
+    return egress == cpu || egress == drop || egress == glean;
 }
 
 static sai_status_t create_neighbor_entry(_In_ const sai_neighbor_entry_t* e, _In_ uint32_t n,
@@ -651,8 +710,8 @@ static sai_status_t create_next_hop(_Out_ sai_object_id_t* id, _In_ sai_object_i
         auto nb = c.neighbors.find(NeighborKey{o.rif, o.ip});
         if (nb != c.neighbors.end()) o.egress = nb->second.egress;
         else {
-            OB_INFO(SAI_API_NEXT_HOP, "next hop without neighbor: points at the CPU until it resolves");
-            sai_status_t st = c.be->l3_egress_cpu(o.egress);
+            OB_INFO(SAI_API_NEXT_HOP, "next hop without neighbor: points at the CPU (glean) until it resolves");
+            sai_status_t st = c.be->l3_egress_glean(o.egress);
             if (st != SAI_STATUS_SUCCESS) return st;
         }
         sai_object_id_t oid = c.alloc(SAI_OBJECT_TYPE_NEXT_HOP);
@@ -734,7 +793,7 @@ static sai_status_t route_egress(int32_t action, sai_object_id_t nh, int& egress
     }
     case SAI_OBJECT_TYPE_ROUTER_INTERFACE:   // directly connected subnet: glean via the CPU
         if (!c.rifs.count(nh)) return SAI_STATUS_INVALID_PARAMETER;
-        return c.be->l3_egress_cpu(egress);
+        return c.be->l3_egress_glean(egress);
     case SAI_OBJECT_TYPE_PORT:               // IP2ME: next hop is the CPU port
         if (nh != c.cpu_port) return SAI_STATUS_INVALID_PARAMETER;
         return c.be->l3_egress_cpu(egress);
