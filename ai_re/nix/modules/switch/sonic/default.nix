@@ -15,7 +15,7 @@ let
   sonicBuild = import ../../../packages/sonic { pkgs = pkgs.buildPackages; };
   str = toString;
 
-  P = import ./ports.nix { inherit lib; } { inherit (cfg) cages breakout defaultSpeed validSpeeds; };
+  P = import ./ports.nix { inherit lib; } { inherit (cfg) cages breakout defaultSpeed validSpeeds allowUnusedLanes; };
   portByName = listToAttrs (map (p: nameValuePair p.name p) P.ports);
   translateKey = k: concatStringsSep "|" (map (part: P.aliasToName.${part} or part) (splitString "|" k));
   translateKeys = mapAttrs (_: entries: mapAttrs' (k: v: nameValuePair (translateKey k) v) entries);
@@ -207,6 +207,11 @@ in {
       type = types.attrsOf (types.listOf types.ints.positive);
       default = { "1" = [ 10000 25000 ]; "2" = [ 50000 ]; "4" = [ 40000 100000 ]; };
       description = "Valid port speeds by lane count (build-time check of breakout overrides).";
+    };
+    allowUnusedLanes = mkOption {
+      type = types.bool;
+      default = false;
+      description = "A breakout may leave a cage's upper lanes unused (e.g. Teralynx 7 1x100G or 4x25G on an 8-lane QSFP-DD cage).";
     };
     breakout = mkOption {
       type = types.attrsOf (types.listOf (types.submodule {

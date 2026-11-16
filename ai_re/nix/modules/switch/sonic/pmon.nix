@@ -27,6 +27,12 @@ in {
       default = [ "xcvrd" "thermalctld" "psud" "syseepromd" ];
       description = "pmon daemons to run.";
     };
+    args = mkOption {
+      type = types.attrsOf (types.listOf types.str);
+      default = { };
+      example = { xcvrd = [ "--skip_cmis_mgr" ]; };
+      description = "Extra arguments per daemon (e.g. xcvrd --skip_cmis_mgr on a read-only platform).";
+    };
     environment = mkOption {
       type = types.attrsOf types.str;
       default = { };
@@ -48,7 +54,7 @@ in {
       environment = { PLATFORM = cfg.platform; } // pcfg.environment;
       unitConfig = { StartLimitIntervalSec = 300; StartLimitBurst = 10; };
       serviceConfig = {
-        ExecStart = "${pmon}/bin/${d}";
+        ExecStart = lib.concatStringsSep " " ([ "${pmon}/bin/${d}" ] ++ pcfg.args.${d} or [ ]);
         Restart = "always";
         RestartSec = 5;
       };

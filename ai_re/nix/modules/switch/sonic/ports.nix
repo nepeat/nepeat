@@ -1,17 +1,19 @@
 # Front-panel ports from cages + explicit breakout overrides (pure; used by
 # default.nix and the eval tests). Rules: config-ownership.md "ports".
 #   SONiC name from the port's first lane, as SONiC does:
-#   Ethernet<4*(cage-1) + index of the first lane within the cage (0-based)>;
+#   Ethernet<stride*(cage-1) + index of the first lane within the cage (0-based)>,
+#   stride = lanes of the widest cage (QSFP28: 4, QSFP-DD/OSFP: 8);
 #   alias = Ethernet<cage>/<subport>.
 { lib }:
-{ cages, breakout, defaultSpeed, validSpeeds }:
+{ cages, breakout, defaultSpeed, validSpeeds, allowUnusedLanes ? false }:
 let
   inherit (lib) concatLists imap1 length elem filter unique sort concatMapStringsSep
     hasAttr attrNames toInt mapAttrsToList;
   str = toString;
   nCages = length cages;
-  # Ports per cage in the naming scheme (QSFP28: 4 lanes, at most 4 subports).
-  stride = 4;
+  # Ports per cage in the naming scheme = lanes of the widest cage (QSFP28: 4
+  # lanes, at most 4 subports; QSFP-DD: 8).
+  stride = lib.foldl' lib.max 1 (map length cages);
   parseAlias = alias: let m = builtins.match "Ethernet([0-9]+)/([0-9]+)" alias; in
     if m == null then null else { cage = toInt (lib.head m); sub = toInt (lib.last m); };
   laneIndex = cage: lane: let l = lib.elemAt cages (cage - 1); i = lib.lists.findFirstIndex (x: x == lane) null l; in
@@ -56,8 +58,10 @@ let
                                   (lib.sort (a: b: (parseAlias a.alias).sub or 0 < (parseAlias b.alias).sub or 0) list);
                     in firsts == lib.sort (a: b: a < b) firsts;
         message = "${where}: subports must follow the lane order (Ethernet${key}/1 on the lowest lanes)"; }
-      { assertion = filter (l: !elem l used) cageLanes == [ ];
-        message = "${where}: lanes ${showLanes (filter (l: !elem l used) cageLanes)} of cage ${key} are not assigned (left over from the default port): list every port"; }
+      { assertion = let unused = filter (l: !elem l used) cageLanes; in
+          unused == [ ] || (allowUnusedLanes && lib.drop (length cageLanes - length unused) cageLanes == unused);
+        message = "${where}: lanes ${showLanes (filter (l: !elem l used) cageLanes)} of cage ${key} are not assigned (left over from the default port): list every port"
+          + lib.optionalString allowUnusedLanes " (only the cage's upper lanes may stay unused)"; }
     ] ++ concatLists (map (p:
       let a = parseAlias p.alias; n = length p.lanes; in [
         { assertion = a != null && a.cage == cage && a.sub >= 1 && a.sub <= stride;

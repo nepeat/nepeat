@@ -79,9 +79,11 @@ services.sonic.breakout."1" = [
 ];
 ```
 
-SONiC name from the first lane, as SONiC does: `Ethernet<4*(cage-1) + index of
-the first lane in the cage>` (2x50G cage 1: Ethernet0, Ethernet2). Eval-time
-assertions: each lane of the cage exactly once, subports in lane order, no foreign lane, names `Ethernet<cage>/<1..4>`
+SONiC name from the first lane, as SONiC does: `Ethernet<stride*(cage-1) + index of
+the first lane in the cage>`, stride = lanes of the widest cage (QSFP28 4, QSFP-DD 8;
+2x50G cage 1 of 4 lanes: Ethernet0, Ethernet2). Eval-time
+assertions: each lane of the cage exactly once (`allowUnusedLanes`: the upper lanes may stay
+unused, e.g. Teralynx 1x100G on 8 lanes), subports in lane order, no foreign lane, names `Ethernet<cage>/<1..stride>`
 and unique, speed valid for the lane count (`validSpeeds`), cage exists,
 `settings.PORT` keys exist. The Nix base is YANG-validated at build time
 (`system.build.sonic.base`); the merged config again at boot (warning only).
