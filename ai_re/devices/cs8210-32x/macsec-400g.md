@@ -104,8 +104,8 @@ not-valid errors; ASIC tx frames = far-end rx frames. Files:
   changes nothing on the live SA, and `macsec_datapath_flush` + a new SA does
   not replace the old one (traffic kept using the old key; the new SAs show 0).
   Why, and the hitless path the engine has: [macsec.md](macsec.md).
-- The CLI prints only the low 32 bits of the (64-bit) SA counters, so its
-  octets wrap every ~0.1 s at line rate; `cs8210-macsec status` shows all 64.
+- The SA counters are 64-bit and clear-on-read; the CLI prints the low 32
+  bits of each read. `cs8210-macsec status` keeps 64-bit totals.
 - These runs used the vendor's `SAB_MACSEC_FLAG_ROLLOVER` (PN may wrap, I),
   with throwaway keys; [macsec.md](macsec.md) "Other findings".
 

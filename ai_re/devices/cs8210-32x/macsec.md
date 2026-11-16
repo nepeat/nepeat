@@ -1,7 +1,13 @@
 # MACsec on the Credo PHYs: capabilities, key changing, MKA (2026-11-16)
 
-**Status: designed and implemented offline; offline tests pass (static SAs, hitless rekey,
-MKA bring-up and MKA rekey against a stub engine); hardware tests not run yet.** The 400G link
+**Status (2026-11-16): works on hardware.** On the cage 1 <-> 16 400G loop:
+- static SAs with all four ciphers (GCM-AES-128/256, XPN-128/256), XPN-256 at 384.7 Gb/s per direction;
+- hitless rekey under traffic with 0 loss, at 203 Gb/s and at line rate;
+- MKA (wpa_supplicant 2.12, PSK) up in 3.3 s, rekeying on PN exhaustion with 0 loss;
+- interop with Linux kernel macsec.
+
+Results are under "Hardware results" below. Three shim bugs found on the hardware are fixed in
+the tree; **the deployed generation still has the broken shim until the next deploy**. The 400G link
 and yesterday's static-key results: [macsec-400g.md](macsec-400g.md). Code:
 `nix/nixos/module/cs8210/macsec/` (`hardware.cs8210.macsec`, default off, not imported yet).
 Tags: **V** verified (disassembly/decompile, DWARF, offline test), **I** inferred, **HW** needs
@@ -28,17 +34,17 @@ CLI (`libcredoCmd.so`, Celestica's `cmds.c`) imports only a fraction of it.
 | confidentiality offset | 0..63 B (6-bit field; 802.1AE 0/30/50) V | 0 | 0/30/50 (policy) |
 | integrity only | `fConfProtect=0` (E=0, C=0) V | no | `encrypt=0` / MKA `integrityOnly` |
 | SecTAG | SC (include SCI), ES, SCB, PreSecTagAuth start/length (12 = DA+SA in the ICV), SecTagOffset per vPort, parser EtherType/version/KaY checks per device V | SC=1, ES=0, SCB=0, auth length 12 | SC=1 always (our RX finds SCs by SCI), ES/SCB policy |
-| replay protect | per flow on/off + per-SA window (32 bit, updatable live) V | on, **window 0xffffffff** (= effectively off) | on, window from config / MKA (default 0) |
+| replay protect | per flow on/off + per-SA window (32 bit, updatable live) V; HW: replayed frames counted InPktsLate, not delivered | on, **window 0xffffffff** (= effectively off) | on, window from config / MKA (default 0) |
 | validate frames | disabled / check / strict + allow tagged/untagged, validate untagged V | strict, untagged allowed | strict (untagged dropped) unless policy says otherwise |
 | SAs per SC | ingress 4 (AN 0..3) at once; egress 1 active + 1 chained V | 1 | 4 / 1+next |
-| SCs, vPorts, SAs, rules per device | runtime limits (`SecY_Device_Limits`, `CfyE_Device_Limits`) | | `cs8210-macsec hello` prints them **HW** |
+| SCs, vPorts, SAs, rules per device | 512 SCs, 512 vPorts, 1024 SAs, 1024 rules, 12 channels (HW, `cs8210-macsec hello`) | | same |
 | traffic selection | TCAM: 4 x 32-bit data words (MAC DA in 0-1, EtherType + outer VLAN TCI in 2, inner TCI in 3, frame bytes packed little-endian), packet type (other/MPLS/PBB/MACsec), tag count (up to 3), channel; priority 0-7, drop, control-packet flag; separate control-packet detector (8 DA/EtherType entries, DA ranges) V | one match-all rule per direction; its `da=` `num_tags=` `pkt_type=` arguments are parsed and ignored V | match-all data rule + EAPOL rule |
-| EAPOL (0x888E) bypass | rule + BYPASS SA V | none (control-packet detector initialised all-zero) V | EtherType rule `Data[2]=0x8e88`, priority 7, control packet, BYPASS SA, both directions |
-| next PN | get/set per SA, 64-bit with XPN V; egress record holds the last PN sent (I: SeqNum 0 gave PN 1 on the wire) | set once (none -> 0) | `cmx_sa_pn`, `cs8210-macsec pn` |
+| EAPOL (0x888E) bypass | rule + BYPASS SA V | none (control-packet detector initialised all-zero) V | EtherType rule `Data[2]=0x8e88`, priority 7, control packet, BYPASS SA, both directions (HW: hits, passes in clear, and the ASIC delivers 01:80:c2:00:00:03 to fppN) |
+| next PN | get per SA, 64-bit with XPN (HW: one SA ran past 2^32 to PN 5.95e9); egress record = last PN sent (HW); **set works on ingress only**, a live egress SA ignores it (`written=0`, HW), so the egress PN is fixed at install | set once (none -> 0) | `cmx_sa_pn` (fails when not written) |
 | PN threshold / exhaustion | device `SeqNrThreshold`(64) + PN-threshold and SA-expired summaries, `SA_EXPIRED_IRQ` flag V | threshold 0 (off) | polled (MKA, metrics `pn_used_ratio`) |
 | GCM hash subkey | `auth` = H = AES_K(0^128), required (no callback) V | given in the command file | computed by the client |
 | key storage | transform record in engine context RAM (egress 22 words: key, H, seq, salt^SSCI, SCI; ingress 20), written by `SecY_SA_Add`/`Chain` | | never read back; buffers wiped |
-| counters | per SA (out 4, in 10), per SecY (out 3, in 8), per interface (out 9, in 8), per rule (TCAM hits), all **64 bit** V | prints the low 32 bits only | all, 64 bit |
+| counters | per SA (out 4, in 10), per SecY (out 3, in 8), per interface (out 9, in 8), per rule (TCAM hits), all **64 bit and clear-on-read** (HW, every class) | prints the low 32 bits of each read | accumulated in the shim, 64 bit |
 | hitless rekey | ingress: next AN beside the current; egress: `SecY_SA_Chain` (new SA, auto-switch at expiry) + `SecY_SA_Switch` (switch now, sync + verify) + `SecY_SA_Remove`; `SecY_SA_Update` per-SA in-use V (Credo's 2026 `MACsec_SA_Rekeying` does the same) | none | yes (static: `rekey`; MKA: driver) |
 | engine on/off | `enable_low_latency_bypass` per side (= vendor `macsec_enable`/`disable`) V | yes | `cmx_port_up` / `cmx_port_down` |
 
@@ -68,6 +74,13 @@ SA builder flags (`SAB_MACSEC_FLAG_*`, V): `LONGSEQ` 1 (XPN), `RETAIN_SECTAG` 2,
 - The SA counters only looked 32-bit: the CLI prints `.Lo` (corrects macsec-400g.md).
 - When the last SA of a vPort goes, the DDK writes a BYPASS flow (`SAMFlow_Clear`), i.e. clear
   text on egress. Our design gates data with the rule's drop flag instead (below).
+- **`CfyE_Rule_Remove` leaves the TCAM entry enabled** and only resets its policy to vPort 0
+  (`EIP163_Rule_Remove` = `TCAM_POLICY_DEFAULT_WR`). On hardware, after `down` + `up` the stale
+  match-all entries won (`TCAMHitMultiple`, lower index), so the traffic went to vPort 0's
+  bypass flow and **left in clear text** while the status said protected. The shim now
+  disables each rule (synced) before removing it, and the stub DDK flags a remove without one.
+- The vendor's `devices` table is 8 pairs (stride 0x378, second entry at +0x1b8), not 16 x 0x1b8;
+  the first deployed shim read it wrong and refused every slice ("bad arguments").
 
 ## Design
 
@@ -119,7 +132,7 @@ cs8210-macsec keygen --loop 1:16 --cipher gcm-aes-xpn-256 --out /var/lib/cs8210-
 cs8210-macsec up --config /var/lib/cs8210-macsec/static.json     # receivers first, then transmitters
 cs8210-macsec status [--slice 1] [--json]                       # the "MACsec info"
 cs8210-macsec rekey --config ... --link 1:16                    # new SAK on AN+1, both directions
-cs8210-macsec pn --slice 1 --dir tx --an 1 [--set 0xC0000000]
+cs8210-macsec pn --slice 16 --dir rx --an 1 --sci 0e48c67a55cf0001 [--set N]   # set: ingress only
 cs8210-macsec down --slice 1 --slice 16                         # back to clear-text bypass
 ```
 NixOS: `hardware.cs8210.macsec.enable` (shim + tool + metrics producer, takes effect at the next
@@ -136,28 +149,41 @@ NixOS: `hardware.cs8210.macsec.enable` (shim + tool + metrics producer, takes ef
   pushed to 0xC0000010 -> "OLPN exhaustion", new SAK, RX AN 1 installed before TX switched by
   Chain + Switch; on exit both slices closed with no SAs.
 - Builds (aarch64): shim (GLIBC_2.17 only, NEEDED libc), `cs8210-macsec`,
-  `wpa_supplicant-cs8210` 2.12.
-- **Hardware: not run.** Plan below.
+  `wpa_supplicant-cs8210` 2.12. The stub DDK now models the hardware's `Rule_Remove`, the
+  pair layout of `devices` and egress PN updates being ignored.
 
-## Hardware plan (needs a window of ~90 min, ASIC free, only cages 1 and 16)
+## Hardware results (2026-11-16)
 
-1. Re-check presence; start `cs8210-switch` with the shim and yesterday's copper drop-in;
-   `hello` (limits), `status`.
-2. EAPOL path in bypass: one EAPOL frame fpp1 -> fpp16 (does the ASIC trap 01:80:c2:00:00:03?).
-3. Static, each cipher: `up`, CPU path ping/iperf, ASIC loop at line rate, 64-bit counters,
-   first PN on the wire, interop: slice 16 in bypass + Linux `ip macsec` on fpp16 decrypting
-   slice 1 (and back), XPN included; wrong key -> NotValid; last SA deleted -> no clear text.
-4. Hitless rekey under line-rate traffic, both directions, several times: count loss
-   (ASIC tx vs rx frames, InPktsLate/NotValid/NotUsingSA).
-5. MKA on fpp1/fpp16: bring-up time, traffic, rekey by TX PN push, wrong CAK stays closed,
-   port flap (`port disable/enable` in cls_shell) recovers.
-6. `down`, stop `cs8210-switch`, remove the drop-in.
+Cage 1 <-> 16 DAC (only cages 1 and 16 populated), SDK started with a runtime drop-in (copper
+`1x400G` on both Credo line sides) and the test shim; throwaway keys only, deleted afterwards.
+Evidence: `analysis/macsec-hw-20261116/` (git-ignored, `SHA256SUMS`; keys never printed).
+
+| test | result |
+| --- | --- |
+| EAPOL fpp1 <-> fpp16, bypass and through the engine | 10/10 each way, EAPOL rule hits, not encrypted (`03`, `05`) |
+| static XPN-256 on the ASIC loop (300 x 1500 B) | **384.7 Gb/s, 31.97 Mpps per direction**, 0 errors (`11`) |
+| first PN on the wire / next PN after 100 frames | PN 1 / 101 (`05`, `09`) |
+| interop vs Linux macsec on fpp16 (slice 16 in bypass) | XPN-256, XPN-128, GCM-AES-256, GCM-AES-128, integrity-only 128: 50/50 each way, 0 invalid (`06`, `20`) |
+| hitless rekey, both directions, 20 frames (~203 Gb/s, 1 lost frame = -10 Gb/s) | 3 rounds, rate unchanged, 0 error counters; ~1.3 s per round (two 0.5 s drains) (`12`) |
+| hitless rekey at line rate (300 frames) | 2 rounds, 384.7 Gb/s throughout, all SA/SecY error counters 0 (`13`) |
+| wrong RX key | that direction stops, `InPktsNotValid`; other direction unaffected (`14`) |
+| last TX SA deleted | data dropped by the rule, nothing on the wire (`14`) |
+| replay of captured frames | 5/5 `InPktsLate`, none delivered (`21`) |
+| MKA (PSK, GCM-AES-256, fpp1 key server) | secured in 3.3 s; 203 Gb/s through it (`15`) |
+| MKA rekey on natural PN exhaustion (under 203 Gb/s) | after 116 s, AN 0 -> 1 both ways, rate unchanged, 0 errors (`17`) |
+| MKA wrong CAK | both ends closed, no SAs, 0 traffic; right CAK back: secured in 4.6 s (`18`) |
+| port flap (devport 1 disabled 10 s) | MKA times out, both closed; after enable link 3.6 s, MKA (new SAK) 13.2 s, 203 Gb/s again (`19`) |
+| wpa_supplicant stopped | both ports closed, no SAs (`20`) |
+
+Not tested: confidentiality offset 30/50, ES/SCB, VLAN in clear, MKA at 64 B line rate (PN
+exhaustion every ~8 s), the `mka.ports` units themselves (the same command ran as transient
+units), MKA across two boxes.
 
 ## Open / risks
 
-- EAPOL to the CPU on the receiving port, through the ASIC: **HW**.
 - From the vendor config, not otherwise checked: `SecTagOffset 12`, `PktExtension 3`.
   From Credo 2026: ingress DestPort CONTROLLED, DropType INTERNAL, `fAllowUntagged` off.
   "Priority 7 wins": EIP-163 policy field (3 bit) plus Credo's `MaxRulePriority 7` (I).
-- Egress next PN = record + 1 (I). Engine MTU check (`SecY_Rules_MTUCheck`) not configured.
+- Engine MTU check (`SecY_Rules_MTUCheck`) not configured.
+- An SA's counters go with the SA when it is deleted (the engine clears on read, the shim keeps totals per SA).
 - A phy_server crash loses PHY control until `cs8210-switch` restarts.

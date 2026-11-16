@@ -25,7 +25,7 @@
 
 ## todo / standing notes
 
-- **In flight (2026-11-15):** node exporter built, not deployed yet (log entry "node exporter"), then the ai-re-metrics target; 400G + MACsec on the cage 1 <-> 16 loop done by hand, see [macsec-400g.md](macsec-400g.md) (only cages 1 and 16 are populated, re-check before every SDK start); MACsec key changing + MKA implemented and tested offline (2026-11-16, [macsec.md](macsec.md)), hardware window pending; SONiC on NixOS with a Teralynx SAI (agent, offline first); U-Boot replacement (scheme A' in boot-chain.md, no write planned yet); vendor-prompt batch (UART route R, uC readouts, CPLD v15/v2 register dump, cpld-diff.md); switch-porting-runbook.md refresh from the AS7760.
+- **In flight (2026-11-15):** node exporter built, not deployed yet (log entry "node exporter"), then the ai-re-metrics target; 400G + MACsec on the cage 1 <-> 16 loop done by hand, see [macsec-400g.md](macsec-400g.md) (only cages 1 and 16 are populated, re-check before every SDK start); MACsec key changing + MKA work on hardware (2026-11-16, [macsec.md](macsec.md)); shim fixes from that run need a deploy; SONiC on NixOS with a Teralynx SAI (agent, offline first); U-Boot replacement (scheme A' in boot-chain.md, no write planned yet); vendor-prompt batch (UART route R, uC readouts, CPLD v15/v2 register dump, cpld-diff.md); switch-porting-runbook.md refresh from the AS7760.
 
 - **External PCIe INTx (2026-11-15, from the DMC-12 USB finding):** on the DMC-12 (Alpine V2) the factory DT routes external-PCIe INTx through an Annapurna IOFIC that mainline lacks, so its USB only ran from the EHCI 100 ms watchdog. Here the ASIC (0001:01:00.0, `ipd`) has legacy irq 17 = GIC SPI 73, today only PME/AER on it (SDK not running); the FPGAs have no driver. With `cs8210-switch` running (2026-11-15) ipd uses 8 MSI-X vectors (napi and pic fire, legacy irq 17 unused), so INTx does not matter for the ASIC. On-SoC devices are fine: AHCI and ttyS0 count interrupts, al_eth uses MSI-X.
 
@@ -61,7 +61,8 @@ firmware loaded, in MACsec bypass.**
 Fans temperature-controlled including the ASIC die (about 55% at idle).
 **First link 2026-11-10: cage 17 (QSA + 10G DAC) up at 10G, LLDP received from the neighbour (entry (p)).**
 **400G 2026-11-15: cage 1 <-> 16 DAC at ~386 Gb/s per direction through both Credo PHYs, also with static-key MACsec (GCM-AES-128/256), by hand ([macsec-400g.md](macsec-400g.md)).**
-Not working / unproven: MKA, hitless rekey and MACsec at boot on hardware (implemented, offline tests pass, 2026-11-16: [macsec.md](macsec.md)), Linux offload, aux SPI flash, second NIC.
+**MACsec 2026-11-16: hitless rekey (0 loss at line rate), XPN, MKA (PSK) with PN-exhaustion rekey, Linux interop, on the loop ([macsec.md](macsec.md)).**
+Not working / unproven: MACsec at boot via the module units, MKA across two boxes, Linux offload, aux SPI flash, second NIC.
 Config: `nepeat/nix`, flake output `cs8210`. The vendor userland lives only on
 the switch (`/var/lib/cs8210-sdk/root`). ONIE in SPI flash is intact and is
 the fallback boot; the factory DIAGOS exists only as the 2026-10-17 image.
@@ -89,12 +90,24 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
-### 2026-11-16 — MACsec: engine capabilities, hitless rekey, MKA (offline)
+### 2026-11-16 — MACsec: engine capabilities, hitless rekey, MKA (hardware)
 
 - Capability table of the Credo PHYs' EIP-163/164 engine from the vendor DDK (`libdriver_164_u`) plus the DWARF in Credo's 2026 `libSerdes_owl800`: all four GCM-AES / XPN suites, 4 ANs per receive SC, egress `SecY_SA_Chain` + `SecY_SA_Switch` (hitless), next-PN get/set, 64-bit counters, TCAM rules with EAPOL bypass. The vendor CLI uses a sliver of it: [macsec.md](macsec.md).
 - Why yesterday's key change failed (`sa_set` edits memory only, `flush` = InsertEOP, second rule shadowed). Also: the vendor config sets `ROLLOVER` (PN wrap, I) and replay window 0xffffffff; `scripts/credo_macsec.py` no longer sets `ROLLOVER`. phy_server `system()`s unknown commands: its FIFO is now 0600.
 - New `nix/nixos/module/cs8210/macsec/` (`hardware.cs8210.macsec`, off, **not imported yet**): phy_server shim (LD_PRELOAD, `cmx_*` commands, fail-closed gating, keys via 0600 files), `cs8210-macsec` tool (status, metrics, static keys, rekey, pn), `wpa_supplicant-cs8210` (`-D macsec_cs8210`), offline tests. vendor-sdk: `phyPreload` option.
-- Offline: `test/run-test.sh` and `test/run-mka-test.sh` PASS (MKA PSK bring-up, PN-exhaustion rekey via Chain + Switch, fail closed on exit). aarch64 builds OK. Hardware: not run (plan in macsec.md).
+- Hardware (cage 1 <-> 16 loop, ~35 min):
+  - XPN-256 at 384.7 Gb/s per direction; hitless rekey with 0 loss (at 203 Gb/s and at line rate).
+  - All four ciphers plus integrity-only interoperate with Linux kernel macsec.
+  - Replay -> Late; wrong key -> NotValid; deleting the last SA fails closed.
+  - MKA: secured in 3.3 s, rekey on natural PN exhaustion with 0 loss; wrong CAK stays closed; port flap recovers in 13 s.
+  - Table + evidence: macsec.md "Hardware results", `analysis/macsec-hw-20261116/`.
+- Bugs found on hardware, fixed in the tree (stub DDK now models them), **not deployed yet**:
+  - the `devices` pair layout;
+  - `CfyE_Rule_Remove` leaves the TCAM entry live, which leaked **clear text** after down/up (now disable first);
+  - counters are clear-on-read (now accumulated);
+  - a live egress SA ignores a next-PN set;
+  - the tool held its flock per object (deadlock), now per command.
+- Box left with `cs8210-switch` stopped, drop-in removed, test keys/scripts deleted, cages 1 and 16 only.
 
 ### 2026-11-16 — SONiC: our own SAI ran the chip
 
