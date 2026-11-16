@@ -11,7 +11,12 @@ Cross-device notes and the stack itself: [sonic-nixos](../sonic-nixos/PROGRESS.m
   the SDK netdevs as `Ethernet0`/`Ethernet120`, read the die temperature (52-54 C) and tore
   down cleanly (ports down, netdevs gone, `ifcs_deinit`, ipd closed). Driven directly by
   `sai-teralynx-smoke`, no redis/syncd/orchagent yet ([evidence](../sonic-nixos/cs8210-sai-hw-20261116.txt)).
-- **Not run yet:** the SONiC stack itself (syncd/orchagent/FRR), any traffic, LLDP.
+- **Host traps + CoPP on the chip** (2026-11-16, sai-script, no syncd): LLDP, LACP, EAPOL, ARP,
+  BGP and IP2ME frames sent from `Ethernet0` over the loop reached `Ethernet120` through CoPP ACL
+  entries with their trap group's queue and policer (a 100 pps policer held a 1000 pps burst to
+  ~95 pps). Feature status per object: [sai-features.md](sai-features.md); how isai does it on this
+  chip: [sai-oracle.md](sai-oracle.md).
+- **Not run yet:** the SONiC stack itself (syncd/orchagent/FRR), forwarded traffic.
 - **Builds:** libsai and syncd cross-built for aarch64; the cs8210 system with
   `hardware.cs8210.sonic.enable = true` evaluates (build: entry below). With it off the system
   is unchanged (nix-diff: only the flake source path).
@@ -72,16 +77,16 @@ the public sonic-buildimage `innovium.77700_A` (byte-identical to the SDK's `inn
   glibc 2.25 did not. The loader points libifcs' `memcpy` GOT entries at an aligned 8/4/1-byte copy
   loop (`src/shim.c`, `ifcs_lib.cpp`). Any other vendor .so run outside its chroot needs the same.
 - Ordering: Credo PHYs first, then the ASIC (the module's unit order) gives link in ~4 s.
-- One report tick of the smoke tool took ~5 s instead of 2 s: some getter (temperature or stats) is
-  slow; matters for flex-counter polling. Not isolated yet.
+- The slow getter was the temperature read: ~400 ms per monitor inside libifcs, holding its lock
+  (any IFCS call waited). Now one monitor per 15 s ([sai-oracle.md](sai-oracle.md)).
 
 ## Before the first SONiC run
 
 - Deploy a generation with `hardware.cs8210.sonic.enable = true`, `lineMedia = { "1" = "copper"; "16" = "copper"; }`
   (the loop is a DAC) and `autoStart = false`; start `sonic.target` by hand.
-- Traffic/LLDP: no protocol traps in the backend (`trap_set` NOT_SUPPORTED) and no LAG/ACL; frames
-  reach the CPU only via VLAN floods and TRAP routes. **Two looped ports in one VLAN would storm**
-  (SONiC removes ports from VLAN 1, but check the SDK's default L2 state, DESIGN.md U1, before sending).
+- Traps/CoPP are mapped (sai-features.md), LAG and SAI ACL tables are not. With adopted netdevs
+  every frame entering a port in no VLAN reaches its netdev anyway (seen 2026-11-16). VLAN 1 had no
+  members after init. **Two looped ports in one VLAN would storm**: keep them out of a shared VLAN.
 - Unknown on the chip: `ifcs_netdev_create` (the default netdev mode; the run used `adopt`), L2/L3 and
   ECMP mappings, link-event struct, aging units, MTU semantics (SDK netdev MTU 9462 vs the ASIC's
   9216-byte limit: keep SONiC's 9100).

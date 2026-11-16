@@ -18,6 +18,8 @@ working one ([sonic.md](sonic.md)).
 - **SAI ABI trap:** isai is SAI 1.16.1, where `sai_attribute_t` is 48 bytes; the pinned sairedis
   (SAI 1.19.2) has 64. syncd must be built from SONiC 202505 (patched, below), not the pinned one.
 - Box left restored: ipd `legacy_abi=1`, nothing running. [Evidence](sai-qemu-hw-20261116.txt).
+- **Decision (owner): SONiC runs on our SAI**; isai under qemu is kept as a behaviour oracle: its
+  libifcs calls traced and diffed against ours ([sai-oracle.md](sai-oracle.md)).
 - Next: a syncd/orchagent pairing without the version gap (orchagent 202505 too, or a 1.16->1.19
   attribute shim), all 32 ports, traffic; whether the speed gap matters for SONiC operations (bulk
   route programming) before choosing between this and our own SAI.
