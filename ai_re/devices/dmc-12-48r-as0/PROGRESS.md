@@ -159,6 +159,14 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-16 13:05: **`dmc12-firmware`: our U-Boot installed from Linux** (vendor-style; `nix/modules/boards/dmc12/firmware`,
+  56ce4fd..3a8f548). DT windows ipxe0/boot-mode/ipxe1 rw, the rest of CS0 ro and pinned; payload pinned (94f29fd0);
+  boot proofs from `/chosen/u-boot,version`. Reviewed (Fable + Opus; all findings fixed). Rehearsed on u01 along
+  p01's path: rollback --force -> install factory->IPXE 0 (CS0 diff: only IPXE 0 + 2 B of BOOT_MODE) -> cold boot of
+  the new payload (stage3 `Loading application ... 488664 bytes`) -> proof; `u` escape still reaches the factory
+  U-Boot; repeat install = no-op; smoke 16/16. Not tested: fault injection (kill mid-write, read-only /var).
+  u01 now runs IPXE 0 = 94f29fd0 (IPXE 1 = 929860b1, proven). spi-upgrade.py's host model of u01 no longer matches
+  the live flash (it doesn't know Linux-side writes): re-baseline before using it on u01 again.
 - 2026-11-16 12:25: **factory U-Boot boots gzip'd kernels up to 64 MiB** (its CONFIG_SYS_BOOTM_LEN, `mov w7,
   #0x4000000` in bootm). Proven on u01 via the stage3 `u` escape: TFTP'd lean 7.3.4 (45.8 MiB raw, 15.7 MB
   gzip uImage) -> `Uncompressing Kernel Image ... OK` -> Linux banner. The `both` layout now gzips the
