@@ -6,6 +6,12 @@ static ifcs_l2_event_notify_fn_t l2_cb;
 static void* l2_user;
 static struct { int used; ifcs_l2_entry_key_t key; ifcs_handle_t dest; uint32_t type; } l2[MAX_OBJ];
 static int l2vni_exists[4096];
+/* Who is in an L2VNI or behind an mc_dest (libifcs refuses such a sysport as a
+ * LAG member: mock_lag.c asks mock_l2_refs). */
+static struct { int used; uint32_t vni; ifcs_handle_t h; } vmem[MAX_OBJ];
+static struct { int used; ifcs_handle_t mcd, dest; } mcds[MAX_OBJ];
+int mock_l2_refs(ifcs_handle_t h);
+extern int g_mlr;
 
 /* ---------------------------------------------------------- test hooks */
 int mock_fire_l2(int type, const uint8_t mac[6], uint16_t vid, uint32_t d)
@@ -28,13 +34,58 @@ int mock_fire_l2(int type, const uint8_t mac[6], uint16_t vid, uint32_t d)
     return 0;
 }
 int mock_l2_count(void) { int n = 0; for (int i = 0; i < MAX_OBJ; i++) n += l2[i].used; return n; }
+/* An L2 event whose ENTRY_DEST is any handle (a LAG). */
+int mock_fire_l2_dest(int type, const uint8_t mac[6], uint16_t vid, uint32_t dest)
+{
+    if (!l2_cb) return -1;
+    ifcs_l2_event_info_t e;
+    ifcs_attr_t a;
+    memset(&e, 0, sizeof(e));
+    memset(&a, 0, sizeof(a));
+    e.event_type = type;
+    e.count = 1;
+    e.l2_entry.key_type = IFCS_L2_ENTRY_KEY_TYPE_MAC_L2VNI;
+    memcpy(e.l2_entry.key.mac_l2vni.mac_addr, mac, 6);
+    e.l2_entry.key.mac_l2vni.l2vni = IFCS_HANDLE_L2VNI(vid);
+    a.id = IFCS_L2_ENTRY_ATTR_ENTRY_DEST;
+    a.value.handle = dest;
+    e.attr_count = 1;
+    e.attr_p = &a;
+    l2_cb(0, l2_user, &e);
+    return 0;
+}
+int mock_l2vni_has(uint16_t vid, uint32_t h)
+{
+    for (int i = 0; i < MAX_OBJ; i++)
+        if (vmem[i].used && vmem[i].vni == vid && vmem[i].h == h) return 1;
+    return 0;
+}
+/* ENTRY_DEST of the L2 entry mac/vid, 0 if none. */
+uint32_t mock_l2_dest(const uint8_t mac[6], uint16_t vid)
+{
+    for (int i = 0; i < MAX_OBJ; i++)
+        if (l2[i].used && memcmp(l2[i].key.key.mac_l2vni.mac_addr, mac, 6) == 0 &&
+            IFCS_HANDLE_VALUE(l2[i].key.key.mac_l2vni.l2vni) == vid)
+            return l2[i].dest;
+    return 0;
+}
+int mock_l2_refs(ifcs_handle_t h)
+{
+    int n = 0;
+    for (int i = 0; i < MAX_OBJ; i++) {
+        n += vmem[i].used && vmem[i].h == h;
+        n += mcds[i].used && mcds[i].dest == h;
+        n += l2[i].used && l2[i].dest == h;
+    }
+    return n;
+}
 
 /* ------------------------------------------------------------------- L2 */
 ifcs_status_t ifcs_stp_create(ifcs_node_id_t n, ifcs_handle_t* h, uint32_t c, ifcs_attr_t* a) { (void)n; (void)a; return mock_create_obj("ifcs_stp_create", h, c); }
 ifcs_status_t ifcs_stp_port_add(ifcs_node_id_t n, ifcs_handle_t s, uint32_t m, ifcs_handle_t* l, uint32_t c, ifcs_attr_t* a)
 {
     (void)n; (void)l;
-    mock_logf("ifcs_stp_port_add stp=0x%x members=%u attrs=%u state=%u", s, m, c, c ? a[0].value.u32 : 99);
+    mock_logf("ifcs_stp_port_add stp=0x%x members=%u attrs=%u state=%u first=0x%x", s, m, c, c ? a[0].value.u32 : 99, m ? l[0] : 0);
     return IFCS_SUCCESS;
 }
 ifcs_status_t ifcs_mc_dest_create(ifcs_node_id_t n, ifcs_handle_t* h, uint32_t c, ifcs_attr_t* a)
@@ -42,15 +93,27 @@ ifcs_status_t ifcs_mc_dest_create(ifcs_node_id_t n, ifcs_handle_t* h, uint32_t c
     (void)n;
     if (*h == IFCS_NULL_HANDLE) *h = next_handle++;
     mock_logf("ifcs_mc_dest_create h=0x%x count=%u dest=0x%x", *h, c, c ? a[0].value.handle : 0);
+    for (int i = 0; i < MAX_OBJ; i++)
+        if (!mcds[i].used) { mcds[i].used = 1; mcds[i].mcd = *h; mcds[i].dest = c ? a[0].value.handle : 0; break; }
     return IFCS_SUCCESS;
 }
-ifcs_status_t ifcs_mc_dest_delete(ifcs_node_id_t n, ifcs_handle_t h) { (void)n; mock_logf("ifcs_mc_dest_delete h=0x%x", h); return IFCS_SUCCESS; }
+ifcs_status_t ifcs_mc_dest_delete(ifcs_node_id_t n, ifcs_handle_t h)
+{
+    (void)n;
+    mock_logf("ifcs_mc_dest_delete h=0x%x", h);
+    for (int i = 0; i < MAX_OBJ; i++)
+        if (mcds[i].used && mcds[i].mcd == h) mcds[i].used = 0;
+    return IFCS_SUCCESS;
+}
 ifcs_status_t ifcs_mdg_create(ifcs_node_id_t n, ifcs_handle_t* h, uint32_t c, ifcs_attr_t* a) { (void)n; (void)a; return mock_create_obj("ifcs_mdg_create", h, c); }
 ifcs_status_t ifcs_mdg_delete(ifcs_node_id_t n, ifcs_handle_t h) { (void)n; mock_logf("ifcs_mdg_delete h=0x%x", h); return IFCS_SUCCESS; }
 ifcs_status_t ifcs_mdg_mc_dest_add(ifcs_node_id_t n, ifcs_handle_t g, uint32_t m, ifcs_handle_t* l, uint32_t c, ifcs_attr_t* a)
 {
     (void)n; (void)c; (void)a;
     mock_logf("ifcs_mdg_mc_dest_add mdg=0x%x n=%u first=0x%x", g, m, m ? l[0] : 0);
+    for (uint32_t j = 0; j < m; j++)
+        for (int i = 0; i < MAX_OBJ; i++)   /* a LAG (mock handles 0x282xxxxx) needs multicast LAG resolution */
+            if (mcds[i].used && mcds[i].mcd == l[j] && (mcds[i].dest >> 20) == 0x282 && !g_mlr) return IFCS_INVAL;
     return IFCS_SUCCESS;
 }
 ifcs_status_t ifcs_mdg_mc_dest_remove(ifcs_node_id_t n, ifcs_handle_t g, uint32_t m, ifcs_handle_t* l)
@@ -75,6 +138,8 @@ ifcs_status_t ifcs_l2vni_delete(ifcs_node_id_t n, ifcs_handle_t h)
     uint32_t v = IFCS_HANDLE_VALUE(h);
     mock_logf("ifcs_l2vni_delete vni=%u", v);
     if (v >= 4096 || !l2vni_exists[v]) return IFCS_NOTFOUND;
+    for (int i = 0; i < MAX_OBJ; i++)
+        if (vmem[i].used && vmem[i].vni == v) return IFCS_BUSY;   /* members first */
     l2vni_exists[v] = 0;
     return IFCS_SUCCESS;
 }
@@ -88,12 +153,27 @@ ifcs_status_t ifcs_l2vni_member_add(ifcs_node_id_t n, ifcs_handle_t h, uint32_t 
 {
     (void)n; (void)c; (void)a;
     mock_logf("ifcs_l2vni_member_add vni=%u n=%u first=0x%x", IFCS_HANDLE_VALUE(h), m, m ? l[0] : 0);
-    return l2vni_exists[IFCS_HANDLE_VALUE(h) & 4095] ? IFCS_SUCCESS : IFCS_NOTFOUND;
+    if (!l2vni_exists[IFCS_HANDLE_VALUE(h) & 4095]) return IFCS_NOTFOUND;
+    for (uint32_t j = 0; j < m; j++) {
+        if (mock_l2vni_has((uint16_t)IFCS_HANDLE_VALUE(h), l[j])) return IFCS_EXIST;
+        for (int i = 0; i < MAX_OBJ; i++)
+            if (!vmem[i].used) { vmem[i].used = 1; vmem[i].vni = IFCS_HANDLE_VALUE(h); vmem[i].h = l[j]; break; }
+    }
+    return IFCS_SUCCESS;
 }
 ifcs_status_t ifcs_l2vni_member_remove(ifcs_node_id_t n, ifcs_handle_t h, uint32_t m, ifcs_handle_t* l)
 {
     (void)n;
     mock_logf("ifcs_l2vni_member_remove vni=%u n=%u first=0x%x", IFCS_HANDLE_VALUE(h), m, m ? l[0] : 0);
+    for (uint32_t j = 0; j < m; j++)
+        for (int i = 0; i < MAX_OBJ; i++)
+            if (vmem[i].used && vmem[i].vni == IFCS_HANDLE_VALUE(h) && vmem[i].h == l[j]) vmem[i].used = 0;
+    return IFCS_SUCCESS;
+}
+ifcs_status_t ifcs_stp_port_remove(ifcs_node_id_t n, ifcs_handle_t s, uint32_t m, ifcs_handle_t* l)
+{
+    (void)n;
+    mock_logf("ifcs_stp_port_remove stp=0x%x members=%u first=0x%x", s, m, m ? l[0] : 0);
     return IFCS_SUCCESS;
 }
 ifcs_status_t ifcs_l2_entry_key_t_init(ifcs_l2_entry_key_t* k) { memset(k, 0, sizeof(*k)); k->_base_key = 0xb45e; return IFCS_SUCCESS; }
