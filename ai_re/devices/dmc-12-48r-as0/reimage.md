@@ -6,10 +6,12 @@ is the generic `nix/configs/dmc12` (hardware: `nix/modules/boards/dmc12`).
 
 ## Before the first unit
 ```sh
-nix build path:./nix#dmc12-netboot    -o devices/dmc-12-48r-as0/nixos-build/result-netboot
-nix build path:./nix#dmc12-disk-image -o devices/dmc-12-48r-as0/nixos-build/result-disk-standard
+# from ai_re/: the root flake (git flake: fand is in; `path:./nix` refuses DMC-12 systems)
+R="git+file://$(git rev-parse --show-toplevel)?dir=ai_re"
+nix build "$R#dmc12-netboot"    -o devices/dmc-12-48r-as0/nixos-build/result-netboot
+nix build "$R#dmc12-disk-image" -o devices/dmc-12-48r-as0/nixos-build/result-disk-standard
 # units without our U-Boot in SPI: the chainload layout (u-boot-port.md "on-disk boot"):
-nix build path:./nix#dmc12-disk-image-chainload -o devices/dmc-12-48r-as0/nixos-build/result-disk-chainload
+nix build "$R#dmc12-disk-image-chainload" -o devices/dmc-12-48r-as0/nixos-build/result-disk-chainload
 ```
 The default `--image` is the standard build (needs `spi-upgrade.py install` on the unit first; the
 script checks); pass `--image nixos-build/result-disk-chainload` otherwise.

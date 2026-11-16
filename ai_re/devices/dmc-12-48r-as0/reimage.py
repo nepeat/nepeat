@@ -191,7 +191,7 @@ def spi_uboot(unit):
 def step_preflight(args, st):
     for name in ("uImage", "uInitrd", "dmc12.dtb", "boot.scr", "uboot-commands.txt", "SHA256SUMS"):
         if not (args.netboot / name).exists():
-            raise Fail(f"netboot bundle incomplete: {args.netboot}/{name} (nix build path:./nix#dmc12-netboot)")
+            raise Fail(f"netboot bundle incomplete: {args.netboot}/{name} (nix build git+file://<monorepo>?dir=ai_re#dmc12-netboot: reimage.md)")
     if args.via == "chainload" and not (args.uboot / "u-boot.uimage").exists():
         raise Fail(f"no {args.uboot}/u-boot.uimage (nix build path:./nix#uboot-dmc12-chainload)")
     if args.via == "chainload":
@@ -202,7 +202,7 @@ def step_preflight(args, st):
     needs_disk = "write" in args.steps
     for name in ("disk.img.zst", "disk.img.sha256", "disk.img.bytes"):
         if needs_disk and not (args.image / name).exists():
-            raise Fail(f"disk image incomplete: {args.image}/{name} (nix build path:./nix#dmc12-disk-image)")
+            raise Fail(f"disk image incomplete: {args.image}/{name} (nix build git+file://<monorepo>?dir=ai_re#dmc12-disk-image: reimage.md)")
     if subprocess.run(["tmux", "has-session", "-t", SESSION], capture_output=True).returncode:
         raise Fail(f"no tmux session {SESSION}; start tio on the console first (PROGRESS.md)")
     have, missing = manifest_ok(args.unit)

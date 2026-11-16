@@ -33,8 +33,8 @@ CHECKS = [
      "SPI NOR partitions: only u-boot-env writable"),
     ("watchdog", "cat /sys/class/watchdog/watchdog0/identity", lambda o: "sp805" in o, "sp805 bound"),
     ("cpld", "i2cget -y 4 0x68 0x01", lambda o: o.strip() == "0x88", "CPLD answers (version 0x88 on u01)"),
-    ("services", "for u in dmc12-interruptmon dmc12-onieeeprom dmc12-setphyspeed; do systemctl is-active $u; done; systemctl is-active dmc12-fancontrol fand 2>/dev/null | grep -c '^active$'",
-     lambda o: o.split()[:3] == ["active"] * 3 and o.split()[-1] == "1", "board services up, exactly one fan controller"),
+    ("services", "for u in dmc12-interruptmon dmc12-onieeeprom dmc12-setphyspeed; do systemctl is-active $u; done; systemctl is-active fand",
+     lambda o: o.split() == ["active"] * 4, "board services and fand up"),
     ("fans", "for r in 0x60 0x61 0x62; do echo $(( $(i2cget -y 4 0x68 $r) * 100 )); done", lambda o: all(1500 <= int(x) <= 15000 for x in o.split()), "3 fans spinning"),
     ("dmesg-warn", "dmesg --level=err,warn | grep -c -E 'WARNING|BUG|Oops|Call trace' || true", lambda o: o.strip() == "0", "no kernel WARNING/BUG/Oops"),
 ]

@@ -15,7 +15,7 @@ Device notes and dumps: `devices/dmc-12-48r-as0/` (not read from here, by rule).
 | `disk.nix` | SSD image per boot path (MBR, `DMC12BOOT` + `DMC12ROOT`), first-boot store registration |
 | `uboot-env/` | our U-Boot's env from Linux: DT overlay (only `u-boot-env` 0xf90000+0x20000 writable), `fw_printenv`, `dmc12-uboot-env print\|set` (logged, counted, >20 writes/day need `--force`) |
 | `cpld/` | CPLD board reset (kernel reboot notifier), interrupt monitor (alarms logged once per change, uplink re-sync) |
-| `fan-control/`, `../../thermal/dmc12-fan.nix` | fan policy (uC 60 °C, board 45 °C) |
+| `../../thermal/dmc12-fan.nix` | fand config (uC 60 °C, board 45 °C, failsafe/exit 100 %); needs the root flake |
 | `dmc12-tools/` | `show`, `setled`, `setphyspeed`, `onieeeprom`, boot oneshots |
 | `monitoring.nix` | node_exporter + `dmc12_*` producer (quiet: `LogLevelMax=notice`) |
 

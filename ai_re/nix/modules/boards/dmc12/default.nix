@@ -6,8 +6,7 @@
 {
   imports = [
     ../../platforms/alpine-v2.nix
-    ../../thermal/dmc12-fan.nix   # hardware.dmc12Fan: fand (rust flake) or the python script
-    ./fan-control   # services.dmc12-fancontrol (CPLD PWM via I2C)
+    ../../thermal/dmc12-fan.nix   # hardware.dmc12Fan: fand (rust flake, root flake only)
     ./dmc12-tools   # show/setled/setphyspeed/onieeeprom + boot oneshots
     ./cpld          # CPLD board reset, interrupt monitor
     ./monitoring.nix   # node_exporter :9100 + dmc12-metrics (read-only)
@@ -45,7 +44,6 @@
 
   # fand when the monorepo rust flake is passed in (root ai_re flake), else
   # the ported factory script; never both on the CPLD's 0x50.
-  services.dmc12-fancontrol.enable = config.hardware.dmc12Fan.controller == "python";
   services.dmc12-tools.enable = true;
 
   # Sensor labels and P1..P48 port links, from the factory image.

@@ -2,12 +2,11 @@
 # board CPLD (I2C, raw from userspace, no kernel driver). Register facts:
 # ai_re/devices/dmc-12-48r-as0/vendor-tooling.md.
 #
-# controller "fand" (rust/crates/fand, `type: i2c`, when the monorepo's rust
-# flake is available) or "python" (the ported factory script,
-# services.dmc12-fancontrol from boards/dmc12/fan-control). Exactly one may
-# drive 0x50: the board sets
-#   services.dmc12-fancontrol.enable = config.hardware.dmc12Fan.controller == "python";
-# and the assertion below catches anything else.
+# The controller is fand (rust/crates/fand, `type: i2c`): failsafe on any fault, exit duty
+# (100 %) on stop, WDT-flag handshake, tach checks. It comes from the monorepo's rust flake,
+# which only the ai_re root flake (git+file://<monorepo>?dir=ai_re, deploy.sh) passes in; a
+# `path:./nix` build has none and fails the assertion below instead of running without
+# fan control. (The ported factory PI script was retired 2026-11-15 after fand ran on u01.)
 { config, lib, pkgs, aiReRust ? null, ... }:
 let
   cfg = config.hardware.dmc12Fan;
@@ -26,15 +25,6 @@ in {
   imports = lib.optional (aiReRust != null) aiReRust.nixosModules.fand;
 
   options.hardware.dmc12Fan = {
-    controller = lib.mkOption {
-      type = lib.types.enum [ "fand" "python" ];
-      default = if aiReRust != null then "fand" else "python";
-      description = ''
-        "fand": the fan daemon (failsafe on any fault, exit duty on stop,
-        WDT-flag handshake, tach checks). "python": the ported factory PI
-        script (services.dmc12-fancontrol).
-      '';
-    };
     pwmSteps = lib.mkOption {
       type = lib.types.enum [ 64 16 ];
       default = 64;
@@ -87,11 +77,11 @@ in {
   config = lib.mkMerge [
     {
       assertions = [{
-        assertion = !(cfg.controller == "fand" && (config.services.dmc12-fancontrol.enable or false));
+        assertion = aiReRust != null;
         message = ''
-          hardware.dmc12Fan.controller = "fand" but services.dmc12-fancontrol is
-          enabled too; both would write CPLD register 0x50. Set
-          services.dmc12-fancontrol.enable = config.hardware.dmc12Fan.controller == "python".
+          DMC-12 fan control is fand, from the monorepo's rust flake, which this
+          evaluation lacks (a `path:./nix` build can't reach ../rust). Build from the
+          ai_re root flake: git+file://<monorepo>?dir=ai_re#... (deploy.sh does).
         '';
       }];
       # /dev/i2c-N (built in on linux-alpine; harmless there).
@@ -99,8 +89,8 @@ in {
     }
     (lib.optionalAttrs (aiReRust != null) {
       # services.fand exists only when the fand module is imported (aiReRust).
-      # Untested on hardware so far (see the device's PROGRESS.md).
-      services.fand = lib.mkIf (cfg.controller == "fand") {
+      # On u01 since 2026-11-15 (devices/dmc-12-48r-as0/PROGRESS.md).
+      services.fand = {
         enable = true;
         # No extra floor: the hardware minimum (minStep) is the floor.
         profile = "none";
