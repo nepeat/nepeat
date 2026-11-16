@@ -1,7 +1,8 @@
-# SONiC's routing stack: FRR (bgpd, staticd, zebra, mgmtd) with the FPM
+# SONiC's routing stack: FRR (bgpd, staticd, zebra, mgmtd, bfdd) with the FPM
 # patches fpmsyncd needs, the FRR config templates of docker-fpm-frr, and
-# bgpcfgd/bgpmon (sonic-bgpcfgd), which turn CONFIG_DB into FRR config.
-#   sonic.routing.frr  sonic.routing.templates  sonic.routing.bgpcfgd
+# bgpcfgd/bgpmon/staticroutebfd (sonic-bgpcfgd), which turn CONFIG_DB into FRR
+# config, plus bfdsyncd (ours: bfdd session state -> STATE_DB).
+#   sonic.routing.frr  sonic.routing.templates  sonic.routing.bgpcfgd  sonic.routing.bfdsyncd
 # Deviations from sonic-buildimage, all here:
 #  - FRR is nixpkgs' (same release as SONiC's src/sonic-frr) with only the
 #    SONiC patches the FPM path needs (list below); not SONiC's full series.
@@ -10,7 +11,11 @@
 #    difference is SRv6, EVPN-MH MACs and full next-hop groups, none of which
 #    this stack runs. Plain routes use the same netlink encoding.
 #  - Daemons trimmed to what SONiC's default (bgpcfgd) mode runs: zebra,
-#    mgmtd, bgpd, staticd (+ vtysh); no SNMP/RPKI/BMP/VNC/Lua.
+#    mgmtd, bgpd, staticd, bfdd (+ vtysh); no SNMP/RPKI/BMP/VNC/Lua.
+#  - Software BFD (no ASIC offload): patches/0002 (BGP_NEIGHBOR bfd in the
+#    bgpcfgd templates), patches/0003 (sonic-bgpcfgd: active sessions, live BFD
+#    toggle, staticroutebfd timers from the environment) and bfdsyncd. SONiC
+#    carries no bfdd patch in src/sonic-frr/patch, so FRR's bfdd is unpatched.
 { pkgs, sonic }:
 let
   inherit (pkgs) lib;
@@ -38,7 +43,7 @@ let
     ripdSupport = false; ripngdSupport = false; ospfdSupport = false; ospf6dSupport = false;
     ldpdSupport = false; nhrpdSupport = false; eigrpdSupport = false; babeldSupport = false;
     isisdSupport = false; pimdSupport = false; pim6dSupport = false; sharpdSupport = false;
-    fabricdSupport = false; vrrpdSupport = false; pathdSupport = false; bfddSupport = false;
+    fabricdSupport = false; vrrpdSupport = false; pathdSupport = false; bfddSupport = true;   # software BFD (services.sonic.bfd)
     pbrdSupport = false; ospfApi = false;
   }).overrideAttrs (old: {
     pname = "frr-sonic";
@@ -67,6 +72,7 @@ let
     mkdir -p $out/share/sonic
     cp -r ${bi}/dockers/docker-fpm-frr/frr $out/share/sonic/frr-templates
     chmod -R u+w $out
+    patch -p1 -d $out/share/sonic/frr-templates < ${./patches/0002-templates-bgp-neighbor-bfd.patch}
     grep -rl '/usr/share/sonic/templates/' $out | xargs sed -i 's|/usr/share/sonic/templates/||g'
     if grep -r '/usr/share/sonic/templates' $out; then exit 1; fi
   '';
@@ -78,7 +84,10 @@ let
     modules = [ "bgpcfgd" "bgpmon" "staticroutebfd" ];
     scripts = [ "nix-bin/bgpcfgd" "nix-bin/bgpmon" "nix-bin/staticroutebfd" ];
     deps = [ spy.py-common spy.swsscommon py.jinja2 py.netaddr py.pyyaml ];
+    patches = [ ./patches/0003-bgpcfgd-software-bfd.patch ];
     postPatch = ''
+      # BfdMgr starts bfdd itself when none runs (systemd runs it here: sonic-frr-bfdd).
+      substituteInPlace bgpcfgd/managers_bfd.py --replace-fail '"/usr/lib/frr/bfdd"' '"${frr}/libexec/frr/bfdd"'
       substituteInPlace bgpcfgd/template.py \
         --replace-fail "template_path = '/usr/share/sonic/templates'" "template_path = '${templateDir}'"
       mkdir nix-bin
@@ -86,8 +95,18 @@ let
         printf '#!/usr/bin/env python3\nimport sys\nfrom %s import main\nsys.exit(main())\n' "''${e#*:}" > nix-bin/''${e%%:*}
       done
     '';
-    imports = [ "bgpcfgd.main" "bgpmon.bgpmon" ];
+    imports = [ "bgpcfgd.main" "bgpmon.bgpmon" "staticroutebfd.main" ];
     passthru = { inherit templateDir; };
+  };
+
+  # FRR bfdd session state -> STATE_DB BFD_SESSION_TABLE (what BfdOrch writes
+  # when the ASIC offloads BFD; ./bfdsyncd/bfdsyncd has the why).
+  bfdsyncd = spy.copyPkg {
+    pname = "sonic-nix-bfdsyncd";
+    src = ./bfdsyncd;
+    modules = [ ];
+    scripts = [ "bfdsyncd" ];
+    deps = [ spy.swsscommon ];
   };
   # /etc/sonic/constants.yml (sonic_debian_extension renders it with j2; the
   # only variable is the FRR SNMP agent, off here).
@@ -99,5 +118,5 @@ let
     grep -q 'enable_snmp_agent: false' $out
   '';
 in {
-  inherit frr templates templateDir bgpcfgd sonicFrrPatches constants;
+  inherit frr templates templateDir bgpcfgd bfdsyncd sonicFrrPatches constants;
 }

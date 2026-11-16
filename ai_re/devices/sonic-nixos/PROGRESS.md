@@ -9,6 +9,15 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 
 ## Status (2026-11-15)
 
+- **Software BFD, VM-tested, not on the switch yet** (2026-11-15 entry,
+  [bfd.md](bfd.md)): FRR bfdd; BGP neighbors with `bfd=true` drop in
+  0.66-0.90 s on loss/link down (hold time 90 s), over a PortChannel and a
+  port in a VRF; static routes with `bfd=true` (staticroutebfd) leave and
+  re-enter APPL_DB with their session; `show bfd summary`. No ASIC offload:
+  orchagent finds none and hands sessions to software, no errors
+  ([VM, 96 checks](sonic-bfd-vm-20261115.txt), [cross](sonic-bfd-cross-20261115.txt)).
+  Switch test: bfd.md.
+
 - **Routing through the AS7760's chip works** (2026-11-15,
   [evidence](sonic-as7760-l3-ecmp-bgp-20261115.txt)): VRFs (pings across
   VRF 0 / Vrf-test over the lab cable, 0% loss), frames routed by the ASIC
@@ -19,6 +28,14 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   no ALPM in config.bcm (our libsdk has none: routes were silently never
   looked up), BGP allowed through the host firewall on switch interfaces.
   Debug: `openbcm-diag <cmd>` runs SDK diag commands inside syncd.
+
+- **ACL + CoPP policers on the field processor** (2026-11-15, fake-tested,
+  not on the switch): sai-openbcm implements POLICER (SDK meters), trap
+  group policers as CoPP field entries, ingress ACL tables/entries/counters/
+  table groups bound to ports and LAGs; orchagent's CoPP no longer logs
+  policer errors, `config acl` / CONFIG_DB rules reach the SAI
+  ([VM, 28 checks](sonic-acl-fake-vm-20261115.txt)). Switch test:
+  [acl-copp-test.md](acl-copp-test.md). QoS stays unsupported.
 
 - **VRF, ECMP, flex counters** (2026-11-15, fake-tested, not on the switch):
   kernel NET_VRF, `sonic-vrfmgrd`, sai-openbcm virtual routers (SDK VRFs)
@@ -44,7 +61,7 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   VLAN 100 on a PortChannel with an SVI reaches the kernel bridge and the
   ASIC ([evidence](sonic-as7760-lacp-vlan-20261115.txt)). fand gets the ASIC
   temperature from syncd. Not yet: data-plane traffic between hosts,
-  ECMP/ACL/QoS/policers.
+  ACL/policers on the chip (fake-tested), QoS.
 
 - **FRR routing stack + crash recovery, VM-tested, not on the switch yet**
   (2026-11-15 entry): FRR 10.7 (zebra/mgmtd/bgpd/staticd) with zebra's FPM to
@@ -64,7 +81,7 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   keeps the ASIC temperature from syncd. vlanmgrd needs the new kernel
   (bridge/VLAN/team), which needs a reboot: held until the console is back;
   `configs/as7760` keeps SONiC disabled until then. Not yet: traffic, VLAN and
-  PortChannel on the chip, ECMP/ACL/QoS/policers (unsupported in sai-openbcm).
+  PortChannel on the chip, ECMP/ACL/policers (since added, see above), QoS.
 
 - **SDK config from the Nix ports** (2026-11-15, not on hardware yet): the
   AS7760's `config.bcm` is generated from the SONiC ports (public AS7712-32X
@@ -169,6 +186,61 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   port modes exist there too (128x25, 128x10, mixed). Also still private: factory `bcm.user` (SDK 6.4.8 binary), the SDK config
   / port map and LED programs inside the factory NOS image, Broadcom SAI
   `.deb`s (amd64 only; referenced by URL, never stored).
+
+## 2026-11-15 — ACL, policers and CoPP policing in sai-openbcm (fake + VM)
+
+- New in sai-openbcm ([README](../../nix/packages/sai-openbcm/README.md#acl-and-copp-field-processor)):
+  POLICER on SDK meters (sr/tr_tcm, packets/bytes, colour drops); a trap
+  group's POLICER = CoPP field entries per trap (protocol match, one shared
+  meter per SAI policer; copied traps lose only the CPU copy, CPU-only traps
+  are dropped; IP2ME/BGP/SSH/SNMP/BFD via "routed to the CPU egress");
+  ingress ACL_TABLE (SDK field group), ACL_ENTRY (field entry on the bound
+  ports), ACL_COUNTER, ACL_TABLE_GROUP(_MEMBER), PORT/LAG INGRESS_ACL, the
+  capability answers AclOrch reads. Not done: egress ACLs, ACL ranges,
+  redirect/mirror actions, QoS (maps, schedulers; owner: low priority).
+- Unit tests 2355 checks (new: tests/test_acl.inc). VM test
+  vm-openbcm-fake-acl.nix: run 1 found AclOrch adding FIELD_ACL_RANGE_TYPE
+  to every ingress table (refused -> now kept, ranges themselves
+  unsupported), run 2 that ACL counters need `counterpoll acl enable`; run 3
+  28/28 ([evidence](sonic-acl-fake-vm-20261115.txt)). sdk_glue.c compiles
+  against the SDK headers, the cross libsai links (every bcm_field_* /
+  bcm_policer_* symbol in libsdk.so, [cross](sonic-acl-cross-20261115.txt)).
+  Regressions pass with syncd rebuilt on the new libsai: vm-openbcm-fake 86,
+  vm-openbcm-fake-l3, test-syncd, the ACL VM again ([runs](sonic-acl-regress-20261115.txt)).
+- Found on the way, not fixed (not in this change's paths): `show acl ...`
+  fails (acl-loader imports pyangbind, missing from sonic-utilities' closure),
+  `aclshow` is not installed; `config acl add table -p` wants SONiC port
+  names (aliases refused); counters.nix's comment says sai-openbcm has no ACL
+  counters (it has now).
+- Hardware unknowns and the test plan: [acl-copp-test.md](acl-copp-test.md),
+  flood helper [copp_flood.py](copp_flood.py).
+
+## 2026-11-15 — software BFD (bfdd, BGP + static routes), VM only
+
+- FRR built with bfdd (no SONiC bfdd patch exists); `switch/sonic/bfd.nix`:
+  `sonic-frr-bfdd`, `sonic-staticroutebfd`, `sonic-bfdsyncd`, bgpcfgd bound to
+  bfdd, `SYSTEM_DEFAULTS|software_bfd` seeded (bgpcfgd's BfdMgr), vs SAI
+  told `SAI_VS_BFD_OFFLOAD_SUPPORTED=false`, UDP 3784/3785/4784 opened like BGP.
+- Upstream gaps found and closed (patches in packages/sonic/routing): bgpcfgd
+  ignores BGP_NEIGHBOR `bfd` (only frrcfgd renders it) -> template patch +
+  live toggle; BfdMgr makes sessions passive by default (two SONiC ends never
+  come up) -> active unless `async_passive`; staticroutebfd hardcodes 50 ms
+  -> `bfd.staticRoute` (300 ms x3); nothing reports software session state
+  (staticroutebfd waits for STATE_DB BFD_SESSION_TABLE, which only BfdOrch's
+  hardware path writes) -> bfdsyncd (ours, polls bfdd's vty).
+- VM test `tests/vm-bfd.nix`: 96/96 on the last two runs ([evidence](sonic-bfd-vm-20261115.txt),
+  history in its header). Fixed on the way: orchagent's BfdMonitorOrch threw
+  on bfdsyncd's extra STATE_DB fields (bfdsyncd writes BfdOrch's set only);
+  staticroutebfd (1 s to stop) ordered after bgpcfgd made `config reload`
+  race (vm-frr caught it; no ordering now); a peer with a configured and a
+  BGP session to one address flaked (bfdd wildcard match; test links split).
+  Regressions pass: vm-frr 86, vm 92, vm-platform 31, eval.nix; fake/fake-l3
+  unchanged (frr off).
+- Cross-builds into the AS7760 system, +1.2 MB ([cross](sonic-bfd-cross-20261115.txt)).
+- Known limits (README): static BFD and BGP BFD to the same next hop make two
+  bfdd sessions; staticroutebfd skips VLAN interfaces; `config route add`
+  has no bfd option; orchagent warns "BFD session for <ip> not found" on each
+  state change (VNET code path, same upstream with hardware BFD).
 
 ## 2026-11-15 — pmon platform API, front-panel LEDs, LLDP (VM only)
 

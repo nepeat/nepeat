@@ -1,0 +1,408 @@
+# sonic-nixos software BFD, VM test (tests/vm-bfd.nix: vs SAI with SAI_VS_BFD_OFFLOAD_SUPPORTED=false + FRR peer VM), 2026-11-15
+# nix build -L --rebuild --impure --expr '... import nix/modules/switch/sonic/tests/vm-bfd.nix { inherit pkgs; }'
+# This run: 96 PASS, 0 FAIL (also 96/96 on the run before it). History of the test:
+#  run 1  87/88: orchagent's BfdMonitorOrch rejected bfdsyncd's extra STATE_DB fields and an empty
+#         local_addr -> bfdsyncd writes BfdOrch's field set only
+#  run 2  88/88
+#  run 3  74/88 (old topology): the peer had a configured and a BGP session to the same switch
+#         address; bfdd treats an unset local address/interface as a wildcard, so BGP's session
+#         (created before TCP was up) captured the configured one -> static and BGP BFD moved to
+#         separate links (eth4/eth5). Same limit applies on the switch (README).
+# Regression after the final module change (staticroutebfd no longer ordered after bgpcfgd; found
+# by vm-frr's "config reload" check: its 1 s stop delayed bgpcfgd's stop past sonic-nix reload's
+# start): vm-frr.nix 86 PASS / 0 FAIL, vm.nix 92/0, vm-platform.nix 31/0, eval.nix all 11
+# negative cases + good config, vm-openbcm-fake.nix and vm-openbcm-fake-l3.nix unchanged
+# derivations (frr off there), cached passes.
+# Filtered: VM console lines removed.
+[0.00s] Machine state will be reset. To keep it, pass --keep-machine-state
+[0.00s] start all VLans
+[0.01s] (finished: start all VLans, in 0.01 seconds)
+[0.01s] Test will time out and terminate in 3600.0 seconds
+[0.01s] run the VM test script
+additionally exposed symbols:
+    peer, switch,
+    vlan1, vlan2, vlan3, vlan4, vlan5,
+    start_all, test_script, machines, machines_qemu, machines_nspawn, vlans, driver, log, os, create_machine, subtest, run_tests, join_all, retry, serial_stdout_off, serial_stdout_on, polling_condition, BaseMachine, QemuMachine, NspawnMachine, t, debug, dump_machine_ssh
+[0.01s] start all VMs
+[0.01s] peer: starting vm
+[0.01s] switch: starting vm
+[0.30s] switch: QEMU running (pid 64)
+[0.30s] peer: QEMU running (pid 63)
+[0.30s] (finished: start all VMs, in 0.29 seconds)
+??? Warning (UserWarning): wait_for_unit(): passing a bare int/float as a duration is deprecated. Use datetime.timedelta instead.
+    File "/nix/store/qira6ng41sywc56q5wv5pb6jv76kvf22-nixos-test-driver-1.1/lib/python3.14/site-packages/test_driver/duration.py", line 61
+[0.30s] switch: waiting for unit sonic.target
+[0.30s] switch: waiting for the VM to finish booting
+[7.32s] switch: Guest shell says: b'Spawning backdoor root shell...\n'
+[7.34s] switch: connected to guest root shell
+[7.34s] switch: (connecting took 7.04 seconds)
+[7.34s] switch: (finished: waiting for the VM to finish booting, in 7.04 seconds)
+[12.04s] switch: (finished: waiting for unit sonic.target, in 11.74 seconds)
+[12.04s] switch: waiting for unit sonic-orchagent.service
+[12.12s] switch: (finished: waiting for unit sonic-orchagent.service, in 0.08 seconds)
+??? Warning (UserWarning): wait_until_succeeds(): passing a bare int/float as a duration is deprecated. Use datetime.timedelta instead.
+    File "/nix/store/qira6ng41sywc56q5wv5pb6jv76kvf22-nixos-test-driver-1.1/lib/python3.14/site-packages/test_driver/duration.py", line 61
+[12.12s] switch: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 exists PORT_TABLE:PortInitDone | grep -q 1
+??? Warning (UserWarning): execute(): passing a bare int/float as a duration is deprecated. Use datetime.timedelta instead.
+    File "/nix/store/qira6ng41sywc56q5wv5pb6jv76kvf22-nixos-test-driver-1.1/lib/python3.14/site-packages/test_driver/duration.py", line 61
+[16.43s] switch: (finished: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 exists PORT_TABLE:PortInitDone | grep -q 1, in 4.31 seconds)
+[16.43s] switch: waiting for unit sonic-frr-config.service
+[16.56s] switch: (finished: waiting for unit sonic-frr-config.service, in 0.14 seconds)
+[16.56s] switch: waiting for unit sonic-frr-mgmtd.service
+[16.58s] switch: (finished: waiting for unit sonic-frr-mgmtd.service, in 0.02 seconds)
+[16.58s] switch: waiting for unit sonic-frr-zebra.service
+[16.61s] switch: (finished: waiting for unit sonic-frr-zebra.service, in 0.02 seconds)
+[16.61s] switch: waiting for unit sonic-frr-staticd.service
+[16.75s] switch: (finished: waiting for unit sonic-frr-staticd.service, in 0.14 seconds)
+[16.75s] switch: waiting for unit sonic-frr-bgpd.service
+[16.98s] switch: (finished: waiting for unit sonic-frr-bgpd.service, in 0.23 seconds)
+[16.98s] switch: waiting for unit sonic-frr-bfdd.service
+[17.13s] switch: (finished: waiting for unit sonic-frr-bfdd.service, in 0.15 seconds)
+[17.13s] switch: waiting for unit sonic-fpmsyncd.service
+[17.25s] switch: (finished: waiting for unit sonic-fpmsyncd.service, in 0.12 seconds)
+[17.25s] switch: waiting for unit sonic-bgpcfgd.service
+[17.43s] switch: (finished: waiting for unit sonic-bgpcfgd.service, in 0.17 seconds)
+[17.43s] switch: waiting for unit sonic-bgpmon.service
+[17.45s] switch: (finished: waiting for unit sonic-bgpmon.service, in 0.02 seconds)
+[17.45s] switch: waiting for unit sonic-bfdsyncd.service
+[17.47s] switch: (finished: waiting for unit sonic-bfdsyncd.service, in 0.02 seconds)
+[17.47s] switch: waiting for unit sonic-staticroutebfd.service
+[17.49s] switch: (finished: waiting for unit sonic-staticroutebfd.service, in 0.02 seconds)
+{
+ "sonic-frr-config": "active exited 0",
+ "sonic-frr-mgmtd": "active running 0",
+ "sonic-frr-zebra": "active running 0",
+ "sonic-frr-staticd": "active running 0",
+ "sonic-frr-bgpd": "active running 0",
+ "sonic-frr-bfdd": "active running 0",
+ "sonic-fpmsyncd": "active running 0",
+ "sonic-bgpcfgd": "active running 0",
+ "sonic-bgpmon": "active running 0",
+ "sonic-bfdsyncd": "active running 0",
+ "sonic-staticroutebfd": "active running 0",
+ "sonic-orchagent": "active running 0",
+ "sonic-syncd": "active running 0"
+}
+PASS FRR (incl. bfdd), bgpcfgd, bfdsyncd, staticroutebfd active, no restarts
+PASS vtysh show daemons lists bfdd
+PASS bfdd.conf is empty (no file-owned BFD config)
+PASS seeded: SYSTEM_DEFAULTS|software_bfd status enabled
+PASS vs sai.profile: SAI_VS_BFD_OFFLOAD_SUPPORTED=false (no offload, as sai-openbcm)
+[27.77s] switch: waiting for success: journalctl -b -u sonic-bgpcfgd --no-pager | grep -q 'software_bfd feature is enabled'
+[27.78s] switch: (finished: waiting for success: journalctl -b -u sonic-bgpcfgd --no-pager | grep -q 'software_bfd feature is enabled', in 0.01 seconds)
+PASS bgpcfgd started BfdMgr (software_bfd enabled)
+PASS firewall: BFD ports (3784, 3785, 4784) open except on eth0
+PASS config portchannel add PortChannel0001
+PASS config portchannel member add PortChannel0001 Ethernet5/1
+PASS config portchannel member add PortChannel0001 Ethernet6/1
+PASS config interface startup Ethernet5/1
+PASS config interface startup Ethernet6/1
+PASS config interface ip add PortChannel0001 10.0.0.1/24
+PASS config vrf add Vrf-test
+PASS config interface vrf bind Ethernet7/1 Vrf-test
+PASS config interface startup Ethernet7/1
+PASS config interface ip add Ethernet7/1 10.1.0.1/24
+PASS config interface startup Ethernet8/1
+PASS config interface ip add Ethernet8/1 10.2.0.1/24
+PASS config interface vrf bind Ethernet9/1 Vrf-test
+PASS config interface startup Ethernet9/1
+PASS config interface ip add Ethernet9/1 10.3.0.1/24
+PASS config loopback add Loopback0
+PASS config interface ip add Loopback0 10.255.0.1/32
+[38.85s] peer: waiting for unit frr.service
+[38.86s] peer: waiting for the VM to finish booting
+[38.86s] peer: Guest shell says: b'Spawning backdoor root shell...\n'
+[38.86s] peer: connected to guest root shell
+[38.86s] peer: (connecting took 0.00 seconds)
+[38.86s] peer: (finished: waiting for the VM to finish booting, in 0.00 seconds)
+[38.88s] peer: (finished: waiting for unit frr.service, in 0.03 seconds)
+[38.88s] switch: waiting for success: ping -c1 -W2 10.0.0.2
+[38.91s] switch: (finished: waiting for success: ping -c1 -W2 10.0.0.2, in 0.02 seconds)
+PASS ping peer over the PortChannel
+[38.91s] switch: waiting for success: ip vrf exec Vrf-test ping -c1 -W2 10.1.0.2
+[38.93s] switch: (finished: waiting for success: ip vrf exec Vrf-test ping -c1 -W2 10.1.0.2, in 0.02 seconds)
+PASS ping peer over Ethernet7/1 in Vrf-test
+[38.93s] switch: waiting for success: ping -c1 -W2 10.2.0.2
+[38.94s] switch: (finished: waiting for success: ping -c1 -W2 10.2.0.2, in 0.01 seconds)
+PASS ping peer over Ethernet8/1
+[38.94s] switch: waiting for success: ip vrf exec Vrf-test ping -c1 -W2 10.3.0.2
+[38.96s] switch: (finished: waiting for success: ip vrf exec Vrf-test ping -c1 -W2 10.3.0.2, in 0.02 seconds)
+PASS ping peer over Ethernet9/1 in Vrf-test
+PASS CONFIG_DB BGP_NEIGHBOR|10.0.0.2 bfd=true
+PASS CONFIG_DB BGP_NEIGHBOR|Vrf-test|10.1.0.2 bfd=true
+[39.01s] switch: waiting for success: vtysh -c 'show running-config' | grep -q '^ neighbor 10.0.0.2 bfd$'
+[40.10s] switch: (finished: waiting for success: vtysh -c 'show running-config' | grep -q '^ neighbor 10.0.0.2 bfd$', in 1.10 seconds)
+PASS bgpcfgd: neighbor 10.0.0.2 bfd in bgpd
+[40.10s] switch: waiting for success: vtysh -c 'show running-config' | sed -n '/^router bgp 65100 vrf Vrf-test/,/^exit/p' | grep -q 'neighbor 10.1.0.2 bfd'
+[40.13s] switch: (finished: waiting for success: vtysh -c 'show running-config' | sed -n '/^router bgp 65100 vrf Vrf-test/,/^exit/p' | grep -q 'neighbor 10.1.0.2 bfd', in 0.02 seconds)
+PASS bgpcfgd: router bgp 65100 vrf Vrf-test with neighbor 10.1.0.2 bfd
+[40.13s] switch: waiting for success: vtysh -c 'show bgp neighbors 10.0.0.2 json' | grep -q '"bgpState":"Established"'
+[44.26s] switch: (finished: waiting for success: vtysh -c 'show bgp neighbors 10.0.0.2 json' | grep -q '"bgpState":"Established"', in 4.14 seconds)
+PASS BGP 10.0.0.2 (PortChannel) Established
+[44.26s] switch: waiting for success: vtysh -c 'show bgp vrf Vrf-test neighbors 10.1.0.2 json' | grep -q '"bgpState":"Established"'
+[44.28s] switch: (finished: waiting for success: vtysh -c 'show bgp vrf Vrf-test neighbors 10.1.0.2 json' | grep -q '"bgpState":"Established"', in 0.02 seconds)
+PASS BGP Vrf-test 10.1.0.2 (Ethernet7/1) Established
+PASS bfdd: session to 10.0.0.2 up
+PASS bfdd: session to 10.1.0.2 in Vrf-test up
+BFD Peers:
+ peer 10.0.0.2 local-address 10.0.0.1 vrf default interface PortChannel0001
+         ID: 1791681008
+         Remote ID: 4108062054
+         Active mode
+         Status: up
+         Uptime: 0 second(s)
+         Diagnostics: ok
+         Remote diagnostics: ok
+         Peer Type: dynamic
+         RTT min/avg/max: 0/0/0 usec
+         Local timers:
+                 Detect-multiplier: 3
+                 Receive interval: 300ms
+                 Transmission interval: 300ms
+                 Transmission interval (actual with jitter): 243ms
+                 Detection timeout: 900ms
+                 Echo receive interval: 50ms
+                 Echo transmission interval: disabled
+         Remote timers:
+                 Detect-multiplier: 3
+                 Receive interval: 300ms
+                 Transmission interval: 300ms
+                 Echo receive interval: 50ms
+
+ peer 10.1.0.2 local-address 10.1.0.1 vrf Vrf-test interface Ethernet24
+         ID: 4088082597
+         Remote ID: 354867749
+         Active mode
+         Status: up
+         Uptime: 0 second(s)
+         Diagnostics: ok
+         Remote diagnostics: ok
+         Peer Type: dynamic
+         RTT min/avg/max: 0/0/0 usec
+         Local timers:
+                 Detect-multiplier: 3
+                 Receive interval: 300ms
+                 Transmission interval: 300ms
+                 Transmission interval (actual with jitter): 288ms
+                 Detection timeout: 900ms
+                 Echo receive interval: 50ms
+                 Echo transmission interval: disabled
+         Remote timers:
+                 Detect-multiplier: 3
+                 Receive interval: 300ms
+                 Transmission interval: 300ms
+                 Echo receive interval: 50ms
+
+
+PASS BGP BFD session (PortChannel): dynamic, single hop, PortChannel0001, 300/300 ms x3
+PASS BGP BFD session (Vrf-test): vrf Vrf-test, interface Ethernet24
+PASS bgpd: peerBfdInfo status Up
+[44.41s] switch: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 6 hget 'BFD_SESSION_TABLE|default|PortChannel0001|10.0.0.2' state | grep -qx Up
+[44.42s] switch: (finished: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 6 hget 'BFD_SESSION_TABLE|default|PortChannel0001|10.0.0.2' state | grep -qx Up, in 0.01 seconds)
+PASS bfdsyncd: STATE_DB BFD_SESSION_TABLE|default|PortChannel0001|10.0.0.2 Up
+[44.42s] switch: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 6 hget 'BFD_SESSION_TABLE|Vrf-test|Ethernet24|10.1.0.2' state | grep -qx Up
+[44.44s] switch: (finished: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 6 hget 'BFD_SESSION_TABLE|Vrf-test|Ethernet24|10.1.0.2' state | grep -qx Up, in 0.01 seconds)
+PASS bfdsyncd: STATE_DB BFD_SESSION_TABLE|Vrf-test|Ethernet24|10.1.0.2 Up
+PASS STATE_DB session fields as BfdOrch's (type, local_addr, intervals, multihop)
+Total number of BFD sessions: 2
+Peer Addr    Interface        Vrf       State    Type          Local Addr      TX Interval    RX Interval    Multiplier  Multihop      Local Discriminator
+-----------  ---------------  --------  -------  ------------  ------------  -------------  -------------  ------------  ----------  ---------------------
+10.0.0.2     PortChannel0001  default   Up       async_active  10.0.0.1                300            300             3  false                  1791681008
+10.1.0.2     Ethernet24       Vrf-test  Up       async_active  10.1.0.1                300            300             3  false                  4088082597
+
+PASS show bfd summary (sonic-utilities): both BGP sessions Up
+PASS show bfd peer 10.1.0.2
+PASS CONFIG_DB STATIC_ROUTE|default|203.0.113.0/24 bfd=true
+PASS CONFIG_DB STATIC_ROUTE|Vrf-test|198.18.0.0/24 bfd=true
+[45.62s] switch: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 exists BFD_SESSION_TABLE:default:default:10.2.0.2 | grep -qx 1
+[45.63s] switch: (finished: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 exists BFD_SESSION_TABLE:default:default:10.2.0.2 | grep -qx 1, in 0.01 seconds)
+PASS staticroutebfd: APPL_DB BFD_SESSION_TABLE:default:default:10.2.0.2
+PASS APPL_DB session: local_addr 10.2.0.1, 300/300 ms x3 (services.sonic.bfd.staticRoute)
+[45.65s] switch: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 6 exists 'BFD_SOFTWARE_SESSION_TABLE|default|default|10.2.0.2' | grep -qx 1
+[45.67s] switch: (finished: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 6 exists 'BFD_SOFTWARE_SESSION_TABLE|default|default|10.2.0.2' | grep -qx 1, in 0.02 seconds)
+PASS BfdOrch: no offload -> STATE_DB BFD_SOFTWARE_SESSION_TABLE|default|default|10.2.0.2
+PASS ASIC_DB: no SAI BFD session object
+PASS BfdMgr -> bfdd: configured session 10.2.0.2 up (active, not passive)
+PASS static BFD session: configured, no interface, passive-mode false
+PASS Vrf-test: bfdd session 10.3.0.2 up
+[46.84s] switch: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 exists STATIC_ROUTE:default:203.0.113.0/24 | grep -qx 1
+[46.86s] switch: (finished: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 exists STATIC_ROUTE:default:203.0.113.0/24 | grep -qx 1, in 0.02 seconds)
+PASS staticroutebfd saw Up: APPL_DB STATIC_ROUTE:default:203.0.113.0/24
+[46.86s] switch: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 hget ROUTE_TABLE:203.0.113.0/24 nexthop | grep -qx 10.2.0.2
+[46.87s] switch: (finished: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 hget ROUTE_TABLE:203.0.113.0/24 nexthop | grep -qx 10.2.0.2, in 0.01 seconds)
+PASS static route 203.0.113.0/24 via 10.2.0.2 in APPL_DB ROUTE_TABLE
+[46.87s] switch: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 1 --scan --pattern '*ROUTE_ENTRY*"dest":"203.0.113.0/24"*' | grep -q .
+[46.90s] switch: (finished: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 1 --scan --pattern '*ROUTE_ENTRY*"dest":"203.0.113.0/24"*' | grep -q ., in 0.03 seconds)
+PASS static route 203.0.113.0/24 in ASIC_DB
+[46.90s] switch: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 hget ROUTE_TABLE:Vrf-test:198.18.0.0/24 nexthop | grep -qx 10.3.0.2
+[46.91s] switch: (finished: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 hget ROUTE_TABLE:Vrf-test:198.18.0.0/24 nexthop | grep -qx 10.3.0.2, in 0.01 seconds)
+PASS Vrf-test static route 198.18.0.0/24 via 10.3.0.2 in APPL_DB ROUTE_TABLE:Vrf-test:
+Total number of BFD sessions: 4
+Peer Addr    Interface        Vrf       State    Type          Local Addr      TX Interval    RX Interval    Multiplier  Multihop      Local Discriminator
+-----------  ---------------  --------  -------  ------------  ------------  -------------  -------------  ------------  ----------  ---------------------
+10.0.0.2     PortChannel0001  default   Up       async_active  10.0.0.1                300            300             3  false                  1791681008
+10.3.0.2     default          Vrf-test  Up       async_active  10.3.0.1                300            300             3  false                   353475350
+10.2.0.2     default          default   Up       async_active  10.2.0.1                300            300             3  false                   180740742
+10.1.0.2     Ethernet24       Vrf-test  Up       async_active  10.1.0.1                300            300             3  false                  4088082597
+
+PASS show bfd summary: 4 sessions
+PASS peer BFD admin-down: static route leaves APPL_DB ROUTE_TABLE (0.23 s)
+PASS ... and APPL_DB STATIC_ROUTE:default:203.0.113.0/24
+PASS ... STATE_DB session Down
+[47.73s] switch: waiting for success: ! redis-cli -s /var/run/redis/redis.sock -n 1 --scan --pattern '*ROUTE_ENTRY*"dest":"203.0.113.0/24"*' | grep -q .
+[47.75s] switch: (finished: waiting for success: ! redis-cli -s /var/run/redis/redis.sock -n 1 --scan --pattern '*ROUTE_ENTRY*"dest":"203.0.113.0/24"*' | grep -q ., in 0.03 seconds)
+PASS ... and ASIC_DB
+PASS ... BGP (PortChannel) unaffected
+PASS peer BFD no shutdown: static route back in APPL_DB (0.87 s)
+[48.69s] switch: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 1 --scan --pattern '*ROUTE_ENTRY*"dest":"203.0.113.0/24"*' | grep -q .
+[48.72s] switch: (finished: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 1 --scan --pattern '*ROUTE_ENTRY*"dest":"203.0.113.0/24"*' | grep -q ., in 0.03 seconds)
+PASS ... and in ASIC_DB
+PASS 100% loss on the peer's bond0: BGP 10.0.0.2 down in 0.8 s (< 1.5 s; hold time 90 s)
+lastResetDueTo: BFD down initiated
+PASS bgpd: reset due to BFD
+PASS ... static route via Ethernet8/1 unaffected
+[49.58s] switch: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 exists ROUTE_TABLE:192.0.2.0/24 | grep -qx 0
+[50.61s] switch: (finished: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 exists ROUTE_TABLE:192.0.2.0/24 | grep -qx 0, in 1.03 seconds)
+PASS ... BGP prefix 192.0.2.0/24 gone from APPL_DB (default VRF)
+PASS ... LACP still up (only IP is lost: BFD, not LACP, detected it)
+Nov 16 00:23:37.937615 switch staticroutebfd[1113]: Received message : '('Vrf-test|default|10.3.0.2', 'SET', (('state', 'Init'), ('type', 'async_active'), ('local_addr', '10.3.0.1'), ('tx_interval', '300'), ('rx_interval', '300'), ('multiplier', '3'), ('multihop', 'false'), ('local_discriminator', '353475350')))'
+Nov 16 00:23:37.937641 switch staticroutebfd[1113]: bfd session Vrf-test:default:10.3.0.2 ifname Ethernet32 state Init
+Nov 16 00:23:38.539722 switch bfdsyncd[1369]: bfdsyncd: default|default|10.2.0.2 Init -> Up (diag ok, local 10.2.0.1, 300/300 ms x3)
+Nov 16 00:23:38.540253 switch staticroutebfd[1113]: Received message : '('default|default|10.2.0.2', 'SET', (('state', 'Up'), ('type', 'async_active'), ('local_addr', '10.2.0.1'), ('tx_interval', '300'), ('rx_interval', '300'), ('multiplier', '3'), ('multihop', 'false'), ('local_discriminator', '180740742')))'
+Nov 16 00:23:38.540292 switch staticroutebfd[1113]: bfd session default:default:10.2.0.2 ifname Ethernet28 state Up
+Nov 16 00:23:38.540544 switch staticroutebfd[1113]: SRT_BFD: set static route to appl_db, key default:203.0.113.0/24, data {'nexthop': '10.2.0.2', 'ifname': 'Ethernet28', 'nexthop-vrf': 'default', 'expiry': 'false'}
+Nov 16 00:23:38.740583 switch bfdsyncd[1369]: bfdsyncd: Vrf-test|default|10.3.0.2 Init -> Up (diag ok, local 10.3.0.1, 300/300 ms x3)
+Nov 16 00:23:38.742043 switch staticroutebfd[1113]: Received message : '('Vrf-test|default|10.3.0.2', 'SET', (('state', 'Up'), ('type', 'async_active'), ('local_addr', '10.3.0.1'), ('tx_interval', '300'), ('rx_interval', '300'), ('multiplier', '3'), ('multihop', 'false'), ('local_discriminator', '353475350')))'
+Nov 16 00:23:38.742084 switch staticroutebfd[1113]: bfd session Vrf-test:default:10.3.0.2 ifname Ethernet32 state Up
+Nov 16 00:23:38.742336 switch staticroutebfd[1113]: SRT_BFD: set static route to appl_db, key Vrf-test:198.18.0.0/24, data {'nexthop': '10.3.0.2', 'ifname': 'Ethernet32', 'nexthop-vrf': 'Vrf-test', 'expiry': 'false'}
+Nov 16 00:23:39.543417 switch staticroutebfd[1113]: Received message : '('default|default|10.2.0.2', 'SET', (('state', 'Down'), ('type', 'async_active'), ('local_addr', '10.2.0.1'), ('tx_interval', '300'), ('rx_interval', '300'), ('multiplier', '3'), ('multihop', 'false'), ('local_discriminator', '180740742')))'
+Nov 16 00:23:39.543465 switch staticroutebfd[1113]: bfd session default:default:10.2.0.2 ifname Ethernet28 state Down
+Nov 16 00:23:39.549172 switch bfdsyncd[1369]: bfdsyncd: default|default|10.2.0.2 Up -> Down (diag neighbor signaled session down, local 10.2.0.1, 300/300 ms x3)
+Nov 16 00:23:39.543491 switch staticroutebfd[1113]: SRT_BFD: bfd_state DOWN. nh_list is empty, delete static route from appl_db, key default:203.0.113.0/24
+Nov 16 00:23:40.145831 switch bfdsyncd[1369]: bfdsyncd: default|default|10.2.0.2 Down -> Init (diag neighbor signaled session down, local 10.2.0.1, 300/300 ms x3)
+Nov 16 00:23:40.146254 switch staticroutebfd[1113]: Received message : '('default|default|10.2.0.2', 'SET', (('state', 'Init'), ('type', 'async_active'), ('local_addr', '10.2.0.1'), ('tx_interval', '300'), ('rx_interval', '300'), ('multiplier', '3'), ('multihop', 'false'), ('local_discriminator', '180740742')))'
+Nov 16 00:23:40.146293 switch staticroutebfd[1113]: bfd session default:default:10.2.0.2 ifname Ethernet28 state Init
+Nov 16 00:23:40.547295 switch bfdsyncd[1369]: bfdsyncd: default|default|10.2.0.2 Init -> Up (diag ok, local 10.2.0.1, 300/300 ms x3)
+Nov 16 00:23:40.548890 switch staticroutebfd[1113]: Received message : '('default|default|10.2.0.2', 'SET', (('state', 'Up'), ('type', 'async_active'), ('local_addr', '10.2.0.1'), ('tx_interval', '300'), ('rx_interval', '300'), ('multiplier', '3'), ('multihop', 'false'), ('local_discriminator', '180740742')))'
+Nov 16 00:23:40.548940 switch staticroutebfd[1113]: bfd session default:default:10.2.0.2 ifname Ethernet28 state Up
+Nov 16 00:23:40.551911 switch staticroutebfd[1113]: SRT_BFD: set static route to appl_db, key default:203.0.113.0/24, data {'nexthop': '10.2.0.2', 'ifname': 'Ethernet28', 'nexthop-vrf': 'default', 'expiry': 'false'}
+Nov 16 00:23:41.493615 switch bgpd[1343]: [HZN6M-XRM1G] %NOTIFICATION(Hard Reset): sent to neighbor 10.0.0.2 6/10 (Cease/BFD Down) 0 bytes
+Nov 16 00:23:41.495657 switch bgpd[1343]: [PXVXG-TFNNT] %ADJCHANGE: neighbor 10.0.0.2(peer) in vrf default Down BFD down initiated
+Nov 16 00:23:41.551485 switch bfdsyncd[1369]: bfdsyncd: default|PortChannel0001|10.0.0.2 Up -> Down (diag control detection time expired, local 10.0.0.1, 300/300 ms x3)
+Nov 16 00:23:41.554256 switch staticroutebfd[1113]: Received message : '('default|PortChannel0001|10.0.0.2', 'SET', (('state', 'Down'), ('type', 'async_active'), ('local_addr', '10.0.0.1'), ('tx_interval', '300'), ('rx_interval', '300'), ('multiplier', '3'), ('multihop', 'false'), ('local_discriminator', '1791681008')))'
+
+PASS loss removed: BFD 10.0.0.2 up again
+[51.22s] switch: waiting for success: vtysh -c 'show bgp neighbors 10.0.0.2 json' | grep -q '"bgpState":"Established"'
+[51.24s] switch: (finished: waiting for success: vtysh -c 'show bgp neighbors 10.0.0.2 json' | grep -q '"bgpState":"Established"', in 0.02 seconds)
+PASS ... BGP 10.0.0.2 Established again
+[51.24s] switch: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 exists ROUTE_TABLE:192.0.2.0/24 | grep -qx 1
+[53.29s] switch: (finished: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 exists ROUTE_TABLE:192.0.2.0/24 | grep -qx 1, in 2.05 seconds)
+PASS ... BGP prefix 192.0.2.0/24 back in APPL_DB
+PASS peer eth3 down: BGP Vrf-test 10.1.0.2 down in 0.76 s (< 1.5 s)
+PASS ... switch's Ethernet24 still oper up (no carrier loss seen: BFD detected it)
+PASS ... Vrf-test static route (Ethernet9/1) and default VRF BGP unaffected
+[54.14s] switch: waiting for success: vtysh -c 'show bgp vrf Vrf-test neighbors 10.1.0.2 json' | grep -q '"bgpState":"Established"'
+[55.20s] switch: (finished: waiting for success: vtysh -c 'show bgp vrf Vrf-test neighbors 10.1.0.2 json' | grep -q '"bgpState":"Established"', in 1.06 seconds)
+PASS peer eth3 up: BGP Vrf-test Established again
+PASS peer eth5 down: Vrf-test static route out of APPL_DB in 1.13 s (< 1.5 s)
+[56.34s] switch: waiting for success: ! redis-cli -s /var/run/redis/redis.sock -n 1 --scan --pattern '*ROUTE_ENTRY*"dest":"198.18.0.0/24"*' | grep -q .
+[56.38s] switch: (finished: waiting for success: ! redis-cli -s /var/run/redis/redis.sock -n 1 --scan --pattern '*ROUTE_ENTRY*"dest":"198.18.0.0/24"*' | grep -q ., in 0.03 seconds)
+PASS ... and out of ASIC_DB
+[56.39s] switch: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 hget ROUTE_TABLE:Vrf-test:198.18.0.0/24 nexthop | grep -qx 10.3.0.2
+[57.43s] switch: (finished: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 hget ROUTE_TABLE:Vrf-test:198.18.0.0/24 nexthop | grep -qx 10.3.0.2, in 1.03 seconds)
+PASS peer eth5 up: Vrf-test static route back
+[57.49s] switch: waiting for success: ! vtysh -c 'show running-config' | grep -q 'neighbor 10.1.0.2 bfd'
+[57.52s] switch: (finished: waiting for success: ! vtysh -c 'show running-config' | grep -q 'neighbor 10.1.0.2 bfd', in 0.03 seconds)
+PASS bfd=false: bgpcfgd removed 'neighbor 10.1.0.2 bfd' live
+PASS ... bfdd session 10.1.0.2 gone
+[57.54s] switch: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 6 exists 'BFD_SESSION_TABLE|Vrf-test|Ethernet24|10.1.0.2' | grep -qx 0
+[58.57s] switch: (finished: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 6 exists 'BFD_SESSION_TABLE|Vrf-test|Ethernet24|10.1.0.2' | grep -qx 0, in 1.03 seconds)
+PASS ... and from STATE_DB (bfdsyncd)
+PASS ... no 'Can't update the peer' error from bgpcfgd
+[58.60s] switch: waiting for success: vtysh -c 'show bgp vrf Vrf-test neighbors 10.1.0.2 json' | grep -q '"bgpState":"Established"'
+[59.65s] switch: (finished: waiting for success: vtysh -c 'show bgp vrf Vrf-test neighbors 10.1.0.2 json' | grep -q '"bgpState":"Established"', in 1.05 seconds)
+PASS ... BGP Vrf-test Established
+PASS no BFD: BGP Vrf-test still Established 5 s after the peer link went down (hold time 90 s)
+[64.76s] switch: waiting for success: vtysh -c 'show running-config' | grep -q 'neighbor 10.1.0.2 bfd'
+[64.80s] switch: (finished: waiting for success: vtysh -c 'show running-config' | grep -q 'neighbor 10.1.0.2 bfd', in 0.04 seconds)
+PASS bfd=true again: neighbor 10.1.0.2 bfd back in bgpd
+PASS ... session up
+[65.89s] switch: waiting for success: systemctl is-active sonic-bfdsyncd && redis-cli -s /var/run/redis/redis.sock -n 6 hget 'BFD_SESSION_TABLE|default|default|10.2.0.2' state | grep -qx Up
+[68.97s] switch: (finished: waiting for success: systemctl is-active sonic-bfdsyncd && redis-cli -s /var/run/redis/redis.sock -n 6 hget 'BFD_SESSION_TABLE|default|default|10.2.0.2' state | grep -qx Up, in 3.07 seconds)
+PASS bfdsyncd killed: restarted, STATE_DB still Up
+[70.07s] switch: waiting for success: [ $(vtysh -c 'show bfd peers json' | grep -o '"status":"up"' | wc -l) -eq 4 ]
+[72.16s] switch: (finished: waiting for success: [ $(vtysh -c 'show bfd peers json' | grep -o '"status":"up"' | wc -l) -eq 4 ], in 2.09 seconds)
+PASS bfdd restart: bgpcfgd restarted with it, all 4 sessions up again
+[72.16s] switch: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 hget ROUTE_TABLE:203.0.113.0/24 nexthop | grep -qx 10.2.0.2 && redis-cli -s /var/run/redis/redis.sock -n 0 hget ROUTE_TABLE:Vrf-test:198.18.0.0/24 nexthop | grep -qx 10.3.0.2
+[72.18s] switch: (finished: waiting for success: redis-cli -s /var/run/redis/redis.sock -n 0 hget ROUTE_TABLE:203.0.113.0/24 nexthop | grep -qx 10.2.0.2 && redis-cli -s /var/run/redis/redis.sock -n 0 hget ROUTE_TABLE:Vrf-test:198.18.0.0/24 nexthop | grep -qx 10.3.0.2, in 0.02 seconds)
+PASS ... static routes back in APPL_DB
+[72.18s] switch: waiting for success: vtysh -c 'show bgp neighbors 10.0.0.2 json' | grep -q '"bgpState":"Established"' && vtysh -c 'show bgp vrf Vrf-test neighbors 10.1.0.2 json' | grep -q '"bgpState":"Established"'
+[72.22s] switch: (finished: waiting for success: vtysh -c 'show bgp neighbors 10.0.0.2 json' | grep -q '"bgpState":"Established"' && vtysh -c 'show bgp vrf Vrf-test neighbors 10.1.0.2 json' | grep -q '"bgpState":"Established"', in 0.04 seconds)
+PASS ... BGP both Established
+PASS orchagent not restarted by any of this
+CPU % over 30 s: {'bfdd': 0.5, 'bfdsyncd': 0.1}
+PASS bfdd + bfdsyncd CPU below 10% of a core in the VM ({'bfdd': 0.5, 'bfdsyncd': 0.1})
+PASS no BFD errors from orchagent/syncd
+PASS orchagent: no exceptions (BfdMonitorOrch parses STATE_DB BFD_SESSION_TABLE)
+Nov 16 00:23:57.802940 switch orchagent[1100]: :- updateCustomBfdState: BFD session for 10.1.0.2 not found
+Nov 16 00:24:02.104881 switch orchagent[1100]: :- updateCustomBfdState: BFD session for 10.0.0.2 not found
+Nov 16 00:24:02.109043 switch orchagent[1100]: :- updateCustomBfdState: BFD session for 10.1.0.2 not found
+Nov 16 00:24:02.306860 switch orchagent[1100]: :- updateCustomBfdState: BFD session for 10.1.0.2 not found
+Nov 16 00:24:02.921829 switch orchagent[1100]: :- updateCustomBfdState: BFD session for 10.2.0.2 not found
+Nov 16 00:24:02.922017 switch orchagent[1100]: :- updateCustomBfdState: BFD session for 10.3.0.2 not found
+Nov 16 00:24:03.124319 switch orchagent[1100]: :- updateCustomBfdState: BFD session for 10.0.0.2 not found
+Nov 16 00:24:03.124616 switch orchagent[1100]: :- updateCustomBfdState: BFD session for 10.1.0.2 not found
+Nov 16 00:24:03.727417 switch orchagent[1100]: :- updateCustomBfdState: BFD session for 10.2.0.2 not found
+Nov 16 00:24:03.729020 switch orchagent[1100]: :- updateCustomBfdState: BFD session for 10.3.0.2 not found
+
+Nov 16 00:23:37.732228 switch bfdsyncd[1369]: bfdsyncd: default|default|10.2.0.2 new -> Down (diag ok, local 10.2.0.1, 300/300 ms x3)
+Nov 16 00:23:37.735055 switch bfdsyncd[1369]: bfdsyncd: Vrf-test|default|10.3.0.2 new -> Down (diag ok, local 10.3.0.1, 300/300 ms x3)
+Nov 16 00:23:37.936449 switch bfdsyncd[1369]: bfdsyncd: default|default|10.2.0.2 Down -> Init (diag ok, local 10.2.0.1, 300/300 ms x3)
+Nov 16 00:23:37.938077 switch bfdsyncd[1369]: bfdsyncd: Vrf-test|default|10.3.0.2 Down -> Init (diag ok, local 10.3.0.1, 300/300 ms x3)
+Nov 16 00:23:38.539722 switch bfdsyncd[1369]: bfdsyncd: default|default|10.2.0.2 Init -> Up (diag ok, local 10.2.0.1, 300/300 ms x3)
+Nov 16 00:23:38.740583 switch bfdsyncd[1369]: bfdsyncd: Vrf-test|default|10.3.0.2 Init -> Up (diag ok, local 10.3.0.1, 300/300 ms x3)
+Nov 16 00:23:39.549172 switch bfdsyncd[1369]: bfdsyncd: default|default|10.2.0.2 Up -> Down (diag neighbor signaled session down, local 10.2.0.1, 300/300 ms x3)
+Nov 16 00:23:40.145831 switch bfdsyncd[1369]: bfdsyncd: default|default|10.2.0.2 Down -> Init (diag neighbor signaled session down, local 10.2.0.1, 300/300 ms x3)
+Nov 16 00:23:40.547295 switch bfdsyncd[1369]: bfdsyncd: default|default|10.2.0.2 Init -> Up (diag ok, local 10.2.0.1, 300/300 ms x3)
+Nov 16 00:23:41.551485 switch bfdsyncd[1369]: bfdsyncd: default|PortChannel0001|10.0.0.2 Up -> Down (diag control detection time expired, local 10.0.0.1, 300/300 ms x3)
+Nov 16 00:23:43.356508 switch bfdsyncd[1369]: bfdsyncd: default|PortChannel0001|10.0.0.2 Down -> Up (diag ok, local 10.0.0.1, 300/300 ms x3)
+Nov 16 00:23:45.964653 switch bfdsyncd[1369]: bfdsyncd: Vrf-test|Ethernet24|10.1.0.2 Up -> Down (diag control detection time expired, local 10.1.0.1, 300/300 ms x3)
+Nov 16 00:23:46.165340 switch bfdsyncd[1369]: bfdsyncd: Vrf-test|Ethernet24|10.1.0.2 Down -> Up (diag ok, local 10.1.0.1, 300/300 ms x3)
+Nov 16 00:23:48.171215 switch bfdsyncd[1369]: bfdsyncd: Vrf-test|default|10.3.0.2 Up -> Down (diag control detection time expired, local 10.3.0.1, 300/300 ms x3)
+Nov 16 00:23:48.973714 switch bfdsyncd[1369]: bfdsyncd: Vrf-test|default|10.3.0.2 Down -> Up (diag ok, local 10.3.0.1, 300/300 ms x3)
+Nov 16 00:23:49.577657 switch bfdsyncd[1369]: bfdsyncd: Vrf-test|Ethernet24|10.1.0.2 removed
+Nov 16 00:23:56.797161 switch bfdsyncd[1369]: bfdsyncd: Vrf-test|Ethernet24|10.1.0.2 new -> Down (diag ok, local 10.1.0.1, 300/300 ms x3)
+Nov 16 00:23:57.799320 switch bfdsyncd[1369]: bfdsyncd: Vrf-test|Ethernet24|10.1.0.2 Down -> Up (diag ok, local 10.1.0.1, 300/300 ms x3)
+Nov 16 00:23:57.842237 switch systemd[1]: sonic-bfdsyncd.service: Sent signal SIGKILL to main process 1369 (.bfdsyncd-wrapp) on client request.
+Nov 16 00:23:57.842292 switch systemd[1]: sonic-bfdsyncd.service: Killed unit cgroup '/system.slice/sonic-bfdsyncd.service' with SIGKILL on client request.
+Nov 16 00:23:57.846547 switch systemd[1]: sonic-bfdsyncd.service: Main process exited, code=killed, status=9/KILL
+Nov 16 00:23:57.848351 switch systemd[1]: sonic-bfdsyncd.service: Failed with result 'signal'.
+Nov 16 00:24:00.910014 switch systemd[1]: sonic-bfdsyncd.service: Scheduled restart job, restart counter is at 1.
+Nov 16 00:24:00.912385 switch systemd[1]: Started SONiC bfdsyncd (bfdd session state -> STATE_DB BFD_SESSION_TABLE).
+Nov 16 00:24:00.942901 switch systemd[1]: Stopping SONiC bfdsyncd (bfdd session state -> STATE_DB BFD_SESSION_TABLE)...
+Nov 16 00:24:00.947119 switch systemd[1]: sonic-bfdsyncd.service: Deactivated successfully.
+Nov 16 00:24:00.947719 switch systemd[1]: Stopped SONiC bfdsyncd (bfdd session state -> STATE_DB BFD_SESSION_TABLE).
+Nov 16 00:24:02.026244 switch systemd[1]: Started SONiC bfdsyncd (bfdd session state -> STATE_DB BFD_SESSION_TABLE).
+Nov 16 00:24:02.098609 switch bfdsyncd[3669]: bfdsyncd: /run/frr/bfdd.vty -> STATE_DB BFD_SESSION_TABLE every 200 ms
+Nov 16 00:24:02.101278 switch bfdsyncd[3669]: bfdsyncd: default|default|10.2.0.2 removed (not in bfdd)
+Nov 16 00:24:02.101278 switch bfdsyncd[3669]: bfdsyncd: Vrf-test|default|10.3.0.2 removed (not in bfdd)
+Nov 16 00:24:02.107047 switch bfdsyncd[3669]: bfdsyncd: default|PortChannel0001|10.0.0.2 new -> Init (diag ok, local 10.0.0.1, 300/300 ms x3)
+Nov 16 00:24:02.107047 switch bfdsyncd[3669]: bfdsyncd: Vrf-test|Ethernet24|10.1.0.2 new -> Down (diag ok, local 10.1.0.1, 300/300 ms x3)
+Nov 16 00:24:02.305941 switch bfdsyncd[3669]: bfdsyncd: Vrf-test|Ethernet24|10.1.0.2 Down -> Init (diag ok, local 10.1.0.1, 300/300 ms x3)
+Nov 16 00:24:02.921515 switch bfdsyncd[3669]: bfdsyncd: default|default|10.2.0.2 new -> Init (diag ok, local 10.2.0.1, 300/300 ms x3)
+Nov 16 00:24:02.923056 switch bfdsyncd[3669]: bfdsyncd: Vrf-test|default|10.3.0.2 new -> Init (diag ok, local 10.3.0.1, 300/300 ms x3)
+Nov 16 00:24:03.124289 switch bfdsyncd[3669]: bfdsyncd: default|PortChannel0001|10.0.0.2 Init -> Up (diag ok, local 10.0.0.1, 300/300 ms x3)
+Nov 16 00:24:03.124289 switch bfdsyncd[3669]: bfdsyncd: Vrf-test|Ethernet24|10.1.0.2 Init -> Up (diag ok, local 10.1.0.1, 300/300 ms x3)
+Nov 16 00:24:03.725027 switch bfdsyncd[3669]: bfdsyncd: default|default|10.2.0.2 Init -> Up (diag ok, local 10.2.0.1, 300/300 ms x3)
+Nov 16 00:24:03.728147 switch bfdsyncd[3669]: bfdsyncd: Vrf-test|default|10.3.0.2 Init -> Up (diag ok, local 10.3.0.1, 300/300 ms x3)
+
+RESULTS {"static route removed after peer BFD admin-down (s)": 0.2348445579991676, "static route restored after BFD up (s)": 0.8697350670117885, "BGP (PortChannel) down after 100% loss (s)": 0.798665576003259, "BGP (Vrf-test port) down after peer link down (s)": 0.7570516520063393, "Vrf-test static route removed after peer link down (s)": 1.1312681829731446, "CPU % over 30 s, 4 sessions (x86 VM)": {"bfdd": 0.5, "bfdsyncd": 0.1}}
+FAILED CHECKS: 0 []
+[102.78s] (finished: run the VM test script, in 102.77 seconds)
+[102.82s] test script finished in 102.82s
+[102.82s] cleanup
+[102.82s] kill QemuMachine (pid 63)
+[102.92s] kill QemuMachine (pid 64)
+[103.09s] (finished: cleanup, in 0.26 seconds)
+/nix/store/a1bnpncm6zi28yapiwm32mqasa4wkxlz-vm-test-run-sonic-bfd
+EXIT 0

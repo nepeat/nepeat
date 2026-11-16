@@ -179,7 +179,7 @@ let
     ++ optional cfg.copp.enable "coppmgrd";
   unit = n: "sonic-${n}.service";
 in {
-  imports = [ ./frr.nix ./recovery.nix ./vrf.nix ./counters.nix ./pmon.nix ./lldp.nix ];
+  imports = [ ./frr.nix ./recovery.nix ./vrf.nix ./counters.nix ./pmon.nix ./lldp.nix ./bfd.nix ];
   options.services.sonic = {
     enable = mkEnableOption "the SONiC switch control plane (redis, syncd, orchagent, managers, CLI)";
     packages = mkOption {

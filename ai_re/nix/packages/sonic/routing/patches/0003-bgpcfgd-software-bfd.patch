@@ -1,0 +1,93 @@
+sonic-nixos changes to sonic-bgpcfgd for software BFD (FRR bfdd, no ASIC offload):
+- BfdMgr: sessions active unless type=async_passive (as BfdOrch's SAI default);
+  upstream makes every session without type passive, so two SONiC ends (or
+  two VRFs of one switch) never come up.
+- BGPPeerMgrBase.update_peer: a changed bfd / bfd_check_ctrl_plane_failure of an
+  existing BGP_NEIGHBOR is applied live (upstream only handles admin_status).
+- staticroutebfd: session timers from the environment (upstream: fixed 50 ms x3).
+Applies to src/sonic-bgpcfgd.
+
+--- a/bgpcfgd/managers_bfd.py
++++ b/bgpcfgd/managers_bfd.py
+@@ -70,7 +70,9 @@
+             'detect-multiplier': self.MULTIPLIER,
+             'receive-interval_ms': self.RX_INTERVAL_MS,
+             'transmit-interval_ms': self.TX_INTERVAL_MS,
+-            'passive-mode': True,
++            # sonic-nixos: active unless type=async_passive, as BfdOrch's SAI
++            # sessions (no type = async_active); passive on both ends never comes up.
++            'passive-mode': False,
+         }
+ 
+     def redis_to_local_res(self, data):
+@@ -104,10 +106,7 @@
+             res_data["transmit-interval_ms"] = int(data["tx_interval"])
+ 
+         if "type" in data:
+-            if data["type"] == "async_active":
+-                res_data["passive-mode"] = False
+-            else:
+-                res_data["passive-mode"] = True
++            res_data["passive-mode"] = data["type"] == "async_passive"
+ 
+         return res_data
+ 
+--- a/bgpcfgd/managers_bgp.py
++++ b/bgpcfgd/managers_bgp.py
+@@ -470,16 +470,39 @@
+         :param data: associated data
+         :return: True if this adding was successful, False otherwise
+         """
++        bfd_changed = self.update_bfd(vrf, nbr, data)
+         if "admin_status" in data:
+             self.change_admin_status(vrf, nbr, data)
+         elif "update" in self.templates and "ip_range" in data and self.peer_type == 'dynamic':
+             self.change_ip_range(vrf, nbr, data)
+-        else:
++        elif not bfd_changed:
+             log_err("Peer '(%s|%s)': Can't update the peer. Only 'admin_status' attribute is supported" % (vrf, nbr))
+ 
+         self.directory.put(self.db_name, self.table_name, vrf + '|' + nbr, data)
+         return True
+ 
++    def update_bfd(self, vrf, nbr, data):
++        """
++        sonic-nixos: apply a changed 'bfd' / 'bfd_check_ctrl_plane_failure' of an
++        existing peer (the add template renders them for new peers).
++        :return: True if a BFD setting changed
++        """
++        try:
++            old = self.directory.get(self.db_name, self.table_name, vrf + '|' + nbr)
++        except KeyError:
++            old = {}
++        on = lambda d, f: d.get(f, 'false') == 'true'
++        cmds = []
++        if on(old, 'bfd') != on(data, 'bfd'):
++            cmds.append(('' if on(data, 'bfd') else 'no ') + 'neighbor %s bfd' % nbr)
++        if on(data, 'bfd') and on(old, 'bfd_check_ctrl_plane_failure') != on(data, 'bfd_check_ctrl_plane_failure'):
++            cmds.append(('' if on(data, 'bfd_check_ctrl_plane_failure') else 'no ') + 'neighbor %s bfd check-control-plane-failure' % nbr)
++        if not cmds:
++            return False
++        self.apply_op("\n".join(" " + c for c in cmds), vrf)
++        log_info("Peer '(%s|%s)': %s" % (vrf, nbr, "; ".join(cmds)))
++        return True
++
+     def change_admin_status(self, vrf, nbr, data):
+         """
+         Change admin status of a peer
+--- a/staticroutebfd/vars.py
++++ b/staticroutebfd/vars.py
+@@ -1,5 +1,9 @@
++import os
++
+ g_debug = True
+-bfd_multihop = "false" 
+-bfd_rx_interval = "50"
+-bfd_tx_interval = "50"
+-bfd_multiplier = "3"
++# sonic-nixos: session parameters from the environment (services.sonic.bfd.staticRoute;
++# SONiC hardcodes 50 ms x3 here, meant for ASIC-offloaded BFD).
++bfd_multihop = os.environ.get("STATICROUTEBFD_MULTIHOP", "false")
++bfd_rx_interval = os.environ.get("STATICROUTEBFD_RX_INTERVAL", "50")
++bfd_tx_interval = os.environ.get("STATICROUTEBFD_TX_INTERVAL", "50")
++bfd_multiplier = os.environ.get("STATICROUTEBFD_MULTIPLIER", "3")

@@ -1,0 +1,22 @@
+sonic-nixos: BGP_NEIGHBOR bfd=true renders "neighbor X bfd" in bgpcfgd's
+("separated") mode, as frrcfgd does in unified mode (sonic-bgp-common.yang
+fields bfd, bfd_check_ctrl_plane_failure). Upstream bgpcfgd ignores them.
+Applies to dockers/docker-fpm-frr/frr (the template directory).
+
+--- a/bgpd/templates/general/instance.conf.j2
++++ b/bgpd/templates/general/instance.conf.j2
+@@ -89,6 +89,14 @@
+     advertise-all-vni
+   exit-address-family
+ {% endif %}
++{# sonic-nixos: BFD for the peer (BGP_NEIGHBOR bfd / bfd_check_ctrl_plane_failure, #}
++{# sonic-bgp-common.yang; rendered like frrcfgd does in unified mode).             #}
++{% if bgp_session['bfd'] is defined and bgp_session['bfd'] == 'true' %}
++  neighbor {{ neighbor_addr }} bfd
++{%   if bgp_session['bfd_check_ctrl_plane_failure'] is defined and bgp_session['bfd_check_ctrl_plane_failure'] == 'true' %}
++  neighbor {{ neighbor_addr }} bfd check-control-plane-failure
++{%   endif %}
++{% endif %}
+ !
+ ! end of template: bgpd/templates/general/instance.conf.j2
+ !

@@ -1,0 +1,15 @@
+# AS7760 cross-build with services.sonic.bfd (bfd.nix, FRR with bfdd), 2026-11-15
+# nix build path:./nix#as7760-system path:./nix#as7760-size-check   (exit 0)
+system: /nix/store/nma9q2h5m1n9jsv2ggq8qb20scsjmg59-nixos-system-as7760-26.11.20261111.d4f25a3
+  (rebuilt after the last module change: staticroutebfd not ordered after bgpcfgd; earlier build /nix/store/nh6ng95l3g1r3mzsdxgzcpghpqq11hyk-nixos-system-as7760-26.11.20261111.d4f25a3)
+as7760-runtime-size-check: closure_bytes_upper_estimate 2565718016 of limit 3221225472, within_budget true
+  (previous recorded: 2564489216 -> +1.2 MB for bfdd, staticroutebfd, bfdsyncd)
+units in the system: sonic-frr-bfdd.service sonic-bfdsyncd.service sonic-staticroutebfd.service
+sonic-frr-bfdd:  ExecStart=.../frr-sonic-powerpc64-unknown-linux-gnuabielfv2-10.7.1/libexec/frr/bfdd -P 0
+                 BindsTo=sonic-orchagent.service sonic-frr-zebra.service
+  bfdd: ELF 64-bit MSB pie executable, 64-bit PowerPC, OpenPOWER ELF V2 ABI
+sonic-bgpcfgd:   BindsTo=sonic-orchagent.service sonic-frr-bgpd.service sonic-frr-staticd.service sonic-frr-bfdd.service
+nftables-rules:  iifname != { "eth0" } udp dport { 3784, 3785, 4784 } accept comment "BFD on switch interfaces"
+                 iifname != { "eth0" } tcp dport 179 accept comment "BGP on switch interfaces"
+sonic-staticroutebfd: After=sonic-orchagent.service; BindsTo=sonic-orchagent.service; Environment="STATICROUTEBFD_MULTIHOP=false"; Environment="STATICROUTEBFD_MULTIPLIER=3"; Environment="STATICROUTEBFD_RX_INTERVAL=300"; Environment="STATICROUTEBFD_TX_INTERVAL=300"
+sonic-bfdsyncd: Environment="BFDSYNCD_INTERVAL_MS=200"

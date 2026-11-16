@@ -19,8 +19,9 @@ redis-sonic ─ sonic-config-loader (oneshot: Nix base + saved file -> CONFIG_DB
                                                  teamsyncd tlm_teamd neighsyncd fdbsyncd coppmgrd
                                                  vrfmgrd (vrf.nix)
                                                  teamd-watch (recovery.nix, upheld by teammgrd)
-                                                 frr-config ─ frr-mgmtd ─ frr-zebra ─┬ frr-staticd ┬ bgpcfgd
-                                                 fpmsyncd  (frr.nix)                 └ frr-bgpd ───┴ bgpmon
+                                                 frr-config ─ frr-mgmtd ─ frr-zebra ─┬ frr-staticd ┬ bgpcfgd ─ staticroutebfd
+                                                 fpmsyncd  (frr.nix)                 ├ frr-bgpd ───┼ bgpmon
+                                                                                     └ frr-bfdd ───┴ bfdsyncd   (bfd.nix)
 ```
 
 All are `sonic-*.service`, `PartOf=sonic.target`. A downstream unit
@@ -127,6 +128,8 @@ nix build -L --impure --expr 'let f = builtins.getFlake "path:'$PWD'/nix"; pkgs 
 # tests/vm-frr.nix: switch 3 GB + peer 1 GB (FRR): eBGP over a PortChannel, routes to APPL/ASIC_DB,
 #   static routes, config interface ip remove, crash recovery, config reload w/o saved file, ~25 min
 # tests/vm-platform.nix: one VM (3 GB, vs): pmon on the fake AS7760 board, show platform/transceiver, LLDP self-loop
+# tests/vm-bfd.nix: switch 3 GB + peer 1 GB (FRR bfdd): BGP+BFD over a PortChannel and a Vrf-test port, BGP down
+#   in < 1 s on loss/link down, static routes with BFD in/out of APPL_DB, live toggle, restarts, ~5 min
 # AS7760 config.bcm generator: nix/modules/boards/as7760/sdk-config-test.nix (command in its header)
 ```
 
@@ -145,7 +148,7 @@ again 10 s after syncd stops, unless syncd is back, queued or a
 ## routing (FRR)
 
 [frr.nix](frr.nix), `services.sonic.frr.enable` (default on, as SONiC's bgp
-feature): FRR 10.7 (zebra, mgmtd, bgpd, staticd; [packages/sonic/routing](../../../packages/sonic/routing/default.nix)
+feature): FRR 10.7 (zebra, mgmtd, bgpd, staticd, bfdd: see BFD below; [packages/sonic/routing](../../../packages/sonic/routing/default.nix)
 with the SONiC patches the FPM path needs), zebra `-M dplane_fpm_nl` to
 fpmsyncd (127.0.0.1:2620 -> APPL_DB ROUTE_TABLE), bgpcfgd + bgpmon. SONiC's
 default "separated" mode: `/etc/frr/{zebra,bgpd,staticd}.conf` rendered from
@@ -161,6 +164,44 @@ bgpcfgd configures no BGP_NEIGHBOR until these exist: `DEVICE_METADATA`
 values) and **Loopback0** (`config loopback add Loopback0`). bgp_asn and
 Loopback0 are read into bgpd.conf at FRR start (`systemctl restart
 sonic-frr-config` after changing them).
+
+## BFD (software)
+
+[bfd.nix](bfd.nix), `services.sonic.bfd.enable` (default on with FRR): FRR's
+bfdd, no ASIC offload (Tomahawk BFD needs closed microcontroller firmware;
+sai-openbcm has no SAI BFD; the vs SAI gets `SAI_VS_BFD_OFFLOAD_SUPPORTED=false`).
+Both ways in are CONFIG_DB:
+
+- BGP: `BGP_NEIGHBOR|[<vrf>|]<ip>` `bfd=true` (+ `bfd_check_ctrl_plane_failure`,
+  fields of sonic-bgp-common.yang) -> `neighbor <ip> bfd` (template patch 0002;
+  bgpcfgd ignores these upstream; a change on a live neighbor is applied,
+  patch 0003). bgpd runs its own bfdd session, FRR defaults 300 ms x3, and
+  drops the session on BFD down.
+- Static routes: `STATIC_ROUTE|<vrf>|<prefix>` with `nexthop`, `ifname` (the
+  SONiC name of a port/PortChannel whose IP is in INTERFACE/PORTCHANNEL_INTERFACE)
+  and `bfd=true` (one value per next hop). staticroutebfd -> APPL_DB
+  BFD_SESSION_TABLE -> orchagent's BfdOrch (no offload: STATE_DB
+  BFD_SOFTWARE_SESSION_TABLE) -> bgpcfgd's BfdMgr (`SYSTEM_DEFAULTS|software_bfd`
+  enabled, seeded) -> bfdd; bfdsyncd -> STATE_DB BFD_SESSION_TABLE ->
+  staticroutebfd puts the route in APPL_DB STATIC_ROUTE (-> staticd) while a
+  next hop's session is Up. Timers: `bfd.staticRoute` (300 ms x3; SONiC 50 ms).
+- `show bfd summary`, `show bfd peer <ip>` (STATE_DB), `vtysh -c 'show bfd peers'`.
+- Firewall: UDP 3784/4784/3785 on all but `frr.managementInterfaces`, as BGP.
+
+Not SONiC's: bfdsyncd (ours; SONiC has nothing that reports software
+session state: polls bfdd's vty socket every `bfd.pollInterval`, 200 ms,
+writes only BfdOrch's fields because orchagent's BfdMonitorOrch parses the
+table), BfdMgr sessions active by default (upstream passive: two SONiC ends
+never come up), no bfdmon (DPU-only). Limits: `config route add` has no
+`bfd` option (write CONFIG_DB); staticroutebfd ignores VLAN interfaces
+(upstream); a static BFD route and a BGP BFD neighbor on the same next hop
+make two bfdd sessions to one peer (one with interface, one without), and
+bfdd matches an unset local address or interface as a wildcard, so one can
+capture the other's packets (seen in the VM on the peer side): use one or
+the other per next hop. Each state change logs orchagent's harmless "BFD session for
+<ip> not found" warning (BfdMonitorOrch is for VNET routes; same with SONiC's
+hardware BFD). Details, numbers and the switch test:
+devices/sonic-nixos/bfd.md.
 
 ## platform (pmon) and LLDP
 
@@ -182,5 +223,5 @@ neighbors|table` call lldpctl directly. Packages: [packages/sonic/platform](../.
 ## not here (yet)
 
 buffermgrd/buffer profiles, vxlan/nat/sflow/macsec managers,
-frrcfgd/unified FRR mode, BFD (staticroutebfd, bfdd), swssconfig's switch.json, ledd/pcied/chassisd, SNMP, warm reboot, multi-ASIC,
+frrcfgd/unified FRR mode, BFD offload to the ASIC, swssconfig's switch.json, ledd/pcied/chassisd, SNMP, warm reboot, multi-ASIC,
 breakout at runtime (a split takes effect at the next SDK init: `sonic-nix reload`).

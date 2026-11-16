@@ -1,0 +1,145 @@
+#!/usr/bin/env python3
+# sonic-nixos bfdsyncd: FRR bfdd session state -> STATE_DB BFD_SESSION_TABLE.
+#
+# On SONiC, BfdOrch writes STATE_DB BFD_SESSION_TABLE|<vrf>|<ifname>|<peer>
+# from the ASIC's BFD notifications. Without offload (sai-openbcm, vs with
+# SAI_VS_BFD_OFFLOAD_SUPPORTED=false) BfdOrch only copies APPL_DB sessions to
+# STATE_DB BFD_SOFTWARE_SESSION_TABLE, bgpcfgd's BfdMgr configures them in
+# bfdd, and nothing reports their state: staticroutebfd never sees "Up" and
+# "show bfd summary" is empty. This daemon closes that loop: it polls bfdd
+# over its vty socket (vtysh's protocol, one persistent connection) and writes
+# every bfdd session (configured and dynamic, e.g. BGP's) with BfdOrch's
+# fields and state names, and only those: orchagent's BfdMonitorOrch parses
+# this table and rejects other fields or a local_addr that is no IP ("show bfd
+# summary" needs every field, so an unknown local address is 0.0.0.0 / ::).
+# ifname "default" = a session without interface, as staticroutebfd and
+# BfdMgr key them.
+import json
+import os
+import socket
+import sys
+import time
+
+from swsscommon import swsscommon
+
+VTY = os.environ.get("BFDD_VTY", "/run/frr/bfdd.vty")
+INTERVAL = int(os.environ.get("BFDSYNCD_INTERVAL_MS", "200")) / 1000.0
+RESYNC = 10.0      # s: re-check STATE_DB (orchagent's BfdOrch clears the table at start)
+TABLE = "BFD_SESSION_TABLE"
+STATES = {"up": "Up", "down": "Down", "init": "Init", "shutdown": "Admin_Down"}
+
+
+def log(msg):
+    print(msg, flush=True)
+
+
+class Vty:
+    """vtysh's protocol: command + NUL; reply text + 3 NULs + return code."""
+
+    def __init__(self, path):
+        self.path = path
+        self.sock = None
+
+    def close(self):
+        if self.sock:
+            self.sock.close()
+        self.sock = None
+
+    def cmd(self, line):
+        if self.sock is None:
+            s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            s.settimeout(5)
+            s.connect(self.path)
+            self.sock = s
+            self._run("enable")
+        return self._run(line)
+
+    def _run(self, line):
+        self.sock.sendall(line.encode() + b"\0")
+        buf = b""
+        while True:
+            chunk = self.sock.recv(65536)
+            if not chunk:
+                raise ConnectionError("bfdd closed the vty socket")
+            buf += chunk
+            i = buf.find(b"\0")
+            if i >= 0 and len(buf) >= i + 4:
+                if buf[i + 3] != 0:
+                    raise RuntimeError("bfdd: '%s' returned %d: %s" % (line, buf[i + 3], buf[:i].decode(errors="replace")))
+                return buf[:i].decode()
+
+
+def entries(peers):
+    """{key: fields} and {key: bfdd's diagnostic} (logged, not stored)."""
+    out, diag = {}, {}
+    for s in peers:
+        key = "%s|%s|%s" % (s.get("vrf", "default"), s.get("interface", "default"), s["peer"])
+        out[key] = {
+            "state": STATES.get(s.get("status"), "Down"),
+            "type": "async_passive" if s.get("passive-mode") else "async_active",
+            "local_addr": s.get("local") or ("::" if ":" in s["peer"] else "0.0.0.0"),
+            "tx_interval": str(s.get("transmit-interval", 0)),
+            "rx_interval": str(s.get("receive-interval", 0)),
+            "multiplier": str(s.get("detect-multiplier", 0)),
+            "multihop": "true" if s.get("multihop") else "false",
+            "local_discriminator": str(s.get("id", 0)),
+        }
+        diag[key] = s.get("diagnostic", "")
+    return out, diag
+
+
+def main():
+    db = swsscommon.DBConnector("STATE_DB", 0, False)
+    tbl = swsscommon.Table(db, TABLE)
+    vty = Vty(VTY)
+    published = {}
+    next_resync = 0.0
+    failing = False
+    log("bfdsyncd: %s -> STATE_DB %s every %d ms" % (VTY, TABLE, INTERVAL * 1000))
+    while True:
+        try:
+            cur, diag = entries(json.loads(vty.cmd("show bfd peers json") or "[]"))
+            if failing:
+                log("bfdsyncd: bfdd answers again")
+                failing = False
+        except (OSError, ConnectionError, RuntimeError, ValueError) as e:
+            if not failing:
+                log("bfdsyncd: cannot read bfdd sessions (%s); retrying" % e)
+                failing = True
+            vty.close()
+            time.sleep(1)
+            continue
+        now = time.monotonic()
+        if now >= next_resync:
+            # Full pass: rewrite what is missing (or was changed by someone
+            # else), drop keys bfdd no longer has.
+            next_resync = now + RESYNC
+            in_db = set(tbl.getKeys())
+            for key in in_db - set(cur):
+                tbl._del(key)
+                log("bfdsyncd: %s removed (not in bfdd)" % key)
+            for key, v in cur.items():
+                ok, fvs = tbl.get(key)
+                if not ok or dict(fvs) != v:
+                    published.pop(key, None)
+        for key in set(published) - set(cur):
+            tbl._del(key)
+            log("bfdsyncd: %s removed" % key)
+            del published[key]
+        for key, v in cur.items():
+            old = published.get(key)
+            if old != v:
+                tbl.set(key, swsscommon.FieldValuePairs(list(v.items())))
+                if old is None or old["state"] != v["state"]:
+                    log("bfdsyncd: %s %s -> %s (diag %s, local %s, %s/%s ms x%s)" % (
+                        key, old["state"] if old else "new", v["state"], diag[key] or "-",
+                        v["local_addr"] or "-", v["tx_interval"], v["rx_interval"], v["multiplier"]))
+                published[key] = v
+        time.sleep(INTERVAL)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit(0)
