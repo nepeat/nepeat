@@ -1,0 +1,164 @@
+# CS8210 vendor U-Boot (ALPINE_DB>) read-only readouts, 2026-11-15, console DMC-12 P1.
+# Commands typed: only the ones below (plus help). Full raw capture: serial-20261115-uboot-otp.txt (git-ignored).
+
+=> version
+U-Boot 2018.05-alpine_db-v3.65.1.015-HAL (Jun 04 2021 - 10:00:59 +0000) - ONIE 2017.11.015
+
+aarch64-onie-linux-gnueabi-gcc (crosstool-NG 81f70c2 - ONIE-2017.11.015RC1) 6.3.0
+GNU ld (crosstool-NG 81f70c2 - ONIE-2017.11.015RC1) 2.28
+
+=> dev_info
+Boot configuration:
+- cpu_pll_freq 2000MHz
+- ddr_pll_freq 1200MHz
+- sb_pll_freq 3000MHz
+- sb_clk_freq 500MHz
+- pll_ref_clk_freq 100MHz
+- i2c_preload disabled
+- spis_preload enabled
+- spim_preload disabled
+- spim_sw_mode 4x50MHz
+- boot_device SPI(M0)
+- cores 4x4
+- debug_mode 0
+- dcache enabled
+- llc enabled
+
+=> flash_contents_toc_print
+SF: Detected mx25u25635f with page size 256 Bytes, erase size 4 KiB, total 32 MiB
+#  | OBJ ID                    | Instance | Name     | Device  | Offset   | Max Size
+------------------------------------------------------------------------------------
+ 0 | 000001 (            STG2) |        0 |   stage2 | Current | 00000000 | 00041000 
+ 1 | 000002 (              DT) |        0 |       dt | Current | 00041000 | 0000f000 
+ 2 | 000510 (SERDES_AVG_PCIE_FW) |        0 |   srdfw0 | Current | 00050000 | 0000c000 
+ 3 | 000520 (SERDES_AVG_NON_PCIE_FW) |        0 |   srdfw1 | Current | 0005c000 | 0000c000 
+ 4 | 000530 (AVG_SBUS_MASTER_FW) |        0 |   sbusfw | Current | 00068000 | 00008000 
+ 5 | 000004 (            STG3) |        0 |   stage3 | Current | 00070000 | 00120000 
+ 6 | 000005 (           UBOOT) |        0 |    uboot | Current | 00190000 | 001f0000 
+ 7 | 000007 (       UBOOT_ENV) |        0 | uboot-en | Current | 00380000 | 00040000 
+ 8 | 000008 (   UBOOT_ENV_RED) |        0 | uboot-re | Current | 003c0000 | 00040000
+
+=> flash_contents_boot_mode_default_app_show
+Object not found in TOC!
+boot_mode_load failed!
+
+=> otp show direct
+- Device serial number:
+  - 42 59 b9 7a 0b 0c 2e 3b 
+- Chip Revision: 1
+- Device serial number lock: enabled
+- Direct boot: enabled
+- Preload: enabled
+- SPI debug: enabled
+- JTAG debug: enabled
+- Secure boot: disabled
+- Boot rom debug: enabled
+- Boot from SPI: enabled
+- Boot from NAND: enabled
+- Boot from UART: enabled
+- SW initiated memory repair: disabled
+- Minimal SW version: 0
+- TZ: disabled
+- UART CLI: enabled
+- SoC JTAG: enabled
+- SPI debugger PASW: disabled
+- OTP shadow override by preloader: enabled
+- CPU debug & trace: enabled
+- Secure debug & trace: enabled
+- RMA Debug: disabled and not locked
+- Public keys:
+  > Public key index: 0
+  > Public key index lock: disabled
+  > Public key 0 hash:
+  - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  > Public key 0 hash lock: disabled
+  > Public key 1 hash:
+  - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  > Public key 1 hash lock: disabled
+  > Public key 2 hash:
+  - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  > Public key 2 hash lock: disabled
+  > Public key 3 hash:
+  - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  > Public key 3 hash lock: disabled
+
+=> otp show shadow
+- Device serial number:
+  - 42 59 b9 7a 0b 0c 2e 3b 
+- Chip Revision: 1
+- Device serial number lock: enabled
+- Direct boot: enabled
+- Preload: enabled
+- SPI debug: enabled
+- JTAG debug: enabled
+- Secure boot: disabled
+- Boot rom debug: enabled
+- Boot from SPI: enabled
+- Boot from NAND: enabled
+- Boot from UART: enabled
+- SW initiated memory repair: disabled
+- Minimal SW version: 0
+- TZ: disabled
+- UART CLI: enabled
+- SoC JTAG: enabled
+- SPI debugger PASW: disabled
+- OTP shadow override by preloader: enabled
+- CPU debug & trace: enabled
+- Secure debug & trace: enabled
+- RMA Debug: disabled and not locked
+- Public keys:
+  > Public key index: 0
+  > Public key index lock: disabled
+  > Public key 0 hash:
+  - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  > Public key 0 hash lock: disabled
+  > Public key 1 hash:
+  - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  > Public key 1 hash lock: disabled
+  > Public key 2 hash:
+  - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  > Public key 2 hash lock: disabled
+  > Public key 3 hash:
+  - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  > Public key 3 hash lock: disabled
+
+=> uc_get_version
+uC bootloader version: 2.28
+uC application version: 2.1.14
+
+=> uc_get_secure
+Get secure state succeeded! Secure state is NOT-SECURE
+
+=> bdinfo
+arch_number = 0x00000000
+boot_params = 0x00000100
+DRAM bank   = 0x00000000
+-> start    = 0x00000000
+-> size     = 0x80000000
+DRAM bank   = 0x00000001
+-> start    = 0x80000000
+-> size     = 0x40000000
+DRAM bank   = 0x00000002
+-> start    = 0x200000000
+-> size     = 0x40000000
+DRAM bank   = 0x00000003
+-> start    = 0x100000000
+-> size     = 0x100000000
+current eth = al_eth1
+ip_addr     = <NULL>
+baudrate    = 115200 bps
+TLB addr    = 0x03FF0000
+relocaddr   = 0x03ED1000
+reloc off   = 0x02DD1000
+irq_sp      = 0x03ACCDA0
+sp start    = 0x03ACCDA0
+Early malloc usage: d8 / 400
+fdt_blob = 0000000003f99760
