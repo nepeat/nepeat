@@ -46,7 +46,7 @@ appear once `nix/` is committed; `path:./nix` always works.
 | layer | name | what |
 | --- | --- | --- |
 | profile | `profile-appliance` | small cross-built NixOS: no docs/firmware, trimmed systemd, key-only sshd, probing tools, htop + fastfetch, flakes enabled |
-| profile | `profile-rebuildable` | on top of appliance: nix + switcher, so `nixos-rebuild switch --flake path:./nix#<host> --target-host root@<box>` deploys in place (copies only new paths); no nixpkgs source/channel/registry, no on-box builds (`max-jobs = 0`), idle-priority daemon, weekly GC (30 d). +53 MiB on the DMC-12. Rollback on the box: `nixos-rebuild switch --rollback --no-reexec`. Image needs a first-boot store registration (DMC-12: `disk.nix`) |
+| profile | `profile-rebuildable` | on top of appliance: nix + switcher, so an in-place deploy (DMC-12: its `deploy.sh`, from the root flake) deploys in place (copies only new paths); no nixpkgs source/channel/registry, no on-box builds (`max-jobs = 0`), idle-priority daemon, weekly GC (30 d). +53 MiB on the DMC-12. Rollback on the box: `nixos-rebuild switch --rollback --no-reexec`. Image needs a first-boot store registration (DMC-12: `disk.nix`) |
 | profile | `profile-netboot-root` | whole system in the initramfs (squashfs + tmpfs), nothing on disk touched |
 | platform | `platform-qoriq-t2080` | NXP T2080/e6500: allnoconfig kernel, legacy uImage, serial console; option `hardware.qoriqT2080.kernelPatches` |
 | function | `thermal-as7760-fan` | Accton fan-CPLD hwmon driver, sensor labels, monitor service |
@@ -54,7 +54,7 @@ appear once `nix/` is committed; `path:./nix` always works.
 | function | `switch-openbcm` | Broadcom SDK kmods at boot + /dev nodes, locked `bcm.user`, ASIC die temperature reader (`hardware.openbcm`) |
 | function | `monitoring-node-exporter` | Prometheus :9100, control-plane collector set, timer-driven textfile producers; [README](modules/monitoring/README.md) |
 | board | `board-as7760` (+ `-sd-install`, `-sd-persist`) | Accton AS7760-32X |
-| board | `board-dmc12` | DMC-12-48R-AS0 console server (Alpine V2): verbatim import of the first iteration, not yet on the shared layers; [README](modules/boards/dmc12/README.md) |
+| board | `board-dmc12` | DMC-12-48R-AS0 console server (Alpine V2) on `platforms/alpine-v2` + `linux-alpine`: boot paths (standard/chainload/uboot-menu), SSD image, CPLD, fans (fand from the root flake), env tool; [README](modules/boards/dmc12/README.md) |
 | package | `uboot-*` | upstream U-Boot; one patch series with a per-patch `scope` in [packages/uboot/default.nix](packages/uboot/default.nix): `t208x` + `as7760` (ppc), `alpine-v2` + `dmc12` (arm64, RAM chainload from the vendor U-Boot, al_eth network + board-params handoff; `uboot-dmc12-selfinit` adds the external PCIe RC on Annapurna's PCIe HAL, MUIO/CCU setup and read-only SPI NOR, `uboot-dmc12-stage3app` wraps it as an al-boot object; [packages/uboot/alpine-v2](packages/uboot/alpine-v2/default.nix)) |
 | package | `alboot` | [alboot.py](packages/alboot/alboot.py): Annapurna al-boot SPI TOC/object lister, checker and wrapper (a script, not a derivation) |
 | package | `fastfetch-tiny` | fastfetch without optional libraries (cross-builds everywhere) |

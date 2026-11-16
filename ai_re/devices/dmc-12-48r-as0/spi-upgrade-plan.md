@@ -24,7 +24,8 @@ Background and evidence: `spi-uboot-replacement.md` (format, flashing concept §
   to accept each object (UBOOT 0 is run first as a control).
 - **Host model:** expected CS0 0..0xfd0000 = verified `mtd0.bin` + every write journaled in
   `inventory/<unit>/spi-upgrade.jsonl` (bytes kept in `dumps/<unit>/spi-writes/`). Each full read must
-  equal it, so a torn or foreign write stops the script.
+  equal it, except our U-Boot's env window 0xf90000..0xfaffff (humans change it: never compared or
+  written), so a torn or foreign write stops the script. A lost region file makes that range unknown.
 - Escape: holding `u` during stage3 boots the untouched factory UBOOT 0 [hw]. With a chainload disk its
   env still loads our U-Boot from raw sda1, so `u` reaches NixOS; with a standard disk it is a recovery
   prompt (netboot, `reimage.py`). Rollback = erase the BOOT_MODE sector → stage3 boots factory UBOOT again.
@@ -52,7 +53,7 @@ recorded); gate 4 is a `rehearsal` record of the same payload + BOOT_MODE hashes
 ## Steps (each prints what it does; destructive ones ask for the unit id unless `--yes`)
 | # | step | where | proven by |
 |---|---|---|---|
-| 1 | power-cycle, stop factory autoboot (`powercycle_to_uboot.py`) | factory | [hw] |
+| 1 | power-cycle to the factory prompt: `powercycle_to_uboot.py`, or the stage3 `u` key once our U-Boot is in SPI | factory | [hw] |
 | 2 | identify + env backup (`printenv` → `inventory/<unit>/…-private.txt`) | factory | [hw] reimage.py |
 | 3 | `sf probe 0`; `sf read` all CS0; `crc32` == current-state record (first time: == mtd0 backup); **stop on any difference** | factory | [hw] reads; note `sf probe` rewrites SR=0 (already 0) |
 | 4 | TFTP the `.fimg` and the BOOT_MODE object to RAM; `crc32` each vs host | factory | [hw] TFTP |
@@ -64,10 +65,15 @@ recorded); gate 4 is a `rehearsal` record of the same payload + BOOT_MODE hashes
 | 10 | rehearse the escape: power-cycle with `u` (`stage3keys.py`), expect factory `U-Boot 2015.07`; then boot normally again | factory | [hw] |
 | 11 | record `inventory/<unit>/spi-upgrade.jsonl` (hashes, slot, BOOT_MODE app, timings) | host | – |
 
-`--rollback`: at the factory prompt (via `u` if ours is broken) erase the BOOT_MODE sector (`sf erase
+`rollback`: at the factory prompt (via `u` if ours is broken) erase the BOOT_MODE sector (`sf erase
 0x340000 0x1000`), verify it reads 0xff, power-cycle, expect the factory U-Boot. `update`: steps 1–7 on
 the inactive instance, flip BOOT_MODE, 8–11. Without `--write` (default) every read-only step runs and
-the write commands are printed; `status` and `rehearse` never write SPI.
+the write commands are printed; `status` and `rehearse` never write SPI. A successful `status` or dry
+run power-cycles the unit back to its normal boot (`--stay` keeps it at the factory prompt).
+`switch --to ipxe0|ipxe1|factory` rewrites only BOOT_MODE (target valid, booted here or rehearsed,
+factory validator first). `slots` reads the model (`--live` also proves the running copy).
+`clipcheck` compares programmer dumps. After install/update/switch the running copy is proven by
+`crc32 0x08000000 0x60000` at our prompt ("ambiguous" when both slots hold the same code).
 
 ## Failure handling
 - Any CRC/validate mismatch before step 6: stop; nothing boots IPXE yet, the write is harmless.
@@ -80,7 +86,7 @@ the write commands are printed; `status` and `rehearse` never write SPI.
   the running factory U-Boot can restore from the backup (`spi-recovery.md`, `sf update`).
 - Journal: `intent` (with the region's expected bytes) before, `done` after a matching read-back. An
   intent without done is an unknown range: left out of comparisons, so `rollback` (gate-free) still runs.
-- Step 8 no banner / hang: power-cycle with `u` → factory → `--rollback`.
+- Step 8 no banner / hang: power-cycle with `u` → factory → `rollback --write`.
 - `u` not working either (stage3 itself broken: impossible from these writes, but): clip + backup
   (`spi-recovery.md` ladder).
 - Never `saveenv`, `env default`, `delenv` at any prompt (BOOT_APP reroute script, `board-notes.md`).

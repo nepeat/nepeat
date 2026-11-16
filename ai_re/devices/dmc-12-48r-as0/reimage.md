@@ -46,13 +46,13 @@ It records the result in `inventory/<unit>/reimage.jsonl`.
   With the factory disk back, the old bootcmd alone would also work: `nixos_boot`
   fails (no /boot.scr, or no valid uImage at the slot LBAs) and the chain falls
   through to `dmc12_bootdisk`.
-- SPI was never written except the env sector. `mtd0.bin.zst` is the full
-  backup if anything else ever is.
+- Units with our U-Boot in SPI: `spi-upgrade.py --unit <u> --plug <n> rollback --write` first
+  (stage3 boots the factory U-Boot again); `mtd0.bin.zst` is the full backup for anything else.
 
 ## Updating an installed unit
 In place, from the workstation (`profile-rebuildable`; root's key is the one the box trusts):
-`nix build path:./nix#nixosConfigurations.dmc12.config.system.build.toplevel` first (as yourself: root
-can't take the store locks here), then `sudo nixos-rebuild switch --flake path:./nix#dmc12 --target-host
-root@<ip>` (`boot` + reboot for kernel/DTB changes). It copies only new paths; generations appear in
+`./deploy.sh <ip> [switch|boot]` (`boot` + reboot for kernel/DTB changes): it builds from the ai_re root
+flake as you (so fand is in: `path:./nix` would fall back to the python fan script), copies with
+root's key and activates — nixos-rebuild --target-host's steps. It copies only new paths; generations appear in
 the extlinux menu; on the box `nixos-rebuild switch --rollback --no-reexec`. Reimage only to change the
 disk layout. In chainload mode an update also writes a changed U-Boot to raw slot A (old A to B).

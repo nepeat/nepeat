@@ -33,7 +33,7 @@ Edgecore/Accton 48-port serial console server on an Annapurna Alpine V2 "K2C-AB"
 - **Interrupting the factory autoboot extends TPM PCRs** and sets bit 7 of 0xfbff41c1. [hw]
 - **Factory env reset is a trap:** an SPI script reroutes `bootcmd` to BOOT_APP (K2 NIC firmware) and
   `saveenv`s when `boot_app_toc` != 10. Never `env default` / `delenv`. [code] `uboot-vendor-commands.md`
-- **Factory `sf probe` writes the flash status register** (to 0); our U-Boot's SPI is read-only. [code]
+- **Factory `sf probe` writes the flash status register** (to 0); our U-Boot never does, and writes only its env window. [code]
 - **Factory loader limits:** `initrd_high`/`fdt_high` must be 64-bit all-ones (0xffffffff failed to
   relocate a 298 MB initrd) [hw]; a 68 MiB kernel doesn't fit its default staging → uncompressed uImage
   staged at 0x10000000 [hw, our guard]; kernel at a 2 MiB-aligned 0x04200000 (Linux warned at

@@ -4,9 +4,9 @@
 - **u01 (2026-11-15): stage3 → our U-Boot 2026.10 from SPI → standard boot (`bootflow scan`) →
   nixpkgs extlinux on sda1 → NixOS root sda2**; login ≈ 38 s, soak 3/3. Disk: `dmc12-disk-image`
   (`hardware.dmc12.bootLoader = "standard"`, installed with `reimage.py`).
-- **Full Nix system (`profile-rebuildable`):** deploy in place with
-  `sudo nixos-rebuild switch --flake path:./nix#dmc12 --target-host root@10.60.2.10` (root's key; copies only
-  new paths), generations in the extlinux menu, rollback on the box `nixos-rebuild switch --rollback --no-reexec`.
+- **Full Nix system (`profile-rebuildable`):** deploy in place with `./deploy.sh 10.60.2.10 [switch|boot]`
+  (root flake, so fand is in; copies only new paths), generations in the extlinux menu, rollback on
+  the box `nixos-rebuild switch --rollback --no-reexec`.
   906 MiB used of 29 GiB.
 - **SPI slots** (`spi-upgrade.py slots`; spec `spi-upgrade-plan.md`, journal `inventory/u01/spi-upgrade.jsonl`):
   IPXE 1 = env build with the SSI fix 0cc8c34 **[active]**, IPXE 0 = af039fd (fallback; its env load
@@ -24,13 +24,6 @@
   hold env/keys). The AS7760's console is cabled to **DMC-12 port 48**: read-only
   use only, and ask the AS7760 session first.
 - Power: lab plug 2, `lab-power 2 …`. Plug 1 is the AS7760; don't touch it from here.
-- Into U-Boot: `./powercycle_to_uboot.py` (any key). Root shell with nothing mounted
-  from disk: at `ALPINE_DB>`, `setenv bootargsextra rdinit=/bin/sh; run dmc12_bootdisk`
-  (never `saveenv`). Then mount proc/sys/devtmpfs and run `ifconfig eth0 up; udhcpc -i eth0`.
-  Commands go through `./console.py`.
-- Before cutting power under the factory OS: serial break + SysRq `s`, `u` (works).
-- Recovery: boot stages are A/B in SPI NOR, with a second SPI image (mtd1) holding
-  older al-boot. The M.2 SATA SSD is removable. Full images in `dumps/u01/`.
 - Into a U-Boot: ours (`=>`): power-cycle and press a key at its countdown. Factory (`ALPINE_DB>`):
   `./stage3keys.py --plug 2 --key u` (stage3 `u` escape). Never `saveenv`/`env default` at the factory
   prompt (BOOT_APP reroute, `board-notes.md`). Commands go through `./console.py`.

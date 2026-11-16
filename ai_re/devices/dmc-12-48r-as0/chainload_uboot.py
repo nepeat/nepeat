@@ -19,7 +19,7 @@ send-keys.
      bootflow list, memory compare), optional --boot / --reset
   --selfinit (#uboot-dmc12-selfinit): also PCIe port 0 teardown + our RC init
      + rescan (12d8:400c), sf read + crc32 of both SPI NOR chips against the
-     u01 backups (read-only build: no write/erase code), CCU write + readback,
+     u01 model (this test never saves the env; the build writes only its env window), CCU write + readback,
      MUIO readback; with --boot, the CCU line before "Starting kernel".
      The PCIe re-init and the CCU write change live SoC state (RAM-only, a
      power-cycle restores the factory path); nothing is written to flash.
