@@ -31,7 +31,8 @@ CHECKS = [
     ("spi-nor", "for d in /sys/class/mtd/mtd[0-9]*; do case $d in *ro) continue;; esac; echo \"$(cat $d/name)=$(cat $d/flags)\"; done | sort | tr '\\n' ' '",
      lambda o: o.split() == ["spi0-boot=0x800", "spi0-tail=0x800", "spi1-alt=0x800", "u-boot-env=0xc00"],
      "SPI NOR partitions: only u-boot-env writable"),
-    ("consoled", "systemctl is-active consoled; line metrics | grep -c '^consoled_port_up{.*} 1$'",
+    # consoled opens the ports one by one (~1 s each on CP2108): wait up to ~54 s after a boot
+    ("consoled", "for i in $(seq 18); do n=$(line metrics 2>/dev/null | grep -c '^consoled_port_up{.*} 1$'); [ \"$n\" = 48 ] && break; sleep 3; done; systemctl is-active consoled; echo $n",
      lambda o: o.split() == ["active", "48"], "consoled up, all 48 serial ports open"),
     ("watchdog", "cat /sys/class/watchdog/watchdog0/identity", lambda o: "sp805" in o, "sp805 bound"),
     ("cpld", "i2cget -y 4 0x68 0x01", lambda o: o.strip() == "0x88", "CPLD answers (version 0x88 on u01)"),
