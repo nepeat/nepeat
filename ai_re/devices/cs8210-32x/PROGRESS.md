@@ -89,6 +89,11 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-16 — SONiC: our own SAI ran the chip
+
+- [sonic.md](sonic.md): no arm64 Teralynx SAI exists (98 packages checked), so `ai_re/nix/packages/sai-teralynx` = the AS7760's SAI frontend + an IFCS backend that dlopens the vendor libifcs.so from the SDK tree at run time (nothing vendor stored; `ifcs_api.h` = our declarations from the vendor ctypes, cited by sha256). Chip run: init, 32 ports, cage 1<->16 400G loop up in ~4 s, clean teardown (evidence ../sonic-nixos/cs8210-sai-hw-20261116.txt). Needed a Python-2.7 stub and an aligned memcpy for libifcs on PCI memory.
+- `hardware.cs8210.sonic` imported, off (drv diff = flake source only); AS7760 toplevel drv unchanged (z05gsrr0...). Next: first full SONiC run (syncd/orchagent/FRR) by hand, VLAN-1 storm check on the loop first.
+
 ### 2026-11-15 — 400G + MACsec on the cage 1 <-> 16 DAC
 
 - Module: one Mellanox CAB-Q400-P1M 1 m passive 400G-CR8 DAC between cages 1 and 16 (both MACsec ports).

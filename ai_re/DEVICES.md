@@ -48,8 +48,8 @@ link the evidence.
 | QoS | chip-capable | unknown | unknown [^t1] | unknown | unknown |
 | BFD | yes: software (FRR bfdd), < 1 s BGP failover over the lab loop (2026-11-15) [^a2] | unknown | unknown | unknown | unknown |
 | KNET / CPU netdevs | yes: KNET TX/RX (2026-11-14) | yes: `fpp*` via ipd, ~1.6 Gb/s CPU path [^c3] | partial: netdevs exist, no traffic | partial: SDK/TAP, KNET compiled out [^b1] | unknown |
-| SAI | partial: sai-openbcm: ports, L2/VLAN/FDB, LAG, L3/VRF/ECMP, ingress ACL, policers, temperatures; no QoS, buffers, mirror, tunnels [^a2] | no: vendor SAI is amd64 only | no | no | no |
-| SONiC stack | partial: at boot as NixOS services: swss, FRR (BGP, static, BFD), pmon, LLDP, crash recovery on the chip (2026-11-15); no QoS, warm reboot [^a2] | no | no | no | no |
+| SAI | partial: sai-openbcm: ports, L2/VLAN/FDB, LAG, L3/VRF/ECMP, ingress ACL, policers, temperatures; no QoS, buffers, mirror, tunnels [^a2] | partial: our sai-teralynx (shared frontend + IFCS backend on the vendor libifcs.so): init, 32 ports, 400G loop up (2026-11-16); no LAG/ACL/traps yet [^c6] | no | no | no |
+| SONiC stack | partial: at boot as NixOS services: swss, FRR (BGP, static, BFD), pmon, LLDP, crash recovery on the chip (2026-11-15); no QoS, warm reboot [^a2] | built, not run: `hardware.cs8210.sonic` (off) [^c6] | no | no | no |
 | fan control | yes: fand, board + ASIC zones [^a3] | yes: fand, board + ASIC die zones (2026-11-15) [^c4] | yes: fancontrol, PWM floor 96 | unknown | unknown |
 | ASIC temperature | yes: 8 PVTMON, also over SAI under syncd (2026-11-15) [^a3] | yes: MCP3425 diode (2026-11-10) [^c4] | unknown | unknown | unknown |
 | board sensors | yes: 4x LM75 [^a3] | yes: LM75s + I2C hwmon [^c4] | yes: tmp1075/ADT7473, 35-40 °C | unknown | unknown |
@@ -69,5 +69,6 @@ link the evidence.
 [^c3]: 802.3ad bond with the lab aggregation switch, entries (t)-(x). A hung ASIC once took down the house network (entry (z)); guard any test that can loop.
 [^c4]: `cs8210-fancontrol`, entry 2026-11-10 (e).
 [^c5]: Entries 2026-11-10 (f), (l), (o), (u).
+[^c6]: [cs8210-32x/sonic.md](devices/cs8210-32x/sonic.md); no arm64 Teralynx SAI exists, so the SAI is ours.
 [^t1]: Mainline `prestera` (switchdev) loads with firmware; nothing on the front ports has been exercised ([delta-tn48m/PROGRESS.md](devices/delta-tn48m/PROGRESS.md)).
 [^b1]: Real ASIC packet tests in MAC loopback only; no external link or 40G throughput test. Scope and limits: [openwrt/native-network/README.md](devices/broadcom-bcm956845k-02/openwrt/native-network/README.md).
