@@ -708,8 +708,10 @@ def mode_rehearse(a, st, img, unknown):
     finally:
         for p in tdir.glob("spi-upgrade-*"):     # vendor bytes: never left on the TFTP server
             p.unlink()
+        image.unlink(missing_ok=True)            # nor here: it is rebuilt from the model each time
+        image.with_suffix(".txt").unlink(missing_ok=True)
     power(a, "on")
-    st["image"] = str(image.relative_to(ROOT))
+    st["image_crc"] = f"{meta['crc']:08x}"
 
 
 def mode_write(a, st, img, unknown):

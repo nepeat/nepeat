@@ -183,9 +183,9 @@ and no `rc-manual-init`. So the factory U-Boot's own init boils down to:
   Expect `Entry: EL2, MMU+caches were off, x0=0`.
 - **DT:** keep the built-in `OF_SEPARATE` DT, not stage3's DT object (that one is a vendor
   board-config tree, not a Linux DT).
-- **Env: keep `ENV_IS_NOWHERE`.** Never `0xfd0000`/`0xfe0000`. That env (0x4000 B,
-  redundant, holds `boot_app_toc`) must stay intact for the factory U-Boot that the `u`
-  escape boots. If persistence is ever wanted, use a file on the SSD.
+- **Env: our own window, never `0xfd0000`/`0xfe0000`.** That env (0x4000 B, redundant, holds
+  `boot_app_toc`) must stay intact for the factory U-Boot that the `u` escape boots. Ours (since
+  2026-11-15): redundant 2 x 64 KiB at 0xf90000 (patch 0029 write window; `u-boot-port.md`).
 - **SPI flash:** built read-only (patch 0024, `#uboot-dmc12-selfinit`): `sf probe`/`sf read`
   only, no write/erase/lock code, no SR write at probe (unlike the factory `sf probe`,
   spi-recovery.md §5), non-read SPI commands refused. For proving the address map with

@@ -7,11 +7,12 @@ is the generic `nix/configs/dmc12` (hardware: `nix/modules/boards/dmc12`).
 ## Before the first unit
 ```sh
 nix build path:./nix#dmc12-netboot    -o devices/dmc-12-48r-as0/nixos-build/result-netboot
-nix build path:./nix#dmc12-disk-image -o devices/dmc-12-48r-as0/nixos-build/result-disk
-# or, booted by the chainloaded upstream U-Boot (u-boot-port.md "on-disk boot"):
+nix build path:./nix#dmc12-disk-image -o devices/dmc-12-48r-as0/nixos-build/result-disk-standard
+# units without our U-Boot in SPI: the chainload layout (u-boot-port.md "on-disk boot"):
 nix build path:./nix#dmc12-disk-image-chainload -o devices/dmc-12-48r-as0/nixos-build/result-disk-chainload
 ```
-Pass the chainload one with `--image nixos-build/result-disk-chainload`.
+The default `--image` is the standard build (needs `spi-upgrade.py install` on the unit first; the
+script checks); pass `--image nixos-build/result-disk-chainload` otherwise.
 - Console: one logged tio in tmux `serial-dmc12` (PROGRESS Status). The FTDI
   cable goes to the unit's front console port, 115200 8N1.
 - Power: the unit's lab plug in `tools/lab_power.py` (`--plug N`), or reset it
@@ -49,8 +50,9 @@ It records the result in `inventory/<unit>/reimage.jsonl`.
   backup if anything else ever is.
 
 ## Updating an installed unit
-Rebuild the disk image and reimage. The appliance profile disables on-device
-switching (`system.switch.enable = false`), so an in-place update needs a deploy
-script, not written yet. It would `nix copy` the closure, then run the
-boot loader installer (`system.build.installBootLoader <toplevel>`) and reboot.
-In chainload mode that also writes a changed U-Boot to slot A (old A to B).
+In place, from the workstation (`profile-rebuildable`; root's key is the one the box trusts):
+`nix build path:./nix#nixosConfigurations.dmc12.config.system.build.toplevel` first (as yourself: root
+can't take the store locks here), then `sudo nixos-rebuild switch --flake path:./nix#dmc12 --target-host
+root@<ip>` (`boot` + reboot for kernel/DTB changes). It copies only new paths; generations appear in
+the extlinux menu; on the box `nixos-rebuild switch --rollback --no-reexec`. Reimage only to change the
+disk layout. In chainload mode an update also writes a changed U-Boot to raw slot A (old A to B).

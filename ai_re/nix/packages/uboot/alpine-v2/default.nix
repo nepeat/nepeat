@@ -127,7 +127,7 @@ in rec {
   # pinmux replay, SoC GPIO 22 high, CCU writes before Linux, read-only SPI NOR (sf probe/read
   # only, non-read SPI commands refused) except the env window (0029, saveenv). One binary
   # for both entries: chainloaded in RAM after the vendor U-Boot (test) and
-  # as al-boot stage3's application (dmc12-stage3app). Never flashed.
+  # as al-boot stage3's application (dmc12-stage3app), flashed by spi-upgrade.py.
   dmc12-selfinit = mk {
     defconfig = "alpine_v2_dmc12_defconfig";
     dtsName = "alpine-v2-dmc12";
@@ -140,8 +140,8 @@ in rec {
   # object for stage3 (spi-uboot-replacement.md section 5): id 0x110 (IPXE,
   # the blank 512 KiB slot), load = exec = 0x08000000 (the RAM-tested
   # address, no PIE fixups), plus the same at 0x01100000 (the factory
-  # U-Boot's address, fallback if stage3 cannot reach 0x08000000). Never
-  # flashed; see the flashing concept in that doc.
+  # U-Boot's address, fallback if stage3 cannot reach 0x08000000). Written to
+  # the IPXE 0/1 slots by devices/dmc-12-48r-as0/spi-upgrade.py (the -08000000 one).
   dmc12-stage3app = pkgs.runCommand "uboot-dmc12-stage3app" {
     nativeBuildInputs = [ pkgs.python3 ];
   } ''

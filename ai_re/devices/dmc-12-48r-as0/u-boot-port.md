@@ -274,7 +274,7 @@ upstream).
     (uimage `254e4d11…`, u-boot.bin `3954b4cf…`), `#uboot-dmc12-stage3app`
     `/nix/store/jplf4f05iq78kb0awm6kagil460b5x24-uboot-dmc12-stage3app`
     (`-08000000.fimg` `7e9eae6a…`, `-01100000.fimg` `b2ed8528…`, 488380 B, 35908 B free).
-  - Route A check (cold stage3 path, no SPI write): expect
+  - Cold check (an `update` into the inactive IPXE slot; Route A doesn't reproduce the SPI state): expect
     `SSI:   slave select 0x… left set by the firmware, cleared` (confirms the cause; its
     absence with a working load would mean the cause was something else), no `unrecognized
     JEDEC id`, `Loading Environment from SPIFlash... OK`, `Env:   SPI flash, copy at …`

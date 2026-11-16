@@ -1,4 +1,4 @@
-# SPI U-Boot upgrade: spec for `spi-upgrade.py` (written 2026-11-15, not run against flash yet)
+# SPI U-Boot upgrade: spec for `spi-upgrade.py` (in use on u01 since 2026-11-15)
 
 Goal: put our U-Boot in the boot SPI flash of a DMC-12 so stage3 boots it directly, keeping the
 factory U-Boot as a key-press fallback. One command per unit, safe for a human at a terminal.
@@ -25,9 +25,9 @@ Background and evidence: `spi-uboot-replacement.md` (format, flashing concept §
 - **Host model:** expected CS0 0..0xfd0000 = verified `mtd0.bin` + every write journaled in
   `inventory/<unit>/spi-upgrade.jsonl` (bytes kept in `dumps/<unit>/spi-writes/`). Each full read must
   equal it, so a torn or foreign write stops the script.
-- Escape: holding `u` during stage3 boots the untouched factory UBOOT 0 [hw: Route A exp 3]. From there
-  the factory env still chainloads our U-Boot from raw sda1 (`reimage.md`), so a `u` boot still reaches
-  NixOS. Rollback = erase the BOOT_MODE sector → stage3 boots factory UBOOT again.
+- Escape: holding `u` during stage3 boots the untouched factory UBOOT 0 [hw]. With a chainload disk its
+  env still loads our U-Boot from raw sda1, so `u` reaches NixOS; with a standard disk it is a recovery
+  prompt (netboot, `reimage.py`). Rollback = erase the BOOT_MODE sector → stage3 boots factory UBOOT again.
 - Updates: write the *inactive* IPXE instance, validate, then flip BOOT_MODE. The active copy is never
   overwritten in place.
 
@@ -85,8 +85,12 @@ the write commands are printed; `status` and `rehearse` never write SPI.
   (`spi-recovery.md` ladder).
 - Never `saveenv`, `env default`, `delenv` at any prompt (BOOT_APP reroute script, `board-notes.md`).
 
-- After install, IPXE 1 is blank: if stage2 instance 1 ever boots (ladder rung 4), stage3 looks for
+- After a first install, IPXE 1 is blank: if stage2 instance 1 ever boots (ladder rung 4), stage3 looks for
   IPXE 1 → bad object; `u` still reaches the factory U-Boot.
+
+- **Route A can't stand in for a cold SPI boot** for anything touching the SPI controller (it ran after
+  the factory U-Boot; `uart-boot.md`). The SSI select bug passed `rehearse`; `update` into the inactive
+  slot is the real test.
 
 ## Reuse
 Console + prompt handling: `console.py`; power: `tools/lab_power.py`; stage3 keys: `stage3keys.py`
