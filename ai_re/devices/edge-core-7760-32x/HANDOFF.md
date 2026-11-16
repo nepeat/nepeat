@@ -68,8 +68,9 @@ typed confirmation): both need the console.
 - **Over-temperature test:** `openbcm-asic-temp --shutdown-at` (default 125 °C)
   powers the core PLL down in software when no SDK `init all` armed the chip's
   own handler ([sai-openbcm README](../../nix/packages/sai-openbcm/README.md#openbcm-asic-temp)).
-  Never fired on hardware; testing it (a low threshold, then a power cycle to
-  bring the ASIC back) waits for the console.
+  Tested 2026-11-15: it fired and took the host down with it (panic=10 reboot,
+  no console capture); `RestartPreventExitStatus=5` since ([thermal.md](thermal.md)).
+  Open: capture the exact error with the console attached.
 - **Worst-case thermal:** needs line-rate traffic; the MAC-loopback storm was
   throttled by pause frames and queue drops ([thermal.md](thermal.md)).
 

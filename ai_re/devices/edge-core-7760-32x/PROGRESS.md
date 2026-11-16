@@ -26,8 +26,8 @@ for the next session.
 - **Runbook** ([switch-porting-runbook.md](../../switch-porting-runbook.md)): gates 1-3, 4b, 5, 6
   hold; 4 short of RTC, watchdog, TPM, CPLD LEDs; 0 lost its console on 2026-11-15; 7 done
   but restore-from-Linux and a JTAG rehearsal; 8 past its gate (SONiC on the ASIC).
-- **Held / todo:** the software over-temperature PLL shutdown (`openbcm-asic-temp
-  --shutdown-at`, never fired on hardware) waits for the console; a worst-case thermal
+- **Held / todo:** the software over-temperature PLL shutdown fired on 2026-11-15 and
+  rebooted the host ([thermal.md](thermal.md)); capturing the error needs the console. A worst-case thermal
   test needs line-rate traffic (the 2026-11-15 loopback storm was throttled).
 - **Open:** `WARNING: adjusting available memory` at boot is stock mpc85xx (harmless);
   other T2080 boards need their own DDR/DT patches ([u-boot-port.md](u-boot-port.md)).
