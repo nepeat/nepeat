@@ -77,7 +77,14 @@ let
         for a in "''${args[@]}"; do case "$a" in -r|-w) ;; *) new+=("$a") ;; esac; done
         echo "teamd for $lag died (pid $pid): respawning, taking over the team device (try $n)"
         rm -f "$pidf" /run/teamd/$lag.sock
+        # teamd -o resets the device MAC to its config's hwaddr (the system
+        # MAC); intfmgrd had set PORTCHANNEL_INTERFACE mac_addr on it, which
+        # the ASIC's router interface still has: put it back (CS8210 loop).
+        mac=$(cat /sys/class/net/$lag/address 2>/dev/null || true)
         "''${new[0]}" -o "''${new[@]:1}" || echo "teamd respawn for $lag failed" >&2
+        if [ -n "$mac" ] && [ "$(cat /sys/class/net/$lag/address 2>/dev/null)" != "$mac" ]; then
+          ip link set dev "$lag" address "$mac" && echo "$lag: MAC $mac restored"
+        fi
         # Into teammgrd's cgroup: stopped with it, like the teamds it started.
         cg=$(systemctl show -p ControlGroup --value sonic-teammgrd.service)
         newpid=$(cat "$pidf" 2>/dev/null || true)

@@ -16,6 +16,9 @@
 #    bgpcfgd templates), patches/0003 (sonic-bgpcfgd: active sessions, live BFD
 #    toggle, staticroutebfd timers from the environment) and bfdsyncd. SONiC
 #    carries no bfdd patch in src/sonic-frr/patch, so FRR's bfdd is unpatched.
+#  - BGP_NEIGHBOR local_asn (+ local_as_no_prepend/_replace_as, the YANG
+#    fields): patches/0004 (template), patches/0005 (live change). Not upstream
+#    (sonic-buildimage#26556, open, proposes another field name). Tests: bgpcfgd-tests.
 { pkgs, sonic }:
 let
   inherit (pkgs) lib;
@@ -89,18 +92,20 @@ let
     cp -r ${bi}/dockers/docker-fpm-frr/frr $out/share/sonic/frr-templates
     chmod -R u+w $out
     patch -p1 -d $out/share/sonic/frr-templates < ${./patches/0002-templates-bgp-neighbor-bfd.patch}
+    patch -p1 -d $out/share/sonic/frr-templates < ${./patches/0004-templates-bgp-neighbor-local-as.patch}
     grep -rl '/usr/share/sonic/templates/' $out | xargs sed -i 's|/usr/share/sonic/templates/||g'
     if grep -r '/usr/share/sonic/templates' $out; then exit 1; fi
   '';
   templateDir = "${templates}/share/sonic/frr-templates";
 
+  bgpcfgdPatches = [ ./patches/0003-bgpcfgd-software-bfd.patch ./patches/0005-bgpcfgd-local-as-live.patch ];
   bgpcfgd = spy.copyPkg {
     pname = "sonic-bgpcfgd";
     src = "${bi}/src/sonic-bgpcfgd";
     modules = [ "bgpcfgd" "bgpmon" "staticroutebfd" ];
     scripts = [ "nix-bin/bgpcfgd" "nix-bin/bgpmon" "nix-bin/staticroutebfd" ];
     deps = [ spy.py-common spy.swsscommon py.jinja2 py.netaddr py.pyyaml ];
-    patches = [ ./patches/0003-bgpcfgd-software-bfd.patch ];
+    patches = bgpcfgdPatches;
     postPatch = ''
       # BfdMgr starts bfdd itself when none runs (systemd runs it here: sonic-frr-bfdd).
       substituteInPlace bgpcfgd/managers_bfd.py --replace-fail '"/usr/lib/frr/bfdd"' '"${frr}/libexec/frr/bfdd"'
@@ -114,6 +119,30 @@ let
     imports = [ "bgpcfgd.main" "bgpmon.bgpmon" "staticroutebfd.main" ];
     passthru = { inherit templateDir; };
   };
+
+  # Upstream's sonic-bgpcfgd test suite (tests/, ~2800 cases: templates,
+  # managers, sonic-cfggen renders) on the patched bgpcfgd and the shipped
+  # templates, plus ours (./tests: BGP_NEIGHBOR local_asn). Build-host only:
+  #   nix build --impure --expr '(import ai_re/nix/packages/sonic { pkgs = <x86_64 pkgs>; }).routing.bgpcfgd-tests'
+  bgpcfgd-tests = pkgs.runCommand "sonic-bgpcfgd-tests" {
+    nativeBuildInputs = [ (spy.python3.withPackages (p: [ p.pytest p.jinja2 p.netaddr p.pyyaml spy.swsscommon spy.py-common spy.config-engine ])) ];
+  } ''
+    mkdir -p src dockers/docker-fpm-frr files/build_templates
+    cp -r ${bi}/src/sonic-bgpcfgd src/
+    cp -r ${templateDir} dockers/docker-fpm-frr/frr
+    cp ${bi}/files/build_templates/constants.yml.j2 files/build_templates/
+    chmod -R u+w .
+    cd src/sonic-bgpcfgd
+    for p in ${lib.escapeShellArgs bgpcfgdPatches}; do patch -p1 < $p; done
+    cp ${./tests}/test_*.py tests/
+    cp ${./tests/data/general/instance.conf}/* tests/data/general/instance.conf/
+    # Deselected: upstream's passive-by-default BfdMgr sessions (patch 0003 makes them active).
+    set -o pipefail
+    HOME=$TMPDIR python3 -m pytest -o addopts="" -p no:cacheprovider -q tests \
+      --deselect tests/test_bfdmgr.py::test_get_def_res_fields \
+      --deselect tests/test_bfdmgr.py::test_redis_to_local_res_basic \
+      --deselect tests/test_bfdmgr.py::test_set_handler_upd 2>&1 | tee $out
+  '';
 
   # FRR bfdd session state -> STATE_DB BFD_SESSION_TABLE (what BfdOrch writes
   # when the ASIC offloads BFD; ./bfdsyncd/bfdsyncd has the why).
@@ -136,5 +165,5 @@ let
   # LD_PRELOAD heap profiler (leak hunting on the target, ./malloc-trace).
   malloc-trace = pkgs.callPackage ./malloc-trace { };
 in {
-  inherit frr json-c templates templateDir bgpcfgd bfdsyncd sonicFrrPatches constants malloc-trace;
+  inherit frr json-c templates templateDir bgpcfgd bgpcfgd-tests bfdsyncd sonicFrrPatches constants malloc-trace;
 }

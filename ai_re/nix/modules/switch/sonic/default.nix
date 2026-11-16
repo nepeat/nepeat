@@ -341,6 +341,14 @@ in {
 
     boot.kernelModules = cfg.kernelModules;
     boot.kernel.sysctl = { "net.ipv4.ip_forward" = lib.mkDefault 1; "net.ipv6.conf.all.forwarding" = lib.mkDefault 1; };
+    # networkd deletes routing rules and routes it did not configure whenever
+    # it (re)starts: vrfmgrd's local rule (moved from pref 0 to 1001) and FRR's
+    # routes (VRF tables, blackholes). Without the local rule nothing reaches
+    # the host, SSH included (CS8210, 2026-11-16: a networkd restart).
+    systemd.network.config.networkConfig = mkIf config.systemd.network.enable {
+      ManageForeignRoutingPolicyRules = false;
+      ManageForeignRoutes = false;
+    };
 
     # redis links libsystemd (Type=notify); use the system's systemd, not
     # pkgs.systemd (a trimmed board systemd would otherwise pull a second,

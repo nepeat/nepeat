@@ -1,0 +1,19 @@
+{
+    "CONFIG_DB__DEVICE_METADATA": {
+        "localhost": {}
+    },
+    "neighbor_addr": "10.10.10.10",
+    "bgp_session": {
+        "asn": "65201",
+        "name": "vrf-b",
+        "local_asn": "65101",
+        "local_as_no_prepend": "true",
+        "local_as_replace_as": "true",
+        "bfd": "true"
+    },
+    "constants": {
+        "deployment_id_asn_map": {
+            "5": "51111"
+        }
+    }
+}

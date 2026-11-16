@@ -1,0 +1,29 @@
+sonic-nixos: BGP_NEIGHBOR local_asn renders "neighbor X local-as N" in bgpcfgd's
+("separated") mode, with " no-prepend" for local_as_no_prepend=true and
+" no-prepend replace-as" when local_as_replace_as=true too (sonic-bgp-common.yang
+fields; frrcfgd renders the same in unified mode). Upstream bgpcfgd ignores them
+(open upstream PR sonic-buildimage#26556 adds a different field, local_as, always
+with no-prepend replace-as). Applies to dockers/docker-fpm-frr/frr.
+
+--- a/bgpd/templates/general/instance.conf.j2
++++ b/bgpd/templates/general/instance.conf.j2
+@@ -3,6 +3,19 @@
+ !
+   neighbor {{ neighbor_addr }} remote-as {{ bgp_session['asn'] }}
+   neighbor {{ neighbor_addr }} description {{ bgp_session['name'] }}
++{# sonic-nixos: BGP_NEIGHBOR local_asn (+ local_as_no_prepend, local_as_replace_as:   #}
++{# sonic-bgp-common.yang; frrcfgd's rendering in unified mode). FRR takes replace-as #}
++{# only after no-prepend. Live changes: bgpcfgd update_local_as (same rules).        #}
++{% if bgp_session['local_asn'] is defined and (bgp_session['local_asn'] | int) > 0 %}
++{%   set local_as_opts = '' %}
++{%   if bgp_session['local_as_no_prepend'] is defined and bgp_session['local_as_no_prepend'] == 'true' %}
++{%     set local_as_opts = ' no-prepend' %}
++{%     if bgp_session['local_as_replace_as'] is defined and bgp_session['local_as_replace_as'] == 'true' %}
++{%       set local_as_opts = ' no-prepend replace-as' %}
++{%     endif %}
++{%   endif %}
++  neighbor {{ neighbor_addr }} local-as {{ bgp_session['local_asn'] | int }}{{ local_as_opts }}
++{% endif %}
+ {# set the bgp neighbor timers if they have not default values #}
+ {% if     (bgp_session['keepalive'] is defined and bgp_session['keepalive'] | int != 60)
+       or  (bgp_session['holdtime'] is defined  and bgp_session['holdtime']  | int != 180) %}

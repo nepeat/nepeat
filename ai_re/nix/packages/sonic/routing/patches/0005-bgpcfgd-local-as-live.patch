@@ -1,0 +1,70 @@
+sonic-nixos: a changed BGP_NEIGHBOR local_asn / local_as_no_prepend /
+local_as_replace_as of an existing peer is applied live ("neighbor X local-as ..."
+or "no neighbor X local-as"); new peers get it from the template (patch 0004).
+Upstream update_peer handles only admin_status. On top of 0003.
+Applies to src/sonic-bgpcfgd.
+
+--- a/bgpcfgd/managers_bgp.py
++++ b/bgpcfgd/managers_bgp.py
+@@ -470,12 +470,13 @@
+         :param data: associated data
+         :return: True if this adding was successful, False otherwise
+         """
+-        bfd_changed = self.update_bfd(vrf, nbr, data)
++        changed = self.update_bfd(vrf, nbr, data)
++        changed = self.update_local_as(vrf, nbr, data) or changed
+         if "admin_status" in data:
+             self.change_admin_status(vrf, nbr, data)
+         elif "update" in self.templates and "ip_range" in data and self.peer_type == 'dynamic':
+             self.change_ip_range(vrf, nbr, data)
+-        elif not bfd_changed:
++        elif not changed:
+             log_err("Peer '(%s|%s)': Can't update the peer. Only 'admin_status' attribute is supported" % (vrf, nbr))
+ 
+         self.directory.put(self.db_name, self.table_name, vrf + '|' + nbr, data)
+@@ -503,6 +504,45 @@
+         log_info("Peer '(%s|%s)': %s" % (vrf, nbr, "; ".join(cmds)))
+         return True
+ 
++    @staticmethod
++    def local_as_args(data):
++        """
++        sonic-nixos: "<asn>[ no-prepend[ replace-as]]" for BGP_NEIGHBOR local_asn,
++        local_as_no_prepend, local_as_replace_as (as the add template renders
++        them; FRR takes replace-as only after no-prepend), None without one.
++        """
++        try:
++            asn = int(data.get('local_asn', ''))
++        except (TypeError, ValueError):
++            return None
++        if asn <= 0:
++            return None
++        args = str(asn)
++        if data.get('local_as_no_prepend') == 'true':
++            args += ' no-prepend'
++            if data.get('local_as_replace_as') == 'true':
++                args += ' replace-as'
++        return args
++
++    def update_local_as(self, vrf, nbr, data):
++        """
++        sonic-nixos: apply a changed local_asn / local_as_no_prepend /
++        local_as_replace_as of an existing peer (the add template renders them
++        for new peers).
++        :return: True if the local AS of the peer changed
++        """
++        try:
++            old = self.directory.get(self.db_name, self.table_name, vrf + '|' + nbr)
++        except KeyError:
++            old = {}
++        before, after = self.local_as_args(old), self.local_as_args(data)
++        if before == after:
++            return False
++        cmd = ('neighbor %s local-as %s' % (nbr, after)) if after else ('no neighbor %s local-as' % nbr)
++        self.apply_op(" " + cmd, vrf)
++        log_info("Peer '(%s|%s)': %s" % (vrf, nbr, cmd))
++        return True
++
+     def change_admin_status(self, vrf, nbr, data):
+         """
+         Change admin status of a peer
