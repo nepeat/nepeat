@@ -26,9 +26,13 @@ edits of upstream ones. A refactor of the series must be byte-neutral: same `u-b
 | 0021 | alpine-v2 | report where the env came from (boot line + `alpine state`; never stored in the env) |
 | 0022 | dmc12 | Edgecore DMC-12 CPLD sysreset |
 | 0023 | dmc12 | the DMC-12 board: U-Boot DT additions + `alpine_v2_dmc12_defconfig` |
+| 0024 | alpine-v3 | Alpine V3 target after al-boot stage3 (board/amazon/alpine-v3, the 0014 model) |
+| 0025 | alpine-v3 | read-only SPI NOR: optionally pass the 4-byte-address reads (32 MiB flashes) |
+| 0026 | cs8210 | the CS8210-32X board: U-Boot DT additions + `alpine_v3_cs8210_defconfig` |
 
 Kconfig of the DMC-12 builds (selfinit/stage3app: SPI env, write window, SoC init) is in
-`alpine-v2/default.nix`, not in a patch. Tests: `tests.nix` (AS7760), `alpine-v2/tests.nix`.
+`alpine-v2/default.nix`, not in a patch. Tests: `tests.nix` (AS7760), `alpine-v2/tests.nix`, `alpine-v3/tests.nix`. Alpine V3 builds:
+`alpine-v3/default.nix` (scopes alpine + alpine-v3 + cs8210; devices/cs8210-32x/u-boot-port.md).
 
 ## Old numbers (before the 2026-11-15 squash)
 The Alpine/DMC-12 part was 22 patches (0014–0035); it became 10 with the same resulting tree

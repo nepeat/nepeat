@@ -18,6 +18,9 @@ let
   #   alpine - any Annapurna Alpine board (V2, V3): DW SSI, read-only SPI NOR + write window
   #   alpine-v2 - any Annapurna Alpine V2 board started by the vendor U-Boot or by al-boot stage3
   #   dmc12  - Edgecore DMC-12-48R-AS0 only (CPLD reset, U-Boot DT bits, defconfig)
+  #   alpine-v3 - any Annapurna Alpine V3 board after al-boot stage3 (target; generic
+  #            fixes the pinned V2 builds must not see)
+  #   cs8210 - Celestica CS8210-32X only (U-Boot DT bits, defconfig)
   # A sibling board takes the t208x ones and replaces the as7760 ones.
   # Platforms touch disjoint files: each build applies only its scopes, and
   # the whole series still applies in order to a pristine tree.
@@ -45,6 +48,9 @@ let
     { scope = "alpine-v2"; file = "0021-board-alpine-v2-say-where-the-environment-came-from.patch"; }
     { scope = "dmc12"; file = "0022-sysreset-add-the-Edgecore-DMC-12-board-CPLD-reset.patch"; }
     { scope = "dmc12"; file = "0023-board-Edgecore-DMC-12-48R-AS0-on-the-Alpine-V2-targe.patch"; }
+    { scope = "alpine-v3"; file = "0024-arm-add-an-Annapurna-Labs-Alpine-V3-target-after-al-.patch"; }
+    { scope = "alpine-v3"; file = "0025-spi-mem-read-only-build-optionally-pass-the-4-byte-a.patch"; }
+    { scope = "cs8210"; file = "0026-board-Celestica-CS8210-32X-on-the-Alpine-V3-target.patch"; }
   ];
   patchesFor = scopes: map (s: builtins.path { path = ./patches + "/${s.file}"; name = s.file; })
     (builtins.filter (s: builtins.elem s.scope scopes) series);

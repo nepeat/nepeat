@@ -1,0 +1,91 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Test fixture, not a board: QEMU "virt,highmem=off" described for the
+ * alpine-v3 U-Boot target, so the same board code and CS8210 config (DRAM
+ * from /memory in more than one bank, /reserved-memory ram_top walk-down and
+ * OS memreserve copy, PIE entry, MMU-on "go" entry, ECAM + AHCI + MBR +
+ * ext4 + boot.scr/bootmenu + booti, PSCI reset) runs without hardware.
+ * Addresses from `qemu-system-aarch64 -M virt,highmem=off,dumpdtb=`.
+ */
+/dts-v1/;
+
+/ {
+	model = "QEMU virt (alpine-v3 U-Boot test)";
+	compatible = "linux,dummy-virt";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	/* -m 2G as two banks, as al-boot reports DRAM in pieces */
+	memory@40000000 {
+		device_type = "memory";
+		reg = <0x0 0x40000000 0x0 0x40000000>,
+		      <0x0 0x80000000 0x0 0x40000000>;
+	};
+
+	/*
+	 * Stand-ins for the CS8210's ranges: secmon@0 (QEMU's DTB/boot stub
+	 * here), and the top 64 MiB of the first bank so U-Boot must relocate
+	 * below 0x7c000000. The OS DTB in the test lacks the second one only.
+	 */
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		secmon@40000000 {
+			reg = <0x0 0x40000000 0x0 0x00100000>;
+			no-map;
+		};
+		fw@7c000000 {
+			reg = <0x0 0x7c000000 0x0 0x04000000>;
+			no-map;
+		};
+	};
+
+	/* QEMU's own PSCI 0.2+ (SMC conduit with virtualization=on) */
+	psci {
+		compatible = "arm,psci-0.2";
+		method = "smc";
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		bootph-all;
+
+		uart0: serial@9000000 {
+			compatible = "arm,pl011", "arm,primecell";
+			reg = <0x0 0x09000000 0x0 0x1000>;
+			clock = <24000000>;
+			skip-init;
+			bootph-all;
+		};
+
+		pci@3f000000 {
+			compatible = "pci-host-ecam-generic";
+			device_type = "pci";
+			#address-cells = <3>;
+			#size-cells = <2>;
+			reg = <0x0 0x3f000000 0x0 0x01000000>;
+			bus-range = <0x00 0x0f>;
+			ranges = <0x01000000 0x0 0x00000000 0x0 0x3eff0000 0x0 0x00010000>,
+				 <0x02000000 0x0 0x10000000 0x0 0x10000000 0x0 0x2eff0000>;
+
+			/* as the CS8210's unused AHCI functions: never probed */
+			sata@5,0 {
+				reg = <0x2800 0 0 0 0>;
+				status = "disabled";
+			};
+		};
+	};
+};

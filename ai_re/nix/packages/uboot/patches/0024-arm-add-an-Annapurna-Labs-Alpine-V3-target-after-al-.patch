@@ -1,0 +1,526 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Mon, 16 Nov 2026 14:10:35 -0800
+Subject: [PATCH] arm: add an Annapurna Labs Alpine V3 target after al-boot
+ stage3
+
+U-Boot for Alpine V3 boards (16x Cortex-A72, "K2X"), started after
+al-boot stage2/stage3 have trained DRAM, downloaded the SerDes firmware,
+set up the lanes and installed the PSCI v0.2 monitor at EL3. No
+low-level init, the same model as the Alpine V2 target (patch 0014) in a
+board directory of its own (board/amazon/alpine-v3), so the V2 files stay
+untouched:
+
+- position independent, with a Linux Image header (text_offset = the
+  link address, "place anywhere"), so it runs wherever it is loaded on a
+  4 KiB boundary and the vendor U-Boot 2018.05 can start it with "booti"
+  (in place), "bootm" of a kernel uImage, or "go";
+- save_boot_params: "go" enters with the vendor MMU and caches on: clean
+  the D-cache by set/way and turn them off before start.S continues;
+  booti/bootm and stage3's agent arrive with them off. The entry EL, SCTLR
+  and x0 are printed by checkboard();
+- DRAM banks from /memory (CS8210: four banks, 9 GiB of address space for
+  8 GiB); mem_map = DRAM as Normal, every hole below 4 GiB as Device
+  (built after relocation from gd->dram);
+- /reserved-memory ranges of the control DT keep ram_top (and so the
+  relocated U-Boot) clear, and ft_board_setup() copies into the OS DTB's
+  memory reserve map the ones its own /reserved-memory lacks;
+- the architected timer runs from CNTFRQ_EL0, which the firmware sets
+  (75 MHz on the CS8210, read from Linux userspace);
+- load addresses for bootstd/boot.scr/extlinux/booti in the board env
+  (the CS8210 NixOS bootmenu's layout), fdtfile from
+  CONFIG_DEFAULT_FDT_FILE; initrd and FDT used in place;
+- alpine-v3-u-boot.dtsi: bootph-all for the console path of the mainline
+  alpine-v3.dtsi, for a board's -u-boot.dtsi to include.
+
+Scope: alpine-v3.
+---
+ arch/arm/Kconfig                     |  19 +++
+ arch/arm/dts/alpine-v3-u-boot.dtsi   |  18 ++
+ board/amazon/alpine-v3/Kconfig       |  15 ++
+ board/amazon/alpine-v3/MAINTAINERS   |   5 +
+ board/amazon/alpine-v3/Makefile      |   3 +
+ board/amazon/alpine-v3/alpine-v3.c   | 237 +++++++++++++++++++++++++++
+ board/amazon/alpine-v3/alpine-v3.env |  29 ++++
+ board/amazon/alpine-v3/lowlevel.S    |  67 ++++++++
+ include/configs/alpine-v3.h          |  11 ++
+ 9 files changed, 404 insertions(+)
+ create mode 100644 arch/arm/dts/alpine-v3-u-boot.dtsi
+ create mode 100644 board/amazon/alpine-v3/Kconfig
+ create mode 100644 board/amazon/alpine-v3/MAINTAINERS
+ create mode 100644 board/amazon/alpine-v3/Makefile
+ create mode 100644 board/amazon/alpine-v3/alpine-v3.c
+ create mode 100644 board/amazon/alpine-v3/alpine-v3.env
+ create mode 100644 board/amazon/alpine-v3/lowlevel.S
+ create mode 100644 include/configs/alpine-v3.h
+
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 1b474a34..05c266ff 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1451,6 +1451,24 @@ config TARGET_TOTAL_COMPUTE
+ 	imply OF_HAS_PRIOR_STAGE if !BLOBLIST
+ 	imply MISC_INIT_R
+ 
++config TARGET_ALPINE_V3
++	bool "Annapurna Labs Alpine V3, after al-boot stage3"
++	select ARM64
++	select DM
++	select DM_SERIAL
++	select OF_CONTROL
++	select POSITION_INDEPENDENT
++	select LINUX_KERNEL_IMAGE_HEADER
++	imply OF_BOARD_SETUP
++	help
++	  U-Boot for Annapurna Labs (Amazon) Alpine V3 boards (16x
++	  Cortex-A72, "K2X"), with no low-level init of its own. al-boot
++	  stage2/stage3 have trained DRAM, downloaded the SerDes firmware,
++	  set up the SerDes lanes and installed the PSCI v0.2 monitor (EL3).
++	  Started at EL2 either by the vendor U-Boot 2018.05 ("go", "booti",
++	  "bootm") or directly as stage3's application. Memory comes from the
++	  device tree, firmware ranges from its /reserved-memory node.
++
+ config TARGET_LS2080A_EMU
+ 	bool "Support ls2080a_emu"
+ 	select ARCH_LS2080A
+@@ -2473,6 +2491,7 @@ source "board/vscom/baltos/Kconfig"
+ source "board/phytium/durian/Kconfig"
+ source "board/phytium/pomelo/Kconfig"
+ source "board/phytium/pe2201/Kconfig"
++source "board/amazon/alpine-v3/Kconfig"
+ source "board/xen/xenguest_arm64/Kconfig"
+ 
+ source "arch/arm/Kconfig.debug"
+diff --git a/arch/arm/dts/alpine-v3-u-boot.dtsi b/arch/arm/dts/alpine-v3-u-boot.dtsi
+new file mode 100644
+index 00000000..cbd3e78f
+--- /dev/null
++++ b/arch/arm/dts/alpine-v3-u-boot.dtsi
+@@ -0,0 +1,18 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * U-Boot additions for any Alpine V3 board DTS built on the mainline
++ * alpine-v3.dtsi: the console must bind before relocation. A board's own
++ * <board>-u-boot.dtsi includes this one (U-Boot picks only the first match).
++ */
++
++&{/soc} {
++	bootph-all;
++};
++
++&{/soc/io-bus@fc000000} {
++	bootph-all;
++};
++
++&uart0 {
++	bootph-all;
++};
+diff --git a/board/amazon/alpine-v3/Kconfig b/board/amazon/alpine-v3/Kconfig
+new file mode 100644
+index 00000000..04c02376
+--- /dev/null
++++ b/board/amazon/alpine-v3/Kconfig
+@@ -0,0 +1,15 @@
++if TARGET_ALPINE_V3
++
++config SYS_BOARD
++	default "alpine-v3"
++
++config SYS_VENDOR
++	default "amazon"
++
++config SYS_CONFIG_NAME
++	default "alpine-v3"
++
++config LNX_KRNL_IMG_TEXT_OFFSET_BASE
++	default 0x0
++
++endif
+diff --git a/board/amazon/alpine-v3/MAINTAINERS b/board/amazon/alpine-v3/MAINTAINERS
+new file mode 100644
+index 00000000..8381b849
+--- /dev/null
++++ b/board/amazon/alpine-v3/MAINTAINERS
+@@ -0,0 +1,5 @@
++ALPINE V3 (AFTER AL-BOOT STAGE3)
++S:	Orphan
++F:	board/amazon/alpine-v3/
++F:	include/configs/alpine-v3.h
++F:	arch/arm/dts/alpine-v3-u-boot.dtsi
+diff --git a/board/amazon/alpine-v3/Makefile b/board/amazon/alpine-v3/Makefile
+new file mode 100644
+index 00000000..2bc97e58
+--- /dev/null
++++ b/board/amazon/alpine-v3/Makefile
+@@ -0,0 +1,3 @@
++# SPDX-License-Identifier: GPL-2.0+
++
++obj-y	:= alpine-v3.o lowlevel.o
+diff --git a/board/amazon/alpine-v3/alpine-v3.c b/board/amazon/alpine-v3/alpine-v3.c
+new file mode 100644
+index 00000000..69cb7d5a
+--- /dev/null
++++ b/board/amazon/alpine-v3/alpine-v3.c
+@@ -0,0 +1,237 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Annapurna Labs Alpine V3 (16x Cortex-A72), after al-boot.
++ *
++ * al-boot stage2/stage3 have trained DRAM, downloaded the SerDes firmware,
++ * set up the lanes and installed the PSCI v0.2 monitor at EL3 (in the
++ * secmon range at 0). This board does no low-level init: DRAM banks come
++ * from /memory, firmware-owned ranges from /reserved-memory, and both are
++ * handed on to the OS.
++ */
++
++#include <config.h>
++#include <cpu_func.h>
++#include <env.h>
++#include <fdt_support.h>
++#include <fdtdec.h>
++#include <init.h>
++#include <asm/armv8/mmu.h>
++#include <asm/global_data.h>
++#include <asm/sections.h>
++#include <asm/system.h>
++#include <dm/ofnode.h>
++#include <linux/kernel.h>
++#include <linux/libfdt.h>
++#include <linux/sizes.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++/* Filled by save_boot_params (lowlevel.S) before relocation. */
++struct {
++	u64 x0;
++	u64 sctlr;
++} alpine_v3_entry __section(".data");
++
++/*
++ * DRAM banks are Normal memory; every hole below 4 GiB is the SoC's I/O
++ * space (on Alpine V3: external PCIe windows from 0xc0000000, GIC, the
++ * internal PCIe ECAM, the I/O fabric at 0xfc000000). Nothing else is
++ * mapped. Built from gd->dram in enable_caches(), i.e. after relocation;
++ * lives in .data so the pre-relocation BSS (which overlaps the appended
++ * DTB) is never touched.
++ */
++static struct mm_region alpine_v3_mem_map[2 * CONFIG_NR_DRAM_BANKS + 2]
++	__section(".data");
++struct mm_region *mem_map = alpine_v3_mem_map;
++
++static void alpine_v3_build_mem_map(void)
++{
++	struct mm_region *r = alpine_v3_mem_map;
++	u64 hole = 0;
++	int i;
++
++	for (i = 0; i < CONFIG_NR_DRAM_BANKS && gd->dram[i].size; i++) {
++		u64 start = gd->dram[i].start;
++		u64 end = start + gd->dram[i].size;
++
++		if (hole < start && hole < SZ_4G) {
++			r->virt = r->phys = hole;
++			r->size = min_t(u64, start, SZ_4G) - hole;
++			r->attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
++				   PTE_BLOCK_NON_SHARE |
++				   PTE_BLOCK_PXN | PTE_BLOCK_UXN;
++			r++;
++		}
++		r->virt = r->phys = start;
++		r->size = gd->dram[i].size;
++		r->attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_INNER_SHARE;
++		r++;
++		hole = max(hole, end);
++	}
++	if (hole < SZ_4G) {
++		r->virt = r->phys = hole;
++		r->size = SZ_4G - hole;
++		r->attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
++			   PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN;
++		r++;
++	}
++	r->size = 0;
++}
++
++void enable_caches(void)
++{
++	alpine_v3_build_mem_map();
++	icache_enable();
++	dcache_enable();
++}
++
++/* Sized before mem_map exists; a handful of 1 GiB / 2 MiB blocks. */
++u64 get_page_table_size(void)
++{
++	return SZ_256K;
++}
++
++int dram_init(void)
++{
++	return fdtdec_setup_mem_size_base();
++}
++
++int dram_init_banksize(void)
++{
++	return fdtdec_setup_memory_banksize();
++}
++
++static bool alpine_v3_rsv(ofnode node, u64 *base, u64 *size)
++{
++	fdt_size_t sz;
++	fdt_addr_t addr = ofnode_get_addr_size_index(node, 0, &sz);
++
++	if (addr == FDT_ADDR_T_NONE || !sz || !ofnode_is_enabled(node))
++		return false;
++	*base = addr;
++	*size = sz;
++	return true;
++}
++
++/*
++ * U-Boot relocates to the top of the first bank. Move that top below any
++ * firmware range that would overlap U-Boot's own footprint (code, malloc,
++ * stack, FDT copy: well under 128 MiB).
++ */
++phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
++{
++	ofnode parent = ofnode_path("/reserved-memory");
++	phys_addr_t top = gd->ram_top;
++	bool moved;
++	ofnode node;
++
++	if (!ofnode_valid(parent))
++		return top;
++	do {
++		moved = false;
++		ofnode_for_each_subnode(node, parent) {
++			u64 base, size;
++
++			if (!alpine_v3_rsv(node, &base, &size))
++				continue;
++			if (base < top &&
++			    base + size > (top > SZ_128M ? top - SZ_128M : 0)) {
++				top = base;
++				moved = true;
++			}
++		}
++	} while (moved);
++
++	return top;
++}
++
++#if IS_ENABLED(CONFIG_OF_BOARD_SETUP)
++/* Does the OS DTB already describe [base, base + size) in /reserved-memory? */
++static bool alpine_v3_os_has_rsv(void *blob, u64 base, u64 size)
++{
++	int parent = fdt_path_offset(blob, "/reserved-memory");
++	int node;
++
++	if (parent < 0)
++		return false;
++	fdt_for_each_subnode(node, blob, parent) {
++		fdt_size_t s;
++		fdt_addr_t a = fdtdec_get_addr_size_auto_parent(blob, parent,
++								node, "reg", 0,
++								&s, false);
++
++		if (a == base && s == size)
++			return true;
++	}
++	return false;
++}
++
++/*
++ * The OS DTB normally comes from the kernel tree. Copy every
++ * /reserved-memory range of our control DT that it does not describe
++ * itself into its memory reserve map, so Linux stays clear of firmware
++ * memory whichever DTB it gets.
++ */
++int ft_board_setup(void *blob, struct bd_info *bd)
++{
++	ofnode parent = ofnode_path("/reserved-memory");
++	ofnode node;
++
++	if (!ofnode_valid(parent))
++		return 0;
++	ofnode_for_each_subnode(node, parent) {
++		u64 base, size, b, s;
++		int i, n, ret;
++		bool dup = false;
++
++		if (!alpine_v3_rsv(node, &base, &size))
++			continue;
++		if (alpine_v3_os_has_rsv(blob, base, size))
++			continue;
++		n = fdt_num_mem_rsv(blob);
++		for (i = 0; i < n && !dup; i++)
++			dup = !fdt_get_mem_rsv(blob, i, &b, &s) &&
++			      b == base && s == size;
++		if (dup)
++			continue;
++		ret = fdt_add_mem_rsv(blob, base, size);
++		if (ret) {
++			printf("memreserve %#llx+%#llx: %s\n", base, size,
++			       fdt_strerror(ret));
++			return -ENOSPC;
++		}
++	}
++
++	return 0;
++}
++#endif
++
++int checkboard(void)
++{
++	printf("Entry: EL%d, MMU+caches were %s, x0=%#llx\n", current_el(),
++	       alpine_v3_entry.sctlr & 1 ? "on (go)" : "off (booti/bootm/stage3)",
++	       alpine_v3_entry.x0);
++	return 0;
++}
++
++int board_late_init(void)
++{
++	if (!env_get("fdtfile") && CONFIG_DEFAULT_FDT_FILE[0])
++		env_set("fdtfile", CONFIG_DEFAULT_FDT_FILE);
++	return 0;
++}
++
++int print_cpuinfo(void)
++{
++	u64 midr;
++
++	asm volatile("mrs %0, midr_el1" : "=r" (midr));
++	printf("CPU:   MIDR %#llx%s\n", midr,
++	       (midr & 0xff0ffff0) == 0x410fd080 ? " (Cortex-A72)" : "");
++	return 0;
++}
++
++int board_init(void)
++{
++	return 0;
++}
+diff --git a/board/amazon/alpine-v3/alpine-v3.env b/board/amazon/alpine-v3/alpine-v3.env
+new file mode 100644
+index 00000000..dc695dec
+--- /dev/null
++++ b/board/amazon/alpine-v3/alpine-v3.env
+@@ -0,0 +1,29 @@
++/*
++ * Load addresses for bootstd/extlinux/boot.scr/booti. All sit in the first
++ * 2 GiB bank, clear of the firmware ranges in /reserved-memory and of
++ * U-Boot itself, which relocates to the top of that bank. They match what
++ * the CS8210 NixOS bootmenu (its boot.scr) loads to, so one layout serves
++ * the vendor U-Boot and this one:
++ *   0x07000000  scripts (boot.scr), 0x07100000 the bootmenu env,
++ *               0x07200000 pxe/extlinux files
++ *   0x08000000  kernel Image (booted in place; ~75 MiB) -- also where this
++ *               image is loaded, dead after relocation
++ *   0x10000000  fdt (+ overlays above it)
++ *   0x20000000  initrd (up to 512 MiB)
++ *   0x40000000  compressed kernel scratch (Image.gz etc.), 128 MiB
++ * fdtfile is set from CONFIG_DEFAULT_FDT_FILE in board_late_init().
++ */
++scriptaddr=0x07000000
++pxefile_addr_r=0x07200000
++kernel_addr_r=0x08000000
++fdt_addr_r=0x10000000
++fdtoverlay_addr_r=0x10100000
++ramdisk_addr_r=0x20000000
++kernel_comp_addr_r=0x40000000
++kernel_comp_size=0x8000000
++/*
++ * Use the initrd where it was loaded (all ones, 64-bit: 0xffffffff would be
++ * a 4 GiB limit, not "don't relocate"). The FDT is copied below U-Boot
++ * (fdt_high unset: upstream warns about ~0 there).
++ */
++initrd_high=0xffffffffffffffff
+diff --git a/board/amazon/alpine-v3/lowlevel.S b/board/amazon/alpine-v3/lowlevel.S
+new file mode 100644
+index 00000000..06727202
+--- /dev/null
++++ b/board/amazon/alpine-v3/lowlevel.S
+@@ -0,0 +1,67 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Entry on Alpine V3: from al-boot stage3 (its AArch64 agent ERETs to the
++ * application at EL2, MMU off), or from the vendor U-Boot 2018.05.
++ *
++ * "booti"/"bootm" arrive like Linux: MMU and D-cache off, x0 = a DTB.
++ * "go" arrives with the vendor's identity-mapped MMU and caches still on,
++ * x0 = argc. start.S assumes the former, so in the second case write the
++ * D-cache back by set/way and switch MMU and caches off before PIE fixups,
++ * stack or BSS touch memory.
++ *
++ * Runs before the PIE fixup: only PC-relative addressing (adrp, so the
++ * image must sit on a 4 KiB boundary, as start.S requires anyway), no stack.
++ */
++
++#include <linux/linkage.h>
++#include <asm/macro.h>
++
++#define SCTLR_M		(1 << 0)
++#define SCTLR_C		(1 << 2)
++#define SCTLR_I		(1 << 12)
++
++ENTRY(save_boot_params)
++	adrp	x9, alpine_v3_entry
++	add	x9, x9, :lo12:alpine_v3_entry
++	str	x0, [x9]			/* entry x0: DTB (booti/bootm) or argc (go) */
++	switch_el x10, 3f, 2f, 1f
++3:	mrs	x11, sctlr_el3
++	b	0f
++2:	mrs	x11, sctlr_el2
++	b	0f
++1:	mrs	x11, sctlr_el1
++0:	str	x11, [x9, #8]			/* entry SCTLR, for the banner */
++	tst	x11, #SCTLR_M
++	b.eq	save_boot_params_ret		/* MMU already off: nothing to do */
++
++	bl	__asm_flush_dcache_all		/* clean+invalidate, all levels; x0-x16 */
++
++	switch_el x10, 3f, 2f, 1f
++3:	mrs	x11, sctlr_el3
++	bic	x11, x11, #SCTLR_M
++	bic	x11, x11, #SCTLR_C
++	bic	x11, x11, #SCTLR_I
++	msr	sctlr_el3, x11
++	isb
++	tlbi	alle3
++	b	0f
++2:	mrs	x11, sctlr_el2
++	bic	x11, x11, #SCTLR_M
++	bic	x11, x11, #SCTLR_C
++	bic	x11, x11, #SCTLR_I
++	msr	sctlr_el2, x11
++	isb
++	tlbi	alle2
++	b	0f
++1:	mrs	x11, sctlr_el1
++	bic	x11, x11, #SCTLR_M
++	bic	x11, x11, #SCTLR_C
++	bic	x11, x11, #SCTLR_I
++	msr	sctlr_el1, x11
++	isb
++	tlbi	vmalle1
++0:	ic	iallu
++	dsb	sy
++	isb
++	b	save_boot_params_ret
++ENDPROC(save_boot_params)
+diff --git a/include/configs/alpine-v3.h b/include/configs/alpine-v3.h
+new file mode 100644
+index 00000000..a4a97d43
+--- /dev/null
++++ b/include/configs/alpine-v3.h
+@@ -0,0 +1,11 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Annapurna Labs Alpine V3. Everything board-specific comes from the
++ * device tree; see board/amazon/alpine-v3/alpine-v3.c. No
++ * CFG_SYS_SDRAM_BASE on purpose: it would override the /memory base that
++ * dram_init() reads.
++ */
++#ifndef __ALPINE_V3_H
++#define __ALPINE_V3_H
++
++#endif

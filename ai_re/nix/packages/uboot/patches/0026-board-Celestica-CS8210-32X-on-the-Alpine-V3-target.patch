@@ -1,0 +1,188 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Mon, 16 Nov 2026 14:10:36 -0800
+Subject: [PATCH] board: Celestica CS8210-32X on the Alpine V3 target
+
+U-Boot additions to the board's Linux DTS (arch/arm/dts/alpine-v3-cs8210.dts,
+copied in at build time from the Linux board tree, not part of this patch),
+in alpine-v3-cs8210-u-boot.dtsi:
+- the seven internal AHCI functions without the SSD (00:08-00:0a and
+  00:0c-00:0f) disabled for U-Boot only: stage3 gives SATA one SerDes lane
+  and the SSD is on 00:0b.0 port 3;
+- the boot flash SSI at 25 MHz (U-Boot caps transfers at the controller's
+  value, 500 kHz when absent) and aliases/spi0 = that SSI.
+
+alpine_v3_cs8210_defconfig: TEXT_BASE 0x08000000 (the vendor loadaddr),
+console on UART0 (500 MHz, 32-bit registers) plus a debug UART that skips
+init; standard boot (extlinux, boot.scr) over PCI ECAM -> AHCI -> SCSI with
+ext4/FAT, booti, sysboot, bootmenu + env import (what the NixOS boot.scr
+uses); I2C with the pca954x muxes; the boot flash read-only (0019 +
+the 4-byte reads, no lock/SFDP/soft-reset code, no write window); reset
+through PSCI SYSTEM_RESET (the V3 monitor is PSCI v0.2); no network, no
+MMC, no EFI; env nowhere.
+
+Scope: cs8210.
+---
+ arch/arm/dts/alpine-v3-cs8210-u-boot.dtsi | 63 +++++++++++++++++
+ configs/alpine_v3_cs8210_defconfig        | 82 +++++++++++++++++++++++
+ 2 files changed, 145 insertions(+)
+ create mode 100644 arch/arm/dts/alpine-v3-cs8210-u-boot.dtsi
+ create mode 100644 configs/alpine_v3_cs8210_defconfig
+
+diff --git a/arch/arm/dts/alpine-v3-cs8210-u-boot.dtsi b/arch/arm/dts/alpine-v3-cs8210-u-boot.dtsi
+new file mode 100644
+index 00000000..3df776a3
+--- /dev/null
++++ b/arch/arm/dts/alpine-v3-cs8210-u-boot.dtsi
+@@ -0,0 +1,63 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * U-Boot additions for the Celestica CS8210-32X. The board DTS itself
++ * (alpine-v3-cs8210.dts) is the Linux one, copied in at build time; it
++ * already carries the four DRAM banks and the firmware ranges
++ * (/reserved-memory) that al-boot reports.
++ */
++
++#include "alpine-v3-u-boot.dtsi"
++
++/*
++ * Internal PCIe (ECAM, bus 0): eight AHCI functions 00:08.0..00:0f.0, but
++ * stage3 gives SATA one SerDes lane (main 15) and the SSD hangs off port 3
++ * of 00:0b.0 (Linux: ata16 = controller 3, port 3; the vendor U-Boot:
++ * "SCSI controller: 3"). The other seven only add 4 x 200 ms of link
++ * timeouts each, so U-Boot leaves them alone (Linux still sees all eight).
++ */
++&{/soc/pcie@fbd00000} {
++	sata@8,0 {
++		reg = <0x4000 0 0 0 0>;
++		status = "disabled";
++	};
++	sata@9,0 {
++		reg = <0x4800 0 0 0 0>;
++		status = "disabled";
++	};
++	sata@a,0 {
++		reg = <0x5000 0 0 0 0>;
++		status = "disabled";
++	};
++	sata@c,0 {
++		reg = <0x6000 0 0 0 0>;
++		status = "disabled";
++	};
++	sata@d,0 {
++		reg = <0x6800 0 0 0 0>;
++		status = "disabled";
++	};
++	sata@e,0 {
++		reg = <0x7000 0 0 0 0>;
++		status = "disabled";
++	};
++	sata@f,0 {
++		reg = <0x7800 0 0 0 0>;
++		status = "disabled";
++	};
++};
++
++/*
++ * Boot flash SSI. U-Boot's DW SSI caps every transfer at the controller's
++ * own spi-max-frequency (500 kHz when absent); read at the flash's 25 MHz,
++ * as Linux and the vendor U-Boot do. seq 0 = this SSI, so "sf probe 0:0" is
++ * the boot flash whatever the probe order.
++ */
++&spi0 {
++	spi-max-frequency = <25000000>;
++};
++
++/ {
++	aliases {
++		spi0 = &spi0;
++	};
++};
+diff --git a/configs/alpine_v3_cs8210_defconfig b/configs/alpine_v3_cs8210_defconfig
+new file mode 100644
+index 00000000..5290bdcc
+--- /dev/null
++++ b/configs/alpine_v3_cs8210_defconfig
+@@ -0,0 +1,82 @@
++CONFIG_ARM=y
++CONFIG_TARGET_ALPINE_V3=y
++CONFIG_TEXT_BASE=0x08000000
++CONFIG_NR_DRAM_BANKS=4
++CONFIG_SYS_MALLOC_LEN=0x2000000
++CONFIG_SYS_MALLOC_F_LEN=0x4000
++CONFIG_ENV_SIZE=0x4000
++CONFIG_DEFAULT_DEVICE_TREE="alpine-v3-cs8210"
++CONFIG_SYS_LOAD_ADDR=0x08000000
++CONFIG_DEBUG_UART_BASE=0xfd883000
++CONFIG_DEBUG_UART_CLOCK=500000000
++CONFIG_DEBUG_UART=y
++CONFIG_SYS_BOOTM_LEN=0x10000000
++CONFIG_SUPPORT_RAW_INITRD=y
++CONFIG_BOOTSTD_FULL=y
++CONFIG_BOOTDELAY=3
++CONFIG_USE_BOOTCOMMAND=y
++CONFIG_BOOTCOMMAND="bootflow scan -lb"
++CONFIG_DEFAULT_FDT_FILE="amazon/alpine-v3-cs8210.dtb"
++CONFIG_BOARD_LATE_INIT=y
++# CONFIG_EFI_LOADER is not set
++# CONFIG_PSCI_RESET is not set
++CONFIG_ARM_SMCCC=y
++CONFIG_CMD_BOOTI=y
++CONFIG_CMD_SYSBOOT=y
++CONFIG_CMD_BOOTMENU=y
++# CONFIG_CMD_SAVEENV is not set
++CONFIG_CMD_I2C=y
++CONFIG_CMD_PCI=y
++CONFIG_CMD_SCSI=y
++CONFIG_CMD_SF=y
++# CONFIG_CMD_SF_TEST is not set
++# CONFIG_CMD_SPI is not set
++CONFIG_CMD_CACHE=y
++CONFIG_CMD_EXT4=y
++CONFIG_CMD_FAT=y
++CONFIG_CMD_FS_GENERIC=y
++CONFIG_CMD_PART=y
++CONFIG_CMD_MEMINFO=y
++# CONFIG_MMC is not set
++CONFIG_ENV_IS_NOWHERE=y
++CONFIG_NO_NET=y
++CONFIG_AHCI=y
++CONFIG_AHCI_PCI=y
++CONFIG_SCSI_AHCI=y
++CONFIG_SCSI=y
++CONFIG_CLK=y
++CONFIG_DM_I2C=y
++CONFIG_SYS_I2C_DW=y
++CONFIG_I2C_MUX=y
++CONFIG_I2C_MUX_PCA954x=y
++CONFIG_PCI=y
++CONFIG_PCI_INIT_R=y
++CONFIG_PCIE_ECAM_GENERIC=y
++CONFIG_MTD=y
++# CONFIG_CMD_MTD is not set
++# CONFIG_CMD_MTDPARTS is not set
++# CONFIG_MTD_NOR_FLASH is not set
++# CONFIG_DM_MTD is not set
++CONFIG_SPI=y
++CONFIG_DM_SPI=y
++CONFIG_DESIGNWARE_SPI=y
++CONFIG_SPI_FLASH=y
++CONFIG_DM_SPI_FLASH=y
++CONFIG_SPI_FLASH_MACRONIX=y
++# CONFIG_SPI_FLASH_LOCK is not set
++# CONFIG_SPI_FLASH_UNLOCK_ALL is not set
++# CONFIG_SPI_FLASH_SFDP_SUPPORT is not set
++# CONFIG_SPI_FLASH_SOFT_RESET is not set
++# CONFIG_SPI_FLASH_BAR is not set
++# CONFIG_SPI_FLASH_MTD is not set
++CONFIG_SPI_FLASH_READ_ONLY=y
++CONFIG_SPI_MEM_READ_ONLY=y
++CONFIG_SPI_MEM_READ_ONLY_4B=y
++CONFIG_DEBUG_UART_SHIFT=2
++CONFIG_DEBUG_UART_ANNOUNCE=y
++CONFIG_DEBUG_UART_SKIP_INIT=y
++CONFIG_DEBUG_UART_NS16550=y
++CONFIG_SYS_NS16550=y
++CONFIG_SYS_NS16550_MEM32=y
++CONFIG_SYSRESET=y
++CONFIG_SYSRESET_PSCI=y

@@ -1,0 +1,58 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Mon, 16 Nov 2026 14:10:35 -0800
+Subject: [PATCH] spi-mem: read-only build: optionally pass the 4-byte-address
+ reads
+
+SPI_MEM_READ_ONLY (patch 0019) passes 0x03/0x0b/0x9f/0x05 only. On chips
+above 16 MiB that spi-nor drives with dedicated 4-byte opcodes
+(SPI_NOR_4B_OPCODES, e.g. the 32 MiB MX25U25635F boot flash of the
+Celestica CS8210-32X) every data read is 0x13 or 0x0c instead, so a
+read-only build could not read that flash at all. SPI_MEM_READ_ONLY_4B
+(default n) adds those two. Like the others they change no flash state;
+entering 4-byte address mode (0xb7), which would, stays refused.
+
+Builds without the new option are byte-identical.
+
+Scope: alpine-v3 (generic code; kept out of the shared alpine scope so
+the Alpine V2 builds that are pinned by hash do not change).
+---
+ drivers/spi/Kconfig   | 10 ++++++++++
+ drivers/spi/spi-mem.c |  3 +++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
+index 181a5a5a..58fdd131 100644
+--- a/drivers/spi/Kconfig
++++ b/drivers/spi/Kconfig
+@@ -52,6 +52,16 @@ config SPI_MEM_READ_ONLY
+ 	  SPI_FLASH_WRITE_WINDOW, the window's chip also gets write enable,
+ 	  page program and sector erase inside the window.
+ 
++config SPI_MEM_READ_ONLY_4B
++	bool "Also pass the 4-byte-address reads"
++	depends on SPI_MEM_READ_ONLY
++	help
++	  Pass read (0x13) and fast read (0x0c) with a 4-byte address as
++	  well. spi-nor uses them, and only them, on chips above 16 MiB that
++	  have dedicated 4-byte opcodes (SPI_NOR_4B_OPCODES, e.g. the
++	  MX25U25635F): they change no flash state, unlike entering 4-byte
++	  address mode (0xb7), which stays refused.
++
+ config SPI_DIRMAP
+ 	bool "SPI direct mapping"
+ 	select SPI_MEM
+diff --git a/drivers/spi/spi-mem.c b/drivers/spi/spi-mem.c
+index 56ad9876..3b1a1d96 100644
+--- a/drivers/spi/spi-mem.c
++++ b/drivers/spi/spi-mem.c
+@@ -262,6 +262,9 @@ static bool spi_mem_ro_allowed(const struct spi_mem_op *op)
+ {
+ 	static const u8 reads[] = {
+ 		0x03, 0x0b,				/* read, fast read */
++#if IS_ENABLED(CONFIG_SPI_MEM_READ_ONLY_4B)
++		0x13, 0x0c,				/* the same, 4-byte address */
++#endif
+ 		0x9f,					/* read ID */
+ 		0x05,					/* read status register */
+ 	};
