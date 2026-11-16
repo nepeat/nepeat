@@ -10,12 +10,15 @@
 #   * The Credo PHYs (cages 1-16) are not a SAI gearbox here: a oneshot runs the
 #     vendor c-phy loader in the SDK chroot in MACsec bypass before syncd, as
 #     cs8210-switch-up does.
-#   * Mutually exclusive with cs8210-switch: syncd Conflicts= it (starting one
-#     stops the other). Both need hardware.cs8210.vendorSdk (ipd legacy ABI,
-#     the chroot, the vendor userland at /var/lib/cs8210-sdk/root).
-#   * Not started at boot unless autoStart: systemctl start sonic.target.
-#     Before syncd starts, a guard refuses to run unless the populated cages
-#     are a subset of allowedCages (house network, PROGRESS 2026-11-11).
+#   * Mutually exclusive with cs8210-switch: syncd and the Credo unit
+#     Conflicts= it (starting one stops the other). Both need
+#     hardware.cs8210.vendorSdk (ipd legacy ABI, the chroot, the vendor
+#     userland at /var/lib/cs8210-sdk/root).
+#   * Started at boot (autoStart, the default), after the PCIe all-ones setup;
+#     autoStart = false leaves it to systemctl start sonic.target. Before
+#     syncd starts, a guard refuses to run unless the populated cages are a
+#     subset of allowedCages and the I2C FPGA answers (house network, PROGRESS
+#     2026-11-11; FPGA stall 2026-11-16).
 {
   config,
   lib,
@@ -169,6 +172,19 @@ let
   '';
   # systemd.services.<n>.path appends /bin and /sbin: the profile root, not its bin
   runtimePath = "/run/current-system/sw";
+  # Everything that touches the I2C FPGA or the ASIC over PCIe waits for the
+  # root ports to answer failed reads with all-ones (else an SError panic;
+  # module/cs8210 pcieErrorsAsAllOnes): matters at boot.
+  pcieReady = {
+    wants = [ "cs8210-pcie-errors.service" ];
+    after = [ "cs8210-pcie-errors.service" ];
+  };
+  # udev loads ipd when the ASIC enumerates; at boot syncd can get there first.
+  waitIpd = pkgs.writeShellScript "sonic-cs8210-wait-ipd" ''
+    for _ in $(seq 1 120); do [ -c /dev/ipd ] && exit 0; sleep 0.5; done
+    echo "/dev/ipd missing after 60 s (ipd not loaded with legacy_abi=1?)" >&2
+    exit 1
+  '';
 in
 {
   imports = [
@@ -189,7 +205,7 @@ in
     };
     autoStart = mkOption {
       type = types.bool;
-      default = false;
+      default = true;
       description = "Start sonic.target at boot. Off: systemctl start sonic.target by hand, like cs8210-switch.";
     };
     allowedCages = mkOption {
@@ -262,6 +278,7 @@ in
         description = "CS8210: refuse SONiC unless only the allowed cages are populated";
         requiredBy = [ "sonic-syncd.service" ];
         before = [ "sonic-syncd.service" ];
+        inherit (pcieReady) wants after;
         partOf = [ "sonic.target" ];
         path = [ pkgs.gnused pkgs.coreutils pkgs.pciutils runtimePath ];
         serviceConfig = {
@@ -274,16 +291,20 @@ in
       # PCIe/MDIO when it first reads the cages (the 2026-11-16 FPGA loss
       # happened while all three ran at once).
       sonic-xcvrd = mkIf (lib.elem "xcvrd" config.services.sonic.pmon.daemons) {
-        after = [ "sonic-cs8210-credo.service" ] ++ lib.optional (cfg.allowedCages != null) "sonic-cs8210-guard.service";
+        inherit (pcieReady) wants;
+        after = pcieReady.after ++ [ "sonic-cs8210-credo.service" ] ++ lib.optional (cfg.allowedCages != null) "sonic-cs8210-guard.service";
       };
       sonic-cs8210-credo = {
         description = "CS8210: Credo MACsec PHYs (cages 1-16) in MACsec bypass for SONiC";
         requiredBy = [ "sonic-syncd.service" ];
         before = [ "sonic-syncd.service" ];
-        after = [ "systemd-modules-load.service" ] ++ lib.optional (cfg.allowedCages != null) "sonic-cs8210-guard.service";
+        inherit (pcieReady) wants;
+        after = pcieReady.after ++ [ "systemd-modules-load.service" ] ++ lib.optional (cfg.allowedCages != null) "sonic-cs8210-guard.service";
         requires = lib.optional (cfg.allowedCages != null) "sonic-cs8210-guard.service";
         partOf = [ "sonic.target" ];
         conflicts = [ "cs8210-switch.service" ];
+        # the chroot's /tmp (Credo FIFOs) is its own tmpfs (vendor-sdk)
+        unitConfig.RequiresMountsFor = [ "/run/cs8210-sdk/tmp" sdkRoot ];
         path = [ pkgs.procps pkgs.gnused pkgs.coreutils pkgs.util-linux pkgs.bash runtimePath ];
         restartIfChanged = false;
         serviceConfig = {
@@ -309,6 +330,9 @@ in
       # The libsai run dir (the merged IFCS config, SAI_TERALYNX_RUN_DIR).
       sonic-syncd.serviceConfig.RuntimeDirectory = "sai-teralynx";
       sonic-syncd.serviceConfig.RuntimeDirectoryPreserve = "yes";
+      sonic-syncd.serviceConfig.ExecStartPre = [ "${waitIpd}" ];
+      sonic-syncd.wants = pcieReady.wants;
+      sonic-syncd.after = pcieReady.after;
     };
 
     # cs8210-sai-files reads the board version from the system CPLD (i2cget).

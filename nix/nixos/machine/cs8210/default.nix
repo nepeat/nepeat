@@ -69,7 +69,7 @@
   # harmless.
   networking.useDHCP = false;
   networking.useNetworkd = true;
-  systemd.network = {
+  systemd.network = lib.mkMerge [ {
     enable = true;
     # Nothing here should hold up boot for a cable.
     wait-online.enable = false;
@@ -81,6 +81,10 @@
       };
       dhcpV4Config.ClientIdentifier = "mac";
     };
+  }
+  # The vendor stack's front-panel test path; not with SONiC (no fpp*
+  # netdevs, and SONiC's vrfmgrd deletes VRF devices it did not create).
+  (lib.mkIf (!config.hardware.cs8210.sonic.enable) {
     # bond0 lives in its own VRF so the front-panel test path has its own
     # routing table (its DHCP default route) and is not answered through
     # enp0s1's default route. tcp/udp_l3mdev_accept (below) lets sshd and
@@ -129,7 +133,7 @@
       };
       dhcpV4Config.ClientIdentifier = "mac";
     };
-  };
+  }) ];
 
   boot.kernel.sysctl = {
     "net.ipv4.tcp_l3mdev_accept" = 1;
@@ -170,12 +174,25 @@
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA60KDLPhZaDPbstXgHVK4RnZq3dSzfbVzfVBheWOMb+ root@sea420-desktop"
   ];
 
-  # SONiC on our sai-teralynx (nix/nixos/module/cs8210/sonic); off until the first full run.
   # MACsec shim + cs8210-macsec + MKA driver (macsec.md); ports stay in bypass until configured.
+  # Its units run with the vendor stack (cs8210-switch) only.
   hardware.cs8210.macsec.enable = true;
 
+  # SONiC on our sai-teralynx (nix/nixos/module/cs8210/sonic), started at boot
+  # (2026-11-16). The vendor stack stays installed: systemctl start
+  # cs8210-switch stops SONiC's syncd (Conflicts=). Only cages 1 and 16 hold
+  # modules, a 400G CR8 DAC loop between them (allowedCages: syncd refuses to
+  # start if any other cage is populated).
   hardware.cs8210.sonic = {
-    enable = false;
+    enable = true;
     macAddress = "0e:48:c6:7a:55:ce";
+    lineMedia = { "1" = "copper"; "16" = "copper"; };
   };
+  # Nix base for CONFIG_DB (seeded: config + config save win): the two loop
+  # ports up (RS FEC: 400G PAM4), the other 30 stay down. Routing, VRFs and
+  # QoS are the saved file's (ai_re/devices/cs8210-32x/sonic-loop/).
+  services.sonic.settings.PORT = lib.genAttrs [ "Ethernet0" "Ethernet120" ] (_: {
+    admin_status = "up";
+    fec = "rs";
+  });
 }
