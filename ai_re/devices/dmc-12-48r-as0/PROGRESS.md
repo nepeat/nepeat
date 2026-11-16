@@ -159,6 +159,11 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-16 12:10: **gzip'd kernels, slimmer initrd, "both" boot layout** (f6b7cca). u01 boots its extlinux
+  kernel gzip'd through our U-Boot (`Uncompressing Kernel Image`, boot 10.2 s, smoke 16/16); minimal Image
+  11.6 -> 4.9 MB, initrd 19.6 -> 15.6 MB (no LVM/TPM2/FIDO2 in stage 1, zstd -19), /boot 211 -> 153 MB.
+  `bootLoader = "both"` (uboot-menu in /boot/nixos-uboot + extlinux in /boot/nixos) for moving factory-SPI
+  units (p01) to our U-Boot; tested on a copy of p01's /boot, not yet deployed there.
 - 2026-11-16 03:00: **CPLD decode complete to readable RTL** (agents; `cpld.md`, `tools/machxo3/`): ladder
   L4 lossless netlist / L5 blocks / L6 templates each rebuild cfg.bin byte-identical; L7 = 18 readable
   Verilog modules, yosys-equivalent to the netlist (1042/1042). Reads of any 0x68 register proven
