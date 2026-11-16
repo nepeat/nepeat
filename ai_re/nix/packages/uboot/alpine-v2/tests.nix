@@ -209,11 +209,13 @@ let
       ! grep -q "^CONFIG_$k=y" $c || { echo "config: CONFIG_$k is on"; exit 1; }
     done
     # The chainload build is the one u01 ran in RAM and the disk image ships: its bytes
-    # are pinned. Change these on purpose only (u-boot-port.md "what exists").
+    # are pinned. Change these on purpose only (u-boot-port.md "what exists"). Re-pinned 2026-11-16:
+    # f4b4b4f3 went stale with the 11-15 series rework (484ad276 at f13a8d5^); f13a8d5 then only
+    # normalised CC_VERSION_STRING (same .config and symbols). No unit runs the chainload build now.
     sha256sum ${d}/u-boot.bin ${d}/u-boot.uimage | awk '{print $1}' | tr '\n' ' ' > chain.txt
-    [ "$(cat chain.txt)" = "f4b4b4f3af25c8d85d6bc6585902b0ed4e8f8f5e6849fd109ca83d857a41e009 062428a9304388e877abbb70cfb66bf5cab4b11404148eb12f84a8e1d6824b52 " ] || \
+    [ "$(cat chain.txt)" = "e175c4690e7965512929916571c0bdb581fa241b632c1fd8479eef4b208eba98 8e375774d221346ba48f788a968666611aac417c19a7c765a892631260b4b6a5 " ] || \
       { echo "chainload: bytes changed: $(cat chain.txt)"; exit 1; }
-    echo "chainload: ok (u-boot.bin f4b4b4f3, uimage 062428a9, unchanged)"
+    echo "chainload: ok (u-boot.bin e175c469, uimage 8e375774, unchanged)"
     # the stage3 app must fit the 512 KiB IPXE slot with >= 16 KiB to spare
     sz=$(stat -c %s ${s3}/u-boot-ipxe-08000000.fimg)
     [ "$sz" -le $((0x80000 - 0x4000)) ] || { echo "size: .fimg $sz B leaves < 16 KiB in the IPXE slot"; exit 1; }
