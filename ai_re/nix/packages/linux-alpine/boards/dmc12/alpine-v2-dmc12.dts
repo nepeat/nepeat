@@ -149,6 +149,18 @@
 				};
 			};
 		};
+
+		/*
+		 * The board's TPM 2.0: Infineon SLB9670 on SS2, as in the vendor DT (its U-Boot
+		 * extends PCRs 0/1 through it). SS2 is muxed by stage3 and our U-Boot
+		 * (if_spim_a_ss_2). Shares the bus with the boot flash: the CS override keeps
+		 * CS0 deselected while CS2 talks. research-open-items.md 6.
+		 */
+		tpm@2 {
+			compatible = "infineon,slb9670", "tcg,tpm_tis-spi";
+			reg = <2>;
+			spi-max-frequency = <1000000>;
+		};
 	};
 
 	/* SoC watchdog. Mainline sp805 registers a restart handler. */
@@ -283,10 +295,8 @@
 				reg = <2>;
 				#address-cells = <1>;
 				#size-cells = <0>;
-				tpm@20 {
-					compatible = "infineon,slb9645tt";
-					reg = <0x20>;
-				};
+				/* No I2C TPM: nothing answers on this bus (the vendor DT's tpm@20 is a
+				 * reference-design leftover); the TPM is on SPI SS2. */
 			};
 
 			/* i2c-4: board CPLD at 0x68, accessed raw from userspace (no driver). */

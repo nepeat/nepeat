@@ -36,7 +36,7 @@
       RTC_CLASS = yes;
       RTC_DRV_DS1307 = yes; # ds1339 2-0068
       TCG_TPM = yes;
-      TCG_TIS_I2C_INFINEON = yes; # 3-0020
+      TCG_TIS_SPI = yes; # SLB9670 on SPI SS2 (no I2C TPM: research-open-items.md 6)
     };
     dtbName = "alpine-v2-dmc12";
     dts = builtins.path {
