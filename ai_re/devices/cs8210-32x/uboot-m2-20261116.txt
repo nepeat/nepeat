@@ -1,0 +1,43 @@
+CS8210 upstream U-Boot milestone 2 (RAM only, zero SPI writes), 2026-11-16 14:42-14:59 PST, ASIC lease "uboot-m2"
+Image: #uboot-cs8210 /nix/store/djlpxs79lnzf2bn1n12080mji6ihjhh1-uboot-alpine_v3_cs8210_defconfig-aarch64-unknown-linux-gnu-2026.10
+       u-boot.bin 0x617e8 B, sha256 4bcabba8d090e9fc..., crc32 1d7676cc (patches 0024-0026 as committed in e1ef7ea)
+Transcripts (git-ignored): serial-uboot-20261116-144222.txt 184a2e3e (run, stopped by a harness bug),
+  serial-uboot-20261116-144649.txt d1d4401d (resume: checks + boot), serial-uboot-m2-console-20261116-145511.txt c4e8a017
+  (consoled scrollback). Captures: analysis/uboot-compare/{vendor,ours}/ (git-ignored).
+
+== Vendor side
+ssh reboot -> "Type 123<ENTER> to STOP autoboot" -> 123 -> ALPINE_DB> (its AVS step had run: "AVS value -> 0x0333")
+loadx 0x8000000 over consoled: 3120 blocks, 0 retries, 43.9 s; "## Total Size = 0x000617e8 = 399336 Bytes"
+crc32 0x8000000 0x617e8 ==> 1d7676cc (= the file)
+booti 0x8000000 - ${fdtaddr}: TPM extend errors as always, "Using Device Tree in place at 0000000003acd320", Starting kernel
+
+== Ours
+U-Boot 2026.10-cs8210 / CPU: MIDR 0x410fd083 (Cortex-A72) / Model: Celestica CS8210-32X
+Entry: EL2, MMU+caches were off (booti/bootm/stage3), x0=0x3acd320 / DRAM: 2 GiB (total 8 GiB)
+bdinfo: 4 banks 0+2G, 2G+1G, 4G+4G, 8G+1G; relocaddr 0x7ff66000; lmb no-map 0-1M, ecc poison x2, 0xb0000000+256M
+pci: 00:01.0 00:03.0 1c36:0001, 00:06.0 1c36:0022, 00:0b.0 1c36:0031 (the 7 other AHCI functions not bound), 00:10.0 1c36:0022
+scsi scan: AHCI 0001.0300 4 ports, links 0-2 timeout, Device 0 (3:0) HBS3A1912A4M4B1, 234441649 x 512 (Linux 234441648: the known +1)
+part list scsi 0: DOS, 1 16384+32768 0b, 2 49152+234392496 83 Boot; ls scsi 0:2 /boot: boot.scr 289, u-boot.menu 6118, nixos/
+sf probe 0:0: mx25u25635f, 32 MiB (read-only build: no SR write at probe)
+sf read + crc32: 0x0+0x380000 ==> 73264376, 0x380000+0x40000 ==> 8b4a0ac9, 0x410000+0x1bf0000 ==> d6937f49
+  (all = images/spi-2026-11-15 and the live /dev/mtd0/1/4; the last crosses 16 MiB: 4-byte reads 0x13/0x0c, patch 0025)
+GPIO bank 6: data 0xbb dir 0xfc (the vendor booti had already flipped 52/54, as it does before Linux)
+bootflow scan -l: script ahci_scsi.id3lun0.bootdev part 2 /boot/boot.scr
+boot: "== CS8210 NixOS bootmenu ==" (its "scsi init" prints the scsi usage, harmless) -> bootmenu 5 s ->
+  Image 0x08000000 + initrd uImage 0x20000000 + DTB -> "Starting kernel" -> Linux 7.3.4 -> login
+
+== NixOS on our U-Boot vs on the vendor U-Boot (same generation, 26.11.20261114.2f709fe)
+cage guard "present mask 0x00008001 within allowed cages (1 16)" at 12.4 s (vendor 12.5); Credo done 51.0 s (51.1); PortInitDone 57.3 s (57.4)
+BGP Vrf-a/Vrf-b Established (1 prefix each), BFD 2/2 up, PortChannel1/2 LACP link up, systemctl is-system-running: running
+ASIC core regulator (i2c-16 0x62): VOUT_COMMAND 0x0333, READ_VOUT 0x0333 (identical)
+dmesg (timestamps and hashes stripped): identical except al_eth eth1's random MAC (port 3, random by design on both),
+  RTC/journal times, "Memory: 7730168K available" vs 7730448K (280 KiB less, reserved total identical), NODE_DATA address,
+  AHCI 00:0b.0 BAR 5 0xfe200000 (vendor 0xfe20c000: U-Boot's PCI auto-config placed it)
+lspci: tree identical (all 3 external ports, ASIC, both FPGAs); 00:06.0 crypto and 00:10.0 1c36:0022 have Mem+ BusMaster+
+  under ours (U-Boot enabled them; no Linux driver binds either), [disabled] under the vendor
+live DT: /memory same banks in another order; uart1-3 (disabled nodes) clock-frequency 0 (vendor fixes up 500 MHz on all
+  ns16550a nodes); /chosen u-boot,version = "2026.10-cs8210"; everything else identical
+enp0s1 MAC 0c:48:c6:7a:55:ce on both (the vendor stored it in the EC table before its prompt)
+
+== End state
+systemctl reboot -> vendor U-Boot autoboot -> NixOS (no u-boot,version in /chosen): BGP 2/2, BFD 2/2 up, LACP up, running; lease released.

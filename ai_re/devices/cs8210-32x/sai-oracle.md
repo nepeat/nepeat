@@ -80,6 +80,12 @@ and diffs them per SAI step. Findings that changed our code; traces are local
   container 1, rate N}; egress: node `EGRESS_SFLOW_ENABLE` is 0 and the sysport set fails NOTFOUND.
 - Genetlink hostif (psample): `ifcs_netlink_create` + `netlink_trapid_add` (0.16.2 only; 0.12.41
   has no netlink API).
+- SAMPLEPACKET trap in a policed group [sflow-police-20261116-140705 `a7b1cad8`]: system trap 512
+  MIRROR_TO_CPU `ENABLE` 1 (DROP: 0; the group queue's `QUEUE_NUM` on it: PARAM); once a port samples, an
+  `acl_meter` (packets x 84 B) + counter + one ACE in the CoPP table on the CPU's IB: match `MIRROR_2` = the
+  sFlow collector, METER, ACL_COUNTER, DROP {red}; policer change = `meter_attr_set`, group policer off/on =
+  ACE removed / re-created. 0.12.41 refuses a `MIRROR` match in any ingress profile (ours: CPU queue meter,
+  sai-features.md).
 
 ## SAI ACL tables (`acl.json`: aclorch's L3 / L3V6 tables, groups, entries, ranges, egress)
 

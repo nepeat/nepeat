@@ -136,8 +136,13 @@ def chainload(result, entry, boot):
     expect("Hit any key to stop autoboot", 90)
     send(" ")
     run("version", "U-Boot 2026.10-cs8210")
+    ours(boot)
+
+
+def ours(boot):
+    """At our idle prompt: banner from the scrollback, read-only checks, then (boot) NixOS."""
     sb = scrollback()
-    banner = sb[sb.rfind("U-Boot 2026.10-cs8210"):][:3000]
+    banner = sb[sb.rfind("CPU:   MIDR"):][:600]          # the last banner (not 'version' output)
     note("banner: " + " | ".join(l for l in banner.splitlines() if l.startswith(("CPU:", "Model:", "Entry:", "DRAM:"))))
     if "Entry: EL2" not in banner:
         finish(False, "not entered at EL2 (or no banner): stop here, power-cycle plug 1")
@@ -158,7 +163,7 @@ def chainload(result, entry, boot):
         finish(True, "at our prompt; not booting (--no-boot)")
     # 4. boot NixOS: boot.scr -> bootmenu (5 s) -> booti
     send("boot")
-    expect("login: $", 400)
+    expect("login: ", 400)          # serial autologin: "login: root (automatic login)"
     s = scrollback()[-200000:]
     for want in ("CS8210 NixOS bootmenu", "Loading init Ramdisk from Legacy Image at 20000000",
                  "Starting kernel", "Booting Linux on physical CPU"):
@@ -182,8 +187,12 @@ p = sub.add_parser("capture"); p.add_argument("label")
 p = sub.add_parser("run"); p.add_argument("result", type=pathlib.Path)
 p.add_argument("--entry", choices=("booti", "go"), default="booti")
 p.add_argument("--no-boot", action="store_true")
+p = sub.add_parser("resume", help="already at our prompt: the checks and the boot only")
+p.add_argument("--no-boot", action="store_true")
 a = ap.parse_args()
 if a.what == "capture":
     capture(a.label)
+elif a.what == "resume":
+    ours(not a.no_boot)
 else:
     chainload(a.result, a.entry, not a.no_boot)

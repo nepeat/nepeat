@@ -53,6 +53,38 @@
    - Teardown: stock ipd back (modprobe), drop-in removed, SONiC as booted (Ethernet0/120 up), CONFIG_DB SFLOW*
      removed, transient units gone. port_index_mapper ignores SIGTERM (90 s stop timeout): TimeoutStopSec 5 in
      the module.
-== Open: the queue2_group1 policer (1000 pps) and queue 2 of SONiC's sflow trap group do not apply to samples (the
-   SAMPLEPACKET trap stays unprogrammed; isai polices samples with an ACE); egress sampling refused (node
-   EGRESS_SFLOW_ENABLE off); the patched ipd is not deployed (needs the generation + a reboot or an ipd reload).
+== (12:58Z) open then: sflow group policer/queue, egress sampling, the patched ipd (deployed 2026-11-16 21:12Z);
+   policer, queue and egress: the 22:00Z section below.
+
+# ---------------------------------------------------------------------------------------------------------------
+# 2026-11-16 22:00-22:40Z: sample policing (SONiC's sflow trap group) and egress sampling; lease "sflow-metrics",
+# cages present=00008001 before every SONiC start. Method: SONiC as booted (sonic.target), our libsai first on
+# sonic-syncd's LD_LIBRARY_PATH via a /run drop-in, CONFIG_DB SFLOW* by hand, frames from the Ethernet0 netdev
+# (sflow-probe, psample group read back); script: scratch police-test.sh (up/run/off/down); raw output
+# analysis/sflow-police-20261116/ (run-100 b7787e37, run-10 dcd9c7d1, run-eg-rx dcdd8b46, run-eg-tx 7e10c824,
+# run-eg-tx2 70140e5a, up0/up1/up2 68dd34ae/0d6ed2d8/0a92b354, syncd-journal 7ab2fa57). Teardown: drop-in removed,
+# SFLOW* keys deleted, SONiC restarted as booted (libsai 409iknhw), BGP both VRFs Established, BFD Up.
+== isai (oracle sflow-police-20261116-140705, trace a7b1cad8; script oracle/scripts/sflow-police.json):
+   SAMPLEPACKET trap = system hostif trap 512 (MIRROR_TO_CPU) ENABLE=1 (DROP: 0); group queue -> QUEUE_NUM on it
+   refused (PARAM, 0.16); the group's policer, once a port samples: acl_meter (packets x 84 B, as for CoPP) +
+   colour counter + one ACE in its CoPP table on the CPU devport's IB (IB 0), match MIRROR_2 = the sFlow collector,
+   actions METER, ACL_COUNTER, DROP {red}; policer update = meter_attr_set; group policer off/on = ACE removed /
+   re-created; the ACE goes before the collector.
+== ours, isai's form: MIRROR (0.12.41 id 15) added to the CoPP table's match profile -> "ACL_MATCH_PROFILE Failed to
+   create PD Objects rc 5", the whole CoPP table failed (every trap: INVALID_PARAMETER, BGP/BFD down until reverted,
+   up0 of the first try, not kept). A table of its own, match profile {MIRROR} at widths 80/160/320: PARAM each.
+   => no ACL match on traffic-monitor copies in 0.12.41; not usable.
+== samples are not policed by anything else: rate 10, 300000 x 256 B at 50000 pps on Ethernet120: 29831 samples in
+   6 s (~5000/s, 1 in 10.1, run-10) against the group's 1000 pps; rate 100 at 20000 pps: 1017 (1 in 98.3, run-100).
+   They arrived on CPU queue 0 (the default trap group's queue).
+== traffic_monitor_cpu_queue "2" in the init yaml (node option, boot-time; node TRAFFIC_MONITOR_CPU_QUEUE at run
+   time: UNSUPPORTED): samples on CPU queue 2 (run-eg-rx: queue 2 tx 0 -> 469 for 523 samples, queue 0 unchanged).
+== egress: yaml egress_sflow_enable "true": not honoured (node EGRESS_SFLOW_ENABLE reads off; tx run-eg-tx: 0
+   samples, orchagent retried EGRESS_SAMPLEPACKET_ENABLE ATTR_NOT_SUPPORTED every ~1 s). Node EGRESS_SFLOW_ENABLE set
+   between node create and enable (SAI_TERALYNX_EGRESS_SFLOW=on): reads on; SFLOW_SESSION|Ethernet120
+   sample_direction tx, rate 10, 10000 routed frames (Ethernet0 netdev -> Ethernet120 ingress -> Vrf-b -> out
+   Ethernet120 -> 10.0.1.0) at 2000 pps: 1082 egress samples (1 in 9.2), psample group 2, oif = Ethernet120, rate
+   10 (run-eg-tx2). origsize = datalen = 176 for 256 B frames: egress samples are cut to 176 B and report that as
+   the frame length (as egress mirror copies, 180 B). Init, ports, LACP, BGP, BFD as usual over the run (~3 min).
+   The first egress try (run-eg-tx, 10000 pps of routed frames to the Vrf-a address = ip2me) flapped BFD for ~4 s
+   (CPU-bound ip2me load from the test frames; BGP re-established); the 2000 pps run did not.

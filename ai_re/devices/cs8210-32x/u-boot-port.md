@@ -10,8 +10,11 @@ Goal (owner): replace the vendor U-Boot 2018.05 with our own upstream-based one,
   the DT, arch timer (firmware sets CNTFRQ = 75 MHz, read from Linux), boot SPI NOR read-only, the
   board's Linux DTS as control DT, env in RAM, booti/bootm/extlinux/boot.scr/bootmenu, AHCI SSD, PSCI
   reset. Tests `#uboot-alpine-v3-tests` pass (static + QEMU). Nothing run on the box yet.
-- **Milestone 2 (hardware, RAM only) prepared, not run:** [runbook](#milestone-2-runbook) and
-  `scripts/uboot_chainload.py`. Waits for the parent's go.
+- **Milestone 2 (hardware, RAM only) passed 2026-11-16** ([uboot-m2-20261116.txt](uboot-m2-20261116.txt)): vendor
+  prompt → loadx → `booti` → ours at **EL2**, MMU off, 2/8 GiB; SSD, SPI NOR crc32 of mtd0/1/4 = the dumps (incl. the
+  region above 16 MiB); NixOS + SONiC (BGP/BFD/LACP) as on the vendor boot. Differences: 00:06.0/00:10.0 left with
+  Mem+/BusMaster+ by U-Boot's PCI auto-config, the disabled uart1-3 keep clock 0, 280 KiB less free memory.
+  The box is back on the vendor boot.
 - Chainloaded from the vendor prompt, Linux needs nothing from us beyond today's path (the vendor
   U-Boot has already done PCIe, AVS, GPIO, MUIO, MAC before its prompt). A standalone build (stage3's
   app) needs the items marked **standalone** in the [checklist](#checklist).
@@ -95,7 +98,7 @@ needs its own boot file (extlinux), or it chainloads itself again. A' (TOC2 + ou
 standalone items first.
 
 ## Milestone 2 runbook
-Parent-run, after the parent's go (SONiC tests and DMC-12 console reboots coordinated). RAM only; every
+Run 2026-11-16 (results above); repeat only after the parent's go (SONiC tests and DMC-12 console reboots coordinated). RAM only; every
 step below writes nothing to SPI or the SSD. Hang anywhere: power-cycle lab plug 1 (factory boot).
 1. Build (from ai_re): `R=$(nix build --no-link --print-out-paths path:./nix#uboot-cs8210)`.
 2. Baseline on today's vendor boot: `sudo devices/cs8210-32x/scripts/uboot_chainload.py capture vendor`.
@@ -113,5 +116,6 @@ Expected differences: the vendor's DT fixup messages and TPM extend errors are g
 U-Boot 2026.10 properties.
 
 ## Open
-- Hardware: entry EL, 4-byte SPI reads through the DW SSI, PSCI SYSTEM_RESET on the real monitor.
+- Hardware, not run yet: PSCI SYSTEM_RESET on the real monitor, the `go` entry.
+- Cosmetic: disable 00:06.0 and 00:10.0 in the U-Boot DT too (nothing in U-Boot uses them); the 280 KiB less free memory.
 - Standalone items (☐ above), smallest first: GPIO + MUIO + SB PLL, then PCIe RC (V3 HAL), then AVS, MAC.
