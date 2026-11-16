@@ -280,6 +280,17 @@ let
     done
     b=${si}/u-boot.bin
     grep -aq 'outside the write window, refused' $b
+    # cold stage3 boot: no slave left selected before the first command (0030);
+    # the env origin is printed and in $env_source (0031)
+    grep -aq 'slave select %#x left set by the firmware, cleared' $b
+    grep -aq 'Env:   SPI flash, copy at %#x' $b
+    grep -aq 'Env:   compiled-in default' $b
+    grep -q ' alpine_v2_env_report$' syms.txt
+    fn board_late_init | grep -q 'bl.*<alpine_v2_env_report>' || { echo "elf: board_late_init does not report the env"; exit 1; }
+    # spi_hw_init and dw_spi_exec_op both store 0 to SER (+0x10) before loading the FIFO
+    for f in dw_spi_probe dw_spi_exec_op; do
+      fn $f | grep -qE 'str\s+wzr, \[x[0-9]+, #16\]' || { echo "elf: $f does not clear SER"; exit 1; }
+    done
     ! grep -aqE 'sf (write|erase|update|protect) |destructive test' $b || { echo "sf write help present"; exit 1; }
     grep -aq 'read-only build: no write, erase, update or protect' $b
     grep -aq 'spi-mem: read-only build, opcode %02x refused' $b

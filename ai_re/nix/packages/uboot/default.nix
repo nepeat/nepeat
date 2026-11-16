@@ -50,6 +50,8 @@ let
     { scope = "alpine-v2"; file = "0027-board-alpine-v2-SoC-GPIO-lines-from-the-DT-at-board-.patch"; }
     { scope = "dmc12"; file = "0028-board-dmc12-SoC-GPIO-22-high-as-the-vendor-board-cfg.patch"; }
     { scope = "alpine-v2"; file = "0029-mtd-spi-write-window-for-the-read-only-SPI-NOR.patch"; }
+    { scope = "alpine-v2"; file = "0030-spi-designware-no-slave-selected-while-the-TX-FIFO-i.patch"; }
+    { scope = "alpine-v2"; file = "0031-board-alpine-v2-say-where-the-environment-came-from.patch"; }
   ];
   patchesFor = scopes: map (s: builtins.path { path = ./patches + "/${s.file}"; name = s.file; })
     (builtins.filter (s: builtins.elem s.scope scopes) series);

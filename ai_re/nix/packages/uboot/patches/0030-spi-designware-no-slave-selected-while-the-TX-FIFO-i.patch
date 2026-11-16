@@ -1,0 +1,71 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Sun, 15 Nov 2026 18:00:00 -0800
+Subject: [PATCH 30/31] spi: designware: no slave selected while the TX FIFO is
+ loaded
+
+The transfer code loads the TX FIFO before it writes SER, and nothing
+cleared SER beforehand: a slave select left set by earlier firmware makes
+the first command start on a chip that is still selected. On the Alpine V2
+DMC-12, started by al-boot stage3 (which reads the boot flash through the
+SSI's memory-mapped window and turns the CS override on just before it
+jumps), the first RDID then read ff ff ff and the SPI env failed to load;
+every later command worked, because each transfer ends with SER = 0.
+The Annapurna HAL that the vendor U-Boot uses writes SER = 0 with the SSI
+disabled before every transfer (al_spi_read, 0x0112b3f8 there).
+
+Clear SER at hw init and, with the SSI disabled, at the start of every
+mem-op transfer. On Alpine, report a select found set at probe.
+
+Scope: alpine-v2 (generic driver code).
+---
+ drivers/spi/designware_spi.c | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/spi/designware_spi.c b/drivers/spi/designware_spi.c
+index 3e5aefb1..9d7d99a7 100644
+--- a/drivers/spi/designware_spi.c
++++ b/drivers/spi/designware_spi.c
+@@ -218,7 +218,18 @@ static int dw_spi_apb_k210_init(struct udevice *bus, struct dw_spi_priv *priv)
+  */
+ static int dw_spi_alpine_init(struct udevice *bus, struct dw_spi_priv *priv)
+ {
+-	int ret = dw_spi_apb_init(bus, priv);
++	u32 ser = dw_read(priv, DW_SPI_SER);
++	int ret;
++
++	/*
++	 * al-boot stage3 reads the boot flash through the SSI's memory-mapped
++	 * window (0xf8000000) and can start its application with SER still
++	 * set; spi_hw_init() clears it. Report it: a select left set made the
++	 * first command after a cold stage3 boot read ff ff ff.
++	 */
++	if (ser)
++		printf("SSI:   slave select %#x left set by the firmware, cleared\n", ser);
++	ret = dw_spi_apb_init(bus, priv);
+ 
+ 	if (!ret)
+ 		dw_write(priv, DW_SPI_CS_OVERRIDE, 0xf);
+@@ -284,6 +295,13 @@ static void spi_hw_init(struct udevice *bus, struct dw_spi_priv *priv)
+ {
+ 	dw_write(priv, DW_SPI_SSIENR, 0);
+ 	dw_write(priv, DW_SPI_IMR, 0);
++	/*
++	 * Deselect every chip. The transfer code loads the TX FIFO before it
++	 * writes SER, so a slave select left set by earlier firmware would
++	 * start the first command on a chip that is still selected, e.g. in
++	 * the middle of a memory-mapped read the boot loader left open.
++	 */
++	dw_write(priv, DW_SPI_SER, 0);
+ 	dw_write(priv, DW_SPI_SSIENR, 1);
+ 
+ 	/*
+@@ -628,6 +646,8 @@ static int dw_spi_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
+ 		op->data.nbytes);
+ 
+ 	dw_write(priv, DW_SPI_SSIENR, 0);
++	/* no chip selected while the FIFO is loaded (the Alpine HAL does this too) */
++	dw_write(priv, DW_SPI_SER, 0);
+ 	dw_write(priv, DW_SPI_CTRLR0, cr0);
+ 	if (read)
+ 		dw_write(priv, DW_SPI_CTRLR1, op->data.nbytes - 1);

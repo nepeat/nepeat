@@ -231,7 +231,7 @@ the factory does). The HAL's Amazon 2017 files carry no licence header; they shi
 MikroTik's GPL kernel source (licence call for the owner before anything is published
 upstream).
 
-## persistent environment in SPI (built 2026-11-15, not yet run on hardware)
+## persistent environment in SPI (RAM chainload OK on u01; cold stage3 fix built, not yet run)
 
 `#uboot-dmc12-selfinit` keeps its environment in SPI CS0, so `saveenv` at `=>` persists.
 
@@ -251,6 +251,36 @@ upstream).
     on every chip: SR/CR writes, chip erase, reset, lock, OTP, 4-byte mode.
   - Still absent: lock/unlock, quad enable, SR write at probe, BAR, soft reset. `sf` stays
     probe + read: only the env driver writes.
+- **u01, 2026-11-15:** the RAM chainload test passed (two saves, persistence across a
+  power-cycle, nothing outside the window changed). As stage3's app (cold, no factory
+  U-Boot first) the env load failed every time: `jedec_spi_nor flash@0: unrecognized JEDEC
+  id bytes: ff, ff, ff`, then the default env; `sf probe 0:0` at the prompt worked.
+  - **Cause:** stage3 reads the flash through the SSI's memory-mapped window
+    (`0xf8000000 + offset`, its reader 0x01027f5c), and at exec writes CS override 0xf to
+    `0xfd882000+0xf4` (0x0101f590). U-Boot's DW SSI driver loads the TX FIFO before it
+    writes SER and never cleared SER, so a select left set makes the first command
+    (the env's RDID) start on a chip that is still selected, inside the read stage3 left
+    open. Every transfer ends with SER = 0, which is why the later `sf probe` works. The
+    factory U-Boot's HAL writes SER = 0 with the SSI disabled before every transfer
+    (`al_spi_read`, 0x0112b3f8), so it never sees this.
+  - **Fix (0030, `alpine-v2`, generic driver code):** SER = 0 at hw init and before every
+    mem-op transfer; on Alpine a select found set at probe is reported (`SSI:   slave
+    select 0x1 left set by the firmware, cleared`). Inferred from code: the SER value
+    stage3 leaves has not been read on hardware. The boot line will show it.
+  - **0031 (`alpine-v2`):** `Env:   SPI flash, copy at 0xf90000|0xfa0000` or `Env:
+    compiled-in default`, and `$env_source` = `spi` / `spi-redund` / `default`, rewritten
+    at every boot.
+  - Build: `#uboot-dmc12-selfinit` `/nix/store/3k20yrnyj35favwi7nxd6g7c48ag46ca-…-2026.10`
+    (uimage `254e4d11…`, u-boot.bin `3954b4cf…`), `#uboot-dmc12-stage3app`
+    `/nix/store/jplf4f05iq78kb0awm6kagil460b5x24-uboot-dmc12-stage3app`
+    (`-08000000.fimg` `7e9eae6a…`, `-01100000.fimg` `b2ed8528…`, 488380 B, 35908 B free).
+  - Route A check (cold stage3 path, no SPI write): expect
+    `SSI:   slave select 0x… left set by the firmware, cleared` (confirms the cause; its
+    absence with a working load would mean the cause was something else), no `unrecognized
+    JEDEC id`, `Loading Environment from SPIFlash... OK`, `Env:   SPI flash, copy at …`
+    and `printenv env_source` = `spi` or `spi-redund`. A RAM image has whatever env is in
+    its window copy; for a blank window expect the bad-CRC warning and `Env:   compiled-in
+    default` instead, with RDID still working.
 - **Boot with a blank or corrupt env:** both copies fail the CRC, so you get `*** Warning -
   bad CRC, using default environment`. The compiled-in default (`bootcmd=bootflow scan -lb`
   etc.) loads and boots as before. No `ENV_IS_NOWHERE` fallback: with it, `saveenv` would

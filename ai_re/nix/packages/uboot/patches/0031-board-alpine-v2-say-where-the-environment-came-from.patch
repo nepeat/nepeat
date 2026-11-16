@@ -1,0 +1,89 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Sun, 15 Nov 2026 18:00:00 -0800
+Subject: [PATCH 31/31] board: alpine-v2: say where the environment came from
+
+With the env in SPI flash (ENV_IS_IN_SPI_FLASH), board_late_init prints
+"Env:   SPI flash, copy at <offset>" or "Env:   compiled-in default" and
+sets $env_source to spi, spi-redund or default (rewritten at every
+boot). Compiled out otherwise.
+
+Scope: alpine-v2.
+---
+ board/amazon/alpine-v2/Makefile     |  1 +
+ board/amazon/alpine-v2/alpine-v2.c  |  2 ++
+ board/amazon/alpine-v2/env-report.c | 31 +++++++++++++++++++++++++++++
+ board/amazon/alpine-v2/soc-init.h   |  1 +
+ 4 files changed, 35 insertions(+)
+ create mode 100644 board/amazon/alpine-v2/env-report.c
+
+diff --git a/board/amazon/alpine-v2/Makefile b/board/amazon/alpine-v2/Makefile
+index 0c3406c2..ecb935f2 100644
+--- a/board/amazon/alpine-v2/Makefile
++++ b/board/amazon/alpine-v2/Makefile
+@@ -5,3 +5,4 @@ obj-$(CONFIG_ALPINE_V2_ETH_HANDOFF) += eth-handoff.o
+ ifneq ($(CONFIG_ALPINE_V2_MUIO_INIT)$(CONFIG_ALPINE_V2_GPIO_INIT)$(CONFIG_ALPINE_V2_CCU_IO_COHERENCY)$(CONFIG_CMD_ALPINE_V2),)
+ obj-y	+= soc-init.o
+ endif
++obj-$(CONFIG_ENV_IS_IN_SPI_FLASH) += env-report.o
+diff --git a/board/amazon/alpine-v2/alpine-v2.c b/board/amazon/alpine-v2/alpine-v2.c
+index 9394e6c2..b1e4c3da 100644
+--- a/board/amazon/alpine-v2/alpine-v2.c
++++ b/board/amazon/alpine-v2/alpine-v2.c
+@@ -195,6 +195,8 @@ int board_late_init(void)
+ {
+ 	if (!env_get("fdtfile") && CONFIG_DEFAULT_FDT_FILE[0])
+ 		env_set("fdtfile", CONFIG_DEFAULT_FDT_FILE);
++	if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
++		alpine_v2_env_report();
+ 	return 0;
+ }
+ 
+diff --git a/board/amazon/alpine-v2/env-report.c b/board/amazon/alpine-v2/env-report.c
+new file mode 100644
+index 00000000..8fe7afbe
+--- /dev/null
++++ b/board/amazon/alpine-v2/env-report.c
+@@ -0,0 +1,31 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Where the environment came from, for a board whose env lives in SPI
++ * flash: a boot line and $env_source ("spi", "spi-redund" or "default").
++ * $env_source is rewritten at every boot, so a value carried along by
++ * saveenv does not matter.
++ */
++
++#include <env.h>
++#include <stdio.h>
++#include <asm/global_data.h>
++#include "soc-init.h"
++
++DECLARE_GLOBAL_DATA_PTR;
++
++void alpine_v2_env_report(void)
++{
++	const char *src;
++
++	if (gd->flags & GD_FLG_ENV_DEFAULT) {
++		src = "default";
++		printf("Env:   compiled-in default (see the warning above)\n");
++	} else if (gd->env_valid == ENV_REDUND) {
++		src = "spi-redund";
++		printf("Env:   SPI flash, copy at %#x\n", CONFIG_ENV_OFFSET_REDUND);
++	} else {
++		src = "spi";
++		printf("Env:   SPI flash, copy at %#x\n", CONFIG_ENV_OFFSET);
++	}
++	env_set("env_source", src);
++}
+diff --git a/board/amazon/alpine-v2/soc-init.h b/board/amazon/alpine-v2/soc-init.h
+index 15d4444e..3be8a659 100644
+--- a/board/amazon/alpine-v2/soc-init.h
++++ b/board/amazon/alpine-v2/soc-init.h
+@@ -6,5 +6,6 @@ int alpine_v2_muio_init(bool verbose);
+ int alpine_v2_gpio_init(bool verbose);
+ void alpine_v2_ccu_io_coherency(void);
+ void alpine_v2_soc_prep_linux(void);
++void alpine_v2_env_report(void);
+ 
+ #endif
