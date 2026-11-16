@@ -743,13 +743,60 @@ pub enum ByteOrder {
     Big,
 }
 
+/// An I2C bus: a Linux bus number (`3`, `"0x3"`) or `{of_node: "..."}`, the
+/// adapter whose devicetree node path ends with that (i2c-mux channels are
+/// numbered in probe order, so their numbers are not stable).
+#[derive(Debug, Clone, PartialEq)]
+pub enum BusSpec {
+    Number(Int),
+    OfNode(String),
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct BusSpecMap {
+    of_node: String,
+}
+
+struct BusSpecVisitor;
+
+impl<'de> Visitor<'de> for BusSpecVisitor {
+    type Value = BusSpec;
+    fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("a bus number (e.g. 3) or {of_node: \"<devicetree path suffix>\"}")
+    }
+    fn visit_str<E: de::Error>(self, v: &str) -> std::result::Result<BusSpec, E> {
+        crate::i2c::parse_int(v)
+            .map(|n| BusSpec::Number(Int(n)))
+            .map_err(E::custom)
+    }
+    fn visit_u64<E: de::Error>(self, v: u64) -> std::result::Result<BusSpec, E> {
+        Ok(BusSpec::Number(Int(v)))
+    }
+    fn visit_i64<E: de::Error>(self, v: i64) -> std::result::Result<BusSpec, E> {
+        self.visit_str(&v.to_string())
+    }
+    fn visit_f64<E: de::Error>(self, v: f64) -> std::result::Result<BusSpec, E> {
+        self.visit_str(&v.to_string())
+    }
+    fn visit_map<A: MapAccess<'de>>(self, map: A) -> std::result::Result<BusSpec, A::Error> {
+        BusSpecMap::deserialize(de::value::MapAccessDeserializer::new(map)).map(|m| BusSpec::OfNode(m.of_node))
+    }
+}
+
+impl<'de> Deserialize<'de> for BusSpec {
+    fn deserialize<D: Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
+        d.deserialize_any(BusSpecVisitor)
+    }
+}
+
 /// An I2C/SMBus register. One shape for every use (sensor, output, `arm`,
 /// `expect`, tach); `validate` rejects the keys a use does not take.
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct I2cRegConfig {
-    /// Linux bus number (/dev/i2c-N).
-    pub bus: Option<Int>,
+    /// Linux bus number (/dev/i2c-N), or the adapter by devicetree node.
+    pub bus: Option<BusSpec>,
     /// 7-bit address.
     pub address: Option<Int>,
     pub register: Int,
@@ -778,9 +825,19 @@ pub struct I2cRegConfig {
 impl I2cRegConfig {
     /// The runtime register; bus, address and force fall back to `base`.
     pub fn to_reg(&self, base: Option<&I2cRegConfig>) -> std::result::Result<crate::i2c::Reg, String> {
-        let bus = self.bus.or(base.and_then(|b| b.bus)).ok_or("needs 'bus'")?;
+        let bus = self
+            .bus
+            .as_ref()
+            .or(base.and_then(|b| b.bus.as_ref()))
+            .ok_or("needs 'bus'")?;
         let address = self.address.or(base.and_then(|b| b.address)).ok_or("needs 'address'")?;
-        let bus = u32::try_from(bus.0).map_err(|_| "bus is out of range".to_string())?;
+        let (bus, of_node) = match bus {
+            BusSpec::Number(n) => (u32::try_from(n.0).map_err(|_| "bus is out of range".to_string())?, None),
+            BusSpec::OfNode(s) if s.trim_matches('/').trim().is_empty() => {
+                return Err("bus.of_node is empty".into());
+            }
+            BusSpec::OfNode(s) => (0, Some(crate::i2c::intern(s.trim()))),
+        };
         if address.0 > 0x7f {
             return Err(format!("address 0x{:x} is not a 7-bit address", address.0));
         }
@@ -792,6 +849,7 @@ impl I2cRegConfig {
                 bus,
                 address: address.0 as u16,
                 force: self.force.or(base.and_then(|b| b.force)).unwrap_or(false),
+                of_node,
             },
             reg: self.register.0 as u8,
             width: match self.width {
@@ -1890,6 +1948,35 @@ zones:
         let t = o.tach.as_ref().unwrap();
         assert_eq!(t.i2c[1].label.as_deref(), Some("rear"));
         assert_eq!(t.scale, Some(100.0));
+    }
+
+    #[test]
+    fn i2c_bus_by_devicetree_node() {
+        let y = I2C.replace(
+            r#"i2c: { bus: 4, address: "0x68", register: "0x50" }"#,
+            r#"i2c: { bus: { of_node: "i2c-mux@74/i2c@2" }, address: "0x66", register: "0x22" }"#,
+        );
+        let c = Config::parse(&y).unwrap();
+        let o = &c.outputs["fans"];
+        let base = o.i2c.as_ref().unwrap();
+        let r = base.to_reg(None).unwrap();
+        assert_eq!(
+            (r.target.of_node, r.to_string().as_str()),
+            (Some("i2c-mux@74/i2c@2"), "[i2c-mux@74/i2c@2]-0066:0x22")
+        );
+        let arm = o.arm.as_ref().unwrap().to_reg(Some(base)).unwrap();
+        assert_eq!(arm.target.of_node, Some("i2c-mux@74/i2c@2"), "inherited like a number");
+        // A string is still a number, and a number may override a selector.
+        let s: I2cRegConfig = serde_saphyr::from_str(r#"{ bus: "0x1f", address: 1, register: 2 }"#).unwrap();
+        assert_eq!(s.to_reg(Some(base)).unwrap().to_string(), "31-0001:0x02");
+        for (bad, msg) in [
+            (r#"{ of_node: "/" }"#, "bus.of_node is empty"),
+            (r#"{ of_node: "x", name: y }"#, "unknown field"),
+        ] {
+            let y = I2C.replace(r#"bus: 4, address: "0x68""#, &format!(r#"bus: {bad}, address: "0x68""#));
+            let e = Config::parse(&y).unwrap_err().0;
+            assert!(e.contains(msg), "{bad}: {e}");
+        }
     }
 
     #[test]

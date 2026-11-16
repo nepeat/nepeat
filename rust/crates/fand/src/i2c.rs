@@ -5,6 +5,12 @@
 //! `libc` only. Each transfer opens the device afresh, so a bus that appears
 //! late (module load) or is re-created needs no resolution state.
 //!
+//! A bus is a number (`/dev/i2c-N`) or, where Linux numbers it in probe
+//! order (i2c-mux channels), a devicetree node: the adapter whose resolved
+//! `/sys/bus/i2c/devices/i2c-N/of_node` ends with the given path. It is
+//! resolved on first use, re-checked on every transfer (one readlink) and
+//! looked up again when the adapter went away or was renumbered.
+//!
 //! Under a test root (`sysfs_root` other than `/`) the device path is
 //! rebased, and if `<root>/dev/i2c-N` is a *directory* it is a fake register
 //! file: `<root>/dev/i2c-N/0x68/0x50` holds register 0x50 of address 0x68 as
@@ -13,25 +19,56 @@
 //! [`Bus`] themselves, see `fakesys::FakeCpld`.
 
 use crate::sysfs;
+use std::collections::HashMap;
 use std::fmt;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
+use std::sync::Mutex;
 
 /// One device on one bus.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Target {
+    /// Linux bus number; ignored (0) when `of_node` is set.
     pub bus: u32,
     pub address: u16,
     /// I2C_SLAVE_FORCE: talk to the address even if a kernel driver owns it.
     pub force: bool,
+    /// The bus by devicetree node: the adapter whose of_node path ends with
+    /// this (see [`intern`]).
+    pub of_node: Option<&'static str>,
 }
 
 impl fmt::Display for Target {
-    /// Linux's device name: "4-0068".
+    /// Linux's device name, "4-0068", or "[i2c-mux@74/i2c@2]-0066" for a bus
+    /// given by devicetree node.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}-{:04x}", self.bus, self.address)
+        match self.of_node {
+            Some(n) => write!(f, "[{n}]-{:04x}", self.address),
+            None => write!(f, "{}-{:04x}", self.bus, self.address),
+        }
     }
+}
+
+/// A process-lifetime copy of an of_node selector, so [`Target`] stays
+/// `Copy`. Equal strings share one copy (configs are built a few times per
+/// process at most).
+pub fn intern(s: &str) -> &'static str {
+    static POOL: Mutex<Vec<&'static str>> = Mutex::new(Vec::new());
+    let mut pool = POOL.lock().unwrap_or_else(|e| e.into_inner());
+    if let Some(&p) = pool.iter().find(|&&p| p == s) {
+        return p;
+    }
+    let p: &'static str = Box::leak(s.to_string().into_boxed_str());
+    pool.push(p);
+    p
+}
+
+/// Does a resolved of_node path name the node `sel` (a path suffix)?
+fn of_node_matches(path: &Path, sel: &str) -> bool {
+    let sel = sel.trim_matches('/');
+    let p = path.to_string_lossy();
+    !sel.is_empty() && (p == sel || p.ends_with(&format!("/{sel}")))
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -114,13 +151,63 @@ impl Reg {
 /// i2c-dev, or the register-file fake under a test root.
 pub struct System {
     root: PathBuf,
+    /// of_node selector -> bus number, re-checked on every use.
+    adapters: Mutex<HashMap<&'static str, u32>>,
 }
 
 impl System {
     pub fn new(root: &Path) -> System {
         System {
             root: root.to_path_buf(),
+            adapters: Mutex::new(HashMap::new()),
         }
+    }
+
+    fn adapter_dir(&self, bus: u32) -> PathBuf {
+        sysfs::rebase(&self.root, Path::new(&format!("/sys/bus/i2c/devices/i2c-{bus}")))
+    }
+
+    /// Scan every adapter for the one whose of_node ends with `sel`.
+    fn find_adapter(&self, sel: &str) -> Result<u32, String> {
+        let dir = sysfs::rebase(&self.root, Path::new("/sys/bus/i2c/devices"));
+        let entries = fs::read_dir(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+        let mut hits: Vec<u32> = entries
+            .flatten()
+            .filter_map(|e| {
+                let n: u32 = e.file_name().to_str()?.strip_prefix("i2c-")?.parse().ok()?;
+                let node = fs::canonicalize(e.path().join("of_node")).ok()?;
+                of_node_matches(&node, sel).then_some(n)
+            })
+            .collect();
+        hits.sort_unstable();
+        match hits.as_slice() {
+            [n] => Ok(*n),
+            [] => Err(format!(
+                "no i2c adapter has an of_node ending in {sel:?} (not probed yet?)"
+            )),
+            _ => Err(format!(
+                "{} i2c adapters match of_node {sel:?}: {}; give more of the path",
+                hits.len(),
+                hits.iter().map(|n| format!("i2c-{n}")).collect::<Vec<_>>().join(", ")
+            )),
+        }
+    }
+
+    /// The bus number of a target: its number, or its adapter by of_node
+    /// (cached while that adapter still has the node).
+    fn bus_of(&self, t: Target) -> Result<u32, String> {
+        let Some(sel) = t.of_node else { return Ok(t.bus) };
+        let mut cache = self.adapters.lock().unwrap_or_else(|e| e.into_inner());
+        if let Some(&n) = cache.get(sel) {
+            let still = fs::canonicalize(self.adapter_dir(n).join("of_node")).is_ok_and(|p| of_node_matches(&p, sel));
+            if still {
+                return Ok(n);
+            }
+            cache.remove(sel);
+        }
+        let n = self.find_adapter(sel)?;
+        cache.insert(sel, n);
+        Ok(n)
     }
 
     fn dev(&self, bus: u32) -> PathBuf {
@@ -134,7 +221,7 @@ impl System {
 
 impl Bus for System {
     fn read(&self, t: Target, reg: u8, width: Width) -> Result<u16, String> {
-        let dev = self.dev(t.bus);
+        let dev = self.dev(self.bus_of(t)?);
         if dev.is_dir() {
             let p = Self::fake_file(&dev, t, reg);
             let s = fs::read_to_string(&p).map_err(|_| "no acknowledge (fake register missing)".to_string())?;
@@ -148,7 +235,7 @@ impl Bus for System {
     }
 
     fn write(&self, t: Target, reg: u8, width: Width, value: u16) -> Result<(), String> {
-        let dev = self.dev(t.bus);
+        let dev = self.dev(self.bus_of(t)?);
         if dev.is_dir() {
             let p = Self::fake_file(&dev, t, reg);
             if !p.exists() {
@@ -277,6 +364,7 @@ mod tests {
             bus: 4,
             address: 0x68,
             force: false,
+            of_node: None,
         };
         let pwm = Reg {
             target: t,
@@ -303,6 +391,7 @@ mod tests {
                 bus: 7,
                 address: 0x48,
                 force: false,
+                of_node: None,
             },
             reg: 0,
             width: Width::Word,
@@ -318,6 +407,77 @@ mod tests {
                 .unwrap_err()
                 .contains("/nonexistent-root/dev/i2c-4")
         );
+    }
+
+    #[test]
+    fn bus_by_devicetree_node() {
+        use std::os::unix::fs::symlink;
+        let fs = FakeSys::new("i2c-of");
+        let base = "sys/firmware/devicetree/base/soc/i2c@fd880000/i2c-mux@70/i2c@2/i2c-mux@74";
+        // Two fan boards (0x74 ch2, ch3), each with a 0x73 mux behind it.
+        let adapters = [
+            (31, format!("{base}/i2c@2")),
+            (40, format!("{base}/i2c@3")),
+            (33, format!("{base}/i2c@2/i2c-mux@73/i2c@0")),
+            (42, format!("{base}/i2c@3/i2c-mux@73/i2c@0")),
+        ];
+        let link = |n: u32, node: &str| {
+            let d = fs.root.join(format!("sys/devices/i2c-{n}"));
+            std::fs::create_dir_all(&d).unwrap();
+            std::fs::create_dir_all(fs.root.join(node)).unwrap();
+            symlink(fs.root.join(node), d.join("of_node")).unwrap();
+            let bus_dir = fs.root.join("sys/bus/i2c/devices");
+            std::fs::create_dir_all(&bus_dir).unwrap();
+            symlink(&d, bus_dir.join(format!("i2c-{n}"))).unwrap();
+        };
+        for (n, node) in &adapters {
+            link(*n, node);
+        }
+        // A client device and an adapter without a node are skipped.
+        std::fs::create_dir_all(fs.root.join("sys/bus/i2c/devices/31-0066")).unwrap();
+        std::fs::create_dir_all(fs.root.join("sys/bus/i2c/devices/i2c-0")).unwrap();
+        fs.i2c_reg(31, 0x66, 0x22, 127);
+        fs.i2c_reg(40, 0x66, 0x22, 128);
+        let bus = System::new(&fs.root);
+        let reg = |sel: &str| Reg {
+            target: Target {
+                bus: 0,
+                address: 0x66,
+                force: false,
+                of_node: Some(intern(sel)),
+            },
+            reg: 0x22,
+            width: Width::Byte,
+            big_endian: false,
+            signed: false,
+        };
+        let top = reg("i2c-mux@74/i2c@2");
+        assert_eq!(top.to_string(), "[i2c-mux@74/i2c@2]-0066:0x22");
+        assert_eq!(
+            top.read_raw(&bus).unwrap(),
+            127,
+            "ends with, not contains: i2c-33 is not a match"
+        );
+        assert_eq!(reg("/i2c-mux@74/i2c@3/").read_raw(&bus).unwrap(), 128);
+        top.write(&bus, 200).unwrap();
+        assert_eq!(fs.get(&fs.root.join("dev/i2c-31/0x66"), "0x22"), "200");
+        let e = reg("i2c-mux@73/i2c@0").read_raw(&bus).unwrap_err();
+        assert!(
+            e.contains("2 i2c adapters match") && e.contains("i2c-33, i2c-42"),
+            "{e}"
+        );
+        let e = reg("i2c-mux@74/i2c@4").read_raw(&bus).unwrap_err();
+        assert!(e.contains("no i2c adapter has an of_node ending in"), "{e}");
+        assert!(reg("c@2").read_raw(&bus).is_err(), "whole path components only");
+        // Renumbered (driver rebound): the cached i2c-31 no longer has the
+        // node, so it is looked up again.
+        std::fs::remove_file(fs.root.join("sys/bus/i2c/devices/i2c-31")).unwrap();
+        std::fs::remove_dir_all(fs.root.join("sys/devices/i2c-31")).unwrap();
+        assert!(top.read_raw(&bus).is_err(), "gone: an error, never a stale bus");
+        link(51, &adapters[0].1);
+        fs.i2c_reg(51, 0x66, 0x22, 99);
+        assert_eq!(top.read_raw(&bus).unwrap(), 99);
+        assert!(std::ptr::eq(intern("x/y"), intern("x/y")));
     }
 
     #[test]
