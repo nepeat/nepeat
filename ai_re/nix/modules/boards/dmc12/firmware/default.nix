@@ -44,13 +44,14 @@ let
   '';
 
   tool = pkgs.replaceVarsWith {
-    src = ./dmc12-firmware.sh;
+    src = ./dmc12-firmware;
     dir = "bin";
     isExecutable = true;
     replacements = {
       bash = pkgs.bash;
       path = lib.makeBinPath [ pkgs.coreutils pkgs.diffutils pkgs.util-linux pkgs.mtdutils ];
       payloads = "${payloads}";
+      bootLoader = config.hardware.dmc12.bootLoader;
     };
   };
 in
@@ -94,6 +95,13 @@ in
       '';
     }];
     environment.systemPackages = [ tool ];
+    # Record which slot booted our U-Boot (the proof install/switch require; see the script).
+    systemd.services.dmc12-firmware-mark-booted = {
+      description = "Record the boot of our U-Boot from its IPXE slot";
+      wantedBy = [ "multi-user.target" ];
+      after = [ "local-fs.target" ];
+      serviceConfig = { Type = "oneshot"; ExecStart = "${tool}/bin/dmc12-firmware mark-booted"; };
+    };
     system.build.dmc12FirmwarePayloads = payloads;
   };
 }

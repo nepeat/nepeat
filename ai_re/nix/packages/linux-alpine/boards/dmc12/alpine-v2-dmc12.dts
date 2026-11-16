@@ -106,7 +106,8 @@
 };
 
 &{/soc/io-bus@fc000000} {
-	/* Boot flash pair. Read-only to Linux: back up with dd, never write here. */
+	/* Boot flash pair. Read-only to Linux except the env window (uboot-env) and the firmware
+	   windows ipxe0/boot-mode/ipxe1 (firmware/, dmc12-firmware): never write it any other way. */
 	spi0: spi@1882000 {
 		compatible = "amazon,alpine-dw-apb-ssi", "snps,dw-apb-ssi";
 		reg = <0x1882000 0x1000>;

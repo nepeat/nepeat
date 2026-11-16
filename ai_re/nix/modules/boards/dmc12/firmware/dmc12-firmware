@@ -1,0 +1,288 @@
+#!@bash@/bin/bash
+# dmc12-firmware: our U-Boot in the DMC-12's boot SPI flash, installed and managed from Linux
+# (as whitebox vendors ship firmware updates). The factory U-Boot stays in UBOOT 0/1 untouched:
+# stage3's `u` key (serial console, at power-on) always reaches it.
+#
+#   dmc12-firmware status                       BOOT_MODE, both IPXE slots, proofs, pins
+#   dmc12-firmware install [--yes] [--force]    the payload into the inactive slot, then BOOT_MODE
+#   dmc12-firmware switch --to SLOT [--yes] [--force]   SLOT = ipxe0 | ipxe1 | factory
+#   dmc12-firmware rollback [--yes] [--force]   = switch --to factory
+#   dmc12-firmware mark-booted                  (boot service) record that the running slot booted
+#
+# Safety rules (reviewed; see firmware/default.nix):
+# - Writes touch only the three writable mtd windows (ipxe0, ipxe1, boot-mode), each checked by
+#   label, offset, size and erase size, on the expected chip (JEDEC c22538, writesize 1).
+# - The read-only rest of CS0 must match pinned hashes before and after any write.
+# - Objects: data first, header last, read back after each. BOOT_MODE's old magic is zeroed
+#   (NOR programs 1->0 without an erase) before it is erased, so every intermediate state reads as
+#   an invalid BOOT_MODE (stage3: factory U-Boot), never a valid header over bad data (hang).
+# - install only writes the inactive slot, only when the active one is proven (it booted our U-Boot,
+#   per /chosen/u-boot,version), and is a no-op when the active slot already holds this payload.
+# - switch to a slot needs a boot proof for its exact contents (--force overrides).
+# - Selecting our U-Boot needs a disk it can boot (extlinux: bootLoader standard|both); selecting the
+#   factory one needs boot.scr (uboot-menu|both). --force overrides, loudly.
+# - A failed BOOT_MODE write restores the previous BOOT_MODE, else erases it.
+# - HUP/INT/TERM are ignored while writing. Journal: /var/lib/dmc12-firmware/journal.jsonl.
+set -euo pipefail
+export PATH=@path@
+P=@payloads@
+BOOTLOADER=@bootLoader@
+JOURNAL=/var/lib/dmc12-firmware/journal.jsonl
+HDR=72                    # al-boot object header (0x48 B)
+SECTOR=4096               # stage3 reads BOOT_MODE's first sector only
+DONT_POWER_OFF="DO NOT power off or reboot: BOOT_MODE may be half-written. Rerun 'dmc12-firmware rollback'."
+
+die() { echo "dmc12-firmware: $*" >&2; exit 1; }
+say() { echo "dmc12-firmware: $*"; }
+sha_of() { sha256sum | cut -d' ' -f1; }
+
+# name offset size erasesize of every window and pinned region (sysfs values, decimal)
+declare -A WIN=(
+    [ipxe0]="2883584 524288" [boot-mode]="3407872 65536" [ipxe1]="5767168 524288"
+    [spi0-boot]="0 2883584" [spi0-mid]="3473408 2293760" [spi0-high]="6291456 10027008"
+)
+
+check_chip() {
+    local j
+    j=$(cat /sys/bus/spi/devices/spi0.0/spi-nor/jedec_id 2>/dev/null) || die "no spi-nor sysfs for spi0.0"
+    [ "$j" = c22538 ] || die "boot flash JEDEC id $j, not c22538 (MX25U12835F): refusing"
+}
+
+# partition name -> /dev/mtdN, after checking offset, size, erase and write size
+dev() {
+    local d want
+    want=${WIN[$1]:-}
+    for d in /sys/class/mtd/mtd[0-9]*; do
+        case "$d" in *ro) continue ;; esac
+        [ "$(cat "$d/name")" = "$1" ] || continue
+        [ "$(basename "$(readlink -f "$d/device")")" = spi0.0 ] || die "$1 is not on spi0.0"
+        if [ -n "$want" ]; then
+            [ "$(cat "$d/offset") $(cat "$d/size")" = "$want" ] || die "$1 at $(cat "$d/offset")+$(cat "$d/size"), expected $want: stale device tree?"
+            [ "$(cat "$d/erasesize")" = 4096 ] && [ "$(cat "$d/writesize")" = 1 ] || die "$1: unexpected erase/write size"
+        fi
+        echo "/dev/${d##*/}"; return
+    done
+    die "no mtd partition '$1': this kernel's device tree lacks the firmware windows (reboot after deploying?)"
+}
+
+# rd SRC LEN [SKIP]: LEN bytes of a re-readable file/device from SKIP
+rd() { dd if="$1" bs=4096 iflag=skip_bytes,count_bytes skip="${3:-0}" count="$2" status=none; }
+# all_ff SRC LEN [SKIP]: those LEN bytes exist and are all 0xFF (a short or failed read is not)
+all_ff() {
+    local n
+    n=$(rd "$1" "$2" "${3:-0}" | wc -c) || return 1
+    [ "$n" -eq "$2" ] || return 1
+    cmp -s -n "$2" <(rd "$1" "$2" "${3:-0}") <(tr '\0' '\377' < /dev/zero | head -c "$2")
+}
+size_of() { stat -c %s "$1"; }
+
+journal() {   # best effort: a full or read-only /var must never block a recovery
+    { mkdir -p "${JOURNAL%/*}" && printf '%s\n' "$1" >> "$JOURNAL" && sync "$JOURNAL"; } 2>/dev/null || true
+}
+jrec() {      # action part extra-json
+    journal "{\"t\":\"$(date -Iseconds)\",\"action\":\"$1\",\"part\":\"$2\"${3:+,$3}}"
+}
+
+check_pins() {
+    local name want got
+    while read -r name want; do
+        got=$(sha_of < "$(dev "$name")")
+        [ "$got" = "$want" ] || die "read-only region $name does not match its pin ($got): unknown flash layout or a modified factory U-Boot; refusing"
+    done < "$P/pins"
+}
+
+slot_sha() { sha_of < "$(dev "$1")"; }
+# slot state: blank | payload | other
+slot_state() {
+    local d n
+    d=$(dev "$1"); n=$(size_of "$P/ipxe.fimg")
+    if all_ff "$d" 524288; then echo blank; return; fi
+    if [ "$(head -c "$n" "$d" | sha_of)" = "$(cat "$P/ipxe.sha256")" ] && all_ff "$d" $((524288 - n)) "$n"; then
+        echo payload
+    else
+        echo other
+    fi
+}
+# BOOT_MODE state: factory | ipxe0 | ipxe1 | other (the whole sector stage3 reads)
+bm_state() {
+    local d s n
+    d=$(dev boot-mode)
+    if all_ff "$d" "$SECTOR"; then echo factory; return; fi
+    s=$(head -c "$SECTOR" "$d" | sha_of)
+    for n in 0 1; do
+        [ "$s" = "$(cat "$P/bm-ipxe$n.sector.sha256")" ] && { echo "ipxe$n"; return; }
+    done
+    echo other
+}
+running_ours() { [ -r /proc/device-tree/chosen/u-boot,version ] && tr -d '\0' < /proc/device-tree/chosen/u-boot,version | grep -q '^2026\.10-dmc12'; }
+# proven SLOT: a "booted" record for this slot with its current contents
+proven() {
+    local sha; sha=$(slot_sha "$1")
+    [ -f "$JOURNAL" ] && grep -q "\"action\":\"booted\",\"part\":\"$1\",\"slot_sha256\":\"$sha\"" "$JOURNAL"
+}
+
+# write_obj PART FILE: (already erased) data, verify, header, verify; returns 1 on any failure
+write_obj() {
+    local part=$1 file=$2 d n
+    d=$(dev "$part") || return 1
+    n=$(size_of "$file") || return 1
+    all_ff "$d" "$n" || { echo "$part: not blank before writing" >&2; return 1; }
+    dd if="$file" of="$d" bs=4096 iflag=skip_bytes oflag=seek_bytes skip="$HDR" seek="$HDR" status=none \
+        || { echo "$part: data write failed" >&2; return 1; }
+    cmp -s <(tail -c "+$((HDR + 1))" "$file") <(head -c "$n" "$d" | tail -c "+$((HDR + 1))") \
+        || { echo "$part: data read-back differs (no header yet: stage3 ignores it)" >&2; return 1; }
+    dd if="$file" of="$d" bs="$HDR" count=1 status=none || { echo "$part: header write failed" >&2; return 1; }
+    cmp -s "$file" <(head -c "$n" "$d") || { echo "$part: read-back differs after the header write" >&2; return 1; }
+}
+erase() {   # erase PART BLOCKS (0 = whole partition), retried, then checked blank
+    local d i len
+    d=$(dev "$1") || return 1
+    len=$([ "$2" = 0 ] && echo "${WIN[$1]#* }" || echo $(( $2 * 4096 )))
+    for i in 1 2 3; do
+        flash_erase -q "$d" 0 "$2" && all_ff "$d" "$len" && return 0
+        echo "$1: erase attempt $i failed" >&2
+    done
+    return 1
+}
+kill_bm_magic() {   # program the header to zero: an invalid BOOT_MODE before any erase
+    local d; d=$(dev boot-mode) || return 1
+    all_ff "$d" "$SECTOR" && return 0
+    dd if=/dev/zero of="$d" bs="$HDR" count=1 status=none || return 1
+    [ "$(head -c 4 "$d" | od -An -tx1 | tr -d ' \n')" = 00000000 ]
+}
+erase_bm() {
+    jrec erase boot-mode '"phase":"intent"'
+    kill_bm_magic || echo "boot-mode: zeroing the magic failed" >&2
+    erase boot-mode 1 || { echo "dmc12-firmware: boot-mode erase failed. $DONT_POWER_OFF" >&2; exit 2; }
+    jrec erase boot-mode '"phase":"done"'
+}
+write_bm() {   # write_bm N: BOOT_MODE -> ipxeN
+    jrec write boot-mode "\"phase\":\"intent\",\"to\":\"ipxe$1\""
+    kill_bm_magic && erase boot-mode 1 && write_obj boot-mode "$P/bm-ipxe$1.bin" && [ "$(bm_state)" = "ipxe$1" ] || return 1
+    jrec write boot-mode "\"phase\":\"done\",\"to\":\"ipxe$1\""
+}
+# set_bm TARGET PREVIOUS: TARGET = factory|ipxeN; on failure restore PREVIOUS, else erase
+set_bm() {
+    if [ "$1" = factory ]; then erase_bm; return; fi
+    write_bm "${1#ipxe}" && return 0
+    echo "dmc12-firmware: BOOT_MODE -> $1 failed; restoring $2" >&2
+    case "$2" in
+        ipxe0|ipxe1) write_bm "${2#ipxe}" && die "BOOT_MODE restored to $2 (unchanged boot)" ;;
+    esac
+    erase_bm
+    die "BOOT_MODE erased: the factory U-Boot boots next$( [ "$BOOTLOADER" = standard ] && echo ' (it cannot boot this standard disk: serial console needed)')"
+}
+
+disk_for() {   # disk_for ours|factory: can that U-Boot boot this disk?
+    case "$1" in
+        ours) [[ "$BOOTLOADER" =~ ^(standard|both)$ ]] && [ -f /boot/extlinux/extlinux.conf ] ;;
+        factory) [[ "$BOOTLOADER" =~ ^(uboot-menu|both|chainload)$ ]] && { [ -f /boot/boot.scr ] || [ "$BOOTLOADER" = chainload ]; } ;;
+    esac
+}
+need_disk() {
+    disk_for "$1" && return 0
+    if [ "$FORCE" = 1 ]; then say "WARNING: the $1 U-Boot may not boot this disk (bootLoader=$BOOTLOADER); --force given"; return 0; fi
+    die "the $1 U-Boot cannot boot this disk (bootLoader=$BOOTLOADER, /boot lacks its files): deploy bootLoader = \"both\" first, or --force"
+}
+
+confirm() {
+    [ "$YES" = 1 ] && return
+    [ -t 0 ] || die "not a terminal: pass --yes"
+    read -r -p "type '$1' to write the boot flash: " ans
+    [ "$ans" = "$1" ] || die "not confirmed"
+}
+
+status() {
+    local bm n
+    bm=$(bm_state)
+    echo "boot-mode: $bm$( [ "$bm" = factory ] && echo ' (stage3 runs the factory U-Boot)')"
+    for n in 0 1; do
+        echo "ipxe$n:     $(slot_state "ipxe$n")$(proven "ipxe$n" && echo ', proven (booted)')"
+    done
+    echo "running:   $(running_ours && echo "our U-Boot $(tr -d '\0' < /proc/device-tree/chosen/u-boot,version)" || echo 'factory U-Boot (or unknown)')"
+    echo "payload:   U-Boot $(cat "$P/version") ($(cut -c1-16 "$P/ipxe.sha256"))"
+    echo "disk:      bootLoader=$BOOTLOADER; ours $(disk_for ours && echo can || echo can NOT) boot it, factory $(disk_for factory && echo can || echo can NOT)"
+    if ( check_chip && check_pins ) 2>/dev/null; then echo "flash:     MX25U12835F, read-only regions match their pins"; else echo "flash:     chip or pins DO NOT match (writes refused)"; fi
+}
+
+mark_booted() {   # at boot: BOOT_MODE selects ipxeN and our U-Boot is running => ipxeN booted
+    local bm
+    bm=$(bm_state)
+    case "$bm" in ipxe0|ipxe1) ;; *) exit 0 ;; esac
+    running_ours || { say "BOOT_MODE selects $bm but the factory U-Boot is running (u escape?): no proof"; exit 0; }
+    proven "$bm" && exit 0
+    jrec booted "$bm" "\"slot_sha256\":\"$(slot_sha "$bm")\",\"uboot\":\"$(tr -d '\0' < /proc/device-tree/chosen/u-boot,version)\""
+    say "$bm booted our U-Boot: recorded"
+}
+
+[ "$(id -u)" = 0 ] || die "run as root"
+cmd=${1:-status}; [ $# -gt 0 ] && shift
+YES=0; FORCE=0; TO=
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --yes) YES=1 ;;
+        --force) FORCE=1 ;;
+        --to) [ $# -ge 2 ] || die "--to needs factory|ipxe0|ipxe1"; TO=$2; shift ;;
+        *) die "unknown argument $1" ;;
+    esac
+    shift
+done
+[ -z "$TO" ] || [ "$cmd" = switch ] || die "--to is only for switch"
+exec 9>/run/dmc12-firmware.lock
+flock -n 9 || die "another dmc12-firmware is running"
+[ "$(cat "$P/ipxe.sha256")" = "$(sha_of < "$P/ipxe.fimg")" ] || die "payload does not match its own hash"
+
+case "$cmd" in
+status) status ;;
+mark-booted) mark_booted ;;
+install)
+    check_chip; check_pins
+    bm=$(bm_state)
+    case "$bm" in
+        factory) target=0 ;;
+        ipxe0|ipxe1)
+            active=${bm#ipxe}; target=$((1 - active))
+            [ "$(slot_state "$bm")" = payload ] && { say "already installed: BOOT_MODE selects $bm, which holds this payload"; exit 0; }
+            proven "$bm" || [ "$FORCE" = 1 ] || die "the active slot $bm has not booted yet (no proof): reboot first, so the known-good slot is not overwritten (--force overrides)" ;;
+        *) die "BOOT_MODE holds something unknown: 'dmc12-firmware rollback' first" ;;
+    esac
+    need_disk ours
+    st=$(slot_state "ipxe$target")
+    say "BOOT_MODE: $bm. Writing IPXE $target (now: $st), then BOOT_MODE -> ipxe$target."
+    confirm install
+    trap '' HUP INT TERM
+    if [ "$st" != payload ]; then
+        jrec write "ipxe$target" '"phase":"intent"'
+        erase "ipxe$target" 0 && write_obj "ipxe$target" "$P/ipxe.fimg" \
+            || die "IPXE $target write failed; BOOT_MODE untouched ($bm boots as before)"
+        jrec write "ipxe$target" "\"phase\":\"done\",\"slot_sha256\":\"$(slot_sha "ipxe$target")\""
+    fi
+    [ "$(slot_state "ipxe$target")" = payload ] || die "ipxe$target does not hold the payload after writing; BOOT_MODE untouched"
+    set_bm "ipxe$target" "$bm"
+    check_pins
+    say "done: the next boot runs U-Boot $(cat "$P/version") from IPXE $target (unproven until it boots)."
+    say "recovery: 'dmc12-firmware switch --to $bm' or rollback from Linux; 'u' at stage3 on the serial console"
+    ;;
+switch|rollback)
+    [ "$cmd" = rollback ] && TO=factory
+    check_chip
+    bm=$(bm_state)
+    case "$TO" in
+        factory)
+            need_disk factory
+            [ "$bm" = factory ] && { say "BOOT_MODE already selects the factory U-Boot"; exit 0; }
+            confirm rollback; trap '' HUP INT TERM
+            set_bm factory "$bm"; say "BOOT_MODE erased: the factory U-Boot boots next" ;;
+        ipxe0|ipxe1)
+            check_pins
+            [ "$(slot_state "$TO")" != blank ] || die "$TO is blank"
+            proven "$TO" || [ "$FORCE" = 1 ] || die "$TO has no boot proof for its contents (--force overrides)"
+            need_disk ours
+            [ "$bm" = "$TO" ] && { say "BOOT_MODE already selects $TO"; exit 0; }
+            confirm switch; trap '' HUP INT TERM
+            set_bm "$TO" "$bm"; check_pins; say "BOOT_MODE -> $TO" ;;
+        *) die "switch --to factory|ipxe0|ipxe1" ;;
+    esac
+    ;;
+*) die "usage: dmc12-firmware status|install|switch --to SLOT|rollback|mark-booted [--yes] [--force]" ;;
+esac
