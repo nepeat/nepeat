@@ -42,6 +42,7 @@ sai_status_t HostifArea::netif_create(const std::string& ifname, int hw, uint16_
     Guard g(c_.mu);
     if (!c_.front(hw)) return SAI_STATUS_INVALID_PORT_NUMBER;
     if (ifname.empty() || ifname.size() > 15) return SAI_STATUS_INVALID_PARAMETER;
+    system_traps_init();
     for (auto& n : netifs_)
         if (n.second.name == ifname) return SAI_STATUS_ITEM_ALREADY_EXISTS;
     Netif n;
@@ -136,6 +137,7 @@ struct TrapDef {
     std::vector<CoppRule> rules;
     uint32_t sys = 0;          // system trap reason (ifcs_hostif_trap_e), 0: a user trap
     bool ip2me = false;        // the trap is the shared IP2ME hostif trap of TRAP routes
+    bool glean = false;        // the trap is the glean (neighbor miss) hostif trap
     uint32_t prio = 300;       // offset into the ACL priority range (lower wins)
     bool ok = false;
 };
@@ -149,7 +151,7 @@ CoppMatch m_port(bool dst, uint16_t p)
 }
 CoppMatch m_trap(ifcs_handle_t h) { CoppMatch m; m.type = IFCS_ACL_MATCH_TYPE_HOSTIF_TRAP; m.object = h; return m; }
 
-TrapDef trap_def(int32_t type, ifcs_handle_t ip2me)
+TrapDef trap_def(int32_t type, ifcs_handle_t ip2me, ifcs_handle_t glean)
 {
     TrapDef d;
     d.ok = true;
@@ -196,6 +198,24 @@ TrapDef trap_def(int32_t type, ifcs_handle_t ip2me)
         d.prio = 200;
         break;
     case SAI_HOSTIF_TRAP_TYPE_IP2ME: d.ip2me = true; d.rules.push_back({m_trap(ip2me)}); d.prio = 400; break;
+    // isai: a hostif trap of its own (the glean routes copy with it) and an ACE on it
+    case SAI_HOSTIF_TRAP_TYPE_NEIGHBOR_MISS: d.glean = true; d.rules.push_back({m_trap(glean)}); d.prio = 400; break;
+    // IGMP / MLD: ether type + protocol + the message type in L4 byte 1 (isai's ACEs)
+    case SAI_HOSTIF_TRAP_TYPE_IGMP_TYPE_QUERY: case SAI_HOSTIF_TRAP_TYPE_IGMP_TYPE_LEAVE:
+    case SAI_HOSTIF_TRAP_TYPE_IGMP_TYPE_V1_REPORT: case SAI_HOSTIF_TRAP_TYPE_IGMP_TYPE_V2_REPORT:
+    case SAI_HOSTIF_TRAP_TYPE_IGMP_TYPE_V3_REPORT: {
+        uint8_t t = type == SAI_HOSTIF_TRAP_TYPE_IGMP_TYPE_QUERY ? 0x11 : type == SAI_HOSTIF_TRAP_TYPE_IGMP_TYPE_LEAVE ? 0x17
+                  : type == SAI_HOSTIF_TRAP_TYPE_IGMP_TYPE_V1_REPORT ? 0x12 : type == SAI_HOSTIF_TRAP_TYPE_IGMP_TYPE_V2_REPORT ? 0x16 : 0x22;
+        d.rules.push_back({m_et(0x0800), m_proto(2), m_bytes(IFCS_ACL_MATCH_TYPE_L4_BYTE1, {t})});
+        break;
+    }
+    case SAI_HOSTIF_TRAP_TYPE_IPV6_MLD_V1_V2: case SAI_HOSTIF_TRAP_TYPE_IPV6_MLD_V1_REPORT:
+    case SAI_HOSTIF_TRAP_TYPE_IPV6_MLD_V1_DONE: case SAI_HOSTIF_TRAP_TYPE_MLD_V2_REPORT: {
+        uint8_t t = type == SAI_HOSTIF_TRAP_TYPE_IPV6_MLD_V1_V2 ? 130 : type == SAI_HOSTIF_TRAP_TYPE_IPV6_MLD_V1_REPORT ? 131
+                  : type == SAI_HOSTIF_TRAP_TYPE_IPV6_MLD_V1_DONE ? 132 : 143;
+        d.rules.push_back({m_et(0x86dd), m_proto(58), m_bytes(IFCS_ACL_MATCH_TYPE_L4_BYTE1, {t})});
+        break;
+    }
     case SAI_HOSTIF_TRAP_TYPE_TTL_ERROR:
         d.sys = IFCS_HOSTIF_TRAP_FWD_L3_TTL_CHECK_FAIL;
         d.rules.push_back({m_trap(IFCS_HANDLE_HOSTIF_TRAP(d.sys))});
@@ -217,6 +237,7 @@ bool same(const TrapSpec& a, const TrapSpec& b)
 sai_status_t HostifArea::trap_handle_for(Trap& t, uint32_t sys, bool ip2me)
 {
     if (t.handle) return SAI_STATUS_SUCCESS;
+    if (t.spec.type == SAI_HOSTIF_TRAP_TYPE_NEIGHBOR_MISS) return glean_trap(t.handle);
     if (sys) {
         t.handle = IFCS_HANDLE_HOSTIF_TRAP(sys);
         return SAI_STATUS_SUCCESS;
@@ -231,10 +252,15 @@ sai_status_t HostifArea::trap_handle_for(Trap& t, uint32_t sys, bool ip2me)
 sai_status_t HostifArea::trap_program(const TrapSpec& s, bool remove)
 {
     Guard g(c_.mu);
-    ifcs_handle_t ip2me = IFCS_NULL_HANDLE;
+    system_traps_init();
+    ifcs_handle_t ip2me = IFCS_NULL_HANDLE, glean = IFCS_NULL_HANDLE;
     sai_status_t st = ip2me_trap(ip2me);
     if (st != SAI_STATUS_SUCCESS) return st;
-    TrapDef d = trap_def(s.type, ip2me);
+    if (s.type == SAI_HOSTIF_TRAP_TYPE_NEIGHBOR_MISS) {
+        st = glean_trap(glean);
+        if (st != SAI_STATUS_SUCCESS) return st;
+    }
+    TrapDef d = trap_def(s.type, ip2me, glean);
     if (!d.ok) {
         c_.log_once("trap-type:" + std::to_string(s.type), "trap type %d: no IFCS mapping (kept, not programmed)", s.type);
         return SAI_STATUS_NOT_SUPPORTED;
@@ -248,9 +274,9 @@ sai_status_t HostifArea::trap_program(const TrapSpec& s, bool remove)
         else if (d.sys) {
             ifcs_attr_t e = attr_data(IFCS_HOSTIF_TRAP_ATTR_ENABLE, false);
             c_.call(c_.L.ifcs_hostif_trap_attr_set(NODE, t.handle, 1, &e), "hostif_trap disable");
-        } else if (d.ip2me) {
+        } else if (d.ip2me || d.glean) {
             ifcs_attr_t q = attr_u32(IFCS_HOSTIF_TRAP_ATTR_QUEUE_NUM, 0);   // TRAP routes keep it, on queue 0
-            c_.call(c_.L.ifcs_hostif_trap_attr_set(NODE, t.handle, 1, &q), "hostif_trap queue (ip2me)");
+            c_.call(c_.L.ifcs_hostif_trap_attr_set(NODE, t.handle, 1, &q), "hostif_trap queue (ip2me / glean)");
         }
         traps_.erase(it);
         return SAI_STATUS_SUCCESS;
@@ -321,6 +347,14 @@ std::string HostifArea::trap_report()
                       (unsigned long long)re);
         out += b;
     }
+    // CPU queues: what each one delivered (which queue a trap's frames use).
+    for (uint32_t q = 0; q < 8; q++) {
+        uint64_t pk = 0, by = 0, dr = 0;
+        if (cpu_queue_stats(q, pk, by, dr) != SAI_STATUS_SUCCESS) continue;
+        std::snprintf(b, sizeof(b), "cpu queue %u: tx %llu bytes %llu drops %llu\n", q, (unsigned long long)pk,
+                      (unsigned long long)by, (unsigned long long)dr);
+        out += b;
+    }
     // System (drop / exception) traps that delivered packets: which reason
     // sends what to the CPU (handles IFCS_HANDLE(HOSTIF, TRAP, 1..63)).
     for (uint32_t r = 1; r < 64; r++) {
@@ -342,6 +376,8 @@ void HostifArea::teardown_all()
     netifs_.clear();
     traps_.clear();   // their IFCS objects go with ifcs_deinit
     trap_ = 0;
+    glean_ = 0;
+    sys_traps_done_ = false;
 }
 
 // One shared hostif trap on CPU queue 0 (trap create as cmds/netdev_test.py).
@@ -356,6 +392,64 @@ sai_status_t HostifArea::ip2me_trap(ifcs_handle_t& h)
         trap_ = t;
     }
     h = trap_;
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t HostifArea::glean_trap(ifcs_handle_t& h)
+{
+    Guard g(c_.mu);
+    if (glean_ == IFCS_NULL_HANDLE) {
+        ifcs_attr_t q = attr_u32(IFCS_HOSTIF_TRAP_ATTR_QUEUE_NUM, 0);
+        ifcs_handle_t t = IFCS_NULL_HANDLE;
+        sai_status_t st = c_.call(c_.L.ifcs_hostif_trap_create(NODE, &t, 1, &q), "hostif_trap_create (glean)");
+        if (st != SAI_STATUS_SUCCESS) return st;
+        glean_ = t;
+    }
+    h = glean_;
+    return SAI_STATUS_SUCCESS;
+}
+
+// isai 6.2.0's create_switch (oracle traps / acl traces): system trap 23
+// (L3MTU_CHECK_FAIL) queue 0 + enable, then disable; 17 (TTL) queue 0 +
+// enable, enable; 16 (FWD_L2_SRC_MISS_MOVE) queue 0 + enable, then disable;
+// 20 (IPv4 options) enable. The same calls in the same order.
+void HostifArea::system_traps_init()
+{
+    Guard g(c_.mu);
+    if (sys_traps_done_ || !c_.initialized) return;
+    sys_traps_done_ = true;
+    if (c_.key("SAI_TERALYNX_SYSTEM_TRAPS", "isai") == "sdk") {
+        c_.log_once("systraps", "SAI_TERALYNX_SYSTEM_TRAPS=sdk: system traps left as the SDK has them");
+        return;
+    }
+    struct Step { uint32_t reason; bool queue; bool enable; };
+    static const Step steps[] = {
+        {IFCS_HOSTIF_TRAP_L3MTU_CHECK_FAIL, true, true},         {IFCS_HOSTIF_TRAP_L3MTU_CHECK_FAIL, false, false},
+        {IFCS_HOSTIF_TRAP_FWD_L3_TTL_CHECK_FAIL, true, true},    {IFCS_HOSTIF_TRAP_FWD_L3_TTL_CHECK_FAIL, false, true},
+        {IFCS_HOSTIF_TRAP_FWD_L2_SRC_MISS_MOVE, true, true},     {IFCS_HOSTIF_TRAP_FWD_L2_SRC_MISS_MOVE, false, false},
+        {IFCS_HOSTIF_TRAP_FWD_IPV4_OPTIONS_DETECTED, false, true},
+    };
+    for (auto& s : steps) {
+        std::vector<ifcs_attr_t> a;
+        if (s.queue) a.push_back(attr_u32(IFCS_HOSTIF_TRAP_ATTR_QUEUE_NUM, 0));
+        a.push_back(attr_data(IFCS_HOSTIF_TRAP_ATTR_ENABLE, s.enable));
+        c_.call(c_.L.ifcs_hostif_trap_attr_set(NODE, IFCS_HANDLE_HOSTIF_TRAP(s.reason), (uint32_t)a.size(), a.data()),
+                "hostif_trap_attr_set (system trap)");
+    }
+    OB_NOTICE(SAI_API_HOSTIF, "system traps as isai: TTL and IPv4 options to the CPU, L2 source miss/move and L3 MTU off");
+}
+
+sai_status_t HostifArea::cpu_queue_stats(uint32_t q, uint64_t& packets, uint64_t& bytes, uint64_t& drops)
+{
+    ifcs_cpu_queue_stats_id_t ids[3] = {IFCS_CPU_QUEUE_STATS_ID_PACKET_TX_COUNT, IFCS_CPU_QUEUE_STATS_ID_BYTE_TX_COUNT,
+                                        IFCS_CPU_QUEUE_STATS_ID_PACKET_DROP_COUNT};
+    uint64_t v[3] = {0, 0, 0};
+    uint32_t n = 0;
+    int r = IFCS_STATUS_REASON(c_.L.ifcs_cpu_queue_stats_get(NODE, (ifcs_cpu_queue_t)q, 3, ids, v, &n));
+    if (r != IFCS_SUCCESS) return map_reason(r);
+    packets = v[0];
+    bytes = v[1];
+    drops = v[2];
     return SAI_STATUS_SUCCESS;
 }
 

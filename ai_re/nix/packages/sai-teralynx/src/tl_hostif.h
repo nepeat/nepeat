@@ -29,6 +29,17 @@ public:
 
     // The hostif trap TRAP routes (ip2me, glean) copy to: created on first use.
     sai_status_t ip2me_trap(ifcs_handle_t& h);
+    // A separate hostif trap for glean (neighbor miss) routes, as isai has
+    // (NEIGHBOR_MISS programs it); created on first use, queue 0. Not used
+    // by L3 yet: the frontend gives ip2me and glean routes the same CPU egress.
+    sai_status_t glean_trap(ifcs_handle_t& h);
+    // System (exception) traps as isai sets them at init: TTL check and IPv4
+    // options to the CPU, L2 source miss/move and L3 MTU check off. Once,
+    // before the first netdev or trap (SAI_TERALYNX_SYSTEM_TRAPS=sdk: skip).
+    void system_traps_init();
+    // CPU queue counters (ifcs_cpu_queue_stats_get): frames / bytes the
+    // queue sent to the CPU, frames it dropped.
+    sai_status_t cpu_queue_stats(uint32_t q, uint64_t& packets, uint64_t& bytes, uint64_t& drops);
 
 private:
     struct Netif {
@@ -50,6 +61,8 @@ private:
     Core& c_;
     bool netdev_adopt_ = false;
     ifcs_handle_t trap_ = 0;
+    ifcs_handle_t glean_ = 0;
+    bool sys_traps_done_ = false;
     std::map<int32_t, Trap> traps_;      // by SAI trap type
     std::map<int, Netif> netifs_;
     int next_netif_ = 1;
