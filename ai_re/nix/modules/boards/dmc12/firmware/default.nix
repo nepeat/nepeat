@@ -64,8 +64,9 @@ in
     };
     ubootSha256 = lib.mkOption {
       type = lib.types.str;
-      # uboot-dmc12-stage3app at d55074f (control DT with al-fic + SPI TPM nodes; code as 929860b1)
-      default = "94f29fd0b989a5bdfa0e8f0be6b9191c02f9f569c1b2c0ccc305bdeed6104c29";
+      # uboot-dmc12-stage3app with the reproducible CC_VERSION_STRING: identical from x86 cross and
+      # native aarch64 builds (proven 2026-11-16). Earlier: 94f29fd0 (cross only), rehearsed on u01.
+      default = "d3df4b8088c116d0530dccfe4f3d7926535953d0cafae326030d6fa64cfb5c75";
       description = "sha256 of the rehearsed U-Boot IPXE object; the build fails on any other.";
     };
   };

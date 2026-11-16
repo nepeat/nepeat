@@ -13,7 +13,9 @@
 #   all banks, which crashes the first EFI payload on an 8 GiB board.
 { buildUBoot }:
 
-buildUBoot {
+# Same bytes from any build host: CC_VERSION_STRING would otherwise carry a cross prefix
+# ("aarch64-unknown-linux-gnu-gcc (GCC) ...") and shift the image (as ai_re/nix/packages/uboot).
+(buildUBoot {
   defconfig = "mvebu_db_armada8k_defconfig";
   extraPatches = [ ./0001-armada8k-map-all-dram-and-add-tn48m-dts.patch ];
   extraConfig = ''
@@ -62,4 +64,9 @@ buildUBoot {
     "u-boot"
     ".config"
   ];
-}
+}).overrideAttrs (o: {
+  postPatch = (o.postPatch or "") + ''
+    sed -i 's#$(CC) --version | head -n 1)#$(CC) --version | head -n 1 | sed -e "s/^[^ ]*-gcc /gcc /")#' Makefile
+    grep -q 's/^\[^ \]\*-gcc /gcc /' Makefile
+  '';
+})

@@ -98,7 +98,7 @@ let
     }).overrideAttrs (o: {
       postPatch = o.postPatch + ''
         cp ${dts} arch/arm/dts/${dtsName}.dts
-      '';
+      '' + uboots.lib.reproducibleVersion;
       # Kernel-type legacy uImage: the vendor bootm then enters us like Linux
       # (MMU and caches off, EL2, x0 = its DTB). -T standalone would not.
       postInstall = ''
@@ -111,6 +111,7 @@ let
   alboot = builtins.path { path = ../../alboot/alboot.py; name = "alboot.py"; };
 in rec {
   inherit loadAddr patches;
+  inherit (uboots.lib) reproducibleVersion;
 
   # RAM-only second stage for the DMC-12. Never flashed.
   dmc12-chainload = mk {

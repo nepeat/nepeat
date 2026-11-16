@@ -51,13 +51,21 @@ let
   # builtins.path: stable store names, so unrelated edits in this tree do not
   # rebuild U-Boot.
   patches = patchesFor [ "t208x" "as7760" ];
+  # Same bytes from any build host, for every board: CC_VERSION_STRING would carry the cross
+  # prefix ("aarch64-unknown-linux-gnu-gcc (GCC) ..." vs "gcc (GCC) ..." natively) and shift the
+  # whole image. dmc12-firmware pins its payload by sha256, so this is load-bearing there.
+  reproducibleVersion = ''
+    sed -i 's#$(CC) --version | head -n 1)#$(CC) --version | head -n 1 | sed -e "s/^[^ ]*-gcc /gcc /")#' Makefile
+    grep -q 's/^\[^ \]\*-gcc /gcc /' Makefile
+  '';
+
   mk = { defconfig, extraConfig ? "", patches ? [ ], files ? [ "u-boot.bin" "u-boot" "u-boot.map" ".config" ] }:
-    buildUBoot {
+    (buildUBoot {
       inherit defconfig extraConfig;
       extraPatches = patches;
       extraMeta.platforms = [ "powerpc-linux" ];
       filesToInstall = files;
-    };
+    }).overrideAttrs (o: { postPatch = (o.postPatch or "") + reproducibleVersion; });
 
   # Board settings shared by every AS7760 image.
   as7760Config = ''
@@ -103,7 +111,7 @@ let
   bootCommand = "bootflow scan -lb";
 in {
   # For other boards: the builder and the raw series.
-  lib = { inherit mk series patchesFor; };
+  lib = { inherit mk series patchesFor reproducibleVersion; };
 
   # Stock reference-board NOR image. Build-only; never flash (VID on).
   t2080rdb-nor = mk { defconfig = "T2080RDB_defconfig"; };

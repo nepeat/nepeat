@@ -411,7 +411,7 @@ let
     filesToInstall = [ "u-boot" "u-boot.dtb" ".config" ];
   }).overrideAttrs (o: {
     pname = "uboot-sandbox-spi-window";
-    postPatch = o.postPatch + ''
+    postPatch = o.postPatch + alpine.reproducibleVersion + ''
       cp ${./sandbox-window/sfwtest.c} cmd/sfwtest.c
       echo 'obj-$(CONFIG_SANDBOX) += sfwtest.o' >> cmd/Makefile
       substituteInPlace arch/sandbox/dts/sandbox.dtsi \
