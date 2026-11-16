@@ -9,7 +9,12 @@ working one ([sonic.md](sonic.md)).
 
 - **Phase 1 (offline) done.** Release chosen (isai 6.2.0), ioctl surface listed, qemu patched and
   tested, amd64 closure (libsai, syncd, smoke tools, memcpy preload) and the arm64 runner build.
-- **Phase 2 (hardware) not started:** needs a window with the ASIC idle. Plan below.
+- **Phase 2 (2026-11-16): Marvell's SAI runs the chip under qemu-ipd.** isai 6.2.0 on the A72:
+  create_switch 0 in 22 s (MBIST, SerDes + SBM firmware, 32 x 400G ports with our lanes), ASIC
+  temperature 50-51 C, admin up/down, remove_switch 0, clean driver close; no kernel message, no guest
+  fault. **No link yet** on the cage 1 <-> 16 loop (no pre-emphasis / link-training settings given to
+  isai). Box restored to `legacy_abi=1`. [Evidence](sai-qemu-hw-20261116.txt).
+- Next: the CS8210 SerDes settings in isai's terms (yaml or SAI port serdes attributes), then syncd.
 - Code: [packages/qemu-ipd](../../nix/packages/qemu-ipd/README.md),
   [packages/isai-amd64](../../nix/packages/isai-amd64/default.nix). Not wired into
   `packages/default.nix` yet (build commands in the README).
@@ -74,7 +79,9 @@ All on `/dev/ipd%d` (opened by `_ii_pcie_probe/_attach`), type `'I'`, asm-generi
 Not used: 5/6 READ/WRITE_MEM, 18 RING_PAGE_FREE, 22 DEBUG_EVT_THREAD_TIMER. Other ioctls in
 libsai: `SIOCGIFINDEX` (socket; qemu supports it) and `I2C_SLAVE` on `/dev/i2c-*` in AAPL's
 `avago_system_i2c_*` (SerDes I2C access method; refused by qemu-ipd: never passed through).
-**mmap:** `_ii_pcie_attach` (6 calls: BAR0 and DMA pool via `/dev/ipd` offsets = physical
+**mmap:** on the chip 264 device mappings, 257 of them single scattered DMA pages (qemu-ipd's
+first fixed 256-entry table aborted run 1; both tables are now sorted and unbounded). Call sites:
+`_ii_pcie_attach` (6 calls: BAR0 and DMA pool via `/dev/ipd` offsets = physical
 addresses, `remap_pfn_range`), `_ii_pcie_ring_alloc` (3), `_ii_pcie_learn_alloc` (2),
 `pd_shml_init` (3), `wb_malloc` (1). On arm64 ipd maps all of it `pgprot_noncached`
 (Device-nGnRnE), including the DMA pool. Layouts: all 31 `inno_ioctl.h` typedefs are identical
@@ -127,7 +134,7 @@ exclusives with a SIGBUS fix-up path whose behaviour on Device memory is unknown
 whose generated code we tested for this CPU. Keep box64 as plan B if TCG is too slow for the SDK's
 time-based timeouts (SerDes firmware download, PLL/link polls).
 
-## Phase 2 plan (STOP: parent schedules the window; panic = power-cycle)
+## Phase 2 plan (run 2026-11-16 as written; results in the Status block and the evidence file)
 
 Preconditions: MACsec agent done; `cs8210-switch`, `sonic.target`, any sai-smoke unit inactive;
 `cs8210-qsfp` shows only cages 1 and 16 (stop otherwise); no flash/EEPROM/CPLD writes, no reboot,

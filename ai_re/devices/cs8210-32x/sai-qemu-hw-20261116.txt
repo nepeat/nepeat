@@ -1,0 +1,1379 @@
+# CS8210 phase 2 of sai-qemu.md: Marvell's amd64 isai 6.2.0 under qemu-ipd on the box, 2026-11-16
+# Box: NixOS generation wbqd4qrvijb5... (sd-card 26.11.20261114.2f709fe), Linux 7.3.4, ipd 0.16.2.0.0.0
+# (modinfo), cs8210-switch + sonic.target inactive, fand active, cages present 0x00008001 (1 and 16 only).
+# Store paths copied (nix copy --no-check-sigs): runner /nix/store/33fzk7hr3yz84kscvwd1lkv9j3492wi9-isai-qemu, guest /nix/store/0bf3ykar7abpaxjzwg06jrvs7hfrj99b-isai-qemu-guest,
+# qemu /nix/store/0m7g64ybz7yphvf38lkap3bsli3q7rjm-qemu-ipd-aarch64-unknown-linux-gnu-11.1.2, probe /nix/store/w5hd8nss3nchkhd6s4mi554x4bzmsh8q-codegen-probe, test guest /nix/store/4svs2bss76d9cqss2r97aik6kn9l15i0-ipd-guest.
+# Each step: command summary, then output (trimmed where marked).
+
+## step 1: read-only checks
+PAGESIZE 4096; CONFIG_ARM64_4K_PAGES=y, CONFIG_ARM64_VA_BITS=52, CONFIG_IOMMU_SUPPORT=y but no iommu
+group/link on 0001:01:00.0 (no IOMMU in use); /proc/devices "508 ipd"; legacy_abi=Y legacy_version=0.12.41.1.0.1;
+ipd refcnt 0; /dev/ipd (508,0); no fpp* netdevs; / 87G free, RAM 5.7G available; CPU features: fp asimd evtstrm
+aes pmull sha1 sha2 crc32 cpuid (no atomics/uscat = no LSE/LSE2).
+
+## step 3: no-ASIC runs on the A72
+codegen probe (-cpu max, -d op,out_asm), logs pulled back and counted with tests/asm_words.awk:
+strict=0 helper16=17 ldxp=0 stxp=0 dmb_ish=861 dmb_osh=0      (asm-0.txt sha256 4878f777...)
+strict=1 helper16=0 ldxp=0 stxp=0 dmb_ish=0 dmb_osh=5878      (asm-1.txt sha256 0cf06dd3...)
+= the offline aarch64 test's numbers (17 / 0 helper calls, no LDXP/STXP, OSH only in strict).
+ipd test guest on a regular file (no fake driver here, so the 3 driver-reply checks FAIL by design; ioctls
+reached the host and got ENOTTY): unknown nr refused, other fd / I2C_SLAVE not passed, device mmap tracked,
+4 device-map atomics -> "guest fault instead", normal-memory atomic works, partial unmap + MAP_FIXED tracked: ok.
+Note: guest addresses were 0xec58........ (48-bit; qemu with -B 0 hands out host addresses above x86's 47 bits).
+QEMU_IPD_TRACE=1 isai-qemu isai-version:
+qemu-ipd: passthrough on, strict 1, ipd major 508
+sai_query_api_version 0: 11601 (headers 11601)            (no ipd ioctl or mmap)
+
+
+## Credo PHYs first (as the native run 4): /run/sai-smoke/credo-up.sh as transient unit isai-credo
+present 00008001; c-phy auto_load_user.sh, line side copper_1x400G on 1 and 16, MACsec bypass; 48 "Firmware load"
+lines; rc 0 in 36.9 s; phy_server left running (pid 89382). (First attempt failed: unit had no PATH; rerun with PATH.)
+
+
+## step 4: driver to the 0.16 ABI (sync; rmmod ipd; modprobe ipd legacy_abi=0), dmesg right after
+rmmod=0 modprobe=0
+[ 8989.763156] Innovium Switch PCIe Driver exited
+[ 8990.062273] Innovium Switch PCIe Driver probe found PCI device 1d98:1b58 revision - 10
+[ 8990.062280] Innovium Switch PCIe Driver pci bus:device:function is 1:0:0
+[ 8990.062283] Innovium Switch PCIe Driver interrupt mode is Best-effort
+[ 8990.062285] Innovium Switch PCIe Driver Iommu not enabled
+[ 8990.062388] Innovium Switch PCIe Driver initialized. Version - 0.16.2.0.0.0
+legacy_abi=N, /dev/ipd0 (508,0), refcnt 0.
+
+
+## step 5, run 1 (runner 33fzk7hr..., guest 0bf3ykar...): qemu-ipd aborted, nothing went wrong on the device
+systemd-run --unit=isai-smoke -p RuntimeMaxSec=600, QEMU_IPD_TRACE=1, isai-qemu isai-smoke /run/isai/profile 60 209 81
+(/run/isai/config.yaml = /run/sai-smoke/run/config.yaml, i.e. our generated CS8210 yaml + vendor isg.yaml, with
+netdev auto_create "no" and the sku pointed at isai 6.2.0's own innovium.77700_A, which differs from the
+sonic-buildimage copy: 1869 vs 1122 bytes, newer format.)
+Got through: sai_api_initialize, yaml + SKU parsed, "_ii_pcie_probe: Found 1 nodes /dev/ipd0", "IFCS version - 0:16:2",
+"Innovium iSAI SHIM version = T6.2.0", COLD-BOOT, "_ii_pcie_attach: Innovium Platform Driver Version - 0.16.2.0.0.0"
+(version check passed), BAR0 c0200000 size 131072 mmapped, POOL ae2d8000, then 254 x IPD_RING_PAGE_ALLOC (nr 17)
+each followed by a one-page mmap of a scattered DMA page; the 257th device mapping hit qemu-ipd's fixed
+256-entry map table: "qemu-ipd: device map table full" -> abort() (by design of that table, a bug of mine).
+dmesg: "Innovium Switch PCIe Driver opened successfully" ... "inno_cleanup_resources success", "closed successfully".
+Fix (both qemu-ipd and libipd-devmem): sorted, unbounded device-map table, binary search under a rwlock;
+tests extended (600 scattered device pages in passthrough, 2000 in devmem); rebuilt, all tests pass.
+
+
+## step 5, run 2 (runner 4ppxp89g..., guest cbwks3ax...): OK
+sync; systemd-run --unit=isai-smoke2 -p RuntimeMaxSec=600, QEMU_IPD_TRACE=1, isai-qemu isai-smoke /run/isai/profile 60 209 81
+Result: sai_api_initialize 0, create_switch 0 (22 s after start, under TCG), 33 ports (32 x 400G with the board's
+lanes, e.g. 209-216 and 81-88, plus devport 129 at 10G), MTU 9100 + admin up on lanes 209 and 81: 0, ASIC temperature
+50-51 C every 2.5 s, oper status 2 (down) on both for 60 s, admin down 0, remove_switch 0, sai_api_uninitialize 0.
+Wall clock 1 min 52 s, 58 s CPU, 370.6 MB peak. dmesg: "opened successfully" ... "inno_cleanup_resources success",
+"closed successfully"; no kernel message in between, box answered ssh throughout (load < 1.1).
+Init path seen: MBIST passed, IBs out of reset, Eth SerDes firmware download ok (attempt 1), SBM firmware ok,
+SBus temperature broadcast validated (RING-A 0x2c, RING-B 0x2d), 32 devports configured, AAPL deinit at teardown.
+No link: expected for this run (no pre-emphasis / link-training settings, which our own SAI applies from the
+vendor .cmd files; isai takes them from its own yaml/attributes, not done yet).
+ipd ioctls (nr, cmd, return, count): 1 INFO_NODES 0 x1; 35 IS_USER_CONFIG_DONE 0 x1; 34 HW_INIT 0 x1;
+2 QUERY_NODE 0 x1; 30 GET_PARAMS 0 x1; 31 SET_PARAMS 0 x1; 10 HRR_FREE -22 x1 (before alloc); 9 HRR_ALLOC 0 x1;
+17 RING_PAGE_ALLOC 0 x256; 19 PIC_STATUS_ALLOC 0 x1; 3 RUPT_MASK 0 x1; 4 RUPT_WAIT 0 x1; 32 DMA_INIT 0 x1;
+11 LEARN_ALLOC 0 x1; 26 SET_NETDEV 0 x34; 7 RING_ALLOC 0 x8; 8 RING_FREE -22 x8; 40 SFLOW_SET_PARAMS 0 x1.
+264 device mmaps (BAR0 128 KiB, pool 8 KiB + 12 KiB, 257 single DMA pages, rings). No "guest fault instead" line.
+SDK messages to follow up: 6584 "ECCH UE Cache update" lines at init (software ECC cache fill, IB 31, many pens),
+36 "_process_hash_status failed (10) - pen 1330" (ILPM hash commands; fib-capacity.md: this SKU has no ILPM),
+70 "Took longer for the timer callback" (TCG speed), "ii_node_delete: node (0) Not found ... rc 10" at deinit.
+Full journals (git-ignored, devices/cs8210-32x/analysis/sai-qemu/hw/): run1-journal.txt sha256 edb1d180...,
+run2-journal.txt sha256 98312ff9... (11245 lines). Run 2 condensed below.
+
+## step 6: restore
+sync; rmmod ipd (0); modprobe ipd (0, modprobe.d legacy_abi=1):
+[ 9672.658932] Innovium Switch PCIe Driver exited
+[ 9672.955313] Innovium Switch PCIe Driver initialized. Version - 0.16.2.0.0.0
+legacy_abi=Y, /dev/ipd (508,0), refcnt 0; cs8210-switch, sonic.target inactive; fand active; no phy_server (the
+Credo loader's phy_server exited with its unit); no isai/qemu process; cages 0x00008001. Left: /run/isai (tmpfs:
+profile, inno.config.yaml, config.yaml, journal copies), /tmp/saiq (probe logs), /tmp/ii-root-0 (8 KB IFCS log dir).
+
+## run 2 journal, condensed (repetitive lines: first 2 kept; counts)
+   6584  /ECCH UE Cache update/
+   2280  /SET MKA|=========================/
+    132  /MDG index:/
+    240  /Creating ip_cm object/
+     71  /cp_algo_enable/
+     23  /Set EFL handle/
+     36  /_process_hash_status failed \(10\)/
+      4  /PCIe serdes settings not specified/
+     15  /im_nmgr_mod_lock/
+    256  /qemu-ipd: ioctl fd \d+ cmd 0xc0084911/
+    257  /qemu-ipd: mmap fd \d+ off 0x[0-9a-f]+ len 0x1000/
+     70  /Took longer for the timer callback/
+     40  /ii_devport_cfg_init\. port/
+
+[ 9495.679811] cs8210 systemd[1]: Started [systemd-run] /nix/store/4ppxp89gpg7yin987whj027krn3h286d-isai-qemu/bin/isai-qemu /nix/store/cbwks3ax3g4g5va9khq9as7p50s6sz28-isai-qemu-guest/smoke/bin/isai-smoke /run/isai/profile 60 209 81.
+[ 9495.722606] cs8210 isai-qemu[93886]: qemu-ipd: passthrough on, strict 1, ipd major 508
+[ 9496.229476] cs8210 isai-qemu[93886]: sai_api_initialize           0
+[ 9496.230508] cs8210 isai-qemu[93886]: query switch                 0
+[ 9496.230628] cs8210 isai-qemu[93886]: query port                   0
+[ 9496.230746] cs8210 isai-qemu[93886]: query hostif                 0
+[ 9496.276761] cs8210 isai-smoke[93886]: IVM-SAI: Switch: ifcs_sai_shim_switch.c:866 Init isai db: (Datapath config file = NULL)
+[ 9496.277283] cs8210 isai-smoke[93886]: IVM-SAI: Switch: ifcs_sai_shim_switch.c:882 Init isai db: (ACL config file = NULL)
+[ 9496.292393] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ifcs_init:205] Initializing IFCS, boot type = 0
+[ 9496.296824] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_cfg_parse_cfgfile:454] CWD: /run/isai
+[ 9496.296987] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_cfg_parse_cfgfile:457] Attempting to load /run/isai/config.yaml config file
+[ 9496.297460] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_cfg_parse_yaml_cfgfile:2929] Parsing YAML config file: /run/isai/config.yaml
+[ 9496.300973] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_cfg_process_ifcs:614] Set log level: info
+[ 9496.314577] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_cfg_parse_new_sku:365] Attempting to load /nix/store/0bf3ykar7abpaxjzwg06jrvs7hfrj99b-isai-qemu-guest/libsai/share/isai/configs/sku/innovium.77700_A SKU
+[ 9496.336917] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_cfg_parse_new_sku:436] Done parsing /nix/store/0bf3ykar7abpaxjzwg06jrvs7hfrj99b-isai-qemu-guest/libsai/share/isai/configs/sku/innovium.77700_A SKU
+[ 9496.443725] cs8210 isai-smoke[93886]: IVM-SDK: [LAG] [ii_tl_lag_get_max_elements_per_lag:321] [0] Max members in one lag set to 128
+[ 9496.582334] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ifcs_init:266] Configuration file parsed
+[ 9496.582767] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_probe:443] [pcie] Probing for Innovium Devices
+[ 9496.588142] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_probe:2637] Found 1 nodes
+[ 9496.588747] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_probe:2642] /dev/ipd0
+[ 9496.589190] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0x80084901 nr 1 arg 0xf75eb9cb0600 = 0
+[ 9496.589899] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_probe:2667] Node: 0 device_id: 0x1b58 rev_id: 0x10
+[ 9496.590598] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ifcs_init:282] Found 1 Innovium Devices:
+[ 9496.591059] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ifcs_init:394] IFCS version - 0:16:2
+[ 9496.592256] cs8210 isai-smoke[93886]: IVM-SAI: Switch: ifcs_sai_shim_switch.c:3853 Initialize switch: switch_id = 0xf75eb9cbf4b8 Innovium iSAI SHIM version = T6.2.0
+[ 9496.592914] cs8210 isai-smoke[93886]: IVM-SAI: Switch: ifcs_sai_shim_switch.c:3876 Initialize switch: COLD-BOOT sai init (wb_write_file = empty, switch_id = 0xf75eb9cbf4b8)
+[ 9496.603291] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_node_join:178] Joining  node 0, boot type = 0
+[ 9496.619619] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0x40044923 nr 35 arg 0xf75eb9cafe58 = 0
+[ 9496.620485] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0x40084922 nr 34 arg 0x0 = 0
+[ 9496.621155] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084902 nr 2 arg 0xf75eb9caff40 = 0
+[ 9496.621447] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_attach:3177] Innovium Platform Driver Version - 0.16.2.0.0.0
+[ 9496.621805] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_attach:3179] PCI: Vendor:Device:Revision - 1d98:1b58:10 BAR0: address - c0200000 size - 131072
+[ 9496.621994] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491e nr 30 arg 0xf75eb9cafe94 = 0
+[ 9496.622090] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491f nr 31 arg 0xf75eb9cafe94 = 0
+[ 9496.626714] cs8210 isai-qemu[93886]: qemu-ipd: mmap fd 7 off 0xc0200000 len 0x20000 at 0xf75e9cf06000 (1 maps)
+[ 9496.642546] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_attach:3273] BAR0 address = c0200000 MMapped Address = 0xf75e9cf06000
+[ 9496.643569] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_attach:3296] POOL: ae2d8000 8192
+[ 9496.643743] cs8210 isai-qemu[93886]: qemu-ipd: mmap fd 7 off 0xae2d8000 len 0x2000 at 0xf75eb8e1f000 (2 maps)
+[ 9496.644460] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_attach:3310] POOL address = ae2d8000 MMapped Address = 0xf75eb8e1f000
+[ 9496.645311] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_attach:3316] Sync BLK buf addr:0xf75eb8e1f480, offset:480 b_addr:00000000ae2d8480
+[ 9496.645616] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_attach:3321] Enabling 6 IBs (mask c0)
+[ 9496.648730] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_attach:3343] Sync response area address = 0xf75eb8e1f340, seqnum = 0x7
+[ 9496.649006] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008490a nr 10 arg 0xf75eb9cafee0 = -22
+[ 9496.649632] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084909 nr 9 arg 0xf75eb9cafee0 = 0
+[ 9496.650208] cs8210 isai-qemu[93886]: qemu-ipd: mmap fd 7 off 0xae2dc000 len 0x3000 at 0xf75eb8e1c000 (3 maps)
+[ 9496.650667] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_attach:3405] HRR: mapped: 0xf75eb8e1c000 size: 8320 offset: 0x1480 cidx: 0x1f *pcie->hrr_pidx 0x1f
+[ 9496.650835] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084911 nr 17 arg 0xf75eb9caff10 = 0
+[ 9496.650915] cs8210 isai-qemu[93886]: qemu-ipd: mmap fd 7 off 0x1ebd27000 len 0x1000 at 0xf75ebb151000 (4 maps)
+[ 9496.651036] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084911 nr 17 arg 0xf75eb9caff10 = 0
+[ 9496.651076] cs8210 isai-qemu[93886]: qemu-ipd: mmap fd 7 off 0x19963e000 len 0x1000 at 0xf75ebac9f000 (5 maps)
+    [... more lines matching /qemu-ipd: ioctl fd \d+ cmd 0xc0084911/ elided, total count at the end]
+    [... more lines matching /qemu-ipd: mmap fd \d+ off 0x[0-9a-f]+ len 0x1000/ elided, total count at the end]
+[ 9496.674884] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084913 nr 19 arg 0xf75eb9cafea0 = 0
+[ 9496.675301] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_attach:3486] PCIE node 0 joined IFCS
+[ 9496.675711] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_is_cpu_block_init_done:2832] SYNC_HSN_ADR_LO_3: 0xaabbccdd
+[ 9496.687149] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084903 nr 3 arg 0xf75e9b2dcd70 = 0
+[ 9496.687545] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e9b2dcdb0 = 0
+[ 9496.697429] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_node_join:253] im_node_join Staring create
+[ 9496.702236] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_set_pll:24848] [2] ii_tl_node_set_pll Configuring PLL clock frequencies
+[ 9496.702427] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_set_pll:24850] [2] ii_tl_node_set_pll sys_clk: 0x30c001 ifc_clk: 0x418001 mac_clk: 0x486005
+[ 9496.702607] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_set_pll:24878] [2] ii_tl_node_set_pll PLL clock disable
+[ 9496.704597] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_set_pll:24944] [2] SYS PLL lock acquired, loop 1
+[ 9496.705946] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_set_pll:24970] [2] IFC PLL lock acquired, loop 32
+[ 9496.709595] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_set_pll:24995] [2] MAC PLL lock acquired, loop 105
+[ 9496.709756] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_set_pll:25013] [2] ii_tl_node_set_pll PLL clock enable
+[ 9496.711765] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_tl_node_create_impl_cfg:25425] [2] Putting all IBs into reset
+[ 9496.712235] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:0
+[ 9496.712604] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:0
+[ 9496.712774] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:1
+[ 9496.712974] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:1
+[ 9496.713041] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:2
+[ 9496.713211] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:2
+[ 9496.713277] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:3
+[ 9496.713442] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:3
+[ 9496.713508] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:4
+[ 9496.713673] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:4
+[ 9496.713738] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:5
+[ 9496.713904] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:5
+[ 9496.715595] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23046] [2]  ii_tl_node_pen_test_mbist_no_mcu Running BIST on ring 0
+[ 9496.716117] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:0
+[ 9496.718952] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_wa_hw_init:5439] [2] Applying WA fix for node 0 IB 0
+[ 9496.736353] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 0, BIST efuse_status_data 0x352000
+[ 9496.738548] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 0, BIST efuse_status_data 0x354001
+[ 9496.738784] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:0
+[ 9496.738880] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:0
+[ 9496.739062] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23046] [2]  ii_tl_node_pen_test_mbist_no_mcu Running BIST on ring 1
+[ 9496.739230] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:1
+[ 9496.739414] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_wa_hw_init:5439] [2] Applying WA fix for node 0 IB 1
+[ 9496.751704] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 1, BIST efuse_status_data 0x352000
+[ 9496.753809] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 1, BIST efuse_status_data 0x352000
+[ 9496.755903] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 1, BIST efuse_status_data 0x354001
+[ 9496.755970] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:1
+[ 9496.756071] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:1
+[ 9496.756144] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23046] [2]  ii_tl_node_pen_test_mbist_no_mcu Running BIST on ring 2
+[ 9496.756341] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:2
+[ 9496.756523] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_wa_hw_init:5439] [2] Applying WA fix for node 0 IB 2
+[ 9496.768755] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 2, BIST efuse_status_data 0x352000
+[ 9496.770854] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 2, BIST efuse_status_data 0x352000
+[ 9496.772954] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 2, BIST efuse_status_data 0x354001
+[ 9496.773020] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:2
+[ 9496.773113] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:2
+[ 9496.773184] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23046] [2]  ii_tl_node_pen_test_mbist_no_mcu Running BIST on ring 3
+[ 9496.773372] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:3
+[ 9496.773550] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_wa_hw_init:5439] [2] Applying WA fix for node 0 IB 3
+[ 9496.785757] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 3, BIST efuse_status_data 0x352000
+[ 9496.787854] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 3, BIST efuse_status_data 0x352000
+[ 9496.789950] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 3, BIST efuse_status_data 0x354001
+[ 9496.790015] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:3
+[ 9496.790108] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:3
+[ 9496.790177] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23046] [2]  ii_tl_node_pen_test_mbist_no_mcu Running BIST on ring 4
+[ 9496.790356] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:4
+[ 9496.790531] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_wa_hw_init:5439] [2] Applying WA fix for node 0 IB 4
+[ 9496.802749] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 4, BIST efuse_status_data 0x352000
+[ 9496.804848] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 4, BIST efuse_status_data 0x352000
+[ 9496.806935] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 4, BIST efuse_status_data 0x354001
+[ 9496.807001] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:4
+[ 9496.807091] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:4
+[ 9496.807162] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23046] [2]  ii_tl_node_pen_test_mbist_no_mcu Running BIST on ring 5
+[ 9496.807335] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:5
+[ 9496.807513] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_wa_hw_init:5439] [2] Applying WA fix for node 0 IB 5
+[ 9496.819719] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 5, BIST efuse_status_data 0x352000
+[ 9496.821820] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 5, BIST efuse_status_data 0x352000
+[ 9496.823917] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 5, BIST efuse_status_data 0x354001
+[ 9496.823983] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:5
+[ 9496.824076] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:5
+[ 9496.824146] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23046] [2]  ii_tl_node_pen_test_mbist_no_mcu Running BIST on ring 6
+[ 9496.824980] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:0
+[ 9496.825261] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:1
+[ 9496.825350] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:2
+[ 9496.825441] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:3
+[ 9496.825530] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:4
+[ 9496.825621] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:5
+[ 9496.826036] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pic_pen_wa_hw_init:5409] [2] Applying pic pen WA fix for node 0 IB 31
+[ 9496.827616] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 6, BIST efuse_status_data 0x352000
+[ 9496.829706] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 6, BIST efuse_status_data 0x352000
+[ 9496.831802] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 6, BIST efuse_status_data 0x352000
+[ 9496.833888] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23084] [2]  ii_tl_node_pen_test_mbist_no_mcu Ring 6, BIST efuse_status_data 0x354001
+[ 9496.834037] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23193] [2]  ii_tl_node_pen_test_mbist_no_mcu Putting all IBs into reset
+[ 9496.834215] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:0
+[ 9496.834309] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:0
+[ 9496.834427] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:1
+[ 9496.834518] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:1
+[ 9496.834583] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:2
+[ 9496.834672] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:2
+[ 9496.834737] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:3
+[ 9496.834827] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:3
+[ 9496.834891] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:4
+[ 9496.834980] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:4
+[ 9496.835045] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:5
+[ 9496.835134] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:5
+[ 9496.836518] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_test_mbist_no_mcu:23246] [2]  ii_tl_node_pen_test_mbist_no_mcu bist_status 0x00000000
+[ 9496.836780] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_tl_node_create_impl_cfg:25470] [2] MBIST passed for node 0
+[ 9496.837905] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:0
+[ 9496.837999] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:0
+[ 9496.838138] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:1
+[ 9496.838228] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:1
+[ 9496.838294] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:2
+[ 9496.838383] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:2
+[ 9496.838448] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:3
+[ 9496.838536] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:3
+[ 9496.838601] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:4
+[ 9496.838690] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:4
+[ 9496.838756] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4608] _ii_pcie_ib_in_reset_tl start, ib:5
+[ 9496.838844] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_in_reset_tl:4697] _ii_pcie_ib_in_reset_tl end, ib:5
+[ 9496.839047] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_tl_node_create_impl_cfg:25536] [2] Bringing IBs out of reset for node 0
+[ 9496.839308] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:0
+[ 9496.839603] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_wa_hw_init:5439] [2] Applying WA fix for node 0 IB 0
+[ 9496.850842] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pic_pen_wa_hw_init:5409] [2] Applying pic pen WA fix for node 0 IB 0
+[ 9496.852123] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:1
+[ 9496.852219] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_wa_hw_init:5439] [2] Applying WA fix for node 0 IB 1
+[ 9496.863381] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pic_pen_wa_hw_init:5409] [2] Applying pic pen WA fix for node 0 IB 1
+[ 9496.864278] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:2
+[ 9496.864375] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_wa_hw_init:5439] [2] Applying WA fix for node 0 IB 2
+[ 9496.875548] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pic_pen_wa_hw_init:5409] [2] Applying pic pen WA fix for node 0 IB 2
+[ 9496.876252] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:3
+[ 9496.876348] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_wa_hw_init:5439] [2] Applying WA fix for node 0 IB 3
+[ 9496.887525] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pic_pen_wa_hw_init:5409] [2] Applying pic pen WA fix for node 0 IB 3
+[ 9496.888179] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:4
+[ 9496.888273] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_wa_hw_init:5439] [2] Applying WA fix for node 0 IB 4
+[ 9496.899413] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pic_pen_wa_hw_init:5409] [2] Applying pic pen WA fix for node 0 IB 4
+[ 9496.900067] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ib_out_of_reset_tl:5157] _ii_pcie_ib_out_of_reset_tl start, ib:5
+[ 9496.900160] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_wa_hw_init:5439] [2] Applying WA fix for node 0 IB 5
+[ 9496.911311] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pic_pen_wa_hw_init:5409] [2] Applying pic pen WA fix for node 0 IB 5
+[ 9496.912067] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0x40084920 nr 32 arg 0x0 = 0
+[ 9496.912738] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008490b nr 11 arg 0xf75eb9cafc20 = 0
+[ 9496.913032] cs8210 isai-qemu[93886]: qemu-ipd: mmap fd 7 off 0xae700000 len 0x48000 at 0xf75e9a1f2000 (261 maps)
+[ 9496.913243] cs8210 isai-qemu[93886]: qemu-ipd: mmap fd 7 off 0xae2f8000 len 0x4000 at 0xf75e9a1ee000 (262 maps)
+[ 9499.281053] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6842] [2] Starting TCAM scrub configuration for ib: 0
+[ 9499.283594] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS1_SIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.284365] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS1_DIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.284548] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS2_SIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.284729] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS2_DIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.284914] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT1001_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.285093] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT1002_CAM_CTRL, depth:   256, freq:  1200000000, interval:   1, precliff:   10000, cliff:     468
+[ 9499.285271] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P246, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.285454] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P304, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.285635] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT2003_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.285893] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT3003_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.286081] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P480, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.286258] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3008A_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.286436] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3008B_CAM_CTRL, depth: 24576, freq:  1200000000, interval:   1, precliff:   10000, cliff:       4
+[ 9499.286621] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3009A_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.286801] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3009B_CAM_CTRL, depth: 12288, freq:  1200000000, interval:   1, precliff:   10000, cliff:       9
+[ 9499.286985] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB0_ABB_CAM_CTRL, depth:   512, freq:  1200000000, interval:   1, precliff:   10000, cliff:     234
+[ 9499.287169] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB1_ABB_CAM_CTRL, depth:   512, freq:  1200000000, interval:   1, precliff:   10000, cliff:     234
+[ 9499.287347] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB2_ABB_CAM_CTRL, depth:   256, freq:  1200000000, interval:   1, precliff:   10000, cliff:     468
+[ 9499.287526] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                      _TL_P1099, depth:    64, freq:  1200000000, interval:   1, precliff:   10000, cliff:    1875
+[ 9499.288058] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :            EPRS_SIP_CCCAM_CTRL, depth:   128, freq:  1720000000, interval:   1, precliff:   10000, cliff:    1343
+[ 9499.288238] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :            EPRS_DIP_CCCAM_CTRL, depth:   128, freq:  1720000000, interval:   1, precliff:   10000, cliff:    1343
+[ 9499.288430] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        EMT20_ABB0_ABB_CAM_CTRL, depth:   512, freq:  1720000000, interval:   1, precliff:   10000, cliff:     335
+[ 9499.289828] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6842] [2] Starting TCAM scrub configuration for ib: 1
+[ 9499.289938] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS1_SIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.290121] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS1_DIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.290303] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS2_SIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.290486] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS2_DIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.290667] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT1001_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.290848] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT1002_CAM_CTRL, depth:   256, freq:  1200000000, interval:   1, precliff:   10000, cliff:     468
+[ 9499.291032] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P246, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.291210] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P304, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.291387] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT2003_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.291563] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT3003_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.291739] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P480, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.291922] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3008A_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.292121] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3008B_CAM_CTRL, depth: 24576, freq:  1200000000, interval:   1, precliff:   10000, cliff:       4
+[ 9499.292301] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3009A_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.292476] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3009B_CAM_CTRL, depth: 12288, freq:  1200000000, interval:   1, precliff:   10000, cliff:       9
+[ 9499.292654] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB0_ABB_CAM_CTRL, depth:   512, freq:  1200000000, interval:   1, precliff:   10000, cliff:     234
+[ 9499.292831] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB1_ABB_CAM_CTRL, depth:   512, freq:  1200000000, interval:   1, precliff:   10000, cliff:     234
+[ 9499.293014] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB2_ABB_CAM_CTRL, depth:   256, freq:  1200000000, interval:   1, precliff:   10000, cliff:     468
+[ 9499.293193] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                      _TL_P1099, depth:    64, freq:  1200000000, interval:   1, precliff:   10000, cliff:    1875
+[ 9499.293371] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :            EPRS_SIP_CCCAM_CTRL, depth:   128, freq:  1720000000, interval:   1, precliff:   10000, cliff:    1343
+[ 9499.293545] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :            EPRS_DIP_CCCAM_CTRL, depth:   128, freq:  1720000000, interval:   1, precliff:   10000, cliff:    1343
+[ 9499.293722] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        EMT20_ABB0_ABB_CAM_CTRL, depth:   512, freq:  1720000000, interval:   1, precliff:   10000, cliff:     335
+[ 9499.294590] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6842] [2] Starting TCAM scrub configuration for ib: 2
+[ 9499.294697] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS1_SIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.294875] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS1_DIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.295051] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS2_SIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.295227] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS2_DIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.295404] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT1001_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.295586] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT1002_CAM_CTRL, depth:   256, freq:  1200000000, interval:   1, precliff:   10000, cliff:     468
+[ 9499.295763] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P246, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.295938] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P304, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.296125] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT2003_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.296307] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT3003_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.296486] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P480, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.296665] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3008A_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.296839] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3008B_CAM_CTRL, depth: 24576, freq:  1200000000, interval:   1, precliff:   10000, cliff:       4
+[ 9499.297021] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3009A_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.297199] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3009B_CAM_CTRL, depth: 12288, freq:  1200000000, interval:   1, precliff:   10000, cliff:       9
+[ 9499.297375] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB0_ABB_CAM_CTRL, depth:   512, freq:  1200000000, interval:   1, precliff:   10000, cliff:     234
+[ 9499.297549] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB1_ABB_CAM_CTRL, depth:   512, freq:  1200000000, interval:   1, precliff:   10000, cliff:     234
+[ 9499.297726] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB2_ABB_CAM_CTRL, depth:   256, freq:  1200000000, interval:   1, precliff:   10000, cliff:     468
+[ 9499.297902] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                      _TL_P1099, depth:    64, freq:  1200000000, interval:   1, precliff:   10000, cliff:    1875
+[ 9499.298085] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :            EPRS_SIP_CCCAM_CTRL, depth:   128, freq:  1720000000, interval:   1, precliff:   10000, cliff:    1343
+[ 9499.298265] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :            EPRS_DIP_CCCAM_CTRL, depth:   128, freq:  1720000000, interval:   1, precliff:   10000, cliff:    1343
+[ 9499.298446] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        EMT20_ABB0_ABB_CAM_CTRL, depth:   512, freq:  1720000000, interval:   1, precliff:   10000, cliff:     335
+[ 9499.299297] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6842] [2] Starting TCAM scrub configuration for ib: 3
+[ 9499.299402] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS1_SIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.299579] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS1_DIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.299761] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS2_SIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.299937] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS2_DIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.300129] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT1001_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.300311] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT1002_CAM_CTRL, depth:   256, freq:  1200000000, interval:   1, precliff:   10000, cliff:     468
+[ 9499.300488] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P246, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.300663] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P304, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.300844] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT2003_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.301027] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT3003_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.301205] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P480, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.301381] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3008A_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.301554] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3008B_CAM_CTRL, depth: 24576, freq:  1200000000, interval:   1, precliff:   10000, cliff:       4
+[ 9499.301732] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3009A_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.301906] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3009B_CAM_CTRL, depth: 12288, freq:  1200000000, interval:   1, precliff:   10000, cliff:       9
+[ 9499.302088] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB0_ABB_CAM_CTRL, depth:   512, freq:  1200000000, interval:   1, precliff:   10000, cliff:     234
+[ 9499.302266] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB1_ABB_CAM_CTRL, depth:   512, freq:  1200000000, interval:   1, precliff:   10000, cliff:     234
+[ 9499.302442] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB2_ABB_CAM_CTRL, depth:   256, freq:  1200000000, interval:   1, precliff:   10000, cliff:     468
+[ 9499.302623] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                      _TL_P1099, depth:    64, freq:  1200000000, interval:   1, precliff:   10000, cliff:    1875
+[ 9499.302806] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :            EPRS_SIP_CCCAM_CTRL, depth:   128, freq:  1720000000, interval:   1, precliff:   10000, cliff:    1343
+[ 9499.302982] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :            EPRS_DIP_CCCAM_CTRL, depth:   128, freq:  1720000000, interval:   1, precliff:   10000, cliff:    1343
+[ 9499.303157] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        EMT20_ABB0_ABB_CAM_CTRL, depth:   512, freq:  1720000000, interval:   1, precliff:   10000, cliff:     335
+[ 9499.303995] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6842] [2] Starting TCAM scrub configuration for ib: 4
+[ 9499.304109] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS1_SIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.304288] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS1_DIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.304469] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS2_SIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.304650] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS2_DIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.304835] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT1001_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.305016] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT1002_CAM_CTRL, depth:   256, freq:  1200000000, interval:   1, precliff:   10000, cliff:     468
+[ 9499.305196] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P246, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.305381] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P304, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.305558] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT2003_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.305733] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT3003_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.305910] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P480, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.306085] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3008A_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.306259] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3008B_CAM_CTRL, depth: 24576, freq:  1200000000, interval:   1, precliff:   10000, cliff:       4
+[ 9499.306441] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3009A_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.306618] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3009B_CAM_CTRL, depth: 12288, freq:  1200000000, interval:   1, precliff:   10000, cliff:       9
+[ 9499.306798] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB0_ABB_CAM_CTRL, depth:   512, freq:  1200000000, interval:   1, precliff:   10000, cliff:     234
+[ 9499.306979] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB1_ABB_CAM_CTRL, depth:   512, freq:  1200000000, interval:   1, precliff:   10000, cliff:     234
+[ 9499.307161] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB2_ABB_CAM_CTRL, depth:   256, freq:  1200000000, interval:   1, precliff:   10000, cliff:     468
+[ 9499.307338] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                      _TL_P1099, depth:    64, freq:  1200000000, interval:   1, precliff:   10000, cliff:    1875
+[ 9499.307514] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :            EPRS_SIP_CCCAM_CTRL, depth:   128, freq:  1720000000, interval:   1, precliff:   10000, cliff:    1343
+[ 9499.307689] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :            EPRS_DIP_CCCAM_CTRL, depth:   128, freq:  1720000000, interval:   1, precliff:   10000, cliff:    1343
+[ 9499.307864] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        EMT20_ABB0_ABB_CAM_CTRL, depth:   512, freq:  1720000000, interval:   1, precliff:   10000, cliff:     335
+[ 9499.308712] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6842] [2] Starting TCAM scrub configuration for ib: 5
+[ 9499.308820] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS1_SIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.309000] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS1_DIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.309183] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS2_SIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.309361] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :           IPRS2_DIP_CCCAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.309536] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT1001_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.309711] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT1002_CAM_CTRL, depth:   256, freq:  1200000000, interval:   1, precliff:   10000, cliff:     468
+[ 9499.309886] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P246, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.310063] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P304, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.310245] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT2003_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.310421] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :               IMT3003_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.310596] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                       _TL_P480, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.310773] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3008A_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.310947] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3008B_CAM_CTRL, depth: 24576, freq:  1200000000, interval:   1, precliff:   10000, cliff:       4
+[ 9499.311123] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3009A_CAM_CTRL, depth:   128, freq:  1200000000, interval:   1, precliff:   10000, cliff:     937
+[ 9499.311304] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :              IMT3009B_CAM_CTRL, depth: 12288, freq:  1200000000, interval:   1, precliff:   10000, cliff:       9
+[ 9499.311481] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB0_ABB_CAM_CTRL, depth:   512, freq:  1200000000, interval:   1, precliff:   10000, cliff:     234
+[ 9499.311658] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB1_ABB_CAM_CTRL, depth:   512, freq:  1200000000, interval:   1, precliff:   10000, cliff:     234
+[ 9499.311833] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        IMT40_ABB2_ABB_CAM_CTRL, depth:   256, freq:  1200000000, interval:   1, precliff:   10000, cliff:     468
+[ 9499.312018] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :                      _TL_P1099, depth:    64, freq:  1200000000, interval:   1, precliff:   10000, cliff:    1875
+[ 9499.312196] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :            EPRS_SIP_CCCAM_CTRL, depth:   128, freq:  1720000000, interval:   1, precliff:   10000, cliff:    1343
+[ 9499.312372] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :            EPRS_DIP_CCCAM_CTRL, depth:   128, freq:  1720000000, interval:   1, precliff:   10000, cliff:    1343
+[ 9499.312546] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_cpu_hw_init:6884] [2]   TCAM Scrubber :        EMT20_ABB0_ABB_CAM_CTRL, depth:   512, freq:  1720000000, interval:   1, precliff:   10000, cliff:     335
+[ 9499.313427] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_tl_node_create_impl_cfg:25773] [2] _ii_tl_node_create_impl_cfg Eth serdes firmware download for node 0, attempt 1
+[ 9499.333967] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_eth_fw_download_no_mcu:23597] [2] ii_tl_node_serdes_eth_fw_download_no_mcu RING-A FW size: 32765
+[ 9499.334214] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_eth_fw_download_no_mcu:23604] [2] ii_tl_node_serdes_eth_fw_download_no_mcu Wait for RING-A FW download
+[ 9499.401050] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_eth_fw_download_no_mcu:23617] [2] ii_tl_node_serdes_eth_fw_download_no_mcu RING-A FW download done
+[ 9499.404556] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_eth_fw_download_no_mcu:23679] [2] ii_tl_node_serdes_eth_fw_download_no_mcu Ring A download status check successful
+[ 9499.404805] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_eth_fw_download_no_mcu:23686] [2] ii_tl_node_serdes_eth_fw_download_no_mcu Wait for RING-B FW download
+[ 9499.473013] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_eth_fw_download_no_mcu:23699] [2] ii_tl_node_serdes_eth_fw_download_no_mcu RING-B FW download done
+[ 9499.476641] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_eth_fw_download_no_mcu:23761] [2] ii_tl_node_serdes_eth_fw_download_no_mcu Ring B download status check successful
+[ 9499.476861] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_fw_crc_check:23271] [2] ii_tl_node_serdes_fw_crc_check Serdes FW CRC check intiated!
+[ 9499.496196] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_fw_crc_check:23457] [2] ii_tl_node_serdes_fw_crc_check Serdes FW CRC check successful!
+[ 9499.496473] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_tl_node_create_impl_cfg:25796] [2] _ii_tl_node_create_impl_cfg Eth serdes firmware dowload successful for node 0, attempt 1
+[ 9499.496648] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_tl_node_create_impl_cfg:25801] [2] _ii_tl_node_create_impl_cfg SBM firmware download for node 0, attempt 1
+[ 9499.496869] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_sbus_master_fw_download:23995] [2] ii_tl_node_serdes_sbus_master_fw_download Starting FW download for RING-A SBus Master
+[ 9499.501081] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_sbus_master_fw_download:24095] [2] ii_tl_node_serdes_sbus_master_fw_download Waiting for RING-A SBus Master FW download
+[ 9499.531818] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_sbus_master_fw_download:24122] [2] ii_tl_node_serdes_sbus_master_fw_download RING-A SBus Master FW download done.
+[ 9499.542840] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_sbus_master_fw_download:24205] [2] ii_tl_node_serdes_sbus_master_fw_download RING-A SBus Master FW rev: 0x10240001
+[ 9499.542985] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_sbus_master_fw_download:24209] [2] ii_tl_node_serdes_sbus_master_fw_download Starting FW download for RING-B SBus Master
+[ 9499.543678] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_sbus_master_fw_download:24278] [2] ii_tl_node_serdes_sbus_master_fw_download Waiting for RING-B SBus Master FW download
+[ 9499.574393] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_sbus_master_fw_download:24306] [2] ii_tl_node_serdes_sbus_master_fw_download RING-B SBus Master FW download done
+[ 9499.595444] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_sbus_master_fw_download:24391] [2] ii_tl_node_serdes_sbus_master_fw_download RING-B SBus Master FW rev: 0x10240001
+[ 9499.595670] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_tl_node_create_impl_cfg:25825] [2] _ii_tl_node_create_impl_cfg SBM firmware download successful for node 0, attempt 1
+[ 9499.595844] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_tl_node_create_impl_cfg:25829] [2] _ii_tl_node_create_impl_cfg Setting temp bcast enable for node 0, attempt 1
+[ 9499.606352] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_temp_bcast_en:22258] [2] ii_tl_node_serdes_temp_bcast_en RING-A SBus temp broadcast enabled
+[ 9499.616794] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_serdes_temp_bcast_en:22303] [2] ii_tl_node_serdes_temp_bcast_en RING-B SBus temp broadcast enabled
+[ 9499.617045] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_tl_node_create_impl_cfg:25850] [2] _ii_tl_node_create_impl_cfg Temp bcast enable set complete for node 0, attempt 1
+[ 9499.617216] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_tl_node_create_impl_cfg:25854] [2] _ii_tl_node_create_impl_cfg Starting temp bcast validate for node 0, attempt 1
+[ 9502.131932] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_validate_temp_bcast_en:22333] [4] RING - A : temp:0x2c cnt:102
+[ 9502.132365] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_validate_temp_bcast_en:22361] [4] RING - B : temp:0x2d cnt:350
+[ 9502.132551] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_validate_temp_bcast_en:22373] [4] ii_tl_node_validate_temp_bcast_en SBus temp broadcast validate done
+[ 9502.132788] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_tl_node_create_impl_cfg:25874] [2] _ii_tl_node_create_impl_cfg Temp bcast validate successful for node 0, attempt 1
+[ 9502.133110] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pcie_serdes_update:24594] [2] PCIe serdes settings not specified for lane 0, skipping PCIe serdes tx eq set
+[ 9502.133273] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pcie_serdes_update:24594] [2] PCIe serdes settings not specified for lane 1, skipping PCIe serdes tx eq set
+    [... more lines matching /PCIe serdes settings not specified/ elided, total count at the end]
+[ 9506.271690] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [tentry_mk_cfg:5210] profile_width 92 pkd width(72) for                     mka 0 is < key_width(80). => there will be hole in                    OUTPUT_KEY
+[ 9506.272811] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [tentry_mk_cfg:5210] profile_width 92 pkd width(72) for                     mka 0 is < key_width(80). => there will be hole in                    OUTPUT_KEY
+[ 9506.274577] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [tentry_mk_cfg:5210] profile_width 92 pkd width(72) for                     mka 0 is < key_width(80). => there will be hole in                    OUTPUT_KEY
+[ 9506.594562] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_tl_ecc_cache_single_tentry:1805] ECCH UE Cache update: Node:0, IB:31, Index:     0, Pen:DTM_IA_STATE_IB0_CFG
+[ 9506.597365] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_tl_ecc_cache_single_tentry:1805] ECCH UE Cache update: Node:0, IB:31, Index:     1, Pen:DTM_IA_STATE_IB0_CFG
+    [... more lines matching /ECCH UE Cache update/ elided, total count at the end]
+[ 9507.899670] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_node_join:296] Node 0 attached IFCS
+[ 9507.982145] cs8210 isai-smoke[93886]: IVM-SDK: [FLEX_STATS] [ii_tl_flex_stats_usecase_get:6610] [0] flex stats use case not yet created
+[ 9507.982781] cs8210 isai-smoke[93886]: IVM-SDK: [FLEX_STATS] [ii_tl_flex_stats_usecase_get:6610] [0] flex stats use case not yet created
+[ 9507.990326] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_entropy_config:3127] [2] entropy seed=1794823621
+[ 9507.991918] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_hash_seed_config:3355] [2] HW hash seed=1794823621
+[ 9508.026863] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [hashmove_per_ib_initialize:569] allocated for node_id:0, ib:0x1f, pen:IMT2001_FULL, width: 465 (in 15 dwords), (banks:2 x buckets:1024 x slots:4), memsize:   0.81 (MB)
+[ 9508.029422] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [hashmove_per_ib_initialize:569] allocated for node_id:0, ib:0x1f, pen:IMT2002_FULL, width: 465 (in 15 dwords), (banks:2 x buckets:1024 x slots:4), memsize:   0.81 (MB)
+[ 9508.030107] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [hashmove_per_ib_initialize:569] allocated for node_id:0, ib:0x1f, pen:IMT3001_FULL, width: 395 (in 13 dwords), (banks:2 x buckets:512 x slots:4), memsize:   0.41 (MB)
+[ 9508.030524] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [hashmove_per_ib_initialize:569] allocated for node_id:0, ib:0x1f, pen:IMT3002_FULL, width: 395 (in 13 dwords), (banks:2 x buckets:512 x slots:4), memsize:   0.41 (MB)
+[ 9508.031251] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [hashmove_per_ib_initialize:569] allocated for node_id:0, ib:0x1f, pen:IMT3004_FULL, width: 553 (in 18 dwords), (banks:2 x buckets:4096 x slots:5), memsize:   4.06 (MB)
+[ 9508.031644] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [hashmove_per_ib_initialize:569] allocated for node_id:0, ib:0x1f, pen:IMT3005_FULL, width: 553 (in 18 dwords), (banks:2 x buckets:4096 x slots:5), memsize:   4.06 (MB)
+[ 9508.032069] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [hashmove_per_ib_initialize:569] allocated for node_id:0, ib:0x1f, pen:EMT1001_FULL, width: 549 (in 18 dwords), (banks:2 x buckets:1024 x slots:6), memsize:   1.22 (MB)
+[ 9508.032347] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [hashmove_per_ib_initialize:569] allocated for node_id:0, ib:0x1f, pen:EMT1002_FULL, width: 547 (in 18 dwords), (banks:2 x buckets:1024 x slots:6), memsize:   1.22 (MB)
+[ 9508.032727] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [hashmove_per_ib_initialize:569] allocated for node_id:0, ib:0x1f, pen:IMT1003_FULL, width: 465 (in 15 dwords), (banks:2 x buckets:2048 x slots:4), memsize:   1.63 (MB)
+[ 9508.033596] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [hashmove_per_ib_initialize:569] allocated for node_id:0, ib:0x1f, pen:IMT3006_DB1_FULL, width: 558 (in 18 dwords), (banks:2 x buckets:8192 x slots:6), memsize:   9.75 (MB)
+[ 9508.033859] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [hashmove_per_ib_initialize:569] allocated for node_id:0, ib:0x1f, pen:IMT3007_DB1_FULL, width: 558 (in 18 dwords), (banks:2 x buckets:2048 x slots:6), memsize:   2.44 (MB)
+[ 9508.165941] cs8210 isai-smoke[93886]: IVM-SDK: [QUEUE] [ii_queue_pfcwd_threads_init:6784] [0] PFCWD node attribute not enabled. Not starting themitigation thread
+[ 9508.375595] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_init:4537] ii_devport_cfg_init. port 1
+[ 9508.409601] cs8210 isai-smoke[93886]: IVM-SDK: [PEN] [ii_tl_ipps_cm_alloc_resource_impl:3210] Creating ip_cm object for devport 1 ib 0
+[ 9508.416242] cs8210 isai-smoke[93886]: IVM-SDK: [PEN] [ii_tl_ipps_cm_alloc_resource_impl:3210] Creating ip_cm object for devport 1 ib 1
+    [... more lines matching /Creating ip_cm object/ elided, total count at the end]
+[ 9508.525197] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9508.525771] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_init:4537] ii_devport_cfg_init. port 2
+[ 9508.580924] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+    [... more lines matching /ii_devport_cfg_init\. port/ elided, total count at the end]
+[ 9508.635354] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9508.689689] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9508.744131] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9508.798177] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9508.852522] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9508.906749] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9508.961086] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.015109] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.069375] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.123509] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.177890] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.232080] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.286082] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.340145] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.394925] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.449130] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.503200] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.557505] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.611625] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.665784] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.719903] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.774224] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.828602] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.882670] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.937016] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9509.991286] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9510.045477] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9510.099666] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9510.153775] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9510.208292] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9510.247804] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafa70 = 0
+[ 9510.250908] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_cpu_ring_attr_get:43768] [0] node_cpu_ring key(node_cpu_ring_p->ring_type = 1(0x1),node_cpu_ring_p->ring_number = 0(0),) Not found (node_cpu_ring GET). rc 10
+[ 9510.251468] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_cfg_rings_create:426] CPU TX ring 0 object not found, creating object
+[ 9510.252558] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084908 nr 8 arg 0xf75eb9ca14d0 = -22
+[ 9510.255732] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_nmgr_ring_cfg_set:2182] Queue list not applicable for TX rings: 0
+[ 9510.256488] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084907 nr 7 arg 0xf75eb9ca1140 = 0
+[ 9510.256737] cs8210 isai-qemu[93886]: qemu-ipd: mmap fd 7 off 0xae2fc000 len 0x4000 at 0xf75e99d04000 (263 maps)
+[ 9510.257022] cs8210 isai-qemu[93886]: qemu-ipd: mmap fd 7 off 0xae318000 len 0x4000 at 0xf75e99d00000 (264 maps)
+[ 9510.257313] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ring_alloc:304] tx ring 0: desc: ae2fc000, 0xf75e99d04000 wb: ae318000 0xf75e99d00000
+[ 9510.259031] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_cpu_ring_attr_get:43768] [0] node_cpu_ring key(node_cpu_ring_p->ring_type = 0(0),node_cpu_ring_p->ring_number = 0(0),) Not found (node_cpu_ring GET). rc 10
+[ 9510.259303] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084908 nr 8 arg 0xf75eb9ca14d0 = -22
+[ 9510.261986] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_cpu_ring_attr_get:43768] [0] node_cpu_ring key(node_cpu_ring_p->ring_type = 0(0),node_cpu_ring_p->ring_number = 0(0),) Not found (node_cpu_ring GET). rc 10
+[ 9510.262186] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_cfg_rings_create:613] CPU RX ring 0 object not found, creating object
+[ 9510.265316] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084907 nr 7 arg 0xf75eb9ca1140 = 0
+[ 9510.265732] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_cpu_ring_attr_get:43768] [0] node_cpu_ring key(node_cpu_ring_p->ring_type = 1(0x1),node_cpu_ring_p->ring_number = 1(0x1),) Not found (node_cpu_ring GET). rc 10
+[ 9510.265811] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_cfg_rings_create:426] CPU TX ring 1 object not found, creating object
+[ 9510.265864] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084908 nr 8 arg 0xf75eb9ca14d0 = -22
+[ 9510.265946] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_nmgr_ring_cfg_set:2182] Queue list not applicable for TX rings: 1
+[ 9510.266224] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084907 nr 7 arg 0xf75eb9ca1140 = 0
+[ 9510.266465] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_cpu_ring_attr_get:43768] [0] node_cpu_ring key(node_cpu_ring_p->ring_type = 0(0),node_cpu_ring_p->ring_number = 1(0x1),) Not found (node_cpu_ring GET). rc 10
+[ 9510.266519] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084908 nr 8 arg 0xf75eb9ca14d0 = -22
+[ 9510.266790] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_cpu_ring_attr_get:43768] [0] node_cpu_ring key(node_cpu_ring_p->ring_type = 0(0),node_cpu_ring_p->ring_number = 1(0x1),) Not found (node_cpu_ring GET). rc 10
+[ 9510.266864] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_cfg_rings_create:613] CPU RX ring 1 object not found, creating object
+[ 9510.268773] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084907 nr 7 arg 0xf75eb9ca1140 = 0
+[ 9510.268956] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_cpu_ring_attr_get:43768] [0] node_cpu_ring key(node_cpu_ring_p->ring_type = 1(0x1),node_cpu_ring_p->ring_number = 2(0x2),) Not found (node_cpu_ring GET). rc 10
+[ 9510.269031] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_cfg_rings_create:426] CPU TX ring 2 object not found, creating object
+[ 9510.269084] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084908 nr 8 arg 0xf75eb9ca14d0 = -22
+[ 9510.269161] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_nmgr_ring_cfg_set:2182] Queue list not applicable for TX rings: 2
+[ 9510.269454] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084907 nr 7 arg 0xf75eb9ca1140 = 0
+[ 9510.269587] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_cpu_ring_attr_get:43768] [0] node_cpu_ring key(node_cpu_ring_p->ring_type = 0(0),node_cpu_ring_p->ring_number = 2(0x2),) Not found (node_cpu_ring GET). rc 10
+[ 9510.269640] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084908 nr 8 arg 0xf75eb9ca14d0 = -22
+[ 9510.269891] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_cpu_ring_attr_get:43768] [0] node_cpu_ring key(node_cpu_ring_p->ring_type = 0(0),node_cpu_ring_p->ring_number = 2(0x2),) Not found (node_cpu_ring GET). rc 10
+[ 9510.269963] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_cfg_rings_create:613] CPU RX ring 2 object not found, creating object
+[ 9510.271682] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084907 nr 7 arg 0xf75eb9ca1140 = 0
+[ 9510.271855] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_cpu_ring_attr_get:43768] [0] node_cpu_ring key(node_cpu_ring_p->ring_type = 1(0x1),node_cpu_ring_p->ring_number = 3(0x3),) Not found (node_cpu_ring GET). rc 10
+[ 9510.271930] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_cfg_rings_create:426] CPU TX ring 3 object not found, creating object
+[ 9510.271984] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084908 nr 8 arg 0xf75eb9ca14d0 = -22
+[ 9510.272073] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_nmgr_ring_cfg_set:2182] Queue list not applicable for TX rings: 3
+[ 9510.272333] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084907 nr 7 arg 0xf75eb9ca1140 = 0
+[ 9510.272464] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_cpu_ring_attr_get:43768] [0] node_cpu_ring key(node_cpu_ring_p->ring_type = 0(0),node_cpu_ring_p->ring_number = 3(0x3),) Not found (node_cpu_ring GET). rc 10
+[ 9510.272517] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084908 nr 8 arg 0xf75eb9ca14d0 = -22
+[ 9510.272776] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_cpu_ring_attr_get:43768] [0] node_cpu_ring key(node_cpu_ring_p->ring_type = 0(0),node_cpu_ring_p->ring_number = 3(0x3),) Not found (node_cpu_ring GET). rc 10
+[ 9510.272850] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_cfg_rings_create:613] CPU RX ring 3 object not found, creating object
+[ 9510.274678] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084907 nr 7 arg 0xf75eb9ca1140 = 0
+[ 9510.377181] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafab0 = 0
+[ 9510.692970] cs8210 isai-smoke[93886]: IVM-SDK: [STATS] [ii_hostif_rx_cntr_thread_start:1179] Hostif RX counter thread disabled
+[ 9510.703093] cs8210 isai-smoke[93886]: IVM-SDK: [ROUTE] [route_pen_max_width_get:124] Route: max width (375) pen 619
+[ 9510.725105] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_pen_set_drop_port:836] [0] MDG index: 0 | port_bmp: 0x0xf75eb9cafb40 | set: TRUE | clear : FALSE
+[ 9510.727411] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_pen_set_drop_port:836] [0] MDG index: 1 | port_bmp: 0x0xf75eb9cafb40 | set: TRUE | clear : FALSE
+    [... more lines matching /MDG index:/ elided, total count at the end]
+[ 9511.671473] cs8210 isai-smoke[93886]: IVM-SDK: [VNI] [ii_l2vni_pd_teralynx_l2vni_mod_hw_init_impl:3296] [0] Rsvd Vni creation for type 1. vni: 8064(0x1f80)
+[ 9511.672847] cs8210 isai-smoke[93886]: IVM-SDK: [VNI] [ii_l2vni_pd_teralynx_l2vni_mod_hw_init_impl:3296] [0] Rsvd Vni creation for type 2. vni: 8065(0x1f81)
+[ 9511.673979] cs8210 isai-smoke[93886]: IVM-SDK: [VNI] [ii_l2vni_pd_teralynx_l2vni_mod_hw_init_impl:3296] [0] Rsvd Vni creation for type 3. vni: 8066(0x1f82)
+[ 9511.675139] cs8210 isai-smoke[93886]: IVM-SDK: [VNI] [ii_l2vni_pd_teralynx_l2vni_mod_hw_init_impl:3296] [0] Rsvd Vni creation for type 4. vni: 8067(0x1f83)
+[ 9511.676299] cs8210 isai-smoke[93886]: IVM-SDK: [VNI] [ii_l2vni_pd_teralynx_l2vni_mod_hw_init_impl:3296] [0] Rsvd Vni creation for type 5. vni: 8068(0x1f84)
+[ 9511.676453] cs8210 isai-smoke[93886]: IVM-SDK: [VNI] [ii_l2vni_pd_teralynx_l2vni_mod_hw_init_impl:3301] [0] Creating L2vni with reserved ID 0
+[ 9511.691941] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0x40044928 nr 40 arg 0xf75eb9cafb3c = 0
+[ 9512.206832] cs8210 isai-smoke[93886]: IVM-SDK: [PFCWD_DET] [ii_pfcwd_detect_thread_start:289] PFCWD node attribute not enabled. Not starting the detect thread
+[ 9512.224848] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [z650e97ca33:578] cp_algo_enable = 1, enabled current run = 0, cp_algo_onfailure = 1
+[ 9512.232033] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [z147428a1b9:4562] SET MKA0_SEL_0_F INDEX 0 VALUE 0
+[ 9512.232215] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [z147428a1b9:4564] SET MKA0_OFFSET_0_F INDEX 1 VALUE 0
+    [... more lines matching /SET MKA|=========================/ elided, total count at the end]
+[ 9512.236772] cs8210 isai-smoke[93886]: IVM-SDK: [EFL] [z4db4dc81e6:1926] [0] Set EFL handle 0xE200000 for pkt type 4
+[ 9512.237094] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [z650e97ca33:578] cp_algo_enable = 1, enabled current run = 0, cp_algo_onfailure = 1
+[ 9512.239826] cs8210 isai-smoke[93886]: IVM-SDK: [EFL] [z4db4dc81e6:1926] [0] Set EFL handle 0xE200001 for pkt type 0
+    [... more lines matching /cp_algo_enable/ elided, total count at the end]
+    [... more lines matching /Set EFL handle/ elided, total count at the end]
+[ 9512.281230] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084903 nr 3 arg 0xf75e8ad8bd50 = 0
+[ 9512.282339] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e8ad8bd90 = 0
+[ 9512.282339] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084903 nr 3 arg 0xf75e8a53ad50 = 0
+[ 9512.282339] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e8a53ad90 = -1
+[ 9512.282958] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_rupt_thread_rx:1209] RX rupt thread terminated with errno:1
+[ 9512.284419] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_rupt_thread_error:908] Set IOCTL IPD_RUPT_MASK: cpu_mis_mask 60cf80008, ibnmask fff
+[ 9512.284819] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084903 nr 3 arg 0xf75e89ce9d50 = 0
+[ 9512.284986] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89ce9d90 = 0
+[ 9512.286134] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_driver_threads_start:5822] Learn thread created
+[ 9512.286342] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084903 nr 3 arg 0xf75e89498d50 = 0
+[ 9512.286861] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9512.288068] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084903 nr 3 arg 0xf75e88bfed50 = 0
+[ 9512.288242] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e88bfed90 = 0
+[ 9512.289860] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084903 nr 3 arg 0xf75e67ffed50 = 0
+[ 9512.290026] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e67ffed90 = -1
+[ 9512.290231] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_rupt_thread_rx_offloaded_stats:1609] RX rupt thread terminated
+[ 9512.304893] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.305129] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [node_isn_pen_hash_ilpm_cmd:2863] _process_hash_status failed (10) - pen 1330, index 268571648
+[ 9512.309985] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.310057] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [node_isn_pen_hash_ilpm_cmd:2863] _process_hash_status failed (10) - pen 1330, index 268569344
+[ 9512.310333] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+    [... more lines matching /_process_hash_status failed \(10\)/ elided, total count at the end]
+[ 9512.310653] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.310962] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.311268] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.311576] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.311881] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.312202] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.312513] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.312820] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.313125] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.313430] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.313740] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.314046] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.314349] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.314652] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.314956] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.315285] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.315593] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.315898] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.316229] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.316538] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.316843] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.317149] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.317457] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.317762] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.318069] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.318375] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.318678] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.318983] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.319286] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.319590] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.319911] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.320244] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.320553] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_process_hash_status:2654] ISN Hash Lookup: Entry doesnot exist
+[ 9512.466999] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 1
+[ 9512.480801] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.481028] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 2
+[ 9512.483273] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.483341] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 3
+[ 9512.485556] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.485619] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 4
+[ 9512.487795] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.487860] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 5
+[ 9512.490039] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.490102] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 6
+[ 9512.492295] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.492357] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 7
+[ 9512.494538] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.494602] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 8
+[ 9512.496787] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.496849] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 9
+[ 9512.499023] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.499086] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 10
+[ 9512.501287] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.501348] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 11
+[ 9512.503539] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.503601] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 12
+[ 9512.505779] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.505842] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 13
+[ 9512.508024] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.508088] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 14
+[ 9512.510271] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.510334] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 15
+[ 9512.512539] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.512601] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 16
+[ 9512.514788] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.514851] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 17
+[ 9512.517054] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.517123] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 18
+[ 9512.519322] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.519386] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 19
+[ 9512.521598] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.521664] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 20
+[ 9512.523840] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.523904] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 21
+[ 9512.526114] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.526177] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 22
+[ 9512.528379] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.528440] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 23
+[ 9512.530613] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.530676] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 24
+[ 9512.532856] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.532918] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 25
+[ 9512.535083] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.535147] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 26
+[ 9512.537327] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.537389] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 27
+[ 9512.539566] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.539627] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 28
+[ 9512.541803] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.541865] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 29
+[ 9512.544050] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.544112] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 30
+[ 9512.546311] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.546373] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 31
+[ 9512.548570] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.548633] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 32
+[ 9512.550820] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.551012] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 129
+[ 9512.555164] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.555287] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 513
+[ 9512.555376] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.559469] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.559608] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 514
+[ 9512.559664] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.560034] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.560095] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 515
+[ 9512.560148] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.560503] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.560564] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 516
+[ 9512.560618] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.560967] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.561028] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 517
+[ 9512.561191] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.561428] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.561492] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 518
+[ 9512.561546] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.561880] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafdd0 = 0
+[ 9512.562034] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_cfg_enable:4601] ii_devport_cfg_enable. port 0
+[ 9512.562088] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafe10 = 0
+[ 9512.562442] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084917 nr 23 arg 0xf75eb9cafd30 = 0
+[ 9512.562611] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_ring_enable:439] TX ring-0 enabled
+[ 9512.562973] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cafe10 = 0
+[ 9512.575366] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_tl_devport_linkscan_enable:4809] ii_tl_devport_linkscan_enable. Linkscan created; Added 34 devports
+[ 9512.580533] cs8210 isai-smoke[93886]: IVM-SDK: [ECMP] [ii_tl_ecmp_mod_enable_impl:6062] [0] ECMP mode: FLAT
+[ 9512.591065] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_nmgr_node_enable:1077] FPVer=1.1.1.0.0.0
+[ 9512.591711] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_nmgr_node_enable:1080] DPSVer=1.1.0.0.0.0
+[ 9512.595246] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:254] stopping the thread execution; rc: 5 event_mask: 0x400000
+[ 9512.595615] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:312] Trying to exit out of event thread 22
+[ 9512.597366] cs8210 isai-smoke[93886]: IVM-SDK: [EVENT] [ii_event_thread_start:718] Thread already exists for event 23
+[ 9512.601749] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_write_table_impl:15887] [0] <<< Node enable success >>>
+[ 9512.679749] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75e667fba30 = 0
+[ 9513.312284] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9514.332064] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9515.356077] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9516.309107] cs8210 isai-smoke[93886]: IVM-SDK: [HOSTIF] [ii_tl_hostif_trap_validate_impl:1645] Using either default(0) or previously configured queue for hw trap 17
+[ 9516.380067] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9516.784037] cs8210 isai-smoke[93886]: IVM-SDK: [HOSTIF] [ii_tl_hostif_trap_validate_impl:1645] Using either default(0) or previously configured queue for hw trap 20
+[ 9517.404051] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9518.249038] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:254] stopping the thread execution; rc: 5 event_mask: 0x400
+[ 9518.249116] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:312] Trying to exit out of event thread 10
+[ 9518.249479] cs8210 isai-smoke[93886]: IVM-SDK: [L2] [_im_l2_entry_node_aging_interval_set:601] [0] Aging timer thread disabled
+[ 9518.301943] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_tl_node_pen_entropy_config:3127] [2] entropy seed=0
+[ 9518.306102] cs8210 isai-qemu[93886]: create_switch                0
+[ 9518.345367] cs8210 isai-qemu[93886]: get port list                0
+[ 9518.368689] cs8210 isai-qemu[93886]: ports 33
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000001 st 0 speed 400000 lanes 209 210 211 212 213 214 215 216
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000002 st 0 speed 400000 lanes 217 218 219 220 221 222 223 224
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000003 st 0 speed 400000 lanes 193 194 195 196 197 198 199 200
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000004 st 0 speed 400000 lanes 201 202 203 204 205 206 207 208
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000005 st 0 speed 400000 lanes 145 146 147 148 149 150 151 152
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000006 st 0 speed 400000 lanes 153 154 155 156 157 158 159 160
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000007 st 0 speed 400000 lanes 105 106 107 108 109 110 111 112
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000008 st 0 speed 400000 lanes 113 114 115 116 117 118 119 120
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000009 st 0 speed 400000 lanes 49 50 51 52 53 54 55 56
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x10000000000000a st 0 speed 400000 lanes 57 58 59 60 61 62 63 64
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x10000000000000b st 0 speed 400000 lanes 9 10 11 12 13 14 15 16
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x10000000000000c st 0 speed 400000 lanes 17 18 19 20 21 22 23 24
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x10000000000000d st 0 speed 400000 lanes 241 242 243 244 245 246 247 248
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x10000000000000e st 0 speed 400000 lanes 185 186 187 188 189 190 191 192
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x10000000000000f st 0 speed 400000 lanes 161 162 163 164 165 166 167 168
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000010 st 0 speed 400000 lanes 81 82 83 84 85 86 87 88
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000011 st 0 speed 400000 lanes 121 122 123 124 125 126 127 128
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000012 st 0 speed 400000 lanes 41 42 43 44 45 46 47 48
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000013 st 0 speed 400000 lanes 225 226 227 228 229 230 231 232
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000014 st 0 speed 400000 lanes 233 234 235 236 237 238 239 240
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000015 st 0 speed 400000 lanes 169 170 171 172 173 174 175 176
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000016 st 0 speed 400000 lanes 177 178 179 180 181 182 183 184
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000017 st 0 speed 400000 lanes 129 130 131 132 133 134 135 136
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000018 st 0 speed 400000 lanes 137 138 139 140 141 142 143 144
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x100000000000019 st 0 speed 400000 lanes 249 250 251 252 253 254 255 256
+[ 9518.368689] cs8210 isai-qemu[93886]: port 0x10000000000001a st 0 speed 400000 lanes 1 2 3 4 5 6 7 8
+[ 9518.369496] cs8210 isai-qemu[93886]: port 0x10000000000001b st 0 speed 400000 lanes 89 90 91 92 93 94 95 96
+[ 9518.369496] cs8210 isai-qemu[93886]: port 0x10000000000001c st 0 speed 400000 lanes 97 98 99 100 101 102 103 104
+[ 9518.369496] cs8210 isai-qemu[93886]: port 0x10000000000001d st 0 speed 400000 lanes 65 66 67 68 69 70 71 72
+[ 9518.369496] cs8210 isai-qemu[93886]: port 0x10000000000001e st 0 speed 400000 lanes 73 74 75 76 77 78 79 80
+[ 9518.369496] cs8210 isai-qemu[93886]: port 0x10000000000001f st 0 speed 400000 lanes 25 26 27 28 29 30 31 32
+[ 9518.369496] cs8210 isai-qemu[93886]: port 0x100000000000020 st 0 speed 400000 lanes 33 34 35 36 37 38 39 40
+[ 9518.369496] cs8210 isai-qemu[93886]: port 0x100000000000081 st 0 speed 10000 lanes 257
+[ 9518.369496] cs8210 isai-qemu[93886]: set mtu 9100                 0
+[ 9518.432058] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9518.534139] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cbd6e0 = 0
+[ 9518.536347] cs8210 isai-qemu[93886]: admin up                     0
+[ 9518.538706] cs8210 isai-qemu[93886]: set mtu 9100                 0
+[ 9518.942798] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cbd6e0 = 0
+[ 9518.943079] cs8210 isai-qemu[93886]: admin up                     0
+[ 9518.949530] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:298] event: 13 Took longer for the timer callback than the timer interval time difference (usec): 277711
+[ 9518.949737] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9518.949952] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:298] event: 12 Took longer for the timer callback than the timer interval time difference (usec): 179985
+[ 9519.050659] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8182
+[ 9519.051049] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9519.152690] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x818e
+[ 9519.152979] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9519.253226] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x818e
+[ 9519.253503] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9519.353743] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8192
+[ 9519.354016] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9519.452053] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9519.454284] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x818f
+    [... more lines matching /Took longer for the timer callback/ elided, total count at the end]
+[ 9519.471692] cs8210 isai-qemu[93886]: t=0 temp st 0 50 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9520.476060] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9521.472416] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9521.500045] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9521.572630] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8183
+[ 9521.572706] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9521.672881] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x818f
+[ 9521.672952] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9521.773120] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x818f
+[ 9521.773192] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9521.873449] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8193
+[ 9521.873530] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9521.973721] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8190
+[ 9521.977032] cs8210 isai-qemu[93886]: t=2 temp st 0 50 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9522.524055] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9523.548060] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9523.977565] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9524.077803] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8183
+[ 9524.077879] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9524.178071] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x818f
+[ 9524.178141] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9524.278301] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x818f
+[ 9524.278373] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9524.378548] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8193
+[ 9524.378618] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9524.478792] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8190
+[ 9524.482080] cs8210 isai-qemu[93886]: t=4 temp st 0 50 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9524.572086] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9525.596047] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9526.482599] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9526.582800] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8184
+[ 9526.582876] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9526.620049] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9526.683076] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8190
+[ 9526.683149] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9526.783329] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8190
+[ 9526.783402] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9526.883651] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8194
+[ 9526.883731] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9526.983923] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8191
+[ 9526.987222] cs8210 isai-qemu[93886]: t=6 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9527.644050] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9528.668059] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9528.987745] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9529.087946] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8184
+[ 9529.088031] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9529.188204] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8190
+[ 9529.188275] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9529.288451] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8191
+[ 9529.288522] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9529.388697] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8195
+[ 9529.388766] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9529.488939] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8191
+[ 9529.493342] cs8210 isai-qemu[93886]: t=8 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9529.692090] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9530.716057] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9531.493842] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9531.594040] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8185
+[ 9531.594114] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9531.694281] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8191
+[ 9531.694354] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9531.740044] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9531.794546] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8191
+[ 9531.794620] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9531.894834] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8195
+[ 9531.894910] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9531.995174] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8192
+[ 9531.998610] cs8210 isai-qemu[93886]: t=10 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9532.764062] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9533.788052] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9533.999203] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9534.099412] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8185
+[ 9534.099486] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9534.199733] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8192
+[ 9534.199811] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9534.299988] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8192
+[ 9534.300072] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9534.400240] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8195
+[ 9534.400312] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9534.500487] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8192
+[ 9534.503778] cs8210 isai-qemu[93886]: t=12 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9534.812044] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9535.836047] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9536.504294] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9536.604485] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8186
+[ 9536.604558] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9536.704719] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8192
+[ 9536.704788] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9536.804958] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8192
+[ 9536.805028] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9536.860049] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9536.905219] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8196
+[ 9536.905290] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9537.005521] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8193
+[ 9537.008845] cs8210 isai-qemu[93886]: t=14 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9537.884044] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9538.908062] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9539.009353] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9539.109543] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8186
+[ 9539.109615] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9539.209782] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8192
+[ 9539.209853] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9539.310024] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8192
+[ 9539.310094] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9539.410260] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8196
+[ 9539.410331] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9539.510505] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8193
+[ 9539.514907] cs8210 isai-qemu[93886]: t=16 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9539.932092] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9540.956054] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9541.515413] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9541.615602] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8186
+[ 9541.615674] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9541.715846] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8193
+[ 9541.715918] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9541.816097] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8193
+[ 9541.816169] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9541.916336] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8197
+[ 9541.916406] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9541.980055] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9542.016647] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8193
+[ 9542.019941] cs8210 isai-qemu[93886]: t=18 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9543.004057] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9544.020488] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9544.028052] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9544.120694] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8187
+[ 9544.120769] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9544.220940] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8193
+[ 9544.221010] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9544.321236] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8193
+[ 9544.321313] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9544.421484] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8197
+[ 9544.421555] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9544.521740] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8194
+[ 9544.525079] cs8210 isai-qemu[93886]: t=20 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9545.052048] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9546.076044] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9546.525585] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9546.625774] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8187
+[ 9546.625846] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9546.726028] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8193
+[ 9546.726100] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9546.826269] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8194
+[ 9546.826340] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9546.926507] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8198
+[ 9546.926577] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9547.026808] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8194
+[ 9547.029952] cs8210 isai-qemu[93886]: t=22 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9547.100090] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9548.124058] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9549.030564] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9549.130756] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8187
+[ 9549.130830] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9549.148046] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9549.231017] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8193
+[ 9549.231091] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9549.331263] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8193
+[ 9549.331333] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9549.431500] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8198
+[ 9549.431571] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9549.531741] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8194
+[ 9549.534892] cs8210 isai-qemu[93886]: t=24 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9550.172040] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9551.196053] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9551.535398] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9551.635594] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8188
+[ 9551.635666] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9551.735837] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8194
+[ 9551.735909] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9551.836097] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8194
+[ 9551.836168] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9551.936327] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8198
+[ 9551.936397] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9552.036612] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8195
+[ 9552.039905] cs8210 isai-qemu[93886]: t=26 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9552.220043] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9553.244046] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9554.040426] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9554.140623] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8188
+[ 9554.140694] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9554.240967] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8194
+[ 9554.241051] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9554.268054] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9554.341267] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8194
+[ 9554.341345] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9554.441576] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8198
+[ 9554.441652] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9554.541864] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8195
+[ 9554.545207] cs8210 isai-qemu[93886]: t=28 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9555.292053] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9556.316054] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9556.545732] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9556.645941] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8188
+[ 9556.646016] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9556.746201] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8194
+[ 9556.746271] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9556.846451] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8194
+[ 9556.846524] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9556.946704] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8198
+[ 9556.946775] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9557.047013] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8195
+[ 9557.050365] cs8210 isai-qemu[93886]: t=30 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9557.340048] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9558.364055] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9559.050894] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9559.151100] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8188
+[ 9559.151175] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9559.251347] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8194
+[ 9559.251420] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9559.351591] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8194
+[ 9559.351663] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9559.392048] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9559.451867] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8198
+[ 9559.451940] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9559.552135] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8195
+[ 9559.555259] cs8210 isai-qemu[93886]: t=32 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9560.412050] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9561.436051] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9561.555781] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9561.655982] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8188
+[ 9561.656068] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9561.756258] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8194
+[ 9561.756330] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9561.856518] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8195
+[ 9561.856591] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9561.956766] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8198
+[ 9561.956837] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9562.057063] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8195
+[ 9562.060381] cs8210 isai-qemu[93886]: t=34 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9562.460049] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9563.484061] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9564.061020] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9564.161222] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8188
+[ 9564.161297] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9564.261488] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8195
+[ 9564.261563] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9564.361750] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8195
+[ 9564.361825] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9564.461998] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8199
+[ 9564.462070] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9564.508059] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9564.562308] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8195
+[ 9564.567628] cs8210 isai-qemu[93886]: t=36 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9565.532049] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9566.556054] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9566.566229] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9566.666445] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8189
+[ 9566.666521] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9566.766696] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8195
+[ 9566.766767] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9566.866951] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8195
+[ 9566.867027] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9566.967203] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8199
+[ 9566.967274] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9567.067508] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8196
+[ 9567.070846] cs8210 isai-qemu[93886]: t=38 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9567.580055] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9568.604062] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9569.071390] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9569.171593] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8189
+[ 9569.171666] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9569.271845] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8195
+[ 9569.271918] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9569.372108] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8195
+[ 9569.372180] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9569.472349] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8199
+[ 9569.472419] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9569.572591] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8196
+[ 9569.577699] cs8210 isai-qemu[93886]: t=40 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9569.628094] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9570.652053] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9571.578196] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9571.676047] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9571.678415] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8189
+[ 9571.678489] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9571.778666] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8195
+[ 9571.778737] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9571.878919] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8195
+[ 9571.878993] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9571.979171] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8199
+[ 9571.979242] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9572.079468] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8196
+[ 9572.082803] cs8210 isai-qemu[93886]: t=42 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9572.700063] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9573.724053] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9574.083360] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9574.183589] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8189
+[ 9574.183665] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9574.283875] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8195
+[ 9574.283951] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9574.384145] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8195
+[ 9574.384216] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9574.484392] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8199
+[ 9574.484462] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9574.584707] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8196
+[ 9574.587989] cs8210 isai-qemu[93886]: t=44 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9574.748048] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9575.772044] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9576.588531] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9576.688767] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8189
+[ 9576.688846] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9576.789038] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8195
+[ 9576.789110] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9576.796036] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9576.889318] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8196
+[ 9576.889394] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9576.989582] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8199
+[ 9576.989654] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9577.089909] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8196
+[ 9577.093247] cs8210 isai-qemu[93886]: t=46 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9577.820060] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9578.844076] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9579.093846] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9579.194054] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8189
+[ 9579.194129] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9579.294317] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8195
+[ 9579.294390] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9579.394562] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8196
+[ 9579.394634] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9579.494826] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x819a
+[ 9579.494897] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9579.595080] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8196
+[ 9579.600061] cs8210 isai-qemu[93886]: t=48 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9579.868106] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9580.892057] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9581.600097] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9581.700310] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8189
+[ 9581.700386] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9581.800576] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8196
+[ 9581.800648] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9581.900827] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8196
+[ 9581.900900] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9581.916046] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9582.001105] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x819a
+[ 9582.001179] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9582.101436] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8197
+[ 9582.104775] cs8210 isai-qemu[93886]: t=50 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9582.940062] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9583.964067] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9584.105384] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9584.205590] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8189
+[ 9584.205664] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9584.305849] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8196
+[ 9584.305922] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9584.406096] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8196
+[ 9584.406169] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9584.506341] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x819a
+[ 9584.506413] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9584.606589] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8197
+[ 9584.609762] cs8210 isai-qemu[93886]: t=52 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9584.988049] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9586.012052] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9586.610322] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9586.710570] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8189
+[ 9586.710651] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9586.810853] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8196
+[ 9586.810927] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9586.911112] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8196
+[ 9586.911187] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9587.011362] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x8199
+[ 9587.011437] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9587.036043] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9587.111656] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8197
+[ 9587.114971] cs8210 isai-qemu[93886]: t=54 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9588.060055] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9589.084058] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9589.115561] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9589.215768] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8189
+[ 9589.215843] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9589.316046] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8195
+[ 9589.316122] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9589.416302] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8196
+[ 9589.416375] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9589.516547] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x819a
+[ 9589.516620] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9589.616804] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8196
+[ 9589.619927] cs8210 isai-qemu[93886]: t=56 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9590.108050] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9591.132052] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9591.620502] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 0
+[ 9591.720715] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 0 retry_count 1 value 0x8189
+[ 9591.720790] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 1
+[ 9591.820972] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 1 retry_count 1 value 0x8196
+[ 9591.821043] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 2
+[ 9591.921220] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 2 retry_count 1 value 0x8196
+[ 9591.921294] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 3
+[ 9592.021474] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 3 retry_count 1 value 0x819a
+[ 9592.021545] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_init_sensor:6429] [2] [ ii_node_init_sensor ] Initializing temp sensor 4
+[ 9592.121712] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_temp_get:6509] [2] [ ii_node_temp_get ] Temp sensor ID 4 retry_count 1 value 0x8197
+[ 9592.124997] cs8210 isai-qemu[93886]: t=58 temp st 0 51 C | lane 209 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 81 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+[ 9592.160058] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9593.184201] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9594.132763] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cbd6b0 = 0
+[ 9594.133187] cs8210 isai-qemu[93886]: admin down                   0
+[ 9594.138437] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008491a nr 26 arg 0xf75eb9cbd6b0 = 0
+[ 9594.138637] cs8210 isai-qemu[93886]: admin down                   0
+[ 9594.157141] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:254] stopping the thread execution; rc: 5 event_mask: 0x4000
+[ 9594.157216] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:312] Trying to exit out of event thread 14
+[ 9594.158737] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:254] stopping the thread execution; rc: 5 event_mask: 0x80000
+[ 9594.158808] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:312] Trying to exit out of event thread 19
+[ 9594.159599] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:254] stopping the thread execution; rc: 5 event_mask: 0x100000
+[ 9594.159668] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:312] Trying to exit out of event thread 20
+[ 9594.204058] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9595.228057] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9596.252061] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9597.269568] cs8210 isai-smoke[93886]: IVM-SDK: [HOSTIF] [ii_tl_hostif_trap_validate_impl:1645] Using either default(0) or previously configured queue for hw trap 17
+[ 9597.276059] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9598.300051] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9599.324058] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9599.877322] cs8210 isai-smoke[93886]: IVM-SDK: [ACL] [ii_acl_delete:39634] [0] acl (0) Not found (acl DELETE). rc 10
+[ 9599.877669] cs8210 isai-smoke[93886]: IVM-SDK: [ACL] [ii_acl_delete:39634] [0] acl (1) Not found (acl DELETE). rc 10
+[ 9599.877760] cs8210 isai-smoke[93886]: IVM-SDK: [ACL] [ii_acl_delete:39634] [0] acl (2) Not found (acl DELETE). rc 10
+[ 9599.877851] cs8210 isai-smoke[93886]: IVM-SDK: [ACL] [ii_acl_delete:39634] [0] acl (3) Not found (acl DELETE). rc 10
+[ 9599.877943] cs8210 isai-smoke[93886]: IVM-SDK: [ACL] [ii_acl_delete:39634] [0] acl (4) Not found (acl DELETE). rc 10
+[ 9599.878033] cs8210 isai-smoke[93886]: IVM-SDK: [ACL] [ii_acl_delete:39634] [0] acl (5) Not found (acl DELETE). rc 10
+[ 9599.934541] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:254] stopping the thread execution; rc: 5 event_mask: 0x8000000
+[ 9599.934613] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:312] Trying to exit out of event thread 27
+[ 9600.055234] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200000
+[ 9600.091108] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200001
+[ 9600.120343] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200002
+[ 9600.149773] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200003
+[ 9600.179540] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200004
+[ 9600.208042] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200005
+[ 9600.236648] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200006
+[ 9600.265987] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200007
+[ 9600.296428] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200008
+[ 9600.325114] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200009
+[ 9600.348056] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9600.353750] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c20000a
+[ 9600.383011] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c20000b
+[ 9600.413144] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c20000c
+[ 9600.442733] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c20000d
+[ 9600.471821] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c20000e
+[ 9600.501231] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c20000f
+[ 9600.530697] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200010
+[ 9600.560102] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200011
+[ 9600.588500] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200012
+[ 9600.617417] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200013
+[ 9600.646688] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200014
+[ 9600.675268] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200015
+[ 9600.704074] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200016
+[ 9600.732978] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200017
+[ 9600.761576] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200018
+[ 9600.790050] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200019
+[ 9600.818891] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c20001a
+[ 9600.847738] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c20001b
+[ 9600.876636] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c20001c
+[ 9600.905702] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c20001d
+[ 9600.934219] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c20001e
+[ 9600.962881] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c20001f
+[ 9600.991721] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_mdg_alloc_resource_impl:3195] [0] Clearing spatial bm for mdg: 0x2c400080 mcdest: 0x2c200020
+[ 9601.372053] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9602.396063] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9603.282704] cs8210 isai-smoke[93886]: IVM-SDK: [VNI] [ii_tl_l2vni_dealloc_resource_impl:2515] [0] Deleting VNI(0x24200001) API type 5
+[ 9603.362803] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_node_release:309] Releasing node 0, shutdown type = 0
+[ 9603.363453] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_stop_all_threads:200] Stopping all threads in 0
+[ 9603.364026] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:254] stopping the thread execution; rc: 5 event_mask: 0x800
+[ 9603.364100] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_stop_all_threads:215] Waiting for event 11 thread to exit
+[ 9603.364165] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:312] Trying to exit out of event thread 11
+[ 9603.364404] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_stop_all_threads:215] Waiting for event 12 thread to exit
+[ 9603.364477] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:254] stopping the thread execution; rc: 5 event_mask: 0x1000
+[ 9603.364544] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:312] Trying to exit out of event thread 12
+[ 9603.364807] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_stop_all_threads:215] Waiting for event 13 thread to exit
+[ 9603.364881] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:254] stopping the thread execution; rc: 5 event_mask: 0x2000
+[ 9603.364954] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:312] Trying to exit out of event thread 13
+[ 9603.365131] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_stop_all_threads:215] Waiting for event 22 thread to exit
+[ 9603.420048] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9604.038398] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:254] stopping the thread execution; rc: 5 event_mask: 0x400000
+[ 9604.038474] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:312] Trying to exit out of event thread 22
+[ 9604.038739] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_stop_all_threads:215] Waiting for event 23 thread to exit
+[ 9604.038855] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:254] stopping the thread execution; rc: 5 event_mask: 0x800000
+[ 9604.038931] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:312] Trying to exit out of event thread 23
+[ 9604.039113] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_stop_all_threads:215] Waiting for event 26 thread to exit
+[ 9604.039209] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:254] stopping the thread execution; rc: 5 event_mask: 0x4000000
+[ 9604.039287] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_event_cb_exec:312] Trying to exit out of event thread 26
+[ 9604.039936] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084903 nr 3 arg 0xf75eb9cbea10 = 0
+[ 9604.039936] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e9b2dcdb0 = 0
+[ 9604.040063] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084903 nr 3 arg 0xf75eb9cbea10 = 0
+[ 9604.040063] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e9b2dcdb0 = -1
+[ 9604.040134] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084903 nr 3 arg 0xf75eb9cbea10 = 0
+[ 9604.040134] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e8ad8bd90 = 0
+[ 9604.040134] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e8ad8bd90 = -1
+[ 9604.040271] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084903 nr 3 arg 0xf75eb9cbea10 = 0
+[ 9604.040271] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89ce9d90 = 0
+[ 9604.040340] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89ce9d90 = -1
+[ 9604.040321] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_rupt_thread_async:2544] ASYNC rupt thread terminatedi with errno:1
+[ 9604.040458] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084903 nr 3 arg 0xf75eb9cbea10 = 0
+[ 9604.040458] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = 0
+[ 9604.040527] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e89498d90 = -1
+[ 9604.040631] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084903 nr 3 arg 0xf75eb9cbea10 = 0
+[ 9604.040631] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e88bfed90 = 0
+[ 9604.040645] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_rupt_thread_error:932] Err rupt thread terminated with errno:1
+[ 9604.040754] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084903 nr 3 arg 0xf75eb9cbea10 = 0
+[ 9604.040792] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_rupt_thread_tx:2415] TX rupt thread terminated with errno:1
+[ 9604.041324] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_rupt_thread_learn:2005] Learn thread terminated
+[ 9604.044719] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084904 nr 4 arg 0xf75e88bfed90 = -1
+[ 9604.044931] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [_ii_pcie_rupt_thread_pic:825] PIC rupt thread terminated with errno:1
+[ 9604.132049] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_nmgr_mod_deinit:761]
+[ 9604.265106] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0x40044928 nr 40 arg 0xf75eb9cbe94c = 0
+[ 9604.271882] cs8210 isai-smoke[93886]: IVM-SDK: [VNI] [ii_tl_l2vni_dealloc_resource_impl:2515] [0] Deleting VNI(0x24200000) API type 6
+[ 9604.276061] cs8210 isai-smoke[93886]: IVM-SDK: [VNI] [ii_tl_l2vni_dealloc_resource_impl:2515] [0] Deleting VNI(0x24201f80) API type 6
+[ 9604.279727] cs8210 isai-smoke[93886]: IVM-SDK: [VNI] [ii_tl_l2vni_dealloc_resource_impl:2515] [0] Deleting VNI(0x24201f81) API type 6
+[ 9604.283390] cs8210 isai-smoke[93886]: IVM-SDK: [VNI] [ii_tl_l2vni_dealloc_resource_impl:2515] [0] Deleting VNI(0x24201f82) API type 6
+[ 9604.287037] cs8210 isai-smoke[93886]: IVM-SDK: [VNI] [ii_tl_l2vni_dealloc_resource_impl:2515] [0] Deleting VNI(0x24201f83) API type 6
+[ 9604.290691] cs8210 isai-smoke[93886]: IVM-SDK: [VNI] [ii_tl_l2vni_dealloc_resource_impl:2515] [0] Deleting VNI(0x24201f84) API type 6
+[ 9604.394136] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600000) API type 6
+[ 9604.394889] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600001) API type 6
+[ 9604.395088] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600002) API type 6
+[ 9604.395193] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600003) API type 6
+[ 9604.395293] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600004) API type 6
+[ 9604.395397] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600005) API type 6
+[ 9604.395498] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600006) API type 6
+[ 9604.395599] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600007) API type 6
+[ 9604.395702] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600008) API type 6
+[ 9604.395803] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600009) API type 6
+[ 9604.395906] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c60000a) API type 6
+[ 9604.396022] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c60000b) API type 6
+[ 9604.396124] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c60000c) API type 6
+[ 9604.396227] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c60000d) API type 6
+[ 9604.396330] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c60000e) API type 6
+[ 9604.396434] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c60000f) API type 6
+[ 9604.396536] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600010) API type 6
+[ 9604.396640] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600011) API type 6
+[ 9604.396744] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600012) API type 6
+[ 9604.396847] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600013) API type 6
+[ 9604.396950] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600014) API type 6
+[ 9604.397054] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600015) API type 6
+[ 9604.397158] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600016) API type 6
+[ 9604.397261] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600017) API type 6
+[ 9604.397364] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600018) API type 6
+[ 9604.397466] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600019) API type 6
+[ 9604.397569] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c60001a) API type 6
+[ 9604.397673] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c60001b) API type 6
+[ 9604.397777] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c60001c) API type 6
+[ 9604.397879] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c60001d) API type 6
+[ 9604.397980] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c60001e) API type 6
+[ 9604.398084] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c60001f) API type 6
+[ 9604.398187] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600020) API type 6
+[ 9604.398290] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600021) API type 6
+[ 9604.398394] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600022) API type 6
+[ 9604.398498] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600023) API type 6
+[ 9604.398599] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600024) API type 6
+[ 9604.398701] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600025) API type 6
+[ 9604.398803] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600026) API type 6
+[ 9604.398906] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600027) API type 6
+[ 9604.399008] cs8210 isai-smoke[93886]: IVM-SDK: [MDG] [ii_tl_src_filter_group_dealloc_resource_impl:5478] [0] Deleting src filter group(0x2c600028) API type 6
+[ 9604.433841] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_nmgr_mod_lock:1453] mod_prio = 13
+[ 9604.533508] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_node_release:357] Node 0 successly detached from IFCS
+[ 9604.533843] cs8210 isai-smoke[93886]: IVM-SDK: [PORT] [ii_devport_serdes_appl_unregister:6655] [ ii_devport_serdes_appl_unregister ] AAPL deinit complete
+[ 9604.534945] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_nmgr_mod_lock:1453] mod_prio = 4
+    [... more lines matching /im_nmgr_mod_lock/ elided, total count at the end]
+[ 9604.539167] cs8210 isai-smoke[93886]: IVM-SAI: Switch: ifcs_sai_shim_switch.c:6628 Shutdown switch: Cold shutdown for ifcs
+[ 9604.539419] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ifcs_deinit:466] Deinitializing IFCS, shutdown_type: 0
+[ 9604.539915] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [ii_node_delete:48775] [0] node (0) Not found (node DELETE). rc 10
+[ 9604.540234] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_nmgr_node_deinit:531]
+[ 9604.702694] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084908 nr 8 arg 0xf75eb9cbeb70 = 0
+[ 9604.702694] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084908 nr 8 arg 0xf75eb9cbeb70 = -22
+[ 9604.702813] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084908 nr 8 arg 0xf75eb9cbeb70 = -22
+[ 9604.702813] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084908 nr 8 arg 0xf75eb9cbeb70 = -22
+[ 9604.702813] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084908 nr 8 arg 0xf75eb9cbeb70 = -22
+[ 9604.710895] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008490a nr 10 arg 0xf75eb9cbec10 = 0
+[ 9604.720037] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc0084914 nr 20 arg 0xf75eb9cbebf0 = 0
+[ 9604.736086] cs8210 isai-qemu[93886]: qemu-ipd: ioctl fd 7 cmd 0xc008490c nr 12 arg 0xf75eb9cbec40 = 0
+[ 9604.752933] cs8210 isai-smoke[93886]: IVM-SDK: [NODE] [im_shutdown:648] [pcie] Shutting down
+[ 9607.785228] cs8210 isai-qemu[93886]: remove_switch                0
+[ 9607.785921] cs8210 isai-qemu[93886]: sai_api_uninitialize         0
+[ 9607.891578] cs8210 systemd[1]: isai-smoke2.service: Deactivated successfully.
+[ 9607.892344] cs8210 systemd[1]: isai-smoke2.service: Consumed 58.208s CPU time over 1min 52.211s wall clock time, 370.6M memory peak.
+
