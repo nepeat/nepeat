@@ -21,7 +21,22 @@ Usage: cs8210-fan <command>
 
 Tach RPM is shown as raw x 100. That scale is an assumption (it fits the
 vendor's test limits and matches the DMC12 CPLD); the raw value is printed too.
+
+While fand runs it owns the fans and rewrites them every tick: use
+`fand set 80% --for 10m` / `fand status` instead, or stop it first
+(`systemctl stop fand` leaves full speed with the watchdog armed).
 USAGE
+}
+
+# Writes race the daemon (fand re-asserts its duty and re-disarms the
+# watchdog, the latter with a failsafe period); say so instead of failing.
+warn_daemon() {
+  local u
+  for u in fand cs8210-fancontrol; do
+    if systemctl is-active --quiet "$u" 2>/dev/null; then
+      echo "cs8210-fan: $u is running and will override this (see cs8210-fan help)" >&2
+    fi
+  done
 }
 
 boards() { echo "top:$(bus_fan_top)"; echo "bottom:$(bus_fan_bottom)"; }
@@ -73,7 +88,7 @@ watchdog() {
 case "${1:-}" in
   status) require_root; status ;;
   set)
-    require_root
+    require_root; warn_daemon
     v=${2:-}
     if [[ "$v" =~ ^([0-9]+)%$ ]] && [ "${BASH_REMATCH[1]}" -le 100 ]; then
       set_pwm $(( BASH_REMATCH[1] * 255 / 100 ))
@@ -83,8 +98,8 @@ case "${1:-}" in
       usage; exit 2
     fi
     ;;
-  quiet) require_root; watchdog off; set_pwm 127 ;;
-  max)   require_root; set_pwm 255 ;;
-  watchdog) require_root; watchdog "${2:-}" ;;
+  quiet) require_root; warn_daemon; watchdog off; set_pwm 127 ;;
+  max)   require_root; warn_daemon; set_pwm 255 ;;
+  watchdog) require_root; warn_daemon; watchdog "${2:-}" ;;
   *) usage; [ -n "${1:-}" ] && exit 2 || exit 0 ;;
 esac

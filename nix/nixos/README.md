@@ -52,7 +52,7 @@ nixos-rebuild switch --flake .#cs8210 --target-host root@<addr>
   (`config.hardware.cs8210.boot.nosBootcmd`); ONIE in SPI flash stays the
   fallback. Stop autoboot with `123<Enter>`.
 - Root autologin on the serial console is on while this is a bring-up box.
-- On the box: `cs8210-show`, `cs8210-fan`, `systemctl status cs8210-fancontrol`.
+- On the box: `cs8210-show`, `cs8210-fan`, `systemctl status fand`.
 
 Deploy:
 

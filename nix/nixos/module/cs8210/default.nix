@@ -31,7 +31,7 @@ in
 {
   imports = [
     ./uboot-menu
-    ./fan-control # services.cs8210-fancontrol
+    ./fan-control # hardware.cs8210.fan: fand (default) or services.cs8210-fancontrol
     ./tools # services.cs8210-tools
     ./vendor-sdk # hardware.cs8210.vendorSdk
   ];
@@ -157,7 +157,6 @@ in
       serviceConfig.LogLevelMax = "notice";
     };
 
-    services.cs8210-fancontrol.enable = lib.mkDefault true;
     services.cs8210-tools.enable = lib.mkDefault true;
     hardware.cs8210.vendorSdk.enable = lib.mkDefault true;
 
