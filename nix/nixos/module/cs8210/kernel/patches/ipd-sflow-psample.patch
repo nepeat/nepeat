@@ -1,0 +1,165 @@
+Kernel psample delivery for sFlow samples, and the sFlow sample-rate ioctls
+for legacy-ABI userspace (sai-teralynx, ai_re/nix/packages/sai-teralynx/src/tl_sflow.cpp).
+
+- psample=1 (module parameter, default 0, writable): an sFlow netlink created
+  with IPD_CREATE_NETLINK (nl_app_type INNO_NL_SFLOW) registers no generic-netlink
+  family of its own (psample.ko owns the name "psample", and hsflowd's lookup
+  autoloads it) but takes psample groups 1 (ingress) and 2 (egress) in the initial
+  netns and hands every decoded sample to psample_sample_packet() with the
+  in/out ifindex, the port's sample rate and the whole sampled frame. Without the
+  parameter the driver behaves as upstream. ipd.ko now depends on psample.ko.
+- legacy_abi=1: IPD_SET_NETDEV also takes INNO_ND_INGRESS/EGRESS_SFLOW_SAMPLE_RATE
+  (0.12.x had no such ids; the rate is the u32 at the start of the union in the
+  0.12.x layout), with a sysport bounds check for both layouts.
+
+--- a/ipd.h	2026-11-16 12:18:27.955716890 -0800
++++ b/ipd.h	2026-11-16 12:19:04.464930858 -0800
+@@ -237,8 +237,11 @@
+     struct inno_gen_netlink_s *inno_genl;
+ }inno_gen_netlink_tid_t;
+ 
++struct psample_group;
++
+ typedef struct inno_gen_netlink_s {
+     uint32_t                  seq;                // Sequence number
++    struct psample_group      *psample[2];        // psample=1: kernel psample groups (ingress, egress)
+     netLinkAppType            nl_type;            // Netlink type
+     struct genl_family        inno_genl_family;
+     inno_gen_netlink_stats_t  stats;
+--- a/inno_enet.c	2026-11-16 12:18:27.965716950 -0800
++++ b/inno_enet.c	2026-11-16 12:19:04.914933467 -0800
+@@ -50,6 +50,18 @@
+ #include "ipd.h"
+ #include "inno_ldh.h"
+ #include "inno_enet.h"
++#if IS_ENABLED(CONFIG_PSAMPLE)
++#include <net/psample.h>
++#endif
++
++/* psample=1: an sFlow netlink (IPD_CREATE_NETLINK, nl_app_type INNO_NL_SFLOW)
++ * hands its samples to the kernel's psample (groups 1 = ingress, 2 = egress,
++ * in the initial network namespace) instead of registering a generic-netlink
++ * family of its own; with psample.ko holding the "psample" name that family
++ * could not be registered. Takes effect for netlinks created afterwards. */
++static bool ipd_psample;
++module_param_named(psample, ipd_psample, bool, 0644);
++MODULE_PARM_DESC(psample, "sFlow samples to the kernel's psample (groups 1/2) instead of an own genetlink family (default 0)");
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 0, 0)
+ inno_gen_netlink_t* inno_gen_netlink_search(inno_device_t  *idev, char *name);
+@@ -851,6 +863,24 @@
+ 
+     ipd_debug("in_ifindex: %d out_ifindex: %d\n", in_ifindex, out_ifindex);
+ 
++#if IS_ENABLED(CONFIG_PSAMPLE)
++    if (genl->psample[0]) {
++        struct psample_metadata md = {};
++
++        md.trunc_size = skb->len;       /* whole sample; the agent truncates */
++        md.in_ifindex = in_ifindex;
++        md.out_ifindex = out_ifindex;
++        /* skb->data is the sampled frame's Ethernet header */
++        if (skb->len >= ETH_HLEN)
++            skb->protocol = ((struct ethhdr *)skb->data)->h_proto;
++        psample_sample_packet(genl->psample[sflow_dir ? 1 : 0], skb, sample_rate, &md);
++        genl->stats.rx_packets++;
++        genl->stats.rx_bytes += skb->len;
++        kfree_skb(skb);
++        return;
++    }
++#endif
++
+     meta_len = (in_ifindex ? nla_total_size(sizeof(uint16_t)) : 0) +
+         (out_ifindex ? nla_total_size(sizeof(uint16_t)) : 0) +
+         nla_total_size(sizeof(uint32_t)) +    /* sample_rate */
+@@ -2314,10 +2344,12 @@
+             idev->inno_netdev.ptp_event_queue_valid = ninfo.u.ptp_info.ptp_event_queue_valid;
+             break;
+         case INNO_ND_INGRESS_SFLOW_SAMPLE_RATE:
++            if (ninfo.sysport >= NUM_SYSPORTS) { rc = -EINVAL; break; }
+             idev->inno_netdev.isflow_sample_rate[ninfo.sysport] = ninfo.u.sflow_sample_rate;
+             ipd_info("Sflow sample_rate set for sysport %d is %d\n", ninfo.sysport, ninfo.u.sflow_sample_rate);
+             break;
+         case INNO_ND_EGRESS_SFLOW_SAMPLE_RATE:
++            if (ninfo.sysport >= NUM_SYSPORTS) { rc = -EINVAL; break; }
+             idev->inno_netdev.esflow_sample_rate[ninfo.sysport] = ninfo.u.sflow_sample_rate;
+             ipd_info("Sflow sample_rate set for sysport %d is %d\n", ninfo.sysport, ninfo.u.sflow_sample_rate);
+             break;
+@@ -2411,6 +2443,21 @@
+         p_gnetlink->nl_type = INNO_NL_PGENL;
+         p_gnetlink->inno_genl_family.maxattr = INNO_PGENL_ATTR_MAX;
+     }
++#if IS_ENABLED(CONFIG_PSAMPLE)
++    if (nl_type == INNO_NL_SFLOW && ipd_psample) {
++        p_gnetlink->psample[0] = psample_group_get(&init_net, 1);
++        p_gnetlink->psample[1] = psample_group_get(&init_net, 2);
++        if (!p_gnetlink->psample[0] || !p_gnetlink->psample[1]) {
++            ipd_err("psample groups 1/2 not available\n");
++            if (p_gnetlink->psample[0]) psample_group_put(p_gnetlink->psample[0]);
++            if (p_gnetlink->psample[1]) psample_group_put(p_gnetlink->psample[1]);
++            kfree(p_gnetlink);
++            return -ENOMEM;
++        }
++        rc = 0;
++        goto registered;   /* no family of our own: the name stays psample.ko's */
++    }
++#endif
+     p_gnetlink->inno_genl_family.netnsok = true;
+     p_gnetlink->inno_genl_family.module = THIS_MODULE;
+     strcpy(inno_genl_sflow_mcgrps.name, gen_mcgrp_name);
+@@ -2425,12 +2471,16 @@
+         return rc;
+     }
+ 
++#if IS_ENABLED(CONFIG_PSAMPLE)
++registered:
++#endif
+     if(nl_type == INNO_NL_SFLOW){
+         idev->inno_netlink.sflow = 1;
+         idev->inno_netlink.sflow_genl = p_gnetlink;
+     }
+ 
+-    ipd_info("Generic netlink %s created with mcgrp name %s\n", name, gen_mcgrp_name);
++    ipd_info("Generic netlink %s created with mcgrp name %s%s\n", name, gen_mcgrp_name,
++             p_gnetlink->psample[0] ? " (to the kernel's psample)" : "");
+ 
+     if(idev->inno_netlink.gnetlink == NULL){
+         idev->inno_netlink.gnetlink = p_gnetlink;
+@@ -2480,9 +2530,18 @@
+         ipd_err("Generic netlink %s not found\n", name);
+         return -1;
+     }
+-    rc = genl_unregister_family(&(p->inno_genl_family));
+-    if(rc) {
+-        ipd_err("genl_unregister_family failed, rc - %d\n", rc);
++#if IS_ENABLED(CONFIG_PSAMPLE)
++    if (p->psample[0]) {
++        psample_group_put(p->psample[0]);
++        psample_group_put(p->psample[1]);
++        rc = 0;
++    } else
++#endif
++    {
++        rc = genl_unregister_family(&(p->inno_genl_family));
++        if(rc) {
++            ipd_err("genl_unregister_family failed, rc - %d\n", rc);
++        }
+     }
+     kfree(p);
+     ipd_info("Generic netlink %s deleted\n", name);
+--- a/ipd_main.c	2026-11-16 12:18:27.962716931 -0800
++++ b/ipd_main.c	2026-11-16 12:19:04.958933722 -0800
+@@ -3518,7 +3518,12 @@
+         inno_ioctl_netdev_info_t n;
+ 
+         IPD_V0_IN(o);
+-        if (o.id > INNO_ND_RING)
++        /* 0.12.x had ids up to INNO_ND_RING; the sFlow sample rates are
++         * set by sai-teralynx with this layout (u32 at the start of u) */
++        if (o.id > INNO_ND_RING &&
++            !(_IOC_NR(cmd) == _IOC_NR(IPD_SET_NETDEV) &&
++              (o.id == INNO_ND_INGRESS_SFLOW_SAMPLE_RATE ||
++               o.id == INNO_ND_EGRESS_SFLOW_SAMPLE_RATE)))
+             return -1;
+         inno_ninfo_from_v0(&n, &o);
+         if (_IOC_NR(cmd) == _IOC_NR(IPD_SET_NETDEV))

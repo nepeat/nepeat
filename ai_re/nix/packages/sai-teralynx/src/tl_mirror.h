@@ -15,8 +15,8 @@
 //    sysport SFLOW_INGRESS = {ENABLE, the set, container 1, rate}; egress
 //    sampling needs the node's EGRESS_SFLOW_ENABLE (off in this init config:
 //    isai's set fails the same way), so it is refused;
-//  - genetlink (psample) host interfaces: 0.12.41 has no ifcs_netlink_*,
-//    so NOT_SUPPORTED.
+//  - genetlink (psample) host interfaces: tl_sflow (the ipd driver's sFlow
+//    netlink; every sampler change passes the port's rate to it).
 // collector_set() is for the ACL area (ACL mirror actions): the set of a
 // session and direction, created on first use and counted.
 #pragma once

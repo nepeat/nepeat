@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Mirror sessions and sampling (tl_mirror.h).
 #include "tl_mirror.h"
+#include "tl_sflow.h"
 
 #include <cstdio>
 
@@ -344,6 +345,7 @@ sai_status_t MirrorArea::sample_update(int id, uint32_t rate)
         sai_status_t st = policy_set(p.first.first, p.first.second ? IFCS_SYSPORT_ATTR_SFLOW_INGRESS : IFCS_SYSPORT_ATTR_SFLOW_EGRESS,
                                      true, d.set, IFCS_TRAFFIC_MONITOR_CONTAINER_1, rate);
         if (st != SAI_STATUS_SUCCESS) { it->second = old; return st; }
+        if (c_.sflow) c_.sflow->port_rate(p.first.first, p.first.second, rate);   // the samples' metadata
     }
     return SAI_STATUS_SUCCESS;
 }
@@ -379,6 +381,7 @@ sai_status_t MirrorArea::port_sample_set(int hw, bool ingress, int id)
             return st;
         }
         port_sample_[key] = id;
+        if (c_.sflow) c_.sflow->port_rate(hw, ingress, samples_[id]);   // the samples' metadata
         return SAI_STATUS_SUCCESS;
     }
     if (!had) return SAI_STATUS_SUCCESS;
@@ -386,6 +389,7 @@ sai_status_t MirrorArea::port_sample_set(int hw, bool ingress, int id)
     if (st != SAI_STATUS_SUCCESS) return st;
     port_sample_.erase(key);
     sflow_put(ingress);
+    if (c_.sflow) c_.sflow->port_rate(hw, ingress, 0);
     return SAI_STATUS_SUCCESS;
 }
 
@@ -408,6 +412,7 @@ std::string MirrorArea::show()
                       p.second, samples_[p.second]);
         s += b;
     }
+    if (c_.sflow) s += c_.sflow->show();
     return s;
 }
 

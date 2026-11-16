@@ -22,6 +22,7 @@
 #include "tl_mirror.h"
 #include "tl_port.h"
 #include "tl_qos.h"
+#include "tl_sflow.h"
 #include "tl_switch.h"
 
 namespace ob {
@@ -31,7 +32,7 @@ using namespace tlb;
 class IfcsBackend : public Backend {
 public:
     IfcsBackend()
-        : sw_(c_), port_(c_), l2_(c_), l3_(c_), hostif_(c_), lag_(c_), acl_(c_), qos_(c_), mirror_(c_)
+        : sw_(c_), port_(c_), l2_(c_), l3_(c_), hostif_(c_), lag_(c_), acl_(c_), qos_(c_), mirror_(c_), sflow_(c_)
     {
         c_.sw = &sw_;
         c_.port = &port_;
@@ -42,10 +43,11 @@ public:
         c_.acl = &acl_;
         c_.qos = &qos_;
         c_.mirror = &mirror_;
+        c_.sflow = &sflow_;
     }
     ~IfcsBackend() override
     {
-        if (c_.initialized) sw_.shutdown();
+        if (c_.initialized) { sflow_.shutdown(); sw_.shutdown(); }
     }
     const char* name() const override { return "teralynx"; }
     bool is_fake() const override { return false; }
@@ -55,7 +57,7 @@ public:
     {
         return sw_.init(cfg, std::move(link_cb), std::move(fdb_cb));
     }
-    void shutdown() override { sw_.shutdown(); }
+    void shutdown() override { sflow_.shutdown(); sw_.shutdown(); }
     sai_status_t run_shell(const std::string& cmd) override { return sw_.run_shell(cmd); }
     sai_status_t run_shell_to(const std::string& cmd, int fd) override { return sw_.run_shell_to(cmd, fd); }
     int cpu_port() const override { return CPU_DEVPORT; }
@@ -261,6 +263,12 @@ public:
     sai_status_t sample_update(int id, uint32_t rate) override { return mirror_.sample_update(id, rate); }
     sai_status_t sample_destroy(int id) override { return mirror_.sample_destroy(id); }
     sai_status_t port_sample_set(int hw, bool ingress, int id) override { return mirror_.port_sample_set(hw, ingress, id); }
+    sai_status_t genetlink_create(const std::string& name, const std::string& mcgrp, int& id) override
+    {
+        return sflow_.genetlink_create(name, mcgrp, id);
+    }
+    sai_status_t genetlink_destroy(int id) override { return sflow_.genetlink_destroy(id); }
+    sai_status_t genetlink_trap_set(int id, int32_t trap_type, bool on) override { return sflow_.genetlink_trap_set(id, trap_type, on); }
 
 private:
     Core c_;
@@ -273,6 +281,7 @@ private:
     AclArea acl_;
     QosArea qos_;
     MirrorArea mirror_;
+    SflowArea sflow_;
 };
 
 Backend* make_openbcm_backend() { return new IfcsBackend(); }

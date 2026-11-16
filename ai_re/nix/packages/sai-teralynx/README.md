@@ -38,11 +38,12 @@ owns them and maps the frontend's `Backend` interface onto them.
 | `src/tl_lag.*` | LAGs and members, LAG dests for L2/L3, the switch hash (entropy) |
 | `src/tl_qos.*` | QoS maps (qos_map + shared map groups on sysports), PFC, queue schedulers / port shaper, WRED (AQM curve groups), queue buffer thresholds, queue / PG / PFC counters |
 | `src/tl_mirror.*` | mirror sessions (DCDP + collector + collector set), port mirroring and sFlow sampling (sysport traffic-monitor policies); `collector_set()` for ACL mirror actions |
+| `src/tl_sflow.*` | genetlink host interfaces: sFlow samples to psample through the ipd driver's sFlow netlink (ioctls on libifcs' `/dev/ipd` fd), the ports' sample rates for the samples' metadata |
 | `src/ifcs_api_qos.h` | the IFCS declarations of those two areas (included by `ifcs_api.h`, `IFCS_SYMBOLS_QOS`) |
 | `tests/test_ifcs.cpp`, `tests/t_<area>.cpp`, `tests/harness.h` | end-to-end test: main + one file per area |
 | `tests/mock/mock_<area>.c`, `mock.h` | mock libifcs, one file per area; type-checked against `ifcs_api.h`, none missing (link check) |
 | `oracle/` | libifcs call tracer + SAI script runner + diff ([oracle/README.md](oracle/README.md)) |
-| `tools/` | `sai_smoke.cpp`, `trap_frames.c` (frame sender/counter for trap tests), `qos_frames.c` (DSCP / ECN / PFC frames, per-DSCP, GRE-copy and rate counts for the QoS / mirror / sFlow tests), `raw_frames.c` (any hex frame, tagged and counted: IGMP / MLD / ICMP / DSCP / IPv6 for the ACL and trap tests) |
+| `tools/` | `sai_smoke.cpp`, `trap_frames.c` (frame sender/counter for trap tests), `qos_frames.c` (DSCP / ECN / PFC frames, per-DSCP, GRE-copy and rate counts for the QoS / mirror / sFlow tests), `raw_frames.c` (any hex frame, tagged and counted: IGMP / MLD / ICMP / DSCP / IPv6 for the ACL and trap tests), `sflow_probe.c` (sequence-numbered frames, samples read from a netdev or psample: 1-in-N, gaps, metadata), `sflow-sonic-test.sh` (SONiC sFlow by hand on the box: patched ipd, libsai drop-in, sflowmgrd / hsflowd / sflowtool) |
 
 The Makefile picks up `src/*.cpp`, `tests/t_*.cpp` and `tests/mock/*.c` by wildcard.
 
@@ -159,6 +160,7 @@ I = inferred (API exists, form or semantics not seen in use).
 | host traps (`trap_program`) | per SAI trap: a hostif trap (user trap with the group's `QUEUE_NUM`; IP2ME = the TRAP routes' one; TTL/MTU = system traps 17/23 with `ENABLE`; NEIGHBOR_MISS = a glean trap of its own) and CoPP entries (below; IGMP / MLD: ether type + protocol + L4 byte 1); types without a mapping NOT_SUPPORTED (kept) | V (isai's model, oracle) |
 | CoPP table | ingress control table, scope PER_IB, one ACL per inno block (6, probed); match DMAC / ether type / L4 proto / ports / L4 byte 1 / hostif trap; actions copy, copy override, drop, meter, counter; table needs `DEFAULT_STATS` off and `MAX_METERS` | V (on chip; isai's `TYPE` attribute refused by 0.12) |
 | trap entries | one ACE per rule and IB: L2 protocols by DMAC + ether type, IP protocols by ether type + L4, BGP/SSH/SNMP/BFD = protocol + IP2ME trap, IP2ME = hostif trap match; COPY_TO_CPU (all colours unless policed), COPY_TO_CPU_OVERRIDE for policed colours, DROP for TRAP, METER, colour counter; priority lower wins | V (on chip) / I (priority direction) |
+| sFlow to the host (GENETLINK hostif + SAMPLEPACKET table entry) | no IFCS call: ipd ioctls IPD_SET_PARAMS (sample GRE protocol 0x8818), IPD_CREATE_NETLINK (SFLOW, the hostif's name / group), IPD_SET_NETDEV sample rate per sysport; the driver strips the sample frames and sends psample messages (kernel psample with ipd `psample=1`) | V (ipd source; chip: SONiC + hsflowd + sflowtool) |
 | policers | IFCS `acl_meter` per policer and IB (srTCM = RFC 2697, trTCM = 2698, colour aware), packets as 84 B (CIR x 672 bit/s, CBS x 84 B, isai's conversion); updated in place | V (on chip: 100 pps policer held a 1000 pps burst to ~95 pps); CIR 10 pps rejected (range check) |
 
 ## Tests
@@ -178,7 +180,8 @@ I = inferred (API exists, form or semantics not seen in use).
   map groups, TC -> queue identity rule, PFC, schedulers via scheduler groups,
   port / queue shapers in bits/s, WRED curves, queue buffer reserve with the
   port flapped, queue / PG / PFC counters); mirror (SPAN / ERSPAN collectors,
-  shared DCDP, session update inside the set, sFlow collector + policy);
+  shared DCDP, session update inside the set, sFlow collector + policy); sFlow to psample (`t_sflow.cpp`: GENETLINK hostif,
+  SAMPLEPACKET table entry -> ipd ioctls in order, rates on sampler changes, refusals, failing ioctls);
   SAI ACL tables (L3 / L3V6 as aclorch, group binding, every field and
   action the frontend passes, IN_PORTS on part of the ports, policer, refusals,
   removal); counters by SAI id, CPU queues and the diag shell (`acl`, `counters`);
@@ -186,7 +189,7 @@ I = inferred (API exists, form or semantics not seen in use).
   port counters by id + stats capability, hash objects, VLAN flood control, storm
   control, ACL ranges / SET_TC / REDIRECT / MIRROR / egress + OUT_PORTS, entry admin
   and in-place update, AVAILABLE_ACL_ENTRY, SET_DSCP refused); temperatures
-  (round-robin, cached); remove_switch order. 877 checks (all areas, 2026-11-16).
+  (round-robin, cached); remove_switch order. 914 checks (all areas, 2026-11-16).
 - sai-openbcm's `tests/test_sai.cpp`, unchanged, against this library's
   objects (frontend + fake backend): 2667 checks.
 - Built natively with nix (`callPackage ./sai-teralynx { inherit sonic; }`) and
@@ -197,7 +200,8 @@ I = inferred (API exists, form or semantics not seen in use).
   matches on routed and ip2me frames, IGMP / MLD traps, CPU queues, counters; `tools/raw_frames.c`),
   `hostif-create.json`, `perf.json`, `l3-*.json` (with a loop-observer ACL: routed copies to the far
   hosts' MACs are trapped, `tools/l3_frames.c`), `phasec-hw.json` (the hooks above with traffic),
-  `phasec-recreate.json` (two switches in one process), sai_bench (qemu-ipd); results in
+  `phasec-recreate.json` (two switches in one process), `sflow-rate.json` / `sflow-rate2.json` / `sflow-genl.json`
+  (`tools/sflow_probe.c`: sampling statistics, psample delivery), sai_bench (qemu-ipd); results in
   [sai-features.md](../../../devices/cs8210-32x/sai-features.md).
 
 ## Only the chip can tell

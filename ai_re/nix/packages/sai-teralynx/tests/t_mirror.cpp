@@ -4,7 +4,8 @@
 // direction on first use, sysport MIRROR_* policy), ERSPAN collector
 // attributes, session updates inside the same set, one session per port,
 // SAMPLEPACKET (the CPU DCDP, one sFlow collector / set, SFLOW_INGRESS),
-// egress sampling refused, genetlink refused (harness: tests/harness.h).
+// egress sampling refused (genetlink host interfaces: t_sflow.cpp; harness:
+// tests/harness.h).
 #include "harness.h"
 
 #include <algorithm>
@@ -161,13 +162,4 @@ void test_mirror(Env& e)
     OK(pa->set_port_attribute(p2, &a));
     CHECK(m_collectors() == 0 && m_sets() == 0 && m_dcdps() == 0);
     OK(spa->remove_samplepacket(smp));
-
-    // ---- genetlink hostif: not in this SDK
-    sai_attribute_t h[3];
-    h[0].id = SAI_HOSTIF_ATTR_TYPE; h[0].value.s32 = SAI_HOSTIF_TYPE_GENETLINK;
-    h[1].id = SAI_HOSTIF_ATTR_NAME; std::snprintf(h[1].value.chardata, sizeof(h[1].value.chardata), "psample");
-    h[2].id = SAI_HOSTIF_ATTR_GENETLINK_MCGRP_NAME;
-    std::snprintf(h[2].value.chardata, sizeof(h[2].value.chardata), "packets");
-    sai_object_id_t gh = 0;
-    CHECK_EQ(ha->create_hostif(&gh, s, 3, h), SAI_STATUS_ATTR_NOT_SUPPORTED_0);
 }

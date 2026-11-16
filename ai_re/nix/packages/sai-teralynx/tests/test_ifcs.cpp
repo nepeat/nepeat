@@ -164,6 +164,7 @@ int main(int argc, char** argv)
     test_acl(e);
     test_qos(e);
     test_mirror(e);
+    test_sflow(e);
     test_counters(e);
     test_hooks(e);
     test_switch_misc(e);

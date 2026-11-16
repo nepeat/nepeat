@@ -1,0 +1,58 @@
+# CS8210-32X: sFlow end to end on our SAI (sai-teralynx tl_sflow + ipd psample=1), chip runs 2026-11-16
+# Loop: Ethernet0 (cage 1) <-> 400G DAC <-> Ethernet120 (cage 16), only cages 1 and 16 populated (present=00008001
+# before every run), lease "sflow". Frames: oracle sflow-probe (tools/sflow_probe.c, a tag + 32-bit sequence in
+# each frame) sent from the Ethernet0 netdev into Ethernet120, sampled there (SAMPLEPACKET / INGRESS_SAMPLEPACKET_ENABLE).
+# Raw output (git-ignored) analysis/oracle/<run>/ours/stdout.txt and analysis/sflow-sonic-20261116/:
+#   sflow-rate-20261116-120928   891f0b0a   (rate sweep, frame size, send rate, sample header dump)
+#   sflow-rate2-20261116-121409  febbce1f   (fresh enables vs a running sampler, the chip's counters)
+#   sflow-genl-20261116-123350   f59eb6cb   (genetlink hostif + table entry on the STOCK ipd: its own "psample" family)
+#   sflow-sonic-20261116/        sflowtool.txt e3da1982, sflowtool-100.txt 23f1f60e, sflowtool-full.txt 510170cf, journal.txt 6f0cb8f3
+
+== Sample frames (what reaches the CPU without a netlink): Ethernet 00:01:03:05:07:09 < 00:02:04:06:08:0a, IPv4
+   0.0.0.0 > 0.0.0.0 TOS 0x08 TTL 100 proto 47, GRE 0x8818, 4 B, 16 B sFlow header, the sampled frame without FCS:
+   58 B in front of it (a 256 B frame -> 314 B, 1500 B -> 1558 B: never truncated). Header word 0 = ext type 2 (sFlow),
+   direction bit 15, ingress sysport (16 = Ethernet120); word 1 egress sysport (0: unknown at ingress); words 2 / 3 =
+   the port's sample count and packet count since switch init (sFlow sample pool): consecutive samples' counters
+   showed no sample lost between chip and CPU in any run (lost=0).
+== The "1 in 64 for rate 100" oddity: the chip samples at random with mean 1 in N, but its generator restarts
+   with the same seed at switch init and its gaps are clustered (gap cv 1.4-2.0; independent sampling gives ~1):
+   the first 10000 packets after init at rate 100 give exactly 156 samples every time (qos-hw 054543 / 055312 and
+   sflow-rate2 fresh enable #0: 156; the next 10000: 84, 110, 86). Over longer runs the mean is N:
+   rate 100, 435491 packets: 4309 samples = 1 in 101.1 (10 runs at 1000-356000 pps, no send-rate effect);
+   rate 256, 297822 packets: 1150 = 1 in 259.0; sweep 1 / 2 / 4 / 10 / 32 / 64: 1.0 / 2.0 / 4.1 / 10.2 / 31.9 / 65.8;
+   1000 / 1024 / 4096: 1091 / 946 / 4225 (n 142-317, +-30 % at this dispersion); 64 B / 1500 B frames at 100: 98 / 119.
+   So the configured N is the right rate to report (SAI's N is passed to IFCS unchanged, as isai does); short runs
+   right after init over-sample. Rate 1 samples every frame (20000 / 20000).
+== Stock ipd (no patch), SAI genetlink hostif psample/packets + SAMPLEPACKET trap + table entry (sflow-genl):
+   IPD_SET_PARAMS (GRE 0x8818) + IPD_CREATE_NETLINK work in legacy_abi mode; ipd recognises the sample frames
+   (LDH bit + GRE protocol), strips them and multicasts them on a family "psample" of its own: 494 messages for
+   50000 frames at 100, iif = Ethernet120's ifindex, origsize 256 (1500 for 1500 B frames), group 1, and no sample
+   reaches the netdev while the entry exists; samples on the netdev again after the entry is removed. Rate 0 in
+   every message: the stock driver refuses INNO_ND_INGRESS_SFLOW_SAMPLE_RATE in legacy mode ("Operation not
+   permitted", logged once by the SAI) and hsflowd drops samples with rate 0.
+   Not understood: in that run the netdev also saw 0 samples before the table entry existed (step A; later runs
+   and step H saw them). Not repeated with the patched driver (it is irrelevant once the netlink exists).
+== Patched ipd (ipd-sflow-psample.patch, insmod'ed by hand: legacy_abi=1 psample=1), SONiC as booted (sonic.target)
+   with this libsai through an LD_LIBRARY_PATH drop-in on sonic-syncd, sflowmgrd + port_index_mapper + hsflowd
+   (sonic.sflow packages) as transient units, sflowtool on 127.0.0.1:6343 (tools/sflow-sonic-test.sh):
+   - first insmod: CREATE_NETLINK returned -1 although the psample netlink was made (rc not set on the psample
+     path): samples flowed with rate 0; fixed in the patch (rc = 0), re-tested below.
+   - CONFIG_DB FEATURE|sflow enabled, SFLOW|global up, SFLOW_COLLECTOR c1 127.0.0.1:6343, SFLOW_SESSION|Ethernet120
+     1000: coppmgrd/copporch made the GENETLINK hostif psample (ASIC_DB) + SAMPLEPACKET trap + table entry, sfloworch
+     SAMPLEPACKET 1000 on Ethernet120 (400000 on the others, sflowmgrd's speed default); syncd: "sflow: samples to
+     genetlink psample / packets".
+   - kernel psample group 1, 300000 frames: 273 samples (1 in 1099), iif 114 = Ethernet120, rate 1000, origsize 256,
+     proto 0x0800, group seq contiguous.
+   - hsflowd needed sonic { waitReady=5 } (no sysmonitor sets STATE_DB SYSTEM_READY; mod_sonic waits 300 s
+     otherwise; the module's default conf now has waitReady=10). Then 300000 frames: 336 psample messages ->
+     sflowtool 336 FLOW records, all "in=121 out=0 size=260 rate=1000" (121 = PORT_INDEX_TABLE index of Ethernet120),
+     agent 10.60.2.190 (enp0s1), plus 66 counter samples (ifIndex 1 / 121, 400 Gbit/s). Full decode:
+     FLOWSAMPLE sourceId 0:121 meanSkipCount 1000 samplePool 337000 inputPort 121 sampledPacketSize 260 headerLen 128,
+     inner 10.99.9.1 > 10.99.9.2 UDP 6343.
+   - SFLOW_SESSION rate 1000 -> 100 live: 50000 frames, 499 psample messages with rate 100 -> 499 FLOW "rate=100".
+   - Teardown: stock ipd back (modprobe), drop-in removed, SONiC as booted (Ethernet0/120 up), CONFIG_DB SFLOW*
+     removed, transient units gone. port_index_mapper ignores SIGTERM (90 s stop timeout): TimeoutStopSec 5 in
+     the module.
+== Open: the queue2_group1 policer (1000 pps) and queue 2 of SONiC's sflow trap group do not apply to samples (the
+   SAMPLEPACKET trap stays unprogrammed; isai polices samples with an ACE); egress sampling refused (node
+   EGRESS_SFLOW_ENABLE off); the patched ipd is not deployed (needs the generation + a reboot or an ipd reload).

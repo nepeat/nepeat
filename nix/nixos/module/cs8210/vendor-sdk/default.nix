@@ -161,6 +161,17 @@ in
 {
   options.hardware.cs8210.vendorSdk = {
     enable = lib.mkEnableOption "kernel driver and glue for running the vendor Innovium/Credo SDK userland";
+    ipdPsample = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        ipd psample=1 (kernel/patches/ipd-sflow-psample.patch): an sFlow netlink the
+        SAI creates (sai-teralynx tl_sflow, SONiC's genetlink hostif "psample")
+        delivers the chip's samples to the kernel's psample groups 1/2 instead of
+        registering a genetlink family of its own. Nothing changes until such a
+        netlink exists (the vendor SDK never creates one).
+      '';
+    };
     credoPorts = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = null;
@@ -277,7 +288,7 @@ in
     # The vendor SDK on this box is from 2020 and speaks the ipd 0.12.x ioctl
     # layouts; see kernel/patches/ipd-legacy-abi.patch.
     boot.extraModprobeConfig = ''
-      options ipd legacy_abi=1
+      options ipd legacy_abi=1${lib.optionalString config.hardware.cs8210.vendorSdk.ipdPsample " psample=1"}
     '';
 
     # inno_0_0129 / inno_0_1000 are SDK-internal netdevs, not ports. Anything

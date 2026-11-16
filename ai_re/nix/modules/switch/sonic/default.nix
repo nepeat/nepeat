@@ -180,7 +180,7 @@ let
     ++ optional cfg.buffers.enable "buffermgrd";
   unit = n: "sonic-${n}.service";
 in {
-  imports = [ ./frr.nix ./recovery.nix ./vrf.nix ./counters.nix ./pmon.nix ./lldp.nix ./bfd.nix ./metrics.nix ];
+  imports = [ ./frr.nix ./recovery.nix ./vrf.nix ./counters.nix ./pmon.nix ./lldp.nix ./bfd.nix ./metrics.nix ./sflow.nix ];
   options.services.sonic = {
     enable = mkEnableOption "the SONiC switch control plane (redis, syncd, orchagent, managers, CLI)";
     packages = mkOption {

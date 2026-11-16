@@ -40,6 +40,9 @@ let
     # ethtool speed/duplex so 802.3ad bonding can use the fpp ports.
     ./kernel/patches/ipd-ethtool-link-ksettings.patch
     ./kernel/patches/ipd-rx-gro-napi.patch
+    # sFlow: samples to the kernel's psample with module parameter psample=1
+    # (default off), and the sample-rate ioctls for legacy_abi userspace.
+    ./kernel/patches/ipd-sflow-psample.patch
     # Round-2 performance patches (Fable, 2026-11-11) are NOT applied:
     #   ipd-tx-flow-control-napi.patch, ipd-rx-page-pool-refill.patch,
     #   ipd-tx-sg-gso-optin.patch

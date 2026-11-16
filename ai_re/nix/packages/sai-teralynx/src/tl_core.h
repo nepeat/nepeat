@@ -51,6 +51,7 @@ class LagArea;
 class AclArea;
 class QosArea;
 class MirrorArea;
+class SflowArea;
 
 sai_status_t map_reason(int r);
 uint32_t speed_from_enum(uint32_t e);
@@ -105,6 +106,7 @@ struct Core {
     AclArea* acl = nullptr;
     QosArea* qos = nullptr;
     MirrorArea* mirror = nullptr;
+    SflowArea* sflow = nullptr;      // tl_sflow: samples to psample (genetlink hostifs)
 
     // Profile value: the frontend's collected keys, else profile_get.
     std::string key(const char* k, const char* def = "") const;

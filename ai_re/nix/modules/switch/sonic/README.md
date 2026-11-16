@@ -242,12 +242,17 @@ CONFIG_DB at start (docker-lldp's templates, `pause` dropped), lldpmgrd
 (port ID = alias) and lldp_syncd (APPL_DB `LLDP_ENTRY_TABLE`); seeds
 `FEATURE|lldp` enabled (coppmgrd's LLDP trap, lldpshow). `show lldp
 neighbors|table` call lldpctl directly. Packages: [packages/sonic/platform](../../../packages/sonic/platform/default.nix).
+`sflow.nix`: `services.sonic.sflow` runs sflowmgrd (bound to orchagent; its `service hsflowd restart|stop` goes
+through a shim to sonic-hsflowd.service), hsflowd 2.1.26 (FEATURES=SONIC: mod_sonic, mod_psample, mod_dropmon; conf
+`sonic { waitReady=10 }`: no sysmonitor sets SYSTEM_READY) and port_index_mapper; seeds `FEATURE|sflow` enabled
+(coppmgrd's SAMPLEPACKET trap + genetlink hostif psample). Samples come from the platform SAI through the kernel's
+psample group 1. Packages: [packages/sonic/sflow](../../../packages/sonic/sflow/default.nix) (also sflowtool).
 
 ## not here (yet)
 
 buffermgrd only as `buffers.enable` (traditional model: CONFIG_DB BUFFER_* -> APPL_DB, `buffers.pgProfileLookup`;
 on for the CS8210; without it portsorch keeps ports with BUFFER_QUEUE / BUFFER_PG entries admin down),
-the dynamic buffer model, vxlan/nat/sflow/macsec managers,
+the dynamic buffer model, vxlan/nat/macsec managers,
 `show acl`/`aclshow` (acl-loader needs pyangbind, not packaged),
 frrcfgd/unified FRR mode, BFD offload to the ASIC, swssconfig's switch.json, ledd/pcied/chassisd, SNMP, warm reboot, multi-ASIC,
 breakout at runtime (a split takes effect at the next SDK init: `sonic-nix reload`).

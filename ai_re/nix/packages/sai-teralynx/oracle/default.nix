@@ -16,7 +16,7 @@ stdenv.mkDerivation {
     # what the build reads (the drivers and docs do not rebuild it)
     fileset = lib.fileset.unions [ ./gen_tracer.py ./trace_rt.c ./trace_rt.h ./sai_script.cpp ./oracle.py ./scripts
                                    ../src/ifcs_api.h ../src/ifcs_api_qos.h ../tools/trap_frames.c ../tools/l3_frames.c
-                                   ../tools/qos_frames.c ];
+                                   ../tools/qos_frames.c ../tools/sflow_probe.c ];
   };
   nativeBuildInputs = [ buildPackages.python3 ];
   dontConfigure = true;
@@ -37,6 +37,7 @@ stdenv.mkDerivation {
     $CC -O2 -Wall -o trap-frames ../tools/trap_frames.c -lpthread
     $CC -O2 -Wall -o l3-frames ../tools/l3_frames.c
     $CC -O2 -Wall -o qos-frames ../tools/qos_frames.c -lpthread
+    $CC -O2 -Wall -o sflow-probe ../tools/sflow_probe.c -lpthread -lm
     runHook postBuild
   '';
   installPhase = ''
@@ -45,6 +46,7 @@ stdenv.mkDerivation {
     install -Dm755 trap-frames $out/bin/trap-frames
     install -Dm755 l3-frames $out/bin/l3-frames
     install -Dm755 qos-frames $out/bin/qos-frames
+    install -Dm755 sflow-probe $out/bin/sflow-probe
     install -Dm644 trace_gen.c $out/share/ifcs-oracle/trace_gen.c
     install -Dm755 oracle.py $out/share/ifcs-oracle/oracle.py
     cp -r scripts $out/share/ifcs-oracle/scripts

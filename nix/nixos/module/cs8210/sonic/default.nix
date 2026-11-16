@@ -262,6 +262,8 @@ in
         # sai.conflicts (cs8210-switch), the profile and the IFCS config
         # come from the board layer (ai_re boards/cs8210/sonic.nix).
       };
+      # sFlow: sflowmgrd, hsflowd (samples via psample: ipd psample=1, vendorSdk.ipdPsample)
+      sflow.enable = mkDefault true;
       lldp = {
         enable = mkDefault true;
         interfaces = [ "Ethernet[0-9]*" "enp0s1" ];
