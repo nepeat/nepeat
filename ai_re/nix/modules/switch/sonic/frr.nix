@@ -16,6 +16,17 @@ let
   routing = cfg.packages.routing;
   spy = cfg.packages.python;
   frr = fcfg.package;
+  # With the iptables firewall (networking.nftables off): accept matches on
+  # every interface except the listed ones, through a chain of its own that
+  # RETURNs for those (iptables' "! -i" takes one interface only).
+  iptablesAcceptExcept = chain: except: matches: ''
+    ip46tables -F ${chain} 2>/dev/null || true
+    ip46tables -X ${chain} 2>/dev/null || true
+    ip46tables -N ${chain}
+    ${lib.concatMapStrings (i: "ip46tables -A ${chain} -i ${i} -j RETURN\n") except}
+    ip46tables -A ${chain} -j nixos-fw-accept
+    ${lib.concatMapStrings (m: "ip46tables -A nixos-fw ${m} -j ${chain}\n") matches}
+  '';
   tdir = routing.templateDir;
   unit = n: "sonic-${n}.service";
   orch = unit "orchagent";
@@ -146,6 +157,11 @@ in {
     networking.firewall.extraInputRules = mkIf (fcfg.openFirewall && config.networking.nftables.enable) ''
       iifname != { ${concatStringsSep ", " (map (i: "\"${i}\"") fcfg.managementInterfaces)} } tcp dport 179 accept comment "BGP on switch interfaces"
     '';
+    # The same with the iptables firewall (e.g. the CS8210). A VRF's locally
+    # delivered packets reach INPUT with the VRF device as their interface,
+    # so a list of port prefixes would miss them (CS8210, 2026-11-16).
+    networking.firewall.extraCommands = mkIf (fcfg.openFirewall && !config.networking.nftables.enable)
+      (iptablesAcceptExcept "sonic-bgp-in" fcfg.managementInterfaces [ "-p tcp --dport 179" ]);
     users.users.frr = { isSystemUser = true; group = "frr"; extraGroups = [ "frrvty" ]; description = "FRR daemons"; };
     users.groups.frr = { };
     users.groups.frrvty = { };

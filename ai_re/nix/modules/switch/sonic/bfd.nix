@@ -15,6 +15,15 @@ let
   fcfg = cfg.frr;
   routing = cfg.packages.routing;
   frr = fcfg.package;
+  # As frr.nix's (same chain layout, its own chain).
+  iptablesAcceptExcept = chain: except: matches: ''
+    ip46tables -F ${chain} 2>/dev/null || true
+    ip46tables -X ${chain} 2>/dev/null || true
+    ip46tables -N ${chain}
+    ${lib.concatMapStrings (i: "ip46tables -A ${chain} -i ${i} -j RETURN\n") except}
+    ip46tables -A ${chain} -j nixos-fw-accept
+    ${lib.concatMapStrings (m: "ip46tables -A nixos-fw ${m} -j ${chain}\n") matches}
+  '';
   unit = n: "sonic-${n}.service";
   orch = unit "orchagent";
   bfdd = unit "frr-bfdd";
@@ -114,6 +123,8 @@ in {
     networking.firewall.extraInputRules = mkIf (bcfg.openFirewall && config.networking.nftables.enable) ''
       iifname != { ${concatStringsSep ", " (map (i: "\"${i}\"") fcfg.managementInterfaces)} } udp dport { 3784, 3785, 4784 } accept comment "BFD on switch interfaces"
     '';
+    networking.firewall.extraCommands = mkIf (bcfg.openFirewall && !config.networking.nftables.enable)
+      (iptablesAcceptExcept "sonic-bfd-in" fcfg.managementInterfaces (map (p: "-p udp --dport ${toString p}") [ 3784 3785 4784 ]));
 
     # bgpcfgd runs BfdMgr (STATE_DB BFD_SOFTWARE_SESSION_TABLE -> bfdd) only
     # with this; seeded, so "config" + "config save" can turn it off.
