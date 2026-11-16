@@ -44,8 +44,9 @@ link the evidence.
 | LAG (hardware) | yes: LACP PortChannel over the lab loop, LAG members in the ASIC (2026-11-15) [^a2] | chip-capable [^c2] | unknown [^t1] | unknown | unknown |
 | LACP (control plane) | no: teamd/teammgrd packaging in progress | partial: Linux bond over CPU netdevs, failover verified [^c3] | unknown [^t1] | unknown | unknown |
 | L3 routing | yes: VRFs, routed in the ASIC, ECMP, BGP/static via FRR over the lab loop (2026-11-15) [^a2] | chip-capable: Linux routes on CPU only [^c2] | unknown [^t1] | partial: IPv4 hardware routing in MAC loopback [^b1] | unknown |
-| ACL | chip-capable | unknown | unknown [^t1] | chip-capable: not offloaded [^b1] | unknown |
+| ACL | yes: ingress ACL drop + counters, CoPP policers on the field processor (2026-11-15) [^a2] | unknown | unknown [^t1] | chip-capable: not offloaded [^b1] | unknown |
 | QoS | chip-capable | unknown | unknown [^t1] | unknown | unknown |
+| BFD | yes: software (FRR bfdd), < 1 s BGP failover over the lab loop (2026-11-15) [^a2] | unknown | unknown | unknown | unknown |
 | KNET / CPU netdevs | yes: KNET TX/RX (2026-11-14) | yes: `fpp*` via ipd, ~1.6 Gb/s CPU path [^c3] | partial: netdevs exist, no traffic | partial: SDK/TAP, KNET compiled out [^b1] | unknown |
 | SAI | partial: switch, 32 ports, VLAN, RIF [^a2] | no: vendor SAI is amd64 only | no | no | no |
 | SONiC stack | partial: runs at boot as NixOS services; 25G link, LACP PortChannel, VLAN on the chip (2026-11-15); no FRR yet [^a2] | no | no | no | no |

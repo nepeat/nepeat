@@ -1,0 +1,144 @@
+# AS7760 software BFD (036ecc6 + syncd PartOf orchagent), 2026-11-15
+## first try: BFD deploy restarted orchagent alone -> no KNET netdevs (fixed: syncd PartOf orchagent)
+== 0
+active active active active 
+enabled
+1
+:- offload_supported: BFD offload type not implemented
+:- offload_supported: BFD offload type not implemented
+		iifname != "eth0" udp dport { 3784, 3785, 4784 } accept comment "BFD on switch interfaces"
+== 1
+Interface Ethernet124 IP disabled and address(es) removed due to binding VRF Vrf-test.
+ neighbor 10.0.0.1 bfd
+ neighbor 10.0.0.0 bfd
+Session count: 0
+SessionId  LocalAddress                             PeerAddress                             Status          Profile             
+=========  ============                             ===========                             ======          =======             
+Total number of BFD sessions: 0
+Peer Addr    Interface    Vrf    State    Type    Local Addr    TX Interval    RX Interval    Multiplier    Multihop    Local Discriminator
+-----------  -----------  -----  -------  ------  ------------  -------------  -------------  ------------  ----------  ---------------------
+10.0.0.1        4      65100         0         0        0    0    0    never       Active        0 a
+10.0.0.0        4      65100         0         0        0    0    0    never       Active        0 b
+== 2 drop BFD into Vrf-test
+T0 2026-11-15 16:42:03.569610930
+10.0.0.1        4      65100         0         0        0    0    0    never       Active        0 a
+10.0.0.0        4      65100         0         0        0    0    0    never       Active        0 b
+Total number of BFD sessions: 0
+Peer Addr    Interface    Vrf    State    Type    Local Addr    TX Interval    RX Interval    Multiplier    Multihop    Local Discriminator
+-----------  -----------  -----  -------  ------  ------------  -------------  -------------  ------------  ----------  ---------------------
+10.0.0.1        4      65100         0         0        0    0    0    never       Active        0 a
+10.0.0.0        4      65100         0         0        0    0    0    never       Active        0 b
+3 packets transmitted, 0 received, 100% packet loss, time 2043ms
+3 packets transmitted, 3 received, 0% packet loss, time 2009ms
+		iifname != "eth0" udp dport { 3784, 3785, 4784 } accept comment "BFD on switch interfaces"
+		iifname != "eth0" tcp dport 179 accept comment "BGP on switch interfaces"
+Device "Ethernet0" does not exist.
+Device "Ethernet124" does not exist.
+Vrf-test         UP             62:7e:06:33:62:3c <NOARP,MASTER,UP,LOWER_UP> 
+BFD Peers:
+sonic-frr-bgpd.service: Deactivated successfully.
+Stopped SONiC FRR bgpd.
+Starting SONiC FRR bfdd (software BFD)...
+Starting SONiC FRR bgpd...
+Started SONiC FRR bfdd (software BFD).
+[GNTN9-G7K6J] BGP-LS: Module initialized for instance VRF default
+Started SONiC FRR bgpd.
+[VTVCM-Y2NW3] Configuration Read in Took: 00:00:00
+[J9K4Q-T8STY][EC 33554466] 10.0.0.1 [FSM] Failure handling event BGP_Start in state Idle, prior events (null), (null), fd -1, last reset: No AFI/SAFI activated for peer
+[KTTWK-0CPJ7][EC 100663303] sockopt_tcp_signature: setsockopt(22): Protocol not available
+[NWGVJ-FEW9F][EC 33554495] Unable to set TCP MD5 option on socket for peer 10.0.0.1 (sock=22): Protocol not available
+[VTVCM-Y2NW3] Configuration Read in Took: 00:00:00
+[KTTWK-0CPJ7][EC 100663303] sockopt_tcp_signature: setsockopt(25): Protocol not available
+[NWGVJ-FEW9F][EC 33554495] Unable to set TCP MD5 option on socket for peer 10.0.0.0 (sock=25): Protocol not available
+[VTVCM-Y2NW3] Configuration Read in Took: 00:00:00
+LISTEN     0      4096       0.0.0.0%Vrf-test:179                0.0.0.0:*     users:(("bgpd",pid=30807,fd=25))
+LISTEN     0      4096                0.0.0.0:179                0.0.0.0:*     users:(("bgpd",pid=30807,fd=22))
+LISTEN     0      4096                   [::]:179                   [::]:*     users:(("bgpd",pid=30807,fd=23))
+LISTEN     0      4096          [::]%Vrf-test:179                   [::]:*     users:(("bgpd",pid=30807,fd=26))
+  BGP state = Active
+  Connections established 0; dropped 0
+  Last reset 00:01:51,  No path to specified Neighbor (n/a)
+BFD Hold Time (interval 30) timer expires in 0 seconds
+  BFD: Type: multi hop
+0
+bcm0 Bridge dummy eth0 lo Loopback0 Vrf-test 
+1
+sonic-syncd active restarts=0 since=Sun 2026-11-15 16:32:02 PST
+sonic-orchagent active restarts=0 since=Sun 2026-11-15 16:39:03 PST
+sonic-portsyncd active restarts=0 since=Sun 2026-11-15 16:32:02 PST
+Nov 15 16:32:09.570303 as7760 syncd[27879]: sai-openbcm NOTICE api=12: hostif Ethernet64 on ce15 (netif 31, filter 32)
+Nov 15 16:32:09.606575 as7760 syncd[27879]: sai-openbcm NOTICE api=12: hostif Ethernet68 on ce16 (netif 32, filter 33)
+Nov 15 16:32:09.642877 as7760 syncd[27879]: sai-openbcm NOTICE api=12: hostif Ethernet72 on ce17 (netif 33, filter 34)
+Nov 15 16:32:09.691453 as7760 syncd[27879]: sai-openbcm NOTICE api=12: hostif Ethernet76 on ce18 (netif 34, filter 35)
+Nov 15 16:32:09.744988 as7760 syncd[27879]: sai-openbcm NOTICE api=12: hostif Ethernet96 on ce23 (netif 35, filter 36)
+Nov 15 16:32:09.800435 as7760 syncd[27879]: sai-openbcm NOTICE api=12: hostif Ethernet100 on ce24 (netif 36, filter 37)
+Nov 15 16:32:09.843571 as7760 syncd[27879]: sai-openbcm NOTICE api=12: hostif Ethernet104 on ce25 (netif 37, filter 38)
+Nov 15 16:32:09.886745 as7760 syncd[27879]: sai-openbcm NOTICE api=12: hostif Ethernet108 on ce26 (netif 38, filter 39)
+Nov 15 16:32:02.622004 as7760 orchagent[27900]: :- main: --- Starting Orchestration Agent ---
+Nov 15 16:32:07.997325 as7760 orchagent[27900]: :- init: Starting acl handler for pfc watchdog
+Nov 15 16:39:02.590884 as7760 systemd[1]: Stopping SONiC orchagent...
+Nov 15 16:39:03.102600 as7760 systemd[1]: Started SONiC orchagent.
+Nov 15 16:39:03.348308 as7760 orchagent[29912]: :- main: --- Starting Orchestration Agent ---
+Nov 15 16:39:04.171003 as7760 orchagent[29912]: :- init: Starting acl handler for pfc watchdog
+## after the fix: orchagent restart test, BFD steps 1-2
+== orchagent restart
+netdevs 38
+Sun 2026-11-15 16:47:07 PST
+Ethernet0        UP             10.0.0.0/31 fe80::8eea:1bff:fe89:c93c/64 
+Ethernet124      UP             10.0.0.1/31 fe80::8eea:1bff:fe89:c93c/64 
+== 1
+=========  ============                             ===========                             ======          =======             
+2179527256 10.0.0.1                                 10.0.0.0                                up              -                   
+3391719275 10.0.0.0                                 10.0.0.1                                up              -                   
+-----------  -----------  --------  -------  ------------  ------------  -------------  -------------  ------------  ----------  ---------------------
+10.0.0.0     Ethernet124  Vrf-test  Up       async_active  10.0.0.1                300            300             3  false                  2179527256
+10.0.0.1     Ethernet0    default   Up       async_active  10.0.0.0                300            300             3  false                  3391719275
+10.0.0.1        4      65100         8         9        1    0    0 00:02:33            0        1 a
+10.0.0.0        4      65100        12         9        1    0    0 00:02:33            1        0 b
+== 2 drop BFD into Vrf-test
+Nov 15 16:49:55.829483 as7760 bgpd[33116]: [PXVXG-TFNNT] %ADJCHANGE: neighbor 10.0.0.1(as7760) in vrf default Down BGP Notification received
+Nov 15 16:49:55.977862 as7760 bfdsyncd[33203]: bfdsyncd: Vrf-test|Ethernet124|10.0.0.0 Up -> Down (diag control detection time expired, local 10.0.0.1, 300/300 ms x3)
+Nov 15 16:49:56.793840 as7760 bfdsyncd[33203]: bfdsyncd: default|Ethernet0|10.0.0.1 Up -> Down (diag control detection time expired, local 10.0.0.0, 300/300 ms x3)
+Nov 15 16:49:56.997851 as7760 bfdsyncd[33203]: bfdsyncd: default|Ethernet0|10.0.0.1 Down -> Init (diag control detection time expired, local 10.0.0.0, 300/300 ms x3)
+Nov 15 16:49:57.846586 as7760 bgpd[33116]: [N9HHH-F8H1M] %ADJCHANGE: neighbor 10.0.0.1(as7760) in vrf default Up
+Nov 15 16:50:00.057821 as7760 bfdsyncd[33203]: bfdsyncd: default|Ethernet0|10.0.0.1 Init -> Down (diag control detection time expired, local 10.0.0.0, 300/300 ms x3)
+T0 2026-11-15 16:49:55.137523251
+10.0.0.1        4      65100        12        13        1    0    0 00:00:03            0        1 a
+10.0.0.0        4      65100        16        12        3    0    0 00:00:03            1        0 b
+2179527256 10.0.0.1                                 10.0.0.0                                up              -                   
+3391719275 10.0.0.0                                 10.0.0.1                                up              -                   
+10.0.0.1        4      65100        14        14        1    0    0 00:00:33            0        1 a
+10.0.0.0        4      65100        17        14        3    0    0 00:00:33            1        0 b
+## steps 3-6
+== 3 port shutdown
+Nov 15 16:51:00.881371 as7760 bgpd[33116]: [PXVXG-TFNNT] %ADJCHANGE: neighbor 10.0.0.1(as7760) in vrf default Down BGP Notification received
+Nov 15 16:51:01.053961 as7760 bfdsyncd[33203]: bfdsyncd: Vrf-test|Ethernet124|10.0.0.0 Up -> Down (diag control detection time expired, local 10.0.0.1, 300/300 ms x3)
+Nov 15 16:51:01.055084 as7760 bfdsyncd[33203]: bfdsyncd: default|Ethernet0|10.0.0.1 Up -> Down (diag control detection time expired, local 10.0.0.0, 300/300 ms x3)
+T0 2026-11-15 16:50:56.379283655
+10.0.0.1        4      65100        21        20        1    0    0 00:00:40            0        1 a
+10.0.0.0        4      65100        23        20        5    0    0 00:00:40            1        0 b
+== 4 static routes with BFD
+0
+-----------  -----------  --------  -------  ------------  ------------  -------------  -------------  ------------  ----------  ---------------------
+10.0.0.1     default      default   Up       async_active  10.0.0.0                300            300             3  false                   256861567
+10.0.0.0     default      Vrf-test  Up       async_active  10.0.0.1                300            300             3  false                  1480600813
+APPL: 2  ASIC: 2
+1793  1        198.51.101.0/24      00:00:00:00:00:00 100005    0     0     0    0 n
+1793  0        198.51.100.0/24      00:00:00:00:00:00 100004    0     0     0    0 n
+APPL during drop: 0
+Nov 15 16:52:12.257933 as7760 bfdsyncd[33203]: bfdsyncd: Vrf-test|default|10.0.0.0 Up -> Down (diag control detection time expired, local 10.0.0.1, 300/300 ms x3)
+Nov 15 16:52:12.258437 as7760 staticroutebfd[32682]: SRT_BFD: bfd_state DOWN. nh_list is empty, delete static route from appl_db, key Vrf-test:198.51.101.0/24
+Nov 15 16:52:12.870054 as7760 bfdsyncd[33203]: bfdsyncd: default|default|10.0.0.1 Up -> Down (diag control detection time expired, local 10.0.0.0, 300/300 ms x3)
+Nov 15 16:52:12.870439 as7760 staticroutebfd[32682]: SRT_BFD: bfd_state DOWN. nh_list is empty, delete static route from appl_db, key default:198.51.100.0/24
+T0 2026-11-15 16:52:11.275742756
+APPL after: 2
+== 5 CPU (2 static BFD sessions + 2 BGP BFD back on = 4)
+2
+bfdd 0% bfdsyncd 0% (of one core, 60 s)
+      2 		Session down events: 1
+== 6 teardown
+Interface Ethernet124 IP disabled and address(es) removed due to unbinding VRF.
+VRF Vrf-test deleted and all associated IP addresses removed.
+bfd sessions 0  VRFs 0
+No conflicts with enforced Nix settings.
+pwm=136 temp=42.3

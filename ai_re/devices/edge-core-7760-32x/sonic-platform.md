@@ -15,6 +15,8 @@ the switch yet.
 | thermals board_1..3, cpu_board | hwmon `lm75` at 0x48..0x4b | none (thresholds 45/50 C mirror fand's board zone) |
 | thermal asic | `/run/asic/temperature` (reader or syncd) | none (95/100 C, fand's ASIC zone) |
 | PSU 1/2 | CPLD#1 0x02 (bits from the AS7712/AS7716 siblings, **unverified here**) | none |
+
+PSU check on the switch (2026-11-15): PSU 1 OK, PSU 2 "NOT OK" with CPLD#1 0x02 = 0x28 (both present, only PSU 1 power-good); the owner confirmed PSU 2 has no power cord, so the bit mapping (present bits 1/0 active low, power-good 3+5 / 2+4) matches the hardware.
 | 32 cages | CPLD#1 ModPrsL/ResetL ([qsfp-control.md](qsfp-control.md)); EEPROM via as7760-qsfp's bus map, combined I2C transfers | ResetL pulse (`sfputil reset`), SFF-8636 bytes 86-126 (TX disable, byte 93 low power), SFP A2h 110-127 |
 | syseeprom | ONIE TlvInfo in NOR `hw-info` (/dev/mtdN, read-only) | none |
 

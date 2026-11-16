@@ -9,6 +9,17 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 
 ## Status (2026-11-15)
 
+- **BFD on the AS7760** (software, FRR bfdd; Tomahawk has no usable offload;
+  [evidence](sonic-as7760-bfd-20261115.txt)): sessions Up across the VRFs over
+  the lab cable at 300 ms x3; with BFD packets dropped, the session is Down
+  in 0.84 s and BGP in 0.69 s (vs the 90 s hold time); static routes with
+  bfd=true leave APPL_DB within 1.0-1.6 s and come back; bfdd + bfdsyncd < 1 %
+  CPU. **ACL + CoPP policers** on the field processor work on the chip
+  ([evidence](sonic-as7760-acl-copp-20261115.txt)); ARP exceeds its 600 pps
+  cap (818/s, likely the flood copy to the CPU), QoS unsupported. Found and
+  fixed on the way: a NixOS activation restarting only orchagent left no
+  KNET netdevs (syncd is now PartOf orchagent).
+
 - **Software BFD, VM-tested, not on the switch yet** (2026-11-15 entry,
   [bfd.md](bfd.md)): FRR bfdd; BGP neighbors with `bfd=true` drop in
   0.66-0.90 s on loss/link down (hold time 90 s), over a PortChannel and a

@@ -91,6 +91,12 @@ let
 in {
   config = lib.mkIf cfg.enable {
     systemd.services.sonic-orchagent.serviceConfig.ExecStopPost = [ "${orchagentFailed}" ];
+    # A requested orchagent stop/restart (e.g. nixos-rebuild switch restarting
+    # a changed orchagent unit) must take syncd with it, like SONiC's swss
+    # restart: orchagent alone against a running syncd leaves no KNET netdevs
+    # (seen on the AS7760, 2026-11-15, BFD deploy). PartOf propagates the
+    # stop/restart; orchagent's BindsTo/After brings syncd back first.
+    systemd.services.sonic-syncd.partOf = [ "sonic-orchagent.service" ];
     systemd.services.sonic-syncd.serviceConfig.ExecStartPre = [ "${pkgs.writeShellScript "sonic-syncd-pre" ''
       PATH=${cfg.packages.swss-common}/bin:$PATH exec ${flushDbs}
     ''}" ];
