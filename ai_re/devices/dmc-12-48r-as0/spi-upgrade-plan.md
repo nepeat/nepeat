@@ -6,6 +6,11 @@ Background and evidence: `spi-uboot-replacement.md` (format, flashing concept §
 (ladder), `uart-boot.md` (Route A, stage3 keys), `u-boot-port.md` (our U-Boot), `board-notes.md`.
 
 ## Design (what gets written, and what never)
+- **Slot ownership (owner decision, 2026-11-15):** IPXE 0/1 are ours, as the permanent A/B pair for our
+  U-Boot on the DMC-12. UBOOT 0/1 stay factory: UBOOT 0 is the `u` escape and the only U-Boot that can
+  write boot slots, and replacing it would also end Route A testing. Builds must fit 512 KiB with
+  >= 16 KiB spare (tests.nix). If a feature needs more room, trim first; moving to UBOOT 1 (896 KiB)
+  would be a new owner decision.
 - Write only **IPXE instance N** (our U-Boot, object 0x110, load = exec 0x08000000, 512 KiB slot at
   0x2c0000 / 0x580000) and **BOOT_MODE** (first 4 KiB sector of its 64 KiB slot at 0x340000, data
   word +4 = app ID: 0x110 = IPXE 0, 0x10000110 = IPXE 1). Never STG2, STG3, DT, TOC, UBOOT, the env sectors or EEPROM objects.
