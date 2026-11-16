@@ -1,0 +1,8 @@
+# AS7760 after the json-c fix (36d3e17/d6633a9 deployed), 2026-11-15
+t1 20:49:38 bfdd=13572 bgpd=23632 used= Used ordinary blocks: 2034 KiB
+	libjson-c.so.5 => /nix/store/8615rgwj6lkpvr2j3vc51w3gcwx8w671-json-c-powerpc64-unknown-linux-gnuabielfv2-0.19/lib/libjson-c.so.5 (0x00003e5b68bb0000)
+2
+t2 20:59:39 bfdd=13572 bgpd=23632 used= Used ordinary blocks: 2034 KiB
+2026-11-15T20:59:30-08:00 bfd=[10.0.0.0>10.0.0.1:up,10.0.0.1>10.0.0.0:up] bgp=[10.0.0.1:00:11:46:0,10.0.0.0:00:11:46:1] bfd_down_total=0 orc
+bfdd links /nix/store/8615...-json-c-0.19 (patched); the leaking trace showed /nix/store/v6s15...-json-c-0.19 (stock).
+Before the fix: bfdd +2.85 MB/min (bfdd-leak-20261115.txt). After: bfdd and bgpd RSS flat over 10 min, heap flat.

@@ -51,3 +51,5 @@ systemctl daemon-reload && systemctl restart sonic-frr-bfdd
 "?" frames in FRR resolve with `addr2line` (as7760 cross binutils) on
 `s.routing.frr.overrideAttrs (o: { dontStrip = true; })`: same derivation
 unstripped, .text byte-identical to the deployed one.
+
+**Verified on the switch (2026-11-15 20:49-20:59):** bfdd RSS 13572 -> 13572 kB, heap 2034 KiB flat, bgpd 23632 kB flat, linked to the patched json-c ([evidence](bfdd-leak-fixed-switch-20261115.txt)).
