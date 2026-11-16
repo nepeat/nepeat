@@ -34,25 +34,32 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   egress ACLs, ACL ranges/redirect/mirror, runtime breakout, warm reboot; `show acl` fails
   (pyangbind), no `aclshow`; untested: traffic between real hosts, line rate, 100G, FEC,
   IPv6/multihop BFD, port LEDs by eye; `sonic-db-cli PING` over TCP fails (unix socket fine);
-  bfdd heap grows ~2.9 MB/min in the switch soak, not reproduced in the VM (x86 or the same
-  ppc64 binary under qemu), tracer ready for the switch ([bfdd-leak](bfdd-leak.md)).
-  `FEATURE|bgp` now seeded (bgp/bgpv6 CoPP traps; VM-tested, not deployed).
+  bfdd leak (json-c 0.19, [bfdd-leak](bfdd-leak.md)) and `FEATURE|bgp` CoPP traps fixed,
+  VM-tested, not deployed; vm-frr's "syncd killed" checks fail since 76d6818.
 - **Not in the repo:** factory SDK configs, rc/LED/pre-emphasis scripts and `bcm.user`
   (AS7760 `nixos-build/vendor-root/`, unused now), Broadcom SAI `.deb`s (amd64, by URL).
 
-## 2026-11-15 (night) — bfdd leak hunt (VM), FEATURE|bgp seed
+## 2026-11-15 (night) — bfdd leak = json-c 0.19; FEATURE|bgp seed
 
-- bfdd heap growth from the soak does not reproduce in `tests/vm-bfdd-leak.nix`:
-  flat for 10 min per phase with configured or bgpd sessions, VRF loop or no
-  VRF, on x86 and with the switch's own ppc64 frr-sonic under qemu-user
-  ([evidence](bfdd-leak-vm-20261115.txt)). Upstream FRR has no matching fix.
-  New `sonic.routing.malloc-trace` (LD_PRELOAD heap profiler, ppc64 and x86,
-  validated on bfdd) plus the switch commands: [bfdd-leak.md](bfdd-leak.md).
-- `frr.nix` seeds `FEATURE|bgp` (init_cfg values): vm-bfd 99/99 incl. COPP_TABLE
-  bgp,bgpv6 and the ASIC_DB BGP/BGPV6 hostif traps; vm 92/0, vm-platform 31/0;
-  cross-build within budget (2565795840 bytes).
-- vm-frr fails 4 "syncd killed" checks, also on a clean export of HEAD: from
-  76d6818 (syncd PartOf orchagent), not from this change.
+- The soak's bfdd growth (~2.9 MB/min) is json-c 0.19, not FRR: its new
+  `json_object_put()` frees non-empty containers inside `assert()`, compiled
+  out under NDEBUG, so every JSON tree leaks; bfdsyncd's `show bfd peers json`
+  every 200 ms triggered it (bgpd leaks the same way under bgpmon, slower).
+  Found with the new `sonic.routing.malloc-trace` on the switch, stacks
+  resolved with an unstripped rebuild (.text identical). FRR now links
+  `sonic.routing.json-c` (+ upstream f291fa81c6, 3aa996b5b6, 0c3a5a1994)
+  ([bfdd-leak](bfdd-leak.md), [before/after](bfdd-leak-jsonc-20261115.txt)).
+- `tests/vm-bfdd-leak.nix` runs bfdsyncd: stock json-c reproduces (+2901
+  kB/min, the switch's rate), patched flat (0 bytes in 10 min per phase). The
+  earlier flat VM runs had no JSON poller ([those runs](bfdd-leak-vm-20261115.txt));
+  the switch's "bfdsyncd stopped" check was undone at once by orchagent's
+  Upholds (use `systemctl mask --runtime --now`).
+- `frr.nix` seeds `FEATURE|bgp` (init_cfg values): coppmgrd installs the
+  bgp/bgpv6 CoPP traps (vm-bfd 99/99 incl. COPP_TABLE and the ASIC_DB hostif traps).
+- Regressions: vm-bfd 99/0, vm 92/0, vm-platform 31/0; cross-build in budget
+  (2566160384 bytes; libfrr's RUNPATH has the patched json-c). vm-frr fails 4
+  "syncd killed" checks also on a clean HEAD export: from 76d6818 (syncd PartOf
+  orchagent), not from this.
 
 ## 2026-11-15 (late) — SONiC metrics and the Grafana dashboard (VM only)
 

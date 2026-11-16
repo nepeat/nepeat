@@ -1,0 +1,53 @@
+# bfdd leak = json-c 0.19 json_object_put(), 2026-11-15
+# Switch trace: bfdd-malloc-trace-20261115.txt. Offsets resolved with the unstripped rebuild of
+# the same frr-sonic derivation (.text byte-identical: bfdd, libfrr.so.0, zebra):
+#   bfdd+0x2bf1c/0x2bf38  _display_all_peers (bfdd_vty.c:588/590) <- bfd_show_peers ("show bfd peers json")
+#   bfdd+0x2cabc          _display_peer_json_iter (bfdd_vty.c:514)
+#   bfdd+0x2c030/0x2c038  __display_peer_json (bfdd_vty.c:315/319); bfdd+0x29238 _peer_json_header (:289)
+#   bfdd+0x2c408          __display_peer_json (bfdd_vty.c:424)
+#   libfrr+0x19c7a0       vty_json_helper (lib/vty.c:350) -> json_object_to_json_string_ext; it then
+#                         calls json_object_free() = json_object_put(): FRR frees correctly.
+# Cause: json-c 0.19's new non-recursive json_object_put() (json-c #923) frees non-empty
+# containers with  assert(_json_object_put_maybe_free(jso, 1) == 0);  - compiled out under NDEBUG
+# (nixpkgs builds json-c Release), so every object/array that had members leaks with its whole
+# tree. Fixed upstream after the 0.19 tag: f291fa81c6 (PR #936), plus #934 follow-ups 3aa996b5b6,
+# 0c3a5a1994. Not FRR: no FRR patch needed; FRR is linked against a patched json-c.
+# Client: bfdsyncd's "show bfd peers json" every 200 ms (~5/s; 2 sessions -> ~9 KB per call).
+# Other JSON users leak the same way with stock json-c 0.19 (bgpd: bgpmon's "show bgp summary json" every 15 s).
+
+## before: tests/vm-bfdd-leak.nix { minutes = 5; unpatchedJsonC = true; } (x86, bfdsyncd dry run, 200 ms)
+vrf: sessions up: [('10.0.0.1', None), ('10.0.0.0', 'Vrf-test')]
+FAIL vrf: bfdd heap in use (mallinfo) grew < 512 KiB in 5 min (15138816 bytes) :: (3735552, 18874368)
+FAIL vrf: bfdd RSS slope < 30 kB/min (2901.0) :: [(2.86102294921875e-06, 13120), (30.03912353515625, 14524), (60.073126792907715, 15980), (90.1071207523346, 17424), (120.14289903640747, 18876), (150.1785809993744, 20332), (180.21344900131226, 21788), (210.24704790115356, 23240), (240.28467893600464, 24684), (270.31952810287476, 26140), (300.35646510124207, 27596)]
+vrf: bfdd RSS kB [13120, 14524, 15980, 17424, 18876, 20332, 21788, 23240, 24684, 26140, 27596]
+vrf: RSS slope 2901.0 kB/min over 5 min, heap in use 3735552 -> 18874368 bytes, 5046 control packets in+out total so far
+vrf: show memory bfdd (before / after):
+novrf: sessions up: [('10.1.0.2', None), ('10.2.0.2', None)]
+FAIL novrf: bfdd heap in use (mallinfo) grew < 512 KiB in 5 min (14680064 bytes) :: (19922944, 34603008)
+FAIL novrf: bfdd RSS slope < 30 kB/min (2901.2) :: [(1.9073486328125e-06, 29220), (30.07144284248352, 30620), (60.13871955871582, 32076), (90.20647549629211, 33528), (120.27348160743713, 34984), (150.34321689605713, 36436), (180.40966057777405, 37892), (210.47818899154663, 39348), (240.54433965682983, 40800), (270.61370396614075, 42256), (300.683718919754, 43700)]
+novrf: bfdd RSS kB [29220, 30620, 32076, 33528, 34984, 36436, 37892, 39348, 40800, 42256, 43700]
+novrf: RSS slope 2901.2 kB/min over 5 min, heap in use 19922944 -> 34603008 bytes, 5045 control packets in+out total so far
+novrf: peer (nixpkgs FRR) bfdd RSS kB [8560, 8560, 8560, 8560, 8560, 8560, 8560, 8560, 8560, 8560] slope 0.0 kB/min
+novrf: show memory bfdd (before / after):
+RESULT {"vrf": 2901.027810477092, "novrf": 2901.165979778974}
+FAILED CHECKS: 4 ['vrf: bfdd heap in use (mallinfo) grew < 512 KiB in 5 min (15138816 bytes)', 'vrf: bfdd RSS slope < 30 kB/min (2901.0)', 'novrf: bfdd heap in use (mallinfo) grew < 512 KiB in 5 min (14680064 bytes)', 'novrf: bfdd RSS slope < 30 kB/min (2901.2)']
+AssertionError: ['vrf: bfdd heap in use (mallinfo) grew < 512 KiB in 5 min (15138816 bytes)', 'vrf: bfdd RSS slope < 30 kB/min (2901.0)', 'novrf: bfdd heap in use (mallinfo) grew < 512 KiB in 5 min (14680064 bytes)', 'novrf: bfdd RSS slope < 30 kB/min (2901.2)']
+       > AssertionError: ['vrf: bfdd heap in use (mallinfo) grew < 512 KiB in 5 min (15138816 bytes)', 'vrf: bfdd RSS slope < 30 kB/min (2901.0)', 'novrf: bfdd heap in use (mallinfo) grew < 512 KiB in 5 min (14680064 bytes)', 'novrf: bfdd RSS slope < 30 kB/min (2901.2)']
+EXIT 1
+## after: tests/vm-bfdd-leak.nix { minutes = 10; } (patched json-c, same poller)
+vrf: sessions up: [('10.0.0.1', None), ('10.0.0.0', 'Vrf-test')]
+PASS vrf: bfdd heap in use (mallinfo) grew < 512 KiB in 10 min (0 bytes)
+PASS vrf: bfdd RSS slope < 30 kB/min (0.0)
+vrf: bfdd RSS kB [11524, 11524, 11524, 11524, 11524, 11524, 11524, 11524, 11524, 11524, 11524, 11524, 11524, 11524, 11524, 11524, 11524, 11524, 11524, 11524, 11524]
+vrf: RSS slope 0.0 kB/min over 10 min, heap in use 2086912 -> 2086912 bytes, 9592 control packets in+out total so far
+vrf: show memory bfdd (before / after):
+novrf: sessions up: [('10.1.0.2', None), ('10.2.0.2', None)]
+PASS novrf: bfdd heap in use (mallinfo) grew < 512 KiB in 10 min (0 bytes)
+PASS novrf: bfdd RSS slope < 30 kB/min (0.0)
+novrf: bfdd RSS kB [11536, 11536, 11536, 11536, 11536, 11536, 11536, 11536, 11536, 11536, 11536, 11536, 11536, 11536, 11536, 11536, 11536, 11536, 11536, 11536, 11536]
+novrf: RSS slope 0.0 kB/min over 10 min, heap in use 2091008 -> 2091008 bytes, 9606 control packets in+out total so far
+novrf: peer (nixpkgs FRR) bfdd RSS kB [8432, 8432, 8432, 8432, 8432, 8432, 8432, 8432, 8432, 8432, 8432, 8432, 8432, 8432, 8432, 8432, 8432, 8432, 8432, 8432] slope 0.0 kB/min
+novrf: show memory bfdd (before / after):
+RESULT {"vrf": 0.0, "novrf": 0.0}
+FAILED CHECKS: 0 []
+EXIT 0

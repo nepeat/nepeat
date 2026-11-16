@@ -157,7 +157,8 @@ again 10 s after syncd stops, unless syncd is back, queued or a
 
 [frr.nix](frr.nix), `services.sonic.frr.enable` (default on, as SONiC's bgp
 feature): FRR 10.7 (zebra, mgmtd, bgpd, staticd, bfdd: see BFD below; [packages/sonic/routing](../../../packages/sonic/routing/default.nix)
-with the SONiC patches the FPM path needs), zebra `-M dplane_fpm_nl` to
+with the SONiC patches the FPM path needs, linked against a json-c with the
+upstream json_object_put() leak fixes: see devices/sonic-nixos/bfdd-leak.md), zebra `-M dplane_fpm_nl` to
 fpmsyncd (127.0.0.1:2620 -> APPL_DB ROUTE_TABLE), bgpcfgd + bgpmon. SONiC's
 default "separated" mode: `/etc/frr/{zebra,bgpd,staticd}.conf` rendered from
 CONFIG_DB by `sonic-frr-config` at every start (docker-fpm-frr's templates,
