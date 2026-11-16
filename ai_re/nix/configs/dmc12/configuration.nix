@@ -21,6 +21,10 @@
     "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCkEDEKqOyMe6QHZ9stWPbm+lE+NKoEer6BRW8LmEAZ7ekxjY+OiBmh0sBLMBbeOMannm7fvQ27bShZCnglDaW9k5Rf2d7vdmRBbvGkNjvg6nbFJT6M64yi8jxPt2FixDhrkcDlFUbKCZMGEJ6z5vSHm5pqDnRXdse3KPQ+Ul8h5pSfM31Nubto4onhhu0xfFuLorxUFD1/opvLs9y/geqQQ8T+zu5Ms05MfVvGD1S+Uo+EieOnhore7KdcfhG4Fi0AkwpfVVB91DS6SVSQJSbVIKLo366PVEl9JdAn59ZvaEOxq70yW36YOIRAFAm1ANLYj3jhbxf68ds7+RjgOqXH"
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA60KDLPhZaDPbstXgHVK4RnZq3dSzfbVzfVBheWOMb+ root@sea420-desktop"
   ];
+  # Consoles only (not root): the owner's desktop user, so `ssh -t console@dmc12 …` needs no sudo.
+  services.consoled.ssh.authorizedKeys = config.users.users.root.openssh.authorizedKeys.keys ++ [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK2WWFPDogbCuq7ta6lvKlfPqRXOJE1R3e8Vv2r+l9Fi erin@sea420-desktop"
+  ];
 
   services.getty.autologinUser = "root";
   environment.systemPackages = [ pkgs.picocom pkgs.tio ];

@@ -13,6 +13,7 @@
 - **USB interrupts** (494d188): the Pericom OHCI/EHCI INTx go through the PCIe port's IOFIC
   (`amazon,al-fic` @0xfd803000, GIC SPI 47). Before that they never fired and sustained 115200
   input lost ~62 % (`board-notes.md`, "USB/serial").
+- **Metrics:** lab VictoriaMetrics job `dmc-12-48r-as0` (node_exporter :9100 with dmc12/consoled/fand textfiles), Grafana `ai-re-dmc12`.
 - **Full Nix system (`profile-rebuildable`):** deploy in place with `./deploy.sh 10.60.2.10 [switch|boot]`
   (root flake at committed HEAD, so fand/consoled are in and nobody's uncommitted work is; copies only new paths), generations in the extlinux menu, rollback on
   the box `nixos-rebuild switch --rollback --no-reexec`.
