@@ -36,8 +36,10 @@ build host/date). The real changes between OS 457 and 526 are in userspace (see 
 - **p01** (2026-11-16; identity in `units-private.txt`): NixOS first-iteration image (7.2.3, comin), up 41 d.
   Same board rev as u01 (R02E, device ver 9, ONIE V1.0.0.1, diag V1.0.3.0; made 2021-06-18), **CPLD flash
   byte-identical to u01** (`ff56fa3a`), same preload EEPROM, USB/PCI revisions. Differs: SSD Innodisk
-  `M.2 (S42) 3TE7` fw S19C04B (27.5 GB). Not readable live: SPI (no SPI node in its DT), TPM (I2C node only),
-  uC. `inventory/p01/firmware.json`; collected with `fw-inventory.py collect --busybox /dev/shm/... --no-sudo`
+  `M.2 (S42) 3TE7` fw S19C04B (27.5 GB). After the 2026-11-16 deploy (our module, rev e56b987; booted 7.3.4, USB/TPM/SPI fine) its SPI was read
+  (`dumps/p01/mtd{0,1}.bin.zst`, 2 identical reads + box sha256): **CS1 identical to u01's; CS0 identical
+  to u01's factory dump except the factory env pair** (0xfd0000/0xfe0000, per-unit). Same al-boot 2.60.4,
+  U-Boot 2015.07-alpine_db-2.60.4, BOOT_MODE -> UBOOT 0, IPXE 0/1 blank. uC not read. `inventory/p01/firmware.json`; collected with `fw-inventory.py collect --busybox /dev/shm/... --no-sudo`
   and `cpld-readback.py --emit-sh` (static busybox in RAM, removed after).
   Seen there: `/run` 100% full (journald volatile 961 MB, no cap) and the USB INTx bug (EHCI 1 irq in
   41 d: serial byte loss under sustained output; fix = 494d188).

@@ -100,11 +100,450 @@
    "midr": "0x00000000411fd073"
   },
   "software": {
-   "kernel": "7.2.3 #1-NixOS SMP PREEMPT Wed Sep  2 12:33:21 UTC 2026",
-   "system": "/nix/store/2j4pvma0xzfpv80g4r92mm90cjmxvpsl-nixos-system-dma-con-sw-0-rev-62c107f-26.11.20260907.dc5d91f"
+   "kernel": "7.3.4 #1-NixOS SMP PREEMPT @1794334210",
+   "system": "/nix/store/cavzsq9zmync3fpimxjpdkdkrbpmign1-nixos-system-dma-con-sw-0-rev-e56b987-26.11.20261113.d5cc683"
   },
-  "spi.current": {
-   "state": "not readable live (no SPI flash in this kernel's DT: mtd none)"
+  "spi.current.cs0.2nd_toc.0": {
+   "id": "0xb",
+   "max": "0x10000",
+   "offset": "0x2b0000",
+   "state": "blank(ff)"
+  },
+  "spi.current.cs0.2nd_toc.1": {
+   "id": "0xb",
+   "max": "0x10000",
+   "offset": "0x570000",
+   "state": "blank(ff)"
+  },
+  "spi.current.cs0.apcea.0": {
+   "id": "0x100",
+   "max": "0x80000",
+   "offset": "0x110000",
+   "state": "blank(ff)"
+  },
+  "spi.current.cs0.apcea.1": {
+   "id": "0x100",
+   "max": "0x80000",
+   "offset": "0x3d0000",
+   "state": "blank(ff)"
+  },
+  "spi.current.cs0.apcea_cfg.0": {
+   "id": "0x101",
+   "max": "0x30000",
+   "offset": "0x190000",
+   "private": true,
+   "size": 30208,
+   "state": "OK",
+   "version": "2.7.1"
+  },
+  "spi.current.cs0.apcea_cfg.1": {
+   "id": "0x101",
+   "max": "0x30000",
+   "offset": "0x450000",
+   "private": true,
+   "size": 30208,
+   "state": "OK",
+   "version": "2.7.1"
+  },
+  "spi.current.cs0.boot_app.0": {
+   "id": "0x200",
+   "max": "0x4d0000",
+   "offset": "0x600000",
+   "sha256": "f0c8b782e23398ff31724641de60c47b09b61755c4c68a2f1b9da7f5ea6b0523",
+   "size": 473541,
+   "state": "OK",
+   "version": "3.15.14"
+  },
+  "spi.current.cs0.boot_app.1": {
+   "id": "0x200",
+   "max": "0x4d0000",
+   "offset": "0xae0000",
+   "sha256": "f0c8b782e23398ff31724641de60c47b09b61755c4c68a2f1b9da7f5ea6b0523",
+   "size": 473541,
+   "state": "OK",
+   "version": "3.15.14"
+  },
+  "spi.current.cs0.boot_app_cfg.0": {
+   "id": "0x201",
+   "max": "0x10000",
+   "offset": "0xad0000",
+   "private": true,
+   "state": "blank(ff)"
+  },
+  "spi.current.cs0.boot_app_cfg.1": {
+   "id": "0x201",
+   "max": "0x10000",
+   "offset": "0xfb0000",
+   "private": true,
+   "state": "blank(ff)"
+  },
+  "spi.current.cs0.boot_mode.0": {
+   "id": "0x0",
+   "max": "0x10000",
+   "offset": "0x340000",
+   "state": "blank(ff)"
+  },
+  "spi.current.cs0.dt.0": {
+   "id": "0x2",
+   "max": "0x10000",
+   "offset": "0x90000",
+   "sha256": "687e07e6a4eec6288e5353a01225ea8249f7fb45f4a79495a07c2d6150dac766",
+   "size": 26460,
+   "state": "OK",
+   "version": "0.0.0"
+  },
+  "spi.current.cs0.dt.1": {
+   "id": "0x2",
+   "max": "0x10000",
+   "offset": "0x350000",
+   "sha256": "36812a911a6234d80a9e96864c39f584ea8cc1239763bf2363f6100832b0eb72",
+   "size": 26384,
+   "state": "OK",
+   "version": "2.60.4"
+  },
+  "spi.current.cs0.eeprom.0": {
+   "id": "0x700",
+   "max": "0x1000",
+   "offset": "0xfc0000",
+   "private": true,
+   "state": "blank(ff)"
+  },
+  "spi.current.cs0.eeprom.1": {
+   "id": "0x700",
+   "max": "0x1000",
+   "offset": "0xfc1000",
+   "private": true,
+   "state": "blank(ff)"
+  },
+  "spi.current.cs0.image": {
+   "bytes": 16777216
+  },
+  "spi.current.cs0.ipxe.0": {
+   "id": "0x110",
+   "max": "0x80000",
+   "offset": "0x2c0000",
+   "state": "blank(ff)"
+  },
+  "spi.current.cs0.ipxe.1": {
+   "id": "0x110",
+   "max": "0x80000",
+   "offset": "0x580000",
+   "state": "blank(ff)"
+  },
+  "spi.current.cs0.stg2.0": {
+   "id": "0x1",
+   "max": "0x40000",
+   "offset": "0x0",
+   "sha256": "f5ea147770391ec03f3fa5b333270f4846c61e11971fe0355f931f67f2372e77",
+   "size": 95303,
+   "state": "OK",
+   "version": "0.0.0"
+  },
+  "spi.current.cs0.stg2.1": {
+   "id": "0x1",
+   "max": "0x40000",
+   "offset": "0x40000",
+   "sha256": "c6054c0b1d1fa8957fa5d040d17766bbee738d841ed2424d3f1759ce40806baa",
+   "size": 131699,
+   "state": "OK",
+   "version": "2.60.4"
+  },
+  "spi.current.cs0.stg3.0": {
+   "id": "0x4",
+   "max": "0x70000",
+   "offset": "0xa0000",
+   "sha256": "3bda23f21c0c99cbccd41331f4d197aa7826e28517c4a254f07d86f1a73438a4",
+   "size": 365173,
+   "state": "OK",
+   "version": "2.60.4"
+  },
+  "spi.current.cs0.stg3.1": {
+   "id": "0x4",
+   "max": "0x70000",
+   "offset": "0x360000",
+   "sha256": "3bda23f21c0c99cbccd41331f4d197aa7826e28517c4a254f07d86f1a73438a4",
+   "size": 365173,
+   "state": "OK",
+   "version": "2.60.4"
+  },
+  "spi.current.cs0.toc": {
+   "entries": 27,
+   "offset": "0x80000",
+   "sum_ok": true
+  },
+  "spi.current.cs0.uboot.0": {
+   "id": "0x5",
+   "max": "0xe0000",
+   "offset": "0x1c0000",
+   "sha256": "661ca0be3426c47a153139e13f4986f26054cddd6f8c3a9c92b44612c769acc8",
+   "size": 819280,
+   "state": "OK",
+   "version": "2.60.4"
+  },
+  "spi.current.cs0.uboot.1": {
+   "id": "0x5",
+   "max": "0xe0000",
+   "offset": "0x480000",
+   "sha256": "661ca0be3426c47a153139e13f4986f26054cddd6f8c3a9c92b44612c769acc8",
+   "size": 819280,
+   "state": "OK",
+   "version": "2.60.4"
+  },
+  "spi.current.cs0.uboot_env.0": {
+   "id": "0x7",
+   "max": "0x10000",
+   "offset": "0xfd0000",
+   "private": true,
+   "state": "env"
+  },
+  "spi.current.cs0.uboot_env_red.0": {
+   "id": "0x8",
+   "max": "0x10000",
+   "offset": "0xfe0000",
+   "private": true,
+   "state": "env"
+  },
+  "spi.current.cs0.uboot_script.0": {
+   "id": "0x6",
+   "max": "0x10000",
+   "offset": "0x2a0000",
+   "sha256": "2524d1dda5829435f4a1794cc7a58d2448c34932c534f619a40c4d29851ceab4",
+   "size": 930,
+   "state": "OK",
+   "version": "2.60.4"
+  },
+  "spi.current.cs0.uboot_script.1": {
+   "id": "0x6",
+   "max": "0x10000",
+   "offset": "0x560000",
+   "sha256": "2524d1dda5829435f4a1794cc7a58d2448c34932c534f619a40c4d29851ceab4",
+   "size": 930,
+   "state": "OK",
+   "version": "2.60.4"
+  },
+  "spi.current.cs1.2nd_toc.0": {
+   "id": "0xb",
+   "max": "0x10000",
+   "offset": "0x2b0000",
+   "state": "blank(ff)"
+  },
+  "spi.current.cs1.2nd_toc.1": {
+   "id": "0xb",
+   "max": "0x10000",
+   "offset": "0x570000",
+   "state": "blank(ff)"
+  },
+  "spi.current.cs1.apcea.0": {
+   "id": "0x100",
+   "max": "0x80000",
+   "offset": "0x110000",
+   "sha256": "17e39cee33a3d9629d532f49422dc299b2e590d725669312fce751e63c74e25c",
+   "size": 258780,
+   "state": "OK",
+   "version": "1.15.10"
+  },
+  "spi.current.cs1.apcea.1": {
+   "id": "0x100",
+   "max": "0x80000",
+   "offset": "0x3d0000",
+   "sha256": "17e39cee33a3d9629d532f49422dc299b2e590d725669312fce751e63c74e25c",
+   "size": 258780,
+   "state": "OK",
+   "version": "1.15.10"
+  },
+  "spi.current.cs1.apcea_cfg.0": {
+   "id": "0x101",
+   "max": "0x30000",
+   "offset": "0x190000",
+   "private": true,
+   "size": 30208,
+   "state": "OK",
+   "version": "1.15.10"
+  },
+  "spi.current.cs1.apcea_cfg.1": {
+   "id": "0x101",
+   "max": "0x30000",
+   "offset": "0x450000",
+   "private": true,
+   "size": 30208,
+   "state": "OK",
+   "version": "1.15.10"
+  },
+  "spi.current.cs1.boot_app.0": {
+   "id": "0x200",
+   "max": "0x4d0000",
+   "offset": "0x600000",
+   "sha256": "6efa3535492bd195c71a6125d0115c91ab7246c13e331396a33612943952216c",
+   "size": 647380,
+   "state": "OK",
+   "version": "3.14.6"
+  },
+  "spi.current.cs1.boot_app.1": {
+   "id": "0x200",
+   "max": "0x4d0000",
+   "offset": "0xae0000",
+   "sha256": "6efa3535492bd195c71a6125d0115c91ab7246c13e331396a33612943952216c",
+   "size": 647380,
+   "state": "OK",
+   "version": "3.14.6"
+  },
+  "spi.current.cs1.boot_app_cfg.0": {
+   "id": "0x201",
+   "max": "0x10000",
+   "offset": "0xad0000",
+   "private": true,
+   "state": "blank(ff)"
+  },
+  "spi.current.cs1.boot_app_cfg.1": {
+   "id": "0x201",
+   "max": "0x10000",
+   "offset": "0xfb0000",
+   "private": true,
+   "state": "zero"
+  },
+  "spi.current.cs1.boot_mode.0": {
+   "id": "0x0",
+   "max": "0x10000",
+   "offset": "0x340000",
+   "state": "blank(ff)"
+  },
+  "spi.current.cs1.dt.0": {
+   "id": "0x2",
+   "max": "0x10000",
+   "offset": "0x90000",
+   "sha256": "bc76c24f822ec11aeb082ee97a82583c517bc14f69829ce9dac1b9bfd0a11dde",
+   "size": 22327,
+   "state": "OK",
+   "version": "2.44.0"
+  },
+  "spi.current.cs1.dt.1": {
+   "id": "0x2",
+   "max": "0x10000",
+   "offset": "0x350000",
+   "sha256": "bc76c24f822ec11aeb082ee97a82583c517bc14f69829ce9dac1b9bfd0a11dde",
+   "size": 22327,
+   "state": "OK",
+   "version": "2.44.0"
+  },
+  "spi.current.cs1.eeprom.0": {
+   "id": "0x700",
+   "max": "0x1000",
+   "offset": "0xfc0000",
+   "private": true,
+   "state": "zero"
+  },
+  "spi.current.cs1.eeprom.1": {
+   "id": "0x700",
+   "max": "0x1000",
+   "offset": "0xfc1000",
+   "private": true,
+   "state": "zero"
+  },
+  "spi.current.cs1.image": {
+   "bytes": 16777216
+  },
+  "spi.current.cs1.ipxe.0": {
+   "id": "0x110",
+   "max": "0x80000",
+   "offset": "0x2c0000",
+   "state": "blank(ff)"
+  },
+  "spi.current.cs1.ipxe.1": {
+   "id": "0x110",
+   "max": "0x80000",
+   "offset": "0x580000",
+   "state": "blank(ff)"
+  },
+  "spi.current.cs1.stg2.0": {
+   "id": "0x1",
+   "max": "0x40000",
+   "offset": "0x0",
+   "sha256": "6799666274b7eaef0881fa97617ee6c2811a771fae500cb4d6c54e0304f19fbd",
+   "size": 127431,
+   "state": "OK",
+   "version": "2.44.0"
+  },
+  "spi.current.cs1.stg2.1": {
+   "id": "0x1",
+   "max": "0x40000",
+   "offset": "0x40000",
+   "sha256": "99154d9aa45ad2a338f2bd7721a5ac3f09b8c4a9f03f1f988ea6325a5084cde6",
+   "size": 126919,
+   "state": "OK",
+   "version": "2.44.0"
+  },
+  "spi.current.cs1.stg3.0": {
+   "id": "0x4",
+   "max": "0x70000",
+   "offset": "0xa0000",
+   "sha256": "8739a6c1e94434972b026b2a6d9fca99462a0eae58a8dfb882d117c463f38aba",
+   "size": 331192,
+   "state": "OK",
+   "version": "2.44.0"
+  },
+  "spi.current.cs1.stg3.1": {
+   "id": "0x4",
+   "max": "0x70000",
+   "offset": "0x360000",
+   "sha256": "8739a6c1e94434972b026b2a6d9fca99462a0eae58a8dfb882d117c463f38aba",
+   "size": 331192,
+   "state": "OK",
+   "version": "2.44.0"
+  },
+  "spi.current.cs1.toc": {
+   "entries": 27,
+   "offset": "0x80000",
+   "sum_ok": true
+  },
+  "spi.current.cs1.uboot.0": {
+   "id": "0x5",
+   "max": "0xe0000",
+   "offset": "0x1c0000",
+   "sha256": "956484799756b10c428b6801b163296578918a51d18ef36904638114f43ba65b",
+   "size": 677136,
+   "state": "OK",
+   "version": "2.44.0"
+  },
+  "spi.current.cs1.uboot.1": {
+   "id": "0x5",
+   "max": "0xe0000",
+   "offset": "0x480000",
+   "sha256": "956484799756b10c428b6801b163296578918a51d18ef36904638114f43ba65b",
+   "size": 677136,
+   "state": "OK",
+   "version": "2.44.0"
+  },
+  "spi.current.cs1.uboot_env.0": {
+   "id": "0x7",
+   "max": "0x10000",
+   "offset": "0xfd0000",
+   "private": true,
+   "state": "zero"
+  },
+  "spi.current.cs1.uboot_env_red.0": {
+   "id": "0x8",
+   "max": "0x10000",
+   "offset": "0xfe0000",
+   "private": true,
+   "state": "zero"
+  },
+  "spi.current.cs1.uboot_script.0": {
+   "id": "0x6",
+   "max": "0x10000",
+   "offset": "0x2a0000",
+   "sha256": "7a31773824238cfb44a6f52f2ded1f001660aefbd06a7d98f75f4c47dcdd8f94",
+   "size": 930,
+   "state": "OK",
+   "version": "2.44.0"
+  },
+  "spi.current.cs1.uboot_script.1": {
+   "id": "0x6",
+   "max": "0x10000",
+   "offset": "0x560000",
+   "sha256": "7a31773824238cfb44a6f52f2ded1f001660aefbd06a7d98f75f4c47dcdd8f94",
+   "size": 930,
+   "state": "OK",
+   "version": "2.44.0"
   },
   "ssd": {
    "ata_model": "M.2 (S42) 3TE7",
@@ -113,7 +552,7 @@
    "sectors": "53742528"
   },
   "tpm": {
-   "state": "absent"
+   "state": "rc None"
   },
   "uc": {
    "state": "not captured (provision.py register step)"
@@ -135,7 +574,7 @@
    "product": "CP2108 Quad USB to UART Bridge Controller"
   }
  },
- "date": "2026-11-16T01:38:23-0800",
+ "date": "2026-11-16T11:35:19-0800",
  "mode": "live",
  "unit": "p01"
 }
