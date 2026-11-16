@@ -70,6 +70,7 @@ in
   imports = [
     ./uboot-menu
     ./fan-control # hardware.cs8210.fan: fand (default) or services.cs8210-fancontrol
+    ./macsec # hardware.cs8210.macsec (default off): engine shim, cs8210-macsec, MKA driver
     ./tools # services.cs8210-tools
     ./vendor-sdk # hardware.cs8210.vendorSdk
     # monitoring.nodeExporter: node_exporter on :9100 + textfile producers,

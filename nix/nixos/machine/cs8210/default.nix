@@ -171,6 +171,9 @@
   ];
 
   # SONiC on our sai-teralynx (nix/nixos/module/cs8210/sonic); off until the first full run.
+  # MACsec shim + cs8210-macsec + MKA driver (macsec.md); ports stay in bypass until configured.
+  hardware.cs8210.macsec.enable = true;
+
   hardware.cs8210.sonic = {
     enable = false;
     macAddress = "0e:48:c6:7a:55:ce";
