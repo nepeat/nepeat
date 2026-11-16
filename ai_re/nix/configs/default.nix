@@ -26,12 +26,15 @@ let
   netboot = import (img + "/netboot-files.nix") { pkgs = native; config = as7760Netboot.config; inherit kernelImage; };
 
   # --- Edgecore DMC-12-48R-AS0 (Alpine V2) ---------------------------------
-  dmc12 = mkHost "aarch64-linux" [ ./dmc12/configuration.nix ../modules/boards/dmc12/disk.nix ];
+  # Installed on the SSD: a full, rebuildable Nix system (nixos-rebuild --target-host).
+  dmc12 = mkHost "aarch64-linux" [ ./dmc12/configuration.nix ../modules/profiles/rebuildable.nix ../modules/boards/dmc12/disk.nix ];
   # Same, booted by the chainloaded upstream U-Boot (raw sda1, extlinux on sda2).
   dmc12Chainload = mkHost "aarch64-linux" [
-    ./dmc12/configuration.nix ../modules/boards/dmc12/disk.nix { hardware.dmc12.bootLoader = "chainload"; }
+    ./dmc12/configuration.nix ../modules/profiles/rebuildable.nix ../modules/boards/dmc12/disk.nix
+    { hardware.dmc12.bootLoader = "chainload"; }
   ];
-  # Same system, root in RAM, for TFTP boots and as the reimaging environment.
+  # Same system, root in RAM, for TFTP boots and as the reimaging environment. Not rebuildable:
+  # its store is never registered, so a nix GC there would delete the running system.
   dmc12Netboot = mkHost "aarch64-linux" [
     ./dmc12/configuration.nix ../modules/profiles/netboot-root.nix { boot.loader.grub.enable = false; }
   ];

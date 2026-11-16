@@ -170,6 +170,9 @@ in
 
   # First boot of an image: register the store paths the image ships so nix and
   # nixos-rebuild work, and create the system profile (as nixpkgs' sd-image does).
+  # If registration ever failed, the store DB is empty: a GC would then delete the system.
+  systemd.services.nix-gc.unitConfig.ConditionPathExists = lib.mkIf config.nix.enable "!/nix-path-registration";
+  systemd.services.nix-daemon.unitConfig.ConditionPathExists = lib.mkIf config.nix.enable "!/nix-path-registration";
   systemd.services.dmc12-register-store = lib.mkIf config.nix.enable {
     description = "Register the disk image's Nix store paths";
     unitConfig = { DefaultDependencies = false; ConditionPathExists = "/nix-path-registration"; };

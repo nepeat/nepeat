@@ -2,7 +2,8 @@
 # redundant 2 x 64 KiB at CS0 0xf90000 / 0xfa0000. The DT exposes that window as its own
 # writable mtd partition "u-boot-env"; the rest of both chips stays read-only.
 #   dmc12-uboot-env print [VAR...]          read (fw_printenv)
-#   dmc12-uboot-env set VAR [VALUE...]      write one change (no VALUE: delete VAR)
+#   dmc12-uboot-env set VAR VALUE...        write one change
+#   dmc12-uboot-env unset VAR               delete VAR (refused while the window is blank/corrupt)
 # Every write is logged (journal tag dmc12-uboot-env) and counted; more than 20 writes in a
 # day needs --force (the flash is rated for >= 100,000 cycles: one save = one erase of one
 # copy, so ~200,000 saves). Never call it from a timer or a loop.
@@ -29,30 +30,50 @@ let
   };
   envTool = pkgs.writeShellApplication {
     name = "dmc12-uboot-env";
-    runtimeInputs = [ tools pkgs.coreutils pkgs.util-linux ];
+    runtimeInputs = [ tools pkgs.coreutils pkgs.util-linux pkgs.gnugrep ];
     text = ''
       state=/var/lib/dmc12-uboot-env
-      usage() { echo "usage: dmc12-uboot-env print [VAR...] | set [--force] VAR [VALUE...]" >&2; exit 2; }
+      who=''${SUDO_USER:-''${USER:-$(id -un)}}
+      usage() {
+        echo "usage: dmc12-uboot-env print [VAR...] | set [--force] VAR VALUE... | unset [--force] VAR" >&2
+        exit 2
+      }
+      # fw_printenv exits 0 on a blank/corrupt window and shows its *own* compiled-in defaults
+      # (a sandbox env: no bootcmd for our U-Boot, a fake MAC). Never save those.
+      env_valid() { ! fw_printenv 2>&1 >/dev/null | grep -q "Bad CRC"; }
       [ $# -ge 1 ] || usage
       cmd=$1; shift
       case $cmd in
-        print) exec fw_printenv "$@" ;;
-        set)
+        print)
+          if ! env_valid; then
+            echo "dmc12-uboot-env: the env window is blank or corrupt: U-Boot boots its built-in defaults; values below are NOT them" >&2
+            fw_printenv "$@" 2>/dev/null || true
+            exit 3
+          fi
+          exec fw_printenv "$@" ;;
+        set|unset)
           force=0
           if [ "''${1:-}" = --force ]; then force=1; shift; fi
-          [ $# -ge 1 ] || usage
+          if [ "$cmd" = set ]; then [ $# -ge 2 ] || usage; else [ $# -eq 1 ] || usage; fi
+          case $1 in -*|*=*|"") echo "dmc12-uboot-env: bad variable name '$1'" >&2; exit 2 ;; esac
+          if ! env_valid; then
+            echo "dmc12-uboot-env: the env window is blank or corrupt; save it once at the U-Boot prompt (saveenv) first" >&2
+            exit 1
+          fi
           mkdir -p "$state"
+          exec 9>"$state/lock"
+          flock 9
           today=$(date +%F)
           n=$(grep -c "^$today " "$state/writes" 2>/dev/null || true)
-          n=''${n:-0}   # no log yet: grep prints nothing
+          n=''${n:-0}
           if [ "$n" -ge 20 ] && [ $force = 0 ]; then
             echo "dmc12-uboot-env: $n env writes today already; this wears the SPI flash. Use --force if you mean it." >&2
             exit 1
           fi
+          # Count the attempt before writing: an interrupted write has erased a copy all the same.
+          echo "$today $(date +%T) $who $cmd $1" >> "$state/writes"
           fw_setenv "$@"
-          echo "$today $(date +%T) ''${SUDO_USER:-$USER} $1" >> "$state/writes"
-          total=$(wc -l < "$state/writes")
-          logger -t dmc12-uboot-env "set $1 by ''${SUDO_USER:-$USER} (Linux writes so far: $total)"
+          logger -t dmc12-uboot-env "$cmd $1 by $who (Linux writes so far: $(wc -l < "$state/writes"))"
           ;;
         *) usage ;;
       esac

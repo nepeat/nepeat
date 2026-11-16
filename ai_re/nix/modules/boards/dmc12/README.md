@@ -3,7 +3,7 @@
 Started as a verbatim import of [codeberg dma/dmc12-nixos](https://codeberg.org/dma/dmc12-nixos)
 at `5d02d1b3` (2026-11-15); `git log -p -- .` shows every change since. Exported as
 `nixosModules.board-dmc12`; the complete system is `nix/configs/dmc12` (board +
-`profile-appliance` + `profile-rebuildable`), outputs `dmc12-disk-image`, `dmc12-netboot`.
+`profile-appliance`; the installed hosts add `profile-rebuildable`, the netboot one does not), outputs `dmc12-disk-image`, `dmc12-netboot`.
 Device notes and dumps: `devices/dmc-12-48r-as0/` (not read from here, by rule).
 
 ## What it does
