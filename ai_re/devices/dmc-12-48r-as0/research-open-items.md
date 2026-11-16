@@ -32,6 +32,13 @@ register.
   1.8 V clip ready, never on u01 alone.
 
 ## 2. CPLD (Lattice MachXO3)
+**Read back 2026-11-16** (`cpld-readback.py`, read-only subset of cpldupd's flow, transparent mode):
+IDCODE 0x612BB043 = **LCMXO3LF-2100C confirmed**; USERCODE 0; status DONE, no fail; feature row (in ISC)
+`0000040000000000`, FEABITS `0ac0`; CFG 3198 pages, 1571 with data (pages 0..1578; starts `FF FF BD B3`,
+a bitstream with sysCONFIG commands, probably compressed), UFM all blank. Two reads identical
+(cfg sha256 `ff56fa3a`, ufm `9fd295f3`); CPLD version, WDT flag and fand unaffected. Files:
+`dumps/u01/cpld/` (git-ignored: Edgecore's design). The text below is the plan as it was.
+
 **Part:** cpldupd expects IDCODE **0x612BB043** (`.data` 0x4960b4, the `IDCODE` config item). That is
 **LCMXO3LF-2100C** in openFPGALoader's part table (`src/part.hpp`): flash-based with UFM, C = 2.5/3.3 V
 core. It isn't confirmed on silicon until the IDCODE is read.
