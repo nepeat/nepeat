@@ -154,7 +154,7 @@ let
   '');
 in
 {
-  imports = [ ./bootloader.nix ./uboot-menu ./boot-chainload.nix ./boot-standard.nix ];
+  imports = [ ./boot.nix ];
 
   fileSystems."/" = {
     device = "/dev/disk/by-label/DMC12ROOT";

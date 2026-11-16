@@ -7,8 +7,9 @@
 # which only the ai_re root flake (git+file://<monorepo>?dir=ai_re, deploy.sh) passes in; a
 # `path:./nix` build has none and fails the assertion below instead of running without
 # fan control. (The ported factory PI script was retired 2026-11-15 after fand ran on u01.)
-{ config, lib, pkgs, aiReRust ? null, ... }:
+{ config, lib, pkgs, ... }:
 let
+  rust = import ../rust-modules.nix;   # fand from the monorepo tree (null under path:./nix)
   cfg = config.hardware.dmc12Fan;
   # The CPLD module's bus (pinned by the board DT aliases), else 4.
   bus = config.hardware.dmc12.cpld.bus or 4;
@@ -22,7 +23,7 @@ let
   promDir = config.monitoring.nodeExporter.textfile.directory or null;
   prom = (config.monitoring.nodeExporter.enable or false) && promDir != null;
 in {
-  imports = lib.optional (aiReRust != null) aiReRust.nixosModules.fand;
+  imports = lib.optional (rust != null) rust.nixosModules.fand;
 
   options.hardware.dmc12Fan = {
     pwmSteps = lib.mkOption {
@@ -77,7 +78,7 @@ in {
   config = lib.mkMerge [
     {
       assertions = [{
-        assertion = aiReRust != null;
+        assertion = rust != null;
         message = ''
           DMC-12 fan control is fand, from the monorepo's rust flake, which this
           evaluation lacks (a `path:./nix` build can't reach ../rust). Build from the
@@ -87,7 +88,7 @@ in {
       # /dev/i2c-N (built in on linux-alpine; harmless there).
       boot.kernelModules = [ "i2c-dev" ];
     }
-    (lib.optionalAttrs (aiReRust != null) {
+    (lib.optionalAttrs (rust != null) {
       # services.fand exists only when the fand module is imported (aiReRust).
       # On u01 since 2026-11-15 (devices/dmc-12-48r-as0/PROGRESS.md).
       services.fand = {

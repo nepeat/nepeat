@@ -154,7 +154,7 @@ in {
       services.prometheus.exporters.node = {
         enable = true;
         inherit (cfg) port listenAddress enabledCollectors disabledCollectors;
-        openFirewall = false;   # handled above for both implementations
+        openFirewall = lib.mkDefault false;   # handled above for both implementations (a host may also open it here)
         extraFlags = [ "--collector.textfile.directory=${dir}" ] ++ cfg.extraFlags;
       };
     })

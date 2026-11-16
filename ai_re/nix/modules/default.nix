@@ -20,4 +20,5 @@
   board-as7760-sd-persist = ./boards/as7760/sd-persist.nix;
   # Verbatim import of codeberg dma/dmc12-nixos; see boards/dmc12/README.md.
   board-dmc12 = ./boards/dmc12;
+  board-dmc12-boot = ./boards/dmc12/boot.nix;   # the SSD boot loaders, without our disk image
 }

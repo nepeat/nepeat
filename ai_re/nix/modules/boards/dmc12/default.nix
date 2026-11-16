@@ -16,7 +16,7 @@
 
   hardware.alpineV2 = {
     # allnoconfig + explicit (packages/linux-alpine); lean is the fallback.
-    kernelVariant = "minimal";
+    kernelVariant = lib.mkDefault "minimal";   # hosts needing more (TUN/WireGuard VPNs): "lean"
     # Board drivers, from what the factory kernel bound on u01 (2026-11-15).
     kernelConfig = with lib.kernel; {
       USB_SUPPORT = yes;
