@@ -69,9 +69,14 @@ Edgecore/Accton 48-port serial console server on an Annapurna Alpine V2 "K2C-AB"
 - **Disk writes at idle:** ~0.6 MiB per 5 min after quieting the journal (standing alarms logged once,
   timer units `LogLevelMax=notice`); was 9.6 MiB. [hw] Check with `/proc/diskstats` before adding timers.
 - **Route A ≠ cold SPI boot:** it can't show SPI controller state left by stage3. [hw] `uart-boot.md`
-- **Opening a CP2108 port takes ~1 s** (USB control transfers): opening all 48 is ~1 min; never do it
-  on a service's main loop (consoled uses a worker thread). [hw]
-- **USB serial enumeration takes ~25 s** after boot; wait for 48 `/dev/P*` before tests. [hw]
+- **USB/serial: INTx only through the PCIe port's IOFIC.** The Pericom OHCI/EHCI (no MSI: kernel quirk)
+  raise INTx messages; on the x8 port they set cause bits 7..4 (INTA..D) of app interrupt group A at
+  0xfd803000, which raises GIC SPI 47 (`amazon,al-fic`, `AL_FIC`; DT in `linux-alpine/boards/dmc12`).
+  Mapped straight to a GIC line they never fired (2026-11-15): USB ran on EHCI's 100 ms watchdog, so
+  sustained 115200 input lost ~62 % (CP2108 overrun; consoled or plain `cat`), enumeration took ~21 s
+  and opening all 48 ports ~56 s. Fixed (494d188): enumeration 4 s, 48 opens 0.45 s. A sibling Alpine
+  board with external-PCIe INTx needs the same node. Check: `grep hcd /proc/interrupts` counts up. [hw]
+- **USB serial enumeration takes ~4 s** after boot; wait for 48 `/dev/P*` before tests. [hw]
 - **Kernel:** nixpkgs' aarch64 config builds ~50 foreign SoC families; use `linux-alpine` lean/minimal.
 - Boot timeline: SPI install (stage3 → ours) login ≈ 38 s; the old chainload path (factory countdown +
   BOOTP preamble, still the `u` path) ≈ 64 s. [hw] `inventory/u01/soak.jsonl`

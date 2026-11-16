@@ -6,20 +6,24 @@
   (`hardware.dmc12.bootLoader = "standard"`, installed with `reimage.py`).
 - **Fans: fand** (python script retired 2026-11-15; failsafe/stop = 100 %).
 - **Serial ports on the network: `consoled`** (`rust/consoled`, `boards/dmc12/console-server.nix`):
-  on the box `line` (menu; `line list|info|watch|attach|log PORT`), remote `ssh -t console@10.60.2.10 [watch] P12`
-  (`ssh -t console@…` = the menu); one writer, others watch;
-  1 MiB RAM scrollback per port, lost on a consoled restart. P1 = cs8210, P48 = as7760 (115200).
+  on the box `line` (menu; `line list|info|watch|attach|log [-f]|send|expect|run PORT`), remote
+  `ssh -t console@10.60.2.10 [watch] P12` (`ssh -t console@…` = the menu); one writer, others watch;
+  keys tmux-style (`C-b`, `^]` alias; `CONSOLED_PREFIX`); runtime baud; 1 MiB RAM scrollback per
+  port, lost on a consoled restart. P1 = cs8210, P48 = as7760 (115200), the rest 9600 8N1.
+- **USB interrupts** (494d188): the Pericom OHCI/EHCI INTx go through the PCIe port's IOFIC
+  (`amazon,al-fic` @0xfd803000, GIC SPI 47). Before that they never fired and sustained 115200
+  input lost ~62 % (`board-notes.md`, "USB/serial").
 - **Full Nix system (`profile-rebuildable`):** deploy in place with `./deploy.sh 10.60.2.10 [switch|boot]`
-  (root flake, so fand is in; copies only new paths), generations in the extlinux menu, rollback on
+  (root flake at committed HEAD, so fand/consoled are in and nobody's uncommitted work is; copies only new paths), generations in the extlinux menu, rollback on
   the box `nixos-rebuild switch --rollback --no-reexec`.
   906 MiB used of 29 GiB.
 - **SPI slots** (`spi-upgrade.py slots`; spec `spi-upgrade-plan.md`, journal `inventory/u01/spi-upgrade.jsonl`):
-  IPXE 0 = hardened build (squashed series 0014-0023, `.fimg` a0328d81) **[active]**, IPXE 1 = the SSI-fix
-  env build 0cc8c34 (fallback), UBOOT 0/1 =
+  IPXE 1 = env-origin fix (`.fimg` 929860b1) **[active]**, IPXE 0 = hardened build (squashed series
+  0014-0023, a0328d81, fallback), UBOOT 0/1 =
   factory 2015.07. `switch --to ipxe0|ipxe1|factory`, `update` (writes the inactive slot), `rollback`.
   Holding `u` at stage3 = factory U-Boot (recovery prompt; it can't boot the standard disk).
-- **U-Boot env persists** (`saveenv` at `=>`): redundant 2 × 64 KiB at 0xf90000/0xfa0000, `$env_source`
-  says which copy loaded; recovery `env default -a; saveenv` (`u-boot-port.md`).
+- **U-Boot env persists** (`saveenv` at `=>`): redundant 2 × 64 KiB at 0xf90000/0xfa0000; which copy loaded
+  shows on the boot line and in `alpine state` (never stored); recovery `env default -a; saveenv` (`u-boot-port.md`).
 - **Open:** no clip read of CS0 yet (`spi-upgrade.py clipcheck`).
 - **Board quirks/features at a glance:** `board-notes.md`. Route A / stage3 keys: `uart-boot.md`;
   our U-Boot (checklist, env, recovery): `u-boot-port.md`; boot chain: `boot-chain-details.md`,
@@ -28,7 +32,7 @@
   confirmed from a readable boot. Captures go to `serial-*.txt` (git-ignored, may
   hold env/keys). The AS7760's console is cabled to **DMC-12 port 48**: read-only
   use only, and ask the AS7760 session first.
-- Power: lab plug 2, `lab-power 2 …`. Plug 1 is the AS7760; don't touch it from here.
+- Power: lab plug 2, `lab-power 2 …`. Plug 1 is the CS8210 (the other session's); don't touch it from here.
 - Into a U-Boot: ours (`=>`): power-cycle and press a key at its countdown. Factory (`ALPINE_DB>`):
   `./stage3keys.py --plug 2 --key u` (stage3 `u` escape). Never `saveenv`/`env default` at the factory
   prompt (BOOT_APP reroute, `board-notes.md`). Commands go through `./console.py`.
@@ -151,6 +155,15 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-15 23:15: **serial byte loss fixed: USB INTx via the IOFIC.** Reported by the AS7760/CS8210 session:
+  sustained 115200 on P1 lost ~62 % of lines in contiguous ~650-byte gaps every 100 ms. Same loss with
+  consoled stopped and only P1 open (plain `cat`), so not consoled; `/proc/interrupts`: the shared
+  OHCI/EHCI IRQ fired once in 72 min (DT mapped INTx to GIC SPI 41). INTx go through the x8 port's app
+  interrupt group A (0xfd803000, GIC SPI 47, as in the factory DT); mainline `amazon,al-fic` + `AL_FIC`
+  (494d188, rising edge). After: stream-check (`rust/consoled/tools/stream-check.py`, 2.13 MB nonstop
+  through consoled with all 48 open) **0 lost**; enumeration 21 → 4 s, 48 opens 56 → 0.45 s; smoke
+  16/16. Also deployed b817802 (consoled keys/send/expect/run/log -f/baud); `deploy.sh` now builds from
+  committed HEAD (3d93e11) after it shipped another session's uncommitted fand edits for ~10 min.
 - 2026-11-15 21:35: **consoled + env-origin fix.** U-Boot 0021 no longer stores `$env_source` (origin computed
   from gd: boot line + `alpine state`), rehearsed + `update` into IPXE 1. New Rust service `rust/consoled`
   (own workspace: fand's package source is the whole `rust/crates` workspace): daemon owning the 48 ports
