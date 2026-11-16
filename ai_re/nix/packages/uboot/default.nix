@@ -15,6 +15,7 @@ let
   # the numbering is the apply order. scope says who can reuse a patch:
   #   t208x  - any T208x / e6500 board built from the T208xRDB port
   #   as7760 - Accton AS7760-32X only (DDR tuning, DT, SPD addresses, identity)
+  #   alpine - any Annapurna Alpine board (V2, V3): DW SSI, read-only SPI NOR + write window
   #   alpine-v2 - any Annapurna Alpine V2 board started by the vendor U-Boot or by al-boot stage3
   #   dmc12  - Edgecore DMC-12-48R-AS0 only (CPLD reset, U-Boot DT bits, defconfig)
   # A sibling board takes the t208x ones and replaces the as7760 ones.
@@ -38,8 +39,8 @@ let
     { scope = "alpine-v2"; file = "0015-board-alpine-v2-hand-the-al_eth-board-params-and-MAC.patch"; }
     { scope = "alpine-v2"; file = "0016-net-add-the-Annapurna-Labs-Alpine-V2-integrated-Ethe.patch"; }
     { scope = "alpine-v2"; file = "0017-pci-add-the-Annapurna-Labs-Alpine-V2-external-PCIe-r.patch"; }
-    { scope = "alpine-v2"; file = "0018-spi-designware-Annapurna-Alpine-chip-select-override.patch"; }
-    { scope = "alpine-v2"; file = "0019-mtd-spi-read-only-SPI-NOR-with-an-optional-write-win.patch"; }
+    { scope = "alpine"; file = "0018-spi-designware-Annapurna-Alpine-chip-select-override.patch"; }
+    { scope = "alpine"; file = "0019-mtd-spi-read-only-SPI-NOR-with-an-optional-write-win.patch"; }
     { scope = "alpine-v2"; file = "0020-board-alpine-v2-SoC-init-from-the-DT-in-place-of-the.patch"; }
     { scope = "alpine-v2"; file = "0021-board-alpine-v2-say-where-the-environment-came-from.patch"; }
     { scope = "dmc12"; file = "0022-sysreset-add-the-Edgecore-DMC-12-board-CPLD-reset.patch"; }

@@ -1,7 +1,7 @@
 { pkgs, uboots }:
 # Upstream U-Boot (nixpkgs buildUBoot, 2026.10) for Annapurna Labs Alpine V2
 # boards, started from RAM by the vendor U-Boot 2015.07 ("bootm" of the
-# uImage, or "go"). Patches: the "alpine-v2" + "dmc12" scopes of the shared
+# uImage, or "go"). Patches: the "alpine" + "alpine-v2" + "dmc12" scopes of the shared
 # series in ../default.nix. Plan, load addresses and test status:
 # devices/dmc-12-48r-as0/u-boot-port.md.
 #
@@ -10,7 +10,7 @@
 # patch series' <board>-u-boot.dtsi.
 let
   cross = pkgs.pkgsCross.aarch64-multiplatform;
-  patches = uboots.lib.patchesFor [ "alpine-v2" "dmc12" ];
+  patches = uboots.lib.patchesFor [ "alpine" "alpine-v2" "dmc12" ];
   # Link/load address: the vendor "loadaddr". Below it: the vendor U-Boot
   # (relocated to 0x03F0A000, stack ~0x03B04CD0), its DTB copy at
   # 0x04078000, firmware at 0x0 and 0x02000000. Above it: vendor initrd

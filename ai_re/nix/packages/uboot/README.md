@@ -20,10 +20,10 @@ edits of upstream ones. A refactor of the series must be byte-neutral: same `u-b
 | 0015 | alpine-v2 | al_eth board params + MAC handed to Linux |
 | 0016 | alpine-v2 | al_eth driver (Annapurna HAL, ~22 k lines vendor code) |
 | 0017 | alpine-v2 | external PCIe root complex (Annapurna HAL, ~19 k lines vendor code) |
-| 0018 | alpine-v2 | DW SSI: Alpine CS override; deselect before the controller init and each transfer |
-| 0019 | generic | read-only SPI NOR with an optional write window (env), exact opcode allowlist |
+| 0018 | alpine | DW SSI: Alpine CS override; deselect before the controller init and each transfer |
+| 0019 | alpine | read-only SPI NOR with an optional write window (env), exact opcode allowlist |
 | 0020 | alpine-v2 | SoC init from the DT in place of the vendor U-Boot: MUIO, GPIO, CCU; `alpine` command |
-| 0021 | alpine-v2 | report where the env came from (`$env_source`) |
+| 0021 | alpine-v2 | report where the env came from (boot line + `alpine state`; never stored in the env) |
 | 0022 | dmc12 | Edgecore DMC-12 CPLD sysreset |
 | 0023 | dmc12 | the DMC-12 board: U-Boot DT additions + `alpine_v2_dmc12_defconfig` |
 
