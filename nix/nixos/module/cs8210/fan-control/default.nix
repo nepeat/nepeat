@@ -275,9 +275,13 @@ in
     };
     prometheusFile = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
-      default = null;
-      example = "/var/lib/prometheus-node-exporter-text-files/fand.prom";
-      description = "fand: node_exporter textfile output (the box runs no node exporter as of 2026-11-15).";
+      default =
+        if config.monitoring.nodeExporter.enable or false then
+          "${config.monitoring.nodeExporter.textfile.directory}/fand.prom"
+        else
+          null;
+      defaultText = lib.literalExpression ''"''${config.monitoring.nodeExporter.textfile.directory}/fand.prom" when monitoring.nodeExporter is enabled, else null'';
+      description = "fand: node_exporter textfile output (fand_* metrics).";
     };
   };
 
@@ -392,6 +396,13 @@ in
         }
         // lib.optionalAttrs (fan.prometheusFile != null) { runtime.prometheus_file = fan.prometheusFile; };
       };
+
+      # The textfile directory (tmpfiles) must exist before fand's namespace
+      # is set up (ReadWritePaths "-dir" skips a missing one): matters on a
+      # switch that adds both.
+      systemd.services.fand.after = lib.mkIf (fan.prometheusFile != null) [
+        "systemd-tmpfiles-resetup.service"
+      ];
 
       # fand's own safety net ("fand failsafe": every output to 100 %, which
       # disarms the watchdogs again on the way), then cs8210-fan-exit. "-" so

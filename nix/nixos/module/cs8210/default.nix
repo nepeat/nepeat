@@ -23,6 +23,44 @@
 
 let
   cfg = config.hardware.cs8210;
+  mon = config.monitoring.nodeExporter;
+  fan = cfg.fan;
+  # fand's readings (13 LM75s by board position, the ASIC die) republished
+  # under the board-neutral switch_* names of the ai_re Grafana dashboards
+  # (switch-thermals, lab overview). No I2C: it only reads fand.prom, and
+  # fails (the wrapper removes its file) when fand.prom is stale.
+  boardMetrics = pkgs.writeShellScript "cs8210-metrics" ''
+    set -eu
+    export PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.gawk ]}
+    f=${fan.prometheusFile}
+    m=$(stat -c %Y -- "$f")
+    age=$(( $(date +%s) - m ))
+    if [ "$age" -gt ${toString (6 * fan.interval)} ]; then
+      echo "$f is ''${age}s old (fand not running?)" >&2
+      exit 1
+    fi
+    awk '
+      /^fand_sensor_temperature_celsius\{sensor="[^"]*"\} / {
+        s = $1; sub(/^[^"]*"/, "", s); sub(/".*/, "", s)
+        if (s == "asic") asic = $2; else board[s] = $2
+      }
+      END {
+        print "# HELP switch_board_info Switch board identity; always 1."
+        print "# TYPE switch_board_info gauge"
+        print "switch_board_info{vendor=\"celestica\",board=\"cs8210-32x\",asic=\"teralynx7\"} 1"
+        print "# HELP switch_board_temperature_celsius Board temperature sensor (LM75), via fand."
+        print "# TYPE switch_board_temperature_celsius gauge"
+        for (s in board) printf "switch_board_temperature_celsius{sensor=\"%s\"} %s\n", s, board[s]
+        if (asic != "") {
+          print "# HELP switch_asic_temperature_celsius ASIC die temperature (MCP3425), via fand."
+          print "# TYPE switch_asic_temperature_celsius gauge"
+          print "switch_asic_temperature_celsius{sensor=\"die\"} " asic
+          print "# HELP switch_asic_temperature_max_celsius Hottest ASIC temperature (what fan control reads)."
+          print "# TYPE switch_asic_temperature_max_celsius gauge"
+          print "switch_asic_temperature_max_celsius " asic
+        }
+      }' "$f"
+  '';
   k = import ./kernel.nix {
     inherit pkgs lib;
     buildSystem = cfg.kernelBuildSystem;
@@ -34,6 +72,9 @@ in
     ./fan-control # hardware.cs8210.fan: fand (default) or services.cs8210-fancontrol
     ./tools # services.cs8210-tools
     ./vendor-sdk # hardware.cs8210.vendorSdk
+    # monitoring.nodeExporter: node_exporter on :9100 + textfile producers,
+    # shared with the ai_re boards (AS7760, DMC-12); same monorepo source.
+    ../../../../ai_re/nix/modules/monitoring/node-exporter.nix
   ];
 
   options.hardware.cs8210 = {
@@ -154,6 +195,31 @@ in
     # every IPv6 route-information change at info level (~4/min here, two
     # routers announcing the same ULA route). Keep notice and above.
     systemd.services.dhcpcd = lib.mkIf config.networking.dhcpcd.enable {
+      serviceConfig.LogLevelMax = "notice";
+    };
+
+    # Prometheus node metrics on :9100, management LAN (enp0s1) only:
+    # node_exporter (hwmon has the LM75s), fand's fand_* (fan-control sets
+    # hardware.cs8210.fan.prometheusFile into the textfile directory) and the
+    # cs8210 producer above. Scrape: ai_re/tools/README.md (ai-re-metrics).
+    monitoring.nodeExporter = {
+      enable = lib.mkDefault true;
+      openFirewall = false;
+      # fand.prom is the only file no producer owns; fand rewrites it every
+      # tick, so drop it a minute after fand stops instead of an hour.
+      textfile.unmanagedMaxAge = 60;
+      textfile.producers = lib.mkIf (fan.controller == "fand" && fan.prometheusFile != null) {
+        cs8210 = {
+          command = "${boardMetrics}";
+          interval = 15;
+          timeout = 5;
+          # A unit start every 15 s: keep PID 1's per-run lines out of the SSD journal.
+          serviceConfig.LogLevelMax = "notice";
+        };
+      };
+    };
+    networking.firewall.interfaces.enp0s1.allowedTCPPorts = lib.mkIf mon.enable [ mon.port ];
+    systemd.services.prometheus-textfile-cleanup = lib.mkIf mon.enable {
       serviceConfig.LogLevelMax = "notice";
     };
 
