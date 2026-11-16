@@ -1,6 +1,6 @@
 # The 48 front serial ports on the network: consoled (rust/consoled, from the monorepo's rust
 # flake: root flake / deploy.sh only, like fand). `ssh -t console@<box> P12` attaches (one
-# writer, others watch, 1 MiB RAM scrollback per port); `console` on the box lists them.
+# writer, others watch, 1 MiB RAM scrollback per port); `line` on the box (menu, list, ...).
 # Line settings default to the factory's 9600 8N1; hosts set labels/baud per port, e.g.
 #   services.consoled.ports.P1 = { label = "cs8210"; baud = 115200; };
 { config, lib, aiReRust ? null, ... }:
@@ -21,7 +21,7 @@
         ports = lib.listToAttrs (map (n: lib.nameValuePair "P${toString n}" { }) (lib.range 1 48));
       };
       monitoring.nodeExporter.textfile.producers.consoled = {
-        command = "${config.services.consoled.package}/bin/console --metrics";
+        command = "${config.services.consoled.package}/bin/line metrics";
         interval = 30;
         timeout = 10;
       };

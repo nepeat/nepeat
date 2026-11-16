@@ -31,7 +31,7 @@ CHECKS = [
     ("spi-nor", "for d in /sys/class/mtd/mtd[0-9]*; do case $d in *ro) continue;; esac; echo \"$(cat $d/name)=$(cat $d/flags)\"; done | sort | tr '\\n' ' '",
      lambda o: o.split() == ["spi0-boot=0x800", "spi0-tail=0x800", "spi1-alt=0x800", "u-boot-env=0xc00"],
      "SPI NOR partitions: only u-boot-env writable"),
-    ("consoled", "systemctl is-active consoled; console --metrics | grep -c '^consoled_port_up{.*} 1$'",
+    ("consoled", "systemctl is-active consoled; line metrics | grep -c '^consoled_port_up{.*} 1$'",
      lambda o: o.split() == ["active", "48"], "consoled up, all 48 serial ports open"),
     ("watchdog", "cat /sys/class/watchdog/watchdog0/identity", lambda o: "sp805" in o, "sp805 bound"),
     ("cpld", "i2cget -y 4 0x68 0x01", lambda o: o.strip() == "0x88", "CPLD answers (version 0x88 on u01)"),
