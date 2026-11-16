@@ -54,6 +54,17 @@ let
     # CONFIG_CMD_SF_TEST is not set
     # CONFIG_CMD_SPI is not set
     # CONFIG_ENV_IS_IN_SPI_FLASH is not set
+    # Size: the stage3 app must fit the 512 KiB IPXE slot (spi-upgrade.py). Unused here: the
+    # kernel is a raw Image on ext4; loadb/loady stay for serial recovery. FAT and LZ4 stay
+    # (selected by the bootstd defaults).
+    # CONFIG_CMD_FDT is not set
+    # CONFIG_CMD_LZMADEC is not set
+    # CONFIG_LZMA is not set
+    # CONFIG_CMD_UNZIP is not set
+    # CONFIG_CMD_LOADS is not set
+    # CONFIG_CMD_MII is not set
+    # CONFIG_CMD_ELF is not set
+    # CONFIG_CMD_XIMG is not set
   '';
 
   mk = { defconfig, dtsName, dts, extraConfig ? "", uimageName }:

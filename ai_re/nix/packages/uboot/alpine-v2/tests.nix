@@ -196,10 +196,16 @@ let
     for k in SPI_FLASH_LOCK SPI_FLASH_UNLOCK_ALL SPI_FLASH_SFDP_SUPPORT SPI_FLASH_SOFT_RESET \
              SPI_FLASH_BAR SPI_FLASH_MTD CMD_SF_TEST CMD_SPI CMD_MTD CMD_MTDPARTS DM_MTD \
              MTD_NOR_FLASH ENV_IS_IN_SPI_FLASH CMD_SAVEENV EFI_LOADER PSCI_RESET SYSRESET_PSCI \
-             WATCHDOG_AUTOSTART MMC CMD_EXT4_WRITE FAT_WRITE BOOTDEV_ETH CMD_EEPROM; do
+             WATCHDOG_AUTOSTART MMC CMD_EXT4_WRITE FAT_WRITE BOOTDEV_ETH CMD_EEPROM \
+             CMD_FDT LZMA CMD_MII CMD_ELF CMD_LOADS; do
       ! grep -q "^CONFIG_$k=y" $c || { echo "config: CONFIG_$k is on"; exit 1; }
     done
+    # the stage3 app must fit the 512 KiB IPXE slot with >= 16 KiB to spare
+    sz=$(stat -c %s ${s3}/u-boot-ipxe-08000000.fimg)
+    [ "$sz" -le $((0x80000 - 0x4000)) ] || { echo "size: .fimg $sz B leaves < 16 KiB in the IPXE slot"; exit 1; }
+    echo "size: ok (.fimg $sz B, $((0x80000 - sz)) B free in the IPXE slot)"
     for kv in TEXT_BASE=0x08000000 POSITION_INDEPENDENT=y ENV_IS_NOWHERE=y \
+              CMD_EXT4=y CMD_LOADB=y CMD_WGET=y CMD_I2C=y CMD_PCI=y BOOTMETH_EXTLINUX=y \
               'LOCALVERSION="-dmc12-selfinit"' PCIE_ALPINE_V2=y CMD_ALPINE_V2_PCIE=y PCI_INIT_R=y \
               ALPINE_V2_MUIO_INIT=y ALPINE_V2_GPIO_INIT=y ALPINE_V2_CCU_IO_COHERENCY=y CMD_ALPINE_V2=y \
               DESIGNWARE_SPI=y DM_SPI_FLASH=y SPI_FLASH_MACRONIX=y CMD_SF=y \
