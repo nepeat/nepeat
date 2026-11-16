@@ -40,6 +40,7 @@ let
       PCI_HOST_GENERIC = yes; # internal bus (ecam-generic)
       PCIE_AL = yes; # external ports
       PCIE_DW_HOST = yes;
+      AL_FIC = yes; # external PCIe INTx: the port's app interrupt group (an IOFIC), see boards/dmc12
       SERIAL_8250 = yes;
       SERIAL_8250_CONSOLE = yes;
       SERIAL_OF_PLATFORM = yes;
@@ -310,6 +311,7 @@ let
       PCI_HOST_GENERIC = lib.mkForce yes;
       PCIE_AL = lib.mkForce yes;
       PCIE_DW_HOST = lib.mkForce yes;
+      AL_FIC = lib.mkForce yes; # external PCIe INTx (see the minimal list)
       SERIAL_8250 = lib.mkForce yes;
       SERIAL_8250_CONSOLE = lib.mkForce yes;
       SERIAL_OF_PLATFORM = lib.mkForce yes;

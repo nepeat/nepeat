@@ -65,6 +65,22 @@
 };
 
 / {
+	/*
+	 * External PCIe port 0's app interrupt group A (x8 port = HAL rev 3: app regs at +0x2000,
+	 * int_grp_a at +0x1000). INTx assert messages set cause bits 7..4 (INTA..INTD); the group
+	 * raises GIC SPI 47 (as in the factory DT). Without it INTx never reached the CPU: USB ran
+	 * on EHCI's 100 ms watchdog and sustained serial input overran the CP2108s.
+	 * The Pericom functions can't do MSI (kernel quirk: not implemented).
+	 */
+	pcie_external0_intx: interrupt-controller@fd803000 {
+		compatible = "amazon,al-fic";
+		reg = <0x0 0xfd803000 0x0 0x40>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+		#address-cells = <0>;
+		interrupts = <GIC_SPI 47 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
 	/* External PCIe port 0: Pericom 12d8:400c bridge -> OHCI/EHCI -> USB hubs -> 12x CP2108. */
 	pcie_external0: pcie@fb600000 {
 		compatible = "amazon,al-alpine-v2-pcie";
@@ -79,10 +95,11 @@
 		bus-range = <0x00 0xff>;
 		interrupts = <GIC_SPI 49 IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-map-mask = <0x00 0 0 7>;
-		interrupt-map = <0x0000 0 0 1 &gic GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>,
-				<0x0000 0 0 2 &gic GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>,
-				<0x0000 0 0 3 &gic GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>,
-				<0x0000 0 0 4 &gic GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
+		/* INTx are assert/deassert messages: rising edge of the assert cause bit. */
+		interrupt-map = <0x0000 0 0 1 &pcie_external0_intx 7 IRQ_TYPE_EDGE_RISING>,
+				<0x0000 0 0 2 &pcie_external0_intx 6 IRQ_TYPE_EDGE_RISING>,
+				<0x0000 0 0 3 &pcie_external0_intx 5 IRQ_TYPE_EDGE_RISING>,
+				<0x0000 0 0 4 &pcie_external0_intx 4 IRQ_TYPE_EDGE_RISING>;
 		ranges = <0x02000000 0x0 0xc0010000 0x0 0xc0010000 0x0 0x07ff0000>;
 		msi-parent = <&msix>;
 	};
