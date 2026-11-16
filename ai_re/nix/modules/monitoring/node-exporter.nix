@@ -153,7 +153,10 @@ in {
     (lib.mkIf (cfg.implementation == "upstream") {
       services.prometheus.exporters.node = {
         enable = true;
-        inherit (cfg) port listenAddress enabledCollectors disabledCollectors;
+        inherit (cfg) port listenAddress disabledCollectors;
+        # mkDefault: a host that sets its own list wins instead of concatenating with ours
+        # (node_exporter refuses a repeated --collector.X flag).
+        enabledCollectors = lib.mkDefault cfg.enabledCollectors;
         openFirewall = lib.mkDefault false;   # handled above for both implementations (a host may also open it here)
         extraFlags = [ "--collector.textfile.directory=${dir}" ] ++ cfg.extraFlags;
       };
