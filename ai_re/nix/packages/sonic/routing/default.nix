@@ -117,6 +117,8 @@ let
       ${bi}/files/build_templates/constants.yml.j2 > $out
     grep -q 'enable_snmp_agent: false' $out
   '';
+  # LD_PRELOAD heap profiler (leak hunting on the target, ./malloc-trace).
+  malloc-trace = pkgs.callPackage ./malloc-trace { };
 in {
-  inherit frr templates templateDir bgpcfgd bfdsyncd sonicFrrPatches constants;
+  inherit frr templates templateDir bgpcfgd bfdsyncd sonicFrrPatches constants malloc-trace;
 }

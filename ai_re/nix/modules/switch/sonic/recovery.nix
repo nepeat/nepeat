@@ -91,12 +91,14 @@ let
 in {
   config = lib.mkIf cfg.enable {
     systemd.services.sonic-orchagent.serviceConfig.ExecStopPost = [ "${orchagentFailed}" ];
-    # A requested orchagent stop/restart (e.g. nixos-rebuild switch restarting
-    # a changed orchagent unit) must take syncd with it, like SONiC's swss
-    # restart: orchagent alone against a running syncd leaves no KNET netdevs
-    # (seen on the AS7760, 2026-11-15, BFD deploy). PartOf propagates the
-    # stop/restart; orchagent's BindsTo/After brings syncd back first.
-    systemd.services.sonic-syncd.partOf = [ "sonic-orchagent.service" ];
+    # nixos-rebuild switch restarting a changed orchagent unit must restart
+    # syncd too: orchagent alone against a running syncd leaves no KNET
+    # netdevs (AS7760, 2026-11-15, BFD deploy). syncd's unit carries
+    # orchagent's as a restart trigger, so it changes whenever orchagent's
+    # does and activation restarts both. (PartOf=orchagent did this too but
+    # turned a killed syncd's auto-restart into a stop: vm-frr caught it.)
+    # A manual restart: `systemctl restart sonic-syncd` (orchagent follows).
+    systemd.services.sonic-syncd.restartTriggers = [ config.systemd.units."sonic-orchagent.service".unit ];
     systemd.services.sonic-syncd.serviceConfig.ExecStartPre = [ "${pkgs.writeShellScript "sonic-syncd-pre" ''
       PATH=${cfg.packages.swss-common}/bin:$PATH exec ${flushDbs}
     ''}" ];

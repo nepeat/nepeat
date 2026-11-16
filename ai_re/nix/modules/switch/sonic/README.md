@@ -134,7 +134,9 @@ nix build -L --impure --expr 'let f = builtins.getFlake "path:'$PWD'/nix"; pkgs 
 #   static routes, config interface ip remove, crash recovery, config reload w/o saved file, ~25 min
 # tests/vm-platform.nix: one VM (3 GB, vs): pmon on the fake AS7760 board, show platform/transceiver, LLDP self-loop
 # tests/vm-bfd.nix: switch 3 GB + peer 1 GB (FRR bfdd): BGP+BFD over a PortChannel and a Vrf-test port, BGP down
-#   in < 1 s on loss/link down, static routes with BFD in/out of APPL_DB, live toggle, restarts, ~5 min
+#   in < 1 s on loss/link down, static routes with BFD in/out of APPL_DB, live toggle, restarts, FEATURE|bgp CoPP traps, ~5 min
+# tests/vm-bfdd-leak.nix: bfdd heap/RSS flat over N min (args: minutes, mode configured|bgp, trace, ppc64Pkgs =
+#   the AS7760 pkgs to run the switch's ppc64 binaries under qemu-user); devices/sonic-nixos/bfdd-leak.md
 # AS7760 config.bcm generator: nix/modules/boards/as7760/sdk-config-test.nix (command in its header)
 ```
 
@@ -167,7 +169,9 @@ route`, `show ip bgp summary`, `config interface ip remove`).
 bgpcfgd configures no BGP_NEIGHBOR until these exist: `DEVICE_METADATA`
 `bgp_asn` (e.g. `settings.DEVICE_METADATA.localhost.bgp_asn`), `type` and
 `BGP_DEVICE_GLOBAL|STATE` (both seeded: LeafRouter, SONiC's init_cfg
-values) and **Loopback0** (`config loopback add Loopback0`). bgp_asn and
+values) and **Loopback0** (`config loopback add Loopback0`). `FEATURE|bgp`
+is seeded enabled (init_cfg.json), so coppmgrd installs the bgp/bgpv6 CoPP
+traps (sai-openbcm polices them as BGP, not as generic IP2ME). bgp_asn and
 Loopback0 are read into bgpd.conf at FRR start (`systemctl restart
 sonic-frr-config` after changing them). Firewall: `frr.openFirewall` (default
 on) accepts TCP 179 on every interface except `frr.managementInterfaces`

@@ -170,7 +170,16 @@ in {
         tsa_enabled = "false"; wcmp_enabled = "false"; idf_isolation_state = "unisolated";
       };
       DEVICE_METADATA.localhost.type = lib.mkDefault "LeafRouter";
+      # As init_cfg.json: coppmgrd installs the bgp/bgpv6 CoPP traps only for an
+      # enabled FEATURE|bgp (without it BGP rides the generic IP2ME trap).
+      FEATURE.bgp = lib.mapAttrs (_: lib.mkDefault) {
+        state = "enabled";
+        has_global_scope = "True";
+        has_per_asic_scope = "False";
+        auto_restart = "enabled";
+      };
     };
+    services.sonic.tableModes.FEATURE = lib.mkDefault "seed";
     services.sonic.keyModes.BGP_DEVICE_GLOBAL.STATE = lib.mkDefault "seed";
     services.sonic.fieldModes.DEVICE_METADATA.localhost.type = lib.mkDefault "seed";
 

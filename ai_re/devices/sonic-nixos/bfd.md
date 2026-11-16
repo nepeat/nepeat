@@ -133,6 +133,6 @@ config interface ip remove Ethernet1/1 10.0.0.0/31; config vrf del Vrf-test
 
 On the switch (2026-11-15): as expected for steps 2, 4, 5; step 3 (port shutdown)
 logged Down 4.5-4.7 s after its T0, which includes the CLI call, not ~1 s.
-Open: IPv6 BFD and multihop untested (bfdd supports both;
+Open: bfdd heap growth in the soak, [bfdd-leak.md](bfdd-leak.md). IPv6 BFD and multihop untested (bfdd supports both;
 staticroutebfd multihop via `bfd.staticRoute.multihop`); bfdsyncd polls
 (event-driven would need FRR's zapi or mgmtd notifications).

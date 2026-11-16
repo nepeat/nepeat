@@ -109,6 +109,13 @@ rc, out = sh("cat /usr/share/sonic/device/*/*/sai.profile")
 check("vs sai.profile: SAI_VS_BFD_OFFLOAD_SUPPORTED=false (no offload, as sai-openbcm)", "SAI_VS_BFD_OFFLOAD_SUPPORTED=false" in out, out)
 wait("bgpcfgd started BfdMgr (software_bfd enabled)", "journalctl -b -u sonic-bgpcfgd --no-pager | grep -q 'software_bfd feature is enabled'", timeout=30,
      detail_cmd="journalctl -b -u sonic-bgpcfgd --no-pager | tail -30")
+check("seeded: FEATURE|bgp state enabled", db(4, "hget 'FEATURE|bgp' state") == "enabled")
+wait("coppmgrd: APPL_DB COPP_TABLE has the bgp,bgpv6 traps",
+     "redis-cli -s /var/run/redis/redis.sock -n 0 --scan --pattern 'COPP_TABLE:*' | while read k; do redis-cli -s /var/run/redis/redis.sock -n 0 hget \"$k\" trap_ids; done | tr ',' '\\n' | grep -qx bgpv6",
+     timeout=60, detail_cmd="redis-cli -s /var/run/redis/redis.sock -n 0 --scan --pattern 'COPP_TABLE:*'; journalctl -b -u sonic-coppmgrd --no-pager | tail -20")
+wait("CoppOrch: ASIC_DB hostif traps BGP and BGPV6",
+     "for t in SAI_HOSTIF_TRAP_TYPE_BGP SAI_HOSTIF_TRAP_TYPE_BGPV6; do redis-cli -s /var/run/redis/redis.sock -n 1 --scan --pattern 'ASIC_STATE:SAI_OBJECT_TYPE_HOSTIF_TRAP:*' | while read k; do redis-cli -s /var/run/redis/redis.sock -n 1 hget \"$k\" SAI_HOSTIF_TRAP_ATTR_TRAP_TYPE; done | grep -qx $t || exit 1; done",
+     timeout=60, detail_cmd="journalctl -b -u sonic-orchagent --no-pager | grep -i copp | tail -20")
 rc, out = sh("nft list ruleset")
 check("firewall: BFD ports (3784, 3785, 4784) open except on eth0", "udp dport { 3784, 3785, 4784 } accept" in out and 'iifname != "eth0"' in out, out[-3000:])
 

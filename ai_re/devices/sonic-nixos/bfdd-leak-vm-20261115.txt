@@ -1,0 +1,71 @@
+# bfdd leak hunt in the VM, 2026-11-15 (tests/vm-bfdd-leak.nix; design and switch tracing: bfdd-leak.md)
+# 300 ms x3, 2 sessions, 10 min per phase unless noted. Console lines filtered.
+# Notes: x86-bgp2's "sites=16384" = the tracer's site table was full (enlarged to 65536 after);
+# ppc-bgp's RSS 0 = ps did not find the qemu-user process by name (fixed: pgrep -f), mallinfo is the measure there.
+
+## x86, configured sessions, VRF loop + no-VRF to peer VM (leak-3; before the pass/fail checks existed)
+vrf: sessions up: [('10.0.0.1', None), ('10.0.0.0', 'Vrf-test')]
+vrf: bfdd RSS kB [11384, 11384, 11384, 11384, 11384, 11384, 11384, 11384, 11384, 11384, 11384, 11384, 11384, 11384, 11384, 11384, 11384, 11384, 11384, 11384, 11384]
+vrf: slope 0.0 kB/min over 10 min, 9594 control packets in+out total so far
+  Total heap allocated:  2084 KiB
+  Used ordinary blocks:  2046 KiB
+  Total heap allocated:  2084 KiB
+  Used ordinary blocks:  2046 KiB
+novrf: sessions up: [('10.1.0.2', None), ('10.2.0.2', None)]
+novrf: bfdd RSS kB [11444, 11444, 11444, 11444, 11444, 11444, 11444, 11444, 11444, 11444, 11444, 11444, 11444, 11444, 11444, 11444, 11444, 11444, 11444, 11444, 11444]
+novrf: slope 0.0 kB/min over 10 min, 9603 control packets in+out total so far
+novrf: peer (nixpkgs FRR) bfdd RSS kB [8576, 8576, 8576, 8576, 8576, 8576, 8576, 8576, 8576, 8576, 8576, 8576, 8576, 8576, 8576, 8576, 8576, 8576, 8576, 8576] slope 0.0 kB/min
+  Total heap allocated:  2216 KiB
+  Used ordinary blocks:  2104 KiB
+  Total heap allocated:  2216 KiB
+  Used ordinary blocks:  2104 KiB
+RESULT {"vrf": 0.0, "novrf": 0.0}
+EXIT 0
+
+## x86, sessions from bgpd (iBGP across the VRFs), malloc-trace on (leak-x86-bgp2, 3 min)
+vrf: sessions up: [('10.0.0.1', None), ('10.0.0.0', 'Vrf-test')]
+vrf: bfdd RSS kB [64192, 64424, 64424, 64424, 64424, 64424, 64424]
+vrf: slope 49.7 kB/min over 3 min, 3230 control packets in+out total so far
+  Total heap allocated:  2108 KiB
+  Used ordinary blocks:  2013 KiB
+  Total heap allocated:  2368 KiB
+  Used ordinary blocks:  2015 KiB
+=== t=1794795138 pid=539 live_bytes=2311091 sites=16384 untracked_drops=0
+RESULT {"vrf": 49.68596192801445}
+EXIT 0
+
+## ppc64 frr-sonic (the switch store path 53pyiac...) under qemu-user, bgpd sessions, malloc-trace (leak-ppc-bgp)
+vrf: sessions up: [('10.0.0.1', None), ('10.0.0.0', 'Vrf-test')]
+vrf: bfdd RSS kB [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+vrf: slope 0.0 kB/min over 10 min, 9600 control packets in+out total so far
+  Total heap allocated:  2112 KiB
+  Used ordinary blocks:  2016 KiB
+  Total heap allocated:  2380 KiB
+  Used ordinary blocks:  2018 KiB
+=== t=1794795816 pid=542 live_bytes=2314331 sites=17330 untracked_drops=0 sites_full=0
+RESULT {"vrf": 0.0}
+EXIT 0
+
+## ppc64 under qemu-user, configured sessions, VRF + no VRF, pass/fail checks (leak-ppc-conf)
+vrf: sessions up: [('10.0.0.1', None), ('10.0.0.0', 'Vrf-test')]
+PASS vrf: bfdd heap in use (mallinfo) grew < 512 KiB in 10 min (0 bytes)
+PASS vrf: bfdd RSS slope < 30 kB/min (0.0)
+vrf: bfdd RSS kB [36660, 36660, 36660, 36660, 36660, 36660, 36660, 36660, 36660, 36660, 36660, 36660, 36660, 36660, 36660, 36660, 36660, 36660, 36660, 36660, 36660]
+vrf: RSS slope 0.0 kB/min over 10 min, heap in use 2087936 -> 2087936 bytes, 9624 control packets in+out total so far
+  Total heap allocated:  2120 KiB
+  Used ordinary blocks:  2039 KiB
+  Total heap allocated:  2120 KiB
+  Used ordinary blocks:  2039 KiB
+novrf: sessions up: [('10.1.0.2', None), ('10.2.0.2', None)]
+PASS novrf: bfdd heap in use (mallinfo) grew < 512 KiB in 10 min (0 bytes)
+PASS novrf: bfdd RSS slope < 30 kB/min (0.0)
+novrf: bfdd RSS kB [36748, 36748, 36748, 36748, 36748, 36748, 36748, 36748, 36748, 36748, 36748, 36748, 36748, 36748, 36748, 36748, 36748, 36748, 36748, 36748, 36748]
+novrf: RSS slope 0.0 kB/min over 10 min, heap in use 2147328 -> 2147328 bytes, 9619 control packets in+out total so far
+novrf: peer (nixpkgs FRR) bfdd RSS kB [8560, 8560, 8560, 8560, 8560, 8560, 8560, 8560, 8560, 8560, 8560, 8560, 8560, 8560, 8560, 8560, 8560, 8560, 8560, 8560] slope 0.0 kB/min
+  Total heap allocated:  2120 KiB
+  Used ordinary blocks:  2097 KiB
+  Total heap allocated:  2120 KiB
+  Used ordinary blocks:  2097 KiB
+RESULT {"vrf": 0.0, "novrf": 0.0}
+FAILED CHECKS: 0 []
+EXIT 0
