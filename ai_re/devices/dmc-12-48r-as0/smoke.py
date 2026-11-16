@@ -29,8 +29,9 @@ CHECKS = [
     ("gpio-names", "gpioinfo | grep -c -E '\"CPLD_(INT_N|JTAG_EN)\"' || true", lambda o: o.strip() == "2", "named CPLD lines"),
     # MTD_WRITEABLE = 0x400: only our U-Boot's env window (boards/dmc12/uboot-env DT overlay).
     ("spi-nor", "for d in /sys/class/mtd/mtd[0-9]*; do case $d in *ro) continue;; esac; echo \"$(cat $d/name)=$(cat $d/flags)\"; done | sort | tr '\\n' ' '",
-     lambda o: o.split() == ["spi0-boot=0x800", "spi0-tail=0x800", "spi1-alt=0x800", "u-boot-env=0xc00"],
-     "SPI NOR partitions: only u-boot-env writable"),
+     lambda o: o.split() == ["boot-mode=0xc00", "ipxe0=0xc00", "ipxe1=0xc00", "spi0-boot=0x800", "spi0-high=0x800",
+                             "spi0-mid=0x800", "spi0-tail=0x800", "spi1-alt=0x800", "u-boot-env=0xc00"],
+     "SPI NOR partitions: only u-boot-env + the firmware windows (ipxe0/1, boot-mode) writable"),
     # consoled opens the ports one by one (~1 s each on CP2108): wait up to ~54 s after a boot
     ("consoled", "for i in $(seq 18); do n=$(line metrics 2>/dev/null | grep -c '^consoled_port_up{.*} 1$'); [ \"$n\" = 48 ] && break; sleep 3; done; systemctl is-active consoled; echo $n",
      lambda o: o.split() == ["active", "48"], "consoled up, all 48 serial ports open"),

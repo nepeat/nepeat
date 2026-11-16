@@ -234,11 +234,22 @@ def collect(a):
     if not a.offline:
         live = bb_live(a.ip, a.busybox) if a.busybox else json.loads(ssh(a.ip, "python3 -", stdin=REMOTE))
         # current SPI, reassembled from the named mtd partitions
-        names = ssh(a.ip, "for m in /sys/class/mtd/mtd[0-9]*; do [ -e $m/name ] && echo $(basename $m) $(cat $m/name); done; true").split("\n")
-        part = {l.split()[1]: l.split()[0] for l in names if len(l.split()) == 2}
-        if {"spi0-boot", "u-boot-env", "spi0-tail", "spi1-alt"} <= set(part):
-            cs0 = b"".join(ssh(a.ip, f"cat /dev/{part[n]}", binary=True) for n in ("spi0-boot", "u-boot-env", "spi0-tail"))
-            cs1 = ssh(a.ip, f"cat /dev/{part['spi1-alt']}", binary=True)
+        # every partition of each chip, ordered by offset (layouts differ: the firmware windows)
+        rows = ssh(a.ip, "for m in /sys/class/mtd/mtd[0-9]*; do case $m in *ro) continue;; esac; "
+                         "echo $(basename $m) $(basename $(readlink -f $m/device)) $(cat $m/offset) $(cat $m/size) $(cat $m/name); done; true")
+        chips = {}
+        for l in rows.splitlines():
+            f = l.split()
+            if len(f) == 5:
+                chips.setdefault(f[1], []).append((int(f[2]), int(f[3]), f[0], f[4]))
+        part = {r[3]: r[2] for rs in chips.values() for r in rs}
+        def chip(ch):
+            rs = sorted(chips.get(ch, []))
+            if not rs or rs[0][0] != 0 or any(a_[0] + a_[1] != b_[0] for a_, b_ in zip(rs, rs[1:])):
+                return None
+            return b"".join(ssh(a.ip, f"cat /dev/{r[2]}", binary=True) for r in rs)
+        cs0, cs1 = chip("spi0.0"), chip("spi0.1")
+        if cs0 and cs1:
             for chip, d in (("cs0", cs0), ("cs1", cs1)):
                 comp[f"spi.current.{chip}.image"] = {"bytes": len(d)}
                 comp.update({k.replace("spi.", "spi.current."): v for k, v in spi_objects(d, chip, blobs / "current").items()})
