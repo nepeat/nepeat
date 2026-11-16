@@ -72,7 +72,7 @@ all_ff() {
     local n
     n=$(rd "$1" "$2" "${3:-0}" | wc -c) || return 1
     [ "$n" -eq "$2" ] || return 1
-    cmp -s -n "$2" <(rd "$1" "$2" "${3:-0}") <(tr '\0' '\377' < /dev/zero | head -c "$2")
+    cmp -s -n "$2" <(rd "$1" "$2" "${3:-0}") <(head -c "$2" /dev/zero | tr '\0' '\377')
 }
 size_of() { stat -c %s "$1"; }
 
