@@ -20,6 +20,10 @@ struct IfcsLib {
 // dlopen(path, RTLD_NOW | RTLD_GLOBAL) once per process (never dlclose'd:
 // libifcs starts threads) and resolve every symbol. false + err naming the
 // first missing symbol or the dlopen error.
-bool ifcs_lib_load(const std::string& path, IfcsLib& lib, std::string& err);
+// trace (SAI_TERALYNX_IFCS_TRACE, optional): the oracle's call tracer
+// (oracle/, libifcs-trace-ours.so): dlopen'ed after libifcs, bound to it
+// (ifcs_trace_bind), and every symbol it exports replaces the real one in
+// the table. Missing or unbound: an error (no silent untraced run).
+bool ifcs_lib_load(const std::string& path, IfcsLib& lib, std::string& err, const std::string& trace = "");
 
 } // namespace tl

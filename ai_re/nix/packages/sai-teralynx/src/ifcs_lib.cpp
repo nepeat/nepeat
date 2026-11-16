@@ -62,7 +62,7 @@ int redirect_cb(struct dl_phdr_info* info, size_t, void* data)
 
 namespace tl {
 
-bool ifcs_lib_load(const std::string& path, IfcsLib& lib, std::string& err)
+bool ifcs_lib_load(const std::string& path, IfcsLib& lib, std::string& err, const std::string& trace)
 {
     static std::mutex mu;
     std::lock_guard<std::mutex> g(mu);
@@ -93,13 +93,26 @@ bool ifcs_lib_load(const std::string& path, IfcsLib& lib, std::string& err)
                 fprintf(stderr, "sai-teralynx: %s has no memcpy import to redirect\n", path.c_str());
         }
     }
+    void* th = nullptr;
+    if (!trace.empty()) {
+        th = dlopen(trace.c_str(), RTLD_NOW | RTLD_GLOBAL);   // GLOBAL: the SAI script runner finds ifcs_trace_mark
+        void* bind = th ? dlsym(th, "ifcs_trace_bind") : nullptr;
+        if (!bind) {
+            const char* e = dlerror();
+            err = "SAI_TERALYNX_IFCS_TRACE " + trace + ": " + (th ? "no ifcs_trace_bind" : (e ? e : "dlopen failed"));
+            return false;
+        }
+        reinterpret_cast<void (*)(void*)>(bind)(h);
+        fprintf(stderr, "sai-teralynx: IFCS calls traced by %s\n", trace.c_str());
+    }
     IfcsLib l;
     l.handle = h;
     l.path = path;
 #define TL_FN_LOAD(n)                                                              \
     do {                                                                           \
         dlerror();                                                                 \
-        void* p = dlsym(h, #n);                                                    \
+        void* p = th ? dlsym(th, #n) : nullptr;                                    \
+        if (!p) p = dlsym(h, #n);                                                  \
         if (!p) {                                                                  \
             err = path + ": missing symbol " #n " (wrong libifcs version?)";       \
             return false;                                                          \

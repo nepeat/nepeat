@@ -32,7 +32,9 @@ $(error FRONTEND has .cpp files this Makefile does not list: $(FE_UNKNOWN); add 
 endif
 
 CPPFLAGS_ALL = -I$(SAI_INC) -Isrc -I$(FRONTEND)
-OURS = ifcs_backend ifcs_config ifcs_lib
+# Our sources: every src/*.cpp (the backend areas tl_*.cpp, the loader, the
+# config parsers), so a new area file needs no Makefile change.
+OURS = $(basename $(notdir $(wildcard src/*.cpp)))
 FE_OBJS = $(patsubst %.cpp,build/fe/%.o,$(CORE)) build/fe/temp_files.o
 OBJS = $(FE_OBJS) $(patsubst %,build/%.o,$(OURS))
 
@@ -75,12 +77,18 @@ build/sai-teralynx-smoke: tools/sai_smoke.cpp build/libsai.so.1.0.0
 	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) -I$(SAI_INC) $(LDFLAGS) -o $@ $< build/libsai.so.1.0.0 -Wl,-rpath,$(PREFIX)/lib -lpthread
 
 # ---- tests (native only)
-build/mock/libifcs.so: tests/mock_ifcs.c src/ifcs_api.h
+# The mock libifcs: one file per area (tests/mock/mock_<area>.c), every
+# IFCS_SYMBOLS entry defined with its declared type (mock.h), none missing
+# (--no-undefined). The test: main + one file per area (tests/t_<area>.cpp).
+MOCK_SRCS = $(wildcard tests/mock/*.c)
+TEST_SRCS = tests/test_ifcs.cpp $(wildcard tests/t_*.cpp)
+build/mock/libifcs.so: $(MOCK_SRCS) tests/mock/mock.h src/ifcs_api.h
 	@mkdir -p build/mock
-	$(CC) -std=gnu11 -fPIC -shared $(WARN) -Werror=incompatible-pointer-types $(CFLAGS) -Isrc -o $@ $< -lpthread
+	$(CC) -std=gnu11 -fPIC -shared $(WARN) -Werror=incompatible-pointer-types $(CFLAGS) -Isrc -Itests/mock \
+	  -Wl,--no-undefined -o $@ $(MOCK_SRCS) -lpthread
 
-build/test_ifcs: tests/test_ifcs.cpp build/libsai.so.1.0.0
-	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) -I$(SAI_INC) -o $@ $< build/libsai.so.1.0.0 -Wl,-rpath,'$$ORIGIN' -ldl -lpthread
+build/test_ifcs: $(TEST_SRCS) tests/harness.h build/libsai.so.1.0.0
+	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) -I$(SAI_INC) -Itests -o $@ $(TEST_SRCS) build/libsai.so.1.0.0 -Wl,-rpath,'$$ORIGIN' -ldl -lpthread
 
 TEST_BINS = build/test_ifcs build/mock/libifcs.so
 ifneq ($(FRONTEND_TESTS),)

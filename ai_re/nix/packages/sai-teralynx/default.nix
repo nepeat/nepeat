@@ -17,7 +17,7 @@ in stdenv.mkDerivation {
     name = "sai-teralynx-src";
     # Only what the library build reads: docs, the board configs and nix files do not rebuild it.
     filter = p: t: !(lib.hasSuffix ".md" p)
-      && !(builtins.elem (baseNameOf p) [ "default.nix" "build" "configs" ]);
+      && !(builtins.elem (baseNameOf p) [ "default.nix" "build" "configs" "oracle" ]);
   };
 
   enableParallelBuilding = true;

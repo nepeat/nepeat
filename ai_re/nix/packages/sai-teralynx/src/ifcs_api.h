@@ -19,6 +19,9 @@
  * have the same size in IFCS 7.0.1's libifcs DWARF (amd64, sha256 72afa220...),
  * whose ifcs_attr_t is larger (296 B): never mix the two versions.
  * Target library: libifcs.so sha256 388031e7eb2443d77d89da826084976859bf92db19f9733be19b1c0b603c0d17.
+ * The ACL / hostif trap call forms follow SDK/scripts/sonic_l3snake_acl.py
+ * (table, profiles, matches, actions, ACEs) and what isai 6.2.0 does on the
+ * same chip (oracle traces, oracle/README.md); values from pyctypes.
  */
 #ifndef SAI_TERALYNX_IFCS_API_H
 #define SAI_TERALYNX_IFCS_API_H
@@ -244,7 +247,61 @@ enum { IFCS_INTF_ATTR_TYPE = 0, IFCS_INTF_ATTR_FORWARDING_INSTANCE = 3, IFCS_INT
 enum { IFCS_INTF_TYPE_L3PORT = 0, IFCS_INTF_TYPE_SVI = 1 };
 enum { IFCS_NEXTHOP_ATTR_INTF = 2, IFCS_NEXTHOP_ATTR_DEST_MAC = 3, IFCS_NEXTHOP_ATTR_LOCAL_DESTINATION = 5 };
 enum { IFCS_ROUTE_ENTRY_ATTR_NEXTHOP = 0, IFCS_ROUTE_ENTRY_ATTR_FWD_POLICY = 1, IFCS_ROUTE_ENTRY_ATTR_CTC_POLICY = 2 };
-enum { IFCS_HOSTIF_TRAP_ATTR_QUEUE_NUM = 0 };
+enum { IFCS_HOSTIF_TRAP_ATTR_QUEUE_NUM = 0, IFCS_HOSTIF_TRAP_ATTR_ENABLE = 1 };   /* QUEUE_NUM u32, ENABLE data */
+enum { IFCS_HOSTIF_TRAP_STATS_ID_RX_PACKET_COUNT = 0, IFCS_HOSTIF_TRAP_STATS_ID_RX_BYTE_COUNT = 1 };
+/* ifcs_hostif_trap_e: system (drop/exception) traps; handle = IFCS_HANDLE(HOSTIF, HOSTIF_TRAP, reason) */
+enum { IFCS_HOSTIF_TRAP_FWD_L3_TTL_CHECK_FAIL = 17, IFCS_HOSTIF_TRAP_L3MTU_CHECK_FAIL = 23 };
+#define IFCS_HANDLE_HOSTIF_TRAP(v) IFCS_HANDLE(IFCS_MOD_HOSTIF, IFCS_API_CLASS_HOSTIF_TRAP, (v))
+
+/* ------------------------------------------------------------------- ACL
+ * One ingress table (match + action profile), one ACL per inno block
+ * (scope PER_IB), entries (ACE) = a match set + an action set. */
+enum {                                 /* ifcs_acl_match_type_e (subset) */
+    IFCS_ACL_MATCH_TYPE_DESTINATION_MAC_ADDRESS = 17, IFCS_ACL_MATCH_TYPE_ETHER_TYPE = 18,
+    IFCS_ACL_MATCH_TYPE_L4_PROTOCOL = 56, IFCS_ACL_MATCH_TYPE_SOURCE_L4_PORT = 59,
+    IFCS_ACL_MATCH_TYPE_DESTINATION_L4_PORT = 60, IFCS_ACL_MATCH_TYPE_L4_BYTE1 = 61, IFCS_ACL_MATCH_TYPE_HOSTIF_TRAP = 98,
+};
+enum {                                 /* ifcs_acl_action_type_e (subset) */
+    IFCS_ACL_ACTION_TYPE_METER = 0, IFCS_ACL_ACTION_TYPE_ACL_COUNTER = 1, IFCS_ACL_ACTION_TYPE_DROP = 2,
+    IFCS_ACL_ACTION_TYPE_COPY_TO_CPU = 4, IFCS_ACL_ACTION_TYPE_COPY_TO_CPU_OVERRIDE = 5,
+};
+enum { IFCS_ACL_DIRECTION_INGRESS = 0 };
+enum { IFCS_ACL_SCOPE_NODE = 0, IFCS_ACL_SCOPE_PER_IB = 1 };
+enum { IFCS_ACL_TABLE_TYPE_CONTROL = 1 };
+enum { IFCS_ACL_ACTION_DISABLE = 0, IFCS_ACL_ACTION_ENABLE = 1 };   /* ifcs_acl_action_t: per colour */
+enum { IFCS_ACL_METER_TYPE_BYTE = 0 };
+enum { IFCS_ACL_METER_MODE_DUAL_TOKEN_RFC_2697 = 1, IFCS_ACL_METER_MODE_DUAL_TOKEN_RFC_2698 = 2 };
+enum { IFCS_ACL_COUNTER_MODE_COLOR_AWARE = 1 };
+enum { IFCS_ACL_COUNTER_STATS_ID_PACKETS = 0, IFCS_ACL_COUNTER_STATS_ID_BYTES = 1, IFCS_ACL_COUNTER_STATS_ID_GREEN_PACKETS = 2,
+       IFCS_ACL_COUNTER_STATS_ID_YELLOW_PACKETS = 4, IFCS_ACL_COUNTER_STATS_ID_RED_PACKETS = 6 };
+enum { IFCS_ACL_MATCH_PROFILE_ATTR_MATCH_TYPES = 0, IFCS_ACL_MATCH_PROFILE_ATTR_DIRECTION = 9,
+       IFCS_ACL_MATCH_PROFILE_ATTR_MAX_WIDTH = 11 };
+enum { IFCS_ACL_ACTION_PROFILE_ATTR_ACTION_TYPES = 0, IFCS_ACL_ACTION_PROFILE_ATTR_DIRECTION = 2 };
+enum { IFCS_ACL_TABLE_ATTR_MATCH_PROFILE = 0, IFCS_ACL_TABLE_ATTR_ACTION_PROFILE = 1, IFCS_ACL_TABLE_ATTR_DIRECTION = 4,
+       IFCS_ACL_TABLE_ATTR_SCOPE = 5, IFCS_ACL_TABLE_ATTR_PRIORITY = 6, IFCS_ACL_TABLE_ATTR_SIZE = 7,
+       IFCS_ACL_TABLE_ATTR_MAX_METERS = 12, IFCS_ACL_TABLE_ATTR_MAX_COUNTERS = 14, IFCS_ACL_TABLE_ATTR_DEFAULT_STATS = 16,
+       IFCS_ACL_TABLE_ATTR_TYPE = 17 };
+enum { IFCS_ACL_ATTR_SCOPE = 0, IFCS_ACL_ATTR_IB = 1 };
+enum { IFCS_ACL_MATCH_ATTR_MATCH_PROFILE = 0, IFCS_ACL_MATCH_ATTR_TYPE = 1, IFCS_ACL_MATCH_ATTR_VALUE = 2,
+       IFCS_ACL_MATCH_ATTR_MASK = 3, IFCS_ACL_MATCH_ATTR_OBJECT = 4 };
+enum { IFCS_ACL_ACTION_ATTR_ACTION_PROFILE = 0, IFCS_ACL_ACTION_ATTR_TYPE = 1, IFCS_ACL_ACTION_ATTR_VALUE = 2,
+       IFCS_ACL_ACTION_ATTR_OBJECT = 3 };
+enum { IFCS_ACL_METER_ATTR_ACL_TABLE = 0, IFCS_ACL_METER_ATTR_SCOPE = 1, IFCS_ACL_METER_ATTR_IB = 2,
+       IFCS_ACL_METER_ATTR_TYPE = 3, IFCS_ACL_METER_ATTR_MODE = 4, IFCS_ACL_METER_ATTR_COLOR_AWARE = 5,
+       IFCS_ACL_METER_ATTR_COMMITTED_BURST_SIZE = 6, IFCS_ACL_METER_ATTR_COMMITTED_INFORMATION_RATE = 7,
+       IFCS_ACL_METER_ATTR_EXCESS_BURST_SIZE = 8, IFCS_ACL_METER_ATTR_EXCESS_INFORMATION_RATE = 9 };
+enum { IFCS_ACL_COUNTER_ATTR_ACL_TABLE = 0, IFCS_ACL_COUNTER_ATTR_SCOPE = 1, IFCS_ACL_COUNTER_ATTR_IB = 2,
+       IFCS_ACL_COUNTER_ATTR_MODE = 3 };
+enum { IFCS_ACE_ATTR_SCOPE = 0, IFCS_ACE_ATTR_IB = 1, IFCS_ACE_ATTR_PRIORITY = 2, IFCS_ACE_ATTR_ENABLE = 3,
+       IFCS_ACE_ATTR_MATCH_SET = 4, IFCS_ACE_ATTR_ACTION_SET = 5 };
+/* Members of ifcs_acl_action_value_u (CTYPES; identical in 0.16.2): the
+ * action VALUE attribute holds one of these at value offset 0. Colour
+ * fields are ifcs_acl_action_t; the trailing byte holds the dirty bits. */
+typedef struct { uint32_t hostif, green, yellow, red; uint8_t dirty; } ifcs_acl_ctc_action_t;          /* dirty: 1 hostif, 2 green, 4 yellow, 8 red */
+typedef struct { uint32_t green, yellow, red; uint8_t dirty; } ifcs_acl_ctc_override_action_t;         /* dirty: 1 green, 2 yellow, 4 red */
+typedef struct { uint32_t green, yellow, red; ifcs_handle_t pp_drop_reason; uint8_t dirty; } ifcs_acl_drop_action_t;   /* 1 2 4 8 */
+typedef int ifcs_acl_counter_stats_id_t;
+typedef int ifcs_hostif_trap_stats_id_t;
 enum { IFCS_ECMP_MEMBER_ATTR_WEIGHT = 0 };
 
 /* ------------------------------------------------------- function pointers */
@@ -316,6 +373,33 @@ IFCS_FN(ifcs_status_t, ifcs_route_entry_create, (ifcs_node_id_t, ifcs_route_entr
 IFCS_FN(ifcs_status_t, ifcs_route_entry_delete, (ifcs_node_id_t, ifcs_route_entry_key_t*))
 IFCS_FN(ifcs_status_t, ifcs_route_entry_attr_set, (ifcs_node_id_t, ifcs_route_entry_key_t*, uint32_t, ifcs_attr_t*))
 IFCS_FN(ifcs_status_t, ifcs_hostif_trap_create, (ifcs_node_id_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_hostif_trap_delete, (ifcs_node_id_t, ifcs_handle_t))
+IFCS_FN(ifcs_status_t, ifcs_hostif_trap_attr_set, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_hostif_trap_stats_get, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_hostif_trap_stats_id_t*, uint64_t*, uint32_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_match_profile_create, (ifcs_node_id_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_match_profile_delete, (ifcs_node_id_t, ifcs_handle_t))
+IFCS_FN(ifcs_status_t, ifcs_acl_action_profile_create, (ifcs_node_id_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_action_profile_delete, (ifcs_node_id_t, ifcs_handle_t))
+IFCS_FN(ifcs_status_t, ifcs_acl_table_create, (ifcs_node_id_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_table_delete, (ifcs_node_id_t, ifcs_handle_t))
+IFCS_FN(ifcs_status_t, ifcs_acl_table_acl_add, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_table_acl_remove, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_handle_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_create, (ifcs_node_id_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_delete, (ifcs_node_id_t, ifcs_handle_t))
+IFCS_FN(ifcs_status_t, ifcs_acl_match_create, (ifcs_node_id_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_match_delete, (ifcs_node_id_t, ifcs_handle_t))
+IFCS_FN(ifcs_status_t, ifcs_acl_action_create, (ifcs_node_id_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_action_delete, (ifcs_node_id_t, ifcs_handle_t))
+IFCS_FN(ifcs_status_t, ifcs_acl_meter_create, (ifcs_node_id_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_meter_delete, (ifcs_node_id_t, ifcs_handle_t))
+IFCS_FN(ifcs_status_t, ifcs_acl_meter_attr_set, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_counter_create, (ifcs_node_id_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_counter_delete, (ifcs_node_id_t, ifcs_handle_t))
+IFCS_FN(ifcs_status_t, ifcs_acl_counter_stats_get, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_acl_counter_stats_id_t*, uint64_t*, uint32_t*))
+IFCS_FN(ifcs_status_t, ifcs_ace_create, (ifcs_node_id_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_ace_delete, (ifcs_node_id_t, ifcs_handle_t))
+IFCS_FN(ifcs_status_t, ifcs_acl_ace_add, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_ace_remove, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_handle_t*))
 IFCS_FN(ifcs_status_t, ifcs_ecmp_create, (ifcs_node_id_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
 IFCS_FN(ifcs_status_t, ifcs_ecmp_delete, (ifcs_node_id_t, ifcs_handle_t))
 IFCS_FN(ifcs_status_t, ifcs_ecmp_member_add, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
@@ -342,6 +426,13 @@ IFCS_FN(ifcs_status_t, ifcs_ecmp_usage_get, (ifcs_node_id_t, uint32_t, ifcs_attr
     X(ifcs_route_entry_key_ip_dest_l3vni_t_l3vni_set) X(ifcs_route_entry_key_ip_dest_l3vni_t_ip_dest_set) \
     X(ifcs_ip_prefix_t_init) X(ifcs_ip_prefix_t_addr_family_set) X(ifcs_ip_prefix_t_addr_set) X(ifcs_ip_prefix_t_mask_set) \
     X(ifcs_route_entry_create) X(ifcs_route_entry_delete) X(ifcs_route_entry_attr_set) X(ifcs_hostif_trap_create) \
+    X(ifcs_hostif_trap_delete) X(ifcs_hostif_trap_attr_set) X(ifcs_hostif_trap_stats_get) \
+    X(ifcs_acl_match_profile_create) X(ifcs_acl_match_profile_delete) X(ifcs_acl_action_profile_create) \
+    X(ifcs_acl_action_profile_delete) X(ifcs_acl_table_create) X(ifcs_acl_table_delete) X(ifcs_acl_table_acl_add) \
+    X(ifcs_acl_table_acl_remove) X(ifcs_acl_create) X(ifcs_acl_delete) X(ifcs_acl_match_create) X(ifcs_acl_match_delete) \
+    X(ifcs_acl_action_create) X(ifcs_acl_action_delete) X(ifcs_acl_meter_create) X(ifcs_acl_meter_delete) \
+    X(ifcs_acl_meter_attr_set) X(ifcs_acl_counter_create) X(ifcs_acl_counter_delete) X(ifcs_acl_counter_stats_get) \
+    X(ifcs_ace_create) X(ifcs_ace_delete) X(ifcs_acl_ace_add) X(ifcs_acl_ace_remove) \
     X(ifcs_ecmp_create) X(ifcs_ecmp_delete) X(ifcs_ecmp_member_add) X(ifcs_ecmp_member_remove) X(ifcs_ecmp_usage_get)
 
 #ifdef __cplusplus
@@ -369,6 +460,8 @@ static_assert(sizeof(ifcs_linkscan_event_info_t) == 28, "ifcs_linkscan_event_inf
 static_assert(sizeof(ifcs_l2_event_info_t) == 120 && offsetof(ifcs_l2_event_info_t, attr_count) == 108 &&
               offsetof(ifcs_l2_event_info_t, attr_p) == 112, "ifcs_l2_event_info_s");
 static_assert(sizeof(ifcs_usage_t) == 12, "ifcs_usage_s");
+static_assert(sizeof(ifcs_acl_ctc_action_t) == 20 && sizeof(ifcs_acl_ctc_override_action_t) == 16 &&
+              sizeof(ifcs_acl_drop_action_t) == 20, "acl action values (CTYPES)");
 #endif
 
 #endif

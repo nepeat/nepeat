@@ -1,0 +1,454 @@
+// SPDX-License-Identifier: Apache-2.0
+// L3 (tl_l3.h).
+#include "tl_l3.h"
+
+#include "tl_hostif.h"
+#include "tl_l2.h"
+
+namespace ob {
+namespace tlb {
+
+static uint32_t be32(const uint8_t* b)
+{
+    return ((uint32_t)b[0] << 24) | ((uint32_t)b[1] << 16) | ((uint32_t)b[2] << 8) | b[3];
+}
+
+static IpPrefix host_prefix(const IpAddr& ip)
+{
+    IpPrefix p;
+    p.addr = ip;
+    p.mask.v6 = ip.v6;
+    std::memset(p.mask.addr, 0xff, ip.v6 ? 16 : 4);
+    return p;
+}
+
+// VRF n = IFCS_HANDLE_L3VNI(n + 1), created on first use with no
+// attributes (SDK/scripts/l3snake_cel.py creates its L3VNIs that way).
+// An L3 interface sits on the frontend's VLAN: intf TYPE = SVI on the
+// L2VNI (I: the vendor sample uses L3PORT on a sysport), FORWARDING_INSTANCE
+// = the VRF's L3VNI, TRANSPORT_MAC, IPv4/IPv6 unicast on, MTU.
+sai_status_t L3Area::intf_create(const uint8_t mac[6], uint16_t vid, uint32_t mtu, int vrf, int& intf_id)
+{
+    Guard g(c_.mu);
+    ifcs_handle_t l2vni = 0;
+    if (!c_.l2->vlan_l2vni(vid, l2vni)) return SAI_STATUS_INVALID_PARAMETER;
+    ifcs_handle_t vni = 0;
+    sai_status_t st = l3vni(vrf, vni);
+    if (st != SAI_STATUS_SUCCESS) return st;
+    ifcs_attr_t a[7] = {attr_u32(IFCS_INTF_ATTR_TYPE, IFCS_INTF_TYPE_SVI),
+                        attr_handle(IFCS_INTF_ATTR_FORWARDING_INSTANCE, vni),
+                        attr_handle(IFCS_INTF_ATTR_TRANSPORT_INSTANCE, l2vni),
+                        attr_mac(IFCS_INTF_ATTR_TRANSPORT_MAC, mac),
+                        attr_data(IFCS_INTF_ATTR_IPV4_UNICAST_ENABLE, true),
+                        attr_data(IFCS_INTF_ATTR_IPV6_UNICAST_ENABLE, true),
+                        attr_u32(IFCS_INTF_ATTR_MTU, mtu)};
+    ifcs_handle_t h = IFCS_NULL_HANDLE;
+    st = c_.call(c_.L.ifcs_intf_create(NODE, &h, 7, a), "intf_create");
+    if (st != SAI_STATUS_SUCCESS) return st;
+    Intf i;
+    i.handle = h;
+    std::memcpy(i.mac, mac, 6);
+    i.vid = vid;
+    i.mtu = mtu;
+    i.vrf = vrf;
+    intf_id = next_intf_++;
+    intfs_[intf_id] = i;
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t L3Area::intf_update(int intf_id, const uint8_t mac[6], uint16_t vid, uint32_t mtu, int vrf)
+{
+    Guard g(c_.mu);
+    auto it = intfs_.find(intf_id);
+    if (it == intfs_.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+    Intf& i = it->second;
+    if (vid != i.vid || vrf != i.vrf) return c_.not_impl("moving an L3 interface to another VLAN/VRF");
+    if (std::memcmp(mac, i.mac, 6) != 0) {
+        ifcs_attr_t a = attr_mac(IFCS_INTF_ATTR_TRANSPORT_MAC, mac);
+        sai_status_t st = c_.call(c_.L.ifcs_intf_attr_set(NODE, i.handle, 1, &a), "intf transport_mac");
+        if (st != SAI_STATUS_SUCCESS) return st;
+        std::memcpy(i.mac, mac, 6);
+    }
+    if (mtu != i.mtu) {
+        ifcs_attr_t a = attr_u32(IFCS_INTF_ATTR_MTU, mtu);
+        sai_status_t st = c_.call(c_.L.ifcs_intf_attr_set(NODE, i.handle, 1, &a), "intf mtu");
+        if (st != SAI_STATUS_SUCCESS) return st;
+        i.mtu = mtu;
+    }
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t L3Area::intf_destroy(int intf_id)
+{
+    Guard g(c_.mu);
+    auto it = intfs_.find(intf_id);
+    if (it == intfs_.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+    sai_status_t st = c_.call(c_.L.ifcs_intf_delete(NODE, it->second.handle), "intf_delete");
+    if (st == SAI_STATUS_SUCCESS) intfs_.erase(it);
+    return st;
+}
+
+// IFCS has no my-station table in the calls we use: an interface
+// terminates its own TRANSPORT_MAC (I). Stations are bookkeeping only.
+sai_status_t L3Area::station_add(const uint8_t mac[6], int& station_id)
+{
+    Guard g(c_.mu);
+    station_id = next_station_++;
+    c_.log_once("station", "my-station %s: no IFCS object (interfaces terminate their own MAC)", mac_str(mac).c_str());
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t L3Area::station_delete(int) { return SAI_STATUS_SUCCESS; }
+
+// Egress object = IFCS nexthop: INTF, DEST_MAC, LOCAL_DESTINATION = the
+// port's sysport (l3snake_cel.py). Shared CPU / drop egress: no nexthop,
+// they turn into route policies (see route_attrs).
+sai_status_t L3Area::egress_create(int intf_id, const uint8_t dmac[6], int hw, uint16_t vid, int& egress_id)
+{
+    Guard g(c_.mu);
+    auto in = intfs_.find(intf_id);
+    if (in == intfs_.end()) return SAI_STATUS_INVALID_PARAMETER;
+    if (is_lag_dest(hw)) return c_.not_impl("next hop on a LAG");
+    auto sp = c_.sysport.find(hw);
+    if (sp == c_.sysport.end()) return SAI_STATUS_INVALID_PORT_NUMBER;
+    ifcs_attr_t a[3] = {attr_handle(IFCS_NEXTHOP_ATTR_INTF, in->second.handle), attr_mac(IFCS_NEXTHOP_ATTR_DEST_MAC, dmac),
+                        attr_handle(IFCS_NEXTHOP_ATTR_LOCAL_DESTINATION, sp->second)};
+    ifcs_handle_t h = IFCS_NULL_HANDLE;
+    sai_status_t st = c_.call(c_.L.ifcs_nexthop_create(NODE, &h, 3, a), "nexthop_create");
+    if (st != SAI_STATUS_SUCCESS) return st;
+    Egress e;
+    e.kind = Egress::Nh;
+    e.handle = h;
+    e.intf = intf_id;
+    std::memcpy(e.dmac, dmac, 6);
+    e.hw = hw;
+    e.vid = vid;
+    egress_id = next_egress_++;
+    egress_[egress_id] = e;
+    return SAI_STATUS_SUCCESS;
+}
+
+// In-place nexthop_attr_set of what changed (I), so routes keep their handle.
+sai_status_t L3Area::egress_update(int egress_id, int intf_id, const uint8_t dmac[6], int hw, uint16_t vid)
+{
+    Guard g(c_.mu);
+    auto it = egress_.find(egress_id);
+    if (it == egress_.end() || it->second.kind != Egress::Nh) return SAI_STATUS_INVALID_PARAMETER;
+    Egress& e = it->second;
+    auto in = intfs_.find(intf_id);
+    if (in == intfs_.end()) return SAI_STATUS_INVALID_PARAMETER;
+    if (is_lag_dest(hw)) return c_.not_impl("next hop on a LAG");
+    auto sp = c_.sysport.find(hw);
+    if (sp == c_.sysport.end()) return SAI_STATUS_INVALID_PORT_NUMBER;
+    if (intf_id != e.intf) {
+        ifcs_attr_t a = attr_handle(IFCS_NEXTHOP_ATTR_INTF, in->second.handle);
+        sai_status_t st = c_.call(c_.L.ifcs_nexthop_attr_set(NODE, e.handle, 1, &a), "nexthop intf");
+        if (st != SAI_STATUS_SUCCESS) return st;
+        e.intf = intf_id;
+    }
+    if (std::memcmp(dmac, e.dmac, 6) != 0) {
+        ifcs_attr_t a = attr_mac(IFCS_NEXTHOP_ATTR_DEST_MAC, dmac);
+        sai_status_t st = c_.call(c_.L.ifcs_nexthop_attr_set(NODE, e.handle, 1, &a), "nexthop dest_mac");
+        if (st != SAI_STATUS_SUCCESS) return st;
+        std::memcpy(e.dmac, dmac, 6);
+    }
+    if (hw != e.hw) {
+        ifcs_attr_t a = attr_handle(IFCS_NEXTHOP_ATTR_LOCAL_DESTINATION, sp->second);
+        sai_status_t st = c_.call(c_.L.ifcs_nexthop_attr_set(NODE, e.handle, 1, &a), "nexthop local_destination");
+        if (st != SAI_STATUS_SUCCESS) return st;
+        e.hw = hw;
+    }
+    e.vid = vid;
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t L3Area::egress_destroy(int egress_id)
+{
+    Guard g(c_.mu);
+    auto it = egress_.find(egress_id);
+    if (it == egress_.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+    if (it->second.kind != Egress::Nh) return SAI_STATUS_INVALID_PARAMETER;
+    sai_status_t st = c_.call(c_.L.ifcs_nexthop_delete(NODE, it->second.handle), "nexthop_delete");
+    if (st == SAI_STATUS_SUCCESS) egress_.erase(it);
+    return st;
+}
+
+sai_status_t L3Area::egress_cpu(int& egress_id)
+{
+    Guard g(c_.mu);
+    if (cpu_egress_ < 0) {
+        cpu_egress_ = next_egress_++;
+        Egress e;
+        e.kind = Egress::Cpu;
+        egress_[cpu_egress_] = e;
+    }
+    egress_id = cpu_egress_;
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t L3Area::egress_drop(int& egress_id)
+{
+    Guard g(c_.mu);
+    if (drop_egress_ < 0) {
+        drop_egress_ = next_egress_++;
+        Egress e;
+        e.kind = Egress::Drop;
+        egress_[drop_egress_] = e;
+    }
+    egress_id = drop_egress_;
+    return SAI_STATUS_SUCCESS;
+}
+
+// Host entries are /32 (/128) route entries: IFCS picks the host table
+// itself (route_entry has a HOST_RESOURCE_TYPE attribute; I).
+sai_status_t L3Area::host_add(int vrf, const IpAddr& ip, int egress_id)
+{
+    Guard g(c_.mu);
+    HostKey k{vrf, ip};
+    if (hosts_.count(k)) return SAI_STATUS_ITEM_ALREADY_EXISTS;
+    IpPrefix p = host_prefix(ip);
+    sai_status_t st = route_program(vrf, p, egress_id, false, nullptr);
+    if (st == SAI_STATUS_SUCCESS) hosts_[k] = egress_id;
+    return st;
+}
+
+sai_status_t L3Area::host_delete(int vrf, const IpAddr& ip)
+{
+    Guard g(c_.mu);
+    auto it = hosts_.find(HostKey{vrf, ip});
+    if (it == hosts_.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+    sai_status_t st = route_remove(vrf, host_prefix(ip));
+    if (st == SAI_STATUS_SUCCESS) hosts_.erase(it);
+    return st;
+}
+
+sai_status_t L3Area::route_add(int vrf, const IpPrefix& p, int target, bool ecmp, bool replace)
+{
+    Guard g(c_.mu);
+    RouteKey k{vrf, p};
+    auto it = routes_.find(k);
+    if (it != routes_.end() && !replace) return SAI_STATUS_ITEM_ALREADY_EXISTS;
+    if (it == routes_.end() && replace) return SAI_STATUS_ITEM_NOT_FOUND;
+    Route r{target, ecmp};
+    sai_status_t st = route_program(vrf, p, target, ecmp, it == routes_.end() ? nullptr : &it->second);
+    if (st == SAI_STATUS_SUCCESS) routes_[k] = r;
+    return st;
+}
+
+sai_status_t L3Area::route_delete(int vrf, const IpPrefix& p)
+{
+    Guard g(c_.mu);
+    auto it = routes_.find(RouteKey{vrf, p});
+    if (it == routes_.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+    sai_status_t st = route_remove(vrf, p);
+    if (st == SAI_STATUS_SUCCESS) routes_.erase(it);
+    return st;
+}
+
+// ECMP group: ifcs_ecmp_create without attributes (as cmds/ecmp.py with no
+// options), then ifcs_ecmp_member_add per nexthop. A repeated egress
+// object becomes IFCS_ECMP_MEMBER_ATTR_WEIGHT (u32, I).
+sai_status_t L3Area::ecmp_create(const std::vector<int>& egress, int& ecmp_id)
+{
+    Guard g(c_.mu);
+    std::map<ifcs_handle_t, uint32_t> want;
+    sai_status_t st = ecmp_members(egress, want);
+    if (st != SAI_STATUS_SUCCESS) return st;
+    ifcs_handle_t h = IFCS_NULL_HANDLE;
+    ifcs_attr_t none = attr_of(0);
+    st = c_.call(c_.L.ifcs_ecmp_create(NODE, &h, 0, &none), "ecmp_create");
+    if (st != SAI_STATUS_SUCCESS) return st;
+    Ecmp e;
+    e.handle = h;
+    st = ecmp_apply(e, want);
+    if (st != SAI_STATUS_SUCCESS) {
+        ecmp_apply(e, {});
+        c_.L.ifcs_ecmp_delete(NODE, h);
+        return st;
+    }
+    ecmp_id = next_ecmp_++;
+    ecmps_[ecmp_id] = e;
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t L3Area::ecmp_update(int ecmp_id, const std::vector<int>& egress)
+{
+    Guard g(c_.mu);
+    auto it = ecmps_.find(ecmp_id);
+    if (it == ecmps_.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+    std::map<ifcs_handle_t, uint32_t> want;
+    sai_status_t st = ecmp_members(egress, want);
+    if (st != SAI_STATUS_SUCCESS) return st;
+    return ecmp_apply(it->second, want);
+}
+
+sai_status_t L3Area::ecmp_destroy(int ecmp_id)
+{
+    Guard g(c_.mu);
+    auto it = ecmps_.find(ecmp_id);
+    if (it == ecmps_.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+    ecmp_apply(it->second, {});
+    sai_status_t st = c_.call(c_.L.ifcs_ecmp_delete(NODE, it->second.handle), "ecmp_delete");
+    if (st == SAI_STATUS_SUCCESS) ecmps_.erase(it);
+    return st;
+}
+
+L3Area::Counts L3Area::counts() const
+{
+    Counts n;
+    for (auto& r : routes_) (r.first.second.addr.v6 ? n.v6_prefixes : n.v4_prefixes)++;
+    for (auto& h : hosts_) (h.first.second.v6 ? n.v6_hosts : n.v4_hosts)++;
+    for (auto& e : ecmps_) n.ecmp_members += (uint32_t)e.second.members.size();
+    return n;
+}
+
+// Route key as scripts/l3snake_cel.py builds it. IPv4 goes in as a
+// host-order value, IPv6 as 16 bytes.
+void L3Area::route_key(ifcs_route_entry_key_t& k, ifcs_handle_t vni, const IpPrefix& p)
+{
+    ifcs_ip_addr_t a, m;
+    std::memset(&a, 0, sizeof(a));
+    std::memset(&m, 0, sizeof(m));
+    if (p.addr.v6) {
+        std::memcpy(a.ipv6, p.addr.addr, 16);
+        std::memcpy(m.ipv6, p.mask.addr, 16);
+    } else {
+        a.ipv4 = be32(p.addr.addr);
+        m.ipv4 = be32(p.mask.addr);
+    }
+    ifcs_ip_prefix_t pf;
+    std::memset(&pf, 0, sizeof(pf));
+    c_.L.ifcs_ip_prefix_t_init(&pf);
+    c_.L.ifcs_ip_prefix_t_addr_family_set(&pf, p.addr.v6 ? IFCS_IP_ADDR_FAMILY_IPV6 : IFCS_IP_ADDR_FAMILY_IPV4);
+    c_.L.ifcs_ip_prefix_t_addr_set(&pf, &a);
+    c_.L.ifcs_ip_prefix_t_mask_set(&pf, &m);
+    std::memset(&k, 0, sizeof(k));
+    c_.L.ifcs_route_entry_key_t_init(&k);
+    c_.L.ifcs_route_entry_key_t_key_type_set(&k, IFCS_ROUTE_ENTRY_KEY_TYPE_IP_DEST_L3VNI);
+    c_.L.ifcs_route_entry_key_t_ip_dest_l3vni_set(&k, k.key.ip_dest_l3vni);
+    c_.L.ifcs_route_entry_key_ip_dest_l3vni_t_l3vni_set(&k.key.ip_dest_l3vni, vni);
+    c_.L.ifcs_route_entry_key_ip_dest_l3vni_t_ip_dest_set(&k.key.ip_dest_l3vni, &pf);
+}
+
+sai_status_t L3Area::l3vni(int vrf, ifcs_handle_t& h)
+{
+    if (vrf < 0 || (uint32_t)vrf > VRF_MAX) return SAI_STATUS_INVALID_PARAMETER;
+    auto it = l3vnis_.find(vrf);
+    if (it != l3vnis_.end()) {
+        h = it->second;
+        return SAI_STATUS_SUCCESS;
+    }
+    ifcs_handle_t v = IFCS_HANDLE_L3VNI((uint32_t)vrf + 1);
+    ifcs_attr_t none = attr_of(0);
+    int r = IFCS_STATUS_REASON(c_.L.ifcs_l3vni_create(NODE, &v, 0, &none));
+    if (r != IFCS_SUCCESS && r != IFCS_EXIST) return c_.fail(r, "l3vni_create");
+    l3vnis_[vrf] = v;
+    h = v;
+    return SAI_STATUS_SUCCESS;
+}
+
+// Route attributes per target kind:
+//   nexthop / ECMP: NEXTHOP + FWD_POLICY forward (l3snake_cel.py; an ECMP
+//     handle as NEXTHOP is I);
+//   drop: FWD_POLICY drop, no NEXTHOP (I);
+//   CPU (TRAP / ip2me): FWD_POLICY drop + CTC_POLICY copy-to-cpu with the
+//     hostif area's IP2ME trap (HostifArea::ip2me_trap; drop + copy as
+//     Marvell's SAI does for ip2me, from its strings; I).
+sai_status_t L3Area::route_attrs(int target, bool ecmp, std::vector<ifcs_attr_t>& a, int& kind)
+{
+    a.clear();
+    if (ecmp) {
+        auto it = ecmps_.find(target);
+        if (it == ecmps_.end()) return SAI_STATUS_INVALID_PARAMETER;
+        a.push_back(attr_handle(IFCS_ROUTE_ENTRY_ATTR_NEXTHOP, it->second.handle));
+        a.push_back(attr_fwd(IFCS_ROUTE_ENTRY_ATTR_FWD_POLICY, IFCS_FWD_ACTION_FORWARD));
+        kind = Egress::Nh;
+        return SAI_STATUS_SUCCESS;
+    }
+    auto it = egress_.find(target);
+    if (it == egress_.end()) return SAI_STATUS_INVALID_PARAMETER;
+    kind = it->second.kind;
+    if (kind == Egress::Nh) {
+        a.push_back(attr_handle(IFCS_ROUTE_ENTRY_ATTR_NEXTHOP, it->second.handle));
+        a.push_back(attr_fwd(IFCS_ROUTE_ENTRY_ATTR_FWD_POLICY, IFCS_FWD_ACTION_FORWARD));
+    } else if (kind == Egress::Drop) {
+        a.push_back(attr_fwd(IFCS_ROUTE_ENTRY_ATTR_FWD_POLICY, IFCS_FWD_ACTION_DROP));
+    } else {
+        ifcs_handle_t trap = IFCS_NULL_HANDLE;
+        sai_status_t st = c_.hostif->ip2me_trap(trap);
+        if (st != SAI_STATUS_SUCCESS) return st;
+        a.push_back(attr_fwd(IFCS_ROUTE_ENTRY_ATTR_FWD_POLICY, IFCS_FWD_ACTION_DROP));
+        a.push_back(attr_ctc(IFCS_ROUTE_ENTRY_ATTR_CTC_POLICY, true, trap));
+    }
+    return SAI_STATUS_SUCCESS;
+}
+
+// Create, or (old != nullptr) replace: same kind (nexthop/ECMP to
+// nexthop/ECMP) is an attr_set of NEXTHOP + FWD_POLICY; a change of kind
+// deletes and re-creates the entry (no attribute "unset" in IFCS we know).
+sai_status_t L3Area::route_program(int vrf, const IpPrefix& p, int target, bool ecmp, const Route* old)
+{
+    ifcs_handle_t vni = 0;
+    sai_status_t st = l3vni(vrf, vni);
+    if (st != SAI_STATUS_SUCCESS) return st;
+    std::vector<ifcs_attr_t> a;
+    int kind = 0;
+    st = route_attrs(target, ecmp, a, kind);
+    if (st != SAI_STATUS_SUCCESS) return st;
+    ifcs_route_entry_key_t k;
+    route_key(k, vni, p);
+    if (old) {
+        int okind = old->ecmp ? (int)Egress::Nh : egress_.count(old->target) ? (int)egress_[old->target].kind : -1;
+        if (okind == kind && kind == Egress::Nh)
+            return c_.call(c_.L.ifcs_route_entry_attr_set(NODE, &k, (uint32_t)a.size(), a.data()), "route_entry_attr_set");
+        st = c_.call(c_.L.ifcs_route_entry_delete(NODE, &k), "route_entry_delete (replace)");
+        if (st != SAI_STATUS_SUCCESS) return st;
+    }
+    return c_.call(c_.L.ifcs_route_entry_create(NODE, &k, (uint32_t)a.size(), a.data()), "route_entry_create");
+}
+
+sai_status_t L3Area::route_remove(int vrf, const IpPrefix& p)
+{
+    ifcs_handle_t vni = 0;
+    sai_status_t st = l3vni(vrf, vni);
+    if (st != SAI_STATUS_SUCCESS) return st;
+    ifcs_route_entry_key_t k;
+    route_key(k, vni, p);
+    return c_.call(c_.L.ifcs_route_entry_delete(NODE, &k), "route_entry_delete");
+}
+
+sai_status_t L3Area::ecmp_members(const std::vector<int>& egress, std::map<ifcs_handle_t, uint32_t>& want)
+{
+    if (egress.empty() || egress.size() > ECMP_PATHS) return SAI_STATUS_INVALID_PARAMETER;
+    for (int e : egress) {
+        auto it = egress_.find(e);
+        if (it == egress_.end() || it->second.kind != Egress::Nh) return SAI_STATUS_INVALID_PARAMETER;
+        want[it->second.handle]++;
+    }
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t L3Area::ecmp_apply(Ecmp& e, const std::map<ifcs_handle_t, uint32_t>& want)
+{
+    for (auto it = e.members.begin(); it != e.members.end();) {
+        auto w = want.find(it->first);
+        if (w != want.end() && w->second == it->second) { ++it; continue; }
+        ifcs_handle_t h = it->first;
+        sai_status_t st = c_.call(c_.L.ifcs_ecmp_member_remove(NODE, e.handle, 1, &h), "ecmp_member_remove");
+        if (st != SAI_STATUS_SUCCESS) return st;
+        it = e.members.erase(it);
+    }
+    for (auto& w : want) {
+        if (e.members.count(w.first)) continue;
+        ifcs_handle_t h = w.first;
+        ifcs_attr_t wt = attr_u32(IFCS_ECMP_MEMBER_ATTR_WEIGHT, w.second);
+        sai_status_t st = c_.call(c_.L.ifcs_ecmp_member_add(NODE, e.handle, 1, &h, w.second > 1 ? 1 : 0, &wt),
+                                  "ecmp_member_add");
+        if (st != SAI_STATUS_SUCCESS) return st;
+        e.members[w.first] = w.second;
+    }
+    return SAI_STATUS_SUCCESS;
+}
+
+} // namespace tlb
+} // namespace ob
