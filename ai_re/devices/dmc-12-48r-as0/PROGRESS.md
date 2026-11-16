@@ -48,7 +48,7 @@
   `uboot-vendor-commands.md`, factory hardware tooling `vendor-tooling.md`. Earlier Status text: `HISTORY.md`.
 - Research (`research-open-items.md`): CS1 is picked by the K2 uC; CPLD = MachXO3 configured over
   I2C 4-0x10 (readback needs the owner's OK); uC firmware unreachable without SWD; TPM is SPI-only.
-  TPM 2.0 works on SPI SS2 (2026-11-16). Open: photos of the K2 card (flash/uC/headers), the CPLD readback decision.
+  TPM 2.0 works on SPI SS2 (2026-11-16). CPLD read back + decoded (`cpld.md`). Open: photos of the K2 card (flash/uC/headers).
 
 ## Identity
 - Board EEPROM (ONIE TLV, 24c02 @ I2C 7-0051): **Accton / Edgecore**,
@@ -159,6 +159,15 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-16 02:00: **CPLD read back and decoded; firmware inventory.**
+  - `cpld-readback.py` (read-only subset of the factory cpldupd flow, transparent mode): LCMXO3LF-2100C
+    confirmed, two identical reads, CPLD/fans unaffected (1efd88c).
+  - Decode (agent; `cpld.md`, tools in `tools/machxo3/`, f6fb8b4): cfg.bin -> frames -> Trellis config ->
+    cfg.bin **byte-identical**; netlist 1082 LUT4 / 921 FF / 74 pads, soft I2C slave 0x68, register map
+    matches u01; 7 bug candidates (unsynchronised SCL/reset inputs, LUT-gated latches, PWM glitches).
+    Phase 2 (readable RTL + equivalence, bit semantics, pin map) running. Design data stays in dumps/.
+  - `fw-inventory.py` (ac8bd75): per-unit component versions + blobs, `table`/`diff --bytes`/`drift`;
+    provision.py runs it. u01: 137 components, drift = BOOT_MODE + IPXE 0/1.
 - 2026-11-16 00:20: **SPI TPM** (516bf72): SLB9670 node on SS2, I2C tpm@20 dropped. Probes as TPM 2.0
   (0x15D1/0x1B), PCR reads work (all zero: nothing measures), flash sha256 unchanged across the probe
   (before/after of all four mtd partitions), smoke 16/16 on minimal.
