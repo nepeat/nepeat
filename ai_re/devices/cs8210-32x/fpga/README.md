@@ -83,4 +83,4 @@ Large outputs go in `work/` (git-ignored).
 ## Lattice parts
 
 System FPGA, MDIO FPGA, fan and LED CPLDs: `.vme` programming images in
-`../analysis/extracted/root/fw/`. Not identified yet.
+`../analysis/extracted/root/fw/`. Parts (from the VME IDCODE checks): sys CPLD LCMXO3LF-6900C, LED CPLDs LCMXO3LF-2100C, fan CPLDs LCMXO3LF-1300C, MDIO FPGA ECP5-class; see [../inventory.md](../inventory.md), [../cpld-diff.md](../cpld-diff.md).

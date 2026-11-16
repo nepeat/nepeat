@@ -85,9 +85,6 @@ PCIe hard IP, likely LFE5UM] whose bitstream sits in a SPI flash behind it, on n
 
 ## Leads
 
-- Sys CPLD 0xa1 "I2C FPGA Misc IO" (diag default 0xd3, mask 0xf0): the updater writes 0xd7 after `flashcp`
-  to mtd5 with the comment "switch spi mux back to fpga". So bit 2 likely gives the n25q256a to the FPGA
-  [inf]. Nothing in `install.sh` or the U-Boot env writes it, so it probably does not explain the
-  stock/mainline difference, but one read settles whether the flash is SoC-side when mainline sees all ones.
+- Sys CPLD 0xa1: **bit 3 = aux SPI flash to the SoC**; the ONIE/DIAGOS kernel's mtdchar sets it on open and clears it on close, which is why mainline reads that flash as all ones. Bit 2 is the I2C-FPGA EEPROM write-protect. Evidence: [cpld-diff.md](cpld-diff.md).
 - V2 vs V3: DMC-12 uC 1.13/1.35.0 vs K2X 2.28/2.1.14 (both NOT-SECURE); DMC-12 CPLD update is `cpldupd` on one
   GPIO line, CS8210 is a JTAG mux in the sys CPLD plus a GPIO-chip bit-banger ([DMC-12 vendor-tooling.md](../dmc-12-48r-as0/vendor-tooling.md)).
