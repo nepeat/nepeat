@@ -31,8 +31,7 @@
   CPLD power-on default; keep them quiet). Linux holds PWM 127 (~50%, ~11k rpm)
   until the hottest LM75 passes 40 C or the ASIC die 70 C, full speed at 55 /
   95 C; any fault or stop forces full speed and re-arms the fan watchdog.
-  Deployed daemon: `services.cs8210-fancontrol` (python). **fand replaces it
-  in the nix tree (2026-11-15, built, not deployed yet)**:
+  Daemon: **fand** (deployed 2026-11-15; stop test: PWM 255 + watchdogs armed):
   `hardware.cs8210.fan.controller` = `fand` (default) | `python` (fallback).
   Manual control: `fand status`, `fand set 80% --for 10m`; `cs8210-fan
   status|set|quiet|max|watchdog` for when no daemon runs.
@@ -88,7 +87,13 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
-### 2026-11-15 — fan control moved to fand (built offline, not deployed)
+### 2026-11-15 — fand live; UART recovery mapped
+
+- fand deployed (generation 26.11.20261114.2f709fe, also Linux 7.3.4; switch unit unchanged): `fand check --exec` all 14 sensors / 14 outputs ok, curve at PWM 127 after the 60 s first-reading failsafe; `systemctl stop fand` -> PWM 255, both watchdogs armed, sys CPLD force.
+- [uart-recovery.md](uart-recovery.md): the ROM never reads console keys; UART XMODEM / UART CLI only via boot straps (PBS 0xfd8a8110 bits 17:15) or when no valid stage2 is found at any of 16 SPI offsets. A UART stage2 only repairs stage2 (TOC/stage3/U-Boot still come from SPI). Zero-write entry "Route R" (vendor U-Boot -> warm-reset CPU0 into the ROM CLI) designed and emulated, not run. Tools: `scripts/uart_recovery.py`, `scripts/rom_emu.py`.
+- DMC-12 console byte loss (57%, this box's serial output) was the DMC-12's missing EHCI interrupt (IOFIC), fixed there; re-test 2.13 MB nonstop: 0 lost.
+
+### 2026-11-15 — fan control moved to fand (deployed same day)
 
 - `nix/nixos/module/cs8210/fan-control` now configures fand
   (`rust/crates/fand`, imported from the monorepo; the nepeat/nix flake is

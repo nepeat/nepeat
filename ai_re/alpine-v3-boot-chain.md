@@ -58,3 +58,18 @@ e.g. `NetOS-k2x-n-stageloaders`); SerDes FW objects 0x510/0x520/0x530; `dev_info
 - V3 ROM: offsets probed, S2 checks, XMODEM fallback (dump 0xfbff0000 from U-Boot).
 - Handoff EL/registers into the app (agent `agent_wakeup v3.53` not disassembled; V2: EL2, MMU off, x0 = 0).
 - V3 strap map (boot device bits; HAL `al_hal_bootstrap` V3 has the same parser as V2 plus the SPI preloads).
+
+## 6. Boot ROM 3.1.0 and UART recovery (CS8210 dump; answers the first and third items of §5)
+Detail and evidence: [devices/cs8210-32x/uart-recovery.md](devices/cs8210-32x/uart-recovery.md).
+- 64 KiB, linked at the 0xffff0000 alias (HAL `BOOT_ROM_XMODEM_RECIEVE_FUNC_PTR` 0xffff1485 is its receiver).
+  Reset: per-core ANPA `resume_addr` (CPU0 0xf0410030) non-zero → jump there first (V2: NB 0xf0072028).
+- Straps bits 17:15: 0 UART CLI, 1 UART 2 Mbaud, 2 NAND, 3 invalid, 4 UART 115200, 5 SPI mode 3, 6 UART
+  1 Mbaud, 7 SPI mode 0; bit 18 = 0 debug prints. No console key or magic byte; no override register.
+- S2 checks as V2 (header sum16, size ≠ 0, payload sum16; flags +2 bit 1 = AArch64 entry). 16 offsets ×
+  4 tries, then UART XMODEM by itself (Menie, 128 B, CRC/sum) into 0xff000000 (LLC SRAM), max 0x78000 with
+  dcache, entered at +0x20 unchecked when non-secure. UART-boot prints go to UART1.
+- New on V3: a UART CLI (rd/wr/rdr/wrr/vrr, xmodem, go A32/AArch64, gpio_set, I2C EEPROM rd/wr, quit →
+  SPI boot); numbers are bare hex, CR only. Per-source OTP disables bite only in secure mode.
+- Stage2 sets SPI_LOAD_ENFORCE for any non-NAND device, so a UART-sent factory stage2 fixes only a bad
+  stage2. From a running vendor U-Boot the CLI is reachable with a CPU0 warm reset through the resume
+  register ("Route R", emulated; `scripts/uart_recovery.py route-r`).
