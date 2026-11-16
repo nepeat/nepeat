@@ -30,6 +30,8 @@
 
   image.baseName = "nixos-cs8210";
 
+  # (2026-11-15: cage 2 is empty now; only cages 1 and 16 hold modules, a 400G
+  # DAC loop. The line below is the vendor stack's; SONiC uses lineMedia.)
   # Cage 2 holds an FS QSFP28->4xSFP28 breakout DAC to the lab aggregation
   # switch (2026-11-11; it was in cage 17 before). 4x10G on the ASIC *and* on
   # the Credo PHY in front of cage 2 (Credo still in MACsec bypass, see

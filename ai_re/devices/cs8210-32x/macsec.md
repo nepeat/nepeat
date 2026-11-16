@@ -6,10 +6,10 @@
 - MKA (wpa_supplicant 2.12, PSK) up in 3.3 s, rekeying on PN exhaustion with 0 loss;
 - interop with Linux kernel macsec.
 
-Results are under "Hardware results" below. Three shim bugs found on the hardware are fixed in
-the tree; **the deployed generation still has the broken shim until the next deploy**. The 400G link
+Results are under "Hardware results" below. Three shim bugs found on the hardware are fixed and
+deployed (f5fd381, 2026-11-16). The 400G link
 and yesterday's static-key results: [macsec-400g.md](macsec-400g.md). Code:
-`nix/nixos/module/cs8210/macsec/` (`hardware.cs8210.macsec`, default off, not imported yet).
+`nix/nixos/module/cs8210/macsec/` (`hardware.cs8210.macsec`, default off; imported and enabled on the CS8210 since 251760c; acts under the vendor stack).
 Tags: **V** verified (disassembly/decompile, DWARF, offline test), **I** inferred, **HW** needs
 the hardware.
 
