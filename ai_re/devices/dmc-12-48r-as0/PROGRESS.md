@@ -9,12 +9,13 @@
   new paths), generations in the extlinux menu, rollback on the box `nixos-rebuild switch --rollback --no-reexec`.
   906 MiB used of 29 GiB.
 - **SPI slots** (`spi-upgrade.py slots`; spec `spi-upgrade-plan.md`, journal `inventory/u01/spi-upgrade.jsonl`):
-  IPXE 0 = env build af039fd **[active]**, IPXE 1 = trimmed build f5901b0 (fallback), UBOOT 0/1 =
+  IPXE 1 = env build with the SSI fix 0cc8c34 **[active]**, IPXE 0 = af039fd (fallback; its env load
+  fails cold, boots on defaults), UBOOT 0/1 =
   factory 2015.07. `switch --to ipxe0|ipxe1|factory`, `update` (writes the inactive slot), `rollback`.
   Holding `u` at stage3 = factory U-Boot (recovery prompt; it can't boot the standard disk).
-- **Open:** env load fails at boot in the stage3-app path (`unrecognized JEDEC id bytes: ff, ff, ff`
-  → defaults; `saveenv` at the prompt works) — U-Boot agent root-causing; no clip read of CS0 yet
-  (`spi-upgrade.py clipcheck`); Linux `fw_setenv` (phase 2) not started.
+- **U-Boot env persists** (`saveenv` at `=>`): redundant 2 × 64 KiB at 0xf90000/0xfa0000, `$env_source`
+  says which copy loaded; recovery `env default -a; saveenv` (`u-boot-port.md`).
+- **Open:** no clip read of CS0 yet (`spi-upgrade.py clipcheck`); Linux `fw_setenv` (phase 2) not started.
 - **Board quirks/features at a glance:** `board-notes.md`. Route A / stage3 keys: `uart-boot.md`;
   our U-Boot (checklist, env, recovery): `u-boot-port.md`; boot chain: `boot-chain-details.md`,
   `../../alpine-v2-boot-chain.md`.
@@ -196,6 +197,13 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-15 18:45: **SPI env works cold.** Cause (U-Boot agent, 0cc8c34, patches 0030/0031): stage3 leaves
+  the SSI slave select set (CS0) and U-Boot's DW SPI driver never deselected before its first transfer, so
+  the env's RDID read ff ff ff; the factory U-Boot deselects, which hid it in the chainload test. Fix:
+  clear SER at init and before each transfer. Route A rehearsal passed but **can't reproduce SPI state**
+  (the factory U-Boot ran first and stage3 reads its image from RAM), so the real test was `update` into
+  IPXE 1: 3 cold boots print `SSI: slave select 0x1 left set by the firmware, cleared` + `Env: SPI flash,
+  copy at …`; a variable saved at `=>` survived an AC power-cycle (copies alternate 0xfa0000/0xf90000).
 - 2026-11-15 18:15: **u01 is a rebuildable Nix system.** New `profile-rebuildable` (nix + switcher; no nixpkgs
   source/channel/registry, `max-jobs = 0`, idle daemon, weekly GC; installer tools off: `nixos-generate-config`
   dragged in bcachefs-tools, which failed to cross-build). Closure 866 → 919 MiB (boost 17, nix ~17, AWS

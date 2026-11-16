@@ -150,6 +150,12 @@ Code addresses are ROM (0xffff…), stage2 A (0xf22…), stage3 (0x010…) and U
 - **The factory U-Boot runs `UBOOT_SCRIPT` in that mode too.** With a default env, the script ends in
   `saveenv`, an SPI write. So `uartboot.py image` always blanks UBOOT_SCRIPT 0/1 in the RAM image.
 
+> **Limit (2026-11-15):** Route A reproduces stage3's *app hand-off* (EL2, x0, DT, BOOT_MODE), not the
+> SPI controller state a cold SPI boot leaves: the factory U-Boot ran earlier in that power-on and
+> stage3 reads its image from RAM. The SSI slave-select bug (PROGRESS 2026-11-15 18:45) passed Route A
+> and only showed on a real SPI boot. Test SPI-touching changes with `spi-upgrade.py update` (inactive
+> slot) too.
+
 ## 5. Route A: production stage3 → any app, from RAM (`uartboot.py`)
 **Recipe** (`uartboot.py image` builds the image; `route-a --run` does the rest at the factory
 prompt and checks every CRC and patch):
