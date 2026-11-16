@@ -93,6 +93,23 @@ int main(void) {
           mmap(m, 3 * 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0) == m);
     CHECK("after replacement: normal memory", !atomic_bus(m + 8) && !atomic_bus(m + 2 * 4096 + 8));
 
+    // many single-page device maps, each followed by an anonymous page (libsai
+    // maps its DMA pages one by one: thousands of scattered ranges)
+    enum { NP = 600 };
+    static char *dp[NP], *ap[NP];
+    int okmap = 1;
+    for (int i = 0; i < NP; i++) {
+        dp[i] = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        ap[i] = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        if (dp[i] == MAP_FAILED || ap[i] == MAP_FAILED) okmap = 0;
+    }
+    CHECK("600 device pages + 600 anon pages mapped", okmap);
+    CHECK("many maps: device page 0 faults", atomic_bus(dp[0] + 8));
+    CHECK("many maps: device page 450 faults", atomic_bus(dp[450] + 64));
+    CHECK("many maps: anon pages work", !atomic_bus(ap[0] + 8) && !atomic_bus(ap[450] + 8) && !atomic_bus(ap[NP - 1]));
+    for (int i = 0; i < NP; i++) munmap(dp[i], 4096);
+    CHECK("many maps: unmapped, nothing faults", !atomic_bus(ap[300] + 16));
+
     if (fails == 0) puts("ALL OK");
     fflush(stdout);
     _exit(fails ? 1 : 0);

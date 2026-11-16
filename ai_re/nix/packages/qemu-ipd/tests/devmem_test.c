@@ -41,6 +41,22 @@ int main(void) {
     for (int i = 0; i < 100; i++) if (dev[i] != (unsigned char)(i + 5)) { bad++; break; }
     munmap(dev + 4096, 4096);
     if (hits(dev + 4096, 1) || !hits(dev, 1)) bad++;
+    // thousands of scattered single-page device maps (as libsai's DMA pages)
+    enum { NP = 2000 };
+    static unsigned char *dp[NP], *ap[NP];
+    for (int i = 0; i < NP; i++) {
+        dp[i] = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 4096);
+        ap[i] = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    }
+    for (int i = 0; i < NP; i += 97) {
+        if (!hits(dp[i] + 100, 8) || hits(ap[i], 4096)) bad++;
+        memcpy(dp[i] + 3, src, 77);
+        if (memcmp(dp[i] + 3, src, 77)) bad++;
+    }
+    for (int i = 0; i < NP; i += 2) munmap(dp[i], 4096);
+    if (hits(dp[0], 1) || !hits(dp[1], 1) || hits(dp[1998], 1) || !hits(dp[1999], 1)) bad++;
+    munmap(dp[1001] + 0, 4096);
+    if (hits(dp[1001], 4096) || !hits(dp[1003], 4096)) bad++;
     printf("%s (%d mismatches)\n", bad ? "FAIL" : "devmem ok", bad);
     return bad != 0;
 }

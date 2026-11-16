@@ -57,7 +57,7 @@ in {
     arg=$(awk '/^QUERY_ARG/ {print $2}' out)
     grep -q "IPD cmd 0xc0084902 arg $arg$" log          # guest pointer == host pointer
     test "$(grep -c '^IPD cmd' log)" = 3                # unknown nr never reached the driver
-    test "$(grep -c 'guest fault instead' err)" = 4     # the four device-map atomics
+    test "$(grep -c 'guest fault instead' err)" = 6     # the six device-map atomics
     mkdir $out; cp out log err $out/
   '';
 

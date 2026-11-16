@@ -19,10 +19,16 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#define MAXMAPS 256
-static struct { uintptr_t start, end; } maps[MAXMAPS];
-static int nmaps;
-static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+// Device mappings: sorted, non-overlapping (libsai maps thousands of single
+// DMA pages). Readers (every mem* call inside [lo, hi)) binary-search under
+// the read lock. The table lives in raw mmap()ed memory and is copied by
+// hand: nothing under the write lock may call memcpy & co (they take the
+// read lock).
+struct map { uintptr_t start, end; };
+static struct map *maps;
+static size_t nmaps, capmaps;
+static uintptr_t lo, hi;
+static pthread_rwlock_t rw = PTHREAD_RWLOCK_INITIALIZER;
 
 static void *(*real_memcpy)(void *, const void *, size_t);
 static void *(*real_memmove)(void *, const void *, size_t);
@@ -38,13 +44,17 @@ __attribute__((constructor)) static void init(void) {
 
 static int hits(const void *p, size_t n) {
     uintptr_t a = (uintptr_t)p;
-    int i, m = __atomic_load_n(&nmaps, __ATOMIC_ACQUIRE);
-    for (i = 0; i < m; i++) {
-        uintptr_t s = __atomic_load_n(&maps[i].start, __ATOMIC_RELAXED);
-        uintptr_t e = __atomic_load_n(&maps[i].end, __ATOMIC_RELAXED);
-        if (a < e && a + n > s) return 1;
+    if (a + n <= __atomic_load_n(&lo, __ATOMIC_ACQUIRE) || a >= __atomic_load_n(&hi, __ATOMIC_ACQUIRE))
+        return 0;
+    pthread_rwlock_rdlock(&rw);
+    size_t l = 0, h = nmaps;
+    while (l < h) {             // last map with start < a + n
+        size_t m = (l + h) / 2;
+        if (maps[m].start < a + n) l = m + 1; else h = m;
     }
-    return 0;
+    int hit = l > 0 && maps[l - 1].end > a;
+    pthread_rwlock_unlock(&rw);
+    return hit;
 }
 
 // the widest access size both addresses (and the length) allow
@@ -127,40 +137,64 @@ static int is_ipd(int fd) {
     return !strncmp(path, "/dev/ipd", 8) || (t && *t && !strcmp(path, t));
 }
 
-static void cut(uintptr_t s, uintptr_t e) {   // under lock; drop [s, e)
-    for (int i = 0; i < nmaps; i++) {
+static void grow(size_t need) {           // under the write lock
+    if (need <= capmaps) return;
+    size_t cap = capmaps * 2 + 256;
+    if (cap < need) cap = need;
+    struct map *n = (struct map *)syscall(SYS_mmap, NULL, cap * sizeof *n, PROT_READ | PROT_WRITE,
+                                          MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (n == MAP_FAILED) abort();
+    for (size_t i = 0; i < nmaps; i++) { n[i].start = maps[i].start; n[i].end = maps[i].end; }
+    if (maps) syscall(SYS_munmap, maps, capmaps * sizeof *maps);
+    maps = n;
+    capmaps = cap;
+}
+
+static void bounds(void) {
+    __atomic_store_n(&lo, nmaps ? maps[0].start : 0, __ATOMIC_RELEASE);
+    __atomic_store_n(&hi, nmaps ? maps[nmaps - 1].end : 0, __ATOMIC_RELEASE);
+}
+
+static void cut(uintptr_t s, uintptr_t e) {   // under the write lock; drop [s, e)
+    size_t i, j, split = 0;
+    for (i = 0; i < nmaps; i++)
+        if (maps[i].start < s && maps[i].end > e) split++;
+    grow(nmaps + split + 1);
+    // walk backwards so a split (one entry -> two) can shift the tail right
+    size_t out = nmaps + split;
+    for (i = nmaps, j = out; i-- > 0;) {
         uintptr_t ms = maps[i].start, me = maps[i].end;
-        if (ms == me || e <= ms || s >= me) continue;
-        if (s <= ms && e >= me) __atomic_store_n(&maps[i].end, ms, __ATOMIC_RELAXED);
-        else if (s <= ms) __atomic_store_n(&maps[i].start, e, __ATOMIC_RELAXED);
-        else if (e >= me) __atomic_store_n(&maps[i].end, s, __ATOMIC_RELAXED);
-        else {
-            int j;
-            for (j = 0; j < MAXMAPS && j < nmaps && maps[j].start != maps[j].end; j++) ;
-            if (j == MAXMAPS) abort();
-            maps[j].start = e; __atomic_store_n(&maps[j].end, me, __ATOMIC_RELAXED);
-            __atomic_store_n(&maps[i].end, s, __ATOMIC_RELAXED);
-            if (j >= nmaps) __atomic_store_n(&nmaps, j + 1, __ATOMIC_RELEASE);
-        }
+        if (e <= ms || s >= me) { j--; maps[j].start = ms; maps[j].end = me; continue; }
+        if (me > e) { j--; maps[j].start = e; maps[j].end = me; }
+        if (ms < s) { j--; maps[j].start = ms; maps[j].end = s; }
     }
+    // entries now occupy [j, out); move them to the front
+    size_t k = 0;
+    for (i = j; i < out; i++, k++) { maps[k].start = maps[i].start; maps[k].end = maps[i].end; }
+    nmaps = k;
+}
+
+static void insert(uintptr_t s, uintptr_t e) {   // under the write lock
+    grow(nmaps + 1);
+    size_t l = 0, h = nmaps;
+    while (l < h) { size_t m = (l + h) / 2; if (maps[m].start < s) l = m + 1; else h = m; }
+    for (size_t i = nmaps; i > l; i--) { maps[i].start = maps[i - 1].start; maps[i].end = maps[i - 1].end; }
+    maps[l].start = s; maps[l].end = e;
+    nmaps++;
 }
 
 void *mmap(void *addr, size_t len, int prot, int flags, int fd, off_t off) {
     void *r = (void *)syscall(SYS_mmap, addr, len, prot, flags, fd, off);
     if (r == MAP_FAILED) return r;
+    uintptr_t s = (uintptr_t)r, e = s + len;
     int dev = fd >= 0 && !(flags & MAP_ANONYMOUS) && is_ipd(fd);
-    pthread_mutex_lock(&lock);
-    cut((uintptr_t)r, (uintptr_t)r + len);
-    if (dev) {
-        int i;
-        for (i = 0; i < MAXMAPS && i < nmaps && maps[i].start != maps[i].end; i++) ;
-        if (i == MAXMAPS) abort();
-        maps[i].end = (uintptr_t)r;
-        __atomic_store_n(&maps[i].start, (uintptr_t)r, __ATOMIC_RELAXED);
-        __atomic_store_n(&maps[i].end, (uintptr_t)r + len, __ATOMIC_RELAXED);
-        if (i >= nmaps) __atomic_store_n(&nmaps, i + 1, __ATOMIC_RELEASE);
-    }
-    pthread_mutex_unlock(&lock);
+    if (!dev && (s >= __atomic_load_n(&hi, __ATOMIC_ACQUIRE) || e <= __atomic_load_n(&lo, __ATOMIC_ACQUIRE)))
+        return r;
+    pthread_rwlock_wrlock(&rw);
+    if (nmaps) cut(s, e);        // MAP_FIXED over an old mapping replaces it
+    if (dev) insert(s, e);
+    bounds();
+    pthread_rwlock_unlock(&rw);
     if (dev && getenv("IPD_DEVMEM_TRACE"))
         fprintf(stderr, "ipd-devmem: device map %p +0x%zx (fd %d off 0x%llx)\n",
                 r, len, fd, (unsigned long long)off);
@@ -171,10 +205,12 @@ void *mmap64(void *addr, size_t len, int prot, int flags, int fd, off_t off)
 
 int munmap(void *addr, size_t len) {
     int r = (int)syscall(SYS_munmap, addr, len);
-    if (r == 0) {
-        pthread_mutex_lock(&lock);
-        cut((uintptr_t)addr, (uintptr_t)addr + len);
-        pthread_mutex_unlock(&lock);
+    uintptr_t s = (uintptr_t)addr, e = s + len;
+    if (r == 0 && s < __atomic_load_n(&hi, __ATOMIC_ACQUIRE) && e > __atomic_load_n(&lo, __ATOMIC_ACQUIRE)) {
+        pthread_rwlock_wrlock(&rw);
+        cut(s, e);
+        bounds();
+        pthread_rwlock_unlock(&rw);
     }
     return r;
 }
