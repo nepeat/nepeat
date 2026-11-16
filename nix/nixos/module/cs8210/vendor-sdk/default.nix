@@ -172,6 +172,16 @@ in
         the same mode here and in innoviumPorts.
       '';
     };
+    phyPostLoad = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "/etc/cs8210-macsec.cmd";
+      description = ''
+        phy_shell command file, as a path inside the SDK chroot, that
+        cs8210-switch-up loads after the Credo bring-up (for example static
+        MACsec SAs). Kept on the box, not in the Nix store: it holds keys.
+      '';
+    };
     innoviumPorts = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = null;
@@ -213,6 +223,9 @@ in
         }
         // lib.optionalAttrs (cfg.credoPorts != null) {
           CS8210_CREDO_PORTS = cfg.credoPorts;
+        }
+        // lib.optionalAttrs (cfg.phyPostLoad != null) {
+          CS8210_PHY_POSTLOAD = cfg.phyPostLoad;
         };
       serviceConfig = {
         Type = "oneshot";

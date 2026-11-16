@@ -54,6 +54,11 @@ credo="1-32:optics_${media}:fec-def"
 # e.g. "1:optics_1x400G;2:copper_4x10G;3-32:optics_1x400G". A breakout on a
 # Credo port needs the same mode on both sides. MACsec mode stays $MACSEC.
 credo=${CS8210_CREDO_PORTS:-$credo}
+# Optional phy_shell command file (path inside the SDK chroot) loaded after
+# the Credo bring-up, e.g. static MACsec SAs from ai_re's
+# scripts/credo_macsec.py (macsec-400g.md). Keys stay on the box, outside
+# the Nix store.
+postload=${CS8210_PHY_POSTLOAD:-}
 
 if [ ! -c /dev/ipd ]; then
   echo "cs8210-switch-up: /dev/ipd missing (ipd module not loaded with legacy_abi=1?)" >&2
@@ -170,6 +175,14 @@ cs8210-sdk-chroot /bin/bash -c "
         (cd c-phy && ./phy_shell \"double_CRC \$s \$p enable=0\" >/dev/null) ||
           echo \"cs8210-switch-up: double_CRC off failed for \$s \$p\" >&2
       done
+  fi
+  if [ -n '$postload' ]; then
+    if [ -f '$postload' ]; then
+      (cd c-phy && ./phy_shell load cfgfile='$postload' >/dev/null) ||
+        echo 'cs8210-switch-up: phy_shell load $postload failed' >&2
+    else
+      echo 'cs8210-switch-up: CS8210_PHY_POSTLOAD $postload not found in the chroot' >&2
+    fi
   fi
   # devport 129: the 10G AUX lane wired to the CPU card's second NIC
   # (enp0s3). The vendor config defines it but leaves it disabled.
