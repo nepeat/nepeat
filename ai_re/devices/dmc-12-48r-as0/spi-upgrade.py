@@ -806,7 +806,11 @@ def mode_write(a, st, img, unknown):
         st["running"] = running_slot(a, new)        # which IPXE copy really runs
         if st["running"] != f"ipxe{st['inst']}":
             raise Fail(f"BOOT_MODE selects IPXE {st['inst']} but {st['running']} is running")
-        wait_boot(a, {}, 300, want_ours=True, after="=> boot")
+        deadline = time.monotonic() + 300               # `boot` typed at our prompt: only the login
+        while not re.search(r"root@dmc12[^\n]*#", since("=> boot")):
+            if time.monotonic() > deadline:
+                raise Fail("no NixOS login after `boot` at our prompt")
+            time.sleep(1)
         escape(a, st)
 
 
