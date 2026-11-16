@@ -27,7 +27,10 @@ CHECKS = [
     ("i2c-numbering", "cat /sys/bus/i2c/devices/i2c-4/name /sys/bus/i2c/devices/i2c-8/name", lambda o: "chan_id 3" in o and o.count("chan_id 3") == 2, "i2c-4 = 0x70 ch3, i2c-8 = 0x71 ch3"),
     ("sensors", "cat /sys/bus/i2c/devices/5-004a/hwmon/*/temp1_input /sys/bus/i2c/devices/7-0048/hwmon/*/temp1_input /sys/bus/i2c/devices/7-0049/hwmon/*/temp1_input", lambda o: len(o.split()) == 3 and all(15000 < int(x) < 75000 for x in o.split()), "3 temps, 15..75 C"),
     ("gpio-names", "gpioinfo | grep -c -E '\"CPLD_(INT_N|JTAG_EN)\"' || true", lambda o: o.strip() == "2", "named CPLD lines"),
-    ("spi-nor", "grep -c spi /proc/mtd", lambda o: o.strip() == "2", "both SPI NOR (read-only)"),
+    # MTD_WRITEABLE = 0x400: only our U-Boot's env window (boards/dmc12/uboot-env DT overlay).
+    ("spi-nor", "for d in /sys/class/mtd/mtd[0-9]*; do case $d in *ro) continue;; esac; echo \"$(cat $d/name)=$(cat $d/flags)\"; done | sort | tr '\\n' ' '",
+     lambda o: o.split() == ["spi0-boot=0x800", "spi0-tail=0x800", "spi1-alt=0x800", "u-boot-env=0xc00"],
+     "SPI NOR partitions: only u-boot-env writable"),
     ("watchdog", "cat /sys/class/watchdog/watchdog0/identity", lambda o: "sp805" in o, "sp805 bound"),
     ("cpld", "i2cget -y 4 0x68 0x01", lambda o: o.strip() == "0x88", "CPLD answers (version 0x88 on u01)"),
     ("services", "for u in dmc12-interruptmon dmc12-onieeeprom dmc12-setphyspeed; do systemctl is-active $u; done; systemctl is-active dmc12-fancontrol fand 2>/dev/null | grep -c '^active$'",

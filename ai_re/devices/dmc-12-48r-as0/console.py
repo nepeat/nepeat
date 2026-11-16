@@ -42,7 +42,11 @@ while True:
     tail = text[len(base):] if text.startswith(base) else text
     # Done when new output ends in the prompt. The echoed command can wrap at
     # 80 columns, so drop the echo by line count, not by matching its text.
-    if tail.rstrip().endswith(args.prompt.rstrip()) and "\n" in tail.strip("\n"):
+    # The last line must end in the prompt, but not as part of U-Boot's "crc32 ... ==> " (printed
+    # just before the value: a capture in that gap would end in "=>" too).
+    last = tail.rstrip().splitlines()[-1].strip() if tail.strip() else ""
+    want = args.prompt.strip()
+    if last.endswith(want) and not last.endswith("=" + want) and "\n" in tail.strip("\n"):
         lines = tail.strip("\n").splitlines()
         echo = 0
         joined = ""
