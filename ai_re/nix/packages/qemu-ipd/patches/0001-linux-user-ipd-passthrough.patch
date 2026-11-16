@@ -1,0 +1,457 @@
+diff --git a/accel/tcg/user-exec.c b/accel/tcg/user-exec.c
+index a35aca788..19379fad1 100644
+--- a/accel/tcg/user-exec.c
++++ b/accel/tcg/user-exec.c
+@@ -30,6 +30,7 @@
+ #include "accel/tcg/probe.h"
+ #include "user/cpu_loop.h"
+ #include "user/guest-host.h"
++#include "user/ipd-hook.h"
+ #include "qemu/main-loop.h"
+ #include "user/page-protection.h"
+ #include "exec/page-protection.h"
+@@ -1220,6 +1221,8 @@ uint64_t cpu_ldq_code_mmu(CPUArchState *env, vaddr addr,
+ /*
+  * Do not allow unaligned operations to proceed.  Return the host address.
+  */
++bool (*user_atomic_check_hook)(vaddr addr, int size);
++
+ static void *atomic_mmu_lookup(CPUState *cpu, vaddr addr, MemOpIdx oi,
+                                int size, uintptr_t retaddr)
+ {
+@@ -1237,6 +1240,12 @@ static void *atomic_mmu_lookup(CPUState *cpu, vaddr addr, MemOpIdx oi,
+         cpu_loop_exit_atomic(cpu, retaddr);
+     }
+ 
++    /* qemu-ipd: no exclusive load/store pairs on device memory: fault */
++    if (unlikely(user_atomic_check_hook) &&
++        user_atomic_check_hook(addr, size)) {
++        cpu_loop_exit_sigbus(cpu, addr, MMU_DATA_STORE, retaddr);
++    }
++
+     ret = g2h_vaddr(cpu, addr);
+     set_helper_retaddr(retaddr);
+     return ret;
+diff --git a/include/user/ipd-hook.h b/include/user/ipd-hook.h
+new file mode 100644
+index 000000000..f88f4bc82
+--- /dev/null
++++ b/include/user/ipd-hook.h
+@@ -0,0 +1,11 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/* qemu-ipd: hook into the user-mode atomic helpers (linux-user/ipd.c) */
++#ifndef USER_IPD_HOOK_H
++#define USER_IPD_HOOK_H
++
++#include "exec/vaddr.h"
++
++/* Set by linux-user; true = do not perform this guest atomic: guest fault. */
++extern bool (*user_atomic_check_hook)(vaddr addr, int size);
++
++#endif
+diff --git a/linux-user/ipd.c b/linux-user/ipd.c
+new file mode 100644
+index 000000000..446933578
+--- /dev/null
++++ b/linux-user/ipd.c
+@@ -0,0 +1,277 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/*
++ * qemu-ipd: pass the Marvell/Innovium switch ASIC driver (/dev/ipd*) through
++ * to the host, for an x86_64 guest on a 64-bit little-endian host (ai_re,
++ * nix/packages/qemu-ipd).
++ *
++ * ioctl: the ipd argument structures have the same layout on x86_64 and
++ * aarch64 (LP64, natural alignment; the qemu-ipd layout test compares both
++ * ABIs), the command numbers use the same asm-generic encoding, and several
++ * structures carry user pointers.  With guest_base == 0 a guest address is
++ * the host address, so the command, the argument (pointer or integer) and
++ * every pointer inside the structure are passed on unchanged.  With any
++ * other guest_base the commands are refused (ENOTTY) instead of guessed.
++ * Only fds of the "ipd" character device major (from /proc/devices) and
++ * only commands of type 'I' are claimed; everything else takes the normal
++ * path, so an unknown ioctl on another device still gets ENOTTY.
++ *
++ * mmap: mappings of an ipd fd (BAR0 and the DMA pool, Device memory on
++ * arm64) are recorded.  A guest atomic read-modify-write on them would be an
++ * exclusive load/store pair on the host, which device memory does not
++ * support (a bus error at best, an SError at worst): the atomic helper hook
++ * faults the guest before the host touches the address (through
++ * cpu_loop_exit_sigbus; an x86 guest sees what its kernel gives for a
++ * faulting locked access, SIGSEGV with SI_KERNEL).
++ *
++ * Environment:
++ *   QEMU_IPD_TRACE=1      log every ipd ioctl and mmap to stderr
++ *   QEMU_IPD_STRICT=1     device-safe code generation (tcg_ipd_strict):
++ *                         barriers in single-threaded code too, outer
++ *                         shareable (DMB OSH) on aarch64, and 16-byte SSE
++ *                         accesses as two 8-byte halves (never LDXP/STXP)
++ *   QEMU_IPD_TEST_PATH=p  tests only: also treat fds whose path is p as ipd
++ */
++#include "qemu/osdep.h"
++#include <sys/ioctl.h>
++#include <sys/sysmacros.h>
++#include "qemu.h"
++#include "user/guest-base.h"
++#include "user/ipd-hook.h"
++#include "tcg/tcg.h"
++#include "qemu/thread.h"
++#include "ipd.h"
++
++#if defined(TARGET_X86_64) && HOST_LONG_BITS == 64 && !HOST_BIG_ENDIAN
++#define IPD_SUPPORTED 1
++#else
++#define IPD_SUPPORTED 0
++#endif
++
++#define IPD_MAX_MAPS 256
++/* ipd 0.16.x defines commands 1..40; Marvell's 0.16.5+ adds 41..43 */
++#define IPD_IOC_NR_MAX 43
++
++typedef struct IpdMap {
++    abi_ulong start;            /* guest == host address (guest_base 0) */
++    abi_ulong end;              /* exclusive; start == end: free slot */
++} IpdMap;
++
++static IpdMap ipd_maps[IPD_MAX_MAPS];
++static int ipd_nmaps;           /* slots in use are below this */
++static QemuMutex ipd_lock;
++static bool ipd_trace;
++static const char *ipd_test_path;
++static int ipd_major = -1;
++static bool ipd_warned_base;
++
++static int ipd_read_major(void)
++{
++    FILE *f = fopen("/proc/devices", "r");
++    char line[128], name[64];
++    bool chr = false;
++    int major = -1, m;
++
++    if (!f) {
++        return -1;
++    }
++    while (fgets(line, sizeof(line), f)) {
++        if (!strncmp(line, "Character devices:", 18)) {
++            chr = true;
++        } else if (!strncmp(line, "Block devices:", 14)) {
++            chr = false;
++        } else if (chr && sscanf(line, "%d %63s", &m, name) == 2 &&
++                   !strcmp(name, "ipd")) {
++            major = m;
++        }
++    }
++    fclose(f);
++    return major;
++}
++
++static bool ipd_fd_is_ipd(int fd)
++{
++    struct stat st;
++
++    if (!IPD_SUPPORTED || fd < 0) {
++        return false;
++    }
++    if (ipd_test_path) {
++        char link[64], path[PATH_MAX];
++        ssize_t n;
++
++        snprintf(link, sizeof(link), "/proc/self/fd/%d", fd);
++        n = readlink(link, path, sizeof(path) - 1);
++        if (n > 0) {
++            path[n] = 0;
++            if (!strcmp(path, ipd_test_path)) {
++                return true;
++            }
++        }
++    }
++    if (fstat(fd, &st) || !S_ISCHR(st.st_mode)) {
++        return false;
++    }
++    if (ipd_major < 0) {
++        /* the driver may have been loaded after we started */
++        ipd_major = ipd_read_major();
++    }
++    return ipd_major >= 0 && major(st.st_rdev) == (unsigned)ipd_major;
++}
++
++bool ipd_claims_ioctl(int fd, unsigned int cmd)
++{
++    return _IOC_TYPE(cmd) == IPD_IOC_MAGIC && ipd_fd_is_ipd(fd);
++}
++
++abi_long ipd_ioctl_check(int fd, unsigned int cmd)
++{
++    if (guest_base != 0) {
++        if (!ipd_warned_base) {
++            ipd_warned_base = true;
++            fprintf(stderr, "qemu-ipd: guest_base is 0x%lx, not 0: ipd ioctls "
++                    "carry pointers and are refused (run with -B 0)\n",
++                    (unsigned long)guest_base);
++        }
++        return -TARGET_ENOTTY;
++    }
++    if (_IOC_NR(cmd) < 1 || _IOC_NR(cmd) > IPD_IOC_NR_MAX) {
++        fprintf(stderr, "qemu-ipd: fd %d: unknown ipd ioctl 0x%08x refused\n",
++                fd, cmd);
++        return -TARGET_ENOTTY;
++    }
++    return 0;
++}
++
++void ipd_trace_ioctl(int fd, unsigned int cmd, abi_ulong arg, abi_long ret)
++{
++    if (ipd_trace) {
++        fprintf(stderr, "qemu-ipd: ioctl fd %d cmd 0x%08x nr %u arg 0x%lx = %ld\n",
++                fd, cmd, _IOC_NR(cmd), (unsigned long)arg, (long)ret);
++    }
++}
++
++/* Remove [start, end) from the table, splitting a mapping if needed. */
++static void ipd_cut_locked(abi_ulong start, abi_ulong end)
++{
++    int i, n = ipd_nmaps;
++
++    for (i = 0; i < n; i++) {
++        IpdMap *m = &ipd_maps[i];
++        abi_ulong ms = m->start, me = m->end;
++
++        if (ms == me || end <= ms || start >= me) {
++            continue;
++        }
++        if (start <= ms && end >= me) {
++            qatomic_set(&m->end, ms);                  /* all of it */
++        } else if (start <= ms) {
++            qatomic_set(&m->start, end);               /* head */
++        } else if (end >= me) {
++            qatomic_set(&m->end, start);               /* tail */
++        } else {
++            int j;                                     /* middle: split */
++            for (j = 0; j < IPD_MAX_MAPS; j++) {
++                if (j >= ipd_nmaps || ipd_maps[j].start == ipd_maps[j].end) {
++                    break;
++                }
++            }
++            if (j == IPD_MAX_MAPS) {
++                fprintf(stderr, "qemu-ipd: device map table full\n");
++                abort();
++            }
++            qatomic_set(&ipd_maps[j].start, end);
++            qatomic_set(&ipd_maps[j].end, me);
++            qatomic_set(&m->end, start);
++            if (j >= ipd_nmaps) {
++                qatomic_set(&ipd_nmaps, j + 1);
++            }
++        }
++    }
++}
++
++void ipd_note_mmap(abi_ulong start, abi_ulong len, int fd, off_t offset,
++                   int flags)
++{
++    int i;
++    bool dev = !(flags & MAP_ANONYMOUS) && ipd_fd_is_ipd(fd);
++
++    qemu_mutex_lock(&ipd_lock);
++    /* MAP_FIXED over an old device mapping replaces it */
++    ipd_cut_locked(start, start + len);
++    if (dev) {
++        for (i = 0; i < IPD_MAX_MAPS; i++) {
++            if (i >= ipd_nmaps || ipd_maps[i].start == ipd_maps[i].end) {
++                break;
++            }
++        }
++        if (i == IPD_MAX_MAPS) {
++            fprintf(stderr, "qemu-ipd: device map table full\n");
++            abort();
++        }
++        qatomic_set(&ipd_maps[i].end, start);    /* keep it empty while set */
++        qatomic_set(&ipd_maps[i].start, start);
++        qatomic_set(&ipd_maps[i].end, start + len);
++        if (i >= ipd_nmaps) {
++            qatomic_set(&ipd_nmaps, i + 1);
++        }
++    }
++    qemu_mutex_unlock(&ipd_lock);
++
++    if (dev && qemu_real_host_page_size() != TARGET_PAGE_SIZE) {
++        fprintf(stderr, "qemu-ipd: host page size %d != guest %d: device "
++                "mappings are not 1:1\n", (int)qemu_real_host_page_size(),
++                (int)TARGET_PAGE_SIZE);
++    }
++    if (dev && ipd_trace) {
++        fprintf(stderr, "qemu-ipd: mmap fd %d off 0x%llx len 0x%lx at 0x%lx\n",
++                fd, (unsigned long long)offset, (unsigned long)len,
++                (unsigned long)start);
++    }
++}
++
++void ipd_note_munmap(abi_ulong start, abi_ulong len)
++{
++    qemu_mutex_lock(&ipd_lock);
++    ipd_cut_locked(start, start + len);
++    qemu_mutex_unlock(&ipd_lock);
++}
++
++/* user_atomic_check_hook: true = the access must not reach the host */
++static bool ipd_atomic_check(vaddr addr, int size)
++{
++    int i, n = qatomic_read(&ipd_nmaps);
++
++    for (i = 0; i < n; i++) {
++        abi_ulong s = qatomic_read(&ipd_maps[i].start);
++        abi_ulong e = qatomic_read(&ipd_maps[i].end);
++
++        if (addr < e && addr + size > s) {
++            fprintf(stderr, "qemu-ipd: guest atomic access (%d bytes) at 0x%lx "
++                    "in device map [0x%lx, 0x%lx): guest fault instead\n", size,
++                    (unsigned long)addr, (unsigned long)s, (unsigned long)e);
++            return true;
++        }
++    }
++    return false;
++}
++
++void ipd_init(void)
++{
++    const char *s;
++
++    qemu_mutex_init(&ipd_lock);
++    s = getenv("QEMU_IPD_TRACE");
++    ipd_trace = s && *s && strcmp(s, "0");
++    s = getenv("QEMU_IPD_STRICT");
++    tcg_ipd_strict = s && *s && strcmp(s, "0");
++    s = getenv("QEMU_IPD_TEST_PATH");
++    ipd_test_path = s && *s ? s : NULL;
++    if (IPD_SUPPORTED) {
++        user_atomic_check_hook = ipd_atomic_check;
++    }
++    if (ipd_trace) {
++        fprintf(stderr, "qemu-ipd: passthrough %s, strict %d, ipd major %d\n",
++                IPD_SUPPORTED ? "on" : "off (unsupported target/host)",
++                tcg_ipd_strict, ipd_read_major());
++    }
++}
+diff --git a/linux-user/ipd.h b/linux-user/ipd.h
+new file mode 100644
+index 000000000..1928e7030
+--- /dev/null
++++ b/linux-user/ipd.h
+@@ -0,0 +1,23 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/*
++ * qemu-ipd: pass the Marvell/Innovium switch ASIC driver (/dev/ipd*) through
++ * to the host, for an x86_64 guest on a 64-bit little-endian host.
++ * See linux-user/ipd.c.
++ */
++#ifndef LINUX_USER_IPD_H
++#define LINUX_USER_IPD_H
++
++/* ioctl type ('I') of every ipd command (IFCS_IPD_MAGIC) */
++#define IPD_IOC_MAGIC 'I'
++
++void ipd_init(void);
++/* true: cmd is an ipd ioctl on an ipd fd; do_ioctl() must pass it through */
++bool ipd_claims_ioctl(int fd, unsigned int cmd);
++/* 0, or -TARGET_ENOTTY when the passthrough is not safe (guest_base != 0) */
++abi_long ipd_ioctl_check(int fd, unsigned int cmd);
++void ipd_trace_ioctl(int fd, unsigned int cmd, abi_ulong arg, abi_long ret);
++void ipd_note_mmap(abi_ulong start, abi_ulong len, int fd, off_t offset,
++                   int flags);
++void ipd_note_munmap(abi_ulong start, abi_ulong len);
++
++#endif
+diff --git a/linux-user/main.c b/linux-user/main.c
+index 60a695b7c..4fbaeb657 100644
+--- a/linux-user/main.c
++++ b/linux-user/main.c
+@@ -57,6 +57,7 @@
+ #include "loader.h"
+ #include "user-mmap.h"
+ #include "tcg/perf.h"
++#include "ipd.h"
+ #include "exec/page-vary.h"
+ 
+ #ifdef CONFIG_SEMIHOSTING
+@@ -735,6 +736,7 @@ int main(int argc, char **argv, char **envp)
+     qemu_plugin_add_opts();
+ 
+     optind = parse_args(argc, argv);
++    ipd_init();
+ 
+     qemu_set_log_filename_flags(last_log_filename,
+                                 last_log_mask | (enable_strace * LOG_STRACE),
+diff --git a/linux-user/meson.build b/linux-user/meson.build
+index 332847a62..bbea85372 100644
+--- a/linux-user/meson.build
++++ b/linux-user/meson.build
+@@ -11,6 +11,7 @@ linux_user_ss.add(files(
+   'elfload.c',
+   'exit.c',
+   'fd-trans.c',
++  'ipd.c',
+   'linuxload.c',
+   'main.c',
+   'mmap.c',
+diff --git a/linux-user/mmap.c b/linux-user/mmap.c
+index cc0c2ee6c..45cfe563c 100644
+--- a/linux-user/mmap.c
++++ b/linux-user/mmap.c
+@@ -28,6 +28,7 @@
+ #include "user-internals.h"
+ #include "user-mmap.h"
+ #include "target_mman.h"
++#include "ipd.h"
+ #include "qemu/interval-tree.h"
+ 
+ #ifdef TARGET_ARM
+@@ -1009,6 +1010,10 @@ abi_long target_mmap(abi_ulong start, abi_ulong len, int target_prot,
+ 
+     mmap_unlock();
+ 
++    if (ret != -1) {
++        ipd_note_mmap(ret, len, fd, offset, flags);
++    }
++
+     /*
+      * If we're mapping shared memory, ensure we generate code for parallel
+      * execution and flush old translations.  This will work up to the level
+@@ -1103,6 +1108,9 @@ int target_munmap(abi_ulong start, abi_ulong len)
+         shm_region_rm_complete(start, start + len - 1);
+     }
+     mmap_unlock();
++    if (likely(ret == 0)) {
++        ipd_note_munmap(start, len);
++    }
+ 
+     return ret;
+ }
+diff --git a/linux-user/syscall.c b/linux-user/syscall.c
+index 9f454502c..0b776c888 100644
+--- a/linux-user/syscall.c
++++ b/linux-user/syscall.c
+@@ -145,6 +145,7 @@
+ #include "special-errno.h"
+ #include "qapi/error.h"
+ #include "fd-trans.h"
++#include "ipd.h"
+ #include "user/cpu_loop.h"
+ 
+ #if defined(__powerpc__)
+@@ -5704,6 +5705,16 @@ static abi_long do_ioctl(int fd, int cmd, abi_long arg)
+     int target_size;
+     void *argptr;
+ 
++    /* qemu-ipd: /dev/ipd* commands go to the host unchanged (linux-user/ipd.c) */
++    if (ipd_claims_ioctl(fd, cmd)) {
++        ret = ipd_ioctl_check(fd, cmd);
++        if (ret == 0) {
++            ret = get_errno(safe_ioctl(fd, cmd, arg));
++        }
++        ipd_trace_ioctl(fd, cmd, arg, ret);
++        return ret;
++    }
++
+     ie = ioctl_entries;
+     for(;;) {
+         if (ie->target_cmd == 0) {

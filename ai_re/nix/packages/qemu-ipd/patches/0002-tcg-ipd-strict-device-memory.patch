@@ -1,0 +1,96 @@
+diff --git a/include/tcg/tcg.h b/include/tcg/tcg.h
+index 7669dc1c2..fd6a58ac8 100644
+--- a/include/tcg/tcg.h
++++ b/include/tcg/tcg.h
+@@ -446,6 +446,13 @@ static inline bool temp_readonly(TCGTemp *ts)
+ }
+ 
+ extern __thread TCGContext *tcg_ctx;
++/*
++ * qemu-ipd (linux-user/ipd.c, QEMU_IPD_STRICT): code generation that is safe
++ * on device memory: memory barriers also in single-threaded code, outer
++ * shareable on hosts that distinguish, and no 16-byte single-copy atomicity
++ * for guest vector accesses (two 8-byte halves).
++ */
++extern bool tcg_ipd_strict;
+ extern const void *tcg_code_gen_epilogue;
+ extern ptrdiff_t tcg_splitwx_diff;
+ extern TCGv_env tcg_env;
+diff --git a/target/i386/tcg/translate.c b/target/i386/tcg/translate.c
+index 2115c5cd2..16b2c7bf6 100644
+--- a/target/i386/tcg/translate.c
++++ b/target/i386/tcg/translate.c
+@@ -2096,7 +2096,11 @@ static inline void gen_stq_env_A0(DisasContext *s, int offset)
+ 
+ static inline void gen_ldo_env_A0(DisasContext *s, int offset, bool align)
+ {
+-    MemOp atom = (s->cpuid_ext_features & CPUID_EXT_AVX
++    /*
++     * qemu-ipd: an aligned 16-byte atomic access is an LDXP/STXP loop on
++     * hosts without LSE2 (a read becomes a write-back): not on device memory.
++     */
++    MemOp atom = (s->cpuid_ext_features & CPUID_EXT_AVX && !tcg_ipd_strict
+                   ? MO_ATOM_IFALIGN : MO_ATOM_IFALIGN_PAIR);
+     MemOp mop = MO_128 | MO_LE | atom | (align ? MO_ALIGN_16 : 0);
+     int mem_index = s->mem_index;
+@@ -2108,7 +2112,11 @@ static inline void gen_ldo_env_A0(DisasContext *s, int offset, bool align)
+ 
+ static inline void gen_sto_env_A0(DisasContext *s, int offset, bool align)
+ {
+-    MemOp atom = (s->cpuid_ext_features & CPUID_EXT_AVX
++    /*
++     * qemu-ipd: an aligned 16-byte atomic access is an LDXP/STXP loop on
++     * hosts without LSE2 (a read becomes a write-back): not on device memory.
++     */
++    MemOp atom = (s->cpuid_ext_features & CPUID_EXT_AVX && !tcg_ipd_strict
+                   ? MO_ATOM_IFALIGN : MO_ATOM_IFALIGN_PAIR);
+     MemOp mop = MO_128 | MO_LE | atom | (align ? MO_ALIGN_16 : 0);
+     int mem_index = s->mem_index;
+diff --git a/tcg/aarch64/tcg-target.c.inc b/tcg/aarch64/tcg-target.c.inc
+index cc9c2a515..6606291af 100644
+--- a/tcg/aarch64/tcg-target.c.inc
++++ b/tcg/aarch64/tcg-target.c.inc
+@@ -1590,7 +1590,16 @@ static void tcg_out_mb(TCGContext *s, unsigned a0)
+         [TCG_MO_LD_ST]                = DMB_ISH | DMB_LD,
+         [TCG_MO_LD_ST | TCG_MO_LD_LD] = DMB_ISH | DMB_LD,
+     };
+-    tcg_out32(s, sync[a0 & TCG_MO_ALL]);
++    uint32_t insn = sync[a0 & TCG_MO_ALL];
++
++    /*
++     * qemu-ipd: order against PCIe devices too (what Linux uses before an
++     * MMIO access, dma_wmb()/dma_rmb()): DMB OSH{,LD,ST} = clear CRm bit 3.
++     */
++    if (tcg_ipd_strict) {
++        insn &= ~0x800;
++    }
++    tcg_out32(s, insn);
+ }
+ 
+ typedef struct {
+diff --git a/tcg/tcg-op.c b/tcg/tcg-op.c
+index 4d15d1abb..0c12d9b0b 100644
+--- a/tcg/tcg-op.c
++++ b/tcg/tcg-op.c
+@@ -300,7 +300,8 @@ void tcg_gen_mb(TCGBar mb_type)
+     bool parallel = true;
+ #endif
+ 
+-    if (parallel) {
++    /* qemu-ipd: the device is a second observer even with one guest thread */
++    if (parallel || tcg_ipd_strict) {
+         tcg_gen_op1(INDEX_op_mb, 0, mb_type);
+     }
+ }
+diff --git a/tcg/tcg.c b/tcg/tcg.c
+index db43589fa..3e04cd91d 100644
+--- a/tcg/tcg.c
++++ b/tcg/tcg.c
+@@ -238,6 +238,7 @@ static TCGAtomAlign atom_and_align_for_opc(TCGContext *s, MemOp opc,
+ 
+ TCGContext tcg_init_ctx;
+ __thread TCGContext *tcg_ctx;
++bool tcg_ipd_strict;
+ 
+ TCGContext **tcg_ctxs;
+ unsigned int tcg_cur_ctxs;
