@@ -67,10 +67,11 @@ def _cs0_model_crc(unit="u01"):
     img, unknown = m.model(unit)
     if unknown:
         raise SystemExit(f"spi-upgrade journal has unknown ranges {unknown}: spi-upgrade.py status first")
-    return f"{zlib.crc32(img):08x}"
+    lo, hi = m.ENV_WINDOW            # our U-Boot's env: humans change it, never compared
+    return f"{zlib.crc32(bytes(img[:lo])):08x}", f"{zlib.crc32(bytes(img[hi:m.MODEL_END])):08x}"
 
 
-CRC_CS0_BELOW_ENV = _cs0_model_crc()
+CRC_CS0_BELOW_WINDOW, CRC_CS0_WINDOW_TO_ENV = _cs0_model_crc()
 CRC_CS1_FULL = "db9e4937"        # mtd1[0:0x1000000]
 CRC_CS1_BELOW_ENV = "3d086ac6"   # mtd1[0:0xfd0000]
 SELFINIT_STEPS = [
@@ -81,7 +82,8 @@ SELFINIT_STEPS = [
     # SPI NOR, read-only build: probe writes nothing, only read opcodes leave the SSI
     ("sf probe 0:0", "mx25u12835f"),
     ("sf read 0x40000000 0 0xfd0000", "Read: OK"),
-    ("crc32 0x40000000 0xfd0000", "==> " + CRC_CS0_BELOW_ENV),
+    ("crc32 0x40000000 0xf90000", "==> " + CRC_CS0_BELOW_WINDOW),
+    ("crc32 0x40fb0000 0x20000", "==> " + CRC_CS0_WINDOW_TO_ENV),
     ("sf probe 0:1", "mx25u12835f"),
     ("sf read 0x40000000 0 0x1000000", "Read: OK"),
     ("crc32 0x40000000 0xfd0000", "==> " + CRC_CS1_BELOW_ENV),
