@@ -6,7 +6,8 @@
   (`hardware.dmc12.bootLoader = "standard"`, installed with `reimage.py`).
 - **Fans: fand** (python script retired 2026-11-15; failsafe/stop = 100 %).
 - **Serial ports on the network: `consoled`** (`rust/consoled`, `boards/dmc12/console-server.nix`):
-  `ssh -t console@10.60.2.10 P12` (one writer, others watch; `watch P12` read-only; `ssh console@…` lists);
+  on the box `line` (menu; `line list|info|watch|attach|log PORT`), remote `ssh -t console@10.60.2.10 [watch] P12`
+  (`ssh -t console@…` = the menu); one writer, others watch;
   1 MiB RAM scrollback per port, lost on a consoled restart. P1 = cs8210, P48 = as7760 (115200).
 - **Full Nix system (`profile-rebuildable`):** deploy in place with `./deploy.sh 10.60.2.10 [switch|boot]`
   (root flake, so fand is in; copies only new paths), generations in the extlinux menu, rollback on
