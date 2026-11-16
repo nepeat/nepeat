@@ -1,0 +1,119 @@
+# CS8210 vendor U-Boot read-only checks (vendor-uboot.md "Read-only checks"), 2026-11-15, console DMC-12 P1
+
+=> md.l 0xfd8983fc 1; md.l 0xfd898400 1
+fd8983fc: 000000eb                               ....
+fd898400: 000000fc                               ....
+
+=> pci header 01.00.00
+  vendor ID =                   0x1d98
+  device ID =                   0x1b58
+  command register ID =         0x0006
+  status register =             0x0010
+  revision ID =                 0x10
+  class code =                  0x02 (Network controller)
+  sub class code =              0x00
+  programming interface =       0x00
+  cache line =                  0x08
+  latency time =                0x00
+  header type =                 0x00
+  BIST =                        0x00
+  base address 0 =              0xc0000004
+  base address 1 =              0x00000000
+  base address 2 =              0x00000000
+  base address 3 =              0x00000000
+  base address 4 =              0x00000000
+  base address 5 =              0x00000000
+  cardBus CIS pointer =         0x00000000
+  sub system vendor ID =        0x1d98
+  sub system ID =               0x0000
+  expansion ROM base address =  0x00000000
+  interrupt line =              0xff
+  interrupt pin =               0x01
+  min Grant =                   0x00
+  max Latency =                 0x00
+
+=> pci header 02.00.00
+  vendor ID =                   0x1d0f
+  device ID =                   0x8571
+  command register ID =         0x0000
+  status register =             0x0010
+  revision ID =                 0x01
+  class code =                  0x05 (Memory controller)
+  sub class code =              0x80
+  programming interface =       0x00
+  cache line =                  0x08
+  latency time =                0x00
+  header type =                 0x00
+  BIST =                        0x00
+  base address 0 =              0xc8000000
+  base address 1 =              0xc8100000
+  base address 2 =              0xc8200000
+  base address 3 =              0x00000000
+  base address 4 =              0x00000000
+  base address 5 =              0x00000000
+  cardBus CIS pointer =         0x00000000
+  sub system vendor ID =        0x0000
+  sub system ID =               0x0000
+  expansion ROM base address =  0x00000000
+  interrupt line =              0xff
+  interrupt pin =               0x01
+  min Grant =                   0x00
+  max Latency =                 0x00
+
+=> pci header 03.00.00
+  vendor ID =                   0x1d0f
+  device ID =                   0xec30
+  command register ID =         0x0000
+  status register =             0x0010
+  revision ID =                 0x00
+  class code =                  0x02 (Network controller)
+  sub class code =              0x00
+  programming interface =       0x00
+  cache line =                  0x08
+  latency time =                0x00
+  header type =                 0x00
+  BIST =                        0x00
+  base address 0 =              0xe0000000
+  base address 1 =              0x00200000
+  base address 2 =              0x00000000
+  base address 3 =              0x00000000
+  base address 4 =              0x00000000
+  base address 5 =              0x00000000
+  cardBus CIS pointer =         0x00000000
+  sub system vendor ID =        0x1204
+  sub system ID =               0x3010
+  expansion ROM base address =  0x00000000
+  interrupt line =              0xff
+  interrupt pin =               0x01
+  min Grant =                   0x00
+  max Latency =                 0x00
+
+=> i2c dev 3; i2c mw 0x74 0 1; i2c mw 0x72 0 4; i2c md 0x62 0x20 1; i2c md 0x62 0x21.1 2; i2c md 0x62 0x8b.1 2; i2c mw 0x72 0 0; i2c mw 0x74 0 0
+Setting bus to 3
+0020: 16    .
+0021: 33 03    3.
+008b: 33 03    3.
+
+=> i2c dev 3; i2c mw 0x74 0 1; i2c mw 0x71 0 4; i2c md 0x60 0x09 1; i2c md 0x60 0x20 1; i2c md 0x60 0x40 1; i2c mw 0x71 0 0; i2c mw 0x74 0 0
+Setting bus to 3
+0009: 05    .
+0020: 7d    }
+0040: 40    @
+
+=> md.l 0xfd860b00 0x40
+fd860b00: 0111001e 40000000 01000100 04000010    .......@........
+fd860b10: 0201e847 00000000 00000000 c0020711    G...............
+fd860b20: 00040006 00180018 04b00078 00040000    ........x.......
+fd860b30: 70780807 00780006 00090003 00000000    ..xp..x.........
+fd860b40: 0111001e 40000000 01000100 04000010    .......@........
+fd860b50: 0201e847 00000000 00000000 c0020711    G...............
+fd860b60: 00040006 00180018 04b00078 00040000    ........x.......
+fd860b70: 70780807 00780006 00090003 00000000    ..xp..x.........
+fd860b80: 0111001e 40000000 01000100 04000010    .......@........
+fd860b90: 0201e847 00000000 00000000 c0020711    G...............
+fd860ba0: 00040006 00180018 04b00078 00040000    ........x.......
+fd860bb0: 70780807 00780006 00090003 00000000    ..xp..x.........
+fd860bc0: 0111001e 40000000 01000100 04000010    .......@........
+fd860bd0: 0201e847 00000000 00000000 c0020711    G...............
+fd860be0: 00040006 00180018 04b00078 00040000    ........x.......
+fd860bf0: 70780807 00780006 00090003 00000000    ..xp..x.........

@@ -82,6 +82,13 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-15 — boot chain dissected; boot ROM dumped; vendor U-Boot checklist
+
+- [boot-chain.md](boot-chain.md): no signatures anywhere (stage2 unsigned, stage3/U-Boot byte sums only); recommended SPI scheme A' = second TOC at 0x20000 + BOOT_MODE + new app, factory TOC and UBOOT 0 untouched. General V3 notes: [../../alpine-v3-boot-chain.md](../../alpine-v3-boot-chain.md).
+- [vendor-uboot.md](vendor-uboot.md): 27-item checklist for a replacement; new vs the DMC-12: **ASIC AVS** (Teralynx fuses -> 0.8 V on the regulator at I2C 0x62, VOUT 0x0333), SPI mux flip in do_bootm_states, external PCIe link-up; SerDes is stage3's job. Its read-only checks all matched on the box: [vendor-uboot-checks-20261115.txt](vendor-uboot-checks-20261115.txt).
+- **Boot ROM dumped** at the vendor prompt: 0xfbff0000, 64 KiB, crc32 d1a98647 = U-Boot's `crc32`, sha256 7e1ec7ef55d1b851… (`analysis/boot-rom/`, git-ignored). Has `_stage2Load_loadToSramFromUart` / `xmodemReceive`. A single 64 KiB `md.l` lost ~57% of lines over the DMC-12 console (sustained output; consoled's ring too), so it was read in 1 KiB chunks, each checked against `crc32`.
+- SRAM handoff words as predicted (`0xfbfe0000` = 0, `0xfbfe00f8` = 0x01100000). Stage3 `p` key test inconclusive: the keys (sent after `Executing next` via tmux) arrived after stage3's single poll; retry by sending from stage2's banner.
+
 ### 2026-11-15 — secure boot is OFF (OTP read at the vendor prompt)
 
 - Rebooted to `ALPINE_DB>` (`123⏎`, 20 s after `systemctl reboot`), typed only read-only commands, booted NixOS again (up in 65 s). Evidence: [otp-readout-20261115.txt](otp-readout-20261115.txt) (sha256 733a3b54b497…).
