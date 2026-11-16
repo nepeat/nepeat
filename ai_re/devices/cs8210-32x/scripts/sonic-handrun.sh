@@ -12,6 +12,7 @@
 set -euo pipefail
 export PATH=/run/current-system/sw/bin:$PATH
 ST=/run/sonic-handrun
+FW_IFS="Ethernet+ PortChannel+ Vlan+ Vrf+"
 die() { echo "sonic-handrun: $*" >&2; exit 3; }
 units() { (cd "$1/etc/systemd/system" && ls -d redis-sonic.service sonic.target sonic.target.wants sonic-syncd.service.requires cs8210-sai-files.service sonic-*.service); }
 case ${1:-} in
@@ -46,14 +47,13 @@ up)
       echo /etc/$e >> $ST/etc
     fi
   done
-  # firewall: BGP and BFD on the front ports (the closure's frr.openFirewall)
-  for r in "-p tcp --dport 179" "-p udp --dport 3784" "-p udp --dport 4784" "-p udp --dport 3785"; do
-    iptables -I nixos-fw 1 -i Ethernet+ $r -j nixos-fw-accept
-    iptables -I nixos-fw 1 -i PortChannel+ $r -j nixos-fw-accept
+  # firewall: BGP and BFD on the switch interfaces (what the closure's
+  # frr/bfd openFirewall do when deployed); a VRF's local traffic reaches
+  # INPUT with the VRF device as its interface, hence Vrf+.
+  for r in "-p tcp --dport 179" "-p udp --dport 3784" "-p udp --dport 4784" "-p udp --dport 3785" "-p icmp"; do
+    for i in $FW_IFS; do iptables -I nixos-fw 1 -i $i $r -j nixos-fw-accept; done
     echo "$r" >> $ST/iptables
   done
-  iptables -I nixos-fw 1 -i Ethernet+ -p icmp -j nixos-fw-accept
-  iptables -I nixos-fw 1 -i PortChannel+ -p icmp -j nixos-fw-accept
   # the host lldpd holds /run/lldpd.socket (the closure disables it for SONiC's)
   if systemctl is-active -q lldpd; then systemctl stop lldpd; echo lldpd > $ST/stopped; fi
   mkdir -p /var/lib/sonic
@@ -77,11 +77,8 @@ down)
   for d in $(ip -o link show type team 2>/dev/null | awk -F': ' '{print $2}' | cut -d@ -f1); do ip link del "$d" || true; done
   for d in $(ip -o link show type vrf 2>/dev/null | awk -F': ' '{print $2}' | cut -d@ -f1); do ip link del "$d" || true; done
   while read -r r; do
-    iptables -D nixos-fw -i Ethernet+ $r -j nixos-fw-accept || true
-    iptables -D nixos-fw -i PortChannel+ $r -j nixos-fw-accept || true
+    for i in $FW_IFS; do iptables -D nixos-fw -i $i $r -j nixos-fw-accept 2>/dev/null || true; done
   done < $ST/iptables
-  iptables -D nixos-fw -i Ethernet+ -p icmp -j nixos-fw-accept || true
-  iptables -D nixos-fw -i PortChannel+ -p icmp -j nixos-fw-accept || true
   if [ -e $ST/stopped ]; then systemctl start lldpd || true; fi
   while read -r kv; do sysctl -qw "$kv"; done < $ST/sysctl
   if [ -e $ST/etc ]; then while read -r e; do rm -rf "$e"; done < $ST/etc; fi

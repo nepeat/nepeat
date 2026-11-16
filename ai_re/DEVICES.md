@@ -49,7 +49,7 @@ link the evidence.
 | BFD | yes: software (FRR bfdd), < 1 s BGP failover over the lab loop (2026-11-15) [^a2] | unknown | unknown | unknown | unknown |
 | KNET / CPU netdevs | yes: KNET TX/RX (2026-11-14) | yes: `fpp*` via ipd, ~1.6 Gb/s CPU path [^c3] | partial: netdevs exist, no traffic | partial: SDK/TAP, KNET compiled out [^b1] | unknown |
 | SAI | partial: sai-openbcm: ports, L2/VLAN/FDB, LAG, L3/VRF/ECMP, ingress ACL, policers, temperatures; no QoS, buffers, mirror, tunnels [^a2] | partial: our sai-teralynx (shared frontend + IFCS backend on the vendor libifcs.so): init, 32 ports, 400G loop up (2026-11-16); no LAG/ACL/traps yet [^c6] | no | no | no |
-| SONiC stack | partial: at boot as NixOS services: swss, FRR (BGP, static, BFD), pmon, LLDP, crash recovery on the chip (2026-11-15); no QoS, warm reboot [^a2] | built, not run: `hardware.cs8210.sonic` (off) [^c6] | no | no | no |
+| SONiC stack | partial: at boot as NixOS services: swss, FRR (BGP, static, BFD), pmon, LLDP, crash recovery on the chip (2026-11-15); no QoS, warm reboot [^a2] | partial: on our SAI on the chip (2026-11-16): VRF eBGP + BFD, LACP, ACL, QoS map, CoPP, counters, 2 h soak; started by hand, not at boot [^c6] | no | no | no |
 | fan control | yes: fand, board + ASIC zones [^a3] | yes: fand, board + ASIC die zones (2026-11-15) [^c4] | yes: fancontrol, PWM floor 96 | unknown | unknown |
 | ASIC temperature | yes: 8 PVTMON, also over SAI under syncd (2026-11-15) [^a3] | yes: MCP3425 diode (2026-11-10) [^c4] | unknown | unknown | unknown |
 | board sensors | yes: 4x LM75 [^a3] | yes: LM75s + I2C hwmon [^c4] | yes: tmp1075/ADT7473, 35-40 °C | unknown | unknown |

@@ -23,11 +23,13 @@
  },
  "INTERFACE": {
   "Ethernet0": {
-   "vrf_name": "Vrf-a"
+   "vrf_name": "Vrf-a",
+   "mac_addr": "02:00:00:00:0a:00"
   },
   "Ethernet0|10.0.0.0/31": {},
   "Ethernet120": {
-   "vrf_name": "Vrf-b"
+   "vrf_name": "Vrf-b",
+   "mac_addr": "02:00:00:00:0a:01"
   },
   "Ethernet120|10.0.0.1/31": {}
  },

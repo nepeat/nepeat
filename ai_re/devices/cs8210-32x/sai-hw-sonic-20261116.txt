@@ -1,0 +1,356 @@
+CS8210 SONiC end to end on the cage 1 <-> 16 400G loop, 2026-11-16 (box time PST)
+Closure /nix/store/yd2s1sasgpa3bz7widhdcsid3hll9lps-nixos-system-cs8210-sd-card-26.11.20261114.2f709fe (xcvrd on; later rebuilt with the firewall chains only: /nix/store/qj9q7saylgmb16kr919fsfa9c3cprl96-nixos-system-cs8210-sd-card-26.11.20261114.2f709fe).
+Started with devices/cs8210-32x/scripts/sonic-handrun.sh; configs devices/cs8210-32x/sonic-loop/.
+Tools on the box: redis-cli -s /run/redis/redis.sock, vtysh of the closure, openbcm-diag
+(-s /run/sai-teralynx/diag.sock), /run/{transit,udp,arp}.py (raw AF_PACKET frames, standard library).
+
+== Summary
+* config-a (routed ports) and config-b (PortChannels, LACP): Vrf-a <-> Vrf-b eBGP + BFD up, routes
+  offloaded both ways, loopback-to-loopback ping 0 % loss, ASIC transit routing 20/20 (TTL 5 -> 4),
+  ACL DROP 1000/1000 (500/500 on PortChannel2), DSCP 46 -> queue 5 500/500, CoPP ARP policer
+  600 pps: 20004 in, 838 green / 19164 red; port, queue, RIF, ACL counters and CRM in COUNTERS_DB.
+* 2 h soak (config-b, xcvrd on): 11 flaps (Ethernet0 / PortChannel1 admin down 30 s), every time
+  BGP 0/2 and BFD 0/2 while down, both back 1-7 s after admin up; ping 35361 sent, 1926 lost, all in
+  the 11 flap windows (162-189 each), none otherwise; RSS flat (syncd 331896 KB start = end,
+  orchagent +84 KB, redis +336 KB, bgpd +4 KB); BFD 11 down / 12 up events per peer; root port of the
+  I2C FPGA clean in all 1715 samples (5 s), no dead marker; xcvrd 38 s CPU in 2 h 6 min.
+  Raw log: sai-hw-sonic-soak-20261116.txt (sha256 b4eefb8850e7edbaa97e1ed6d55f35d88c9b01dde26f27c3beeeb957c237a99d).
+* Needed by hand (see sonic.md "Running SONiC by hand"): per-RIF mac_addr (SA = DA otherwise),
+  PortChannel system_mac, Vrf+ firewall rules, and these vtysh lines after bgpd starts (config-b):
+  vtysh -c "configure terminal" -c "router bgp 65100 vrf Vrf-b" -c "neighbor 10.0.1.0 local-as 65200 no-prepend replace-as" -c "address-family ipv4 unicast" -c "neighbor 10.0.1.0 allowas-in 1" -c "network 10.66.2.1/32" -c "end"
+  vtysh -c "configure terminal" -c "router bgp 65100 vrf Vrf-a" -c "neighbor 10.0.1.1 ebgp-multihop 2" -c "address-family ipv4 unicast" -c "network 10.66.1.1/32" -c "end"
+  vtysh -c "configure terminal" -c "router bgp 65100 vrf Vrf-a" -c "no neighbor 10.0.1.1 bfd" -c "neighbor 10.0.1.1 bfd" -c "end"
+  vtysh -c "configure terminal" -c "router bgp 65100 vrf Vrf-b" -c "no neighbor 10.0.1.0 bfd" -c "neighbor 10.0.1.0 bfd" -c "end"
+
+== VRF eBGP + BFD (after per-RIF MACs, local-as/allowas-in/multihop by hand)
+Session count: 2
+SessionId  LocalAddress                             PeerAddress                             Status          Profile             
+=========  ============                             ===========                             ======          =======             
+714213758  10.0.0.1                                 10.0.0.0                                up              -                   
+93464877   10.0.0.0                                 10.0.0.1                                up              -                   
+	peer 10.0.0.0 multihop local-address 10.0.0.1 vrf Vrf-b
+		Status: up
+	peer 10.0.0.1 multihop local-address 10.0.0.0 vrf Vrf-a
+		Status: up
+10.0.0.0        4      65100        91        93        0    0    0 00:00:43            0        0 vrf-a
+10.0.0.1        4      65200        95        92        0    0    0 00:00:43            0        0 vrf-b
+
+== BGP routes both ways, offloaded, ASIC route entries; loopback ping across the loop
+Loopback0        UNKNOWN        10.255.0.1/32 fe80::d4b0:1cff:fe2a:353f/64 
+Loopback1        UNKNOWN        10.66.1.1/32 fe80::fced:efff:fea4:e290/64 
+Loopback2        UNKNOWN        10.66.2.1/32 fe80::4006:2aff:fe1e:8388/64 
+Routing entry for 10.66.2.1/32
+  Known via "bgp", distance 20, metric 0, vrf Vrf-a, best
+  Last update 00:00:09 ago
+  Flags: Recursion Selected Offloaded 
+  Status: Installed 
+  * 10.0.0.1, via Ethernet0, weight 1
+
+% Network not in table
+ROUTE_TABLE:Vrf-b:fe80::/64
+ROUTE_TABLE:Vrf-a:10.66.2.1
+ROUTE_TABLE:Vrf-b:10.0.0.0/31
+ROUTE_TABLE:Vrf-a:10.0.0.0/31
+ROUTE_TABLE:Vrf-a:fe80::/64
+ROUTE_TABLE:Vrf-a:10.66.1.1
+ROUTE_TABLE:Vrf-b:10.66.2.1
+ASIC_STATE:SAI_OBJECT_TYPE_ROUTE_ENTRY:{"dest":"10.66.2.1/32","switch_id":"oid:0x21000000000000","vr":"oid:0x300000000036c"}
+SAI_ROUTE_ENTRY_ATTR_NEXT_HOP_ID	oid:0x4000000000396
+ASIC_STATE:SAI_OBJECT_TYPE_ROUTE_ENTRY:{"dest":"10.66.1.1/32","switch_id":"oid:0x21000000000000","vr":"oid:0x300000000036c"}
+SAI_ROUTE_ENTRY_ATTR_PACKET_ACTION	SAI_PACKET_ACTION_FORWARD
+SAI_ROUTE_ENTRY_ATTR_NEXT_HOP_ID	oid:0x1000000000001
+ASIC_STATE:SAI_OBJECT_TYPE_ROUTE_ENTRY:{"dest":"10.66.2.1/32","switch_id":"oid:0x21000000000000","vr":"oid:0x300000000036d"}
+SAI_ROUTE_ENTRY_ATTR_PACKET_ACTION	SAI_PACKET_ACTION_FORWARD
+SAI_ROUTE_ENTRY_ATTR_NEXT_HOP_ID	oid:0x1000000000001
+3 packets transmitted, 0 received, 100% packet loss, time 2035ms
+Routing entry for 10.66.1.1/32
+  Known via "bgp", distance 20, metric 0, vrf Vrf-b, best
+  Last update 00:00:13 ago
+  Flags: Recursion Selected Offloaded 
+  Status: Installed 
+  * 10.0.0.0, via Ethernet120, weight 1
+
+ASIC_STATE:SAI_OBJECT_TYPE_ROUTE_ENTRY:{"dest":"10.66.1.1/32","switch_id":"oid:0x21000000000000","vr":"oid:0x300000000036d"}
+SAI_ROUTE_ENTRY_ATTR_NEXT_HOP_ID	oid:0x4000000000397
+ASIC_STATE:SAI_OBJECT_TYPE_ROUTE_ENTRY:{"dest":"10.66.1.1/32","switch_id":"oid:0x21000000000000","vr":"oid:0x300000000036c"}
+SAI_ROUTE_ENTRY_ATTR_PACKET_ACTION	SAI_PACKET_ACTION_FORWARD
+SAI_ROUTE_ENTRY_ATTR_NEXT_HOP_ID	oid:0x1000000000001
+5 packets transmitted, 5 received, 0% packet loss, time 823ms
+rtt min/avg/max/mdev = 0.116/0.142/0.177/0.021 ms
+714213758  10.0.0.1                                 10.0.0.0                                up              -                   
+93464877   10.0.0.0                                 10.0.0.1                                up              -
+
+== ASIC transit routing (raw ICMP, TTL 5 in, seen back with TTL 4)
+/nix/store/9zyabiswyisqky2gd1d3z1ig5rm7dd94-python3-3.14.10/bin/python3
+Ethernet0	oid:0x6000000000390
+Ethernet120	oid:0x6000000000391
+sent 20 echo requests (TTL 5) on Ethernet120 seen back by TTL: {4: 20}
+
+== ACL TEST_V4 on Ethernet120 ingress (DROP UDP to 10.77.0.1)
+== ACL
+ACL_TABLE|TEST_V4
+ACL_RULE|TEST_V4|RULE_1
+	
+ACL_RULE_TABLE|TEST_V4|RULE_1
+ACL_TABLE_TABLE|TEST_V4
+ACL_STAGE_CAPABILITY_TABLE|INGRESS
+ACL_STAGE_CAPABILITY_TABLE|EGRESS
+TEST_V4:RULE_1	oid:0x900000000038e
+counter=oid:0x900000000038e
+SAI_ACL_COUNTER_ATTR_BYTES	0
+SAI_ACL_COUNTER_ATTR_PACKETS	0
+sent 1000 UDP 10.0.0.0 -> 10.77.0.1 dport 9999 dscp 0 on Ethernet0
+sent 300 UDP 10.0.0.0 -> 10.77.0.2 dport 9999 dscp 0 on Ethernet0
+SAI_ACL_COUNTER_ATTR_BYTES	110000
+SAI_ACL_COUNTER_ATTR_PACKETS	1000
+ACL: 1 tables, 1 entries (CoPP: 10 installs)
+table 1: ifcs 0x2600001 acl 0x3800006 size 256 meters ports [16]
+  entry 1: priority 9999, 1 ACEs, drop  packets 1000 bytes 110000
+
+== QoS DSCP 46 -> queue 5, RIF/port counters, QoS objects, CRM
+q5=oid:0x1500000000002a q0=oid:0x15000000000025
+0
+0
+0
+1414
+20
+sent 500 UDP 10.0.0.1 -> 10.66.2.1 dport 9999 dscp 46 on Ethernet120
+sent 200 UDP 10.0.0.1 -> 10.66.2.1 dport 9999 dscp 0 on Ethernet120
+after
+500
+55000
+0
+2160
+720
+2359
+3894
+0
+0
+== QOS
+3
+SAI_PORT_ATTR_ADMIN_STATE	true
+SAI_PORT_ATTR_MTU	9122
+SAI_PORT_ATTR_QOS_DSCP_TO_TC_MAP	oid:0x14000000000386
+SAI_PORT_ATTR_QOS_TC_TO_QUEUE_MAP	oid:0x1400000000038a
+SAI_PORT_ATTR_QOS_TC_TO_PRIORITY_GROUP_MAP	oid:0x14000000000389
+2
+2
+== CRM
+crm_stats_fdb_entry_used	0
+crm_stats_ipv4_neighbor_used	2
+crm_stats_ipv4_nexthop_used	2
+crm_stats_ipv4_route_used	6
+crm_stats_ipv6_neighbor_used	0
+crm_stats_ipv6_nexthop_used	0
+crm_stats_ipv6_route_used	5
+crm_stats_nexthop_group_member_used	0
+crm_stats_nexthop_group_used	0
+crm_stats_fdb_entry_available	45054
+crm_stats_ipv4_neighbor_available	36734
+crm_stats_ipv4_nexthop_available	36734
+crm_stats_ipv4_route_available	24565
+crm_stats_ipv6_neighbor_available	36734
+crm_stats_ipv6_nexthop_available	36734
+crm_stats_ipv6_route_available	12282
+crm_stats_nexthop_group_available	8192
+crm_stats_nexthop_group_member_available	524288
+
+== CoPP traps/queues; ARP flood vs queue4_group2 policer (600 pps)
+CoPP: 10 traps, 6 inno blocks
+trap 1: action 4 queue 4 policer 5 hostif 0x18200046 rx 0 | acl pkts 0 green 0 yellow 0 red 0
+trap 3: action 4 queue 3 policer 4 hostif 0x18200042 rx 0 | acl pkts 59 green 59 yellow 0 red 0
+trap 11: action 4 queue 3 policer 4 hostif 0x18200043 rx 0 | acl pkts 0 green 0 yellow 0 red 0
+trap 8192: action 2 queue 4 policer 6 hostif 0x18200047 rx 0 | acl pkts 4 green 4 yellow 0 red 0
+trap 8193: action 2 queue 4 policer 6 hostif 0x18200048 rx 0 | acl pkts 40 green 40 yellow 0 red 0
+trap 8201: action 2 queue 4 policer 6 hostif 0x18200049 rx 0 | acl pkts 0 green 0 yellow 0 red 0
+trap 16384: action 4 queue 1 policer 2 hostif 0x18200041 rx 0 | acl pkts 2945 green 2945 yellow 0 red 0
+trap 16387: action 4 queue 4 policer 5 hostif 0x18200044 rx 0 | acl pkts 707 green 707 yellow 0 red 0
+trap 16388: action 4 queue 4 policer 5 hostif 0x18200045 rx 0 | acl pkts 0 green 0 yellow 0 red 0
+trap 24577: action 4 queue 0 policer 1 hostif 0x18200011 rx 0 | acl pkts 0 green 0 yellow 0 red 0
+cpu queue 0: tx 0 bytes 0 drops 0
+cpu queue 1: tx 2947 bytes 236218 drops 0
+cpu queue 2: tx 0 bytes 0 drops 0
+cpu queue 3: tx 59 bytes 14185 drops 0
+cpu queue 4: tx 751 bytes 60348 drops 0
+cpu queue 5: tx 0 bytes 0 drops 0
+cpu queue 6: tx 0 bytes 0 drops 0
+cpu queue 7: tx 0 bytes 0 drops 0
+cpu queue 0: tx 0 bytes 0 drops 0
+cpu queue 1: tx 2947 bytes 236218 drops 0
+cpu queue 2: tx 0 bytes 0 drops 0
+cpu queue 3: tx 59 bytes 14185 drops 0
+cpu queue 4: tx 751 bytes 60348 drops 0
+cpu queue 5: tx 0 bytes 0 drops 0
+cpu queue 6: tx 0 bytes 0 drops 0
+cpu queue 7: tx 0 bytes 0 drops 0
+220
+COPP_TRAP_TABLE|arp_req
+COPP_TRAP_TABLE|bgpv6
+COPP_TRAP_TABLE|arp
+COPP_TRAP_TABLE|arp_resp
+COPP_TRAP_TABLE|neigh_discovery
+COPP_GROUP_TABLE|queue4_group1
+COPP_TRAP_CAPABILITY_TABLE|traps
+COPP_TRAP_TABLE|bgp
+COPP_TRAP_TABLE|lacp
+COPP_GROUP_TABLE|queue3_group1
+    TX:  bytes packets errors dropped carrier collsns           
+       1122548   23334      0       3       0       0 
+    altname enP1p1s0
+devport 16: 101 SAI port counters (SAI_PORT_STAT_* id = value)
+0=1655160 1=4013 2=20041 3=0 4=0 5=0 6=20002 7=39
+9=270687 10=3322 11=42 12=0 13=0 15=2 16=40 17=0
+sent 2000 ARP requests on Ethernet0 in 0.01s
+    TX:  bytes packets errors dropped carrier collsns           
+       1207161   25343      0       3       0       0 
+    altname enP1p1s0
+devport 16: 101 SAI port counters (SAI_PORT_STAT_* id = value)
+0=1783809 1=4022 2=22041 3=0 4=0 5=0 6=22002 7=39
+9=321838 10=4120 11=42 12=0 13=0 15=2 16=40 17=0
+trap 8192: action 2 queue 4 policer 6 hostif 0x18200047 rx 0 | acl pkts 20004 green 838 yellow 2 red 19164
+trap 8193: action 2 queue 4 policer 6 hostif 0x18200048 rx 0 | acl pkts 876 green 874 yellow 2 red 0
+
+== health (root port, CPU) during the run
+09:36:08 rp=0000 3012 00000000  load=0.16 irq=1758 dead=n
+09:36:13 rp=0000 3012 00000000  load=0.15 irq=1763 dead=n
+09:36:18 rp=0000 3012 00000000  load=0.13 irq=1768 dead=n
+    PID %CPU   RSS     ELAPSED COMMAND
+  27728  1.8  3236       13:27 phy_server
+  30109  0.6 48544       12:49 .xcvrd-wrapped
+  30125 10.1 332768      12:49 syncd
+  30128  0.2 55412       12:49 orchagent
+  30335  0.0 34912       12:46 zebra
+  30347  0.0 29304       12:46 bgpd
+  30357  0.1 13708       12:46 bfdd
+ 09:36:22  up  0:37,  2 users,  load average: 0.28, 0.18, 0.16
+
+== PortChannels (LACP, distinct system_mac) + VRF BGP/BFD + ping + ASIC transit over LAG RIFs
+09:39:54 rp=0000 3012 00000000  load=0.19 irq=2019 dead=n
+09:39:59 rp=0000 3012 00000000  load=0.34 irq=2024 dead=n
+PortChannel1     UP             02:00:00:00:0b:01 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+PortChannel2     UP             02:00:00:00:0b:02 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+Ethernet0        UP             02:00:00:00:0b:01 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+Ethernet120      UP             02:00:00:00:0b:02 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+LAG_TABLE:PortChannel2
+LAG_MEMBER_TABLE:PortChannel2:Ethernet120
+LAG_MEMBER_TABLE:PortChannel1:Ethernet0
+LAG_TABLE:PortChannel1
+system_mac	02:00:00:00:0b:01
+team_device.ifinfo.ifindex	47
+team_device.ifinfo.dev_addr	02:00:00:00:0b:01
+runner.fast_rate	true
+runner.fallback	false
+runner.active	true
+setup.pid	41424
+setup.kernel_team_mode_name	loadbalance
+admin_status	up
+oper_status	up
+mtu	9100
+state	ok
+runner.state	current
+ifinfo.dev_addr	02:00:00:00:0b:01
+ifinfo.ifindex	56
+link.up	true
+runner.actor_lacpdu_info.port	1
+runner.partner_lacpdu_info.system	02:00:00:00:0b:02
+runner.actor_lacpdu_info.state	63
+runner.partner_lacpdu_info.port	121
+runner.partner_lacpdu_info.state	63
+link_watches.list.link_watch_0.up	true
+runner.actor_lacpdu_info.system	02:00:00:00:0b:01
+runner.selected	true
+runner.aggregator.id	56
+runner.aggregator.selected	true
+bash: line 1: teamdctl: command not found
+10.0.1.0        4      65100        36        22        2    0    0 00:00:24            1        2 vrf-a
+10.0.1.1        4      65200        19        25        2    0    0 00:00:24            1        2 vrf-b
+3481147915 10.0.1.1                                 10.0.1.0                                up              -                   
+29718726   10.0.1.0                                 10.0.1.1                                up              -                   
+  Known via "bgp", distance 20, metric 0, vrf Vrf-b, best
+  Flags: Recursion Selected Offloaded 
+  * 10.0.1.0, via PortChannel2, weight 1
+5 packets transmitted, 5 received, 0% packet loss, time 823ms
+rtt min/avg/max/mdev = 0.132/0.145/0.163/0.011 ms
+sent 20 echo requests (TTL 5) on PortChannel2 seen back by TTL: {4: 20}
+ASIC_STATE:SAI_OBJECT_TYPE_LAG:oid:0x2000000000372
+ASIC_STATE:SAI_OBJECT_TYPE_LAG:oid:0x2000000000373
+ASIC_STATE:SAI_OBJECT_TYPE_LAG_MEMBER:oid:0x1b000000000374
+ASIC_STATE:SAI_OBJECT_TYPE_LAG_MEMBER:oid:0x1b000000000375
+
+== ACL TEST_V4 bound to PortChannel2
+0
+sent 500 UDP 10.0.1.0 -> 10.77.0.1 dport 9999 dscp 0 on PortChannel1
+500
+ACL: 1 tables, 1 entries (CoPP: 10 installs)
+table 1: ifcs 0x2600001 acl 0x3800006 size 256 meters ports [16]
+  entry 1: priority 9999, 1 ACEs, drop  packets 500 bytes 55000
+
+== Soak flaps and end (from sai-hw-sonic-soak-20261116.txt)
+09:46:46 flap 1: PORT|Ethernet0 admin down
+09:47:16 flap 1: during: bgp=0/2 bfd=0/2; admin up
+09:47:22 flap 1: recovered after 6 s: bgp=2/2 bfd=2/2
+09:57:24 flap 2: PORTCHANNEL|PortChannel1 admin down
+09:57:54 flap 2: during: bgp=0/2 bfd=0/2; admin up
+09:57:55 flap 2: recovered after 1 s: bgp=2/2 bfd=2/2
+10:07:56 flap 3: PORT|Ethernet0 admin down
+10:08:26 flap 3: during: bgp=0/2 bfd=0/2; admin up
+10:08:33 flap 3: recovered after 7 s: bgp=2/2 bfd=2/2
+10:18:35 flap 4: PORTCHANNEL|PortChannel1 admin down
+10:19:05 flap 4: during: bgp=0/2 bfd=0/2; admin up
+10:19:06 flap 4: recovered after 1 s: bgp=2/2 bfd=2/2
+10:29:07 flap 5: PORT|Ethernet0 admin down
+10:29:37 flap 5: during: bgp=0/2 bfd=0/2; admin up
+10:29:44 flap 5: recovered after 7 s: bgp=2/2 bfd=2/2
+10:39:46 flap 6: PORTCHANNEL|PortChannel1 admin down
+10:40:16 flap 6: during: bgp=0/2 bfd=0/2; admin up
+10:40:17 flap 6: recovered after 1 s: bgp=2/2 bfd=2/2
+10:50:18 flap 7: PORT|Ethernet0 admin down
+10:50:48 flap 7: during: bgp=0/2 bfd=0/2; admin up
+10:50:54 flap 7: recovered after 6 s: bgp=2/2 bfd=2/2
+11:00:56 flap 8: PORTCHANNEL|PortChannel1 admin down
+11:01:26 flap 8: during: bgp=0/2 bfd=0/2; admin up
+11:01:27 flap 8: recovered after 1 s: bgp=2/2 bfd=2/2
+11:11:28 flap 9: PORT|Ethernet0 admin down
+11:11:58 flap 9: during: bgp=0/2 bfd=0/2; admin up
+11:12:04 flap 9: recovered after 6 s: bgp=2/2 bfd=2/2
+11:22:06 flap 10: PORTCHANNEL|PortChannel1 admin down
+11:22:36 flap 10: during: bgp=0/2 bfd=0/2; admin up
+11:22:37 flap 10: recovered after 1 s: bgp=2/2 bfd=2/2
+11:32:38 flap 11: PORT|Ethernet0 admin down
+11:33:08 flap 11: during: bgp=0/2 bfd=0/2; admin up
+11:33:16 flap 11: recovered after 7 s: bgp=2/2 bfd=2/2
+11:42:17 soak end; ping: 35361 packets transmitted, 33435 received, 5.44668% packet loss, time 7231060ms rtt min/avg/max/mdev = 0.076/0.142/1.336/0.017 ms 
+11:42:18 bfd counters:  peer 10.0.1.0 multihop local-address 10.0.1.1 vrf Vrf-b; Session up events: 12; Session down events: 11; peer 10.0.1.1 multihop local-address 10.0.1.0 vrf Vrf-a; Session up events: 12; Session down events: 11;
+gap after seq 1470: 185 lost (t+294s)
+gap after seq 4588: 162 lost (t+918s)
+gap after seq 7680: 186 lost (t+1536s)
+gap after seq 10803: 163 lost (t+2161s)
+gap after seq 13897: 189 lost (t+2779s)
+gap after seq 17020: 162 lost (t+3404s)
+gap after seq 20112: 185 lost (t+4022s)
+gap after seq 23231: 162 lost (t+4646s)
+gap after seq 26323: 184 lost (t+5265s)
+gap after seq 29441: 162 lost (t+5888s)
+gap after seq 32533: 186 lost (t+6507s)
+----
+syncd start=331896 end=331896 max=331896
+orchagent start=55328 end=55412 max=55412
+portsyncd start=8680 end=8684 max=8684
+portmgrd start=13364 end=13364 max=13364
+intfmgrd start=15676 end=15676 max=15676
+teammgrd start=13652 end=13656 max=13656
+teamsyncd start=9184 end=9184 max=9184
+teamd start=4564 end=4564 max=4564
+bgpd start=29432 end=29436 max=29436
+zebra start=35296 end=35296 max=35296
+bfdd start=13624 end=13624 max=13624
+staticd start=12300 end=12300 max=12300
+fpmsyncd start=8552 end=8568 max=8568
+.bgpcfgd-wrappe start=43036 end=43040 max=43040
+.xcvrd-wrapped start=47324 end=47328 max=47328
+.thermalctld-wr start=45660 end=45664 max=45664
+.psud-wrapped start=39900 end=39900 max=39900
+.syseepromd-wra start=40040 end=40040 max=40040
+redis-server start=22296 end=22632 max=22632
+lldpd start=4148 end=4148 max=4148
+mgmtd start=15960 end=15960 max=15960

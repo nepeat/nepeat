@@ -11,7 +11,8 @@ per object/attribute group, edited in place. Status:
 
 Tests: `t_*` = `packages/sai-teralynx/tests/t_<area>.cpp` (make check), `hw:x` = oracle script
 `oracle/scripts/x.json` on the box ([oracle](../../nix/packages/sai-teralynx/oracle/README.md)),
-`bench` = qemu-ipd `tools/sai_bench.cpp`, `smoke` = `tools/sai_smoke.cpp` (2026-11-16 runs).
+`bench` = qemu-ipd `tools/sai_bench.cpp`, `smoke` = `tools/sai_smoke.cpp` (2026-11-16 runs),
+`sonic` = under SONiC on the loop ([sai-hw-sonic-20261116.txt](sai-hw-sonic-20261116.txt)).
 How isai does an object on this chip: [sai-oracle.md](sai-oracle.md).
 
 ## Performance (sai_bench, ms per batch, 2026-11-16)
@@ -73,9 +74,9 @@ Evidence: `analysis/sai-teralynx/bench-20261116b/` (bench3-native-error-{1,2,3} 
 | STP instances | one shared instance, every port sysport FORWARDING (a LAG handle is refused: per member) | frontend | |
 | VIRTUAL_ROUTER | L3VNI(vrf+1), TTL-check failures copied to the CPU | chip (VRF leaking both ways, one prefix per VRF to different next hops, isolation, v6) | t_l3, hw:l3-vrf |
 | ROUTER_INTERFACE PORT | SVI on the frontend's internal VLAN (isai: L3PORT on the sysport) | chip (v4/v6 routed both ways, Linux hosts ping through it) | t_l3, hw:l3-basic, hw:l3-ns |
-| ROUTER_INTERFACE PORT on a LAG | next hops to the LAG handle (LagArea::dest_handle) | mock | t_l3, t_lag |
+| ROUTER_INTERFACE PORT on a LAG | next hops to the LAG handle (LagArea::dest_handle) | chip (SONiC: PortChannel1/2 RIFs in Vrf-a/Vrf-b, BGP + BFD over them, loopback ping, ASIC transit 20/20) | t_l3, t_lag, sonic |
 | ROUTER_INTERFACE VLAN; LOOPBACK | SVI on the VLAN's L2VNI; loopback: no object | mock; frontend | t_l3 |
-| ROUTER_INTERFACE MTU, SRC_MAC set | intf MTU = IP MTU, TRANSPORT_MAC, in place | chip (MTU 1500: IP 1500 routed, 1501 to the CPU) / mock | t_l3, hw:l3-basic |
+| ROUTER_INTERFACE MTU, SRC_MAC set | intf MTU = IP MTU, TRANSPORT_MAC, in place | chip (MTU 1500: IP 1500 routed, 1501 to the CPU; SRC_MAC set live by orchagent from INTERFACE mac_addr, routing on the new MAC) | t_l3, hw:l3-basic, sonic |
 | ROUTER_INTERFACE re-create on the same port | the internal VLAN's learned entries flushed before l2vni_delete (L2 area) | chip (RIF B removed: status 0, no BUSY; re-created, 100/100 routed) | hw:phasec-hw |
 | ROUTER_INTERFACE ADMIN_V4/V6_STATE | `l3_intf_admin_set`: intf IPV4/IPV6_UNICAST_ENABLE | chip (v4 off: 0/100 routed, v6 100/100; on again 100/100) | t_hooks, hw:phasec-hw |
 | ROUTER_INTERFACE NEIGHBOR_MISS_PACKET_ACTION, LOOPBACK_PACKET_ACTION | | frontend (stored) | |

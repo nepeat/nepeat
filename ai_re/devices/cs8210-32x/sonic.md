@@ -7,15 +7,17 @@ Cross-device notes and the stack itself: [sonic-nixos](../sonic-nixos/PROGRESS.m
 - **Our SAI runs the chip** (`sai-teralynx`: sai-openbcm's frontend + an IFCS backend dlopen()ing the
   vendor `libifcs.so` 0.12.41): every phase B/C feature passes its sai-script chip test on the 400G
   cage 1 <-> 16 loop ([sai-features.md](sai-features.md), [sai-hw-integration-20261116.txt](sai-hw-integration-20261116.txt)).
-- **SONiC on it, started by hand** (`scripts/sonic-handrun.sh`, no generation): redis, syncd, orchagent,
-  the managers, vrfmgrd, coppmgrd, teammgrd, FRR (zebra, bgpd, bfdd), bgpcfgd, LLDP and pmon came up;
-  all 32 netdevs adopted with the system MAC. Not yet reached: link up, BGP/BFD, ACL, counters, soak.
-- **Blocked (2026-11-16 08:13 box time):** after the 4th start the box stalled (55 % hard-IRQ time,
-  xcvrd 114 % CPU, SSH timeouts ~20 min); since then the I2C FPGA 0002:01:00.0 reads all-ones, so
-  cage presence is unreadable and the cage guard refuses syncd. Needs a reboot (or a PCIe
-  remove/rescan of that device, not tried). xcvrd is off by default on this board now.
+- **Full SONiC on the loop, started by hand** (`scripts/sonic-handrun.sh`, no generation), xcvrd on:
+  Vrf-a/Vrf-b eBGP + BFD over PortChannels (LACP) and over plain ports, routes offloaded both ways,
+  ASIC transit routing, ACL drop, DSCP->queue, CoPP policing, port/queue/RIF/ACL counters, CRM
+  ([evidence](sai-hw-sonic-20261116.txt)). 2 h soak with 11 link/LAG flaps: BGP + BFD back 1-7 s after each, no loss outside the flaps, daemon RSS flat, I2C FPGA healthy throughout.
+- **The 08:13 stall was a dead I2C FPGA** (0002:01:00.0 stopped answering while SONiC started; each
+  access then stalls the whole SoC and xcvrd kept reading 32 all-ones "present" cages). Trigger not
+  found; the platform now serialises all FPGA access, only xcvrd touches it, and the root port's own
+  status (or all-ones) marks it dead for every process ([analysis](sai-hw-fpga-stall-20261116.txt)).
 - **Recover:** `sonic-handrun.sh down` (stops the stack, removes the runtime units, users, links,
-  firewall rules), then `cs8210-switch` as before.
+  firewall rules), then `cs8210-switch` as before. A dead FPGA (`/run/cs8210-qsfp.dead`, or the
+  cage guard refusing) took a power cycle on 2026-11-16 (PCIe remove/rescan not tried).
 - **Code:** [packages/sai-teralynx](../../nix/packages/sai-teralynx/README.md), [boards/cs8210](../../nix/modules/boards/cs8210/sonic.nix)
   (ports, IFCS yaml, sai.profile incl. the diag socket, buffermgrd, pmon), `nepeat/nix`
   `nixos/module/cs8210/sonic` (cross build, Credo unit, guard, watchdog).
@@ -27,18 +29,49 @@ Build the machine with `hardware.cs8210.sonic.enable = lib.mkForce true` and `li
 the closure, then on the box (ASIC lease held, only cages 1 and 16 populated, cs8210-switch stopped):
 `sonic-handrun.sh up <toplevel> <config_db.json>` / `status` / `down`. It links the closure's sonic units
 into /run/systemd/system and adds what they need for the run only (users frr/frrvty/redis-sonic, three
-sysctls, modules, tmpfiles lines, /etc/sonic and /etc/frr/vtysh.conf, BGP/BFD firewall rules; stops the host
-lldpd). Test config: [sonic-loop/config-a-vrf-bgp.json](sonic-loop/config-a-vrf-bgp.json) (Ethernet0 in Vrf-a
-10.0.0.0/31, Ethernet120 in Vrf-b 10.0.0.1/31, BGP + BFD between them, an L3 ACL, AZURE-style DSCP/TC maps,
-schedulers, lossy buffers, flex counters PORT/QUEUE/RIF/ACL). bgpcfgd has no `local_asn`: eBGP between the
-VRFs needs `neighbor 10.0.0.0 local-as 65200` in Vrf-b by vtysh. Diag: `openbcm-diag -s
+sysctls, modules, tmpfiles lines, /etc/sonic and /etc/frr/vtysh.conf, BGP/BFD/ICMP firewall rules on
+Ethernet+/PortChannel+/Vlan+/Vrf+; stops the host lldpd). Diag: `openbcm-diag -s
 /run/sai-teralynx/diag.sock copp|acl|counters <devport>|devport <n>`.
+
+Test configs in [sonic-loop/](sonic-loop/): `config-a-vrf-bgp.json` (Ethernet0 in Vrf-a 10.0.0.0/31,
+Ethernet120 in Vrf-b 10.0.0.1/31) and `config-b-vrf-bgp-lag.json` (the same over PortChannel1/2,
+10.0.1.0/31, plus Loopback1/2 10.66.1.1 / 10.66.2.1 in the VRFs); both with BGP + BFD, an L3 ACL,
+AZURE-style DSCP/TC maps, schedulers, lossy buffers, flex counters PORT/QUEUE/RIF/ACL. What the loop
+needs (one box is both ends):
+
+- **A MAC per router interface** (INTERFACE / PORTCHANNEL_INTERFACE `mac_addr`): with the one system MAC
+  on both RIFs every unicast frame has SA = DA and the ASIC drops it (ARP works, nothing else does).
+  PortChannels also need distinct `system_mac` (the LACP system id), set equal to their `mac_addr`.
+- **BGP by vtysh** after each bgpd start (bgpcfgd renders one ASN for all VRFs, no `local_asn`), in Vrf-b
+  `neighbor <a> local-as 65200 no-prepend replace-as` and `allowas-in 1`; bgpd then counts that peer as
+  iBGP and runs its BFD multihop, so Vrf-a gets `ebgp-multihop 2` too and both peers `no neighbor <x> bfd`
+  + `neighbor <x> bfd` (one-hop vs multihop sessions never come up). Exact lines:
+  [sai-hw-sonic-20261116.txt](sai-hw-sonic-20261116.txt).
+- **Firewall:** a VRF's local traffic reaches INPUT with the VRF device as its interface; Ethernet+
+  rules alone leave BGP in Connect. The deployed firewall (iptables here) now gets frr.nix/bfd.nix
+  chains for every interface but `frr.managementInterfaces` (enp0s1, enp0s3 on this board).
+
+Soak: [scripts/sonic-soak.sh](scripts/sonic-soak.sh) (state + per-daemon RSS each minute, a flap every
+10 min alternating Ethernet0 / PortChannel1 admin down 30 s, a 5/s ping across the loop).
 
 Module bugs this found (fixed, 2026-11-16): the SDK dir in syncd's LD_LIBRARY_PATH (doubled prefix,
 jansson's -dev output: libifcs dlopen failed), the Credo loader's path inside the chroot, unit `path` entries
 ending in /bin (cs8210-qsfp not found), a stale /tmp/cls_phy_fifo hanging the Credo loader, no buffermgrd
-(ports never admin up), queue RESERVED_SIZE refused by 0.12.41. Notes from the AS7760 runs:
-[sonic-nixos](../sonic-nixos/PROGRESS.md).
+(ports never admin up), queue RESERVED_SIZE refused by 0.12.41, the cage guard's `read` at EOF under
+`set -e`. Notes from the AS7760 runs: [sonic-nixos](../sonic-nixos/PROGRESS.md).
+
+## xcvrd and the I2C FPGA
+
+The cages' management FPGA (PCI 1d0f:8571 behind root port 0002:00:00.0) is read by mmap of its BAR0
+(`boards/cs8210/sonic_platform/fpga.py`). When it stops answering, every BAR or config access is a PCIe
+completion timeout that stalls the whole SoC for seconds (SSH, fand's I2C, journald all time out; hard-IRQ
+time rises on all CPUs); nothing reaches the kernel log (no AER: external-PCIe INTx is not delivered).
+Since 2026-11-16: all access under cs8210-qsfp's flock (one at a time, any process), Chassis() reads
+nothing (only xcvrd uses the cages), sideband snapshots reused 0.25 s, and before each session the root
+port's DevSta/LnkSta/AER (on the SoC, never stalls) or an all-ones register read marks it dead in
+`/run/cs8210-qsfp.dead`; then no process touches it until a reboot. The cage guard checks the same and
+refuses syncd. xcvrd starts after the Credo bring-up. Modules stay in reset (read-only platform), so the
+DAC loop's EEPROMs are not read: xcvrd reports presence only.
 
 ## SAI source: our own, on the vendor IFCS SDK
 
@@ -97,4 +130,4 @@ the public sonic-buildimage `innovium.77700_A` (byte-identical to the SDK's `inn
   `enp0s3`) stays down.
 - The frontend's fake-backend guard only knows Broadcom devices: never set `SAI_OPENBCM_BACKEND=fake` here.
 - Cage modules are held in reset at power-up (FPGA reg 0x178); the read-only platform does not release
-  them (the loop cages are released already this boot).
+  them, so their EEPROMs stay unread (`cs8210-qsfp --reset P 0` by hand).

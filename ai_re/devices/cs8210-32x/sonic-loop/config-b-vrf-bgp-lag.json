@@ -1,0 +1,296 @@
+{
+ "DEVICE_METADATA": {
+  "localhost": {
+   "bgp_asn": "65100",
+   "docker_routing_config_mode": "separated"
+  }
+ },
+ "PORT": {
+  "Ethernet0": {
+   "admin_status": "up",
+   "mtu": "9100",
+   "fec": "rs"
+  },
+  "Ethernet120": {
+   "admin_status": "up",
+   "mtu": "9100",
+   "fec": "rs"
+  }
+ },
+ "VRF": {
+  "Vrf-a": {},
+  "Vrf-b": {}
+ },
+ "LOOPBACK_INTERFACE": {
+  "Loopback0": {},
+  "Loopback0|10.255.0.1/32": {},
+  "Loopback1": {
+   "vrf_name": "Vrf-a"
+  },
+  "Loopback1|10.66.1.1/32": {},
+  "Loopback2": {
+   "vrf_name": "Vrf-b"
+  },
+  "Loopback2|10.66.2.1/32": {}
+ },
+ "BGP_NEIGHBOR": {
+  "Vrf-a|10.0.1.1": {
+   "asn": "65200",
+   "name": "vrf-b",
+   "local_addr": "10.0.1.0",
+   "keepalive": "3",
+   "holdtime": "9",
+   "admin_status": "up",
+   "bfd": "true"
+  },
+  "Vrf-b|10.0.1.0": {
+   "asn": "65100",
+   "name": "vrf-a",
+   "local_addr": "10.0.1.1",
+   "keepalive": "3",
+   "holdtime": "9",
+   "admin_status": "up",
+   "bfd": "true"
+  }
+ },
+ "FLEX_COUNTER_TABLE": {
+  "PORT": {
+   "FLEX_COUNTER_STATUS": "enable"
+  },
+  "QUEUE": {
+   "FLEX_COUNTER_STATUS": "enable"
+  },
+  "RIF": {
+   "FLEX_COUNTER_STATUS": "enable"
+  },
+  "ACL": {
+   "FLEX_COUNTER_STATUS": "enable"
+  }
+ },
+ "ACL_TABLE": {
+  "TEST_V4": {
+   "policy_desc": "phase C test",
+   "type": "L3",
+   "stage": "ingress",
+   "ports": [
+    "PortChannel2"
+   ]
+  }
+ },
+ "ACL_RULE": {
+  "TEST_V4|RULE_1": {
+   "PRIORITY": "9999",
+   "PACKET_ACTION": "DROP",
+   "DST_IP": "10.77.0.1/32",
+   "IP_PROTOCOL": "17"
+  }
+ },
+ "DSCP_TO_TC_MAP": {
+  "AZURE": {
+   "0": "1",
+   "1": "1",
+   "2": "1",
+   "3": "3",
+   "4": "4",
+   "5": "1",
+   "6": "1",
+   "7": "1",
+   "8": "0",
+   "9": "1",
+   "10": "1",
+   "11": "1",
+   "12": "1",
+   "13": "1",
+   "14": "1",
+   "15": "1",
+   "16": "1",
+   "17": "1",
+   "18": "1",
+   "19": "1",
+   "20": "1",
+   "21": "1",
+   "22": "1",
+   "23": "1",
+   "24": "1",
+   "25": "1",
+   "26": "1",
+   "27": "1",
+   "28": "1",
+   "29": "1",
+   "30": "1",
+   "31": "1",
+   "32": "1",
+   "33": "1",
+   "34": "1",
+   "35": "1",
+   "36": "1",
+   "37": "1",
+   "38": "1",
+   "39": "1",
+   "40": "1",
+   "41": "1",
+   "42": "1",
+   "43": "1",
+   "44": "1",
+   "45": "1",
+   "46": "5",
+   "47": "1",
+   "48": "6",
+   "49": "1",
+   "50": "1",
+   "51": "1",
+   "52": "1",
+   "53": "1",
+   "54": "1",
+   "55": "1",
+   "56": "1",
+   "57": "1",
+   "58": "1",
+   "59": "1",
+   "60": "1",
+   "61": "1",
+   "62": "1",
+   "63": "1"
+  }
+ },
+ "TC_TO_QUEUE_MAP": {
+  "AZURE": {
+   "0": "0",
+   "1": "1",
+   "2": "2",
+   "3": "3",
+   "4": "4",
+   "5": "5",
+   "6": "6",
+   "7": "7"
+  }
+ },
+ "TC_TO_PRIORITY_GROUP_MAP": {
+  "AZURE": {
+   "0": "0",
+   "1": "0",
+   "2": "0",
+   "3": "3",
+   "4": "4",
+   "5": "0",
+   "6": "0",
+   "7": "0"
+  }
+ },
+ "SCHEDULER": {
+  "scheduler.0": {
+   "type": "DWRR",
+   "weight": "14"
+  },
+  "scheduler.1": {
+   "type": "DWRR",
+   "weight": "15"
+  }
+ },
+ "QUEUE": {
+  "Ethernet0|0-2": {
+   "scheduler": "scheduler.0"
+  },
+  "Ethernet0|3-4": {
+   "scheduler": "scheduler.1"
+  },
+  "Ethernet0|5-6": {
+   "scheduler": "scheduler.0"
+  },
+  "Ethernet120|0-2": {
+   "scheduler": "scheduler.0"
+  },
+  "Ethernet120|3-4": {
+   "scheduler": "scheduler.1"
+  },
+  "Ethernet120|5-6": {
+   "scheduler": "scheduler.0"
+  }
+ },
+ "PORT_QOS_MAP": {
+  "Ethernet0": {
+   "dscp_to_tc_map": "AZURE",
+   "tc_to_queue_map": "AZURE",
+   "tc_to_pg_map": "AZURE"
+  },
+  "Ethernet120": {
+   "dscp_to_tc_map": "AZURE",
+   "tc_to_queue_map": "AZURE",
+   "tc_to_pg_map": "AZURE"
+  }
+ },
+ "BUFFER_POOL": {
+  "egress_lossy_pool": {
+   "type": "egress",
+   "mode": "dynamic",
+   "size": "16777216"
+  },
+  "ingress_lossless_pool": {
+   "type": "ingress",
+   "mode": "dynamic",
+   "size": "16777216"
+  }
+ },
+ "BUFFER_PROFILE": {
+  "egress_lossy_profile": {
+   "pool": "egress_lossy_pool",
+   "size": "1518",
+   "dynamic_th": "3"
+  },
+  "ingress_lossy_profile": {
+   "pool": "ingress_lossless_pool",
+   "size": "0",
+   "dynamic_th": "3"
+  }
+ },
+ "BUFFER_QUEUE": {
+  "Ethernet0|0-7": {
+   "profile": "egress_lossy_profile"
+  },
+  "Ethernet120|0-7": {
+   "profile": "egress_lossy_profile"
+  }
+ },
+ "BUFFER_PG": {
+  "Ethernet0|0": {
+   "profile": "ingress_lossy_profile"
+  },
+  "Ethernet120|0": {
+   "profile": "ingress_lossy_profile"
+  }
+ },
+ "PORTCHANNEL": {
+  "PortChannel1": {
+   "admin_status": "up",
+   "mtu": "9100",
+   "min_links": "1",
+   "lacp_key": "auto",
+   "fast_rate": "true",
+   "system_mac": "02:00:00:00:0b:01"
+  },
+  "PortChannel2": {
+   "admin_status": "up",
+   "mtu": "9100",
+   "min_links": "1",
+   "lacp_key": "auto",
+   "fast_rate": "true",
+   "system_mac": "02:00:00:00:0b:02"
+  }
+ },
+ "PORTCHANNEL_MEMBER": {
+  "PortChannel1|Ethernet0": {},
+  "PortChannel2|Ethernet120": {}
+ },
+ "PORTCHANNEL_INTERFACE": {
+  "PortChannel1": {
+   "vrf_name": "Vrf-a",
+   "mac_addr": "02:00:00:00:0b:01"
+  },
+  "PortChannel1|10.0.1.0/31": {},
+  "PortChannel2": {
+   "vrf_name": "Vrf-b",
+   "mac_addr": "02:00:00:00:0b:02"
+  },
+  "PortChannel2|10.0.1.1/31": {}
+ }
+}
