@@ -226,7 +226,7 @@ answers to the read-only questions below.
 ## 7. Recovery ladder (least → most invasive)
 | # | rung | preconditions | status |
 | --- | --- | --- | --- |
-| 0 | **Before any write:** fresh `sf read` of CS0 cmp'd with `mtd0.bin`; `spi-status.py`; `otp show`; `dev_info`; chip markings and photos; a 1.8 V programmer read of a CS0 chip (ideally on a second unit) | owner, hardware in hand | **not done** |
+| 0 | **Before any write:** fresh `sf read` of CS0 cmp'd with `mtd0.bin`; `spi-status.py`; `otp show`; `dev_info`; chip markings and photos; a 1.8 V programmer read of a CS0 chip (ideally on a second unit) | owner, hardware in hand | sf read/otp/dev_info done; **programmer read skipped by the owner for the u01 install (2026-11-15)**: still to do, check with `spi-upgrade.py --unit u01 clipcheck --dump a.bin --dump b.bin` |
 | 1 | Don't reboot: stage the new object and the old one in RAM, write, read back, `cmp.b`; on mismatch rewrite the old object from RAM (`sf update`) | a factory U-Boot or Linux with a writable mtd still running | standard, not rehearsed |
 | 2 | Bad U-Boot that still prints and reads keys: its own prompt → restore from TFTP as in §6 | the new U-Boot has net + `sf` | depends on the new U-Boot |
 | 3 | Bad app object with stage3 still intact: Route A tests the app with no write; stage3 keys `p`/`e`/`u` force UBOOT 0 when BOOT_MODE names another app | BOOT_MODE ≠ app 5 (the planned IPXE layout) | **proven on hardware**: keys, and the `u` escape with BOOT_MODE ≠ 5, both via Route A, with no write (uart-boot.md §5) |

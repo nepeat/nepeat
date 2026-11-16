@@ -9,6 +9,7 @@ Modes (all through the logged tmux pane `serial-dmc12`, like reimage.py):
   install   first install: IPXE 0 + BOOT_MODE (app 0x110)
   update    write the inactive IPXE instance, validate, then flip BOOT_MODE
   rollback  erase BOOT_MODE: stage3 boots the untouched factory U-Boot again
+  clipcheck offline: compare external-programmer dumps of CS0 (--dump, twice) with the model
 
 Nothing is written without --write: every read-only step runs and the write commands are printed.
 With --write each write asks for the unit id (--yes: no questions, for agents).
@@ -17,6 +18,7 @@ With --write each write asks for the unit id (--yes: no questions, for agents).
   spi-upgrade.py --unit u01 --plug 2 rehearse --ip 10.60.2.10
   spi-upgrade.py --unit u01 --plug 2 install --ip 10.60.2.10           # dry run
   spi-upgrade.py --unit u01 --plug 2 install --ip 10.60.2.10 --write
+  spi-upgrade.py --unit u01 clipcheck --dump cs0-a.bin --dump cs0-b.bin
 
 Host model of CS0 = dumps/<unit>/mtd0.bin (verified against its manifest) with every verified
 region write in inventory/<unit>/spi-upgrade.jsonl replayed. A region is journaled as `intent`
@@ -498,6 +500,37 @@ def escape(a, st):
 
 
 # ---- modes ------------------------------------------------------------------------------------
+def mode_clipcheck(a, st, img, unknown):
+    """Programmer dumps (box unpowered, 1.8 V, spi-recovery.md): equal to each other and to the
+    model below the env; differing 4 KiB sectors are listed with the TOC object they belong to."""
+    if not a.dump:
+        raise Fail("clipcheck needs --dump FILE (twice: two reads must agree)")
+    dumps = [alboot.load(str(d)) for d in a.dump]
+    st["dumps"] = {str(d): sha(x) for d, x in zip(a.dump, dumps)}
+    if any(len(x) != 0x1000000 for x in dumps):
+        raise Fail(f"dump sizes {[len(x) for x in dumps]}, expected 16 MiB")
+    if len(set(map(sha, dumps))) != 1:
+        raise Fail("the dumps differ from each other: re-seat the clip and read again")
+    d = dumps[0]
+    names = [(off, mx, f"{alboot.NAMES.get(i, hex(i))} {n}") for i, n, off, mx in uartboot.toc_entries(img)]
+    bad = {}
+    for lo in range(0, MODEL_END, SECTOR):
+        if any(overlaps(u, lo, lo + SECTOR) for u in unknown):
+            continue
+        if d[lo:lo + SECTOR] != img[lo:lo + SECTOR]:
+            where = next((nm for off, mx, nm in names if off <= lo < off + mx), "outside the TOC")
+            bad.setdefault(where, []).append(hex(lo))
+    st["env_sha256"] = sha(d[MODEL_END:])
+    if bad:
+        bad = {k: f"{len(v)} sector(s) {v[0]}..{v[-1]}" for k, v in bad.items()}
+        raise Fail(f"dump != model: {bad}")
+    st["clipcheck"] = f"0..{MODEL_END:#x} == model ({read_hint(img, unknown)}); env not modelled"
+
+
+def read_hint(img, unknown):
+    return f"crc32 {zlib.crc32(img):08x}" if not unknown else f"unknown {unknown} skipped"
+
+
 def mode_status(a, st, img, unknown):
     to_factory(a, img, unknown)
     identify(a, st)
@@ -639,9 +672,11 @@ def mode_write(a, st, img, unknown):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("mode", choices=["status", "rehearse", *WRITE_MODES])
+    p.add_argument("mode", choices=["status", "rehearse", "clipcheck", *WRITE_MODES])
     p.add_argument("--unit", required=True)
-    p.add_argument("--plug", type=int, required=True, help="lab-power plug of this unit")
+    p.add_argument("--plug", type=int, help="lab-power plug of this unit (all modes but clipcheck)")
+    p.add_argument("--dump", type=pathlib.Path, action="append", default=[],
+                   help="clipcheck: a programmer dump of CS0 (.bin or .zst); give two reads")
     p.add_argument("--ip", help="NixOS address for the smoke test (required for rehearse/install/update)")
     p.add_argument("--payload", type=pathlib.Path,
                    default=ROOT / "nixos-build/result-uboot-dmc12-stage3app/u-boot-ipxe-08000000.fimg")
@@ -655,6 +690,8 @@ def main():
     p.add_argument("--read-timeout", type=int, default=600, help="seconds for a 16 MiB factory sf read")
     p.add_argument("--json", action="store_true")
     a = p.parse_args()
+    if a.mode != "clipcheck" and a.plug is None:
+        p.error(f"{a.mode} needs --plug")
     if a.mode in ("rehearse", "install", "update") and not a.ip:
         p.error(f"{a.mode} needs --ip (smoke test after boot)")
     for o in a.override_gate:
@@ -664,7 +701,8 @@ def main():
     try:
         img, unknown = model(a.unit)
         check_layout(img)
-        {"status": mode_status, "rehearse": mode_rehearse}.get(a.mode, mode_write)(a, st, img, unknown)
+        {"status": mode_status, "rehearse": mode_rehearse, "clipcheck": mode_clipcheck}.get(
+            a.mode, mode_write)(a, st, img, unknown)
     except KeyboardInterrupt:
         st["failed"] = "interrupted. " + (DONT_POWER_OFF if a.write else "")
     except (Fail, subprocess.SubprocessError, OSError, KeyError, ValueError) as e:
