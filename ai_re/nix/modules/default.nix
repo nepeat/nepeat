@@ -6,6 +6,7 @@
 #   boards/     one board = platform + functions + board deltas
 {
   profile-appliance = ./profiles/appliance.nix;
+  profile-rebuildable = ./profiles/rebuildable.nix;
   profile-systemd-minimal = ./profiles/systemd-minimal.nix;
   profile-netboot-root = ./profiles/netboot-root.nix;
   platform-qoriq-t2080 = ./platforms/qoriq-t2080.nix;

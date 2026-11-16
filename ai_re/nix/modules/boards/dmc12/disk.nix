@@ -168,6 +168,25 @@ in
   };
   boot.growPartition = true;
 
+  # First boot of an image: register the store paths the image ships so nix and
+  # nixos-rebuild work, and create the system profile (as nixpkgs' sd-image does).
+  systemd.services.dmc12-register-store = lib.mkIf config.nix.enable {
+    description = "Register the disk image's Nix store paths";
+    unitConfig = { DefaultDependencies = false; ConditionPathExists = "/nix-path-registration"; };
+    wantedBy = [ "sysinit.target" ];
+    before = [ "sysinit.target" "shutdown.target" "nix-daemon.socket" "nix-daemon.service" ];
+    after = [ "local-fs.target" ];
+    conflicts = [ "shutdown.target" ];
+    restartIfChanged = false;
+    serviceConfig = { Type = "oneshot"; RemainAfterExit = true; };
+    script = ''
+      ${lib.getExe' config.nix.package.out "nix-store"} --load-db < /nix-path-registration
+      touch /etc/NIXOS
+      ${lib.getExe' config.nix.package.out "nix-env"} -p /nix/var/nix/profiles/system --set /run/current-system
+      rm -f /nix-path-registration
+    '';
+  };
+
   system.build.diskImage = {
     standard = standardImage;
     chainload = chainloadImage;

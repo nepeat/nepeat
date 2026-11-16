@@ -4,14 +4,17 @@
 - **u01 (2026-11-15): stage3 → our U-Boot 2026.10 from SPI → standard boot (`bootflow scan`) →
   nixpkgs extlinux on sda1 → NixOS root sda2**; login ≈ 38 s, soak 3/3. Disk: `dmc12-disk-image`
   (`hardware.dmc12.bootLoader = "standard"`, installed with `reimage.py`).
+- **Full Nix system (`profile-rebuildable`):** deploy in place with
+  `sudo nixos-rebuild switch --flake path:./nix#dmc12 --target-host root@10.60.2.10` (root's key; copies only
+  new paths), generations in the extlinux menu, rollback on the box `nixos-rebuild switch --rollback --no-reexec`.
+  906 MiB used of 29 GiB.
 - **SPI slots** (`spi-upgrade.py slots`; spec `spi-upgrade-plan.md`, journal `inventory/u01/spi-upgrade.jsonl`):
   IPXE 0 = env build af039fd **[active]**, IPXE 1 = trimmed build f5901b0 (fallback), UBOOT 0/1 =
   factory 2015.07. `switch --to ipxe0|ipxe1|factory`, `update` (writes the inactive slot), `rollback`.
   Holding `u` at stage3 = factory U-Boot (recovery prompt; it can't boot the standard disk).
 - **Open:** env load fails at boot in the stage3-app path (`unrecognized JEDEC id bytes: ff, ff, ff`
   → defaults; `saveenv` at the prompt works) — U-Boot agent root-causing; no clip read of CS0 yet
-  (`spi-upgrade.py clipcheck`); no `switch-to-configuration` in the closure (no `nixos-rebuild`
-  on the box); Linux `fw_setenv` (phase 2) not started.
+  (`spi-upgrade.py clipcheck`); Linux `fw_setenv` (phase 2) not started.
 - **Board quirks/features at a glance:** `board-notes.md`. Route A / stage3 keys: `uart-boot.md`;
   our U-Boot (checklist, env, recovery): `u-boot-port.md`; boot chain: `boot-chain-details.md`,
   `../../alpine-v2-boot-chain.md`.
@@ -193,6 +196,15 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-15 18:15: **u01 is a rebuildable Nix system.** New `profile-rebuildable` (nix + switcher; no nixpkgs
+  source/channel/registry, `max-jobs = 0`, idle daemon, weekly GC; installer tools off: `nixos-generate-config`
+  dragged in bcachefs-tools, which failed to cross-build). Closure 866 → 919 MiB (boost 17, nix ~17, AWS
+  libs 6, switcher 2.7). AS7760 toplevel drvPath unchanged. `disk.nix`: first-boot `nix-store --load-db` +
+  system profile (as sd-image). Reimaged u01; 528 paths registered. No-op `nixos-rebuild switch
+  --target-host`: 37 s, 2.4 MiB written; a real change (marker in /etc): 5 MiB written, gen 2 in the boot
+  menu; `nixos-rebuild switch --rollback --no-reexec` on the box back to gen 1 (plain `--rollback` tries to
+  rebuild nixos-rebuild from `<nixpkgs>`). `nix copy --to ssh-ng://` refuses unsigned paths; `nix-copy-closure`
+  (nixos-rebuild's path) doesn't.
 - 2026-11-15 17:40: **slots, standard boot, SPI env.** (1) Selfinit trimmed (f5901b0, 41 KiB free in
   the slot), RAM test PASS, rehearsed and `update`d into IPXE 1 (app 0x10000110); the running copy was
   CRC-proven at `=>` (`crc32 0x08000000 0x60000`). (2) Standard boot (f9aac05): `dmc12-disk-image` =

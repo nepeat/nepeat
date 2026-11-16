@@ -46,6 +46,7 @@ appear once `nix/` is committed; `path:./nix` always works.
 | layer | name | what |
 | --- | --- | --- |
 | profile | `profile-appliance` | small cross-built NixOS: no docs/firmware, trimmed systemd, key-only sshd, probing tools, htop + fastfetch, flakes enabled |
+| profile | `profile-rebuildable` | on top of appliance: nix + switcher, so `nixos-rebuild switch --flake path:./nix#<host> --target-host root@<box>` deploys in place (copies only new paths); no nixpkgs source/channel/registry, no on-box builds (`max-jobs = 0`), idle-priority daemon, weekly GC (30 d). +53 MiB on the DMC-12. Rollback on the box: `nixos-rebuild switch --rollback --no-reexec`. Image needs a first-boot store registration (DMC-12: `disk.nix`) |
 | profile | `profile-netboot-root` | whole system in the initramfs (squashfs + tmpfs), nothing on disk touched |
 | platform | `platform-qoriq-t2080` | NXP T2080/e6500: allnoconfig kernel, legacy uImage, serial console; option `hardware.qoriqT2080.kernelPatches` |
 | function | `thermal-as7760-fan` | Accton fan-CPLD hwmon driver, sensor labels, monitor service |

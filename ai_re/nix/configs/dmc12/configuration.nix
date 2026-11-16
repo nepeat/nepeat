@@ -3,7 +3,7 @@
 # modules/boards/dmc12, the appliance base is modules/profiles/appliance.nix.
 { config, lib, pkgs, ... }:
 {
-  imports = [ ../../modules/profiles/appliance.nix ../../modules/boards/dmc12 ];
+  imports = [ ../../modules/profiles/appliance.nix ../../modules/profiles/rebuildable.nix ../../modules/boards/dmc12 ];
   system.stateVersion = "26.11";
   networking.hostName = lib.mkDefault "dmc12";
   time.timeZone = "America/Los_Angeles";
