@@ -72,6 +72,11 @@ dev() {
     die "no mtd partition '$1': this kernel's device tree lacks the firmware windows (reboot after deploying?)"
 }
 
+# All six windows present with the expected geometry. Runs dev() in this shell, so a die ends the
+# script (inside $(...) it would only end the subshell). Call before any other flash access.
+need_windows() { local n; for n in ipxe0 boot-mode ipxe1 spi0-boot spi0-mid spi0-high; do dev "$n" > /dev/null; done; }
+windows_problem() { local m; m=$( { ( need_windows ) 2>&1 > /dev/null || true; } | head -n 1 ); echo "${m#dmc12-firmware: }"; }
+
 # rd SRC LEN [SKIP]: LEN bytes of a re-readable file/device from SKIP
 rd() { dd if="$1" bs=4096 iflag=skip_bytes,count_bytes skip="${3:-0}" count="$2" status=none; }
 # all_ff SRC LEN [SKIP]: those LEN bytes exist and are all 0xFF (a short or failed read is not)
@@ -200,20 +205,27 @@ confirm() {
 }
 
 status() {
-    local bm n
+    local bm n w
+    w=$(windows_problem)
+    if [ -n "$w" ]; then
+        echo "windows:   MISSING: $w"
+        echo "           (boot once with this board module's device tree; nothing can be read or written until then)"
+    else
     bm=$(bm_state)
     echo "boot-mode: $bm$( [ "$bm" = factory ] && echo ' (stage3 runs the factory U-Boot)')"
     for n in 0 1; do
         echo "ipxe$n:     $(slot_state "ipxe$n")$(proven "ipxe$n" && echo ', proven (booted)')"
     done
+    fi
     echo "running:   $(running_ours && echo "our U-Boot $(tr -d '\0' < /proc/device-tree/chosen/u-boot,version)" || echo 'factory U-Boot (or unknown)')"
     echo "payload:   U-Boot $(cat "$P/version") ($(cut -c1-16 "$P/ipxe.sha256"))"
     echo "disk:      bootLoader=$BOOTLOADER${BOOTLOADER_SRC:-}; ours $(disk_for ours && echo can || echo can NOT) boot it, factory $(disk_for factory && echo can || echo can NOT)"
-    if ( check_chip && check_pins ) 2>/dev/null; then echo "flash:     MX25U12835F, read-only regions match their pins"; else echo "flash:     chip or pins DO NOT match (writes refused)"; fi
+    if [ -z "$w" ] && ( check_chip && check_pins ) 2>/dev/null; then echo "flash:     MX25U12835F, read-only regions match their pins"; else echo "flash:     chip or pins DO NOT match (writes refused)"; fi
 }
 
 mark_booted() {   # at boot: BOOT_MODE selects ipxeN and our U-Boot is running => ipxeN booted
-    local bm
+    local bm w
+    w=$(windows_problem); [ -z "$w" ] || { say "no proof recorded: $w"; exit 0; }
     bm=$(bm_state)
     case "$bm" in ipxe0|ipxe1) ;; *) exit 0 ;; esac
     running_ours || { say "BOOT_MODE selects $bm but the factory U-Boot is running (u escape?): no proof"; exit 0; }
@@ -239,6 +251,7 @@ exec 9>/run/dmc12-firmware.lock
 flock -n 9 || die "another dmc12-firmware is running"
 [ "$(cat "$P/ipxe.sha256")" = "$(sha_of < "$P/ipxe.fimg")" ] || die "payload does not match its own hash"
 
+case "$cmd" in status|mark-booted) ;; *) check_chip; need_windows ;; esac
 case "$cmd" in
 status) status ;;
 mark-booted) mark_booted ;;
