@@ -59,18 +59,64 @@ let
       sai="-I${libsai}/include/sai -L${libsai}/lib -lsai -Wl,-rpath,${libsai}/lib"
       $CXX -O2 -std=c++17 -o isai-smoke ${../sai-teralynx/tools/sai_smoke.cpp} $sai
       $CC -O2 -o isai-version ${./guest/isai_version.c} $sai
+      $CXX -O2 -std=c++17 -o sai-bench ${./tools/sai_bench.cpp} $sai -ldl
     '';
-    installPhase = "install -Dm755 -t $out/bin isai-smoke isai-version";
+    installPhase = "install -Dm755 -t $out/bin isai-smoke isai-version sai-bench";
   };
 
   # upstream syncd/sairedis (the pinned SONiC stack) on this libsai: SAI is
   # binary compatible from 1.12 on (sairedis checks >= 1.9), isai is 1.16.1
   syncd = (import ../sonic { inherit pkgs; }).sairedis-openbcm libsai;
+  # isai 6.2.0's sai_attribute_t is 48 bytes (SAI 1.16), the pinned sairedis'
+  # 64 (SAI 1.19.2): a vendor create_switch reads the attribute array with the
+  # wrong stride. syncd for isai = sairedis of SONiC's 202505 branch (its SAI
+  # submodule matches) linked to it, the rest of the stack as pinned.
+  syncd-202505 = syncd.overrideAttrs (o: {
+    version = "202505-14db8ad";
+    src = pkgs.fetchFromGitHub {
+      owner = "sonic-net";
+      repo = "sonic-sairedis";
+      rev = "14db8ad4452f70f375795b2d7d7bf797d2c012b5";   # 202505, 2026-02-12
+      fetchSubmodules = true;
+      hash = "sha256-TODqyiEA+d37b0/LYUJZfr6JCMuGXCow14/PNXaPWrw=";
+    };
+    # not the pinned build's big-endian mask fix (the AS7760, ppc); orchagent
+    # (pinned, SAI 1.19) asks for capabilities of attributes SAI 1.16 lacks:
+    # answer NOT_SUPPORTED instead of throwing (which shuts syncd down)
+    patches = [ ./patches/sairedis-202505-capability-unknown-attr.patch ];
+    # SAI 1.16's meta generator parses doxygen XML as doxygen 1.9.x wrote it
+    # (SONiC 202505 builds on Debian bookworm, 1.9.4); nixpkgs' current
+    # doxygen breaks it in either reader mode. Doxygen 1.9.5 from nixos-22.11
+    # (a build tool only, from the binary cache), upstream's reader (-S: skip
+    # the style checks).
+    nativeBuildInputs = map (p: if (p.pname or "") == "doxygen" then doxygen-1_9 else p) o.nativeBuildInputs;
+    postPatch = builtins.replaceStrings
+      [ "substituteInPlace SAI/meta/Makefile --replace-fail 'perl -I. parse.pl' 'perl -I. -MXML::Simple parse.pl -s -S'" ]
+      [ "substituteInPlace SAI/meta/Makefile --replace-fail 'perl -I. parse.pl' 'perl -I. parse.pl -S'" ]
+      o.postPatch;
+  });
+  doxygen-1_9 = (import (builtins.fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/ea4c80b39be4c09702b0cb3b42eab59e2ba4f24b.tar.gz";   # nixos-22.11
+    sha256 = "1xi53rlslcprybsvrmipm69ypd3g3hr7wkxvzc73ag8296yclyll";
+  }) { system = "x86_64-linux"; }).doxygen;
+
+  # the comparison: our SAI (arm64, native) with the same benchmark tool
+  sai-teralynx = cross.callPackage ../sai-teralynx { sonic = import ../sonic { pkgs = cross; }; };
+  bench-native = cross.stdenv.mkDerivation {
+    pname = "sai-bench-teralynx";
+    version = "1";
+    dontUnpack = true;
+    buildPhase = ''
+      $CXX -O2 -std=c++17 -I${sai-teralynx.saiHeaders} -I${sai-teralynx.saiHeaders}/../experimental \
+        -o sai-bench ${./tools/sai_bench.cpp} -L${sai-teralynx}/lib -lsai -ldl -Wl,-rpath,${sai-teralynx}/lib
+    '';
+    installPhase = "install -Dm755 -t $out/bin sai-bench";
+  };
 
   self = {
     qemu-ipd = qemuFor cross;          # for the CS8210 (aarch64 host)
     qemu-ipd-native = qemuFor pkgs;    # same patches, x86_64 host: offline tests
-    inherit isai libsai ortools-stub devmem smoke syncd;
+    inherit isai libsai ortools-stub devmem smoke syncd syncd-202505 sai-teralynx bench-native;
 
     # arm64 runner: isai-qemu PROGRAM [ARGS...] (see sai-qemu.md, phase 2)
     runner = cross.writeShellScriptBin "isai-qemu" ''
@@ -82,6 +128,11 @@ let
       exec ${self.qemu-ipd}/bin/qemu-x86_64 -B 0 -cpu Nehalem \
         -E LD_PRELOAD=${devmem}/lib/libipd-devmem.so \
         "$@"
+    '';
+    # arm64 bin/syncd that runs the amd64 upstream syncd (202505, SAI 1.16 ABI)
+    # under qemu-ipd (services.sonic.sai.package, see sonic-isai.nix)
+    syncd-runner = cross.writeShellScriptBin "syncd" ''
+      exec ${self.runner}/bin/isai-qemu ${syncd-202505}/bin/syncd "$@"
     '';
     # everything amd64 the box needs, as one closure to nix-copy
     guest = pkgs.linkFarm "isai-qemu-guest" { inherit smoke devmem libsai syncd; };
