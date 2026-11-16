@@ -1,0 +1,80 @@
+# Teralynx arm64/aarch64 SAI search, round 2 (2026-11-16)
+# Follows cs8210-sai-search-20261115.txt (98 amd64 isai debs; not repeated). Goal: ANY aarch64 build of a Teralynx
+# (IFCS-based) SAI for any generation/vendor. Method: git partial clones + HTTP range reads of .deb control members
+# (python -I, nothing executed), GitHub/Docker Hub/Azure DevOps/PyPI/npm public APIs without login, web search.
+# RESULT: NOT FOUND. No aarch64/arm64 Teralynx SAI, libifcs, ipd or ishell is published anywhere checked.
+
+## Candidate: Marvell-switching/sonic-marvell-teralynx-binaries (all branches, full history) - NEGATIVE
+  Branches main, ksridharan_test. Non-isai debs: 100+ paths (ipd, ishell, saihdr, ivm_serdes_pltfm, ishell-vs) -> all amd64.
+  ksridharan_test also has root ipd.deb (not an ar archive; unparsable) and debian/master/* 4.0.0 debs, all amd64.
+  No file path anywhere in history contains arm/aarch. Forks srivatsan-mrvl (16 branches), sureshsekar28 (11 branches):
+  every deb blob not in upstream (isai 5.0.1/6.1.1/4.0.1/7.0.0.1.0.1/7.0.1, isai-vs 7.0.1 ...) checked: amd64.
+  krismarvell/sonic-marvell-teralynx-binaries_private (public, 5 debs, 4.0.0 + serdes 1.1): amd64.
+
+## Candidate: Innovium/SONiC (+ fork bluecmd/Innovium-SONiC; forks ramnata65, AbhishekAg) - NEGATIVE
+  Every ipd/ishell/saihdr/ivm_serdes_pltfm deb in the 69 debian/* dirs checked (254 non-isai debs across both repos incl. ksridharan_test): all amd64.
+  Other content: sai/binaries/libsai.so.1.0 + ipd.ko (x86-64, per round 1), serdes/inc/{202111,master}/ifcs_{devport,status,types}.h
+  (public IFCS headers, not a library). No arm path in history (git log --all --name-only).
+
+## Candidate: sonic-net/sonic-buildimage platform/marvell-teralynx (master 13602 commits) + history of platform/innovium - NEGATIVE
+  sai.mk pins MRVL_TERALYNX_SAI_ONLINE=.../Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/master/1.18.1-1
+  (no CONFIGURED_ARCH in the URL; only x86 URLs). No arm64/aarch64/armhf token in platform/marvell-teralynx rules; git log -S arm64
+  over platform/{innovium,marvell-teralynx} finds only an unrelated swss commit. platform.conf/.mk use x86_64 platform strings.
+  All 9 device dirs with platform_asic marvell-teralynx/innovium are x86_64: celestica midstone-200i, delta agc032/et-c032if,
+  marvell dbmvtx9180 (TL10) + d64p512t (TL10) + common, netberg aurora-715, supermicro sse-t7132s, wistron 6512-32r + sw-to3200k.
+  SONiC supported-platforms table lists the same 6 Teralynx rows (TL7 x5, TL10 x1); no ARM board.
+  Azure DevOps (mssonic/build, anonymous): pipeline 2432 Azure.sonic-buildimage.official.marvell-teralynx and 148 ...official.innovium:
+  build 1277381 (master, 2026-11-15) has ONE artifact sonic-buildimage.marvell-teralynx (x86). Arm64 pipelines exist only for
+  centec-arm64, marvell-prestera-arm64, aspeed-arm64, pensando (not Teralynx). azure-pipelines-build.yml: marvell-teralynx has no PLATFORM_ARCH.
+  Forks: gord1306/ec-sonic-buildimage platform/innovium, kamelnetworks/sonic-buildimage (Silverstone-X/DS4001 Teralynx 7, x86; its
+  issue #60: TL7 syncd segfaults in libsai 1.18.1-1 (SAI 7.0.1); T5.0.3 (202411) works on TL7) - no arm64.
+
+## Candidate: Marvell-switching/mrvl-teralynx (+ 8 forks), krismarvell/sonic-platform-innovium - NEGATIVE (source, x86 only)
+  mrvl-teralynx = GPL-2.0 ipd kernel driver source (drivers/ipd/inno_*.c, ldh/cmipd v0/v2/v3/v4) + debian packaging whose control Depends on
+  linux-image-6.12.41+deb13-sonic-amd64; branches 1.18.0-1..1.18.1-1, T6.1.1..T8.1.0. Useful: ipd builds from source (arch-neutral C).
+  sonic-platform-innovium = TL10 dbmvtx9180 platform modules (x86). sonic-net/sonic-alpine is Google lemming "alpinevs" virtual switch (unrelated).
+
+## Candidate (NOT Teralynx): Marvell-switching/sonic-marvell-binaries arm64/sai-plugin/mrvllibsai_*_arm64.deb - NEGATIVE for IFCS
+  URL: github.com/Marvell-switching/sonic-marvell-binaries/raw/master/arm64/sai-plugin/202311/mrvllibsai_1.13.3-4_arm64.deb (12.8 MB)
+  sha256 58fb5356916ce0aa99becd391d420a9d2403177e1a3611003daee3a7431a5683; usr/lib/libsai.so ELF e_machine 0xb7 (aarch64), 75 MB,
+  sha256 (libsai.so) see below. Prestera/CPSS SAI (libXdkCpss.so): 38206 'CPSS' hits, 0 hits for ifcs/Innovium/IVM77700/Teralynx/ipd.
+  Marvell's "mrvllibsai" name is the Prestera line; the Teralynx line is "isai"/"Innovium-SAI". Branches also carry
+  esai-C200-mrvllibsai_1.18.1-200_arm64-Oct-15 (Prestera, not examined further). Redistribution: Marvell binary repo, no license file seen.
+  Mentioned only so nobody mistakes it for a Teralynx arm64 SAI. Marvell-switching/sonic-platform-arm64: Prestera boards only.
+
+## Candidate: Docker Hub / ghcr / ACR / sonicstorage - NEGATIVE (no access, not listed)
+  Docker Hub search (teralynx, innovium, invm, docker-syncd-mrvl, docker-syncd-invm, saiserver-invm, mrvl-teralynx): no Marvell/SONiC repos.
+  sonicdev-microsoft.azurecr.io/v2/docker-syncd-{mrvl-teralynx,invm}/tags/list: 401 (anonymous pull not allowed; no manifest list
+  readable). ghcr.io/sonic-net/docker-syncd-mrvl-teralynx: 401. sonicstorage.blob.core.windows.net containers: 403
+  (network security perimeter). Not tried: logging in (out of scope).
+
+## Candidate: PyPI / npm / other leaks - NEGATIVE
+  PyPI 404 for innovium, teralynx, libifcs, isai, ifcs-sdk, marvell-teralynx; npm 404 except an unrelated "isai" npm name (not examined).
+  GitHub repo search (teralynx, innovium, innovium sai, ifcs, libifcs, cs8210, celestica briggs, alpine annapurna sonic): only the repos above
+  + api-evangelist/innovium (profile page). GitHub orgs Marvell-switching (28 repos), MarvellEmbeddedProcessors (octeon/armada, no Teralynx),
+  Innovium (org not found). No Celestica sonic org found; sonic-buildimage has no cs8210/briggs commit or device dir.
+  ~25 web searches (teralynx arm64/aarch64 SAI, libifcs.so, ipd.ko arm64, Annapurna/Alpine + Teralynx, Briggs, IVM77700 aarch64,
+  smartswitch/DPU + Teralynx): nothing ties a Teralynx ASIC to an ARM host or an arm64 Teralynx SAI/SDK.
+
+## Reference facts gathered (useful for the next try)
+  - isai.deb 7.0.1 (local copy, sha256 9ebc5cb3...) ships usr/lib/libifcs.so (x86-64, with debug_info, 474 MB, IFCS 0.16.0 string; sha256 below),
+    libsai.so.1.0 (x86-64, stripped; contains IFCS version format strings and IVM77700 config), libmkaecp.so.1.0.0, mrvl_sdk_config.py.
+    So the modern SAI is a thin layer over a separate libifcs ABI; the old 0.11.1 (202006) libsai.so.1.0 is one 86 MB x86-64 lib with IFCS linked in
+    (ISAI_BUILD_VERSION=0:11:1). Both published SAI lines are x86-64 only.
+  - The CS8210 arm64 libifcs (R3181-J0001-01_V0.1.7_Briggs_SDK, 37 MB, e_machine 0xb7) has the string
+    "IFCS SDK version(%d:%d:%d) mismatch with driver version": SDK<->ipd version lock; an x86 SAI/IFCS would need a matching ipd (source is open, see above).
+  - IFCS version bundled in each published SAI was not extracted (version is int triplets, not a plain string); only 0.16.0 appears in 7.0.1's libifcs.
+  sha256: 3c6a743f9339f0c6361cfc3896a3cd1be9dbc0bd7c3af47b9b2e4526609455fd  /tmp/claude-10
+          72afa22090bae2c04fa82d3f5920b534e0b6d489d3f5e9fd08145baf61ce8d45  /tmp/claude-10
+          0277a7064a63a9a38205c8085bbef262c88cc30cc7af9e01f7282824f85b1444  /tmp/claude-10
+
+## Verdict and what could still be tried
+  FOUND: nothing (no arm64 Teralynx SAI/libsai/libifcssai in any public source). Best candidates: none; closest are
+  (a) Prestera arm64 mrvllibsai (wrong ASIC family) and (b) the amd64 Innovium-SAI line (T5.0.3 works on TL7 per kamelnetworks #60; 7.0.x crashes).
+  Untried / needs the owner or a vendor: (1) ask Celestica/Marvell (CS8210 NOS vendor package, "Briggs" SAI or saiserver for R3181) - the vendor
+  image may ship an arm64 libsai/syncd that the box image we dumped lacks; (2) run an amd64 isai under user-mode x86 emulation on the arm64 box
+  (FEX/box64/qemu-user; ioctls on /dev/ipd0 are arch-neutral 64-bit structs, so pass-through is plausible, needs an ipd built from mrvl-teralynx to match SAI's IFCS)
+  (3) authenticated pulls from the Azure registry
+  (sonicdev-microsoft.azurecr.io docker-syncd-mrvl-teralynx) to see if an arm64 manifest exists (anonymous access refused); (4) the other
+  Briggs SDK versions on the box (V0.1.0 under analysis/extracted) for a libsai-like layer; (5) LinkedIn/vendor SDK release notes of Marvell
+  "Teralynx SDK" for supported host archs (not public).
