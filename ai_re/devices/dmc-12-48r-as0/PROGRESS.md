@@ -4,13 +4,14 @@
 - **u01 (2026-11-15): stage3 → our U-Boot 2026.10 from SPI → standard boot (`bootflow scan`) →
   nixpkgs extlinux on sda1 → NixOS root sda2**; login ≈ 38 s, soak 3/3. Disk: `dmc12-disk-image`
   (`hardware.dmc12.bootLoader = "standard"`, installed with `reimage.py`).
+- **Fans: fand** (python script retired 2026-11-15; failsafe/stop = 100 %).
 - **Full Nix system (`profile-rebuildable`):** deploy in place with `./deploy.sh 10.60.2.10 [switch|boot]`
   (root flake, so fand is in; copies only new paths), generations in the extlinux menu, rollback on
   the box `nixos-rebuild switch --rollback --no-reexec`.
   906 MiB used of 29 GiB.
 - **SPI slots** (`spi-upgrade.py slots`; spec `spi-upgrade-plan.md`, journal `inventory/u01/spi-upgrade.jsonl`):
-  IPXE 1 = env build with the SSI fix 0cc8c34 **[active]**, IPXE 0 = af039fd (fallback; its env load
-  fails cold, boots on defaults), UBOOT 0/1 =
+  IPXE 0 = hardened build (squashed series 0014-0023, `.fimg` a0328d81) **[active]**, IPXE 1 = the SSI-fix
+  env build 0cc8c34 (fallback), UBOOT 0/1 =
   factory 2015.07. `switch --to ipxe0|ipxe1|factory`, `update` (writes the inactive slot), `rollback`.
   Holding `u` at stage3 = factory U-Boot (recovery prompt; it can't boot the standard disk).
 - **U-Boot env persists** (`saveenv` at `=>`): redundant 2 × 64 KiB at 0xf90000/0xfa0000, `$env_source`
@@ -146,6 +147,14 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-15 21:10: **fand, review fixes, squashed U-Boot, hardened build in SPI.** Fable reviews (U-Boot: no
+  must-fix; host: 4 must-fix) fixed and simulated (3fd0b4f, c879b77, b720366); cold boot settled two U-Boot
+  questions (GPIO 22 reads back out 1, CS1 crc 3d086ac6). fand on u01 via `deploy.sh` (ddc9cbd): WDT
+  handshake, PI to the floor, stop → 100 %, metrics; python script retired (7d95452, system path unchanged).
+  U-Boot hardening by the agent (allowlist w/o 0x35 EQIO, address width, pinned chip; sandbox + exhaustive
+  window tests), then the Alpine/DMC-12 series squashed 22 → 10 (81d6a04, binaries byte-identical; map in
+  `nix/packages/uboot/README.md`). Rehearsed + `update` into IPXE 0: cold boot with no refused opcode,
+  `saveenv` persisted over AC power-cycle, smoke clean, escape OK. Build lock retired (owner).
 - 2026-11-15 19:40: **env from Linux + quiet disk.** `boards/dmc12/uboot-env` (492c10e): Linux-only DT overlay
   (CS0 = spi0-boot ro, u-boot-env rw, spi0-tail ro; U-Boot's DTS untouched), U-Boot's envtools (67 KiB;
   `ubootTools` would be +23 MiB), `dmc12-uboot-env` wrapper (logged, counted, 20/day before `--force`).
