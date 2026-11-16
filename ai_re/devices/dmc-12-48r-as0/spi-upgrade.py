@@ -50,6 +50,10 @@ MODEL_END = 0xFD0000                     # env pair 0xfd0000..0xffffff is not mo
 BOOT_MODE_OFF, SECTOR = 0x340000, 0x1000
 IPXE_SLOTS = {0: (0x2C0000, 0x80000), 1: (0x580000, 0x80000)}
 WRITABLE = {*IPXE_SLOTS.values(), (BOOT_MODE_OFF, SECTOR)}   # the only (off, len) ever erased
+# Our U-Boot's redundant env (2 x 64 KiB, saveenv / fw_setenv): in the blank tail of the BOOT_APP 1
+# slot. Humans change it, so it is never modelled, compared or written here (like the factory
+# env pair at 0xfd0000+).
+ENV_WINDOW = (0xF90000, 0xFB0000)
 IPXE, BOOT_MODE, UBOOT_ID = 0x110, 0, 5
 BM_DATA = 0x40                           # stage3 loads at most 0x40 B of BOOT_MODE data
 PAYLOAD_LOAD = 0x08000000                # IPXE object: load = exec (stage3 jumps there at EL2)
@@ -149,6 +153,14 @@ def check_layout(img):
     for n, want in IPXE_SLOTS.items():
         if uartboot.slot(img, IPXE, n) != want:
             raise Fail(f"IPXE {n} slot is {uartboot.slot(img, IPXE, n)}, expected {want}")
+    off, mx = uartboot.slot(img, 0x200, 1)            # BOOT_APP 1 holds our env window in its tail
+    s, f = alboot.check_object(img, off, mx, 0x200)
+    end = off + alboot.HDR + f["size"] + 4 if s == "OK" else off
+    if not (end <= ENV_WINDOW[0] and ENV_WINDOW[1] <= off + mx):
+        raise Fail(f"env window {ENV_WINDOW} is not in the free tail of BOOT_APP 1 ({end:#x}..{off + mx:#x})")
+    for w in WRITABLE:
+        if overlaps(ENV_WINDOW, w[0], w[0] + w[1]):
+            raise Fail("env window overlaps a region this script writes")
 
 
 def payload_ok(a):
@@ -349,12 +361,13 @@ def read_cs0(a, img, unknown, what):
     if "mx25u12835f" not in con("sf probe 0:0").lower():
         raise Fail("sf probe 0:0 did not detect the MX25U12835F")
     con(f"sf read {A_CS0:#x} 0 {MODEL_END:#x}", a.read_timeout)
-    for lo, hi in segments(unknown):
+    for lo, hi in segments(unknown + [ENV_WINDOW]):
         got, want = crc(A_CS0 + lo, hi - lo, 300), zlib.crc32(img[lo:hi])
         if got != want:
             raise Fail(f"CS0 {what} {lo:#x}..{hi:#x}: crc32 {got:08x} != model {want:08x}. STOP: the "
                        "flash is not what the journal says (spi-upgrade-plan.md, failure handling)")
-    return f"{zlib.crc32(img):08x}" if not unknown else f"known pieces match, unknown {unknown}"
+    return (f"pieces match (env window {ENV_WINDOW[0]:#x}..{ENV_WINDOW[1]:#x} skipped)" if not unknown
+            else f"known pieces match, unknown {unknown}, env window skipped")
 
 
 # ---- steps ----------------------------------------------------------------------------------
@@ -608,7 +621,7 @@ def mode_clipcheck(a, st, img, unknown):
     names = [(off, mx, f"{alboot.NAMES.get(i, hex(i))} {n}") for i, n, off, mx in uartboot.toc_entries(img)]
     bad = {}
     for lo in range(0, MODEL_END, SECTOR):
-        if any(overlaps(u, lo, lo + SECTOR) for u in unknown):
+        if any(overlaps(u, lo, lo + SECTOR) for u in unknown + [ENV_WINDOW]):
             continue
         if d[lo:lo + SECTOR] != img[lo:lo + SECTOR]:
             where = next((nm for off, mx, nm in names if off <= lo < off + mx), "outside the TOC")
