@@ -49,7 +49,7 @@ let
     isExecutable = true;
     replacements = {
       bash = pkgs.bash;
-      path = lib.makeBinPath [ pkgs.coreutils pkgs.diffutils pkgs.util-linux pkgs.mtdutils ];
+      path = lib.makeBinPath [ pkgs.coreutils pkgs.diffutils pkgs.gnugrep pkgs.util-linux pkgs.mtdutils ];
       payloads = "${payloads}";
       bootLoader = config.hardware.dmc12.bootLoader;
     };
