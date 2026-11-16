@@ -29,6 +29,11 @@ public:
     sai_status_t ecmp_create(const std::vector<int>& egress, int& ecmp_id);
     sai_status_t ecmp_update(int ecmp_id, const std::vector<int>& egress);
     sai_status_t ecmp_destroy(int ecmp_id);
+    // Router interface counters (SAI_ROUTER_INTERFACE_STAT_*) of an L3
+    // interface: IFCS intf stats; clear = read and reset. NOT_SUPPORTED for
+    // ids without an IFCS counter (the error counters). Waits for a frontend
+    // hook (sai-features.md, frontend requests).
+    sai_status_t intf_stats(int intf_id, uint32_t n, const sai_stat_id_t* ids, uint64_t* out, bool clear);
 
     // Our own counts for the switch's table usage (no trusted IFCS call).
     struct Counts { uint32_t v4_prefixes = 0, v6_prefixes = 0, v4_hosts = 0, v6_hosts = 0, ecmp_members = 0; };
@@ -43,18 +48,18 @@ private:
         uint8_t dmac[6] = {0};
         uint16_t vid = 0;
     };
-    struct Ecmp { ifcs_handle_t handle = 0; std::map<ifcs_handle_t, uint32_t> members; };
+    struct Ecmp { ifcs_handle_t handle = 0; std::vector<ifcs_handle_t> members; };   // in order, repeated = weight
     struct Route { int target = -1; bool ecmp = false; };
     using HostKey = std::pair<int, IpAddr>;
     using RouteKey = std::pair<int, IpPrefix>;
 
     void route_key(ifcs_route_entry_key_t& k, ifcs_handle_t vni, const IpPrefix& p);
+    sai_status_t dest_of(int hw, ifcs_handle_t& h);   // port sysport or LAG handle
     sai_status_t l3vni(int vrf, ifcs_handle_t& h);
-    sai_status_t route_attrs(int target, bool ecmp, std::vector<ifcs_attr_t>& a, int& kind);
+    sai_status_t route_attrs(int target, bool ecmp, bool host, std::vector<ifcs_attr_t>& a, int& kind);
     sai_status_t route_program(int vrf, const IpPrefix& p, int target, bool ecmp, const Route* old);
     sai_status_t route_remove(int vrf, const IpPrefix& p);
-    sai_status_t ecmp_members(const std::vector<int>& egress, std::map<ifcs_handle_t, uint32_t>& want);
-    sai_status_t ecmp_apply(Ecmp& e, const std::map<ifcs_handle_t, uint32_t>& want);
+    sai_status_t ecmp_members(const std::vector<int>& egress, std::vector<ifcs_handle_t>& want);
 
     Core& c_;
     std::map<int, ifcs_handle_t> l3vnis_;
@@ -65,6 +70,7 @@ private:
     std::map<RouteKey, Route> routes_;
     int next_intf_ = 1, next_station_ = 1, next_egress_ = 100001, next_ecmp_ = 200001;
     int cpu_egress_ = -1, drop_egress_ = -1;
+    bool ttl_profile_set_ = false;   // node TTL_CHECK_PROFILE_1_THRESHOLD = 0 done
 };
 
 } // namespace tlb

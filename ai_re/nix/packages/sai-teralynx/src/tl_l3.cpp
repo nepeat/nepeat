@@ -4,6 +4,9 @@
 
 #include "tl_hostif.h"
 #include "tl_l2.h"
+#include "tl_lag.h"
+
+#include <algorithm>
 
 namespace ob {
 namespace tlb {
@@ -11,6 +14,13 @@ namespace tlb {
 static uint32_t be32(const uint8_t* b)
 {
     return ((uint32_t)b[0] << 24) | ((uint32_t)b[1] << 16) | ((uint32_t)b[2] << 8) | b[3];
+}
+
+static bool is_host(const IpPrefix& p)
+{
+    for (int i = 0; i < (p.addr.v6 ? 16 : 4); i++)
+        if (p.mask.addr[i] != 0xff) return false;
+    return true;
 }
 
 static IpPrefix host_prefix(const IpAddr& ip)
@@ -101,18 +111,19 @@ sai_status_t L3Area::station_add(const uint8_t mac[6], int& station_id)
 sai_status_t L3Area::station_delete(int) { return SAI_STATUS_SUCCESS; }
 
 // Egress object = IFCS nexthop: INTF, DEST_MAC, LOCAL_DESTINATION = the
-// port's sysport (l3snake_cel.py). Shared CPU / drop egress: no nexthop,
+// port's sysport (l3snake_cel.py) or the LAG's handle (a port RIF on a LAG:
+// LagArea::dest_handle, as isai points next hops at a LAG). Shared CPU / drop egress: no nexthop,
 // they turn into route policies (see route_attrs).
 sai_status_t L3Area::egress_create(int intf_id, const uint8_t dmac[6], int hw, uint16_t vid, int& egress_id)
 {
     Guard g(c_.mu);
     auto in = intfs_.find(intf_id);
     if (in == intfs_.end()) return SAI_STATUS_INVALID_PARAMETER;
-    if (is_lag_dest(hw)) return c_.not_impl("next hop on a LAG");
-    auto sp = c_.sysport.find(hw);
-    if (sp == c_.sysport.end()) return SAI_STATUS_INVALID_PORT_NUMBER;
+    ifcs_handle_t dest = IFCS_NULL_HANDLE;
+    sai_status_t st0 = dest_of(hw, dest);
+    if (st0 != SAI_STATUS_SUCCESS) return st0;
     ifcs_attr_t a[3] = {attr_handle(IFCS_NEXTHOP_ATTR_INTF, in->second.handle), attr_mac(IFCS_NEXTHOP_ATTR_DEST_MAC, dmac),
-                        attr_handle(IFCS_NEXTHOP_ATTR_LOCAL_DESTINATION, sp->second)};
+                        attr_handle(IFCS_NEXTHOP_ATTR_LOCAL_DESTINATION, dest)};
     ifcs_handle_t h = IFCS_NULL_HANDLE;
     sai_status_t st = c_.call(c_.L.ifcs_nexthop_create(NODE, &h, 3, a), "nexthop_create");
     if (st != SAI_STATUS_SUCCESS) return st;
@@ -137,9 +148,9 @@ sai_status_t L3Area::egress_update(int egress_id, int intf_id, const uint8_t dma
     Egress& e = it->second;
     auto in = intfs_.find(intf_id);
     if (in == intfs_.end()) return SAI_STATUS_INVALID_PARAMETER;
-    if (is_lag_dest(hw)) return c_.not_impl("next hop on a LAG");
-    auto sp = c_.sysport.find(hw);
-    if (sp == c_.sysport.end()) return SAI_STATUS_INVALID_PORT_NUMBER;
+    ifcs_handle_t dest = IFCS_NULL_HANDLE;
+    sai_status_t st0 = dest_of(hw, dest);
+    if (st0 != SAI_STATUS_SUCCESS) return st0;
     if (intf_id != e.intf) {
         ifcs_attr_t a = attr_handle(IFCS_NEXTHOP_ATTR_INTF, in->second.handle);
         sai_status_t st = c_.call(c_.L.ifcs_nexthop_attr_set(NODE, e.handle, 1, &a), "nexthop intf");
@@ -153,7 +164,7 @@ sai_status_t L3Area::egress_update(int egress_id, int intf_id, const uint8_t dma
         std::memcpy(e.dmac, dmac, 6);
     }
     if (hw != e.hw) {
-        ifcs_attr_t a = attr_handle(IFCS_NEXTHOP_ATTR_LOCAL_DESTINATION, sp->second);
+        ifcs_attr_t a = attr_handle(IFCS_NEXTHOP_ATTR_LOCAL_DESTINATION, dest);
         sai_status_t st = c_.call(c_.L.ifcs_nexthop_attr_set(NODE, e.handle, 1, &a), "nexthop local_destination");
         if (st != SAI_STATUS_SUCCESS) return st;
         e.hw = hw;
@@ -245,27 +256,30 @@ sai_status_t L3Area::route_delete(int vrf, const IpPrefix& p)
     return st;
 }
 
-// ECMP group: ifcs_ecmp_create without attributes (as cmds/ecmp.py with no
-// options), then ifcs_ecmp_member_add per nexthop. A repeated egress
-// object becomes IFCS_ECMP_MEMBER_ATTR_WEIGHT (u32, I).
+// ECMP group: ifcs_ecmp_create without attributes (cmds/ecmp.py with no
+// options), then the members in one ifcs_ecmp_member_add; a member's weight
+// is its nexthop repeated (the frontend repeats the egress object), changes
+// are one ifcs_ecmp_member_replace of the whole list. All as isai does
+// (oracle l3-ecmpw); IFCS_ECMP_MEMBER_ATTR_WEIGHT is accepted but has no
+// effect (chip 2026-11-16: weight 3:1 forwarded 1:1).
 sai_status_t L3Area::ecmp_create(const std::vector<int>& egress, int& ecmp_id)
 {
     Guard g(c_.mu);
-    std::map<ifcs_handle_t, uint32_t> want;
+    std::vector<ifcs_handle_t> want;
     sai_status_t st = ecmp_members(egress, want);
     if (st != SAI_STATUS_SUCCESS) return st;
     ifcs_handle_t h = IFCS_NULL_HANDLE;
     ifcs_attr_t none = attr_of(0);
     st = c_.call(c_.L.ifcs_ecmp_create(NODE, &h, 0, &none), "ecmp_create");
     if (st != SAI_STATUS_SUCCESS) return st;
-    Ecmp e;
-    e.handle = h;
-    st = ecmp_apply(e, want);
+    st = c_.call(c_.L.ifcs_ecmp_member_add(NODE, h, (uint32_t)want.size(), want.data(), 0, nullptr), "ecmp_member_add");
     if (st != SAI_STATUS_SUCCESS) {
-        ecmp_apply(e, {});
         c_.L.ifcs_ecmp_delete(NODE, h);
         return st;
     }
+    Ecmp e;
+    e.handle = h;
+    e.members = want;
     ecmp_id = next_ecmp_++;
     ecmps_[ecmp_id] = e;
     return SAI_STATUS_SUCCESS;
@@ -276,10 +290,14 @@ sai_status_t L3Area::ecmp_update(int ecmp_id, const std::vector<int>& egress)
     Guard g(c_.mu);
     auto it = ecmps_.find(ecmp_id);
     if (it == ecmps_.end()) return SAI_STATUS_ITEM_NOT_FOUND;
-    std::map<ifcs_handle_t, uint32_t> want;
+    std::vector<ifcs_handle_t> want;
     sai_status_t st = ecmp_members(egress, want);
     if (st != SAI_STATUS_SUCCESS) return st;
-    return ecmp_apply(it->second, want);
+    if (want == it->second.members) return SAI_STATUS_SUCCESS;
+    st = c_.call(c_.L.ifcs_ecmp_member_replace(NODE, it->second.handle, (uint32_t)want.size(), want.data(), 0, nullptr),
+                 "ecmp_member_replace");
+    if (st == SAI_STATUS_SUCCESS) it->second.members = want;
+    return st;
 }
 
 sai_status_t L3Area::ecmp_destroy(int ecmp_id)
@@ -287,16 +305,74 @@ sai_status_t L3Area::ecmp_destroy(int ecmp_id)
     Guard g(c_.mu);
     auto it = ecmps_.find(ecmp_id);
     if (it == ecmps_.end()) return SAI_STATUS_ITEM_NOT_FOUND;
-    ecmp_apply(it->second, {});
-    sai_status_t st = c_.call(c_.L.ifcs_ecmp_delete(NODE, it->second.handle), "ecmp_delete");
+    Ecmp& e = it->second;
+    if (!e.members.empty()) {
+        sai_status_t st = c_.call(c_.L.ifcs_ecmp_member_remove(NODE, e.handle, (uint32_t)e.members.size(), e.members.data()),
+                                  "ecmp_member_remove");
+        if (st != SAI_STATUS_SUCCESS) return st;
+        e.members.clear();
+    }
+    sai_status_t st = c_.call(c_.L.ifcs_ecmp_delete(NODE, e.handle), "ecmp_delete");
     if (st == SAI_STATUS_SUCCESS) ecmps_.erase(it);
+    return st;
+}
+
+sai_status_t L3Area::dest_of(int hw, ifcs_handle_t& h)
+{
+    if (is_lag_dest(hw)) return c_.lag->dest_handle(hw, h) ? SAI_STATUS_SUCCESS : SAI_STATUS_INVALID_PARAMETER;
+    auto sp = c_.sysport.find(hw);
+    if (sp == c_.sysport.end()) return SAI_STATUS_INVALID_PORT_NUMBER;
+    h = sp->second;
+    return SAI_STATUS_SUCCESS;
+}
+
+// RIF counters: ingress = L3INTF_INGRESS_*; egress = the IPv4 + IPv6
+// egress counters (IFCS has no combined one). One stats_get per call.
+sai_status_t L3Area::intf_stats(int intf_id, uint32_t n, const sai_stat_id_t* ids, uint64_t* out, bool clear)
+{
+    Guard g(c_.mu);
+    auto it = intfs_.find(intf_id);
+    if (it == intfs_.end()) return SAI_STATUS_INVALID_OBJECT_ID;
+    std::vector<std::vector<ifcs_intf_stats_id_t>> want(n);
+    std::vector<ifcs_intf_stats_id_t> q;
+    for (uint32_t i = 0; i < n; i++) {
+        switch (ids[i]) {
+        case SAI_ROUTER_INTERFACE_STAT_IN_PACKETS: want[i] = {IFCS_INTF_STATS_ID_L3INTF_INGRESS_PKTS}; break;
+        case SAI_ROUTER_INTERFACE_STAT_IN_OCTETS: want[i] = {IFCS_INTF_STATS_ID_L3INTF_INGRESS_BYTES}; break;
+        case SAI_ROUTER_INTERFACE_STAT_OUT_PACKETS:
+            want[i] = {IFCS_INTF_STATS_ID_L3INTF_EGRESS_IPV4_PKTS, IFCS_INTF_STATS_ID_L3INTF_EGRESS_IPV6_PKTS};
+            break;
+        case SAI_ROUTER_INTERFACE_STAT_OUT_OCTETS:
+            want[i] = {IFCS_INTF_STATS_ID_L3INTF_EGRESS_IPV4_BYTES, IFCS_INTF_STATS_ID_L3INTF_EGRESS_IPV6_BYTES};
+            break;
+        default: return SAI_STATUS_NOT_SUPPORTED;
+        }
+        for (auto s : want[i])
+            if (std::find(q.begin(), q.end(), s) == q.end()) q.push_back(s);
+    }
+    if (q.empty()) return SAI_STATUS_SUCCESS;
+    std::vector<uint64_t> v(q.size(), 0);
+    uint32_t got = 0;
+    sai_status_t st = c_.call(c_.L.ifcs_intf_stats_get(NODE, it->second.handle, (uint32_t)q.size(), q.data(), v.data(), &got),
+                              "intf_stats_get");
+    if (st != SAI_STATUS_SUCCESS) return st;
+    for (uint32_t i = 0; i < n; i++) {
+        out[i] = 0;
+        for (auto s : want[i]) out[i] += v[(size_t)(std::find(q.begin(), q.end(), s) - q.begin())];
+    }
+    if (clear) st = c_.call(c_.L.ifcs_intf_stats_clear(NODE, it->second.handle, (uint32_t)q.size(), q.data()), "intf_stats_clear");
     return st;
 }
 
 L3Area::Counts L3Area::counts() const
 {
     Counts n;
-    for (auto& r : routes_) (r.first.second.addr.v6 ? n.v6_prefixes : n.v4_prefixes)++;
+    // A host-length route lives in the host hash like a neighbor's host entry
+    // (chip 2026-11-16: 95,043 /32 routes fitted with the 24,576-entry TCAM full).
+    for (auto& r : routes_) {
+        bool v6 = r.first.second.addr.v6, host = is_host(r.first.second);
+        (host ? (v6 ? n.v6_hosts : n.v4_hosts) : (v6 ? n.v6_prefixes : n.v4_prefixes))++;
+    }
     for (auto& h : hosts_) (h.first.second.v6 ? n.v6_hosts : n.v4_hosts)++;
     for (auto& e : ecmps_) n.ecmp_members += (uint32_t)e.second.members.size();
     return n;
@@ -339,9 +415,22 @@ sai_status_t L3Area::l3vni(int vrf, ifcs_handle_t& h)
         return SAI_STATUS_SUCCESS;
     }
     ifcs_handle_t v = IFCS_HANDLE_L3VNI((uint32_t)vrf + 1);
-    ifcs_attr_t none = attr_of(0);
-    int r = IFCS_STATUS_REASON(c_.L.ifcs_l3vni_create(NODE, &v, 0, &none));
+    // Routed packets whose TTL check fails are copied to the CPU (the system
+    // trap FWD_L3_TTL_CHECK_FAIL then decides queue / whether: TTL_ERROR), as
+    // isai creates its L3VNIs (oracle l3-basic; without it TTL 1 is dropped
+    // silently, chip 2026-11-16).
+    ifcs_attr_t a[2] = {attr_data(IFCS_L3VNI_ATTR_IPV4_UNICAST_TTL_CHECK_FAIL_CTC, true),
+                        attr_data(IFCS_L3VNI_ATTR_IPV6_UNICAST_TTL_CHECK_FAIL_CTC, true)};
+    int r = IFCS_STATUS_REASON(c_.L.ifcs_l3vni_create(NODE, &v, 2, a));
     if (r != IFCS_SUCCESS && r != IFCS_EXIST) return c_.fail(r, "l3vni_create");
+    if (!ttl_profile_set_) {
+        // TTL check profile 1 passes everything but TTL 0: IP2ME routes use it,
+        // so TTL 1 packets to the switch itself (single-hop eBGP, traceroute's
+        // last hop) reach the CPU (isai: same threshold, same route attribute).
+        ifcs_attr_t t = attr_u32(IFCS_NODE_ATTR_TTL_CHECK_PROFILE_1_THRESHOLD, 0);
+        if (c_.call(c_.L.ifcs_node_attr_set(NODE, 1, &t), "node TTL_CHECK_PROFILE_1_THRESHOLD") == SAI_STATUS_SUCCESS)
+            ttl_profile_set_ = true;
+    }
     l3vnis_[vrf] = v;
     h = v;
     return SAI_STATUS_SUCCESS;
@@ -351,10 +440,12 @@ sai_status_t L3Area::l3vni(int vrf, ifcs_handle_t& h)
 //   nexthop / ECMP: NEXTHOP + FWD_POLICY forward (l3snake_cel.py; an ECMP
 //     handle as NEXTHOP is I);
 //   drop: FWD_POLICY drop, no NEXTHOP (I);
-//   CPU (TRAP / ip2me): FWD_POLICY drop + CTC_POLICY copy-to-cpu with the
-//     hostif area's IP2ME trap (HostifArea::ip2me_trap; drop + copy as
-//     Marvell's SAI does for ip2me, from its strings; I).
-sai_status_t L3Area::route_attrs(int target, bool ecmp, std::vector<ifcs_attr_t>& a, int& kind)
+//   CPU (TRAP / ip2me / glean): FWD_POLICY drop + CTC_POLICY copy-to-cpu with
+//     the hostif area's IP2ME trap (HostifArea::ip2me_trap; drop + copy as
+//     isai does, oracle l3-basic); a host prefix (IP2ME) also takes TTL
+//     check profile 1 (see l3vni). isai gives glean its own hostif trap; the
+//     frontend has one CPU egress for both, so glean shares IP2ME's.
+sai_status_t L3Area::route_attrs(int target, bool ecmp, bool host, std::vector<ifcs_attr_t>& a, int& kind)
 {
     a.clear();
     if (ecmp) {
@@ -379,6 +470,7 @@ sai_status_t L3Area::route_attrs(int target, bool ecmp, std::vector<ifcs_attr_t>
         if (st != SAI_STATUS_SUCCESS) return st;
         a.push_back(attr_fwd(IFCS_ROUTE_ENTRY_ATTR_FWD_POLICY, IFCS_FWD_ACTION_DROP));
         a.push_back(attr_ctc(IFCS_ROUTE_ENTRY_ATTR_CTC_POLICY, true, trap));
+        if (host && ttl_profile_set_) a.push_back(attr_u32(IFCS_ROUTE_ENTRY_ATTR_TTL_CHECK_PROFILE, 1));   // IP2ME
     }
     return SAI_STATUS_SUCCESS;
 }
@@ -393,7 +485,7 @@ sai_status_t L3Area::route_program(int vrf, const IpPrefix& p, int target, bool 
     if (st != SAI_STATUS_SUCCESS) return st;
     std::vector<ifcs_attr_t> a;
     int kind = 0;
-    st = route_attrs(target, ecmp, a, kind);
+    st = route_attrs(target, ecmp, is_host(p), a, kind);
     if (st != SAI_STATUS_SUCCESS) return st;
     ifcs_route_entry_key_t k;
     route_key(k, vni, p);
@@ -417,35 +509,14 @@ sai_status_t L3Area::route_remove(int vrf, const IpPrefix& p)
     return c_.call(c_.L.ifcs_route_entry_delete(NODE, &k), "route_entry_delete");
 }
 
-sai_status_t L3Area::ecmp_members(const std::vector<int>& egress, std::map<ifcs_handle_t, uint32_t>& want)
+sai_status_t L3Area::ecmp_members(const std::vector<int>& egress, std::vector<ifcs_handle_t>& want)
 {
     if (egress.empty() || egress.size() > ECMP_PATHS) return SAI_STATUS_INVALID_PARAMETER;
+    want.clear();
     for (int e : egress) {
         auto it = egress_.find(e);
         if (it == egress_.end() || it->second.kind != Egress::Nh) return SAI_STATUS_INVALID_PARAMETER;
-        want[it->second.handle]++;
-    }
-    return SAI_STATUS_SUCCESS;
-}
-
-sai_status_t L3Area::ecmp_apply(Ecmp& e, const std::map<ifcs_handle_t, uint32_t>& want)
-{
-    for (auto it = e.members.begin(); it != e.members.end();) {
-        auto w = want.find(it->first);
-        if (w != want.end() && w->second == it->second) { ++it; continue; }
-        ifcs_handle_t h = it->first;
-        sai_status_t st = c_.call(c_.L.ifcs_ecmp_member_remove(NODE, e.handle, 1, &h), "ecmp_member_remove");
-        if (st != SAI_STATUS_SUCCESS) return st;
-        it = e.members.erase(it);
-    }
-    for (auto& w : want) {
-        if (e.members.count(w.first)) continue;
-        ifcs_handle_t h = w.first;
-        ifcs_attr_t wt = attr_u32(IFCS_ECMP_MEMBER_ATTR_WEIGHT, w.second);
-        sai_status_t st = c_.call(c_.L.ifcs_ecmp_member_add(NODE, e.handle, 1, &h, w.second > 1 ? 1 : 0, &wt),
-                                  "ecmp_member_add");
-        if (st != SAI_STATUS_SUCCESS) return st;
-        e.members[w.first] = w.second;
+        want.push_back(it->second.handle);
     }
     return SAI_STATUS_SUCCESS;
 }
