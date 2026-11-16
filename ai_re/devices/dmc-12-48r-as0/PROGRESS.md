@@ -159,6 +159,10 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-16 13:30: **U-Boot builds reproducible on any build host** (f13a8d5; every U-Boot incl. AS7760, TN48M):
+  the cross prefix in CC_VERSION_STRING shifted the image, so a native aarch64 build (p01/comin) differed from the
+  x86 cross one. Now byte-identical (d3df4b80); `dmc12-firmware` pins it. Rehearsed on u01: A/B update IPXE 0 ->
+  IPXE 1 from Linux, cold boot (`Loading application ... 488632 bytes`), proof, smoke 16/16.
 - 2026-11-16 13:05: **`dmc12-firmware`: our U-Boot installed from Linux** (vendor-style; `nix/modules/boards/dmc12/firmware`,
   56ce4fd..3a8f548). DT windows ipxe0/boot-mode/ipxe1 rw, the rest of CS0 ro and pinned; payload pinned (94f29fd0);
   boot proofs from `/chosen/u-boot,version`. Reviewed (Fable + Opus; all findings fixed). Rehearsed on u01 along

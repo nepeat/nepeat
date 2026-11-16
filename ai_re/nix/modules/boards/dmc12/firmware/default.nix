@@ -104,5 +104,7 @@ in
       serviceConfig = { Type = "oneshot"; ExecStart = "${tool}/bin/dmc12-firmware mark-booted"; };
     };
     system.build.dmc12FirmwarePayloads = payloads;
+    # `nix run <flake>#nixosConfigurations.<host>.config.system.build.dmc12FirmwareTool -- status`
+    system.build.dmc12FirmwareTool = tool;
   };
 }
