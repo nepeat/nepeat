@@ -5,10 +5,11 @@
 #     ports.P1 = { device = "/dev/P1"; baud = 115200; label = "cs8210"; };
 #   };
 #
-# Users reach a port with `ssh -t console@<host> P1` (sshd ForceCommand runs `console --ssh`;
-# keys: services.consoled.ssh.authorizedKeys, by default root's), or `console P1` on the box.
+# Users reach a port with `ssh -t console@<host> P1` / `... watch P1` / `ssh -t console@<host>` (menu)
+# (sshd ForceCommand runs `line ssh`; keys: services.consoled.ssh.authorizedKeys, by default
+# root's), or `line` on the box (menu, list, info, watch, attach, log).
 # Scrollback lives in RAM only; nothing is logged to disk but attach/detach lines.
-# Metrics: `console --metrics` prints Prometheus text (use it as a textfile producer).
+# Metrics: `line metrics` prints Prometheus text (use it as a textfile producer).
 { config, lib, pkgs, ... }:
 let
   inherit (lib) mkOption types;
@@ -67,7 +68,7 @@ in
       description = "Scrollback per port in bytes, RAM only (grows as the port talks).";
     };
     ssh = {
-      enable = mkOption { type = types.bool; default = true; description = "The `console` ssh user (ForceCommand console --ssh)."; };
+      enable = mkOption { type = types.bool; default = true; description = "The `console` ssh user (ForceCommand line ssh)."; };
       user = mkOption { type = types.str; default = "console"; };
       authorizedKeys = mkOption {
         type = types.listOf types.str;
@@ -90,7 +91,7 @@ in
     };
     services.openssh.extraConfig = lib.mkIf cfg.ssh.enable ''
       Match User ${cfg.ssh.user}
-        ForceCommand ${cfg.package}/bin/console --ssh
+        ForceCommand ${cfg.package}/bin/line ssh
         AllowTcpForwarding no
         AllowStreamLocalForwarding no
         X11Forwarding no

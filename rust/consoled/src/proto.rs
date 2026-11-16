@@ -29,6 +29,9 @@ pub struct Hello {
     /// Replay the scrollback first.
     #[serde(default = "yes")]
     pub replay: bool,
+    /// Send the scrollback and close (no attach).
+    #[serde(default)]
+    pub dump: bool,
 }
 
 fn yes() -> bool {
@@ -57,6 +60,15 @@ pub struct PortStatus {
     pub writer: Option<String>,
     pub rx_bytes: u64,
     pub tx_bytes: u64,
+    /// Bytes in the scrollback.
+    #[serde(default)]
+    pub scrollback_bytes: usize,
+    /// Seconds since the device last sent anything (None: nothing since consoled started).
+    #[serde(default)]
+    pub idle_secs: Option<u64>,
+    /// Who is attached, writer first.
+    #[serde(default)]
+    pub users: Vec<String>,
 }
 
 pub fn encode(kind: u8, payload: &[u8], out: &mut Vec<u8>) {

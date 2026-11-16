@@ -112,6 +112,7 @@ struct Port {
     tx: Vec<u8>,
     rx_bytes: u64,
     tx_bytes: u64,
+    last_rx: Option<Instant>,
     next_try: Instant,
     opening: bool,
     tried: bool,
@@ -204,6 +205,7 @@ impl Server {
                 let p = &mut self.ports[i];
                 p.ring.push(data);
                 p.rx_bytes += n as u64;
+                p.last_rx = Some(Instant::now());
                 for id in p.clients.clone() {
                     let c = self.client(id);
                     c.send(proto::DATA, data);
@@ -288,6 +290,13 @@ impl Server {
                 writer: p.writer.and_then(|w| self.clients[w].as_ref()).map(|c| c.who.clone()),
                 rx_bytes: p.rx_bytes,
                 tx_bytes: p.tx_bytes,
+                scrollback_bytes: p.ring.len(),
+                idle_secs: p.last_rx.map(|t| t.elapsed().as_secs()),
+                users: {
+                    let mut ids = p.clients.clone();
+                    ids.sort_by_key(|&id| Some(id) != p.writer); // writer first
+                    ids.iter().filter_map(|&id| self.clients[id].as_ref()).map(|c| c.who.clone()).collect()
+                },
             })
             .collect()
     }
@@ -306,11 +315,20 @@ impl Server {
             c.close_after_flush = true;
             return;
         };
+        if h.dump {
+            let chunks = self.ports[i].ring.chunks(REPLAY_CHUNK);
+            let c = self.client(id);
+            for chunk in &chunks {
+                c.send(proto::DATA, chunk);
+            }
+            c.close_after_flush = true;
+            return;
+        }
         let who = if h.who.is_empty() { format!("client{id}") } else { h.who };
         let p = &self.ports[i];
         let label = if p.cfg.label.is_empty() { String::new() } else { format!(" ({})", p.cfg.label) };
         let banner = format!(
-            "{}{}, {}, {}{}. Escape: ^] then . quit, w write, r release, b break, ? help",
+            "{}{}, {}, {}{}. Escape: ^] then . detach, w write, r release, b break, ? help",
             p.cfg.name,
             label,
             p.cfg.line_settings(),
@@ -668,6 +686,7 @@ fn main() {
             tx: Vec::new(),
             rx_bytes: 0,
             tx_bytes: 0,
+            last_rx: None,
             next_try: Instant::now(),
             opening: false,
             tried: false,

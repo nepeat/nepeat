@@ -12,8 +12,8 @@ name = "consoled"
 path = "src/bin/consoled.rs"
 
 [[bin]]
-name = "console"
-path = "src/bin/console.rs"
+name = "line"
+path = "src/bin/line.rs"
 
 [dependencies]
 libc = "0.2"

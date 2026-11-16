@@ -5,13 +5,17 @@ style, and the DMC-12 factory OS's ser2net-behind-ssh): one daemon owns the port
 attach through OpenSSH.
 
 ```
-ssh -t console@dmc12 P12        # attach (write if free, else watch)
-ssh -t console@dmc12 watch P12  # watch only (read-only)
-ssh console@dmc12               # list ports
-console P12 / console           # the same, on the box
+line                  menu: ↑↓/jk pick, ⏎ attach, w watch, i info, digits jump, q quit
+line list [--json]    the ports: label, settings, device, rx, idle, who is attached
+line info PORT        one port in detail
+line watch PORT       attach read-only
+line attach PORT      attach (write if free); `line PORT` is the same
+line log PORT         print the scrollback and exit (`line log cs8210 | grep panic`)
 ```
-Escape: `^]` then `.` quit, `w` take write, `r` release write, `b` send break, `?` help,
-`^]` a literal `^]`.
+Over ssh the same words: `ssh -t console@dmc12` (menu), `ssh -t console@dmc12 watch cs8210`,
+`ssh console@dmc12 list`. PORT is a name (P12) or a label (cs8210).
+While attached: `^]` then `.` detach, `w` take write, `r` release write, `b` send break,
+`?` help, `^]` a literal `^]`. After `^] .` from the menu you are back in the menu.
 
 ## Design
 - **`consoled`** (daemon): opens every configured port exclusively (TIOCEXCL), raw, line
@@ -23,9 +27,9 @@ Escape: `^]` then `.` quit, `w` take write, `r` release write, `b` send break, `
 - **One writer, others watch**: the first client asking for write gets it; others are
   read-only (their input is dropped with a hint) until they take it (`^] w`) or it is
   released or its holder leaves.
-- **`console`** (client): talks to the daemon over `/run/consoled/console.sock` (group
-  `consoled`); `--ssh` is the sshd ForceCommand (port from `$SSH_ORIGINAL_COMMAND`);
-  `--metrics` prints Prometheus text for a node-exporter textfile producer.
+- **`line`** (client, `src/client.rs`): talks to the daemon over `/run/consoled/console.sock`
+  (group `consoled`); `line ssh` is the sshd ForceCommand (words from `$SSH_ORIGINAL_COMMAND`,
+  never a shell); `line metrics` prints Prometheus text for a node-exporter textfile producer.
 - A client more than 4 MiB behind is dropped rather than slowing the others.
 - Access: OpenSSH keys (the NixOS module's `ssh.authorizedKeys`, default root's); any key,
   any port. No network listener of its own: the daemon runs with `PrivateNetwork`.

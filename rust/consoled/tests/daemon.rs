@@ -79,7 +79,7 @@ impl Client {
         let mut s = UnixStream::connect(&d.socket).unwrap();
         s.set_read_timeout(Some(Duration::from_millis(100))).unwrap();
         let mut out = Vec::new();
-        let h = Hello { port: port.map(String::from), write, who: who.into(), replay: true };
+        let h = Hello { port: port.map(String::from), write, who: who.into(), replay: true, dump: false };
         proto::encode_json(proto::HELLO, &h, &mut out);
         s.write_all(&out).unwrap();
         Client { s, dec: proto::Decoder::default() }
@@ -223,7 +223,7 @@ fn scrollback_is_capped() {
     let mut s = UnixStream::connect(&d.socket).unwrap();
     s.set_read_timeout(Some(Duration::from_millis(300))).unwrap();
     let mut out = Vec::new();
-    proto::encode_json(proto::HELLO, &Hello { port: Some("A".into()), write: false, who: "x".into(), replay: true }, &mut out);
+    proto::encode_json(proto::HELLO, &Hello { port: Some("A".into()), write: false, who: "x".into(), replay: true, dump: false }, &mut out);
     s.write_all(&out).unwrap();
     let mut dec = proto::Decoder::default();
     let mut buf = [0u8; 4096];
@@ -241,4 +241,41 @@ fn scrollback_is_capped() {
     }
     assert_eq!(replay.len(), 64);
     assert_eq!(&replay[..], &line[line.len() - 64..]);
+}
+
+#[test]
+fn dump_and_status_details() {
+    let mut a = pty();
+    let d = start(&[("A", "alpha", &a.path)], 4096);
+    std::thread::sleep(Duration::from_millis(200));
+    a.master.write_all(b"kernel: hello\r\n").unwrap();
+    std::thread::sleep(Duration::from_millis(300));
+
+    // dump: the scrollback, then the daemon closes (no banner, no attach)
+    let mut s = UnixStream::connect(&d.socket).unwrap();
+    s.set_read_timeout(Some(Duration::from_secs(2))).unwrap();
+    let mut out = Vec::new();
+    proto::encode_json(proto::HELLO, &Hello { port: Some("alpha".into()), write: false, who: "d".into(), replay: true, dump: true }, &mut out);
+    s.write_all(&out).unwrap();
+    let mut all = Vec::new();
+    s.read_to_end(&mut all).unwrap();
+    let mut dec = proto::Decoder::default();
+    dec.push(&all);
+    let mut data = Vec::new();
+    while let Some((k, p)) = dec.next().unwrap() {
+        assert_eq!(k, proto::DATA, "a dump carries only data");
+        data.extend_from_slice(&p);
+    }
+    assert_eq!(data, b"kernel: hello\r\n");
+
+    // status: users writer first, scrollback size, idle time
+    let _w1 = Client::hello(&d, Some("A"), false, "watcher@test");
+    let mut w2 = Client::hello(&d, Some("A"), true, "writer@test");
+    w2.info("you have write");
+    let mut l = Client::hello(&d, None, false, "list");
+    let (_, body) = l.until("LIST", |k, _| k == proto::LIST);
+    let ports: Vec<PortStatus> = serde_json::from_slice(&body).unwrap();
+    assert_eq!(ports[0].users, vec!["writer@test".to_string(), "watcher@test".to_string()]);
+    assert_eq!(ports[0].scrollback_bytes, 15);
+    assert!(ports[0].idle_secs.is_some_and(|s| s < 5));
 }
