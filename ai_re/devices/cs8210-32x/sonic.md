@@ -4,30 +4,41 @@ Cross-device notes and the stack itself: [sonic-nixos](../sonic-nixos/PROGRESS.m
 
 ## Status (2026-11-16)
 
-- **Our SAI runs the chip:** `sai-teralynx` (sai-openbcm's SAI frontend + an IFCS backend that
-  dlopen()s the vendor `libifcs.so` 0.12.41 at run time) initialised the Teralynx 7 from our
-  generated init yaml, created all 32 ports with the right lanes, brought the cage 1 <-> 16
-  400G CR8 DAC loop up (oper up in ~4 s, through both Credo PHYs in MACsec bypass), adopted
-  the SDK netdevs as `Ethernet0`/`Ethernet120`, read the die temperature (52-54 C) and tore
-  down cleanly (ports down, netdevs gone, `ifcs_deinit`, ipd closed). Driven directly by
-  `sai-teralynx-smoke`, no redis/syncd/orchagent yet ([evidence](../sonic-nixos/cs8210-sai-hw-20261116.txt)).
-- **Host traps + CoPP on the chip** (2026-11-16, sai-script, no syncd): LLDP, LACP, EAPOL, ARP,
-  BGP and IP2ME frames sent from `Ethernet0` over the loop reached `Ethernet120` through CoPP ACL
-  entries with their trap group's queue and policer (a 100 pps policer held a 1000 pps burst to
-  ~95 pps). Feature status per object: [sai-features.md](sai-features.md); how isai does it on this
-  chip: [sai-oracle.md](sai-oracle.md).
-- **Not run yet:** the SONiC stack itself (syncd/orchagent/FRR), forwarded traffic.
-- **Builds:** libsai and syncd cross-built for aarch64; the cs8210 system with
-  `hardware.cs8210.sonic.enable = true` evaluates (build: entry below). With it off the system
-  is unchanged (nix-diff: only the flake source path).
-- **Switch it on:** `hardware.cs8210.sonic.enable` (machine; default off, not started at boot unless
-  `autoStart`): `systemctl start sonic.target`. Mutually exclusive with `cs8210-switch`
-  (syncd `Conflicts=`). A guard refuses syncd unless only `allowedCages` (default 1, 16) hold modules.
-- **Recover:** `systemctl stop sonic.target` (or `sai-smoke`), then `cs8210-switch` as before.
-- **Code:** [packages/sai-teralynx](../../nix/packages/sai-teralynx/README.md) (SAI, profile keys,
-  what is mapped), [boards/cs8210](../../nix/modules/boards/cs8210/sonic.nix) (ports, IFCS yaml
-  generator, runtime vendor files, pmon), `nepeat/nix` `nixos/module/cs8210/sonic` (machine glue:
-  cross build, Credo unit, guard, watchdog).
+- **Our SAI runs the chip** (`sai-teralynx`: sai-openbcm's frontend + an IFCS backend dlopen()ing the
+  vendor `libifcs.so` 0.12.41): every phase B/C feature passes its sai-script chip test on the 400G
+  cage 1 <-> 16 loop ([sai-features.md](sai-features.md), [sai-hw-integration-20261116.txt](sai-hw-integration-20261116.txt)).
+- **SONiC on it, started by hand** (`scripts/sonic-handrun.sh`, no generation): redis, syncd, orchagent,
+  the managers, vrfmgrd, coppmgrd, teammgrd, FRR (zebra, bgpd, bfdd), bgpcfgd, LLDP and pmon came up;
+  all 32 netdevs adopted with the system MAC. Not yet reached: link up, BGP/BFD, ACL, counters, soak.
+- **Blocked (2026-11-16 08:13 box time):** after the 4th start the box stalled (55 % hard-IRQ time,
+  xcvrd 114 % CPU, SSH timeouts ~20 min); since then the I2C FPGA 0002:01:00.0 reads all-ones, so
+  cage presence is unreadable and the cage guard refuses syncd. Needs a reboot (or a PCIe
+  remove/rescan of that device, not tried). xcvrd is off by default on this board now.
+- **Recover:** `sonic-handrun.sh down` (stops the stack, removes the runtime units, users, links,
+  firewall rules), then `cs8210-switch` as before.
+- **Code:** [packages/sai-teralynx](../../nix/packages/sai-teralynx/README.md), [boards/cs8210](../../nix/modules/boards/cs8210/sonic.nix)
+  (ports, IFCS yaml, sai.profile incl. the diag socket, buffermgrd, pmon), `nepeat/nix`
+  `nixos/module/cs8210/sonic` (cross build, Credo unit, guard, watchdog).
+
+## Running SONiC by hand
+
+Build the machine with `hardware.cs8210.sonic.enable = lib.mkForce true` and `lineMedia = { "1" = "copper";
+"16" = "copper"; }` through `extendModules` (git+file flake `?dir=nix`, the module reaches `ai_re/nix`), copy
+the closure, then on the box (ASIC lease held, only cages 1 and 16 populated, cs8210-switch stopped):
+`sonic-handrun.sh up <toplevel> <config_db.json>` / `status` / `down`. It links the closure's sonic units
+into /run/systemd/system and adds what they need for the run only (users frr/frrvty/redis-sonic, three
+sysctls, modules, tmpfiles lines, /etc/sonic and /etc/frr/vtysh.conf, BGP/BFD firewall rules; stops the host
+lldpd). Test config: [sonic-loop/config-a-vrf-bgp.json](sonic-loop/config-a-vrf-bgp.json) (Ethernet0 in Vrf-a
+10.0.0.0/31, Ethernet120 in Vrf-b 10.0.0.1/31, BGP + BFD between them, an L3 ACL, AZURE-style DSCP/TC maps,
+schedulers, lossy buffers, flex counters PORT/QUEUE/RIF/ACL). bgpcfgd has no `local_asn`: eBGP between the
+VRFs needs `neighbor 10.0.0.0 local-as 65200` in Vrf-b by vtysh. Diag: `openbcm-diag -s
+/run/sai-teralynx/diag.sock copp|acl|counters <devport>|devport <n>`.
+
+Module bugs this found (fixed, 2026-11-16): the SDK dir in syncd's LD_LIBRARY_PATH (doubled prefix,
+jansson's -dev output: libifcs dlopen failed), the Credo loader's path inside the chroot, unit `path` entries
+ending in /bin (cs8210-qsfp not found), a stale /tmp/cls_phy_fifo hanging the Credo loader, no buffermgrd
+(ports never admin up), queue RESERVED_SIZE refused by 0.12.41. Notes from the AS7760 runs:
+[sonic-nixos](../sonic-nixos/PROGRESS.md).
 
 ## SAI source: our own, on the vendor IFCS SDK
 
@@ -39,7 +50,7 @@ Cross-device notes and the stack itself: [sonic-nixos](../sonic-nixos/PROGRESS.m
 - **Rejected: Marvell's amd64 SAI under qemu-user.** It wants ipd 0.16 (we have it), but qemu-user
   answers every ioctl it has no thunk for with ENOTTY, and the SDK lives on ipd ioctls; plus the
   SerDes firmware download and the DMA rings under emulation.
-- **Chosen:** sai-openbcm's hardware-agnostic frontend (unmodified; the AS7760 stays byte-identical)
+- **Chosen:** sai-openbcm's hardware-agnostic frontend (shared with the AS7760; its optional backend hooks default to the AS7760's behaviour)
   + a new IFCS backend. SAI ABI = sairedis' pin (OCP SAI 1.19.2), by construction. IFCS
   interop declarations are our own, from the SDK's `pyctypes/ifcs_ctypes.py` and checked against
   the DWARF of `innovium.user` ([README](../../nix/packages/sai-teralynx/README.md)).
@@ -80,16 +91,8 @@ the public sonic-buildimage `innovium.77700_A` (byte-identical to the SDK's `inn
 - The slow getter was the temperature read: ~400 ms per monitor inside libifcs, holding its lock
   (any IFCS call waited). Now one monitor per 15 s ([sai-oracle.md](sai-oracle.md)).
 
-## Before the first SONiC run
+## Board notes for SONiC
 
-- Deploy a generation with `hardware.cs8210.sonic.enable = true`, `lineMedia = { "1" = "copper"; "16" = "copper"; }`
-  (the loop is a DAC) and `autoStart = false`; start `sonic.target` by hand.
-- Traps/CoPP are mapped (sai-features.md), LAG and SAI ACL tables are not. With adopted netdevs
-  every frame entering a port in no VLAN reaches its netdev anyway (seen 2026-11-16). VLAN 1 had no
-  members after init. **Two looped ports in one VLAN would storm**: keep them out of a shared VLAN.
-- Unknown on the chip: `ifcs_netdev_create` (the default netdev mode; the run used `adopt`), L2/L3 and
-  ECMP mappings, link-event struct, aging units, MTU semantics (SDK netdev MTU 9462 vs the ASIC's
-  9216-byte limit: keep SONiC's 9100).
 - LEDs: the vendor's `pci write led_*` lines are not applied (LEDs dark); devport 129 (AUX to
   `enp0s3`) stays down.
 - The frontend's fake-backend guard only knows Broadcom devices: never set `SAI_OPENBCM_BACKEND=fake` here.

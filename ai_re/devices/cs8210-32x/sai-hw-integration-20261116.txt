@@ -1,0 +1,93 @@
+CS8210-32X: integration of the phase B SAI on the chip (phase C), 2026-11-16
+==========================================================================
+
+Setup: 400G DAC loop cage 1 (Ethernet0, devport 1) <-> cage 16 (Ethernet120, devport 16), only cages
+1 and 16 populated (cs8210-qsfp present=00008001 before every run), ASIC lease "sai-phaseC";
+runner oracle/run-oracle.sh SCRIPT ours (box-run.sh: transient unit, traced), profiles as the phase B
+evidence (/run/bench/traps.profile; l2lag: /run/l2lag/ours.profile; hostif-create:
+/run/bench/acl-create.profile). Box after every run: ipd legacy_abi=Y, no SAI process, lease released.
+Raw output under analysis/oracle/<run>/ours/stdout.txt (git-ignored), sha256 prefix after the name.
+
+== Step 1: every phase B chip script on the merged build (git 9ece6e8 + the L3 test change below)
+  traps-hw 062835 959095c7       pass (as phase B: LLDP/LACP/EAPOL/ARP/BGP/IP2ME 50/50, policer 192/2000,
+                                 DROP 0/50; CIR 10 pps refused as before; plain unicast 0/50)
+  acl-hw 062934 577df731         pass (diff to phase B 060814: only counts; IGMP v3 batch now 50/50, was 42)
+  acl-hw2 063204 6d9d9f8b        pass (identical to 061317)
+  hostif-counters 063306 c913f992 pass (genetlink NOT_SUPPORTED as before)
+  qos-hw 063316 f056bcd0         pass (identical results to 055312; WRED refusal as documented)
+  mirror 063444 f8afcc64         pass (egress sampling / genetlink NOT_SUPPORTED as documented)
+  hostif-create 063457 a86224ca  as phase B 061107 (create mode: no netdev, 2 expected failures)
+  lag-l2 063905 c0d6ba7c         identical to 050410
+  l3-basic 063525 70a2d82a / l3-vrf 063640 8a1fc252 / l3-ns 063716 53618882 / l3-ecmpw 063834 66d3d2da:
+    REGRESSION OF THE TESTS, not of L3: every routed copy rx 0 (phase B: 100/100), l3-ns pings 0/10 and
+    0/20. The L3 tests observed routed frames through the CPU's flood membership (a routed copy re-enters
+    on the far port with a host's DMAC and was flooded to the CPU); the L2 change took the CPU out of the
+    flood groups (correct). Adapted, not reverted: the l3 scripts add a "loop observer" ingress ACL on
+    both ports, DST_MAC 02:00:00:00:0a:00/ff:ff:ff:ff:fe:00 (the far hosts H1/H2) -> TRAP, so routed
+    copies reach the far port's netdev again (scripts l3-*.json; l3-frames' header says so).
+  l3-basic 064223 8629f3d6 / l3-vrf 064338 d452fa09 / l3-ecmpw 064451 58a59883: every RESULT/RX line equal
+    to phase B (060112, 050107, 060223), e.g. ECMP 512/512, weights 1474:574, TTL/MTU as before.
+  l3-ns 064414 5a4e9a1c: pings 10/10 (v4, v6), 20/20 routed, 8000 B DF 5/5, TTL 1 0/3, flood ping 1993/2000.
+  l2lag-hw 063915 02f0584a: teamd steps failed (the box's stale /run/l2lag/l2lag-teamd.sh needs LIBTEAM);
+    with the repo's script copied there, 064522 11bcb850 = phase B 060549 (sync in 1 s, deselect/reselect).
+
+== Step 2: phasec-hw.json (77ca0d10) and phasec-recreate.json (5199d219)
+Runs 071434 177a62b8 (first), 071836 1e97ed8c, 072234 6685f59d (final, 0 failed steps):
+  RIF counters        RIF A IN 100/13200, RIF B OUT 100/13200 after 100 routed frames (first run 0: node
+                      L3INTF stats mode ALL "not supported" by 0.12.41; now flex CONFIG + mode IPV4_IPV6_ANY,
+                      ingress read as IPv4 + IPv6 counters); stats capability RIF: IN/OUT packets/octets
+  port counters by id get_port_stats(IN_OCTETS, IN_UCAST, ETHER_STATS_128_255, FEC corrected/uncorrected,
+                      ETHER_IN_128_255) = 26400 200 200 37 0 200 in one call; stats capability lists 101 ids
+  RIF admin state     ADMIN_V4_STATE false: v4 0/100 routed, v6 100/100; true again: v4 100/100
+  glean               10.2.0.77 (connected, no neighbor): 50/50 to the CPU, CPU queue 6 tx 50 (the
+                      NEIGHBOR_MISS group's queue), NEIGHBOR_MISS ACE 50; IP2ME stays on its own trap
+  IPv4 options        to 10.99.0.5 (routed to an unobserved host): plain 0 back, IHL 6 (NOP options) 50/50
+                      to the CPU unmodified (L3VNI IPV4_OPTIONS_CTC + _DROP)
+  hash object         ECMP 10.30/16 over nh1/nh2, 256 flows: default 512/512; ECMP_HASH = DST_IP: 1024/0;
+                      SRC/DST IP + proto + L4 ports, seed 12345: 504/520; INNER_SRC_IP refused
+  ACL range           10.20.1/24 dport 1000-2000 DROP: 1500 0/100, 3000 100/100, 1999 0/100
+  ACL in-place update priority changed right after a batch twice: counter 200 after 2 s (nothing lost);
+                      admin down: 100/100 forwarded, up: 0/100; counter 300
+  ACL SET_TC 5        Ethernet120 queue 5 +100 (queue 0 unchanged)
+  ACL SET_DSCP        refused by IFCS 0.12.41 ("Action not implemented/supported yet 16" in the action
+                      profile); the SAI refuses the action type (NOT_SUPPORTED)
+  ACL REDIRECT nh2    (with DST_MAC = RIF A as loop guard) 100/100 out of RIF B with H2's DMAC, TTL 63;
+                      only with a route present (first run, no route: 0/100, the route drop wins)
+  ACL MIRROR_INGRESS  SPAN session to Ethernet0: 100 copies for 100 frames (seen by an observer on Ethernet120)
+  AVAILABLE_ACL_ENTRY 256 empty, 252 with 4 entries
+  egress ACL          table stage EGRESS + OUT_PORTS bound with EGRESS_ACL on Ethernet120: 10.20.4/24 0/100,
+                      10.20.5/24 100/100 (first form with an EGRESS_SYSPORT match: PARAM; now no port match,
+                      the ACL bound to the OUT_PORTS / bound ports, as isai's egress profile)
+  storm control       Ethernet0 broadcast 100 pps policer, 1000 ARP broadcasts at 1000 pps: storm entry
+                      green 109 yellow 2 red 889 (red/yellow dropped by the entry); unknown-unicast entry
+                      installed (DMAC unicast + DESTINATION_MAC_HIT 0), not exercised
+  VLAN flood control  VLAN 300: all three types NONE then ALL: accepted (L2VNI flood group set to an empty
+                      MDG and back); no observable effect on one loop (no second member)
+  RIF re-create       RIF B removed (status 0, no BUSY in the SDK log) and re-created on Ethernet120, neighbor
+                      + route again: 100/100 routed
+  switch re-create    phasec-recreate 071519 27600366: create_switch, L3 + 100/100 routed, remove_switch,
+                      create_switch again in the same process, 100/100 routed
+The final run's libsai predates three later changes (mock-tested only): L3INTF stats modes tried 4 first
+(the run tried 1, then 4: same outcome), queue RESERVED_SIZE fallback, netdev default adopt.
+
+== Step 3: SONiC on our SAI, started by hand (scripts/sonic-handrun.sh, closure = the cs8210 system with
+hardware.cs8210.sonic.enable, lineMedia 1/16 copper; config sonic-loop/config-a-vrf-bgp.json)
+  Module bugs found and fixed on the way (nix/nixos/module/cs8210/sonic, boards/cs8210):
+    - syncd LD_LIBRARY_PATH had the SDK dir twice prefixed (/var/lib/cs8210-sdk/root/var/lib/...) and
+      jansson's -dev output: dlopen(libifcs.so) failed "libjansson.so.4"; Credo loader cd'd to the host path
+      inside the chroot
+    - guard/Credo units' path = "/run/current-system/sw/bin" became .../bin/bin: "cs8210-qsfp: not found"
+    - Credo loader hung 5 min on a stale /tmp/cls_phy_fifo (0600, no phy_server): removed first
+    - no buffermgrd: CONFIG_DB BUFFER_* never reached APPL_DB, bufferorch never marked Ethernet0/120 ready,
+      portsorch never set admin up (devport admin 0); services.sonic.buffers (buffermgrd) added, on for the CS8210
+    - queue RESERVED_SIZE (BUFFER_QUEUE size) refused by 0.12.41 (attr 2 "Not valid for this API"):
+      thresholds only, warned once
+  Reached: redis, syncd (our libsai: 32 ports, adopted netdevs with the system MAC), orchagent,
+    portsyncd, intfmgrd, vrfmgrd (Vrf-a, Vrf-b), coppmgrd, teammgrd, neighsyncd, FRR (zebra, bgpd, bfdd,
+    staticd, mgmtd), bgpcfgd, fpmsyncd, bfdsyncd, lldpd/lldpmgrd/lldp_syncd, pmon psud/thermalctld/syseepromd.
+  Not reached: link up / BGP / BFD / ACL / counters / soak. In the 4th start (08:12 box time) the box
+    stalled: SSH banner timeouts for ~20 min, load 15, 55 % of CPU time in hard IRQs, xcvrd at 114 % CPU.
+    Stopped with sonic-handrun.sh down (08:36); afterwards the I2C FPGA 0002:01:00.0 reads all-ones
+    (vendor=ffff in config space, each access stalls ~seconds), so cs8210-qsfp cannot read cage presence
+    and the cage guard refuses any SDK start. Not recovered (needs a reboot or a PCIe remove/rescan of
+    0002:01:00.0; neither tried). xcvrd is now off by default on the CS8210 (boards/cs8210/sonic-platform.nix).
