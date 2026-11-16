@@ -21,7 +21,10 @@
           # The monorepo's Rust tools (fand). Reachable here because this is a
           # git flake over the whole repository.
           rust = if builtins.pathExists ../rust/crates/fand/nix/module.nix
-            then { nixosModules.fand = ../rust/crates/fand/nix/module.nix; } else null;
+            then {
+              nixosModules.fand = ../rust/crates/fand/nix/module.nix;
+              nixosModules.consoled = ../rust/consoled/nix/module.nix;   # its own workspace
+            } else null;
           systems = aiRe.systemsFor { nixpkgs = nixpkgs-systems; inherit rust; };
         in {
           inherit (aiRe) nixosModules;

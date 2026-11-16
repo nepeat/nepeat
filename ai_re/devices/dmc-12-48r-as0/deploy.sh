@@ -20,7 +20,7 @@ untracked=$(git -C "$repo" ls-files --others --exclude-standard -- ai_re/flake.n
   ai_re/nix/configs ai_re/nix/modules/profiles ai_re/nix/modules/platforms ai_re/nix/modules/boards/dmc12 \
   ai_re/nix/modules/thermal ai_re/nix/modules/monitoring ai_re/nix/packages/linux-alpine \
   ai_re/nix/packages/al-eth ai_re/nix/packages/dmc12-metrics ai_re/nix/packages/dmc12-cpld-reset \
-  ai_re/nix/packages/fastfetch-tiny rust/crates/fand)
+  ai_re/nix/packages/fastfetch-tiny rust/crates/fand rust/consoled)
 if [ -n "$untracked" ]; then
   echo "deploy.sh: untracked files the flake would not see (git add -N them):" >&2
   echo "$untracked" >&2

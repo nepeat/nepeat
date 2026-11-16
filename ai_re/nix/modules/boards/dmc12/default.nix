@@ -11,6 +11,7 @@
     ./cpld          # CPLD board reset, interrupt monitor
     ./monitoring.nix   # node_exporter :9100 + dmc12-metrics (read-only)
     ./uboot-env     # fw_printenv + dmc12-uboot-env (our U-Boot's env window in SPI)
+    ./console-server.nix   # consoled: the 48 serial ports over ssh
   ];
 
   hardware.alpineV2 = {

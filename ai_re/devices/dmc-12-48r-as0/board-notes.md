@@ -69,6 +69,8 @@ Edgecore/Accton 48-port serial console server on an Annapurna Alpine V2 "K2C-AB"
 - **Disk writes at idle:** ~0.6 MiB per 5 min after quieting the journal (standing alarms logged once,
   timer units `LogLevelMax=notice`); was 9.6 MiB. [hw] Check with `/proc/diskstats` before adding timers.
 - **Route A ≠ cold SPI boot:** it can't show SPI controller state left by stage3. [hw] `uart-boot.md`
+- **Opening a CP2108 port takes ~1 s** (USB control transfers): opening all 48 is ~1 min; never do it
+  on a service's main loop (consoled uses a worker thread). [hw]
 - **USB serial enumeration takes ~25 s** after boot; wait for 48 `/dev/P*` before tests. [hw]
 - **Kernel:** nixpkgs' aarch64 config builds ~50 foreign SoC families; use `linux-alpine` lean/minimal.
 - Boot timeline: SPI install (stage3 → ours) login ≈ 38 s; the old chainload path (factory countdown +

@@ -17,6 +17,7 @@ Device notes and dumps: `devices/dmc-12-48r-as0/` (not read from here, by rule).
 | `cpld/` | CPLD board reset (kernel reboot notifier), interrupt monitor (alarms logged once per change, uplink re-sync) |
 | `../../thermal/dmc12-fan.nix` | fand config (uC 60 °C, board 45 °C, failsafe/exit 100 %); needs the root flake |
 | `dmc12-tools/` | `show`, `setled`, `setphyspeed`, `onieeeprom`, boot oneshots |
+| `console-server.nix` | the 48 serial ports over ssh: `consoled` (rust/consoled), `ssh -t console@<box> P12` / `watch P12`; needs the root flake |
 | `monitoring.nix` | node_exporter + `dmc12_*` producer (quiet: `LogLevelMax=notice`) |
 
 Our U-Boot itself (SPI IPXE slots) is not installed by NixOS: `devices/dmc-12-48r-as0/spi-upgrade.py`.

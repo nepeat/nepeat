@@ -6,6 +6,11 @@
   imports = [ ../../modules/profiles/appliance.nix ../../modules/boards/dmc12 ];
   system.stateVersion = "26.11";
   networking.hostName = lib.mkDefault "dmc12";
+  # Lab wiring of u01 (labels are also accepted as port names: `ssh -t console@dmc12 cs8210`).
+  services.consoled.ports = {
+    P1 = { label = "cs8210"; baud = 115200; };
+    P48 = { label = "as7760"; baud = 115200; };
+  };
   time.timeZone = "America/Los_Angeles";
   # Same root keys as the AS7760 (https://github.com/nepeat.keys + the build host).
   users.users.root.openssh.authorizedKeys.keys = [

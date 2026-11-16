@@ -5,6 +5,9 @@
   nixpkgs extlinux on sda1 → NixOS root sda2**; login ≈ 38 s, soak 3/3. Disk: `dmc12-disk-image`
   (`hardware.dmc12.bootLoader = "standard"`, installed with `reimage.py`).
 - **Fans: fand** (python script retired 2026-11-15; failsafe/stop = 100 %).
+- **Serial ports on the network: `consoled`** (`rust/consoled`, `boards/dmc12/console-server.nix`):
+  `ssh -t console@10.60.2.10 P12` (one writer, others watch; `watch P12` read-only; `ssh console@…` lists);
+  1 MiB RAM scrollback per port, lost on a consoled restart. P1 = cs8210, P48 = as7760 (115200).
 - **Full Nix system (`profile-rebuildable`):** deploy in place with `./deploy.sh 10.60.2.10 [switch|boot]`
   (root flake, so fand is in; copies only new paths), generations in the extlinux menu, rollback on
   the box `nixos-rebuild switch --rollback --no-reexec`.
@@ -147,6 +150,14 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-15 21:35: **consoled + env-origin fix.** U-Boot 0021 no longer stores `$env_source` (origin computed
+  from gd: boot line + `alpine state`), rehearsed + `update` into IPXE 1. New Rust service `rust/consoled`
+  (own workspace: fand's package source is the whole `rust/crates` workspace): daemon owning the 48 ports
+  (TIOCEXCL, raw termios, poll loop; device open/close/break on a worker thread: opening the 48 CP2108
+  ports took 56 s and starved clients in the first version), `console` client (ssh ForceCommand, `^]`
+  escapes, `--metrics` textfile producer). OpenSSH front: `console` user, any authorized key, any port.
+  Tests: 3 unit + 2 daemon-vs-pty integration. On u01: 48/48 ports open, list/attach/watch over ssh,
+  arbitrary ssh commands refused; smoke 16/16 (new consoled check).
 - 2026-11-15 21:10: **fand, review fixes, squashed U-Boot, hardened build in SPI.** Fable reviews (U-Boot: no
   must-fix; host: 4 must-fix) fixed and simulated (3fd0b4f, c879b77, b720366); cold boot settled two U-Boot
   questions (GPIO 22 reads back out 1, CS1 crc 3d086ac6). fand on u01 via `deploy.sh` (ddc9cbd): WDT
