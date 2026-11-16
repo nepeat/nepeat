@@ -42,16 +42,25 @@ static sai_status_t create_hostif(_Out_ sai_object_id_t* id, _In_ sai_object_id_
         if (!id || (n && !attrs)) return SAI_STATUS_INVALID_PARAMETER;
         HostifObj h;
         bool ht = false, hn = false;
+        uint32_t type_i = 0;
         for (uint32_t i = 0; i < n; i++) {
             const sai_attribute_t& a = attrs[i];
             switch (a.id) {
             case SAI_HOSTIF_ATTR_TYPE:
-                if (a.value.s32 != SAI_HOSTIF_TYPE_NETDEV) {
-                    OB_ERR(SAI_API_HOSTIF, "hostif type %d not supported (NETDEV only)", a.value.s32);
+                if (a.value.s32 != SAI_HOSTIF_TYPE_NETDEV && a.value.s32 != SAI_HOSTIF_TYPE_GENETLINK) {
+                    OB_ERR(SAI_API_HOSTIF, "hostif type %d not supported (NETDEV, GENETLINK)", a.value.s32);
                     return attr_not_supported(i);
                 }
+                h.type = a.value.s32;
+                type_i = i;
                 ht = true;
                 break;
+            case SAI_HOSTIF_ATTR_GENETLINK_MCGRP_NAME: {
+                char nm[SAI_HOSTIF_GENETLINK_MCGRP_NAME_SIZE + 1] = {0};
+                std::memcpy(nm, a.value.chardata, SAI_HOSTIF_GENETLINK_MCGRP_NAME_SIZE);
+                h.mcgrp = nm;
+                break;
+            }
             case SAI_HOSTIF_ATTR_OBJ_ID: h.obj = a.value.oid; break;
             case SAI_HOSTIF_ATTR_NAME: {
                 char nm[SAI_HOSTIF_NAME_SIZE + 1] = {0};
@@ -65,6 +74,27 @@ static sai_status_t create_hostif(_Out_ sai_object_id_t* id, _In_ sai_object_id_
             case SAI_HOSTIF_ATTR_VLAN_TAG: h.vlan_tag = a.value.s32; break;
             default: return attr_not_supported(i);
             }
+        }
+        if (ht && hn && h.type == SAI_HOSTIF_TYPE_GENETLINK) {
+            // A generic-netlink family (sFlow: "psample" / "packets"), when the backend has one.
+            if (!c.be->mirror_supported()) {
+                OB_ERR(SAI_API_HOSTIF, "hostif %s: GENETLINK not supported by the backend", h.name.c_str());
+                return attr_not_supported(type_i);
+            }
+            if (h.name.empty() || h.mcgrp.empty()) return SAI_STATUS_MANDATORY_ATTRIBUTE_MISSING;
+            for (auto& o : c.hostifs)
+                if (o.second.name == h.name) return SAI_STATUS_ITEM_ALREADY_EXISTS;
+            sai_status_t st = c.be->genetlink_create(h.name, h.mcgrp, h.genl);
+            if (st == SAI_STATUS_NOT_SUPPORTED) {
+                OB_ERR(SAI_API_HOSTIF, "hostif %s: GENETLINK not supported by the backend", h.name.c_str());
+                return attr_not_supported(type_i);
+            }
+            if (st != SAI_STATUS_SUCCESS) return st;
+            sai_object_id_t oid = c.alloc(SAI_OBJECT_TYPE_HOSTIF);
+            c.hostifs[oid] = h;
+            *id = oid;
+            OB_NOTICE(SAI_API_HOSTIF, "hostif %s: genetlink, group %s (backend %d)", h.name.c_str(), h.mcgrp.c_str(), h.genl);
+            return SAI_STATUS_SUCCESS;
         }
         if (!ht || !hn || !h.obj) return SAI_STATUS_MANDATORY_ATTRIBUTE_MISSING;
         if (h.name.empty() || h.name.size() > 15) return SAI_STATUS_INVALID_PARAMETER;
@@ -99,6 +129,12 @@ static sai_status_t remove_hostif(_In_ sai_object_id_t id)
         if (!h) return SAI_STATUS_INVALID_OBJECT_ID;
         for (auto& t : c.table_entries)
             if (t.second.hostif == id) return SAI_STATUS_OBJECT_IN_USE;
+        if (h->type == SAI_HOSTIF_TYPE_GENETLINK) {
+            sai_status_t st = c.be->genetlink_destroy(h->genl);
+            if (st != SAI_STATUS_SUCCESS && st != SAI_STATUS_ITEM_NOT_FOUND) return st;
+            c.hostifs.erase(id);
+            return SAI_STATUS_SUCCESS;
+        }
         sai_status_t st = c.be->netif_destroy(h->netif, h->filter);
         if (st != SAI_STATUS_SUCCESS && st != SAI_STATUS_ITEM_NOT_FOUND) return st;
         c.hostifs.erase(id);
@@ -115,6 +151,7 @@ static sai_status_t set_hostif_attribute(_In_ sai_object_id_t id, _In_ const sai
         if (!attr) return SAI_STATUS_INVALID_PARAMETER;
         switch (attr->id) {
         case SAI_HOSTIF_ATTR_OPER_STATUS: {
+            if (h->type == SAI_HOSTIF_TYPE_GENETLINK) { h->oper = attr->value.booldata; return SAI_STATUS_SUCCESS; }
             sai_status_t st = c.be->netif_carrier_set(h->name, attr->value.booldata);
             if (st == SAI_STATUS_SUCCESS) h->oper = attr->value.booldata;
             return st;
@@ -156,6 +193,10 @@ static sai_status_t get_hostif_attribute(_In_ sai_object_id_t id, _In_ uint32_t 
             case SAI_HOSTIF_ATTR_OPER_STATUS: a.value.booldata = h->oper; break;
             case SAI_HOSTIF_ATTR_QUEUE: a.value.u32 = h->queue; break;
             case SAI_HOSTIF_ATTR_VLAN_TAG: a.value.s32 = h->vlan_tag; break;
+            case SAI_HOSTIF_ATTR_GENETLINK_MCGRP_NAME:
+                std::memset(a.value.chardata, 0, sizeof(a.value.chardata));
+                std::memcpy(a.value.chardata, h->mcgrp.data(), std::min(h->mcgrp.size(), (size_t)SAI_HOSTIF_GENETLINK_MCGRP_NAME_SIZE));
+                break;
             default: return attr_not_supported(i);
             }
         }
@@ -400,6 +441,19 @@ static sai_status_t create_hostif_table_entry(_Out_ sai_object_id_t* id, _In_ sa
             }
         }
         if (!ht || !hc) return SAI_STATUS_MANDATORY_ATTRIBUTE_MISSING;
+        if (e.channel == SAI_HOSTIF_TABLE_ENTRY_CHANNEL_TYPE_GENETLINK) {
+            // A trap's packets to a genetlink hostif (sFlow samples to psample).
+            HostifObj* h = lookup(c.hostifs, e.hostif);
+            TrapObj* t = lookup(c.traps, e.trap);
+            if (!h || h->type != SAI_HOSTIF_TYPE_GENETLINK || e.type != SAI_HOSTIF_TABLE_ENTRY_TYPE_TRAP_ID || !t)
+                return SAI_STATUS_INVALID_PARAMETER;
+            sai_status_t st = c.be->genetlink_trap_set(h->genl, t->type, true);
+            if (st != SAI_STATUS_SUCCESS) return st;
+            sai_object_id_t oid = c.alloc(SAI_OBJECT_TYPE_HOSTIF_TABLE_ENTRY);
+            c.table_entries[oid] = e;
+            *id = oid;
+            return SAI_STATUS_SUCCESS;
+        }
         bool native = e.type == SAI_HOSTIF_TABLE_ENTRY_TYPE_WILDCARD &&
                       (e.channel == SAI_HOSTIF_TABLE_ENTRY_CHANNEL_TYPE_NETDEV_PHYSICAL_PORT ||
                        e.channel == SAI_HOSTIF_TABLE_ENTRY_CHANNEL_TYPE_NETDEV_LOGICAL_PORT);
@@ -415,7 +469,19 @@ static sai_status_t create_hostif_table_entry(_Out_ sai_object_id_t* id, _In_ sa
 static sai_status_t remove_hostif_table_entry(_In_ sai_object_id_t id)
 {
     return guarded(SAI_API_HOSTIF, __func__, [&]() -> sai_status_t {
-        return ctx().table_entries.erase(id) ? SAI_STATUS_SUCCESS : SAI_STATUS_INVALID_OBJECT_ID;
+        auto& c = ctx();
+        HostifTableEntryObj* e = lookup(c.table_entries, id);
+        if (!e) return SAI_STATUS_INVALID_OBJECT_ID;
+        if (e->channel == SAI_HOSTIF_TABLE_ENTRY_CHANNEL_TYPE_GENETLINK) {
+            HostifObj* h = lookup(c.hostifs, e->hostif);
+            TrapObj* t = lookup(c.traps, e->trap);
+            if (h && t) {
+                sai_status_t st = c.be->genetlink_trap_set(h->genl, t->type, false);
+                if (st != SAI_STATUS_SUCCESS && st != SAI_STATUS_ITEM_NOT_FOUND) return st;
+            }
+        }
+        c.table_entries.erase(id);
+        return SAI_STATUS_SUCCESS;
     });
 }
 

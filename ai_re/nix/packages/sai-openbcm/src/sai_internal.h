@@ -119,6 +119,17 @@ struct PortObj {
     sai_object_id_t lag = 0;        // LAG this port is a member of
     sai_port_oper_status_t oper = SAI_PORT_OPER_STATUS_DOWN;
     std::vector<sai_object_id_t> queues, ipgs;
+    // QoS (sai_qos.cpp): maps by QosMapKind, scheduler groups (one per queue),
+    // PFC, port shaper, buffer profile lists; mirror / sampling (sai_mirror.cpp).
+    sai_object_id_t qos_map[(int)QosMapKind::Count] = {};
+    uint8_t default_tc = 0;
+    int32_t pfc_mode = SAI_PORT_PRIORITY_FLOW_CONTROL_MODE_COMBINED;
+    uint8_t pfc = 0, pfc_tx = 0, pfc_rx = 0;
+    sai_object_id_t scheduler = 0;
+    std::vector<sai_object_id_t> sched_groups, in_buffers, eg_buffers;
+    std::vector<sai_object_id_t> mirror_in, mirror_eg;
+    sai_object_id_t sample_in = 0, sample_eg = 0;
+    sai_object_id_t storm[3] = {0, 0, 0};   // StormKind -> policer (sai_hash.cpp port_storm_attr)
     StubMap stub;
 };
 
@@ -188,6 +199,8 @@ struct HostifObj {
     int32_t vlan_tag = SAI_HOSTIF_VLAN_TAG_STRIP;
     uint32_t queue = 0;
     int netif = -1, filter = -1;
+    std::string mcgrp;            // GENETLINK: multicast group
+    int genl = -1;                // GENETLINK: backend id (Backend::genetlink_create)
 };
 struct TrapGroupObj { bool admin = true; uint32_t queue = 0; sai_object_id_t policer = 0; };
 struct TrapObj {
@@ -205,8 +218,61 @@ struct HostifTableEntryObj {
     int32_t channel = SAI_HOSTIF_TABLE_ENTRY_CHANNEL_TYPE_NETDEV_PHYSICAL_PORT;
     sai_object_id_t hostif = 0;
 };
-struct QueueObj { int32_t type = SAI_QUEUE_TYPE_UNICAST; uint8_t index = 0; sai_object_id_t port = 0; };
-struct IpgObj { uint8_t index = 0; sai_object_id_t port = 0; StubMap stub; };
+struct QueueObj {
+    int32_t type = SAI_QUEUE_TYPE_UNICAST;
+    uint8_t index = 0;
+    sai_object_id_t port = 0;
+    sai_object_id_t group = 0;                  // its scheduler group (QoS backends)
+    sai_object_id_t sched = 0, wred = 0, buffer = 0;   // SCHEDULER_PROFILE_ID (direct), WRED, BUFFER profile
+    bool pfc_dlr = false;
+};
+struct IpgObj { uint8_t index = 0; sai_object_id_t port = 0; sai_object_id_t buffer = 0; StubMap stub; };
+
+// QoS objects (sai_qos.cpp). id: the backend's, -1 = kept by the SAI layer only.
+struct QosMapObj {
+    int32_t type = SAI_QOS_MAP_TYPE_DOT1P_TO_TC;
+    std::vector<sai_qos_map_t> list;
+    int id = -1;
+};
+struct SchedulerObj {
+    int32_t type = SAI_SCHEDULING_TYPE_DWRR;
+    uint8_t weight = 1;
+    int32_t meter = SAI_METER_TYPE_BYTES;
+    uint64_t min_rate = 0, min_burst = 0, max_rate = 0, max_burst = 0;
+};
+struct SchedGroupObj {
+    sai_object_id_t port = 0, parent = 0, sched = 0;
+    uint8_t level = 0, max_childs = 1;
+    std::vector<sai_object_id_t> children;      // queues
+};
+struct WredObj { WredCfg cfg; int id = -1; };
+struct BufferPoolObj {
+    int32_t type = SAI_BUFFER_POOL_TYPE_INGRESS;
+    uint64_t size = 0, xoff = 0;
+    int32_t mode = SAI_BUFFER_POOL_THRESHOLD_MODE_DYNAMIC;
+};
+struct BufferProfileObj {
+    sai_object_id_t pool = 0;
+    uint64_t reserved = 0, static_th = 0, xoff = 0, xon = 0, xon_offset = 0;
+    int8_t dynamic_th = 0;
+    int32_t mode = -1;                          // -1: the pool's
+};
+// Mirror sessions and SAMPLEPACKET (sai_mirror.cpp).
+struct MirrorObj {
+    int32_t type = SAI_MIRROR_SESSION_TYPE_LOCAL;
+    sai_object_id_t monitor = 0, policer = 0;
+    MirrorCfg cfg;
+    uint8_t tc = 0;
+    int32_t congestion = SAI_MIRROR_SESSION_CONGESTION_MODE_INDEPENDENT;
+    int id = -1;
+};
+// SWITCH LAG_HASH / ECMP_HASH (sai_hash.cpp).
+struct HashObj { bool lag = false; std::vector<int32_t> fields; };
+struct SampleObj {
+    uint32_t rate = 0;
+    int32_t type = SAI_SAMPLEPACKET_TYPE_SLOW_PATH, mode = SAI_SAMPLEPACKET_MODE_EXCLUSIVE;
+    int id = -1;
+};
 
 // L3
 // Virtual router = SDK VRF (vrf 0: the default VR, created with the switch).
@@ -290,6 +356,7 @@ struct AclEntryObj {
     bool admin = true;
     std::map<sai_attr_id_t, AclFieldVal> fields;            // enabled matches
     std::map<sai_attr_id_t, sai_acl_action_data_t> actions; // enabled actions
+    std::map<sai_attr_id_t, std::vector<sai_object_id_t>> action_objs;   // object-list actions (MIRROR_*) copied
     int eid = -1;                       // installed SDK entry, -1 = none
     std::string key;                    // what eid was installed with
 };
@@ -351,6 +418,17 @@ struct Ctx {
     std::map<sai_object_id_t, HostifTableEntryObj> table_entries;
     std::map<sai_object_id_t, QueueObj> queues;
     std::map<sai_object_id_t, IpgObj> ipgs;
+    std::map<sai_object_id_t, QosMapObj> qos_maps;
+    std::map<sai_object_id_t, SchedulerObj> schedulers;
+    std::map<sai_object_id_t, SchedGroupObj> sched_groups;
+    std::map<sai_object_id_t, WredObj> wreds;
+    std::map<sai_object_id_t, BufferPoolObj> buffer_pools;
+    std::map<sai_object_id_t, BufferProfileObj> buffer_profiles;
+    sai_object_id_t switch_qos_map[(int)QosMapKind::Count] = {};   // SWITCH QOS_*_MAP: ports without their own
+    std::map<sai_object_id_t, MirrorObj> mirrors;
+    std::map<sai_object_id_t, SampleObj> samplepackets;
+    std::map<sai_object_id_t, HashObj> hashes;
+    sai_object_id_t lag_hash = 0, ecmp_hash = 0;
     std::map<sai_object_id_t, RifObj> rifs;
     std::map<NeighborKey, NeighborObj> neighbors;
     std::map<sai_object_id_t, NextHopObj> next_hops;
@@ -440,6 +518,13 @@ extern const sai_next_hop_group_api_t nhg_api;
 extern const sai_lag_api_t lag_api;
 extern const sai_policer_api_t policer_api;
 extern const sai_acl_api_t acl_api;
+extern const sai_qos_map_api_t qos_map_api;
+extern const sai_scheduler_api_t scheduler_api;
+extern const sai_scheduler_group_api_t scheduler_group_api;
+extern const sai_wred_api_t wred_api;
+extern const sai_mirror_api_t mirror_api;
+extern const sai_samplepacket_api_t samplepacket_api;
+extern const sai_hash_api_t hash_api;
 
 // Cross-object helpers implemented in the object files.
 void switch_build_objects();                         // after backend init
@@ -486,5 +571,30 @@ bool policer_valid(sai_object_id_t oid);
 void acl_clear_objects();                            // switch removal
 bool acl_table_field_supported(sai_attr_id_t table_field);
 std::vector<int32_t> acl_ingress_actions();          // SAI_ACL_ACTION_TYPE_* implemented
+// QoS (sai_qos.cpp): per-port attributes (handled = the attribute is a QoS
+// one), the scheduler groups built with the switch, teardown.
+sai_status_t port_qos_set(PortObj& p, const sai_attribute_t& a, uint32_t i, bool& handled);
+sai_status_t port_qos_get(PortObj& p, sai_attribute_t& a, uint32_t i, bool& handled);
+sai_status_t switch_qos_set(const sai_attribute_t& a, bool& handled);
+sai_status_t switch_qos_get(sai_attribute_t& a, bool& handled);
+void qos_build_port(PortObj& p);                     // switch_build_objects, after the queues
+void qos_clear_objects();
+// sai_query_stats_capability for QUEUE / INGRESS_PRIORITY_GROUP: what the backend answers.
+sai_status_t qos_stats_capability(sai_object_type_t t, sai_stat_capability_list_t* out);
+bool port_pfc_stat(sai_stat_id_t id, int& prio, bool& tx);   // SAI_PORT_STAT_PFC_<n>_{RX,TX}_PKTS
+// Mirror / sampling (sai_mirror.cpp).
+sai_status_t port_mirror_set(PortObj& p, const sai_attribute_t& a, uint32_t i, bool& handled);
+sai_status_t port_mirror_get(PortObj& p, sai_attribute_t& a, uint32_t i, bool& handled);
+int mirror_backend_id(sai_object_id_t session);      // -1: none / not programmed
+bool mirror_valid(sai_object_id_t session);
+void mirror_clear_objects();
+// Hash objects, storm control, VLAN flood control (sai_hash.cpp).
+void hash_build_objects();                           // switch_build_objects
+sai_status_t switch_hash_set(const sai_attribute_t& a, bool& handled);   // *_DEFAULT_HASH_SEED
+sai_status_t switch_hash_get(sai_attribute_t& a, bool& handled);         // LAG_HASH, ECMP_HASH
+sai_status_t port_storm_attr_set(PortObj& p, const sai_attribute_t& a, uint32_t i, bool& handled);
+sai_status_t port_storm_attr_get(PortObj& p, sai_attribute_t& a, bool& handled);
+bool vlan_flood_attr(sai_attr_id_t id);              // the three *_FLOOD_CONTROL_TYPE ids
+sai_status_t vlan_flood_apply(uint16_t vid, const sai_attribute_t& a, uint32_t i, bool& keep);   // keep: store as a stub
 
 } // namespace ob

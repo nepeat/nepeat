@@ -15,7 +15,7 @@ WARN = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers
 SAI_CPPFLAGS = -I$(SAI_INC) -Isrc
 CORE = src/sai_api.cpp src/sai_switch.cpp src/sai_port.cpp src/sai_l2.cpp src/sai_hostif.cpp \
        src/sai_l3.cpp src/sai_lag.cpp src/sai_temp.cpp src/sai_caps.cpp src/sai_diag.cpp src/sai_acl.cpp \
-       src/fake_backend.cpp
+       src/sai_qos.cpp src/sai_mirror.cpp src/sai_hash.cpp src/fake_backend.cpp
 
 ifneq ($(OPENBCM),)
 BACKEND_OBJS = build/openbcm_backend.o build/sdk_glue.o
@@ -66,7 +66,7 @@ build/libsai.so.1.0.0: $(OBJS) src/libsai.map
 	ln -sf libsai.so.1.0.0 build/libsai.so.1
 	ln -sf libsai.so.1 build/libsai.so
 
-build/test_sai: tests/test_sai.cpp tests/test_acl.inc build/libsai.a
+build/test_sai: tests/test_sai.cpp tests/test_acl.inc tests/test_qos.inc build/libsai.a
 	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) -o $@ tests/test_sai.cpp build/libsai.a $(SDK_LIBS) -lpthread
 
 check: build/test_sai

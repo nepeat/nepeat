@@ -203,7 +203,7 @@ static void test_init_and_backend_selection()
     OK(sai_api_initialize(0, &g_smt));
     CHECK_EQ(sai_api_initialize(0, &g_smt), SAI_STATUS_FAILURE);
     CHECK_EQ(sai_api_query(SAI_API_SWITCH, nullptr), SAI_STATUS_INVALID_PARAMETER);
-    CHECK_EQ(sai_api_query(SAI_API_MIRROR, &t), SAI_STATUS_NOT_IMPLEMENTED);
+    CHECK_EQ(sai_api_query(SAI_API_TUNNEL, &t), SAI_STATUS_NOT_IMPLEMENTED);
     query_apis();
     sai_api_version_t v = 0;
     OK(sai_query_api_version(&v));
@@ -1845,6 +1845,7 @@ static void test_capacity()
 }
 
 #include "test_acl.inc"
+#include "test_qos.inc"
 
 // SAI_OPENBCM_DIAG_SOCKET: one command per connection, output back, a few refused.
 static std::string diag_cmd(const std::string& path, const std::string& line)
@@ -1913,6 +1914,8 @@ int main()
     test_capacity();
     test_policer_copp();
     test_acl();
+    test_qos();
+    test_l2_extras();
     test_diag();
     test_dump_and_teardown();
     std::printf("%d checks, %d failures\n", g_checks, g_fail);

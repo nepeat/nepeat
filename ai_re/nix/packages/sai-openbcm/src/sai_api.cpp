@@ -222,6 +222,13 @@ sai_status_t sai_api_query(_In_ sai_api_t api, _Out_ void** api_method_table)
     case SAI_API_NEXT_HOP_GROUP: t = &nhg_api; break;
     case SAI_API_POLICER: t = &policer_api; break;
     case SAI_API_ACL: t = &acl_api; break;
+    case SAI_API_QOS_MAP: t = &qos_map_api; break;
+    case SAI_API_SCHEDULER: t = &scheduler_api; break;
+    case SAI_API_SCHEDULER_GROUP: t = &scheduler_group_api; break;
+    case SAI_API_WRED: t = &wred_api; break;
+    case SAI_API_MIRROR: t = &mirror_api; break;
+    case SAI_API_SAMPLEPACKET: t = &samplepacket_api; break;
+    case SAI_API_HASH: t = &hash_api; break;
     default:
         *api_method_table = nullptr;
         return SAI_STATUS_NOT_IMPLEMENTED;
@@ -341,6 +348,8 @@ sai_status_t sai_query_stats_capability(_In_ sai_object_id_t, _In_ sai_object_ty
                                         _Inout_ sai_stat_capability_list_t* stats_capability)
 {
     if (!stats_capability) return SAI_STATUS_INVALID_PARAMETER;
+    if (object_type == SAI_OBJECT_TYPE_QUEUE || object_type == SAI_OBJECT_TYPE_INGRESS_PRIORITY_GROUP)
+        return qos_stats_capability(object_type, stats_capability);
     if (object_type != SAI_OBJECT_TYPE_PORT) return SAI_STATUS_NOT_SUPPORTED;
     std::vector<sai_stat_capability_t> v;
     for (uint32_t id = 0; id < 0x100; id++)

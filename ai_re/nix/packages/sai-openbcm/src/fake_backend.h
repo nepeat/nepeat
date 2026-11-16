@@ -132,6 +132,46 @@ public:
     sai_status_t policer_set(int pid, const PolicerCfg& cfg) override;
     sai_status_t policer_destroy(int pid) override;
 
+    // QoS and mirror: off unless a test turns qos_on / mirror_on (the SAI
+    // layer then keeps those objects itself, as with a backend without them).
+    bool qos_supported() const override { return qos_on; }
+    sai_status_t qos_map_create(QosMapKind k, const std::vector<QosMapEntry>& e, int& id) override;
+    sai_status_t qos_map_update(int id, const std::vector<QosMapEntry>& e) override;
+    sai_status_t qos_map_destroy(int id) override;
+    sai_status_t port_qos_map_set(int hw, QosMapKind k, int id) override;
+    sai_status_t port_default_tc_set(int hw, uint8_t tc) override;
+    sai_status_t port_pfc_set(int hw, bool separate, uint8_t tx, uint8_t rx) override;
+    sai_status_t queue_scheduler_set(int hw, int q, const SchedCfg* s) override;
+    sai_status_t port_scheduler_set(int hw, const SchedCfg* s) override;
+    sai_status_t wred_create(const WredCfg& w, int& id) override;
+    sai_status_t wred_update(int id, const WredCfg& w) override;
+    sai_status_t wred_destroy(int id) override;
+    sai_status_t queue_wred_set(int hw, int q, int id) override;
+    sai_status_t queue_buffer_set(int hw, int q, const BufferCfg* b) override;
+    sai_status_t pg_buffer_set(int hw, int pg, const BufferCfg* b) override;
+    sai_status_t queue_stats_get(int hw, int q, uint32_t n, const sai_stat_id_t* ids, uint64_t* out) override;
+    sai_status_t queue_stats_clear(int hw, int q, uint32_t n, const sai_stat_id_t* ids) override;
+    sai_status_t pg_stats_get(int hw, int pg, uint32_t n, const sai_stat_id_t* ids, uint64_t* out) override;
+    sai_status_t pg_stats_clear(int hw, int pg, uint32_t n, const sai_stat_id_t* ids) override;
+    sai_status_t port_pfc_stat_get(int hw, int prio, bool tx, uint64_t& v) override;
+    bool mirror_supported() const override { return mirror_on; }
+    bool hash_supported() const override { return l2x_on; }
+    sai_status_t mirror_create(const MirrorCfg& m, int& id) override;
+    sai_status_t mirror_update(int id, const MirrorCfg& m) override;
+    sai_status_t mirror_destroy(int id) override;
+    sai_status_t port_mirror_set(int hw, bool ingress, const std::vector<int>& ids) override;
+    sai_status_t sample_create(uint32_t rate, int& id) override;
+    sai_status_t sample_update(int id, uint32_t rate) override;
+    sai_status_t sample_destroy(int id) override;
+    sai_status_t port_sample_set(int hw, bool ingress, int id) override;
+    sai_status_t genetlink_create(const std::string& name, const std::string& mcgrp, int& id) override;
+    sai_status_t genetlink_destroy(int id) override;
+    sai_status_t genetlink_trap_set(int id, int32_t trap_type, bool add) override;
+    // hash / storm / flood control: only with l2x_on (NOT_SUPPORTED otherwise)
+    sai_status_t hash_set(bool lag, const std::vector<int32_t>& fields, uint32_t seed) override;
+    sai_status_t port_storm_set(int hw, StormKind kind, int policer) override;
+    sai_status_t vlan_flood_set(uint16_t vid, FloodKind kind, bool on) override;
+
     // ---- test hooks (not part of the backend interface) ----
     void inject_link(int hw, bool up);                 // e.g. cable pulled
     void inject_fdb(const FdbEvent& ev);               // hardware learn/age
@@ -163,6 +203,31 @@ public:
     std::map<std::string, std::string> wire;           // netif name -> host ifname
     std::vector<std::string> shell_log;
     bool initialized = false;
+    // QoS / mirror model (qos_on, mirror_on above)
+    bool qos_on = false, mirror_on = false;
+    struct QMap { QosMapKind kind; std::vector<QosMapEntry> e; };
+    struct Genl { std::string name, mcgrp; std::set<int32_t> traps; };
+    using HwQ = std::pair<int, int>;                   // port, queue / PG index
+    std::map<int, QMap> qmaps;
+    std::map<std::pair<int, int>, int> port_qmap;      // (hw, kind) -> map id
+    std::map<int, uint8_t> default_tc;
+    std::map<int, std::tuple<bool, uint8_t, uint8_t>> pfc;   // hw -> separate, tx, rx
+    std::map<HwQ, SchedCfg> queue_sched;               // absent: default
+    std::map<int, SchedCfg> port_sched;
+    std::map<int, WredCfg> wreds;
+    std::map<HwQ, int> queue_wred;
+    std::map<HwQ, BufferCfg> queue_buf, pg_buf;
+    std::map<std::pair<HwQ, sai_stat_id_t>, uint64_t> queue_stats, pg_stats;   // test-set counters
+    std::map<std::pair<int, int>, uint64_t> pfc_stats;  // (hw, prio*2+tx)
+    std::map<int, MirrorCfg> mirrors;
+    std::map<std::pair<int, bool>, std::vector<int>> port_mirrors;
+    std::map<int, uint32_t> samples;
+    std::map<std::pair<int, bool>, int> port_samples;
+    std::map<int, Genl> genls;
+    bool l2x_on = false;
+    std::map<bool, std::pair<std::vector<int32_t>, uint32_t>> hash;   // lag? -> fields, seed
+    std::map<std::pair<int, int>, int> storm;                          // (hw, StormKind) -> policer
+    std::map<std::pair<uint16_t, int>, bool> flood;                    // (vid, FloodKind) -> on
 
 private:
     // A netif's TAP netdev (tap mode) and its wire, see the profile keys.
@@ -188,6 +253,7 @@ private:
     int next_ecmp_ = 200000;                           // the SDK's multipath id range
     int next_fp_group_ = 1, next_fp_entry_ = 1, next_policer_ = 1;
     int cpu_egress_ = -1, drop_egress_ = -1;
+    int next_qos_ = 1;                                 // QoS / mirror ids
 };
 
 } // namespace ob

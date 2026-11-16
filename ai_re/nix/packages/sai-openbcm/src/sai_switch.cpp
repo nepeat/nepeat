@@ -277,6 +277,7 @@ void switch_build_objects()
             c.ipgs[io] = g;
             p.ipgs.push_back(io);
         }
+        qos_build_port(p);   // one scheduler group per queue (sai_qos.cpp)
         c.ports[p.oid] = p;
         c.hw2port[p.hw] = p.oid;
         c.port_list.push_back(p.oid);
@@ -290,6 +291,7 @@ void switch_build_objects()
     c.next_index[SAI_OBJECT_TYPE_HOSTIF_TRAP_GROUP] = 1;
     c.trap_groups[c.default_trap_group] = TrapGroupObj();
 
+    hash_build_objects();   // LAG_HASH / ECMP_HASH (sai_hash.cpp)
     c.default_bridge = make_oid(SAI_OBJECT_TYPE_BRIDGE, 1);
     c.next_index[SAI_OBJECT_TYPE_BRIDGE] = 1;
     c.bridges[c.default_bridge] = BridgeObj();
@@ -336,6 +338,9 @@ void switch_clear_objects()
     c.rifs.clear(); c.neighbors.clear(); c.next_hops.clear(); c.routes.clear(); c.internal_vlans.clear();
     c.vrs.clear(); c.nhgs.clear(); c.nhg_members.clear();
     acl_clear_objects();
+    qos_clear_objects();
+    mirror_clear_objects();
+    c.hashes.clear(); c.lag_hash = c.ecmp_hash = 0;
     c.next_index.clear(); c.switch_stub.clear(); c.notify.clear();
     c.port_state_cb = nullptr; c.fdb_cb = nullptr;
     c.switch_station = -1;
@@ -641,6 +646,11 @@ static sai_status_t get_one(uint32_t i, sai_attribute_t& a)
         break;
     }
     if (is_temp_attr(a.id)) return switch_temp_get(i, a);
+    bool qos = false;
+    sai_status_t qst = switch_qos_get(a, qos);
+    if (qos) return qst;
+    qst = switch_hash_get(a, qos);
+    if (qos) return qst;
     if (is_notify_attr(a.id)) {
         auto it = c.notify.find(a.id);
         a.value.ptr = it == c.notify.end() ? nullptr : it->second;
@@ -692,6 +702,11 @@ static sai_status_t set_switch_attribute(_In_ sai_object_id_t switch_id, _In_ co
             set_notify(attr->id, attr->value.ptr);
             return SAI_STATUS_SUCCESS;
         }
+        bool qos = false;
+        sai_status_t qst = switch_qos_set(*attr, qos);   // SWITCH QOS_*_MAP (sai_qos.cpp)
+        if (qos) return qst;
+        qst = switch_hash_set(*attr, qos);               // *_DEFAULT_HASH_SEED (sai_hash.cpp)
+        if (qos) return qst;
         if (const StubDef* d = find_stub(switch_stubs, N_SWITCH_STUBS, attr->id)) {
             if (d->create_only) return attr_invalid(0);
             c.switch_stub[attr->id] = attr->value;

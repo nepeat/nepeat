@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-// PORT, QUEUE and INGRESS_PRIORITY_GROUP objects. Ports and their lanes come
+// PORT objects (QUEUE, INGRESS_PRIORITY_GROUP and the port QoS attributes:
+// sai_qos.cpp; mirror / sampling attributes: sai_mirror.cpp). Ports and their lanes come
 // from the backend at switch creation; ports cannot be created or removed.
 #include "sai_internal.h"
 
@@ -49,6 +50,9 @@ static bool map_stat(sai_stat_id_t id, PortStat& s)
 bool port_stat_supported(sai_stat_id_t id)
 {
     PortStat s;
+    int prio;
+    bool tx;
+    if (port_pfc_stat(id, prio, tx)) return ctx().be && ctx().be->qos_supported();
     return map_stat(id, s);
 }
 
@@ -56,6 +60,14 @@ sai_status_t port_stats_get(int hw, uint32_t n, const sai_stat_id_t* ids, uint64
 {
     for (uint32_t i = 0; i < n; i++) {
         PortStat s;
+        int prio;
+        bool tx;
+        if (port_pfc_stat(ids[i], prio, tx)) {   // PFC frames: a QoS call
+            if (!ctx().be->qos_supported()) return SAI_STATUS_NOT_SUPPORTED;
+            sai_status_t st = ctx().be->port_pfc_stat_get(hw, prio, tx, out[i]);
+            if (st != SAI_STATUS_SUCCESS) return st;
+            continue;
+        }
         if (!map_stat(ids[i], s)) return SAI_STATUS_NOT_SUPPORTED;
         sai_status_t st = ctx().be->port_stat_get(hw, s, out[i]);
         if (st != SAI_STATUS_SUCCESS) return st;
@@ -127,6 +139,13 @@ static sai_status_t port_set_one(PortObj& p, const sai_attribute_t& a, uint32_t 
     default:
         break;
     }
+    bool handled = false;
+    st = port_qos_set(p, a, i, handled);
+    if (handled) return st;
+    st = port_storm_attr_set(p, a, i, handled);
+    if (handled) return st;
+    st = port_mirror_set(p, a, i, handled);
+    if (handled) return st;
     if (find_stub(port_stubs, N_PORT_STUBS, a.id)) {
         p.stub[a.id] = a.value;
         OB_INFO(SAI_API_PORT, "port %s attr %d stored (not programmed)", p.sdk_name.c_str(), a.id);
@@ -182,16 +201,18 @@ static sai_status_t port_get_one(PortObj& p, sai_attribute_t& a, uint32_t i)
     case SAI_PORT_ATTR_QOS_QUEUE_LIST: return fill_list(a.value.objlist, p.queues);
     case SAI_PORT_ATTR_NUMBER_OF_INGRESS_PRIORITY_GROUPS: a.value.u32 = (uint32_t)p.ipgs.size(); return SAI_STATUS_SUCCESS;
     case SAI_PORT_ATTR_INGRESS_PRIORITY_GROUP_LIST: return fill_list(a.value.objlist, p.ipgs);
-    case SAI_PORT_ATTR_QOS_NUMBER_OF_SCHEDULER_GROUPS: a.value.u32 = 0; return SAI_STATUS_SUCCESS;
     case SAI_PORT_ATTR_INGRESS_ACL:
     case SAI_PORT_ATTR_EGRESS_ACL: a.value.oid = acl_bind_get(p.oid, a.id == SAI_PORT_ATTR_INGRESS_ACL); return SAI_STATUS_SUCCESS;
-    case SAI_PORT_ATTR_QOS_SCHEDULER_GROUP_LIST: {
-        std::vector<sai_object_id_t> none;
-        return fill_list(a.value.objlist, none);
-    }
     default:
         break;
     }
+    bool handled = false;
+    sai_status_t qst = port_qos_get(p, a, i, handled);
+    if (handled) return qst;
+    qst = port_storm_attr_get(p, a, handled);
+    if (handled) return qst;
+    qst = port_mirror_get(p, a, i, handled);
+    if (handled) return qst;
     if (const StubDef* d = find_stub(port_stubs, N_PORT_STUBS, a.id)) {
         auto it = p.stub.find(a.id);
         if (it != p.stub.end()) a.value = it->second;
@@ -285,82 +306,5 @@ static sai_port_api_t make_port_api()
     return a;
 }
 const sai_port_api_t port_api = make_port_api();
-
-// ------------------------------------------------------------------ queues
-static sai_status_t get_queue_attribute(_In_ sai_object_id_t qid, _In_ uint32_t n, _Inout_ sai_attribute_t* attrs)
-{
-    return guarded(SAI_API_QUEUE, __func__, [&]() -> sai_status_t {
-        QueueObj* q = lookup(ctx().queues, qid);
-        if (!q) return SAI_STATUS_INVALID_OBJECT_ID;
-        if (n && !attrs) return SAI_STATUS_INVALID_PARAMETER;
-        for (uint32_t i = 0; i < n; i++) {
-            sai_attribute_t& a = attrs[i];
-            switch (a.id) {
-            case SAI_QUEUE_ATTR_TYPE: a.value.s32 = q->type; break;
-            case SAI_QUEUE_ATTR_INDEX: a.value.u8 = q->index; break;
-            case SAI_QUEUE_ATTR_PORT: a.value.oid = q->port; break;
-            case SAI_QUEUE_ATTR_PARENT_SCHEDULER_NODE: a.value.oid = q->port; break;
-            default: return attr_not_supported(i);
-            }
-        }
-        return SAI_STATUS_SUCCESS;
-    });
-}
-
-static sai_status_t set_queue_attribute(_In_ sai_object_id_t, _In_ const sai_attribute_t*)
-{
-    return attr_not_supported(0);   // scheduler / WRED / buffer profiles: not implemented
-}
-
-static sai_status_t no_queue_stats(_In_ sai_object_id_t, _In_ uint32_t, _In_ const sai_stat_id_t*, _Out_ uint64_t*)
-{
-    return SAI_STATUS_NOT_SUPPORTED;
-}
-
-static sai_queue_api_t make_queue_api()
-{
-    sai_queue_api_t a;
-    std::memset(&a, 0, sizeof(a));
-    a.set_queue_attribute = set_queue_attribute;
-    a.get_queue_attribute = get_queue_attribute;
-    a.get_queue_stats = no_queue_stats;
-    return a;
-}
-const sai_queue_api_t queue_api = make_queue_api();
-
-// ----------------------------------------------- ingress priority groups
-static sai_status_t get_ipg_attribute(_In_ sai_object_id_t id, _In_ uint32_t n, _Inout_ sai_attribute_t* attrs)
-{
-    return guarded(SAI_API_BUFFER, __func__, [&]() -> sai_status_t {
-        IpgObj* g = lookup(ctx().ipgs, id);
-        if (!g) return SAI_STATUS_INVALID_OBJECT_ID;
-        if (n && !attrs) return SAI_STATUS_INVALID_PARAMETER;
-        for (uint32_t i = 0; i < n; i++) {
-            sai_attribute_t& a = attrs[i];
-            switch (a.id) {
-            case SAI_INGRESS_PRIORITY_GROUP_ATTR_PORT: a.value.oid = g->port; break;
-            case SAI_INGRESS_PRIORITY_GROUP_ATTR_INDEX: a.value.u8 = g->index; break;
-            case SAI_INGRESS_PRIORITY_GROUP_ATTR_BUFFER_PROFILE: a.value.oid = SAI_NULL_OBJECT_ID; break;
-            default: return attr_not_supported(i);
-            }
-        }
-        return SAI_STATUS_SUCCESS;
-    });
-}
-
-static sai_status_t set_ipg_attribute(_In_ sai_object_id_t, _In_ const sai_attribute_t*)
-{
-    return attr_not_supported(0);
-}
-
-static sai_buffer_api_t make_buffer_api()
-{
-    sai_buffer_api_t a;
-    std::memset(&a, 0, sizeof(a));
-    a.get_ingress_priority_group_attribute = get_ipg_attribute;
-    a.set_ingress_priority_group_attribute = set_ipg_attribute;
-    return a;
-}
-const sai_buffer_api_t buffer_api = make_buffer_api();
 
 } // namespace ob

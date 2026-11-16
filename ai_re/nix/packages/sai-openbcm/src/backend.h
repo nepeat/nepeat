@@ -148,6 +148,9 @@ struct FpRule {
     // Policer colours: drop green / yellow / red packets; with cpu_copy_only
     // only their copy to the CPU is cancelled (CoPP: forwarding untouched).
     bool green_drop = false, yellow_drop = false, red_drop = false, cpu_copy_only = false;
+    // Mirror sessions (backend ids from mirror_create) the matched packets
+    // are mirrored to; only set when the backend has mirror_supported().
+    std::vector<int> mirror_ingress, mirror_egress;
 };
 // SDK meter. packets: rates in packets/s and bursts in packets, else bytes/s and bytes.
 struct PolicerCfg {
@@ -168,6 +171,67 @@ struct TrapSpec {
     int policer = -1;               // backend policer id of the group's POLICER, -1: none
     bool yellow_drop = false, red_drop = false;   // the policer's YELLOW/RED_PACKET_ACTION is DROP
 };
+
+// ------------------------------------------------------------------ QoS
+// QoS maps, schedulers, WRED and buffers (sai_qos.cpp). Optional: with
+// qos_supported() false (the default) the SAI layer keeps these objects
+// itself, programs nothing and makes none of the QoS calls (the behaviour
+// before they existed). Queues and priority groups: index 0..7 per port.
+enum class QosMapKind : uint8_t {
+    DscpToTc, Dot1pToTc, TcToQueue, TcToPg, PfcPrioToQueue, PfcPrioToPg,
+    TcColorToDscp, TcColorToDot1p, DscpToColor, Dot1pToColor, Count
+};
+// One map entry: key -> value; colours are SAI_PACKET_COLOR_* (the
+// TC_AND_COLOR keys, the *_TO_COLOR values). The SAI layer passes complete
+// tables: every key the map type has (64 DSCPs, 8 TCs/priorities), missing
+// keys mapped to 0 / green.
+struct QosMapEntry { uint32_t key = 0, key_color = 0, value = 0, value_color = 0; };
+// A scheduler profile (SAI SCHEDULER): on a queue (its scheduler group) or
+// a port (port shaper). Rates: bytes/s and bytes, or packets/s and packets.
+struct SchedCfg {
+    bool strict = false;            // else DWRR / WRR with weight
+    uint32_t weight = 1;
+    bool packets = false;
+    uint64_t min_rate = 0, min_burst = 0, max_rate = 0, max_burst = 0;   // 0: none
+};
+// A WRED profile: [0] green, [1] yellow, [2] red; thresholds in bytes,
+// probability in percent.
+struct WredCfg {
+    bool enable[3] = {false, false, false};
+    uint32_t min[3] = {0, 0, 0}, max[3] = {0, 0, 0}, prob[3] = {100, 100, 100};
+    uint8_t weight = 0;             // queue size averaging
+    int32_t ecn = 0;                // sai_ecn_mark_mode_t
+};
+// A buffer profile with what its pool says.
+struct BufferCfg {
+    bool ingress = false;           // the pool's TYPE
+    bool dynamic = true;            // THRESHOLD_MODE (the pool's when the profile has none)
+    int8_t dynamic_th = 0;          // alpha = 2^th
+    uint64_t static_th = 0, reserved = 0, xoff = 0, xon = 0, xon_offset = 0;   // bytes
+    uint64_t pool_size = 0, pool_xoff = 0;
+};
+
+// ---------------------------------------------------- mirror, sampling
+// Mirror sessions (SPAN, ERSPAN) and SAMPLEPACKET (sai_mirror.cpp).
+// Optional like QoS: mirror_supported() false keeps them in the SAI layer.
+struct MirrorCfg {
+    bool erspan = false;            // ENHANCED_REMOTE (L3 GRE), else LOCAL (SPAN)
+    int monitor = -1;               // monitor port (hw)
+    uint16_t truncate = 0;          // 0: whole frames
+    uint32_t sample_rate = 0;       // 0 / 1: every frame
+    // ERSPAN encapsulation
+    uint8_t tos = 0, ttl = 255;
+    IpAddr src, dst;
+    uint8_t smac[6] = {0}, dmac[6] = {0};
+    uint16_t gre_type = 0x88be;
+    bool vlan = false;              // VLAN_HEADER_VALID
+    uint16_t vlan_tpid = 0x8100, vlan_id = 0;
+    uint8_t vlan_pri = 0, vlan_cfi = 0;
+};
+
+// Storm control and VLAN flood control kinds (port_storm_set, vlan_flood_set).
+enum class StormKind : uint8_t { Broadcast, Multicast, UnknownUnicast };
+enum class FloodKind : uint8_t { UnknownUnicast, UnknownMulticast, Broadcast };
 
 using LinkCallback = std::function<void(int hw_port, bool up)>;
 using FdbCallback = std::function<void(const FdbEvent&)>;
@@ -297,6 +361,80 @@ public:
     virtual sai_status_t policer_create(const PolicerCfg& cfg, int& pid) = 0;
     virtual sai_status_t policer_set(int pid, const PolicerCfg& cfg) = 0;
     virtual sai_status_t policer_destroy(int pid) = 0;
+
+    // QoS (see QosMapKind). id -1: none / default.
+    virtual bool qos_supported() const { return false; }
+    virtual sai_status_t qos_map_create(QosMapKind, const std::vector<QosMapEntry>&, int&) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t qos_map_update(int, const std::vector<QosMapEntry>&) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t qos_map_destroy(int) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t port_qos_map_set(int, QosMapKind, int) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t port_default_tc_set(int, uint8_t) { return SAI_STATUS_NOT_SUPPORTED; }
+    // PFC per priority bit: combined mode passes tx == rx.
+    virtual sai_status_t port_pfc_set(int, bool separate, uint8_t tx, uint8_t rx) { (void)separate; (void)tx; (void)rx; return SAI_STATUS_NOT_SUPPORTED; }
+    // nullptr: back to the default (DWRR weight 1, no shaping).
+    virtual sai_status_t queue_scheduler_set(int, int, const SchedCfg*) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t port_scheduler_set(int, const SchedCfg*) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t wred_create(const WredCfg&, int&) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t wred_update(int, const WredCfg&) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t wred_destroy(int) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t queue_wred_set(int, int, int) { return SAI_STATUS_NOT_SUPPORTED; }
+    // Buffer profiles on a queue / an ingress priority group (nullptr: default).
+    virtual sai_status_t queue_buffer_set(int, int, const BufferCfg*) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t pg_buffer_set(int, int, const BufferCfg*) { return SAI_STATUS_NOT_SUPPORTED; }
+    // Counters by SAI id (SAI_QUEUE_STAT_*, SAI_INGRESS_PRIORITY_GROUP_STAT_*,
+    // SAI_BUFFER_POOL_STAT_*); NOT_SUPPORTED for an id the backend lacks.
+    virtual sai_status_t queue_stats_get(int, int, uint32_t, const sai_stat_id_t*, uint64_t*) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t queue_stats_clear(int, int, uint32_t, const sai_stat_id_t*) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t pg_stats_get(int, int, uint32_t, const sai_stat_id_t*, uint64_t*) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t pg_stats_clear(int, int, uint32_t, const sai_stat_id_t*) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t pool_stats_get(bool, uint32_t, const sai_stat_id_t*, uint64_t*) { return SAI_STATUS_NOT_SUPPORTED; }
+    // PFC frames per priority (SAI_PORT_STAT_PFC_<prio>_RX_PKTS / TX_PKTS).
+    virtual sai_status_t port_pfc_stat_get(int, int, bool, uint64_t&) { return SAI_STATUS_NOT_SUPPORTED; }
+
+    // Mirror sessions, port mirroring, sampling.
+    virtual bool mirror_supported() const { return false; }
+    virtual sai_status_t mirror_create(const MirrorCfg&, int&) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t mirror_update(int, const MirrorCfg&) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t mirror_destroy(int) { return SAI_STATUS_NOT_SUPPORTED; }
+    // The sessions a port mirrors to (empty: none), per direction.
+    virtual sai_status_t port_mirror_set(int, bool, const std::vector<int>&) { return SAI_STATUS_NOT_SUPPORTED; }
+    // SAMPLEPACKET: 1 in rate frames to the CPU (port_sample_set id -1: off).
+    virtual sai_status_t sample_create(uint32_t, int&) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t sample_update(int, uint32_t) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t sample_destroy(int) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t port_sample_set(int, bool, int) { return SAI_STATUS_NOT_SUPPORTED; }
+    // Generic-netlink host interface (sFlow samples to "psample") and the
+    // traps whose packets go there (HOSTIF_TABLE_ENTRY channel GENETLINK).
+    virtual sai_status_t genetlink_create(const std::string&, const std::string&, int&) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t genetlink_destroy(int) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t genetlink_trap_set(int, int32_t, bool) { return SAI_STATUS_NOT_SUPPORTED; }
+
+    // Optional L2 extras (default NOT_SUPPORTED: the SAI layer keeps the
+    // attribute without hardware effect, as before these hooks).
+    // The LAG or ECMP hash: SAI_NATIVE_HASH_FIELD_* values and the seed
+    // (HASH NATIVE_HASH_FIELD_LIST of SWITCH LAG_HASH / ECMP_HASH, SWITCH
+    // LAG_/ECMP_DEFAULT_HASH_SEED).
+    // hash_supported(): SWITCH LAG_HASH / ECMP_HASH objects exist (else those
+    // attributes stay unsupported and the seeds are stubs, as before).
+    virtual bool hash_supported() const { return false; }
+    virtual sai_status_t hash_set(bool lag, const std::vector<int32_t>& fields, uint32_t seed)
+    {
+        (void)lag; (void)fields; (void)seed;
+        return SAI_STATUS_NOT_SUPPORTED;
+    }
+    // A policer (backend id; -1: off) on one kind of a port's traffic
+    // (PORT BROADCAST/MULTICAST/FLOOD_STORM_CONTROL_POLICER_ID).
+    virtual sai_status_t port_storm_set(int hw, StormKind kind, int policer)
+    {
+        (void)hw; (void)kind; (void)policer;
+        return SAI_STATUS_NOT_SUPPORTED;
+    }
+    // VLAN flooding of one kind on / off (VLAN *_FLOOD_CONTROL_TYPE ALL / NONE).
+    virtual sai_status_t vlan_flood_set(uint16_t vid, FloodKind kind, bool on)
+    {
+        (void)vid; (void)kind; (void)on;
+        return SAI_STATUS_NOT_SUPPORTED;
+    }
 };
 
 // Factories. make_openbcm_backend() returns nullptr when this libsai was

@@ -204,6 +204,11 @@ static sai_status_t set_vlan_attribute(_In_ sai_object_id_t vlan_id, _In_ const 
         if (attr->id == SAI_VLAN_ATTR_VLAN_ID) return attr_invalid(0);   // create-only
         if (attr->id == SAI_VLAN_ATTR_STP_INSTANCE)
             return attr->value.oid == ctx().default_stp ? SAI_STATUS_SUCCESS : attr_invalid(0);
+        if (vlan_flood_attr(attr->id)) {   // the backend's flood control, else kept (sai_hash.cpp)
+            bool keep = true;
+            sai_status_t st = vlan_flood_apply(v->vid, *attr, 0, keep);
+            if (st != SAI_STATUS_SUCCESS) return st;
+        }
         return stub_set(vlan_stubs, v->stub, *attr, 0);
     });
 }

@@ -47,6 +47,9 @@ static std::string rule_key(const FpRule& r)
     for (int p : m.ports) put(s, p);
     put(s, r.drop); put(s, r.drop_cancel); put(s, r.copy_cpu); put(s, r.counter); put(s, r.policer);
     put(s, r.green_drop); put(s, r.yellow_drop); put(s, r.red_drop); put(s, r.cpu_copy_only);
+    for (int x : r.mirror_ingress) put(s, x);
+    put(s, -1);
+    for (int x : r.mirror_egress) put(s, x);
     return s;
 }
 
@@ -143,6 +146,8 @@ static bool policer_in_use(sai_object_id_t oid)
 {
     auto& c = ctx();
     for (auto& g : c.trap_groups) if (g.second.policer == oid) return true;
+    for (auto& p : c.ports)
+        for (auto s : p.second.storm) if (s == oid) return true;   // storm control (sai_hash.cpp)
     for (auto& e : c.acl_entries) {
         auto it = e.second.actions.find(SAI_ACL_ENTRY_ATTR_ACTION_SET_POLICER);
         if (it != e.second.actions.end() && it->second.parameter.oid == oid) return true;
@@ -474,7 +479,15 @@ bool acl_table_field_supported(sai_attr_id_t f) { bool ok; field_qual(f, ok); re
 
 static const int32_t acl_actions[] = {SAI_ACL_ACTION_TYPE_PACKET_ACTION, SAI_ACL_ACTION_TYPE_COUNTER,
                                       SAI_ACL_ACTION_TYPE_SET_POLICER};
-std::vector<int32_t> acl_ingress_actions() { return std::vector<int32_t>(std::begin(acl_actions), std::end(acl_actions)); }
+std::vector<int32_t> acl_ingress_actions()
+{
+    std::vector<int32_t> v(std::begin(acl_actions), std::end(acl_actions));
+    if (ctx().be && ctx().be->mirror_supported()) {
+        v.push_back(SAI_ACL_ACTION_TYPE_MIRROR_INGRESS);
+        v.push_back(SAI_ACL_ACTION_TYPE_MIRROR_EGRESS);
+    }
+    return v;
+}
 
 static bool is_table_field(sai_attr_id_t id)
 {
@@ -720,6 +733,17 @@ static bool entry_rule(const AclEntryObj& e, FpRule& r)
         case SAI_ACL_ENTRY_ATTR_ACTION_SET_POLICER:
             if (PolicerObj* p = lookup(c.policers, a.second.parameter.oid)) apply_colors(r, *p, false);
             break;
+        case SAI_ACL_ENTRY_ATTR_ACTION_MIRROR_INGRESS:
+        case SAI_ACL_ENTRY_ATTR_ACTION_MIRROR_EGRESS: {
+            auto it = e.action_objs.find(a.first);
+            std::vector<int>& ids = a.first == SAI_ACL_ENTRY_ATTR_ACTION_MIRROR_INGRESS ? r.mirror_ingress : r.mirror_egress;
+            if (it != e.action_objs.end())
+                for (auto s : it->second) {
+                    int id = mirror_backend_id(s);
+                    if (id >= 0) ids.push_back(id);
+                }
+            break;
+        }
         default: break;
         }
     }
@@ -826,7 +850,7 @@ static sai_status_t entry_attr(AclEntryObj& e, sai_object_id_t self, const AclTa
         return SAI_STATUS_SUCCESS;
     }
     if (is_entry_action(a.id)) {
-        if (!a.value.aclaction.enable) { e.actions.erase(a.id); return SAI_STATUS_SUCCESS; }
+        if (!a.value.aclaction.enable) { e.actions.erase(a.id); e.action_objs.erase(a.id); return SAI_STATUS_SUCCESS; }
         switch (a.id) {
         case SAI_ACL_ENTRY_ATTR_ACTION_PACKET_ACTION:
             switch (a.value.aclaction.parameter.s32) {
@@ -847,6 +871,20 @@ static sai_status_t entry_attr(AclEntryObj& e, sai_object_id_t self, const AclTa
         case SAI_ACL_ENTRY_ATTR_ACTION_SET_POLICER:
             if (a.value.aclaction.parameter.oid && !policer_valid(a.value.aclaction.parameter.oid)) return attr_invalid(i);
             break;
+        case SAI_ACL_ENTRY_ATTR_ACTION_MIRROR_INGRESS:
+        case SAI_ACL_ENTRY_ATTR_ACTION_MIRROR_EGRESS: {
+            // Mirror sessions (sai_mirror.cpp): only with a backend that mirrors.
+            if (!c.be->mirror_supported()) return attr_not_supported(i);
+            const sai_object_list_t& l = a.value.aclaction.parameter.objlist;
+            if (l.count && !l.list) return attr_invalid(i);
+            std::vector<sai_object_id_t> v(l.list, l.list + l.count);
+            for (auto s : v) if (!mirror_valid(s)) return attr_invalid(i);
+            e.action_objs[a.id] = v;
+            sai_acl_action_data_t d = a.value.aclaction;
+            d.parameter.objlist.list = nullptr;   // never keep the caller's pointer
+            e.actions[a.id] = d;
+            return SAI_STATUS_SUCCESS;
+        }
         default:
             OB_ERR(SAI_API_ACL, "ACL entry: action %d not supported", a.id);
             return attr_not_supported(i);
@@ -965,8 +1003,17 @@ static sai_status_t get_acl_entry_attribute(_In_ sai_object_id_t id, _In_ uint32
             }
             if (is_entry_action(a.id)) {
                 auto it = e->actions.find(a.id);
-                if (it == e->actions.end()) a.value.aclaction.enable = false;
-                else a.value.aclaction = it->second;
+                if (it == e->actions.end()) { a.value.aclaction.enable = false; continue; }
+                auto ob = e->action_objs.find(a.id);
+                if (ob != e->action_objs.end()) {
+                    sai_object_list_t keep = a.value.aclaction.parameter.objlist;
+                    a.value.aclaction = it->second;
+                    a.value.aclaction.parameter.objlist = keep;
+                    sai_status_t st = fill_list(a.value.aclaction.parameter.objlist, ob->second);
+                    if (st != SAI_STATUS_SUCCESS) return st;
+                    continue;
+                }
+                a.value.aclaction = it->second;
                 continue;
             }
             switch (a.id) {

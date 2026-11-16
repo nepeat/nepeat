@@ -949,4 +949,284 @@ bool IpPrefix::operator<(const IpPrefix& o) const
     return mask < o.mask;
 }
 
+// ------------------------------------------------------------- QoS, mirror
+// A model of what the SAI layer asked for (fake_backend.h); counters are
+// what a test set. Ids are shared by every QoS / mirror object kind.
+sai_status_t FakeBackend::qos_map_create(QosMapKind k, const std::vector<QosMapEntry>& e, int& id)
+{
+    std::lock_guard<std::mutex> g(mu);
+    id = next_qos_++;
+    qmaps[id] = QMap{k, e};
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::qos_map_update(int id, const std::vector<QosMapEntry>& e)
+{
+    std::lock_guard<std::mutex> g(mu);
+    auto it = qmaps.find(id);
+    if (it == qmaps.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+    it->second.e = e;
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::qos_map_destroy(int id)
+{
+    std::lock_guard<std::mutex> g(mu);
+    for (auto& p : port_qmap)
+        if (p.second == id) return SAI_STATUS_OBJECT_IN_USE;
+    return qmaps.erase(id) ? SAI_STATUS_SUCCESS : SAI_STATUS_ITEM_NOT_FOUND;
+}
+sai_status_t FakeBackend::port_qos_map_set(int hw, QosMapKind k, int id)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!port(hw)) return SAI_STATUS_INVALID_PORT_NUMBER;
+    if (id >= 0 && !qmaps.count(id)) return SAI_STATUS_ITEM_NOT_FOUND;
+    if (id < 0) port_qmap.erase({hw, (int)k});
+    else port_qmap[{hw, (int)k}] = id;
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::port_default_tc_set(int hw, uint8_t tc)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!port(hw)) return SAI_STATUS_INVALID_PORT_NUMBER;
+    default_tc[hw] = tc;
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::port_pfc_set(int hw, bool separate, uint8_t tx, uint8_t rx)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!port(hw)) return SAI_STATUS_INVALID_PORT_NUMBER;
+    pfc[hw] = std::make_tuple(separate, tx, rx);
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::queue_scheduler_set(int hw, int q, const SchedCfg* s)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!port(hw) || q < 0 || q > 7) return SAI_STATUS_INVALID_PARAMETER;
+    if (s) queue_sched[{hw, q}] = *s;
+    else queue_sched.erase({hw, q});
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::port_scheduler_set(int hw, const SchedCfg* s)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!port(hw)) return SAI_STATUS_INVALID_PORT_NUMBER;
+    if (s) port_sched[hw] = *s;
+    else port_sched.erase(hw);
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::wred_create(const WredCfg& w, int& id)
+{
+    std::lock_guard<std::mutex> g(mu);
+    id = next_qos_++;
+    wreds[id] = w;
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::wred_update(int id, const WredCfg& w)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!wreds.count(id)) return SAI_STATUS_ITEM_NOT_FOUND;
+    wreds[id] = w;
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::wred_destroy(int id)
+{
+    std::lock_guard<std::mutex> g(mu);
+    for (auto& q : queue_wred)
+        if (q.second == id) return SAI_STATUS_OBJECT_IN_USE;
+    return wreds.erase(id) ? SAI_STATUS_SUCCESS : SAI_STATUS_ITEM_NOT_FOUND;
+}
+sai_status_t FakeBackend::queue_wred_set(int hw, int q, int id)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!port(hw) || q < 0 || q > 7) return SAI_STATUS_INVALID_PARAMETER;
+    if (id >= 0 && !wreds.count(id)) return SAI_STATUS_ITEM_NOT_FOUND;
+    if (id < 0) queue_wred.erase({hw, q});
+    else queue_wred[{hw, q}] = id;
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::queue_buffer_set(int hw, int q, const BufferCfg* b)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!port(hw) || q < 0 || q > 7) return SAI_STATUS_INVALID_PARAMETER;
+    if (b) queue_buf[{hw, q}] = *b;
+    else queue_buf.erase({hw, q});
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::pg_buffer_set(int hw, int pg, const BufferCfg* b)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!port(hw) || pg < 0 || pg > 7) return SAI_STATUS_INVALID_PARAMETER;
+    if (b) pg_buf[{hw, pg}] = *b;
+    else pg_buf.erase({hw, pg});
+    return SAI_STATUS_SUCCESS;
+}
+// Counters: PACKETS / BYTES / DROPPED_PACKETS (and the PG's PACKETS / BYTES)
+// as a test set them; any other id NOT_SUPPORTED.
+static bool fake_queue_stat(sai_stat_id_t id)
+{
+    return id == SAI_QUEUE_STAT_PACKETS || id == SAI_QUEUE_STAT_BYTES || id == SAI_QUEUE_STAT_DROPPED_PACKETS;
+}
+static bool fake_pg_stat(sai_stat_id_t id)
+{
+    return id == SAI_INGRESS_PRIORITY_GROUP_STAT_PACKETS || id == SAI_INGRESS_PRIORITY_GROUP_STAT_BYTES;
+}
+sai_status_t FakeBackend::queue_stats_get(int hw, int q, uint32_t n, const sai_stat_id_t* ids, uint64_t* out)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!port(hw)) return SAI_STATUS_INVALID_PORT_NUMBER;
+    for (uint32_t i = 0; i < n; i++) {
+        if (!fake_queue_stat(ids[i])) return SAI_STATUS_NOT_SUPPORTED;
+        auto it = queue_stats.find({{hw, q}, ids[i]});
+        out[i] = it == queue_stats.end() ? 0 : it->second;
+    }
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::queue_stats_clear(int hw, int q, uint32_t n, const sai_stat_id_t* ids)
+{
+    std::lock_guard<std::mutex> g(mu);
+    for (uint32_t i = 0; i < n; i++) {
+        if (!fake_queue_stat(ids[i])) return SAI_STATUS_NOT_SUPPORTED;
+        queue_stats.erase({{hw, q}, ids[i]});
+    }
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::pg_stats_get(int hw, int pg, uint32_t n, const sai_stat_id_t* ids, uint64_t* out)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!port(hw)) return SAI_STATUS_INVALID_PORT_NUMBER;
+    for (uint32_t i = 0; i < n; i++) {
+        if (!fake_pg_stat(ids[i])) return SAI_STATUS_NOT_SUPPORTED;
+        auto it = pg_stats.find({{hw, pg}, ids[i]});
+        out[i] = it == pg_stats.end() ? 0 : it->second;
+    }
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::pg_stats_clear(int hw, int pg, uint32_t n, const sai_stat_id_t* ids)
+{
+    std::lock_guard<std::mutex> g(mu);
+    for (uint32_t i = 0; i < n; i++) {
+        if (!fake_pg_stat(ids[i])) return SAI_STATUS_NOT_SUPPORTED;
+        pg_stats.erase({{hw, pg}, ids[i]});
+    }
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::port_pfc_stat_get(int hw, int prio, bool tx, uint64_t& v)
+{
+    std::lock_guard<std::mutex> g(mu);
+    auto it = pfc_stats.find({hw, prio * 2 + (tx ? 1 : 0)});
+    v = it == pfc_stats.end() ? 0 : it->second;
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::mirror_create(const MirrorCfg& m, int& id)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!port(m.monitor)) return SAI_STATUS_INVALID_PORT_NUMBER;
+    id = next_qos_++;
+    mirrors[id] = m;
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::mirror_update(int id, const MirrorCfg& m)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!mirrors.count(id)) return SAI_STATUS_ITEM_NOT_FOUND;
+    if (!port(m.monitor)) return SAI_STATUS_INVALID_PORT_NUMBER;
+    mirrors[id] = m;
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::mirror_destroy(int id)
+{
+    std::lock_guard<std::mutex> g(mu);
+    for (auto& p : port_mirrors)
+        for (int x : p.second)
+            if (x == id) return SAI_STATUS_OBJECT_IN_USE;
+    return mirrors.erase(id) ? SAI_STATUS_SUCCESS : SAI_STATUS_ITEM_NOT_FOUND;
+}
+sai_status_t FakeBackend::port_mirror_set(int hw, bool ingress, const std::vector<int>& ids)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!port(hw)) return SAI_STATUS_INVALID_PORT_NUMBER;
+    for (int x : ids)
+        if (!mirrors.count(x)) return SAI_STATUS_ITEM_NOT_FOUND;
+    if (ids.empty()) port_mirrors.erase({hw, ingress});
+    else port_mirrors[{hw, ingress}] = ids;
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::sample_create(uint32_t rate, int& id)
+{
+    std::lock_guard<std::mutex> g(mu);
+    id = next_qos_++;
+    samples[id] = rate;
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::sample_update(int id, uint32_t rate)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!samples.count(id)) return SAI_STATUS_ITEM_NOT_FOUND;
+    samples[id] = rate;
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::sample_destroy(int id)
+{
+    std::lock_guard<std::mutex> g(mu);
+    for (auto& p : port_samples)
+        if (p.second == id) return SAI_STATUS_OBJECT_IN_USE;
+    return samples.erase(id) ? SAI_STATUS_SUCCESS : SAI_STATUS_ITEM_NOT_FOUND;
+}
+sai_status_t FakeBackend::port_sample_set(int hw, bool ingress, int id)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!port(hw)) return SAI_STATUS_INVALID_PORT_NUMBER;
+    if (id >= 0 && !samples.count(id)) return SAI_STATUS_ITEM_NOT_FOUND;
+    if (id < 0) port_samples.erase({hw, ingress});
+    else port_samples[{hw, ingress}] = id;
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::genetlink_create(const std::string& name, const std::string& mcgrp, int& id)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!mirror_on) return SAI_STATUS_NOT_SUPPORTED;   // with the mirror model only
+    id = next_qos_++;
+    genls[id] = Genl{name, mcgrp, {}};
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::genetlink_destroy(int id)
+{
+    std::lock_guard<std::mutex> g(mu);
+    return genls.erase(id) ? SAI_STATUS_SUCCESS : SAI_STATUS_ITEM_NOT_FOUND;
+}
+sai_status_t FakeBackend::genetlink_trap_set(int id, int32_t trap_type, bool add)
+{
+    std::lock_guard<std::mutex> g(mu);
+    auto it = genls.find(id);
+    if (it == genls.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+    if (add) it->second.traps.insert(trap_type);
+    else it->second.traps.erase(trap_type);
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t FakeBackend::hash_set(bool lag, const std::vector<int32_t>& fields, uint32_t seed)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!l2x_on) return SAI_STATUS_NOT_SUPPORTED;
+    hash[lag] = std::make_pair(fields, seed);
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::port_storm_set(int hw, StormKind kind, int policer)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!l2x_on) return SAI_STATUS_NOT_SUPPORTED;
+    if (!port(hw)) return SAI_STATUS_INVALID_PORT_NUMBER;
+    if (policer >= 0 && !policers.count(policer)) return SAI_STATUS_ITEM_NOT_FOUND;
+    if (policer < 0) storm.erase({hw, (int)kind});
+    else storm[{hw, (int)kind}] = policer;
+    return SAI_STATUS_SUCCESS;
+}
+sai_status_t FakeBackend::vlan_flood_set(uint16_t vid, FloodKind kind, bool on)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (!l2x_on) return SAI_STATUS_NOT_SUPPORTED;
+    if (!vlans.count(vid)) return SAI_STATUS_ITEM_NOT_FOUND;
+    flood[{vid, (int)kind}] = on;
+    return SAI_STATUS_SUCCESS;
+}
+
 } // namespace ob
