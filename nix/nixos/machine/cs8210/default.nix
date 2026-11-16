@@ -183,6 +183,9 @@
   # cs8210-switch stops SONiC's syncd (Conflicts=). Only cages 1 and 16 hold
   # modules, a 400G CR8 DAC loop between them (allowedCages: syncd refuses to
   # start if any other cage is populated).
+  # sairedis/swss records on tmpfs (SSD wear; they grow with every change).
+  services.sonic.recordDir = "/run/swss";
+
   hardware.cs8210.sonic = {
     enable = true;
     macAddress = "0e:48:c6:7a:55:ce";
