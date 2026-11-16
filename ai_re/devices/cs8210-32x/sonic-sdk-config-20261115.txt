@@ -1,0 +1,117 @@
+# CS8210-32X: generated IFCS config vs the vendor dynamic_config.sh (2026-11-15)
+# Command per layout (local SDK copy, never in git):
+#   python3 -I devices/cs8210-32x/scripts/sonic_sdk_config_check.py \
+#     devices/cs8210-32x/analysis/onie-live-2026-11-10/sdk/R3181-J0001-01_V0.1.7_Briggs_SDK <config.yaml> <sidecars>
+# Generator: nix/modules/boards/cs8210/sdk-config.nix (+ packages/sai-teralynx/configs/teralynx7.py),
+# built for x86_64-linux; runtime pre-emphasis: nix/modules/boards/cs8210/sai-files.py.
+# Also checked: sonic-buildimage 47fcc8d38855 Midstone-200i_32x400/innovium.77700_A and the SDK's
+# configs/sku/innovium.77701_A are byte-identical (sha256 d6d81358d99820d8f2e1ae497263baab025f0345261fc1036636ce84aecd09e9 both).
+
+######## 32x400 (services.sonic default: ports.nix, no breakout)
+== spec (from our layout): 1-16:copper_1x400G:fec-def;17-32:optics_1x400G:fec-def
+inputs (sha256):
+  805eef454263006dc025697640e1b98cc0ecb49b1b328fbe4a5a0a8a2695d1d5  /home/erin/nepeat/ai_re/devices/cs8210-32x/analysis/onie-live-2026-11-10/sdk/R3181-J0001-01_V0.1.7_Briggs_SDK/dynamic_config.sh
+  66fc02f8ee6589f6d10e2595e1c0a3796f108aeb82ece364d806a6bf4b8042d5  /home/erin/nepeat/ai_re/devices/cs8210-32x/analysis/onie-live-2026-11-10/sdk/R3181-J0001-01_V0.1.7_Briggs_SDK/cel_configs/common_PAM4_400G_32_nd.yaml
+  377e3b97c40a4e0584bf1ebc304f39fccadc4012a5512642e7b830aafc32b65e  /home/erin/nepeat/ai_re/devices/cs8210-32x/analysis/onie-live-2026-11-10/sdk/R3181-J0001-01_V0.1.7_Briggs_SDK/cel_configs/isg.yaml
+  4ec54d3cd44bb641bf487df94c71747d85e7e44eb263f73cffcdc418fe8d14c2  /nix/store/k8z97fs2lfaja27msvw2nwl6qavpc41f-cs8210-32x-config.yaml
+  bb268f3b3d4ab995d6fb48ed82a5b8ef20f39b45b098da690a12cc103b351626  /nix/store/vi8dvsxjh985ij596r1c6nnmfb45ksx2-cs8210-32x-config.yaml-sidecars/port-map
+  a03148ae5f9699b259f5d722a8a9b8128a0a3f76ea5b07498f39e677f9545553  /nix/store/vi8dvsxjh985ij596r1c6nnmfb45ksx2-cs8210-32x-config.yaml-sidecars/init.cmd
+  0ee4e1b45c12678c7a816fa290f591dba670b433d21afa9210ffa2c33450ac91  /nix/store/vi8dvsxjh985ij596r1c6nnmfb45ksx2-cs8210-32x-config.yaml-sidecars/link-training.cmd
+  9596bdbe11f964a6bdaa1f0039ffbed6c17b94129f438e01a6a216fbdfbf1afd  /nix/store/vi8dvsxjh985ij596r1c6nnmfb45ksx2-cs8210-32x-config.yaml-sidecars/layout.json
+  45fcd8ec982609d82d19688ea00db53bbb02940209e2fbcb19dae9c6dca6e6df  /home/erin/nepeat/ai_re/nix/modules/boards/cs8210/sai-files.py
+vendor dynamic_config.sh: exit 0
+vendor outputs (sha256):
+  7721edbdf1b33a5423d7a94ea4a7304b41b3ce00529b4fd8f7b8c64f84f50a97  cel_configs/dynamic_config.yaml
+  c4422b4c70c4a46f3945ee1791312ca763e0cb2920ebc8a784be4396ede70663  cel_cmds/dynamic_misc.cmd
+  4ee2aae2525e607590c4edf11e70bf19542cf68b093b5091689341a0ebc851b5  cel_cmds/dynamic_preemphasis.cmd
+== devports: vendor 34, ours 34
+  compared fields (devports carrying them): fec 33, id 34, ipg 16, lanes 33, serdes_group 33, speed 32, sysport 34, type 34
+  serdes group of every cage = isgMap = isg.yaml comments: yes
+== node options vs common_PAM4_400G_32_nd.yaml (51 lines; sku path not compared)
+  vendor sku ['sku: "configs/sku/innovium.77701_A"'], ours ['sku: "/nix/store/51h4jl5bx5y0451i94na78i495xqw0bc-innovium.77700_A"']
+== misc: vendor 39 lines (33 'ifcs set devport'), ours 33
+  vendor lines not generated (outside the backend's CLI subset): node create x1, pci write x5
+our sai-files.py preemphasis: exit 0; sai-files: <tmp>/ours/preemphasis.cmd: 224 lines for 32 devports
+== pre-emphasis: vendor 224 tap lines, 16 link_training, 32 port enable/disable, 1 other (shell echo)
+  ours: 224 tap lines (runtime), 16 link_training (generated)
+  tap lines: identical (devport, attribute, values, order)
+  link_training lines: identical (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+  port enable lines: 32 (devports 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32); disable: []; SAI admin state replaces them
+  static tables preemphasis_PAM4_400G_32_HostLT.cmd + preemphasis_PAM4_400G_32_Optics.cmd EQUAL the vendor's dynamic tap lines for this spec
+== result: PASS
+
+######## lab layout: cage 2 4x10G on lanes 0-3 (machine innoviumPorts 2026-11-11; ports given directly, ports.nix cannot express it yet)
+== spec (from our layout): 1:copper_1x400G:fec-def;2:copper_4x10G:fec-def;3-16:copper_1x400G:fec-def;17-32:optics_1x400G:fec-def
+inputs (sha256):
+  805eef454263006dc025697640e1b98cc0ecb49b1b328fbe4a5a0a8a2695d1d5  /home/erin/nepeat/ai_re/devices/cs8210-32x/analysis/onie-live-2026-11-10/sdk/R3181-J0001-01_V0.1.7_Briggs_SDK/dynamic_config.sh
+  66fc02f8ee6589f6d10e2595e1c0a3796f108aeb82ece364d806a6bf4b8042d5  /home/erin/nepeat/ai_re/devices/cs8210-32x/analysis/onie-live-2026-11-10/sdk/R3181-J0001-01_V0.1.7_Briggs_SDK/cel_configs/common_PAM4_400G_32_nd.yaml
+  377e3b97c40a4e0584bf1ebc304f39fccadc4012a5512642e7b830aafc32b65e  /home/erin/nepeat/ai_re/devices/cs8210-32x/analysis/onie-live-2026-11-10/sdk/R3181-J0001-01_V0.1.7_Briggs_SDK/cel_configs/isg.yaml
+  752617a9cf0b6fa43d9831a631859b900654a312e83ec6a4b01b10230e484c43  /nix/store/vmmx96h2ipd24dh9gqqixj7xckgh1llb-cs8210-32x-config.yaml
+  f8d901e10e8ad82bd5ca2f2277f6e6002c6ef0a23967c340ca53b4037936e97a  /nix/store/pk6pbnjbm99n6bf3s9q0q4qakf9c39dd-cs8210-32x-config.yaml-sidecars/port-map
+  fb25f23d15fa1fd0c19f35da3180f1767b0b4d535cb7cc8876dfcd85bc72116e  /nix/store/pk6pbnjbm99n6bf3s9q0q4qakf9c39dd-cs8210-32x-config.yaml-sidecars/init.cmd
+  58c72fe0be7eaeb1ce04fe1419a978334b036088c4f2b2edefd8b795d1ea561b  /nix/store/pk6pbnjbm99n6bf3s9q0q4qakf9c39dd-cs8210-32x-config.yaml-sidecars/link-training.cmd
+  99de83225144abcef2383bbc0dac20c16000aaebaeaa00357ec9c4939698e3ff  /nix/store/pk6pbnjbm99n6bf3s9q0q4qakf9c39dd-cs8210-32x-config.yaml-sidecars/layout.json
+  45fcd8ec982609d82d19688ea00db53bbb02940209e2fbcb19dae9c6dca6e6df  /home/erin/nepeat/ai_re/nix/modules/boards/cs8210/sai-files.py
+vendor dynamic_config.sh: exit 0
+vendor outputs (sha256):
+  9ae35029ccb2c9200f144258a12aaca9f3de08a755e3460718c9e749e995305c  cel_configs/dynamic_config.yaml
+  1997572ea736d44eae6e41d5cfff12a1b1e7d798f2e980b6b692d41fc3cb0914  cel_cmds/dynamic_misc.cmd
+  e2f8f0dc3a59cf478e9a96993c354f5507cdbd59005c6aa4cb6dc27b475c09b8  cel_cmds/dynamic_preemphasis.cmd
+== devports: vendor 37, ours 37
+  compared fields (devports carrying them): fec 36, id 37, ipg 19, lanes 36, serdes_group 36, speed 35, sysport 37, type 37
+  serdes group of every cage = isgMap = isg.yaml comments: yes
+== node options vs common_PAM4_400G_32_nd.yaml (51 lines; sku path not compared)
+  vendor sku ['sku: "configs/sku/innovium.77701_A"'], ours ['sku: "/nix/store/51h4jl5bx5y0451i94na78i495xqw0bc-innovium.77700_A"']
+== misc: vendor 42 lines (36 'ifcs set devport'), ours 36
+  vendor lines not generated (outside the backend's CLI subset): node create x1, pci write x5
+our sai-files.py preemphasis: exit 0; sai-files: <tmp>/ours/preemphasis.cmd: 235 lines for 35 devports
+== pre-emphasis: vendor 235 tap lines, 15 link_training, 35 port enable/disable, 1 other (shell echo)
+  ours: 235 tap lines (runtime), 15 link_training (generated)
+  tap lines: identical (devport, attribute, values, order)
+  link_training lines: identical (1, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+  port enable lines: 35 (devports 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35); disable: []; SAI admin state replaces them
+  static tables preemphasis_PAM4_400G_32_HostLT.cmd + preemphasis_NRZ_40G_32_Host.cmd + preemphasis_PAM4_400G_32_Optics.cmd do NOT equal the vendor's dynamic tap lines for this spec
+== result: PASS
+
+######## every vendor mode on host and line side, copper and optics (ports given directly)
+== spec (from our layout): 1:copper_1x400G:fec-def;2:copper_4x10G:fec-def;3:copper_4x100G:fec-def;4:copper_2x200G:fec-def;5:copper_2x100G:fec-def;6:copper_1x200G:fec-def;7:copper_1x100G:fec-def;8:copper_1x40G:fec-def;9:copper_4x25G:fec-def;10:copper_8x50G:fec-def;11-16:copper_1x400G:fec-def;17:optics_4x100G:fec-def;18:optics_4x25G:fec-def;19:optics_1x100G:fec-def;20:copper_2x100G:fec-def;21:optics_2x200G:fec-def;22:copper_8x50G:fec-def;23:copper_1x40G:fec-def;24:optics_1x200G:fec-def;25:copper_4x25G:fec-def;26:optics_8x50G:fec-def;27:copper_1x400G:fec-def;28:copper_4x100G:fec-def;29:optics_4x10G:fec-def;30:optics_2x100G:fec-def;31:copper_1x200G:fec-def;32:copper_2x200G:fec-def
+inputs (sha256):
+  805eef454263006dc025697640e1b98cc0ecb49b1b328fbe4a5a0a8a2695d1d5  /home/erin/nepeat/ai_re/devices/cs8210-32x/analysis/onie-live-2026-11-10/sdk/R3181-J0001-01_V0.1.7_Briggs_SDK/dynamic_config.sh
+  66fc02f8ee6589f6d10e2595e1c0a3796f108aeb82ece364d806a6bf4b8042d5  /home/erin/nepeat/ai_re/devices/cs8210-32x/analysis/onie-live-2026-11-10/sdk/R3181-J0001-01_V0.1.7_Briggs_SDK/cel_configs/common_PAM4_400G_32_nd.yaml
+  377e3b97c40a4e0584bf1ebc304f39fccadc4012a5512642e7b830aafc32b65e  /home/erin/nepeat/ai_re/devices/cs8210-32x/analysis/onie-live-2026-11-10/sdk/R3181-J0001-01_V0.1.7_Briggs_SDK/cel_configs/isg.yaml
+  f85efff927068eeb63dc2832883247b9ee79489e757c4750c52eef1f4c7eab93  /nix/store/h94njvk632jhs58wi5dn5a0s2mryjmc4-cs8210-32x-config.yaml
+  e659f7fe9b05f423a8011a6a8ffa925c562e532fde133fc92ae6e952f37dc522  /nix/store/g5vlw811x2vnq5r94cjr8ydx9478xns3-cs8210-32x-config.yaml-sidecars/port-map
+  e894dc7b143a2e9391cf07703c93665207b36dd20ae61ca8e601b8a4b96f9a09  /nix/store/g5vlw811x2vnq5r94cjr8ydx9478xns3-cs8210-32x-config.yaml-sidecars/init.cmd
+  a782c6879013cac1ddfbfe32f2382c395eed1d9177c46f0fece691a523c77458  /nix/store/g5vlw811x2vnq5r94cjr8ydx9478xns3-cs8210-32x-config.yaml-sidecars/link-training.cmd
+  8ccf5601f9a88a34b0c1606bb00d110bbbba701912b3bec1405c5871bd0baa0a  /nix/store/g5vlw811x2vnq5r94cjr8ydx9478xns3-cs8210-32x-config.yaml-sidecars/layout.json
+  45fcd8ec982609d82d19688ea00db53bbb02940209e2fbcb19dae9c6dca6e6df  /home/erin/nepeat/ai_re/nix/modules/boards/cs8210/sai-files.py
+vendor dynamic_config.sh: exit 0
+vendor outputs (sha256):
+  26b19f644d536df2069199522fbe215dd555599e421e27ec3d8f99cbd0bc4991  cel_configs/dynamic_config.yaml
+  6cf165fac908002c568606571ab4f244552cc0df30b281d3b6b69f67d8ce1aa1  cel_cmds/dynamic_misc.cmd
+  521b39ed00ba0c7a0e121f95434915ef57bd51e520db1c31c3bde341eb1967f3  cel_cmds/dynamic_preemphasis.cmd
+== devports: vendor 85, ours 85
+  compared fields (devports carrying them): fec 84, id 85, ipg 34, lanes 84, serdes_group 84, speed 83, sysport 85, type 85
+  serdes group of every cage = isgMap = isg.yaml comments: yes
+== node options vs common_PAM4_400G_32_nd.yaml (51 lines; sku path not compared)
+  vendor sku ['sku: "configs/sku/innovium.77701_A"'], ours ['sku: "/nix/store/51h4jl5bx5y0451i94na78i495xqw0bc-innovium.77700_A"']
+== misc: vendor 90 lines (84 'ifcs set devport'), ours 84
+  vendor lines not generated (outside the backend's CLI subset): node create x1, pci write x5
+our sai-files.py preemphasis: exit 0; sai-files: <tmp>/ours/preemphasis.cmd: 515 lines for 83 devports
+== pre-emphasis: vendor 515 tap lines, 32 link_training, 83 port enable/disable, 1 other (shell echo)
+  ours: 515 tap lines (runtime), 32 link_training (generated)
+  tap lines: identical (devport, attribute, values, order)
+  link_training lines: identical (1, 6, 7, 8, 9, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 48, 49, 50, 51, 52, 53, 54, 55, 70, 71, 72, 73, 74)
+  port enable lines: 83 (devports 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83); disable: []; SAI admin state replaces them
+  static tables preemphasis_PAM4_400G_32_HostLT.cmd + preemphasis_NRZ_40G_32_Host.cmd + preemphasis_NRZ_200G_32_Host.cmd + preemphasis_PAM4_400G_32_Optics.cmd + preemphasis_NRZ_200G_32_Optics.cmd + preemphasis_NRZ_200G_32_DAC.cmd + rx_gs_ctle_PAM4_400G_32_DAC_v2.txt + preemphasis_NRZ_40G_32_DAC.cmd + preemphasis_NRZ_40G_32_Optics.cmd do NOT equal the vendor's dynamic tap lines for this spec
+== result: PASS
+
+######## isg.yaml vs isg_R01.yaml (board version), static analysis, no hardware access
+# auto_load_user.sh (sha256 38724c709ed161ab1e880c34f4c1942837a69656a510c1a1dfbd15fc39ec8be9) appends
+# isg_R01.yaml when "$(cat /sys/bus/i2c/devices/8-0060/board_version)" = "0x2", else isg.yaml.
+# The two differ in one line: the rx_polarity of ISG 3 (cage 31; the file's 0-based comment "front panel port 30").
+# sys_cpld.ko get_board_ver (ONIE .015 initramfs and the live ONIE copy, sha256 f577de6d...; SSD copy 23272564...,
+# same code): i2c_smbus_read_byte_data(client, 0x01), value >> 4, sprintf("0x%02x\n"). It prints "0x01"/"0x02",
+# so the vendor's test for "0x2" never matches: the stock flow always appends isg.yaml.
+# This unit: sys CPLD reg 0x01 = 0x10 (U-Boot i2c md, analysis/cpld-diff/live-dump-20261115.txt) -> board version 1
+# (R0B) -> isg.yaml under either reading.

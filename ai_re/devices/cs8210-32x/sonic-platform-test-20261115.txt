@@ -1,0 +1,46 @@
+# CS8210-32X sonic_platform unit test on the fake board, 2026-11-15
+# Built and run natively (x86_64-linux) by the package's passthru.tests.unit:
+#   nix build --impure --file <expr: pkgs.callPackage nix/modules/boards/cs8210/sonic-platform-package.nix { sonic = ...; }> pkg test
+#   (inside the build: python3 -I sonic_platform_test.py, python3 = python3.withPackages [ the package ])
+# package: /nix/store/n6l12ldrw258hs1x5rbiy11xn4v90cc6-python3.14-sonic-platform-celestica-cs8210-32x-0.1
+# test:    /nix/store/48yibpb8zp7ywlqfjx39zcibmbbw0mi5-cs8210-sonic-platform-test
+# sources (sha256, nix/modules/boards/cs8210/):
+#   37303525865eb7b4b6f01966b8610b5be7dfd08976975283307ff6f50e9b9bb8  sonic_platform/chassis.py
+#   c3ba154bc876f35bd5a3b5b4a0b98306452ec507fd3fb3eeb2321430ab334958  sonic_platform/eeprom.py
+#   9d93c9d87b24d44b8498327151bcd9d6eacf0687ef36707dba438a02a6a14be3  sonic_platform/fake.py
+#   6d07740330c3f2851acb582688cb143989c9af9f51716e08f84db5620210f845  sonic_platform/fan.py
+#   0ae55d0edfeb887cee63557b6ddd464d72249fb11e2a01d0091958d4c48a539d  sonic_platform/fpga.py
+#   f090f03b3d2cb8bbf20755fa904feb0695f22e88a9a004bb6092a7ce982acf9e  sonic_platform/hw.py
+#   32fb7b242ab6fe0c49f87a4284200b112c083b2fb7cf1189e717877e313676ae  sonic_platform/__init__.py
+#   68553bb9dfff7ee4aed0f1c02c9e9937062399982f7d13fbf19a900fb3ec6112  sonic_platform/platform.py
+#   fa104be0a457a2360e83f162decf3f73cd7fb3660ba339ce291c27370851a699  sonic_platform/psu.py
+#   c8284155168b02ab4be48f7673fde5b16be326db9d3d407428d6f84892b8357a  sonic_platform/sfp.py
+#   63bbe194a3a732458d95832d63a83e4defc04afd44159f23fe6afd5e56ab7ab2  sonic_platform/thermal.py
+#   0739773f17dcff3b8e9042ab8cc77fd3be549c296f62f554edd11fe3485983ca  fake_board.py
+#   8f897073c85aac8c3cd784843b7a501df4427ce9be5451bc787353dffacba6c2  sonic_platform_test.py
+#   e85a34572459b55ce7c95157bb5853ad4ce59dfc27c66fbe68675cd5921205d2  sonic-platform-package.nix
+#   adba34299900f07e765d66979fb7ecbbf3bf47f35216ad057f6b6679cf6b219a  sonic-platform.nix
+# Fake board only: no hardware was touched. Real-path code (i2c-dev ioctls,
+# BAR0 mmap) is not exercised here.
+
+test_allowlist (__main__.Board.test_allowlist) ... ok
+test_change_event (__main__.Board.test_change_event) ... ok
+test_fan_fault_stale_and_cpld_fallback (__main__.Board.test_fan_fault_stale_and_cpld_fallback) ... ok
+test_fans_from_fand (__main__.Board.test_fans_from_fand) ... ok
+test_i2c_buses_by_node (__main__.Board.test_i2c_buses_by_node) ... ok
+test_inventory (__main__.Board.test_inventory) ... ok
+test_pci_decode_gate (__main__.Board.test_pci_decode_gate) ... ok
+test_psus_live_dump (__main__.Board.test_psus_live_dump) ... ok
+test_sfp_channel_init_gate (__main__.Board.test_sfp_channel_init_gate) ... ok
+test_sfp_cmis_flat_dac (__main__.Board.test_sfp_cmis_flat_dac) ... ok
+test_sfp_cmis_paged (__main__.Board.test_sfp_cmis_paged) ... ok
+test_sfp_in_reset_and_empty (__main__.Board.test_sfp_in_reset_and_empty) ... ok
+test_sfp_qsa (__main__.Board.test_sfp_qsa) ... ok
+test_sfp_read_only (__main__.Board.test_sfp_read_only) ... ok
+test_syseeprom (__main__.Board.test_syseeprom) ... ok
+test_thermals (__main__.Board.test_thermals) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.241s
+
+OK

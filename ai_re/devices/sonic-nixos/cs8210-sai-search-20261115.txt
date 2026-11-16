@@ -1,0 +1,115 @@
+# Teralynx SAI search: architecture of every published Innovium/Marvell SAI package (2026-11-15)
+# Method: HTTP range read of the first 128 KiB of each .deb, control.tar parsed by a stdlib
+# script (Package Version Architecture), for every isai.deb / isai-vs.deb in
+#   github.com/Innovium/SONiC (master; sonic-buildimage <= 202405 platform/innovium/invm-sai.mk)
+#   github.com/Marvell-switching/sonic-marvell-teralynx-binaries (main; sonic-buildimage master
+#   platform/marvell-teralynx/sai.mk, SAI_RELEASE=1.18.1-1)
+# Also checked: Innovium/SONiC sai/binaries/libsai.so.1.0 and ipd.ko (ELF e_machine 0x3e = x86-64).
+# The CS8210 vendor SDK (R3181-J0001-01_V0.1.7_Briggs_SDK, IFCS 0.12.41, arm64) ships libifcs.so
+# (sha256 388031e7...) and no libsai; nm -D finds no sai_* symbol in it.
+# Result: 98 packages, all Architecture: amd64. No arm64 Teralynx SAI is published.
+# Downloaded for reference (git-ignored, devices/cs8210-32x/analysis/research/teralynx-sai/dl/):
+#   master/1.18.1-1/isai.deb   9ebc5cb3a15634d58c94672393fcb40674838fa0b54467589e3985df675f8153 (Innovium-SAI 7.0.1, amd64)
+#   master/1.18.1-1/saihdr.deb c1b3de65af870b12c262842ca4f0881f99fb07c63ac1fd311db7d99084b6685f
+#   master/1.18.1-1/ishell.deb 11875f6c230730270326d8fa22099ba3c02767c51aaf8c44446abf877ed9dc4f
+#   master/1.18.1-1/ipd.deb    984cf0abb685f7625e6dfdb580c1ffd9a32955790c18edc8e0cd666eb3c91658
+#   Innovium/SONiC debian/202006/isai.deb ea47399e4168db6d3dc406dfd68621d6db6b614b07cca15aa1094cefb886dcfd (0.11.1, amd64)
+
+Innovium-SAI 1.0 amd64  Innovium/SONiC/raw/master/debian/201811/0.10.0/isai.deb
+Innovium-SAI 0.10.1 amd64  Innovium/SONiC/raw/master/debian/201811/0.10.1/isai.deb
+Innovium-SAI 0.10.2 amd64  Innovium/SONiC/raw/master/debian/201811/0.10.2/isai.deb
+Innovium-SAI 0.10.3 amd64  Innovium/SONiC/raw/master/debian/201811/0.10.3/isai.deb
+Innovium-SAI 0.10.4 amd64  Innovium/SONiC/raw/master/debian/201811/0.10.4/isai.deb
+Innovium-SAI 0.10.5 amd64  Innovium/SONiC/raw/master/debian/201811/0.10.5/isai.deb
+Innovium-SAI 0.10.6 amd64  Innovium/SONiC/raw/master/debian/201811/0.10.6/isai.deb
+Innovium-SAI 0.10.7 amd64  Innovium/SONiC/raw/master/debian/201811/0.10.7/isai.deb
+Innovium-SAI 0.10.8.1.0.1 amd64  Innovium/SONiC/raw/master/debian/201811/0.10.8.1.0.1/isai.deb
+Innovium-SAI 0.10.8.1.0.2 amd64  Innovium/SONiC/raw/master/debian/201811/0.10.8.1.0.2/isai.deb
+Innovium-SAI 0.10.8.1.0.3 amd64  Innovium/SONiC/raw/master/debian/201811/0.10.8.1.0.3/isai.deb
+Innovium-SAI 0.10.8 amd64  Innovium/SONiC/raw/master/debian/201811/0.10.8/isai.deb
+Innovium-SAI 0.10.8.1.0.3 amd64  Innovium/SONiC/raw/master/debian/201811/isai.deb
+Innovium-SAI 0.11.1 amd64  Innovium/SONiC/raw/master/debian/201911/0.11.1/isai.deb
+Innovium-SAI 0.11.10 amd64  Innovium/SONiC/raw/master/debian/201911/0.11.10/isai.deb
+Innovium-SAI 0.11.11 amd64  Innovium/SONiC/raw/master/debian/201911/0.11.11/isai.deb
+Innovium-SAI 0.11.12 amd64  Innovium/SONiC/raw/master/debian/201911/0.11.12/isai.deb
+Innovium-SAI 0.11.13 amd64  Innovium/SONiC/raw/master/debian/201911/0.11.13/isai.deb
+Innovium-SAI 0.11.2 amd64  Innovium/SONiC/raw/master/debian/201911/0.11.2/isai.deb
+Innovium-SAI 0.11.3 amd64  Innovium/SONiC/raw/master/debian/201911/0.11.3/isai.deb
+Innovium-SAI 0.11.4 amd64  Innovium/SONiC/raw/master/debian/201911/0.11.4/isai.deb
+Innovium-SAI 0.11.5 amd64  Innovium/SONiC/raw/master/debian/201911/0.11.5/isai.deb
+Innovium-SAI 0.11.6 amd64  Innovium/SONiC/raw/master/debian/201911/0.11.6/isai.deb
+Innovium-SAI 0.11.7 amd64  Innovium/SONiC/raw/master/debian/201911/0.11.7/isai.deb
+Innovium-SAI 0.11.8 amd64  Innovium/SONiC/raw/master/debian/201911/0.11.8/isai.deb
+Innovium-SAI 0.11.13 amd64  Innovium/SONiC/raw/master/debian/201911/isai.deb
+Innovium-SAI 0.11.1 amd64  Innovium/SONiC/raw/master/debian/202006/isai.deb
+Innovium-SAI 0.107.1 amd64  Innovium/SONiC/raw/master/debian/202012/0.107.1/isai.deb
+Innovium-SAI 0.107.10 amd64  Innovium/SONiC/raw/master/debian/202012/0.107.10/isai.deb
+Innovium-SAI 0.107.2 amd64  Innovium/SONiC/raw/master/debian/202012/0.107.2/isai.deb
+Innovium-SAI 0.107.4 amd64  Innovium/SONiC/raw/master/debian/202012/0.107.4/isai.deb
+Innovium-SAI 0.107.5 amd64  Innovium/SONiC/raw/master/debian/202012/0.107.5/isai.deb
+Innovium-SAI 0.107.6 amd64  Innovium/SONiC/raw/master/debian/202012/0.107.6/isai.deb
+Innovium-SAI 0.107.7 amd64  Innovium/SONiC/raw/master/debian/202012/0.107.7/isai.deb
+Innovium-SAI 0.107.8 amd64  Innovium/SONiC/raw/master/debian/202012/0.107.8/isai.deb
+Innovium-SAI 0.107.9 amd64  Innovium/SONiC/raw/master/debian/202012/0.107.9/isai.deb
+Innovium-SAI 0.107.10 amd64  Innovium/SONiC/raw/master/debian/202012/isai.deb
+Innovium-SAI 0.109.0 amd64  Innovium/SONiC/raw/master/debian/202111/0.109.1/isai.deb
+Innovium-SAI 2.0.1 amd64  Innovium/SONiC/raw/master/debian/202111/T2.0.1/isai.deb
+Innovium-SAI 2.0.2 amd64  Innovium/SONiC/raw/master/debian/202111/T2.0.2/isai.deb
+Innovium-SAI 2.0.3 amd64  Innovium/SONiC/raw/master/debian/202111/T2.0.3/isai.deb
+Innovium-SAI 2.0.4 amd64  Innovium/SONiC/raw/master/debian/202111/T2.0.4/isai.deb
+Innovium-SAI 2.0.5 amd64  Innovium/SONiC/raw/master/debian/202111/T2.0.5/isai.deb
+Innovium-SAI 2.0.5 amd64  Innovium/SONiC/raw/master/debian/202111/isai.deb
+Innovium-SAI 3.0.0 amd64  Innovium/SONiC/raw/master/debian/202211/T3.0.0/isai.deb
+Innovium-SAI 3.0.1 amd64  Innovium/SONiC/raw/master/debian/202211/T3.0.1/isai.deb
+Innovium-SAI 3.0.2 amd64  Innovium/SONiC/raw/master/debian/202211/T3.0.2/isai.deb
+Innovium-SAI 3.1.1 amd64  Innovium/SONiC/raw/master/debian/202211/T3.1.1/isai.deb
+Innovium-SAI 3.1.2 amd64  Innovium/SONiC/raw/master/debian/202211/T3.1.2/isai.deb
+Innovium-SAI 3.1.3 amd64  Innovium/SONiC/raw/master/debian/202211/T3.1.3/isai.deb
+Innovium-SAI 3.1.4 amd64  Innovium/SONiC/raw/master/debian/202211/T3.1.4/isai.deb
+Innovium-SAI 3.1.4 amd64  Innovium/SONiC/raw/master/debian/202211/isai.deb
+Innovium-SAI 4.0.0.1.0.1 amd64  Innovium/SONiC/raw/master/debian/202405/T4.0.0.1.0.1/isai.deb
+Innovium-SAI 4.0.0.0.0.65537 amd64  Innovium/SONiC/raw/master/debian/202405/T4.0.0/isai.deb
+Innovium-SAI 4.0.1 amd64  Innovium/SONiC/raw/master/debian/202405/T4.0.1/isai.deb
+Innovium-SAI 4.0.1 amd64  Innovium/SONiC/raw/master/debian/202405/isai.deb
+Innovium-SAI 5.0.0 amd64  Innovium/SONiC/raw/master/debian/202411/T5.0.0/isai.deb
+Innovium-SAI 5.0.1 amd64  Innovium/SONiC/raw/master/debian/202411/T5.0.1/isai.deb
+Innovium-SAI 5.0.2 amd64  Innovium/SONiC/raw/master/debian/202411/T5.0.2/isai.deb
+Innovium-SAI 5.0.3 amd64  Innovium/SONiC/raw/master/debian/202411/T5.0.3/isai.deb
+Innovium-SAI 5.0.3 amd64  Innovium/SONiC/raw/master/debian/202411/isai.deb
+Innovium-SAI 6.1.0 amd64  Innovium/SONiC/raw/master/debian/202505/ISAI_REL_T6_1_0/isai.deb
+Innovium-SAI 6.1.1 amd64  Innovium/SONiC/raw/master/debian/202505/ISAI_REL_T6_1_1/isai.deb
+Innovium-SAI 6.1.1.1.0.1 amd64  Innovium/SONiC/raw/master/debian/202505/ISAI_REL_T6_1_1_1_0_1/isai.deb
+Innovium-SAI 6.2.0 amd64  Innovium/SONiC/raw/master/debian/202505/ISAI_REL_T6_2_0/isai.deb
+isai 6.2.0.1.0.1 amd64  Innovium/SONiC/raw/master/debian/202505/ISAI_REL_T6_2_0_1_0_1/isai.deb
+isai 6.2.0.1.0.1 amd64  Innovium/SONiC/raw/master/debian/202505/isai.deb
+Innovium-SAI 0.109.0 amd64  Innovium/SONiC/raw/master/debian/master/0.109.1/isai.deb
+Innovium-SAI 4.0.1 amd64  Innovium/SONiC/raw/master/debian/master/isai.deb
+Innovium-SAI 4.0.0 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202405/isai.deb
+Innovium-SAI 5.0.0 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202411/T5.0.0/isai.deb
+Innovium-SAI 5.0.1 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202411/T5.0.1/isai.deb
+Innovium-SAI 5.0.2 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202411/T5.0.2/isai.deb
+Innovium-SAI 5.0.3 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202411/T5.0.3/isai.deb
+Innovium-SAI 5.0.3 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202411/isai.deb
+Innovium-SAI 6.1.0 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202505/T6.1.0/isai.deb
+Innovium-SAI 6.1.1.1.0.1 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202505/T6.1.1.1.0.1/isai.deb
+Innovium-SAI 6.1.1 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202505/T6.1.1/isai.deb
+isai 6.2.0.1.0.1 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202505/T6.2.0.1.0.1/isai.deb
+Innovium-SAI 6.2.0 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202505/T6.2.0/isai.deb
+Innovium-SAI 6.2.1 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202505/T6.2.1/isai.deb
+Innovium-SAI 6.2.1 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202505/isai.deb
+Innovium-SAI 7.0.0.1.0.1 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202511/T7.0.0.1.0.1/isai.deb
+Innovium-SAI 7.0.0.1.0.2 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202511/T7.0.0.1.0.2/isai.deb
+Innovium-SAI 7.0.0 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202511/T7.0.0/isai.deb
+Innovium-SAI 7.0.1 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202511/T7.0.1/isai.deb
+Innovium-SAI 7.0.0.1.0.2 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202511/isai.deb
+mrvllibsaivs 7.0.0.1.0.1 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202511/vs/T7.0.0.1.0.1/isai-vs.deb
+mrvllibsaivs 7.0.1 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202511/vs/T7.0.1/isai-vs.deb
+Innovium-SAI 8.1.0 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202605/T8.1.0/isai.deb
+Innovium-SAI 8.1.0 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202605/isai.deb
+mrvllibsaivs 8.1.0.1.0.1 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202605/vs/T8.1.0.1.0.1/isai-vs.deb
+mrvllibsaivs 8.1.0 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202605/vs/T8.1.0/isai-vs.deb
+mrvllibsaivs 8.1.0.1.0.1 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/202605/vs/isai-vs.deb
+Innovium-SAI 7.0.0 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/master/1.18.0-1/isai.deb
+Innovium-SAI 7.0.0 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/master/1.18.0-2/isai.deb
+Innovium-SAI 7.0.1 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/master/1.18.1-1/isai.deb
+Innovium-SAI 7.0.1 amd64  Marvell-switching/sonic-marvell-teralynx-binaries/raw/main/debian/master/isai.deb

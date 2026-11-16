@@ -36,8 +36,30 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   IPv6/multihop BFD, port LEDs by eye; `sonic-db-cli PING` over TCP fails (unix socket fine);
   bfdd leak (json-c 0.19, [bfdd-leak](bfdd-leak.md)) and `FEATURE|bgp` CoPP traps fixed,
   VM-tested, not deployed; vm-frr's "syncd killed" checks fail since 76d6818.
+- **CS8210-32X (Teralynx 7, aarch64):** our SAI `sai-teralynx` (this frontend + an IFCS backend
+  on the vendor libifcs, loaded at run time) initialises the chip and brings the 400G loop up
+  (direct libsai run, no syncd yet); the stack is wired but not run there:
+  [cs8210-32x/sonic.md](../cs8210-32x/sonic.md).
 - **Not in the repo:** factory SDK configs, rc/LED/pre-emphasis scripts and `bcm.user`
   (AS7760 `nixos-build/vendor-root/`, unused now), Broadcom SAI `.deb`s (amd64, by URL).
+
+## 2026-11-16 — CS8210-32X: own Teralynx SAI, first runs on the chip
+
+- No arm64 Teralynx SAI is published (98 packages, all amd64: [list](cs8210-sai-search-20261115.txt)),
+  so [packages/sai-teralynx](../../nix/packages/sai-teralynx/README.md) = sai-openbcm's frontend
+  (unchanged; built from its `src/` by path) + an IFCS 0.12.41 backend, `libifcs.so` dlopen'ed from
+  the vendor SDK on the switch. Tests: 127 backend checks on a mock libifcs + sai-openbcm's 2353.
+- Board layer [boards/cs8210](../../nix/modules/boards/cs8210/sonic.nix): 32x8-lane port map, IFCS
+  init yaml generated from the SONiC ports (equal to the vendor generator's output for every mode),
+  runtime vendor tuning files, read-only pmon; machine glue in `nepeat/nix` `nixos/module/cs8210/sonic`.
+- Shared-module changes, AS7760 byte-neutral (`nixosConfigurations.as7760` toplevel drvPath
+  `z05gsrr0…-nixos-system-as7760-26.11.20261111.d4f25a3.drv` before and after each): `ports.nix`
+  stride = lanes of the widest cage (8 for QSFP-DD), `services.sonic.allowUnusedLanes`,
+  `services.sonic.pmon.args` (CS8210: xcvrd `--skip_cmis_mgr`).
+- On the chip ([evidence](cs8210-sai-hw-20261116.txt)): libifcs needs CPython symbols (stubbed) and
+  **faults in current glibc's memcpy on the PCI BAR** (SIGBUS; its memcpy import now goes to an
+  aligned copy loop). Then: init, 32 ports, 400G loop up in ~4 s, netdevs adopted, temperature,
+  clean teardown. Open list: [cs8210-32x/sonic.md](../cs8210-32x/sonic.md#before-the-first-sonic-run).
 
 ## 2026-11-15 (night) — bfdd leak = json-c 0.19; FEATURE|bgp seed
 
@@ -270,36 +292,5 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   file's globals (L3 ALPM, `bcm_num_cos=10`, timeouts, ...) and the
   pre-emphasis at init. `sai.sdkConfig.settings` overrides globals (`null`
   removes). New files need `git add -N` before a git-flake deploy.
-
-## 2026-11-15 — orchagent runs on sai-openbcm (fake backend VM test)
-
-- Switch symptom (orchagent aborts in AclOrch init on ACL_ENTRY_MIN/MAX_PRIORITY)
-  reproduced in a VM: new `tests/vm-openbcm-fake.nix` runs the whole
-  services.sonic stack and vm-test.py on sai-openbcm's fake backend (32 cages
-  x 4 lanes, AS7760 port map, `asic_type` broadcom). Baseline libsai: same
-  abort, PortInitDone never set ([log](sonic-openbcm-fake-vm-20261115.txt), run 1).
-- sai-openbcm now answers what orchagent reads at init and CRM polls; per
-  attribute from the swss source, table in the
-  [sai-openbcm README](../../nix/packages/sai-openbcm/README.md#what-orchagent-reads).
-  Real (SDK at run time on openbcm): ACL entry priority range, TOTAL_BUFFER_SIZE
-  (TH MMU), AVAILABLE_IPV4/6 ROUTE/NEXTHOP/NEIGHBOR/FDB. Honest zeros:
-  ECMP groups/members (no NHG API, so RouteOrch never creates groups), ACL
-  action count/stage lists. Still NOT_SUPPORTED: STP instances, NAT, hashes,
-  ACL resource lists (orchagent survives each). 795 unit checks.
-- Fake backend: `SAI_OPENBCM_FAKE_NETDEV=tap` (hostif = TAP netdev, like KNET)
-  and `SAI_OPENBCM_FAKE_WIRE` (CPU path of a port to a host NIC), so swss
-  and teamd have netdevs and LACP reaches the peer VM.
-- Result: 86 checks pass, 3 N/A (4x25G split, lanemap.ini, split-cage range:
-  no breakout in the SAI), 0 fail: ports, admin state by alias, VLAN +
-  member, RIF/IP, PortChannel with LACP to the peer and ping across it, the
-  enforce/seed conflict flow (Ethernet1/1 speed enforced by `fieldModes`
-  here), reboot, rebuild, reload, restartOnStop (run 2 in the log).
-- Left for the switch: CoPP policers are NOT_IMPLEMENTED (6 ERRORs + a missing
-  `/usr/bin/sai_failure_dump.sh` per boot, no rate limits); the fake's wire
-  is only the CPU path, so no ASIC forwarding is tested; the openbcm values
-  above are compiled (cross build) but not yet read on the chip.
-- Cross-built for the AS7760 (README commands): libsai `7ccqhpcz…-sai-openbcm-powerpc64…`,
-  `rbd14dx5…-sonic-sairedis-sai-openbcm-powerpc64…` (= the board's
-  `services.sonic.sai.package`). The vs variant still passes (92/92).
 
 Older entries: [HISTORY.md](HISTORY.md).

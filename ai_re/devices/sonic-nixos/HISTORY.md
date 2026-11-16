@@ -2,6 +2,37 @@
 
 Entries moved verbatim from [PROGRESS.md](PROGRESS.md) (newest first).
 
+## 2026-11-15 — orchagent runs on sai-openbcm (fake backend VM test)
+
+- Switch symptom (orchagent aborts in AclOrch init on ACL_ENTRY_MIN/MAX_PRIORITY)
+  reproduced in a VM: new `tests/vm-openbcm-fake.nix` runs the whole
+  services.sonic stack and vm-test.py on sai-openbcm's fake backend (32 cages
+  x 4 lanes, AS7760 port map, `asic_type` broadcom). Baseline libsai: same
+  abort, PortInitDone never set ([log](sonic-openbcm-fake-vm-20261115.txt), run 1).
+- sai-openbcm now answers what orchagent reads at init and CRM polls; per
+  attribute from the swss source, table in the
+  [sai-openbcm README](../../nix/packages/sai-openbcm/README.md#what-orchagent-reads).
+  Real (SDK at run time on openbcm): ACL entry priority range, TOTAL_BUFFER_SIZE
+  (TH MMU), AVAILABLE_IPV4/6 ROUTE/NEXTHOP/NEIGHBOR/FDB. Honest zeros:
+  ECMP groups/members (no NHG API, so RouteOrch never creates groups), ACL
+  action count/stage lists. Still NOT_SUPPORTED: STP instances, NAT, hashes,
+  ACL resource lists (orchagent survives each). 795 unit checks.
+- Fake backend: `SAI_OPENBCM_FAKE_NETDEV=tap` (hostif = TAP netdev, like KNET)
+  and `SAI_OPENBCM_FAKE_WIRE` (CPU path of a port to a host NIC), so swss
+  and teamd have netdevs and LACP reaches the peer VM.
+- Result: 86 checks pass, 3 N/A (4x25G split, lanemap.ini, split-cage range:
+  no breakout in the SAI), 0 fail: ports, admin state by alias, VLAN +
+  member, RIF/IP, PortChannel with LACP to the peer and ping across it, the
+  enforce/seed conflict flow (Ethernet1/1 speed enforced by `fieldModes`
+  here), reboot, rebuild, reload, restartOnStop (run 2 in the log).
+- Left for the switch: CoPP policers are NOT_IMPLEMENTED (6 ERRORs + a missing
+  `/usr/bin/sai_failure_dump.sh` per boot, no rate limits); the fake's wire
+  is only the CPU path, so no ASIC forwarding is tested; the openbcm values
+  above are compiled (cross build) but not yet read on the chip.
+- Cross-built for the AS7760 (README commands): libsai `7ccqhpcz…-sai-openbcm-powerpc64…`,
+  `rbd14dx5…-sonic-sairedis-sai-openbcm-powerpc64…` (= the board's
+  `services.sonic.sai.package`). The vs variant still passes (92/92).
+
 ## Status block as of 2026-11-15 evening (replaced 2026-11-15 night)
 
 - **BFD on the AS7760** (software, FRR bfdd; Tomahawk has no usable offload;
