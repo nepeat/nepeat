@@ -77,6 +77,7 @@ let
       WATCHDOG = yes;
       # Keep pinging a watchdog firmware left running until userspace opens it.
       WATCHDOG_HANDLE_BOOT_ENABLED = yes;
+      WATCHDOG_SYSFS = yes; # /sys/class/watchdog/*/identity, timeout, state (smoke, metrics)
       ARM_SP805_WATCHDOG = yes; # the platform restart path (PSCI v0.1 has no SYSTEM_RESET)
       I2C = yes;
       I2C_CHARDEV = yes;
