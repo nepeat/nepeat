@@ -11,6 +11,8 @@ The CPLD drives an active-low line, the PL061 GPIO named CPLD_INT_N in the
 DT (factory: gpiochip5 line 1). On a falling edge and every --poll seconds
 anyway (the factory "spurious interrupt"), handled alarms get masked until the
 next config reload, link changes re-run `setphyspeed -q`.
+An alarm is logged once when it appears and once when it clears, not on every reload
+(a single-PSU unit's PSU1 alarm stays asserted forever: once a minute was journal churn).
 """
 import argparse
 import json
@@ -63,11 +65,12 @@ def to_byte(mask):
     return sum(b << i for i, b in enumerate(mask))
 
 
-def write_mask(bus, mask):
+def write_mask(bus, mask, verbose=False):
     value = to_byte(mask)
     if bus.read_byte_data(CPLD, REG_MASK) != value:
         bus.write_byte_data(CPLD, REG_MASK, value)
-        log(7, f"interrupt mask 0x{value:02x}")
+        if verbose:   # the reload cycle flips handled alarms every minute: not worth a line
+            log(7, f"interrupt mask 0x{value:02x}")
 
 
 def uplink(args, quiet=True):
@@ -78,16 +81,23 @@ def uplink(args, quiet=True):
         log(3, f"setphyspeed failed: {e}")
 
 
-def handle(bus, mask, args):
+def handle(bus, mask, args, reported):
     status = bits(bus.read_byte_data(CPLD, REG_STATUS))
     current = bits(bus.read_byte_data(CPLD, REG_MASK))
+    for i in sorted(reported):
+        # A masked alarm reads "not asserted": only an unmasked, deasserted bit is a clear.
+        if not current[i] and status[i]:
+            log(5, f"{NAMES[i]} cleared")
+            reported.discard(i)
     for i in range(8):
         if status[i] | current[i]:
             continue  # not asserted (active low) or masked
         if i == UPLINK:
             uplink(args, quiet=False)  # never masked: every link change matters
         else:
-            log(3, f"{NAMES[i]}!")
+            if i not in reported:
+                log(3, f"{NAMES[i]}!")
+                reported.add(i)
             mask[i] = 1  # quiet until the next reload, like the factory daemon
 
 
@@ -119,7 +129,8 @@ def main():
     chip_path, offset = find_line(args.line)
     with SMBus(args.bus) as bus:
         mask = default_mask(bus, args)
-        write_mask(bus, mask)  # before the first read, to avoid false alarms
+        write_mask(bus, mask, verbose=True)  # before the first read, to avoid false alarms
+        reported = set()
         log(5, f"interrupt monitor started ({chip_path} line {offset})")
         settings = gpiod.LineSettings(edge_detection=Edge.FALLING)
         with gpiod.request_lines(chip_path, consumer="dmc12-interruptmon",
@@ -128,12 +139,12 @@ def main():
             while True:
                 if request.wait_edge_events(1.0):
                     request.read_edge_events()
-                    handle(bus, mask, args)
+                    handle(bus, mask, args, reported)
                     write_mask(bus, mask)
                 now = time.monotonic()
                 if now - last_poll >= args.poll:
                     last_poll = now
-                    handle(bus, mask, args)
+                    handle(bus, mask, args, reported)
                     write_mask(bus, mask)
                     uplink(args)
                 if now - last_reload >= args.reload:

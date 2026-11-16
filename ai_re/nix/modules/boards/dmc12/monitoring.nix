@@ -19,4 +19,8 @@ in {
     timeout = 20;
   };
   environment.systemPackages = [ metrics ];
+  # Every run is a unit start/stop: at the default level PID 1 logs 3 entries per run
+  # (journal writes on an SSD for nothing). Errors still get through.
+  systemd.services.prometheus-textfile-dmc12.serviceConfig.LogLevelMax = "notice";
+  systemd.services.prometheus-textfile-cleanup.serviceConfig.LogLevelMax = "notice";
 }
