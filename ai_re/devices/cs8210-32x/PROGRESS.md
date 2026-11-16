@@ -12,7 +12,7 @@
 - **Recover:** `systemctl stop sonic.target` or an older generation from the U-Boot menu; hung box or dead I2C FPGA
   (`/run/cs8210-qsfp.dead`): power cycle. Vendor U-Boot prompt: `123<Enter>` within 3 s; from there ONIE in SPI (`run onie_bootcmd`,
   RAM only) or **Route R** into the boot ROM UART CLI, no flash write ([uart-recovery.md](uart-recovery.md), [boot-chain.md](boot-chain.md)).
-- **Open:** our U-Boot in progress (scheme A', [vendor-uboot.md](vendor-uboot.md) checklist; nothing written to SPI); owner decision on
+- **Open:** our U-Boot: RAM build done and tested offline, hardware chainload run prepared, not run ([u-boot-port.md](u-boot-port.md); nothing written to SPI); owner decision on
   publishing `ai_re/nix/packages/sai-teralynx/src/ifcs_api.h` (our IFCS declarations from the vendor ctypes + DWARF); AS7760 redeploy of
   the shared SONiC changes (local_asn, teamd MAC, networkd rules); SAI gaps in sai-features.md (WRED/ECN, PFC/lossless, SET_DSCP/remarking,
   egress sFlow, sFlow trap policing, tunnels/IPMC/MPLS/NAT, warm boot, BFD offload); MACsec under SONiC; MKA across two boxes.
@@ -76,7 +76,7 @@ Config: `nepeat/nix` flake output `cs8210` (`nix/nixos/machine/cs8210`, `nix/nix
 (`/var/lib/cs8210-sdk/root`); the factory DIAGOS exists only as the 2026-10-17 SSD image.
 Topic files: [sonic.md](sonic.md), [sai-features.md](sai-features.md), [sai-oracle.md](sai-oracle.md),
 [sai-qemu.md](sai-qemu.md), [macsec.md](macsec.md), [macsec-400g.md](macsec-400g.md), [boot-chain.md](boot-chain.md),
-[vendor-uboot.md](vendor-uboot.md), [uart-recovery.md](uart-recovery.md), [inventory.md](inventory.md),
+[vendor-uboot.md](vendor-uboot.md), [u-boot-port.md](u-boot-port.md), [uart-recovery.md](uart-recovery.md), [inventory.md](inventory.md),
 [cpld-diff.md](cpld-diff.md), [fib-capacity.md](fib-capacity.md), [switchd/DESIGN.md](switchd/DESIGN.md), [fpga/](fpga/README.md);
 earlier offline work: [ssd-analysis.md](ssd-analysis.md), [kernel-review.md](kernel-review.md),
 [offline-research.md](offline-research.md), [board-control.md](board-control.md), [bringup/](bringup/README.md),
@@ -84,7 +84,7 @@ earlier offline work: [ssd-analysis.md](ssd-analysis.md), [kernel-review.md](ker
 
 ## Next useful work
 
-1. Our U-Boot (scheme A'): quiet fans from power-on, ASIC AVS, external PCIe link-up ([vendor-uboot.md](vendor-uboot.md)).
+1. Our U-Boot: the milestone 2 chainload run, then the standalone items (external PCIe link-up, ASIC AVS, GPIO/MUIO, MAC, quiet fans) ([u-boot-port.md](u-boot-port.md)).
 2. Aux SPI flash gating (the i2cfpga flash reads all ones on mainline); what CPLD v15/v2 changed ([cpld-diff.md](cpld-diff.md)).
 3. Credo slice temperatures and the ASC10 voltage/temperature monitors.
 4. Populate `/var/lib/cs8210-sdk/root` reproducibly (from the `onie` MTD on the box) instead of by hand.
@@ -107,6 +107,13 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-16 — upstream U-Boot 2026.10: milestone 1 (offline)
+
+- `#uboot-cs8210` = patches 0024 (`alpine-v3` target), 0025 (read-only SPI NOR also passes the 4-byte reads the 32 MiB flash needs), 0026 (`cs8210` DT + defconfig): console, 4 DRAM banks, timer, SPI NOR read-only, env in RAM, AHCI SSD, booti/extlinux/boot.scr/bootmenu, PSCI reset. Checklist and runbook: [u-boot-port.md](u-boot-port.md).
+- `#uboot-alpine-v3-tests` pass: static checks, QEMU (Cortex-A72, EL2) through the NixOS launcher's boot.scr → bootmenu → booti, MMU-on `go`, PSCI reset. DMC-12 builds unchanged (stage3app `.fimg` d3df4b80, firmware-payloads drv 2b9lljly).
+- Read from Linux (read-only): CNTFRQ_EL0 = 75 MHz (firmware-set), PSCI v0.2 over smc, "started at EL2", SSD on AHCI 00:0b.0 port 3, /dev/mtd0/1/4 crc32 = the 11-15 dumps.
+- Milestone 2 (vendor prompt → loadx → booti ours → NixOS) = `scripts/uboot_chainload.py`; not run, waits for the parent.
 
 ### 2026-11-16 — SONiC at boot (generation), bgpcfgd local_asn
 

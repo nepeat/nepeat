@@ -73,3 +73,10 @@ Detail and evidence: [devices/cs8210-32x/uart-recovery.md](devices/cs8210-32x/ua
 - Stage2 sets SPI_LOAD_ENFORCE for any non-NAND device, so a UART-sent factory stage2 fixes only a bad
   stage2. From a running vendor U-Boot the CLI is reachable with a CPU0 warm reset through the resume
   register ("Route R", emulated; `scripts/uart_recovery.py route-r`).
+
+## 7. Upstream U-Boot
+- U-Boot 2026.10 target `TARGET_ALPINE_V3` (patch scope `alpine-v3` in nix/packages/uboot): no low-level init,
+  DRAM from `/memory`, firmware ranges from `/reserved-memory`. The firmware programs CNTFRQ_EL0
+  (75 MHz on the CS8210 [hw]), so the generic timer needs no override. Board notes:
+  [devices/cs8210-32x/u-boot-port.md](devices/cs8210-32x/u-boot-port.md).
+- Boot flashes above 16 MiB are read with 4-byte opcodes (0x13/0x0c); a read-only SPI filter must pass them.
