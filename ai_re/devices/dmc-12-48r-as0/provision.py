@@ -22,6 +22,8 @@ Steps:
   rehearse  spi-upgrade.py status + rehearse: zero SPI writes; RAM U-Boot boots the SSD, smoke
   install   spi-upgrade.py install --write: [WRITES SPI] IPXE 0 + BOOT_MODE, cold boot, smoke
   smoke     smoke.py on the installed system
+  inventory fw-inventory.py collect: every component's version/sha256 (SPI objects factory vs now,
+            CPLD flash readback, uC, TPM, SSD, USB/PCI) -> inventory/<unit>/firmware.json + blobs
   summary   print the units.md column values from what the steps collected
 
 Needs: the unit on a switchable lab plug (`tools/lab_power.py`; spi-upgrade power-cycles with
@@ -35,7 +37,8 @@ import argparse, json, pathlib, re, subprocess, sys, time
 
 ROOT = pathlib.Path(__file__).resolve().parent
 PY = sys.executable
-STEPS = ["register", "capture", "acquire", "small", "reimage", "rehearse", "install", "smoke", "summary"]
+STEPS = ["register", "capture", "acquire", "small", "reimage", "rehearse", "install", "smoke", "inventory",
+         "summary"]
 SMALL = [  # (box path, dumps/<unit>/ name)
     ("/sys/firmware/fdt", "live.dtb"),
     ("/sys/bus/i2c/devices/7-0051/eeprom", "board-eeprom-7-0051.bin"),
@@ -312,6 +315,11 @@ def step_smoke(a, st):
     st.record("smoke", not failed, failed=failed)
     if failed:
         raise Fail(f"smoke failed: {failed}")
+
+
+def step_inventory(a, st):
+    run([PY, ROOT / "fw-inventory.py", "collect", "--unit", a.unit, "--ip", st.ip], timeout=900)
+    st.record("inventory", True)
 
 
 def step_summary(a, st):

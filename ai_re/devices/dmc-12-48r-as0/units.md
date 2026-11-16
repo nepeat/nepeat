@@ -41,6 +41,9 @@ build host/date). The real changes between OS 457 and 526 are in userspace (see 
    the SSD → `spi-upgrade.py` rehearse + install → smoke. Each write asks for the unit id.
    It assumes the box's DHCP lease is the same in the rdinit shell and in NixOS (same MAC: true
    on u01); if not, rerun with `--ip`.
+   Its `inventory` step records every component (`fw-inventory.py`: `table` for the fleet,
+   `diff uA uB --bytes` for byte ranges of differing SPI objects/CPLD flash, `drift` for what
+   changed since the factory dump).
 3. Service tag from the chassis label into `units-private.txt`. CPLD registers as in
    `inventory/u01/cpld-regs.txt` (`i2cget -y 4 0x68 …` from NixOS: read-only).
 4. Offline: image headers (`dumpimage -l`) of every uImage on sda1, `ls` of
