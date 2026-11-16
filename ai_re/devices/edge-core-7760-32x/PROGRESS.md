@@ -5,6 +5,8 @@ for the next session.
 
 ## Status (2026-11-15)
 
+- **Powered off 2026-11-15 21:03** (clean poweroff, lab plug 1 off) to patch the CS8210 back in. Boots to the same system (SONiC on) when plug 1 is switched on again.
+
 - **Runs:** upstream U-Boot 2026.10 in boot NOR (`uboot-as7760-nor`, sha256
   `2c0d7387…`, crc32 `31a7d1c9`) → `bootflow scan -lb` → extlinux on SD p1 →
   NixOS 26.11 ([config](../../nix/configs/as7760/configuration.nix)), 0 failed units.
