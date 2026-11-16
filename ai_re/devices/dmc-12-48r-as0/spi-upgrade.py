@@ -438,12 +438,22 @@ def bootmode_clear(a, img, why):
     return write_region(a, img, BOOT_MODE_OFF, SECTOR, b"", 0, "erase BOOT_MODE (recovery)")
 
 
-def wait_boot(a, base, timeout, want_ours=True):
+def since(marker):
+    """Pane text after the last `marker` line (console.py's clear-history calls make match
+    counts against an earlier baseline unreliable; a marker typed just before is not)."""
+    t = reimage.pane()
+    i = t.rfind(marker)
+    return t[i:] if i >= 0 else ""
+
+
+def wait_boot(a, base, timeout, want_ours=True, after=None):
     """After a power-on: which U-Boot came up, then the NixOS login prompt."""
     pats = {"ours": OURS, "factory": FACTORY, "x0": r"x0=0x0\b", "login": r"root@dmc12[^\n]*#", "bad": BAD}
     t0, seen = time.monotonic(), {}
+    if after:
+        base = {}
     while time.monotonic() - t0 < timeout:
-        t = reimage.pane()
+        t = since(after) if after else reimage.pane()
         for k, p in pats.items():
             if k not in seen and len(re.findall(p, t)) > base.get(p, 0):
                 seen[k] = round(time.monotonic() - t0, 1)
@@ -582,15 +592,16 @@ def mode_rehearse(a, st, img, unknown):
             r = run(ra + (["--key", key] if key else []), 600)
             if r.returncode:
                 raise Fail(f"route-a failed: {r.stdout[-300:]}{r.stderr[-300:]}")
+            go = f"{PROMPT} go {uartboot.TRAMP_ADDR:#x}"
             if key is None:
-                st["boot"] = wait_boot(a, base, 300, want_ours=True)
+                st["boot"] = wait_boot(a, base, 300, want_ours=True, after=go)
                 smoke(a, st)
                 st["pass"] = True
             else:
                 deadline = time.monotonic() + 120
                 while time.monotonic() < deadline:
-                    c = counts(pats)
-                    if all(c[p] > base[p] for p in (USER_U, FACTORY)):
+                    t = since(go)
+                    if all(re.search(p, t) for p in (USER_U, FACTORY)):
                         st["escape_pass"] = True
                         break
                     time.sleep(0.5)
