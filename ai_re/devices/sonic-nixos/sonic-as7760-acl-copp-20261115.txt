@@ -1,0 +1,40 @@
+# AS7760, sai-openbcm 6b8d409 (policers, CoPP, ACL), 2026-11-15
+## 0. after deploy
+ActiveState=active	NRestarts=0		ActiveState=active
+NRestarts=0			
+90
+sai-openbcm NOTICE api=17: policer 5: sr_tcm packets cir 6000 cbs 6000 pir 0 pbs 0
+sai-openbcm NOTICE api=12: CoPP: 3 field entries, 3 policers (field group 1)
+sai-openbcm NOTICE api=17: policer 6: sr_tcm packets cir 600 cbs 600 pir 0 pbs 0
+sai-openbcm NOTICE api=12: CoPP: 4 field entries, 4 policers (field group 1)
+sai-openbcm NOTICE api=12: CoPP: 5 field entries, 4 policers (field group 1)
+sai-openbcm NOTICE api=12: CoPP: 10 field entries, 4 policers (field group 1)
+current orchagent invocation: 0 SAI_API_POLICER NOT_IMPLEMENTED (the 199 lines were from the previous libsai)
+## 1. ACL + 2. CoPP
+Interface Ethernet124 IP disabled and address(es) removed due to binding VRF Vrf-test.
+== 0
+	entry prio <eid> [highest|lowest|dontcare|default|<priority>]
+	group create <pri> [<gid>] [mode] [pbmp|pipe0|pipe1|pipe2|pipe3] [size]
+	group destroy|get|set <gid>
+	group compress <gid>
+== 1 baseline
+20 packets transmitted, 20 received, 0% packet loss, time 1063ms
+acl entries: 1
+sai-openbcm NOTICE api=11: ACL entry: SDK entry 11 in group 2, priority 9000, 1 ports, drop, counted
+-- with rule
+20 packets transmitted, 0 received, 100% packet loss, time 1067ms
+20 packets transmitted, 0 received, 100% packet loss, time 1060ms
+acl counter: SAI_ACL_COUNTER_ATTR_BYTES 4080 SAI_ACL_COUNTER_ATTR_PACKETS 40
+-- rule removed
+20 packets transmitted, 20 received, 0% packet loss, time 1063ms
+acl objects left: 0
+== 2 CoPP
+sent 15900 icmp frames in 12.5 s (1275/s); Ethernet124 rx +12676 (1017/s)
+sent 664300 icmp frames in 10.0 s (66427/s); Ethernet124 rx +1102 (110/s)
+sent 13700 arp frames in 10.6 s (1297/s); Ethernet124 rx +8641 (818/s)
+5 packets transmitted, 5 received, 0% packet loss, time 815ms
+pwm=136 temp=42.8
+## teardown
+Interface Ethernet124 IP disabled and address(es) removed due to unbinding VRF.
+VRF Vrf-test deleted and all associated IP addresses removed.
+No conflicts with enforced Nix settings.
