@@ -29,7 +29,8 @@ exec unshare -r bash -euo pipefail -c '
   c up --config "$t/keys.json"
   c status
   c rekey --config "$t/keys.json" --link 1:16 --drain 0
-  c pn --slice 1 --dir tx --an 1 --set 0xC0000000
+  c pn --slice 16 --dir rx --an 1 --sci 0e48c67a55cf0001 --set 1000
+  if c pn --slice 1 --dir tx --an 1 --set 0xC0000000 2>/dev/null; then echo "FAIL: live egress PN set accepted"; exit 1; fi
   python3 "$here/reset_check.py" "$client"
   c metrics | grep -c "^cs8210_macsec" | sed "s/^/metric lines: /"
   c down --slice 1 --slice 16

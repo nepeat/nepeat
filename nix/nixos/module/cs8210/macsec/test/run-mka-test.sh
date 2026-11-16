@@ -36,7 +36,9 @@ exec unshare -rn bash -euo pipefail -c '
   work=$1; t=$2; client=$3; wpa=$4
   ip link add fpp1 type veth peer name fpp16
   ip link set fpp1 up; ip link set fpp16 up; ip link set lo up
-  LD_PRELOAD=$work/cs8210-macsec-shim.so "$work/phy_server" "$t" 2>"$work/server.txt"
+  # the stub takes transmit PN pushes here; real hardware does not (the PN
+  # grows with traffic, see macsec.md)
+  FAKE_TX_PN_OK=1 LD_PRELOAD=$work/cs8210-macsec-shim.so "$work/phy_server" "$t" 2>"$work/server.txt"
   for _ in $(seq 50); do [ -p "$t/cls_phy_fifo" ] && break; sleep 0.1; done
   export CS8210_SDK_TMP=$t CS8210_SDK_RUN=$t
   c() { python3 "$client" "$@"; }

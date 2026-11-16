@@ -40,7 +40,8 @@ RUNNING = SDKTMP + '/cls_phy_cmd_running'
 DONE = SDKTMP + '/cls_phy_cmd_done'
 BASE = SDKTMP + '/cs8210-macsec'
 KEYS = BASE + '/keys'
-SHIM_NAME = 'cs8210-macsec-shim'
+# mapped as the chroot bind mount (cs8210-sdk-chroot), or by its own name
+SHIM_NAMES = ('libcs8210-phy-preload.so', 'cs8210-macsec-shim')
 
 CIPHERS = {'gcm-aes-128': (16, False), 'gcm-aes-256': (32, False),
            'gcm-aes-xpn-128': (16, True), 'gcm-aes-xpn-256': (32, True)}
@@ -96,7 +97,7 @@ class Phy:
             maps = open('/proc/%d/maps' % pid).read()
         except OSError as e:
             raise Error('cannot read phy_server maps: %s' % e)
-        if SHIM_NAME not in maps:
+        if not any(n in maps for n in SHIM_NAMES):
             raise Error('phy_server runs without the MACsec shim (hardware.cs8210.macsec.enable, '
                         'then restart cs8210-switch)')
         ensure_dirs()
@@ -105,10 +106,15 @@ class Phy:
             raise Error('%s is not root-owned fifo' % FIFO)
         if st.st_mode & 0o077:
             os.chmod(FIFO, 0o600)  # command lines are none of anyone's business
-        self.lockf = open(BASE + '/lock', 'a')
-        fcntl.flock(self.lockf, fcntl.LOCK_EX)
 
     def cmd(self, name, **kw):
+        # one flock per command (shared with the wpa_supplicant driver), so
+        # a long-lived Phy (rekey with its drain sleep) does not block others
+        with open(BASE + '/lock', 'a') as lockf:
+            fcntl.flock(lockf, fcntl.LOCK_EX)
+            return self._cmd(name, **kw)
+
+    def _cmd(self, name, **kw):
         req = int.from_bytes(os.urandom(6), 'big')
         parts = [name] + ['%s=%s' % (k, v) for k, v in kw.items() if v is not None] + ['req=%d' % req]
         line = ' '.join(parts)

@@ -9,7 +9,7 @@
 #include <string.h>
 
 typedef struct { uint32_t lo, hi; } cnt_t;
-uint8_t devices[8 + 16 * 0x1b8];
+uint8_t devices[8 + 8 * 0x378];	/* libcredoCmd layout: 8 pairs */
 void *g_slice;
 static int slices[16];
 static bool dev_init[32];
@@ -34,8 +34,9 @@ struct { char name[512]; int (*fn)(char *); } credo_cmds[0x41] = {
 __attribute__((constructor)) static void setup(void)
 {
 	for (int k = 0; k < 16; k++) {
-		*(uint32_t *)(devices + 8 + k * 0x1b8) = k + 1;
-		*(void **)(devices + 8 + k * 0x1b8 + 0x10) = &slices[k];
+		uint8_t *e = devices + 8 + (k / 2) * 0x378 + (k % 2) * 0x1b8;
+		*(uint32_t *)e = k + 1;
+		*(void **)(e + 0x10) = &slices[k];
 	}
 }
 static void chk_slice(unsigned dev)
@@ -60,7 +61,19 @@ int CfyE_Rule_Add(unsigned d, void *vp, void **h, rule_t *r)
   LOG("Rule_Add dev %u vp %p data2 %#x prio %u drop %d ctl %d\n", d, vp, r->data[2], r->prio, r->drop, r->ctl); return 0; }
 int CfyE_Rule_Update(unsigned d, void *h, rule_t *r) { LOG("Rule_Update dev %u %p drop %d\n", d, h, r->drop); return 0; }
 int CfyE_Rule_Enable(unsigned d, void *h, bool s) { (void)d; (void)h; (void)s; return 0; }
-int CfyE_Rule_Remove(unsigned d, void *h) { LOG("Rule_Remove dev %u %p\n", d, h); return 0; }
+static void *disabled[4096];
+static int ndisabled;
+int CfyE_Rule_Disable(unsigned d, void *h, bool s) { (void)d; (void)s; disabled[ndisabled++ % 4096] = h; return 0; }
+/* like the real one: only resets the policy; a rule still enabled keeps matching */
+int CfyE_Rule_Remove(unsigned d, void *h)
+{
+	int ok = 0;
+	for (int i = 0; i < ndisabled && i < 4096; i++)
+		ok |= disabled[i] == h;
+	if (!ok) LOG("BUG: Rule_Remove of an enabled rule (stays live in the TCAM)\n");
+	LOG("Rule_Remove dev %u %p\n", d, h);
+	return 0;
+}
 int CfyE_RuleIndex_Get(void *h, unsigned *i) { *i = (uintptr_t)h - 0x2001; return 0; }
 int CfyE_Statistics_TCAM_Get(unsigned d, unsigned i, cnt_t *c, bool s) { (void)d; (void)s; c->lo = 100 + i; c->hi = 0; return 0; }
 
@@ -110,7 +123,16 @@ int SecY_SA_Remove(unsigned d, void *h)
 }
 int SecY_SA_Update(unsigned d, void *h, sa_t *s) { (void)h; LOG("SA_Update dev %u act %u inuse %u\n", d, s->act, s->p[0]); return 0; }
 int SecY_SA_NextPN_Get(unsigned d, void *h, uint32_t *lo, uint32_t *hi, bool *x) { (void)d; *lo = ((struct fsa *)h)->seq; *hi = 0; *x = 0; return 0; }
-int SecY_SA_NextPN_Update(unsigned d, void *h, uint32_t lo, uint32_t hi, bool *w) { (void)d; (void)hi; ((struct fsa *)h)->seq = lo; *w = 1; return 0; }
+/* like the hardware: only ingress SAs take a new next PN (FAKE_TX_PN_OK=1
+ * lets run-mka-test.sh push a transmit PN, which on hardware traffic does) */
+int SecY_SA_NextPN_Update(unsigned d, void *h, uint32_t lo, uint32_t hi, bool *w)
+{
+	(void)hi;
+	*w = !(d & 1) || getenv("FAKE_TX_PN_OK");
+	if (*w)
+		((struct fsa *)h)->seq = lo;
+	return 0;
+}
 int SecY_SA_WindowSize_Update(unsigned d, void *h, uint32_t w) { (void)d; (void)h; (void)w; return 0; }
 int SecY_SA_Active_E_Get(unsigned d, unsigned v, void **h) { *h = active_tx[d][v]; return 0; }
 int SecY_SA_Statistics_E_Get(unsigned d, void *h, cnt_t *c, bool s) { (void)d; (void)h; (void)s; for (int i = 0; i < 4; i++) c[i] = (cnt_t){ i + 1, 1 }; return 0; }

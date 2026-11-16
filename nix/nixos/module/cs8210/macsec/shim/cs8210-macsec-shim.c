@@ -192,6 +192,7 @@ extern char credo_cmds[] __attribute__((weak));
 	DDK(int, CfyE_Rule_Update, (unsigned, void *, cfye_rule_t *)) \
 	DDK(int, CfyE_Rule_Enable, (unsigned, void *, bool)) \
 	DDK(int, CfyE_Rule_Remove, (unsigned, void *)) \
+	DDK(int, CfyE_Rule_Disable, (unsigned, void *, bool)) \
 	DDK(int, CfyE_RuleIndex_Get, (void *, unsigned *)) \
 	DDK(int, CfyE_Statistics_TCAM_Get, (unsigned, unsigned, cnt_t *, bool)) \
 	DDK(int, SABuilder_InitParams, (sab_params_t *, uint8_t, uint32_t, uint32_t)) \
@@ -231,6 +232,7 @@ struct sa {
 	bool pending;
 	uint8_t key[32], hkey[16], salt[12], ssci[4];
 	uint32_t seq_lo, seq_hi;
+	unsigned long long acc[10];	/* the engine's counters are clear-on-read */
 };
 
 struct dirst {
@@ -240,6 +242,7 @@ struct dirst {
 	cfye_rule_t r_data, r_eapol;
 	void *sa_eapol;
 	bool drop;		/* current fDrop of the data rule */
+	unsigned long long acc_secy[9], acc_ifc[9], acc_hits_data, acc_hits_eapol;
 };
 
 struct port {
@@ -483,7 +486,7 @@ static int resolve(void)
 		snprintf(init_err, sizeof(init_err), "libcredoCmd.so not loaded");
 		return -1;
 	}
-	if (elf_local_sym(credo_path, "devices", &v, &sz) || sz < 8 + NSLICE * 0x1b8) {
+	if (elf_local_sym(credo_path, "devices", &v, &sz) || sz < 8 + (NSLICE / 2 - 1) * 0x378 + 2 * 0x1b8) {
 		snprintf(init_err, sizeof(init_err), "libcredoCmd: no usable 'devices' symbol");
 		return -1;
 	}
@@ -501,12 +504,20 @@ static int resolve(void)
 	return 0;
 }
 
+/* devices: 8 pairs of slice entries, pair stride 0x378, second entry of a
+ * pair at +0x1b8; slice id at +0, slice pointer at +0x10 (credo_macsec_*
+ * in libcredoCmd; verified in phy_server memory 2026-11-16) */
+static uint8_t *slice_entry(int k)
+{
+	return v_devices + 8 + (k / 2) * 0x378 + (k % 2) * 0x1b8;
+}
+
 /* slice pointer for a vendor slice id (1..16), and make it the one the
  * EIP register accessors (eip_register_read/write) talk to */
 static void *use_slice(int s)
 {
 	for (int k = 0; k < NSLICE; k++) {
-		uint8_t *e = v_devices + 8 + k * 0x1b8;
+		uint8_t *e = slice_entry(k);
 		if (*(uint32_t *)e == (uint32_t)s) {
 			void *p = *(void **)(e + 0x10);
 			if (p)
@@ -799,6 +810,7 @@ static int mk_rule(unsigned dev, unsigned ch, void *vp, bool eapol, bool drop, c
 	if (p_CfyE_Rule_Add(dev, vp, h, r))
 		return -1;
 	if (p_CfyE_Rule_Enable(dev, *h, true)) {
+		p_CfyE_Rule_Disable(dev, *h, true);
 		p_CfyE_Rule_Remove(dev, *h);
 		*h = NULL;
 		return -1;
@@ -832,10 +844,18 @@ static void teardown_dir(int s, int dir)
 				wipe(sa, sizeof(*sa));
 			}
 	}
-	if (d->rule_data)
+	/* CfyE_Rule_Remove only resets the TCAM entry's policy to the default
+	 * (vPort 0) and leaves the entry enabled: a removed rule keeps
+	 * matching and sends traffic to vPort 0, in clear text if that has a
+	 * bypass flow (seen on hardware 2026-11-16). Disable first. */
+	if (d->rule_data) {
+		p_CfyE_Rule_Disable(dev, d->rule_data, true);
 		p_CfyE_Rule_Remove(dev, d->rule_data);
-	if (d->rule_eapol)
+	}
+	if (d->rule_eapol) {
+		p_CfyE_Rule_Disable(dev, d->rule_eapol, true);
 		p_CfyE_Rule_Remove(dev, d->rule_eapol);
+	}
 	if (d->sa_eapol)
 		p_SecY_SA_Remove(dev, d->sa_eapol);
 	if (d->vp_data)
@@ -1325,13 +1345,28 @@ static int c_sa_pn(struct args *a)
 	int s, dir;
 	uint64_t set, sethi = 0;
 	struct sa *sa = pick_sa(a, &s, &dir);
-	if (!sa || !sa->hw)
-		ERR("no such installed SA");
-	unsigned dev = dev_of(s, dir);
-	use_slice(s);
+	if (!sa)
+		ERR("no such SA");
 	int r = arg_u64(a, "set", &set, 0xffffffffu);
 	if (r < 0 || arg_u64(a, "sethi", &sethi, 0xffffffffu) < 0)
 		ERR("bad pn");
+	if (!sa->hw) {
+		/* pending tx SA: its PN is what it will start with */
+		uint64_t q = ((uint64_t)sa->seq_hi << 32) | sa->seq_lo;
+		if (r == 1) {
+			uint64_t full = (sethi << 32) | set;
+			if (full == 0)
+				ERR("tx pn must be >= 1");
+			q = full - 1;
+			sa->seq_lo = (uint32_t)q;
+			sa->seq_hi = (uint32_t)(q >> 32);
+		}
+		out("ok slice=%d dir=%s an=%d seq=%llu next_pn=%llu xpn=%d pending=1", s, dirname_[dir], sa->an,
+		    (unsigned long long)q, (unsigned long long)(q + 1), is_xpn(sa->cipher));
+		return 0;
+	}
+	unsigned dev = dev_of(s, dir);
+	use_slice(s);
 	if (r == 1) {
 		uint64_t full = (sethi << 32) | set;
 		uint64_t seq = dir == TX ? full - 1 : full;
@@ -1340,6 +1375,11 @@ static int c_sa_pn(struct args *a)
 			ERR("tx pn must be >= 1");
 		if (p_SecY_SA_NextPN_Update(dev, sa->h, (uint32_t)seq, (uint32_t)(seq >> 32), &written))
 			ERR("SecY_SA_NextPN_Update failed");
+		/* the EIP-66 next-PN update reports whether it wrote; on a live
+		 * egress SA it does not (hardware 2026-11-16): the egress PN is
+		 * set when the SA is installed */
+		if (!written)
+			ERR("engine did not take the new PN (written=0)");
 	}
 	uint32_t lo = 0, hi = 0;
 	bool ext = false;
@@ -1352,6 +1392,14 @@ static int c_sa_pn(struct args *a)
 }
 
 static unsigned long long c64(cnt_t c) { return ((unsigned long long)c.hi << 32) | c.lo; }
+
+/* every read clears the hardware counters (all classes, seen on hardware
+ * 2026-11-16): add each read to a running total and report the totals */
+static void accum(unsigned long long *acc, const cnt_t *st, int n)
+{
+	for (int i = 0; i < n; i++)
+		acc[i] += c64(st[i]);
+}
 
 static void status_sa(int s, int dir, struct sa *sa)
 {
@@ -1375,28 +1423,31 @@ static void status_sa(int s, int dir, struct sa *sa)
 		 (long long)(time(NULL) - sa->created), (unsigned long long)seq,
 		 (unsigned long long)(dir == TX ? seq + 1 : seq));
 	cnt_t st[16];
+	unsigned long long *t = sa->acc;
 	memset(st, 0, sizeof(st));
 	if (dir == TX) {
-		p_SecY_SA_Statistics_E_Get(dev, sa->h, st, true);
+		if (!p_SecY_SA_Statistics_E_Get(dev, sa->h, st, true))
+			accum(t, st, 4);
 		out("%s OutPktsEncryptedProtected=%llu OutPktsTooLong=%llu OutPktsSANotInUse=%llu OutOctetsEncryptedProtected=%llu",
-		    head, c64(st[0]), c64(st[1]), c64(st[2]), c64(st[3]));
+		    head, t[0], t[1], t[2], t[3]);
 	} else {
-		p_SecY_SA_Statistics_I_Get(dev, sa->h, st, true);
+		if (!p_SecY_SA_Statistics_I_Get(dev, sa->h, st, true))
+			accum(t, st, 10);
 		out("%s InPktsUnchecked=%llu InPktsDelayed=%llu InPktsLate=%llu InPktsOK=%llu InPktsInvalid=%llu InPktsNotValid=%llu InPktsNotUsingSA=%llu InPktsUnusedSA=%llu InOctetsDecrypted=%llu InOctetsValidated=%llu",
-		    head, c64(st[0]), c64(st[1]), c64(st[2]), c64(st[3]), c64(st[4]), c64(st[5]), c64(st[6]),
-		    c64(st[7]), c64(st[8]), c64(st[9]));
+		    head, t[0], t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], t[9]);
 	}
 }
 
-static void status_rule(int s, int dir, const char *kind, void *h, bool drop)
+static void status_rule(int s, int dir, const char *kind, void *h, bool drop, unsigned long long *acc)
 {
 	unsigned idx = 0;
 	cnt_t c = { 0, 0 };
 	if (!h)
 		return;
 	p_CfyE_RuleIndex_Get(h, &idx);
-	p_CfyE_Statistics_TCAM_Get(dev_of(s, dir), idx, &c, true);
-	out("rule slice=%d dir=%s kind=%s index=%u drop=%d hits=%llu", s, dirname_[dir], kind, idx, drop, c64(c));
+	if (!p_CfyE_Statistics_TCAM_Get(dev_of(s, dir), idx, &c, true))
+		*acc += c64(c);
+	out("rule slice=%d dir=%s kind=%s index=%u drop=%d hits=%llu", s, dirname_[dir], kind, idx, drop, *acc);
 }
 
 /* cmx_status [slice=S] */
@@ -1427,31 +1478,33 @@ static int c_status(struct args *a)
 			struct dirst *d = &p->d[dir];
 			unsigned dev = dev_of(s, dir);
 			cnt_t st[16];
-			status_rule(s, dir, "eapol", d->rule_eapol, false);
-			status_rule(s, dir, "data", d->rule_data, d->drop);
+			unsigned long long *a1 = d->acc_secy, *a2 = d->acc_ifc;
+			status_rule(s, dir, "eapol", d->rule_eapol, false, &d->acc_hits_eapol);
+			status_rule(s, dir, "data", d->rule_data, d->drop, &d->acc_hits_data);
 			memset(st, 0, sizeof(st));
 			if (dir == TX) {
-				p_SecY_SecY_Statistics_E_Get(dev, d->vpi_data, st, true);
+				if (!p_SecY_SecY_Statistics_E_Get(dev, d->vpi_data, st, true))
+					accum(a1, st, 3);
 				out("secy slice=%d dir=tx OutPktsTransformError=%llu OutPktsControl=%llu OutPktsUntagged=%llu",
-				    s, c64(st[0]), c64(st[1]), c64(st[2]));
+				    s, a1[0], a1[1], a1[2]);
 				memset(st, 0, sizeof(st));
-				p_SecY_Ifc_Statistics_E_Get(dev, d->vpi_data, st, true);
+				if (!p_SecY_Ifc_Statistics_E_Get(dev, d->vpi_data, st, true))
+					accum(a2, st, 9);
 				out("ifc slice=%d dir=tx OutPktsUnicastUncontrolled=%llu OutPktsMulticastUncontrolled=%llu OutPktsBroadcastUncontrolled=%llu OutPktsUnicastControlled=%llu OutPktsMulticastControlled=%llu OutPktsBroadcastControlled=%llu OutOctetsUncontrolled=%llu OutOctetsControlled=%llu OutOctetsCommon=%llu",
-				    s, c64(st[0]), c64(st[1]), c64(st[2]), c64(st[3]), c64(st[4]), c64(st[5]),
-				    c64(st[6]), c64(st[7]), c64(st[8]));
+				    s, a2[0], a2[1], a2[2], a2[3], a2[4], a2[5], a2[6], a2[7], a2[8]);
 				for (int an = 0; an < 4; an++)
 					if (p->tx[an].used)
 						status_sa(s, TX, &p->tx[an]);
 			} else {
-				p_SecY_SecY_Statistics_I_Get(dev, d->vpi_data, st, true);
+				if (!p_SecY_SecY_Statistics_I_Get(dev, d->vpi_data, st, true))
+					accum(a1, st, 8);
 				out("secy slice=%d dir=rx InPktsTransformError=%llu InPktsControl=%llu InPktsUntagged=%llu InPktsNoTag=%llu InPktsBadTag=%llu InPktsNoSCI=%llu InPktsUnknownSCI=%llu InPktsTaggedCtrl=%llu",
-				    s, c64(st[0]), c64(st[1]), c64(st[2]), c64(st[3]), c64(st[4]), c64(st[5]),
-				    c64(st[6]), c64(st[7]));
+				    s, a1[0], a1[1], a1[2], a1[3], a1[4], a1[5], a1[6], a1[7]);
 				memset(st, 0, sizeof(st));
-				p_SecY_Ifc_Statistics_I_Get(dev, d->vpi_data, st, true);
+				if (!p_SecY_Ifc_Statistics_I_Get(dev, d->vpi_data, st, true))
+					accum(a2, st, 8);
 				out("ifc slice=%d dir=rx InPktsUnicastUncontrolled=%llu InPktsMulticastUncontrolled=%llu InPktsBroadcastUncontrolled=%llu InPktsUnicastControlled=%llu InPktsMulticastControlled=%llu InPktsBroadcastControlled=%llu InOctetsUncontrolled=%llu InOctetsControlled=%llu",
-				    s, c64(st[0]), c64(st[1]), c64(st[2]), c64(st[3]), c64(st[4]), c64(st[5]),
-				    c64(st[6]), c64(st[7]));
+				    s, a2[0], a2[1], a2[2], a2[3], a2[4], a2[5], a2[6], a2[7]);
 				for (int i = 0; i < MAXRXSC; i++)
 					for (int an = 0; an < 4; an++)
 						if (p->rx[i][an].used)
