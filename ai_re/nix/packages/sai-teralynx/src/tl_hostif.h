@@ -30,8 +30,8 @@ public:
     // The hostif trap TRAP routes (ip2me, glean) copy to: created on first use.
     sai_status_t ip2me_trap(ifcs_handle_t& h);
     // A separate hostif trap for glean (neighbor miss) routes, as isai has
-    // (NEIGHBOR_MISS programs it); created on first use, queue 0. Not used
-    // by L3 yet: the frontend gives ip2me and glean routes the same CPU egress.
+    // (NEIGHBOR_MISS programs its queue / policer); created on first use,
+    // queue 0; the L3 area's glean egress copies to it.
     sai_status_t glean_trap(ifcs_handle_t& h);
     // System (exception) traps as isai sets them at init: TTL check and IPv4
     // options to the CPU, L2 source miss/move and L3 MTU check off. Once,

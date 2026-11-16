@@ -493,7 +493,7 @@ sai_status_t QosArea::queue_buffer_set(int hw, int q, const BufferCfg* b)
               attr_u32(IFCS_QUEUE_ATTR_UC_STATIC_THRESHOLD_LIMIT, lim), attr_u32(IFCS_QUEUE_ATTR_NONUC_STATIC_THRESHOLD_LIMIT, lim)};
     }
     Key k(hw, q);
-    if (reserved == queue_reserved_[k]) return queue_set(hw, q, th, "queue thresholds");
+    if (reserved == queue_reserved_[k] || reserve_refused_) return queue_set(hw, q, th, "queue thresholds");
     uint32_t admin = 0;
     c_.dp_get_u32(hw, IFCS_DEVPORT_ATTR_ADMIN_STATE, admin);
     if (admin && (st = c_.dp_set(hw, attr_u32(IFCS_DEVPORT_ATTR_ADMIN_STATE, 0), "devport disable (queue reserve)")) != SAI_STATUS_SUCCESS)
@@ -501,6 +501,14 @@ sai_status_t QosArea::queue_buffer_set(int hw, int q, const BufferCfg* b)
     std::vector<ifcs_attr_t> all = {attr_u32(IFCS_QUEUE_ATTR_RESERVED_SIZE, reserved)};
     all.insert(all.end(), th.begin(), th.end());
     st = queue_set(hw, q, all, "queue reserve + thresholds");
+    if (st != SAI_STATUS_SUCCESS) {
+        // IFCS 0.12.41: "Attr id(2) is Not valid for this API(ifcs_queue_attr_set)" (SONiC's
+        // BUFFER_QUEUE on the chip, 2026-11-16): the reserve stays the SDK's, thresholds only
+        reserve_refused_ = true;
+        OB_WARN(SAI_API_BUFFER, "teralynx: queue RESERVED_SIZE refused by this SDK; buffer profile size kept at the "
+                "SDK's reserve, thresholds programmed");
+        st = queue_set(hw, q, th, "queue thresholds");
+    }
     sai_status_t up = admin ? c_.dp_set(hw, attr_u32(IFCS_DEVPORT_ATTR_ADMIN_STATE, 1), "devport enable (queue reserve)")
                             : SAI_STATUS_SUCCESS;
     if (st != SAI_STATUS_SUCCESS) return st;

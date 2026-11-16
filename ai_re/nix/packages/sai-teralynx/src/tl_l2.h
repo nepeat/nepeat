@@ -32,6 +32,12 @@ public:
     sai_status_t l2_delete(const uint8_t mac[6], uint16_t vid);
     sai_status_t l2_flush(int dest, int vid, bool statics, bool dynamics);
     sai_status_t l2_age_set(uint32_t seconds);
+    // VLAN flood control (Backend::vlan_flood_set): IFCS has one flood group
+    // per L2VNI for unknown unicast, unknown multicast and broadcast, so all
+    // three on = the members' flood group, all three off = an empty one;
+    // a mixed setting is recorded, logged once and programmed only when the
+    // three agree again (orchagent sets them one by one).
+    sai_status_t vlan_flood_set(uint16_t vid, FloodKind kind, bool on);
 
     bool cpu_flood() const { return cpu_flood_; }
 
@@ -45,6 +51,8 @@ private:
     struct Member { bool untagged = false; ifcs_handle_t dest = 0; };
     struct Vlan {
         ifcs_handle_t l2vni = 0, mdg = 0, cpu_mcd = 0;
+        ifcs_handle_t empty_mdg = 0;                // flood control off: an empty flood group
+        bool flood[3] = {true, true, true};         // FloodKind order
         std::map<int, Member> members;              // devport -> member
         std::map<ifcs_handle_t, Dest> dests;        // L2VNI member / mc_dest per destination
     };

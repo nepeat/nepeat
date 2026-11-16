@@ -118,6 +118,15 @@ ifcs_status_t ifcs_acl_action_create(ifcs_node_id_t n, ifcs_handle_t* h, uint32_
         ifcs_acl_ctc_override_action_t x;
         memcpy(&x, &v->value, sizeof(x));
         mock_logf("ifcs_acl_action_create h=0x%x type=ctc_override green=%u yellow=%u red=%u", *h, x.green, x.yellow, x.red);
+    } else if (type == IFCS_ACL_ACTION_TYPE_SET_TC && v) {
+        ifcs_acl_set_tc_action_t x;
+        memcpy(&x, &v->value, sizeof(x));
+        mock_logf("ifcs_acl_action_create h=0x%x type=set_tc green=%u tc=%u yellow=%u red=%u dirty=%x", *h, x.green, x.green_value,
+                  x.yellow_value, x.red_value, x.dirty);
+    } else if (type == IFCS_ACL_ACTION_TYPE_SET_DSCP && v) {
+        ifcs_acl_set_dscp_action_t x;
+        memcpy(&x, &v->value, sizeof(x));
+        mock_logf("ifcs_acl_action_create h=0x%x type=set_dscp family=%d dscp=%u dirty=%x", *h, x.addr_family, x.value, x.dirty);
     } else if (type == IFCS_ACL_ACTION_TYPE_DROP && v) {
         ifcs_acl_drop_action_t x;
         memcpy(&x, &v->value, sizeof(x));
@@ -221,6 +230,31 @@ ifcs_status_t ifcs_acl_counter_stats_clear(ifcs_node_id_t n, ifcs_handle_t h, ui
 ifcs_status_t ifcs_ace_attr_set(ifcs_node_id_t n, ifcs_handle_t h, uint32_t c, ifcs_attr_t* a)
 {
     (void)n;
-    mock_logf("ifcs_ace_attr_set h=0x%x count=%u id=%u", h, c, c ? a[0].id : 999);
+    mock_logf("ifcs_ace_attr_set h=0x%x count=%u id=%u data=%u", h, c, c ? a[0].id : 999, c ? (unsigned)a[0].value.data : 0);
     return IFCS_SUCCESS;
 }
+
+/* L4 port ranges: comparators in a comparator group (phase C) */
+static int n_cmps;
+int mock_acl_comparators(void) { return n_cmps; }
+ifcs_status_t ifcs_acl_comparator_create(ifcs_node_id_t n, ifcs_handle_t* h, uint32_t c, ifcs_attr_t* a)
+{
+    (void)n;
+    *h = next_handle++;
+    mock_logf("ifcs_acl_comparator_create h=0x%x type=%u op=%u value=%u hi=%u dir=%u", *h,
+              find_u32(c, a, IFCS_ACL_COMPARATOR_ATTR_TYPE, 99), find_u32(c, a, IFCS_ACL_COMPARATOR_ATTR_OPERATION, 99),
+              find_u32(c, a, IFCS_ACL_COMPARATOR_ATTR_VALUE, 0), find_u32(c, a, IFCS_ACL_COMPARATOR_ATTR_HI_VALUE, 0),
+              find_u32(c, a, IFCS_ACL_COMPARATOR_ATTR_DIRECTION, 99));
+    n_cmps++;
+    return IFCS_SUCCESS;
+}
+ifcs_status_t ifcs_acl_comparator_delete(ifcs_node_id_t n, ifcs_handle_t h) { (void)n; mock_logf("ifcs_acl_comparator_delete h=0x%x", h); n_cmps--; return IFCS_SUCCESS; }
+ifcs_status_t ifcs_acl_comparator_group_create(ifcs_node_id_t n, ifcs_handle_t* h, uint32_t c, ifcs_attr_t* a)
+{
+    (void)n;
+    *h = next_handle++;
+    const ifcs_attr_t* l = find(c, a, IFCS_ACL_COMPARATOR_GROUP_ATTR_COMPARATORS);
+    mock_logf("ifcs_acl_comparator_group_create h=0x%x n=%u", *h, l ? l->value.handle_list.count : 0);
+    return l && l->value.handle_list.count ? IFCS_SUCCESS : IFCS_PARAM;
+}
+ifcs_status_t ifcs_acl_comparator_group_delete(ifcs_node_id_t n, ifcs_handle_t h) { (void)n; mock_logf("ifcs_acl_comparator_group_delete h=0x%x", h); return IFCS_SUCCESS; }

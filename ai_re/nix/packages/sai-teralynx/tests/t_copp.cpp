@@ -156,9 +156,14 @@ void test_copp(Env& e)
     m_log_clear();
     sai_object_id_t nm = make_trap(e, SAI_HOSTIF_TRAP_TYPE_NEIGHBOR_MISS, SAI_PACKET_ACTION_TRAP, grp1);
     std::string l3 = m_log();
+    // the glean trap exists already when L3 made glean routes (t_l3): then only its queue is set
     size_t gq = l3.find("ifcs_hostif_trap_create h=");
-    CHECK(gq != std::string::npos);
-    std::string glean = gq != std::string::npos ? l3.substr(gq + 26, l3.find(' ', gq + 26) - gq - 26) : "?";
+    std::string glean = gq != std::string::npos ? l3.substr(gq + 26, l3.find(' ', gq + 26) - gq - 26) : "";
+    if (glean.empty()) {
+        size_t q = l3.find("ifcs_hostif_trap_attr_set h=");
+        if (q != std::string::npos) glean = l3.substr(q + 28, l3.find(' ', q + 28) - q - 28);
+    }
+    CHECK(!glean.empty());
     CHECK(has(l3, "ifcs_hostif_trap_attr_set h=" + glean + " id=0 u32=1"));
     CHECK_EQ(count(l3, "type=98 value= object=" + glean), 6u);
     CHECK(glean != ip2me.substr(0, ip2me.find(' ')));

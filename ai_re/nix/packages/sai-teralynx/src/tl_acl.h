@@ -29,6 +29,19 @@ class AclArea {
 public:
     explicit AclArea(Core& c) : c_(c) {}
     sai_status_t group_create(const std::vector<FpQual>& qset, int priority, int& gid);
+    // Backend::fp_group_create_ex: egress tables, L4 port ranges, OUT_PORTS,
+    // REDIRECT / SET_TC / SET_DSCP / MIRROR actions (FpGroupExtra).
+    sai_status_t group_create_ex(const std::vector<FpQual>& qset, int priority, const FpGroupExtra& x, int& gid);
+    // In place: the entry's ACEs are rebuilt, its IFCS counter is kept (no
+    // counts lost to the ~1 s counter read lag of a re-created entry).
+    sai_status_t entry_update(int eid, const FpRule& r);
+    // ACE ENABLE (isai: ace_attr_set): admin state without re-creation.
+    sai_status_t entry_enable(int eid, bool on);
+    sai_status_t group_free(int gid, uint32_t& entries);
+    // Storm control (Backend::port_storm_set): one ingress entry per port and
+    // kind in a table of its own (DMAC broadcast / multicast; unknown unicast
+    // = unicast DMAC + no L2 hit), the policer's meter, yellow and red dropped.
+    sai_status_t storm_set(int hw, StormKind kind, int policer);
     sai_status_t group_destroy(int gid);
     sai_status_t entry_create(int gid, const FpRule& r, int& eid);
     sai_status_t entry_destroy(int eid);
@@ -78,6 +91,8 @@ private:
         std::vector<FpQual> qset;
         int priority = 0;
         bool v6 = false, meters = false;
+        FpGroupExtra x;                     // egress, ranges, OUT_PORTS, extra actions
+        bool dmac_hit = false;              // storm control: DESTINATION_MAC_HIT match
         uint32_t size = 0;
         ifcs_handle_t mprof = 0, aprof = 0, table = 0, acl = 0;
         std::set<int> bound;                // devports the ACL is bound to (acl_port_add)
@@ -88,7 +103,16 @@ private:
         bool per_port = false;              // one ACE per port (the entry covers part of the table's ports)
         ifcs_handle_t counter = 0;
         std::vector<ifcs_handle_t> aces, matches, actions;
+        std::vector<ifcs_handle_t> cmps;    // L4 port range comparators
+        ifcs_handle_t cmp_group = 0;
+        std::vector<std::pair<int, bool>> mirrors;   // (session, ingress) collector sets held
+        bool enabled = true;
+        int dmac_hit = -1;                  // storm control: 0 = L2 miss only
     };
+    sai_status_t group_make(const std::vector<FpQual>& qset, int priority, const FpGroupExtra& x, bool dmac_hit, int& gid);
+    sai_status_t entry_make(int gid, const FpRule& r, int dmac_hit, int& eid);
+    int storm_gid_ = -1;
+    std::map<std::pair<int, int>, int> storm_;   // (hw, StormKind) -> entry
     bool ugroup_has(const UGroup& g, FpQual q) const;
     sai_status_t uentry_matches(const UGroup& g, const FpRule& r, std::vector<CoppMatch>& out);
     sai_status_t uentry_install(UGroup& g, UEntry& e);

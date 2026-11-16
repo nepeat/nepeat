@@ -150,5 +150,6 @@ void test_qos(Env& e);             // t_qos.cpp: QoS maps, schedulers, WRED, buf
 void test_mirror(Env& e);          // t_mirror.cpp: SPAN, ERSPAN, SAMPLEPACKET             // t_copp.cpp: hostif traps, trap groups, policers (CoPP)
 void test_acl(Env& e);              // t_acl.cpp: SAI ACL tables, entries, counters (fp groups)
 void test_counters(Env& e);         // t_counters.cpp: port counters by SAI id, CPU queues, diag shell
+void test_hooks(Env& e);            // t_hooks.cpp: RIF counters / admin, glean, hash, flood + storm control, ACL extras
 void test_switch_misc(Env& e);      // t_switch.cpp: temperatures, table usage
 void test_switch_remove(Env& e);    // t_switch.cpp: remove_switch order

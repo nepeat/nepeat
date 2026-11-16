@@ -92,7 +92,7 @@ void test_l3(Env& e)
         CHECK_EQ(ttlp((l3vni0 + "/4/0a000001/ffffffff").c_str()), 1);
         CHECK_EQ(ttlp((l3vni0 + "/4/0a000002/ffffffff").c_str()), 0);   // a neighbor's host route: default profile
         CHECK(has(m_log(), "ifcs_node_attr_set node=0 count=1 id=107 u32=0"));
-        CHECK(has(m_log(), "ifcs_l3vni_create h=0x26200001 count=2 attrs=5=1,7=1"));
+        CHECK(has(m_log(), "ifcs_l3vni_create h=0x26200001 count=4 attrs=5=1,7=1,9=1,10=1"));
     }
     // route re-pointed to drop: kind change = delete + create
     a.id = SAI_ROUTE_ENTRY_ATTR_PACKET_ACTION;

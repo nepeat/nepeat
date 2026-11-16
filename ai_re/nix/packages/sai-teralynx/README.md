@@ -57,12 +57,13 @@ The Makefile picks up `src/*.cpp`, `tests/t_*.cpp` and `tests/mock/*.c` by wildc
 | `SAI_TERALYNX_LIBIFCS` | absolute path of the vendor `libifcs.so`; required |
 | `SAI_TERALYNX_PORT_MAP` | `devport lanes speed_mbps fec` per front-panel devport (lanes `,`-separated, `serdes_group*8+lane+1`; fec `none|rs|fc`; `#` comments); required |
 | `SAI_TERALYNX_INIT_CMDS` | `:`-separated command files applied after node enable (below) |
-| `SAI_TERALYNX_NETDEV` | `create` (default): `ifcs_netdev_create` per hostif; `adopt`: rename the SDK's `inno_0_<sysport>` (init yaml with netdev `auto_create`, the vendor `-k` mode). On the deployed init yaml (netdev `auto_create`) create mode makes no netdev (chip 2026-11-16): use `adopt` |
+| `SAI_TERALYNX_NETDEV` | `adopt` (default): rename the SDK's `inno_0_<sysport>` (init yaml with netdev `auto_create`, the vendor `-k` mode); `create`: `ifcs_netdev_create` per hostif, which makes no netdev on the deployed init yaml (chip 2026-11-16) |
+| `SAI_TERALYNX_L3INTF_STATS`, `_MODES`, `_COUNTERS` | RIF counters: `off` skips the node setup; modes tried before node enable (default `4,1,2,3`: 0.12.41 refuses 1 = ALL, takes 4 = IPv4 + IPv6), flex counters per direction (default 4096) |
 | `SAI_TERALYNX_SYSTEM_TRAPS` | `isai` (default): system traps as isai sets them at init (TTL, IPv4 options on; L2 source miss/move, L3 MTU off), before the first netdev or trap; `sdk`: leave the SDK's |
 | `SAI_TERALYNX_SHUTDOWN` | `deinit` (default): ports down, then `ifcs_deinit(COLD)`; `ports-down`: ports down only |
 | `SAI_TERALYNX_CPU_FLOOD` | `off` (default): the CPU is in no VLAN (traps bring what it needs); `on`: CPU in every VLAN's L2VNI and flood group (the old model: COPY traps doubled) |
 | `SAI_TERALYNX_LAG_FLOOD` | `on` (default): node `MULTICAST_LAG_RESOLUTION_ENABLE` before node enable (a LAG in a VLAN needs it); `off`: skip (LAGs cannot join VLANs) |
-| `SAI_TERALYNX_HASH_FIELDS`, `_HASH_SEED` | LAG/ECMP hash at init until the frontend has a hash object: SAI native field names in lower case (`src_ip,dst_ip,ip_protocol,l4_src_port,l4_dst_port,in_port`, also `src_mac dst_mac ethertype vlan_id ipv6_flow_label`); node `ENTROPY_SEED`. Unset: the SDK's selection |
+| `SAI_TERALYNX_HASH_FIELDS`, `_HASH_SEED` | LAG/ECMP hash at init (the SAI hash objects set it at run time too): SAI native field names in lower case (`src_ip,dst_ip,ip_protocol,l4_src_port,l4_dst_port,in_port`, also `src_mac dst_mac ethertype vlan_id ipv6_flow_label`); node `ENTROPY_SEED`. Unset: the SDK's selection |
 | `SAI_TERALYNX_IFCS_LOG_NAME` | 2nd argument of `ifcs_init` (the SDK's log name, `$II_ROOT/log/<name>.log`); default `sai-teralynx` |
 | `SAI_TERALYNX_LINK_STATUS` | `read` (default): one `LINK_STATUS` read per OPER_STATUS get (~5 us); `cached`: from link events, no IFCS call (a transition the link scan misses would stay wrong) |
 | `SAI_TERALYNX_STATS` | `ids` (default): one `devport_stats_get` of the 12 mapped counters per port; `all`: the vendor CLI form (all 112, 8x slower) |
@@ -128,7 +129,11 @@ I = inferred (API exists, form or semantics not seen in use).
 | autoneg, loopback | `AUTO_NEG`; MAC -> PCS, PHY -> PMA loopback | V attr, I mapping |
 | frame max (MTU) | sysport `MTU` (L2 MTU) = SAI MTU + 22, max 9290 | I |
 | PVID, learning | sysport `DEFAULT_CVID`, `LEARN_ENABLE` (drop/cpu modes NOT_IMPLEMENTED) | V |
-| counters, clear | `ifcs_devport_stats_get` of the 12 mapped ids (id list, as isai; `all`: CLI form), `_clear`; IF_OUT_OCTETS = TX_BYTES_OK (isai); every other SAI port counter isai maps: `tl_counters.cpp` (diag only until the frontend hook) | V (on chip) |
+| counters, clear | every SAI port counter isai maps (101 ids, `tl_counters.cpp`): one `ifcs_devport_stats_get` of the IFCS ids the request needs (`port_stats_by_id`), `_clear`; IF_OUT_OCTETS = TX_BYTES_OK (isai) | V (on chip) |
+| RIF counters, admin state | intf stats (node L3INTF stats CONFIG + MODE before enable; IN = ingress v4 + v6), intf IPV4/IPV6_UNICAST_ENABLE | V (on chip) |
+| glean, IPv4 options | glean routes copy to a hostif trap of their own (NEIGHBOR_MISS's queue); L3VNI IPV4_OPTIONS_CTC + _DROP | V (on chip) |
+| storm control, VLAN flood control | an ingress ACL table of its own (entry per port and kind, policer meter, colour counters); L2VNI FLOOD_GROUP = an empty MDG when all three kinds are off | V (chip: broadcast storm, flood accepted) |
+| ACL extras | comparators (L4 port ranges), SET_TC, REDIRECT (nexthop / sysport / LAG), MIRROR (collector set), egress tables (no port match, bound per port), ACE ENABLE, in-place entry update (counter kept); SET_DSCP refused by 0.12.41 | V (on chip) |
 | netdev | `ifcs_netdev_create` (name, devport, MAC, VLAN tag) or adopt; keep_tag = `VLAN_TAG` | I / V (adopt = knet.py) |
 | netdev carrier | no IFCS call: libifcs drives it from link scan | I |
 | VLAN | L2VNI(vid) (STP, flood group, `LEARN_ENABLE`, max learn count as isai) + MDG flood group with one mc_dest per member, created when it joins (isai); the CPU in no VLAN; a LAG member joins as its LAG (one L2VNI member + mc_dest per LAG, counted); untagged = sysport `EGRESS_UNTAGGED_VLAN_ID` (one per port, set on each member) | V (oracle, chip) |
@@ -177,7 +182,11 @@ I = inferred (API exists, form or semantics not seen in use).
   SAI ACL tables (L3 / L3V6 as aclorch, group binding, every field and
   action the frontend passes, IN_PORTS on part of the ports, policer, refusals,
   removal); counters by SAI id, CPU queues and the diag shell (`acl`, `counters`);
-  temperatures (round-robin, cached); remove_switch order. 753 checks (all areas, 2026-11-16).
+  the optional hooks (`t_hooks.cpp`: RIF counters / admin state, glean vs IP2ME traps,
+  port counters by id + stats capability, hash objects, VLAN flood control, storm
+  control, ACL ranges / SET_TC / REDIRECT / MIRROR / egress + OUT_PORTS, entry admin
+  and in-place update, AVAILABLE_ACL_ENTRY, SET_DSCP refused); temperatures
+  (round-robin, cached); remove_switch order. 877 checks (all areas, 2026-11-16).
 - sai-openbcm's `tests/test_sai.cpp`, unchanged, against this library's
   objects (frontend + fake backend): 2667 checks.
 - Built natively with nix (`callPackage ./sai-teralynx { inherit sonic; }`) and
@@ -186,16 +195,18 @@ I = inferred (API exists, form or semantics not seen in use).
   `tools/trap_frames.c`), `qos-hw.json` (`tools/qos_frames.c`: classification,
   shapers, DWRR / strict, mirror copies, sFlow), `acl-hw.json` / `acl-hw2.json` (ACL actions and
   matches on routed and ip2me frames, IGMP / MLD traps, CPU queues, counters; `tools/raw_frames.c`),
-  `hostif-create.json`, `perf.json`, sai_bench (qemu-ipd); results in
+  `hostif-create.json`, `perf.json`, `l3-*.json` (with a loop-observer ACL: routed copies to the far
+  hosts' MACs are trapped, `tools/l3_frames.c`), `phasec-hw.json` (the hooks above with traffic),
+  `phasec-recreate.json` (two switches in one process), sai_bench (qemu-ipd); results in
   [sai-features.md](../../../devices/cs8210-32x/sai-features.md).
 
 ## Only the chip can tell
 
 Every I row above, and: which init yaml makes `ifcs_netdev_create` produce a
 netdev (with the deployed one it returns SUCCESS and none appears) and whether
-carrier follows link; LAG hash distribution and multi-member
-LAGs (one cable: single-member LAGs only); SVI on the internal port-RIF VLAN for routed traffic
-(ip2me frames to a port RIF did reach the CPU); route `attr_set`; ECMP
-weights; MTU semantics; the minimum meter CIR; whether ACL tables of different
-priorities resolve conflicting actions by priority (all hit in parallel: the CoPP and a user ACE both
-counted the same frames); a way to read ACL counters without the ~1 s lag.
+carrier follows link; LAG hash distribution and multi-member LAGs (one cable:
+single-member LAGs only); the minimum meter CIR; whether ACL tables of different
+priorities resolve conflicting actions by priority (all hit in parallel: the CoPP
+and a user ACE both counted the same frames); the unknown-unicast storm entry's
+DESTINATION_MAC_HIT semantics (installed, not exercised); VLAN flood control's
+effect (one loop: no second VLAN member); queue RESERVED_SIZE (refused by 0.12.41).

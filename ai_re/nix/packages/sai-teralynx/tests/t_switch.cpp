@@ -15,6 +15,10 @@ void test_switch_init(Env& e)
         "ifcs_log_function_register",
         "ifcs_node_create node=0 count=0 attrs=null",
         "ifcs_node_attr_set node=0 count=1 id=82 u32=1",   // multicast LAG resolution: only before ENABLE
+        "ifcs_node_attr_set node=0 count=1 id=46 u32=0",   // L3 interface counters: flex block, then mode (ingress)
+        "ifcs_node_attr_set node=0 count=1 id=45 u32=4",
+        "ifcs_node_attr_set node=0 count=1 id=48 u32=0",   // (egress)
+        "ifcs_node_attr_set node=0 count=1 id=47 u32=4",
         "ifcs_attr_t_init",
         "ifcs_attr_t_id_set id=0",
         "ifcs_attr_t_value_data_set 1",

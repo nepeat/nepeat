@@ -4,14 +4,16 @@
 // (DMAC, SMAC, TTL / hop limit, VLAN tag, length). For L3 tests of the SAI
 // on the CS8210 400G loop (Ethernet0 = cage 1 -> DAC -> cage 16 =
 // Ethernet120): a frame sent out one netdev enters the ASIC on the other
-// port; a routed copy that leaves on port X re-enters on the far port and,
-// not being addressed to the router, is flooded to the CPU, i.e. shows up
-// on the far port's netdev with the next hop's DMAC, the router's SMAC and
-// TTL - 1.
+// port; a routed copy that leaves on port X re-enters on the far port, where
+// the test's observer ACL (DMAC of the far hosts -> TRAP) hands it to the CPU,
+// i.e. it shows up on the far port's netdev with the next hop's DMAC, the
+// router's SMAC and TTL - 1.
 //   l3-frames tx=IF rx=IF[,IF..] dst=IP [src=IP] dmac=MAC [smac=MAC] [count=N] [pps=R]
-//             [ttl=N] [size=BYTES] [flows=N] [dst_n=N] [wait_ms=MS]
+//             [ttl=N] [size=BYTES] [flows=N] [dst_n=N] [dport=N] [tos=N] [opts=1] [wait_ms=MS]
 // flows: the UDP source port cycles through N values (ECMP hashing);
-// dst_n: the destination address cycles through N consecutive addresses.
+// dst_n: the destination address cycles through N consecutive addresses;
+// dport: UDP destination port (7777); tos: IPv4 TOS / IPv6 traffic class
+// (DSCP << 2); opts=1: IPv4 with 4 bytes of options (NOP), IHL 6.
 // size: frame length without FCS (min 64). Brings the netdevs up. Root.
 // Prints "RESULT ..." and one "RX ..." line per distinct (netdev, vlan,
 // dmac, smac, ttl, len) group, with the number of distinct flows seen.
@@ -35,7 +37,7 @@ static const char TAG[8] = {'L', '3', 'F', 'R', 'A', 'M', 'E', 'S'};
 #define MAX_FLOWS 4096
 
 struct group {
-    int rx, vlan, ttl, len;
+    int rx, vlan, ttl, tos, len;
     uint8_t dmac[6], smac[6];
     unsigned long count;
     uint8_t flows[MAX_FLOWS / 8];
@@ -95,14 +97,14 @@ struct cfg {
     int v6;
     uint8_t dmac[6], smac[6];
     uint8_t src[16], dst[16];
-    int ttl, size;
+    int ttl, size, dport, tos, opts;
     unsigned flows, dst_n;
 };
 
 // Build frame i into f; returns its length.
 static size_t build(const struct cfg* c, uint8_t* f, unsigned i)
 {
-    size_t l3 = 14, ipl = c->v6 ? 40 : 20, len = (size_t)c->size;
+    size_t l3 = 14, ipl = c->v6 ? 40 : (c->opts ? 24 : 20), len = (size_t)c->size;
     if (len < 64) len = 64;
     memset(f, 0, len);
     memcpy(f, c->dmac, 6);
@@ -117,7 +119,7 @@ static size_t build(const struct cfg* c, uint8_t* f, unsigned i)
     unsigned add = c->dst_n ? i % c->dst_n : 0;
     int last = c->v6 ? 15 : 3;
     for (int b = last; b >= 0 && add; b--) { unsigned v = dst[b] + (add & 0xff); dst[b] = (uint8_t)v; add = (add >> 8) + (v >> 8); }
-    uint16_t sport = htons((uint16_t)(10000 + (c->flows ? i % c->flows : 0))), dport = htons(7777);
+    uint16_t sport = htons((uint16_t)(10000 + (c->flows ? i % c->flows : 0))), dport = htons((uint16_t)c->dport);
     memcpy(udp, &sport, 2);
     memcpy(udp + 2, &dport, 2);
     uint16_t ul = htons((uint16_t)udpl);
@@ -128,7 +130,8 @@ static size_t build(const struct cfg* c, uint8_t* f, unsigned i)
     uint16_t fl = (uint16_t)(c->flows ? i % c->flows : 0);
     memcpy(udp + 24, &fl, 2);
     if (c->v6) {
-        ip[0] = 0x60;
+        ip[0] = (uint8_t)(0x60 | ((c->tos >> 4) & 0x0f));
+        ip[1] = (uint8_t)((c->tos & 0x0f) << 4);
         memcpy(ip + 4, &ul, 2);
         ip[6] = 17;
         ip[7] = (uint8_t)c->ttl;
@@ -144,14 +147,16 @@ static size_t build(const struct cfg* c, uint8_t* f, unsigned i)
         if (!cs) cs = 0xffff;
         memcpy(udp + 6, &cs, 2);
     } else {
-        ip[0] = 0x45;
+        ip[0] = c->opts ? 0x46 : 0x45;
+        ip[1] = (uint8_t)c->tos;
+        if (c->opts) memset(ip + 20, 0x01, 4);   // NOP options
         uint16_t tot = htons((uint16_t)(len - l3));
         memcpy(ip + 2, &tot, 2);
         ip[8] = (uint8_t)c->ttl;
         ip[9] = 17;
         memcpy(ip + 12, c->src, 4);
         memcpy(ip + 16, dst, 4);
-        uint16_t ic = htons(fold(sum16(ip, 20, 0)));
+        uint16_t ic = htons(fold(sum16(ip, ipl, 0)));
         memcpy(ip + 10, &ic, 2);   // UDP checksum 0 (none) for IPv4
     }
     return len;
@@ -164,18 +169,19 @@ static void account(int rx, const uint8_t* b, size_t n)
     if (n < 14) { rx_other++; return; }
     if (b[12] == 0x81 && b[13] == 0x00) { vlan = (b[14] & 0x0f) << 8 | b[15]; o = 16; }
     int v6 = b[o] == 0x86 && b[o + 1] == 0xdd, v4 = b[o] == 0x08 && b[o + 1] == 0x00;
-    size_t ip = o + 2, udp = ip + (v6 ? 40 : 20);
+    size_t ip = o + 2, udp = ip + (v6 ? 40 : (n > ip ? (size_t)(b[ip] & 0x0f) * 4 : 20));
     if ((!v4 && !v6) || n < udp + 26 || memcmp(b + udp + 8, TAG, 8) || memcmp(b + udp + 16, &run_id, 4)) {
         rx_other++;
         return;
     }
     rx_ours++;
     int ttl = v6 ? b[ip + 7] : b[ip + 8];
+    int tos = v6 ? ((b[ip] & 0x0f) << 4 | b[ip + 1] >> 4) : b[ip + 1];
     uint16_t fl;
     memcpy(&fl, b + udp + 24, 2);
     int g;
     for (g = 0; g < ngroups; g++)
-        if (groups[g].rx == rx && groups[g].vlan == vlan && groups[g].ttl == ttl && groups[g].len == (int)n &&
+        if (groups[g].rx == rx && groups[g].vlan == vlan && groups[g].ttl == ttl && groups[g].len == (int)n && groups[g].tos == tos &&
             !memcmp(groups[g].dmac, b, 6) && !memcmp(groups[g].smac, b + 6, 6))
             break;
     if (g == ngroups) {
@@ -184,6 +190,7 @@ static void account(int rx, const uint8_t* b, size_t n)
         groups[g].rx = rx;
         groups[g].vlan = vlan;
         groups[g].ttl = ttl;
+        groups[g].tos = tos;
         groups[g].len = (int)n;
         memcpy(groups[g].dmac, b, 6);
         memcpy(groups[g].smac, b + 6, 6);
@@ -244,6 +251,10 @@ int main(int argc, char** argv)
     c.size = atoi(arg(argc, argv, "size", "128"));
     c.flows = (unsigned)atoi(arg(argc, argv, "flows", "1"));
     c.dst_n = (unsigned)atoi(arg(argc, argv, "dst_n", "0"));
+    c.dport = atoi(arg(argc, argv, "dport", "7777"));
+    c.tos = atoi(arg(argc, argv, "tos", "0"));
+    c.opts = atoi(arg(argc, argv, "opts", "0"));
+    if (c.v6) c.opts = 0;
     int wait_ms = atoi(arg(argc, argv, "wait_ms", "1500"));
     if (c.size > 9600) c.size = 9600;
     if (c.flows > MAX_FLOWS) c.flows = MAX_FLOWS;
@@ -312,9 +323,9 @@ int main(int argc, char** argv)
         if (groups[g].vlan < 0) snprintf(vl, sizeof(vl), "-");
         else snprintf(vl, sizeof(vl), "%d", groups[g].vlan);
         const uint8_t *d = groups[g].dmac, *s = groups[g].smac;
-        printf("RX if=%s vlan=%s dmac=%02x:%02x:%02x:%02x:%02x:%02x smac=%02x:%02x:%02x:%02x:%02x:%02x ttl=%d len=%d count=%lu flows=%u\n",
+        printf("RX if=%s vlan=%s dmac=%02x:%02x:%02x:%02x:%02x:%02x smac=%02x:%02x:%02x:%02x:%02x:%02x ttl=%d dscp=%d len=%d count=%lu flows=%u\n",
                names[groups[g].rx], vl, d[0], d[1], d[2], d[3], d[4], d[5], s[0], s[1], s[2], s[3], s[4], s[5],
-               groups[g].ttl, groups[g].len, groups[g].count, nf);
+               groups[g].ttl, groups[g].tos >> 2, groups[g].len, groups[g].count, nf);
     }
     fflush(stdout);
     return 0;

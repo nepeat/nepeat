@@ -44,11 +44,17 @@ public:
     // IFCS member; LAG handle -> lag_dest), -1 if unknown.
     int dest_of_handle(ifcs_handle_t h) const;
 
-    // Hash (IFCS_EXTENDED_FIELD_* lists, or names: see parse_fields). The
-    // frontend has no hash object yet (sai-features.md, frontend requests):
-    // reached through SAI_TERALYNX_HASH_FIELDS / _HASH_SEED at init.
+    // Hash (IFCS_EXTENDED_FIELD_* lists, or names: see parse_fields): from
+    // the SAI hash objects (hash_set below) or SAI_TERALYNX_HASH_FIELDS /
+    // _HASH_SEED at init.
     sai_status_t hash_fields_set(const std::vector<uint32_t>& fields);
     sai_status_t hash_seed_set(uint32_t seed);
+    // Backend::hash_set: SAI_NATIVE_HASH_FIELD_* of SWITCH LAG_HASH or
+    // ECMP_HASH and the seed. IFCS has one entropy for both: the last set
+    // wins (logged when LAG and ECMP disagree). Fields without an IFCS
+    // element (inner headers, ...) are refused (INVALID_ATTR_VALUE); an empty list leaves
+    // the selection; seed 0 is only written once a seed was set.
+    sai_status_t hash_set(bool lag, const std::vector<int32_t>& sai_fields, uint32_t seed);
     static bool parse_fields(const std::string& s, std::vector<uint32_t>& out);
 
 private:
@@ -65,6 +71,8 @@ private:
     std::map<int, Lag> lags_;
     int next_tid_ = 1;
     std::vector<ifcs_handle_t> hash_lists_;   // extended field lists we created
+    std::vector<int32_t> hash_sai_[2];        // [0] ECMP, [1] LAG: what SAI set last
+    bool seed_set_ = false;
     mutable std::mutex map_mu_;               // guards dest_map_ only; never held across IFCS calls
     std::map<ifcs_handle_t, int> dest_map_;   // LAG handle / member sysport -> lag_dest(tid)
 };

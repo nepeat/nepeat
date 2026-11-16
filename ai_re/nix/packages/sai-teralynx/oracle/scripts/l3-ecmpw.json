@@ -431,6 +431,185 @@
    ]
   },
   {
+   "op": "create",
+   "type": "ACL_TABLE",
+   "as": "obs",
+   "desc": "loop observer: frames to the far hosts' MACs (02:00:00:00:0a/0b:xx) to the CPU",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "FIELD_DST_MAC",
+     "bool",
+     true
+    ],
+    [
+     "ACL_ACTION_TYPE_LIST",
+     "s32list",
+     [
+      "PACKET_ACTION"
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP",
+   "as": "obs_g0",
+   "desc": "observer group Ethernet0",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PARALLEL"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP",
+   "as": "obs_g15",
+   "desc": "observer group Ethernet120",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PARALLEL"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP_MEMBER",
+   "as": "obs_m0",
+   "attrs": [
+    [
+     "ACL_TABLE_GROUP_ID",
+     "oid",
+     "$obs_g0"
+    ],
+    [
+     "ACL_TABLE_ID",
+     "oid",
+     "$obs"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP_MEMBER",
+   "as": "obs_m15",
+   "attrs": [
+    [
+     "ACL_TABLE_GROUP_ID",
+     "oid",
+     "$obs_g15"
+    ],
+    [
+     "ACL_TABLE_ID",
+     "oid",
+     "$obs"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "desc": "Ethernet0 INGRESS_ACL observer",
+   "attr": [
+    "INGRESS_ACL",
+    "oid",
+    "$obs_g0"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[15]",
+   "desc": "Ethernet120 INGRESS_ACL observer",
+   "attr": [
+    "INGRESS_ACL",
+    "oid",
+    "$obs_g15"
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "obs_e",
+   "desc": "DST_MAC 02:00:00:00:0a:00/ff:ff:ff:ff:fe:00 TRAP",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$obs"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     10
+    ],
+    [
+     "FIELD_DST_MAC",
+     "aclfield",
+     {
+      "mac": "02:00:00:00:0a:00",
+      "mask": "ff:ff:ff:ff:fe:00"
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "TRAP"
+     }
+    ]
+   ]
+  },
+  {
    "op": "create_neighbor",
    "desc": "10.1.0.2 H1",
    "rif": "$rifA",

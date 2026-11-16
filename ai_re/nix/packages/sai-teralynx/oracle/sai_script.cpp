@@ -26,6 +26,7 @@ extern "C" {
 #include <map>
 #include <string>
 #include <thread>
+#include <deque>
 #include <vector>
 
 using json = nlohmann::json;
@@ -109,6 +110,8 @@ static const Name k_attrs_port[] = {
     N(SAI_PORT_ATTR_, FEC_MODE), N(SAI_PORT_ATTR_, HW_LANE_LIST), N(SAI_PORT_ATTR_, LINK_TRAINING_ENABLE),
     N(SAI_PORT_ATTR_, INGRESS_ACL), N(SAI_PORT_ATTR_, EGRESS_ACL),
     N(SAI_PORT_ATTR_, PORT_VLAN_ID), N(SAI_PORT_ATTR_, AUTO_NEG_MODE),
+    N(SAI_PORT_ATTR_, BROADCAST_STORM_CONTROL_POLICER_ID), N(SAI_PORT_ATTR_, MULTICAST_STORM_CONTROL_POLICER_ID),
+    N(SAI_PORT_ATTR_, FLOOD_STORM_CONTROL_POLICER_ID),
 };
 static const Name k_attrs_hostif[] = {
     N(SAI_HOSTIF_ATTR_, TYPE), N(SAI_HOSTIF_ATTR_, OBJ_ID), N(SAI_HOSTIF_ATTR_, NAME), N(SAI_HOSTIF_ATTR_, OPER_STATUS),
@@ -130,7 +133,10 @@ static const Name k_attrs_policer[] = {
     N(SAI_POLICER_ATTR_, CIR), N(SAI_POLICER_ATTR_, PBS), N(SAI_POLICER_ATTR_, PIR), N(SAI_POLICER_ATTR_, GREEN_PACKET_ACTION),
     N(SAI_POLICER_ATTR_, YELLOW_PACKET_ACTION), N(SAI_POLICER_ATTR_, RED_PACKET_ACTION),
 };
-static const Name k_attrs_vlan[] = {N(SAI_VLAN_ATTR_, VLAN_ID), N(SAI_VLAN_ATTR_, MEMBER_LIST)};
+static const Name k_attrs_vlan[] = {N(SAI_VLAN_ATTR_, VLAN_ID), N(SAI_VLAN_ATTR_, MEMBER_LIST),
+                                     N(SAI_VLAN_ATTR_, UNKNOWN_UNICAST_FLOOD_CONTROL_TYPE),
+                                     N(SAI_VLAN_ATTR_, UNKNOWN_MULTICAST_FLOOD_CONTROL_TYPE),
+                                     N(SAI_VLAN_ATTR_, BROADCAST_FLOOD_CONTROL_TYPE)};
 static const Name k_attrs_vlan_member[] = {
     N(SAI_VLAN_MEMBER_ATTR_, VLAN_ID), N(SAI_VLAN_MEMBER_ATTR_, BRIDGE_PORT_ID), N(SAI_VLAN_MEMBER_ATTR_, VLAN_TAGGING_MODE),
 };
@@ -190,7 +196,8 @@ static const Name k_attrs_fdb_flush[] = {
     N(P, FIELD_SRC_MAC), N(P, FIELD_DST_MAC), N(P, FIELD_ACL_RANGE_TYPE)
 static const Name k_attrs_acl_table[] = {
     N(SAI_ACL_TABLE_ATTR_, ACL_STAGE), N(SAI_ACL_TABLE_ATTR_, ACL_BIND_POINT_TYPE_LIST), N(SAI_ACL_TABLE_ATTR_, SIZE),
-    N(SAI_ACL_TABLE_ATTR_, ACL_ACTION_TYPE_LIST), N(SAI_ACL_TABLE_ATTR_, ENTRY_LIST), ACL_FIELDS(SAI_ACL_TABLE_ATTR_),
+    N(SAI_ACL_TABLE_ATTR_, ACL_ACTION_TYPE_LIST), N(SAI_ACL_TABLE_ATTR_, ENTRY_LIST), N(SAI_ACL_TABLE_ATTR_, AVAILABLE_ACL_ENTRY),
+    ACL_FIELDS(SAI_ACL_TABLE_ATTR_),
 };
 static const Name k_attrs_acl_entry[] = {
     N(SAI_ACL_ENTRY_ATTR_, TABLE_ID), N(SAI_ACL_ENTRY_ATTR_, PRIORITY), N(SAI_ACL_ENTRY_ATTR_, ADMIN_STATE),
@@ -502,11 +509,18 @@ static void acl_field(const json& v, sai_acl_field_data_t& f, Storage& st)
 // ACL action parameter: {"s32": v} / {"u8"|"u32": v} / {"oid": "$x"} / {} (enable only); "enable": false.
 static void acl_action(const json& v, sai_acl_action_data_t& a)
 {
+    static std::deque<std::vector<sai_object_id_t>> lists;   // object lists (MIRROR_*) stay valid for the call
     a.enable = v.value("enable", true);
     if (v.contains("s32")) a.parameter.s32 = (int32_t)num(v["s32"]);
     else if (v.contains("u8")) a.parameter.u8 = (uint8_t)num(v["u8"]);
     else if (v.contains("u32")) a.parameter.u32 = (uint32_t)num(v["u32"]);
     else if (v.contains("oid")) a.parameter.oid = oid(v["oid"]);
+    else if (v.contains("oids")) {
+        lists.emplace_back();
+        for (auto& o : v["oids"]) lists.back().push_back(oid(o));
+        a.parameter.objlist.count = (uint32_t)lists.back().size();
+        a.parameter.objlist.list = lists.back().data();
+    }
 }
 
 // qosmap entry ["keyfield", n, "valuefield", n]; fields tc dscp dot1p prio pg queue color.
@@ -810,6 +824,7 @@ static sai_status_t do_set(sai_object_id_t o, const sai_attribute_t* a)
     case SAI_OBJECT_TYPE_LAG: return A.lag->set_lag_attribute(o, a);
     case SAI_OBJECT_TYPE_LAG_MEMBER: return A.lag->set_lag_member_attribute(o, a);
     case SAI_OBJECT_TYPE_HASH: return A.hash->set_hash_attribute(o, a);
+    case SAI_OBJECT_TYPE_VLAN: return A.vlan->set_vlan_attribute(o, a);
     default: return SAI_STATUS_NOT_SUPPORTED;
     }
 }

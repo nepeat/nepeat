@@ -15,6 +15,13 @@ int mock_route_ttlp(const char* key)
     return -1;
 }
 int mock_route_count(void) { int n = 0; for (int i = 0; i < MAX_OBJ; i++) n += rt[i].used; return n; }
+/* The CTC trap handle of a route (key as mock_route_find), 0 if none. */
+uint32_t mock_route_trap(const char* key)
+{
+    for (int i = 0; i < MAX_OBJ; i++)
+        if (rt[i].used && strcmp(rt[i].key, key) == 0) return rt[i].trap;
+    return 0;
+}
 /* Route by key text "<l3vni hex>/<family>/<addr hex>/<mask hex>": fwd, ctc, nexthop. */
 int mock_route_find(const char* key, int* fwd, int* ctc, uint32_t* nh)
 {

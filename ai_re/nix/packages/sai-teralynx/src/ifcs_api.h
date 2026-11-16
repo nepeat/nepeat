@@ -247,6 +247,9 @@ enum { IFCS_INTF_ATTR_TYPE = 0, IFCS_INTF_ATTR_FORWARDING_INSTANCE = 3, IFCS_INT
 enum { IFCS_INTF_TYPE_L3PORT = 0, IFCS_INTF_TYPE_SVI = 1 };
 enum {                                 /* ifcs_intf_stats_id_e (subset) */
     IFCS_INTF_STATS_ID_L3INTF_INGRESS_PKTS = 20, IFCS_INTF_STATS_ID_L3INTF_INGRESS_BYTES = 21,
+    IFCS_INTF_STATS_ID_L3INTF_INGRESS_UCAST_PKTS = 22, IFCS_INTF_STATS_ID_L3INTF_INGRESS_UCAST_BYTES = 23,
+    IFCS_INTF_STATS_ID_L3INTF_INGRESS_IPV4_PKTS = 24, IFCS_INTF_STATS_ID_L3INTF_INGRESS_IPV4_BYTES = 25,
+    IFCS_INTF_STATS_ID_L3INTF_INGRESS_IPV6_PKTS = 26, IFCS_INTF_STATS_ID_L3INTF_INGRESS_IPV6_BYTES = 27,
     IFCS_INTF_STATS_ID_L3INTF_EGRESS_IPV4_PKTS = 28, IFCS_INTF_STATS_ID_L3INTF_EGRESS_IPV4_BYTES = 29,
     IFCS_INTF_STATS_ID_L3INTF_EGRESS_IPV6_PKTS = 30, IFCS_INTF_STATS_ID_L3INTF_EGRESS_IPV6_BYTES = 31,
 };
@@ -494,6 +497,37 @@ IFCS_FN(ifcs_status_t, ifcs_acl_port_remove, (ifcs_node_id_t, ifcs_handle_t, uin
 IFCS_FN(ifcs_status_t, ifcs_acl_counter_stats_clear, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_acl_counter_stats_id_t*))
 IFCS_FN(ifcs_status_t, ifcs_ace_attr_set, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_attr_t*))
 IFCS_FN(ifcs_status_t, ifcs_cpu_queue_stats_get, (ifcs_node_id_t, ifcs_cpu_queue_t, uint32_t, ifcs_cpu_queue_stats_id_t*, uint64_t*, uint32_t*))
+
+/* ------------------------------------------------ phase C (integration)
+ * pyctypes 0.12.41 names / values; call forms: isai 6.2.0 on this chip
+ * (oracle acl, l3-basic, 2026-11-16, sai-oracle.md). */
+enum {                                 /* ifcs_acl_match_type_e, more */
+    IFCS_ACL_MATCH_TYPE_EGRESS_SYSPORT = 1, IFCS_ACL_MATCH_TYPE_COMPARATOR = 67,
+    IFCS_ACL_MATCH_TYPE_DESTINATION_MAC_HIT = 82,
+};
+enum {                                 /* ifcs_acl_action_type_e, more */
+    IFCS_ACL_ACTION_TYPE_MIRROR = 7, IFCS_ACL_ACTION_TYPE_REDIRECT = 10, IFCS_ACL_ACTION_TYPE_SET_TC = 12,
+    IFCS_ACL_ACTION_TYPE_SET_DSCP = 16,
+};
+enum { IFCS_ACL_DIRECTION_EGRESS = 1 };
+enum { IFCS_ACL_MATCH_PROFILE_ATTR_DST_L4_PORT_COMPARATOR = 3, IFCS_ACL_MATCH_PROFILE_ATTR_SRC_L4_PORT_COMPARATOR = 4 };   /* data */
+enum { IFCS_ACL_COMPARATOR_ATTR_OPERATION = 0, IFCS_ACL_COMPARATOR_ATTR_TYPE = 1, IFCS_ACL_COMPARATOR_ATTR_VALUE = 2,
+       IFCS_ACL_COMPARATOR_ATTR_HI_VALUE = 3, IFCS_ACL_COMPARATOR_ATTR_DIRECTION = 4 };   /* u32 each (isai) */
+enum { IFCS_ACL_COMPARATOR_OP_TYPE_RANGE = 7 };
+enum { IFCS_ACL_COMPARATOR_TYPE_DESTINATION_L4_PORT = 0, IFCS_ACL_COMPARATOR_TYPE_SOURCE_L4_PORT = 1 };
+enum { IFCS_ACL_COMPARATOR_GROUP_ATTR_OPERATION = 0, IFCS_ACL_COMPARATOR_GROUP_ATTR_COMPARATORS = 1 };   /* handle_list */
+/* ifcs_acl_action_value_u members (CTYPES): per colour enable + value; trailing dirty bits in field order. */
+typedef struct { uint32_t green, green_value, yellow, yellow_value, red, red_value; uint8_t dirty; } ifcs_acl_set_tc_action_t;   /* dirty 0x3f */
+typedef struct { int addr_family; uint32_t value; uint8_t dirty; } ifcs_acl_set_dscp_action_t;   /* dirty 0x03 */
+enum { IFCS_L3VNI_ATTR_IPV4_OPTIONS_CTC = 9, IFCS_L3VNI_ATTR_IPV4_OPTIONS_DROP = 10 };   /* data */
+enum { IFCS_NODE_ATTR_INGRESS_L3INTF_STATS_MODE = 45, IFCS_NODE_ATTR_EGRESS_L3INTF_STATS_MODE = 47 };   /* u32 */
+enum { IFCS_NODE_ATTR_INGRESS_L3INTF_STATS_CONFIG = 46, IFCS_NODE_ATTR_EGRESS_L3INTF_STATS_CONFIG = 48 };   /* flex_stats_attributes */
+typedef struct { uint32_t counter_mode, start_offset, number_of_counters; uint8_t dirty; } ifcs_flex_stats_attributes_t;   /* dirty 0x07 */
+enum { IFCS_L3INTF_STATS_COUNT_MODE_ALL = 1 };
+IFCS_FN(ifcs_status_t, ifcs_acl_comparator_create, (ifcs_node_id_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_comparator_delete, (ifcs_node_id_t, ifcs_handle_t))
+IFCS_FN(ifcs_status_t, ifcs_acl_comparator_group_create, (ifcs_node_id_t, ifcs_handle_t*, uint32_t, ifcs_attr_t*))
+IFCS_FN(ifcs_status_t, ifcs_acl_comparator_group_delete, (ifcs_node_id_t, ifcs_handle_t))
 #undef IFCS_FN
 
 #include "ifcs_api_qos.h"   /* QoS / buffers, mirror / sampling (tl_qos, tl_mirror) */
@@ -503,6 +537,8 @@ IFCS_FN(ifcs_status_t, ifcs_cpu_queue_stats_get, (ifcs_node_id_t, ifcs_cpu_queue
     IFCS_SYMBOLS_QOS(X) \
     X(ifcs_acl_port_add) X(ifcs_acl_port_remove) X(ifcs_acl_counter_stats_clear) X(ifcs_ace_attr_set) \
     X(ifcs_cpu_queue_stats_get) \
+    X(ifcs_acl_comparator_create) X(ifcs_acl_comparator_delete) X(ifcs_acl_comparator_group_create) \
+    X(ifcs_acl_comparator_group_delete) \
     X(ifcs_init) X(ifcs_deinit) X(ifcs_node_create) X(ifcs_node_attr_set) X(ifcs_node_attr_get) \
     X(ifcs_attr_t_init) X(ifcs_attr_t_id_set) X(ifcs_attr_t_value_data_set) X(ifcs_status_to_string) \
     X(ifcs_log_function_register) X(ifcs_devport_attr_set) X(ifcs_devport_attr_get) X(ifcs_devport_stats_get) \
@@ -559,6 +595,8 @@ static_assert(sizeof(ifcs_l2_event_info_t) == 120 && offsetof(ifcs_l2_event_info
 static_assert(sizeof(ifcs_usage_t) == 12, "ifcs_usage_s");
 static_assert(sizeof(ifcs_acl_ctc_action_t) == 20 && sizeof(ifcs_acl_ctc_override_action_t) == 16 &&
               sizeof(ifcs_acl_drop_action_t) == 20, "acl action values (CTYPES)");
+static_assert(sizeof(ifcs_acl_set_tc_action_t) == 28 && sizeof(ifcs_acl_set_dscp_action_t) == 12, "set_tc / set_dscp (CTYPES)");
+static_assert(sizeof(ifcs_flex_stats_attributes_t) == 16, "ifcs_flex_stats_attributes_s (CTYPES)");
 #endif
 
 #endif

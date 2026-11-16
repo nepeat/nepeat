@@ -197,6 +197,95 @@ sai_status_t L3Area::egress_cpu(int& egress_id)
     return SAI_STATUS_SUCCESS;
 }
 
+sai_status_t L3Area::egress_glean(int& egress_id)
+{
+    Guard g(c_.mu);
+    if (glean_egress_ < 0) {
+        glean_egress_ = next_egress_++;
+        Egress e;
+        e.kind = Egress::Glean;
+        egress_[glean_egress_] = e;
+    }
+    egress_id = glean_egress_;
+    return SAI_STATUS_SUCCESS;
+}
+
+bool L3Area::nexthop_handle(int egress_id, ifcs_handle_t& h) const
+{
+    auto it = egress_.find(egress_id);
+    if (it == egress_.end() || it->second.kind != Egress::Nh || !it->second.handle) return false;
+    h = it->second.handle;
+    return true;
+}
+
+sai_status_t L3Area::intf_admin_set(int intf_id, bool v4, bool v6)
+{
+    Guard g(c_.mu);
+    auto it = intfs_.find(intf_id);
+    if (it == intfs_.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+    ifcs_attr_t a[2] = {attr_data(IFCS_INTF_ATTR_IPV4_UNICAST_ENABLE, v4), attr_data(IFCS_INTF_ATTR_IPV6_UNICAST_ENABLE, v6)};
+    return c_.call(c_.L.ifcs_intf_attr_set(NODE, it->second.handle, 2, a), "intf ipv4/ipv6 unicast enable");
+}
+
+bool L3Area::intf_stat_supported(sai_stat_id_t id)
+{
+    return id == SAI_ROUTER_INTERFACE_STAT_IN_PACKETS || id == SAI_ROUTER_INTERFACE_STAT_IN_OCTETS ||
+           id == SAI_ROUTER_INTERFACE_STAT_OUT_PACKETS || id == SAI_ROUTER_INTERFACE_STAT_OUT_OCTETS;
+}
+
+// isai sets the L3 interface counter modes before node enable (oracle acl /
+// l3-basic: INGRESS mode + flex config, EGRESS mode ALL). 0.12.41 has the
+// mode attributes; ALL for both, no flex config (I). A refusal is logged and
+// leaves the counters as the SDK has them.
+void L3Area::pre_enable()
+{
+    if (c_.key("SAI_TERALYNX_L3INTF_STATS", "on") == "off") return;
+    // isai: per direction a flex counter block (CONFIG: counter mode 0, offset
+    // 0, 4096 counters), then the MODE. 0.12.41 refuses mode ALL ("count
+    // mode 1 not supported") and takes IPV4_IPV6_ANY (4) for both directions
+    // (chip 2026-11-16); the modes are tried in SAI_TERALYNX_L3INTF_STATS_MODES
+    // order (default 4,1,2,3), the first success kept.
+    uint32_t n = (uint32_t)std::strtoul(c_.key("SAI_TERALYNX_L3INTF_STATS_COUNTERS", "4096").c_str(), nullptr, 0);
+    std::vector<uint32_t> modes;
+    {
+        std::string s = c_.key("SAI_TERALYNX_L3INTF_STATS_MODES", "4,1,2,3");
+        size_t p = 0;
+        while (p < s.size()) {
+            size_t q = s.find(',', p);
+            if (q == std::string::npos) q = s.size();
+            if (q > p) modes.push_back((uint32_t)std::strtoul(s.substr(p, q - p).c_str(), nullptr, 0));
+            p = q + 1;
+        }
+    }
+    const uint32_t cfg_id[2] = {IFCS_NODE_ATTR_INGRESS_L3INTF_STATS_CONFIG, IFCS_NODE_ATTR_EGRESS_L3INTF_STATS_CONFIG};
+    const uint32_t mode_id[2] = {IFCS_NODE_ATTR_INGRESS_L3INTF_STATS_MODE, IFCS_NODE_ATTR_EGRESS_L3INTF_STATS_MODE};
+    for (int d = 0; d < 2; d++) {
+        if (n) {
+            ifcs_attr_t c = attr_of(cfg_id[d]);
+            ifcs_flex_stats_attributes_t f;
+            std::memset(&f, 0, sizeof(f));
+            f.number_of_counters = n;
+            f.dirty = 0x07;
+            std::memcpy(&c.value, &f, sizeof(f));
+            int r = IFCS_STATUS_REASON(c_.L.ifcs_node_attr_set(NODE, 1, &c));
+            if (r != IFCS_SUCCESS)
+                OB_WARN(SAI_API_ROUTER_INTERFACE, "node L3INTF stats config (attr %u, %u counters): %s", cfg_id[d], n, c_.reason(r));
+        }
+        bool ok = false;
+        for (uint32_t m : modes) {
+            ifcs_attr_t x = attr_u32(mode_id[d], m);
+            int r = IFCS_STATUS_REASON(c_.L.ifcs_node_attr_set(NODE, 1, &x));
+            if (r == IFCS_SUCCESS) {
+                OB_NOTICE(SAI_API_ROUTER_INTERFACE, "node %s L3INTF stats mode %u", d ? "egress" : "ingress", m);
+                if (!d) in_mode_ = m;
+                ok = true;
+                break;
+            }
+        }
+        if (!ok) OB_WARN(SAI_API_ROUTER_INTERFACE, "node %s L3INTF stats: no mode accepted (RIF counters stay 0)", d ? "egress" : "ingress");
+    }
+}
+
 sai_status_t L3Area::egress_drop(int& egress_id)
 {
     Guard g(c_.mu);
@@ -337,8 +426,21 @@ sai_status_t L3Area::intf_stats(int intf_id, uint32_t n, const sai_stat_id_t* id
     std::vector<ifcs_intf_stats_id_t> q;
     for (uint32_t i = 0; i < n; i++) {
         switch (ids[i]) {
-        case SAI_ROUTER_INTERFACE_STAT_IN_PACKETS: want[i] = {IFCS_INTF_STATS_ID_L3INTF_INGRESS_PKTS}; break;
-        case SAI_ROUTER_INTERFACE_STAT_IN_OCTETS: want[i] = {IFCS_INTF_STATS_ID_L3INTF_INGRESS_BYTES}; break;
+        // ingress: the counters of the node's ingress mode (pre_enable): ALL /
+        // UC_MC_BC total, UC_ONLY unicast, IPV4_IPV6_ANY v4 + v6 (0.12.41 takes
+        // the latter, chip 2026-11-16)
+        case SAI_ROUTER_INTERFACE_STAT_IN_PACKETS:
+            want[i] = in_mode_ == 4 ? std::vector<ifcs_intf_stats_id_t>{IFCS_INTF_STATS_ID_L3INTF_INGRESS_IPV4_PKTS,
+                                                                       IFCS_INTF_STATS_ID_L3INTF_INGRESS_IPV6_PKTS}
+                    : in_mode_ == 3 ? std::vector<ifcs_intf_stats_id_t>{IFCS_INTF_STATS_ID_L3INTF_INGRESS_UCAST_PKTS}
+                                    : std::vector<ifcs_intf_stats_id_t>{IFCS_INTF_STATS_ID_L3INTF_INGRESS_PKTS};
+            break;
+        case SAI_ROUTER_INTERFACE_STAT_IN_OCTETS:
+            want[i] = in_mode_ == 4 ? std::vector<ifcs_intf_stats_id_t>{IFCS_INTF_STATS_ID_L3INTF_INGRESS_IPV4_BYTES,
+                                                                       IFCS_INTF_STATS_ID_L3INTF_INGRESS_IPV6_BYTES}
+                    : in_mode_ == 3 ? std::vector<ifcs_intf_stats_id_t>{IFCS_INTF_STATS_ID_L3INTF_INGRESS_UCAST_BYTES}
+                                    : std::vector<ifcs_intf_stats_id_t>{IFCS_INTF_STATS_ID_L3INTF_INGRESS_BYTES};
+            break;
         case SAI_ROUTER_INTERFACE_STAT_OUT_PACKETS:
             want[i] = {IFCS_INTF_STATS_ID_L3INTF_EGRESS_IPV4_PKTS, IFCS_INTF_STATS_ID_L3INTF_EGRESS_IPV6_PKTS};
             break;
@@ -419,9 +521,14 @@ sai_status_t L3Area::l3vni(int vrf, ifcs_handle_t& h)
     // trap FWD_L3_TTL_CHECK_FAIL then decides queue / whether: TTL_ERROR), as
     // isai creates its L3VNIs (oracle l3-basic; without it TTL 1 is dropped
     // silently, chip 2026-11-16).
-    ifcs_attr_t a[2] = {attr_data(IFCS_L3VNI_ATTR_IPV4_UNICAST_TTL_CHECK_FAIL_CTC, true),
-                        attr_data(IFCS_L3VNI_ATTR_IPV6_UNICAST_TTL_CHECK_FAIL_CTC, true)};
-    int r = IFCS_STATUS_REASON(c_.L.ifcs_l3vni_create(NODE, &v, 2, a));
+    // IPv4 with options: copied to the CPU and dropped (isai's L3VNI
+    // attributes; the system trap FWD_IPV4_OPTIONS_DETECTED, enabled at init,
+    // takes them to its queue).
+    ifcs_attr_t a[4] = {attr_data(IFCS_L3VNI_ATTR_IPV4_UNICAST_TTL_CHECK_FAIL_CTC, true),
+                        attr_data(IFCS_L3VNI_ATTR_IPV6_UNICAST_TTL_CHECK_FAIL_CTC, true),
+                        attr_data(IFCS_L3VNI_ATTR_IPV4_OPTIONS_CTC, true),
+                        attr_data(IFCS_L3VNI_ATTR_IPV4_OPTIONS_DROP, true)};
+    int r = IFCS_STATUS_REASON(c_.L.ifcs_l3vni_create(NODE, &v, 4, a));
     if (r != IFCS_SUCCESS && r != IFCS_EXIST) return c_.fail(r, "l3vni_create");
     if (!ttl_profile_set_) {
         // TTL check profile 1 passes everything but TTL 0: IP2ME routes use it,
@@ -443,8 +550,8 @@ sai_status_t L3Area::l3vni(int vrf, ifcs_handle_t& h)
 //   CPU (TRAP / ip2me / glean): FWD_POLICY drop + CTC_POLICY copy-to-cpu with
 //     the hostif area's IP2ME trap (HostifArea::ip2me_trap; drop + copy as
 //     isai does, oracle l3-basic); a host prefix (IP2ME) also takes TTL
-//     check profile 1 (see l3vni). isai gives glean its own hostif trap; the
-//     frontend has one CPU egress for both, so glean shares IP2ME's.
+//     check profile 1 (see l3vni); glean (Egress::Glean: connected subnets,
+//     unresolved next hops) copies to its own hostif trap, as isai.
 sai_status_t L3Area::route_attrs(int target, bool ecmp, bool host, std::vector<ifcs_attr_t>& a, int& kind)
 {
     a.clear();
@@ -466,11 +573,12 @@ sai_status_t L3Area::route_attrs(int target, bool ecmp, bool host, std::vector<i
         a.push_back(attr_fwd(IFCS_ROUTE_ENTRY_ATTR_FWD_POLICY, IFCS_FWD_ACTION_DROP));
     } else {
         ifcs_handle_t trap = IFCS_NULL_HANDLE;
-        sai_status_t st = c_.hostif->ip2me_trap(trap);
+        sai_status_t st = kind == Egress::Glean ? c_.hostif->glean_trap(trap) : c_.hostif->ip2me_trap(trap);
         if (st != SAI_STATUS_SUCCESS) return st;
         a.push_back(attr_fwd(IFCS_ROUTE_ENTRY_ATTR_FWD_POLICY, IFCS_FWD_ACTION_DROP));
         a.push_back(attr_ctc(IFCS_ROUTE_ENTRY_ATTR_CTC_POLICY, true, trap));
-        if (host && ttl_profile_set_) a.push_back(attr_u32(IFCS_ROUTE_ENTRY_ATTR_TTL_CHECK_PROFILE, 1));   // IP2ME
+        if (host && ttl_profile_set_ && kind == Egress::Cpu)
+            a.push_back(attr_u32(IFCS_ROUTE_ENTRY_ATTR_TTL_CHECK_PROFILE, 1));   // IP2ME
     }
     return SAI_STATUS_SUCCESS;
 }

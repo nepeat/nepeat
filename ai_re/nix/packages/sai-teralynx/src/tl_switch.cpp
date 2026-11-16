@@ -67,9 +67,11 @@ sai_status_t SwitchArea::init(const BackendConfig& cfg, LinkCallback link_cb, Fd
     std::string libpath = c_.key("SAI_TERALYNX_LIBIFCS");
     std::string portmap = c_.key("SAI_TERALYNX_PORT_MAP");
     std::string cmds = c_.key("SAI_TERALYNX_INIT_CMDS");
-    bool adopt = c_.key("SAI_TERALYNX_NETDEV", "create") == "adopt";
+    // Default adopt: with the deployed init yaml (netdev auto_create) create
+    // mode makes no netdev (chip 2026-11-16, hostif-create).
+    bool adopt = c_.key("SAI_TERALYNX_NETDEV", "adopt") == "adopt";
     c_.hostif->configure(adopt);
-    if (c_.key("SAI_TERALYNX_NETDEV", "create") != "create" && !adopt) {
+    if (c_.key("SAI_TERALYNX_NETDEV", "adopt") != "create" && !adopt) {
         OB_ERR(SAI_API_SWITCH, "SAI_TERALYNX_NETDEV must be create|adopt");
         return SAI_STATUS_INVALID_PARAMETER;
     }
@@ -153,6 +155,7 @@ sai_status_t SwitchArea::init(const BackendConfig& cfg, LinkCallback link_cb, Fd
         return map_reason(r);
     }
     c_.l2->pre_enable();   // node attributes that must precede ENABLE (tl_l2.h)
+    c_.l3->pre_enable();   // L3 interface counter modes (tl_l3.h)
     ifcs_attr_t en;
     c_.L.ifcs_attr_t_init(&en);
     c_.L.ifcs_attr_t_id_set(&en, IFCS_NODE_ATTR_ENABLE);

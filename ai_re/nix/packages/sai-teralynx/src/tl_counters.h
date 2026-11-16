@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 // Counters breadth: SAI port counters by SAI id on the IFCS MAC (devport)
 // counters, with isai 6.2.0's mapping on this chip (oracle hostif-counters,
-// 2026-11-16, sai-oracle.md). The frontend asks only its 15 PortStats
-// (PortArea::stat_get); everything else here is reachable through the diag
-// shell ("counters <devport>") until the frontend has a by-id hook
-// (sai-features.md, "Frontend requests").
+// 2026-11-16, sai-oracle.md). The frontend takes every id mapped here from
+// port_stats_by_id (Backend::port_stat_by_id) and the rest of its 15
+// PortStats from PortArea::stat_get; the diag shell shows them too
+// ("counters <devport>").
 #pragma once
 
 #include "tl_core.h"

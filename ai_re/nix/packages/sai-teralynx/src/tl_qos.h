@@ -80,6 +80,7 @@ private:
     std::map<Key, int> queue_wred_;              // (hw, q) -> wred id
     std::map<Key, QueueDefaults> queue_defaults_;
     std::map<Key, uint32_t> queue_reserved_;     // what we programmed (cells)
+    bool reserve_refused_ = false;        // 0.12.41 refuses queue RESERVED_SIZE (chip 2026-11-16)
     std::set<int> pg_logged_;
     std::map<int, uint32_t> pfc_mode_;           // hw -> devport PFC_MODE as programmed
     std::set<Key> queue_ecn_;                    // queues with ECN_EXTENSION_ENABLE on

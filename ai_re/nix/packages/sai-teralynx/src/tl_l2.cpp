@@ -77,6 +77,7 @@ sai_status_t L2Area::vlan_destroy(uint16_t vid)
     sai_status_t st = c_.call(c_.L.ifcs_l2vni_delete(NODE, v.l2vni), "l2vni_delete");
     if (st != SAI_STATUS_SUCCESS) return st;
     c_.call(c_.L.ifcs_mdg_delete(NODE, v.mdg), "mdg_delete");
+    if (v.empty_mdg) c_.call(c_.L.ifcs_mdg_delete(NODE, v.empty_mdg), "mdg_delete (flood off)");
     vlans_.erase(it);
     return SAI_STATUS_SUCCESS;
 }
@@ -258,6 +259,40 @@ sai_status_t L2Area::l2_flush(int dest, int vid, bool statics, bool dynamics)
         if (dest >= 0 && a[1].value.handle != want) continue;
         c_.call(c_.L.ifcs_l2_entry_delete(NODE, &k), "l2_entry_delete (flush)");
     }
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t L2Area::vlan_flood_set(uint16_t vid, FloodKind kind, bool on)
+{
+    Guard g(c_.mu);
+    auto it = vlans_.find(vid);
+    if (it == vlans_.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+    Vlan& v = it->second;
+    bool want[3] = {v.flood[0], v.flood[1], v.flood[2]};
+    want[(int)kind] = on;
+    bool all = want[0] && want[1] && want[2], none = !want[0] && !want[1] && !want[2];
+    if (!all && !none) {
+        // Recorded so the next call can complete the change (orchagent sets
+        // the three one by one); nothing programmed while mixed.
+        for (int k = 0; k < 3; k++) v.flood[k] = want[k];
+        c_.log_once("l2:flood-mixed", "VLAN flood control per kind: IFCS has one flood group per VLAN; "
+                    "applied only when all three kinds agree");
+        return SAI_STATUS_SUCCESS;
+    }
+    ifcs_handle_t fg = v.mdg;
+    if (none) {
+        if (!v.empty_mdg) {
+            ifcs_attr_t n0 = attr_of(0);
+            sai_status_t st = c_.call(c_.L.ifcs_mdg_create(NODE, &v.empty_mdg, 0, &n0), "mdg_create (flood off)");
+            if (st != SAI_STATUS_SUCCESS) { v.empty_mdg = 0; return st; }
+        }
+        fg = v.empty_mdg;
+    }
+    ifcs_attr_t a = attr_handle(IFCS_L2VNI_ATTR_FLOOD_GROUP, fg);
+    sai_status_t st = c_.call(c_.L.ifcs_l2vni_attr_set(NODE, v.l2vni, 1, &a), "l2vni flood group");
+    if (st != SAI_STATUS_SUCCESS) return st;
+    for (int k = 0; k < 3; k++) v.flood[k] = want[k];
+    OB_NOTICE(SAI_API_VLAN, "VLAN %u flooding %s", vid, none ? "off (empty flood group)" : "on");
     return SAI_STATUS_SUCCESS;
 }
 

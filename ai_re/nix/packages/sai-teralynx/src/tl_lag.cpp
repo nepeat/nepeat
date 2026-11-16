@@ -233,6 +233,45 @@ sai_status_t LagArea::hash_seed_set(uint32_t seed)
     return c_.call(c_.L.ifcs_node_attr_set(NODE, 1, &a), "node entropy_seed");
 }
 
+sai_status_t LagArea::hash_set(bool lag, const std::vector<int32_t>& sai_fields, uint32_t seed)
+{
+    Guard g(c_.mu);
+    std::vector<uint32_t> f;
+    for (int32_t s : sai_fields) {
+        switch (s) {
+        case SAI_NATIVE_HASH_FIELD_SRC_IP: f.push_back(F_SRC_IP); break;
+        case SAI_NATIVE_HASH_FIELD_DST_IP: f.push_back(F_DST_IP); break;
+        case SAI_NATIVE_HASH_FIELD_IP_PROTOCOL: f.push_back(F_PROTO); break;
+        case SAI_NATIVE_HASH_FIELD_L4_SRC_PORT: f.push_back(F_L4_SRC); break;
+        case SAI_NATIVE_HASH_FIELD_L4_DST_PORT: f.push_back(F_L4_DST); break;
+        case SAI_NATIVE_HASH_FIELD_SRC_MAC: f.push_back(F_SRC_MAC); break;
+        case SAI_NATIVE_HASH_FIELD_DST_MAC: f.push_back(F_DST_MAC); break;
+        case SAI_NATIVE_HASH_FIELD_ETHERTYPE: f.push_back(F_ETHERTYPE); break;
+        case SAI_NATIVE_HASH_FIELD_VLAN_ID: f.push_back(F_VLAN); break;
+        case SAI_NATIVE_HASH_FIELD_IN_PORT: f.push_back(F_IN_PORT); break;
+        case SAI_NATIVE_HASH_FIELD_IPV6_FLOW_LABEL: f.push_back(F_FLOW_LABEL); break;
+        default:
+            OB_ERR(SAI_API_HASH, "hash field %d has no IFCS entropy element here", s);
+            return SAI_STATUS_INVALID_ATTR_VALUE_0;   // not NOT_SUPPORTED: that means "no hash control" to the frontend
+        }
+    }
+    int other = lag ? 0 : 1;
+    if (!f.empty()) {
+        if (!hash_sai_[other].empty() && hash_sai_[other] != sai_fields)
+            OB_WARN(SAI_API_HASH, "%s hash fields differ from the %s ones: IFCS has one entropy for both, this set wins",
+                    lag ? "LAG" : "ECMP", lag ? "ECMP" : "LAG");
+        sai_status_t st = hash_fields_set(f);
+        if (st != SAI_STATUS_SUCCESS) return st;
+        hash_sai_[lag ? 1 : 0] = sai_fields;
+    }
+    if (seed || seed_set_) {
+        sai_status_t st = hash_seed_set(seed);
+        if (st != SAI_STATUS_SUCCESS) return st;
+        seed_set_ = true;
+    }
+    return SAI_STATUS_SUCCESS;
+}
+
 sai_status_t LagArea::apply_profile()
 {
     std::string f = c_.key("SAI_TERALYNX_HASH_FIELDS"), s = c_.key("SAI_TERALYNX_HASH_SEED");

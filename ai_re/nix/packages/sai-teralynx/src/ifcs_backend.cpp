@@ -14,6 +14,7 @@
 // "Source layout").
 #include "tl_acl.h"
 #include "tl_core.h"
+#include "tl_counters.h"
 #include "tl_hostif.h"
 #include "tl_l2.h"
 #include "tl_l3.h"
@@ -84,6 +85,11 @@ public:
     sai_status_t port_learn_set(int hw, Learn mode) override { return port_.learn_set(hw, mode); }
     sai_status_t port_stat_get(int hw, PortStat s, uint64_t& v) override { return port_.stat_get(hw, s, v); }
     sai_status_t port_stat_clear(int hw) override { return port_.stat_clear(hw); }
+    bool port_stat_by_id(sai_stat_id_t id) const override { return port_stat_mapped(id); }
+    sai_status_t port_stats_by_id(int hw, uint32_t n, const sai_stat_id_t* ids, uint64_t* out) override
+    {
+        return tlb::port_stats_by_id(c_, hw, n, ids, out);
+    }
 
     // L2
     sai_status_t vlan_create(uint16_t vid) override { return l2_.vlan_create(vid); }
@@ -104,11 +110,17 @@ public:
         return l2_.l2_flush(hw, vid, statics, dynamics);
     }
     sai_status_t l2_age_set(uint32_t seconds) override { return l2_.l2_age_set(seconds); }
+    sai_status_t vlan_flood_set(uint16_t vid, FloodKind kind, bool on) override { return l2_.vlan_flood_set(vid, kind, on); }
 
     // LAG
     sai_status_t lag_create(int& tid) override { return lag_.create(tid); }
     sai_status_t lag_destroy(int tid) override { return lag_.destroy(tid); }
     sai_status_t lag_set_members(int tid, const std::vector<LagMember>& m) override { return lag_.set_members(tid, m); }
+    bool hash_supported() const override { return true; }
+    sai_status_t hash_set(bool lag, const std::vector<int32_t>& fields, uint32_t seed) override
+    {
+        return lag_.hash_set(lag, fields, seed);
+    }
 
     // host interface
     sai_status_t netif_create(const std::string& ifname, int hw, uint16_t vid, const uint8_t mac[6], bool keep_tag,
@@ -151,6 +163,13 @@ public:
     sai_status_t l3_egress_destroy(int egress_id) override { return l3_.egress_destroy(egress_id); }
     sai_status_t l3_egress_cpu(int& egress_id) override { return l3_.egress_cpu(egress_id); }
     sai_status_t l3_egress_drop(int& egress_id) override { return l3_.egress_drop(egress_id); }
+    sai_status_t l3_egress_glean(int& egress_id) override { return l3_.egress_glean(egress_id); }
+    bool l3_intf_stat_supported(sai_stat_id_t id) const override { return L3Area::intf_stat_supported(id); }
+    sai_status_t l3_intf_stats(int intf_id, uint32_t n, const sai_stat_id_t* ids, uint64_t* out, bool clear) override
+    {
+        return l3_.intf_stats(intf_id, n, ids, out, clear);
+    }
+    sai_status_t l3_intf_admin_set(int intf_id, bool v4, bool v6) override { return l3_.intf_admin_set(intf_id, v4, v6); }
     sai_status_t l3_host_add(int vrf, const IpAddr& ip, int egress_id) override { return l3_.host_add(vrf, ip, egress_id); }
     sai_status_t l3_host_delete(int vrf, const IpAddr& ip) override { return l3_.host_delete(vrf, ip); }
     sai_status_t l3_route_add(int vrf, const IpPrefix& p, int target, bool ecmp, bool replace) override
@@ -183,6 +202,17 @@ public:
     sai_status_t policer_create(const PolicerCfg& cfg, int& pid) override { return acl_.policer_create(cfg, pid); }
     sai_status_t policer_set(int pid, const PolicerCfg& cfg) override { return acl_.policer_set(pid, cfg); }
     sai_status_t policer_destroy(int pid) override { return acl_.policer_destroy(pid); }
+    // Every FpCap but SET_DSCP: IFCS 0.12.41 refuses that action type in an
+    // action profile ("Action not implemented/supported yet 16", chip 2026-11-16).
+    bool fp_supported(FpCap k) const override { return k != FpCap::SetDscp; }
+    sai_status_t fp_group_create_ex(const std::vector<FpQual>& qset, int priority, const FpGroupExtra& x, int& gid) override
+    {
+        return acl_.group_create_ex(qset, priority, x, gid);
+    }
+    sai_status_t fp_entry_update(int eid, const FpRule& r) override { return acl_.entry_update(eid, r); }
+    sai_status_t fp_entry_enable(int eid, bool on) override { return acl_.entry_enable(eid, on); }
+    sai_status_t fp_group_free(int gid, uint32_t& entries) override { return acl_.group_free(gid, entries); }
+    sai_status_t port_storm_set(int hw, StormKind kind, int policer) override { return acl_.storm_set(hw, kind, policer); }
 
     // QoS / buffers (tl_qos.cpp)
     bool qos_supported() const override { return true; }
