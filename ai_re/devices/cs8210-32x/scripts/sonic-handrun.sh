@@ -24,9 +24,14 @@ up)
   q=$(cs8210-qsfp --enable 2>&1) || die "cs8210-qsfp failed"
   [[ $q == *"present=00008001 "* ]] || die "cages: not exactly 1 and 16 populated"
   ! systemctl is-active -q cs8210-switch || die "cs8210-switch is active"
+  # /etc/systemd/system wins over /run/systemd/system: a generation with
+  # SONiC would run its own units, not the closure's.
+  [ ! -e /etc/systemd/system/sonic.target ] || die "the running generation has SONiC (hardware.cs8210.sonic); boot one without it"
   ! pgrep -x 'syncd|sai-script|orchagent|qemu-x86_64' >/dev/null || die "an SAI user runs"
   mkdir -p $ST
   echo "$top" > $ST/top
+  # netdevs before the run: "down" removes the ones the stack adds (Loopback*, Bridge, dummy)
+  ip -o link show | awk -F': ' '{print $2}' | cut -d@ -f1 > $ST/links.before
   # users / groups of the closure's users-groups.json (frr, frrvty, redis-sonic)
   for g in frr frrvty redis-sonic; do getent group $g >/dev/null || { groupadd -r $g; echo $g >> $ST/groups; }; done
   getent passwd frr >/dev/null || { useradd -r -g frr -G frrvty -d /var/empty -s /run/current-system/sw/bin/nologin frr; echo frr >> $ST/users; }
@@ -55,7 +60,7 @@ up)
     echo "$r" >> $ST/iptables
   done
   # the host lldpd holds /run/lldpd.socket (the closure disables it for SONiC's)
-  if systemctl is-active -q lldpd; then systemctl stop lldpd; echo lldpd > $ST/stopped; fi
+  if systemctl is-active -q lldpd || systemctl is-failed -q lldpd; then systemctl stop lldpd; systemctl reset-failed lldpd 2>/dev/null || true; echo lldpd > $ST/stopped; fi
   mkdir -p /var/lib/sonic
   if [ -e /var/lib/sonic/config_db.json ]; then cp /var/lib/sonic/config_db.json $ST/config_db.json.before; fi
   install -m 0644 "$cfg" /var/lib/sonic/config_db.json
@@ -76,10 +81,28 @@ down)
   # team devices / VRFs the stack left
   for d in $(ip -o link show type team 2>/dev/null | awk -F': ' '{print $2}' | cut -d@ -f1); do ip link del "$d" || true; done
   for d in $(ip -o link show type vrf 2>/dev/null | awk -F': ' '{print $2}' | cut -d@ -f1); do ip link del "$d" || true; done
+  # Loopback*, Bridge and dummy from intfmgrd/vlanmgrd (not there before "up")
+  for d in $(ip -o link show | awk -F': ' '{print $2}' | cut -d@ -f1); do
+    case $d in Loopback*|Bridge|dummy) grep -qx "$d" $ST/links.before 2>/dev/null || ip link del "$d" || true ;; esac
+  done
+  # vrfmgrd moved the local rule from pref 0 to 1001; with it only at 1001 a
+  # networkd restart deletes it as foreign and the host gets nothing (no SSH;
+  # 2026-11-16, sai-hw-sonic-boot-20261116.txt section 2). Put it back.
+  for f in -4 -6; do
+    if ! ip $f rule show pref 0 | grep -q 'lookup local'; then ip $f rule add pref 0 table local; fi
+    while ip $f rule show pref 1001 | grep -q 'lookup local'; do ip $f rule del pref 1001 table local; done
+  done
   while read -r r; do
     for i in $FW_IFS; do iptables -D nixos-fw -i $i $r -j nixos-fw-accept 2>/dev/null || true; done
   done < $ST/iptables
-  if [ -e $ST/stopped ]; then systemctl start lldpd || true; fi
+  # the host lldpd only after SONiC's has gone (it holds /run/lldpd.socket)
+  if [ -e $ST/stopped ]; then
+    for _ in $(seq 1 20); do pgrep -x lldpd >/dev/null || break; sleep 0.5; done
+    systemctl reset-failed lldpd 2>/dev/null || true
+    systemctl start lldpd || true
+    sleep 2
+    systemctl is-active -q lldpd || { systemctl reset-failed lldpd; systemctl restart lldpd || echo "sonic-handrun: host lldpd did not start" >&2; }
+  fi
   while read -r kv; do sysctl -qw "$kv"; done < $ST/sysctl
   if [ -e $ST/etc ]; then while read -r e; do rm -rf "$e"; done < $ST/etc; fi
   if [ -e $ST/users ]; then while read -r u; do userdel "$u" || true; done < $ST/users; fi

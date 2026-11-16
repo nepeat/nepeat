@@ -7,7 +7,7 @@ Cross-device notes and the stack itself: [sonic-nixos](../sonic-nixos/PROGRESS.m
 - **Our SAI runs the chip** (`sai-teralynx`: sai-openbcm's frontend + an IFCS backend dlopen()ing the
   vendor `libifcs.so` 0.12.41): every phase B/C feature passes its sai-script chip test on the 400G
   cage 1 <-> 16 loop ([sai-features.md](sai-features.md), [sai-hw-integration-20261116.txt](sai-hw-integration-20261116.txt)).
-- **SONiC at boot** (2026-11-16, generation built; deploy + reboot checks: [evidence](sai-hw-sonic-boot-20261116.txt)):
+- **SONiC at boot** (deployed 2026-11-16, two reboots: BGP/LACP ~62 s, BFD ~64 s after kernel start; [evidence](sai-hw-sonic-boot-20261116.txt)):
   "Running it" below. The loop config needs no vtysh (BGP_NEIGHBOR `local_asn`, STATIC_ROUTE advertisements).
 - **Full SONiC on the loop, first by hand** (`scripts/sonic-handrun.sh`), xcvrd on:
   Vrf-a/Vrf-b eBGP + BFD over PortChannels (LACP) and over plain ports, routes offloaded both ways,
@@ -39,9 +39,10 @@ Vendor stack instead: `systemctl start cs8210-switch` (Conflicts= stops syncd an
 
 **Another closure by hand:** `scripts/sonic-handrun.sh up <toplevel> <config_db.json>` / `status` / `down` links
 the closure's units into /run/systemd/system and adds users, sysctls, modules, tmpfiles, /etc entries and
-firewall rules for the run. Only on a generation with SONiC off (/etc units win over /run). `down` leaves
-vrfmgrd's local rule at pref 1001 and the Loopback/Bridge/dummy netdevs: `ip rule add pref 0 table local`
-before anything restarts networkd (sai-hw-sonic-boot-20261116.txt, section 2).
+firewall rules for the run. Only on a generation with SONiC off (/etc units win over /run; `up` refuses
+otherwise). `down` also puts vrfmgrd's local rule back at pref 0 (left at 1001, a networkd restart cut the host
+off: sai-hw-sonic-boot-20261116.txt, section 2), deletes the Loopback/Bridge/dummy netdevs the run added and
+restarts the host lldpd once SONiC's is gone.
 
 Test configs in [sonic-loop/](sonic-loop/): `config-a-vrf-bgp.json` (Ethernet0 in Vrf-a 10.0.0.0/31,
 Ethernet120 in Vrf-b 10.0.0.1/31) and `config-b-vrf-bgp-lag.json` (the same over PortChannel1/2,

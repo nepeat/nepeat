@@ -50,3 +50,29 @@ had no local table rule, SSH and ARP for 10.60.2.190 stopped. Restored through t
   805ecdcbf120696e0a0ffd863836bb8ac8c0a3736f506fd6f583174d689297d9  vm-bfd-20261116.txt
   aae306b9769e9470492a33c267201d9c4b388560b96a92456a672a1835d685d5  vm-openbcm-fake-20261116.txt
   e4d14d4a8a1a42be7972c050ad7c02603624981eebd5db815618770d78c9212f  bgpcfgd-tests-20261116.txt
+
+== 4. After the deploy (commits 5449948, bb38f92, dd0ccb5; /nix/store/jld7a4imdlafd8z6mlriici3bmnhgd93-nixos-system-cs8210-sd-card-26.11.20261114.2f709fe)
+Boot 1 (parent's reboot ~12:36), checked 12:40 (uptime 251 s); boot 2 (systemctl reboot 12:44:19, ssh back after 79 s).
+Monotonic seconds since kernel start (journal), boot 1 / boot 2:
+  systemd 3.6 / 3.6; sshd 11.9 / 11.9; pcie-errors 11.9 / 11.9; cage guard 12.5 / 12.5 ("present mask 0x00008001
+  within allowed cages (1 16)"); cs8210-sai-files 12.2 / 12.3; Credo up 51.0 / 51.1 (~38 s, the vendor loader);
+  syncd + orchagent 51.2 / 51.3; PortInitDone 57.4 / 57.2; LACP selected (both) 62.8 / 62.6;
+  BGP Vrf-a + Vrf-b Established ~62 / ~62 (uptime minus Up/Down); BFD Up (both) 64.1 / 63.7.
+  Both boots: ping Loopback2 -> Loopback1 20/20, Ethernet0 + Ethernet120 the only admin-up ports, 0 failed units,
+  0 restarts (syncd, orchagent, bgpd, teammgrd, xcvrd), fand active, failsafe false, all 15 outputs 49.8 %.
+  Raw: analysis/sonic-boot/boot2.txt (64fb5102); boot 1 transcript lost with /run at the reboot (numbers above
+  copied from the session). Serial log of boot 2: analysis/sonic-boot/serial-reboot2-20261116.txt (432aa726).
+Boot 1, from boot (lost with /run, copied from the session):
+* orchagent kill -9 12:41:00: "orchagent failed (signal KILL): restarting syncd", syncd 4099 -> 8220, BGP 2/2 15 s
+  after the kill, BFD 2 up, LACP selected, ping 20/20, 0 failed units.
+* systemctl stop sonic.target 12:41:20: returned in 1 s; no syncd/orchagent/phy_server/bgpd/teamd left (redis,
+  config loader, sai-files stay: not PartOf); fand active at +20/+40/+60 s, failsafe false, duty 49.8 % on all 15,
+  no faults, ASIC sensor 50.8 C, age < 4 s (fand reads the MCP3425, not the SDK).
+* systemctl start sonic.target 12:42:26: guard passed again, BGP 2/2 in 50 s, BFD 2 up, LACP, ping 20/20, 0 failed.
+Boot 2:
+* systemctl restart systemd-networkd (safety timer armed): the 1001 local rule, Vrf-a routes (3, incl. the
+  blackhole) and SSH all stay (networkd.conf ManageForeign*=false), BGP undisturbed.
+* sonic-handrun.sh (fixed down path) refuses on this generation ("the running generation has SONiC").
+* Journal at steady state: ~140 messages/min, ~124 of them teamd's debug "usock: calling method StateDump" (tlm_teamd
+  polling both PortChannels every second); /var/log/swss 4.2 MB after the boots (sairedis.rec 3.9 MB). Not changed.
+Left: SONiC running (the deployed default), cages 1 + 16 only, lease released.

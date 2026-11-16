@@ -53,11 +53,11 @@
 **NixOS 26.11 / mainline Linux 7.3.3 on the SSD, booting unattended.**
 Working: serial console, 16 cores, 8 GiB, SATA SSD, management Ethernet
 (al_eth + 88E1510), TPM 2.0, lldpd, I2C sensors, RTC, fan control, all three
-external PCIe ports. **Switch side (started by hand, `systemctl start
-cs8210-switch`): Teralynx 7 ASIC initialised by the vendor SDK running in a
-chroot against Marvell's open-source `ipd` driver (legacy-ABI patch), 32
-front-panel netdevs `fpp1`..`fpp32`, Credo MACsec PHYs on ports 1-16 with
-firmware loaded, in MACsec bypass.**
+external PCIe ports. **Switch side: SONiC at boot (since 2026-11-16) on our SAI (sai-teralynx over the
+vendor libifcs, ipd legacy ABI), Credo PHYs on ports 1-16 in MACsec bypass, the
+loop config (Vrf-a/Vrf-b BGP + BFD over LACP) as the saved CONFIG_DB
+([sonic.md](sonic.md)). The vendor SDK stack (`systemctl start cs8210-switch`,
+netdevs `fpp1`..`fpp32`) stays as the alternative; starting it stops SONiC.**
 Fans temperature-controlled including the ASIC die (about 55% at idle).
 **First link 2026-11-10: cage 17 (QSA + 10G DAC) up at 10G, LLDP received from the neighbour (entry (p)).**
 **400G 2026-11-15: cage 1 <-> 16 DAC at ~386 Gb/s per direction through both Credo PHYs, also with static-key MACsec (GCM-AES-128/256), by hand ([macsec-400g.md](macsec-400g.md)).**
@@ -96,7 +96,8 @@ can contain device configuration or secrets. Summarized findings belong here.
 - bgpcfgd: BGP_NEIGHBOR `local_asn` (+ `local_as_no_prepend`/`_replace_as`) at creation and live (patches 0004/0005, not upstream). The loop configs need no vtysh: eBGP on both sides, one-hop BFD, STATIC_ROUTE blackholes advertise the loopback subnets. Tests: bgpcfgd suite 2794 passed (3 upstream BFD-passive cases deselected), vm-bfd 120/120 (local_asn, teamd MAC), chip.
 - Chip, hand-run before the deploy: BGP/BFD/LACP up with no vtysh, local_asn removed and restored live, orchagent kill -> syncd restart in 15 s, reload without a saved file = the Nix base ([evidence](sai-hw-sonic-boot-20261116.txt)).
 - Found and fixed: a teamd respawn reset the PortChannel's mac_addr (routing over it stayed dead); a networkd restart deletes vrfmgrd's local rule, which leaves the host unreachable. I caused a 25 s outage checking that (the hand-run had left the rule at pref 1001); restored over the console.
-- Pending: deploy + two reboots (parent), then the boot checks.
+- Deployed (5449948, bb38f92, dd0ccb5), two reboots: SONiC up unattended, ssh at ~45 s uptime, guard + Credo + syncd by 51 s, BGP/LACP at ~62 s, BFD at ~64 s, 0 failed units both times. From boot: orchagent kill -> back in 15 s; stop sonic.target leaves fand at 49.8 % with no faults, start again -> BGP in 50 s; a networkd restart keeps the local rule. `sonic-handrun.sh down` now restores the local rule, removes its netdevs and restarts the host lldpd.
+- Open: teamd's debug "usock: calling method StateDump" is ~124 of ~140 journal messages/min at steady state (SSD wear, see the journald note in module/cs8210); /var/log/swss *.rec grow on the SSD.
 
 ### 2026-11-16 — SONiC on our own SAI: full stack + 2 h soak on the chip
 
