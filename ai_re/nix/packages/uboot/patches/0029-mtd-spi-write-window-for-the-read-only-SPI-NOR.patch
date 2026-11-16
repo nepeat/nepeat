@@ -1,0 +1,294 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Sun, 15 Nov 2026 17:00:00 -0800
+Subject: [PATCH] mtd: spi: write window for the read-only SPI NOR
+
+SPI_FLASH_WRITE_WINDOW (on top of SPI_FLASH_READ_ONLY): one range of one
+chip (_BUS, _CS, _START, _SIZE) may be erased and programmed, e.g. to keep
+the environment, while the rest of a boot flash stays read-only. Two
+independent checks, both on include/spi_flash_window.h (pure, host-tested):
+- spi-nor: the MTD erase/write hooks run the real erase/program code only
+  when the request is on the window's chip and lies entirely inside the
+  window; anything else prints "outside the write window, refused" and
+  returns -EROFS before a command is sent;
+- spi-mem (SPI_MEM_READ_ONLY): besides reads, the window's chip may get
+  WREN/WRDI (no address, no data), page program entirely inside the window
+  and 4K/32K/64K erase whose aligned block lies inside it. Status/config
+  register writes, chip erase, reset, lock, OTP, 4-byte mode and every
+  other command stay refused, on every chip.
+Unchanged: no lock/unlock, quad-enable, SR write at probe, BAR or soft
+reset code; "sf" stays probe + read only, so writes come only from code
+paths such as the SPI-flash environment.
+
+Generic; used by the Alpine V2 boards (scope alpine-v2).
+---
+ drivers/mtd/spi/Kconfig        | 31 ++++++++++++++++
+ drivers/mtd/spi/spi-nor-core.c | 35 +++++++++++++++--
+ drivers/spi/Kconfig            |  4 +-
+ drivers/spi/spi-mem.c          | 29 ++++++++++++++-
+ include/spi_flash_window.h     | 68 ++++++++++++++++++++++++++++++++++
+ 5 files changed, 162 insertions(+), 5 deletions(-)
+ create mode 100644 include/spi_flash_window.h
+
+diff --git a/drivers/mtd/spi/Kconfig b/drivers/mtd/spi/Kconfig
+index 03c3a293..686e9b5b 100644
+--- a/drivers/mtd/spi/Kconfig
++++ b/drivers/mtd/spi/Kconfig
+@@ -154,6 +154,37 @@ config SPI_FLASH_READ_ONLY
+ 	  (SPI_MEM_READ_ONLY). For proving a boot flash's contents from
+ 	  U-Boot without any way to change them.
+ 
++config SPI_FLASH_WRITE_WINDOW
++	bool "Allow erase and program in one window of one read-only SPI NOR"
++	depends on SPI_FLASH_READ_ONLY
++	help
++	  A read-only build that still needs to store something (e.g. the
++	  environment): erase and program requests on the chip at
++	  SPI_FLASH_WRITE_WINDOW_BUS/_CS are carried out only if the whole range
++	  lies in [_START, _START + _SIZE), anything else fails with -EROFS
++	  before a command is sent. The SPI memory layer checks every write
++	  enable, page program and erase command against the same window. No
++	  status/config register write, lock, quad enable or chip erase exists
++	  in either path, and "sf" stays read-only.
++
++config SPI_FLASH_WRITE_WINDOW_BUS
++	int "Write window: SPI bus"
++	depends on SPI_FLASH_WRITE_WINDOW
++	default 0
++
++config SPI_FLASH_WRITE_WINDOW_CS
++	int "Write window: chip select"
++	depends on SPI_FLASH_WRITE_WINDOW
++	default 0
++
++config SPI_FLASH_WRITE_WINDOW_START
++	hex "Write window: first byte"
++	depends on SPI_FLASH_WRITE_WINDOW
++
++config SPI_FLASH_WRITE_WINDOW_SIZE
++	hex "Write window: size in bytes"
++	depends on SPI_FLASH_WRITE_WINDOW
++
+ config SPI_FLASH_UNLOCK_ALL
+ 	bool "Unlock the entire SPI flash on u-boot startup"
+ 	default y
+diff --git a/drivers/mtd/spi/spi-nor-core.c b/drivers/mtd/spi/spi-nor-core.c
+index 68448760..46b91175 100644
+--- a/drivers/mtd/spi/spi-nor-core.c
++++ b/drivers/mtd/spi/spi-nor-core.c
+@@ -29,6 +29,7 @@
+ #include <linux/mtd/spi-nor.h>
+ #include <mtd/cfi_flash.h>
+ #include <spi-mem.h>
++#include <spi_flash_window.h>
+ #include <spi.h>
+ 
+ #include "sf_internal.h"
+@@ -4570,9 +4571,29 @@ void spi_nor_set_fixups(struct spi_nor *nor)
+ #endif /* SPI_FLASH_WINBOND */
+ }
+ 
++#if CONFIG_IS_ENABLED(SPI_FLASH_WRITE_WINDOW)
++/* Is this request on the window's chip and entirely inside the window? */
++static bool spi_nor_in_window(struct spi_nor *nor, loff_t start, u64 len)
++{
++	struct udevice *dev = nor->spi->dev;
++
++	return dev_seq(dev->parent) == CONFIG_SPI_FLASH_WRITE_WINDOW_BUS &&
++	       spi_chip_select(dev) == CONFIG_SPI_FLASH_WRITE_WINDOW_CS &&
++	       start >= 0 &&
++	       spi_flash_window_covers(start, len, CONFIG_SPI_FLASH_WRITE_WINDOW_START,
++				       CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE);
++}
++#endif
++
+ static int __maybe_unused spi_nor_ro_erase(struct mtd_info *mtd,
+ 					  struct erase_info *instr)
+ {
++#if CONFIG_IS_ENABLED(SPI_FLASH_WRITE_WINDOW)
++	if (spi_nor_in_window(mtd_to_spi_nor(mtd), instr->addr, instr->len))
++		return spi_nor_erase(mtd, instr);
++	printf("SF: erase %#llx+%#llx outside the write window, refused\n",
++	       (unsigned long long)instr->addr, (unsigned long long)instr->len);
++#endif
+ 	return -EROFS;
+ }
+ 
+@@ -4581,6 +4602,12 @@ static int __maybe_unused spi_nor_ro_write(struct mtd_info *mtd, loff_t to,
+ 					  const u_char *buf)
+ {
+ 	*retlen = 0;
++#if CONFIG_IS_ENABLED(SPI_FLASH_WRITE_WINDOW)
++	if (spi_nor_in_window(mtd_to_spi_nor(mtd), to, len))
++		return spi_nor_write(mtd, to, len, retlen, buf);
++	printf("SF: write %#llx+%#zx outside the write window, refused\n",
++	       (unsigned long long)to, len);
++#endif
+ 	return -EROFS;
+ }
+ 
+@@ -4603,7 +4630,8 @@ int spi_nor_scan(struct spi_nor *nor)
+ 	nor->read_proto = SNOR_PROTO_1_1_1;
+ 	nor->write_proto = SNOR_PROTO_1_1_1;
+ 	nor->read = spi_nor_read_data;
+-	nor->write = CONFIG_IS_ENABLED(SPI_FLASH_READ_ONLY) ? NULL : spi_nor_write_data;
++	nor->write = CONFIG_IS_ENABLED(SPI_FLASH_READ_ONLY) &&
++		     !CONFIG_IS_ENABLED(SPI_FLASH_WRITE_WINDOW) ? NULL : spi_nor_write_data;
+ 	nor->read_reg = spi_nor_read_reg;
+ 	nor->write_reg = spi_nor_write_reg;
+ 
+@@ -4662,8 +4690,9 @@ int spi_nor_scan(struct spi_nor *nor)
+ 	mtd->size = params.size;
+ 	mtd->_read = spi_nor_read;
+ 	if (CONFIG_IS_ENABLED(SPI_FLASH_READ_ONLY)) {
+-		/* no write, erase or lock code in this build */
+-		mtd->flags &= ~MTD_WRITEABLE;
++		/* no lock code; erase/write only inside the write window, if any */
++		if (!CONFIG_IS_ENABLED(SPI_FLASH_WRITE_WINDOW))
++			mtd->flags &= ~MTD_WRITEABLE;
+ 		mtd->_erase = spi_nor_ro_erase;
+ 		mtd->_write = spi_nor_ro_write;
+ 	} else {
+diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
+index 8ee6e5a8..2bb9a882 100644
+--- a/drivers/spi/Kconfig
++++ b/drivers/spi/Kconfig
+@@ -49,7 +49,9 @@ config SPI_MEM_READ_ONLY
+ 	  status/config/security register and SFDP reads) with a data-in
+ 	  phase are passed to the controller; write enable, register writes,
+ 	  program, erase, reset and anything unknown fail with -EROFS. For
+-	  boards whose boot flash must never be written from U-Boot.
++	  boards whose boot flash must never be written from U-Boot. With
++	  SPI_FLASH_WRITE_WINDOW, the window's chip also gets write enable,
++	  page program and sector erase inside the window.
+ 
+ config SPI_DIRMAP
+ 	bool "SPI direct mapping"
+diff --git a/drivers/spi/spi-mem.c b/drivers/spi/spi-mem.c
+index 8cab35cc..8e98e1d2 100644
+--- a/drivers/spi/spi-mem.c
++++ b/drivers/spi/spi-mem.c
+@@ -249,6 +249,8 @@ EXPORT_SYMBOL_GPL(spi_mem_supports_op);
+  * Return: 0 in case of success, a negative error code otherwise.
+  */
+ #if CONFIG_IS_ENABLED(SPI_MEM_READ_ONLY)
++#include <spi_flash_window.h>
++
+ /*
+  * Read-only build: only plain read-type commands with a data-in phase
+  * reach the wire. Write enable, status/config writes, program, erase,
+@@ -274,6 +276,31 @@ static bool spi_mem_ro_allowed(const struct spi_mem_op *op)
+ 			return true;
+ 	return false;
+ }
++
++/*
++ * SPI_FLASH_WRITE_WINDOW: on the one chip that has the window, also pass
++ * write enable/disable, page program and sector/block erase that stay
++ * inside it (spi_flash_window_op_ok). Independent of the spi-nor check.
++ */
++static bool spi_mem_window_allowed(struct spi_slave *slave,
++				   const struct spi_mem_op *op)
++{
++#if CONFIG_IS_ENABLED(SPI_FLASH_WRITE_WINDOW)
++	enum spi_flash_window_dir dir = !op->data.nbytes ? SFW_NONE :
++		op->data.dir == SPI_MEM_DATA_OUT ? SFW_OUT : SFW_IN;
++
++	if (dev_seq(slave->dev->parent) != CONFIG_SPI_FLASH_WRITE_WINDOW_BUS ||
++	    spi_chip_select(slave->dev) != CONFIG_SPI_FLASH_WRITE_WINDOW_CS ||
++	    op->cmd.nbytes != 1)
++		return false;
++	return spi_flash_window_op_ok(op->cmd.opcode, op->addr.nbytes, op->addr.val,
++				      dir, op->data.nbytes,
++				      CONFIG_SPI_FLASH_WRITE_WINDOW_START,
++				      CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE);
++#else
++	return false;
++#endif
++}
+ #endif
+ 
+ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
+@@ -289,7 +316,7 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
+ 	int i;
+ 
+ #if CONFIG_IS_ENABLED(SPI_MEM_READ_ONLY)
+-	if (!spi_mem_ro_allowed(op)) {
++	if (!spi_mem_ro_allowed(op) && !spi_mem_window_allowed(slave, op)) {
+ 		printf("spi-mem: read-only build, opcode %02x refused\n",
+ 		       op->cmd.opcode);
+ 		return -EROFS;
+diff --git a/include/spi_flash_window.h b/include/spi_flash_window.h
+new file mode 100644
+index 00000000..934280fc
+--- /dev/null
++++ b/include/spi_flash_window.h
+@@ -0,0 +1,68 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * SPI NOR write window (SPI_FLASH_WRITE_WINDOW): the only flash range a
++ * read-only build may erase or program. Two independent checks use the
++ * helpers below: the spi-nor MTD erase/write hooks (whole request) and the
++ * spi-mem op filter (each command on the wire). Pure functions, so a host
++ * test can drive them (nix/packages/uboot/alpine-v2/window-test).
++ */
++#ifndef __SPI_FLASH_WINDOW_H
++#define __SPI_FLASH_WINDOW_H
++
++/* [start, start + len) lies inside [wstart, wstart + wsize), no overflow. */
++static inline int spi_flash_window_covers(unsigned long long start,
++					  unsigned long long len,
++					  unsigned long long wstart,
++					  unsigned long long wsize)
++{
++	return len && start >= wstart && start - wstart < wsize &&
++	       len <= wsize - (start - wstart);
++}
++
++/* Bytes a NOR erase opcode clears (its aligned block), 0 if not an erase. */
++static inline unsigned int spi_flash_window_erase_size(unsigned char op)
++{
++	switch (op) {
++	case 0x20: case 0x21:		/* 4 KiB sector, 3-/4-byte address */
++		return 0x1000;
++	case 0x52: case 0x5c:		/* 32 KiB block */
++		return 0x8000;
++	case 0xd8: case 0xdc:		/* 64 KiB block */
++		return 0x10000;
++	}
++	return 0;
++}
++
++enum spi_flash_window_dir { SFW_NONE, SFW_IN, SFW_OUT };
++
++/*
++ * May this command go to the window's chip? Plain reads are not decided
++ * here. Allowed: write enable/disable (no address, no data), page program
++ * (0x02/0x12) entirely inside the window, sector/block erase whose aligned
++ * block lies inside the window. Everything else (status/config register
++ * writes, chip erase, reset, lock, suspend, OTP, ...) is refused.
++ */
++static inline int spi_flash_window_op_ok(unsigned char op, unsigned int addr_nbytes,
++					 unsigned long long addr,
++					 enum spi_flash_window_dir dir,
++					 unsigned long long data_nbytes,
++					 unsigned long long wstart,
++					 unsigned long long wsize)
++{
++	unsigned int esz = spi_flash_window_erase_size(op);
++
++	if (op == 0x06 || op == 0x04)		/* WREN, WRDI */
++		return !addr_nbytes && dir == SFW_NONE;
++	if (addr_nbytes != 3 && addr_nbytes != 4)
++		return 0;
++	if (op == 0x02 || op == 0x12)		/* page program */
++		return dir == SFW_OUT &&
++		       spi_flash_window_covers(addr, data_nbytes, wstart, wsize);
++	if (esz)
++		return dir == SFW_NONE &&
++		       spi_flash_window_covers(addr & ~(unsigned long long)(esz - 1),
++					       esz, wstart, wsize);
++	return 0;
++}
++
++#endif

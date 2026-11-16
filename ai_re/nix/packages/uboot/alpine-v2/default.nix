@@ -53,7 +53,27 @@ let
     CONFIG_CMD_SF=y
     # CONFIG_CMD_SF_TEST is not set
     # CONFIG_CMD_SPI is not set
-    # CONFIG_ENV_IS_IN_SPI_FLASH is not set
+    # Persistent env in CS0, redundant, in the one writable window (patch 0029):
+    # 0xf90000-0xfaffff, the blank tail of the BOOT_APP 1 slot (its object ends at
+    # 0xb53a11, the slot at 0xfb0000). The factory env pair at 0xfd0000/0xfe0000
+    # stays the vendor U-Boot's. Bad CRC / blank: the compiled-in default env.
+    CONFIG_SPI_FLASH_WRITE_WINDOW=y
+    CONFIG_SPI_FLASH_WRITE_WINDOW_BUS=0
+    CONFIG_SPI_FLASH_WRITE_WINDOW_CS=0
+    CONFIG_SPI_FLASH_WRITE_WINDOW_START=0xf90000
+    CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE=0x20000
+    # CONFIG_ENV_IS_NOWHERE is not set
+    CONFIG_ENV_IS_IN_SPI_FLASH=y
+    CONFIG_ENV_REDUNDANT=y
+    CONFIG_ENV_OFFSET=0xf90000
+    CONFIG_ENV_OFFSET_REDUND=0xfa0000
+    CONFIG_ENV_SIZE=0x10000
+    CONFIG_ENV_SECT_SIZE=0x10000
+    CONFIG_ENV_SPI_BUS=0
+    CONFIG_ENV_SPI_CS=0
+    CONFIG_ENV_SPI_MAX_HZ=25000000
+    CONFIG_ENV_SPI_MODE=0x0
+    CONFIG_CMD_SAVEENV=y
     # Size: the stage3 app must fit the 512 KiB IPXE slot (spi-upgrade.py). Unused here: the
     # kernel is a raw Image on ext4; loadb/loady stay for serial recovery. FAT and LZ4 stay
     # (selected by the bootstd defaults).
@@ -105,7 +125,7 @@ in rec {
   # (patches 0022-0028): external PCIe port 0 RC init (kept if the
   # firmware already trained the link, "alpcie reinit" redoes it), MUIO
   # pinmux replay, SoC GPIO 22 high, CCU writes before Linux, read-only SPI NOR (sf probe/read
-  # only, no write/erase code, non-read SPI commands refused). One binary
+  # only, non-read SPI commands refused) except the env window (0029, saveenv). One binary
   # for both entries: chainloaded in RAM after the vendor U-Boot (test) and
   # as al-boot stage3's application (dmc12-stage3app). Never flashed.
   dmc12-selfinit = mk {

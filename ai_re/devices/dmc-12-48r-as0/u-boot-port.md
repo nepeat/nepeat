@@ -231,6 +231,73 @@ the factory does). The HAL's Amazon 2017 files carry no licence header; they shi
 MikroTik's GPL kernel source (licence call for the owner before anything is published
 upstream).
 
+## persistent environment in SPI (built 2026-11-15, not yet run on hardware)
+
+`#uboot-dmc12-selfinit` keeps its environment in SPI CS0, so `saveenv` at `=>` persists.
+
+- **Where:** redundant pair, 0x10000 B each, at **0xf90000** and **0xfa0000** (ENV_SIZE =
+  ENV_SECT_SIZE = 0x10000, bus 0 CS 0, 25 MHz). That is the blank tail of the BOOT_APP 1
+  slot: its object ends at 0xb53a11, flash is 0xff from 0xb5f000 to the slot end at
+  0xfb0000. The factory env pair at 0xfd0000/0xfe0000 is never touched; the factory
+  U-Boot (stage3 `u` escape) keeps using it.
+- **Write window (patch 0029 `alpine-v2`, generic code; the dmc12 values are in the
+  selfinit config):** `SPI_FLASH_WRITE_WINDOW` = bus 0, CS 0, 0xf90000 + 0x20000. Two
+  independent checks share `include/spi_flash_window.h`:
+  - spi-nor: erase/program run only if the whole request is on that chip and inside the
+    window. Otherwise `SF: erase|write … outside the write window, refused`, -EROFS, no
+    command sent.
+  - spi-mem: on that chip only, WREN/WRDI, page program inside the window, and 4K/32K/64K
+    erase whose aligned block is inside it. Everything else that isn't a read is refused
+    on every chip: SR/CR writes, chip erase, reset, lock, OTP, 4-byte mode.
+  - Still absent: lock/unlock, quad enable, SR write at probe, BAR, soft reset. `sf` stays
+    probe + read: only the env driver writes.
+- **Boot with a blank or corrupt env:** both copies fail the CRC, so you get `*** Warning -
+  bad CRC, using default environment`. The compiled-in default (`bootcmd=bootflow scan -lb`
+  etc.) loads and boots as before. No `ENV_IS_NOWHERE` fallback: with it, `saveenv` would
+  target "nowhere" after a bad-CRC load.
+- **Caveat:** once an env is saved, changes to the compiled-in defaults in a later build
+  (e.g. `bootcmd`) do not apply until `env default -a; saveenv`.
+- **Recovery:** at `=>` run `env default -a; saveenv`. From the factory prompt (stage3 `u`
+  escape) run `sf probe 0:0; sf erase 0xf90000 0x20000`. The factory `sf probe` writes SR 0
+  (spi-recovery.md §5), and the window is blank in the backup, so this is a clean reset to
+  defaults.
+- **Offline proof (`#uboot-alpine-v2-tests`):**
+  - `spi-window`: the header on the host. Every boundary of the window, the factory env and
+    UBOOT ranges, SR/chip-erase/lock/reset opcodes, and 2M random requests against a
+    128-bit reference model.
+  - `selfinit`: the env config, both copies inside the window and clear of 0xfd0000,
+    the window inside the blank BOOT_APP 1 tail, and the refusal string.
+  - In this build `spi_nor_erase`/`spi_nor_write` are inlined into the window hooks (no
+    symbols); if they ever stop being inlined, the test requires that only those hooks
+    call them and that no relocation takes their address.
+  - Not proven offline: the DW SSI write path (WREN/PP/erase on the wire), erase timing,
+    and the env load/save itself on hardware.
+
+### RAM test (main agent)
+
+Read and CRC the window first and keep the result: the 0x20000 B are blank in the backup
+(`crc32` of 0x20000 × 0xff = `154803cc`). Then:
+
+```
+=> sf probe 0:0; sf read 0x40000000 0 0x1000000
+=> crc32 0x40000000 0xf90000; crc32 0x40fb0000 0x50000     # outside the window: keep these
+=> crc32 0x40f90000 0x20000                                 # expect 154803cc (blank)
+   (boot log of the new build: "Loading Environment from SPIFlash... *** Warning - bad CRC, using default environment")
+=> printenv bootcmd                                         # bootflow scan -lb
+=> setenv foo bar; saveenv                                  # "Saving Environment to SPIFlash... Erasing ... Writing ... OK"
+=> sf read 0x40000000 0 0x1000000; crc32 0x40000000 0xf90000; crc32 0x40fb0000 0x50000   # unchanged
+=> saveenv                                                  # the second copy (0xfa0000)
+   (re-run the new build: RAM chainload, or the SPI one after the update)
+=> printenv foo                                             # foo=bar, no bad-CRC warning
+=> env default -a; saveenv                                  # back to defaults; then boot: bootflow scan -lb
+```
+
+There is no prompt command that asks for a write outside the window: that path exists only
+for code. If an on-hardware refusal check is wanted, a RAM-only test build with
+`sf erase` enabled could try `sf erase 0xf8f000 0x1000` and `sf erase 0xfb0000 0x1000`,
+both blank on u01 (harmless even if the check failed), expecting `outside the write window,
+refused`. Not built.
+
 ## design (why it is shaped like this)
 
 - **Mainline U-Boot has no Alpine support** (checked: the 2026.10 tree has no

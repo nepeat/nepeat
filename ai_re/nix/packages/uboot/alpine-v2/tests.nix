@@ -16,6 +16,9 @@
 #          sf write/erase/update/protect), DT additions, IPXE slot fit;
 #          dmc12-stage3app: alboot.py check, the wrapped data is that
 #          u-boot.bin byte for byte.
+#  spi-window: ./window-test, the write-window range check and spi-mem
+#          command filter (include/spi_flash_window.h) at every boundary
+#          and against a reference model.
 #  pcie-init: ./pcie-test, al_init_pcie_rc.c (from the series) on the
 #          verbatim HAL (./al-pcie-hal) against a register model: cold,
 #          warm (factory state) and stuck-link runs, factory AXI words
@@ -60,7 +63,7 @@ let
              ARMV8_MULTIENTRY ARMV8_PSCI GICV3 ARM_ERRATA_828024 ARMV8_SET_SMPEN \
              BOOTDEV_ETH NET_RANDOM_ETHADDR CMD_NFS CMD_TLV_EEPROM CMD_EEPROM \
              PCIE_ALPINE_V2 ALPINE_V2_MUIO_INIT ALPINE_V2_GPIO_INIT ALPINE_V2_CCU_IO_COHERENCY \
-             CMD_ALPINE_V2; do
+             CMD_ALPINE_V2 SPI_FLASH_WRITE_WINDOW ENV_REDUNDANT; do
       ! grep -q "^CONFIG_$k=y" $c || { echo "config: CONFIG_$k is on"; exit 1; }
     done
     for kv in TEXT_BASE=0x08000000 POSITION_INDEPENDENT=y ENV_IS_NOWHERE=y SYSRESET_DMC12_CPLD=y \
@@ -195,7 +198,7 @@ let
     c=${si}/.config
     for k in SPI_FLASH_LOCK SPI_FLASH_UNLOCK_ALL SPI_FLASH_SFDP_SUPPORT SPI_FLASH_SOFT_RESET \
              SPI_FLASH_BAR SPI_FLASH_MTD CMD_SF_TEST CMD_SPI CMD_MTD CMD_MTDPARTS DM_MTD \
-             MTD_NOR_FLASH ENV_IS_IN_SPI_FLASH CMD_SAVEENV EFI_LOADER PSCI_RESET SYSRESET_PSCI \
+             MTD_NOR_FLASH ENV_IS_NOWHERE ENV_SPI_EARLY ENV_SECT_SIZE_AUTO EFI_LOADER PSCI_RESET SYSRESET_PSCI \
              WATCHDOG_AUTOSTART MMC CMD_EXT4_WRITE FAT_WRITE BOOTDEV_ETH CMD_EEPROM \
              CMD_FDT LZMA CMD_MII CMD_ELF CMD_LOADS; do
       ! grep -q "^CONFIG_$k=y" $c || { echo "config: CONFIG_$k is on"; exit 1; }
@@ -204,7 +207,12 @@ let
     sz=$(stat -c %s ${s3}/u-boot-ipxe-08000000.fimg)
     [ "$sz" -le $((0x80000 - 0x4000)) ] || { echo "size: .fimg $sz B leaves < 16 KiB in the IPXE slot"; exit 1; }
     echo "size: ok (.fimg $sz B, $((0x80000 - sz)) B free in the IPXE slot)"
-    for kv in TEXT_BASE=0x08000000 POSITION_INDEPENDENT=y ENV_IS_NOWHERE=y \
+    for kv in TEXT_BASE=0x08000000 POSITION_INDEPENDENT=y \
+              ENV_IS_IN_SPI_FLASH=y ENV_REDUNDANT=y ENV_OFFSET=0xf90000 ENV_OFFSET_REDUND=0xfa0000 \
+              ENV_SIZE=0x10000 ENV_SECT_SIZE=0x10000 ENV_SPI_BUS=0 ENV_SPI_CS=0 \
+              ENV_SPI_MAX_HZ=25000000 CMD_SAVEENV=y SPI_FLASH_WRITE_WINDOW=y \
+              SPI_FLASH_WRITE_WINDOW_BUS=0 SPI_FLASH_WRITE_WINDOW_CS=0 \
+              SPI_FLASH_WRITE_WINDOW_START=0xf90000 SPI_FLASH_WRITE_WINDOW_SIZE=0x20000 \
               CMD_EXT4=y CMD_LOADB=y CMD_WGET=y CMD_I2C=y CMD_PCI=y BOOTMETH_EXTLINUX=y \
               'LOCALVERSION="-dmc12-selfinit"' PCIE_ALPINE_V2=y CMD_ALPINE_V2_PCIE=y PCI_INIT_R=y \
               ALPINE_V2_MUIO_INIT=y ALPINE_V2_GPIO_INIT=y ALPINE_V2_CCU_IO_COHERENCY=y CMD_ALPINE_V2=y \
@@ -212,7 +220,20 @@ let
               SPI_FLASH_READ_ONLY=y SPI_MEM_READ_ONLY=y AL_ETH=y SYSRESET_DMC12_CPLD=y; do
       grep -qx "CONFIG_$kv" $c || { echo "config: CONFIG_$kv missing"; exit 1; }
     done
-    echo "config: ok (PCIe RC init, MUIO/CCU, read-only SF; no SF write/lock/unlock, no env storage)"
+    # both env copies inside the window, sector aligned, clear of the factory env pair
+    python3 - $c <<'PY'
+    import sys
+    c = dict(l.strip().split("=", 1) for l in open(sys.argv[1]) if l.startswith("CONFIG_") and "=" in l)
+    h = lambda k: int(c["CONFIG_" + k], 0)
+    ws, wz, sz, sect = h("SPI_FLASH_WRITE_WINDOW_START"), h("SPI_FLASH_WRITE_WINDOW_SIZE"), h("ENV_SIZE"), h("ENV_SECT_SIZE")
+    for off in (h("ENV_OFFSET"), h("ENV_OFFSET_REDUND")):
+        assert ws <= off and off + sect <= ws + wz and sz <= sect and off % sect == 0, hex(off)
+        assert off + sect <= 0xfd0000 or off >= 0x1000000, f"{off:#x} hits the factory env"
+    assert abs(h("ENV_OFFSET") - h("ENV_OFFSET_REDUND")) >= sect
+    assert ws >= 0xb5f000 and ws + wz <= 0xfb0000, "window outside the blank BOOT_APP 1 tail"
+    print(f"env: ok (copies {h('ENV_OFFSET'):#x}/{h('ENV_OFFSET_REDUND'):#x} x {sect:#x} inside window {ws:#x}+{wz:#x}; factory env 0xfd0000-0xfeffff untouched)")
+    PY
+    echo "config: ok (PCIe RC init, MUIO/CCU, read-only SF except the env window; no SF lock/unlock, env in SPI)"
 
     h=$(aarch64-unknown-linux-gnu-readelf -h ${si}/u-boot)
     grep -qi 'Entry point address:.*0x8000000$' <<<"$h"
@@ -239,19 +260,30 @@ let
     # board_init: MUIO pin functions, then the GPIO list (the vendor order)
     [ "$(fn board_init | grep -oE 'bl.*<alpine_v2_(muio|gpio)_init>' | sed 's/.*<//; s/>//' | tr '\n' ' ')" = \
       "alpine_v2_muio_init alpine_v2_gpio_init " ] || { echo "elf: board_init order"; exit 1; }
-    # SPI NOR program/erase/lock code and the sf write paths are not linked
-    # (the uclass erase/write ops remain as thin calls into the -EROFS stubs)
-    for s in spi_nor_erase spi_nor_write spi_nor_write_data sst_write sst_write_byteprogram \
-             spi_nor_erase_sector write_sr write_sr_and_check macronix_quad_enable stm_lock \
-             stm_unlock spi_flash_update spi_flash_update_block do_spi_flash_erase do_spi_protect \
-             do_spi_flash_test; do
+    # No lock/SR/quad-enable/SST code and no sf write paths. The NOR erase/program
+    # code exists only behind the window check: if spi_nor_erase/spi_nor_write
+    # are not inlined, their only callers are the window hooks and their
+    # address is never taken (no relocation of it).
+    for s in sst_write sst_write_byteprogram write_sr write_sr_and_check macronix_quad_enable \
+             stm_lock stm_unlock spi_flash_update spi_flash_update_block do_spi_flash_erase \
+             do_spi_protect do_spi_flash_test; do
       ! grep -q " $s$" syms.txt || { echo "elf: $s is linked"; exit 1; }
     done
+    aarch64-unknown-linux-gnu-readelf -rW ${si}/u-boot > rela.txt
+    for s in spi_nor_erase spi_nor_write spi_nor_erase_chip spi_nor_erase_sector; do
+      a=$(awk -v s=$s '$3 == s {print $1}' syms.txt)
+      [ -n "$a" ] || continue
+      bad=$(awk -v s="<$s>" '/^[0-9a-f]+ <.*>:$/ {f = $2} $0 ~ "bl.*" s {print f}' dis.txt |
+            grep -vxE '<(spi_nor_ro_erase|spi_nor_ro_write|spi_nor_erase)>:' || true)
+      [ -z "$bad" ] || { echo "elf: $s called from $bad"; exit 1; }
+      ! grep -qi "$(sed 's/^0*//' <<<"$a")$" rela.txt || { echo "elf: address of $s taken"; exit 1; }
+    done
     b=${si}/u-boot.bin
+    grep -aq 'outside the write window, refused' $b
     ! grep -aqE 'sf (write|erase|update|protect) |destructive test' $b || { echo "sf write help present"; exit 1; }
     grep -aq 'read-only build: no write, erase, update or protect' $b
     grep -aq 'spi-mem: read-only build, opcode %02x refused' $b
-    echo "elf: ok (PCIe/SPI drivers, alpcie/alpine/sf commands; no SPI NOR write, erase, lock or quad-enable code; sf read-only)"
+    echo "elf: ok (PCIe/SPI drivers, alpcie/alpine/sf commands; SPI NOR erase/program only behind the window hooks; no lock, SR-write or quad-enable code; sf read-only)"
 
     t=${si}/u-boot.dtb
     [ "$(fdtget -t x $t /muio@fd8a8000 amazon,pins)" = "0 2 1 2 14 2 15 2 16 0" ]
@@ -302,6 +334,22 @@ let
     mkdir $out; echo pass > $out/result
   '';
 
+  # include/spi_flash_window.h out of the series: the SPI NOR write window's
+  # range check and command filter, on the host with the DMC-12 window.
+  windowTest = pkgs.runCommandCC "alpine-v2-uboot-spi-window" {
+    nativeBuildInputs = [ pkgs.patchutils ];
+    test = builtins.path { path = ./window-test; name = "alpine-v2-window-test"; };
+  } ''
+    set -euo pipefail
+    for p in ${toString alpine.patches}; do
+      filterdiff -i '*/include/spi_flash_window.h' "$p"
+    done > w.diff
+    mkdir ub; (cd ub && patch -s -p1 < ../w.diff)
+    $CC -O2 -Wall -Werror -Iub/include -o run $test/window-test.c
+    ./run | tee log.txt
+    mkdir $out; cp log.txt $out/
+  '';
+
   pcieInit = pkgs.runCommandCC "alpine-v2-uboot-pcie-init" {
     nativeBuildInputs = [ pkgs.patchutils ];
     hal = builtins.path { path = ./al-pcie-hal; name = "al-pcie-hal"; };
@@ -345,4 +393,5 @@ in pkgs.linkFarm "alpine-v2-uboot-tests" [
   { name = "qemu-virt"; path = qemu; }
   { name = "selfinit"; path = selfinit; }
   { name = "pcie-init"; path = pcieInit; }
+  { name = "spi-window"; path = windowTest; }
 ]
