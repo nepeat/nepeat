@@ -315,6 +315,7 @@ in {
       vs.interfaces = mkOption { type = types.attrsOf types.str; default = { }; example = { "Ethernet5/1" = "eth1"; }; description = "vs only: kernel interface carrying a port's packets (alias -> ifname); other ports get dummy interfaces."; };
     };
     syncdArgs = mkOption { type = types.listOf types.str; default = [ "-u" "-z" "redis_sync" ]; description = "syncd arguments besides -p <profile>."; };
+    recordDir = mkOption { type = types.str; default = "/var/log/swss"; description = "orchagent -d: where sairedis.rec/swss.rec go. /var/log/swss (persistent) or a path under /run/ (tmpfs: no flash wear, lost on reboot)."; };
     orchagentArgs = mkOption { type = types.listOf types.str; default = [ "-b" "1024" "-z" "redis_sync" ]; description = "orchagent arguments besides -d and -m."; };
     cliNamingMode = mkOption { type = types.enum [ "default" "alias" ]; default = "alias"; description = "SONIC_CLI_IFACE_MODE for login shells (alias: Ethernet<cage>/<sub>)."; };
     kernelModules = mkOption { type = types.listOf types.str; default = [ "team" "team_mode_loadbalance" "bridge" "8021q" "dummy" ] ++ optional vs "tun"; description = "Kernel modules the managers need (team for PortChannels, bridge for VLANs)."; };
@@ -468,12 +469,16 @@ in {
       };
       sonic-orchagent = daemon {
         description = "SONiC orchagent";
-        exec = concatStringsSep " " ([ "${swss}/bin/orchagent" "-d" "/var/log/swss" "-m" cfg.macAddress ] ++ cfg.orchagentArgs);
+        exec = concatStringsSep " " ([ "${swss}/bin/orchagent" "-d" cfg.recordDir "-m" cfg.macAddress ] ++ cfg.orchagentArgs);
         bindsTo = unit "syncd";
         after = [ (unit "portsyncd") ];
         extra = {
           upholds = map unit managers;
-          serviceConfig.LogsDirectory = "swss";
+          # sairedis/swss records: /var/log/swss (default) or a tmpfs path under
+          # /run (no flash wear; kept across restarts, lost on reboot).
+          serviceConfig = if lib.hasPrefix "/run/" cfg.recordDir
+            then { RuntimeDirectory = lib.removePrefix "/run/" cfg.recordDir; RuntimeDirectoryPreserve = "yes"; }
+            else { LogsDirectory = "swss"; };
         };
       };
     } // listToAttrs (map (n: nameValuePair "sonic-${n}" (daemon {
@@ -485,6 +490,9 @@ in {
       extra = optionalAttrs (n == "teammgrd") {
         # teamd instances run in this unit's cgroup (stopped with it).
         serviceConfig.RuntimeDirectory = "teamd";
+        # teamd logs every 1 s usock StateDump poll at debug (~60 lines/min per
+        # PortChannel): keep debug out of the journal (flash wear).
+        serviceConfig.LogLevelMax = "info";
       };
     })) managers) // optionalAttrs vs {
       # The virtual SAI forwards each port's packets to an interface from the
