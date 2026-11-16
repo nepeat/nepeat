@@ -39,6 +39,9 @@ numGenerations=@numGenerations@
 dtbName=@dtbName@
 # Staging dir under /boot: "nixos" alone; "nixos-uboot" when extlinux shares /boot ("both").
 kdir=@kernelsDir@
+# gzip the kernel uImage when the raw Image is below this many bytes (0 = never): the factory
+# U-Boot gunzips into CONFIG_SYS_BOOTM_LEN = 64 MiB (mov w7, #0x4000000 in its bootm).
+gzipBelow=@gzipBelow@
 
 mkdir -p "$target/$kdir"
 
@@ -76,17 +79,27 @@ copyToKernelsDir() {
 stageKernel() {
     local src
     src=$(readlink -f "$1")
-    local dst="$target/$kdir/$(cleanName "$src").uImage"
+    # Uncompressed (-C none) by default: bootm only memmoves it to 0x04200000 (2 MiB aligned).
+    # gzip (-C gzip, distinct name) only below $gzipBelow: bootm then gunzips to 0x04200000 and
+    # the factory's 64 MiB CONFIG_SYS_BOOTM_LEN must hold the raw Image (a full-config 7.3 Image
+    # is 68 MiB, lean 46 MiB). Load plan: kernel 0x10000000, initrd 0x20000000, DTB 0x04078000
+    # (see packages/dmc12-images/netboot-files.nix).
+    local comp=none suffix=uImage
+    if [ "$gzipBelow" -gt 0 ] && [ "$(stat -L -c %s "$src")" -lt "$gzipBelow" ]; then
+        comp=gzip suffix=gz.uImage
+    fi
+    local dst="$target/$kdir/$(cleanName "$src").$suffix"
     if ! test -e "$dst"; then
-        local dstTmp="$dst.tmp.$$"
-        # Uncompressed (-C none): bootm only memmoves it to 0x04200000 (2 MiB aligned), so the
-        # factory U-Boot's gunzip size limit never applies (a full-config 7.3
-        # Image is 68 MiB). Load plan: kernel 0x10000000, initrd 0x20000000,
-        # DTB 0x04078000 (see packages/dmc12-images/netboot-files.nix).
-        mkimage -A arm64 -O linux -T kernel -C none \
+        local dstTmp="$dst.tmp.$$" payload="$src"
+        if [ "$comp" = gzip ]; then
+            payload="$dst.gz.$$"
+            gzip -9n -c "$src" > "$payload"
+        fi
+        mkimage -A arm64 -O linux -T kernel -C "$comp" \
             -a 0x04200000 -e 0x04200000 \
             -n "DMC-12 NixOS kernel" \
-            -d "$src" "$dstTmp" > /dev/null
+            -d "$payload" "$dstTmp" > /dev/null
+        [ "$payload" = "$src" ] || rm -f "$payload"
         mv "$dstTmp" "$dst"
     fi
     filesCopied[$dst]=1

@@ -159,6 +159,12 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-16 12:25: **factory U-Boot boots gzip'd kernels up to 64 MiB** (its CONFIG_SYS_BOOTM_LEN, `mov w7,
+  #0x4000000` in bootm). Proven on u01 via the stage3 `u` escape: TFTP'd lean 7.3.4 (45.8 MiB raw, 15.7 MB
+  gzip uImage) -> `Uncompressing Kernel Image ... OK` -> Linux banner. The `both` layout now gzips the
+  factory half below 60 MiB (p01: /boot per generation 132 -> 67 MB); plain uboot-menu unchanged.
+  Side finding: the factory U-Boot can't read our standard image's partition table (`No partition table
+  - scsi 0`), so it can't load files from u01's /boot (TFTP works).
 - 2026-11-16 12:10: **gzip'd kernels, slimmer initrd, "both" boot layout** (f6b7cca). u01 boots its extlinux
   kernel gzip'd through our U-Boot (`Uncompressing Kernel Image`, boot 10.2 s, smoke 16/16); minimal Image
   11.6 -> 4.9 MB, initrd 19.6 -> 15.6 MB (no LVM/TPM2/FIDO2 in stage 1, zstd -19), /boot 211 -> 153 MB.

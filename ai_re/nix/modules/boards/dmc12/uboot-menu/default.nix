@@ -107,6 +107,9 @@ let
       numGenerations = toString numGenerations;
       dtbName = config.hardware.deviceTree.name;
       inherit kernelsDir;
+      # both: gzip the factory U-Boot's kernel when it fits its 64 MiB gunzip buffer with a 4 MiB
+      # margin; plain uboot-menu keeps uncompressed uImages (unchanged).
+      gzipBelow = toString (if both then 60 * 1024 * 1024 else 0);
       bootScr = "${bootScr}";
     };
   };
