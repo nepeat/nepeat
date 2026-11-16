@@ -209,7 +209,7 @@ kernel did not fit; a U-Boot does).
 | keys `p`/`e`/`u` | proven on hw | same code; untested on hw |
 | bad app header | raw path ran stage2 B as AArch64 (silent death) | raw path reads TOC magic as size → `Invalid application size!` spin |
 | BOOT_MODE data trap | hang, no escape | same |
-| recovery | ROM instance fallback to stage2 B, XMODEM proven from ROM code, Route A proven | no stage2 B; ROM not dumped; Route A/B not ported |
+| recovery | ROM instance fallback to stage2 B, XMODEM proven from ROM code, Route A proven | no stage2 B; ROM dumped 2026-11-15 (`analysis/boot-rom/`, crc32 d1a98647), not yet analysed; Route A/B not ported |
 | spare app slots | IPXE ×2 blank | none; TOC2 at 0x20000 instead |
 
 ## 10. Open
