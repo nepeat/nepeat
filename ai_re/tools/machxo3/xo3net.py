@@ -188,7 +188,9 @@ def kname(k):
     return 'R%dC%d_%s' % (k[2], k[1], k[0]) if len(k) == 3 else '_'.join(map(str, k))
 
 
-def build(config_path):
+def build(config_path, trace=None):
+    """trace: optional dict, filled with internals for xo3l4.py (lossless layer 4);
+    the returned netlist is the same with or without it."""
     pytrellis.load_database(DB)
     dev, variant, tcfg = parse_config(config_path)
     cc = pytrellis.ChipConfig.from_string(open(config_path).read())
@@ -321,11 +323,16 @@ def build(config_path):
         by_name[c['bel']].append(cname)
     leftovers = []
 
+    hit = []
+
     def put(cname, key, val):
         if cname in cells:
             cells[cname]['cfg'][key] = val
+            hit.append(cname)
             return True
         return False
+
+    setting_owner = {}
 
     for tname, cfg in tcfg.items():
         x, y = tile_loc[tname]
@@ -335,6 +342,7 @@ def build(config_path):
         for kind, k, v in items:
             pfx, rest = k.split('.', 1)
             ok = False
+            del hit[:]
             if tt.startswith('PLC') and pfx.startswith('SLICE'):
                 if rest[:2] in ('K0', 'K1'):
                     ok = put(pre + pfx + '.' + rest[:2], rest[3:], v)
@@ -362,6 +370,8 @@ def build(config_path):
                     ok = put(cands[0], rest, v)
             if not ok:
                 leftovers.append('%s %s=%s' % (tname, k, v))
+            else:
+                setting_owner[(tname, kind, k)] = hit[0]
 
     # PIO output/tristate source (Trellis has no arc for it): the fabric
     # JPADDO/JPADDT wires, or the IOLOGIC output/TS register when the
@@ -443,6 +453,10 @@ def build(config_path):
         'driver_conflicts': conflicts,
         'wire_model_notes': dict(W.notes),
     }
+    if trace is not None:
+        trace.update(resolve=resolve, setting_owner=setting_owner, cfg_arcs=cfg_arcs, dropped=dropped,
+                     tile_type=tile_type, tile_loc=tile_loc, canon=W.canon, chip=chip, bitdbs=bitdbs,
+                     device=dev, variant=variant)
     return {'device': variant or dev, 'cells': keep, 'nets': nets, 'accounting': acc}
 
 

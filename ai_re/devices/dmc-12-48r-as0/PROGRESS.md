@@ -159,6 +159,13 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-16 03:00: **CPLD decode complete to readable RTL** (agents; `cpld.md`, `tools/machxo3/`): ladder
+  L4 lossless netlist / L5 blocks / L6 templates each rebuild cfg.bin byte-identical; L7 = 18 readable
+  Verilog modules, yosys-equivalent to the netlist (1042/1042). Reads of any 0x68 register proven
+  side-effect-free. Found: 0x28/0x29 = a CPLD watchdog (1.034 s ticks, expiry resets), 0x2a.b1 = sticky
+  WDT-reset flag forcing full fans, 0x20 = level (not latched) status, TMP75 alerts force full fans in
+  hardware, 5 "I2C masters" = stuck-bus recovery engines. Top bug: no fan failsafe on a host hang unless
+  the WDT is armed (software fix possible). Design data stays in dumps/.
 - 2026-11-16 01:40: **production unit p01 inventoried read-only** (`units.md` "Production units"): CPLD identical
   to u01, SSD differs; its `/run` is full (journald) and it has the USB INTx bug. Tools: `cpld-readback.py
   --emit-sh/--parse-sh` and `fw-inventory.py --busybox --no-sudo` for python-less hosts. A readback leaves
