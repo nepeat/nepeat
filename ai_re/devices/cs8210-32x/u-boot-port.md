@@ -70,8 +70,8 @@ Goal (owner): replace the vendor U-Boot 2018.05 with our own upstream-based one,
   `u-boot.uimage` (kernel type, load = entry 0x08000000, `54cbd80b…`), `u-boot`, `.map`, `.dtb`, `.config`.
   `#uboot-alpine-v3-qemu` = same code + config on a QEMU fixture DT. `#uboot-cs8210-installer` (0027/0028:
   boot SPI writable only in the scheme A' windows, prompt `cs8210-installer> `) and its sandbox twin are
-  the SPI writer of [spi-upgrade-plan.md](spi-upgrade-plan.md). Installed 2026-11-17 as stage3's app; since 03:47Z slot B
-  (BAR fix 93662b1) boots NixOS + SONiC healthy cold and warm ([spi-upgrade-update-20261117.txt](spi-upgrade-update-20261117.txt)).
+  the SPI writer of [spi-upgrade-plan.md](spi-upgrade-plan.md). Installed 2026-11-17 as stage3's app; both slots hold the
+  BAR-fix build (93662b1), BOOT_MODE → slot A; NixOS + SONiC healthy cold and warm ([spi-upgrade-slotA-20261117.txt](spi-upgrade-slotA-20261117.txt)).
 - Control DT = `alpine-v3-cs8210.dts`, a byte copy of nepeat/nix `nixos/module/cs8210/kernel/dts/amazon/`
   (a `path:` flake cannot read it). After any edit there, from this directory: `cmp ../../../nix/nixos/module/cs8210/kernel/dts/amazon/alpine-v3-cs8210.dts ../../nix/packages/uboot/alpine-v3/alpine-v3-cs8210.dts`
   and copy. `alpine-v3.dtsi` comes from U-Boot's dts/upstream (identical to Linux 7.3.4's).

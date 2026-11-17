@@ -13,7 +13,7 @@
 - **Recover:** `systemctl stop sonic.target` or an older generation from the U-Boot menu; hung box or dead I2C FPGA
   (`/run/cs8210-qsfp.dead`): power cycle. Vendor U-Boot prompt: `123<Enter>` within 3 s; from there ONIE in SPI (`run onie_bootcmd`,
   RAM only) or **Route R** into the boot ROM UART CLI, no flash write ([uart-recovery.md](uart-recovery.md), [boot-chain.md](boot-chain.md)).
-- **Open:** our U-Boot ([u-boot-port.md](u-boot-port.md)): **our U-Boot boots from SPI (scheme A', slot B since 2026-11-17 03:47Z)**: cold and warm boots bring up NixOS + SONiC healthy; slot A = older build, factory U-Boot = `u` at stage3 or `spi_upgrade.py rollback --write` ([spi-upgrade-plan.md](spi-upgrade-plan.md)); owner decision on
+- **Open:** our U-Boot ([u-boot-port.md](u-boot-port.md)): **our U-Boot boots from SPI (scheme A', both slots the same fixed build, BOOT_MODE → slot A since 2026-11-17 04:39Z)**: cold and warm boots bring up NixOS + SONiC healthy; factory U-Boot = `u` at stage3 or `spi_upgrade.py rollback --write` ([spi-upgrade-plan.md](spi-upgrade-plan.md)); owner decision on
   publishing `ai_re/nix/packages/sai-teralynx/src/ifcs_api.h` (our IFCS declarations from the vendor ctypes + DWARF); AS7760 redeploy of
   the shared SONiC changes (local_asn, teamd MAC, networkd rules); SAI gaps in sai-features.md (WRED/ECN, PFC/lossless, SET_DSCP/remarking,
   sFlow sample policing (isai's ACE impossible on 0.12.41, the CPU-queue meter misbehaves: off), tunnels/IPMC/MPLS/NAT, warm boot,
@@ -116,6 +116,13 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-17 — A' slot A rewritten with the fixed build; BOOT_MODE → slot A
+
+- Same update path (plan 7676df81…; verify 133/133 from the installed model, sandbox rehearse): slot A (kill page over the old
+  build, erase, body, header, magic last) + BOOT_MODE → 0x110, read back == model. Cold boot + warm reboot via slot A: all checks
+  pass (FPGA BAR, Credo, BGP/BFD/LACP 2/2, AVS, fand, mtd0ro == model). Both slots now hold 58e4a4f0….
+  [spi-upgrade-slotA-20261117.txt](spi-upgrade-slotA-20261117.txt).
 
 ### 2026-11-17 — A' update: slot B with the MDIO-FPGA BAR fix, BOOT_MODE flipped
 

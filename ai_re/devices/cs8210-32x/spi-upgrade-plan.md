@@ -1,11 +1,10 @@
 # CS8210-32X: our U-Boot into the boot SPI (scheme A'): flasher, safety case, plan
 
-Status 2026-11-17: **installed and updated.** Install 03:10Z (slot A, [spi-upgrade-install-20261117.txt](spi-upgrade-install-20261117.txt));
-update 03:47Z to slot B with the MDIO-FPGA BAR fix (93662b1), BOOT_MODE → slot B
-([spi-upgrade-update-20261117.txt](spi-upgrade-update-20261117.txt)): cold and warm boots via slot B bring up NixOS + SONiC (BGP 2/2,
-BFD 2/2, LACP, Credo, AVS, fand). Slot A holds the older build (Credo down on a cold boot: don't switch back to it).
-`u` escape proven on hardware with our app live (standalone agent 3x; this update's session once). Factory boot: `u`, or
-`rollback --write`. Scheme and evidence of the boot chain:
+Status 2026-11-17: **installed; both slots hold the same fixed build** (`#uboot-cs8210-stage3app` 58e4a4f0…, BAR fix 93662b1),
+BOOT_MODE → slot A. Install 03:10Z ([spi-upgrade-install-20261117.txt](spi-upgrade-install-20261117.txt)), slot B 03:47Z
+([spi-upgrade-update-20261117.txt](spi-upgrade-update-20261117.txt)), slot A 04:39Z ([spi-upgrade-slotA-20261117.txt](spi-upgrade-slotA-20261117.txt)):
+cold and warm boots via either slot bring up NixOS + SONiC (BGP 2/2, BFD 2/2, LACP, Credo, AVS, fand). `u` escape proven on
+hardware with our app live. Factory boot: `u`, or `rollback --write`. Scheme and evidence of the boot chain:
 [boot-chain.md](boot-chain.md) §5/§7; our U-Boot: [u-boot-port.md](u-boot-port.md); escape and
 recovery routes: [uart-recovery.md](uart-recovery.md). DMC-12 original of this design:
 [../dmc-12-48r-as0/spi-upgrade-plan.md](../dmc-12-48r-as0/spi-upgrade-plan.md).

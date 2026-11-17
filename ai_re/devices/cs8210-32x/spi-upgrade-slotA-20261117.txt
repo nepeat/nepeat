@@ -1,0 +1,18 @@
+CS8210 scheme A' update into slot A (same fixed build as slot B), 2026-11-17 04:35-04:39Z (20:35-20:39 PST), owner "lets fix slot A" via the parent, lease spi-flasher
+Tool: scripts/spi_upgrade.py update --write --power-cycle --boots-linux (plan 7676df8136d95cff; journal: start + 2 intent/done pairs + update record + note)
+Payload: #uboot-cs8210-stage3app (HEAD 9260219) u-boot-app-08000000.fimg sha256 58e4a4f069d634e3... (= slot B); installer sha256 8128d2b1...
+Before: verify from the installed model 133/133 (spi-upgrade-verify-slotA-20261117.txt, incl. the slot-A kill page cuts: all boot ours:B or, with u, factory);
+sandbox rehearse of the payload (spi-upgrade-rehearse-slotA-20261117.txt). Transcript serial-spiupgrade-slotA-20261117.txt (git-ignored).
+
+== Session
+mtd0ro == model (1b28ed71...); power cycle; 'u' from stage2's banner -> "User request for loading U-Boot!" -> factory prompt (123)
+installer at EL2; full read 0..0x380000 == model
+slot A 0x0f0000: kill page (old build's live header) -> erase -> body -> header 4..0x48 -> magic; read back (region crc32 940600a3)
+BOOT_MODE 0x30000: kill page -> erase -> body -> header -> magic -> app 0x110 (region crc32 2a1f2d63)
+full re-read == new model; power cycle
+
+== Cold boot (slot A) and one warm reboot: identical results
+stage3 "Loading application to 08000000 (422752 bytes)", "U-Boot 2026.10-cs8210-selfinit", EL2, x0=0x0 (both slots hold the same bytes; BOOT_MODE 0x110 in the read-back model says slot A)
+NixOS /chosen 2026.10-cs8210-selfinit; MDIO FPGA 0004:01:00.0 Region 0 e0200000 [2M] Mem+; Credo "config done!", no "resource0 not available"
+BGP vrf-a/vrf-b Established, BFD 2/2 up, PortChannel1/2 link up; cs8210-asic-avs active (ASIC COMMAND 0x0406, VOUT 0x0333); fand active; cage guard ok
+mtd0ro == model (1ca12fdce169c427) after the warm reboot. status: TOC2 valid, BOOT_MODE 0x110, slot A and slot B OK 0x67360 B each. Lease released.

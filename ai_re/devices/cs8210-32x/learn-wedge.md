@@ -51,7 +51,8 @@ On the self-loop only the CPU sends, so Ethernet0 RX = Ethernet120 TX: "both dir
 - Linux 7.3.4 `drivers/pci/pcie/aspm.c` enables L0s and L1 by default on devicetree platforms (DT overrides
   `aspm-no-l0s` / `aspm-no-l1` on the root port or device node). Here: root port 0001:00:00.0 LnkCtl "ASPM L0s
   Enabled" (L1 not: exit latency 64 us > the ASIC's 1 us acceptable), CommClk- on both ends; no other external link
-  has ASPM (FPGA links: none, CommClk+).
+  has ASPM (FPGA links: none, CommClk+). Same with our U-Boot training the link (2026-11-16 19:56: L0s on, CESta
+  BadTLP + Timeout after 5 min of uptime).
 - A/B 2026-11-16 17:01 (CESta cleared before each 1 s window): L0s on, 5/5 windows latch root port Timeout (replay
   timer) + BadTLP and ASIC Timeout + BadTLP + Rollover (REPLAY_NUM rollover: link retrain); L0s off, 0/5, and 0
   since (soak, root port polled every minute).

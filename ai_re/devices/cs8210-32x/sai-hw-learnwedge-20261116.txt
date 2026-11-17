@@ -61,3 +61,8 @@ for section 5 (counted from 17:27:36). Monitor script: lw-soak.sh (in the raw di
 - Run 1, boot 3240ff4b: 17:27:36 - ~18:38 (1 h 11 min; ended by the U-Boot flasher's reboot, lease "spi-flasher"):
   syncd pid 30869 NRestarts 0, no watchdog or kernel line, root port CESta/UESta 0, L0s off, ipd TX-3 Full 0;
   18:15 beat: Ethernet0/120 Linux tx 15326/15888 (rising). Paused for the A' SPI install window (parent, 19:07).
+- Run 2, boot 5f1d3e86, OUR U-Boot from SPI (u-boot,version 2026.10-cs8210-selfinit; PCIe trained by pcie_alpine_v3):
+  start 19:56:41, syncd pid 4149 (up since ~19:51). At start the kernel had again enabled L0s on the root port and its
+  CESta read 0x1040 (BadTLP + Timeout) after 5 min: the link errors do not depend on which U-Boot trained the link.
+  L0s off + CESta cleared 19:56:41. Paused 20:29:32 for the next SPI window: 33 min clean (syncd 4149, NRestarts 0, no
+  watchdog/kernel line, root port CESta/UESta 0); L0s set back to 1 by hand.
