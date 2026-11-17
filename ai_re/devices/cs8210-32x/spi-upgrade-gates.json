@@ -1,0 +1,7 @@
+{
+  "_doc": "scripts/spi_upgrade.py refuses --write (install/update/switch) while a gate below is null; set one to {date, by, evidence} when met (\"recovery\": a 1.8 V programmer + clip plan is ready, or the owner accepts a programmer-only recovery risk) (spi-upgrade-plan.md 'Gates'). rollback and env-reset are gate-free. The emulation ('verify') and sandbox ('rehearse') records of the exact plan live in spi-upgrade-journal.jsonl.",
+  "review": null,
+  "payload": null,
+  "recovery": null,
+  "owner_go": null
+}

@@ -60,7 +60,7 @@ S2_SPIN = 0xFF00F094                                  # main's "stop forever" lo
 
 STUBS3 = {
     0x01039BF8: "board pre-init", 0x010230D0: "NB PLL read (on error: 'PLL init failed' print only)",
-    0x0103753C: "I2C init", 0x0103A9BC: "APCEA early start (no APCEA object here)",
+    0x0103753C: "I2C init",
     0x01037EB4: "pre-DT hook", 0x01039984: "DT-based init (MUIO, GPIO)", 0x0103ACC0: "ETH init",
     0x0103ABF4: "SerDes init + firmware download", 0x01024478: "CPU handles", 0x010244FC: "CPU handles",
     0x01023B70: "secondary CPU power", 0x01023AE0: "secondary CPU power", 0x01005100: "console flush",
@@ -83,6 +83,9 @@ class Machine:
     def __init__(self, image, sram=None, dram=None, keys=b""):
         uc = self.uc = Uc(UC_ARCH_ARM, UC_MODE_ARM)
         uc.ctl_set_cpu_model(UC_CPU_ARM_CORTEX_A15)
+        from unicorn.arm_const import UC_ARM_REG_C1_C0_2, UC_ARM_REG_FPEXC
+        uc.reg_write(UC_ARM_REG_C1_C0_2, uc.reg_read(UC_ARM_REG_C1_C0_2) | (0xF << 20))   # CPACR: VFP/NEON
+        uc.reg_write(UC_ARM_REG_FPEXC, 0x40000000)                                         # FPEXC.EN
         for base, size in ((0xFF000000, 0x80000), (SRAM, 0x10000), (0, 0x10000000),
                            (0xF0070000, 0x30000), (0xF0400000, 0x200000), (0xF8000000, FLASH)):
             uc.mem_map(base, size)
@@ -97,7 +100,7 @@ class Machine:
         pbs = {0x110: STRAP, 0x278: 0}
         uc.mmio_map(PBS, 0x1000, lambda uc, o, s, _: pbs.get(o, 0), None, lambda *a: None, None)
         uc.hook_add(UC_HOOK_MEM_UNMAPPED, self.unmapped)
-        self.stop = None
+        self.stop, self.stop_on_mmio = None, None
 
     def uart_r(self, uc, off, size, _):
         if off == 0x14:
@@ -112,6 +115,9 @@ class Machine:
 
     def unmapped(self, uc, access, addr, size, value, _):
         page = addr & ~0xFFF
+        if self.stop_on_mmio and self.stop_on_mmio():
+            self.stop = f"stopped at the first unmodelled access after the probe point ({addr:#x})"
+            uc.emu_stop()
         self.auto[page] = self.auto.get(page, 0) + 1
         uc.mem_map(page, 0x1000)
         return True
@@ -226,8 +232,10 @@ def stage2(image):
             "sram": bytes(m.uc.mem_read(SRAM, 0x10000)), "stg3": stg3}
 
 
-def stage3(image, s2, keys=b"", ram=False):
-    """Factory stage3 app sequence 0x01037500 with stage2's SRAM; keys = queued UART RX bytes."""
+def stage3(image, s2, keys=b"", ram=False, serdes=False):
+    """Factory stage3 app sequence 0x01037500 with stage2's SRAM; keys = queued UART RX bytes.
+    serdes: run the SerDes init 0x0103abf4 for real (its firmware lookups and loads read the
+    TOC) and stop at its first hardware access after both firmware loads (the download)."""
     if not s2["stg3_ok"]:
         raise SystemExit("stage2 did not load the dumped factory stage3")
     dram = {0x01000000: s2["stg3"]}
@@ -240,9 +248,11 @@ def stage3(image, s2, keys=b"", ram=False):
     m.uc.mem_write(G_SHARED_PTR, struct.pack("<I", SHARED))
     m.uc.mem_write(G_BOOTDEV, bytes([1 if ram else 2]))   # ROM boot device: 1 UART, 2 SPI
     m.uc.mem_write(G_UART0, struct.pack("<I", UART0))     # console handle (set by the skipped init)
-    m.stub(STUBS3)
+    m.stub({k: v for k, v in STUBS3.items() if not (serdes and k == 0x0103ABF4)})
     m.at(S3_PRINT, m.printf)
     seen = {}
+    if serdes:
+        m.stop_on_mmio = lambda: sum("Loading SerDes" in t for _, t in m.prints) >= 2
 
     def lookups_done():
         seen["app_id"] = u32(m.uc.mem_read(G_APP, 4))
@@ -267,7 +277,17 @@ def stage3(image, s2, keys=b"", ram=False):
     m.at(S3_EXEC, exec_app)
     m.at(S3_SPIN, spin)
     m.run(S3_START, 400_000_000)
+    if serdes:
+        seen["serdes_fw"] = {hex(a): hashlib.sha256(bytes(m.uc.mem_read(a, n))).hexdigest()
+                             for a, n in ((0x01120000, 0x57D0), (0x01130000, 0x7570))}
     return {"stop": m.stop, "prints": m.prints, "auto": sorted(m.auto), **seen}
+
+
+def serdes_probe(image):
+    """The SerDes firmware stage3 loads (from whichever TOC is active), as sha256 by address."""
+    image = bytes(image).ljust(FLASH, b"\xff")
+    s3 = stage3(image, stage2(image), serdes=True)
+    return {"loads": [t for _, t in s3["prints"] if "Loading SerDes" in t], "fw": s3.get("serdes_fw"), "stop": s3["stop"]}
 
 
 def boot(image, keys=b"", ram=False):

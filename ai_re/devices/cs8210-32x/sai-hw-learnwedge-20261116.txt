@@ -1,0 +1,60 @@
+# CS8210-32X learn-ring guard, ASPM, containment: chip evidence 2026-11-16 (PST)
+# Topic: learn-wedge.md. Raw files (local, git-ignored): analysis/research/learn-wedge-20261116/
+#   guard-chip-test-log.txt        sha256 54efc1df6f7bbe1603efe4d2baea467877498922accdf073c061599374953276
+#   guard-chip-test-journal.txt    sha256 21dcd8f9e67d964a07c0dc4a720c8c713856cf7b9a31b925ca893f6661350ac1
+#   guard-chip-test-ifcs-guard.prom sha256 e79875395c6e0d2dccb53401a1d9355d1ccb1949f6ab9a27186ae151da3e7484
+#   lw-guard-test.sh (the box script) sha256 aad259f13bc96a86635141da9a17bffce6b071bbb60c10a0783abc5b5e322a18
+#   vendor-memmax-log.txt          sha256 6435e06b83be595da82f06fc41c87e0430d3c05f3ec5019a9e13e41f50a19536
+#   lw-soak.sh (soak monitor)      sha256 ef298133b08b288bbb30561cc0fe264362dd6530b897e187ce5c99c4b55aa2a6
+#   aspm-ab-1701.txt, lspci-asic-link-1659.txt; learn-thread.dis.txt (vendor disassembly, never in git)
+
+## 1. Offline
+- sai-teralynx native nix build (checkPhase): test_ifcs 1015 checks, 0 failed (t_learn.cpp: 48; the mock replays the
+  learn pass through its PLT: transient and persistent all-ones B, out-of-range B, phase wrap, 0x4864/0x485c RMW,
+  im_malloc limit; control without the guard: n = 0xFFFFF801, 0x7FFFFC008 B request, endless walk); frontend 2667, 0.
+- GOT redirect made arch-native (R_X86_64_* on the build host), so the x86 tests exercise it; it reports
+  "node_pci_reg_read32 1, node_pci_reg_write32 1, im_malloc 1" on the mock.
+- aarch64 cross build (cs8210 nixpkgs + overlays): /nix/store/cdji4nr96q5apbd1sr1ipvk15yd6lh4z-sai-teralynx-aarch64-unknown-linux-gnu-0.1.0
+- ifcs-watchdog.py: 65 checks at build (was 48: root port LnkCtl/LnkSta, ring_stat, state across restarts and boots,
+  metrics incl. stale guard file, daemon counters). cs8210-sdk-watchdog oom path with stub systemctl/sleep: sequence
+  active, deactivating, failed/oom-kill -> 1 restart; a second oom-kill within 15 min -> logged, not restarted.
+- cs8210 system evaluates: cs8210-switch MemoryMax=3072M OOMPolicy=stop; cs8210-asic-aspm; watchdog --state; producer
+  prometheus-textfile-cs8210-ifcs.
+
+## 2. ASPM A/B (boot feb8cf62, SONiC running, lease "learn-wedge(aspm-ab)")
+16:59 lspci: root port 0001:00:00.0 LnkCtl "ASPM L0s Enabled; CommClk-", ASIC 0001:01:00.0 "ASPM Disabled; CommClk-",
+L1 PM substates capable but off; /sys/module/pcie_aspm/parameters/policy [default]; FPGA links 0002/0004 ASPM off,
+CommClk+. CESta root port 0x1040 (BadTLP, Timeout), ASIC 0x1140 (+ Rollover); UESta 0 both.
+17:01:17 W1C clear: the ASIC re-latched Timeout + Rollover before the read-back (0x1100).
+5 x 1 s windows each (clear both, sleep 1, read):
+  L0s on : RP CESta 0x1040 / 0x1000 / 0x1000 / 0x1000 / 0x1040, ASIC 0x1140 x5, RP LnkCtl 0x0c01
+  L0s off: RP 0, ASIC 0 (x5), RP LnkCtl 0x0c00   (echo 0 > /sys/bus/pci/devices/0001:01:00.0/link/l0s_aspm, rc 0)
+Root port poll every 5 s after that: 0 until the box was rebooted by another agent at ~17:09 (L0s back on).
+
+## 3. Guard on the chip (boot 3240ff4b, lease "learn-wedge(guard-chip-test)", 17:11:47-17:14:58)
+Cages 1+16 only; sonic.target stopped; sonic-syncd drop-in LD_LIBRARY_PATH=<build above>/lib + the test hook
+SAI_TERALYNX_IFCS_GUARD_INJECT; started; BFD Up in 11 s.
+- syncd: "learn-ring guard active: GOT entries node_pci_reg_read32 1, node_pci_reg_write32 1, im_malloc 1 (ring 2048,
+  im_malloc limit 1073741824 B, ...)" on the vendor libifcs.so.
+- reads ~1/s per register (38 at +~40 s); the ring was not idle (B = 0x1a: entries learned through the guard).
+- inject 0x4860 x2: "re-read 2 gave 0x0000001a: recovered". x10: 2 polls "learn poll skipped, returned 0x0000001a =
+  the consumer index last written to 0x4864", 3rd recovered. 0x4864 x4 / 0x485c x4: "write-back keeps its bits,
+  returned ... = the last valid value". 0x4860 x120: 30 polls skipped in 30 s, journal capped at 20 lines.
+- Throughout: syncd pid 9224, VmSize 1691876 kB constant, ifcs-learn thread 0-1 ticks, BFD both Up, no kernel
+  ifcs-learn/oom line. Final counters: invalid 0x4860 34, recovered 2, substituted 32; 0x4864 / 0x485c 1 each.
+- Restored: drop-in removed, SONiC restarted on the deployed libsai (1yx7cr56...), BFD Up in 11 s; lease released.
+
+## 4. Box runs of the new pieces (17:19, read-only; ASPM script under the lease)
+- watchdog --once --dry-run: "signals: none; root port ... DevSta=0x0000 UESta=0x00000000 CESta=0x00000000".
+- --metrics: triggers 0 per signal, AER bits 0, cs8210_asic_link_up 1, speed 8, width 4, aspm L0s 0, ipd TX-3
+  packets 5076 full 0, guard lines (the test's file; since then a stale file is not served, and that file was removed).
+- cs8210-asic-aspm: "0001:01:00.0: root port 0001:00:00.0 LnkCtl=0c00, device LnkCtl=0000" (already off), rc 0.
+
+## 5. Vendor stack under MemoryMax=3072M + OOMPolicy=stop (runtime drop-in; lease "learn-wedge(vendor-memmax)", 17:23-17:27)
+cs8210-switch up in 76 s (35 fpp netdevs); unit cgroup memory.current 387 MB steady, peak 494 MB, anon 363 MB, 3
+processes, innovium.user RSS 380 MiB; memory.events oom 0, oom_kill 0; stopped cleanly (Result success); SONiC back,
+BFD Up in 11 s. So 3 GiB leaves ~6x headroom. (raw: vendor-memmax-log.txt)
+
+## 6. Soak (lw-soak, SONiC at boot + deployed watchdog, L0s off by hand; deployed libsai has no guard)
+Start 17:15:27, boot 3240ff4b, syncd pid 15101; root port CESta cleared 17:15:36. SONiC was down 17:23:12-17:27:36
+for section 5 (counted from 17:27:36). Monitor script: lw-soak.sh (in the raw dir).

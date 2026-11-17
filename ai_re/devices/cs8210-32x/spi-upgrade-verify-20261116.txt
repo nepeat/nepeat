@@ -1,0 +1,221 @@
+bootchain_emu verify 2026-11-16 18:28 PST: plan d2dd7fce51c49bfa (install slot A),
+  payload U-Boot 2026.10-cs8210-selfinit data sha256 ac03324ce8b78f10, base mtd0 a22ff482563b84bd
+  stage2: exec 0x1000000; measured-boot extends factory 8, installed 10; MMIO pages touched ['0xf0200000']
+  installed, stage3 prints: Loading DT to 01100000 (46349 bytes)... | Board config ID: CS8210 | power_down_secondary_cpus: cpu_resume_regs invalid! | read_toc_obj_hdr: BOOT_APP not found in TOC! | read_toc_obj_hdr: APCEA not found in TOC! | Initialized general shared data | [stack usage]: unused bytes smaller then threshold 0x4000
+	total bytes: 0x0, used bytes: 0x0, unused bytes: 0x0 | Loading application to 08000000 (420368 bytes)...
+  SerDes FW loads (0x0103abf4 run for real up to the download): before ['Loading SerDes PCIe FW to 01120000 (22480 bytes)...', 'Loading SerDes non PCIe FW to 01130000 (30064 bytes)...'] {'0x1120000': '4afa4979fdb0ba32016acd992953dd26bdbc64de7b547975472dc5a9bc6d81fa', '0x1130000': 'd51994897faf593123ea2780299688b903807af659168e09b693020e8ac1ba8d'}; after identical
+  expected: 'ours'/'factory' = what stage3 executes (by flash offset + data hash); hang = stage3 or stage2 stops
+ok  factory dump                                                     -> factory 
+ok  factory + key p (on hw 11-15: 'User request for skipping APCEA!') -> factory   | User request for skipping APCEA!
+ok  installed                                                        -> ours:A  
+ok  installed + key u                                                -> factory   | User request for loading U-Boot!
+ok  installed + key p                                                -> factory   | User request for skipping APCEA!; User request for loading U-Boot!
+ok  installed, Route A RAM reader                                    -> ours:A  
+ok  factory, Route A RAM reader                                      -> factory 
+ok  install cut: env-erase: erase cut half-way                       -> factory 
+ok  install cut: env-erase: erase cut half-way + key u               -> factory 
+ok  install cut: env-erase: erased                                   -> factory 
+ok  install cut: env-erase: erased + key u                           -> factory 
+ok  install cut: app: erase cut half-way                             -> factory 
+ok  install cut: app: erase cut half-way + key u                     -> factory 
+ok  install cut: app: erased                                         -> factory 
+ok  install cut: app: erased + key u                                 -> factory 
+ok  install cut: app: body cut half-way                              -> factory 
+ok  install cut: app: body cut half-way + key u                      -> factory 
+ok  install cut: app: body done, header blank                        -> factory 
+ok  install cut: app: body done, header blank + key u                -> factory 
+ok  install cut: app: header (magic still blank) cut (random partial program 0) -> factory 
+ok  install cut: app: header (magic still blank) cut (random partial program 0) + key u -> factory 
+ok  install cut: app: header (magic still blank) cut (random partial program 1) -> factory 
+ok  install cut: app: header (magic still blank) cut (random partial program 1) + key u -> factory 
+ok  install cut: app: header (magic still blank) cut (random partial program 2) -> factory 
+ok  install cut: app: header (magic still blank) cut (random partial program 2) + key u -> factory 
+ok  install cut: app: header done, magic blank                       -> factory 
+ok  install cut: app: header done, magic blank + key u               -> factory 
+ok  install cut: app: magic cut (random partial program 0)           -> factory 
+ok  install cut: app: magic cut (random partial program 0) + key u   -> factory 
+ok  install cut: app: magic cut (random partial program 1)           -> factory 
+ok  install cut: app: magic cut (random partial program 1) + key u   -> factory 
+ok  install cut: app: magic cut (random partial program 2)           -> factory 
+ok  install cut: app: magic cut (random partial program 2) + key u   -> factory 
+ok  install cut: app: complete                                       -> factory 
+ok  install cut: app: complete + key u                               -> factory 
+ok  install cut: bootmode: erased                                    -> factory 
+ok  install cut: bootmode: erased + key u                            -> factory 
+ok  install cut: bootmode: body done, header blank                   -> factory 
+ok  install cut: bootmode: body done, header blank + key u           -> factory 
+ok  install cut: bootmode: header (magic still blank) cut (random partial program 0) -> factory 
+ok  install cut: bootmode: header (magic still blank) cut (random partial program 0) + key u -> factory 
+ok  install cut: bootmode: header (magic still blank) cut (random partial program 1) -> factory 
+ok  install cut: bootmode: header (magic still blank) cut (random partial program 1) + key u -> factory 
+ok  install cut: bootmode: header (magic still blank) cut (random partial program 2) -> factory 
+ok  install cut: bootmode: header (magic still blank) cut (random partial program 2) + key u -> factory 
+ok  install cut: bootmode: header done, magic blank                  -> factory 
+ok  install cut: bootmode: header done, magic blank + key u          -> factory 
+ok  install cut: bootmode: magic cut (random partial program 0)      -> factory 
+ok  install cut: bootmode: magic cut (random partial program 0) + key u -> factory 
+ok  install cut: bootmode: magic cut (random partial program 1)      -> factory 
+ok  install cut: bootmode: magic cut (random partial program 1) + key u -> factory 
+ok  install cut: bootmode: magic cut (random partial program 2)      -> factory 
+ok  install cut: bootmode: magic cut (random partial program 2) + key u -> factory 
+ok  install cut: bootmode: complete                                  -> factory 
+ok  install cut: bootmode: complete + key u                          -> factory 
+ok  install cut: toc2: erased                                        -> factory 
+ok  install cut: toc2: erased + key u                                -> factory 
+ok  install cut: toc2: body done, header blank                       -> factory 
+ok  install cut: toc2: body done, header blank + key u               -> factory 
+ok  install cut: toc2: header (magic still blank) cut (random partial program 0) -> factory 
+ok  install cut: toc2: header (magic still blank) cut (random partial program 0) + key u -> factory 
+ok  install cut: toc2: header (magic still blank) cut (random partial program 1) -> factory 
+ok  install cut: toc2: header (magic still blank) cut (random partial program 1) + key u -> factory 
+ok  install cut: toc2: header (magic still blank) cut (random partial program 2) -> factory 
+ok  install cut: toc2: header (magic still blank) cut (random partial program 2) + key u -> factory 
+ok  install cut: toc2: header done, magic blank                      -> factory 
+ok  install cut: toc2: header done, magic blank + key u              -> factory 
+ok  install cut: toc2: magic cut (random partial program 0)          -> factory 
+ok  install cut: toc2: magic cut (random partial program 0) + key u  -> factory 
+ok  install cut: toc2: magic cut (random partial program 1)          -> factory 
+ok  install cut: toc2: magic cut (random partial program 1) + key u  -> factory 
+ok  install cut: toc2: magic cut (random partial program 2)          -> factory 
+ok  install cut: toc2: magic cut (random partial program 2) + key u  -> factory 
+ok  install cut: toc2: complete                                      -> ours:A  
+ok  install cut: toc2: complete + key u                              -> factory   | User request for loading U-Boot!
+ok  updated (other slot + BOOT_MODE flip)                            -> ours:B  
+ok  update cut: app: erase cut mid-sector (random partial erase 0)   -> ours:A  
+ok  update cut: app: erase cut mid-sector (random partial erase 0) + key u -> factory   | User request for loading U-Boot!
+ok  update cut: app: erase cut mid-sector (random partial erase 1)   -> ours:A  
+ok  update cut: app: erase cut mid-sector (random partial erase 1) + key u -> factory   | User request for loading U-Boot!
+ok  update cut: app: erase cut mid-sector (random partial erase 2)   -> ours:A  
+ok  update cut: app: erase cut mid-sector (random partial erase 2) + key u -> factory   | User request for loading U-Boot!
+ok  update cut: app: erase cut half-way                              -> ours:A  
+ok  update cut: app: erase cut half-way + key u                      -> factory   | User request for loading U-Boot!
+ok  update cut: app: erased                                          -> ours:A  
+ok  update cut: app: erased + key u                                  -> factory   | User request for loading U-Boot!
+ok  update cut: app: body cut half-way                               -> ours:A  
+ok  update cut: app: body cut half-way + key u                       -> factory   | User request for loading U-Boot!
+ok  update cut: app: body done, header blank                         -> ours:A  
+ok  update cut: app: body done, header blank + key u                 -> factory   | User request for loading U-Boot!
+ok  update cut: app: header (magic still blank) cut (random partial program 0) -> ours:A  
+ok  update cut: app: header (magic still blank) cut (random partial program 0) + key u -> factory   | User request for loading U-Boot!
+ok  update cut: app: header (magic still blank) cut (random partial program 1) -> ours:A  
+ok  update cut: app: header (magic still blank) cut (random partial program 1) + key u -> factory   | User request for loading U-Boot!
+ok  update cut: app: header (magic still blank) cut (random partial program 2) -> ours:A  
+ok  update cut: app: header (magic still blank) cut (random partial program 2) + key u -> factory   | User request for loading U-Boot!
+ok  update cut: app: header done, magic blank                        -> ours:A  
+ok  update cut: app: header done, magic blank + key u                -> factory   | User request for loading U-Boot!
+ok  update cut: app: magic cut (random partial program 0)            -> ours:A  
+ok  update cut: app: magic cut (random partial program 0) + key u    -> factory   | User request for loading U-Boot!
+ok  update cut: app: magic cut (random partial program 1)            -> ours:A  
+ok  update cut: app: magic cut (random partial program 1) + key u    -> factory   | User request for loading U-Boot!
+ok  update cut: app: magic cut (random partial program 2)            -> ours:A  
+ok  update cut: app: magic cut (random partial program 2) + key u    -> factory   | User request for loading U-Boot!
+ok  update cut: app: complete                                        -> ours:A  
+ok  update cut: app: complete + key u                                -> factory   | User request for loading U-Boot!
+ok  update cut: bootmode: kill page cut (random partial program 0)   -> factory 
+ok  update cut: bootmode: kill page cut (random partial program 0) + key u -> factory 
+ok  update cut: bootmode: kill page cut (random partial program 1)   -> factory 
+ok  update cut: bootmode: kill page cut (random partial program 1) + key u -> factory 
+ok  update cut: bootmode: kill page cut (random partial program 2)   -> factory 
+ok  update cut: bootmode: kill page cut (random partial program 2) + key u -> factory 
+ok  update cut: bootmode: kill page programmed                       -> factory   | al_flash_obj_header_read_and_validate: flash obj header contains invalid magic num; expected 0xB9EC7, read 0x0
+ok  update cut: bootmode: kill page programmed + key u               -> factory   | al_flash_obj_header_read_and_validate: flash obj header contains invalid magic num; expected 0xB9EC7, read 0x0
+ok  update cut: bootmode: erase cut mid-sector (random partial erase 0) -> factory 
+ok  update cut: bootmode: erase cut mid-sector (random partial erase 0) + key u -> factory 
+ok  update cut: bootmode: erase cut mid-sector (random partial erase 1) -> factory 
+ok  update cut: bootmode: erase cut mid-sector (random partial erase 1) + key u -> factory 
+ok  update cut: bootmode: erase cut mid-sector (random partial erase 2) -> factory 
+ok  update cut: bootmode: erase cut mid-sector (random partial erase 2) + key u -> factory 
+ok  update cut: bootmode: erased                                     -> factory 
+ok  update cut: bootmode: erased + key u                             -> factory 
+ok  update cut: bootmode: body done, header blank                    -> factory 
+ok  update cut: bootmode: body done, header blank + key u            -> factory 
+ok  update cut: bootmode: header (magic still blank) cut (random partial program 0) -> factory 
+ok  update cut: bootmode: header (magic still blank) cut (random partial program 0) + key u -> factory 
+ok  update cut: bootmode: header (magic still blank) cut (random partial program 1) -> factory 
+ok  update cut: bootmode: header (magic still blank) cut (random partial program 1) + key u -> factory 
+ok  update cut: bootmode: header (magic still blank) cut (random partial program 2) -> factory 
+ok  update cut: bootmode: header (magic still blank) cut (random partial program 2) + key u -> factory 
+ok  update cut: bootmode: header done, magic blank                   -> factory 
+ok  update cut: bootmode: header done, magic blank + key u           -> factory 
+ok  update cut: bootmode: magic cut (random partial program 0)       -> factory 
+ok  update cut: bootmode: magic cut (random partial program 0) + key u -> factory 
+ok  update cut: bootmode: magic cut (random partial program 1)       -> factory 
+ok  update cut: bootmode: magic cut (random partial program 1) + key u -> factory 
+ok  update cut: bootmode: magic cut (random partial program 2)       -> factory 
+ok  update cut: bootmode: magic cut (random partial program 2) + key u -> factory 
+ok  update cut: bootmode: complete                                   -> ours:B  
+ok  update cut: bootmode: complete + key u                           -> factory   | User request for loading U-Boot!
+ok  switched back                                                    -> ours:A  
+ok  switch cut: bootmode: kill page cut (random partial program 0)   -> factory 
+ok  switch cut: bootmode: kill page cut (random partial program 0) + key u -> factory 
+ok  switch cut: bootmode: kill page cut (random partial program 1)   -> factory 
+ok  switch cut: bootmode: kill page cut (random partial program 1) + key u -> factory 
+ok  switch cut: bootmode: kill page cut (random partial program 2)   -> factory 
+ok  switch cut: bootmode: kill page cut (random partial program 2) + key u -> factory 
+ok  switch cut: bootmode: kill page programmed                       -> factory   | al_flash_obj_header_read_and_validate: flash obj header contains invalid magic num; expected 0xB9EC7, read 0x0
+ok  switch cut: bootmode: kill page programmed + key u               -> factory   | al_flash_obj_header_read_and_validate: flash obj header contains invalid magic num; expected 0xB9EC7, read 0x0
+ok  switch cut: bootmode: erase cut mid-sector (random partial erase 0) -> factory 
+ok  switch cut: bootmode: erase cut mid-sector (random partial erase 0) + key u -> factory 
+ok  switch cut: bootmode: erase cut mid-sector (random partial erase 1) -> factory 
+ok  switch cut: bootmode: erase cut mid-sector (random partial erase 1) + key u -> factory 
+ok  switch cut: bootmode: erase cut mid-sector (random partial erase 2) -> factory 
+ok  switch cut: bootmode: erase cut mid-sector (random partial erase 2) + key u -> factory 
+ok  switch cut: bootmode: erased                                     -> factory 
+ok  switch cut: bootmode: erased + key u                             -> factory 
+ok  switch cut: bootmode: body done, header blank                    -> factory 
+ok  switch cut: bootmode: body done, header blank + key u            -> factory 
+ok  switch cut: bootmode: header (magic still blank) cut (random partial program 0) -> factory 
+ok  switch cut: bootmode: header (magic still blank) cut (random partial program 0) + key u -> factory 
+ok  switch cut: bootmode: header (magic still blank) cut (random partial program 1) -> factory 
+ok  switch cut: bootmode: header (magic still blank) cut (random partial program 1) + key u -> factory 
+ok  switch cut: bootmode: header (magic still blank) cut (random partial program 2) -> factory 
+ok  switch cut: bootmode: header (magic still blank) cut (random partial program 2) + key u -> factory 
+ok  switch cut: bootmode: header done, magic blank                   -> factory 
+ok  switch cut: bootmode: header done, magic blank + key u           -> factory 
+ok  switch cut: bootmode: magic cut (random partial program 0)       -> factory 
+ok  switch cut: bootmode: magic cut (random partial program 0) + key u -> factory 
+ok  switch cut: bootmode: magic cut (random partial program 1)       -> factory 
+ok  switch cut: bootmode: magic cut (random partial program 1) + key u -> factory 
+ok  switch cut: bootmode: magic cut (random partial program 2)       -> factory 
+ok  switch cut: bootmode: magic cut (random partial program 2) + key u -> factory 
+ok  switch cut: bootmode: complete                                   -> ours:A  
+ok  switch cut: bootmode: complete + key u                           -> factory   | User request for loading U-Boot!
+ok  rolled back (TOC2 erased)                                        -> factory 
+ok  rollback cut: toc2-erase: kill page cut (random partial program 0) -> factory 
+ok  rollback cut: toc2-erase: kill page cut (random partial program 0) + key u -> factory 
+ok  rollback cut: toc2-erase: kill page cut (random partial program 1) -> factory 
+ok  rollback cut: toc2-erase: kill page cut (random partial program 1) + key u -> factory 
+ok  rollback cut: toc2-erase: kill page cut (random partial program 2) -> factory 
+ok  rollback cut: toc2-erase: kill page cut (random partial program 2) + key u -> factory 
+ok  rollback cut: toc2-erase: kill page programmed                   -> factory 
+ok  rollback cut: toc2-erase: kill page programmed + key u           -> factory 
+ok  rollback cut: toc2-erase: erase cut mid-sector (random partial erase 0) -> factory 
+ok  rollback cut: toc2-erase: erase cut mid-sector (random partial erase 0) + key u -> factory 
+ok  rollback cut: toc2-erase: erase cut mid-sector (random partial erase 1) -> factory 
+ok  rollback cut: toc2-erase: erase cut mid-sector (random partial erase 1) + key u -> factory 
+ok  rollback cut: toc2-erase: erase cut mid-sector (random partial erase 2) -> factory 
+ok  rollback cut: toc2-erase: erase cut mid-sector (random partial erase 2) + key u -> factory 
+ok  rollback cut: toc2-erase: erased                                 -> factory 
+ok  rollback cut: toc2-erase: erased + key u                         -> factory 
+ok  re-install after rollback (skips ['app', 'bootmode'])            -> ours:A  
+ok  re-install cut: env-erase: erase cut half-way                    -> factory 
+ok  re-install cut: env-erase: erased                                -> factory 
+ok  re-install cut: toc2: erased                                     -> factory 
+ok  re-install cut: toc2: body done, header blank                    -> factory 
+ok  re-install cut: toc2: header (magic still blank) cut (random partial program 0) -> factory 
+ok  re-install cut: toc2: header (magic still blank) cut (random partial program 1) -> factory 
+ok  re-install cut: toc2: header (magic still blank) cut (random partial program 2) -> factory 
+ok  re-install cut: toc2: header done, magic blank                   -> factory 
+ok  re-install cut: toc2: magic cut (random partial program 0)       -> factory 
+ok  re-install cut: toc2: magic cut (random partial program 1)       -> factory 
+ok  re-install cut: toc2: magic cut (random partial program 2)       -> factory 
+ok  re-install cut: toc2: complete                                   -> ours:A  
+ok  TRAP: BOOT_MODE valid header, bad data                           -> hang      | al_flash_obj_data_load: data checksum validation failed!; al_flash_obj_data_load failed (boot mode)!; stg3_board_init: TOC parsing failed!; stg3_board_init: DT 
+ok  TRAP: same + key u (no escape)                                   -> hang      | al_flash_obj_data_load: data checksum validation failed!; al_flash_obj_data_load failed (boot mode)!; stg3_board_init: TOC parsing failed!; stg3_board_init: DT 
+ok  app valid header, bad data                                       -> hang      | al_flash_obj_data_load: data checksum validation failed!; al_flash_obj_data_load failed!
+ok  app valid header, bad data + key u                               -> factory   | User request for loading U-Boot!
+ok  BOOT_MODE -> the other slot, never written                       -> hang      | al_flash_obj_header_read_and_validate failed (app, instance 0)!; Invalid application size!
+ok  BOOT_MODE -> the other slot, never written + key u               -> factory   | User request for loading U-Boot!
+ok  BOOT_MODE data 0x44 B (too big)                                  -> factory   | Boot mode too big!
+ok  TOC2 entries sum broken                                          -> factory   | al_flash_toc_validate: flash toc entries checksum validation failed!
+213/213 as expected

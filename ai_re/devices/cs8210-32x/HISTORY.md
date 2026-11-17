@@ -5,6 +5,14 @@ work: PROGRESS.md. References elsewhere to "PROGRESS (n)", "PROGRESS 11-09", "PR
 
 ## log
 
+### 2026-11-15 — secure boot is OFF (OTP read at the vendor prompt)
+
+- Rebooted to `ALPINE_DB>` (`123⏎`, 20 s after `systemctl reboot`), typed only read-only commands, booted NixOS again (up in 65 s). Evidence: [otp-readout-20261115.txt](otp-readout-20261115.txt) (sha256 733a3b54b497…).
+- `otp show direct` = `shadow`: **secure boot disabled, all 4 PUK hashes zero and unlocked**, boot from SPI/UART/NAND enabled, JTAG/SPI debug enabled, min SW version 0, TZ off. `uc_get_secure`: NOT-SECURE (uC app 2.1.14). So stage2/3 should accept unsigned objects, as on the DMC-12; stage2's "Command is not supported in secure-mode" is something narrower (open, boot-chain agent).
+- `flash_contents_toc_print` (mx25u25635f, 32 MiB): STG2 0x0, DT 0x41000, SerDes FW 0x50000/0x5c000, SBus master FW 0x68000, STG3 0x70000 (max 0x120000), UBOOT 0x190000 (max 0x1f0000), UBOOT_ENV 0x380000, UBOOT_ENV_RED 0x3c0000 (Linux calls it mtd2 "unused"). **No BOOT_MODE object and no spare app slots** (DMC-12 had IPXE 0/1).
+- `dev_info`: SPI(M0) boot, 4x4 cores, CPU 2000 / DDR 1200 MHz.
+- **Danger:** vendor `otp` has password-gated *irreversible* subcommands (secure-boot-enable, puk-hash-set, …). Only ever `otp show direct|shadow`.
+
 ### 2026-11-11 (ab) — offline "mini-switchd" design + dry-run generator (Fable), and why the ASIC can/can't loop
 
 Offline only; the switch is unplugged. Everything is in [switchd/](switchd/):

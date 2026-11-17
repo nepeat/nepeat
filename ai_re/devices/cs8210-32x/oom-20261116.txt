@@ -79,10 +79,10 @@
   2026-11-16 tx-stall would have restarted syncd at ~16:04-16:05, before the bad read. One restart per 15 min;
   each trigger and each syncd restart logs the root port's DevSta/UESta/CESta (dates the next completion timeout).
 - Not changed (owner/parent decisions): vm.overcommit_memory (services.redis.vmOverCommit = false would bring back
-  the spin instead of the memset; MemoryMax + watchdog cover both); the vendor stack's cs8210-switch has no
-  MemoryMax yet and under the same sysctl would OOM the same way (nixos/module/cs8210/vendor-sdk); the real fix is
-  an all-ones check on the learn index in our loader (ai_re sai-teralynx: interpose node_pci_reg_read32 as
-  memcpy is already, retry/keep the last good index for 0x485c-0x4864), as the 2026-11-10 review proposed.
+  the spin instead of the memset; MemoryMax + watchdog cover both).
+- Follow-up (learn-wedge.md): the all-ones check is in our loader since (sai-teralynx learn-ring guard); the vendor
+  stack's cs8210-switch got MemoryMax + OOMPolicy=stop; what died first was the CPU TX ring (full at 16:03:45), and
+  the ASIC link ran with ASPM L0s and replay errors every second (cs8210-asic-aspm).
 - AVS: not implicated; no change to the tool (it already sends only whitelisted commands). avs.md gets the rule
   that ad-hoc PMBus surveys of 0x62 are off-limits.
 

@@ -37,12 +37,14 @@ orchagent crash -> syncd restart, teamd respawn, reload ([evidence](sai-hw-sonic
 Vendor stack instead: `systemctl start cs8210-switch` (Conflicts= stops syncd and the Credo unit); back:
 `systemctl start sonic.target`. Diag: `openbcm-diag -s /run/sai-teralynx/diag.sock copp|acl|counters <devport>|devport <n>`.
 
-**When libifcs wedges** (the learn thread's garbage-index bug, [review](reviews/2026-11-10-sdk-learn-crash.md)):
-under the vm.overcommit_memory = 1 that the NixOS redis module sets, its ~32 GiB im_malloc succeeds and the memset
-took the box's memory in seconds (2026-11-16 16:05, [oom-20261116.txt](oom-20261116.txt)); the ASIC's CPU path had
-died 5 min earlier. Contained by syncd's MemoryMax (`syncdMemoryMaxMiB`, 2 GiB; cgroup kill, then the recovery
-chain) and `sonic-cs8210-ifcs-watchdog` (VmSize, RSS, learn-thread CPU, the kernel line, tx-stall of every
-transmitting port; one restart per 15 min; `--once --dry-run` prints its readings). The trigger is open.
+**When libifcs wedges** (the learn thread's garbage-index bug, [learn-wedge.md](learn-wedge.md)): our libsai's
+learn-ring guard re-reads an all-ones index and skips that poll (journal `sai-teralynx: ifcs guard: ...`, counters
+`sai_teralynx_ifcs_guard_*`). Backstops: syncd's MemoryMax (`syncdMemoryMaxMiB`, 2 GiB; under the vm.overcommit_memory
+= 1 that the NixOS redis module sets, the unguarded ~32 GiB memset took the box's memory on 2026-11-16,
+[oom-20261116.txt](oom-20261116.txt)) and `sonic-cs8210-ifcs-watchdog` (VmSize, RSS, learn-thread CPU, the kernel line,
+tx-stall of every transmitting port, i.e. the dead CPU TX ring; one restart per 15 min; `--once --dry-run` prints its
+readings, `--metrics` the `cs8210_ifcs_watchdog_*` / root-port AER / link / ipd ring families of the `cs8210-ifcs`
+producer). Prime suspect for the ASIC going bad: ASPM L0s on its PCIe link (off by `cs8210-asic-aspm`).
 
 **Another closure by hand:** `scripts/sonic-handrun.sh up <toplevel> <config_db.json>` / `status` / `down` links
 the closure's units into /run/systemd/system and adds users, sysctls, modules, tmpfiles, /etc entries and

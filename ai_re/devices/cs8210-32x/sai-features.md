@@ -41,6 +41,7 @@ Evidence: `analysis/sai-teralynx/bench-20261116b/` (bench3-native-error-{1,2,3} 
 | SWITCH FDB_EVENT_NOTIFY | L2 events | mock | t_l2 |
 | SWITCH LAG_HASH / ECMP_HASH objects, NATIVE_HASH_FIELD_LIST, *_DEFAULT_HASH_SEED | `hash_set`: extended field lists on node ENTROPY_SELECT_*, ENTROPY_SEED (one entropy for LAG and ECMP: the last set wins); inner fields refused | chip (ECMP over 2 next hops, 256 flows: DST_IP only 1024:0, 5-tuple + seed 504:520; INNER_SRC_IP refused) | t_hooks, hw:phasec-hw |
 | SWITCH remove + create again in one process | a new backend object per switch; ifcs_deinit / ifcs_init again | chip (L3 + 100/100 routed in both rounds) | hw:phasec-recreate |
+| libifcs learn-ring reads (no SAI object: robustness) | shim guard on libifcs' node_pci_reg_read32 / _write32 / im_malloc GOT entries: all-ones / out-of-range 0x4860 (0x4864, 0x485c) re-read, else "nothing new"; im_malloc > 1 GiB refused ([learn-wedge.md](learn-wedge.md)) | chip (real libifcs: 1/1/1 GOT entries; injected all-ones 2 / 10 / 120 reads: recovered or poll skipped, VmSize flat, BFD up; [evidence](sai-hw-learnwedge-20261116.txt)) | t_learn |
 | SWITCH warm boot, switch stats | | missing | |
 | PORT ADMIN_STATE | devport ADMIN_STATE | chip | t_port, smoke |
 | PORT OPER_STATUS | LINK_STATUS per get (~5 us); `cached` mode from events | chip | t_port (cache), bench |

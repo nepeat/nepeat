@@ -60,7 +60,9 @@ Goal (owner): replace the vendor U-Boot 2018.05 with our own upstream-based one,
 - Builds ([../../nix/packages/uboot/alpine-v3/](../../nix/packages/uboot/alpine-v3/default.nix)):
   `nix build path:./nix#uboot-cs8210` → `u-boot.bin` (399336 B, sha256 `4bcabba8…`, crc32 `1d7676cc`),
   `u-boot.uimage` (kernel type, load = entry 0x08000000, `54cbd80b…`), `u-boot`, `.map`, `.dtb`, `.config`.
-  `#uboot-alpine-v3-qemu` = same code + config on a QEMU fixture DT.
+  `#uboot-alpine-v3-qemu` = same code + config on a QEMU fixture DT. `#uboot-cs8210-installer` (0027/0028:
+  boot SPI writable only in the scheme A' windows, prompt `cs8210-installer> `) and its sandbox twin are
+  the SPI writer of [spi-upgrade-plan.md](spi-upgrade-plan.md).
 - Control DT = `alpine-v3-cs8210.dts`, a byte copy of nepeat/nix `nixos/module/cs8210/kernel/dts/amazon/`
   (a `path:` flake cannot read it). After any edit there, from this directory: `cmp ../../../nix/nixos/module/cs8210/kernel/dts/amazon/alpine-v3-cs8210.dts ../../nix/packages/uboot/alpine-v3/alpine-v3-cs8210.dts`
   and copy. `alpine-v3.dtsi` comes from U-Boot's dts/upstream (identical to Linux 7.3.4's).

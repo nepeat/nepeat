@@ -171,7 +171,9 @@ Keep every object below 16 MiB (stage3 reads through the SPI mmap at 0xf8000000 
 - Unverified: that a TOC2 at 0x20000 never looks like an S2 image to the V3 ROM (its word 3 is 0, which the
   V2 ROM rejects); only matters if stage2 at 0 were bad. Measured-boot PCRs change (no boot risk).
 - Rehearsal: a Route A port for V3 (RAM image of flash 0..0x800000 incl. TOC2) would test the exact layout
-  with no write; not built.
+  with no write; not built on hardware. Emulated instead (stage2 + stage3 in Unicorn, incl. stage3's RAM
+  reader), and the write path on U-Boot sandbox: [spi-upgrade-plan.md](spi-upgrade-plan.md). Final layout
+  there: slot B moved to 0x280000 (1 MiB), our env at 0x38000.
 
 **B (replace UBOOT 0 at 0x190000, max 0x1f0000).** Preconditions: a 1.8 V programmer and a clip/pogo plan
 for the flash (package unknown), a programmer read of the chip first. Risk: no escape at all (`u` loads
@@ -217,7 +219,5 @@ kernel did not fit; a U-Boot does).
 - Handoff EL and registers on V3 (agent not disassembled; V2: EL2, MMU off, x0 = 0).
 - Where the boot-device straps are, and whether the uC can select another flash (no `uc_*_recovery` use seen).
 - Why the stage2 banner printed twice on the very first AC power-on of 11-09 (as on the DMC-12's first boot).
-- `alboot.py` gaps for V3 (owner of `nix/packages/alboot`): list objects beyond a single mtd as "outside
-  image" rather than `blank(ff)`; non-redundant env (4-byte header); `find_toc` should skip a TOC whose
-  entry sum fails and report every valid TOC (a TOC2 shadows 0x40000); names for 0x510/0x520/0x530; an id
-  mismatch is not an error for stage3; a `toc` builder for scheme A'.
+- `alboot.py` gaps for V3: done in `nix/packages/alboot/alboot3.py` (2026-11-16; alboot.py stays as is,
+  the DMC-12 drvPaths hash it). Scheme A' tooling and evidence: [spi-upgrade-plan.md](spi-upgrade-plan.md).

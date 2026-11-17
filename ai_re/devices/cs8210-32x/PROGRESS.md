@@ -14,13 +14,14 @@
   (`/run/cs8210-qsfp.dead`): power cycle. Vendor U-Boot prompt: `123<Enter>` within 3 s; from there ONIE in SPI (`run onie_bootcmd`,
   RAM only) or **Route R** into the boot ROM UART CLI, no flash write ([uart-recovery.md](uart-recovery.md), [boot-chain.md](boot-chain.md)).
 - **Open:** our U-Boot: RAM chainload boots NixOS + SONiC like the vendor path; the standalone build (own PCIe/MUIO/GPIO/PLL/MAC init)
-  passed its RAM rehearsal, never run as stage3's app; permanent scheme (A' install) open, nothing written to SPI ([u-boot-port.md](u-boot-port.md)); owner decision on
+  passed its RAM rehearsal, never run as stage3's app; permanent scheme (A' install) open, nothing written to SPI ([u-boot-port.md](u-boot-port.md)); the A' flasher is built, emulated, sandbox-rehearsed and hardware dry-run, waiting for its gates ([spi-upgrade-plan.md](spi-upgrade-plan.md)); owner decision on
   publishing `ai_re/nix/packages/sai-teralynx/src/ifcs_api.h` (our IFCS declarations from the vendor ctypes + DWARF); AS7760 redeploy of
   the shared SONiC changes (local_asn, teamd MAC, networkd rules); SAI gaps in sai-features.md (WRED/ECN, PFC/lossless, SET_DSCP/remarking,
   sFlow sample policing (isai's ACE impossible on 0.12.41, the CPU-queue meter misbehaves: off), tunnels/IPMC/MPLS/NAT, warm boot,
   BFD offload); MACsec under SONiC; MKA across two boxes; CRM panels empty (crmorch writes no CRM:STATS here, cause open);
-  xcvrd reports no module in cages 1/16 (transceiver panels empty); what makes the ASIC stop answering (CPU path dead,
-  then the learn thread's all-ones index: [oom-20261116.txt](oom-20261116.txt)).
+  xcvrd reports no module in cages 1/16 (transceiver panels empty); the ASIC's CPU TX ring stopping (then the learn
+  thread's all-ones read, now guarded in libsai): prime suspect ASPM L0s on its PCIe link, `cs8210-asic-aspm` not
+  deployed yet, soak running ([learn-wedge.md](learn-wedge.md)).
 
 ## Identity
 
@@ -63,7 +64,8 @@
   mux (2026-11-09 (late), (latest)).
 - libifcs's learn thread wedges on an all-ones ring index ((n), (o), (y)): vendor stack (overcommit 0) a failed 32 GiB
   malloc, a spin and a log flood (watchdog + logtrim); SONiC (redis sets vm.overcommit_memory = 1) a 32 GiB memset that
-  took the box's memory in seconds (2026-11-16; syncd MemoryMax + ifcs watchdog since). cs8210-switch has no MemoryMax.
+  took the box's memory in seconds (2026-11-16). Since: libsai's learn-ring guard, MemoryMax on syncd and cs8210-switch,
+  both watchdogs ([learn-wedge.md](learn-wedge.md)).
 - Vendor stack only: ASIC traps unicast to the CPU only for SDK-programmed MACs ((t)); `double_CRC` must be off in
   MACsec bypass ((x)).
 
@@ -115,6 +117,33 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-16 (late) — scheme A' flasher: built, verified, rehearsed; zero SPI writes
+
+- Tools: `scripts/spi_upgrade.py` (model = verified mtd0 dump + journal, gates, echo-checked writes body-then-header, TOC2 last),
+  `scripts/bootchain_emu.py` (factory stage2 + stage3 in Unicorn), `nix/packages/alboot/alboot3.py`, patches 0027/0028
+  (`#uboot-cs8210-installer`: SPI writable only in TOC2/BOOT_MODE/env/slot A/slot B). Layout and safety case: [spi-upgrade-plan.md](spi-upgrade-plan.md).
+- Slot B moved to 0x280000 (1 MiB; the 0x2f9000 hole left 1444 B for the standalone build); our env 0x38000+0x8000 erased by install.
+- Evidence: 213/213 emulated flash states (every cut state factory or ours, `u` → factory; the BOOT_MODE trap hangs even with `u`)
+  [spi-upgrade-verify-20261116.txt](spi-upgrade-verify-20261116.txt); sandbox install/update/switch/rollback + 11 refusals + 32 power cuts
+  [spi-upgrade-rehearse-20261116.txt](spi-upgrade-rehearse-20261116.txt); `#uboot-alpine-v3-tests` installer-window.
+- Two independent reviews: 17 findings fixed (kill page before erasing a live header, magic written last, no power cycle after
+  a failed write, rollback without NixOS, ...); list in the plan's "Reviews". Gates (review, payload, recovery, owner_go) still null.
+- Hardware, read-only (lease spi-flasher): /dev/mtd0ro == model; dry runs 17:07 and (final code) 18:38: installer at EL2,
+  flash == model, upload ok, writes printed only, power cycle, NixOS + SONiC (BGP 2/2, BFD 2/2), lease released. A first attempt (17:04) matched the consoled scrollback replay: it typed
+  `123`, `echo …` and `version` into the NixOS serial root shell (harmless) and then failed on `lab-power` usage; fixed (plan doc).
+- Linux mtd0 is read-only (flags 0x800): no Linux-side writer or rollback. DMC-12 pins unchanged (d3df4b80, 2b9lljly).
+
+### 2026-11-16 — learn-thread wedge: guard in libsai, ASPM L0s on the ASIC link, both stacks memory-capped (not deployed)
+
+- sai-teralynx shim guards libifcs's learn-ring reads (GOT: node_pci_reg_read32/_write32, im_malloc): all-ones or
+  out-of-range index re-read, else the poll is skipped; im_malloc > 1 GiB refused; journal line + `sai_teralynx_ifcs_guard_*`.
+  Mock t_learn (48 checks, 1015 total) and chip (real libifcs, injected all-ones: no 32 GiB, BFD up).
+- First failure on 2026-11-16 was the CPU TX ring: ASIC stopped sending ~16:01, ring exactly full (341 frames x 3
+  descriptors) at 16:03:45 = the softirq spin; the bad read came 2 min later. The ASIC link had ASPM L0s on (mainline's
+  DT default): replay timeouts/BadTLP/rollover every second; none with L0s off (A/B). New `cs8210-asic-aspm` (default),
+  cs8210-switch MemoryMax 3 GiB + OOMPolicy=stop (+ watchdog restart), watchdog counters + `cs8210-ifcs` producer.
+  [learn-wedge.md](learn-wedge.md), [evidence](sai-hw-learnwedge-20261116.txt). Deploy restarts syncd.
 
 ### 2026-11-16 — syncd OOM at 16:05: root cause; syncd MemoryMax, new IFCS watchdog (not deployed yet)
 
@@ -284,12 +313,4 @@ can contain device configuration or secrets. Summarized findings belong here.
 - **Boot ROM dumped** at the vendor prompt: 0xfbff0000, 64 KiB, crc32 d1a98647 = U-Boot's `crc32`, sha256 7e1ec7ef55d1b851… (`analysis/boot-rom/`, git-ignored). Has `_stage2Load_loadToSramFromUart` / `xmodemReceive`. A single 64 KiB `md.l` lost ~57% of lines over the DMC-12 console (sustained output; consoled's ring too), so it was read in 1 KiB chunks, each checked against `crc32`.
 - SRAM handoff words as predicted (`0xfbfe0000` = 0, `0xfbfe00f8` = 0x01100000). Stage3 `p` key test inconclusive: the keys (sent after `Executing next` via tmux) arrived after stage3's single poll; retry by sending from stage2's banner.
 
-### 2026-11-15 — secure boot is OFF (OTP read at the vendor prompt)
-
-- Rebooted to `ALPINE_DB>` (`123⏎`, 20 s after `systemctl reboot`), typed only read-only commands, booted NixOS again (up in 65 s). Evidence: [otp-readout-20261115.txt](otp-readout-20261115.txt) (sha256 733a3b54b497…).
-- `otp show direct` = `shadow`: **secure boot disabled, all 4 PUK hashes zero and unlocked**, boot from SPI/UART/NAND enabled, JTAG/SPI debug enabled, min SW version 0, TZ off. `uc_get_secure`: NOT-SECURE (uC app 2.1.14). So stage2/3 should accept unsigned objects, as on the DMC-12; stage2's "Command is not supported in secure-mode" is something narrower (open, boot-chain agent).
-- `flash_contents_toc_print` (mx25u25635f, 32 MiB): STG2 0x0, DT 0x41000, SerDes FW 0x50000/0x5c000, SBus master FW 0x68000, STG3 0x70000 (max 0x120000), UBOOT 0x190000 (max 0x1f0000), UBOOT_ENV 0x380000, UBOOT_ENV_RED 0x3c0000 (Linux calls it mtd2 "unused"). **No BOOT_MODE object and no spare app slots** (DMC-12 had IPXE 0/1).
-- `dev_info`: SPI(M0) boot, 4x4 cores, CPU 2000 / DDR 1200 MHz.
-- **Danger:** vendor `otp` has password-gated *irreversible* subcommands (secure-boot-enable, puk-hash-set, …). Only ever `otp show direct|shadow`.
-
-Older entries (2026-11-11 (ab) back to 2026-10-17, incl. the lettered 2026-11-10/11 entries (a)-(ab) other files cite as "PROGRESS (x)"): [HISTORY.md](HISTORY.md).
+Older entries (2026-11-15 secure boot back to 2026-10-17, incl. the lettered 2026-11-10/11 entries (a)-(ab) other files cite as "PROGRESS (x)"): [HISTORY.md](HISTORY.md).
