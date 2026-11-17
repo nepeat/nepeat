@@ -1,0 +1,60 @@
+CS8210 standalone U-Boot (cs8210-selfinit, patches 0029-0031), RAM rehearsal from the vendor prompt,
+2026-11-16 16:23-16:45 PST. ZERO SPI writes (no saveenv, no sf write/erase; env read = "bad CRC, default").
+ASIC lease "uboot-standalone" (taken/released per boot); cages 1+16 only (cage guard mask 0x00008001 every boot).
+Transcript (git-ignored): serial-uboot-standalone-20261116.txt sha256 d4b9a5afafc26ad6...
+Linux captures (git-ignored): analysis/uboot-compare/{vendor-si, ours-si, ours-si-force}/.
+
+== Images
+#uboot-cs8210-selfinit u-boot.bin 0x66840 B, crc32 72bd3d89 (first build; nix: before the DT fix below)
+test build "-cs8210-selfinit-force" (= selfinit + PCIE_ALPINE_V3_FORCE_INIT, dev tree, not a nix output):
+  run A 0x66860 B crc32 30483323 (link partners auto-configured by U-Boot), run B 0x66a30 B crc32 8829f6ac,
+  sha256 1822f712a248... (link partners disabled in the U-Boot DT = what patch 0031 now has)
+Final nix outputs: #uboot-cs8210-selfinit u-boot.bin ac03324c..., #uboot-cs8210-stage3app
+  u-boot-app-08000000.fimg e5723798... (id 0x110, load = exec 0x08000000, 1444 B spare in A' slot B).
+  #uboot-cs8210 u-boot.bin still 4bcabba8 (M2 binary), #uboot-cs8210-installer 979b9237, DMC-12 pins unchanged.
+
+== Vendor prompt, read-only ground truth (after the vendor board init)
+PBS chip_id 00020001 (Alpine V3, rev 1 = production, not TC)
+MUIO mux_sel_0..7: 33000002 33333333 40223333 22000044 30000333 00000000 00000000 00000000
+  = the HAL map of the 8 pinctrl_init interfaces + gpio-list pins as GPIO (computed before the read)
+SB PLL +0x1c status c0020711 (FSM 7 = DIV_STABLE), ch_pair[0..7] 00040006 00180018 04b00078 00040000
+  70780807 00780006 00090003 00000000 (channel 9 = 0x7078: divider 120, out of reset, relock, last)
+GPIO banks 0-7 data/dir: 2e/1c 00/00 00/00 14/2c 18/00 ec/0f eb/fc 3d/b9 (= the 32 gpio-list triplets)
+MDIO FPGA 03.00.00: command 0000, BAR0 e0000000, BAR1 00200000
+
+== Run 1: selfinit, booti from the vendor prompt (links trained by the vendor)
+Entry: EL2, MMU+caches were off, x0 = vendor DTB; DRAM 2 GiB (total 8 GiB)
+MUIO: 26 pins from the DT, 0 changed | GPIO: 32 lines, 2 changed (52/54: the vendor booti had flipped
+the aux SPI mux to flash; ours puts the gpio-list TPM state back) | PLL: 0 changed
+Env: SPIFlash 0x38000 "bad CRC, using default environment" (blank, as expected)
+PCIe 0/1/4: link up 8GT/s x4 / 5GT/s x1 / 2.5GT/s x1 (firmware init, kept); HAL: rev 4 on all three
+MAC: 0c:48:c6:7a:55:ce (TLV 0x24, CRC ok) -> 00:01.0 EC MAC entry 0 (kept: the vendor had stored it)
+pci: 00:06.0 / 00:10.0 not bound (disabled in the U-Boot DT)
+alpcie reinit 4: "link up 2.5GT/s x1 (our init after teardown)" (SerDes main lane 4 iCal)
+alpcie reinit 1: 5GT/s x1, ours (lane 8); U-Boot renumbered its bus (root port bus regs 04/04: reinit
+  of a port that is not the last probed one; documented, no OS boot after it)
+alpcie reinit 0: 8GT/s x4, ours (lanes 0-3 iCal), 0 SErrors drained on all three
+reset (PSCI SYSTEM_RESET) -> stage2_loader v3.65.1 -> vendor U-Boot: PASS
+
+== Run 2A: force build (all three ports torn down and initialised at probe, cold-boot order)
+PCIe 0 8GT/s x4, 1 5GT/s x1, 4 2.5GT/s x1 (our init after teardown); root port bus regs 01/01 on each
+boot -> boot.scr -> bootmenu -> Linux 7.3.4 -> SONiC: BGP Vrf-a/Vrf-b 1 prefix each, BFD 2/2 up,
+  PortChannel1/2 up, running; ASIC 0001:01:00.0 on our Gen3 x4 link
+FAIL (fixed): MDIO FPGA 0004:01:00.0 "[Firmware Bug]: BAR 0: invalid; can't size", Mem- (vendor: sized,
+  assigned e0200000, enabled at 13 s). Its BAR 0 ignores writes once U-Boot's PCI auto-config has set it
+  (tested at our prompt with the vendor link kept: write ffffffff -> reads e0200000, also with COMMAND 0;
+  the I2C FPGA BAR sizes normally, fff00000). M2 never enumerated the external buses, so never hit it.
+  Fix (0031): each link partner is a disabled device node under its root port in the U-Boot DT:
+  U-Boot leaves the endpoints alone (it uses none of them).
+vendor reboot: ec30 sized and enabled as usual (not a sticky FPGA state)
+
+== Run 2B: force build with the fix
+U-Boot: same link lines; pci shows only the three root ports on the external buses; partners command 0000
+Linux: lspci (devices, Control, Region, LnkSta lines) identical to the vendor boot (vendor-si vs ours-si-force,
+  diff empty); ec30 "enabling device (0000 -> 0002)" at 13.2 s; enp0s1 0c:48:c6:7a:55:ce
+SONiC: BGP 2/2 Established, BFD 2/2 up, LACP 2/2 up, running; Credo done 52.3 s (vendor 51.2), PortInitDone 58.6 s (57.5)
+ASIC core regulator VOUT 0x0333: still the vendor's AVS write (this rehearsal ran after the vendor U-Boot)
+
+== End state
+systemctl reboot -> vendor U-Boot autoboot -> NixOS: no u-boot,version in /chosen, running, BGP 2/2, BFD 2/2,
+LACP up; lease released (/run/asic-lease absent).

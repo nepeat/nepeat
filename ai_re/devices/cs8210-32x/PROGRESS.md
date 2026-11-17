@@ -13,7 +13,8 @@
 - **Recover:** `systemctl stop sonic.target` or an older generation from the U-Boot menu; hung box or dead I2C FPGA
   (`/run/cs8210-qsfp.dead`): power cycle. Vendor U-Boot prompt: `123<Enter>` within 3 s; from there ONIE in SPI (`run onie_bootcmd`,
   RAM only) or **Route R** into the boot ROM UART CLI, no flash write ([uart-recovery.md](uart-recovery.md), [boot-chain.md](boot-chain.md)).
-- **Open:** our U-Boot: RAM chainload from the vendor prompt boots NixOS + SONiC like the vendor path (2026-11-16, [u-boot-port.md](u-boot-port.md)); standalone items and the permanent scheme open, nothing written to SPI; owner decision on
+- **Open:** our U-Boot: RAM chainload boots NixOS + SONiC like the vendor path; the standalone build (own PCIe/MUIO/GPIO/PLL/MAC init)
+  passed its RAM rehearsal, never run as stage3's app; permanent scheme (A' install) open, nothing written to SPI ([u-boot-port.md](u-boot-port.md)); owner decision on
   publishing `ai_re/nix/packages/sai-teralynx/src/ifcs_api.h` (our IFCS declarations from the vendor ctypes + DWARF); AS7760 redeploy of
   the shared SONiC changes (local_asn, teamd MAC, networkd rules); SAI gaps in sai-features.md (WRED/ECN, PFC/lossless, SET_DSCP/remarking,
   sFlow sample policing (isai's ACE impossible on 0.12.41, the CPU-queue meter misbehaves: off), tunnels/IPMC/MPLS/NAT, warm boot,
@@ -87,7 +88,7 @@ earlier offline work: [ssd-analysis.md](ssd-analysis.md), [kernel-review.md](ker
 
 ## Next useful work
 
-1. Our U-Boot: the standalone items (external PCIe link-up, GPIO/MUIO, MAC, quiet fans; ASIC AVS is the Linux oneshot, [avs.md](avs.md)) ([u-boot-port.md](u-boot-port.md)).
+1. Our U-Boot: scheme A' install of `#uboot-cs8210-stage3app` (installer agent) once the AVS oneshot is deployed; quiet fans optional ([u-boot-port.md](u-boot-port.md)).
 2. Aux SPI flash gating (the i2cfpga flash reads all ones on mainline); what CPLD v15/v2 changed ([cpld-diff.md](cpld-diff.md)).
 3. Credo slice temperatures and the ASC10 voltage/temperature monitors.
 4. Populate `/var/lib/cs8210-sdk/root` reproducibly (from the `onie` MTD on the box) instead of by hand.
@@ -110,6 +111,17 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-16 — our U-Boot does the vendor board init (standalone build, RAM rehearsal)
+
+- Patches 0029-0031: SoC init from the DT (MUIO, 32 gpio-list lines, SB PLL ch 9, base MAC from the TlvInfo EEPROM),
+  external PCIe RC driver on its own V3 HAL copy (AVG SerDes iCal, vendor fallback), CS8210 DT; `#uboot-cs8210-selfinit`
+  (+ SPI env at 0x38000/0x3c000) and `#uboot-cs8210-stage3app` (1444 B spare in A' slot B). Chainload build unchanged (4bcabba8).
+- From the vendor prompt: every part 0 changed; all three links torn down and trained by our init, then NixOS + SONiC
+  with lspci identical to the vendor boot; PSCI reset ok. Zero SPI writes. Evidence: [uboot-standalone-20261116.txt](uboot-standalone-20261116.txt).
+- Found and fixed: the MDIO FPGA (1d0f:ec30) ignores BAR 0 writes once U-Boot's PCI auto-config set it, so Linux could
+  not size it; U-Boot now leaves all link partners alone. ASIC decode is off at handoff (the vendor's 6 came from its AVS):
+  the AVS oneshot must enable the device before reading resource0.
 
 ### 2026-11-16 — ASIC AVS as a Linux oneshot (not deployed yet)
 

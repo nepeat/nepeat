@@ -37,6 +37,13 @@ orchagent crash -> syncd restart, teamd respawn, reload ([evidence](sai-hw-sonic
 Vendor stack instead: `systemctl start cs8210-switch` (Conflicts= stops syncd and the Credo unit); back:
 `systemctl start sonic.target`. Diag: `openbcm-diag -s /run/sai-teralynx/diag.sock copp|acl|counters <devport>|devport <n>`.
 
+**When libifcs wedges** (the learn thread's garbage-index bug, [review](reviews/2026-11-10-sdk-learn-crash.md)):
+under the vm.overcommit_memory = 1 that the NixOS redis module sets, its ~32 GiB im_malloc succeeds and the memset
+took the box's memory in seconds (2026-11-16 16:05, [oom-20261116.txt](oom-20261116.txt)); the ASIC's CPU path had
+died 5 min earlier. Contained by syncd's MemoryMax (`syncdMemoryMaxMiB`, 2 GiB; cgroup kill, then the recovery
+chain) and `sonic-cs8210-ifcs-watchdog` (VmSize, RSS, learn-thread CPU, the kernel line, tx-stall of every
+transmitting port; one restart per 15 min; `--once --dry-run` prints its readings). The trigger is open.
+
 **Another closure by hand:** `scripts/sonic-handrun.sh up <toplevel> <config_db.json>` / `status` / `down` links
 the closure's units into /run/systemd/system and adds users, sysctls, modules, tmpfiles, /etc entries and
 firewall rules for the run. Only on a generation with SONiC off (/etc units win over /run; `up` refuses

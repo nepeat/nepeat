@@ -1,0 +1,87 @@
+# CS8210-32X: syncd OOM kill 2026-11-16 16:05:48 PST, root cause and hardening
+# Read-only investigation 16:16-16:35 PST (journal, metrics, /proc, sysfs, libifcs disassembly), then
+# box tests (section 6). Times PST unless marked Z (UTC = PST + 8 h). Boot f500af68 (booted 15:22:35,
+# rebooted by another agent's U-Boot work at 16:24).
+# Raw evidence (local, git-ignored): analysis/research/oom-20261116/
+#   journal-1522-1616.txt   journalctl -b -o short-precise 15:22..16:16   sha256 ceb80ae0...2ed0d8f1
+#   kernel-boot.txt         journalctl -b -k                              sha256 f6e46cb7...88b6f5dd
+#   metrics-2350Z-0010Z.json VictoriaMetrics job cs8210-32x, 15 s steps    sha256 a0742d6b...2e482f1b
+
+## 1. Timeline
+15:23:5x  syncd (pid 4101) starts; SONiC loop config (Vrf-a/Vrf-b eBGP + BFD over PortChannel1/2 = Ethernet0/120)
+15:23:43  papermc (java, a portable service attached by hand, MemoryMax 4G) running; 1.46 GB RSS at the kill
+15:55:36..15:58:58  AVS agent's ssh sessions (avs-chip-20261116.txt): 15:57 PMBus survey of 0x62 (incl. the NACKed
+          0x23 read and over-long block reads), 15:58 root-port config reads + one resource0 mmap refused (EINVAL:
+          ipd holds BAR0, no MMIO happened). No ssh session at all 15:58:58 .. 16:01:06.
+16:00:55  CPU packet path dies, both directions at once:
+          16:00:56.508 bfdsyncd: both VRFs Up -> Down (control detection time expired, 300 ms x3)
+          16:00:58.408 teamd: Ethernet0 and Ethernet120 LACP "current" -> "expired" (fast rate: last PDU ~16:00:55)
+          ASIC port counters (COUNTERS_DB, flex counters): Ethernet0 rx 12210 @00:01:00Z, 12240 @00:01:30Z, then
+          flat to the kill; tx flat too, so BFD slow-rate, LACP and LLDP frames from the CPU never left the ASIC
+          either. Before: ~5.6 packets/s each way on both ports.
+16:00:58  orchagent disables the LAG members; syncd: "ifcs: [LAG] Failed to add mdg to lag pq 0x28200001/2"
+          (benign: the same line appears at every LAG member disable on earlier boots)
+16:01..16:05  libifcs logs nothing at ERROR/WARN (its file log is truncated at every ifcs_init: lost)
+16:03:45  softirq rises from ~0.01 to ~2.0 CPU-s/s (two cores busy, moving between CPUs 8-11, then 0-3),
+          interrupt rate 3100/s -> 4000-5000/s, until ipd closes at ~16:06. Consistent with ipd's NAPI ring poll
+          spinning (it allocated 8.6 MiB of skbs, OOM report), not proven.
+16:05:45  node_memory_Committed_AS 3.59e9 (no 32 GiB yet), MemAvailable 5.26 GB, AnonHugePages 0.73 GB
+16:05:45..48  syncd maps ~32 GiB and touches 5.25 GiB of it in <= 3 s (2687 x 2 MiB THP faults:
+          "5.25 GiB mm/huge_memory.c:1356 vma_alloc_anon_folio_pmd" in the OOM report)
+16:05:48.060  fand (oom_score_adj -900) page-faults on its own text (file pages: active_file 0 kB) and invokes
+          the global OOM killer: "Killed process 4101 (syncd) total-vm:35246804kB, anon-rss:5510764kB"
+16:05:49  syncd Failed with result 'oom-kill' (5.2G memory peak); Restart=always restarts it 16:05:50;
+16:06:04  orchagent stop timed out -> sonic-orchagent-failed restarts syncd and the units below (recovery chain OK)
+16:06:05  AVS agent stops sonic.target for its boot-path test; 16:07:57 rmmod ipd, BAR0 fuse read OK
+          (= U-Boot words: the ASIC answered MMIO again), 16:08:06 sonic.target, BGP + BFD up within 90 s.
+
+## 2. Mechanism (V = verified, I = inference)
+- V: libifcs.so (sha256 388031e7..., the SONiC and vendor-stack copy) im_malloc @0x46625c = malloc(n), then, when
+  the result is not NULL, memset(p, 0, n). The learn thread calls im_malloc(n * 8) with n from its ring producer
+  index (2026-11-10 review: one read of BAR0 +0x4860; all-ones gives n = 0xFFFFF801 for an idle ring, a request
+  of 0x7FFFFC008 B, mapped as 0x7FFFFD000 = 34359726080 B = 33554420 kB).
+- V: syncd VmSize normally 1692496 kB (this boot's restarted syncd, same build). 35246804 - 1692496 = 33554308 kB:
+  one extra mapping of 32 GiB within 0.0003 % of the learn thread's request.
+- V: vm.overcommit_memory = 1 on this system, set by nixpkgs' services.redis.vmOverCommit (default true; SONiC's
+  redis has save = [] and appendOnly = false, so it does not need it). On 2026-11-10 (vendor stack, no redis) it was
+  0: the same request failed ("__vm_enough_memory: ... comm: ifcs-learn, bytes: 34359726080"), malloc returned NULL,
+  im_malloc skipped the memset, the thread spun at 100 % with a log flood: the line the ifcs watchdogs key on.
+  With 1, malloc succeeds and the memset faults in pages at GB/s: no kernel line, a global OOM in seconds.
+- I (high): the bad index came from a BAR read the ASIC did not answer (all-ones via cs8210-pcie-errors), as on
+  2026-11-10. Supporting: the CPU path (DMA rings) was already dead for 5 min; the ipd softirq storm 2 min before;
+  the root port 0001:00:00.0 read UESta CmpltTO+ UnxCmplt+ (First Error Pointer 0x0e) at 16:19 on this boot.
+  Not dated: the next boot (16:24, a U-Boot chainload) read UESta 0, so the bits do not survive every reboot path,
+  but nobody read them on this boot before 16:00.
+
+## 3. Hypotheses
+(b) the known learn-thread wedge, unrelated to AVS: HIGH (root cause of the OOM). The 32 GiB size, the memset in
+    im_malloc and overcommit = 1 explain every observation; the 2026-11-10 wedges (3 in ~10 h of vendor-stack
+    runtime, no host activity near any of them, the first one 44 min after its start; this one 42 min after syncd's)
+    show the trigger recurs on its own.
+    What made the ASIC stop answering at 16:00:55 stays open, as on 2026-11-10.
+(a) PMBus traffic on 0x62 glitched VDD core: LOW. The last PMBus transaction was at ~15:57:39, 3 min 16 s before
+    the CPU path died, and nothing touched the box from 15:58:58 to 16:01:06. The rail read nominal during the
+    failure (16:05:15: READ_VOUT 0x0334 = 800.8 mV, READ_IOUT 147.5 A, STATUS_VOUT 0x00, STATUS_IOUT 0x00,
+    STATUS_WORD 0x1003 as at 15:57) and after; the ASIC answered BAR reads at 16:07:57 without a power cycle.
+    Caveat: VOUT_UV_FAULT_LIMIT is 0, so a short dip would not have latched a UV fault. The latched STATUS_CML 0x21
+    is a communication fault (PEC/memory), not a rail event.
+(c) the resource0 mmap attempt or the root-port config reads: VERY LOW. The mmap failed with EINVAL before any
+    access; root-port config space is on the SoC; both ended >= 117 s before the failure.
+
+## 4. Hardening (nepeat/nix nixos/module/cs8210/sonic, deployed by the parent)
+- sonic-syncd: MemoryMax = hardware.cs8210.sonic.syncdMemoryMaxMiB (default 2048; normal RSS ~330 MiB),
+  OOMPolicy = stop. The memset now hits the unit's own limit within ~1 s: cgroup OOM kill of syncd only, then
+  Restart=always and the recovery chain that worked at 16:05-16:06; fand and the rest keep their memory.
+- sonic-cs8210-ifcs-watchdog rewritten (ifcs-watchdog.py, 48 unit checks at build; was a journal grep only). Every
+  15 s: syncd VmSize >= 16 GiB (the mapping), VmRSS >= 3/4 of MemoryMax, the ifcs-learn thread >= 80 % of a core
+  for two polls (the overcommit-0 spin), the old kernel line (every 60 s), and tx-stall: every oper-up port whose
+  COUNTERS_DB OUT packets were rising has sent nothing for 180 s (port counter polling on, syncd up >= 300 s). On
+  2026-11-16 tx-stall would have restarted syncd at ~16:04-16:05, before the bad read. One restart per 15 min;
+  each trigger and each syncd restart logs the root port's DevSta/UESta/CESta (dates the next completion timeout).
+- Not changed (owner/parent decisions): vm.overcommit_memory (services.redis.vmOverCommit = false would bring back
+  the spin instead of the memset; MemoryMax + watchdog cover both); the vendor stack's cs8210-switch has no
+  MemoryMax yet and under the same sysctl would OOM the same way (nixos/module/cs8210/vendor-sdk); the real fix is
+  an all-ones check on the learn index in our loader (ai_re sai-teralynx: interpose node_pci_reg_read32 as
+  memcpy is already, retry/keep the last good index for 0x485c-0x4864), as the 2026-11-10 review proposed.
+- AVS: not implicated; no change to the tool (it already sends only whitelisted commands). avs.md gets the rule
+  that ad-hoc PMBus surveys of 0x62 are off-limits.

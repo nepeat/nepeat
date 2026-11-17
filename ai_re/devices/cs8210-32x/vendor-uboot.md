@@ -110,7 +110,7 @@ Command table: linker list at 0x011d5c30..0x011d7e20 (`cmds.py`).
 | --- | --- | --- |
 | PCIe RC init | yes, item 3 | V3 HAL 3.65.1 (DMC-12: 2.6x); PCIe init takes AVG SerDes lane handles; three ports, Gen3 x4 on port 0 |
 | MUIO replay | yes, item 9 | different set: uart_1, spim_aux, i2c_gen, NAND, SGPO pins |
-| GPIO from `gpio_init` | yes, item 6 (31 lines) | plus stage2's own `gpio-list-s2` and a stage2-embedded FDT stub; plus the bootm-time flip of GPIO 52/54 (item 7) |
+| GPIO from `gpio_init` | yes, item 6 (32 lines) | plus stage2's own `gpio-list-s2` and a stage2-embedded FDT stub; plus the bootm-time flip of GPIO 52/54 (item 7) |
 | CCU io-coherency before Linux | only if the kernel DT has `/soc/ccu` (item 23) | CCU at 0xf0200000, value 3 per cluster (V2: 0xf0094000 ← 1, 0xf0090004 ← 7) |
 | al_eth params + MAC handoff | yes, items 14/15 | MAC from the ONIE TlvInfo EEPROM over I2C, not the uC FRU / EEPROM board data; port 3 random |
 | SSI (DW SPI) deselect | aux CS_OVERRIDE = 0xF at init, item 8 | plus the PBS52/54 SPI mux |
@@ -157,7 +157,7 @@ All are reads or the mux writes U-Boot itself does; no flash writes.
 
 ## Open questions
 1. What SB PLL channel 9 (25 MHz) clocks, and whether Linux breaks without it.
-2. The meaning of the 31 `gpio-list` lines (resets? enables?), in particular 2/3/26 and 59-61 (high).
+2. The meaning of the 32 `gpio-list` lines (resets? enables?), in particular 2/3/26 and 59-61 (high).
 3. Why the i2cfpga flash stays dead on mainline: nothing in U-Boot explains it (it only flips 52/54).
 4. Whether the AVS regulator's power-on VOUT is safe for the ASIC without U-Boot's write.
 5. Whether stage3 on V3 honours the `p`/`e`/`u` keys like V2 (not checked in stage3).

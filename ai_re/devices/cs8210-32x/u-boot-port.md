@@ -15,9 +15,15 @@ Goal (owner): replace the vendor U-Boot 2018.05 with our own upstream-based one,
   region above 16 MiB); NixOS + SONiC (BGP/BFD/LACP) as on the vendor boot. Differences: 00:06.0/00:10.0 left with
   Mem+/BusMaster+ by U-Boot's PCI auto-config, the disabled uart1-3 keep clock 0, 280 KiB less free memory.
   The box is back on the vendor boot.
-- Chainloaded from the vendor prompt, Linux needs nothing from us beyond today's path (the vendor
-  U-Boot has already done PCIe, AVS, GPIO, MUIO, MAC before its prompt). A standalone build (stage3's
-  app) needs the items marked **standalone** in the [checklist](#checklist).
+- **Milestone 3 (standalone code, RAM rehearsal) 2026-11-16** ([uboot-standalone-20261116.txt](uboot-standalone-20261116.txt)):
+  `#uboot-cs8210-selfinit` does the vendor board init itself (MUIO, 32 GPIOs, SB PLL ch 9, base MAC, external
+  PCIe RC init with AVG SerDes iCal, decode off at handoff), env in blank SPI. From the vendor prompt: every part
+  idempotent (0 changed), all three links torn down and trained by our init (Gen3 x4 / Gen2 x1 / Gen1 x1), then
+  NixOS + SONiC (BGP/BFD/LACP) with lspci identical to the vendor boot; PSCI reset works. One bug found and fixed
+  (MDIO FPGA BAR, below). `#uboot-cs8210-stage3app` = the al-boot object for scheme A'. Never run as stage3's
+  app yet (that needs the installer + TOC2); zero SPI writes so far.
+- Not covered by the rehearsal (it runs after the vendor U-Boot): the stage3 entry itself, ASIC AVS (Linux
+  oneshot, another agent), the writing paths of MUIO/PLL/MAC (they found the vendor's values), cold endpoints.
 
 ## What exists
 - Patches (shared series, [../../nix/packages/uboot/default.nix](../../nix/packages/uboot/default.nix)),
@@ -32,6 +38,25 @@ Goal (owner): replace the vendor U-Boot 2018.05 with our own upstream-based one,
     MX25U25635F (32 MiB) is read with 4-byte opcodes only; without this `sf read` is refused.
   - 0026 `cs8210`: `alpine-v3-cs8210-u-boot.dtsi` (7 unused AHCI functions disabled for U-Boot,
     boot SSI 25 MHz + `spi0` alias) and `alpine_v3_cs8210_defconfig`.
+  - 0027/0028 (installer agent): write windows (6 ranges, 4-byte chips, sf erase/write), `cs8210-installer`.
+  - 0029 `alpine-v3`: `board/amazon/alpine-v3/soc-init.c`, one `amazon,alpine-v3-soc-init` node: MUIO (8 mux_sel
+    registers), GPIO list (pin to MUIO fn 0, then value/dir/value), PLL channel dividers (HAL relock sequence), base
+    MAC (TlvInfo 0x24, CRC checked) into EC MAC entry 0 of 00:01.0; `alpine state|muio|gpio|pll|mac`. Each part
+    writes only fields that differ.
+  - 0030 `alpine-v3`: `pcie_alpine_v3` on `amazon,al-alpine-v3-pcie`, a HAL copy of its own
+    (`drivers/pci/al_pcie_v3`, MikroTik GPL HAL built for V3: PCIe rev 4, AVG SerDes lanes, IOFIC; no SBus firmware),
+    `al_init_pcie_v3_rc.c` = vendor `al_init_pcie` RC path with the V3 template the vendor binary carries (EQ table
+    0x011cd1f0). Firmware link kept, else init with the vendor fallback (x4 -> x2 -> x1 -> Gen1); pre-delay 100 ms,
+    link-up 100 ms, CRS 30 s; SError drain as V2; link partner COMMAND = 0 at OS handoff; `alpcie status|reinit`.
+    `PCIE_ALPINE_V3_FORCE_INIT` (test only): init every port at probe.
+  - 0031 `cs8210`: DT for the above (26 MUIO pins, the 32 gpio-list triplets verbatim, PLL ch 9 divider 120, the
+    TlvInfo EEPROM, ports 0/1/4 gen/width/SerDes lanes 0-3/8/4), link partners and 00:06.0/00:10.0 disabled for
+    U-Boot, `pci0` alias; all under `#ifdef`, so `#uboot-cs8210` stays byte-identical (4bcabba8).
+- `#uboot-cs8210-selfinit` (alpine-v3/default.nix `selfinitConfig`): + redundant env 2 x 16 KiB at 0x38000/0x3c000
+  (blank in the 0x01c000-0x040000 gap, clear of the TOC2 and BOOT_MODE sectors), the one write window 0x38000+0x8000
+  (4-byte), trimmed (FDT/LZMA/ELF/XIMG/LOADS/MEMINFO cmds) to fit slot B. `#uboot-cs8210-stage3app`: that
+  u-boot.bin wrapped by alboot.py (id 0x110, load = exec 0x08000000), 0x66a5c B, **1444 B spare in slot B**.
+  The installer's windows do not include the env (0x38000+0x8000): add it there if the installer should seed it.
 - Builds ([../../nix/packages/uboot/alpine-v3/](../../nix/packages/uboot/alpine-v3/default.nix)):
   `nix build path:./nix#uboot-cs8210` → `u-boot.bin` (399336 B, sha256 `4bcabba8…`, crc32 `1d7676cc`),
   `u-boot.uimage` (kernel type, load = entry 0x08000000, `54cbd80b…`), `u-boot`, `.map`, `.dtb`, `.config`.
@@ -50,6 +75,12 @@ Goal (owner): replace the vendor U-Boot 2018.05 with our own upstream-based one,
     one; then MMU-on `go` entry; `reset` through PSCI back to a banner. QEMU proves code paths, not caches.
   - Not offline-testable: the DW SSI with 4-byte reads (QEMU/sandbox model none), the 16550 at 500 MHz,
     the real PSCI monitor: M2 covers them.
+  - **pcie-init** (./pcie-test): `al_init_pcie_v3_rc.c` + the HAL copy out of 0030 on a host register model (rev-4
+    unit, PBS, 4 AVG lanes with a core-interrupt mailbox): cold Gen3 x4 in the vendor order incl. per-lane FW
+    CRC/rev reads, the 8 iCal steps interleaved, PCS interrupts on; x2; skip-iCal; "already started"; reinit;
+    stuck link (teardown).
+  - **selfinit**: config, symbols, DT of the selfinit build; the chainload DT has none of it; the app object =
+    u-boot.bin verbatim and fits slot B.
 
 ## Memory and entry
 - Entered at EL2 (expected: V2 measured EL2; Linux reports "started at EL2"; the PSCI v0.2 monitor sits
@@ -71,31 +102,31 @@ Item numbers = [vendor-uboot.md](vendor-uboot.md). "Chainload" = ours started fr
 | --- | --- | --- | --- | --- |
 | 1 | entry, DRAM banks | ✓ | ✓ | `/memory` 4 banks; EL printed |
 | 2 | SerDes | — (stage3) | — (stage3) | |
-| 3 | external PCIe RC + link | — (vendor trained, we never touch ports 0/1/4) | ☐ | V3 HAL PCIe init as a separate HAL copy (MikroTik GPL drop, V3 platform), driver on `amazon,al-alpine-v3-pcie` like 0017; port params from `pci_init_board_external` 0x0110d720 (port 0 Gen3 x4, 1 Gen2 x1, 4 Gen1 x1, CRS 30 s, 4 retrains) |
-| 4 | PCI state at handoff | — | — | Linux enables decode; no device has FLR |
-| 5 | ASIC AVS | — (vendor wrote it before its prompt; 11-15 read: VOUT 0x0333) | ☐ | needs #3 (fuses at BAR0 + 0x11178); PMBus PAGE 0 + VOUT_COMMAND on 0x62 behind 0x70 ch2 → 0x74 ch0 → 0x72 ch2; read-compare-write. Or a Linux oneshot before the SDK (owner's call) |
-| 6 | 31 board GPIOs | — | ☐ | DT table + PL061 replay as V2 0020 (value, dir, value) |
+| 3 | external PCIe RC + link | ✓ kept (0030) | ✓ RAM-rehearsed | 0030; vendor `pci_init_board_external(teardown 1, reinit 0, ical on)`: no retry (rc-link-retry absent), on failure halve lanes then Gen1. Torn down + our init on all three, Linux/SONiC fine |
+| 4 | PCI state at handoff | ✓ | ✓ | partners COMMAND 0 at OS prepare (vendor: FPGAs 0, ASIC 6 for its AVS); U-Boot leaves the endpoints unconfigured (MDIO FPGA BAR 0 locks after U-Boot's auto-config); no FLR |
+| 5 | ASIC AVS | — (vendor wrote it before its prompt; 11-15 read: VOUT 0x0333) | — (Linux) | owner: Linux oneshot before the SDK (avs.md); our U-Boot leaves ASIC COMMAND 0, so the oneshot must enable the device before reading resource0 |
+| 6 | 32 board GPIOs | ✓ (2 changed: 52/54 after the vendor booti) | ✓ | 0029/0031; the vendor list has 32 triplets (not 31) |
 | 7 | SPI mux 52/54 | — | — | Linux `gpio-mux` drives it; #6 leaves 52=0/54=1 |
 | 8 | SSI CS override | ✓ (boot SSI, 0018) | ✓ | aux SSI is Linux's |
-| 9 | MUIO pinmux | — | ☐ | vendor `pinctrl_init` list (uart_1, spim_aux, i2c_gen, NAND, SGPO pins); V3 MUIO layout from the HAL |
-| 10 | SB PLL ch 9 = 25 MHz | — | ☐ | one HAL call; consumer unknown; compare `md.l 0xfd860b00 0x40` with vendor-uboot-checks |
+| 9 | MUIO pinmux | ✓ (0 changed) | ✓ | 0029/0031, 26 pins; = the vendor's mux_sel words |
+| 10 | SB PLL ch 9 = 25 MHz | ✓ (0 changed) | ✓ | divider 120 from the DT (vendor result 0x7078); consumer still unknown |
 | 11-12 | I2C controllers, mux tree | ✓ (DM from the DT) | ✓ | |
 | 13 | ONIE vars / env saveenv | — | — | our build never writes the env (no env storage) |
-| 14 | base MAC in EC entry 0 | — (vendor eth init stored it) | ☐ | TLV 0x24 (0x56 behind 0x74 ch0 → 0x71 ch7) → EC MAC entry 0, as V2 0015 does for V2 |
+| 14 | base MAC in EC entry 0 | ✓ (kept) | ✓ | 0029: TLV read + CRC + EC BAR 4 +0x868 proven equal to the vendor's store; the write path itself not yet exercised |
 | 15-17 | al_eth params, PHY, retimers | — | — | stage3 params; Linux marvell driver; no retimers |
 | 18 | SATA / AHCI | ✓ | ✓ | 00:0b.0 only (port 3 = SSD) |
 | 19 | sys LED, console logger bit | — | ☐ optional | CPLD 0x60 reg 0x20 = 0x7d, reg 0x40 bit 6 |
 | 20-21 | LM75 limits, fault log | — | — | power-on defaults; diagnostic only |
 | 22-23 | kernel DT fixups, CCU | — | — | the DTS carries the real clocks; no `dma-coherent` |
 | 24-25 | TPM, SGPO | — | — / optional | |
-| 26 | fans | — | ☐ optional | the quiet recipe at U-Boot time (PROGRESS fans note), owner's call |
-| 27 | boot flash, env | ✓ read-only (0019 + 0025), env RAM | ✓ | write window stays off |
+| 26 | fans | — | ☐ optional | not done: the quiet recipe at U-Boot time (PROGRESS fans note), owner's call |
+| 27 | boot flash, env | ✓ read-only (0019 + 0025), env RAM | ✓ selfinit: env SPI 0x38000/0x3c000 | one window (env) via 0027; `saveenv` never run yet (zero SPI writes) |
 
 Permanent scheme after M2 (owner's choice, [boot-chain.md](boot-chain.md) §7): C = the vendor boot.scr
 loads our u-boot.bin from the SSD and `booti`s it (no SPI write). Our U-Boot finds the same
 `/boot/boot.scr`, so the launcher must branch on a vendor-only variable (e.g. `dt_is_from_toc`) or ours
-needs its own boot file (extlinux), or it chainloads itself again. A' (TOC2 + our app) needs the
-standalone items first.
+needs its own boot file (extlinux), or it chainloads itself again. A' (TOC2 + our app): the standalone
+build exists and passed its RAM rehearsal (milestone 3); open are the AVS oneshot in Linux and the install.
 
 ## Milestone 2 runbook
 Run 2026-11-16 (results above); repeat only after the parent's go (SONiC tests and DMC-12 console reboots coordinated). RAM only; every
@@ -115,7 +146,23 @@ Manual fallback: the same commands over `sudo ssh -t console@10.60.2.10 cs8210` 
 Expected differences: the vendor's DT fixup messages and TPM extend errors are gone; `/chosen` gets
 U-Boot 2026.10 properties.
 
+## Standalone: rehearsal and what is still unproven
+- RAM rehearsal (milestone 3, repeatable, zero SPI writes): vendor prompt → `loadx 0x8000000` the selfinit
+  u-boot.bin → `booti 0x8000000 - ${fdtaddr}` → expect the `MUIO:/GPIO:/PLL:/MAC:` lines with 0 changed (GPIO 2:
+  52/54), links "firmware init, kept". `alpcie reinit 4` is the last-probed port; reinit of 0 or 1 renumbers U-Boot's
+  bus (root port bus regs no longer 1): `reset` after it, never boot an OS. Full cold-path rehearsal of all three
+  links + Linux: a dev build with `CONFIG_PCIE_ALPINE_V3_FORCE_INIT=y` (run 2B of the evidence file).
+- Stage3 entry contract (boot-chain.md §2/§7): stage3 loads the object to its header load address and the AArch64
+  agent enters exec; on V2 that was EL2, MMU off, x0 = 0, on V3 not observed. Our entry handles EL2 with MMU on
+  or off and prints `Entry:`; an EL3 banner means stop (our vectors would shadow the monitor).
+- Route A (stage3's "UART recovery" RAM reader at 0x01800000) as a rehearsal: assessed, not built. It needs stage3
+  re-run in AArch32 on CPU0 (the Route R warm-reset path, never run on hardware), the SPI_LOAD/XMODEM_LOAD_ENFORCE
+  flags located in stage3 (not traced yet), and stage3 would redo the SerDes firmware download and the DRAM clear
+  under live links. Cheaper partial step if wanted: re-enter the AArch64 agent (exec word 0xfbfe00f8 + CPU0 reset)
+  to observe the real entry state. First real stage3 run = the A' install with `u` as the escape (boot-chain.md §7).
+
 ## Open
-- Hardware, not run yet: PSCI SYSTEM_RESET on the real monitor, the `go` entry.
-- Cosmetic: disable 00:06.0 and 00:10.0 in the U-Boot DT too (nothing in U-Boot uses them); the 280 KiB less free memory.
-- Standalone items (☐ above), smallest first: GPIO + MUIO + SB PLL, then PCIe RC (V3 HAL), then AVS, MAC.
+- Hardware, not run yet: the `go` entry; our U-Boot as stage3's app; `saveenv` into the 0x38000 window; the
+  MUIO/PLL/MAC write paths from stage3's state; the 280 KiB less free memory (cosmetic).
+- ASIC AVS before the SDK (Linux oneshot, other agent) is a precondition for a vendor-free boot.
+- Slot B margin is 1444 B: growth means trimming (FAT, bootmeth distro) or slot A only.

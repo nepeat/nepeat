@@ -30,6 +30,8 @@ Read 2026-11-16 under SONiC (PAGE 0): IC_DEVICE_ID `TISh 80 00`, PMBUS_REVISION 
 VOUT_OV_FAULT_LIMIT 0x04dc (1215 mV), VOUT_UV_FAULT_LIMIT 0, TRANSITION_RATE 10 mV/us, ON_OFF_CONFIG 0x17 (enable
 pin only; OPERATION reads 0x00 and is ignored), READ_IOUT ~146 A, READ_TEMPERATURE_1 ~42.5 C, READ_VIN 12.0 V,
 READ_POUT ~117 W, STATUS_WORD 0x1003. VOUT_CAL_OFFSET (0x23) NACKs. Linux has no driver bound (no DT node).
+**Rule:** only `cs8210-asic-avs` (whitelisted commands, documented lengths) talks to 0x62; no ad-hoc
+i2cget/i2ctransfer surveys, no CLEAR_FAULTS without the owner (the 15:57 survey latched STATUS_CML, below).
 
 **Power-on default: not readable without a cold boot.** Standard PMBus only exposes the operating
 VOUT_COMMAND (already rewritten by U-Boot before its prompt); VOUT_MAX / limits say nothing about the boot value;
@@ -78,7 +80,6 @@ register map. Hazard 4 of vendor-uboot.md (a replacement without AVS runs at thi
 - STATUS_CML reads 0x21 (bit 5 PEC failed, bit 0 other memory/logic) with STATUS_WORD 0x1003 (CML, MFR); most likely
   latched by the first survey (a NACKed 0x23 read, block reads past the count). Left latched (CLEAR_FAULTS not sent);
   regulation unaffected (READ_VOUT steady).
-- Before the boot-path test, syncd was OOM-killed at 16:05:48 (5.5 GB RSS, 35 GB VM; the loop's BFD/LACP had expired
-  at 16:00:56) during read-only work only (PMBus reads, root-port config reads, one refused resource0 mmap at
-  15:58); no causal link found. Same shape as the vendor stack's learn-thread 32 GiB allocation but without its kernel
-  line, so the ifcs watchdog did not fire. PROGRESS entry 2026-11-16 (AVS).
+- Before the boot-path test, syncd was OOM-killed at 16:05:48: the libifcs learn-thread wedge (its ~32 GiB im_malloc
+  memset under vm.overcommit_memory = 1), not the AVS work; the last PMBus read was 3 min before the ASIC's CPU path
+  died and the rail read nominal throughout ([oom-20261116.txt](oom-20261116.txt)).
