@@ -1,9 +1,10 @@
 # CS8210-32X: libifcs's learn-thread wedge and the dead CPU path
 
-**Status (2026-11-16):** the bad read is defused in our libsai (learn-ring guard, mock + chip tested by
-injection); both stacks are memory-capped; the most likely root cause of the ASIC going bad is ASPM L0s on its
-PCIe link (A/B on the chip: replay timeouts every second with L0s on, none with it off), mitigated by
-`cs8210-asic-aspm` (not deployed yet; applied by hand for the soak). Evidence:
+**Status (2026-11-17):** the bad read is defused in our libsai (learn-ring guard, mock + chip tested by
+injection); both stacks are memory-capped; the watchdog notices a dead chip after the guard (guard / cpu-tx signals),
+escalates (restart, ipd reload, alarm) and dates PCIe errors (clear-and-count). ASPM L0s on the ASIC link proven to
+cause the link errors (A/B); that those cause the wedge is still inference: a crossover soak decides it (section 7).
+Independent review: [reviews/2026-11-17-fable-learn-wedge.md](reviews/2026-11-17-fable-learn-wedge.md). Evidence:
 [sai-hw-learnwedge-20261116.txt](sai-hw-learnwedge-20261116.txt). Incident: [oom-20261116.txt](oom-20261116.txt);
 first analysis: [reviews/2026-11-10-sdk-learn-crash.md](reviews/2026-11-10-sdk-learn-crash.md).
 
@@ -26,10 +27,13 @@ first analysis: [reviews/2026-11-10-sdk-learn-crash.md](reviews/2026-11-10-sdk-l
 ifcs_lib.cpp points libifcs's GOT entries for `node_pci_reg_read32`, `node_pci_reg_write32` and `im_malloc` at the
 shim (as it already does for memcpy), before `ifcs_init` starts the thread. Only 0x4860 / 0x4864 / 0x485c are
 touched: 0x4860 must have bits 13..31 clear and slot < ring size, the other two must not be all-ones. An invalid
-value is re-read up to 3 times; still invalid: 0x4860 returns the consumer index last written to 0x4864 ("nothing
-new", the poll is skipped), the RMW registers their last valid value. `im_malloc` above 1 GiB returns NULL (logged)
-instead of malloc + memset. Each event: one stderr line in syncd's journal (`sai-teralynx: ifcs guard: ...`, at most
-20 per 10 min) and `/run/sai-teralynx/ifcs-guard.prom` (`sai_teralynx_ifcs_guard_*`). Profile keys and the test
+value is re-read up to 3 times, 3 ms apart; still invalid: 0x4860 returns the consumer index last written to 0x4864
+("nothing new", the poll is skipped), the RMW registers their last valid value (0 before any), and that register is
+not re-read again until a read is valid (unanswered reads can stall the SoC; the thread's 1 Hz read is the probe).
+All-ones from any other offset is only counted (first 16 offsets by name, one line each). `im_malloc` above 1 GiB
+returns NULL instead of malloc + memset. Journal: `sai-teralynx: ifcs guard: ...` (at most 20 lines per 10 min,
+written outside its lock); counters in `/run/sai-teralynx/ifcs-guard.prom` (`sai_teralynx_ifcs_guard_*`, invalid
+reads also by error return: `invalid_rc_total`). Profile keys and the test
 hook: [README](../../nix/packages/sai-teralynx/README.md). Vendor stack: not guarded (innovium.user is the vendor's
 binary; an LD_PRELOAD build of the same code would interpose the PLT calls, not written).
 
@@ -61,34 +65,51 @@ On the self-loop only the CPU sends, so Ethernet0 RX = Ethernet120 TX: "both dir
   completion explains both a halted TX DMA (its descriptor/data fetches are reads of host memory) and an MMIO read
   past the completion timeout. Not proven: the stall itself was not reproduced, and the vendor's own kernel
   (factory DIAGOS) was not checked for ASPM.
-- Mitigation: `hardware.cs8210.vendorSdk.asicAspm = false` (default): `cs8210-asic-aspm` writes 0 to the ASIC's
-  `link/l0s_aspm` (and `l1_aspm`) at boot, before ipd and either stack. Cleaner later: `aspm-no-l0s` in a
-  root-port child node of `pcie_external0` in the kernel DTS (needs a reboot to test).
+- Mitigation: `hardware.cs8210.vendorSdk.asicAspm = false` (default): `cs8210-asic-aspm` (after cs8210-pcie-errors,
+  before ipd and either stack; re-run by `cs8210-switch-power on` after its rescan) writes 0 to the ASIC's
+  `link/l0s_aspm`/`l1_aspm` and fails if the root port's LnkCtl still has ASPM on. Kernel-side alternatives (need a
+  reboot to verify): `pcie_aspm.policy=performance` (7.3.4 source: that policy maps to "no ASPM" for every link,
+  DT or not) or `aspm-no-l0s` in a root-port child node of `pcie_external0` in the DTS.
 - Not changed: completion timeout (both ends 50 us - 50 ms; the ASIC only supports range B, 65-210 ms; raise it only if
   CmpltTO recurs with L0s off); MSI-X (8 vectors, all on CPU 0, only the NAPI vector busy: not implicated).
 
 ## 5. ipd hazards (source of 0.16.2 + our patches; proposals, not changed)
 
 - TX ring full: NETDEV_TX_BUSY without `netif_stop_queue`: the requeue spin above, and no NETDEV WATCHDOG line to
-  date it. The round-2 flow-control patch fixes this but stays out (soft lockup, PROGRESS (z)).
+  date it. The round-2 flow-control patch fixes this but stays out (soft lockup, PROGRESS (z)). No MMIO per attempt:
+  the `ipd_info` with two BAR reads in that path is compiled behind `ipd_loglevel >= 4` (the box runs 2), so the spin
+  is CPU/lock load, not extra PCIe reads (C). ring_stat "Packets" counts frames when queued, "Full" each BUSY.
 - RX: the in-loop refresh `posted_cidx = REG32(RXQ_x_DESC_CIDX)` is not range-checked (the writeback value is);
   all-ones gives 0xffff, which `rx->cidx` never equals: the SOP search walks stale descriptors.
 - No TX-ring stall detection in the driver: the IFCS watchdog's tx-stall (180 s) restart is the ring reset.
 
 ## 6. Containment and metrics
 
-- SONiC: syncd MemoryMax 2 GiB + OOMPolicy=stop; `sonic-cs8210-ifcs-watchdog` (signals in [sonic.md](sonic.md)) now
-  keeps counters in `/run/sonic-cs8210-ifcs-watchdog/state.json` and logs ipd's TX-3 line with each trigger.
-- Vendor stack: cs8210-switch MemoryMax 3 GiB (`vendorSdk.memoryMaxMiB`; it peaks at 494 MB) + OOMPolicy=stop;
-  cs8210-sdk-watchdog restarts it after an oom-kill stop (and still on the kernel line), at most once per 15 min.
+- SONiC: syncd MemoryMax 2 GiB + OOMPolicy=stop; `sonic-cs8210-ifcs-watchdog` (docstring of ifcs-watchdog.py):
+  signals kernel / vmsize / rss / learn-cpu / guard (0x4860 substituted 3 polls running) / cpu-tx (TX-3 Full rising,
+  nothing queued, 4 polls) / tx-stall (now only with a witness: the host netdev kept sending). CPU-path signals
+  escalate: restart, then (still dead within 15 min) an ipd reload in a transient unit, then ALARM and no more action
+  until CPU TX moves; whether it moved is logged after every action. Nothing is done under the ASIC lease or a
+  SONiC reload. Every poll counts, logs (dated; repeats once per 10 min) and clears the root ports' AER and LnkSta
+  LBMS/LABS bits (FPGA ports: UESta/DevSta errors only counted, the cage guard reads them). Counters, the onset
+  per signal and the last restart time live in `/run/sonic-cs8210-ifcs-watchdog/state.json` (a deploy keeps the
+  15 min limit). Chip: guard signal from injected reads (dry run), clear-and-count with L0s on.
+- Vendor stack: cs8210-switch MemoryMax 1536 MiB (`vendorSdk.memoryMaxMiB`; it peaks at 494 MB) + OOMPolicy=stop;
+  cs8210-sdk-watchdog restarts it after an oom-kill stop (a second one within 15 min: when they have passed).
 - Node exporter producer `cs8210-ifcs` (15 s): `cs8210_ifcs_watchdog_{triggers_total{signal},restarts_total,
-  suppressed_total,last_trigger_timestamp_seconds}`, `cs8210_asic_rootport_aer_error{type,error}` (dates the next
+  suppressed_total,held_total,escalations_total,recoveries_total,alarm,last_trigger_timestamp_seconds}`,
+  `cs8210_pcie_aer_events_total{port,type,error}`, `cs8210_asic_rootport_aer_error{type,error}` (dates the next
   CmpltTO to 15 s), `cs8210_asic_link_{up,speed_gts,width,aspm_enabled}`, `cs8210_ipd_tx_ring_full_total`,
   `cs8210_ipd_ring_packets_total`, and the guard's `sai_teralynx_ifcs_guard_*` while its file is fresh.
 
-## 7. Soak
+## 7. Soak: L0s crossover
 
-Passive monitor `lw-soak` (transient unit, `/var/lib/lw-soak/soak.txt` on the box: syncd state, watchdog and kernel
-lines, root port AER, L0s, lease holder, ipd TX-3 Full; turns L0s off when it starts, under the lease). Results:
-[sai-hw-learnwedge-20261116.txt](sai-hw-learnwedge-20261116.txt) section 4. A reboot ends a run (the unit is
-transient); the count restarts.
+Runs so far, all clean (no watchdog trigger, no guard event, root-port AER 0): L0s off 1 h 11 min + 33 min + 19 min,
+cut by U-Boot SPI windows. That has no statistical weight (review H1: p = 0.59 even if L0s did not matter), and the
+wedge rate under SONiC + our U-Boot is unknown (one event, 42 min after start; a clean 2 h run with L0s on).
+Design (from the review): same boot chain (our U-Boot, SPI), the deployed guard build in both arms, blocks of >= 4 h
+in the order on, off, off, on (repeated), each started with a syncd restart under the lease; endpoints per block:
+guard invalid / substituted, watchdog triggers by signal, TX-3 Full rising, root-port CmpltTO / UnxCmplt / LBMS counts.
+Decision: equal on/off time needs >= 5 events on and 0 off (p = 0.03, conditional binomial); 3 on / 0 off is only
+p = 0.125 at equal time. If the on arm stays clean too, the rate is just low and L0s is not credited. Controller
+`lw-crossover` (transient unit, `/var/lib/lw-soak/`); per-block table: [sai-hw-learnwedge-20261116.txt](sai-hw-learnwedge-20261116.txt).

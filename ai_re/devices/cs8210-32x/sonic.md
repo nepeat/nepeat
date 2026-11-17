@@ -42,9 +42,9 @@ learn-ring guard re-reads an all-ones index and skips that poll (journal `sai-te
 `sai_teralynx_ifcs_guard_*`). Backstops: syncd's MemoryMax (`syncdMemoryMaxMiB`, 2 GiB; under the vm.overcommit_memory
 = 1 that the NixOS redis module sets, the unguarded ~32 GiB memset took the box's memory on 2026-11-16,
 [oom-20261116.txt](oom-20261116.txt)) and `sonic-cs8210-ifcs-watchdog` (VmSize, RSS, learn-thread CPU, the kernel line,
-tx-stall of every transmitting port, i.e. the dead CPU TX ring; one restart per 15 min; `--once --dry-run` prints its
-readings, `--metrics` the `cs8210_ifcs_watchdog_*` / root-port AER / link / ipd ring families of the `cs8210-ifcs`
-producer). Prime suspect for the ASIC going bad: ASPM L0s on its PCIe link (off by `cs8210-asic-aspm`).
+guard, cpu-tx, tx-stall with a host-side witness; restart, then ipd reload, then alarm; never under the ASIC lease;
+`--once --dry-run` prints its readings, `--metrics` the `cs8210_ifcs_watchdog_*` / PCIe AER / link / ipd ring
+families of the `cs8210-ifcs` producer; details: learn-wedge.md section 6). Prime suspect for the ASIC going bad: ASPM L0s on its PCIe link (off by `cs8210-asic-aspm`).
 
 **Another closure by hand:** `scripts/sonic-handrun.sh up <toplevel> <config_db.json>` / `status` / `down` links
 the closure's units into /run/systemd/system and adds users, sysctls, modules, tmpfiles, /etc entries and
@@ -107,8 +107,8 @@ DAC loop's EEPROMs are not read: xcvrd reports presence only.
   SerDes firmware download and the DMA rings under emulation.
 - **Chosen:** sai-openbcm's hardware-agnostic frontend (shared with the AS7760; its optional backend hooks default to the AS7760's behaviour)
   + a new IFCS backend. SAI ABI = sairedis' pin (OCP SAI 1.19.2), by construction. IFCS
-  interop declarations are our own, from the SDK's `pyctypes/ifcs_ctypes.py` and checked against
-  the DWARF of `innovium.user` ([README](../../nix/packages/sai-teralynx/README.md)).
+  declarations are generated at build time from a public ctypes file (ishell 2.0.1), equal to the
+  SDK's 0.12.41 for everything used ([README](../../nix/packages/sai-teralynx/README.md#ifcs-declarations)).
 - **Kernel driver:** the existing ipd 0.16.2 with `legacy_abi=1` (the 2020 libifcs speaks 0.12.41).
 
 ## Vendor files at run time (never in git or the store)

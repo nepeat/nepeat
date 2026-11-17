@@ -44,6 +44,20 @@ SAI_TERALYNX_IFCS_GUARD_INJECT; started; BFD Up in 11 s.
   ifcs-learn/oom line. Final counters: invalid 0x4860 34, recovered 2, substituted 32; 0x4864 / 0x485c 1 each.
 - Restored: drop-in removed, SONiC restarted on the deployed libsai (1yx7cr56...), BFD Up in 11 s; lease released.
 
+## 3b. Guard and watchdog after the review (2026-11-17 build; lease "learn-wedge(guard-chip-test2)", 21:06:57-21:10:12)
+Same procedure as section 3 with /nix/store/gpia9xpj4wp9acrl3vpjbdyh6wvgllhb-sai-teralynx-aarch64-unknown-linux-gnu-0.1.0.
+raw: guard-chip-test2-log.txt sha256 067bdb1c0389f374ea935c1eb3bfb3192007f048ca1a4bb24bb4e4ff4fb2df36,
+     guard-chip-test2-journal.txt sha256 c4f6486a1cc8afafd55cb1c3545224b3071a872b9ff4f34599b8661a806d705b
+- inject 0x4860 x2: recovered on re-read 2 (6 ms after the first read). x10: first poll re-read 3 times (21:08:09.585 ->
+  .594, 3 ms apart), then 6 polls with one read each ("no re-reads until it is valid again"), "valid again after 7
+  substituted polls". 0x4864 x4: substituted once, valid again next poll. No other offset read all-ones (other = 0).
+- Watchdog (new build, --dry-run --interval 5 --stall 0) while 0x4860 stayed all-ones: "libsai guard saw 5 new invalid
+  ... root port ..." then "IFCS watchdog: guard (...); dry run, no restart" from the 3rd rising poll; --metrics:
+  triggers_total{signal="guard"} 1 (onset counted once), invalid_rc_total 0 (all-ones, not an SDK error return).
+- VmSize 1691968 kB flat, BFD Up throughout, no kernel line; restored to the deployed libsai, BFD Up in 12 s.
+- Clear-and-count (aer_poll of that build, lease "learn-wedge(aer-clear-test)", 21:10:57): with L0s on, 3 x 1 s polls
+  each "PCIe asic root port 0001:00:00.0: CE:Timeout (... CESta=0x00001000 ...) cleared", count 3; L0s off again -> 0.
+
 ## 4. Box runs of the new pieces (17:19, read-only; ASPM script under the lease)
 - watchdog --once --dry-run: "signals: none; root port ... DevSta=0x0000 UESta=0x00000000 CESta=0x00000000".
 - --metrics: triggers 0 per signal, AER bits 0, cs8210_asic_link_up 1, speed 8, width 4, aspm L0s 0, ipd TX-3
@@ -66,3 +80,6 @@ for section 5 (counted from 17:27:36). Monitor script: lw-soak.sh (in the raw di
   CESta read 0x1040 (BadTLP + Timeout) after 5 min: the link errors do not depend on which U-Boot trained the link.
   L0s off + CESta cleared 19:56:41. Paused 20:29:32 for the next SPI window: 33 min clean (syncd 4149, NRestarts 0, no
   watchdog/kernel line, root port CESta/UESta 0); L0s set back to 1 by hand.
+- Run 3, boot 8e8f395e, our U-Boot from SPI slot A (same build, commit e3657c6): start 20:48:26, syncd pid 4144; at start
+  L0s 1 and root port CESta 0x1040 again (6 min uptime); L0s off + cleared 20:48:26. Stopped 21:06:57 for 3b: 18 min clean.
+- Review (2026-11-17, H1): these runs carry no statistical weight; replaced by the crossover in learn-wedge.md section 7.

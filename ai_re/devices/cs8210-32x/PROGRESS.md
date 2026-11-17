@@ -166,17 +166,19 @@ can contain device configuration or secrets. Summarized findings belong here.
   `123`, `echo …` and `version` into the NixOS serial root shell (harmless) and then failed on `lab-power` usage; fixed (plan doc).
 - Linux mtd0 is read-only (flags 0x800): no Linux-side writer or rollback. DMC-12 pins unchanged (d3df4b80, 2b9lljly).
 
-### 2026-11-16 — learn-thread wedge: guard in libsai, ASPM L0s on the ASIC link, both stacks memory-capped (not deployed)
+### 2026-11-16/17 — learn-thread wedge: guard in libsai, ASPM L0s on the ASIC link, watchdog escalation (not deployed)
 
 - sai-teralynx shim guards libifcs's learn-ring reads (GOT: node_pci_reg_read32/_write32, im_malloc): all-ones or
-  out-of-range index re-read, else the poll is skipped; im_malloc > 1 GiB refused; journal line + `sai_teralynx_ifcs_guard_*`.
-  Mock t_learn (48 checks, 1015 total) and chip (real libifcs, injected all-ones: no 32 GiB, BFD up).
-- First failure on 2026-11-16 was the CPU TX ring: ASIC stopped sending ~16:01, ring exactly full (341 frames x 3
-  descriptors) at 16:03:45 = the softirq spin; the bad read came 2 min later. The ASIC link had ASPM L0s on (mainline's
-  DT default): replay timeouts/BadTLP/rollover every second; none with L0s off (A/B). New `cs8210-asic-aspm` (default),
-  cs8210-switch MemoryMax 3 GiB + OOMPolicy=stop (+ watchdog restart), watchdog counters + `cs8210-ifcs` producer.
+  out-of-range index re-read (3 ms apart), else the poll is skipped and the register not re-read while bad; im_malloc
+  > 1 GiB refused; all-ones of any offset counted. Mock t_learn (1047 checks total) and chip (injected all-ones).
+- First failure on 2026-11-16 was the CPU TX ring (ASIC stopped sending ~16:01; ring exactly full, 341 frames x 3
+  descriptors, at 16:03:45 = the softirq spin; the bad read 2 min later). The ASIC link runs with ASPM L0s on
+  (mainline's DT default, both U-Boots): replay timeouts every second, none with L0s off (A/B). Causation of the
+  wedge: open, crossover soak running (on/off blocks >= 4 h).
+- Watchdog: guard / cpu-tx signals, tx-stall witness, restart -> ipd reload -> alarm, lease/reload hold, root-port
+  AER + LnkSta clear-and-count (dated), state across restarts; `cs8210-asic-aspm`; cs8210-switch MemoryMax 1536 MiB.
+  Independent review: [reviews/2026-11-17-fable-learn-wedge.md](reviews/2026-11-17-fable-learn-wedge.md).
   [learn-wedge.md](learn-wedge.md), [evidence](sai-hw-learnwedge-20261116.txt). Deploy restarts syncd.
-
 ### 2026-11-16 — syncd OOM at 16:05: root cause; syncd MemoryMax, new IFCS watchdog (not deployed yet)
 
 - Cause (high confidence): libifcs's learn thread read a garbage ring index; its im_malloc is malloc + memset, and

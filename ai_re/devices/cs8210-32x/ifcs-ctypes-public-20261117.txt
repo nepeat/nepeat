@@ -1,0 +1,84 @@
+# IFCS declarations from a public ctypes file: which public artifact matches the box's IFCS 0.12.41 (2026-11-17)
+# Question: can ai_re/nix/packages/sai-teralynx's IFCS declarations (formerly the hand-written src/ifcs_api.h +
+# src/ifcs_api_qos.h) be generated at build time from PUBLIC files, identical to the box's 0.12.41 for everything used?
+# Tool: nix/packages/sai-teralynx/tools/gen_ifcs_api.py (+ ifcs_ctypes_model.py: ctypesgen output parsed as data, never run)
+#   python3 -I -B tools/gen_ifcs_api.py --ctypes <ifcs_ctypes.py> --overrides src/ifcs_overrides.txt -o <dir> \
+#     src/ifcs_api.h.in src/ifcs_api_qos.h.in
+# Reference (local only, read to verify, never a build input): the SDK's pyctypes/ifcs_ctypes.py
+#   sha256 ba980c0b63495575e5f2ad2ead221efcb83641cb8d22dc1128d3ef8b8f91ed46 (same file in SDK V0.1.0, V0.1.2, V0.1.7)
+#   and the target libifcs.so sha256 388031e7eb2443d77d89da826084976859bf92db19f9733be19b1c0b603c0d17 (aarch64, stripped).
+
+## Public candidates (Innovium/SONiC at 240ee432f6d6b3d36ca8c484d3f7051714279545, raw.githubusercontent.com)
+# ishell.deb exists from debian/202111/T2.0.1 on; each carries innovium/pyctypes/ifcs_ctypes.py.
+# Result = header generated from it with src/ifcs_overrides.txt vs the one from 0.12.41's ctypes without overrides
+# (lines after the provenance line; "same" = byte-identical).
+T2.0.1  debian/202111/T2.0.1/ishell.deb sha256 894ca773803d0149baf14732a13603740920bce5f015b3437e3dbc4761f7f5e9
+        ctypes sha256 5a4547fb452a2b4fe85c449ed7089033f81d133f07646168ce01eac2a2843069: same
+T2.0.2  debian/202111/T2.0.2/ishell.deb sha256 d43c8fde066d5a0a9c0d77f25839a25b245809c3b1b354cf9a92a2fbbffe9295
+        ctypes sha256 2273bfba630a1128ef5481eed26a462500279c8ba00c581e919e631038eeb3e3: same
+T2.0.3  debian/202111/T2.0.3/ishell.deb sha256 5b11567316a7ffedb0f55faac538f168a57432aca5bbd49b51e9a9e0f06e6f3b
+        ctypes sha256 7c3b4a0ff2003da33dd4e4634c995d5a2fc8428e0bc34328a8c2bf06195c4680: same
+T2.0.4  debian/202111/T2.0.4/ishell.deb sha256 c153f7715ffeac3216b6018c6cb9c2c41e6c650970df869659904b7590702bc1
+        ctypes sha256 db614e6d310c1ae7a3b267edf2c0b70d888f552c913b3c75911ce76adc7870d0: same
+T2.0.5  debian/202111/T2.0.5/ishell.deb sha256 7b15134bb29d099de1e82793a3f9570e2289fc501f12abc5f17cac7bdcf730e0
+        ctypes sha256 8a292a1a846f1b644c14c3b9ad18f6d74a3e49116d71430b89ebaaf1cd48e2f0: same
+T3.0.0  debian/202211/T3.0.0/ishell.deb sha256 0688bef64f5a1b49f4753a7abc6bcb68aec90fec521b2b5f7408a789806762bd
+        ctypes sha256 7ac4282f71593cd8fd1fed55c504968fdb54c18f180bff66de95fcb1484447d4: same
+T3.0.1  debian/202211/T3.0.1/ishell.deb sha256 902802b5692d28295e964f8cdd689d216d7e27e71c108b47debc43eb297778d2
+        ctypes sha256 543fce727ce19f8f9edb3f97c5b058b921877c65c042135910b03965a12688e9: same
+T3.0.2  debian/202211/T3.0.2/ishell.deb sha256 4d2a9abf31961e9514ecd0483f4f73b21185cb8bddc7e756f407123ad5ec2c94
+        ctypes sha256 ba3c4f230e00c618cf4ffb4405b03f2b0b297fee454fc528add9e6e63404b581: same
+T3.1.1  debian/202211/T3.1.1/ishell.deb sha256 7fa40d8b5f8812ff70eba6359bf121562dff630bf24699264803e8768bf38cb9
+        ctypes sha256 68e2632a5cc42b5f17205dee2bd35f4ecbbb0b9ef39f049e3a938c2a2bee957f: same
+T3.1.2  debian/202211/T3.1.2/ishell.deb sha256 cb92393302840fbe50c08f99477b89606cf3bc96141a7a36b769da3cb25a805b
+        ctypes sha256 ca9e29a444be65d27304900760208c0d07b0504a98798bac3a4b0230a5b1403f: same
+T3.1.3  debian/202211/T3.1.3/ishell.deb sha256 03c3795fa40f244d1627317f5937c188e5f860f7e7d0f558fc0463f5964eca5b
+        ctypes sha256 edbd9ee512439412e385e345f3a8cc652d8a5d0c2881b196ac256315db3eb6f9: same
+T3.1.4  debian/202211/T3.1.4/ishell.deb sha256 ba7858558dfa5569fc64d1906e4e8f023a895489975cfa299233e105f801ff1c
+        ctypes sha256 505521d05c5948588e013ed13144b8601c0457cf6bb5cbf44b858566092cd8ab: DIFFERS: int stats_count_mode; int stats_fwd_drop_profile;
+T4.0.0  debian/202405/T4.0.0/ishell.deb sha256 da73812080f1db625ecc83edcaaf0ccc0d39a64f34815d813d05e12ae1407f6f
+        ctypes sha256 5d15195c6959efb08a0cbd044182e1eb95729c0019f579693f58934161b99dfd: DIFFERS: int stats_count_mode; int stats_fwd_drop_profile;
+T4.0.1  debian/202405/T4.0.1/ishell.deb sha256 0fa2113841529abf6e1a08d07b3102ba4339723acfcb8e50ed974193dfe481c9
+        ctypes sha256 5116612a7a5d08fbb919ca17ecdb3f7a0a41cc58b4f348b53abeaac52497b48f: DIFFERS: @bits ifcs_attr_value_bitmap_t: wider than its storage type uint64_t; uint8_t _size[128]; typedef struct { ifcs_attr_id_t id; ifcs_attr_value_t value; /* ERROR */ bitmap; } ifcs_attr_t; IFCS_EXTENDED_FIELD_SOURCE_SYSPORT = 16, IFCS_EXTENDED_FIELD_MAX = 19,; int stats_count_mode; int stats_fwd_drop_profile;
+T5.0.3  (local copy, debian/202411/T5.0.3)
+        ctypes sha256 7f41918e350070b8c6a8ccab83a86d5dc514f4b3fa4313670b9513d86c5fee44: DIFFERS: @bits ifcs_attr_value_bitmap_t: wider than its storage type uint64_t; uint8_t _size[128]; typedef struct { ifcs_attr_id_t id; ifcs_attr_value_t value; /* ERROR */ bitmap; } ifcs_attr_t; ifcs_handle_t prev_entry_dest; IFCS_EXTENDED_FIELD_SOURCE_SYSPORT = 16, IFCS_EXTENDED_FIELD_MAX = 19,; int stats_count_mode; int stats_fwd_drop_profile; uint32_t actual_sampling_rate;
+T6.2.0  (local copy, debian/202505/T6.2.0)
+        ctypes sha256 3581808ec04d85c48734329cee80024358070a32904a06ced93d5c35db22bb0d: DIFFERS: @bits ifcs_attr_value_bitmap_t: wider than its storage type uint64_t; flex_stats_bank: no selected typedef for struct_ifcs_flex_stats_bank_list_s; uint8_t _size[200]; typedef struct { ifcs_attr_id_t id; ifcs_attr_value_t value; /* ERROR */ bitmap; } ifcs_attr_t; ifcs_handle_t prev_entry_dest; IFCS_EXTENDED_FIELD_SOURCE_SYSPORT = 16, IFCS_EXTENDED_FIELD_MAX = 35,; int stats_count_mode; int stats_fwd_drop_profile; /* ERROR */ flex_stats_bank; uint32_t actual_sampling_rate;
+7.0.1   (local copy, master/1.18.1-1)
+        ctypes sha256 0d8ef57b933bec58d4bd8b8cc2137259e886acb0356d7428d27056a81425969d: DIFFERS: @bits ifcs_attr_value_bitmap_t: wider than its storage type uint64_t; flex_stats_bank: no selected typedef for struct_ifcs_flex_stats_bank_list_s; uint8_t _size[272]; typedef struct { ifcs_attr_id_t id; ifcs_attr_value_t value; /* ERROR */ bitmap; } ifcs_attr_t; ifcs_bool_t is_intr; ifcs_handle_t prev_entry_dest; IFCS_EXTENDED_FIELD_SOURCE_SYSPORT = 16, IFCS_EXTENDED_FIELD_MAX = 42,; int stats_count_mode; int stats_fwd_drop_profile; /* ERROR */ flex_stats_bank; uint32_t actual_sampling_rate;
+# Without the overrides, 2.0.1 .. 3.1.3 differ from 0.12.41 in exactly: ifcs_usage_t (they add obj_api_class_id,
+# obj_type, available after current), IFCS_DEVPORT_STATS_ID_MAX_COUNT / _ALL (2.0.1: 114 / 115, 2.0.2 .. 3.1.3: 212 / 213;
+# 0.12.41: 111 / 112) and the unused IFCS_DEVPORT_ATTR_MAX_COUNT (dropped from the template). Every other enum value,
+# field list, field type and function signature in the templates is the same.
+# Before 2.0.1 no ctypes is published: isai.deb 202111/0.109.1 (sha256 1af71e9bc247b8bf920fc3ef063c095eca0dadb4a90542586163493b279ec23e),
+# 202012/0.107.10 (bed6ef869616561540dd781159034c8d82f1de5d9b54ab05439e3ab017217249), 202012/0.107.1 (3e02f87927e4489a6ac256d1828111bae1f39f620ea268eda10c7213fe7cc550) hold only a
+# stripped usr/lib/libsai.so.1.0 (no DWARF, no headers). Chosen input: ishell 2.0.1 (the earliest).
+
+## The overrides / @prefix, verified on the target libifcs.so (disassembly, llvm-objdump 21)
+- ii_devport_stats_get (0x1333a3c): a stats count above 0x70 (112) is refused (cmp at 0x1333c1c); a count of exactly
+  0x70 is replaced by 0x6f (111, at 0x1333ca4) and the id array filled with 0 .. 110 (loop at 0x1333cb4):
+  IFCS_DEVPORT_STATS_ID_ALL = 112, IFCS_DEVPORT_STATS_ID_MAX_COUNT = 111.
+- ifcs_usage_t_init (0x15eb890) memsets 12 bytes; the only ifcs_usage_t_* exports are max/current get/set (nm -D):
+  0.12.41's ifcs_usage_s is {max, current, dirty bits} -> @prefix ifcs_usage_t max current.
+- 0.12.41's own ctypes, generated WITHOUT overrides, gives the same headers as ishell 2.0.1 WITH them, byte for byte
+  after line 1 (the provenance line names the input's sha256); whole-file sha256:
+    6353998884fc35a7d1c98252fcb44b8ed1adc01496f2ee0a3c869bf5c8605618  gen-pub/ifcs_api.h
+    c7c75f397eca4cc416957055f8bc3ffa535ecfb16a2c43a4fb04d5b57227c431  gen-pub/ifcs_api_qos.h
+    7a411631d01aadbe8642aae338921e71052b7646cc94bf9f8566316adc770a86  gen-012-noov/ifcs_api.h
+    074f590693dbeebe9c9569b6af31c537382b25b9a82fc518f1a5d3a1a5bffc11  gen-012-noov/ifcs_api_qos.h
+
+## Equivalence with the former hand-written headers
+- DWARF (g++ -g -fno-eliminate-unused-debug-types of a TU including each, compared by name with pyelftools: every
+  ifcs_* typedef as a canonical type with member offsets, every enumerator): 669 identical, 1 missing
+  (IFCS_DEVPORT_ATTR_MAX_COUNT, unused). Preprocessor macros (g++ -dM, IFCS*): identical.
+  (Rendering the two enum types ifcs_acl_action_t / ifcs_stats_mode_t as int, as the vendor declares them, changed the
+  code of AclArea::install_ib / uentry_install; the template writes them as uint32_t, as the hand header did: @as.)
+- Nix outputs, before (hand headers) vs after (generated), every file compared with the output's own store path masked:
+    native   /nix/store/0rx3njk3zwbafra9czdvxdb2vjg2v9n5-sai-teralynx-0.1.0
+             /nix/store/rkzfcc8b40gr5a208infz9k1342w3abk-sai-teralynx-0.1.0: every file identical
+    aarch64  /nix/store/cdji4nr96q5apbd1sr1ipvk15yd6lh4z-sai-teralynx-aarch64-unknown-linux-gnu-0.1.0
+             /nix/store/yyx8hbna684i1wrnzggy285pwhq9wcrs-sai-teralynx-aarch64-unknown-linux-gnu-0.1.0: every file identical
+    oracle   /nix/store/z0vsfw9lgfci1gg9yjahbapls2i24w3d-ifcs-oracle-ifcs-0.12.41-aarch64-unknown-linux-gnu-1
+             /nix/store/gx3ryf3rff1ab0qm5jjsz1na2jfvy6dj-ifcs-oracle-ifcs-0.12.41-aarch64-unknown-linux-gnu-1: every file identical
+  (oracle: bin/sai-script also embeds the sai-teralynx aarch64 path; identical with that masked too.)
+- Tests (native build, after): test_ifcs: 1015 checks, 0 failed; frontend: 2667 checks, 0 failures (same as before).
