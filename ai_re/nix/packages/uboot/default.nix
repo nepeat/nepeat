@@ -51,6 +51,11 @@ let
     { scope = "alpine-v3"; file = "0024-arm-add-an-Annapurna-Labs-Alpine-V3-target-after-al-.patch"; }
     { scope = "alpine-v3"; file = "0025-spi-mem-read-only-build-optionally-pass-the-4-byte-a.patch"; }
     { scope = "cs8210"; file = "0026-board-Celestica-CS8210-32X-on-the-Alpine-V3-target.patch"; }
+    { scope = "alpine-v3"; file = "0027-mtd-spi-write-window-up-to-six-ranges-4-byte-chips-s.patch"; }
+    { scope = "cs8210"; file = "0028-board-CS8210-32X-installer-build-boot-SPI-write-wind.patch"; }
+    { scope = "alpine-v3"; file = "0029-board-alpine-v3-SoC-init-from-the-DT-in-place-of-the.patch"; }
+    { scope = "alpine-v3"; file = "0030-pci-add-the-Annapurna-Labs-Alpine-V3-external-PCIe-r.patch"; }
+    { scope = "cs8210"; file = "0031-board-CS8210-32X-what-the-vendor-U-Boot-s-board-cfg-.patch"; }
   ];
   patchesFor = scopes: map (s: builtins.path { path = ./patches + "/${s.file}"; name = s.file; })
     (builtins.filter (s: builtins.elem s.scope scopes) series);

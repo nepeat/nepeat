@@ -1,0 +1,205 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Mon, 16 Nov 2026 16:18:52 -0800
+Subject: [PATCH 31/31] board: CS8210-32X: what the vendor U-Boot's board-cfg
+ does, for a standalone U-Boot
+
+U-Boot-only DT additions (alpine-v3-cs8210-u-boot.dtsi) for when this
+U-Boot is al-boot stage3's application on the Celestica CS8210-32X
+(devices/cs8210-32x/vendor-uboot.md items 3, 6, 9, 10, 14), all from the
+vendor DT object's /soc/board-cfg:
+- "amazon,alpine-v3-soc-init" (patch 0029): the pinctrl_init interfaces
+  as MUIO pins (if_nand_8, if_nand_cs_0, if_uart_1, if_spim_a_ss_1,
+  if_i2c_gen, if_spim_aux, if_sgpo_clk, if_sgpo_ds_0: 26 pins), the 32
+  gpio_init gpio-list triplets verbatim with the eight PL061 banks, SB PLL
+  channel 9 divider 120 (25 MHz, the value the vendor pll_sb_init leaves),
+  the ONIE TlvInfo EEPROM (0x56 behind 0x70:2 -> 0x74:0 -> 0x71:7) for the
+  base MAC of al_eth 1 (00:01.0);
+- the three external PCIe ports for pcie_alpine_v3 (patch 0030): port 0
+  Gen3 x4 on main SerDes lanes 0-3 (the Teralynx ASIC), port 1 Gen2 x1 on
+  lane 8 and port 4 Gen1 x1 on lane 4 (the FPGAs), crs-timeout 30 s, the
+  rc-link defaults, link partner decode off at handoff;
+- 00:06.0 and 00:10.0 (1c36:0022) disabled for U-Boot: nothing uses them
+  and U-Boot's auto-config left them with memory decode and bus mastering
+  on (milestone 2 lspci diff);
+- each port's link partner as a disabled device under the root port:
+  U-Boot needs none of them and leaves them unconfigured for Linux (the
+  MDIO FPGA 1d0f:ec30 ignores BAR 0 writes once U-Boot's auto-config has
+  set it up, and Linux then could not size it: RAM test 2026-11-16);
+- aliases/pci0 = the internal ECAM, so it is bus 0.
+Inert unless the board build enables the drivers (a nix extraConfig).
+
+Scope: cs8210.
+---
+ arch/arm/dts/alpine-v3-cs8210-u-boot.dtsi | 150 ++++++++++++++++++++++
+ 1 file changed, 150 insertions(+)
+
+diff --git a/arch/arm/dts/alpine-v3-cs8210-u-boot.dtsi b/arch/arm/dts/alpine-v3-cs8210-u-boot.dtsi
+index 3df776a3..e0d75a93 100644
+--- a/arch/arm/dts/alpine-v3-cs8210-u-boot.dtsi
++++ b/arch/arm/dts/alpine-v3-cs8210-u-boot.dtsi
+@@ -44,8 +44,105 @@
+ 		reg = <0x7800 0 0 0 0>;
+ 		status = "disabled";
+ 	};
++
++#ifdef CONFIG_PCIE_ALPINE_V3
++	/*
++	 * 00:06.0 and 00:10.0 (1c36:0022, crypto/SSM): nothing in U-Boot or
++	 * this board's Linux uses them; left out so U-Boot does not enable
++	 * their decode and bus mastering (the vendor U-Boot leaves them off).
++	 */
++	crypto@6,0 {
++		reg = <0x3000 0 0 0 0>;
++		status = "disabled";
++	};
++	crypto@10,0 {
++		reg = <0x8000 0 0 0 0>;
++		status = "disabled";
++	};
++#endif
++};
++
++/*
++ * External PCIe ports as the vendor board-cfg/pcie has them (Gen/width,
++ * crs-timeout 30 s, the rc-link defaults), with the main SerDes complex
++ * lanes stage3 gives each port (DT object serdes-avg-complex-main:
++ * lanes 0-3 pcie_0, 4 pcie_4, 8 pcie_1). Used when U-Boot trains the
++ * links itself (pcie_alpine_v3, al-boot stage3's application); a link
++ * the vendor U-Boot trained is kept. The link partners stay unconfigured
++ * in U-Boot (disabled endpoint nodes: nothing here uses them, and the MDIO
++ * FPGA 1d0f:ec30 ignores BAR 0 writes after U-Boot's auto-config, which
++ * left Linux unable to size it, 2026-11-16); at OS handoff their COMMAND
++ * is cleared, as the vendor U-Boot leaves the FPGAs.
++ */
++#ifdef CONFIG_PCIE_ALPINE_V3
++&pcie_external0 {
++	amazon,port-id = <0>;
++	amazon,link-gen = <3>;
++	amazon,link-lanes = <4>;
++	amazon,serdes-lanes = <0 1 2 3>;
++	amazon,crs-timeout-ms = <30000>;
++	amazon,link-up-timeout-ms = <100>;
++	amazon,link-pre-delay-ms = <100>;
++	amazon,endpoint-decode-off;
++
++	/* the link partner (Teralynx ASIC): U-Boot uses nothing on the link, so it leaves it unconfigured for Linux */
++	pci@0,0 {
++		reg = <0x0000 0 0 0 0>;
++		#address-cells = <3>;
++		#size-cells = <2>;
++
++		device@0,0 {
++			reg = <0x0000 0 0 0 0>;
++			status = "disabled";
++		};
++	};
+ };
+ 
++&pcie_external1 {
++	amazon,port-id = <1>;
++	amazon,link-gen = <2>;
++	amazon,link-lanes = <1>;
++	amazon,serdes-lanes = <8>;
++	amazon,crs-timeout-ms = <30000>;
++	amazon,link-up-timeout-ms = <100>;
++	amazon,endpoint-decode-off;
++
++	/* the link partner (I2C FPGA): U-Boot uses nothing on the link, so it leaves it unconfigured for Linux */
++	pci@0,0 {
++		reg = <0x0000 0 0 0 0>;
++		#address-cells = <3>;
++		#size-cells = <2>;
++
++		device@0,0 {
++			reg = <0x0000 0 0 0 0>;
++			status = "disabled";
++		};
++	};
++};
++
++&pcie_external4 {
++	amazon,port-id = <4>;
++	amazon,link-gen = <1>;
++	amazon,link-lanes = <1>;
++	amazon,serdes-lanes = <4>;
++	amazon,crs-timeout-ms = <30000>;
++	amazon,link-up-timeout-ms = <100>;
++	amazon,endpoint-decode-off;
++
++	/* the link partner (MDIO FPGA; its BAR 0 stops taking writes once U-Boot has configured it, so Linux could not size it): U-Boot uses nothing on the link, so it leaves it unconfigured for Linux */
++	pci@0,0 {
++		reg = <0x0000 0 0 0 0>;
++		#address-cells = <3>;
++		#size-cells = <2>;
++
++		device@0,0 {
++			reg = <0x0000 0 0 0 0>;
++			status = "disabled";
++		};
++	};
++};
++#endif
++
+ /*
+  * Boot flash SSI. U-Boot's DW SSI caps every transfer at the controller's
+  * own spi-max-frequency (500 kHz when absent); read at the flash's 25 MHz,
+@@ -59,5 +156,58 @@
+ / {
+ 	aliases {
+ 		spi0 = &spi0;
++#ifdef CONFIG_ALPINE_V3_ETH_MAC
++		/* bus 0 = the internal ECAM (soc-init's al_eth function) */
++		pci0 = &{/soc/pcie@fbd00000};
++#endif
++	};
++
++#if defined(CONFIG_ALPINE_V3_MUIO_INIT) || defined(CONFIG_ALPINE_V3_GPIO_INIT) || \
++	defined(CONFIG_ALPINE_V3_PLL_INIT) || defined(CONFIG_ALPINE_V3_ETH_MAC) || \
++	defined(CONFIG_CMD_ALPINE_V3)
++	/*
++	 * What the vendor U-Boot's board_init does from its board-cfg
++	 * (devices/cs8210-32x/vendor-uboot.md items 6, 9, 10, 14), for when
++	 * this U-Boot is al-boot stage3's application (board/amazon/alpine-v3/
++	 * soc-init.c; idempotent after the vendor U-Boot).
++	 */
++	alpine-soc-init {
++		compatible = "amazon,alpine-v3-soc-init";
++		amazon,pbs = <0xfd8a8000>;
++		/*
++		 * pinctrl_init: if_nand_8 (6-18 fn 3), if_nand_cs_0 (19 fn 3),
++		 * if_uart_1 (20/21 fn 2), if_spim_a_ss_1 (0 fn 2), if_i2c_gen
++		 * (30/31 fn 2), if_spim_aux (Alpine V3: 39, 32, 33, 34 fn 3),
++		 * if_sgpo_clk (24/25 fn 4), if_sgpo_ds_0 (23 fn 4); pins from
++		 * HAL al_hal_muio_mux_map.h.
++		 */
++		amazon,muio-pins = <6 3  7 3  8 3  9 3  10 3  11 3  12 3  13 3
++				    14 3  15 3  16 3  17 3  18 3  19 3
++				    20 2  21 2  0 2  30 2  31 2
++				    39 3  32 3  33 3  34 3  24 4  25 4  23 4>;
++		/* PL061 banks 0-7 (AL_GPIO_BASE) */
++		amazon,gpio-bases = <0xfd887000 0xfd888000 0xfd889000 0xfd88a000
++				     0xfd88b000 0xfd897000 0xfd898000 0xfd899000>;
++		/* board-cfg/gpio_init gpio-list, verbatim: <gpio out value> */
++		amazon,gpio-list = <0x1c 0 0  0x01 0 0  0x23 0 0  0x24 0 0
++				    0x2c 0 0  0x2d 0 0  0x2e 0 0  0x2f 0 0
++				    0x30 0 0  0x31 0 0  0x3a 0 0
++				    0x1a 1 1  0x1b 1 0  0x1d 1 0  0x02 1 1
++				    0x03 1 1  0x04 1 0  0x28 1 0  0x29 1 0
++				    0x2a 1 1  0x2b 1 1  0x32 1 0  0x33 1 1
++				    0x34 1 0  0x35 1 1  0x36 1 1  0x37 1 1
++				    0x38 1 1  0x3b 1 1  0x3c 1 1  0x3d 1 1
++				    0x3f 1 0>;
++		/*
++		 * SB PLL (AL_PLL_BASE(AL_PLL_SB)), channel 9 = 25 MHz: the vendor
++		 * pll_sb_init divides the PLL rate by 25 MHz; on this unit that is
++		 * 120 (ch_pair[4] = 0x70780807 after the vendor U-Boot).
++		 */
++		amazon,pll = <0xfd860b00>;
++		amazon,pll-channels = <9 120>;
++		/* ONIE TlvInfo EEPROM 0x56 behind 0x70:2 -> 0x74:0 -> 0x71:7; al_eth 1 = 00:01.0 */
++		amazon,eth-mac-eeprom = <&{/soc/io-bus@fc000000/i2c@1880000/i2c-mux@70/i2c@2/i2c-mux@74/i2c@0/i2c-mux@71/i2c@7/eeprom@56}>;
++		amazon,eth-mac-devfn = <0x08>;
+ 	};
++#endif
+ };

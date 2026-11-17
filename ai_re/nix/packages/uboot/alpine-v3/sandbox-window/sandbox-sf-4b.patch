@@ -1,0 +1,135 @@
+Test-only (U-Boot sandbox, never in a board build): the sandbox SPI flash
+emulator learns the dedicated 4-byte-address opcodes (read 0x13/0x0c,
+program 0x12, erase 0x21/0xdc) so it can stand in for the MX25U25635F,
+and programs like NOR (new = old & data) so a write without an erase
+shows up in a read-back. loadx/loady store through map_sysmem() (a raw
+pointer is outside sandbox RAM: segfault).
+
+diff --git a/drivers/mtd/spi/sandbox.c b/drivers/mtd/spi/sandbox.c
+index e5ebc347..5eccf416 100644
+--- a/drivers/mtd/spi/sandbox.c
++++ b/drivers/mtd/spi/sandbox.c
+@@ -87,6 +87,8 @@ struct sandbox_spi_flash {
+ 	uint off;
+ 	/* How many address bytes we've consumed */
+ 	uint addr_bytes, pad_addr_bytes;
++	/* Address bytes of the current command: 3, or 4 for the 4-byte opcodes */
++	uint addr_len;
+ 	/* The current flash status (see STAT_XXX defines above) */
+ 	u16 status;
+ 	/* Data describing the flash we're emulating */
+@@ -207,6 +209,7 @@ static void sandbox_sf_cs_activate(struct udevice *dev)
+ 	sbsf->off = 0;
+ 	sbsf->addr_bytes = 0;
+ 	sbsf->pad_addr_bytes = 0;
++	sbsf->addr_len = SF_ADDR_LEN;
+ 	sbsf->state = SF_CMD;
+ 	sbsf->cmd = SF_CMD;
+ }
+@@ -245,8 +248,16 @@ static int sandbox_sf_process_cmd(struct sandbox_spi_flash *sbsf, const u8 *rx,
+ 		sbsf->state = SF_ID;
+ 		sbsf->cmd = SF_ID;
+ 		break;
++	case SPINOR_OP_READ_FAST_4B:
++		sbsf->addr_len = 4;
++		fallthrough;
+ 	case SPINOR_OP_READ_FAST:
+ 		sbsf->pad_addr_bytes = 1;
++		sbsf->state = SF_ADDR;
++		break;
++	case SPINOR_OP_READ_4B:
++	case SPINOR_OP_PP_4B:
++		sbsf->addr_len = 4;
+ 		fallthrough;
+ 	case SPINOR_OP_READ:
+ 	case SPINOR_OP_PP:
+@@ -280,6 +291,12 @@ static int sandbox_sf_process_cmd(struct sandbox_spi_flash *sbsf, const u8 *rx,
+ 			sbsf->erase_size = 4 << 10;
+ 		} else if (sbsf->cmd == SPINOR_OP_SE && !(flags & SECT_4K)) {
+ 			sbsf->erase_size = 64 << 10;
++		} else if (sbsf->cmd == SPINOR_OP_BE_4K_4B && (flags & SECT_4K)) {
++			sbsf->erase_size = 4 << 10;
++			sbsf->addr_len = 4;
++		} else if (sbsf->cmd == SPINOR_OP_SE_4B) {
++			sbsf->erase_size = 64 << 10;
++			sbsf->addr_len = 4;
+ 		} else {
+ 			debug(" cmd unknown: %#x\n", sbsf->cmd);
+ 			return -EIO;
+@@ -360,7 +377,7 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
+ 			log_content(" addr: bytes:%u rx:%02x ",
+ 				    sbsf->addr_bytes, rx[pos]);
+ 
+-			if (sbsf->addr_bytes++ < SF_ADDR_LEN)
++			if (sbsf->addr_bytes++ < sbsf->addr_len)
+ 				sbsf->off = (sbsf->off << 8) | rx[pos];
+ 			log_content("addr:%06x\n", sbsf->off);
+ 
+@@ -370,7 +387,7 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
+ 
+ 			/* See if we're done processing */
+ 			if (sbsf->addr_bytes <
+-					SF_ADDR_LEN + sbsf->pad_addr_bytes)
++					sbsf->addr_len + sbsf->pad_addr_bytes)
+ 				break;
+ 
+ 			/* Next state! */
+@@ -381,9 +398,12 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
+ 			switch (sbsf->cmd) {
+ 			case SPINOR_OP_READ_FAST:
+ 			case SPINOR_OP_READ:
++			case SPINOR_OP_READ_FAST_4B:
++			case SPINOR_OP_READ_4B:
+ 				sbsf->state = SF_READ;
+ 				break;
+ 			case SPINOR_OP_PP:
++			case SPINOR_OP_PP_4B:
+ 				sbsf->state = SF_WRITE;
+ 				break;
+ 			default:
+@@ -442,12 +462,27 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
+ 			log_content(" rx: write(%u)\n", cnt);
+ 			if (tx)
+ 				sandbox_spi_tristate(&tx[pos], cnt);
+-			ret = os_write(sbsf->fd, rx + pos, cnt);
+-			if (ret < 0) {
+-				puts("sandbox_spi: os_write() failed\n");
+-				return -EIO;
++			/* NOR program: bits only go from 1 to 0 (new = old & data) */
++			while (cnt) {
++				u8 old[256];
++				uint i, n = min(cnt, (uint)sizeof(old));
++				off_t at = os_lseek(sbsf->fd, 0, OS_SEEK_CUR);
++
++				if (at < 0 || os_read(sbsf->fd, old, n) != n ||
++				    os_lseek(sbsf->fd, at, OS_SEEK_SET) != at) {
++					puts("sandbox_spi: read before program failed\n");
++					return -EIO;
++				}
++				for (i = 0; i < n; i++)
++					old[i] &= rx[pos + i];
++				ret = os_write(sbsf->fd, old, n);
++				if (ret != n) {
++					puts("sandbox_spi: os_write() failed\n");
++					return -EIO;
++				}
++				pos += n;
++				cnt -= n;
+ 			}
+-			pos += ret;
+ 			sbsf->status &= ~STAT_WEL;
+ 			break;
+ 		case SF_ERASE:
+diff --git a/cmd/load.c b/cmd/load.c
+index 159767aa..ed5160db 100644
+--- a/cmd/load.c
++++ b/cmd/load.c
+@@ -1037,7 +1037,7 @@ static ulong load_serial_ymodem(ulong offset, int mode)
+ 			} else
+ #endif
+ 			{
+-				memcpy((char *)(store_addr), ymodemBuf,
++				memcpy(map_sysmem(store_addr, res), ymodemBuf,
+ 					res);
+ 			}
+ 

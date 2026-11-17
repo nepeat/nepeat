@@ -32,6 +32,14 @@ in {
   # cs8210 scopes; see ./uboot/alpine-v3/default.nix. RAM only, started by
   # the vendor U-Boot (loadx, then booti/bootm/go).
   uboot-cs8210 = ubootsAlpineV3.cs8210;
+  # Installer: same, boot SPI writable only in the scheme A' windows (0027/0028),
+  # for devices/cs8210-32x/scripts/spi_upgrade.py; its sandbox twin for rehearsals.
+  uboot-cs8210-installer = ubootsAlpineV3.cs8210-installer;
+  uboot-sandbox-cs8210-installer = ubootsAlpineV3.sandbox-installer;
+  # Standalone: + the vendor board init (PCIe RC, MUIO, GPIO, PLL, MAC), SPI env;
+  # the stage3 app object of it for scheme A' (devices/cs8210-32x/u-boot-port.md).
+  uboot-cs8210-selfinit = ubootsAlpineV3.cs8210-selfinit;
+  uboot-cs8210-stage3app = ubootsAlpineV3.cs8210-stage3app;
   uboot-alpine-v3-qemu = ubootsAlpineV3.qemu-virt;  # test fixture build
   uboot-alpine-v3-tests = import ./uboot/alpine-v3/tests.nix { inherit pkgs; alpine = ubootsAlpineV3; };
 

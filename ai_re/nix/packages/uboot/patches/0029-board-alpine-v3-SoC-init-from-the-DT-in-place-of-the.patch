@@ -1,0 +1,666 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Mon, 16 Nov 2026 16:18:21 -0800
+Subject: [PATCH 29/31] board: alpine-v3: SoC init from the DT in place of the
+ vendor U-Boot
+
+What the vendor U-Boot 2018.05-alpine_db-v3.65.1 does at board init from
+its board-cfg and al-boot stage3 does not, for when this U-Boot is
+stage3's application. One "amazon,alpine-v3-soc-init" DT node, each part
+off by default (compiled out) and idempotent (a field that already holds
+the wanted value is not written, so a run after the vendor U-Boot changes
+nothing):
+- ALPINE_V3_MUIO_INIT: <pin function> pairs into PBS mux_sel_0..7 (4 bits
+  per pin, 8 pins per register: the Alpine V3 production layout of HAL
+  al_hal_muio_mux.c; refused on other chip ids), read-modify-write of
+  only those fields; what the vendor pinctrl_init interfaces resolve to.
+- ALPINE_V3_GPIO_INIT: <gpio dir value> triplets (the vendor gpio-list
+  format) on the eight PL061 banks of amazon,gpio-bases, after the MUIO
+  and before PCI as the vendor board_init orders it: the pin gets MUIO
+  function 0 (GPIO) first, as the vendor gpio_board_init does; an output
+  gets value, direction, value again (as Linux gpio-pl061); the bank is
+  read back and a mismatch printed.
+- ALPINE_V3_PLL_INIT: <channel divider> pairs on amazon,pll, written as
+  HAL al_pll_channel_div_set() does (out of reset, relock request, last
+  in series on the last one, divider lock wait with the RMN 5633 states);
+  a channel that already runs the divider is left alone.
+- ALPINE_V3_ETH_MAC: at board_late_init (PCI enumerated, I2C up), the
+  base MAC from the ONIE TlvInfo EEPROM (TLV 0x24, CRC-32 TLV checked)
+  into forwarding MAC entry 0 of the integrated Ethernet function on PCI
+  bus 0 (EC BAR 4, fwd_mac[0] at +0x868/+0x86c as in HAL
+  al_eth_mac_addr_store), where the vendor al_eth init leaves it for the
+  Linux al_eth driver.
+CMD_ALPINE_V3: "alpine state" prints MUIO, GPIO banks, PLL and the EC MAC
+against the DT (read-only); "alpine muio|gpio|pll|mac" apply one part now.
+No CCU setup: the mainline Alpine V3 DT has no dma-coherent nodes.
+
+Scope: alpine-v3.
+---
+ board/amazon/alpine-v3/Kconfig     |  40 +++
+ board/amazon/alpine-v3/Makefile    |   3 +
+ board/amazon/alpine-v3/alpine-v3.c |  11 +
+ board/amazon/alpine-v3/soc-init.c  | 498 +++++++++++++++++++++++++++++
+ board/amazon/alpine-v3/soc-init.h  |  12 +
+ 5 files changed, 564 insertions(+)
+ create mode 100644 board/amazon/alpine-v3/soc-init.c
+ create mode 100644 board/amazon/alpine-v3/soc-init.h
+
+diff --git a/board/amazon/alpine-v3/Kconfig b/board/amazon/alpine-v3/Kconfig
+index 04c02376..7aecb351 100644
+--- a/board/amazon/alpine-v3/Kconfig
++++ b/board/amazon/alpine-v3/Kconfig
+@@ -12,4 +12,44 @@ config SYS_CONFIG_NAME
+ config LNX_KRNL_IMG_TEXT_OFFSET_BASE
+ 	default 0x0
+ 
++config ALPINE_V3_MUIO_INIT
++	bool "Set the MUIO pin functions from the DT at board init"
++	help
++	  Write the <pin function> pairs of the "amazon,alpine-v3-soc-init"
++	  node (amazon,muio-pins) into the PBS mux_sel registers (only those
++	  fields), as the vendor U-Boot's board-cfg pinctrl_init does. Needed
++	  when this U-Boot is al-boot stage3's application; a no-op after the
++	  vendor U-Boot.
++
++config ALPINE_V3_GPIO_INIT
++	bool "Set SoC GPIO lines from the DT at board init"
++	help
++	  Apply the <gpio dir value> triplets of amazon,gpio-list (the vendor
++	  board-cfg gpio_init gpio-list) after the MUIO setup and before PCI,
++	  as the vendor board_init does: MUIO GPIO function for the pin, then
++	  value, direction, value for an output. Idempotent.
++
++config ALPINE_V3_PLL_INIT
++	bool "Set PLL channel dividers from the DT at board init"
++	help
++	  amazon,pll + amazon,pll-channels (<channel divider> pairs): as the
++	  vendor pll_sb_init (SB PLL channel 9 = 25 MHz on the CS8210). Only
++	  channels that do not already run the divider are touched.
++
++config ALPINE_V3_ETH_MAC
++	bool "Store the ONIE TlvInfo base MAC for the integrated Ethernet"
++	depends on DM_I2C && PCI
++	help
++	  At board_late_init, read TLV 0x24 (base MAC) from the EEPROM
++	  amazon,eth-mac-eeprom points at and store it in forwarding MAC entry
++	  0 of the integrated Ethernet function amazon,eth-mac-devfn, where
++	  the vendor U-Boot's al_eth init leaves it for the Linux al_eth driver.
++
++config CMD_ALPINE_V3
++	bool "alpine command"
++	depends on CMDLINE
++	help
++	  "alpine state" prints the MUIO, GPIO, PLL and EC MAC state against
++	  the DT; "alpine muio|gpio|pll|mac" apply that part now.
++
+ endif
+diff --git a/board/amazon/alpine-v3/Makefile b/board/amazon/alpine-v3/Makefile
+index 2bc97e58..d4345d3f 100644
+--- a/board/amazon/alpine-v3/Makefile
++++ b/board/amazon/alpine-v3/Makefile
+@@ -1,3 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0+
+ 
+ obj-y	:= alpine-v3.o lowlevel.o
++ifneq ($(CONFIG_ALPINE_V3_MUIO_INIT)$(CONFIG_ALPINE_V3_GPIO_INIT)$(CONFIG_ALPINE_V3_PLL_INIT)$(CONFIG_ALPINE_V3_ETH_MAC)$(CONFIG_CMD_ALPINE_V3),)
++obj-y	+= soc-init.o
++endif
+diff --git a/board/amazon/alpine-v3/alpine-v3.c b/board/amazon/alpine-v3/alpine-v3.c
+index 69cb7d5a..1762ff6a 100644
+--- a/board/amazon/alpine-v3/alpine-v3.c
++++ b/board/amazon/alpine-v3/alpine-v3.c
+@@ -23,6 +23,7 @@
+ #include <linux/kernel.h>
+ #include <linux/libfdt.h>
+ #include <linux/sizes.h>
++#include "soc-init.h"
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+@@ -218,6 +219,9 @@ int board_late_init(void)
+ {
+ 	if (!env_get("fdtfile") && CONFIG_DEFAULT_FDT_FILE[0])
+ 		env_set("fdtfile", CONFIG_DEFAULT_FDT_FILE);
++	/* after PCI enumeration (the EC BAR) and with I2C up */
++	if (IS_ENABLED(CONFIG_ALPINE_V3_ETH_MAC))
++		alpine_v3_eth_mac_init(false);
+ 	return 0;
+ }
+ 
+@@ -231,7 +235,14 @@ int print_cpuinfo(void)
+ 	return 0;
+ }
+ 
++/* As the vendor board_init orders it: pin functions, GPIO lines, SB PLL, then PCI. */
+ int board_init(void)
+ {
++	if (IS_ENABLED(CONFIG_ALPINE_V3_MUIO_INIT))
++		alpine_v3_muio_init(false);
++	if (IS_ENABLED(CONFIG_ALPINE_V3_GPIO_INIT))
++		alpine_v3_gpio_init(false);
++	if (IS_ENABLED(CONFIG_ALPINE_V3_PLL_INIT))
++		alpine_v3_pll_init(false);
+ 	return 0;
+ }
+diff --git a/board/amazon/alpine-v3/soc-init.c b/board/amazon/alpine-v3/soc-init.c
+new file mode 100644
+index 00000000..b329870a
+--- /dev/null
++++ b/board/amazon/alpine-v3/soc-init.c
+@@ -0,0 +1,498 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Alpine V3 SoC setup that the vendor U-Boot (2018.05-alpine_db-v3.65.1)
++ * does from its board-cfg and al-boot stage3 does not, for when this
++ * U-Boot is stage3's application instead of being chainloaded by the
++ * vendor one. All from one "amazon,alpine-v3-soc-init" DT node; each part
++ * is idempotent (fields that already hold the wanted value are not
++ * written), so a run after the vendor U-Boot changes nothing.
++ *
++ *  - MUIO pin functions (PBS mux_sel_0..7, 4 bits per pin, 8 pins per
++ *    register on Alpine V3; HAL al_hal_muio_mux.c): "amazon,muio-pins",
++ *    <pin function> pairs, what the vendor board-cfg pinctrl_init
++ *    interfaces resolve to (HAL al_hal_muio_mux_map.h).
++ *  - SoC GPIO lines: "amazon,gpio-list" in the vendor board-cfg gpio_init
++ *    format, <gpio dir value> triplets (dir 0 = input), on the PL061 banks
++ *    of "amazon,gpio-bases" (8 lines each, SoC numbering). As the vendor
++ *    gpio_board_init does, each listed pin first gets the MUIO GPIO
++ *    function (0); an output gets value, direction, value again (as Linux
++ *    gpio-pl061; the vendor sets the direction first).
++ *  - PLL channel dividers: "amazon,pll" (the PLL register base) and
++ *    "amazon,pll-channels", <channel divider> pairs, written as HAL
++ *    al_pll_channel_div_set() does (no reset, relock request, the last
++ *    one with last-in-series, then wait for the divider lock).
++ *  - The base MAC: ONIE TlvInfo EEPROM ("amazon,eth-mac-eeprom", type
++ *    0x24, CRC checked) into forwarding MAC entry 0 of the integrated
++ *    Ethernet function "amazon,eth-mac-devfn" on PCI bus 0 (EC BAR), where
++ *    the vendor U-Boot's al_eth init stores it and the Linux al_eth driver
++ *    reads it.
++ *
++ * "alpine state" prints all of it, read-only.
++ */
++
++#include <command.h>
++#include <dm.h>
++#include <i2c.h>
++#include <log.h>
++#include <net.h>
++#include <pci.h>
++#include <asm/io.h>
++#include <dm/ofnode.h>
++#include <linux/delay.h>
++#include <u-boot/crc.h>
++#include "soc-init.h"
++
++#define PBS_DEFAULT		0xfd8a8000UL
++#define PBS_CHIP_ID		0x15c
++#define CHIP_DEV_ID(v)		((v) >> 16)
++#define CHIP_DEV_ID_ALPINE_V3	2
++#define CHIP_REV_ID_ALPINE_V3_TC 0
++
++static const u16 muio_sel_off[] = {
++	0x138, 0x13c, 0x140, 0x144, 0x220, 0x224, 0x244, 0x248
++};
++
++#define MUIO_PINS_PER_REG	8
++#define MUIO_BITS		4
++
++static ofnode soc_node(void)
++{
++	return ofnode_by_compatible(ofnode_null(), "amazon,alpine-v3-soc-init");
++}
++
++static ulong soc_pbs(ofnode node)
++{
++	return ofnode_read_u32_default(node, "amazon,pbs", PBS_DEFAULT);
++}
++
++/* The 8-register layout is Alpine V3 production silicon (the TC has 6). */
++static int muio_reg(ulong pbs, unsigned int pin, ulong *addr, int *shift)
++{
++	u32 id = readl(pbs + PBS_CHIP_ID);
++	unsigned int r = pin / MUIO_PINS_PER_REG;
++
++	if (CHIP_DEV_ID(id) != CHIP_DEV_ID_ALPINE_V3 ||
++	    (id & 0xffff) == CHIP_REV_ID_ALPINE_V3_TC)
++		return -ENODEV;
++	if (r >= ARRAY_SIZE(muio_sel_off))
++		return -EINVAL;
++	*addr = pbs + muio_sel_off[r];
++	*shift = (pin % MUIO_PINS_PER_REG) * MUIO_BITS;
++	return 0;
++}
++
++/* Set one pin's function; 1 if it changed, 0 if not, < 0 on error. */
++static int muio_set(ulong pbs, unsigned int pin, unsigned int func, bool verbose)
++{
++	ulong addr;
++	int shift, ret;
++	u32 v, old;
++
++	ret = muio_reg(pbs, pin, &addr, &shift);
++	if (ret || func > 0xf) {
++		printf("MUIO:  pin %u function %u: %s\n", pin, func,
++		       ret == -ENODEV ? "not an Alpine V3 PBS" : "out of range");
++		return ret ? ret : -EINVAL;
++	}
++	v = readl(addr);
++	old = (v >> shift) & 0xf;
++	if (old != func)
++		writel((v & ~(0xfU << shift)) | (func << shift), addr);
++	if (verbose)
++		printf("MUIO:  pin %2u function %u (was %u)\n", pin, func, old);
++	return old != func;
++}
++
++int alpine_v3_muio_init(bool verbose)
++{
++	ofnode node = soc_node();
++	ulong pbs = soc_pbs(node);
++	u32 pins[2 * 64];
++	int n, i, ret, changed = 0;
++
++	if (!ofnode_valid(node))
++		return 0;
++	n = ofnode_read_size(node, "amazon,muio-pins");
++	if (n <= 0)
++		return 0;
++	if (n % 8 || n > sizeof(pins) ||
++	    ofnode_read_u32_array(node, "amazon,muio-pins", pins, n / 4)) {
++		printf("MUIO:  bad amazon,muio-pins\n");
++		return -EINVAL;
++	}
++	for (i = 0; i < n / 4; i += 2) {
++		ret = muio_set(pbs, pins[i], pins[i + 1], verbose);
++		if (ret < 0)
++			return ret;
++		changed += ret;
++	}
++	printf("MUIO:  %d pins from the DT, %d changed\n", n / 8, changed);
++	return 0;
++}
++
++#define PL061_DATA(line)	(4U << (line))	/* masked data address */
++#define PL061_DIR		0x400
++#define GPIO_BANKS		8
++
++static int gpio_list(ofnode node, u32 *t, int max, u32 *bases)
++{
++	int n;
++
++	if (!ofnode_valid(node))
++		return 0;
++	n = ofnode_read_size(node, "amazon,gpio-list");
++	if (n <= 0)
++		return 0;
++	if (n % 12 || n > max * 4 ||
++	    ofnode_read_u32_array(node, "amazon,gpio-list", t, n / 4) ||
++	    ofnode_read_u32_array(node, "amazon,gpio-bases", bases, GPIO_BANKS))
++		return -EINVAL;
++	return n / 12;
++}
++
++int alpine_v3_gpio_init(bool verbose)
++{
++	ofnode node = soc_node();
++	ulong pbs = soc_pbs(node);
++	u32 t[3 * 64], bases[GPIO_BANKS];
++	int n = gpio_list(node, t, ARRAY_SIZE(t), bases), i, changed = 0, bad = 0;
++	int mux = 0;
++
++	if (n < 0) {
++		printf("GPIO:  bad amazon,gpio-list / amazon,gpio-bases\n");
++		return n;
++	}
++	for (i = 0; i < n; i++) {
++		u32 gpio = t[3 * i], out = !!t[3 * i + 1], val = !!t[3 * i + 2];
++		unsigned int line = gpio % 8;
++		u32 dir, data, rdir, rdata;
++		ulong base;
++		int ret;
++
++		if (gpio / 8 >= GPIO_BANKS || !bases[gpio / 8]) {
++			printf("GPIO:  %u: no PL061 bank\n", gpio);
++			return -EINVAL;
++		}
++		base = bases[gpio / 8];
++		/* the vendor allocates the pin as GPIO (MUIO function 0) first */
++		ret = muio_set(pbs, gpio, 0, verbose);
++		if (ret < 0)
++			return ret;
++		mux += ret;
++
++		dir = readl(base + PL061_DIR) >> line & 1;
++		data = readl(base + PL061_DATA(line)) >> line & 1;
++		if (out) {
++			/* value, direction, value again (as Linux gpio-pl061) */
++			writel(val << line, base + PL061_DATA(line));
++			writel(readl(base + PL061_DIR) | BIT(line), base + PL061_DIR);
++			writel(val << line, base + PL061_DATA(line));
++		} else if (dir) {
++			writel(readl(base + PL061_DIR) & ~BIT(line), base + PL061_DIR);
++		}
++		/* report what the bank reads back, not what was asked for */
++		rdir = readl(base + PL061_DIR) >> line & 1;
++		rdata = readl(base + PL061_DATA(line)) >> line & 1;
++		if (rdir != dir || (out && rdata != data))
++			changed++;
++		if (verbose)
++			printf("GPIO:  %2u %s %u (was %s %u)\n", gpio, rdir ? "out" : "in",
++			       rdata, dir ? "out" : "in", data);
++		if (rdir != out || (out && rdata != val)) {
++			printf("GPIO:  %u MISMATCH: wanted %s %u, reads %s %u\n", gpio,
++			       out ? "out" : "in", out ? val : 0, rdir ? "out" : "in", rdata);
++			bad++;
++		}
++	}
++	if (n)
++		printf("GPIO:  %d lines from the DT, %d changed, %d pins to GPIO%s\n",
++		       n, changed, mux, bad ? ", MISMATCH" : "");
++	return bad ? -EIO : 0;
++}
++
++/* PLL (HAL al_hal_pll_regs.h): ch_pair[i] at 0x20 + 4 * i, two 16-bit channels */
++#define PLL_STATUS		0x1c
++#define PLL_STATUS_FSM(v)	(((v) >> 8) & 0xf)
++#define PLL_FSM_DIV_ACTIVE	6
++#define PLL_FSM_DIV_STABLE	7
++#define PLL_CH_PAIR(i)		(0x20 + 4 * (i))
++#define PLL_CH_DIV_MASK		0x07ff
++#define PLL_CH_RELOCK		BIT(12)
++#define PLL_CH_LAST		BIT(13)
++#define PLL_CH_NO_RESET		BIT(14)		/* "reset mask": not in reset */
++#define PLL_DIV_LOCK_START_US	3		/* AL_PLL_DIV_LOCK_START_DELAY */
++#define PLL_DIV_LOCK_TIMEOUT_US	1000		/* the vendor pll_sb_init's */
++#define PLL_CHANNELS		16
++
++static u16 pll_ch_get(ulong pll, unsigned int ch)
++{
++	return readl(pll + PLL_CH_PAIR(ch / 2)) >> (ch & 1 ? 16 : 0);
++}
++
++static void pll_ch_set(ulong pll, unsigned int ch, u16 params)
++{
++	u32 v = readl(pll + PLL_CH_PAIR(ch / 2));
++	int s = ch & 1 ? 16 : 0;
++
++	writel((v & ~(0xffffU << s)) | (u32)params << s, pll + PLL_CH_PAIR(ch / 2));
++}
++
++static bool pll_div_locked(ulong pll)
++{
++	u32 fsm = PLL_STATUS_FSM(readl(pll + PLL_STATUS));
++
++	/* RMN 5633: DIV_ACTIVE and DIV_STABLE both mean "relock done" */
++	return fsm == PLL_FSM_DIV_ACTIVE || fsm == PLL_FSM_DIV_STABLE;
++}
++
++int alpine_v3_pll_init(bool verbose)
++{
++	ofnode node = soc_node();
++	u32 ch[2 * PLL_CHANNELS], base;
++	int n, i, last = -1, changed = 0, t;
++	ulong pll;
++
++	if (!ofnode_valid(node) || ofnode_read_u32(node, "amazon,pll", &base))
++		return 0;
++	pll = base;
++	n = ofnode_read_size(node, "amazon,pll-channels");
++	if (n <= 0 || n % 8 || n > sizeof(ch) ||
++	    ofnode_read_u32_array(node, "amazon,pll-channels", ch, n / 4)) {
++		printf("PLL:   bad amazon,pll-channels\n");
++		return -EINVAL;
++	}
++	n /= 8;
++	for (i = 0; i < n; i++) {
++		if (ch[2 * i] >= PLL_CHANNELS || !ch[2 * i + 1] ||
++		    ch[2 * i + 1] > PLL_CH_DIV_MASK) {
++			printf("PLL:   channel %u divider %u: out of range\n",
++			       ch[2 * i], ch[2 * i + 1]);
++			return -EINVAL;
++		}
++		/* a channel already running that divider, out of reset, stays as it is */
++		if ((pll_ch_get(pll, ch[2 * i]) & (PLL_CH_DIV_MASK | BIT(11) | PLL_CH_NO_RESET)) !=
++		    (ch[2 * i + 1] | PLL_CH_NO_RESET))
++			last = i;
++	}
++	for (i = 0; i <= last; i++) {
++		u16 old = pll_ch_get(pll, ch[2 * i]);
++		u16 p = ch[2 * i + 1] | PLL_CH_NO_RESET | PLL_CH_RELOCK;
++
++		if ((old & (PLL_CH_DIV_MASK | BIT(11) | PLL_CH_NO_RESET)) ==
++		    (ch[2 * i + 1] | PLL_CH_NO_RESET) && i != last)
++			continue;
++		pll_ch_set(pll, ch[2 * i], p);
++		if (i == last) {
++			/* the last in the series is written again with its flag */
++			pll_ch_set(pll, ch[2 * i], p | PLL_CH_LAST);
++			udelay(PLL_DIV_LOCK_START_US);
++			for (t = 0; t < PLL_DIV_LOCK_TIMEOUT_US && !pll_div_locked(pll); t++)
++				udelay(1);
++		}
++		changed++;
++		if (verbose)
++			printf("PLL:   channel %u: %04x -> %04x\n", ch[2 * i], old,
++			       pll_ch_get(pll, ch[2 * i]));
++	}
++	printf("PLL:   %d channels from the DT, %d changed%s\n", n, changed,
++	       last >= 0 && !pll_div_locked(pll) ? ", DIVIDER LOCK TIMEOUT" : "");
++	return last >= 0 && !pll_div_locked(pll) ? -ETIMEDOUT : 0;
++}
++
++/* ONIE TlvInfo EEPROM: "TlvInfo\0", version, total length (BE), TLVs */
++#define TLV_HDR_LEN		11
++#define TLV_MAX_LEN		2048
++#define TLV_TYPE_BASE_MAC	0x24
++#define TLV_TYPE_CRC		0xfe
++
++static int tlv_base_mac(ofnode eeprom, u8 mac[6])
++{
++	static u8 buf[TLV_HDR_LEN + TLV_MAX_LEN];
++	struct udevice *bus, *chip;
++	u32 addr, crc;
++	int ret, len, i;
++
++	if (ofnode_read_u32(eeprom, "reg", &addr))
++		return -EINVAL;
++	ret = uclass_get_device_by_ofnode(UCLASS_I2C, ofnode_get_parent(eeprom), &bus);
++	if (!ret)
++		ret = i2c_get_chip(bus, addr, 2, &chip);
++	if (!ret)
++		ret = dm_i2c_read(chip, 0, buf, TLV_HDR_LEN);
++	if (ret)
++		return ret;
++	if (memcmp(buf, "TlvInfo", 8) || buf[8] != 1)
++		return -ENOENT;
++	len = buf[9] << 8 | buf[10];
++	if (len < 6 || len > TLV_MAX_LEN)
++		return -EINVAL;
++	ret = dm_i2c_read(chip, TLV_HDR_LEN, buf + TLV_HDR_LEN, len);
++	if (ret)
++		return ret;
++	/* last TLV: CRC-32 of everything before its 4 value bytes */
++	if (buf[TLV_HDR_LEN + len - 6] != TLV_TYPE_CRC || buf[TLV_HDR_LEN + len - 5] != 4)
++		return -EBADMSG;
++	crc = crc32(0, buf, TLV_HDR_LEN + len - 4);
++	i = TLV_HDR_LEN + len - 4;
++	if (crc != ((u32)buf[i] << 24 | buf[i + 1] << 16 | buf[i + 2] << 8 | buf[i + 3]))
++		return -EBADMSG;
++	for (i = TLV_HDR_LEN; i + 2 <= TLV_HDR_LEN + len; i += 2 + buf[i + 1]) {
++		if (buf[i] == TLV_TYPE_BASE_MAC && buf[i + 1] == 6) {
++			memcpy(mac, buf + i + 2, 6);
++			return is_valid_ethaddr(mac) ? 0 : -EINVAL;
++		}
++	}
++	return -ENOENT;
++}
++
++/* EC registers (HAL al_hal_eth_ec_regs.h): fwd_mac[0] */
++#define EC_FWD_MAC0_L		0x868	/* MAC bytes 2..5 */
++#define EC_FWD_MAC0_H		0x86c	/* MAC bytes 0..1 */
++
++static void __iomem *eth_ec(ofnode node, struct udevice **devp)
++{
++	u32 devfn = ofnode_read_u32_default(node, "amazon,eth-mac-devfn", 0x08);
++	struct udevice *dev;
++	u16 cmd;
++
++	/* bus 0 = the internal ECAM bus (aliases/pci0 in the U-Boot DT) */
++	if (dm_pci_bus_find_bdf(PCI_BDF(0, 0, 0) | (devfn & 0xff) << 8, &dev))
++		return NULL;
++	*devp = dev;
++	dm_pci_read_config16(dev, PCI_COMMAND, &cmd);
++	if (!(cmd & PCI_COMMAND_MEMORY))
++		return NULL;
++	return dm_pci_map_bar(dev, PCI_BASE_ADDRESS_4, 0, 0, PCI_REGION_TYPE, PCI_REGION_MEM);
++}
++
++static void ec_mac_read(void __iomem *ec, u8 mac[6])
++{
++	u32 l = readl(ec + EC_FWD_MAC0_L), h = readl(ec + EC_FWD_MAC0_H);
++
++	mac[0] = h >> 8; mac[1] = h;
++	mac[2] = l >> 24; mac[3] = l >> 16; mac[4] = l >> 8; mac[5] = l;
++}
++
++int alpine_v3_eth_mac_init(bool verbose)
++{
++	ofnode node = soc_node(), eeprom;
++	struct udevice *dev = NULL;
++	void __iomem *ec;
++	u8 mac[6], old[6];
++	bool wrote = false;
++	int ret;
++	u32 ph;
++
++	if (!ofnode_valid(node) || ofnode_read_u32(node, "amazon,eth-mac-eeprom", &ph))
++		return 0;
++	eeprom = ofnode_get_by_phandle(ph);
++	ret = tlv_base_mac(eeprom, mac);
++	if (ret) {
++		printf("MAC:   no base MAC from the TlvInfo EEPROM (%d)\n", ret);
++		return ret;
++	}
++	ec = eth_ec(node, &dev);
++	if (!ec) {
++		printf("MAC:   %pM (TLV 0x24): integrated Ethernet %s, not stored\n", mac,
++		       dev ? "has memory decode off" : "not on PCI bus 0");
++		return -ENODEV;
++	}
++	ec_mac_read(ec, old);
++	if (memcmp(old, mac, 6)) {
++		wrote = true;
++		writel(mac[2] << 24 | mac[3] << 16 | mac[4] << 8 | mac[5], ec + EC_FWD_MAC0_L);
++		writel(mac[0] << 8 | mac[1], ec + EC_FWD_MAC0_H);
++	}
++	ec_mac_read(ec, old);
++	printf("MAC:   %pM (TLV 0x24) -> %s EC MAC entry 0 (%s)\n", mac, dev->name,
++	       memcmp(old, mac, 6) ? "MISMATCH" : wrote ? "stored" : "kept");
++	if (verbose)
++		printf("MAC:   EC at %p\n", ec);
++	return memcmp(old, mac, 6) ? -EIO : 0;
++}
++
++#if IS_ENABLED(CONFIG_CMD_ALPINE_V3)
++static void state_show(void)
++{
++	ofnode node = soc_node();
++	ulong pbs = soc_pbs(node);
++	u32 t[3 * 64], bases[GPIO_BANKS], pllb;
++	struct udevice *dev = NULL;
++	void __iomem *ec;
++	int i, n;
++
++	printf("PBS %#lx: chip_id %08x\nMUIO:", pbs, readl(pbs + PBS_CHIP_ID));
++	for (i = 0; i < ARRAY_SIZE(muio_sel_off); i++)
++		printf(" %08x", readl(pbs + muio_sel_off[i]));
++	printf("\n");
++	n = ofnode_read_size(node, "amazon,muio-pins");
++	if (ofnode_valid(node) && n > 0 && n % 8 == 0 && n <= sizeof(t)) {
++		ofnode_read_u32_array(node, "amazon,muio-pins", t, n / 4);
++		for (i = 0; i < n / 4; i += 2) {
++			ulong addr;
++			int shift;
++
++			if (!muio_reg(pbs, t[i], &addr, &shift))
++				printf("  pin %2u: function %u (DT wants %u)\n", t[i],
++				       readl(addr) >> shift & 0xf, t[i + 1]);
++		}
++	}
++	n = gpio_list(node, t, ARRAY_SIZE(t), bases);
++	if (n > 0) {
++		printf("GPIO banks (dir/data):");
++		for (i = 0; i < GPIO_BANKS; i++)
++			printf(" %u:%02x/%02x", i, readl((ulong)bases[i] + PL061_DIR) & 0xff,
++			       readl((ulong)bases[i] + 0x3fc) & 0xff);
++		printf("\n");
++		for (i = 0; i < n; i++) {
++			ulong b = bases[t[3 * i] / 8];
++			unsigned int line = t[3 * i] % 8;
++			u32 d = readl(b + PL061_DIR) >> line & 1;
++			u32 v = readl(b + PL061_DATA(line)) >> line & 1;
++
++			if (d != !!t[3 * i + 1] || (d && v != !!t[3 * i + 2]))
++				printf("  GPIO %u: %s %u (DT wants %s %u)\n", t[3 * i],
++				       d ? "out" : "in", v, t[3 * i + 1] ? "out" : "in",
++				       !!t[3 * i + 2]);
++		}
++		printf("  %d DT lines checked (only differences listed)\n", n);
++	}
++	if (ofnode_valid(node) && !ofnode_read_u32(node, "amazon,pll", &pllb)) {
++		printf("PLL %#x: status %08x, ch pairs", pllb, readl((ulong)pllb + PLL_STATUS));
++		for (i = 0; i < PLL_CHANNELS / 2; i++)
++			printf(" %08x", readl((ulong)pllb + PLL_CH_PAIR(i)));
++		printf("\n");
++	}
++	ec = eth_ec(node, &dev);
++	if (ec) {
++		u8 mac[6];
++
++		ec_mac_read(ec, mac);
++		printf("MAC: %s EC entry 0 %pM\n", dev->name, mac);
++	}
++}
++
++static int do_alpine(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
++{
++	const char *op = argc > 1 ? argv[1] : "state";
++
++	if (!strcmp(op, "state")) {
++		state_show();
++		return 0;
++	}
++	if (!strcmp(op, "muio"))
++		return alpine_v3_muio_init(true) ? CMD_RET_FAILURE : 0;
++	if (!strcmp(op, "gpio"))
++		return alpine_v3_gpio_init(true) ? CMD_RET_FAILURE : 0;
++	if (!strcmp(op, "pll"))
++		return alpine_v3_pll_init(true) ? CMD_RET_FAILURE : 0;
++	if (!strcmp(op, "mac"))
++		return alpine_v3_eth_mac_init(true) ? CMD_RET_FAILURE : 0;
++	return CMD_RET_USAGE;
++}
++
++U_BOOT_CMD(alpine, 2, 0, do_alpine,
++	   "Alpine V3 SoC setup done in place of the vendor U-Boot",
++	   "state - MUIO, GPIO, PLL and EC MAC against the DT (read-only)\n"
++	   "alpine muio|gpio|pll|mac - apply that part of the DT setup now (verbose)");
++#endif
+diff --git a/board/amazon/alpine-v3/soc-init.h b/board/amazon/alpine-v3/soc-init.h
+new file mode 100644
+index 00000000..1278db04
+--- /dev/null
++++ b/board/amazon/alpine-v3/soc-init.h
+@@ -0,0 +1,12 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++#ifndef __ALPINE_V3_SOC_INIT_H
++#define __ALPINE_V3_SOC_INIT_H
++
++#include <linux/types.h>
++
++int alpine_v3_muio_init(bool verbose);
++int alpine_v3_gpio_init(bool verbose);
++int alpine_v3_pll_init(bool verbose);
++int alpine_v3_eth_mac_init(bool verbose);
++
++#endif

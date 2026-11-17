@@ -173,7 +173,104 @@ let
       ${alpine.qemu-virt}/u-boot.bin disk.img | tee log.txt
     mkdir $out; cp log.txt $out/
   '';
+
+  # Alpine V3 external PCIe RC init (patch 0030) on a host: al_init_pcie_v3_rc.c
+  # and the HAL copy, both out of the series, against ./pcie-test's register
+  # model (rev-4 unit, PBS, four AVG lanes with a core-interrupt mailbox).
+  pcieInit = pkgs.runCommandCC "alpine-v3-uboot-pcie-init" {
+    nativeBuildInputs = [ pkgs.patchutils ];
+    test = builtins.path { path = ./pcie-test; name = "alpine-v3-pcie-test"; };
+  } ''
+    set -euo pipefail
+    for p in ${toString alpine.patches}; do
+      filterdiff -i '*/drivers/pci/al_pcie_v3/*' "$p"
+    done > al.diff
+    mkdir ub; (cd ub && patch -s -p1 < ../al.diff)
+    a=ub/drivers/pci/al_pcie_v3
+    # no SBus master firmware image (al_hal_sbus.c / *_fw.h) in the copy
+    ! ls $a | grep -qE 'fw|al_hal_sbus\.c' || { echo "hal: firmware file in the copy"; exit 1; }
+    mkdir t; cp $a/* t/; cp $test/*.h t/
+    $CC -O1 -Wall -Werror -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable \
+      -Wno-address-of-packed-member -It \
+      -DAL_DEV_ID_ALPINE_V1=0 -DAL_DEV_ID_ALPINE_V2=1 -DAL_DEV_ID_ALPINE_V3=2 \
+      -DAL_DEV_ID_ALPINE_V4=3 -DAL_DEV_ID=AL_DEV_ID_ALPINE_V3 -o run $test/pcie-init-test.c \
+      t/al_init_pcie_v3_rc.c t/al_hal_pcie.c t/al_hal_pbs_utils.c t/al_hal_pcie_reg_ptr_set_rev4.c \
+      t/al_hal_serdes_avg.c t/al_hal_serdes_avg_utils.c t/al_hal_iofic.c t/al_sbus_shim.c
+    ./run | tee log.txt
+    mkdir $out; cp log.txt $out/
+  '';
+
+  # cs8210-selfinit / cs8210-stage3app (patches 0029-0031): config, symbols, DT,
+  # and the app object = u-boot.bin verbatim, inside A' slot B.
+  si = alpine.cs8210-selfinit;
+  app = alpine.cs8210-stage3app;
+  selfinit = pkgs.runCommand "alpine-v3-uboot-selfinit-checks" {
+    nativeBuildInputs = [ binutils pkgs.python3 pkgs.gnugrep pkgs.dtc ];
+  } ''
+    set -euo pipefail
+    c=${si}/.config
+    for kv in ALPINE_V3_MUIO_INIT=y ALPINE_V3_GPIO_INIT=y ALPINE_V3_PLL_INIT=y ALPINE_V3_ETH_MAC=y \
+              CMD_ALPINE_V3=y PCIE_ALPINE_V3=y CMD_ALPINE_V3_PCIE=y ENV_IS_IN_SPI_FLASH=y \
+              ENV_REDUNDANT=y ENV_OFFSET=0x38000 ENV_OFFSET_REDUND=0x3c000 ENV_SIZE=0x4000 \
+              SPI_FLASH_WRITE_WINDOW=y SPI_FLASH_WRITE_WINDOW_START=0x38000 \
+              SPI_FLASH_WRITE_WINDOW_SIZE=0x8000 SPI_FLASH_WRITE_WINDOW_ADDR_WIDTH=4 \
+              SPI_FLASH_WRITE_WINDOW_JEDEC=0xc22539 SPI_FLASH_WRITE_WINDOW_CHIP_SIZE=0x2000000 \
+              SPI_FLASH_READ_ONLY=y SPI_MEM_READ_ONLY=y TEXT_BASE=0x08000000; do
+      grep -qx "CONFIG_$kv" $c || { echo "config: CONFIG_$kv missing"; exit 1; }
+    done
+    for n in 2 3 4 5 6; do
+      grep -qx "CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE$n=0x0" $c || { echo "config: window $n in use"; exit 1; }
+    done
+    for k in CMD_SF_WRITE_WINDOW SPI_FLASH_LOCK SPI_FLASH_UNLOCK_ALL ENV_IS_NOWHERE; do
+      ! grep -q "^CONFIG_$k=y" $c || { echo "config: CONFIG_$k is on"; exit 1; }
+    done
+    aarch64-unknown-linux-gnu-nm ${si}/u-boot > syms.txt
+    for s in alpine_v3_muio_init alpine_v3_gpio_init alpine_v3_pll_init alpine_v3_eth_mac_init \
+             al_init_pcie_v3_rc alpine_v3_serror_drain al_serdes_avg_handle_init \
+             _u_boot_list_2_driver_2_pcie_alpine_v3 _u_boot_list_2_cmd_2_alpcie \
+             _u_boot_list_2_cmd_2_alpine _u_boot_list_2_cmd_2_saveenv; do
+      grep -q " $s$" syms.txt || { echo "elf: no $s"; exit 1; }
+    done
+    for s in do_spi_flash_erase write_sr stm_lock; do
+      ! grep -q " $s$" syms.txt || { echo "elf: $s is linked"; exit 1; }
+    done
+    t=${si}/u-boot.dtb; s=/alpine-soc-init
+    [ "$(fdtget $t $s compatible)" = amazon,alpine-v3-soc-init ]
+    [ "$(fdtget -t u $t $s amazon,muio-pins | wc -w)" = 52 ]
+    [ "$(fdtget -t u $t $s amazon,gpio-list | wc -w)" = 96 ]
+    [ "$(fdtget -t x $t $s amazon,pll) $(fdtget -t u $t $s amazon,pll-channels)" = "fd860b00 9 120" ]
+    e=$(fdtget -t x $t $s amazon,eth-mac-eeprom)
+    [ "$(fdtget -t x $t /soc/io-bus@fc000000/i2c@1880000/i2c-mux@70/i2c@2/i2c-mux@74/i2c@0/i2c-mux@71/i2c@7/eeprom@56 phandle)" = "$e" ]
+    for p in "fb600000:3 4:0 1 2 3" "fb700000:2 1:8" "fba00000:1 1:4"; do
+      n=/pcie@''${p%%:*}; r=''${p#*:}
+      [ "$(fdtget $t $n amazon,link-gen) $(fdtget $t $n amazon,link-lanes)" = "''${r%%:*}" ]
+      [ "$(fdtget $t $n amazon,serdes-lanes)" = "''${r#*:}" ]
+      fdtget $t $n amazon,endpoint-decode-off > /dev/null
+      # the link partner stays unconfigured in U-Boot (MDIO FPGA BAR 0, 2026-11-16)
+      [ "$(fdtget $t $n/pci@0,0/device@0,0 status)" = disabled ]
+    done
+    for d in crypto@6,0 crypto@10,0; do
+      [ "$(fdtget $t /soc/pcie@fbd00000/$d status)" = disabled ]
+    done
+    [ "$(fdtget $t /aliases pci0)" = /soc/pcie@fbd00000 ]
+    # the chainload build's DT has none of it (its u-boot.bin stays the M2 one)
+    ! fdtget ${d}/u-boot.dtb $s compatible 2>/dev/null
+    ! fdtget ${d}/u-boot.dtb /soc/pcie@fbd00000/crypto@6,0 reg 2>/dev/null
+    python3 - ${app}/u-boot-app-08000000.fimg ${si}/u-boot.bin <<'PY'
+    import struct, sys
+    o, b = open(sys.argv[1], "rb").read(), open(sys.argv[2], "rb").read()
+    magic, size, load, exe = struct.unpack_from("<I", o, 0)[0], *struct.unpack_from("<QQQ", o, 0x28)
+    assert magic == 0x000b9ec7 and size == len(b) and o[0x48:0x48 + size] == b, "payload"
+    assert load == exe == 0x08000000, (hex(load), hex(exe))
+    assert len(o) <= 0x67000, f"object {len(o):#x} > A' slot B 0x67000"
+    print(f"app: ok ({len(o):#x} B, load = exec = 0x08000000, {0x67000 - len(o)} B spare in slot B)")
+    PY
+    echo "selfinit: ok (config, symbols, DT, stage3 app object)"
+    mkdir $out; echo pass > $out/result
+  '';
 in pkgs.linkFarm "alpine-v3-uboot-tests" [
   { name = "static"; path = static; }
   { name = "qemu-virt"; path = qemu; }
+  { name = "pcie-init"; path = pcieInit; }
+  { name = "selfinit"; path = selfinit; }
 ]
