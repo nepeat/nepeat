@@ -11,6 +11,8 @@
 //    inside ifcs_init, first hardware run 2026-11-16); the vendor's glibc 2.25
 //    did not. ifcs_lib.cpp points libifcs' memcpy import at this copy loop:
 //    8-byte accesses when both pointers and the length allow, else 4, else 1.
+//  * ifcs_guard.c (same library): the learn-ring read guard; ifcs_lib.cpp
+//    points libifcs' node_pci_reg_read32 / _write32 / im_malloc GOT entries at it.
 #include <stdint.h>
 #include <stdio.h>
 #include <stddef.h>

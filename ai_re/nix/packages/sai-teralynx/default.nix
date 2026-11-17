@@ -1,11 +1,26 @@
 # sai-teralynx: libsai.so (OCP SAI, sairedis' pin) for the Teralynx 7 of the
 # Celestica CS8210-32X. The SAI frontend is sai-openbcm's, unmodified; the
 # backend (src/) drives the vendor IFCS 0.12.41 SDK, which is dlopen'ed at
-# run time from the switch (SAI_TERALYNX_LIBIFCS): nothing vendor is linked
-# or in the store. See README.md.
+# run time from the switch (SAI_TERALYNX_LIBIFCS): nothing vendor is linked.
+# Its IFCS declarations are generated at build time from a public ctypes file
+# (ifcsCtypes below; README.md "IFCS declarations"). See README.md.
 #   callPackage ./sai-teralynx { sonic = ...; }
-{ lib, stdenv, sonic, doCheck ? stdenv.buildPlatform.canExecute stdenv.hostPlatform }:
+{ lib, stdenv, buildPackages, fetchurl, sonic, doCheck ? stdenv.buildPlatform.canExecute stdenv.hostPlatform }:
 let
+  # Build-time vendor input (store only, never git): pyctypes/ifcs_ctypes.py
+  # of Innovium's public ishell 2.0.1 deb (Innovium/SONiC debian/202111/T2.0.1,
+  # amd64; the file is arch-neutral python). Its declarations of everything
+  # src/ifcs_api*.h.in uses equal the box's 0.12.41 ones except
+  # src/ifcs_overrides.txt and one @prefix struct (README.md).
+  ishellDeb = fetchurl {
+    url = "https://raw.githubusercontent.com/Innovium/SONiC/240ee432f6d6b3d36ca8c484d3f7051714279545/debian/202111/T2.0.1/ishell.deb";   # 2025-11-25
+    hash = "sha256-iUync4A9AUm68UcyoTYDdAkgvOXwFbNDfj28R2H39ek=";
+  };
+  ifcsCtypes = buildPackages.runCommand "ifcs-ctypes-ishell-2.0.1.py" { nativeBuildInputs = [ buildPackages.dpkg ]; } ''
+    dpkg-deb -x ${ishellDeb} x
+    install -Dm644 x/innovium/pyctypes/ifcs_ctypes.py $out
+    echo "5a4547fb452a2b4fe85c449ed7089033f81d133f07646168ce01eac2a2843069  $out" | sha256sum -c
+  '';
   sai = sonic.sources.sairedis;   # SAI headers: the SAI submodule sairedis is pinned to
   frontend = builtins.path { path = ../sai-openbcm/src; name = "sai-openbcm-frontend-src"; };
   frontendTests = builtins.path { path = ../sai-openbcm/tests; name = "sai-openbcm-frontend-tests"; };
@@ -17,13 +32,15 @@ in stdenv.mkDerivation {
     name = "sai-teralynx-src";
     # Only what the library build reads: docs, the board configs and nix files do not rebuild it.
     filter = p: t: !(lib.hasSuffix ".md" p)
-      && !(builtins.elem (baseNameOf p) [ "default.nix" "build" "configs" "oracle" ]);
+      && !(builtins.elem (baseNameOf p) [ "default.nix" "build" "configs" "oracle" "__pycache__" ]);
   };
 
   enableParallelBuilding = true;
+  nativeBuildInputs = [ buildPackages.python3 ];   # tools/gen_ifcs_api.py
   makeFlags = [
     "SAI_INC=${sai}/SAI/inc"
     "FRONTEND=${frontend}"
+    "IFCS_CTYPES=${ifcsCtypes}"
     "PREFIX=${placeholder "out"}"
     "CXX=${stdenv.cc.targetPrefix}c++"
     "CC=${stdenv.cc.targetPrefix}cc"
@@ -36,7 +53,7 @@ in stdenv.mkDerivation {
   inherit doCheck;
   checkTarget = "check";
 
-  passthru = { saiHeaders = "${sai}/SAI/inc"; inherit frontend; };
+  passthru = { saiHeaders = "${sai}/SAI/inc"; inherit frontend ifcsCtypes ishellDeb; };
 
   meta = {
     description = "SAI implementation for the Innovium/Marvell Teralynx 7 on the vendor IFCS SDK (loaded at run time)";

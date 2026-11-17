@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0
  * Mock libifcs.so for the sai-teralynx tests, one file per backend area
  * (mock_<area>.c, like src/tl_<area>.cpp). Together they export every
- * symbol the backend dlsyms (IFCS_SYMBOLS in src/ifcs_api.h): each file
+ * symbol the backend dlsyms (IFCS_SYMBOLS in the generated ifcs_api.h): each file
  * includes this header, so a definition whose type differs from the
  * declared one does not compile, and mock_core.c references them all, so a
  * missing one does not link (-Wl,--no-undefined). Calls are recorded as

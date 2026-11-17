@@ -8,7 +8,7 @@ makes, step by step, and diff them. No vendor code is read or copied; traces are
 
 | file | what |
 |---|---|
-| `gen_tracer.py` | generates the interposer for one IFCS ABI: `--header ../src/ifcs_api.h` (ours: typed wrappers, bound to the real handle) or `--ctypes <isai pyctypes> --imports <libsai's ifcs_* imports>` (isai: generic register wrappers, `RTLD_NEXT`; 750 API functions; isai's own `ifcs_isai_ds_*` store and accessors with float / by-value struct arguments are left untraced) |
+| `gen_tracer.py` | generates the interposer for one IFCS ABI: `--header ../build/gen/ifcs_api.h` (ours, generated in the build by `tools/gen_ifcs_api.py`: typed wrappers, bound to the real handle) or `--ctypes <isai pyctypes> --imports <libsai's ifcs_* imports>` (isai: generic register wrappers, `RTLD_NEXT`; 750 API functions; isai's own `ifcs_isai_ds_*` store and accessors with float / by-value struct arguments are left untraced) |
 | `trace_rt.{c,h}` | the runtime: one line per top-level call, attribute arrays decoded with the ABI's layout (0.12.41: 136 B; 0.16.2: 224 B, bitmap-typed values when the caller set the bitmap) |
 | `sai_script.cpp` | `sai-script PROFILE SCRIPT.json`: generic SAI client (builds against SAI 1.19 and isai's 1.16 headers), step markers into the trace |
 | `oracle.py` | `diff OURS ISAI`, `show TRACE`, `summary TRACE`: attribute ids and counter ids to names (from each version's pyctypes, local), dynamic handles renamed by order of use, per-step diff, functions only one side calls |

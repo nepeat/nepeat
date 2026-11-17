@@ -1,0 +1,7 @@
+# Overrides for tools/gen_ifcs_api.py: NAME VALUE  # where it was verified.
+# Only values where the public ctypes file (ishell 2.0.1, see default.nix)
+# differs from the target libifcs.so 0.12.41 (sha256 388031e7...) and that
+# the backend uses. ishell 2.0.1 has 3 more devport counters after id 110
+# (every id we use is the same), so its MAX_COUNT / ALL are 114 / 115.
+IFCS_DEVPORT_STATS_ID_MAX_COUNT 111   # verified on 0.12.41 libifcs ii_devport_stats_get: count == ALL (0x1333c98) becomes ALL - 1 (0x1333ca4), ids 0 .. count-1 filled (0x1333cb4)
+IFCS_DEVPORT_STATS_ID_ALL 112         # verified on 0.12.41 libifcs ii_devport_stats_get: count > 0x70 refused (0x1333c1c), count == 0x70 means all (0x1333c98)

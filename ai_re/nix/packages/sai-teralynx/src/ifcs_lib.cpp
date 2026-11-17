@@ -16,6 +16,14 @@ namespace {
 
 // Point one imported function of an already loaded object (matched by path)
 // at fn: rewrite its JUMP_SLOT / GLOB_DAT GOT entries. Returns entries changed.
+// The native relocation types, so the x86 test build exercises it on the mock.
+#if defined(__aarch64__)
+constexpr unsigned kJumpSlot = R_AARCH64_JUMP_SLOT, kGlobDat = R_AARCH64_GLOB_DAT;
+#elif defined(__x86_64__)
+constexpr unsigned kJumpSlot = R_X86_64_JUMP_SLOT, kGlobDat = R_X86_64_GLOB_DAT;
+#else
+#error "ifcs_lib.cpp: GOT redirect for this architecture not written"
+#endif
 struct Redirect { const char* path; const char* sym; void* fn; int changed; };
 
 int redirect_cb(struct dl_phdr_info* info, size_t, void* data)
@@ -46,7 +54,7 @@ int redirect_cb(struct dl_phdr_info* info, size_t, void* data)
         for (size_t k = 0; k < relasz[t] / sizeof(ElfW(Rela)); k++) {
             const ElfW(Rela)& e = rela[t][k];
             unsigned type = ELF64_R_TYPE(e.r_info);
-            if (type != R_AARCH64_JUMP_SLOT && type != R_AARCH64_GLOB_DAT) continue;
+            if (type != kJumpSlot && type != kGlobDat) continue;
             if (strcmp(strtab + symtab[ELF64_R_SYM(e.r_info)].st_name, r->sym) != 0) continue;
             void** slot = reinterpret_cast<void**>(info->dlpi_addr + e.r_offset);
             uintptr_t page = reinterpret_cast<uintptr_t>(slot) & ~static_cast<uintptr_t>(pg - 1);
@@ -62,7 +70,8 @@ int redirect_cb(struct dl_phdr_info* info, size_t, void* data)
 
 namespace tl {
 
-bool ifcs_lib_load(const std::string& path, IfcsLib& lib, std::string& err, const std::string& trace)
+bool ifcs_lib_load(const std::string& path, IfcsLib& lib, std::string& err, const std::string& trace,
+                   const GuardOptions& guard)
 {
     static std::mutex mu;
     std::lock_guard<std::mutex> g(mu);
@@ -91,6 +100,36 @@ bool ifcs_lib_load(const std::string& path, IfcsLib& lib, std::string& err, cons
             dl_iterate_phdr(redirect_cb, &r);
             if (r.changed == 0)   // e.g. the test mock; the real libifcs.so imports it
                 fprintf(stderr, "sai-teralynx: %s has no memcpy import to redirect\n", path.c_str());
+        }
+    }
+    // The learn-ring read guard (ifcs_guard.c): before ifcs_init starts the learn thread.
+    if (guard.enable) {
+        using init_fn = int (*)(void*, void*, const char*, unsigned, unsigned long long);
+        auto init = reinterpret_cast<init_fn>(shim ? dlsym(shim, "tl_ifcs_guard_init") : nullptr);
+        auto done = reinterpret_cast<void (*)(int)>(shim ? dlsym(shim, "tl_ifcs_guard_installed") : nullptr);
+        void* rd = dlsym(h, "node_pci_reg_read32");
+        void* wr = dlsym(h, "node_pci_reg_write32");
+        if (!init || !done) {
+            fprintf(stderr, "sai-teralynx: no libsai-teralynx-shim.so guard: libifcs' learn-ring reads are NOT guarded\n");
+        } else if (!rd || !wr || init(rd, wr, guard.stats_path.c_str(), guard.ring_size, guard.malloc_limit) != 0) {
+            fprintf(stderr, "sai-teralynx: %s exports no node_pci_reg_read32/_write32: learn-ring guard not installed\n", path.c_str());
+            done(0);
+        } else {
+            Redirect rr{path.c_str(), "node_pci_reg_read32", dlsym(shim, "tl_ifcs_reg_read32"), 0};
+            Redirect rw{path.c_str(), "node_pci_reg_write32", dlsym(shim, "tl_ifcs_reg_write32"), 0};
+            Redirect rm{path.c_str(), "im_malloc", dlsym(shim, "tl_ifcs_im_malloc"), 0};
+            if (rr.fn && rw.fn && rm.fn) {
+                dl_iterate_phdr(redirect_cb, &rr);
+                dl_iterate_phdr(redirect_cb, &rw);
+                dl_iterate_phdr(redirect_cb, &rm);
+            }
+            done(rr.changed > 0);
+            fprintf(stderr,
+                    "sai-teralynx: learn-ring guard %s: GOT entries node_pci_reg_read32 %d, node_pci_reg_write32 %d, "
+                    "im_malloc %d (ring %u, im_malloc limit %llu B, stats %s)\n",
+                    rr.changed > 0 ? "active" : "NOT active (no node_pci_reg_read32 import)", rr.changed, rw.changed,
+                    rm.changed, guard.ring_size, (unsigned long long)guard.malloc_limit,
+                    guard.stats_path.empty() ? "none" : guard.stats_path.c_str());
         }
     }
     void* th = nullptr;

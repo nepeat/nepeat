@@ -18,7 +18,15 @@ done and tested where). The rest below is unverified there.
 before libifcs): stubs for the 19 CPython 2.7 functions libifcs references
 (else `dlopen` fails), and an aligned copy loop that `ifcs_lib.cpp` writes into
 libifcs' `memcpy` GOT entries: libifcs copies to/from the PCI BAR, where current
-glibc's aarch64 memcpy faults (SIGBUS); the vendor's glibc 2.25 did not.
+glibc's aarch64 memcpy faults (SIGBUS); the vendor's glibc 2.25 did not. Also
+the **learn-ring read guard** (`src/ifcs_guard.c`): libifcs' own
+`node_pci_reg_read32` / `_write32` / `im_malloc` GOT entries point at it, so an
+all-ones (or out-of-range) read of the learn ring's index registers is re-read
+(3 ms apart) and, if it stays bad, turned into "nothing new" instead of a 32 GiB
+im_malloc and an endless loop (no re-reads while it stays bad); all-ones from
+any other register is counted; im_malloc over 1 GiB returns NULL. Logged to
+stderr and counted in `<run dir>/ifcs-guard.prom`
+([learn-wedge.md](../../../devices/cs8210-32x/learn-wedge.md)).
 
 ## Source layout
 
@@ -27,6 +35,7 @@ owns them and maps the frontend's `Backend` interface onto them.
 
 | file | area |
 |---|---|
+| `src/shim.c`, `src/ifcs_guard.c` | libsai-teralynx-shim.so: CPython stubs, BAR-safe memcpy, the learn-ring read guard (C, no C++ runtime) |
 | `src/tl_core.{h,cpp}` | shared: the libifcs table, lock, port map, sysport handles, status mapping, attribute builders, helpers; pointers to every area |
 | `src/tl_switch.*` | init / shutdown, init commands, event registration, temperatures, table usage, chip limits, diag shell |
 | `src/tl_port.*` | admin, link (+ optional cache), speed, FEC, autoneg, loopback, MTU, PVID, learning, counters |
@@ -39,9 +48,10 @@ owns them and maps the frontend's `Backend` interface onto them.
 | `src/tl_qos.*` | QoS maps (qos_map + shared map groups on sysports), PFC, queue schedulers / port shaper, WRED (AQM curve groups), queue buffer thresholds, queue / PG / PFC counters |
 | `src/tl_mirror.*` | mirror sessions (DCDP + collector + collector set), port mirroring and sFlow sampling (sysport traffic-monitor policies); `collector_set()` for ACL mirror actions |
 | `src/tl_sflow.*` | genetlink host interfaces: sFlow samples to psample through the ipd driver's sFlow netlink (ioctls on libifcs' `/dev/ipd` fd), the ports' sample rates for the samples' metadata; the SAMPLEPACKET trap (MIRROR_TO_CPU, its group's policer as the samples' CPU-queue meter); egress sampling's node attribute |
-| `src/ifcs_api_qos.h` | the IFCS declarations of those two areas (included by `ifcs_api.h`, `IFCS_SYMBOLS_QOS`) |
+| `src/ifcs_api.h.in`, `src/ifcs_api_qos.h.in`, `src/ifcs_overrides.txt` | templates of the IFCS declarations (names only; `_qos`: the QoS / mirror areas, `IFCS_SYMBOLS_QOS`) and the 0.12.41 overrides, filled in at build time ([IFCS declarations](#ifcs-declarations)) |
+| `tools/gen_ifcs_api.py`, `tools/ifcs_ctypes_model.py` | the generator (into `build/gen/`) and its ctypes reader (parses, never executes) |
 | `tests/test_ifcs.cpp`, `tests/t_<area>.cpp`, `tests/harness.h` | end-to-end test: main + one file per area |
-| `tests/mock/mock_<area>.c`, `mock.h` | mock libifcs, one file per area; type-checked against `ifcs_api.h`, none missing (link check) |
+| `tests/mock/mock_<area>.c`, `mock.h` | mock libifcs, one file per area; type-checked against the generated `ifcs_api.h`, none missing (link check) |
 | `oracle/` | libifcs call tracer + SAI script runner + diff ([oracle/README.md](oracle/README.md)) |
 | `tools/` | `sai_smoke.cpp`, `trap_frames.c` (frame sender/counter for trap tests), `qos_frames.c` (DSCP / ECN / PFC frames, per-DSCP, GRE-copy and rate counts for the QoS / mirror / sFlow tests), `raw_frames.c` (any hex frame, tagged and counted: IGMP / MLD / ICMP / DSCP / IPv6 for the ACL and trap tests), `sflow_probe.c` (sequence-numbered frames, samples read from a netdev or psample: 1-in-N, gaps, metadata), `sflow-sonic-test.sh` (SONiC sFlow by hand on the box: patched ipd, libsai drop-in, sflowmgrd / hsflowd / sflowtool) |
 
@@ -73,6 +83,9 @@ The Makefile picks up `src/*.cpp`, `tests/t_*.cpp` and `tests/mock/*.c` by wildc
 | `SAI_TERALYNX_STATS` | `ids` (default): one `devport_stats_get` of the 12 mapped counters per port; `all`: the vendor CLI form (all 112, 8x slower) |
 | `SAI_TERALYNX_TEMP_PERIOD` | seconds between temperature reads (default 15, `0` = every call); each read takes one monitor, round-robin, because a monitor read holds the libifcs lock ~400 ms |
 | `SAI_TERALYNX_TEMP_MONITORS` | `all` (default: master + 4 remotes) or `master` |
+| `SAI_TERALYNX_IFCS_GUARD` | `on` (default): the learn-ring read guard (shim); `off`: libifcs' register reads and im_malloc untouched |
+| `SAI_TERALYNX_LEARN_RING_SIZE`, `SAI_TERALYNX_IM_MALLOC_LIMIT_MIB` | the guard's ring size (default 2048, the deployed init yaml) and im_malloc limit (default 1024; 0 = none) |
+| env `SAI_TERALYNX_IFCS_GUARD_INJECT` | test hook only: a file "<reg> <count>" there (checked once a second, then removed) makes the next reads of that register return all-ones |
 | `SAI_TERALYNX_IFCS_TRACE` | path of the oracle's `libifcs-trace.so` (ours): every IFCS call traced ([oracle/README.md](oracle/README.md)) |
 | `SAI_OPENBCM_TEMP_FILE`, `_TEMP_PROM`, `_DIAG_SOCKET` | frontend meaning (fand temperature file, Prometheus file, diag socket) |
 
@@ -84,15 +97,49 @@ The frontend collects every key through the service table's
 
 | file (SDK dir) | sha256 | use |
 |---|---|---|
-| `libifcs.so` | `388031e7eb2443d77d89da826084976859bf92db19f9733be19b1c0b603c0d17` | dlopen'ed (`RTLD_NOW|RTLD_GLOBAL`), 98 symbols ([src/ifcs_api.h](src/ifcs_api.h)); a missing one fails init naming it |
+| `libifcs.so` | `388031e7eb2443d77d89da826084976859bf92db19f9733be19b1c0b603c0d17` | dlopen'ed (`RTLD_NOW|RTLD_GLOBAL`), the `IFCS_SYMBOLS` list ([src/ifcs_api.h.in](src/ifcs_api.h.in)); a missing one fails init naming it |
 | `libAAPL.so` | `cf4e848498398d4dca083156d9819bfda4c006eebf92c66729a2cdd40d2c41a6` | libifcs dependency, plus jansson/libyaml/zlib, via `LD_LIBRARY_PATH` |
 | `cel_configs/isg.yaml` / `isg_R01.yaml` (board id 0x2) | `377e3b97…` / `c1f85dd7…` | `SAI_TERALYNX_CONFIG_APPEND` |
 | `cel_cmds/*.cmd` | e.g. `misc_config_32.cmd` `c8847694…` | `SAI_TERALYNX_INIT_CMDS` |
 
-Interop values (names, enum values, layouts) were read from the SDK's
-`pyctypes/ifcs_ctypes.py` (sha256 `ba980c0b…`) and checked against the DWARF of
-`innovium.user`; [src/ifcs_api.h](src/ifcs_api.h) says which, with static_asserts
-(also on aarch64). Local evidence (git-ignored):
+Build-time vendor input (store only, never git): Innovium's public
+`ishell.deb` 2.0.1 (`Innovium/SONiC` `debian/202111/T2.0.1` at `240ee432`,
+sha256 `894ca773803d0149baf14732a13603740920bce5f015b3437e3dbc4761f7f5e9`), of which
+only `innovium/pyctypes/ifcs_ctypes.py` (sha256 `5a4547fb…`) is used
+(`default.nix` `ifcsCtypes`).
+
+## IFCS declarations
+
+`build/gen/ifcs_api.h` and `ifcs_api_qos.h` are generated at every build and
+never committed. `tools/gen_ifcs_api.py` fills the templates `src/ifcs_api*.h.in`
+(ours: which names, their grouping, our macros and comments, and the 0.12.41
+layout static_asserts) with the values, field lists and signatures of a ctypes
+file, read as data by `tools/ifcs_ctypes_model.py`. Directives and rules: the
+generator's docstring. Outside Nix: `make IFCS_CTYPES=<ifcs_ctypes.py>`.
+
+The input is the public ishell 2.0.1 ctypes above, not the box's 0.12.41 one.
+Checked 2026-11-17 ([evidence](../../../devices/cs8210-32x/ifcs-ctypes-public-20261117.txt)):
+
+- From the box's own 0.12.41 `pyctypes/ifcs_ctypes.py` (sha256 `ba980c0b…`, local
+  only) without overrides, the generator writes the same headers, byte for byte,
+  as from ishell 2.0.1 with `src/ifcs_overrides.txt`.
+- Every public ishell from 2.0.1 to 3.1.3 differs from 0.12.41 in the same three
+  places for what we use; 3.1.4 and later in more. No public artifact is 0.12.41
+  itself (the isai debs before 2.0.1 ship no ctypes, headers or DWARF).
+- The three: `IFCS_DEVPORT_STATS_ID_MAX_COUNT` / `_ALL` (2.0.1 has three more
+  counters; 0.12.41's 111 / 112 are overrides, verified in the target library's
+  `ii_devport_stats_get`), and `ifcs_usage_t` (0.12.41 has only `max`, `current`:
+  `@prefix`; its `ifcs_usage_t_init` clears 12 bytes). The unused
+  `IFCS_DEVPORT_ATTR_MAX_COUNT` was dropped instead.
+- The outputs built from the generated headers equal the ones from the former
+  hand-written `src/ifcs_api*.h` (native and aarch64 sai-teralynx, the aarch64
+  oracle: every file identical once the outputs' own store paths are masked;
+  test_ifcs 1015/0, frontend 2667/0). The DWARF of both headers: 669 typedefs
+  and enumerators identical, only the dropped one missing.
+
+The static_asserts (sizes and offsets from the DWARF of the SDK's
+`innovium.user`, or computed from its pyctypes; marked) stop a build whose
+input disagrees with 0.12.41. Local layout evidence (git-ignored):
 `devices/cs8210-32x/analysis/sai-teralynx/` (`innovium-user-main.txt`,
 `layouts-innovium-user-dwarf.txt`, `vendor-cmds-parse.txt`, `pahole-libifcs-7.0.1.txt`).
 
@@ -194,7 +241,9 @@ I = inferred (API exists, form or semantics not seen in use).
   port counters by id + stats capability, hash objects, VLAN flood control, storm
   control, ACL ranges / SET_TC / REDIRECT / MIRROR / egress + OUT_PORTS, entry admin
   and in-place update, AVAILABLE_ACL_ENTRY, SET_DSCP refused); temperatures
-  (round-robin, cached); remove_switch order; the SAMPLEPACKET trap's queue meter and egress sampling (`t_sflow.cpp`). 967 checks (all areas, 2026-11-16).
+  (round-robin, cached); remove_switch order; the SAMPLEPACKET trap's queue meter and egress sampling (`t_sflow.cpp`);
+  the shim's learn-ring guard (`t_learn.cpp`: the mock replays libifcs' learn pass through its PLT with injected
+  all-ones reads; the GOT redirect uses the build host's relocation types, so x86 runs it). 1047 checks (all areas, 2026-11-17).
 - sai-openbcm's `tests/test_sai.cpp`, unchanged, against this library's
   objects (frontend + fake backend): 2667 checks.
 - Built natively with nix (`callPackage ./sai-teralynx { inherit sonic; }`) and

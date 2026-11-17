@@ -1,11 +1,16 @@
 # sai-teralynx: libsai.so for the Teralynx 7 (CS8210-32X) = the sai-openbcm
 # SAI frontend, unmodified, + our IFCS backend (src/). See README.md.
-#   make SAI_INC=<dir with sai.h> FRONTEND=<sai-openbcm/src> [FRONTEND_TESTS=<sai-openbcm/tests>]
+#   make SAI_INC=<dir with sai.h> FRONTEND=<sai-openbcm/src> IFCS_CTYPES=<ifcs_ctypes.py> \
+#        [FRONTEND_TESTS=<sai-openbcm/tests>]
 # No link-time dependency on the vendor SDK: libifcs.so is dlopen'ed at init.
-# Variables: CXX, CC, AR, CXXFLAGS, CFLAGS, LDFLAGS, PREFIX, DESTDIR.
+# The IFCS declarations (build/gen/ifcs_api*.h) are generated from
+# IFCS_CTYPES (README.md "IFCS declarations"; default.nix fetches it).
+# Variables: CXX, CC, AR, CXXFLAGS, CFLAGS, LDFLAGS, PREFIX, DESTDIR, PYTHON.
 SAI_INC ?= /usr/include/sai
 FRONTEND ?=
 FRONTEND_TESTS ?=
+IFCS_CTYPES ?=
+PYTHON ?= python3
 PREFIX ?= /usr
 CXX ?= g++
 CC ?= gcc
@@ -15,6 +20,9 @@ WARN = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers
 
 ifeq ($(FRONTEND),)
 $(error FRONTEND=<sai-openbcm src dir> is required)
+endif
+ifneq ($(wildcard src/ifcs_api.h src/ifcs_api_qos.h),)
+$(error src/ifcs_api*.h must not exist: they are generated into build/gen (README.md "IFCS declarations"))
 endif
 ifeq ($(wildcard $(FRONTEND)/sai_api.cpp),)
 $(error FRONTEND=$(FRONTEND) does not look like sai-openbcm/src (no sai_api.cpp))
@@ -31,7 +39,18 @@ ifneq ($(FE_UNKNOWN),)
 $(error FRONTEND has .cpp files this Makefile does not list: $(FE_UNKNOWN); add them to CORE or FRONTEND_NOT_USED)
 endif
 
-CPPFLAGS_ALL = -I$(SAI_INC) -Isrc -I$(FRONTEND)
+.DEFAULT_GOAL := all
+
+# Generated IFCS declarations: src/ifcs_api*.h.in (names, ours) filled in
+# from the ctypes file (values, layouts, signatures) + src/ifcs_overrides.txt.
+GEN = build/gen
+IFCS_HDRS = $(GEN)/ifcs_api.h $(GEN)/ifcs_api_qos.h
+IFCS_TMPL = src/ifcs_api.h.in src/ifcs_api_qos.h.in
+$(IFCS_HDRS) &: $(IFCS_TMPL) src/ifcs_overrides.txt tools/gen_ifcs_api.py tools/ifcs_ctypes_model.py $(IFCS_CTYPES)
+	@if [ -z "$(IFCS_CTYPES)" ]; then echo "IFCS_CTYPES=<pyctypes/ifcs_ctypes.py> is required (README.md)" >&2; exit 1; fi
+	$(PYTHON) -I -B tools/gen_ifcs_api.py --ctypes $(IFCS_CTYPES) --overrides src/ifcs_overrides.txt -o $(GEN) $(IFCS_TMPL)
+
+CPPFLAGS_ALL = -I$(SAI_INC) -Isrc -I$(GEN) -I$(FRONTEND)
 # Our sources: every src/*.cpp (the backend areas tl_*.cpp, the loader, the
 # config parsers), so a new area file needs no Makefile change.
 OURS = $(basename $(notdir $(wildcard src/*.cpp)))
@@ -48,7 +67,7 @@ build/fe/temp_files.o: $(FRONTEND)/temp_files.c $(FRONTEND)/temp_files.h
 	@mkdir -p build/fe
 	$(CC) -std=gnu11 -fPIC $(WARN) $(CFLAGS) -I$(FRONTEND) -c $< -o $@
 
-build/%.o: src/%.cpp $(wildcard src/*.h) $(wildcard $(FRONTEND)/*.h)
+build/%.o: src/%.cpp $(wildcard src/*.h) $(IFCS_HDRS) $(wildcard $(FRONTEND)/*.h)
 	@mkdir -p build
 	$(CXX) -std=c++17 -fPIC $(WARN) $(CXXFLAGS) $(CPPFLAGS_ALL) -c $< -o $@
 
@@ -67,10 +86,11 @@ build/openbcm-diag: $(FRONTEND)/openbcm_diag.c
 	@mkdir -p build
 	$(CC) -std=gnu11 -Wall -Wextra $(CFLAGS) $(LDFLAGS) -o $@ $<
 
-# Loaded before libifcs: CPython stubs + a Device-memory-safe memcpy (src/shim.c).
-build/libsai-teralynx-shim.so: src/shim.c
+# Loaded before libifcs: CPython stubs + a Device-memory-safe memcpy (src/shim.c)
+# + the learn-ring read guard (src/ifcs_guard.c).
+build/libsai-teralynx-shim.so: src/shim.c src/ifcs_guard.c
 	@mkdir -p build
-	$(CC) -std=gnu11 -fPIC -shared -Wall -fno-builtin -fno-tree-loop-distribute-patterns $(CFLAGS) $(LDFLAGS) -Wl,-soname,libsai-teralynx-shim.so -o $@ $<
+	$(CC) -std=gnu11 -fPIC -shared -Wall -fno-builtin -fno-tree-loop-distribute-patterns $(CFLAGS) $(LDFLAGS) -Wl,-soname,libsai-teralynx-shim.so -o $@ $^ -lpthread
 
 # Direct libsai driver for first runs on the chip (tools/sai_smoke.cpp).
 build/sai-teralynx-smoke: tools/sai_smoke.cpp build/libsai.so.1.0.0
@@ -80,17 +100,19 @@ build/sai-teralynx-smoke: tools/sai_smoke.cpp build/libsai.so.1.0.0
 # The mock libifcs: one file per area (tests/mock/mock_<area>.c), every
 # IFCS_SYMBOLS entry defined with its declared type (mock.h), none missing
 # (--no-undefined). The test: main + one file per area (tests/t_<area>.cpp).
+# Both include the generated build/gen/ifcs_api.h.
 MOCK_SRCS = $(wildcard tests/mock/*.c)
 TEST_SRCS = tests/test_ifcs.cpp $(wildcard tests/t_*.cpp)
-build/mock/libifcs.so: $(MOCK_SRCS) tests/mock/mock.h src/ifcs_api.h
+build/mock/libifcs.so: $(MOCK_SRCS) tests/mock/mock.h $(IFCS_HDRS)
 	@mkdir -p build/mock
-	$(CC) -std=gnu11 -fPIC -shared $(WARN) -Werror=incompatible-pointer-types $(CFLAGS) -Isrc -Itests/mock \
+	$(CC) -std=gnu11 -fPIC -shared $(WARN) -Werror=incompatible-pointer-types $(CFLAGS) -Isrc -I$(GEN) -Itests/mock \
 	  -Wl,--no-undefined -o $@ $(MOCK_SRCS) -lpthread
 
 build/test_ifcs: $(TEST_SRCS) tests/harness.h build/libsai.so.1.0.0
 	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) -I$(SAI_INC) -Itests -o $@ $(TEST_SRCS) build/libsai.so.1.0.0 -Wl,-rpath,'$$ORIGIN' -ldl -lpthread
 
-TEST_BINS = build/test_ifcs build/mock/libifcs.so
+# The shim (next to libsai, found by dladdr) is part of the test: t_learn.cpp tests its guard.
+TEST_BINS = build/test_ifcs build/mock/libifcs.so build/libsai-teralynx-shim.so
 ifneq ($(FRONTEND_TESTS),)
 # sai-openbcm's own unit test, unchanged, on this library's objects (frontend
 # + fake backend sanity; our backend is only constructed, never initialised).

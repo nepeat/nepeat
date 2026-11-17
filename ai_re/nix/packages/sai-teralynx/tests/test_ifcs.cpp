@@ -169,6 +169,7 @@ int main(int argc, char** argv)
     test_sflow(e);
     test_counters(e);
     test_hooks(e);
+    test_learn_guard(e);
     test_switch_misc(e);
 
     // TEST_IFCS_DUMP=1: print every IFCS call the backend made (before removal)

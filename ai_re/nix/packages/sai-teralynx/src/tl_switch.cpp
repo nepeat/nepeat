@@ -125,7 +125,13 @@ sai_status_t SwitchArea::init(const BackendConfig& cfg, LinkCallback link_cb, Fd
         OB_ERR(SAI_API_SWITCH, "%s", err.c_str());
         return SAI_STATUS_FAILURE;
     }
-    if (!tl::ifcs_lib_load(libpath, c_.L, err, c_.key("SAI_TERALYNX_IFCS_TRACE"))) {
+    // learn-ring read guard (src/ifcs_guard.c, learn-wedge.md): on unless SAI_TERALYNX_IFCS_GUARD=off
+    tl::GuardOptions guard;
+    guard.enable = c_.key("SAI_TERALYNX_IFCS_GUARD", "on") != "off";
+    guard.stats_path = run_dir + "/ifcs-guard.prom";
+    guard.ring_size = static_cast<uint32_t>(std::strtoul(c_.key("SAI_TERALYNX_LEARN_RING_SIZE", "2048").c_str(), nullptr, 0));
+    guard.malloc_limit = std::strtoull(c_.key("SAI_TERALYNX_IM_MALLOC_LIMIT_MIB", "1024").c_str(), nullptr, 0) << 20;
+    if (!tl::ifcs_lib_load(libpath, c_.L, err, c_.key("SAI_TERALYNX_IFCS_TRACE"), guard)) {
         OB_ERR(SAI_API_SWITCH, "%s", err.c_str());
         return SAI_STATUS_FAILURE;
     }

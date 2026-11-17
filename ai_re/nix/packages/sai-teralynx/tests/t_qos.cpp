@@ -7,7 +7,7 @@
 // port flapped, thresholds), queue / PG / PFC counters (harness: tests/harness.h).
 #include "harness.h"
 
-// IFCS ids the checks name (values: src/ifcs_api_qos.h, src/ifcs_api.h)
+// IFCS ids the checks name (values: the generated ifcs_api_qos.h / ifcs_api.h)
 enum : uint32_t { Q_WDRR_WEIGHT = 14 };
 enum : int { QS_TOTAL_USE_WATERMARK = 1, QS_PACKET_DROP = 3, QS_PACKET_TX = 5, QS_BYTE_TX = 6, BAM_PACKET_DROP = 2,
              DP_RX_FRAMES_PFC0 = 21 };

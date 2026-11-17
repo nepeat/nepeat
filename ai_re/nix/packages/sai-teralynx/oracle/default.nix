@@ -15,7 +15,8 @@ stdenv.mkDerivation {
     root = ./..;
     # what the build reads (the drivers and docs do not rebuild it)
     fileset = lib.fileset.unions [ ./gen_tracer.py ./trace_rt.c ./trace_rt.h ./sai_script.cpp ./oracle.py ./scripts
-                                   ../src/ifcs_api.h ../src/ifcs_api_qos.h ../tools/trap_frames.c ../tools/l3_frames.c
+                                   ../src/ifcs_api.h.in ../src/ifcs_api_qos.h.in ../src/ifcs_overrides.txt
+                                   ../tools/gen_ifcs_api.py ../tools/ifcs_ctypes_model.py ../tools/trap_frames.c ../tools/l3_frames.c
                                    ../tools/qos_frames.c ../tools/sflow_probe.c ];
   };
   nativeBuildInputs = [ buildPackages.python3 ];
@@ -24,14 +25,17 @@ stdenv.mkDerivation {
     runHook preBuild
     cd oracle
     ${if ctypes == null then ''
-      python3 -I gen_tracer.py --header ../src/ifcs_api.h --abi ${abi} -o trace_gen.c
+      # our backend's declarations, generated as in the library build (saiLib's ctypes input)
+      python3 -I -B ../tools/gen_ifcs_api.py --ctypes ${saiLib.ifcsCtypes} --overrides ../src/ifcs_overrides.txt \
+        -o ../build/gen ../src/ifcs_api.h.in ../src/ifcs_api_qos.h.in
+      python3 -I gen_tracer.py --header ../build/gen/ifcs_api.h --abi ${abi} -o trace_gen.c
     '' else ''
       # every ifcs_* function isai's libsai imports (PLT / GOT): the interposable calls
       ''${READELF:-readelf} -W -r ${saiLib}/lib/libsai.so.1.0 \
         | awk '$3 ~ /JUMP_SLOT|GLOB_DAT/ && $5 ~ /^ifcs_/ {print $5}' | sort -u > imports.txt
       python3 -I gen_tracer.py --ctypes ${ctypes} --imports imports.txt --abi ${abi} -o trace_gen.c
     ''}
-    $CC -O2 -fPIC -shared -Wall -I../src -I. -Wl,-soname,libifcs-trace.so -o libifcs-trace.so trace_gen.c trace_rt.c -ldl -lpthread
+    $CC -O2 -fPIC -shared -Wall -I../src -I../build/gen -I. -Wl,-soname,libifcs-trace.so -o libifcs-trace.so trace_gen.c trace_rt.c -ldl -lpthread
     $CXX -O2 -std=c++17 -Wall -I${saiInc} -I${saiInc}/../experimental -I${nlohmann_json}/include \
       -o sai-script sai_script.cpp -L${saiLib}/lib -lsai -Wl,-rpath,${saiLib}/lib -ldl -lpthread
     $CC -O2 -Wall -o trap-frames ../tools/trap_frames.c -lpthread
