@@ -1,9 +1,11 @@
 # CS8210-32X: our U-Boot into the boot SPI (scheme A'): flasher, safety case, plan
 
-Status 2026-11-17: **installed** (03:10Z, plan d2dd7fce…, owner go; evidence
-[spi-upgrade-install-20261117.txt](spi-upgrade-install-20261117.txt)): stage3 boots our U-Boot from slot A and NixOS comes up
-from it, but the Credo MDIO FPGA (0004:01:00.0) gets no BARs under the standalone U-Boot, so cages 1-16 stay down (SONiC
-not healthy). Not yet done: the `u` escape test on hardware. Escape/rollback below unchanged. Scheme and evidence of the boot chain:
+Status 2026-11-17: **installed and updated.** Install 03:10Z (slot A, [spi-upgrade-install-20261117.txt](spi-upgrade-install-20261117.txt));
+update 03:47Z to slot B with the MDIO-FPGA BAR fix (93662b1), BOOT_MODE → slot B
+([spi-upgrade-update-20261117.txt](spi-upgrade-update-20261117.txt)): cold and warm boots via slot B bring up NixOS + SONiC (BGP 2/2,
+BFD 2/2, LACP, Credo, AVS, fand). Slot A holds the older build (Credo down on a cold boot: don't switch back to it).
+`u` escape proven on hardware with our app live (standalone agent 3x; this update's session once). Factory boot: `u`, or
+`rollback --write`. Scheme and evidence of the boot chain:
 [boot-chain.md](boot-chain.md) §5/§7; our U-Boot: [u-boot-port.md](u-boot-port.md); escape and
 recovery routes: [uart-recovery.md](uart-recovery.md). DMC-12 original of this design:
 [../dmc-12-48r-as0/spi-upgrade-plan.md](../dmc-12-48r-as0/spi-upgrade-plan.md).
@@ -129,8 +131,8 @@ boot. `update` = the inactive slot, then the BOOT_MODE flip; `switch` = the flip
   (serial-spiupgrade-dryrun3-20261116.txt): same path with `u` from stage2's banner (factory app 5: no
   "User request", vendor prompt reached), installer sha256 8128d2b1…, flash == model, upload ok, 13 writes
   printed only, power cycle, NixOS + SONiC (BGP 2/2, BFD 2/2), lease free. First dry run 17:07-17:10 (plan d2dd7fce…, lease spi-flasher): ssh reboot → `123` → vendor `loadx` of the installer (crc ok) → `booti` → `cs8210-installer>` at EL2 → `sf probe` mx25u25635f 32 MiB → 0..0x380000 == model → upload 0x68198 B (3332 blocks, 0 retries, 46.8 s, crc32 per object ok) → the 10 writes printed only → power cycle → NixOS, cage guard ok, BGP up (journal record 17:27; transcript serial-spiupgrade-dryrun2-20261116.txt, git-ignored). Found on the way and fixed: the attach scrollback replay matched an old `Type 123` (now: nothing counts before the take answer, and a fresh `stage2_loader` is required); a killed `sudo ssh` left the attach holding write (now: C-b d + process-group kill); `lab-power` takes `--entity`.
-- Not proven: our app as stage3's app on hardware (gate `payload`); `u` with an app ≠ 5 on hardware
-  (`p` proven, same code path); erase/program by the DW SSI on the real chip (sandbox only).
+- Proven on hardware since: stage3 runs our app (install + update), `u` with our app live, erase/program by the
+  DW SSI on the real chip (both runs read back == model).
 
 ## Reviews (2026-11-16, two fresh agents, not told the conclusions)
 - A (host logic): erase of a live header sector could leave "valid header, bad data" → **kill page

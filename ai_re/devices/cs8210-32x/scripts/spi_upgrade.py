@@ -525,7 +525,7 @@ def mode_verify(a, img, unknown):
     import bootchain_emu as be
     sd = [be.serdes_probe(full_image(x)) for x in (img, inst)]
     s2f, s2i = res[0]["stage2"], res[ix]["stage2"]
-    head = [f"bootchain_emu verify {time.strftime('%Y-%m-%d %H:%M %Z')}: plan {p['plan_sha'][:16]} (install slot {p['slot']}),",
+    head = [f"bootchain_emu verify {time.strftime('%Y-%m-%d %H:%M %Z')}: plan {p['plan_sha'][:16]} ({p['mode']} slot {p['slot']}),",
             f"  payload {p['payload_version']} data sha256 {payload_sha[:16]}, base mtd0 {BASE_SHA[:16]}",
             f"  stage2: {s2i['stop']}; measured-boot extends factory {len(s2f['extends'])}, installed {len(s2i['extends'])};"
             f" MMIO pages touched {[hex(x) for x in s2i['auto']]}",
@@ -941,11 +941,13 @@ def to_vendor_prompt(con, a, linux_up):
     while time.monotonic() < end and not re.search(r"Loading DT to|User request for loading|Executing application", con.buf):
         con.send("u")
         con.pump(0.02)
+    con.pump(0.5)
+    u_seen = "User request for loading U-Boot" in con.buf
     con.expect(r"Type 123<ENTER> to STOP autoboot", 400, fail=r"Loading application to 08000000")
     con.send("123\r")
     con.expect("\n" + re.escape(VENDOR_PROMPT) + "$", 20)
     con.run("version", VENDOR_PROMPT, 10, want=r"2018\.05-alpine_db")
-    return "User request for loading U-Boot" in con.raw + con.buf or None
+    return u_seen
 
 
 def power_cycle():
@@ -1099,6 +1101,7 @@ def mode_rehearse(a, img, unknown):
     import bootchain_emu as be
     if not a.uboot:
         raise Fail("--uboot (#uboot-sandbox-cs8210-installer) is required")
+    img, unknown = base_image(), []          # the write path from the factory dump, whatever the box holds now
     p = plan("install", img, a.payload, a.slot)
     payload_sha = sha(next(r for r in p["regions"] if r["name"] == "app")["obj"][a3.HDR:-4])
     sb, res, cuts = pathlib.Path(a.uboot), {}, []

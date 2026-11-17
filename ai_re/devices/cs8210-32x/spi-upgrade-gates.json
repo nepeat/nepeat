@@ -8,7 +8,7 @@
   "payload": {
     "date": "2026-11-17",
     "by": "parent (standalone U-Boot session)",
-    "evidence": "uboot-standalone-20261116.txt (selfinit RAM rehearsal: PCIe retrain, NixOS + SONiC healthy); #uboot-cs8210-stage3app u-boot-app-08000000.fimg sha256 e5723798a72534f7..., payload data sha256 ac03324ce8b78f10..."
+    "evidence": "update payload #uboot-cs8210-stage3app (93662b1: vendor BAR values into PCIe link partners) u-boot-app-08000000.fimg sha256 58e4a4f069d634e3...: RAM-tested, NixOS + SONiC healthy, u escape proven 3x with our app installed (ad6bf9a). Earlier install payload e5723798... (uboot-standalone-20261116.txt)"
   },
   "recovery": {
     "date": "2026-11-17",

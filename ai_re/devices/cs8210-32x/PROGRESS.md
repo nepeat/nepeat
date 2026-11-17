@@ -13,8 +13,7 @@
 - **Recover:** `systemctl stop sonic.target` or an older generation from the U-Boot menu; hung box or dead I2C FPGA
   (`/run/cs8210-qsfp.dead`): power cycle. Vendor U-Boot prompt: `123<Enter>` within 3 s; from there ONIE in SPI (`run onie_bootcmd`,
   RAM only) or **Route R** into the boot ROM UART CLI, no flash write ([uart-recovery.md](uart-recovery.md), [boot-chain.md](boot-chain.md)).
-- **Open:** our U-Boot: RAM chainload boots NixOS + SONiC like the vendor path; the standalone build (own PCIe/MUIO/GPIO/PLL/MAC init)
-  passed its RAM rehearsal, never run as stage3's app; permanent scheme (A' install) open, nothing written to SPI ([u-boot-port.md](u-boot-port.md)); **A' installed 2026-11-17 03:10Z**: stage3 boots our standalone U-Boot from SPI slot A, NixOS boots from it, but the MDIO FPGA 1d0f:ec30 has no BARs so the Credo ports (cages 1-16) and SONiC links stay down; `u` escape untested; factory boot = `u` at stage3 or `spi_upgrade.py rollback --write` ([spi-upgrade-plan.md](spi-upgrade-plan.md)); owner decision on
+- **Open:** our U-Boot ([u-boot-port.md](u-boot-port.md)): **our U-Boot boots from SPI (scheme A', slot B since 2026-11-17 03:47Z)**: cold and warm boots bring up NixOS + SONiC healthy; slot A = older build, factory U-Boot = `u` at stage3 or `spi_upgrade.py rollback --write` ([spi-upgrade-plan.md](spi-upgrade-plan.md)); owner decision on
   publishing `ai_re/nix/packages/sai-teralynx/src/ifcs_api.h` (our IFCS declarations from the vendor ctypes + DWARF); AS7760 redeploy of
   the shared SONiC changes (local_asn, teamd MAC, networkd rules); SAI gaps in sai-features.md (WRED/ECN, PFC/lossless, SET_DSCP/remarking,
   sFlow sample policing (isai's ACE impossible on 0.12.41, the CPU-queue meter misbehaves: off), tunnels/IPMC/MPLS/NAT, warm boot,
@@ -117,6 +116,13 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-17 — A' update: slot B with the MDIO-FPGA BAR fix, BOOT_MODE flipped
+
+- `spi_upgrade.py update --write` (plan 7364ea78…; verify 125/125 from the installed model, sandbox rehearse of the payload): slot B
+  + BOOT_MODE (kill page, then body, header, magic last) read back == model. Reached the vendor prompt via `u` ("User request for loading U-Boot!").
+- Cold boot and one warm reboot via slot B (stage3 loads 422752 B): MDIO FPGA BAR 0 assigned, Credo config done, BGP 2/2, BFD 2/2,
+  LACP up, AVS active (ASIC COMMAND 0x0406, VOUT 0x0333), fand. [spi-upgrade-update-20261117.txt](spi-upgrade-update-20261117.txt).
 
 ### 2026-11-17 — MDIO FPGA BAR on a cold boot via our U-Boot: root cause, fix, rescue proven
 
