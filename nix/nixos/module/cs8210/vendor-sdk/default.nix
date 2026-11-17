@@ -24,6 +24,7 @@
 
 let
   cfg = config.hardware.cs8210.vendorSdk;
+  avsUnit = lib.optional config.hardware.cs8210.asicAvs.enable "cs8210-asic-avs.service";
 
   # Only GLIBC_2.17 symbols are referenced (checked with readelf -V), so
   # the library loads into the vendor's glibc 2.25 processes. Keep it that
@@ -231,7 +232,10 @@ in
     # 100 %; without it the fans stay at full.
     systemd.services.cs8210-switch = {
       description = "CS8210 switch ASIC + Credo PHY bring-up (vendor SDK in chroot)";
-      after = [ "systemd-modules-load.service" "network-pre.target" ];
+      # ASIC core voltage from its fuses first (../avs; it also loads ipd);
+      # refuses to start if that failed.
+      requires = avsUnit;
+      after = [ "systemd-modules-load.service" "network-pre.target" ] ++ avsUnit;
       # Not config.system.path: that changes with any package in the system
       # and then every deploy restarted this unit (= chip reset). The
       # wrappers fall back to /run/current-system/sw/bin at runtime instead.

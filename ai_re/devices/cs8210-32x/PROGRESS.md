@@ -87,7 +87,7 @@ earlier offline work: [ssd-analysis.md](ssd-analysis.md), [kernel-review.md](ker
 
 ## Next useful work
 
-1. Our U-Boot: the standalone items (external PCIe link-up, ASIC AVS, GPIO/MUIO, MAC, quiet fans) ([u-boot-port.md](u-boot-port.md)).
+1. Our U-Boot: the standalone items (external PCIe link-up, GPIO/MUIO, MAC, quiet fans; ASIC AVS is the Linux oneshot, [avs.md](avs.md)) ([u-boot-port.md](u-boot-port.md)).
 2. Aux SPI flash gating (the i2cfpga flash reads all ones on mainline); what CPLD v15/v2 changed ([cpld-diff.md](cpld-diff.md)).
 3. Credo slice temperatures and the ASC10 voltage/temperature monitors.
 4. Populate `/var/lib/cs8210-sdk/root` reproducibly (from the `onie` MTD on the box) instead of by hand.
@@ -110,6 +110,20 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-16 — ASIC AVS as a Linux oneshot (not deployed yet)
+
+- `cs8210-asic-avs.service` (`nixos/module/cs8210/avs`): fuse words via sysfs resource0 -> the vendor decode
+  (disassembly-checked: RoV, lot list, table, closest step) -> TPS53688 0x62 VOUT_COMMAND only if it differs, read back,
+  `/run/cs8210-avs.done`, `cs8210_asic_avs_*` metrics. syncd and cs8210-switch `Requires=` it; ipd is now blacklisted for
+  udev and loaded by this unit (IO_STRICT_DEVMEM blocks the BAR mmap while ipd owns it). Design and readings: [avs.md](avs.md).
+- Chip: BAR read = the U-Boot-logged words (RoV 0, lot PS7R09, 800 mV / 0x0333), "already correct", no write; a same-value
+  rewrite proved the write path; SONiC back up (BGP + BFD both VRFs). Regulator power-on default: not readable without a
+  cold boot. Evidence: [avs-chip-20261116.txt](avs-chip-20261116.txt).
+- Unexplained, during read-only work before that test: syncd OOM-killed at 16:05:48 (35 GB VM, 5.5 GB RSS) after the loop's
+  BFD/LACP expired at 16:00:56; looks like the learn-thread allocation, without the kernel line the ifcs watchdog keys on.
+- Deploy note: the syncd and cs8210-switch units change (a switch restarts syncd); the box already holds the fuse record
+  the late path needs.
 
 ### 2026-11-16 (late) — sFlow trap group, egress sFlow, metrics for the CS8210 (not deployed yet)
 

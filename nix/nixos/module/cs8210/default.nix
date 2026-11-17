@@ -72,6 +72,7 @@ in
     ./fan-control # hardware.cs8210.fan: fand (default) or services.cs8210-fancontrol
     ./macsec # hardware.cs8210.macsec (default off): engine shim, cs8210-macsec, MKA driver
     ./tools # services.cs8210-tools
+    ./avs # hardware.cs8210.asicAvs: ASIC core voltage from its fuses (vendor U-Boot's AVS step)
     ./vendor-sdk # hardware.cs8210.vendorSdk
     # monitoring.nodeExporter: node_exporter on :9100 + textfile producers,
     # shared with the ai_re boards (AS7760, DMC-12); same monorepo source.
@@ -116,7 +117,8 @@ in
     nixpkgs.hostPlatform = "aarch64-linux";
 
     boot.kernelPackages = k.kernelPackages;
-    # ipd is loaded by udev through its PCI alias once the ASIC enumerates.
+    # ipd is loaded by cs8210-asic-avs after the AVS step (./avs; blacklisted for
+    # udev's alias autoload: its BAR claim would block the fuse read).
     boot.extraModulePackages =
       lib.optional cfg.alEth.enable k.alEthModule
       ++ lib.optional config.hardware.cs8210.vendorSdk.enable k.ipdModule;

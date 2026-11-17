@@ -184,7 +184,9 @@ let
     wants = [ "cs8210-pcie-errors.service" ];
     after = [ "cs8210-pcie-errors.service" ];
   };
-  # udev loads ipd when the ASIC enumerates; at boot syncd can get there first.
+  avsUnit = lib.optional config.hardware.cs8210.asicAvs.enable "cs8210-asic-avs.service";
+  # cs8210-asic-avs loads ipd after the AVS step (../avs); syncd is ordered after
+  # it, so this only waits when the AVS module is off (udev loads ipd then).
   waitIpd = pkgs.writeShellScript "sonic-cs8210-wait-ipd" ''
     for _ in $(seq 1 120); do [ -c /dev/ipd ] && exit 0; sleep 0.5; done
     echo "/dev/ipd missing after 60 s (ipd not loaded with legacy_abi=1?)" >&2
@@ -340,7 +342,10 @@ in
       sonic-syncd.serviceConfig.RuntimeDirectoryPreserve = "yes";
       sonic-syncd.serviceConfig.ExecStartPre = [ "${waitIpd}" ];
       sonic-syncd.wants = pcieReady.wants;
-      sonic-syncd.after = pcieReady.after;
+      # ASIC core voltage from its fuses first (../avs); syncd refuses to start
+      # if that failed.
+      sonic-syncd.requires = avsUnit;
+      sonic-syncd.after = pcieReady.after ++ avsUnit;
     };
 
     # cs8210-sai-files reads the board version from the system CPLD (i2cget).

@@ -1,0 +1,281 @@
+# CS8210 ASIC AVS oneshot: chip test 2026-11-16 (PST), cs8210-asic-avs (nix/nixos/module/cs8210/avs), ASIC lease "claude-avs"
+# Reads/writes: PMBus on i2c-16 (0x72 ch2) addr 0x62 only; ASIC BAR0 four 32-bit reads at 0x11178 (only with ipd unloaded).
+# Doc: avs.md. Times are box local (PST).
+
+## 15:57 read-only PMBus survey of 0x62 (i2cget/i2ctransfer; NOTE: 0x23 NACKs, block reads over-read r8)
+GOTbus=16
+PAGE 0x00 b            0x00
+OPERATION 0x01 b       0x00
+ON_OFF_CONFIG 0x02 b   0x17
+CAPABILITY 0x19 b      0xd0
+VOUT_MODE 0x20 b       0x16
+VOUT_COMMAND 0x21 w    0x0333
+VOUT_TRIM 0x22 w       0x0000
+VOUT_CAL_OFFSET 0x23 w Error: Read failed
+VOUT_MAX 0x24 w        0x03cd
+VOUT_MARGIN_HIGH 0x25 w 0x0000
+VOUT_MARGIN_LOW 0x26 w 0x0000
+VOUT_TRANSITION_RATE 0x27 w 0xe0a0
+VOUT_MIN 0x2b w        0x0000
+VOUT_OV_FAULT_LIMIT 0x40 w 0x04dc
+VOUT_UV_FAULT_LIMIT 0x44 w 0x0000
+IOUT_OC_FAULT_LIMIT 0x46 w 0x0186
+OT_FAULT_LIMIT 0x4f w  0x0078
+STATUS_WORD 0x79 w     0x1003
+STATUS_VOUT 0x7a b     0x00
+STATUS_IOUT 0x7b b     0x00
+STATUS_CML 0x7e b      0x01
+READ_VIN 0x88 w        0xd300
+READ_IIN 0x89 w        0xd2d7
+READ_VOUT 0x8b w       0x0333
+READ_IOUT 0x8c w       0xf24a
+READ_TEMP1 0x8d w      0xe2a8
+READ_POUT 0x96 w       0xeba7
+READ_PIN 0x97 w        0xf221
+PMBUS_REVISION 0x98 b  0x33
+MFR_ID 0x99 blk        0x03 0x00 0x00 0x00 0x26 0xff 0xff 0xff
+MFR_MODEL 0x9a blk     0x03 0x00 0x00 0x00 0x5d 0xff 0xff 0xff
+MFR_REVISION 0x9b blk  0x03 0x00 0x00 0x00 0x74 0xff 0xff 0xff
+IC_DEVICE_ID 0xad blk  0x06 0x54 0x49 0x53 0x68 0x80 0x00 0xe4
+IC_DEVICE_REV 0xae blk 0x02 0x00 0x04 0xb1 0xff 0xff 0xff 0xff
+PAGE_again 0x00 b      0x00
+
+## 16:05:15 tool on the running system (ipd bound, SONiC up): status, late-path dry run, dry run with the U-Boot-logged fuse words, metrics
+/run/cs8210-avs.done: missing (AVS not applied this boot)
+  PAGE                 0x0
+  VOUT_MODE            0x16
+  VOUT_COMMAND         0x0333  0.7998 V
+  VOUT_MAX             0x03cd  0.9502 V
+  VOUT_OV_FAULT_LIMIT  0x04dc  1.2148 V
+  STATUS_WORD          0x1003
+  STATUS_VOUT          0x0
+  STATUS_CML           0x21
+  READ_VIN             0xd2ff  11.984
+  READ_IIN             0xd2df  11.484
+  READ_VOUT            0x0334  0.8008 V
+  READ_IOUT            0xf24e  147.500
+  READ_TEMPERATURE_1   0xe2a8  42.500
+  READ_POUT            0xebab  117.375
+  READ_PIN             0xf222  136.500
+== late dry-run (expect refuse)
+ASIC 0001:01:00.0 behind 0001:00:00.0: all-ones error response on, link up
+cs8210-asic-avs: REFUSED: 0001:01:00.0: bound to ipd and no recorded fuse words (/run/cs8210-avs.done, /var/lib/cs8210-asic-avs/fuses); stop the switch stack and rmmod ipd, then run again
+rc=1
+== dry-run with logged fuse words
+fuses 0x64bdb285,0x10602a70,0x00200644,0x10200000 (command line): RoV 0, lot PS7R09, target 800 mV -> 800 mV, VOUT_COMMAND 0x0333
+regulator: VOUT_MODE 0x16, VOUT_MAX 0x03cd (950.2 mV), VOUT_COMMAND 0x0333 (799.8 mV), READ_VOUT 0x0333 (799.8 mV)
+VOUT_COMMAND already correct; no write
+VOUT_COMMAND 0x0333 (799.8 mV), READ_VOUT 0x0333 (799.8 mV), STATUS_WORD 0x1003
+dry run: no state file
+rc=0
+== metrics
+# HELP cs8210_asic_avs_applied 1 when cs8210-asic-avs recorded the ASIC core voltage this boot.
+# TYPE cs8210_asic_avs_applied gauge
+cs8210_asic_avs_applied 0
+# HELP cs8210_asic_avs_pmbus_ok 1 when the regulator answered with PAGE 0 and VOUT_MODE 0x16.
+# TYPE cs8210_asic_avs_pmbus_ok gauge
+cs8210_asic_avs_pmbus_ok 1
+# HELP cs8210_asic_avs_vout_command_volts Regulator VOUT_COMMAND.
+# TYPE cs8210_asic_avs_vout_command_volts gauge
+cs8210_asic_avs_vout_command_volts 0.79980
+# HELP cs8210_asic_avs_read_vout_volts Regulator READ_VOUT.
+# TYPE cs8210_asic_avs_read_vout_volts gauge
+cs8210_asic_avs_read_vout_volts 0.79980
+# HELP cs8210_asic_avs_vout_command_code Regulator VOUT_COMMAND, raw linear16 code.
+# TYPE cs8210_asic_avs_vout_command_code gauge
+cs8210_asic_avs_vout_command_code 819
+# HELP cs8210_asic_avs_read_iout_amperes Regulator READ_IOUT.
+# TYPE cs8210_asic_avs_read_iout_amperes gauge
+cs8210_asic_avs_read_iout_amperes 146.500
+# HELP cs8210_asic_avs_read_temperature_celsius Regulator READ_TEMPERATURE_1.
+# TYPE cs8210_asic_avs_read_temperature_celsius gauge
+cs8210_asic_avs_read_temperature_celsius 42.375
+# HELP cs8210_asic_avs_read_vin_volts Regulator READ_VIN.
+# TYPE cs8210_asic_avs_read_vin_volts gauge
+cs8210_asic_avs_read_vin_volts 11.984
+# HELP cs8210_asic_avs_read_pout_watts Regulator READ_POUT.
+# TYPE cs8210_asic_avs_read_pout_watts gauge
+cs8210_asic_avs_read_pout_watts 117.625
+# HELP cs8210_asic_avs_status_word Regulator STATUS_WORD (raw).
+# TYPE cs8210_asic_avs_status_word gauge
+cs8210_asic_avs_status_word 4099
+ls: cannot access '/run/cs8210-avs.done': No such file or directory
+ls: cannot access '/var/lib/cs8210-asic-avs': No such file or directory
+[exit 2]
+
+## 16:05:48 (not caused by a write: none had happened) syncd OOM-killed; journal excerpt
+16:00:56 bfdsyncd: Vrf-a|PortChannel1|10.0.1.1 Up -> Down (diag control detection time expired) [both VRFs]
+16:00:58 teamd: Ethernet0 / Ethernet120 "current" -> "expired"; syncd: ifcs [LAG] Failed to add mdg to lag pq 0x28200001/2
+16:05:48 kernel: fand invoked oom-killer ... Out of memory: Killed process 4101 (syncd) total-vm:35246804kB, anon-rss:5510764kB
+16:05:49 systemd: sonic-syncd.service: Failed with result 'oom-kill' ... 5.2G memory peak (41 min wall)
+16:06:04 orchagent stop timed out -> sonic-orchagent-failed: restarting syncd and the units below it
+node_memory_MemAvailable_bytes (VictoriaMetrics, 2 min steps): flat 5.26-5.35 GB 15:06..16:04, 5.98 GB at 16:06 (after the kill)
+No "comm: ifcs-learn" kernel line (the ifcs watchdog signature) in this boot.
+
+## 16:06:04 first attempt (raced the recovery restart: stop sonic.target, rmmod failed "in use", nothing applied)
+== 2026-11-16T16:06:04-08:00 baseline
+claude-avs 1794873458
+active
+activating
+ipd                  1130496  0
+== 2026-11-16T16:06:05-08:00 systemctl stop sonic.target
+rc=0
+active
+active
+ipd                  1130496  2
+== 2026-11-16T16:06:08-08:00 rmmod ipd
+rmmod: ERROR: Module ipd is in use
+rc=1
+ipd                  1130496  2
+0001:01:00.0
+0406
+== 2026-11-16T16:06:08-08:00 cage presence
+raw: present=00008001 pres_chg=00008001 int=00000000 int_mask=ffffffff lpmode=00000000 reset=ffffffff
+port bus     present reset lpmode int int_mask pres_chg
+present 1 = module in cage; reset 1 = ResetL asserted (held in reset); lpmode 1 = LPMode asserted (inferred); int: raw bit, polarity unconfirmed
+== 2026-11-16T16:06:08-08:00 apply (boot path: BAR read)
+ASIC 0001:01:00.0 behind 0001:00:00.0: all-ones error response on, link up
+cs8210-asic-avs: REFUSED: 0001:01:00.0: bound to ipd and no recorded fuse words (/run/cs8210-avs.done, /var/lib/cs8210-asic-avs/fuses); stop the switch stack and rmmod ipd, then run again
+rc=1
+== 2026-11-16T16:06:08-08:00 apply --rewrite (same value)
+ASIC 0001:01:00.0 behind 0001:00:00.0: all-ones error response on, link up
+cs8210-asic-avs: REFUSED: 0001:01:00.0: bound to ipd and no recorded fuse words (/run/cs8210-avs.done, /var/lib/cs8210-asic-avs/fuses); stop the switch stack and rmmod ipd, then run again
+rc=1
+== 2026-11-16T16:06:08-08:00 state + cache
+cat: /run/cs8210-avs.done: No such file or directory
+cat: /var/lib/cs8210-asic-avs/fuses: No such file or directory
+== 2026-11-16T16:06:08-08:00 status
+  PAGE                 0x0
+  VOUT_MODE            0x16
+  VOUT_COMMAND         0x0333  0.7998 V
+  VOUT_MAX             0x03cd  0.9502 V
+  VOUT_OV_FAULT_LIMIT  0x04dc  1.2148 V
+  STATUS_WORD          0x1003
+  STATUS_VOUT          0x0
+  STATUS_CML           0x21
+  READ_VIN             0xd300  12.000
+  READ_IIN             0xd2d2  11.281
+  READ_VOUT            0x0333  0.7998 V
+  READ_IOUT            0xf245  145.250
+  READ_TEMPERATURE_1   0xe2a5  42.312
+  READ_POUT            0xeb9f  115.875
+  READ_PIN             0xf21d  135.250
+== 2026-11-16T16:06:09-08:00 modprobe ipd
+rc=0
+crw------- 1 root root 508, 0 Nov 16 15:23 /dev/ipd
+Y
+../../../../../../bus/pci/drivers/ipd
+
+## 16:07:57 boot path by hand: SONiC stopped, rmmod ipd, apply (BAR read), apply --rewrite (same value), apply, modprobe ipd, late-path dry run
+== 2026-11-16T16:07:57-08:00 state
+claude-avs 1794873458
+inactive inactive inactive
+ipd                  1130496  0
+== 2026-11-16T16:07:57-08:00 rmmod ipd
+rc=0
+ipd unloaded
+no driver bound
+COMMAND 0002
+== 2026-11-16T16:07:57-08:00 cage presence (cs8210-qsfp, nothing else using the FPGA)
+raw: present=00008001 pres_chg=00008001 int=00000000 int_mask=ffffffff lpmode=00000000 reset=ffffffff
+== 2026-11-16T16:07:57-08:00 apply (boot path: BAR read)
+ASIC 0001:01:00.0 behind 0001:00:00.0: all-ones error response on, link up
+fuses 0x64bdb285,0x10602a70,0x00200644,0x10200000 (bar): RoV 0, lot PS7R09, target 800 mV -> 800 mV, VOUT_COMMAND 0x0333
+regulator: VOUT_MODE 0x16, VOUT_MAX 0x03cd (950.2 mV), VOUT_COMMAND 0x0333 (799.8 mV), READ_VOUT 0x0333 (799.8 mV)
+VOUT_COMMAND already correct; no write
+VOUT_COMMAND 0x0333 (799.8 mV), READ_VOUT 0x0333 (799.8 mV), STATUS_WORD 0x1003
+recorded /run/cs8210-avs.done
+rc=0
+== 2026-11-16T16:07:57-08:00 apply --rewrite (same value)
+ASIC 0001:01:00.0 behind 0001:00:00.0: all-ones error response on, link up
+fuses 0x64bdb285,0x10602a70,0x00200644,0x10200000 (bar): RoV 0, lot PS7R09, target 800 mV -> 800 mV, VOUT_COMMAND 0x0333
+regulator: VOUT_MODE 0x16, VOUT_MAX 0x03cd (950.2 mV), VOUT_COMMAND 0x0333 (799.8 mV), READ_VOUT 0x0333 (799.8 mV)
+WRITE VOUT_COMMAND 0x0333 (799.8 mV) -> 0x0333 (800 mV): same value (--rewrite)
+VOUT_COMMAND 0x0333 (799.8 mV), READ_VOUT 0x0333 (799.8 mV), STATUS_WORD 0x1003
+recorded /run/cs8210-avs.done
+rc=0
+== 2026-11-16T16:07:58-08:00 apply again (state present, no driver: BAR read again, no write)
+ASIC 0001:01:00.0 behind 0001:00:00.0: all-ones error response on, link up
+fuses 0x64bdb285,0x10602a70,0x00200644,0x10200000 (bar): RoV 0, lot PS7R09, target 800 mV -> 800 mV, VOUT_COMMAND 0x0333
+regulator: VOUT_MODE 0x16, VOUT_MAX 0x03cd (950.2 mV), VOUT_COMMAND 0x0333 (799.8 mV), READ_VOUT 0x0333 (799.8 mV)
+VOUT_COMMAND already correct; no write
+VOUT_COMMAND 0x0333 (799.8 mV), READ_VOUT 0x0333 (799.8 mV), STATUS_WORD 0x1003
+recorded /run/cs8210-avs.done
+rc=0
+== 2026-11-16T16:07:58-08:00 state + cache
+time=2026-11-16T16:07:58-0800
+boot_id=f500af68-f71d-4a7b-81b3-34cd76793a20
+fuse_source=bar
+fuse_words=0x64bdb285,0x10602a70,0x00200644,0x10200000
+rov=0
+lot=PS7R09
+target_mv=800
+vout_code=0x0333
+vout_mode=0x16
+vout_command_before=0x0333
+vout_command_after=0x0333
+read_vout_after=0x0333
+wrote=0
+
+time=2026-11-16T16:07:58-0800
+boot_id=f500af68-f71d-4a7b-81b3-34cd76793a20
+fuse_words=0x64bdb285,0x10602a70,0x00200644,0x10200000
+== 2026-11-16T16:07:58-08:00 status
+  PAGE                 0x0
+  VOUT_MODE            0x16
+  VOUT_COMMAND         0x0333  0.7998 V
+  VOUT_MAX             0x03cd  0.9502 V
+  VOUT_OV_FAULT_LIMIT  0x04dc  1.2148 V
+  STATUS_WORD          0x1003
+  STATUS_VOUT          0x0
+  STATUS_CML           0x21
+  READ_VIN             0xd2ff  11.984
+  READ_IIN             0xd2d5  11.328
+  READ_VOUT            0x0334  0.8008 V
+  READ_IOUT            0xf244  145.000
+  READ_TEMPERATURE_1   0xe2a6  42.375
+  READ_POUT            0xeb9e  115.750
+  READ_PIN             0xf21b  134.750
+== 2026-11-16T16:07:58-08:00 modprobe ipd
+rc=0
+crw------- 1 root root 508, 0 Nov 16 16:07 /dev/ipd
+legacy_abi=Y
+../../../../../../bus/pci/drivers/ipd
+COMMAND 0006
+== 2026-11-16T16:07:58-08:00 late path (ipd bound): dry run
+ASIC 0001:01:00.0 behind 0001:00:00.0: all-ones error response on, link up
+0001:01:00.0: bound to ipd, BAR not mappable; fuse words from this boot's state file (/run/cs8210-avs.done, read 2026-11-16T16:07:58-0800)
+fuses 0x64bdb285,0x10602a70,0x00200644,0x10200000 (/run/cs8210-avs.done): RoV 0, lot PS7R09, target 800 mV -> 800 mV, VOUT_COMMAND 0x0333
+regulator: VOUT_MODE 0x16, VOUT_MAX 0x03cd (950.2 mV), VOUT_COMMAND 0x0333 (799.8 mV), READ_VOUT 0x0333 (799.8 mV)
+VOUT_COMMAND already correct; no write
+VOUT_COMMAND 0x0333 (799.8 mV), READ_VOUT 0x0334 (800.8 mV), STATUS_WORD 0x1003
+dry run: no state file
+rc=0
+
+## 16:08:06 systemctl start sonic.target, 90 s
+== 2026-11-16T16:08:06-08:00 failed units before start (when)
+sonic-frr-config.service Mon 2026-11-16 16:06:05 PST
+sonic-lldpmgrd.service Mon 2026-11-16 16:06:05 PST
+sonic-port-index-mapper.service Mon 2026-11-16 16:06:10 PST
+sonic-psud.service Mon 2026-11-16 16:06:05 PST
+sonic-syseepromd.service Mon 2026-11-16 16:06:05 PST
+sonic-thermalctld.service Mon 2026-11-16 16:06:05 PST
+== 2026-11-16T16:08:06-08:00 systemctl start sonic.target
+rc=0
+== 2026-11-16T16:10:20-08:00 after 90 s
+active active active active active
+10.0.1.1        4      65201        41        39        4    0    0 00:00:59            1        2 vrf-b
+10.0.1.0        4      65101        36        37        4    0    0 00:00:59            1        2 vrf-a
+SessionId  LocalAddress                             PeerAddress                             Status          Profile             
+=========  ============                             ===========                             ======          =======             
+1922580503 10.0.1.0                                 10.0.1.1                                up              -                   
+2046459404 10.0.1.1                                 10.0.1.0                                up              -                   
+               total        used        free      shared  buff/cache   available
+Mem:            7645        2620        4649          16         548        5025
+
+## 16:13 final + lease released
+active active active
+0
+2
+claude-avs 1794873458
+released
