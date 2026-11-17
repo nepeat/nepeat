@@ -158,7 +158,8 @@ let
   # mapping, the thread spinning, syncd RSS near MemoryMax) or when every
   # transmitting port stops sending (the ASIC's CPU path died first on
   # 2026-11-16: ai_re/devices/cs8210-32x/oom-20261116.txt). libifcs's threads
-  # keep their names inside syncd.
+  # keep their names inside syncd. The bad read itself is defused in libsai
+  # (sai-teralynx's learn-ring guard); this stays as the backstop.
   ifcsWatchdog =
     pkgs.runCommand "sonic-cs8210-ifcs-watchdog"
       {
@@ -170,6 +171,10 @@ let
         sed -i '1s|.*|#!${pkgs.python3}/bin/python3 -I|' $out/bin/sonic-cs8210-ifcs-watchdog
       '';
   syncdMemMax = cfg.syncdMemoryMaxMiB;
+  # The watchdog's counters (kept across its own restarts within a boot) and the
+  # metrics producer that reads them (+ libsai's learn-ring guard file).
+  watchdogState = "/run/sonic-cs8210-ifcs-watchdog/state.json";
+  mon = config.monitoring.nodeExporter;
   # systemd.services.<n>.path appends /bin and /sbin: the profile root, not its bin
   runtimePath = "/run/current-system/sw";
   # Everything that touches the I2C FPGA or the ASIC over PCIe waits for the
@@ -340,10 +345,12 @@ in
         partOf = [ "sonic.target" ];
         # systemctl / journalctl: the system's systemd is on every unit's PATH
         serviceConfig = {
-          ExecStart = "${ifcsWatchdog}/bin/sonic-cs8210-ifcs-watchdog"
+          ExecStart = "${ifcsWatchdog}/bin/sonic-cs8210-ifcs-watchdog --state ${watchdogState}"
             + lib.optionalString (syncdMemMax != null) " --rss-limit ${toString (syncdMemMax * 3 / 4 * 1048576)}";
           Restart = "always";
           RestartSec = 30;
+          RuntimeDirectory = "sonic-cs8210-ifcs-watchdog";
+          RuntimeDirectoryPreserve = "yes";
         };
       };
       # The libsai run dir (the merged IFCS config, SAI_TERALYNX_RUN_DIR).
@@ -360,6 +367,16 @@ in
       # if that failed.
       sonic-syncd.requires = avsUnit;
       sonic-syncd.after = pcieReady.after ++ avsUnit;
+    };
+
+    # cs8210_ifcs_watchdog_* (triggers by signal, restarts), the ASIC root port's
+    # AER bits / link / ASPM, ipd's ring counters and libsai's learn-ring guard
+    # (sai_teralynx_ifcs_guard_*): ai_re/devices/cs8210-32x/learn-wedge.md.
+    monitoring.nodeExporter.textfile.producers.cs8210-ifcs = mkIf mon.enable {
+      command = "${ifcsWatchdog}/bin/sonic-cs8210-ifcs-watchdog --metrics --state ${watchdogState}";
+      interval = 15;
+      timeout = 10;
+      serviceConfig.LogLevelMax = "notice";
     };
 
     # cs8210-sai-files reads the board version from the system CPLD (i2cget).

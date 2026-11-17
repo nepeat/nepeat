@@ -82,7 +82,11 @@ case "${1:-status}" in
     i2cset -y "$b" $SYS_CPLD $ASIC_RESET_REG $(( v | 0x20 ))   # normally already back at 1
     sleep 2
     sync
-    [ -e /sys/bus/pci/devices/$ASIC ] || echo 1 > /sys/bus/pci/rescan
+    if [ ! -e /sys/bus/pci/devices/$ASIC ]; then
+      echo 1 > /sys/bus/pci/rescan
+      # a rescanned link starts with the kernel's ASPM default (L0s on): off again
+      systemctl restart cs8210-asic-aspm 2>/dev/null || true
+    fi
     for _ in $(seq 1 20); do [ -c /dev/ipd ] && break; sleep 0.5; done
     cs8210-credo-reset release >/dev/null
     if [ "${2:-}" = "--start" ]; then

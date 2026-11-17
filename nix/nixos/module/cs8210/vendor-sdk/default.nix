@@ -126,8 +126,31 @@ let
   sdkWatchdog = pkgs.writeShellScript "cs8210-sdk-watchdog" ''
     set -u
     last=0
+    seen_active=0
+    waiting=0
     while sleep 60; do
-      systemctl -q is-active cs8210-switch || continue
+      # MemoryMax + OOMPolicy=stop (below): an OOM kill inside the unit stops
+      # cs8210-switch (Result=oom-kill); bring it back like a wedge.
+      state=$(systemctl show -p ActiveState --value cs8210-switch)
+      result=$(systemctl show -p Result --value cs8210-switch)
+      if [ "$state" = active ]; then
+        seen_active=1
+      elif [ "$seen_active" = 1 ] && [ "$state" = failed ] && [ "$result" = oom-kill ]; then
+        now=$(date +%s)
+        if ((now - last < 900)); then
+          # keep seen_active: retried once the 15 min have passed
+          [ "$waiting" = 1 ] || echo "cs8210-switch OOM-killed (MemoryMax) again within 15 min of the last restart; restarting it when they have passed"
+          waiting=1
+        else
+          seen_active=0
+          waiting=0
+          echo "cs8210-switch OOM-killed (MemoryMax, most likely the learn thread's 32 GiB im_malloc), restarting it"
+          last=$now
+          systemctl restart cs8210-switch || echo "restart of cs8210-switch failed"
+        fi
+        continue
+      fi
+      [ "$state" = active ] || continue
       since=$(systemctl show -p ActiveEnterTimestamp --value cs8210-switch)
       [ -n "$since" ] || continue
       epoch=$(date -d "$since" +%s 2>/dev/null) || continue
@@ -142,6 +165,39 @@ let
       last=$now
       systemctl restart cs8210-switch || echo "restart of cs8210-switch failed"
     done
+  '';
+  # ASPM off on the ASIC's PCIe link. Mainline enables L0s/L1 by default on
+  # devicetree platforms (drivers/pci/pcie/aspm.c, 7.3.4; DT override
+  # "aspm-no-l0s"); here that leaves the root port 0001:00:00.0 with
+  # L0s on, and the link then logs replay timeouts, BadTLP and (ASIC side)
+  # REPLAY_NUM rollovers every second; with L0s off, none (chip A/B
+  # 2026-11-16, ai_re/devices/cs8210-32x/learn-wedge.md). Those link errors
+  # are the prime suspect for the dead CPU TX ring and the all-ones reads.
+  # Exits non-zero when the root port still has ASPM on afterwards. Reads only the
+  # root port's config space (on the SoC); re-run by cs8210-switch-power after its
+  # PCI remove/rescan (a new link state starts with the kernel's default again).
+  asicAspmOff = pkgs.writeShellScript "cs8210-asic-aspm" ''
+    set -u
+    found=0
+    rc=0
+    for d in /sys/bus/pci/devices/*; do
+      [ "$(cat "$d/vendor")" = 0x1d98 ] || continue
+      found=1
+      dev=$(basename "$d")
+      for s in l0s_aspm l1_aspm; do
+        f=$d/link/$s
+        [ -e "$f" ] || continue
+        if [ "$(cat "$f")" != 0 ]; then
+          if echo 0 > "$f"; then echo "$dev: $s off"; else echo "$dev: $s off failed" >&2; fi
+        fi
+      done
+      rp=$(basename "$(dirname "$(readlink -f "$d")")")
+      ctl=$(setpci -s "$rp" CAP_EXP+0x10.w)
+      echo "$dev: root port $rp LnkCtl=$ctl"
+      if (( 0x$ctl & 0x3 )); then echo "$dev: ASPM still enabled on root port $rp (LnkCtl=$ctl)" >&2; rc=1; fi
+    done
+    [ "$found" = 1 ] || { echo "no Teralynx (vendor 0x1d98) on PCI" >&2; rc=1; }
+    exit $rc
   '';
   pyEnv = pkgs.python3;
   switchPower =
@@ -205,6 +261,30 @@ in
         path: a changed unit environment restarts cs8210-switch.
       '';
     };
+    memoryMaxMiB = lib.mkOption {
+      type = lib.types.nullOr lib.types.ints.positive;
+      default = 1536;
+      description = ''
+        MemoryMax of cs8210-switch (measured 2026-11-16 on the loop: 387 MB
+        steady, 494 MB peak; plus up to the SDK's 256M /tmp tmpfs; kept low
+        so it plus PaperMC's 4G stays below the box's 7.6 GB). OOMPolicy=stop: libifcs's learn
+        thread asking for ~32 GiB after an all-ones ring index (with
+        vm.overcommit_memory = 1, which SONiC's redis sets system-wide, the
+        memset succeeds) is killed inside the unit, and cs8210-sdk-watchdog
+        restarts it, instead of the global OOM killer taking the box's
+        memory (2026-11-16). null: no limit.
+      '';
+    };
+    asicAspm = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Leave ASPM (L0s/L1) on the ASIC's PCIe link as the kernel set it.
+        Default false: cs8210-asic-aspm turns it off at boot, before ipd and
+        either switch stack (L0s on that link = link errors every second,
+        ai_re/devices/cs8210-32x/learn-wedge.md).
+      '';
+    };
     innoviumPorts = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = null;
@@ -259,6 +339,10 @@ in
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
+        # A runaway allocation is OOM-killed inside the unit (option memoryMaxMiB);
+        # cs8210-sdk-watchdog restarts it.
+        MemoryMax = lib.mkIf (cfg.memoryMaxMiB != null) "${toString cfg.memoryMaxMiB}M";
+        OOMPolicy = "stop";
         ExecStart = "${switchUp}/bin/cs8210-switch-up 32x400";
         ExecStop = "${switchUp}/bin/cs8210-switch-down";
         TimeoutStartSec = "10min";
@@ -269,12 +353,29 @@ in
       };
     };
 
+    systemd.services.cs8210-asic-aspm = lib.mkIf (!cfg.asicAspm) {
+      description = "CS8210: ASPM off on the switch ASIC's PCIe link";
+      wantedBy = [ "multi-user.target" "cs8210-switch.service" "sonic-syncd.service" ];
+      before = [ "cs8210-asic-avs.service" "cs8210-switch.service" "sonic-syncd.service" ];
+      # after the root ports answer failed reads with all-ones (no SError)
+      wants = [ "cs8210-pcie-errors.service" ];
+      after = [ "cs8210-pcie-errors.service" ];
+      path = [ pkgs.coreutils pkgs.pciutils ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = asicAspmOff;
+      };
+    };
+
     # The SDK's learn thread wedges every few hours on this box (2026-11-10
     # review: one all-ones PCIe read of the learn producer index, then a 32 GiB
     # malloc and an endless loop; reviews/2026-11-10-sdk-learn-crash.md). The
     # data plane is dead until cs8210-switch restarts, and restarts recover
-    # unattended (bond, DHCP, speeds). Until the root cause is shimmed, watch
-    # for the kernel's signature line and restart, at most once per 15 min.
+    # unattended (bond, DHCP, speeds). SONiC's libsai guards that read; the
+    # vendor innovium.user does not: watch for the kernel's signature line
+    # (overcommit 0) or an OOM stop (MemoryMax, overcommit 1) and restart, at
+    # most once per 15 min.
     systemd.services.cs8210-sdk-watchdog = {
       description = "CS8210: restart the vendor SDK when its learn thread wedges";
       wantedBy = [ "multi-user.target" ];
