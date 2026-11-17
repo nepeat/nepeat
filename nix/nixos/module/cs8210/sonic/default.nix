@@ -152,29 +152,24 @@ let
     pkill -x phy_server || true
   '';
 
-  # Same signature and policy as vendor-sdk's cs8210-sdk-watchdog (the IFCS
-  # learn thread wedges after an all-ones PCIe read), for syncd: libifcs's
-  # threads have the same names inside syncd.
-  ifcsWatchdog = pkgs.writeShellScript "sonic-cs8210-ifcs-watchdog" ''
-    set -u
-    last=0
-    while sleep 60; do
-      systemctl -q is-active sonic-syncd || continue
-      since=$(systemctl show -p ActiveEnterTimestamp --value sonic-syncd)
-      [ -n "$since" ] || continue
-      epoch=$(date -d "$since" +%s 2>/dev/null) || continue
-      hit=$(journalctl -k -q --no-pager --since "@$epoch" -g 'comm: ifcs-learn' -n 1 2>/dev/null) || hit=""
-      [ -n "$hit" ] || continue
-      now=$(date +%s)
-      if ((now - last < 900)); then
-        echo "IFCS learn thread wedged again within 15 min; not restarting: $hit"
-        continue
-      fi
-      echo "IFCS learn thread wedged, restarting sonic-syncd: $hit"
-      last=$now
-      systemctl restart sonic-syncd || echo "restart of sonic-syncd failed"
-    done
-  '';
+  # IFCS watchdog (./ifcs-watchdog.py, unit tests at build): restarts syncd
+  # when libifcs's learn thread wedges on a garbage ring index (the vendor
+  # stack's cs8210-sdk-watchdog signature, plus its SONiC shapes: the ~32 GiB
+  # mapping, the thread spinning, syncd RSS near MemoryMax) or when every
+  # transmitting port stops sending (the ASIC's CPU path died first on
+  # 2026-11-16: ai_re/devices/cs8210-32x/oom-20261116.txt). libifcs's threads
+  # keep their names inside syncd.
+  ifcsWatchdog =
+    pkgs.runCommand "sonic-cs8210-ifcs-watchdog"
+      {
+        nativeBuildInputs = [ pkgs.buildPackages.python3 ];
+      }
+      ''
+        python3 -I ${./test_ifcs_watchdog.py} ${./ifcs-watchdog.py}
+        install -D -m 0755 ${./ifcs-watchdog.py} $out/bin/sonic-cs8210-ifcs-watchdog
+        sed -i '1s|.*|#!${pkgs.python3}/bin/python3 -I|' $out/bin/sonic-cs8210-ifcs-watchdog
+      '';
+  syncdMemMax = cfg.syncdMemoryMaxMiB;
   # systemd.services.<n>.path appends /bin and /sbin: the profile root, not its bin
   runtimePath = "/run/current-system/sw";
   # Everything that touches the I2C FPGA or the ASIC over PCIe waits for the
@@ -235,6 +230,19 @@ in
       default = null;
       example = "1:optics_1x400G;2:copper_4x10G;3-32:optics_1x400G";
       description = "Credo c-phy auto_load_user.sh -m spec; default derived from the SONiC ports of cages 1-16.";
+    };
+    syncdMemoryMaxMiB = mkOption {
+      type = types.nullOr types.ints.positive;
+      default = 2048;
+      description = ''
+        MemoryMax of sonic-syncd (normal RSS ~330 MiB on the loop config). A
+        runaway allocation (libifcs's learn thread memsets ~32 GiB under the
+        vm.overcommit_memory = 1 that the NixOS redis module sets) is then
+        OOM-killed inside the unit and systemd restarts syncd, instead of the
+        global OOM killer taking the box's memory (2026-11-16). The IFCS
+        watchdog restarts syncd at 3/4 of it. Raise it for large route
+        tables; null: no limit.
+      '';
     };
     macAddress = mkOption {
       type = types.strMatching "([0-9a-f]{2}:){5}[0-9a-f]{2}";
@@ -327,12 +335,13 @@ in
         };
       };
       sonic-cs8210-ifcs-watchdog = {
-        description = "CS8210: restart syncd when the IFCS learn thread wedges";
+        description = "CS8210: restart syncd when libifcs wedges (learn thread, dead CPU path)";
         wantedBy = [ "sonic.target" ];
         partOf = [ "sonic.target" ];
-        path = [ pkgs.coreutils pkgs.systemd ];
+        # systemctl / journalctl: the system's systemd is on every unit's PATH
         serviceConfig = {
-          ExecStart = ifcsWatchdog;
+          ExecStart = "${ifcsWatchdog}/bin/sonic-cs8210-ifcs-watchdog"
+            + lib.optionalString (syncdMemMax != null) " --rss-limit ${toString (syncdMemMax * 3 / 4 * 1048576)}";
           Restart = "always";
           RestartSec = 30;
         };
@@ -341,6 +350,11 @@ in
       sonic-syncd.serviceConfig.RuntimeDirectory = "sai-teralynx";
       sonic-syncd.serviceConfig.RuntimeDirectoryPreserve = "yes";
       sonic-syncd.serviceConfig.ExecStartPre = [ "${waitIpd}" ];
+      # A runaway is killed inside the unit (OOMPolicy=stop: the whole unit,
+      # then Restart=always and the recovery chain), not by the global OOM
+      # killer (option syncdMemoryMaxMiB).
+      sonic-syncd.serviceConfig.MemoryMax = mkIf (syncdMemMax != null) "${toString syncdMemMax}M";
+      sonic-syncd.serviceConfig.OOMPolicy = "stop";
       sonic-syncd.wants = pcieReady.wants;
       # ASIC core voltage from its fuses first (../avs); syncd refuses to start
       # if that failed.

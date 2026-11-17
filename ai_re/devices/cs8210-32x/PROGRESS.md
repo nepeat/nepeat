@@ -19,7 +19,8 @@
   the shared SONiC changes (local_asn, teamd MAC, networkd rules); SAI gaps in sai-features.md (WRED/ECN, PFC/lossless, SET_DSCP/remarking,
   sFlow sample policing (isai's ACE impossible on 0.12.41, the CPU-queue meter misbehaves: off), tunnels/IPMC/MPLS/NAT, warm boot,
   BFD offload); MACsec under SONiC; MKA across two boxes; CRM panels empty (crmorch writes no CRM:STATS here, cause open);
-  xcvrd reports no module in cages 1/16 (transceiver panels empty).
+  xcvrd reports no module in cages 1/16 (transceiver panels empty); what makes the ASIC stop answering (CPU path dead,
+  then the learn thread's all-ones index: [oom-20261116.txt](oom-20261116.txt)).
 
 ## Identity
 
@@ -60,8 +61,11 @@
 - TPM works (DT mux on PBS52/54). The aux SPI flash behind the same mux still reads all ones in every mode/speed tried.
   Ruled out for the aux bus before the mux fix: interrupted autoboot, `scsi init`, `booti` vs `bootm`, probe timing, pin
   mux (2026-11-09 (late), (latest)).
-- Vendor stack only: SDK learn thread wedges on an all-ones read (32 GiB malloc, log flood; watchdog + logtrim) ((n), (o), (y));
-  ASIC traps unicast to the CPU only for SDK-programmed MACs ((t)); `double_CRC` must be off in MACsec bypass ((x)).
+- libifcs's learn thread wedges on an all-ones ring index ((n), (o), (y)): vendor stack (overcommit 0) a failed 32 GiB
+  malloc, a spin and a log flood (watchdog + logtrim); SONiC (redis sets vm.overcommit_memory = 1) a 32 GiB memset that
+  took the box's memory in seconds (2026-11-16; syncd MemoryMax + ifcs watchdog since). cs8210-switch has no MemoryMax.
+- Vendor stack only: ASIC traps unicast to the CPU only for SDK-programmed MACs ((t)); `double_CRC` must be off in
+  MACsec bypass ((x)).
 
 **Fans** (user request 2026-11-09: keep them quiet). fand holds PWM 127 (~50 %, ~11k rpm) until the hottest LM75 passes
 40 C or the ASIC die 70 C, full speed at 55 / 95 C; a fault or stop forces full speed and re-arms the fan watchdog.
@@ -112,6 +116,20 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-16 — syncd OOM at 16:05: root cause; syncd MemoryMax, new IFCS watchdog (not deployed yet)
+
+- Cause (high confidence): libifcs's learn thread read a garbage ring index; its im_malloc is malloc + memset, and
+  under SONiC's vm.overcommit_memory = 1 (nixpkgs redis `vmOverCommit`) the ~32 GiB request succeeds, so the memset
+  OOMed the box in <= 3 s (syncd VmSize +32 GiB to the kB; no `__vm_enough_memory` line, hence no watchdog). The ASIC's
+  CPU path had died at 16:00:55 (BFD, LACP and its port TX counters stopped; ipd softirq on 2 cores from 16:03:45).
+  PMBus/AVS not implicated (last transaction 3 min before, rail nominal throughout). Trigger of the ASIC failure: open.
+  Evidence + timeline: [oom-20261116.txt](oom-20261116.txt).
+- `nixos/module/cs8210/sonic`: syncd MemoryMax (`syncdMemoryMaxMiB`, 2048) + OOMPolicy=stop; `sonic-cs8210-ifcs-watchdog`
+  rewritten in Python (VmSize, RSS, learn-thread CPU, the kernel line, tx-stall of all transmitting ports; 48 checks at
+  build). Box: a 64M transient unit doing the same malloc + memset was memcg-killed in 103 ms, box untouched; the
+  watchdog dry-run on live SONiC stayed silent. [sonic.md](sonic.md), [avs.md](avs.md) (no ad-hoc PMBus surveys).
+- Deploy note: the syncd unit changes (a switch restarts syncd).
+
 ### 2026-11-16 — our U-Boot does the vendor board init (standalone build, RAM rehearsal)
 
 - Patches 0029-0031: SoC init from the DT (MUIO, 32 gpio-list lines, SB PLL ch 9, base MAC from the TlvInfo EEPROM),
@@ -132,8 +150,7 @@ can contain device configuration or secrets. Summarized findings belong here.
 - Chip: BAR read = the U-Boot-logged words (RoV 0, lot PS7R09, 800 mV / 0x0333), "already correct", no write; a same-value
   rewrite proved the write path; SONiC back up (BGP + BFD both VRFs). Regulator power-on default: not readable without a
   cold boot. Evidence: [avs-chip-20261116.txt](avs-chip-20261116.txt).
-- Unexplained, during read-only work before that test: syncd OOM-killed at 16:05:48 (35 GB VM, 5.5 GB RSS) after the loop's
-  BFD/LACP expired at 16:00:56; looks like the learn-thread allocation, without the kernel line the ifcs watchdog keys on.
+- During read-only work before that test, syncd was OOM-killed at 16:05:48: the learn-thread wedge, not AVS (entry above).
 - Deploy note: the syncd and cs8210-switch units change (a switch restarts syncd); the box already holds the fuse record
   the late path needs.
 

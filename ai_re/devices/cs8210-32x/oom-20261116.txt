@@ -85,3 +85,23 @@
   memcpy is already, retry/keep the last good index for 0x485c-0x4864), as the 2026-11-10 review proposed.
 - AVS: not implicated; no change to the tool (it already sends only whitelisted commands). avs.md gets the rule
   that ad-hoc PMBus surveys of 0x62 are off-limits.
+
+## 5. Containment tests
+- Build: ifcs-watchdog derivation runs test_ifcs_watchdog.py, 48 checks pass (proc/stat parsing incl. this
+  incident's VmSize/VmRSS, learn-thread CPU, tx-stall replay of the 16:00:55 shape (fires 180-195 s after the
+  stop; not for one port still sending, oper-down ports, a COUNTERS_DB flush, idle-only ports, counter polling
+  off), restart policy, root-port AER decode, the RESP client against a fake redis, main --once and the loop).
+  Units built: sonic-syncd.service has MemoryMax=2048M OOMPolicy=stop; the watchdog runs with
+  --rss-limit 1610612736. System toplevel evaluates.
+- Box, 16:46 (boot 76f77202, nothing of this deployed; no ASIC access, lease not needed): transient unit
+  cs8210-oomcap-test, MemoryMax=64M, OOMPolicy=stop, a script that refuses unless its cgroup's memory.max <= 128 MiB,
+  then does exactly the learn thread's im_malloc: malloc(0x7FFFFC008) -> succeeded (VmSize 33575820 kB,
+  vm.overcommit_memory = 1), memset -> "Memory cgroup out of memory: Killed process 6189 (python3)",
+  constraint=CONSTRAINT_MEMCG, unit "Finished with result: oom-kill" after 103 ms, memory peak 64M; MemAvailable
+  5173132 -> 5166204 kB, syncd and fand active throughout.
+- Box, 16:47: ifcs-watchdog.py (sha256 fa233d3e...) --dry-run --interval 5 --stall 30 --min-uptime 0 for 80 s on the
+  live SONiC: silent (no signal); --once: "VmSize 1.61 GiB VmRSS 0.32 GiB; signals: none; root port 0001:00:00.0:
+  DevSta=0x0001 UESta=0x00000000 CESta=0x00001040". TxStall over 7 real polls: Ethernet0/120 transmitting
+  (~5.5 packets/s each), not stalled. Test files removed afterwards.
+- Not tested on the chip: a real tx-stall or learn wedge (cannot be provoked safely), MemoryMax on syncd itself
+  (needs the deploy; the parent's).
