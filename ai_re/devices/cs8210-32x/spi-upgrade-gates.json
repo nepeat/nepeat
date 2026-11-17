@@ -1,7 +1,23 @@
 {
   "_doc": "scripts/spi_upgrade.py refuses --write (install/update/switch) while a gate below is null; set one to {date, by, evidence} when met (\"recovery\": a 1.8 V programmer + clip plan is ready, or the owner accepts a programmer-only recovery risk) (spi-upgrade-plan.md 'Gates'). rollback and env-reset are gate-free. The emulation ('verify') and sandbox ('rehearse') records of the exact plan live in spi-upgrade-journal.jsonl.",
-  "review": null,
-  "payload": null,
-  "recovery": null,
-  "owner_go": null
+  "review": {
+    "date": "2026-11-16",
+    "by": "two independent agent reviews (fresh general-purpose subagents, not told the conclusions)",
+    "evidence": "spi-upgrade-plan.md 'Reviews': 17 findings fixed (kill page before erasing a live header, magic word last, no power cycle after a failed write, rollback without NixOS, ...); re-verified 213/213 emulated states, sandbox rehearsal of install/update/switch/rollback + 32 power cuts, final-code hardware dry run 2026-11-16 18:38"
+  },
+  "payload": {
+    "date": "2026-11-17",
+    "by": "parent (standalone U-Boot session)",
+    "evidence": "uboot-standalone-20261116.txt (selfinit RAM rehearsal: PCIe retrain, NixOS + SONiC healthy); #uboot-cs8210-stage3app u-boot-app-08000000.fimg sha256 e5723798a72534f7..., payload data sha256 ac03324ce8b78f10..."
+  },
+  "recovery": {
+    "date": "2026-11-17",
+    "by": "owner statement via the parent",
+    "evidence": "owner has a 1.8 V-capable programmer and SOIC clips at hand. Reminder: the MX25U25635F is a 1.8 V part: a 1.8 V adapter is required, never connect it at 3.3 V"
+  },
+  "owner_go": {
+    "date": "2026-11-17T03:06Z",
+    "by": "owner via the parent",
+    "evidence": "\"give it a shot. i got the clips and the programmer. send the SPI write\""
+  }
 }

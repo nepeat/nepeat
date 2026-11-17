@@ -1,0 +1,32 @@
+CS8210 scheme A' install, 2026-11-17 03:09-03:12Z (2026-11-16 19:09-19:12 PST), owner go via the parent (03:06Z), lease spi-flasher
+Tool: scripts/spi_upgrade.py install --write (plan d2dd7fce51c49bfa, journal spi-upgrade-journal.jsonl: start + 4 intent/done pairs + install record)
+Payload: #uboot-cs8210-stage3app u-boot-app-08000000.fimg sha256 e5723798a72534f7..., data sha256 ac03324ce8b78f10..., "U-Boot 2026.10-cs8210-selfinit"
+Installer: #uboot-cs8210-installer u-boot.bin sha256 8128d2b10b6f1231... (windows = the tool's table)
+Transcript: serial-spiupgrade-install-20261117.txt (git-ignored)
+
+== Before
+NixOS /dev/mtd0ro == model (sha256 a22ff482563b84bd = the 2026-11-15 dump); ssh reboot; 'u' from stage2's banner (app 5: no "User request"); vendor 123 -> ALPINE_DB>
+loadx installer, booti -> "U-Boot 2026.10-cs8210-installer", "Entry: EL2, MMU+caches were off, x0=0x3acd320", DRAM 2 GiB (total 8 GiB)
+sf probe: mx25u25635f 32 MiB; sf read 0..0x380000: every piece == model (our env 0x38000+0x8000 not compared)
+
+== Writes (each: echo-checked, read back crc32 + cmp.b; none killed: all four regions were blank)
+env-erase 0x38000+0x8000            erase, read back blank
+app       0x0f0000+0xa0000          erase; body 0x66a14 B; header 4..0x48; magic last  (region crc32 f3e0a32c)
+bootmode  0x030000+0x1000           erase; body; header 4..0x48; magic last           (region crc32 2a1f2d63, app 0x110)
+toc2      0x020000+0x1000           erase; entries + sum; header 4..0x14; magic last  (region crc32 16f48c5e)
+Full re-read 0..0x380000 == the new model.
+
+== Cold boot (power cycle plug 1)
+stage3: "Loading application to 08000000 (420368 bytes)..." "Executing application..."
+ours:   "U-Boot 2026.10-cs8210-selfinit", "Entry: EL2, MMU+caches were off (booti/bootm/stage3), x0=0x0"
+NixOS up from our U-Boot (/proc/device-tree/chosen/u-boot,version = 2026.10-cs8210-selfinit); cage guard: present mask 0x00008001 within allowed cages (1 16)
+/dev/mtd0ro == the new model (sha256 98389bafcd8fd40c)
+cs8210-asic-avs: "memory decode off (COMMAND 0x0000); WRITE: echo 1 > enable", fuses -> VOUT_COMMAND 0x0333; READ 0x21 = 0x0333; ASIC COMMAND now 0x0406
+fand active; systemctl is-system-running: running
+
+== DEVIATION (stopped here; no u test, no further reboot)
+SONiC front ports down at 230-250 s uptime (vendor boot: up by ~2 min): BGP vrf-a/vrf-b Active, BFD 2/2 down, PortChannel1/2 link down,
+Ethernet0 oper_status down. PortInitDone 43 s. sonic-cs8210-credo: "libMdio: MDIO FPGA 1d0f:ec30 resource0 not available" (repeated), then "Finished".
+lspci 0004:01:00.0 1d0f:ec30 (MDIO FPGA): no Region lines (BARs unassigned), Control Mem- BusMaster-, link 2.5GT/s x1.
+The I2C FPGA 0002:01:00.0 1d0f:8571 has its BARs (c8200000/c8300000/c8400000, Mem+). So the Credo PHYs (cages 1-16) were never set up.
+Likely in the standalone U-Boot's PCIe / board init (vendor U-Boot path assigns that FPGA's BARs), not in the SPI write.

@@ -1,7 +1,9 @@
 # CS8210-32X: our U-Boot into the boot SPI (scheme A'): flasher, safety case, plan
 
-Status 2026-11-16: **built, verified offline, rehearsed; nothing written to SPI.** The first write
-waits for the parent's go (gates below). Scheme and evidence of the boot chain:
+Status 2026-11-17: **installed** (03:10Z, plan d2dd7fce…, owner go; evidence
+[spi-upgrade-install-20261117.txt](spi-upgrade-install-20261117.txt)): stage3 boots our U-Boot from slot A and NixOS comes up
+from it, but the Credo MDIO FPGA (0004:01:00.0) gets no BARs under the standalone U-Boot, so cages 1-16 stay down (SONiC
+not healthy). Not yet done: the `u` escape test on hardware. Escape/rollback below unchanged. Scheme and evidence of the boot chain:
 [boot-chain.md](boot-chain.md) §5/§7; our U-Boot: [u-boot-port.md](u-boot-port.md); escape and
 recovery routes: [uart-recovery.md](uart-recovery.md). DMC-12 original of this design:
 [../dmc-12-48r-as0/spi-upgrade-plan.md](../dmc-12-48r-as0/spi-upgrade-plan.md).

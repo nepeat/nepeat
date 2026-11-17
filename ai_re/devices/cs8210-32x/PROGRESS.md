@@ -14,7 +14,7 @@
   (`/run/cs8210-qsfp.dead`): power cycle. Vendor U-Boot prompt: `123<Enter>` within 3 s; from there ONIE in SPI (`run onie_bootcmd`,
   RAM only) or **Route R** into the boot ROM UART CLI, no flash write ([uart-recovery.md](uart-recovery.md), [boot-chain.md](boot-chain.md)).
 - **Open:** our U-Boot: RAM chainload boots NixOS + SONiC like the vendor path; the standalone build (own PCIe/MUIO/GPIO/PLL/MAC init)
-  passed its RAM rehearsal, never run as stage3's app; permanent scheme (A' install) open, nothing written to SPI ([u-boot-port.md](u-boot-port.md)); the A' flasher is built, emulated, sandbox-rehearsed and hardware dry-run, waiting for its gates ([spi-upgrade-plan.md](spi-upgrade-plan.md)); owner decision on
+  passed its RAM rehearsal, never run as stage3's app; permanent scheme (A' install) open, nothing written to SPI ([u-boot-port.md](u-boot-port.md)); **A' installed 2026-11-17 03:10Z**: stage3 boots our standalone U-Boot from SPI slot A, NixOS boots from it, but the MDIO FPGA 1d0f:ec30 has no BARs so the Credo ports (cages 1-16) and SONiC links stay down; `u` escape untested; factory boot = `u` at stage3 or `spi_upgrade.py rollback --write` ([spi-upgrade-plan.md](spi-upgrade-plan.md)); owner decision on
   publishing `ai_re/nix/packages/sai-teralynx/src/ifcs_api.h` (our IFCS declarations from the vendor ctypes + DWARF); AS7760 redeploy of
   the shared SONiC changes (local_asn, teamd MAC, networkd rules); SAI gaps in sai-features.md (WRED/ECN, PFC/lossless, SET_DSCP/remarking,
   sFlow sample policing (isai's ACE impossible on 0.12.41, the CPU-queue meter misbehaves: off), tunnels/IPMC/MPLS/NAT, warm boot,
@@ -117,6 +117,15 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-17 — scheme A' installed in SPI (our U-Boot as stage3's app)
+
+- `spi_upgrade.py install --write` (owner go): env, slot A, BOOT_MODE, TOC2 written and read back == model; cold boot:
+  "Loading application to 08000000", "U-Boot 2026.10-cs8210-selfinit", EL2, x0=0; NixOS from it; mtd0ro == new model;
+  AVS oneshot enabled the ASIC (COMMAND 0 -> 0x0406, VOUT 0x0333); fand running.
+  [spi-upgrade-install-20261117.txt](spi-upgrade-install-20261117.txt).
+- Deviation, stopped there: MDIO FPGA 0004:01:00.0 without BARs ("libMdio: resource0 not available"), cages 1/16 down, BGP/BFD/LACP down.
+  Standalone U-Boot work item; the `u` escape test and the boot back into ours are pending.
 
 ### 2026-11-16 (late) — scheme A' flasher: built, verified, rehearsed; zero SPI writes
 

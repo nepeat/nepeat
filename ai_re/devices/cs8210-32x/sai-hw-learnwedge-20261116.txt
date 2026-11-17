@@ -58,3 +58,6 @@ BFD Up in 11 s. So 3 GiB leaves ~6x headroom. (raw: vendor-memmax-log.txt)
 ## 6. Soak (lw-soak, SONiC at boot + deployed watchdog, L0s off by hand; deployed libsai has no guard)
 Start 17:15:27, boot 3240ff4b, syncd pid 15101; root port CESta cleared 17:15:36. SONiC was down 17:23:12-17:27:36
 for section 5 (counted from 17:27:36). Monitor script: lw-soak.sh (in the raw dir).
+- Run 1, boot 3240ff4b: 17:27:36 - ~18:38 (1 h 11 min; ended by the U-Boot flasher's reboot, lease "spi-flasher"):
+  syncd pid 30869 NRestarts 0, no watchdog or kernel line, root port CESta/UESta 0, L0s off, ipd TX-3 Full 0;
+  18:15 beat: Ethernet0/120 Linux tx 15326/15888 (rising). Paused for the A' SPI install window (parent, 19:07).
