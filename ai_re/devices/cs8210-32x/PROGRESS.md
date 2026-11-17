@@ -118,6 +118,16 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-17 — MDIO FPGA BAR on a cold boot via our U-Boot: root cause, fix, rescue proven
+
+- Cause: the MDIO FPGA's BAR 0 keeps only bits 31:29 and 21 and resets to 0xe0200000 = its sizing read-back, which Linux
+  rejects ("can't size"); the vendor U-Boot writes e0000000 first. Fix (0030/0031): our U-Boot writes the vendor's partner
+  BARs once the link is up; RAM-tested from the forced cold value: NixOS, Credo, BGP/BFD/LACP as on the vendor boot.
+  Fixed `#uboot-cs8210-stage3app` (.fimg 58e4a4f0…) is for the slot B update; slot A still holds the old one.
+- Rescue: power cycle + `u` from stage2's banner → factory U-Boot, three times; warm reset + `u` likewise.
+- Hazard: repeated `alpcie reinit 4` wedges the MDIO FPGA link until a power cycle (the factory U-Boot too). Ports
+  without a link are now disabled in the OS DTB (Linux panicked on one). Evidence: [uboot-standalone-20261117.txt](uboot-standalone-20261117.txt).
+
 ### 2026-11-17 — scheme A' installed in SPI (our U-Boot as stage3's app)
 
 - `spi_upgrade.py install --write` (owner go): env, slot A, BOOT_MODE, TOC2 written and read back == model; cold boot:
@@ -175,9 +185,8 @@ can contain device configuration or secrets. Summarized findings belong here.
   (+ SPI env at 0x38000/0x3c000) and `#uboot-cs8210-stage3app` (1444 B spare in A' slot B). Chainload build unchanged (4bcabba8).
 - From the vendor prompt: every part 0 changed; all three links torn down and trained by our init, then NixOS + SONiC
   with lspci identical to the vendor boot; PSCI reset ok. Zero SPI writes. Evidence: [uboot-standalone-20261116.txt](uboot-standalone-20261116.txt).
-- Found and fixed: the MDIO FPGA (1d0f:ec30) ignores BAR 0 writes once U-Boot's PCI auto-config set it, so Linux could
-  not size it; U-Boot now leaves all link partners alone. ASIC decode is off at handoff (the vendor's 6 came from its AVS):
-  the AVS oneshot must enable the device before reading resource0.
+- U-Boot does not auto-configure the link partners (see 2026-11-17 for the MDIO FPGA BAR). ASIC decode is off at
+  handoff (the vendor's 6 came from its AVS): the AVS oneshot enables the device itself.
 
 ### 2026-11-16 — ASIC AVS as a Linux oneshot (not deployed yet)
 

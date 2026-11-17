@@ -1,0 +1,48 @@
+CS8210 our U-Boot after the A' install: rescue path + the MDIO FPGA BAR fix, 2026-11-17 03:17-03:34Z.
+Zero SPI writes by this session. Lease "uboot-standalone" (released at the end). Cages 1+16 only.
+Transcripts (git-ignored): serial-uboot-rescue{,2,3,4}-20261117.txt (spi_upgrade.attach + to_vendor_prompt),
+serial-uboot-standalone-20261116.txt (con.py runs, appended). Linux capture: analysis/uboot-compare/ours-fix-20261117/.
+
+== State found (cold boot on slot A = #uboot-cs8210-stage3app e5723798, i.e. selfinit ac03324c)
+MDIO FPGA 0004:01:00.0: "[Firmware Bug]: BAR 0: invalid; can't size" (and BAR 1), Mem-; Credo libMdio "resource0 not available"
+Its config space: BAR0 e0200000, BAR1 00200000. From Linux (decode off): writing BAR0 =
+  e0000000 -> e0000000, e0300000 -> e0200000, 0 -> 0, fff00000 -> e0200000, ffffffff -> e0200000.
+=> BAR 0 keeps only bits 31:29 and 21 (read = written & 0xe0200000) and comes out of reset as e0200000. That value
+   equals its own sizing read-back, which Linux's pci_size() rejects ("can't size"). The vendor U-Boot writes
+   e0000000 first (vendor prompt: 03.00.00 BAR0 e0000000, BAR1 00200000, COMMAND 0), so Linux sizes it from there.
+   Our U-Boot left the partners alone (endpoint nodes disabled), so the reset value reached Linux.
+
+== Rescue path (task 1): PASS three times
+power cycle plug 1 (lab-power via spi_upgrade.power_cycle), 'u' every 20 ms from stage2's banner:
+  "[CPU#00] User request for loading U-Boot!" -> "Loading application to 01100000 (950336 bytes)" ->
+  U-Boot 2018.05-alpine_db-v3.65.1.015 -> 123 -> ALPINE_DB> (rescue 1, 03:18Z; again rescue 2 and 4).
+Warm 'reset' from our U-Boot + 'u' (rescue 3): the same, factory U-Boot.
+
+== Fix (0030 + 0031, RAM-tested from the vendor prompt with the cold value forced back)
+amazon,endpoint-bars: U-Boot writes the vendor's partner BARs once the link is up, decode off:
+  ASIC 0x10 c0000000 0x14 0, I2C FPGA c8000000/c8100000/c8200000, MDIO FPGA 0x10 e0000000.
+Test: vendor prompt "mw.l 0xfba00010 0xe0200000" (reads e0200000 = the cold state) -> loadx + booti the fixed build
+(dev build with FORCE_INIT, crc32 0c63332a 0x67380 B) -> all three links our init -> partner BARs read
+  e0000000 00200000 / c0000004 0 / c8000000 c8100000 c8200000 (= the vendor's) -> boot NixOS:
+  0004:01:00.0 "BAR 0 [mem 0xe0000000-0xe01fffff]" ... "assigned e0200000", enabling device at 13.8 s;
+  Credo "Finished" (MDIO clock push/pull lines); BGP 2/2, BFD 2/2, LACP 2/2, running.
+  lspci (devices, Control, Region, LnkSta) identical to the vendor boot; PCI dmesg identical for the endpoints;
+  root ports differ only in their pre-assignment ROM/bridge-window lines (U-Boot configured them), same final assignment.
+
+== Second finding: the MDIO FPGA link wedges after repeated retrains (test artefact, needs a power cycle)
+"alpcie reinit 4" on a trained link: ok, ok, then "no link" (3 tries x 1 s); once with a reinit right after the BAR write.
+After that even a warm reset does not help: our stage3 app ("PCIe 4: no link") and the factory U-Boot
+("handle_link: PCIE_4 no link found") both fail; a power cycle recovers it (rescue 4: vendor PCIE_4 link up).
+One train per boot (cold, vendor, or vendor -> ours, 6 runs) always worked. Never "alpcie reinit 4" more than once per power-on.
+Side effect seen: our U-Boot left port 4 disabled and Linux pcie-al panicked (SError reading its DBI). Fix (0030):
+  a port without a link gets status "disabled" in the OS DTB (as the vendor ft_board_setup does). Not yet exercised
+  on hardware (needs a failed link + boot).
+
+== Build for the slot B update
+#uboot-cs8210-stage3app: u-boot-app-08000000.fimg sha256 58e4a4f069d634e3..., 0x673ac B (slot A 0xa0000 spare 232532,
+slot B 0x100000 spare 625748); u-boot.bin cd5ff92be72d0119... ("2026.10-cs8210-selfinit", FORCE_INIT off).
+Unchanged: #uboot-cs8210 4bcabba8, #uboot-cs8210-installer 8128d2b1, DMC-12 fimg d3df4b80 / payloads 2b9lljly.
+
+== End state
+NixOS running on the fixed U-Boot in RAM (vendor -> loadx -> booti), SONiC healthy, lease released.
+The next reboot boots slot A (the old app): Credo ports down again until slot B is updated.

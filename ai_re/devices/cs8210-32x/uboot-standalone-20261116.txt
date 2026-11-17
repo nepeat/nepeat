@@ -1,4 +1,6 @@
 CS8210 standalone U-Boot (cs8210-selfinit, patches 0029-0031), RAM rehearsal from the vendor prompt,
+Correction 2026-11-17: the MDIO FPGA BAR explanation below ("ignores BAR 0 writes once configured") was wrong; its BAR 0
+keeps only bits 31:29/21 and resets to e0200000; see uboot-standalone-20261117.txt.
 2026-11-16 16:23-16:45 PST. ZERO SPI writes (no saveenv, no sf write/erase; env read = "bad CRC, default").
 ASIC lease "uboot-standalone" (taken/released per boot); cages 1+16 only (cage guard mask 0x00008001 every boot).
 Transcript (git-ignored): serial-uboot-standalone-20261116.txt sha256 d4b9a5afafc26ad6...

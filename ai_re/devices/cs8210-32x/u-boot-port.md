@@ -5,7 +5,7 @@ Goal (owner): replace the vendor U-Boot 2018.05 with our own upstream-based one,
 [vendor-uboot.md](vendor-uboot.md) (what the vendor U-Boot does, items #1-27), [boot-chain.md](boot-chain.md)
 (where an app can go in SPI), [uart-recovery.md](uart-recovery.md).
 
-## Status (2026-11-16)
+## Status (2026-11-17)
 - **Milestone 1 (offline) done.** U-Boot 2026.10 RAM build `#uboot-cs8210`: console, DRAM banks from
   the DT, arch timer (firmware sets CNTFRQ = 75 MHz, read from Linux), boot SPI NOR read-only, the
   board's Linux DTS as control DT, env in RAM, booti/bootm/extlinux/boot.scr/bootmenu, AHCI SSD, PSCI
@@ -20,10 +20,18 @@ Goal (owner): replace the vendor U-Boot 2018.05 with our own upstream-based one,
   PCIe RC init with AVG SerDes iCal, decode off at handoff), env in blank SPI. From the vendor prompt: every part
   idempotent (0 changed), all three links torn down and trained by our init (Gen3 x4 / Gen2 x1 / Gen1 x1), then
   NixOS + SONiC (BGP/BFD/LACP) with lspci identical to the vendor boot; PSCI reset works. One bug found and fixed
-  (MDIO FPGA BAR, below). `#uboot-cs8210-stage3app` = the al-boot object for scheme A'. Never run as stage3's
-  app yet (that needs the installer + TOC2); zero SPI writes so far.
-- Not covered by the rehearsal (it runs after the vendor U-Boot): the stage3 entry itself, ASIC AVS (Linux
-  oneshot, another agent), the writing paths of MUIO/PLL/MAC (they found the vendor's values), cold endpoints.
+  (MDIO FPGA BAR, below).
+- **A' installed 2026-11-17** (slot A, installer agent, spi-upgrade-install-20261117.txt): stage3 enters ours at EL2,
+  x0 = 0; MUIO/GPIO/PLL/MAC write paths ran (22/17/1 changed, MAC stored); AVS oneshot enables the ASIC itself.
+  Cold-boot bug: the MDIO FPGA had no BARs in Linux (Credo ports down). Cause and fix
+  ([uboot-standalone-20261117.txt](uboot-standalone-20261117.txt)): its BAR 0 keeps only bits 31:29/21 and resets to
+  0xe0200000 = its sizing read-back, which Linux rejects; the vendor writes e0000000 first. Our U-Boot now writes the
+  vendor's partner BARs (`amazon,endpoint-bars`), RAM-tested from the forced cold value: NixOS + SONiC + Credo as
+  on the vendor boot. Fixed `#uboot-cs8210-stage3app` (.fimg 58e4a4f0…) waits for the slot B update; slot A is the
+  old one. Rescue proven: power cycle + `u` → factory U-Boot (3 times), warm reset + `u` likewise.
+- **Never `alpcie reinit 4` twice per power-on:** repeated retrains wedge the MDIO FPGA link until a power cycle
+  (even the factory U-Boot then reports "PCIE_4 no link found"). A port without a link is now disabled in the OS DTB
+  (Linux pcie-al panicked on its DBI otherwise); that path is not hardware-tested.
 
 ## What exists
 - Patches (shared series, [../../nix/packages/uboot/default.nix](../../nix/packages/uboot/default.nix)),
@@ -106,7 +114,7 @@ Item numbers = [vendor-uboot.md](vendor-uboot.md). "Chainload" = ours started fr
 | 1 | entry, DRAM banks | ✓ | ✓ | `/memory` 4 banks; EL printed |
 | 2 | SerDes | — (stage3) | — (stage3) | |
 | 3 | external PCIe RC + link | ✓ kept (0030) | ✓ RAM-rehearsed | 0030; vendor `pci_init_board_external(teardown 1, reinit 0, ical on)`: no retry (rc-link-retry absent), on failure halve lanes then Gen1. Torn down + our init on all three, Linux/SONiC fine |
-| 4 | PCI state at handoff | ✓ | ✓ | partners COMMAND 0 at OS prepare (vendor: FPGAs 0, ASIC 6 for its AVS); U-Boot leaves the endpoints unconfigured (MDIO FPGA BAR 0 locks after U-Boot's auto-config); no FLR |
+| 4 | PCI state at handoff | ✓ | ✓ | partners: the vendor's BARs written once the link is up (`amazon,endpoint-bars`; the MDIO FPGA needs it), COMMAND 0 at OS prepare (vendor: FPGAs 0, ASIC 6 for its AVS); no U-Boot auto-config of the endpoints; ports without a link disabled in the OS DTB; no FLR |
 | 5 | ASIC AVS | — (vendor wrote it before its prompt; 11-15 read: VOUT 0x0333) | — (Linux) | owner: Linux oneshot before the SDK (avs.md); our U-Boot leaves ASIC COMMAND 0, so the oneshot must enable the device before reading resource0 |
 | 6 | 32 board GPIOs | ✓ (2 changed: 52/54 after the vendor booti) | ✓ | 0029/0031; the vendor list has 32 triplets (not 31) |
 | 7 | SPI mux 52/54 | — | — | Linux `gpio-mux` drives it; #6 leaves 52=0/54=1 |
