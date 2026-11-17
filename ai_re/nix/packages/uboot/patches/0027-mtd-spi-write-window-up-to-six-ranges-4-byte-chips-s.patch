@@ -1,0 +1,322 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Mon, 16 Nov 2026 16:10:00 -0800
+Subject: [PATCH] mtd: spi: write window: up to six ranges, 4-byte chips, sf
+ erase/write
+
+The write window of the read-only SPI NOR build (patch 0019) was one
+range on a 3-byte-address chip, written only by code paths such as the
+SPI environment. An installer that puts a boot object next to factory
+ones needs several small ranges on a 32 MiB chip (MX25U25635F, dedicated
+4-byte opcodes), driven from the console:
+
+- SPI_FLASH_WRITE_WINDOW_START2/_SIZE2 .. _START6/_SIZE6: further
+  windows on the same chip (size 0 = unused). A request, and every
+  command on the wire, must lie entirely inside one window
+  (spi_flash_windows_cover / spi_flash_windows_op_ok, pure helpers in
+  include/spi_flash_window.h, host-testable like the single-window ones).
+- SPI_FLASH_WRITE_WINDOW_ADDR_WIDTH (3 or 4, default 3): the spi-nor
+  check requires exactly this address width instead of 3; the spi-mem
+  filter refuses program/erase commands with any other address width.
+  With 4 only the dedicated 4-byte opcodes pass (0x12, 0x21, 0x5c,
+  0xdc), whose meaning does not depend on the chip's address mode.
+- CMD_SF_WRITE_WINDOW: "sf erase" and "sf write" in a read-only build;
+  the MTD hooks still refuse anything outside the windows before a
+  command is sent ("outside the write window, refused"). "sf update",
+  "protect" and "test" stay out.
+
+Builds without SPI_FLASH_WRITE_WINDOW and CMD_SF_WRITE_WINDOW are
+byte-identical.
+
+Scope: alpine-v3 (generic code; kept out of the shared alpine scope so
+the Alpine V2 builds that are pinned by hash do not change).
+---
+ cmd/Kconfig                    | 10 +++++
+ cmd/sf.c                       | 16 ++++++--
+ drivers/mtd/spi/Kconfig        | 69 +++++++++++++++++++++++++++++++++-
+ drivers/mtd/spi/spi-nor-core.c |  9 +++--
+ drivers/spi/spi-mem.c          | 21 ++++++++---
+ include/spi_flash_window.h     | 55 +++++++++++++++++++++++++++
+ 6 files changed, 166 insertions(+), 14 deletions(-)
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index ff90a870..90c44243 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -1783,6 +1783,16 @@ config CMD_SF
+ 	help
+ 	  SPI Flash support
+ 
++config CMD_SF_WRITE_WINDOW
++	bool "sf erase/write inside the SPI NOR write window"
++	depends on CMD_SF && SPI_FLASH_WRITE_WINDOW
++	help
++	  A read-only SPI NOR build (SPI_FLASH_READ_ONLY) normally offers
++	  only "sf probe" and "sf read". This adds "sf erase" and "sf write"
++	  for an installer build; the MTD hooks and the SPI memory filter
++	  still refuse every range outside SPI_FLASH_WRITE_WINDOW (and its
++	  further windows). "sf update", "sf protect" and "sf test" stay out.
++
+ config CMD_SF_TEST
+ 	bool "sf test - Allow testing of SPI flash"
+ 	depends on CMD_SF
+diff --git a/cmd/sf.c b/cmd/sf.c
+index a5168800..b8c1644a 100644
+--- a/cmd/sf.c
++++ b/cmd/sf.c
+@@ -328,7 +328,8 @@ static int do_spi_flash_read_write(int argc, char *const argv[])
+ 		read = strncmp(argv[0], "read", 4) == 0;
+ 		if (read)
+ 			ret = spi_flash_read(flash, offset, len, buf);
+-		else if (!IS_ENABLED(CONFIG_SPI_FLASH_READ_ONLY))
++		else if (!IS_ENABLED(CONFIG_SPI_FLASH_READ_ONLY) ||
++			 IS_ENABLED(CONFIG_CMD_SF_WRITE_WINDOW))
+ 			ret = spi_flash_write(flash, offset, len, buf);
+ 
+ 		printf("SF: %zu bytes @ %#x %s: ", (size_t)len, (u32)offset,
+@@ -609,7 +610,11 @@ static int do_spi_flash(struct cmd_tbl *cmdtp, int flag, int argc,
+ 	}
+ 
+ 	if (IS_ENABLED(CONFIG_SPI_FLASH_READ_ONLY)) {
+-		if (strcmp(cmd, "read"))
++		/* CMD_SF_WRITE_WINDOW: also erase/write; the MTD hooks refuse outside the window */
++		if (IS_ENABLED(CONFIG_CMD_SF_WRITE_WINDOW) && !strcmp(cmd, "erase"))
++			return do_spi_flash_erase(argc, argv);
++		if (strcmp(cmd, "read") &&
++		    !(IS_ENABLED(CONFIG_CMD_SF_WRITE_WINDOW) && !strcmp(cmd, "write")))
+ 			return CMD_RET_USAGE;
+ 		return do_spi_flash_read_write(argc, argv);
+ 	}
+@@ -635,7 +640,12 @@ U_BOOT_LONGHELP(sf,
+ 	"sf read addr offset|partition len	- read `len' bytes starting at\n"
+ 	"				          `offset' or from start of mtd\n"
+ 	"					  `partition'to memory at `addr'\n"
+-#if IS_ENABLED(CONFIG_SPI_FLASH_READ_ONLY)
++#if IS_ENABLED(CONFIG_SPI_FLASH_READ_ONLY) && IS_ENABLED(CONFIG_CMD_SF_WRITE_WINDOW)
++	"sf write addr offset len	- write `len' bytes from memory at `addr'\n"
++	"				  to flash at `offset' (write window only)\n"
++	"sf erase offset [+]len		- erase `len' bytes from `offset'\n"
++	"				  (write window only; no update or protect)"
++#elif IS_ENABLED(CONFIG_SPI_FLASH_READ_ONLY)
+ 	"(read-only build: no write, erase, update or protect)"
+ #else
+ 	"sf write addr offset|partition len	- write `len' bytes from memory\n"
+diff --git a/drivers/mtd/spi/Kconfig b/drivers/mtd/spi/Kconfig
+index 7a8f3166..b397b817 100644
+--- a/drivers/mtd/spi/Kconfig
++++ b/drivers/mtd/spi/Kconfig
+@@ -182,7 +182,8 @@ config SPI_FLASH_WRITE_WINDOW_JEDEC
+ 	depends on SPI_FLASH_WRITE_WINDOW
+ 	help
+ 	  Erase/program are refused unless the probed chip has this ID, the
+-	  size below and 3-byte addressing: a garbled ID read that matches a
++	  size below and the address width of _ADDR_WIDTH (3 unless set):
++	  a garbled ID read that matches a
+ 	  different (e.g. 4-byte) part must not move where writes land.
+ 
+ config SPI_FLASH_WRITE_WINDOW_CHIP_SIZE
+@@ -197,6 +198,72 @@ config SPI_FLASH_WRITE_WINDOW_SIZE
+ 	hex "Write window: size in bytes"
+ 	depends on SPI_FLASH_WRITE_WINDOW
+ 
++config SPI_FLASH_WRITE_WINDOW_ADDR_WIDTH
++	int "Write window: address width the chip is driven with (3, or 4)"
++	depends on SPI_FLASH_WRITE_WINDOW
++	range 3 4
++	default 3
++	help
++	  4 for a chip above 16 MiB that spi-nor drives with dedicated
++	  4-byte opcodes (SPI_NOR_4B_OPCODES: program 0x12, erase 0x21/0xdc).
++	  Erase/program are refused unless the probed chip uses exactly this
++	  width, so a garbled ID cannot move where they land.
++
++config SPI_FLASH_WRITE_WINDOW_START2
++	hex "Write window 2: first byte"
++	depends on SPI_FLASH_WRITE_WINDOW
++	default 0x0
++	help
++	  Windows 2 to 6 are optional further ranges on the same chip, with
++	  the same rules as the first one; a size of 0 leaves one unused. A
++	  request (and every command on the wire) must lie entirely inside
++	  one window.
++
++config SPI_FLASH_WRITE_WINDOW_SIZE2
++	hex "Write window 2: size in bytes (0 = unused)"
++	depends on SPI_FLASH_WRITE_WINDOW
++	default 0x0
++
++config SPI_FLASH_WRITE_WINDOW_START3
++	hex "Write window 3: first byte"
++	depends on SPI_FLASH_WRITE_WINDOW
++	default 0x0
++
++config SPI_FLASH_WRITE_WINDOW_SIZE3
++	hex "Write window 3: size in bytes (0 = unused)"
++	depends on SPI_FLASH_WRITE_WINDOW
++	default 0x0
++
++config SPI_FLASH_WRITE_WINDOW_START4
++	hex "Write window 4: first byte"
++	depends on SPI_FLASH_WRITE_WINDOW
++	default 0x0
++
++config SPI_FLASH_WRITE_WINDOW_SIZE4
++	hex "Write window 4: size in bytes (0 = unused)"
++	depends on SPI_FLASH_WRITE_WINDOW
++	default 0x0
++
++config SPI_FLASH_WRITE_WINDOW_START5
++	hex "Write window 5: first byte"
++	depends on SPI_FLASH_WRITE_WINDOW
++	default 0x0
++
++config SPI_FLASH_WRITE_WINDOW_SIZE5
++	hex "Write window 5: size in bytes (0 = unused)"
++	depends on SPI_FLASH_WRITE_WINDOW
++	default 0x0
++
++config SPI_FLASH_WRITE_WINDOW_START6
++	hex "Write window 6: first byte"
++	depends on SPI_FLASH_WRITE_WINDOW
++	default 0x0
++
++config SPI_FLASH_WRITE_WINDOW_SIZE6
++	hex "Write window 6: size in bytes (0 = unused)"
++	depends on SPI_FLASH_WRITE_WINDOW
++	default 0x0
++
+ config SPI_FLASH_UNLOCK_ALL
+ 	bool "Unlock the entire SPI flash on u-boot startup"
+ 	default y
+diff --git a/drivers/mtd/spi/spi-nor-core.c b/drivers/mtd/spi/spi-nor-core.c
+index cf076e55..4f1ea02a 100644
+--- a/drivers/mtd/spi/spi-nor-core.c
++++ b/drivers/mtd/spi/spi-nor-core.c
+@@ -4583,14 +4583,15 @@ static bool spi_nor_in_window(struct spi_nor *nor, loff_t start, u64 len)
+ 	const u8 *id = nor->info->id;
+ 	u32 jedec = id[0] << 16 | id[1] << 8 | id[2];
+ 
+-	/* the chip is the one the window was set for, used with 3-byte addresses */
++	static const struct spi_flash_window windows[] = SPI_FLASH_WRITE_WINDOWS;
++
++	/* the chip is the one the windows were set for, at the configured address width */
+ 	return dev_seq(dev->parent) == CONFIG_SPI_FLASH_WRITE_WINDOW_BUS &&
+ 	       spi_chip_select(dev) == CONFIG_SPI_FLASH_WRITE_WINDOW_CS &&
+ 	       jedec == CONFIG_SPI_FLASH_WRITE_WINDOW_JEDEC &&
+ 	       nor->mtd.size == CONFIG_SPI_FLASH_WRITE_WINDOW_CHIP_SIZE &&
+-	       nor->addr_width == 3 && start >= 0 &&
+-	       spi_flash_window_covers(start, len, CONFIG_SPI_FLASH_WRITE_WINDOW_START,
+-				       CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE);
++	       nor->addr_width == CONFIG_SPI_FLASH_WRITE_WINDOW_ADDR_WIDTH && start >= 0 &&
++	       spi_flash_windows_cover(start, len, windows, ARRAY_SIZE(windows));
+ }
+ #endif
+ 
+diff --git a/drivers/spi/spi-mem.c b/drivers/spi/spi-mem.c
+index 3b1a1d96..7be5c0d8 100644
+--- a/drivers/spi/spi-mem.c
++++ b/drivers/spi/spi-mem.c
+@@ -280,9 +280,10 @@ static bool spi_mem_ro_allowed(const struct spi_mem_op *op)
+ }
+ 
+ /*
+- * SPI_FLASH_WRITE_WINDOW: on the one chip that has the window, also pass
++ * SPI_FLASH_WRITE_WINDOW: on the one chip that has the windows, also pass
+  * write enable/disable, page program and sector/block erase that stay
+- * inside it (spi_flash_window_op_ok). Independent of the spi-nor check.
++ * inside one of them (spi_flash_windows_op_ok), at the configured address
++ * width. Independent of the spi-nor check.
+  */
+ static bool spi_mem_window_allowed(struct spi_slave *slave,
+ 				   const struct spi_mem_op *op)
+@@ -291,14 +292,22 @@ static bool spi_mem_window_allowed(struct spi_slave *slave,
+ 	enum spi_flash_window_dir dir = !op->data.nbytes ? SFW_NONE :
+ 		op->data.dir == SPI_MEM_DATA_OUT ? SFW_OUT : SFW_IN;
+ 
++	static const struct spi_flash_window windows[] = SPI_FLASH_WRITE_WINDOWS;
++
+ 	if (dev_seq(slave->dev->parent) != CONFIG_SPI_FLASH_WRITE_WINDOW_BUS ||
+ 	    spi_chip_select(slave->dev) != CONFIG_SPI_FLASH_WRITE_WINDOW_CS ||
+ 	    op->cmd.nbytes != 1)
+ 		return false;
+-	return spi_flash_window_op_ok(op->cmd.opcode, op->addr.nbytes, op->addr.val,
+-				      op->dummy.nbytes, dir, op->data.nbytes,
+-				      CONFIG_SPI_FLASH_WRITE_WINDOW_START,
+-				      CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE);
++	/*
++	 * Only the configured address width: with 4 that means the dedicated
++	 * 4-byte opcodes, whose meaning does not depend on the chip's address
++	 * mode (which earlier firmware may have left either way).
++	 */
++	if (op->addr.nbytes && op->addr.nbytes != CONFIG_SPI_FLASH_WRITE_WINDOW_ADDR_WIDTH)
++		return false;
++	return spi_flash_windows_op_ok(op->cmd.opcode, op->addr.nbytes, op->addr.val,
++				       op->dummy.nbytes, dir, op->data.nbytes,
++				       windows, ARRAY_SIZE(windows));
+ #else
+ 	return false;
+ #endif
+diff --git a/include/spi_flash_window.h b/include/spi_flash_window.h
+index 6149bf54..208f3c19 100644
+--- a/include/spi_flash_window.h
++++ b/include/spi_flash_window.h
+@@ -80,4 +80,59 @@ static inline int spi_flash_window_op_ok(unsigned char op, unsigned int addr_nby
+ 				       esz, wstart, wsize);
+ }
+ 
++/* One write window: [start, start + size); size 0 = unused slot. */
++struct spi_flash_window {
++	unsigned long long start;
++	unsigned long long size;
++};
++
++/* [start, start + len) lies entirely inside one of the n windows. */
++static inline int spi_flash_windows_cover(unsigned long long start,
++					  unsigned long long len,
++					  const struct spi_flash_window *w,
++					  unsigned int n)
++{
++	unsigned int i;
++
++	for (i = 0; i < n; i++)
++		if (w[i].size &&
++		    spi_flash_window_covers(start, len, w[i].start, w[i].size))
++			return 1;
++	return 0;
++}
++
++/*
++ * spi_flash_window_op_ok() against several windows: the command is allowed
++ * if one window alone allows it (a program or erase never spans two).
++ */
++static inline int spi_flash_windows_op_ok(unsigned char op, unsigned int addr_nbytes,
++					  unsigned long long addr,
++					  unsigned int dummy_nbytes,
++					  enum spi_flash_window_dir dir,
++					  unsigned long long data_nbytes,
++					  const struct spi_flash_window *w,
++					  unsigned int n)
++{
++	unsigned int i;
++
++	for (i = 0; i < n; i++)
++		if (w[i].size &&
++		    spi_flash_window_op_ok(op, addr_nbytes, addr, dummy_nbytes, dir,
++					   data_nbytes, w[i].start, w[i].size))
++			return 1;
++	return 0;
++}
++
++#ifdef CONFIG_SPI_FLASH_WRITE_WINDOW
++/* The configured windows (SPI_FLASH_WRITE_WINDOW_START/_SIZE, ..._6). */
++#define SPI_FLASH_WRITE_WINDOWS {						\
++	{ CONFIG_SPI_FLASH_WRITE_WINDOW_START, CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE },	\
++	{ CONFIG_SPI_FLASH_WRITE_WINDOW_START2, CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE2 },	\
++	{ CONFIG_SPI_FLASH_WRITE_WINDOW_START3, CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE3 },	\
++	{ CONFIG_SPI_FLASH_WRITE_WINDOW_START4, CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE4 },	\
++	{ CONFIG_SPI_FLASH_WRITE_WINDOW_START5, CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE5 },	\
++	{ CONFIG_SPI_FLASH_WRITE_WINDOW_START6, CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE6 },	\
++}
++#endif
++
+ #endif

@@ -1,0 +1,123 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Mon, 16 Nov 2026 16:10:01 -0800
+Subject: [PATCH] board: CS8210-32X installer build (boot SPI write window)
+
+alpine_v3_cs8210_installer_defconfig: the CS8210 board build, started
+from RAM by the vendor U-Boot (loadx + booti), cut down to what writes
+our al-boot objects into the boot flash under scheme A'
+(devices/cs8210-32x/boot-chain.md section 7, spi-upgrade-plan.md):
+
+- the boot SPI NOR read-only (0019, 0025) except four windows on the
+  MX25U25635F (JEDEC c22539, 32 MiB, 4-byte opcodes, patch 0027):
+  0x020000+0x1000 (second TOC), 0x030000+0x1000 (BOOT_MODE),
+  0x0f0000+0xa0000 (app slot A), 0x2f9000+0x67000 (app slot B);
+  "sf erase"/"sf write" for them, 4 KiB sectors. Stage2, the factory
+  TOC, DT, SerDes firmware, stage3, the factory U-Boot, its env and
+  ONIE cannot be erased or programmed by this build;
+- prompt "cs8210-installer> " (the host tool sends a destructive command
+  only after seeing it, never to the vendor prompt), autoboot off;
+- console, DRAM, loadx/loady, crc32, md/cmp, PSCI reset; no PCI, SATA,
+  I2C, file systems, booti, network, env storage.
+
+Scope: cs8210.
+---
+ configs/alpine_v3_cs8210_installer_defconfig | 89 ++++++++++++++++++++
+ 1 file changed, 89 insertions(+)
+ create mode 100644 configs/alpine_v3_cs8210_installer_defconfig
+
+diff --git a/configs/alpine_v3_cs8210_installer_defconfig b/configs/alpine_v3_cs8210_installer_defconfig
+new file mode 100644
+index 00000000..dcdd1c07
+--- /dev/null
++++ b/configs/alpine_v3_cs8210_installer_defconfig
+@@ -0,0 +1,89 @@
++CONFIG_ARM=y
++CONFIG_TARGET_ALPINE_V3=y
++CONFIG_TEXT_BASE=0x08000000
++CONFIG_NR_DRAM_BANKS=4
++CONFIG_SYS_MALLOC_LEN=0x2000000
++CONFIG_SYS_MALLOC_F_LEN=0x4000
++CONFIG_ENV_SIZE=0x4000
++CONFIG_DEFAULT_DEVICE_TREE="alpine-v3-cs8210"
++CONFIG_SYS_LOAD_ADDR=0x08000000
++CONFIG_DEBUG_UART_BASE=0xfd883000
++CONFIG_DEBUG_UART_CLOCK=500000000
++CONFIG_DEBUG_UART=y
++CONFIG_SYS_PROMPT="cs8210-installer> "
++CONFIG_BOOTDELAY=-1
++# CONFIG_BOOTSTD is not set
++# CONFIG_USE_BOOTCOMMAND is not set
++CONFIG_DEFAULT_FDT_FILE=""
++CONFIG_BOARD_LATE_INIT=y
++# CONFIG_EFI_LOADER is not set
++# CONFIG_PSCI_RESET is not set
++CONFIG_ARM_SMCCC=y
++# CONFIG_CMD_BOOTI is not set
++# CONFIG_CMD_BOOTEFI is not set
++# CONFIG_CMD_ELF is not set
++# CONFIG_CMD_SAVEENV is not set
++# CONFIG_CMD_I2C is not set
++# CONFIG_CMD_PCI is not set
++# CONFIG_CMD_SCSI is not set
++CONFIG_CMD_SF=y
++CONFIG_CMD_SF_WRITE_WINDOW=y
++# CONFIG_CMD_SF_TEST is not set
++# CONFIG_CMD_SPI is not set
++CONFIG_CMD_CACHE=y
++# CONFIG_CMD_EXT4 is not set
++# CONFIG_CMD_FAT is not set
++# CONFIG_CMD_FS_GENERIC is not set
++# CONFIG_CMD_PART is not set
++CONFIG_CMD_MEMINFO=y
++# CONFIG_MMC is not set
++CONFIG_ENV_IS_NOWHERE=y
++CONFIG_NO_NET=y
++# CONFIG_AHCI is not set
++# CONFIG_SCSI is not set
++CONFIG_CLK=y
++# CONFIG_DM_I2C is not set
++# CONFIG_PCI is not set
++CONFIG_MTD=y
++# CONFIG_CMD_MTD is not set
++# CONFIG_CMD_MTDPARTS is not set
++# CONFIG_MTD_NOR_FLASH is not set
++# CONFIG_DM_MTD is not set
++CONFIG_SPI=y
++CONFIG_DM_SPI=y
++CONFIG_DESIGNWARE_SPI=y
++CONFIG_SPI_FLASH=y
++CONFIG_DM_SPI_FLASH=y
++CONFIG_SPI_FLASH_MACRONIX=y
++CONFIG_SPI_FLASH_USE_4K_SECTORS=y
++# CONFIG_SPI_FLASH_LOCK is not set
++# CONFIG_SPI_FLASH_UNLOCK_ALL is not set
++# CONFIG_SPI_FLASH_SFDP_SUPPORT is not set
++# CONFIG_SPI_FLASH_SOFT_RESET is not set
++# CONFIG_SPI_FLASH_BAR is not set
++# CONFIG_SPI_FLASH_MTD is not set
++CONFIG_SPI_FLASH_READ_ONLY=y
++CONFIG_SPI_FLASH_WRITE_WINDOW=y
++CONFIG_SPI_FLASH_WRITE_WINDOW_BUS=0
++CONFIG_SPI_FLASH_WRITE_WINDOW_CS=0
++CONFIG_SPI_FLASH_WRITE_WINDOW_JEDEC=0xc22539
++CONFIG_SPI_FLASH_WRITE_WINDOW_CHIP_SIZE=0x2000000
++CONFIG_SPI_FLASH_WRITE_WINDOW_ADDR_WIDTH=4
++CONFIG_SPI_FLASH_WRITE_WINDOW_START=0x20000
++CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE=0x1000
++CONFIG_SPI_FLASH_WRITE_WINDOW_START2=0x30000
++CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE2=0x1000
++CONFIG_SPI_FLASH_WRITE_WINDOW_START3=0xf0000
++CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE3=0xa0000
++CONFIG_SPI_FLASH_WRITE_WINDOW_START4=0x2f9000
++CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE4=0x67000
++CONFIG_SPI_MEM_READ_ONLY=y
++CONFIG_SPI_MEM_READ_ONLY_4B=y
++CONFIG_DEBUG_UART_SHIFT=2
++CONFIG_DEBUG_UART_ANNOUNCE=y
++CONFIG_DEBUG_UART_SKIP_INIT=y
++CONFIG_DEBUG_UART_NS16550=y
++CONFIG_SYS_NS16550=y
++CONFIG_SYS_NS16550_MEM32=y
++CONFIG_SYSRESET=y
++CONFIG_SYSRESET_PSCI=y
