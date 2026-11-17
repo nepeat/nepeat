@@ -45,6 +45,14 @@ the COMMAND register of the link partner's functions is cleared, the
 state the vendor U-Boot leaves the CS8210 FPGAs in (Linux enables decode
 itself; tools that touch a BAR before that assume it is off).
 
+amazon,link-tries: more full attempts at the DT gen/width before the
+fallback (default 1). amazon,endpoint-bars: <config offset, value> pairs
+written into the link partner once the link is up (decode off), the BARs
+the vendor U-Boot leaves, so the OS sees the same start state.
+alpine_v3_pcie_ft_fixup(): a port without a link gets status "disabled"
+in the OS DTB, as the vendor ft_board_setup does for its pcie-external
+nodes (else Linux pcie-al reads the DBI of a disabled port: SError).
+
 "alpcie status [port]" shows port, link, unit and partner registers;
 "alpcie reinit <port>" removes the bus, tears the port down, runs the
 full init and enumerates again. On a port that is not the last one probed
@@ -93,9 +101,9 @@ Scope: alpine-v3.
  drivers/pci/al_pcie_v3/al_init_pcie_v3_rc.c   |  221 +
  drivers/pci/al_pcie_v3/al_init_pcie_v3_rc.h   |   65 +
  drivers/pci/al_pcie_v3/al_sbus_shim.c         |   16 +
- drivers/pci/pcie_alpine_v3.c                  |  615 ++
+ drivers/pci/pcie_alpine_v3.c                  |  701 ++
  drivers/pci/pcie_alpine_v3_serror.S           |   89 +
- 39 files changed, 27067 insertions(+)
+ 39 files changed, 27153 insertions(+)
  create mode 100644 drivers/pci/al_pcie_v3/Makefile
  create mode 100644 drivers/pci/al_pcie_v3/al_hal_common.h
  create mode 100644 drivers/pci/al_pcie_v3/al_hal_iofic.c
@@ -26731,10 +26739,10 @@ index 00000000..d68713d5
 +}
 diff --git a/drivers/pci/pcie_alpine_v3.c b/drivers/pci/pcie_alpine_v3.c
 new file mode 100644
-index 00000000..426648d5
+index 00000000..20b28c78
 --- /dev/null
 +++ b/drivers/pci/pcie_alpine_v3.c
-@@ -0,0 +1,615 @@
+@@ -0,0 +1,701 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Annapurna Labs Alpine V3 external PCIe root complex ("amazon,al-alpine-v3-pcie",
@@ -26782,6 +26790,7 @@ index 00000000..426648d5
 +#include <mapmem.h>
 +#include <linux/delay.h>
 +#include <linux/ioport.h>
++#include <linux/libfdt.h>
 +
 +#include "al_pcie_v3/al_init_pcie_v3_rc.h"
 +#include "al_pcie_v3/al_hal_iomap.h"
@@ -26819,7 +26828,7 @@ index 00000000..426648d5
 +	unsigned int gen, lanes;		/* from the DT */
 +	unsigned int srd[AL_INIT_PCIE_V3_MAX_LANES];	/* main complex lane numbers */
 +	unsigned int nsrd;
-+	unsigned int crs_ms, link_ms;
++	unsigned int crs_ms, link_ms, link_tries;
 +	bool decode_off;
 +	int target_bus;			/* cached cfg_target_bus, -1 = unknown */
 +	bool ok;			/* HAL port handle valid */
@@ -27049,7 +27058,19 @@ index 00000000..426648d5
 +	unsigned int gen = priv->gen, lanes = priv->lanes;
 +	int rc;
 +
++	unsigned int t;
++
 +	rc = alpine_pcie_init_once(priv, gen, lanes, force, &res);
++	/*
++	 * amazon,link-tries: more full attempts at the DT gen/width first (an
++	 * endpoint that comes out of reset late, e.g. the CS8210 MDIO FPGA when
++	 * the GPIO init has just released it after a warm reset).
++	 */
++	for (t = 1; rc && t < priv->link_tries; t++) {
++		printf("PCIe %d: Gen%u x%u: no link (%s, %d), try %u of %u\n", priv->port_id, gen,
++		       lanes, res.step ? res.step : "?", rc, t + 1, priv->link_tries);
++		rc = alpine_pcie_init_once(priv, gen, lanes, false, &res);
++	}
 +	while (rc && (lanes > 1 || gen > 1)) {
 +		printf("PCIe %d: Gen%u x%u: no link (%s, %d)", priv->port_id, gen, lanes,
 +		       res.step ? res.step : "?", rc);
@@ -27073,6 +27094,37 @@ index 00000000..426648d5
 +	/* PCIe: 100 ms from link up before config requests to the device */
 +	mdelay(100);
 +	return 0;
++}
++
++/*
++ * amazon,endpoint-bars: <config offset, value> pairs written into the link
++ * partner (bus 1, device 0, function 0) once the link is up, with decode
++ * off: the BARs the vendor U-Boot leaves, so the OS finds the same start
++ * state. Needed for the CS8210 MDIO FPGA (1d0f:ec30): its BAR 0 keeps only
++ * bits 31:29 and 21 of a write and comes out of reset as 0xe0200000, which
++ * equals its own sizing read-back, so Linux rejects it ("BAR 0: invalid;
++ * can't size") unless something wrote another value first (the vendor:
++ * 0xe0000000).
++ */
++static void alpine_pcie_partner_bars(struct udevice *dev, struct alpine_pcie_priv *priv)
++{
++	pci_dev_t bdf = PCI_BDF(dev_seq(dev) + 1, 0, 0);
++	u32 v[16];
++	ulong rb;
++	int n, i;
++
++	n = dev_read_size(dev, "amazon,endpoint-bars");
++	if (n <= 0 || n % 8 || n > sizeof(v) ||
++	    dev_read_u32_array(dev, "amazon,endpoint-bars", v, n / 4))
++		return;
++	pci_bus_write_config(dev, bdf, PCI_COMMAND, 0, PCI_SIZE_16);
++	for (i = 0; i < n / 4; i += 2) {
++		pci_bus_write_config(dev, bdf, v[i], v[i + 1], PCI_SIZE_32);
++		pci_bus_read_config(dev, bdf, v[i], &rb, PCI_SIZE_32);
++		if ((rb & ~0xfUL) != (v[i + 1] & ~0xfU))
++			printf("PCIe %d: partner config %#x = %08x reads %08lx\n", priv->port_id,
++			       v[i], v[i + 1], rb);
++	}
 +}
 +
 +static unsigned int alpine_pcie_port_from_unit(ulong unit)
@@ -27110,6 +27162,7 @@ index 00000000..426648d5
 +	priv->crs_ms = dev_read_u32_default(dev, "amazon,crs-timeout-ms", CRS_TIMEOUT_MS);
 +	priv->link_ms = dev_read_u32_default(dev, "amazon,link-up-timeout-ms",
 +					     LINK_UP_TIMEOUT_MS);
++	priv->link_tries = dev_read_u32_default(dev, "amazon,link-tries", 1) ?: 1;
 +	priv->decode_off = dev_read_bool(dev, "amazon,endpoint-decode-off");
 +	n = dev_read_size(dev, "amazon,serdes-lanes");
 +	priv->nsrd = n > 0 ? n / 4 : 0;
@@ -27169,6 +27222,7 @@ index 00000000..426648d5
 +		al_pcie_secondary_bus_set(&priv->port, 1);
 +		al_pcie_subordinary_bus_set(&priv->port, 0xff);
 +		alpine_pcie_iatu(priv);
++		alpine_pcie_partner_bars(dev, priv);
 +	}
 +	return 0;
 +}
@@ -27199,6 +27253,46 @@ index 00000000..426648d5
 +		if (!f && !pci_bus_read_config(dev, bdf, PCI_HEADER_TYPE, &hdr, PCI_SIZE_8) &&
 +		    !(hdr & 0x80))
 +			break;
++	}
++	return 0;
++}
++
++/*
++ * For the OS DTB (from ft_board_setup): a port without a link gets
++ * status = "disabled", as the vendor U-Boot's ft_board_setup does for its
++ * pcie-external nodes. Linux pcie-al would otherwise read the DBI of a
++ * port this driver left disabled and take an SError (panic, 2026-11-17).
++ */
++int alpine_v3_pcie_ft_fixup(void *blob)
++{
++	struct udevice *dev;
++	struct uclass *uc;
++
++	if (uclass_get(UCLASS_PCI, &uc))
++		return 0;
++	uclass_foreach_dev(dev, uc) {
++		struct alpine_pcie_priv *priv;
++		fdt_addr_t cfg;
++		int off;
++
++		if (dev->driver != DM_DRIVER_GET(pcie_alpine_v3) ||
++		    !(dev_get_flags(dev) & DM_FLAG_ACTIVATED))
++			continue;
++		priv = dev_get_priv(dev);
++		if (priv->link_up)
++			continue;
++		cfg = dev_read_addr_name(dev, "config");
++		for (off = fdt_node_offset_by_compatible(blob, -1, "amazon,al-alpine-v3-pcie");
++		     off >= 0;
++		     off = fdt_node_offset_by_compatible(blob, off, "amazon,al-alpine-v3-pcie")) {
++			const fdt32_t *reg = fdt_getprop(blob, off, "reg", NULL);
++
++			if (!reg || ((u64)fdt32_to_cpu(reg[0]) << 32 | fdt32_to_cpu(reg[1])) != cfg)
++				continue;
++			fdt_setprop_string(blob, off, "status", "disabled");
++			printf("PCIe %d: no link, %s disabled in the OS device tree\n",
++			       priv->port_id, fdt_get_name(blob, off, NULL));
++		}
 +	}
 +	return 0;
 +}

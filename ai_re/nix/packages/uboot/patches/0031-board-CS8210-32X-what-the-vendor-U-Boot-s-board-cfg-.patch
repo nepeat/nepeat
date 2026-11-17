@@ -23,22 +23,29 @@ vendor DT object's /soc/board-cfg:
   and U-Boot's auto-config left them with memory decode and bus mastering
   on (milestone 2 lspci diff);
 - each port's link partner as a disabled device under the root port:
-  U-Boot needs none of them and leaves them unconfigured for Linux (the
-  MDIO FPGA 1d0f:ec30 ignores BAR 0 writes once U-Boot's auto-config has
-  set it up, and Linux then could not size it: RAM test 2026-11-16);
+  U-Boot needs none of them and does not auto-configure them (its
+  allocation would put the MDIO FPGA's BAR 0 at e0200000, the value Linux
+  cannot size, below);
+- the vendor's partner BARs (amazon,endpoint-bars): ASIC c0000000/0, I2C
+  FPGA c8000000/c8100000/c8200000, MDIO FPGA e0000000. The MDIO FPGA's
+  BAR 0 keeps only bits 31:29 and 21 and resets to 0xe0200000, which is
+  also its sizing read-back, so Linux rejects it ("BAR 0: invalid; can't
+  size") unless another value was written first: the first stage3 cold
+  boot (2026-11-17) had no Credo ports for that reason;
+- port 4: link-up timeout 1 s, 3 tries;
 - aliases/pci0 = the internal ECAM, so it is bus 0.
 Inert unless the board build enables the drivers (a nix extraConfig).
 
 Scope: cs8210.
 ---
- arch/arm/dts/alpine-v3-cs8210-u-boot.dtsi | 150 ++++++++++++++++++++++
- 1 file changed, 150 insertions(+)
+ arch/arm/dts/alpine-v3-cs8210-u-boot.dtsi | 162 ++++++++++++++++++++++
+ 1 file changed, 162 insertions(+)
 
 diff --git a/arch/arm/dts/alpine-v3-cs8210-u-boot.dtsi b/arch/arm/dts/alpine-v3-cs8210-u-boot.dtsi
-index 3df776a3..e0d75a93 100644
+index 3df776a3..2821192b 100644
 --- a/arch/arm/dts/alpine-v3-cs8210-u-boot.dtsi
 +++ b/arch/arm/dts/alpine-v3-cs8210-u-boot.dtsi
-@@ -44,8 +44,105 @@
+@@ -44,8 +44,117 @@
  		reg = <0x7800 0 0 0 0>;
  		status = "disabled";
  	};
@@ -66,11 +73,10 @@ index 3df776a3..e0d75a93 100644
 + * lanes stage3 gives each port (DT object serdes-avg-complex-main:
 + * lanes 0-3 pcie_0, 4 pcie_4, 8 pcie_1). Used when U-Boot trains the
 + * links itself (pcie_alpine_v3, al-boot stage3's application); a link
-+ * the vendor U-Boot trained is kept. The link partners stay unconfigured
-+ * in U-Boot (disabled endpoint nodes: nothing here uses them, and the MDIO
-+ * FPGA 1d0f:ec30 ignores BAR 0 writes after U-Boot's auto-config, which
-+ * left Linux unable to size it, 2026-11-16); at OS handoff their COMMAND
-+ * is cleared, as the vendor U-Boot leaves the FPGAs.
++ * the vendor U-Boot trained is kept. U-Boot does not auto-configure the
++ * link partners (disabled device nodes: nothing here uses them); it writes
++ * the vendor's BARs into them (amazon,endpoint-bars, see port 4) and clears
++ * their COMMAND at OS handoff, as the vendor U-Boot leaves the FPGAs.
 + */
 +#ifdef CONFIG_PCIE_ALPINE_V3
 +&pcie_external0 {
@@ -78,6 +84,8 @@ index 3df776a3..e0d75a93 100644
 +	amazon,link-gen = <3>;
 +	amazon,link-lanes = <4>;
 +	amazon,serdes-lanes = <0 1 2 3>;
++	/* the vendor U-Boot's BAR 0/1 (2026-11-15/17 reads: c0000004, 0) */
++	amazon,endpoint-bars = <0x10 0xc0000000 0x14 0x0>;
 +	amazon,crs-timeout-ms = <30000>;
 +	amazon,link-up-timeout-ms = <100>;
 +	amazon,link-pre-delay-ms = <100>;
@@ -101,6 +109,8 @@ index 3df776a3..e0d75a93 100644
 +	amazon,link-gen = <2>;
 +	amazon,link-lanes = <1>;
 +	amazon,serdes-lanes = <8>;
++	/* the vendor U-Boot's BAR 0-2 */
++	amazon,endpoint-bars = <0x10 0xc8000000 0x14 0xc8100000 0x18 0xc8200000>;
 +	amazon,crs-timeout-ms = <30000>;
 +	amazon,link-up-timeout-ms = <100>;
 +	amazon,endpoint-decode-off;
@@ -123,11 +133,20 @@ index 3df776a3..e0d75a93 100644
 +	amazon,link-gen = <1>;
 +	amazon,link-lanes = <1>;
 +	amazon,serdes-lanes = <4>;
++	/*
++	 * the vendor U-Boot's BAR 0. This FPGA's BAR 0 keeps only bits 31:29
++	 * and 21 and resets to 0xe0200000 = its sizing read-back: Linux cannot
++	 * size it from that value (cold boot on our U-Boot 2026-11-17). BAR 1
++	 * reads 0x00200000 whatever is written (the vendor leaves it).
++	 */
++	amazon,endpoint-bars = <0x10 0xe0000000>;
 +	amazon,crs-timeout-ms = <30000>;
-+	amazon,link-up-timeout-ms = <100>;
++	amazon,link-up-timeout-ms = <1000>;
++	/* the MDIO FPGA trains late after a warm reset (17 GPIOs just set): 3 tries */
++	amazon,link-tries = <3>;
 +	amazon,endpoint-decode-off;
 +
-+	/* the link partner (MDIO FPGA; its BAR 0 stops taking writes once U-Boot has configured it, so Linux could not size it): U-Boot uses nothing on the link, so it leaves it unconfigured for Linux */
++	/* the link partner (MDIO FPGA): U-Boot uses nothing on the link, so it leaves it unconfigured for Linux */
 +	pci@0,0 {
 +		reg = <0x0000 0 0 0 0>;
 +		#address-cells = <3>;
@@ -144,7 +163,7 @@ index 3df776a3..e0d75a93 100644
  /*
   * Boot flash SSI. U-Boot's DW SSI caps every transfer at the controller's
   * own spi-max-frequency (500 kHz when absent); read at the flash's 25 MHz,
-@@ -59,5 +156,58 @@
+@@ -59,5 +168,58 @@
  / {
  	aliases {
  		spi0 = &spi0;

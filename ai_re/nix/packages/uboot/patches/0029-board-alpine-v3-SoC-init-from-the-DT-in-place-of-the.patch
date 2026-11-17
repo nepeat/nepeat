@@ -33,15 +33,17 @@ nothing):
 CMD_ALPINE_V3: "alpine state" prints MUIO, GPIO banks, PLL and the EC MAC
 against the DT (read-only); "alpine muio|gpio|pll|mac" apply one part now.
 No CCU setup: the mainline Alpine V3 DT has no dma-coherent nodes.
+ft_board_setup() calls alpine_v3_pcie_ft_fixup() (weak; patch 0030) for
+the OS DTB.
 
 Scope: alpine-v3.
 ---
  board/amazon/alpine-v3/Kconfig     |  40 +++
  board/amazon/alpine-v3/Makefile    |   3 +
- board/amazon/alpine-v3/alpine-v3.c |  11 +
+ board/amazon/alpine-v3/alpine-v3.c |  16 +
  board/amazon/alpine-v3/soc-init.c  | 498 +++++++++++++++++++++++++++++
  board/amazon/alpine-v3/soc-init.h  |  12 +
- 5 files changed, 564 insertions(+)
+ 5 files changed, 569 insertions(+)
  create mode 100644 board/amazon/alpine-v3/soc-init.c
  create mode 100644 board/amazon/alpine-v3/soc-init.h
 
@@ -106,7 +108,7 @@ index 2bc97e58..d4345d3f 100644
 +obj-y	+= soc-init.o
 +endif
 diff --git a/board/amazon/alpine-v3/alpine-v3.c b/board/amazon/alpine-v3/alpine-v3.c
-index 69cb7d5a..1762ff6a 100644
+index 69cb7d5a..f3c87b4d 100644
 --- a/board/amazon/alpine-v3/alpine-v3.c
 +++ b/board/amazon/alpine-v3/alpine-v3.c
 @@ -23,6 +23,7 @@
@@ -117,7 +119,24 @@ index 69cb7d5a..1762ff6a 100644
  
  DECLARE_GLOBAL_DATA_PTR;
  
-@@ -218,6 +219,9 @@ int board_late_init(void)
+@@ -172,11 +173,16 @@ static bool alpine_v3_os_has_rsv(void *blob, u64 base, u64 size)
+  * itself into its memory reserve map, so Linux stays clear of firmware
+  * memory whichever DTB it gets.
+  */
++/* pcie_alpine_v3 (patch 0030): ports without a link off in the OS DTB */
++int alpine_v3_pcie_ft_fixup(void *blob);
++
+ int ft_board_setup(void *blob, struct bd_info *bd)
+ {
+ 	ofnode parent = ofnode_path("/reserved-memory");
+ 	ofnode node;
+ 
++	if (IS_ENABLED(CONFIG_PCIE_ALPINE_V3))
++		alpine_v3_pcie_ft_fixup(blob);
+ 	if (!ofnode_valid(parent))
+ 		return 0;
+ 	ofnode_for_each_subnode(node, parent) {
+@@ -218,6 +224,9 @@ int board_late_init(void)
  {
  	if (!env_get("fdtfile") && CONFIG_DEFAULT_FDT_FILE[0])
  		env_set("fdtfile", CONFIG_DEFAULT_FDT_FILE);
@@ -127,7 +146,7 @@ index 69cb7d5a..1762ff6a 100644
  	return 0;
  }
  
-@@ -231,7 +235,14 @@ int print_cpuinfo(void)
+@@ -231,7 +240,14 @@ int print_cpuinfo(void)
  	return 0;
  }
  

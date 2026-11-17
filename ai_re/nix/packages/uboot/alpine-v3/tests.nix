@@ -201,7 +201,7 @@ let
   '';
 
   # cs8210-selfinit / cs8210-stage3app (patches 0029-0031): config, symbols, DT,
-  # and the app object = u-boot.bin verbatim, inside A' slot B.
+  # and the app object = u-boot.bin verbatim, inside A' slot A (the smaller one).
   si = alpine.cs8210-selfinit;
   app = alpine.cs8210-stage3app;
   selfinit = pkgs.runCommand "alpine-v3-uboot-selfinit-checks" {
@@ -249,6 +249,11 @@ let
       # the link partner stays unconfigured in U-Boot (MDIO FPGA BAR 0, 2026-11-16)
       [ "$(fdtget $t $n/pci@0,0/device@0,0 status)" = disabled ]
     done
+    # the vendor's partner BARs; the MDIO FPGA's BAR 0 must not stay at its reset 0xe0200000
+    [ "$(fdtget -t x $t /pcie@fba00000 amazon,endpoint-bars)" = "10 e0000000" ]
+    [ "$(fdtget -t x $t /pcie@fb700000 amazon,endpoint-bars)" = "10 c8000000 14 c8100000 18 c8200000" ]
+    [ "$(fdtget -t u $t /pcie@fba00000 amazon,link-tries)" = 3 ]
+    grep -q " alpine_v3_pcie_ft_fixup$" syms.txt
     for d in crypto@6,0 crypto@10,0; do
       [ "$(fdtget $t /soc/pcie@fbd00000/$d status)" = disabled ]
     done
@@ -262,8 +267,8 @@ let
     magic, size, load, exe = struct.unpack_from("<I", o, 0)[0], *struct.unpack_from("<QQQ", o, 0x28)
     assert magic == 0x000b9ec7 and size == len(b) and o[0x48:0x48 + size] == b, "payload"
     assert load == exe == 0x08000000, (hex(load), hex(exe))
-    assert len(o) <= 0x67000, f"object {len(o):#x} > A' slot B 0x67000"
-    print(f"app: ok ({len(o):#x} B, load = exec = 0x08000000, {0x67000 - len(o)} B spare in slot B)")
+    assert len(o) <= 0xa0000, f"object {len(o):#x} > A' slot A 0xa0000"
+    print(f"app: ok ({len(o):#x} B, load = exec = 0x08000000, {0xa0000 - len(o)} B spare in slot A)")
     PY
     echo "selfinit: ok (config, symbols, DT, stage3 app object)"
     mkdir $out; echo pass > $out/result
