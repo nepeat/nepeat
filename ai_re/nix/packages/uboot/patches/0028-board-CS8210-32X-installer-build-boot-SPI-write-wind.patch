@@ -8,13 +8,16 @@ from RAM by the vendor U-Boot (loadx + booti), cut down to what writes
 our al-boot objects into the boot flash under scheme A'
 (devices/cs8210-32x/boot-chain.md section 7, spi-upgrade-plan.md):
 
-- the boot SPI NOR read-only (0019, 0025) except four windows on the
+- the boot SPI NOR read-only (0019, 0025) except five windows on the
   MX25U25635F (JEDEC c22539, 32 MiB, 4-byte opcodes, patch 0027):
   0x020000+0x1000 (second TOC), 0x030000+0x1000 (BOOT_MODE),
-  0x0f0000+0xa0000 (app slot A), 0x2f9000+0x67000 (app slot B);
-  "sf erase"/"sf write" for them, 4 KiB sectors. Stage2, the factory
-  TOC, DT, SerDes firmware, stage3, the factory U-Boot, its env and
-  ONIE cannot be erased or programmed by this build;
+  0x038000+0x8000 (our U-Boot's redundant env, 0x38000/0x3c000),
+  0x0f0000+0xa0000 (app slot A), 0x280000+0x100000 (app slot B: past the
+  factory U-Boot's data end 0x27808c, over never-run orphans, up to the
+  factory env at 0x380000); "sf erase"/"sf write" for them, 4 KiB
+  sectors. Stage2, the factory TOC, DT, SerDes firmware, stage3, the
+  factory U-Boot, its env and ONIE cannot be erased or programmed by
+  this build;
 - prompt "cs8210-installer> " (the host tool sends a destructive command
   only after seeing it, never to the vendor prompt), autoboot off;
 - console, DRAM, loadx/loady, crc32, md/cmp, PSCI reset; no PCI, SATA,
@@ -22,16 +25,16 @@ our al-boot objects into the boot flash under scheme A'
 
 Scope: cs8210.
 ---
- configs/alpine_v3_cs8210_installer_defconfig | 89 ++++++++++++++++++++
- 1 file changed, 89 insertions(+)
+ configs/alpine_v3_cs8210_installer_defconfig | 91 ++++++++++++++++++++
+ 1 file changed, 91 insertions(+)
  create mode 100644 configs/alpine_v3_cs8210_installer_defconfig
 
 diff --git a/configs/alpine_v3_cs8210_installer_defconfig b/configs/alpine_v3_cs8210_installer_defconfig
 new file mode 100644
-index 00000000..dcdd1c07
+index 00000000..4a753f76
 --- /dev/null
 +++ b/configs/alpine_v3_cs8210_installer_defconfig
-@@ -0,0 +1,89 @@
+@@ -0,0 +1,91 @@
 +CONFIG_ARM=y
 +CONFIG_TARGET_ALPINE_V3=y
 +CONFIG_TEXT_BASE=0x08000000
@@ -109,8 +112,10 @@ index 00000000..dcdd1c07
 +CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE2=0x1000
 +CONFIG_SPI_FLASH_WRITE_WINDOW_START3=0xf0000
 +CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE3=0xa0000
-+CONFIG_SPI_FLASH_WRITE_WINDOW_START4=0x2f9000
-+CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE4=0x67000
++CONFIG_SPI_FLASH_WRITE_WINDOW_START4=0x280000
++CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE4=0x100000
++CONFIG_SPI_FLASH_WRITE_WINDOW_START5=0x38000
++CONFIG_SPI_FLASH_WRITE_WINDOW_SIZE5=0x8000
 +CONFIG_SPI_MEM_READ_ONLY=y
 +CONFIG_SPI_MEM_READ_ONLY_4B=y
 +CONFIG_DEBUG_UART_SHIFT=2

@@ -268,9 +268,30 @@ let
     echo "selfinit: ok (config, symbols, DT, stage3 app object)"
     mkdir $out; echo pass > $out/result
   '';
+  # Installer (0027 + 0028): its config carries exactly the windows of the sandbox twin, and the
+  # sandbox shows erase/program happen only inside them (./sandbox-window/run.py, random data).
+  installer = pkgs.runCommand "alpine-v3-uboot-installer-window" { nativeBuildInputs = [ pkgs.python3 ]; } ''
+    set -euo pipefail
+    c=${alpine.cs8210-installer}/.config; s=${alpine.sandbox-installer}/.config
+    for k in START SIZE START2 SIZE2 START3 SIZE3 START4 SIZE4 START5 SIZE5 START6 SIZE6 JEDEC CHIP_SIZE ADDR_WIDTH BUS CS; do
+      a=$(grep "^CONFIG_SPI_FLASH_WRITE_WINDOW_$k=" $c); b=$(grep "^CONFIG_SPI_FLASH_WRITE_WINDOW_$k=" $s)
+      [ "$a" = "$b" ] || { echo "window $k: installer $a, sandbox $b"; exit 1; }
+    done
+    for kv in SPI_FLASH_READ_ONLY=y SPI_FLASH_WRITE_WINDOW=y CMD_SF_WRITE_WINDOW=y SPI_MEM_READ_ONLY_4B=y \
+              SPI_FLASH_USE_4K_SECTORS=y CMD_LOADB=y 'SYS_PROMPT="cs8210-installer> "' BOOTDELAY=-1; do
+      grep -qx "CONFIG_$kv" $c || { echo "installer: CONFIG_$kv missing"; exit 1; }
+    done
+    for k in SPI_FLASH_LOCK SPI_FLASH_UNLOCK_ALL CMD_SF_TEST CMD_SAVEENV ENV_IS_IN_SPI_FLASH PCI SCSI NET; do
+      ! grep -q "^CONFIG_$k=y" $c || { echo "installer: CONFIG_$k is on"; exit 1; }
+    done
+    grep -aqF 'outside the write window, refused' ${alpine.cs8210-installer}/u-boot.bin
+    cd $TMPDIR; python3 ${./sandbox-window/run.py} ${alpine.sandbox-installer}/u-boot ${alpine.sandbox-installer}/u-boot.dtb | tee log.txt
+    mkdir $out; cp log.txt $out/
+  '';
 in pkgs.linkFarm "alpine-v3-uboot-tests" [
   { name = "static"; path = static; }
   { name = "qemu-virt"; path = qemu; }
   { name = "pcie-init"; path = pcieInit; }
   { name = "selfinit"; path = selfinit; }
+  { name = "installer-window"; path = installer; }
 ]

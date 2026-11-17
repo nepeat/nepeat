@@ -80,7 +80,7 @@ let
     CONFIG_ENV_SPI_MAX_HZ=25000000
     CONFIG_ENV_SPI_MODE=0x0
     CONFIG_CMD_SAVEENV=y
-    # Size: the stage3 app must fit A' slot B (0x2f9000, 412 KiB) as well as A.
+    # Size: the stage3 app must fit both A' slots: A 0x0f0000 (640 KiB, the smaller) and B 0x280000 (1 MiB).
     # CONFIG_CMD_FDT is not set
     # CONFIG_CMD_LZMADEC is not set
     # CONFIG_LZMA is not set
@@ -121,9 +121,9 @@ in {
       ${selfinit}/u-boot.bin $out/u-boot-app-08000000.fimg | tee $out/wrap.txt
     python3 ${alboot} check $out/u-boot-app-08000000.fimg | tee $out/check.txt
     s=$(stat -c %s $out/u-boot-app-08000000.fimg)
-    # A' slot B is the smaller one: 0x2f9000-0x360000
-    [ $s -le $((0x67000)) ] || { echo "object $s B > slot B 0x67000"; exit 1; }
-    echo "fits slot B (0x67000) with $((0x67000 - s)) B spare, slot A (0xa0000) with $((0xa0000 - s))" | tee -a $out/check.txt
+    # A' slot A is the smaller one: 0x0f0000-0x190000 (B: 0x280000-0x380000)
+    [ $s -le $((0xa0000)) ] || { echo "object $s B > slot A 0xa0000"; exit 1; }
+    echo "fits slot A (0xa0000) with $((0xa0000 - s)) B spare, slot B (0x100000) with $((0x100000 - s))" | tee -a $out/check.txt
     (cd $out && sha256sum u-boot.bin *.fimg > SHA256SUMS)
   '';
 

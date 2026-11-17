@@ -29,6 +29,8 @@ edits of upstream ones. A refactor of the series must be byte-neutral: same `u-b
 | 0024 | alpine-v3 | Alpine V3 target after al-boot stage3 (board/amazon/alpine-v3, the 0014 model) |
 | 0025 | alpine-v3 | read-only SPI NOR: optionally pass the 4-byte-address reads (32 MiB flashes) |
 | 0026 | cs8210 | the CS8210-32X board: U-Boot DT additions + `alpine_v3_cs8210_defconfig` |
+| 0027 | alpine-v3 | write window: up to six ranges, 4-byte-opcode chips (`_ADDR_WIDTH`), `sf erase/write` inside them (`CMD_SF_WRITE_WINDOW`) |
+| 0028 | cs8210 | `alpine_v3_cs8210_installer_defconfig`: boot SPI writable only in the scheme A' windows (devices/cs8210-32x/spi-upgrade-plan.md) |
 | 0029 | alpine-v3 | SoC init from the DT in place of the vendor U-Boot: MUIO, GPIO, PLL dividers, base MAC; `alpine` command |
 | 0030 | alpine-v3 | external PCIe root complex (own HAL copy built for V3, AVG SerDes iCal; ~25 k lines vendor code) |
 | 0031 | cs8210 | the CS8210 vendor board-cfg as U-Boot DT (SoC init, PCIe ports, endpoints left alone) |
