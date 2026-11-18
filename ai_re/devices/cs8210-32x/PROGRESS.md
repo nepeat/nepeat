@@ -117,6 +117,15 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-18 — learn-wedge A/B done; powered off (plug 1)
+
+- Crossover blocks 1-3 + forced L0s A/B: L0s causes the link errors (on 64-84 CE lines/h, off 0); stalls 2 on / 0 off,
+  p = 0.25; production keeps L0s off ([learn-wedge.md](learn-wedge.md), `1a9bfb1`). 5 h after: clean.
+- `systemctl poweroff` 02:49 PST: al_eth's shutdown path warns twice (`__flush_work` from `cancel_delayed_work_sync` in
+  `al_eth_close`; refcount underflow in `phy_device_free`, i.e. a double put), then `reboot: Power down` does not cut power
+  (hard LOCKUP 10 s later; same open PSCI item). Plug 1 off. Open: fix al_eth close/remove on shutdown.
+  [shutdown-lockup-20261118.txt](shutdown-lockup-20261118.txt) (sha256 2595cd38aa3300a4…).
+
 ### 2026-11-17 — A' slot A rewritten with the fixed build; BOOT_MODE → slot A
 
 - Same update path (plan 7676df81…; verify 133/133 from the installed model, sandbox rehearse): slot A (kill page over the old

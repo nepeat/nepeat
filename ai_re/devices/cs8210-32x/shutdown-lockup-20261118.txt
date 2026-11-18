@@ -1,0 +1,400 @@
+[[0;32m  OK  [0m] Finished [0;1;39mCreate System Files and Directories[0m.
+[[0;32m  OK  [0m] Finished [0;1;39mApply Kernel Variables[0m.
+         Starting [0;1;39mNetwork Name Resolution[0m...
+         Starting [0;1;39mRecord System Boot/Shutdown in UTMP[0m...
+[[0;32m  OK  [0m] Finished [0;1;39mRecord System Boot/Shutdown in UTMP[0m.
+[[0;32m  OK  [0m] Finished [0;1;39mCreate SUID/SGID Wrappers[0m.
+[[0;32m  OK  [0m] Started [0;1;39mRule-based Manager for Device Events and Files[0m.
+[[0;32m  OK  [0m] Started [0;1;39mNetwork Name Resolution[0m.
+         Starting [0;1;39mNetwork Time Synchronization[0m...
+[[0;32m  OK  [0m] Started [0;1;39mNetwork Time Synchronization[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mSystem Time Set[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mTrusted Platform Module[0m.
+[[0;32m  OK  [0m] Finished [0;1;39mFirewall[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mPreparation for Network[0m.
+[[0;32m  OK  [0m] Listening on [0;1;39mNetwork Management Resolve Hook Socket[0m.
+         Starting [0;1;39mNetwork Management[0m...
+[[0;32m  OK  [0m] Started [0;1;39mNetwork Management[0m.
+[   11.266857] al_eth 0000:00:01.0 enp0s1: serdes_base get failed!
+[[0;32m  OK  [0m] Reached target [0;1;39mNetwork[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mNetwork is Online[0m.
+         Starting [0;1;39mEnable Persistent Storage in systemd-networkd[0m...
+[[0;32m  OK  [0m] Finished [0;1;39mColdplug All udev Devices[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mSystem Initialization[0m.
+[[0;32m  OK  [0m] Started [0;1;39mDiscard unused filesystem blocks once a week[0m.
+[[0;32m  OK  [0m] Started [0;1;39mlogrotate.timer[0m.
+[[0;32m  OK  [0m] Started [0;1;39mprometheus-textfile-cleanup.timer[0m.
+[[0;32m  OK  [0m] Started [0;1;39mprometheus-textfile-cs8210-asic-avs.timer[0m.
+[[0;32m  OK  [0m] Started [0;1;39mprometheus-textfile-cs8210-macsec.timer[0m.
+[[0;32m  OK  [0m] Started [0;1;39mprometheus-textfile-cs8210.timer[0m.
+[[0;32m  OK  [0m] Started [0;1;39mprometheus-textfile-sonic.timer[0m.
+[[0;32m  OK  [0m] Started [0;1;39mDaily Cleanup of Temporary Directories[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mTimer Units[0m.
+[[0;32m  OK  [0m] Listening on [0;1;39mD-Bus System Message Bus Socket[0m.
+[[0;32m  OK  [0m] Listening on [0;1;39mNix Daemon Socket[0m.
+[[0;32m  OK  [0m] Listening on [0;1;39mOpenSSH Server Socket…temd-ssh-generator, AF_UNIX Local)[0m.
+[[0;32m  OK  [0m] Listening on [0;1;39mVirtual Machine and C…tainer Registration Service Socket[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mSocket Units[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mBasic System[0m.
+         Starting [0;1;39mCS8210: PCIe read errors return all-ones instead of SError[0m...
+         Starting [0;1;39mCS8210 SAI files from the…rsion, pre-emphasis per devport)[0m...
+[[0;32m  OK  [0m] Started [0;1;39mCS8210: restart the vendor SDK when its learn thread wedges[0m.
+         Starting [0;1;39mfand fan control daemon[0m...
+         Starting [0;1;39mLogrotate configuration check[0m...
+         Starting [0;1;39mName Service Cache Daemon (nsncd)[0m...
+         Starting [0;1;39mPost-Boot Actions[0m...
+[[0;32m  OK  [0m] Started [0;1;39mprometheus-node-exporter.service[0m.
+         Starting [0;1;39mRedis Server - redis-sonic[0m...
+[[0;32m  OK  [0m] Started [0;1;39mReset console on configuration changes[0m.
+[[0;32m  OK  [0m] Started [0;1;39mCS8210: restart syncd when…dges (learn thread, dead CPU path)[0m.
+         Starting [0;1;39mSSH Daemon[0m...
+[[0;32m  OK  [0m] Started [0;1;39mCS8210: keep the vendor SDK's log files small[0m.
+         Starting [0;1;39mPaperMC on the CS8210[0m...
+[[0;32m  OK  [0m] Started [0;1;39mName Service Cache Daemon (nsncd)[0m.
+[[0;32m  OK  [0m] Started [0;1;39mSSH Daemon[0m.
+[[0;32m  OK  [0m] Finished [0;1;39mEnable Persistent Storage in systemd-networkd[0m.
+[[0;32m  OK  [0m] Finished [0;1;39mCS8210: PCIe read errors return all-ones instead of SError[0m.
+[[0;32m  OK  [0m] Finished [0;1;39mLogrotate configuration check[0m.
+[[0;32m  OK  [0m] Finished [0;1;39mPost-Boot Actions[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mHost and Network Name Lookups[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mUser and Group Name Lookups[0m.
+         Starting [0;1;39mCS8210: switch ASIC core … its fuses, as the vendor U-Boot[0m...
+         Starting [0;1;39mD-Bus System Message Bus[0m...
+         Starting [0;1;39mCS8210: refuse SONiC unle… the allowed cages are populated[0m...
+         Starting [0;1;39mUser Login Management[0m...
+         Starting [0;1;39mPermit User Sessions[0m...
+         Starting [0;1;39mVirtual Console Setup[0m...
+[[0;32m  OK  [0m] Started [0;1;39mfand fan control daemon[0m.
+[[0;32m  OK  [0m] Started [0;1;39mD-Bus System Message Bus[0m.
+[[0;32m  OK  [0m] Finished [0;1;39mCS8210 SAI files from the…version, pre-emphasis per devport)[0m.
+[[0;32m  OK  [0m] Finished [0;1;39mPermit User Sessions[0m.
+[[0;32m  OK  [0m] Started [0;1;39mGetty on tty1[0m.
+[[0;32m  OK  [0m] Started [0;1;39mSerial Getty on ttyS0[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mLogin Prompts[0m.
+[[0;32m  OK  [0m] Started [0;1;39mUser Login Management[0m.
+         Starting [0;1;39mlinger-users.service[0m...
+[[0;32m  OK  [0m] Finished [0;1;39mVirtual Console Setup[0m.
+[[0;32m  OK  [0m] Finished [0;1;39mlinger-users.service[0m.
+[[0;32m  OK  [0m] Finished [0;1;39mCS8210: refuse SONiC unle…ly the allowed cages are populated[0m.
+         Starting [0;1;39mCS8210: Credo MACsec PHYs…1-16) in MACsec bypass for SONiC[0m...
+[[0;32m  OK  [0m] Started [0;1;39mRedis Server - redis-sonic[0m.
+         Starting [0;1;39mSONiC CONFIG_DB from the Nix base and the saved config[0m...
+[[0;32m  OK  [0m] Finished [0;1;39mCS8210: switch ASIC core …om its fuses, as the vendor U-Boot[0m.
+[[0;32m  OK  [0m] Finished [0;1;39mSONiC CONFIG_DB from the Nix base and the saved config[0m.
+         Starting [0;1;39mSONiC LLDP daemon (lldpd)[0m...
+         Starting [0;1;39mApply changed Nix SONiC settings to the running CONFIG_DB[0m...
+[[0;32m  OK  [0m] Started [0;1;39mFlag runtime changes to Nix-enforced SONiC settings[0m.
+[[0;32m  OK  [0m] Started [0;1;39mSONiC port_index_mapper (S…E_DB PORT_INDEX_TABLE for hsflowd)[0m.
+[[0;32m  OK  [0m] Started [0;1;39mSONiC psud (pmon)[0m.
+[[0;32m  OK  [0m] Started [0;1;39mSONiC syseepromd (pmon)[0m.
+[[0;32m  OK  [0m] Started [0;1;39mSONiC thermalctld (pmon)[0m.
+[[0;32m  OK  [0m] Finished [0;1;39mApply changed Nix SONiC settings to the running CONFIG_DB[0m.
+[[0;32m  OK  [0m] Started [0;1;39mSONiC LLDP daemon (lldpd)[0m.
+[[0;32m  OK  [0m] Started [0;1;39mSONiC lldp_syncd (LLDP neighbors -> APPL_DB)[0m.
+[[0;32m  OK  [0m] Started [0;1;39mSONiC lldpmgrd (per-port LLDP settings from CONFIG/APPL_DB)[0m.
+         Starting [0;1;39mPrometheus textfile producer sonic[0m...
+[[0;32m  OK  [0m] Finished [0;1;39mPrometheus textfile producer sonic[0m.
+[!p]104\[0m[?7h[1G[0J7[32766;32766H[6n8[!p]104\[0m[?7h[1G[0J7[32766;32766H[6n8]3008;start=639c9da0513543c58c04c15e4941f7e3;user=root;hostname=cs8210;machineid=d6d55e34246e4f25ac64d2cd897286c9;bootid=8e8f395e1a4648cb8dd6426064df58dc;pid=946;pidfdid=4159;comm=(agetty);servicename=serial-getty@ttyS0.service;invocationid=dc8fd708cabc4bb9b580dc5a45fcae82;type=service\P+q6E616D65\
+
+[1;32m<<< Welcome to NixOS sd-card-26.11.20261114.2f709fe (aarch64) - ttyS0 >>>[0m
+
+
+cs8210 login: root (automatic login)
+
+]3008;start=fa7000b5cc35415e803cd4e98e7f48e8;user=root;hostname=cs8210;machineid=d6d55e34246e4f25ac64d2cd897286c9;bootid=8e8f395e1a4648cb8dd6426064df58dc;pid=946;pidfdid=4159;comm=login;targetuser=root;sessionid=3;type=session\[?2004h
+[1;31m[]0;root@cs8210: ~root@cs8210:~]#[0m date -u; uptime; ip -br a show enp0s1; ip rule | head -5; ip route | head -3; tail -5 /var/lib/lw-soak/crossover.txt; systemctl is-active sonic -syncd systemd-networkd; journalctl -b --since -2h -p warning --no-pager | tail -15
+[?2004lTue Nov 17 06:53:02 AM UTC 2026
+ 22:53:02  up  2:10,  2 users,  load average: 0.08, 0.37, 0.47
+[1;36menp0s1           [0m[1;32mUP             [0m[1;35m10.60.2.190[0m/24 metric 1024 [1;94m2601:601:c01:7321:e48:c6ff:fe7a:55ce[0m/64 [1;94mfe80::e48:c6ff:fe7a:55ce[0m/64 
+1000:	from all lookup [l3mdev-table]
+1001:	from all lookup local
+32766:	from all lookup main
+32767:	from all lookup default
+default via 10.60.2.1 dev enp0s1 proto dhcp src 10.60.2.190 metric 1024 
+10.60.2.0/24 dev enp0s1 proto kernel scope link src 10.60.2.190 metric 1024 
+10.60.2.1 dev enp0s1 proto dhcp scope link src 10.60.2.190 metric 1024 
+2026-11-16T21:23:34 START boot=8e8f395e-1a46-48cb-8dd6-426064df58dc u-boot=2026.10-cs8210-selfinit libsai=/nix/store/gpia9xpj4wp9acrl3vpjbdyh6wvgllhb-sai-teralynx-aarch64-unknown-linux-gnu-0.1.0/lib schedule='on off off on on off off on' block=14400s first=1
+2026-11-16T21:24:30 BLOCK 1 arm=on l0s=1 start, BFD up after 10s, syncd 50713, txfull=0, watchdog: {"boot_id": "8e8f395e-1a46-48cb-8dd6-426064df58dc", "triggers": {"kernel": 0, "vmsize": 0, "rss": 0, "learn-cpu": 0, "tx-stall": 0, "cpu-tx": 0, "guard": 0}, "aer": {"asic correctable Timeout": 2, "asic correctable BadTLP": 3}, "aer_seen": {"0001:00:00.0": 0, "0002:00:00.0": 0, "0004:00:00.0": 0}, "updated": 1794893063.2846956, "restarts": 0, "suppressed": 0, "held": 0, "escalations": 0, "recoveries": 0, "alarm": 0, "level": 0, "last_trigger": 0.0, "last_restart": 0.0}
+active
+active
+Nov 16 22:49:22 cs8210 DomInfoUpdateTask[50678]: Post Status flags to db failed for Ethernet120 as no flags found
+Nov 16 22:49:22 cs8210 DomInfoUpdateTask[50678]: Post DOM flags to db failed for Ethernet0 as no flags found
+Nov 16 22:49:22 cs8210 DomInfoUpdateTask[50678]: Post Status flags to db failed for Ethernet0 as no flags found
+Nov 16 22:50:22 cs8210 DomInfoUpdateTask[50678]: Post DOM flags to db failed for Ethernet120 as no flags found
+Nov 16 22:50:22 cs8210 DomInfoUpdateTask[50678]: Post Status flags to db failed for Ethernet120 as no flags found
+Nov 16 22:50:22 cs8210 DomInfoUpdateTask[50678]: Post DOM flags to db failed for Ethernet0 as no flags found
+Nov 16 22:50:22 cs8210 DomInfoUpdateTask[50678]: Post Status flags to db failed for Ethernet0 as no flags found
+Nov 16 22:51:22 cs8210 DomInfoUpdateTask[50678]: Post DOM flags to db failed for Ethernet120 as no flags found
+Nov 16 22:51:22 cs8210 DomInfoUpdateTask[50678]: Post Status flags to db failed for Ethernet120 as no flags found
+Nov 16 22:51:22 cs8210 DomInfoUpdateTask[50678]: Post DOM flags to db failed for Ethernet0 as no flags found
+Nov 16 22:51:22 cs8210 DomInfoUpdateTask[50678]: Post Status flags to db failed for Ethernet0 as no flags found
+Nov 16 22:52:22 cs8210 DomInfoUpdateTask[50678]: Post DOM flags to db failed for Ethernet120 as no flags found
+Nov 16 22:52:22 cs8210 DomInfoUpdateTask[50678]: Post Status flags to db failed for Ethernet120 as no flags found
+Nov 16 22:52:22 cs8210 DomInfoUpdateTask[50678]: Post DOM flags to db failed for Ethernet0 as no flags found
+Nov 16 22:52:22 cs8210 DomInfoUpdateTask[50678]: Post Status flags to db failed for Ethernet0 as no flags found
+[?2004h
+[1;31m[]0;root@cs8210: ~root@cs8210:~]#[0m ps -eo pid,ppid,etime,cmd | grep -E lw-crossover | grep -v grep; systemctl status $(ps -o unit= -p $(pgrep -f lw-crossover | head -1)) --no-pag er 2>/dev/null | head -4
+[?2004l  47343       1    01:29:34 bash /var/lib/lw-soak/lw-crossover.sh on off off on on off off on 14400
+● lw-crossover.service - [systemd-run] /var/lib/lw-soak/lw-crossover.sh "on off off on on off off on" 14400
+     Loaded: loaded (/run/systemd/transient/lw-crossover.service; transient)
+  Transient: yes
+     Active: active (running) since Mon 2026-11-16 21:23:34 PST; 1h 29min ago
+[?2004h
+[1;31m[]0;root@cs8210: ~root@cs8210:~]#[0m 
+Broadcast message from root@cs8210 (Wed 2026-11-18 02:49:21 PST):
+
+The system will power off now!
+
+[[0;32m  OK  [0m] Stopped [0;1;39m[systemd-run] /ru[[0;32m  OK  [0m] Removed slice [0;1;39mSlice /system/modprobe[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mMulti-User System[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mLogin Prompts[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mVirtual Machines and Containers[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mHost and Network Name Lookups[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mReactivate sysinit units[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mTimer Units[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mDiscard unused filesystem blocks once a week[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mlogrotate.timer[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mprometheus-textfile-cleanup.timer[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mprometheus-textfile-cs8210-asic-avs.timer[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mprometheus-textfile-cs8210-ifcs.timer[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mprometheus-textfile-cs8210-macsec.timer[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mprometheus-textfile-cs8210.timer[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mprometheus-textfile-sonic.timer[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mDaily Cleanup of Temporary Directories[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mSystem Time Set[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mTrusted Platform Module[0m.
+         Mounting [0;1;39m/run/initramfs[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mCS8210: switch ASIC core v…om its fuses, as the vendor U-Boot[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mCS8210: ASPM off on the switch ASIC's PCIe link[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mCS8210: PCIe read errors return all-ones instead of SError[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mCS8210 SAI files from the …version, pre-emphasis per devport)[0m.
+         Stopping [0;1;39mCS8210: restart the vendo…SDK when its learn thread wedges[0m...
+         Stopping [0;1;39mfand fan control daemon[0m...
+         Stopping [0;1;39mGetty on tty1[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mLogrotate configuration check[0m.
+         Stopping [0;1;39mPost-Boot Actions[0m...
+         Stopping [0;1;39mprometheus-node-exporter.service[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mReset console on configuration changes[0m.
+         Stopping [0;1;39mSerial Getty on ttyS0[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mApply changed Nix SONiC settings to the running CONFIG_DB[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mSONiC CONFIG_DB from the Nix base and the saved config[0m.
+         Stopping [0;1;39mRedis Server - redis-sonic[0m...
+         Stopping [0;1;39mSSH Daemon[0m...
+         Stopping [0;1;39mEnable Persistent Storage in systemd-networkd[0m...
+         Stopping [0;1;39mLoad/Save OS Random Seed[0m...
+         Stopping [0;1;39mCS8210: keep the vendor SDK's log files small[0m...
+         Stopping [0;1;39mPaperMC on the CS8210[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mprometheus-node-exporter.service[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mSSH Daemon[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mCS8210: keep the vendor SDK's log files small[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mGetty on tty1[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mSerial Getty on ttyS0[0m.
+[!p]104\[0m[?7h[1G[0J7[32766;32766H[6n8]3008;end=639c9[[0;32m  OK  [0m] Stopped [0;1;39mRedis Server - redis-sonic[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mCS8210: restart the vendor SDK when its learn thread wedges[0m.
+[[0;32m  OK  [0m] Mounted [0;1;39m/run/initramfs[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mPost-Boot Actions[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mLoad/Save OS Random Seed[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mSession 3 of User root[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mSession 1 of User root[0m.
+[[0;32m  OK  [0m] Removed slice [0;1;39mSlice /system/getty[0m.
+[[0;32m  OK  [0m] Removed slice [0;1;39mSlice /system/serial-getty[0m.
+         Starting [0;1;39mGenerate shutdown ramfs[0m...
+         Stopping [0;1;39mPermit User Sessions[0m...
+         Stopping [0;1;39mUser Manager for UID 0[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mEnable Persistent Storage in systemd-networkd[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mfand fan control daemon[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mPermit User Sessions[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mRemote File Systems[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mRe-setup tmpfiles on a system that is already running.[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mUser Manager for UID 0[0m.
+[[0;32m  OK  [0m] Finished [0;1;39mGenerate shutdown ramfs[0m.
+         Stopping [0;1;39mUserspace Out-Of-Memory (OOM) Killer[0m...
+         Stopping [0;1;39mUser Runtime Directory /run/user/0[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mUserspace Out-Of-Memory (OOM) Killer[0m.
+[[0;32m  OK  [0m] Unmounted [0;1;39m/run/user/0[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mUser Runtime Directory /run/user/0[0m.
+[[0;32m  OK  [0m] Removed slice [0;1;39mSlice /user/0[0m.
+         Stopping [0;1;39mUser Login Management[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mUser Login Management[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mUser and Group Name Lookups[0m.
+         Stopping [0;1;39mName Service Cache Daemon (nsncd)[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mName Service Cache Daemon (nsncd)[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mPaperMC on the CS8210[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mBasic System[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mNetwork is Online[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mNetwork[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mPath Units[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mSlice Units[0m.
+[[0;32m  OK  [0m] Removed slice [0;1;39mUser and Session Slice[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mSocket Units[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mNix Daemon Socket[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mOpenSSH Server Socket (systemd-ssh-generator, AF_UNIX Local)[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mHostname Service Socket[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mDisk Image Download Service Socket[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mVirtual Machine and Container Registration Service Socket[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mConsole Output Muting Service Socket[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mUserspace Out-Of-Memory (OOM) Killer Socket[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mDisk Repartitioning Service Socket[0m.
+         Stopping [0;1;39mD-Bus System Message Bus[0m...
+         Stopping [0;1;39mNetwork Management[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mD-Bus System Message Bus[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mD-Bus System Message Bus Socket[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mSystem Initialization[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mLocal Encrypted Volumes[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mDispatch Password Requests to Console Directory Watch[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mForward Password Requests to Wall Directory Watch[0m.
+         Stopping [0;1;39mNetwork Time Synchronization[0m...
+         Stopping [0;1;39mRecord System Boot/Shutdown in UTMP[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mNetwork Management[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mNetwork Time Synchronization[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mRecord System Boot/Shutdown in UTMP[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mNetwork Management Resolve Hook Socket[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mPreparation for Network[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mNetwork Management Metrics Varlink Socket[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mNetwork Management Varlink Socket[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mNetwork Management Netlink Socket[0m.
+         Stopping [0;1;39mFirewall[0m...
+         Stopping [0;1;39mNetwork Name Resolution[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mCreate System Files and Directories[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mLocal File Systems[0m.
+         Unmounting [0;1;39m/run/cs8210-sdk/tmp[0m...
+         Unmounting [0;1;39m/run/keys[0m...
+         Unmounting [0;1;39m/run/wrappers[0m...
+[[0;32m  OK  [0m] Stopped [0;1;39mNetwork Name Resolution[0m.
+[[0;32m  OK  [0m] Unmounted [0;1;39m/run/cs8210-sdk/tmp[0m.
+[[0;32m  OK  [0m] Unmounted [0;1;39m/run/keys[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mFirewall[0m.
+[[0;32m  OK  [0m] Unmounted [0;1;39m/run/wrappers[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mPreparation for Local File Systems[0m.
+[[0;32m  OK  [0m] Stopped target [0;1;39mSwaps[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mUnmount All Filesystems[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mResolve Monitor Varlink Socket[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mResolve Service Varlink Socket[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mRemount Root and Kernel File Systems[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mFile System Check on Root Device[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mApply Kernel Variables[0m.
+[[0;32m  OK  [0m] Closed [0;1;39mProcess Core Dump Socket[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mLoad Kernel Modules[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mCreate Static Device Nodes in /dev[0m.
+[[0;32m  OK  [0m] Stopped [0;1;39mCreate Static Device Nodes in /dev gracefully[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mSystem Shutdown[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mLate Shutdown Services[0m.
+[[0;32m  OK  [0m] Finished [0;1;39mSystem Power Off[0m.
+[[0;32m  OK  [0m] Reached target [0;1;39mSystem Power Off[0m.
+]3008;end=e9fded8a004b45819b90708f078b92ee\[18t7[32766;32766H[6n8[!p]104\[0m[?7h[1G[0J[108416.671778] WARNING: kernel/workqueue.c:4409 at __flush_work+0x39c/0x3d0, CPU#7: shutdown/1
+[108416.680217] Modules linked in: xt_comment(E) ipd(OE) psample(E) rtc_ds1307(E) at24(E) sm4(E) marvell(E) xt_conntrack(E) nf_conntrack(E) nf_defrag_ipv6(E) nf_defrag_ipv4(E) xt_tcpudp(E) ip6t_rpfilter(E) ipt_rpfilter(E) xt_pkttype(E) nft_compat(E) x_tables(E) nf_tables(E) sch_fq_codel(E) bridge(E) 8021q(E) garp(E) mrp(E) lm75(E) team_mode_loadbalance(E) stp(E) al_eth(OE) i3c(E) team(E) vrf(E) llc(E) spi_mux(E) dummy(E) mux_gpio(E) fuse(E)
+[108416.718962] CPU: 7 UID: 0 PID: 1 Comm: shutdown Tainted: G           OE       7.3.4 #1-NixOS PREEMPTLAZY 
+[108416.728604] Tainted: [O]=OOT_MODULE, [E]=UNSIGNED_MODULE
+[108416.733992] Hardware name: Celestica CS8210-32X (DT)
+[108416.739035] pstate: 00000005 (nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[108416.746073] pc : __flush_work+0x39c/0x3d0
+[108416.750164] lr : __flush_work+0x54/0x3d0
+[108416.754168] sp : ffff80008467b720
+[108416.757562] x29: ffff80008467b780 x28: dead000000000122 x27: 0000000000000000
+[108416.764777] x26: dead000000000100 x25: ffff800084421df0 x24: ffff80008467b918
+[108416.771991] x23: 0000000000000001 x22: 0000000000000001 x21: 0000000000000001
+[108416.779205] x20: ffff00010e24fc50 x19: ffff00010e24fc50 x18: ffff8001b3396000
+[108416.786418] x17: ffff8001b3396000 x16: ffff800084630000 x15: ffff800083940c98
+[108416.793632] x14: ffff8000837ba040 x13: 0000000000000180 x12: ffff000236b50040
+[108416.800846] x11: 00000000000000c0 x10: 0000000000000eb0 x9 : ffff80008011e324
+[108416.808059] x8 : ffff80008467b778 x7 : 0000000000000000 x6 : 000000000000003f
+[108416.815273] x5 : 0000000000000040 x4 : 0000000000000000 x3 : 0000000000000000
+[108416.822486] x2 : 0000000000000008 x1 : 0000000000000000 x0 : 0000000000000000
+[108416.829700] Call trace:
+[108416.832226]  __flush_work+0x39c/0x3d0 (P)
+[108416.836318]  cancel_delayed_work_sync+0x74/0xa0
+[108416.840928]  al_eth_close+0x30/0x180 [al_eth]
+[108416.845407]  __dev_close_many+0xdc/0x240
+[108416.849416]  netif_close_many+0xc4/0x228
+[108416.853420]  unregister_netdevice_many_notify+0x2b4/0xad8
+[108416.858898]  unregister_netdevice_queue+0xdc/0x148
+[108416.863768]  unregister_netdev+0x2c/0x60
+[108416.867770]  al_eth_remove+0x34/0x70 [al_eth]
+[108416.872243]  pci_device_shutdown+0x3c/0x90
+[108416.876420]  device_shutdown+0x124/0x240
+[108416.880425]  kernel_power_off+0x48/0x98
+[108416.884342]  __do_sys_reboot+0x204/0x268
+[108416.888345]  __arm64_sys_reboot+0x28/0x40
+[108416.892435]  invoke_syscall.constprop.0+0xac/0x110
+[108416.897307]  el0_svc_common.constprop.0+0x40/0xf0
+[108416.902092]  do_el0_svc+0x24/0x40
+[108416.905489]  el0_svc+0x40/0x260
+[108416.908715]  el0t_64_sync_handler+0xa0/0xe8
+[108416.912979]  el0t_64_sync+0x198/0x1a0
+[108416.916722] ---[ end trace 0000000000000000 ]---
+[108416.922231] ------------[ cut here ]------------
+[108416.922233] refcount_t: underflow; use-after-free.
+[108416.922246] WARNING: lib/refcount.c:28 at refcount_warn_saturate+0xf4/0x148, CPU#7: shutdown/1
+[108416.940498] Modules linked in: xt_comment(E) ipd(OE) psample(E) rtc_ds1307(E) at24(E) sm4(E) marvell(E) xt_conntrack(E) nf_conntrack(E) nf_defrag_ipv6(E) nf_defrag_ipv4(E) xt_tcpudp(E) ip6t_rpfilter(E) ipt_rpfilter(E) xt_pkttype(E) nft_compat(E) x_tables(E) nf_tables(E) sch_fq_codel(E) bridge(E) 8021q(E) garp(E) mrp(E) lm75(E) team_mode_loadbalance(E) stp(E) al_eth(OE) i3c(E) team(E) vrf(E) llc(E) spi_mux(E) dummy(E) mux_gpio(E) fuse(E)
+[108416.979236] CPU: 7 UID: 0 PID: 1 Comm: shutdown Tainted: G        W  OE       7.3.4 #1-NixOS PREEMPTLAZY 
+[108416.988877] Tainted: [W]=WARN, [O]=OOT_MODULE, [E]=UNSIGNED_MODULE
+[108416.995133] Hardware name: Celestica CS8210-32X (DT)
+[108417.000175] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[108417.007212] pc : refcount_warn_saturate+0xf4/0x148
+[108417.012082] lr : refcount_warn_saturate+0xf4/0x148
+[108417.016951] sp : ffff80008467b780
+[108417.020344] x29: ffff80008467b780 x28: dead000000000122 x27: 0000000000000000
+[108417.027559] x26: dead000000000100 x25: ffff8000843ab7a0 x24: ffff80008467b918
+[108417.034773] x23: ffff80008467b918 x22: 0000000000000001 x21: ffff00010e24fb00
+[108417.041986] x20: ffff00010e24cb00 x19: ffff80007cacae90 x18: 000000000000000a
+[108417.049200] x17: 6120736920332070 x16: 756f726773656472 x15: 0000000000000000
+[108417.056414] x14: ffffffffffffffff x13: 0000000000000000 x12: 000000000037ff90
+[108417.063627] x11: ffff800083daf818 x10: ffff80008396f650 x9 : ffff8000801d08dc
+[108417.070841] x8 : ffff800083cef830 x7 : 000000000000027f x6 : 0000000000000000
+[108417.078055] x5 : 000000000000027f x4 : 0000000000000000 x3 : 0000000000000001
+[108417.085268] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff000101a96180
+[108417.092482] Call trace:
+[108417.095008]  refcount_warn_saturate+0xf4/0x148 (P)
+[108417.099878]  kobject_put+0x190/0x2c8
+[108417.103534]  put_device+0x1c/0x40
+[108417.106931]  phy_device_free+0x18/0x30
+[108417.110762]  al_eth_close+0xb8/0x180 [al_eth]
+[108417.115237]  __dev_close_many+0xdc/0x240
+[108417.119243]  netif_close_many+0xc4/0x228
+[108417.123247]  unregister_netdevice_many_notify+0x2b4/0xad8
+[108417.128724]  unregister_netdevice_queue+0xdc/0x148
+[108417.133594]  unregister_netdev+0x2c/0x60
+[108417.137597]  al_eth_remove+0x34/0x70 [al_eth]
+[108417.142069]  pci_device_shutdown+0x3c/0x90
+[108417.146245]  device_shutdown+0x124/0x240
+[108417.150248]  kernel_power_off+0x48/0x98
+[108417.154164]  __do_sys_reboot+0x204/0x268
+[108417.158167]  __arm64_sys_reboot+0x28/0x40
+[108417.162257]  invoke_syscall.constprop.0+0xac/0x110
+[108417.167129]  el0_svc_common.constprop.0+0x40/0xf0
+[108417.171914]  do_el0_svc+0x24/0x40
+[108417.175311]  el0_svc+0x40/0x260
+[108417.178534]  el0t_64_sync_handler+0xa0/0xe8
+[108417.182798]  el0t_64_sync+0x198/0x1a0
+[108417.186540] ---[ end trace 0000000000000000 ]---
+[108417.231712] reboot: Power down
+[108427.735463] WARNING: kernel/irq_work.c:144 at irq_work_queue_on+0xc4/0xd0, CPU#0: rcu_sched/16
+[108427.744159] Modules linked in: xt_comment(E) ipd(OE) psample(E) rtc_ds1307(E) at24(E) sm4(E) marvell(E) xt_conntrack(E) nf_conntrack(E) nf_defrag_ipv6(E) nf_defrag_ipv4(E) xt_tcpudp(E) ip6t_rpfilter(E) ipt_rpfilter(E) xt_pkttype(E) nft_compat(E) x_tables(E) nf_tables(E) sch_fq_codel(E) bridge(E) 8021q(E) garp(E) mrp(E) lm75(E) team_mode_loadbalance(E) stp(E) al_eth(OE) i3c(E) team(E) vrf(E) llc(E) spi_mux(E) dummy(E) mux_gpio(E) fuse(E)
+[108427.782905] CPU: 0 UID: 0 PID: 16 Comm: rcu_sched Tainted: G        W  OE       7.3.4 #1-NixOS PREEMPTLAZY 
+[108427.792720] Tainted: [W]=WARN, [O]=OOT_MODULE, [E]=UNSIGNED_MODULE
+[108427.798976] Hardware name: Celestica CS8210-32X (DT)
+[108427.804019] pstate: 000000c5 (nzcv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[108427.811057] pc : irq_work_queue_on+0xc4/0xd0
+[108427.815408] lr : rcu_watching_snap_recheck+0x3b8/0x490
+[108427.820628] sp : ffff80008470bc00
+[108427.824022] x29: ffff80008470bc00 x28: ffff800083db2f40 x27: 0000000000000001
+[108427.831237] x26: ffff80008393df8c x25: ffff8000801fa518 x24: 0000000000000001
+[108427.838451] x23: ffff0002369aa940 x22: ffff800083940c98 x21: ffff8000837e2940
+[108427.845665] x20: ffff800083db2f40 x19: ffff0002369aa940 x18: ffff8001b317b000
+[108427.852879] x17: 6e61207365636976 x16: 00012abb27d40024 x15: ffff800083940c98
+[108427.860093] x14: ffff8000837ba040 x13: 0000000000000180 x12: ffff000236935040
+[108427.867307] x11: 00000000000000c0 x10: 0000000000000eb0 x9 : ffff8000801fa540
+[108427.874521] x8 : ffff000101aff090 x7 : 0000000000000000 x6 : ffff0002369aac28
+[108427.881734] x5 : 0000000000000001 x4 : ffff800083936000 x3 : 0000000000000019
+[108427.888948] x2 : 00000001019c7990 x1 : 0000000000000000 x0 : 0000000000000000
+[108427.896162] Call trace:
+[108427.898689]  irq_work_queue_on+0xc4/0xd0 (P)
+[108427.903042]  rcu_watching_snap_recheck+0x3b8/0x490
+[108427.907914]  force_qs_rnp+0x15c/0x320
+[108427.911659]  rcu_gp_fqs_loop+0x3a8/0x6f8
+[108427.915664]  rcu_gp_kthread+0x1ac/0x320
+[108427.919581]  kthread+0x134/0x150
+[108427.922892]  ret_from_fork+0x10/0x20
+[108427.926549] ---[ end trace 0000000000000000 ]---
+[108427.935444] watchdog: CPU0: Watchdog detected hard LOCKUP on cpu 1
+[108427.941702] Modules linked in: xt_comment(E) ipd(OE) psample(E) rtc_ds1307(E) at24(E) sm4(E) marvell(E) xt_conntrack(E) nf_conntrack(E) nf_defrag_ipv6(E) nf_defrag_ipv4(E) xt_tcpudp(E) ip6t_rpfilter(E) ipt_rpfilter(E) xt_pkttype(E) nft_compat(E) x_tables(E) nf_tables(E) sch_fq_codel(E) bridge(E) 8021q(E) garp(E) mrp(E) lm75(E) team_mode_loadbalance(E) stp(E) al_eth(OE) i3c(E) team(E) vrf(E) llc(E) spi_mux(E) dummy(E) mux_gpio(E) fuse(E)
