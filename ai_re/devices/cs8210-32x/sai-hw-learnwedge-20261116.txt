@@ -83,3 +83,34 @@ for section 5 (counted from 17:27:36). Monitor script: lw-soak.sh (in the raw di
 - Run 3, boot 8e8f395e, our U-Boot from SPI slot A (same build, commit e3657c6): start 20:48:26, syncd pid 4144; at start
   L0s 1 and root port CESta 0x1040 again (6 min uptime); L0s off + cleared 20:48:26. Stopped 21:06:57 for 3b: 18 min clean.
 - Review (2026-11-17, H1): these runs carry no statistical weight; replaced by the crossover in learn-wedge.md section 7.
+
+## 7. Crossover (learn-wedge.md section 7; controller lw-crossover.sh, log /var/lib/lw-soak/crossover.txt on the box)
+Deployed generation bc391npg... (05:19Z), libsai gpia9xpj... (guard active, 1/1/1 GOT entries), watchdog with the review
+fixes, cs8210-asic-aspm; boot 8e8f395e, our U-Boot 2026.10-cs8210-selfinit from SPI slot A. Schedule on off off on on off
+off on, 14400 s blocks, each started with a SONiC restart under the lease. Start 21:23:34 PST.
+| block | arm | start | end | guard learn reads | other all-ones offsets | watchdog signals | root-port UE | kernel | TX-3 Full | note |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | on | 11-16 21:24:30 | 11-17 01:24:33 | 1 (0x4864, recovered on re-read) | 0 | tx-stall 2 (23:20:05, 23:45:56), both recovered (syncd restarts by watchdog 23:20:20, 23:46:11; "moving again" 23:20:35, 23:46:26); watchdog lines 5 | 1 line (23:42:55 UE:CmpltTO UE:UnxCmplt) | 0 | 0 -> 215124632 | 2 events; CE: watchdog lines 268; AER asic correctable Timeout 2 -> 958 at block end |
+| 2 | off | 11-17 01:25:34 | 05:25:38 | 0 | 0 | 0 | 0 | 0 | 215124632 -> 215124632 | clean; CE=0 STALL=0 UE=0 MOVING=0 ESC=0 GUARD=0 |
+| 3 | off | 11-17 05:26:34 | in progress (as of 05:45) | 0 | 0 | 0 | 0 | 0 | 215124632 at start | no events so far; CE=0 STALL=0 UE=0 MOVING=0 ESC=0 GUARD=0 |
+
+## 8. Forced L0s A/B (scripts/lw-force.sh, log /var/lib/lw-soak/force.txt sha256 e67ac4c611dc051e...)
+Crossover stopped after block 3 (off) at 09:26 PST 11-17; 12 x 3600 s, same boot 8e8f395e, bursty ping stress Vrf-a<->Vrf-b
+over the 1<->16 loop in every block; ASIC AER polled every 5 s (UE dated, CE per minute, cleared). Per block (all blocks:
+tx-stall 0, watchdog restarts 0, guard 0, root-port UE 0, ASIC UE 0, kernel 0, TX-3 Full unchanged 215124632):
+| block | arm | root-port CE lines | ASIC CE minutes (of 60) |
+|---|---|---|---|
+| 1 | on | 84 | 59 |
+| 2 | es | 6 | 59 |
+| 3 | off | 0 | 0 |
+| 4 | es | 6 | 59 |
+| 5 | off | 0 | 0 |
+| 6 | on | 73 | 59 |
+| 7 | off | 0 | 0 |
+| 8 | on | 64 | 59 |
+| 9 | es | 6 | 59 |
+| 10 | on | 74 | 59 |
+| 11 | off | 0 | 0 |
+| 12 | es | 5 | 59 |
+ASIC CESta bits per arm (minutes): on 0x1140 x235 + 0x1141 x1 (Replay Timer Timeout + REPLAY_NUM Rollover + BadTLP, once Receiver Error);
+es 0x1100 x236 (BadTLP gone, replay timeout + rollover stay); off: none. Exit state: L0s off, Extended Synch cleared, BFD 2/2 up.

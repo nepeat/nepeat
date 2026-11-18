@@ -113,3 +113,15 @@ guard invalid / substituted, watchdog triggers by signal, TX-3 Full rising, root
 Decision: equal on/off time needs >= 5 events on and 0 off (p = 0.03, conditional binomial); 3 on / 0 off is only
 p = 0.125 at equal time. If the on arm stays clean too, the rate is just low and L0s is not credited. Controller
 `lw-crossover` (transient unit, `/var/lib/lw-soak/`); per-block table: [sai-hw-learnwedge-20261116.txt](sai-hw-learnwedge-20261116.txt).
+
+Result (2026-11-17; evidence file sections 7-8; Fable: [reviews/2026-11-17-fable-asic-l0s.md](reviews/2026-11-17-fable-asic-l0s.md)):
+- **Link errors are L0s, deterministically.** Crossover: on block 268 root-port CE lines and ASIC CE 2 -> 958; two off
+  blocks 0. Forced A/B (12 x 1 h, stress): on 64-84 lines/h, off 0, every block.
+- **Extended Synch fixes the ASIC's receiver, not the link.** With LnkCtl bit 7 the ASIC's BadTLP and most root-port CEs go
+  (6 lines/h), but the ASIC still logs Replay Timer Timeout + REPLAY_NUM Rollover every minute: inferred, its ACKs wait
+  on the root port's own L0s exit (longer still with 4096 FTS). L0s stays off; Extended Synch is not a fix.
+- **Stalls: not settled.** 2 tx-stalls in 8 h of on (both crossover block 1, unstressed; one dated with a guard hit, root-port
+  CmpltTO and ASIC CmpltTO), 0 in 12 h of off and 0 in 4 h of es. 2 on / 0 off is p = 0.25. The bursty stress raised
+  wake-ups but produced no stall, so stall rate does not track CE rate; the trigger is something else (unknown).
+- Production: L0s off (cs8210-asic-aspm) stays; the watchdog keeps recovering stalls in ~30 s. Open: ASIC AER witness in the
+  watchdog itself (lw-force.sh has the polling version).
