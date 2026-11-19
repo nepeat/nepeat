@@ -39,9 +39,15 @@ let
     ./dmc12/configuration.nix ../modules/profiles/netboot-root.nix { boot.loader.grub.enable = false; }
   ];
   dmc12NetbootFiles = import ../packages/dmc12-images/netboot-files.nix { pkgs = native; config = dmc12Netboot.config; };
+
+  # --- Edgecore AS5114-48X (Armada 7040) -----------------------------------
+  # Installed on the SATA SSD (sd-image layout), booted by the factory U-Boot's sysboot.
+  as5114 = mkHost "aarch64-linux" [ ./as5114/configuration.nix ];
 in {
-  nixosConfigurations = { inherit as7760 dmc12; as7760-netboot = as7760Netboot; dmc12-netboot = dmc12Netboot; };
+  nixosConfigurations = { inherit as7760 dmc12 as5114; as7760-netboot = as7760Netboot; dmc12-netboot = dmc12Netboot; };
   packages = {
+    as5114-system = as5114.config.system.build.toplevel;
+    as5114-sd-image = as5114.config.system.build.sdImage;
     dmc12-system = dmc12.config.system.build.toplevel;
     dmc12-kernel = dmc12.config.boot.kernelPackages.kernel;
     dmc12-dtbs = dmc12.config.system.build.alpineDtbs;

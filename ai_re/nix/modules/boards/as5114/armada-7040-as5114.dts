@@ -1,0 +1,173 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR X11)
+/*
+ * Edgecore AS5114-48X (Accton AS4224 family): Armada 7040 + an Armada 385
+ * co-CPU that fronts the Prestera Aldrin2 over PCIe (11ab:cc1e).
+ * Written for mainline from the board facts in ai_re/devices/edge-core-as5114-48x
+ * (DENT's AS4224 DTB, the factory U-Boot, live ONIE reads); structure follows the
+ * TN48M board DTS (same SoC). Basic bring-up: console, mgmt port, SATA, SPI NOR,
+ * TLV EEPROM, board temperature sensors, prestera. No SFP/CPLD/fan description yet.
+ */
+#include "armada-7040.dtsi"
+
+/ {
+	model = "Edgecore AS5114-48X";
+	compatible = "edgecore,as5114-48x", "accton,as4224", "marvell,armada7040",
+		     "marvell,armada-ap806-quad", "marvell,armada-ap806";
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	/* Placeholder; the factory U-Boot fixes up both banks (3 GiB @0 + 5 GiB @4 GiB). */
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x80000000>;
+	};
+
+	aliases {
+		/* The factory U-Boot writes $ethaddr into the ethernet0 alias' node. */
+		ethernet0 = &cp0_eth2;
+	};
+};
+
+&uart0 {
+	status = "okay";
+};
+
+/* AP i2c@511000: AS4224 CPLD @0x40 (no mainline driver; bus only). */
+&i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+/* cp0 i2c@701000: TLV EEPROM + four LM75-class sensors (DENT/ONL map, U-Boot probe). */
+&cp0_i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+
+	eeprom@56 {
+		compatible = "atmel,24c64";
+		reg = <0x56>;
+		read-only;
+
+		nvmem-layout {
+			compatible = "onie,tlv-layout";
+
+			onie_base_mac: mac-address {
+				#nvmem-cell-cells = <1>;
+			};
+		};
+	};
+
+	temp-sensor@48 { compatible = "national,lm75"; reg = <0x48>; };
+	temp-sensor@49 { compatible = "national,lm75"; reg = <0x49>; };
+	temp-sensor@4b { compatible = "national,lm75"; reg = <0x4b>; };
+	temp-sensor@4c { compatible = "national,lm75"; reg = <0x4c>; };
+};
+
+/* cp0 i2c@701100: six PCA9548 muxes @0x71-0x76 to the SFP EEPROMs (not described yet). */
+&cp0_i2c1 {
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+/* Boot NOR (U4). U-Boot and ONIE read-only from Linux; only the env is writable. */
+&cp0_spi0 {
+	status = "okay";
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0x0>;
+		spi-max-frequency = <20000000>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "uboot";
+				reg = <0x0 0x200000>;
+				read-only;
+			};
+			partition@200000 {
+				label = "uboot-env";
+				reg = <0x200000 0x10000>;
+			};
+			partition@210000 {
+				label = "onie";
+				reg = <0x210000 0xdf0000>;
+				read-only;
+			};
+		};
+	};
+};
+
+&cp0_sata0 {
+	status = "okay";
+
+	sata-port@0 {
+		status = "okay";
+	};
+	sata-port@1 {
+		status = "okay";
+	};
+};
+
+&cp0_mdio {
+	status = "okay";
+
+	mgmt_phy: ethernet-phy@0 {
+		reg = <0x0>;
+	};
+};
+
+&cp0_ethernet {
+	status = "okay";
+};
+
+&cp0_eth0 {
+	status = "disabled";
+};
+
+&cp0_eth1 {
+	status = "disabled";
+};
+
+/* Management port (ONIE's eth0): SGMII on comphy lane 5. */
+&cp0_eth2 {
+	status = "okay";
+	phy-mode = "sgmii";
+	phy = <&mgmt_phy>;
+	phys = <&cp0_comphy5 2>;
+	nvmem-cells = <&onie_base_mac 0>;
+	nvmem-cell-names = "mac-address";
+};
+
+/* PEX0 x1 Gen2 to the A385's endpoint (presents 11ab:cc1e); prestera_pci binds there. */
+&cp0_pcie0 {
+	status = "okay";
+	phys = <&cp0_comphy0 0>;
+	/* prestera_pci uses a 30-bit DMA mask. */
+	dma-ranges = <0x42000000 0x0 0x00000000 0x0 0x00000000 0x0 0x40000000>;
+	ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
+		  0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0xf00000
+		  0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
+	#address-cells = <3>;
+	#size-cells = <2>;
+
+	pcie@0,0 {
+		device_type = "pci";
+		reg = <0x0 0 0 0 0>;
+		ranges;
+		#address-cells = <3>;
+		#size-cells = <2>;
+
+		prestera@0,0 {
+			reg = <0x0 0 0 0 0>;
+			/* mgmt = base+0; switch ports from base+1 (65 MACs in the TLV). */
+			nvmem-cells = <&onie_base_mac 1>;
+			nvmem-cell-names = "mac-address";
+		};
+	};
+};

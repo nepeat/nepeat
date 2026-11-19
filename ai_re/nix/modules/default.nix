@@ -10,6 +10,7 @@
   profile-systemd-minimal = ./profiles/systemd-minimal.nix;
   profile-netboot-root = ./profiles/netboot-root.nix;
   platform-qoriq-t2080 = ./platforms/qoriq-t2080.nix;
+  platform-armada-7040 = ./platforms/armada-7040.nix;
   thermal-as7760-fan = ./thermal/as7760-fan.nix;
   thermal-dmc12-fan = ./thermal/dmc12-fan.nix;
   switch-openbcm = ./switch/openbcm.nix;
@@ -20,5 +21,6 @@
   board-as7760-sd-persist = ./boards/as7760/sd-persist.nix;
   # Verbatim import of codeberg dma/dmc12-nixos; see boards/dmc12/README.md.
   board-dmc12 = ./boards/dmc12;
+  board-as5114 = ./boards/as5114;
   board-dmc12-boot = ./boards/dmc12/boot.nix;   # the SSD boot loaders, without our disk image
 }
