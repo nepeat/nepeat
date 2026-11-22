@@ -1,0 +1,148 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Edgecore AS5114-48X (an Accton AS4224 board) -- U-Boot control device
+ * tree for the RAM-chainloaded mainline U-Boot (../default.nix).
+ *
+ * Only what this U-Boot needs to boot the SSD: the console, the I2C bus of
+ * the ONIE TLV EEPROM (MACs), the SATA controller, and the boot SPI NOR
+ * (probe/read only: the build is SPI_FLASH_READ_ONLY). Linux does NOT use
+ * this tree. Networking, USB, PCIe and the AP I2C bus (CPLD @ 0x40) are left
+ * off: this U-Boot does not need them.
+ *
+ * Every value below is from this unit's own images (host-side dumps, no live
+ * reads), not from the TN48M:
+ *  - pin-func arrays and the comphy lane plan: the factory U-Boot's control
+ *    DTB, verbatim (SPI mtd0 offset 0x19ce9c, 0x3bf2 bytes; Marvell U-Boot
+ *    2019.10-10.0.0, built from the "armada7040-db" tree). That is what the
+ *    factory U-Boot programs on this board before it starts us. The lane plan
+ *    matches its boot banner (Comphy-0 PEX0 5G ... Comphy-5 SGMII2 1.25G).
+ *  - which controller is which: the DENT/ONL Linux DTB accton-as4224.dtb
+ *    (UART ap806 0x512000; TLV EEPROM at24@56 on cp0 i2c@701000; SATA cp0
+ *    0x540000 on comphy lane 1; boot flash cp0 spi@700600 CS0), the BootROM
+ *    line "Secure boot from SPI NOR flash 0 (0x34)" (0x34 = CP_SPI_0) and
+ *    U-Boot's live "i2c probe" (0x56 answers on cp0 i2c@701000).
+ * Both pin-func arrays happen to equal the TN48M's, byte for byte.
+ */
+
+/dts-v1/;
+
+#include "armada-7040.dtsi"
+
+/ {
+	model = "Edgecore AS5114-48X (Accton AS4224)";
+	compatible = "accton,as5114-48x", "marvell,armada-7040-as4224",
+		     "marvell,armada7040", "marvell,armada-ap806-quad",
+		     "marvell,armada-ap806";
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	aliases {
+		i2c0 = &cp0_i2c0;
+		spi0 = &cp0_spi0;
+	};
+
+	/* Only a placeholder: U-Boot sizes DRAM from ATF (MV_SIP_DRAM_SIZE). */
+	memory@00000000 {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x80000000>;
+	};
+};
+
+&ap_pinctl {
+	/* factory: MPP 0-3 = 3 (AP SPI, TPM), 4-5 = 3 (AP I2C), 11/19 = 3 (UART0) */
+		  /* 0 1 2 3 4 5 6 7 8 9 */
+	pin-func = < 3 3 3 3 3 3 0 0 0 0
+		     0 3 0 0 0 0 0 0 0 3 >;
+};
+
+/* ap806 serial@512000, 115200 8N1 (the factory console). */
+&uart0 {
+	status = "okay";
+};
+
+&cp0_pinctl {
+	/* factory CP0 MPP functions, verbatim: 0-1 = 0xa (MDIO), 29 = 9,
+	 * 35-36 = 2 (cp0 i2c@701100), 37-38 = 2 (cp0 i2c@701000),
+	 * 56-59 = 6 (cp0 spi@700600, the boot flash). */
+		  /*  0   1   2   3   4   5   6   7   8   9 */
+	pin-func = < 0xa 0xa 0   0   0   0   0   0   0   0
+		     0   0   0   0   0   0   0   0   0   0
+		     0   0   0   0   0   0   0   0   0   9
+		     0   0   0   0   0   2   2   2   2   0
+		     0   0   0   0   0   0   0   0   0   0
+		     0   0   0   0   0   0   6   6   6   6
+		     0   0   0 >;
+};
+
+/* cp0 i2c@701000 (ONL's i2c1). Also on it: LM75s @ 0x48 0x49 0x4b 0x4c and
+ * an unidentified 0x5e; U-Boot needs only the EEPROM. */
+&cp0_i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+
+	/* ONIE TlvInfo EEPROM (base MAC f8:8e:a1:94:83:00, 65 MACs).
+	 * CONFIG_ID_EEPROM's mac_read_from_eeprom() turns it into ethaddr,
+	 * eth1addr, ...; the EFI DT fixup hands those to the Linux DT. */
+	eeprom@56 {
+		compatible = "atmel,24c64";
+		reg = <0x56>;
+		pagesize = <32>;
+	};
+};
+
+/* Boot SPI NOR, mx25l12845g 16 MiB, CS0: mtd0 0x0 signed boot image,
+ * mtd1 0x200000 factory env, mtd2 0x210000 ONIE. Read-only build; this
+ * U-Boot keeps its env nowhere and has no way to write here. 20 MHz is
+ * deliberately slow (factory: 108 MHz flash, 50 MHz controller). */
+&cp0_spi0 {
+	status = "okay";
+
+	spi-flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <20000000>;
+	};
+};
+
+/* AHCI at cp0 0x540000; the SSD (ADATA IM2S3164, 32 GB) is on comphy lane 1. */
+&cp0_sata0 {
+	status = "okay";
+};
+
+/* The factory lane plan, verbatim, so the comphy driver leaves every SerDes
+ * lane as the factory U-Boot set it: lane 1 is the SSD, lane 0 the Prestera
+ * ASIC's PCIe link, 2/3/5 the mvpp2 SGMII ports Linux will use. */
+&cp0_comphy {
+	phy0 {
+		phy-type = <COMPHY_TYPE_PEX0>;
+		phy-speed = <COMPHY_SPEED_5G>;
+	};
+
+	phy1 {
+		phy-type = <COMPHY_TYPE_SATA0>;
+		phy-speed = <COMPHY_SPEED_6G>;
+	};
+
+	phy2 {
+		phy-type = <COMPHY_TYPE_SGMII0>;
+		phy-speed = <COMPHY_SPEED_3_125G>;
+	};
+
+	phy3 {
+		phy-type = <COMPHY_TYPE_SGMII1>;
+		phy-speed = <COMPHY_SPEED_1_25G>;
+	};
+
+	phy4 {
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+	};
+
+	phy5 {
+		phy-type = <COMPHY_TYPE_SGMII2>;
+		phy-speed = <COMPHY_SPEED_1_25G>;
+	};
+};

@@ -2,7 +2,7 @@
 # Upstream U-Boot (nixpkgs buildUBoot, 2026.10) for Annapurna Labs Alpine V3
 # boards, run after al-boot stage3: for now started from RAM by the vendor
 # U-Boot 2018.05 (loadx + booti/bootm/go). Patches: the "alpine" +
-# "alpine-v3" + "cs8210" scopes of the shared series in ../default.nix.
+# "spi-nor-ro" + "alpine-v3" + "cs8210" scopes of the shared series in ../default.nix.
 # Plan, load addresses and test status: devices/cs8210-32x/u-boot-port.md.
 #
 # The board DTS is the Linux one: ./alpine-v3-cs8210.dts is a byte-for-byte
@@ -12,7 +12,7 @@
 # alpine-v3-cs8210-u-boot.dtsi.
 let
   cross = pkgs.pkgsCross.aarch64-multiplatform;
-  patches = uboots.lib.patchesFor [ "alpine" "alpine-v3" "cs8210" ];
+  patches = uboots.lib.patchesFor [ "alpine" "spi-nor-ro" "alpine-v3" "cs8210" ];
   # Link/load address: the vendor "loadaddr" (ONIE's bootm buffer). The
   # vendor U-Boot sits at 0x01100000 and, relocated, 0x03ac0000-0x04000000;
   # its boot.scr loads to 0x07000000. The image (code + BSS + early stack) is

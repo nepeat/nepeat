@@ -1,0 +1,102 @@
+From: as7772 bring-up
+Subject: [PATCH] board: t208xrdb: Accton AS7772-32X on the AS7760-32X port
+
+The AS7772-32X is the AS7760-32X board plus MACsec PHYs, a TPM and an M.2
+SATA SSD; the ONIE device trees of the two differ only in the model
+string. With AS7772_BOARD (on top of AS7760_BOARD and AS7760_DDR): print
+its name, use its own control tree (same content, own model/compatible),
+and set up DDR as its factory loader does: SDRAM_CFG[HSE] stays clear
+(live sdram_cfg 0xe7048000 here, 0xe7048008 on the AS7760) and the
+write-leveling starts are wrlvl_cntl_2/3 = 0x0608060e/0x0a0c0b09. With
+these, ddrcmp shows every computed register equal to the factory setup.
+
+--- a/arch/powerpc/dts/Makefile
++++ b/arch/powerpc/dts/Makefile
+@@ -22,7 +22,7 @@ dtb-$(CONFIG_TARGET_SOCRATES) += socrates.dtb
+ dtb-$(CONFIG_TARGET_T1024RDB) += t1024rdb.dtb
+ dtb-$(CONFIG_TARGET_T1042D4RDB) += t1042d4rdb.dtb
+ dtb-$(CONFIG_TARGET_T2080QDS) += t2080qds.dtb
+-dtb-$(CONFIG_TARGET_T2080RDB) += t2080rdb.dtb as7760-32x.dtb
++dtb-$(CONFIG_TARGET_T2080RDB) += t2080rdb.dtb as7760-32x.dtb as7772-32x.dtb
+ dtb-$(CONFIG_TARGET_T4240RDB) += t4240rdb.dtb
+ dtb-$(CONFIG_TARGET_TUGE1) += kmtuge1.dtb
+ dtb-$(CONFIG_TARGET_TURRIS_1X) += turris1x.dtb
+--- /dev/null
++++ b/arch/powerpc/dts/as7772-32x-u-boot.dtsi
+@@ -0,0 +1,3 @@
++// SPDX-License-Identifier: GPL-2.0+
++
++#include "as7760-32x-u-boot.dtsi"
+--- /dev/null
++++ b/arch/powerpc/dts/as7772-32x.dts
+@@ -0,0 +1,13 @@
++// SPDX-License-Identifier: GPL-2.0+ OR X11
++/*
++ * Edgecore (Accton) AS7772-32X: the AS7760-32X control plane (same T2080
++ * board, same management PHY) with MACsec PHYs on the front ports, a TPM
++ * and an M.2 SATA SSD on SATA2 (SerDes2 protocol 0x15). U-Boot control tree.
++ */
++
++/include/ "as7760-32x.dts"
++
++/ {
++	model = "Accton AS7772-32X";
++	compatible = "accton,as7772_32x", "accton,as7760_32x", "fsl,T2080RDB";
++};
+--- a/board/nxp/t208xrdb/Kconfig
++++ b/board/nxp/t208xrdb/Kconfig
+@@ -19,6 +19,15 @@ config AS7760_BOARD
+ 	  provide the standard-boot load addresses when the (factory) saved
+ 	  environment lacks them.
+ 
++config AS7772_BOARD
++	bool "Accton AS7772-32X (AS7760-32X derivative)"
++	depends on AS7760_BOARD
++	help
++	  The Accton/Edgecore AS7772-32X is the AS7760-32X board with MACsec
++	  PHYs, a TPM and an M.2 SATA SSD. For U-Boot it differs in the board
++	  name and in one DDR setting: its factory loader leaves the
++	  half-strength driver bit (SDRAM_CFG[HSE]) clear.
++
+ config T2080RDB_REV_D
+ 	bool "Support for T2080RDB revisions D and up"
+ 
+--- a/board/nxp/t208xrdb/ddr.c
++++ b/board/nxp/t208xrdb/ddr.c
+@@ -107,6 +107,11 @@ found:
+ 	popts->wrlvl_ctl_2 = 0x0608060d;
+ 	popts->wrlvl_ctl_3 = 0x090c0a09;
+ 	popts->cpo_sample = 0x4d;
++#ifdef CONFIG_AS7772_BOARD
++	/* AS7772-32X factory loader ("Prob-E"): its own write-leveling starts */
++	popts->wrlvl_ctl_2 = 0x0608060e;
++	popts->wrlvl_ctl_3 = 0x0a0c0b09;
++#endif
+ #endif
+ }
+ 
+@@ -116,7 +121,11 @@ found:
+  * 2T timing + half-strength drivers, its final turnaround timings and the
+  * matching mode register shadows (no MRS is sent to the DIMMs).
+  */
++#ifdef CONFIG_AS7772_BOARD
++#define AS7760_SDRAM_CFG_POST	0x00008000	/* AS7772-32X: 2T, HSE clear */
++#else
+ #define AS7760_SDRAM_CFG_POST	0x00008008
++#endif
+ #define AS7760_TIMING_CFG_0	0xda11000c
+ #define AS7760_SDRAM_MODE	0x00421c70	/* also mode_5 */
+ #define AS7760_SDRAM_MODE_3	0x02061c70	/* also mode_7 */
+--- a/board/nxp/t208xrdb/t208xrdb.c
++++ b/board/nxp/t208xrdb/t208xrdb.c
+@@ -61,7 +61,9 @@ int checkboard(void)
+ 	static const char *freq[3] = {"100.00MHZ", "125.00MHz", "156.25MHZ"};
+ 
+ #ifdef CONFIG_AS7760_BOARD
+-	printf("Board: Accton AS7760-32X (%s, T2080RDB port)\n", cpu->name);
++	printf("Board: Accton %s (%s, T2080RDB port)\n",
++	       IS_ENABLED(CONFIG_AS7772_BOARD) ? "AS7772-32X" : "AS7760-32X",
++	       cpu->name);
+ 	puts("SERDES Reference Clocks:\n");
+ 	printf("SD1_CLK1=%s, SD1_CLK2=%s\n", freq[2], freq[0]);
+ 	printf("SD2_CLK1=%s, SD2_CLK2=%s\n", freq[0], freq[0]);

@@ -63,6 +63,33 @@ let
     PY
     ! powerpc-unknown-linux-gnu-nm ${uboots.as7760-nor}/u-boot | grep -qw adjust_vdd
     echo "nor: config ok"
+    # AS7772-32X (AS7760 derivative): same shape, own DT, SATA + GPT for the SSD.
+    check as7772-chainload ${uboots.as7772-chainload} 0x200000
+    check as7772-nor ${uboots.as7772-nor} 0xeffff000
+    for d in ${uboots.as7772-nor} ${uboots.as7772-chainload}; do
+      for k in VID MISC_INIT_R USB; do
+        ! grep -q "^CONFIG_$k=y" $d/.config || { echo "as7772: CONFIG_$k is on"; exit 1; }
+      done
+      for kv in AS7760_BOARD=y AS7772_BOARD=y AS7760_DDR=y 'DEFAULT_DEVICE_TREE="as7772-32x"' FSL_SATA_V2=y \
+                EFI_PARTITION=y SYS_CLK_FREQ=100000000 DIMM_SLOTS_PER_CTLR=2; do
+        grep -qx "CONFIG_$kv" $d/.config || { echo "as7772: CONFIG_$kv missing"; exit 1; }
+      done
+      ! powerpc-unknown-linux-gnu-nm $d/u-boot | grep -qw adjust_vdd
+    done
+    n=${uboots.as7772-nor}/.config
+    for kv in TEXT_BASE=0xEFF40000 SYS_MONITOR_LEN=786432 ENV_IS_IN_FLASH=y ENV_ADDR=0xEFF20000 \
+              ENV_SIZE=0x2000 ENV_SECT_SIZE=0x20000 SYS_QE_FMAN_FW_IN_NOR=y SYS_FMAN_FW_ADDR=0xEFF00000; do
+      grep -qx "CONFIG_$kv" $n || { echo "as7772-nor: CONFIG_$kv missing"; exit 1; }
+    done
+    ! grep -q "^CONFIG_CHAINLOAD_CCSR_RELOCATED=y" $n
+    python3 - ${uboots.as7772-nor}/u-boot.bin <<'PY'
+    import sys
+    b = open(sys.argv[1], "rb").read()
+    assert len(b) == 786432, len(b)
+    assert b[-4:] == bytes.fromhex("4bfff004"), b[-4:].hex()
+    print("as7772-nor: 768 KiB, reset vector b .-0xffc")
+    PY
+    echo "as7772: config ok"
     mkdir $out; echo pass > $out/result
   '';
   qemu = pkgs.runCommand "as7760-uboot-qemu-e6500" {

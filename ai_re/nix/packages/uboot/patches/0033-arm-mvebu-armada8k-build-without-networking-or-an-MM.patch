@@ -1,0 +1,73 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Wed, 18 Nov 2026 22:34:56 -0800
+Subject: [PATCH 33/33] arm: mvebu: armada8k: build without networking or an
+ MMC environment
+
+For an Armada 8K U-Boot with CONFIG_NO_NET and CONFIG_ENV_IS_NOWHERE
+(e.g. one chainloaded from a vendor U-Boot that only boots local
+storage):
+
+- mmc_get_env_dev() returns CONFIG_ENV_MMC_DEVICE_INDEX, which exists
+  only when an env-in-MMC/FAT/EXT4 (or bubt) option is set. Return 0
+  without it.
+- the distro boot target list always named PXE and DHCP, which
+  config_distro_bootcmd.h rejects when CMD_PXE / CMD_DHCP are off. Add
+  them only when their commands are built.
+
+No change for builds that have both.
+---
+ arch/arm/mach-mvebu/armada8k/cpu.c |  5 +++++
+ include/configs/mvebu_armada-8k.h  | 14 ++++++++++++--
+ 2 files changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-mvebu/armada8k/cpu.c b/arch/arm/mach-mvebu/armada8k/cpu.c
+index 2d9dd301..49d2fc4b 100644
+--- a/arch/arm/mach-mvebu/armada8k/cpu.c
++++ b/arch/arm/mach-mvebu/armada8k/cpu.c
+@@ -240,7 +240,12 @@ int mmc_get_env_dev(void)
+ 		return 1;
+ 	}
+ 
++#ifdef CONFIG_ENV_MMC_DEVICE_INDEX
+ 	return CONFIG_ENV_MMC_DEVICE_INDEX;
++#else
++	/* only defined when an env-in-MMC/FAT/EXT4 (or bubt) option is set */
++	return 0;
++#endif
+ }
+ 
+ int print_cpuinfo(void)
+diff --git a/include/configs/mvebu_armada-8k.h b/include/configs/mvebu_armada-8k.h
+index 6fedbe9e..84b84660 100644
+--- a/include/configs/mvebu_armada-8k.h
++++ b/include/configs/mvebu_armada-8k.h
+@@ -31,13 +31,23 @@
+  * PCI configuration
+  */
+ #ifdef CONFIG_DISTRO_DEFAULTS
++#if CONFIG_IS_ENABLED(CMD_PXE)
++#define BOOT_TARGET_PXE(func) func(PXE, pxe, na)
++#else
++#define BOOT_TARGET_PXE(func)
++#endif
++#if CONFIG_IS_ENABLED(CMD_DHCP)
++#define BOOT_TARGET_DHCP(func) func(DHCP, dhcp, na)
++#else
++#define BOOT_TARGET_DHCP(func)
++#endif
+ #define BOOT_TARGET_DEVICES(func) \
+ 	func(MMC, mmc, 1) \
+ 	func(MMC, mmc, 0) \
+ 	func(USB, usb, 0) \
+ 	func(SCSI, scsi, 0) \
+-	func(PXE, pxe, na) \
+-	func(DHCP, dhcp, na)
++	BOOT_TARGET_PXE(func) \
++	BOOT_TARGET_DHCP(func)
+ 
+ #include <config_distro_bootcmd.h>
+ #else
+-- 
+2.56.0
+

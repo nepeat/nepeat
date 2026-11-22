@@ -1,0 +1,32 @@
+From: as7772 bring-up
+Subject: [PATCH] ata: fsl_sata: create a bootdev for each disk
+
+dwc_ahsata and sata_mv bind a "sata_bootdev" next to each block device, so
+standard boot (bootflow scan) finds SATA disks. fsl_sata did not, and the
+disk was reachable only through the "sata" command. Do the same here.
+
+--- a/drivers/ata/fsl_sata.c
++++ b/drivers/ata/fsl_sata.c
+@@ -7,6 +7,7 @@
+ 
+ #include <ahci.h>
+ #include <blk.h>
++#include <bootdev.h>
+ #include <command.h>
+ #include <console.h>
+ #include <cpu_func.h>
+@@ -930,6 +931,14 @@ static int fsl_ata_probe(struct udevice *dev)
+ 			failed_number++;
+ 			continue;
+ 		}
++
++		/* let standard boot (bootflow scan) see the disk */
++		if (IS_ENABLED(CONFIG_BOOTSTD)) {
++			ret = bootdev_setup_for_sibling_blk(blk, "sata_bootdev");
++			if (ret)
++				printf("%s: no bootdev for %s (%d)\n", __func__,
++				       blk->name, ret);
++		}
+ 	}
+ 
+ 	if (failed_number == nr_ports)

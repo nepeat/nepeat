@@ -21,7 +21,7 @@ edits of upstream ones. A refactor of the series must be byte-neutral: same `u-b
 | 0016 | alpine-v2 | al_eth driver (Annapurna HAL, ~22 k lines vendor code) |
 | 0017 | alpine-v2 | external PCIe root complex (Annapurna HAL, ~19 k lines vendor code) |
 | 0018 | alpine | DW SSI: Alpine CS override; deselect before the controller init and each transfer |
-| 0019 | alpine | read-only SPI NOR with an optional write window (env), exact opcode allowlist |
+| 0019 | spi-nor-ro | read-only SPI NOR with an optional write window (env), exact opcode allowlist (generic; scope was `alpine` until 2026-11-18, same drvPaths) |
 | 0020 | alpine-v2 | SoC init from the DT in place of the vendor U-Boot: MUIO, GPIO, CCU; `alpine` command |
 | 0021 | alpine-v2 | report where the env came from (boot line + `alpine state`; never stored in the env) |
 | 0022 | dmc12 | Edgecore DMC-12 CPLD sysreset |
@@ -34,10 +34,17 @@ edits of upstream ones. A refactor of the series must be byte-neutral: same `u-b
 | 0029 | alpine-v3 | SoC init from the DT in place of the vendor U-Boot: MUIO, GPIO, PLL dividers, base MAC; `alpine` command |
 | 0030 | alpine-v3 | external PCIe root complex (own HAL copy built for V3, AVG SerDes iCal; ~25 k lines vendor code) |
 | 0031 | cs8210 | the CS8210 vendor board-cfg as U-Boot DT (SoC init, PCIe ports, endpoints left alone) |
+| 0034 | as7772 | AS7772-32X on top of the as7760 ones: name, control tree, its factory DDR setup (HSE clear, wrlvl starts) |
+| 0035 | fsl-sata | `fsl_sata`: bind a `sata_bootdev` per disk so standard boot finds it (generic; taken by the as7772 builds) |
+| 0032 | armada8k | Armada 7040/8040: map all DRAM in the MMU (EFI crashed on 8 GiB boards) |
+| 0033 | armada8k | Armada 7040/8040: build with NO_NET and without an MMC env |
 
 Kconfig of the DMC-12 builds (selfinit/stage3app: SPI env, write window, SoC init) is in
-`alpine-v2/default.nix`, not in a patch. Tests: `tests.nix` (AS7760), `alpine-v2/tests.nix`, `alpine-v3/tests.nix`. Alpine V3 builds:
-`alpine-v3/default.nix` (scopes alpine + alpine-v3 + cs8210; devices/cs8210-32x/u-boot-port.md).
+`alpine-v2/default.nix`, not in a patch. AS7772-32X builds (`as7772-nor`, `as7772-chainload`): scopes t208x + as7760 + as7772 + fsl-sata, Kconfig in `default.nix`
+(devices/edge-core-as7772-32x/u-boot-port.md). Tests: `tests.nix` (AS7760, AS7772), `alpine-v2/tests.nix`, `alpine-v3/tests.nix`. Alpine V3 builds:
+`alpine-v3/default.nix` (scopes alpine + spi-nor-ro + alpine-v3 + cs8210; devices/cs8210-32x/u-boot-port.md).
+Armada 7040/8040 RAM chainload builds: `armada8k/default.nix` (scopes spi-nor-ro + armada8k; board control
+DTS copied in at build time; devices/edge-core-as5114-48x/uboot-chainload.md).
 
 ## Old numbers (before the 2026-11-15 squash)
 The Alpine/DMC-12 part was 22 patches (0014–0035); it became 10 with the same resulting tree

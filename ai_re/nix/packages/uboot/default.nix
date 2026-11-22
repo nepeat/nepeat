@@ -15,12 +15,17 @@ let
   # the numbering is the apply order. scope says who can reuse a patch:
   #   t208x  - any T208x / e6500 board built from the T208xRDB port
   #   as7760 - Accton AS7760-32X only (DDR tuning, DT, SPD addresses, identity)
-  #   alpine - any Annapurna Alpine board (V2, V3): DW SSI, read-only SPI NOR + write window
+  #   as7772 - Accton AS7772-32X: applied on top of the as7760 ones (name, DT, DDR HSE bit + wrlvl starts)
+  #   fsl-sata - any board with the Freescale SATA controller: standard boot from its disks
+  #   alpine - any Annapurna Alpine board (V2, V3): DW SSI chip select
+  #   spi-nor-ro - any board: read-only SPI NOR with an optional write window
   #   alpine-v2 - any Annapurna Alpine V2 board started by the vendor U-Boot or by al-boot stage3
   #   dmc12  - Edgecore DMC-12-48R-AS0 only (CPLD reset, U-Boot DT bits, defconfig)
   #   alpine-v3 - any Annapurna Alpine V3 board after al-boot stage3 (target; generic
   #            fixes the pinned V2 builds must not see)
   #   cs8210 - Celestica CS8210-32X only (U-Boot DT bits, defconfig)
+  #   armada8k - any Marvell Armada 7040/8040 (AP806 + CP110) board; boards
+  #            bring their control DTS to ./armada8k (no per-board patch)
   # A sibling board takes the t208x ones and replaces the as7760 ones.
   # Platforms touch disjoint files: each build applies only its scopes, and
   # the whole series still applies in order to a pristine tree.
@@ -43,7 +48,7 @@ let
     { scope = "alpine-v2"; file = "0016-net-add-the-Annapurna-Labs-Alpine-V2-integrated-Ethe.patch"; }
     { scope = "alpine-v2"; file = "0017-pci-add-the-Annapurna-Labs-Alpine-V2-external-PCIe-r.patch"; }
     { scope = "alpine"; file = "0018-spi-designware-Annapurna-Alpine-chip-select-override.patch"; }
-    { scope = "alpine"; file = "0019-mtd-spi-read-only-SPI-NOR-with-an-optional-write-win.patch"; }
+    { scope = "spi-nor-ro"; file = "0019-mtd-spi-read-only-SPI-NOR-with-an-optional-write-win.patch"; }
     { scope = "alpine-v2"; file = "0020-board-alpine-v2-SoC-init-from-the-DT-in-place-of-the.patch"; }
     { scope = "alpine-v2"; file = "0021-board-alpine-v2-say-where-the-environment-came-from.patch"; }
     { scope = "dmc12"; file = "0022-sysreset-add-the-Edgecore-DMC-12-board-CPLD-reset.patch"; }
@@ -56,6 +61,10 @@ let
     { scope = "alpine-v3"; file = "0029-board-alpine-v3-SoC-init-from-the-DT-in-place-of-the.patch"; }
     { scope = "alpine-v3"; file = "0030-pci-add-the-Annapurna-Labs-Alpine-V3-external-PCIe-r.patch"; }
     { scope = "cs8210"; file = "0031-board-CS8210-32X-what-the-vendor-U-Boot-s-board-cfg-.patch"; }
+    { scope = "armada8k"; file = "0032-arm-mvebu-armada8k-map-all-DRAM-in-the-MMU.patch"; }
+    { scope = "armada8k"; file = "0033-arm-mvebu-armada8k-build-without-networking-or-an-MM.patch"; }
+    { scope = "as7772"; file = "0034-board-t208xrdb-Accton-AS7772-32X-on-the-AS7760-port.patch"; }
+    { scope = "fsl-sata"; file = "0035-ata-fsl_sata-create-a-bootdev-for-each-disk.patch"; }
   ];
   patchesFor = scopes: map (s: builtins.path { path = ./patches + "/${s.file}"; name = s.file; })
     (builtins.filter (s: builtins.elem s.scope scopes) series);
@@ -116,6 +125,21 @@ let
     # CONFIG_FSL_SATA is not set
     # CONFIG_AHCI is not set
   '';
+  # AS7772-32X = the AS7760 board + MACsec PHYs, TPM, M.2 SATA SSD (patch 0034).
+  # Later lines win over as7760Config's: own control tree, and SATA back on
+  # (the SSD on SATA2 is the boot disk).
+  as7772Patches = patchesFor [ "t208x" "as7760" "as7772" "fsl-sata" ];
+  as7772Config = as7760Config + ''
+    CONFIG_AS7772_BOARD=y
+    CONFIG_DEFAULT_DEVICE_TREE="as7772-32x"
+    CONFIG_OF_LIST="as7772-32x"
+    CONFIG_SATA=y
+    CONFIG_FSL_SATA=y
+    CONFIG_FSL_SATA_V2=y
+    CONFIG_SYS_SATA_MAX_DEVICE=2
+    CONFIG_CMD_SATA=y
+    CONFIG_EFI_PARTITION=y
+  '';
   # Used when the saved environment is missing/corrupt; normally the factory
   # environment (same flash location) supplies bootcmd -> nos_bootcmd.
   # Load addresses come from the board code (patch 0013).
@@ -160,6 +184,33 @@ in {
       CONFIG_SYS_FMAN_FW_ADDR=0xEFF00000
       # env stays in MMC (SPL needs ENV_OFFSET): 1 MiB lies in the zeroed gap
       # before the first SD partition -> CRC fails -> defaults. Never saveenv.
+      CONFIG_BOOTDELAY=2
+      CONFIG_USE_BOOTCOMMAND=y
+      CONFIG_BOOTCOMMAND="env import -c 0xeff20000 0x2000 ethaddr eth1addr eth2addr serial#; ${bootCommand}"
+    '';
+  };
+
+  # AS7772-32X: the same two images as the AS7760 (devices/edge-core-as7772-32x/u-boot-port.md).
+  as7772-nor = mk {
+    defconfig = "T2080RDB_defconfig";
+    patches = as7772Patches;
+    extraConfig = as7772Config + ''
+      CONFIG_LOCALVERSION="-as7772"
+      CONFIG_BOOTDELAY=3
+      CONFIG_USE_BOOTCOMMAND=y
+      CONFIG_BOOTCOMMAND="${bootCommand}"
+    '';
+  };
+  as7772-chainload = mk {
+    defconfig = "T2080RDB_SDCARD_defconfig";
+    patches = as7772Patches;
+    extraConfig = as7772Config + ''
+      CONFIG_CHAINLOAD_CCSR_RELOCATED=y
+      CONFIG_LOCALVERSION="-as7772-chainload"
+      # CONFIG_SYS_QE_FMAN_FW_IN_MMC is not set
+      CONFIG_SYS_QE_FMAN_FW_IN_NOR=y
+      CONFIG_SYS_FMAN_FW_ADDR=0xEFF00000
+      # env stays in MMC (no card here: CRC fails -> defaults). Never saveenv.
       CONFIG_BOOTDELAY=2
       CONFIG_USE_BOOTCOMMAND=y
       CONFIG_BOOTCOMMAND="env import -c 0xeff20000 0x2000 ethaddr eth1addr eth2addr serial#; ${bootCommand}"

@@ -5,6 +5,7 @@ let
   uboots = import ./uboot { inherit pkgs; };
   ubootsAlpine = import ./uboot/alpine-v2 { inherit pkgs uboots; };
   ubootsAlpineV3 = import ./uboot/alpine-v3 { inherit pkgs uboots; };
+  ubootsArmada8k = import ./uboot/armada8k { inherit pkgs uboots; };
   sonic = import ./sonic { inherit pkgs; };
 in {
   # SONiC switch-state stack as native packages; see ./sonic/default.nix.
@@ -14,6 +15,8 @@ in {
   uboot-t2080rdb = uboots.t2080rdb-nor;            # stock reference build, never flash
   uboot-as7760-nor = uboots.as7760-nor;            # boot NOR image (mtd7)
   uboot-as7760-chainload = uboots.as7760-chainload; # RAM build: "go 0x00200000" test stage
+  uboot-as7772-nor = uboots.as7772-nor;            # AS7772-32X boot NOR image (mtd7)
+  uboot-as7772-chainload = uboots.as7772-chainload; # AS7772-32X RAM build
   uboot-qemu-ppce500 = uboots.qemu-ppce500;
   uboot-tests = import ./uboot/tests.nix { inherit pkgs uboots; };
 
@@ -42,6 +45,12 @@ in {
   uboot-cs8210-stage3app = ubootsAlpineV3.cs8210-stage3app;
   uboot-alpine-v3-qemu = ubootsAlpineV3.qemu-virt;  # test fixture build
   uboot-alpine-v3-tests = import ./uboot/alpine-v3/tests.nix { inherit pkgs; alpine = ubootsAlpineV3; };
+
+  # Mainline U-Boot for Marvell Armada 7040/8040 (arm64), same series,
+  # spi-nor-ro + armada8k scopes; see ./uboot/armada8k/default.nix. RAM only,
+  # started with "go" by the factory U-Boot; never written to SPI (read-only
+  # SPI NOR, no bubt, env nowhere: checked at build time).
+  uboot-as5114-chainload = ubootsArmada8k.as5114-chainload;
 
   # Offline tests (native): monitoring exporter and the board metrics producers.
   node-exporter-lite-test = pkgs.callPackage ./node-exporter-lite/test.nix { };

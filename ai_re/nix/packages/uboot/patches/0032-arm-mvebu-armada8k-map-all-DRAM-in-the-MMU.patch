@@ -1,0 +1,119 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Wed, 18 Nov 2026 22:34:43 -0800
+Subject: [PATCH 32/33] arm: mvebu: armada8k: map all DRAM in the MMU
+
+The static Armada 8K memory map covers RAM only up to ATF_REGION_END +
+2 GiB, yet lmb_arch_add_memory() hands every DRAM bank (minus the
+ATF/TEE hole) to LMB, and LMB publishes it to EFI payloads as
+conventional memory. EFI's AllocateAnyPages takes the highest free
+range, so on a board with more than ~2 GiB the first payload allocation
+lands in unmapped memory and aborts.
+
+a8k_dram_init_banksize() now calls a8k_mem_map_add_dram(), which fills
+two spare mem_map entries: the rest of bank 0 and all of bank 1, as
+normal inner-shareable memory. It runs after the banks are known and
+before arch_reserve_mmu() sizes the page tables.
+
+Found on the Delta TN48M (8 GiB: bank 0 3 GiB, bank 1 0x1_0000_0000 +
+5 GiB), where the first EFI payload crashed without it; the Edgecore
+AS5114-48X has the same split (factory U-Boot bdinfo).
+---
+ arch/arm/mach-mvebu/armada8k/cpu.c     | 40 ++++++++++++++++++++++++++
+ arch/arm/mach-mvebu/armada8k/dram.c    |  3 ++
+ arch/arm/mach-mvebu/include/mach/cpu.h |  1 +
+ 3 files changed, 44 insertions(+)
+
+diff --git a/arch/arm/mach-mvebu/armada8k/cpu.c b/arch/arm/mach-mvebu/armada8k/cpu.c
+index 666be973..2d9dd301 100644
+--- a/arch/arm/mach-mvebu/armada8k/cpu.c
++++ b/arch/arm/mach-mvebu/armada8k/cpu.c
+@@ -59,6 +59,9 @@ static struct mm_region mvebu_mem_map[] = {
+ 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+ 			 PTE_BLOCK_NON_SHARE
+ 	},
++	/* Filled by a8k_mem_map_add_dram(): rest of bank 0, bank 1. */
++	{ 0, },
++	{ 0, },
+ 	{
+ 		0,
+ 	}
+@@ -66,6 +69,43 @@ static struct mm_region mvebu_mem_map[] = {
+ 
+ struct mm_region *mem_map = mvebu_mem_map;
+ 
++/**
++ * a8k_mem_map_add_dram() - map all DRAM, not just the first 2 GiB
++ *
++ * The static map above covers RAM only up to ATF_REGION_END + 2 GiB, yet
++ * lmb_arch_add_memory() hands every DRAM bank (minus the ATF/TEE hole) to
++ * LMB, and LMB publishes it to EFI payloads as conventional memory. EFI's
++ * AllocateAnyPages takes the highest free range, so on boards with more
++ * than ~2 GiB the first payload allocation lands in unmapped memory and
++ * aborts. Map the rest of bank 0 and all of bank 1 as normal memory.
++ * Must run after the banks are known and before arch_reserve_mmu() sizes
++ * the page tables (it is called from a8k_dram_init_banksize()).
++ */
++void a8k_mem_map_add_dram(void)
++{
++	const phys_addr_t low_end = ATF_REGION_END + SZ_2G;
++	phys_addr_t end;
++	int slot = 3;	/* first spare entry */
++
++	end = gd->dram[0].start + gd->dram[0].size;
++	if (end > low_end) {
++		mvebu_mem_map[slot].phys = low_end;
++		mvebu_mem_map[slot].virt = low_end;
++		mvebu_mem_map[slot].size = end - low_end;
++		mvebu_mem_map[slot].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
++					    PTE_BLOCK_INNER_SHARE;
++		slot++;
++	}
++
++	if (CONFIG_NR_DRAM_BANKS > 1 && gd->dram[1].size) {
++		mvebu_mem_map[slot].phys = gd->dram[1].start;
++		mvebu_mem_map[slot].virt = gd->dram[1].start;
++		mvebu_mem_map[slot].size = gd->dram[1].size;
++		mvebu_mem_map[slot].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
++					    PTE_BLOCK_INNER_SHARE;
++	}
++}
++
+ #if CONFIG_IS_ENABLED(LMB_ARCH_MEM_MAP)
+ /**
+  * mvebu_lmb_reserve() - mark a region as present but not allocatable
+diff --git a/arch/arm/mach-mvebu/armada8k/dram.c b/arch/arm/mach-mvebu/armada8k/dram.c
+index af37dfa2..738d0801 100644
+--- a/arch/arm/mach-mvebu/armada8k/dram.c
++++ b/arch/arm/mach-mvebu/armada8k/dram.c
+@@ -41,6 +41,7 @@ int a8k_dram_init_banksize(void)
+ 	gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+ 	if (gd->ram_size <= max_bank0_size) {
+ 		gd->dram[0].size = gd->ram_size;
++		a8k_mem_map_add_dram();
+ 		return 0;
+ 	}
+ 
+@@ -50,5 +51,7 @@ int a8k_dram_init_banksize(void)
+ 		gd->dram[1].size = gd->ram_size - max_bank0_size;
+ 	}
+ 
++	a8k_mem_map_add_dram();
++
+ 	return 0;
+ }
+diff --git a/arch/arm/mach-mvebu/include/mach/cpu.h b/arch/arm/mach-mvebu/include/mach/cpu.h
+index 37a00501..2cdceb81 100644
+--- a/arch/arm/mach-mvebu/include/mach/cpu.h
++++ b/arch/arm/mach-mvebu/include/mach/cpu.h
+@@ -188,6 +188,7 @@ static inline void mv_rtc_config(void) {}
+ /* A8K dram functions */
+ u64 a8k_dram_scan_ap_sz(void);
+ int a8k_dram_init_banksize(void);
++void a8k_mem_map_add_dram(void);
+ 
+ /* A3700 dram functions */
+ int a3700_dram_init(void);
+-- 
+2.56.0
+
