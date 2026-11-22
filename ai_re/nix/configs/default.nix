@@ -1,7 +1,8 @@
 # Complete systems built from ../modules, plus the images derived from them.
 #   import ./configs { inherit nixpkgs; }  ->  { nixosConfigurations, packages }
 # nixpkgs: a nixpkgs flake/input (needs .lib.nixosSystem and to be importable).
-# rust: the monorepo's rust flake (fand); null keeps the older fan monitor.
+# rust: { nixosModules.fand, .consoled } from the monorepo's rust/ (the root
+# flake passes it); null: the AS7760/AS7772 keep the older fan monitor.
 { nixpkgs, buildSystem ? "x86_64-linux", rust ? null }:
 let
   native = import nixpkgs { system = buildSystem; };
@@ -36,12 +37,10 @@ let
 
   # --- Edgecore DMC-12-48R-AS0 (Alpine V2) ---------------------------------
   # Installed on the SSD: a full, rebuildable Nix system (nixos-rebuild --target-host).
-  dmc12 = mkHost "aarch64-linux" [ ./dmc12/configuration.nix ../modules/profiles/rebuildable.nix ../modules/boards/dmc12/disk.nix ];
+  dmc12Modules = [ ./dmc12/configuration.nix ../modules/profiles/rebuildable.nix ../modules/boards/dmc12/disk.nix ];
+  dmc12 = mkHost "aarch64-linux" dmc12Modules;
   # Same, booted by the chainloaded upstream U-Boot (raw sda1, extlinux on sda2).
-  dmc12Chainload = mkHost "aarch64-linux" [
-    ./dmc12/configuration.nix ../modules/profiles/rebuildable.nix ../modules/boards/dmc12/disk.nix
-    { hardware.dmc12.bootLoader = "chainload"; }
-  ];
+  dmc12Chainload = mkHost "aarch64-linux" (dmc12Modules ++ [ { hardware.dmc12.bootLoader = "chainload"; } ]);
   # Same system, root in RAM, for TFTP boots and as the reimaging environment. Not rebuildable:
   # its store is never registered, so a nix GC there would delete the running system.
   dmc12Netboot = mkHost "aarch64-linux" [

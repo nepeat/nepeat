@@ -11,31 +11,18 @@
 
   outputs = { self, nixpkgs, nixpkgs-systems, flake-utils }:
     let
-      # Shared packages / NixOS modules / system configs: see nix/README.md.
-      # A git flake only sees tracked files: until ./nix is committed (or
-      # "git add -N"ed) the exports are simply absent and the devshell still
-      # works. "nix build path:./nix#..." works either way.
-      shared = nixpkgs.lib.optionalAttrs (builtins.pathExists ./nix/default.nix) (
-        let
-          aiRe = import ./nix;
-          # The monorepo's Rust tools (fand). Reachable here because this is a
-          # git flake over the whole repository.
-          rust = if builtins.pathExists ../rust/crates/fand/nix/module.nix
-            then {
-              nixosModules.fand = ../rust/crates/fand/nix/module.nix;
-              nixosModules.consoled = ../rust/consoled/nix/module.nix;   # its own workspace
-            } else null;
-          systems = aiRe.systemsFor { nixpkgs = nixpkgs-systems; inherit rust; };
-        in {
-          inherit (aiRe) nixosModules;
-          inherit (systems) nixosConfigurations;
-          packages.x86_64-linux =
-            aiRe.packagesFor (import nixpkgs-systems { system = "x86_64-linux"; }) // systems.packages;
+      # Shared packages / NixOS modules / system configs: see nix/README.md
+      # (the same outputs as "path:./nix", plus what needs the whole monorepo).
+      # rust: the monorepo's Rust NixOS modules (fand, consoled), reachable here
+      # because this is a git flake over the whole repository.
+      shared = nixpkgs.lib.recursiveUpdate
+        ((import ./nix).flakeOutputs { nixpkgs = nixpkgs-systems; rust = import ./nix/modules/rust-modules.nix; })
+        {
           # On a DMC-12: nix run --refresh 'github:nepeat/nepeat?dir=ai_re#dmc12-firmware' -- status
           packages.aarch64-linux.dmc12-firmware = (import ./nix/packages/dmc12-firmware {
             pkgs = import nixpkgs-systems { system = "aarch64-linux"; };
           }).tool;
-        });
+        };
     in
     nixpkgs.lib.recursiveUpdate shared (flake-utils.lib.eachDefaultSystem (system:
       let
