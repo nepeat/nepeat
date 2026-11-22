@@ -25,7 +25,7 @@ here are already locked.
 | 25-29 | see below | | **KAK digest**: SHA-256 of the 524-byte KAK field of the boot image's SECURITY extension, 7 bytes per row (w0 LE + low 3 bytes of w1), top byte = ECC |
 | 30 | `c0dec0de` | `0a000000` | **flash_id** = header `flash_id` 0xc0dec0de |
 | 31 | `de8de800` | `6a000000` | **box_id** = header `box_id` 0xde8de800 |
-| 37, 38, 39 | `00000001` | `86000000` | value 1, triplicated: almost certainly the secure-boot enable (inference: no public map, but it matches the BootROM's "Secure boot from SPI NOR") |
+| 37, 38, 39 | `00000001` | `86000000` | **CSK revocation rows** (corrected 2026-11-18 from the ROM: the CSK index is the first row in 37..52 whose low 16 bits are zero, so index 3 here; slots 0-2 revoked). The secure flag itself is register 0xF06F4730 bit 0, latched by hardware |
 
 KAK digest check (`dumps/mtd0.bin`, KAK field at 0x5c008, 524 bytes):
 
@@ -53,7 +53,10 @@ Probably Marvell production/trim and the AVS work point; the BLE prints
 - Secure boot is **fused on and locked**: the KAK digest, box/flash IDs and
   enable rows all have the lock bit set. Any boot image must chain to this KAK
   (Delta/Amazon's private key) through one of the header's CSKs. No public
-  BootROM bypass for AP806 is known (see PROGRESS 2026-11-12 (g)).
-- The SECURITY extension has `jtag_en=1` with `jtag_delay=20`, so the BootROM
-  probably re-opens JTAG after a verified boot. Unexplored. A debugger would
-  reach a system we already fully control, so it's low value.
+BootROM bypass for AP806 is known (see PROGRESS 2026-11-12 (g)).
+
+
+- **Correction (2026-11-19, AS5114 session 3):** the earlier jtag_en/jtag_delay speculation was checked
+  against the ROM — there is **no DFX/DBI/JTAG register write anywhere in the ROM or in the signed
+  ext's post-auth unlock table** (that table programs only the crypto-engine registers
+  0xF2441920/0xF2441940). jtag_en has no visible register effect; drop it as a route.

@@ -1,0 +1,80 @@
+From: ai_re (local patch, not upstreamed)
+Subject: rename_variable/set_variable_type: commit decompiler-synthesized
+ variable names before resolving them
+
+pyghidra-mcp 0.3.0 (and main as of 2026-11-18) resolves a variable to rename
+only against Function.getParameters()/getLocalVariables(), which on a raw
+auto-analyzed binary only hold Ghidra's *committed* formal variables. The
+names the decompiler shows (uVar1, iVar2, ...) are synthesized by the
+decompiler each call and are never committed unless something runs
+HighFunctionDBUtil.commitParamsToDatabase/commitLocalNamesToDatabase first --
+which nothing in pyghidra-mcp does. So rename_variable/set_variable_type
+reliably fail with "Variable '...' not found" on exactly the names the
+decompiled pseudo-C shows, on every function that hasn't had this run before.
+
+Fix: on a miss, decompile the function once, commit its params+locals (the
+same thing Ghidra's own scripts/GUI "commit" action does), and retry the
+lookup before giving up. Verified against devices/delta-tn48m's ap806-bootrom
+project (see bootrom-functions.md): a rename of 'uVar6' that failed before
+this patch succeeds after it, and the committed name survives a reopen.
+
+Upstream: not reported/filed yet (clearbluejar/pyghidra-mcp).
+---
+--- a/src/pyghidra_mcp/tools.py
++++ b/src/pyghidra_mcp/tools.py
+@@ -90,13 +90,47 @@
+         func = self.find_function(function_name_or_address)
+         function_name = str(func.getName())
+ 
+-        matches: list[tuple[str, typing.Any]] = []
+-        for param in func.getParameters():
+-            if str(param.getName()) == variable_name:
+-                matches.append(("parameter", param))
+-        for local in func.getLocalVariables():
+-            if str(local.getName()) == variable_name:
+-                matches.append(("local", local))
++        def _find_matches() -> list[tuple[str, typing.Any]]:
++            found: list[tuple[str, typing.Any]] = []
++            for param in func.getParameters():
++                if str(param.getName()) == variable_name:
++                    found.append(("parameter", param))
++            for local in func.getLocalVariables():
++                if str(local.getName()) == variable_name:
++                    found.append(("local", local))
++            return found
++
++        matches = _find_matches()
++
++        if not matches:
++            # ai_re fix: raw auto-analysis gives Functions no formal local Variable
++            # objects for decompiler-synthesized names (uVar1, iVar2, ...) until
++            # something commits them to the database. Decompile once, commit
++            # params+locals the way Ghidra's own scripts do, then retry.
++            try:
++                from ghidra.app.decompiler import DecompInterface
++                from ghidra.program.model.pcode import HighFunctionDBUtil
++                from ghidra.program.model.symbol import SourceType
++                from ghidra.util.task import ConsoleTaskMonitor
++
++                di = DecompInterface()
++                di.openProgram(self.program)
++                decompile_result = di.decompileFunction(func, 60, ConsoleTaskMonitor())
++                if decompile_result.decompileCompleted():
++                    high_function = decompile_result.getHighFunction()
++                    with ghidra_transaction(self.program, "pyghidra-mcp: commit decompiler vars"):
++                        HighFunctionDBUtil.commitParamsToDatabase(
++                            high_function,
++                            True,
++                            HighFunctionDBUtil.ReturnCommitOption.NO_COMMIT,
++                            SourceType.ANALYSIS,
++                        )
++                        HighFunctionDBUtil.commitLocalNamesToDatabase(
++                            high_function, SourceType.ANALYSIS
++                        )
++                    matches = _find_matches()
++            except Exception:
++                pass
+ 
+         if not matches:
+             raise ValueError(f"Variable '{variable_name}' not found in function '{function_name}'.")
+[exit 1] Files differ

@@ -6,6 +6,9 @@ result-*
 # scratch / working dumps kept out of git by default; commit real artifacts explicitly
 *.tmp
 
+# APC investigation — keep local for now
+/devices/apc-general/
+
 # firmware noise
 extracted/
 extract/
