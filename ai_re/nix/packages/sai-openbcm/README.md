@@ -342,10 +342,40 @@ orchagent waiting on the create), and because a failed PHY bring-up should fail 
   frames hang its PHYs until a power cycle).
 - Every script is parsed completely before the chip is touched; a missing or malformed file writes nothing.
   The process takes the per-unit SDK lock (exit 3 when syncd, bcm.user or openbcm-asic-temp holds it).
+- **ASIC temperature while it runs** (`--temp-out FILE [--temp-prom FILE] [--temp-interval S]`): the process owns
+  the SDK, so neither the reader nor syncd can publish the die temperature; it does so itself, same files and code
+  (`temp_files.c`). The PVTMONs are read between two script operations by the thread that runs the script
+  (`io->tick`), not by a second thread: no SDK concurrency in a half-initialised SDK, and a read only stretches
+  the gap between two MDIO frames (the script's delays are minimum waits). Misc init reads the monitors once
+  itself, so they are readable at this init stage. Files are removed on exit (the next publisher, syncd or the
+  reader, takes over; fand bridges the gap with the sensor's `grace`). No over-temperature PLL power-down here.
+- **Verification section**: the single-try `P`/`N` assertions at the very end of a script are its read-back
+  check (which registers, is the script author's business: the runner knows no PHY). A mismatch there does not
+  stop the script: every PHY is read, then the run fails (exit 2). `--verify-only` runs only that section, read
+  only: through syncd's diag socket (`--diag-socket`, the diag shell's `phy raw c45`, while syncd owns the chip) or
+  with the SDK itself (`--config`: init soc + init misc, so only while the stack is down). Table or `--json`.
+- **Failures are classified** ([src/mdio_report.h](src/mdio_report.h) `MDIO_CLASS_*`): `script-missing`,
+  `script-malformed`, `sdk-busy` (names the pid and command holding the lock, from /proc/locks),
+  `sdk-config-missing`, `sdk-init`, `mdio-clock` (hold delay or divisor read back differs: no frame was sent),
+  `mdio-io`, `sequence-diverged` (a poll never saw its value, the PHY still answers), `phy-not-answering` (a PHY
+  reads one constant on at least 3 verified registers: nothing there, or hung), `verify-mismatch`,
+  `interrupted`. After a poll timeout the verification section is read once more (reads only) to tell the two
+  PHY cases apart. The final message names script line, label, PHY, register, expected and read value, reads made
+  and operations run of the total, then the class's "what to do" (`--hint CLASS=TEXT` replaces the general text
+  with the board's). The same line goes to systemd as `STATUS=`.
+- **Status files** (`--status-file FILE.json`, and `FILE.txt` for people; line 1 is the outcome): written at
+  start, every 5 s while running (progress) and at the end, on success and on every failure, including the ones
+  before the SDK is up. `--names FILE` gives PHYs and registers names (`phy 24 cage5`, `reg 1.8215 fw`).
+  `--verify-only` never writes them.
+- SIGTERM/SIGINT stop it between two operations (exit 7, state `interrupted`), not in the middle of a frame.
 - Delays under 20 ms are spun (kernels without high-resolution timers round a sleep up to a tick). About 20 us
   per MDIO access on the T2080: 963,000 accesses + 54 s of delays in 98 s.
 - NixOS: `hardware.openbcm.mdioScript` ([switch/openbcm.nix](../../modules/switch/openbcm.nix)), script paths
-  outside the store. Tests: `tests/test_mdio_script.c` (fake bus; in `make check`).
+  outside the store; `requiredBy` (hard fail: the SONiC stack does not start without the PHYs),
+  `openbcm-mdio-script-failed.service` (stops what started, starts openbcm-asic-temp), `phy-status`, a login
+  message while failed. Tests: `tests/test_mdio_script.c` in `make check`: fake bus (interpreter, verification
+  section, tick/abort), per-PHY report and classes, status files, lock holder, a fake diag socket, and the tool's
+  own command line for everything that needs no SDK.
 
 ## openbcm-asic-temp
 

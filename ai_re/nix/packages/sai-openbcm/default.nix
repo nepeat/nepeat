@@ -16,7 +16,7 @@ in stdenv.mkDerivation {
     name = "sai-openbcm-src";
     # Only what the library build reads: editing docs or the VM test does not rebuild it.
     filter = p: t: !(lib.hasSuffix ".md" p) && !(lib.hasSuffix ".py" p)
-      && !(builtins.elem (baseNameOf p) [ "default.nix" "test-syncd.nix" "build" ]);
+      && !(builtins.elem (baseNameOf p) [ "default.nix" "test-syncd.nix" "test-mdio-units.nix" "build" ]);
   };
 
   enableParallelBuilding = true;

@@ -1,0 +1,161 @@
+# AS7772 forced failure 2 (task J): after the script-missing reboot (PHYs cleared, never initialised), a script that is
+# only the real script's verification section (no write) is put in place and the stack restarted: read-back mismatch.
+== test script: the real script's verification section only (reads): 193 lines, ops:      32 L       1 m     160 P 
+== 2026-11-22T03:29:48-08:00 systemctl restart sonic.target (PHYs are in their after-reboot state)
+A dependency job for sonic.target failed. See 'journalctl -xe' for details.
+
+real	0m1.866s
+user	0m0.019s
+sys	0m0.007s
+rc=1
+== unit states
+openbcm-mdio-script          failed
+openbcm-asic-temp            active
+sonic.target                 inactive
+sonic-syncd                  inactive
+sonic-orchagent              inactive
+fand                         active
+== systemctl status
+     Active: failed (Result: exit-code) since Sun 2026-11-22 03:29:50 PST; 12s ago
+   Main PID: 4839 (code=exited, status=2)
+     Status: "FAILED (verify-mismatch): evora-100g-bypass.mdio line 5 [verify phy 0x0: id 2391/80a0, firmware d00b, checksum 600d, both sides active]: verification: 32 of 32 PHYs differ: cage1 (phy 0x0) fw (1.8215) read 0x0001, expected 0xd00b; cage2 (phy 0x1) fw (1.8215) read 0x0001, expected 0xd00b; cage3 (phy 0x2) fw (1.8215) read 0x0001, expected 0xd00b; ...; 160 of 160 operations had run; the PHYs answer, but firmware or configuration is not as recorded"
+== journal of this run
+[  205.785332] as7772 systemd[1]: Starting External PHY bring-up over the switch chip's MDIO bus...
+[  206.147331] as7772 openbcm-mdio-script[4669]: openbcm-mdio-script: FAILED (script-missing): /var/lib/evora-phy/evora-100g-bypass.mdio: No such file or directory; nothing was written to any PHY
+[  206.147331] as7772 openbcm-mdio-script[4669]: openbcm-mdio-script: what to do: the PHY script is private and installed by hand: on the workstation run devices/edge-core-as7772-32x/evora-rehost/install-script.sh, then here: systemctl restart sonic.target
+[  206.163528] as7772 systemd[1]: openbcm-mdio-script.service: Main process exited, code=exited, status=5/NOTINSTALLED
+[  206.164474] as7772 systemd[1]: openbcm-mdio-script.service: Failed with result 'exit-code'.
+[  206.166245] as7772 systemd[1]: Failed to start External PHY bring-up over the switch chip's MDIO bus.
+[  206.171410] as7772 systemd[1]: openbcm-mdio-script.service: Triggering OnFailure= dependencies.
+[  206.198586] as7772 systemd[1]: Starting External PHY bring-up failed: say why, keep the stack down and the ASIC temperature published...
+[  206.277576] as7772 openbcm-mdio-script-failed-start[4675]: openbcm-mdio-script: FAILED (script-missing): /var/lib/evora-phy/evora-100g-bypass.mdio: No such file or directory; nothing was written to any PHY
+[  206.277576] as7772 openbcm-mdio-script-failed-start[4675]: not starting: sonic.target sonic-syncd.service; stopping sonic.target. Details: phy-status
+[  206.388542] as7772 systemd[1]: openbcm-mdio-script-failed.service: Deactivated successfully.
+[  206.389652] as7772 systemd[1]: Finished External PHY bring-up failed: say why, keep the stack down and the ASIC temperature published.
+[  229.896501] as7772 systemd[1]: Starting External PHY bring-up over the switch chip's MDIO bus...
+[  230.286523] as7772 openbcm-mdio-script[4839]: openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: 0 writes, 160 reads (160 polls), 0 delays (0.0 s), 32 steps; verification: 160 reads from line 2
+[  230.612036] as7772 openbcm-mdio-script[4839]: sal_config_refresh: format error in nbk160qsdlxpjbbs9ivy517yydnly5z5-as7772-32x-config.bcm on line 3 (ignored)
+[  230.697387] as7772 openbcm-mdio-script[4839]: linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+[  230.697682] as7772 openbcm-mdio-script[4839]: DMA pool size: 16777216 bytes.
+[  231.012098] as7772 openbcm-mdio-script[4839]: BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+[  231.088113] as7772 openbcm-mdio-script[4839]: SOC unit 0 attached to PCI device BCM56930_B1
+[  231.091609] as7772 openbcm-mdio-script[4839]: Boot flags: initialization scripts NOT loaded
+[  231.569958] as7772 openbcm-mdio-script[4839]: openbcm-mdio-script: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+[  231.572623] as7772 openbcm-mdio-script[4839]: openbcm-mdio-script: ASIC temperature: 8 monitors, max 40.8 C; every 5 s to /run/asic/temperature while the script runs
+[  231.578867] as7772 openbcm-mdio-script[4839]: openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: FAILED in 0.0 s: 160 of 160 operations, 0 writes, 160 reads (160 polls, 0 re-reads), 0 expected values differed
+[  231.580407] as7772 openbcm-mdio-script[4839]: openbcm-mdio-script: PHY registers read at the end of the script:
+[  231.580679] as7772 openbcm-mdio-script[4839]: name    phy    id      id2     fw      cksum   sides   state
+[  231.580679] as7772 openbcm-mdio-script[4839]: cage1   0x000  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.580679] as7772 openbcm-mdio-script[4839]: cage2   0x001  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.580679] as7772 openbcm-mdio-script[4839]: cage3   0x002  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.580679] as7772 openbcm-mdio-script[4839]: cage4   0x003  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.581298] as7772 openbcm-mdio-script[4839]: cage5   0x024  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.581298] as7772 openbcm-mdio-script[4839]: cage6   0x025  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.581298] as7772 openbcm-mdio-script[4839]: cage7   0x026  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.581298] as7772 openbcm-mdio-script[4839]: cage8   0x027  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.581298] as7772 openbcm-mdio-script[4839]: cage9   0x048  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.581298] as7772 openbcm-mdio-script[4839]: cage10  0x049  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.581298] as7772 openbcm-mdio-script[4839]: cage11  0x04a  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.581298] as7772 openbcm-mdio-script[4839]: cage12  0x04b  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.581298] as7772 openbcm-mdio-script[4839]: cage13  0x06c  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.581298] as7772 openbcm-mdio-script[4839]: cage14  0x06d  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.581298] as7772 openbcm-mdio-script[4839]: cage15  0x06e  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage16  0x06f  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage17  0x110  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage18  0x111  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage19  0x112  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage20  0x113  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage21  0x134  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage22  0x135  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage23  0x136  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage24  0x137  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage25  0x158  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage26  0x159  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage27  0x15a  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage28  0x15b  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage29  0x17c  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage30  0x17d  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage31  0x17e  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: cage32  0x17f  2391    80a0    0001!   0000!   0000!   MISMATCH
+[  231.582604] as7772 openbcm-mdio-script[4839]: openbcm-mdio-script: what to do: run it again: systemctl restart sonic.target (about 100 s); a PHY that still differs after a cold power cycle is a hardware or script problem
+[  231.612545] as7772 systemd[1]: openbcm-mdio-script.service: Main process exited, code=exited, status=2/INVALIDARGUMENT
+[  231.613425] as7772 systemd[1]: openbcm-mdio-script.service: Failed with result 'exit-code'.
+[  231.615442] as7772 systemd[1]: Failed to start External PHY bring-up over the switch chip's MDIO bus.
+[  231.624922] as7772 systemd[1]: openbcm-mdio-script.service: Consumed 1.601s CPU time over 1.717s wall clock time, 36.9M memory peak.
+[  231.624956] as7772 systemd[1]: openbcm-mdio-script.service: Triggering OnFailure= dependencies.
+[  231.661698] as7772 systemd[1]: Starting External PHY bring-up failed: say why, keep the stack down and the ASIC temperature published...
+[  231.739152] as7772 openbcm-mdio-script-failed-start[4853]: not starting: sonic.target sonic-syncd.service; stopping sonic.target. Details: phy-status
+[  231.850148] as7772 systemd[1]: openbcm-mdio-script-failed.service: Deactivated successfully.
+[  231.851361] as7772 systemd[1]: Finished External PHY bring-up failed: say why, keep the stack down and the ASIC temperature published.
+== phy-status
+== last run of openbcm-mdio-script.service (/run/openbcm-mdio-script/status.txt) ==
+openbcm-mdio-script: FAILED (verify-mismatch): evora-100g-bypass.mdio line 5 [verify phy 0x0: id 2391/80a0, firmware d00b, checksum 600d, both sides active]: verification: 32 of 32 PHYs differ: cage1 (phy 0x0) fw (1.8215) read 0x0001, expected 0xd00b; cage2 (phy 0x1) fw (1.8215) read 0x0001, expected 0xd00b; cage3 (phy 0x2) fw (1.8215) read 0x0001, expected 0xd00b; ...; 160 of 160 operations had run; the PHYs answer, but firmware or configuration is not as recorded
+  what to do: run it again: systemctl restart sonic.target (about 100 s); a PHY that still differs after a cold power cycle is a hardware or script problem
+  run started 2026-11-22 03:29:49 -0800, took 1.3 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: STOPPED, 160 of 160 operations in 0.0 s (0 writes, 160 reads, 0 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 1 readings, last 40.8 C, 0 failed, longest read 0.14 ms
+  PHY registers read at the end of the script: 0 of 32 PHYs as expected
+name    phy    id      id2     fw      cksum   sides   state
+cage1   0x000  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage2   0x001  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage3   0x002  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage4   0x003  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage5   0x024  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage6   0x025  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage7   0x026  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage8   0x027  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage9   0x048  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage10  0x049  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage11  0x04a  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage12  0x04b  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage13  0x06c  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage14  0x06d  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage15  0x06e  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage16  0x06f  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage17  0x110  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage18  0x111  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage19  0x112  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage20  0x113  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage21  0x134  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage22  0x135  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage23  0x136  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage24  0x137  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage25  0x158  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage26  0x159  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage27  0x15a  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage28  0x15b  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage29  0x17c  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage30  0x17d  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage31  0x17e  2391    80a0    0001!   0000!   0000!   MISMATCH
+cage32  0x17f  2391    80a0    0001!   0000!   0000!   MISMATCH
+
+== the PHYs now (read only) ==
+syncd is not running, so nothing reads the PHYs now; the table above is from the last run.
+phy-status --live reads them with the SDK itself: it stops openbcm-asic-temp for a few seconds and
+re-initialises the switch chip (init soc, init misc), which is harmless only while the stack is down.
+== status.json (failure, first PHY)
+ "failure": {"class": "verify-mismatch", "hint": "run it again: systemctl restart sonic.target (about 100 s); a PHY that still differs after a cold power cycle is a hardware or script problem",
+  "script": "/var/lib/evora-phy/evora-100g-bypass.mdio", "line": 5, "label": "verify phy 0x0: id 2391/80a0, firmware d00b, checksum 600d, both sides active", "op": "P",
+  "phy": "0x0", "phy_name": "cage1", "dev": 1, "reg": "0x8215", "expected": "0xd00b", "mask": "0xffff", "read": "0x0001", "reads": 1},
+ "asic_temperature": {"readings": 1, "failed": 0, "last_celsius": 40.8, "longest_read_ms": 0.14},
+ "verified": {"when": "the end of the script", "phys_ok": 0, "phys_total": 32,
+   {"phy": "0x0", "name": "cage1", "state": "mismatch", "registers": [{"reg": "1.8b00", "name": "id", "read": "0x2391", "expected": "0x2391", "mask": "0xffff", "ok": true}, {"reg": "1.8b01", "name": "id2", "read": "0x80a0", "expected": "0x80a0", "mask": "0xffff", "ok": true}, {"reg": "1.8215", "name": "fw", "read": "0x0001", "expected": "0xd00b", "mask": "0xffff", "ok": false}, {"reg": "1.8245", "name": "cksum", "read": "0x0000", "expected": "0x600d", "mask": "0xffff", "ok": false}, {"reg": "1.8251", "name": "sides", "read": "0x0000", "expected": "0x000d", "mask": "0x000d", "ok": false}]},
+== fans
+fand_zone_failsafe{zone="asic"} 0
+fand_zone_failsafe{zone="board"} 0
+fand_zone_failsafe{zone="cpu"} 0
+fand_sensor_in_grace{sensor="asic"} 0
+fand_sensor_in_grace{sensor="board_1"} 0
+fand_sensor_in_grace{sensor="board_2"} 0
+fand_sensor_in_grace{sensor="board_3"} 0
+fand_sensor_in_grace{sensor="board_4"} 0
+fand_sensor_in_grace{sensor="board_5"} 0
+fand_sensor_in_grace{sensor="cpu_board"} 0
+fand_sensor_in_grace{sensor="cpu_die"} 0
+fand_output_duty_percent{output="fans"} 53.3
+40.8
+[  206.536334] as7772 fand[440]: sensor asic: no reading (/run/asic/temperature: no such file), holding 40.8 C for up to 45s
+[  208.536163] as7772 fand[440]: sensor asic: reading back after 4s, 41.3 C
+[  230.540164] as7772 fand[440]: sensor asic: no reading (/run/asic/temperature: no such file), holding 40.4 C for up to 45s
+[  234.536171] as7772 fand[440]: sensor asic: reading back after 6s, 41.3 C

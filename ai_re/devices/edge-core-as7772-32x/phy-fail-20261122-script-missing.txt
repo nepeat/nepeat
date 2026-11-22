@@ -1,0 +1,194 @@
+# AS7772 forced failure 1 (task J): PHY script moved away, reboot. Fan/temperature poll first, then the state.
+# 2026-11-22T11:25:42.467Z script moved to /var/lib/evora-phy/aside, systemctl reboot
+.:
+total 20896
+drwx------  3 root root     4096 Nov 22 03:25 .
+drwxr-xr-x 12 root root     4096 Nov 22 00:35 ..
+drwxr-xr-x  2 root root     4096 Nov 22 03:25 aside
+-rw-------  1 root root 21384259 Nov 22 00:47 evora-100g-bypass-notaps.mdio
+
+aside:
+total 21216
+drwxr-xr-x 2 root root     4096 Nov 22 03:25 .
+drwx------ 3 root root     4096 Nov 22 03:25 ..
+-rw------- 1 root root 21715634 Nov 22 01:59 evora-100g-bypass.mdio
+# ssh reachable 41 s after power on: true
+*** PHY bring-up failed; not started: sonic.target sonic-syncd.service ***
+openbcm-mdio-script: FAILED (script-missing): /var/lib/evora-phy/evora-100g-bypass.mdio: No such file or directory; nothing was written to any PHY
+  what to do: the PHY script is private and installed by hand: on the workstation run devices/edge-core-as7772-32x/evora-rehost/install-script.sh, then here: systemctl restart sonic.target
+  details: phy-status
+
+up=49.70 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=38 board=33 units: script=failed syncd=inactive reader=active
+up=52.04 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=38 board=33 units: script=failed syncd=inactive reader=active
+up=54.35 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=41.3 cpu_die=39 board=33 units: script=failed syncd=inactive reader=active
+up=56.66 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.3 cpu_die=38 board=33 units: script=failed syncd=inactive reader=active
+up=58.97 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.3 cpu_die=38 board=33 units: script=failed syncd=inactive reader=active
+up=61.29 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.3 cpu_die=38 board=33 units: script=failed syncd=inactive reader=active
+up=63.60 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.8 fand_asic=42.3 cpu_die=38 board=33 units: script=failed syncd=inactive reader=active
+up=65.91 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.8 fand_asic=42.8 cpu_die=38 board=33 units: script=failed syncd=inactive reader=active
+up=68.22 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.8 cpu_die=39 board=33 units: script=failed syncd=inactive reader=active
+up=70.53 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.3 cpu_die=38 board=33 units: script=failed syncd=inactive reader=active
+up=72.85 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.3 cpu_die=38 board=33 units: script=failed syncd=inactive reader=active
+up=75.16 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.8 fand_asic=41.8 cpu_die=38 board=33 units: script=failed syncd=inactive reader=active
+up=77.48 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.8 fand_asic=41.8 cpu_die=39 board=33 units: script=failed syncd=inactive reader=active
+up=79.79 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.3 cpu_die=38 board=32.5 units: script=failed syncd=inactive reader=active
+up=82.10 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.3 cpu_die=38 board=32.5 units: script=failed syncd=inactive reader=active
+up=84.41 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.8 fand_asic=41.8 cpu_die=38 board=32.5 units: script=failed syncd=inactive reader=active
+up=86.73 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.8 fand_asic=41.8 cpu_die=38 board=32.5 units: script=failed syncd=inactive reader=active
+up=89.04 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=40.8 fand_asic=40.8 cpu_die=38 board=32.5 units: script=failed syncd=inactive reader=active
+up=91.35 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=40.8 fand_asic=40.8 cpu_die=38 board=32.5 units: script=failed syncd=inactive reader=active
+up=93.66 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=40.8 cpu_die=38 board=32.5 units: script=failed syncd=inactive reader=active
+up=95.97 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.3 cpu_die=38 board=32.5 units: script=failed syncd=inactive reader=active
+up=98.29 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=42.3 cpu_die=38 board=32.5 units: script=failed syncd=inactive reader=active
+up=100.60 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=38 board=32.5 units: script=failed syncd=inactive reader=active
+up=102.91 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=37 board=32.5 units: script=failed syncd=inactive reader=active
+up=105.22 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=37 board=32.5 units: script=failed syncd=inactive reader=active
+up=107.55 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=38 board=32.5 units: script=failed syncd=inactive reader=active
+up=109.87 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=38 board=32.5 units: script=failed syncd=inactive reader=active
+up=112.18 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=38 board=32.5 units: script=failed syncd=inactive reader=active
+up=114.49 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=37 board=32.5 units: script=failed syncd=inactive reader=active
+up=116.80 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=38 board=32.5 units: script=failed syncd=inactive reader=active
+up=119.11 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=37 board=32.5 units: script=failed syncd=inactive reader=active
+up=121.43 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=37 board=32.5 units: script=failed syncd=inactive reader=active
+up=123.75 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=41.3 cpu_die=37 board=32.5 units: script=failed syncd=inactive reader=active
+up=126.06 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.3 cpu_die=38 board=32.5 units: script=failed syncd=inactive reader=active
+up=128.37 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.3 cpu_die=37 board=32.5 units: script=failed syncd=inactive reader=active
+up=130.68 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.3 cpu_die=37 board=32 units: script=failed syncd=inactive reader=active
+up=132.99 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.3 cpu_die=37 board=32.5 units: script=failed syncd=inactive reader=active
+up=135.31 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=40.8 fand_asic=40.8 cpu_die=37 board=32 units: script=failed syncd=inactive reader=active
+up=137.63 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=40.8 fand_asic=40.8 cpu_die=38 board=32 units: script=failed syncd=inactive reader=active
+up=139.95 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.8 fand_asic=41.8 cpu_die=38 board=32 units: script=failed syncd=inactive reader=active
+up=142.26 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.8 fand_asic=41.8 cpu_die=38 board=32 units: script=failed syncd=inactive reader=active
+up=144.57 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=37 board=32 units: script=failed syncd=inactive reader=active
+up=146.88 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=37 board=32 units: script=failed syncd=inactive reader=active
+up=149.19 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.8 fand_asic=41.8 cpu_die=37 board=32.5 units: script=failed syncd=inactive reader=active
+up=151.51 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.8 fand_asic=41.8 cpu_die=37 board=32 units: script=failed syncd=inactive reader=active
+*** PHY bring-up failed; not started: sonic.target sonic-syncd.service ***
+openbcm-mdio-script: FAILED (script-missing): /var/lib/evora-phy/evora-100g-bypass.mdio: No such file or directory; nothing was written to any PHY
+  what to do: the PHY script is private and installed by hand: on the workstation run devices/edge-core-as7772-32x/evora-rehost/install-script.sh, then here: systemctl restart sonic.target
+  details: phy-status
+
+== 2026-11-22T03:28:52-08:00 /nix/store/f0rkbasjllsjhckww7y3ixcpg791lw43-nixos-system-as7772-26.11.20261111.d4f25a3; uptime:  03:28:52 up 2 min,  3 users,  load average: 0.19, 0.11, 0.04
+== unit states
+openbcm-mdio-script          failed
+openbcm-mdio-script-failed   inactive
+openbcm-asic-temp            active
+sonic.target                 inactive
+sonic-syncd                  inactive
+sonic-orchagent              inactive
+sonic-portsyncd              inactive
+sonic-pmon                   inactive
+frr                          inactive
+fand                         active
+sshd                         active
+== failed units:
+● openbcm-mdio-script.service loaded failed failed External PHY bring-up over the switch chip's MDIO bus
+== systemctl status openbcm-mdio-script sonic.target sonic-syncd
+× openbcm-mdio-script.service - External PHY bring-up over the switch chip's MDIO bus
+     Loaded: loaded (/etc/systemd/system/openbcm-mdio-script.service; enabled; preset: ignored)
+     Active: failed (Result: exit-code) since Sun 2026-11-22 03:26:15 PST; 2min 37s ago
+    Process: 498 ExecStartPre=/nix/store/as9g06634ppd90adwxlkal2x039bi62q-systemd-powerpc64-unknown-linux-gnuabielfv2-262/bin/systemctl stop openbcm-asic-temp.service (code=exited, status=0/SUCCESS)
+   Main PID: 505 (code=exited, status=5)
+     Status: "FAILED (script-missing): /var/lib/evora-phy/evora-100g-bypass.mdio: No such file or directory; nothing was written to any PHY"
+
+Nov 22 03:26:14 as7772 systemd[1]: Starting External PHY bring-up over the switch chip's MDIO bus...
+Nov 22 03:26:15 as7772 openbcm-mdio-script[505]: openbcm-mdio-script: FAILED (script-missing): /var/lib/evora-phy/evora-100g-bypass.mdio: No such file or directory; nothing was written to any PHY
+Nov 22 03:26:15 as7772 openbcm-mdio-script[505]: openbcm-mdio-script: what to do: the PHY script is private and installed by hand: on the workstation run devices/edge-core-as7772-32x/evora-rehost/install-script.sh, then here: systemctl restart sonic.target
+Nov 22 03:26:15 as7772 systemd[1]: openbcm-mdio-script.service: Main process exited, code=exited, status=5/NOTINSTALLED
+Nov 22 03:26:15 as7772 systemd[1]: openbcm-mdio-script.service: Failed with result 'exit-code'.
+Nov 22 03:26:15 as7772 systemd[1]: Failed to start External PHY bring-up over the switch chip's MDIO bus.
+Nov 22 03:26:15 as7772 systemd[1]: openbcm-mdio-script.service: Triggering OnFailure= dependencies.
+
+○ sonic.target - SONiC switch stack
+     Loaded: loaded (/etc/systemd/system/sonic.target; enabled; preset: ignored)
+     Active: inactive (dead)
+
+Nov 22 03:26:15 as7772 systemd[1]: Dependency failed for SONiC switch stack.
+Nov 22 03:26:15 as7772 systemd[1]: sonic.target: Job sonic.target/start failed with result 'dependency'.
+
+○ sonic-syncd.service - SONiC syncd (SAI: vendor)
+     Loaded: loaded (/etc/systemd/system/sonic-syncd.service; enabled; preset: ignored)
+     Active: inactive (dead)
+
+Nov 22 03:26:15 as7772 systemd[1]: Dependency failed for SONiC syncd (SAI: vendor).
+Nov 22 03:26:15 as7772 systemd[1]: sonic-syncd.service: Job sonic-syncd.service/start failed with result 'dependency'.
+== journal: openbcm-mdio-script-failed, fand
+[   14.319338] as7772 systemd[1]: Starting fand fan control daemon...
+[   14.536059] as7772 fand[440]: starting: 3 zone(s), 8 sensor(s), 1 output(s), interval 2s, exit duty 100%
+[   14.536059] as7772 fand[440]: sensor asic: not online yet (/run/asic/temperature: no such file); not a fault for up to 600s after the start
+[   14.655559] as7772 fand[440]: zone asic: waiting for asic (not online yet): only its floor meanwhile
+[   14.660329] as7772 fand[440]: running: asic -- -> 60% (waiting for asic); board 34.0C -> 60%; cpu 41.0C -> 60%; fans=60% 17800-21500rpm
+[   14.684935] as7772 systemd[1]: Started fand fan control daemon.
+[   16.005531] as7772 systemd[1]: Starting External PHY bring-up failed: say why, keep the stack down and the ASIC temperature published...
+[   16.064570] as7772 openbcm-mdio-script-failed-start[553]: openbcm-mdio-script: FAILED (script-missing): /var/lib/evora-phy/evora-100g-bypass.mdio: No such file or directory; nothing was written to any PHY
+[   16.064570] as7772 openbcm-mdio-script-failed-start[553]: not starting: sonic.target sonic-syncd.service; stopping sonic.target. Details: phy-status
+[   16.155187] as7772 systemd[1]: Starting Switch ASIC die temperature reader (Broadcom SDK, attach only)...
+[   16.196667] as7772 systemd[1]: openbcm-mdio-script-failed.service: Deactivated successfully.
+[   16.197679] as7772 systemd[1]: Finished External PHY bring-up failed: say why, keep the stack down and the ASIC temperature published.
+[   16.750701] as7772 openbcm-asic-temp[559]: Broadcom Command Monitor: Copyright (c) 1998-2026 Broadcom
+[   16.750701] as7772 openbcm-asic-temp[559]: Release: sdk-6.5.27 built 20261115 (Sun Nov 15 08:57:46 2026)
+[   16.750701] as7772 openbcm-asic-temp[559]: From nixbld@localhost:/build/openbcm-sdk-6.5.27-patched
+[   16.750701] as7772 openbcm-asic-temp[559]: Platform: PPC64BE
+[   16.750701] as7772 openbcm-asic-temp[559]: OS: Unix (Posix)
+[   16.882950] as7772 openbcm-asic-temp[559]: linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+[   16.883353] as7772 openbcm-asic-temp[559]: DMA pool size: 16777216 bytes.
+[   17.220259] as7772 openbcm-asic-temp[559]: BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+[   17.303139] as7772 openbcm-asic-temp[559]: SOC unit 0 attached to PCI device BCM56930_B1
+[   17.320210] as7772 openbcm-asic-temp[559]: Boot flags: initialization scripts NOT loaded
+[   17.331963] as7772 openbcm-asic-temp[559]: openbcm-asic-temp: unit 0 attached BCM56930_B1 (uninitialised chip: S-bus ring map and PVTMON trim programmed)
+[   18.336580] as7772 openbcm-asic-temp[559]: openbcm-asic-temp: 8 monitors, max 43.8 C, average 40.6 C; every 5 s to /run/asic/temperature; core PLL power-down at 125 C
+[   18.536329] as7772 fand[440]: sensor asic: online after 4s, 43.8 C
+[   18.576727] as7772 fand[440]: zone asic: all sensors online, resuming curve delta-asic
+[   18.817108] as7772 systemd[1]: Started Switch ASIC die temperature reader (Broadcom SDK, attach only).
+== /run/openbcm-mdio-script/status.json
+{
+ "version": 1,
+ "state": "failed",
+ "mode": "run",
+ "summary": "/var/lib/evora-phy/evora-100g-bypass.mdio: No such file or directory; nothing was written to any PHY",
+ "pid": 505,
+ "started": 1795346775,
+ "finished": 1795346775,
+ "seconds": 0.0,
+ "operations_done": 0,
+ "operations_total": 0,
+ "sdk": "",
+ "scripts": [
+  {"path": "/var/lib/evora-phy/evora-100g-bypass.mdio", "result": null, "seconds": 0.0, "verify_line": 0,
+   "file": {"operations": 0, "writes": 0, "reads": 0, "polls": 0, "poll_rereads": 0, "delays": 0, "labels": 0, "expected_values_differed": 0, "verify_checks": 0, "verify_failed": 0},
+   "run": null}
+ ],
+ "failure": {"class": "script-missing", "hint": "the PHY script is private and installed by hand: on the workstation run devices/edge-core-as7772-32x/evora-rehost/install-script.sh, then here: systemctl restart sonic.target",
+  "script": "/var/lib/evora-phy/evora-100g-bypass.mdio"},
+ "asic_temperature": null,
+ "verified": null
+}
+== phy-status
+== last run of openbcm-mdio-script.service (/run/openbcm-mdio-script/status.txt) ==
+openbcm-mdio-script: FAILED (script-missing): /var/lib/evora-phy/evora-100g-bypass.mdio: No such file or directory; nothing was written to any PHY
+  what to do: the PHY script is private and installed by hand: on the workstation run devices/edge-core-as7772-32x/evora-rehost/install-script.sh, then here: systemctl restart sonic.target
+  run started 2026-11-22 03:26:15 -0800, took 0.0 s
+  /var/lib/evora-phy/evora-100g-bypass.mdio: not run (0 operations)
+
+== the PHYs now (read only) ==
+syncd is not running, so nothing reads the PHYs now; the table above is from the last run.
+phy-status --live reads them with the SDK itself: it stops openbcm-asic-temp for a few seconds and
+re-initialises the switch chip (init soc, init misc), which is harmless only while the stack is down.
+== interactive login shell prints:
+
+*** PHY bring-up failed; not started: sonic.target sonic-syncd.service ***
+openbcm-mdio-script: FAILED (script-missing): /var/lib/evora-phy/evora-100g-bypass.mdio: No such file or directory; nothing was written to any PHY
+  what to do: the PHY script is private and installed by hand: on the workstation run devices/edge-core-as7772-32x/evora-rehost/install-script.sh, then here: systemctl restart sonic.target
+  details: phy-status
+
+== ports (no syncd: no netdevs)
+0
+== fans
+fand_zone_failsafe{zone="asic"} 0
+fand_zone_failsafe{zone="board"} 0
+fand_zone_failsafe{zone="cpu"} 0
+fand_zone_duty_percent{zone="asic"} 53.3
+fand_zone_duty_percent{zone="board"} 53.3
+fand_zone_duty_percent{zone="cpu"} 53.3
+fand_output_duty_percent{output="fans"} 53.3
+40.4

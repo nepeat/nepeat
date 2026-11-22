@@ -1,0 +1,160 @@
+# AS7772 (task J): normal reboot on the final system. Fan/temperature poll from the first ssh, journal, sonic-traffic-test.sh.
+# 2026-11-22T11:36:01.905Z systemctl reboot (normal, script in place, system ymqdngj2…)
+# ssh reachable 41 s after power on: true
+up=49.18 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.8 fand_asic=42.8 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=51.51 fans=53.3% raw=136 rpm=11900-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.8 fand_asic=42.8 cpu_die=39 board=33 units: script=activating syncd=inactive reader=inactive
+up=53.84 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.8 fand_asic=42.8 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=56.17 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.8 fand_asic=42.8 cpu_die=40 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=58.50 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.3 cpu_die=38 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=60.81 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.3 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=63.15 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.8 fand_asic=42.3 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=65.47 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.8 fand_asic=42.8 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=67.84 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=42.8 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=70.18 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=72.51 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=74.83 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=77.18 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=41.3 fand_asic=41.3 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=79.53 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.8 fand_asic=42.8 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=81.86 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.8 fand_asic=42.8 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=84.19 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.8 cpu_die=40 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=86.55 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.3 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=88.87 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=43.3 fand_asic=43.3 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=91.20 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=43.3 fand_asic=43.3 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=93.53 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=43.3 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=95.86 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=42.3 fand_asic=42.3 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=98.19 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=43.3 fand_asic=42.3 cpu_die=39 board=33.5 units: script=activating syncd=inactive reader=inactive
+up=100.51 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=43.3 fand_asic=43.3 cpu_die=39 board=34 units: script=activating syncd=inactive reader=inactive
+up=102.83 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=43.3 fand_asic=43.3 cpu_die=39 board=34 units: script=activating syncd=inactive reader=inactive
+up=105.15 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=43.8 fand_asic=43.8 cpu_die=40 board=34 units: script=activating syncd=inactive reader=inactive
+up=107.49 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=43.8 fand_asic=43.8 cpu_die=40 board=34 units: script=activating syncd=inactive reader=inactive
+up=109.82 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=43.3 fand_asic=43.3 cpu_die=39 board=34 units: script=activating syncd=inactive reader=inactive
+up=112.15 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=43.3 fand_asic=43.3 cpu_die=40 board=34 units: script=activating syncd=inactive reader=inactive
+up=114.49 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=43.3 fand_asic=43.3 cpu_die=40 board=34 units: script=activating syncd=inactive reader=inactive
+up=116.83 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=43.3 fand_asic=43.3 cpu_die=40 board=34 units: script=activating syncd=inactive reader=inactive
+up=119.17 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=1 temps: asicfile=- fand_asic=43.3 cpu_die=41 board=34 units: script=active syncd=active reader=inactive
+up=121.53 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=1 temps: asicfile=43.8 fand_asic=43.3 cpu_die=40 board=34 units: script=active syncd=active reader=inactive
+up=123.90 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=43.8 fand_asic=43.8 cpu_die=40 board=34 units: script=active syncd=active reader=inactive
+up=126.38 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=44.3 fand_asic=44.3 cpu_die=40 board=34 units: script=active syncd=active reader=inactive
+up=128.72 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=44.3 fand_asic=44.3 cpu_die=40 board=34.5 units: script=active syncd=active reader=inactive
+up=131.03 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=44.3 fand_asic=44.3 cpu_die=39 board=34.5 units: script=active syncd=active reader=inactive
+up=133.35 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=44.7 fand_asic=44.7 cpu_die=39 board=34.5 units: script=active syncd=active reader=inactive
+up=135.66 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=44.7 fand_asic=44.7 cpu_die=40 board=34.5 units: script=active syncd=active reader=inactive
+up=137.99 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=45.2 fand_asic=45.2 cpu_die=41 board=34.5 units: script=active syncd=active reader=inactive
+up=140.31 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=45.2 fand_asic=45.2 cpu_die=40 board=34.5 units: script=active syncd=active reader=inactive
+up=142.63 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=45.2 fand_asic=45.2 cpu_die=39 board=34.5 units: script=active syncd=active reader=inactive
+up=144.95 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=45.2 fand_asic=45.2 cpu_die=40 board=34.5 units: script=active syncd=active reader=inactive
+up=147.26 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=46.7 fand_asic=46.7 cpu_die=40 board=35 units: script=active syncd=active reader=inactive
+up=149.58 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=46.7 fand_asic=46.7 cpu_die=39 board=35 units: script=active syncd=active reader=inactive
+up=151.91 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=46.2 fand_asic=46.7 cpu_die=40 board=35 units: script=active syncd=active reader=inactive
+up=154.22 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=46.2 fand_asic=46.2 cpu_die=40 board=35 units: script=active syncd=active reader=inactive
+up=156.54 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=46.2 fand_asic=46.2 cpu_die=39 board=35 units: script=active syncd=active reader=inactive
+up=158.85 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=46.2 fand_asic=46.2 cpu_die=40 board=35 units: script=active syncd=active reader=inactive
+up=161.17 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=46.2 fand_asic=46.2 cpu_die=40 board=35 units: script=active syncd=active reader=inactive
+up=163.49 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=46.2 fand_asic=46.2 cpu_die=40 board=35 units: script=active syncd=active reader=inactive
+up=165.81 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=46.2 fand_asic=46.2 cpu_die=40 board=35 units: script=active syncd=active reader=inactive
+up=168.15 fans=53.3% raw=136 rpm=12000-14600 zones: asic=53.3 board=53.3 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=45.2 fand_asic=45.2 cpu_die=41 board=35 units: script=active syncd=active reader=inactive
+up=170.46 fans=53.3% raw=136 rpm=12000-14700 zones: asic=53.3 board=54.7 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=45.2 fand_asic=45.2 cpu_die=40 board=35.5 units: script=active syncd=active reader=inactive
+up=172.78 fans=54.7% raw=153 rpm=12200-15000 zones: asic=53.3 board=54.7 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=45.7 fand_asic=45.7 cpu_die=40 board=35 units: script=active syncd=active reader=inactive
+up=175.10 fans=54.7% raw=153 rpm=12500-15300 zones: asic=53.3 board=54.7 cpu=53.3 failsafe=000 asic_waiting=0 asic_grace=0 temps: asicfile=45.7 fand_asic=45.7 cpu_die=40 board=35.5 units: script=active syncd=active reader=inactive
+== journal (monotonic)
+Startup finished in 2.706s (kernel) + 8.182s (initrd) + 1min 54.355s (userspace) = 2min 5.244s 
+[   14.302130] as7772 systemd[1]: Starting fand fan control daemon...
+[   14.482384] as7772 fand[437]: starting: 3 zone(s), 8 sensor(s), 1 output(s), interval 2s, exit duty 100%
+[   14.483451] as7772 fand[437]: sensor asic: not online yet (/run/asic/temperature: no such file); not a fault for up to 600s after the start
+[   14.592385] as7772 fand[437]: zone asic: waiting for asic (not online yet): only its floor meanwhile
+[   14.597841] as7772 fand[437]: running: asic -- -> 60% (waiting for asic); board 34.0C -> 60%; cpu 41.0C -> 60%; fans=60% 17800-21400rpm
+[   14.662715] as7772 systemd[1]: Started fand fan control daemon.
+[   14.745708] as7772 systemd[1]: Starting External PHY bring-up over the switch chip's MDIO bus...
+[   16.496492] as7772 openbcm-mdio-script[500]: openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: 553600 writes, 411160 reads (307099 polls), 93400 delays (54.3 s), 201 steps; verification: 160 reads from line 1058173
+[   17.881168] as7772 openbcm-mdio-script[500]: openbcm-mdio-script: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+[   17.882686] as7772 openbcm-mdio-script[500]: openbcm-mdio-script: ASIC temperature: 8 monitors, max 42.8 C; every 5 s to /run/asic/temperature while the script runs
+[   18.484578] as7772 fand[437]: sensor asic: online after 4s, 42.8 C
+[   18.531617] as7772 fand[437]: zone asic: all sensors online, resuming curve delta-asic
+[  117.308492] as7772 openbcm-mdio-script[500]: openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: done in 99.4 s: 1058160 of 1058160 operations, 553600 writes, 426213 reads (307099 polls, 15053 re-reads), 0 expected values differed
+[  117.309538] as7772 openbcm-mdio-script[500]: openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 101.9 s
+[  117.333654] as7772 systemd[1]: Finished External PHY bring-up over the switch chip's MDIO bus.
+[  118.484233] as7772 fand[437]: sensor asic: no reading (/run/asic/temperature: no such file), holding 43.3 C for up to 45s
+[  122.484193] as7772 fand[437]: sensor asic: reading back after 6s, 43.8 C
+== phy bring-up: openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 101.9 s
+== fand: 0 FAILSAFE lines this boot; fand_output_duty_percent{output="fans"} 54.7
+== 2026-11-22T03:39:37-08:00 /nix/store/ymqdngj2v85g41dqb9m0sh2r6p5m4ir5-nixos-system-as7772-26.11.20261111.d4f25a3
+== uptime:  03:39:37 up 3 min,  3 users,  load average: 0.77, 0.48, 0.20
+active active active active 
+openbcm-mdio-script: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: done in 99.4 s: 1058160 of 1058160 operations, 553600 writes, 426213 reads (307099 polls, 15053 re-reads), 0 expected values differed
+== failed units: 0
+  Interface            Lanes    Speed    MTU    FEC         Alias    Vlan    Oper    Admin             Type    Asym PFC
+-----------  ---------------  -------  -----  -----  ------------  ------  ------  -------  ---------------  ----------
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later         N/A
+Ethernet120       9,10,11,12     100G   9100    N/A  Ethernet31/1  routed      up       up  QSFP28 or later         N/A
+Ethernet124      13,14,15,16     100G   9100    N/A  Ethernet32/1  routed      up       up  QSFP28 or later         N/A
+Interface Ethernet4 IP disabled and address(es) removed due to binding VRF Vrf-a.
+Interface Ethernet124 IP disabled and address(es) removed due to binding VRF Vrf-b.
+== ping cage 1 -> 2 (1000 x 64 B, then 1000 x 1400 B, then 200 x 8000 B)
+1000 packets transmitted, 1000 received, 0% packet loss, time 1999ms
+rtt min/avg/max/mdev = 0.102/0.110/0.243/0.008 ms
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.133/0.142/0.285/0.009 ms
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.279/0.287/0.433/0.017 ms
+== ping cage 2 -> 1 (Vrf-a)
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.106/0.134/0.265/0.032 ms
+== ping cage 31 -> 32
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.096/0.111/0.261/0.011 ms
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.132/0.139/0.269/0.009 ms
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.280/0.288/0.414/0.014 ms
+== ping cage 32 -> 31 (Vrf-b)
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.094/0.110/0.225/0.009 ms
+== SONiC counters
+Last cached time was 2026-11-22T03:40:30.562664
+       IFACE    STATE    RX_OK    RX_BPS    RX_UTIL    RX_ERR    RX_DRP    RX_OVR    TX_OK    TX_BPS    TX_UTIL    TX_ERR    TX_DRP    TX_OVR
+------------  -------  -------  --------  ---------  --------  --------  --------  -------  --------  ---------  --------  --------  --------
+ Ethernet1/1        U    3,202       N/A        N/A         0         0       N/A    3,202       N/A        N/A         0         0       N/A
+ Ethernet2/1        U    3,202       N/A        N/A         0         0       N/A    3,202       N/A        N/A         0         0       N/A
+Ethernet31/1        U    3,202       N/A        N/A         0         0       N/A    3,202       N/A        N/A         0         0       N/A
+Ethernet32/1        U    3,202       N/A        N/A         0         0       N/A    3,202       N/A        N/A         0         0       N/A
+== ASIC counters (frames, bytes, errors)
+RPKT.ce0		    :		      3,202		 +3,202
+RBYT.ce0		    :		  3,259,503	     +3,259,503
+TPKT.ce0		    :		      3,202		 +3,202
+TBYT.ce0		    :		  3,259,503	     +3,259,503
+RPKT.ce1		    :		      3,202		 +3,202
+RBYT.ce1		    :		  3,259,503	     +3,259,503
+TPKT.ce1		    :		      3,202		 +3,202
+TBYT.ce1		    :		  3,259,503	     +3,259,503
+RPKT.ce30		    :		      3,202		 +3,202
+RBYT.ce30		    :		  3,259,506	     +3,259,506
+TPKT.ce30		    :		      3,202		 +3,202
+TBYT.ce30		    :		  3,259,506	     +3,259,506
+RPKT.ce31		    :		      3,202		 +3,202
+RBYT.ce31		    :		  3,259,506	     +3,259,506
+TPKT.ce31		    :		      3,202		 +3,202
+TBYT.ce31		    :		  3,259,506	     +3,259,506
+== ASIC port state
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce30(  9)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce31( 13)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+AVERAGE_IPG=0x10
+AVERAGE_IPG=0x10
+Interface                = 0x19
+CL74                     = False
+CL91                     = False
+== temperature / fans
+asic 46.2 C; fand failsafe: "failsafe": false
+== lldp
+Capability codes: (R) Router, (B) Bridge, (O) Other
+   LocalPort    RemoteDevice    RemotePortID    Capability    RemotePortDescr
+------------  --------------  --------------  ------------  -----------------
+ Ethernet1/1    as7772          Ethernet2/1     BR            Ethernet4
+ Ethernet2/1    as7772          Ethernet1/1     BR            Ethernet0
+Ethernet31/1  as7772          Ethernet32/1    BR            Ethernet124
+Ethernet32/1  as7772          Ethernet31/1    BR            Ethernet120
+--------------------------------------
+Total entries displayed:  4

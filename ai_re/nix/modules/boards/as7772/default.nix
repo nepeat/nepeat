@@ -32,10 +32,27 @@ in {
   # (devices/edge-core-as7772-32x/sonic.md).
   # On with SONiC: the SDK config it needs (MDIO clock, hold delay) is the
   # one generated from the SONiC ports.
+  # Hard fail (../../switch/openbcm.nix mdioScript.requiredBy): no SONiC
+  # without the PHYs. phy-status, the status files and the failure messages
+  # name PHYs by cage (extphy.md: bus b holds addresses 4b..4b+3, cages in
+  # the order below) and the five verified registers by what they are.
   hardware.openbcm.mdioScript = lib.mkIf config.services.sonic.enable {
     enable = true;
     sdkConfig = config.system.build.sonic.sdkConfig;
     files = [ "/var/lib/evora-phy/evora-100g-bypass.mdio" ];
+    phyNames = lib.listToAttrs (lib.concatLists (lib.imap0 (g: base:
+      lib.genList (i: lib.nameValuePair "0x${lib.toHexString (base + i)}" "cage${toString (g * 4 + i + 1)}") 4)
+      [ 0 36 72 108 272 308 344 380 ]));   # 0x00 0x24 0x48 0x6c 0x110 0x134 0x158 0x17c
+    registerNames = { "1.8b00" = "id"; "1.8b01" = "id2"; "1.8215" = "fw"; "1.8245" = "cksum"; "1.8251" = "sides"; };
+    hints = {
+      script-missing = "the PHY script is private and installed by hand: on the workstation run devices/edge-core-as7772-32x/evora-rehost/install-script.sh, then here: systemctl restart sonic.target";
+      script-malformed = "the PHY script is truncated or damaged: install it again (evora-rehost/install-script.sh checks its sha256), then: systemctl restart sonic.target";
+      phy-not-answering = "an Evora PHY that reads one constant is hung until a COLD power cycle (lab plug 1, or pull the cord); a reboot or a re-run does not help. It boots by itself afterwards";
+      sequence-diverged = "run it again: systemctl restart sonic.target (about 100 s). If it stops at the same line twice, cold power cycle; phy-status --live shows every PHY";
+      verify-mismatch = "run it again: systemctl restart sonic.target (about 100 s); a PHY that still differs after a cold power cycle is a hardware or script problem";
+      sdk-busy = "systemctl stop sonic.target openbcm-asic-temp (and any bcm.user), then: systemctl restart sonic.target";
+      interrupted = "the PHYs may be half-programmed: systemctl restart sonic.target runs the bring-up again (it resets them first)";
+    };
   };
   # ASIC side of every front-panel port (sai-openbcm port quirks): the lanes
   # end at the PHY's system side, which is plain CAUI without autoneg; FEC is
@@ -80,8 +97,38 @@ in {
     sensors = lib.genAttrs' [ [ "board_4" "4c" ] [ "board_5" "4d" ] ] (p: lib.nameValuePair (builtins.elemAt p 0) {
       type = "hwmon"; plausible = [ (-10) 110 ];
       hwmon = { name = "lm75"; of_node = "pca9548@76/i2c@1/temperature-sensor@${builtins.elemAt p 1}"; };
-    });
+    }) // {
+      # The T2080 die diode (MAX1617 remote channel, ./tpm-sensor.nix; it
+      # follows CPU load: devices/edge-core-as7772-32x/tpm-sensor.md).
+      cpu_die = { type = "hwmon"; hwmon = { name = "max1617"; }; input = "temp2"; plausible = [ 0 125 ]; critical = 100; };
+    } // lib.optionalAttrs (config.hardware.openbcm.mdioScript.enable && config.hardware.openbcm.temperature.enable) {
+      # The ASIC cannot be read from power-on until the PHY bring-up has the
+      # SDK up (it then publishes the temperature itself), and not at all
+      # while a failed bring-up is being looked at with bcm.user: "not
+      # online yet" is no fault for 10 min after fand starts; the cpu and
+      # board zones run the fans meanwhile (the owner's rule: a cool CPU
+      # means a cool ASIC while the ASIC does nothing). After that, and for
+      # a reading that was there and went away, it is the usual failsafe.
+      # grace: bring-up -> syncd hand-over (syncd's "init all" comes first).
+      asic = { startup_grace = "10m"; grace = lib.mkForce "45s"; };
+    };
     zones.board.sensors = [ "board_4" "board_5" ];
+    # Start-up duty (owner: start lower than fand's default 100 %): 60 % is
+    # one CPLD step (raw 153) above the hardware minimum of 53 %, held for the
+    # 10 s dwell while the first readings arrive, then the zones' own demand
+    # (the floor on a cool box). The board and cpu zones read from the first
+    # tick and go up at 10 %/s if anything is warm, and any fault is still
+    # failsafe 100 % at once; before fand starts the CPLD runs the fans at
+    # full speed by itself.
+    startup_duty = 60;
+    # CPU die: 32-40 C at the fan minimum here (idle to 8 busy threads), T2080
+    # junction limit 105 C. Flat at the minimum to 65 C, 100 % at 90 C,
+    # failsafe at 100 C: it only ever acts when the CPU really is hot, or as
+    # the stand-in while the ASIC sensor is not online.
+    zones.cpu = {
+      outputs = [ "fans" ]; sensors = [ "cpu_die" ];
+      policy.curve = { points = [ [ 65 53 ] [ 80 75 ] [ 90 100 ] ]; hysteresis = 3; };
+    };
   };
 }) ];
 }

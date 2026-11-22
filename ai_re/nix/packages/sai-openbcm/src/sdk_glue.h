@@ -31,6 +31,9 @@ extern "C" {
 #define OB_E_UNAVAIL (-16)
 #define OB_E_INIT (-17)
 #define OB_E_PORT (-18)
+/* Not a BCM code: ob_sdk_init_mdio found the chip's external MDIO clock
+ * divisor or hold delay different from the config's after misc init. */
+#define OB_E_MDIO_CLOCK (-100)
 
 typedef struct {
     int port;          /* logical */
@@ -75,8 +78,12 @@ int ob_sdk_th_overtemp_shutdown(int unit);
  * after a bare "init soc" the chip runs at its reset values, which corrupted
  * frames on the AS7772 and hung its PHYs until a cold power cycle. So: no
  * ob_sdk_mdio_* call before this returned success. When the config sets
- * mdio_output_delay and the chip has the field, it is read back and a
- * difference fails. err: a line with the MDIO clock registers. */
+ * mdio_output_delay or rate_ext_mdio_divisor and the chip has the field, it
+ * is read back and a difference fails with OB_E_MDIO_CLOCK. Other failures:
+ * OB_E_CONFIG (config file missing), OB_E_BUSY (SDK lock held), OB_E_UNIT,
+ * OB_E_FAIL (init soc / init misc). err: a line with the MDIO clock
+ * registers, or the reason. Afterwards ob_sdk_temperatures works too (misc
+ * init itself reads the monitors once). */
 int ob_sdk_init_mdio(int unit, const char* config_file, char* err, int errlen);
 /* Clause 45 through the chip's MIIM master; phy = the SDK's address word
  * (bus in bits 8 and 6:5, address in bits 4:0). Refused (OB_E_INIT) unless

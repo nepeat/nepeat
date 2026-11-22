@@ -1,7 +1,7 @@
 # AS7772-32X: the two I2C2 (i2c@118100, Linux i2c-1) devices the AS7760 lacks.
 # - 0x18 MAX1617A local + remote-diode sensor (kernel lm90 driver, already in
-#   the shared T2080 kernel). Labelled for sensors(1); Not a fand input yet: the
-#   remote diode follows CPU load (2026-11-21), so it is most likely the T2080 die.
+#   the shared T2080 kernel). Labelled for sensors(1); The remote diode follows CPU
+#   load (2026-11-21): the T2080 die. fand uses it as sensor cpu_die (./default.nix).
 # - 0x13 ST33ZP24 TPM 1.2 (TCG_TIS_ST33ZP24_I2C in the shared kernel) gives
 #   /dev/tpm0 and /sys/class/tpm/tpm0. It is a 1.2 part: security.tpm2 and
 #   tpm2-tools do not apply, and no TSS daemon is installed.

@@ -24,8 +24,8 @@ SDK_CFLAGS = $(shell cat $(OPENBCM)/share/openbcm/cflags) \
   -I$(OPENBCM)/include/openbcm/kmod -I$(OPENBCM)/include/openbcm/phymod
 SDK_LIBS = -L$(OPENBCM)/lib -lsdk -Wl,-rpath,$(OPENBCM)/lib
 TOOLS = build/openbcm-asic-temp build/openbcm-diag build/openbcm-mdio-script
-MDIO_SDK = -DOB_HAVE_SDK build/sdk_glue.o $(SDK_LIBS)
-MDIO_DEPS = build/sdk_glue.o
+MDIO_SDK = -DOB_HAVE_SDK build/sdk_glue.o build/temp_files.o $(SDK_LIBS)
+MDIO_DEPS = build/sdk_glue.o build/temp_files.o
 else
 BACKEND_OBJS = build/backend_none.o
 SDK_LIBS =
@@ -61,15 +61,18 @@ build/openbcm-diag: src/openbcm_diag.c
 	@mkdir -p build
 	$(CC) -std=gnu11 -Wall -Wextra $(CFLAGS) $(LDFLAGS) -o $@ $<
 
-# MDIO script runner for PHYs without an SDK driver (src/mdio_script.h);
-# without the SDK: --check only.
-build/openbcm-mdio-script: src/mdio_script_main.c src/mdio_script.c src/mdio_script.h $(MDIO_DEPS)
+# MDIO script runner for PHYs without an SDK driver (src/mdio_script.h,
+# src/mdio_report.h); without the SDK: --check and --verify-only through
+# syncd's diag socket.
+MDIO_SRC = src/mdio_script.c src/mdio_report.c
+MDIO_HDR = src/mdio_script.h src/mdio_report.h
+build/openbcm-mdio-script: src/mdio_script_main.c $(MDIO_SRC) $(MDIO_HDR) src/sdk_glue.h src/temp_files.h $(MDIO_DEPS)
 	@mkdir -p build
-	$(CC) -std=gnu11 -Wall -Wextra $(CFLAGS) -Isrc $(LDFLAGS) -o $@ src/mdio_script_main.c src/mdio_script.c $(MDIO_SDK) -lpthread
+	$(CC) -std=gnu11 -Wall -Wextra $(CFLAGS) -Isrc $(LDFLAGS) -o $@ src/mdio_script_main.c $(MDIO_SRC) $(MDIO_SDK) -lpthread
 
-build/test_mdio_script: tests/test_mdio_script.c src/mdio_script.c src/mdio_script.h
+build/test_mdio_script: tests/test_mdio_script.c $(MDIO_SRC) $(MDIO_HDR)
 	@mkdir -p build
-	$(CC) -std=gnu11 -Wall -Wextra $(CFLAGS) -Isrc -o $@ tests/test_mdio_script.c src/mdio_script.c
+	$(CC) -std=gnu11 -Wall -Wextra $(CFLAGS) -Isrc -o $@ tests/test_mdio_script.c $(MDIO_SRC) -lpthread
 
 build/libsai.a: $(OBJS)
 	$(AR) rcs $@ $^
@@ -83,9 +86,11 @@ build/libsai.so.1.0.0: $(OBJS) src/libsai.map
 build/test_sai: tests/test_sai.cpp tests/test_acl.inc tests/test_qos.inc build/libsai.a
 	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) -o $@ tests/test_sai.cpp build/libsai.a $(SDK_LIBS) -lpthread
 
-check: build/test_sai build/test_mdio_script
+# test_mdio_script also runs the tool itself (parse failures, status files,
+# --verify-only against a fake diag socket).
+check: build/test_sai build/test_mdio_script build/openbcm-mdio-script
 	./build/test_sai
-	./build/test_mdio_script
+	./build/test_mdio_script build/openbcm-mdio-script
 
 install: build/libsai.so.1.0.0 $(TOOLS)
 	install -Dm755 build/libsai.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libsai.so.1.0.0

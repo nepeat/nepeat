@@ -89,7 +89,10 @@ static soc_knet_vectors_t knet_vect = {
     bde_hw_unit_get};
 static soc_chip_info_vectors_t chip_info_vect = {bde_icid_get};
 
-const char* ob_sdk_errmsg(int rv) { return bcm_errmsg(rv); }
+const char* ob_sdk_errmsg(int rv)
+{
+    return rv == OB_E_MDIO_CLOCK ? "MDIO clock setup not as configured" : bcm_errmsg(rv);
+}
 
 static void seterr(char* err, int errlen, const char* fmt, const char* a, int rv)
 {
@@ -397,7 +400,7 @@ static int mdio_ready;
 int ob_sdk_init_mdio(int unit, const char* config_file, char* err, int errlen)
 {
     char cmd[32];
-    int rv, want, have = -1;
+    int rv, want, have = -1, want_div, have_div = -1;
     uint32 rate = 0, cfg = 0;
     if (!config_file || !*config_file || access(config_file, R_OK) != 0) {
         seterr(err, errlen, "SDK config file '%s' missing or unreadable (%d)", config_file ? config_file : "", errno);
@@ -424,11 +427,22 @@ int ob_sdk_init_mdio(int unit, const char* config_file, char* err, int errlen)
         soc_reg_field_valid(unit, CMIC_MIIM_CONFIGr, MDIO_OUT_DELAYf)) {
         SOC_IF_ERROR_RETURN(READ_CMIC_MIIM_CONFIGr(unit, &cfg));
         have = (int)soc_reg_field_get(unit, CMIC_MIIM_CONFIGr, cfg, MDIO_OUT_DELAYf);
-        if (SOC_REG_IS_VALID(unit, CMIC_RATE_ADJUSTr)) (void)READ_CMIC_RATE_ADJUSTr(unit, &rate);
+        if (SOC_REG_IS_VALID(unit, CMIC_RATE_ADJUSTr) && READ_CMIC_RATE_ADJUSTr(unit, &rate) >= 0 &&
+            soc_reg_field_valid(unit, CMIC_RATE_ADJUSTr, DIVISORf))
+            have_div = (int)soc_reg_field_get(unit, CMIC_RATE_ADJUSTr, rate, DIVISORf);
         if (want >= 0 && have != want) {
-            seterr(err, errlen, "MDIO hold delay on the chip differs from mdio_output_delay%s (chip %d): "
-                   "refusing MDIO access", "", have);
-            return BCM_E_CONFIG;
+            if (err && errlen > 0)
+                snprintf(err, errlen, "MDIO hold delay on the chip is %d, the config's mdio_output_delay is %d: "
+                         "refusing MDIO access", have, want);
+            return OB_E_MDIO_CLOCK;
+        }
+        /* The same for the clock divisor, when the config sets one. */
+        want_div = soc_property_get(unit, spn_RATE_EXT_MDIO_DIVISOR, -1);
+        if (want_div >= 0 && have_div >= 0 && have_div != want_div) {
+            if (err && errlen > 0)
+                snprintf(err, errlen, "external MDIO clock divisor on the chip is %d, the config's "
+                         "rate_ext_mdio_divisor is %d: refusing MDIO access", have_div, want_div);
+            return OB_E_MDIO_CLOCK;
         }
     }
     mdio_ready = 1;
