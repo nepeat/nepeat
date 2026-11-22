@@ -8,19 +8,25 @@
 - **Recovery:** [u-boot-port.md](u-boot-port.md). Any key stops autoboot; ONIE is still in NOR (`run
   onie_bootcmd`); all NOR partitions dumped. A dead boot NOR needs JTAG or a TSOP-56 rework (no alternate bank).
   NOR writes so far: mtd7 (U-Boot), mtd6 (env). New SSD: `#as7772-sd-image` from ONIE, then
-  `evora-rehost/install-script.sh dumps/x/evora-trace/evora-100g-bypass-taps.mdio` once (private PHY script,
-  never in git or the store; the script's default source file is the tap-less one).
+  `evora-rehost/install-script.sh` once (private PHY script with the factory taps, never in git or the store).
 - **Ports:** 32 BCM82391 "Evora" PHYs initialised at boot (98 s, 100G MACsec bypass, factory TX taps); cages 1-2
-  and 31-32 (DACs) up at 100G, the rest admin-down: [extphy.md](extphy.md). 26 min at line rate, 0 loss
-  ([load-test.md](load-test.md)). MACsec proven live, not at boot ([macsec.md](macsec.md)).
-- **MDIO rule:** `init misc` / `init all` before any external MDIO access; no clause 22. A corrupted frame hangs
-  a PHY until a **cold power cycle**.
-- **Quirks (committed tree):** fans at 100 % for the first 2 min 45 s of every boot; syncd starts even if the PHY
-  script fails (ports stay down); both being changed by uncommitted edits under `nix/`. Port LEDs dark; PSU2
-  (empty slot) "NOT OK"; TPM 1.2 left disabled as found ([tpm-sensor.md](tpm-sensor.md)).
-- **Open:** 28 cages never cabled; MACsec at boot / under SONiC; 25G break-out; LEDs (written, never run:
-  [leds.md](leds.md)); load through SONiC's forwarding, longer soak; USB in U-Boot; CPLD2/3 0x20-0x2b undecoded
-  ([cpld.md](cpld.md)); owner's calls: TPM enable, one FEC display convention.
+  and 31-32 (DACs) up at 100G, the rest admin-down (their PHY line side powered down): [extphy.md](extphy.md).
+  **Link state and LEDs follow the cable** (PHY line-side link polled inside the SDK link scan: far end down ->
+  oper down in 67-141 ms). 26 min at line rate, 0 loss ([load-test.md](load-test.md)). MACsec proven live, not
+  at boot ([macsec.md](macsec.md)).
+- **MDIO rules:** `init misc` / `init all` before any external MDIO access; clause 45 **device 1 only**; no
+  clause 22; no register sweeps. A corrupted or stray access hangs a PHY until a **cold power cycle**.
+- **Boot:** fans 60 % -> 53 % (no failsafe phase); a failed PHY bring-up stops SONiC and says why
+  (`systemctl status openbcm-mdio-script`, `/run/openbcm-mdio-script/status.txt`, `phy-status`, login message):
+  [sonic.md](sonic.md) "Debugging the PHY bring-up".
+- **Quirks:** port LEDs run our program but **nobody has looked at the panel** ([leds.md](leds.md), owner's check);
+  after SONiC, a raw-SDK session finds admin-down cages dark (reboot or `extphy power <phy> 1`); do not change
+  admin state while a PHY tool runs; PSU2 (empty slot) "NOT OK"; TPM 1.2 left disabled as found
+  ([tpm-sensor.md](tpm-sensor.md)).
+- **Open:** 28 cages never cabled; nobody has pulled a DAC by hand; MACsec at boot / under SONiC / under load;
+  25G break-out; load through SONiC's forwarding, longer soak; USB in U-Boot; CPLD2/3 0x20-0x2b undecoded
+  ([cpld.md](cpld.md)); owner's calls: TPM enable, one FEC display convention, whether the PHY register
+  sequences in `nix/modules/boards/as7772/ext-phy.nix` may stay in the public repo.
 - **Runbook:** phases 0-4 done (no power-cycle-to-U-Boot helper, no network map), 5 done except a long soak, 6-8
   gate passed 2026-11-22. Builds: `just test` (nix/README.md).
 
@@ -70,6 +76,23 @@
 - Transcripts live in [evidence/](evidence/); serial captures (`serial-*.txt`) are git-ignored.
 
 ## Log
+
+### 2026-11-22 (5): fans + hard fail, LEDs, cable-true link, code review, all committed
+- **Boot:** no failsafe fan phase (60 % then 53 %), the PHY bring-up publishes the ASIC temperature, failure is a
+  hard stop with diagnostics; forced-failure and restore proven: [sonic.md](sonic.md). fand gained
+  `startup_grace` / `waiting_duty` (commit `7a288ae`).
+- **LEDs:** our own program for both LED processors loads at boot; register read-backs match
+  ([leds.md](leds.md)). **Not seen by eye.**
+- **Link follows the cable:** the Evora passes no link state through, so sai-openbcm gained an external-PHY table
+  (link / admin-down / admin-up sequences) hooked into the SDK link scan; far end shut -> oper down in 67-141 ms,
+  empty cage stays down, LEDs cable-true. Exploration hung PHY 0x00 and broke the message interface of two PHYs
+  (register sweep, devices other than 1): recovered by a cold power cycle; rules added to [extphy.md](extphy.md).
+- **Reviews:** U-Boot tree (series as data, guards, NOR hashes pinned in tests), flake/nix (shared lab-access
+  profile, SDK config dedup, the "format error on line 3" was our 285-character header vs the SDK's 255-byte
+  line buffer, dmc12-netboot evaluates), `just drvpaths | update | uboot-variants`. Finding for the AS7760:
+  its NOR (`2c0d7387...`) no longer equals the tree's build (`595d81bf...`), not bisected.
+- Everything is on master through the external-PHY commit (not pushed); `just test-eval` 188 passed.
+  Deployed system `3bmhqzvs...` = that tree.
 
 ### 2026-11-22 (4): MACsec live; docs trimmed, evidence moved
 - MACsec proven on cages 1-2 (vendor mode 2, our GCM-AES-128 and XPN-256 keys) and switched on from the booted
