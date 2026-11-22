@@ -1,0 +1,84 @@
+=> setenv autoload no
+
+
+=> dhcp
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+*** ERROR: `eth3addr' not set
+BOOTP broadcast 1
+*** Unhandled DHCP Option in OFFER/ACK: 42
+*** Unhandled DHCP Option in OFFER/ACK: 42
+DHCP client bound to address 10.60.2.23
+
+=> setenv serverip 10.60.2.208
+
+
+=> tftpboot 0x1000000 as7772/u-boot-as7772-nor.bin
+Using FM1@DTSEC1 device
+TFTP from server 10.60.2.208; our IP address is 10.60.2.23
+Filename 'as7772/u-boot-as7772-nor.bin'.
+Load address: 0x1000000
+Loading: ######################################################
+	 7.5 MiB/s
+done
+Bytes transferred = 786432 (c0000 hex)
+
+=> crc32 1000000 c0000
+crc32 for 01000000 ... 010bffff ==> 8883619c
+
+=> tftpboot 0x2000000 as7772/mtd7-factory.bin
+Using FM1@DTSEC1 device
+TFTP from server 10.60.2.208; our IP address is 10.60.2.23
+Filename 'as7772/mtd7-factory.bin'.
+Load address: 0x2000000
+Loading: ######################################################
+	 10 MiB/s
+done
+Bytes transferred = 786432 (c0000 hex)
+
+=> crc32 2000000 c0000
+crc32 for 02000000 ... 020bffff ==> f15731c5
+
+=> cmp.b eff40000 2000000 c0000
+Total of 786432 byte(s) were the same
+
+=> crc32 eff40000 c0000
+crc32 for eff40000 ... efffffff ==> f15731c5
+
+=> protect off eff40000 efffffff
+Un-Protected 6 sectors
+
+=> erase eff40000 efffffff
+...... done
+Erased 6 sectors
+
+=> cp.b 1000000 eff40000 c0000
+Copy to Flash... 9....8....7....6....5....4....3....2....1....done
+
+=> cmp.b 1000000 eff40000 c0000
+Total of 786432 byte(s) were the same
+
+=> crc32 eff40000 c0000
+crc32 for eff40000 ... efffffff ==> 8883619c
+
+=> protect on eff40000 efffffff
+Protected 6 sectors

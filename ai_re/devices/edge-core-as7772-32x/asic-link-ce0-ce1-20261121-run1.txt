@@ -1,0 +1,105 @@
+sal_config_refresh: format error in config.bcm on line 3 (ignored)
+Broadcom Command Monitor: Copyright (c) 1998-2026 Broadcom
+Release: sdk-6.5.27 built 20261115 (Sun Nov 15 09:06:45 2026)
+From nixbld@localhost:/build/openbcm-sdk-6.5.27-patched
+Platform: PPC64BE
+OS: Unix (Posix)
+linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+DMA pool size: 16777216 bytes.
+BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+SOC unit 0 attached to PCI device BCM56930_B1
+ERROR loading rc script on unit 0
+Sleeping for 5 seconds
+== PS
+                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+Phy mapping dump:
+      port   id0   id1  addr iaddr                    name           timeout
+  ce0( 50)  600d  8770    c9    c9            TSCF-B1/12/4     250000  
+  ce1( 54)  600d  8770    cd    cd            TSCF-B1/13/4     250000  
+  ce2( 58)  600d  8770    d1    d1            TSCF-B1/14/4     250000  
+  ce3( 62)  600d  8770    d5    d5            TSCF-B1/15/4     250000  
+  ce4( 68)  600d  8770    e1    e1            TSCF-B1/16/4     250000  
+  ce5( 72)  600d  8770    e5    e5            TSCF-B1/17/4     250000  
+  ce6( 76)  600d  8770    e9    e9            TSCF-B1/18/4     250000  
+  ce7( 80)  600d  8770    ed    ed            TSCF-B1/19/4     250000  
+  ce8( 34)  600d  8770    a9    a9            TSCF-B1/08/4     250000  
+  ce9( 38)  600d  8770    ad    ad            TSCF-B1/09/4     250000  
+ ce10( 42)  600d  8770    c1    c1            TSCF-B1/10/4     250000  
+ ce11( 46)  600d  8770    c5    c5            TSCF-B1/11/4     250000  
+ ce12( 84)  600d  8770    f1    f1            TSCF-B1/20/4     250000  
+ ce13( 88)  600d  8770    f5    f5            TSCF-B1/21/4     250000  
+ ce14( 92)  600d  8770   181   181            TSCF-B1/22/4     250000  
+ ce15( 96)  600d  8770   185   185            TSCF-B1/23/4     250000  
+ ce16(102)  600d  8770   189   189            TSCF-B1/24/4     250000  
+ ce17(106)  600d  8770   18d   18d            TSCF-B1/25/4     250000  
+ ce18(110)  600d  8770   1a1   1a1            TSCF-B1/26/4     250000  
+ ce19(114)  600d  8770   1a5   1a5            TSCF-B1/27/4     250000  
+ ce20( 17)  600d  8770    91    91            TSCF-B1/04/4     250000  
+ ce21( 21)  600d  8770    95    95            TSCF-B1/05/4     250000  
+ ce22( 25)  600d  8770    a1    a1            TSCF-B1/06/4     250000  
+ ce23( 29)  600d  8770    a5    a5            TSCF-B1/07/4     250000  
+ ce24(118)  600d  8770   1a9   1a9            TSCF-B1/28/4     250000  
+ ce25(122)  600d  8770   1ad   1ad            TSCF-B1/29/4     250000  
+ ce26(126)  600d  8770   1b1   1b1            TSCF-B1/30/4     250000  
+ ce27(130)  600d  8770   1b5   1b5            TSCF-B1/31/4     250000  
+ ce28(  1)  600d  8770    81    81            TSCF-B1/00/4     250000  
+ ce29(  5)  600d  8770    85    85            TSCF-B1/01/4     250000  
+ ce30(  9)  600d  8770    89    89            TSCF-B1/02/4     250000  
+ ce31( 13)  600d  8770    8d    8d            TSCF-B1/03/4     250000  
+  xe0( 66)  600d  8770   1c1   1c1           TSCE4-A0/00/0     250000  
+  xe1(100)  600d  8770   1c1   1c1           TSCE4-A0/00/2     250000  
+Sleeping for 2 seconds
+Sleeping for 2 seconds
+== COUNTERS
+RUC.ce0 		    :		      1,000		 +1,000 	    943/s
+RDBGC0.ce0		    :			500		   +500 	    472/s
+ING_NIV_RX_FRAMES_VL.ce0    :			500		   +500 	    472/s
+R1023.ce0		    :			500		   +500 	    472/s
+R1518.ce0		    :			500		   +500 	    472/s
+RPKT.ce0		    :		      1,000		 +1,000 	    943/s
+RUCA.ce0		    :		      1,000		 +1,000 	    943/s
+RPRM.ce0		    :		      1,000		 +1,000 	    943/s
+RVLN.ce0		    :			500		   +500 	    472/s
+RPOK.ce0		    :		      1,000		 +1,000 	    943/s
+RBYT.ce0		    :		  1,022,000	     +1,022,000 	964,202/s
+T255.ce0		    :		      1,000		 +1,000
+T511.ce0		    :		      1,000		 +1,000
+TPOK.ce0		    :		      2,000		 +2,000
+TPKT.ce0		    :		      2,000		 +2,000
+TUCA.ce0		    :		      2,000		 +2,000
+TVLN.ce0		    :		      1,000		 +1,000
+TBYT.ce0		    :		    508,000	       +508,000
+PERQ_PKT(0).ce0 	    :		      1,000		 +1,000
+PERQ_BYTE(0).ce0	    :		    252,000	       +252,000
+UC_PERQ_PKT(0).ce0	    :		      1,000		 +1,000
+UC_PERQ_BYTE(0).ce0	    :		    256,000	       +256,000
+RUC.ce1 		    :		      2,000		 +2,000
+RDBGC0.ce1		    :		      1,000		 +1,000
+ING_NIV_RX_FRAMES_VL.ce1    :		      1,000		 +1,000
+R255.ce1		    :		      1,000		 +1,000
+R511.ce1		    :		      1,000		 +1,000
+RPKT.ce1		    :		      2,000		 +2,000
+RUCA.ce1		    :		      2,000		 +2,000
+RPRM.ce1		    :		      2,000		 +2,000
+RVLN.ce1		    :		      1,000		 +1,000
+RPOK.ce1		    :		      2,000		 +2,000
+RBYT.ce1		    :		    508,000	       +508,000
+T1023.ce1		    :			500		   +500 	    472/s
+T1518.ce1		    :			500		   +500 	    472/s
+TPOK.ce1		    :		      1,000		 +1,000 	    943/s
+TPKT.ce1		    :		      1,000		 +1,000 	    943/s
+TUCA.ce1		    :		      1,000		 +1,000 	    943/s
+TVLN.ce1		    :			500		   +500 	    472/s
+TBYT.ce1		    :		  1,022,000	     +1,022,000 	964,202/s
+PERQ_PKT(0).ce1 	    :			500		   +500 	    472/s
+PERQ_BYTE(0).ce1	    :		    510,000	       +510,000 	481,157/s
+UC_PERQ_PKT(0).ce1	    :			500		   +500 	    472/s
+UC_PERQ_BYTE(0).ce1	    :		    512,000	       +512,000 	483,044/s
+== PS2
+                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No

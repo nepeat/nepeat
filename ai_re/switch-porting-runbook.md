@@ -424,6 +424,16 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
 - Switch closure +235 MiB of x86_64 binaries → FRR's installed headers/libtool files referenced the build machine's clippy → strip them and add `disallowedReferences` (sonic-nixos PROGRESS, FRR entry).
 - `nix copy --to ssh-ng://` refused the closure → unsigned paths (nixos-rebuild's copy accepts them); on-box `--rollback` tried to rebuild nixos-rebuild from `<nixpkgs>` → add `--no-reexec` (DMC-12 PROGRESS, 2026-11-15 18:15).
 
+**External PHYs in front of the ASIC (AS7772, BCM82391)**
+- MDIO scan of the IEEE ID registers (1.2/1.3) found nothing → this family keeps its chip ID elsewhere (dev 1 0x8b00/0x8b01; siblings 0x8a00) and 1.2 reads 0x0000 on a live chip → get the ID register from the vendor driver before concluding "held in reset".
+- 11 of 32 external PHYs "silent", one "flaky", one failing its firmware download → we talked MDIO after a bare `init soc`: on Tomahawk the external MDC rate and `MDIO_OUT_DELAY` are programmed only by misc init, so the bus ran at the chip's reset values (hold delay 3, the edge) and corrupted frames hung PHYs until a cold power cycle → always `init misc`/`init all` before external MDIO; read the rate/delay registers back; sweep the delay when some addresses answer and others don't; suspect your own bus before the parts (AS7772 PROGRESS, 2026-11-22).
+- A config.bcm key "had no effect" → the SDK stage that reads it was never run → check which init stage consumes a property before concluding it is ignored.
+- No public driver or firmware, vendor binary cannot run natively → run the vendor library's command handlers under Unicorn with its two MDIO callbacks forwarded to the hardware, record the MDIO trace, replay it without the emulator (AS7772 `evora-rehost.md`). Guard any flash/EEPROM-programming path in the emulator first.
+- Vendor diag SDK timed out on every SCHAN under our U-Boot although ours works → not solved; booting the diag with `init=/bin/sh` still gave the command usage text without touching NOR or the disk.
+
+- Deployed system ran the sibling board's SDK config although `path:` builds were right → a board module merged two attrsets with `//`, which dropped a whole `services.*` subtree in the flake that had the second block → `lib.mkMerge` for config blocks; compare a generated file between the deploy flake and the dev flake (AS7772 PROGRESS, 2026-11-22).
+- Replayed vendor init linked and pinged but was not faithful → the vendor's `usleep(1)` is really a long wait and the replay read "done" flags too early → compare every recorded read-back, not link state; and on a trimmed kernel short sleeps round up to the tick (4 ms), so spin them (AS7772 sonic.md).
+
 **Process / environment**
 - A shell that runs `pkill -f PATTERN` (or a waiter looping on `pgrep -f PATTERN`) kills or finds *itself*, because
   its own command line contains PATTERN (hit three times on 2026-11-15) → kill by PID (`pgrep -f ... | grep -v $$`),

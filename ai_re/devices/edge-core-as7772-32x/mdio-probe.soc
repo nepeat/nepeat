@@ -1,0 +1,139 @@
+init soc
+echo ID 0x0 reg 2
+phy raw c45 0x0 1 2
+echo ID 0x0 reg 3
+phy raw c45 0x0 1 3
+echo ID 0x1 reg 2
+phy raw c45 0x1 1 2
+echo ID 0x1 reg 3
+phy raw c45 0x1 1 3
+echo ID 0x2 reg 2
+phy raw c45 0x2 1 2
+echo ID 0x2 reg 3
+phy raw c45 0x2 1 3
+echo ID 0x3 reg 2
+phy raw c45 0x3 1 2
+echo ID 0x3 reg 3
+phy raw c45 0x3 1 3
+echo ID 0x24 reg 2
+phy raw c45 0x24 1 2
+echo ID 0x24 reg 3
+phy raw c45 0x24 1 3
+echo ID 0x25 reg 2
+phy raw c45 0x25 1 2
+echo ID 0x25 reg 3
+phy raw c45 0x25 1 3
+echo ID 0x26 reg 2
+phy raw c45 0x26 1 2
+echo ID 0x26 reg 3
+phy raw c45 0x26 1 3
+echo ID 0x27 reg 2
+phy raw c45 0x27 1 2
+echo ID 0x27 reg 3
+phy raw c45 0x27 1 3
+echo ID 0x48 reg 2
+phy raw c45 0x48 1 2
+echo ID 0x48 reg 3
+phy raw c45 0x48 1 3
+echo ID 0x49 reg 2
+phy raw c45 0x49 1 2
+echo ID 0x49 reg 3
+phy raw c45 0x49 1 3
+echo ID 0x4a reg 2
+phy raw c45 0x4a 1 2
+echo ID 0x4a reg 3
+phy raw c45 0x4a 1 3
+echo ID 0x4b reg 2
+phy raw c45 0x4b 1 2
+echo ID 0x4b reg 3
+phy raw c45 0x4b 1 3
+echo ID 0x6c reg 2
+phy raw c45 0x6c 1 2
+echo ID 0x6c reg 3
+phy raw c45 0x6c 1 3
+echo ID 0x6d reg 2
+phy raw c45 0x6d 1 2
+echo ID 0x6d reg 3
+phy raw c45 0x6d 1 3
+echo ID 0x6e reg 2
+phy raw c45 0x6e 1 2
+echo ID 0x6e reg 3
+phy raw c45 0x6e 1 3
+echo ID 0x6f reg 2
+phy raw c45 0x6f 1 2
+echo ID 0x6f reg 3
+phy raw c45 0x6f 1 3
+echo ID 0x110 reg 2
+phy raw c45 0x110 1 2
+echo ID 0x110 reg 3
+phy raw c45 0x110 1 3
+echo ID 0x111 reg 2
+phy raw c45 0x111 1 2
+echo ID 0x111 reg 3
+phy raw c45 0x111 1 3
+echo ID 0x112 reg 2
+phy raw c45 0x112 1 2
+echo ID 0x112 reg 3
+phy raw c45 0x112 1 3
+echo ID 0x113 reg 2
+phy raw c45 0x113 1 2
+echo ID 0x113 reg 3
+phy raw c45 0x113 1 3
+echo ID 0x134 reg 2
+phy raw c45 0x134 1 2
+echo ID 0x134 reg 3
+phy raw c45 0x134 1 3
+echo ID 0x135 reg 2
+phy raw c45 0x135 1 2
+echo ID 0x135 reg 3
+phy raw c45 0x135 1 3
+echo ID 0x136 reg 2
+phy raw c45 0x136 1 2
+echo ID 0x136 reg 3
+phy raw c45 0x136 1 3
+echo ID 0x137 reg 2
+phy raw c45 0x137 1 2
+echo ID 0x137 reg 3
+phy raw c45 0x137 1 3
+echo ID 0x158 reg 2
+phy raw c45 0x158 1 2
+echo ID 0x158 reg 3
+phy raw c45 0x158 1 3
+echo ID 0x159 reg 2
+phy raw c45 0x159 1 2
+echo ID 0x159 reg 3
+phy raw c45 0x159 1 3
+echo ID 0x15a reg 2
+phy raw c45 0x15a 1 2
+echo ID 0x15a reg 3
+phy raw c45 0x15a 1 3
+echo ID 0x15b reg 2
+phy raw c45 0x15b 1 2
+echo ID 0x15b reg 3
+phy raw c45 0x15b 1 3
+echo ID 0x17c reg 2
+phy raw c45 0x17c 1 2
+echo ID 0x17c reg 3
+phy raw c45 0x17c 1 3
+echo ID 0x17d reg 2
+phy raw c45 0x17d 1 2
+echo ID 0x17d reg 3
+phy raw c45 0x17d 1 3
+echo ID 0x17e reg 2
+phy raw c45 0x17e 1 2
+echo ID 0x17e reg 3
+phy raw c45 0x17e 1 3
+echo ID 0x17f reg 2
+phy raw c45 0x17f 1 2
+echo ID 0x17f reg 3
+phy raw c45 0x17f 1 3
+echo CTRL 0x4
+phy raw c45 0x4 1 2
+echo CTRL 0x10
+phy raw c45 0x10 1 2
+echo CTRL 0x1f
+phy raw c45 0x1f 1 2
+echo C22 0x00
+phy raw 0x00 2
+phy raw 0x00 3
+exit

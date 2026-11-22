@@ -1,0 +1,80 @@
+openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: 543264 writes, 405784 reads (303643 polls), 93400 delays (52.3 s), 41 steps
+sal_config_refresh: format error in config.bcm on line 3 (ignored)
+Broadcom Command Monitor: Copyright (c) 1998-2026 Broadcom
+Release: sdk-6.5.27 built 20261115 (Sun Nov 15 08:57:46 2026)
+From nixbld@localhost:/build/openbcm-sdk-6.5.27-patched
+Platform: PPC64BE
+OS: Unix (Posix)
+linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+DMA pool size: 16777216 bytes.
+BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+SOC unit 0 attached to PCI device BCM56930_B1
+Boot flags: initialization scripts NOT loaded
+openbcm-mdio-script: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+openbcm-mdio-script: extphy init all
+openbcm-mdio-script: differs: line 51933: 0 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 53107: 0 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 57256: 1 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 58430: 1 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 62579: 2 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 63753: 2 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 67902: 3 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 69076: 3 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 99099: 0 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 101206: 0 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 103339: 1 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 105446: 1 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 107579: 2 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 109686: 2 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 111819: 3 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 113926: 3 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 166575: 24 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 167749: 24 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 171898: 25 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: differs: line 173072: 25 1.a101 = 6000, script 7f00 mask ffff [extphy init all]
+openbcm-mdio-script: extphy cfg 0x00 nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+openbcm-mdio-script: extphy cfg 0x24 nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+openbcm-mdio-script: extphy cfg 0x48 nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+openbcm-mdio-script: extphy cfg 0x6c nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+openbcm-mdio-script: extphy cfg 0x110 nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+openbcm-mdio-script: extphy cfg 0x134 nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+openbcm-mdio-script: extphy cfg 0x158 nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+openbcm-mdio-script: extphy cfg 0x17c nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+openbcm-mdio-script: verify phy 0x0: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x1: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x2: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x3: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x24: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x25: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x26: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x27: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x48: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x49: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x4a: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x4b: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x6c: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x6d: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x6e: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x6f: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x110: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x111: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x112: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x113: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x134: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x135: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x136: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x137: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x158: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x159: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x15a: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x15b: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x17c: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x17d: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x17e: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: verify phy 0x17f: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: done in 95.8 s: 543264 writes, 420052 reads (303643 polls, 14268 re-reads), 153 expected values differed
+
+real	1m38.119s
+user	1m0.846s
+sys	0m4.913s
+rc=0

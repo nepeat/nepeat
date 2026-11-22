@@ -1,0 +1,277 @@
+Vendor 'extphy' console output from the re-hosted Evora library (evora-rehost/rehost.py, --backend ssh), 2026-11-21 22:03-22:17 PST.
+Lines '>>>' / '<<<' are the tool's; everything else is printed by the vendor code. Full files: dumps/x/evora-trace/*.console.txt
+
+===== t01-init-0x24 =====
+>>> extphy init 0x24 4
+Initialize phy chip and download firmware to 0x24 - 0x27:
+Broadcast firmware download ...
+>>> extphy init 0x24 4
+Initialize phy chip and download firmware to 0x24 - 0x27:
+Broadcast firmware download ...
+FW download Started
+25% Downloaded
+50% Downloaded
+75% Downloaded
+Firmware download success. GPREG2:0 retry:18
+MST Dload Done:1
+Slave Dload Done:3
+FW version:0xd00b
+Firmware download success. GPREG2:0 retry:20
+MST Dload Done:1
+Slave Dload Done:3
+FW version:0xd00b
+Firmware download success. GPREG2:0 retry:20
+MST Dload Done:1
+Slave Dload Done:3
+FW version:0xd00b
+Firmware download success. GPREG2:0 retry:20
+MST Dload Done:1
+Slave Dload Done:3
+FW version:0xd00b
+Configure phy device 0x24 - 0x27:
+Done!
+<<< rc=0  (45911 reads, 59369 writes, 10015 delays, 42.2 s)
+
+===== t02-cfg-0x24 =====
+>>> extphy cfg 0x24 nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+<<< rc=0  (6024 reads, 9260 writes, 2096 delays, 6.4 s)
+>>> extphy ver 0x24
+phy driver: EVOR 1.9
+phy FW version: D00B
+phy FW checksum: 600D
+phy FW status: Running
+<<< rc=0  (7 reads, 6 writes, 1 delays, 0.0 s)
+>>> extphy status 0x24
+phy 0x24, lane=4, line side, link=DOWN, loopback=Disabled, FEC=Enabled
+speed=100000, max_packet=16383, line side interface=CAUI4_C2C, system side interface=CAUI
+low-latency bypass: egress = YES
+low-latency bypass: ingress = YES
+flow control: enabled
+<<< rc=0  (164 reads, 205 writes, 28 delays, 0.1 s)
+
+===== t03-bus0-id1-3 =====
+>>> extphy init 0x01 3
+Initialize phy chip and download firmware to 0x1 - 0x3:
+Broadcast firmware download ...
+ LMI Access timeout
+FAILED: bcm_plp_init_fw_bcast(bcmpmFirmwareBroadcastCoreReset) on lane 0xf Line side phy_id 2 rv[-9]
+FAILED: Broadcast:: Reset the core @ 0x2
+FW download Started
+25% Downloaded
+50% Downloaded
+75% Downloaded
+Firmware download Failure. Line/Sys TSC is not active
+FAILED: bcm_plp_init_fw_bcast(bcmpmFirmwareBroadcastFirmwareVerify) on lane 0xf Line side phy_id 1 rv[-8]
+FAILED: Broadcast:: verify @ 0x1
+ LMI Access ERROR :ffff
+FAILED: bcm_plp_init_fw_bcast(bcmpmFirmwareBroadcastFirmwareVerify) on lane 0xf Line side phy_id 2 rv[-1]
+FAILED: Broadcast:: verify @ 0x2
+Firmware download success. GPREG2:0 retry:20
+MST Dload Done:1
+Slave Dload Done:3
+FW version:0xd00b
+Firmware download Failure. Line/Sys TSC is not active
+FAILED: bcm_plp_init_fw_bcast(bcmpmFirmwareBroadcastEnd) on lane 0xf Line side phy_id 1 rv[-8]
+FAILED: Broadcast:: end @ 0x1
+ LMI Access timeout
+FAILED: bcm_plp_init_fw_bcast(bcmpmFirmwareBroadcastEnd) on lane 0xf Line side phy_id 2 rv[-9]
+FAILED: Broadcast:: end @ 0x2
+FAILED: Broadcast firmware download
+FAILED: Initialize chip and download firmware failed.
+Error: phy = 0x2, unable to enable ECC detect mechanism.
+<<< rc=-2  (27242 reads, 27956 writes, 585 delays, 25.4 s)
+>>> extphy cfg 0x01 nphy=3 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+ LMI Access ERROR :f
+FAILED: bcm_plp_mode_config_set on lane 0xf Line side phy_id 1 rv[-1]
+ LMI Access timeout
+FAILED: bcm_plp_mode_config_set on lane 0xf System side phy_id 1 rv[-9]
+ LMI Access ERROR :4b
+ LMI Access ERROR :9
+ LMI Access ERROR :9
+FAILED: bcm_plp_fec_enable_set on lane 0xf Line side phy_id 1 rv[-1]
+ LMI Access timeout
+FAILED: bcm_plp_mode_config_set on lane 0xf Line side phy_id 2 rv[-9]
+ LMI Access timeout
+FAILED: bcm_plp_mode_config_set on lane 0xf System side phy_id 2 rv[-9]
+ LMI Access timeout
+ LMI Access timeout
+ LMI Access timeout
+FAILED: bcm_plp_fec_enable_set on lane 0xf Line side phy_id 2 rv[-9]
+<<< rc=2  (1650 reads, 2399 writes, 658 delays, 1.7 s)
+>>> extphy ver 0x01
+ LMI Access ERROR :9
+Driver version information not available
+phy driver: N/A 1.9
+phy FW version: 1
+phy FW checksum: 0
+phy FW status: Halt
+<<< rc=-1  (6 reads, 12 writes, 3 delays, 0.0 s)
+>>> extphy status 0x01
+phy 0x1, lane=4, line side LMI Access ERROR :9
+ LMI Access ERROR :9
+ LMI Access ERROR :9
+, loopback=Disabled LMI Access ERROR :9
+ LMI Access ERROR :9
+, FEC=Disabled LMI Access ERROR :9
+ LMI Access ERROR :9
+FAILED: bcm_plp_mode_config_get on lane 0xf Line side phy_id 1 rv[-1]
+ LMI Access ERROR :9
+ LMI Access ERROR :9
+FAILED: bcm_plp_mode_config_get on lane 0xf System side phy_id 1 rv[-1]
+ LMI Access ERROR :f
+FAILED: bcm_plp_mac_max_packet_size_get on lane 0xf System side phy_id 1 rv[-1]
+
+===== t04-id1-fwload1 =====
+>>> extphy init 0x01 1 fw_load=1
+Initialize phy chip and download firmware to 0x1 - 0x1:
+phymod/chip/evora/tier1/evora_cfg_seq.c[386]plp_evora_download_prog_eeprom: ERR:SERBOOT BUSY BIT SET
+devad 0x1 lane 0xf: UC firmware-load failed
+FAILED: bcm_plp_init on lane 0xf Line side phy_id 1 rv[-8]
+FAILED: Firmware download for phy 0x1
+FAILED: Initialize chip and download firmware failed.
+<<< rc=-2  (1245 reads, 336 writes, 1104 delays, 1.4 s)
+>>> extphy cfg 0x01 nphy=1 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+ LMI Access ERROR :f
+FAILED: bcm_plp_mode_config_set on lane 0xf Line side phy_id 1 rv[-1]
+ LMI Access timeout
+FAILED: bcm_plp_mode_config_set on lane 0xf System side phy_id 1 rv[-9]
+ LMI Access ERROR :4b
+<<< rc=1  (97 reads, 112 writes, 49 delays, 0.1 s)
+>>> extphy ver 0x01
+phy driver: EVOR 1.9
+phy FW version: 1
+phy FW checksum: 0
+phy FW status: Halt
+<<< rc=0  (16 reads, 15 writes, 5 delays, 0.0 s)
+>>> extphy status 0x01
+phy 0x1, lane=4, line side, link=DOWN, loopback=Disabled, FEC=Disabled LMI Access ERROR :f
+FAILED: bcm_plp_mode_config_get on lane 0xf Line side phy_id 1 rv[-1]
+ LMI Access ERROR :4b
+ LMI Access ERROR :f
+FAILED: bcm_plp_mode_config_get on lane 0xf System side phy_id 1 rv[-1]
+ LMI Access ERROR :f
+FAILED: bcm_plp_mac_max_packet_size_get on lane 0xf System side phy_id 1 rv[-1]
+
+===== t05-id1-bcast-single =====
+>>> extphy init 0x01 1
+Initialize phy chip and download firmware to 0x1 - 0x1:
+Broadcast firmware download ...
+phymod/chip/evora/tier1/evora_cfg_seq.c[386]plp_evora_download_prog_eeprom: ERR:SERBOOT BUSY BIT SET
+devad 0x1 lane 0xf: UC firmware-load failed
+FAILED: bcm_plp_init_fw_bcast(bcmpmFirmwareBroadcastFirmwareExecute) on lane 0xf Line side phy_id 1 rv[-8]
+FAILED: Broadcast:: Firmware download @ 0x1
+FAILED: Initialize chip and download firmware failed.
+<<< rc=-2  (1246 reads, 337 writes, 1104 delays, 1.5 s)
+>>> extphy cfg 0x01 nphy=1 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+ LMI Access ERROR :f
+FAILED: bcm_plp_mode_config_set on lane 0xf Line side phy_id 1 rv[-1]
+ LMI Access timeout
+FAILED: bcm_plp_mode_config_set on lane 0xf System side phy_id 1 rv[-9]
+ LMI Access ERROR :4b
+<<< rc=1  (97 reads, 112 writes, 49 delays, 0.1 s)
+>>> extphy ver 0x01
+phy driver: EVOR 1.9
+phy FW version: 1
+phy FW checksum: 0
+phy FW status: Halt
+<<< rc=0  (16 reads, 15 writes, 5 delays, 0.0 s)
+>>> extphy status 0x01
+phy 0x1, lane=4, line side, link=DOWN, loopback=Disabled, FEC=Disabled LMI Access ERROR :f
+FAILED: bcm_plp_mode_config_get on lane 0xf Line side phy_id 1 rv[-1]
+ LMI Access ERROR :4b
+ LMI Access ERROR :f
+FAILED: bcm_plp_mode_config_get on lane 0xf System side phy_id 1 rv[-1]
+ LMI Access ERROR :f
+FAILED: bcm_plp_mac_max_packet_size_get on lane 0xf System side phy_id 1 rv[-1]
+
+===== t06-status-0x24 (excerpts: lts, ecc, 0x27, reg get; dsc core lines for sys then line side) =====
+>>> extphy status 0x24 lts
+phy 0x24, lane 4, Link Training: disabled
+<<< rc=0  (8 reads, 11 writes, 0 delays, 0.0 s)
+>>> extphy status 0x24 ecc
+phy = 0x24, FW ECC is not ready.
+No any traffic.
+<<< rc=1  (1 reads, 0 writes, 0 delays, 0.0 s)
+>>> extphy status 0x27
+phy 0x27, lane=4, line side, link=DOWN, loopback=Disabled, FEC=Enabled
+speed=100000, max_packet=16383, line side interface=CAUI4_C2C, system side interface=CAUI
+low-latency bypass: egress = YES
+low-latency bypass: ingress = YES
+flow control: enabled
+<<< rc=0  (164 reads, 205 writes, 28 delays, 0.1 s)
+>>> extphy ver 0x27
+phy driver: EVOR 1.9
+phy FW version: D00B
+phy FW checksum: 600D
+phy FW status: Running
+<<< rc=0  (7 reads, 6 writes, 1 delays, 0.0 s)
+>>> extphy reg get 0x24 0x8251 devad=1
+phy 0x24, addr = 0x8251, value = 0xd  
+<<< rc=0  (1 reads, 0 writes, 0 delays, 0.0 s)
+>>> extphy status 0x24 dsc
+ ***************************************
+ ******* PHY status dump for Evora PHY ID:0x24 ********
+ ***************************************
+ ***************************************
+ ******* PHY status dump for side:1 ********
+ ***************************************
+TEMPRATURE:35 PLL RANGE:223
+ plp_evora_tscf_evora_phy_pmd_info_dump:486 type = 65536 laneMask  = 0xF, Address = 0x24
+    +--------------------------------------------------------------------+
+    | DSC Phy: 0x024 lane_mask: 0x0f                                 |
+    +--------------------------------------------------------------------+
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       35C      (17) 34C    0x07    25.750GHz     223       (07) 165       1   
+
+1576:00   0   00    0        1     156.25MHz   D10B_16     0xb2       35C      (17) 34C    0x07    25.750GHz     223       (07) 165       1   
+1596: 0 (OSx1       , 0x000c,   0, 0)  0   0     0    32     0   10,0    39   0    0    0   0,  0,  0,  0,  0,  0     0    0, 43, 5, 0, 0   15,0    0,  0,  0,  0     0.0
+1597: 1 (OSx1       , 0x000c,   0, 0)  0   0     0    32     0   10,0    39   0    0    0   0,  0,  0,  0,  0,  0     0    0, 43, 5, 0, 0   15,0    0,  0,  0,  0     0.0
+1598: 2 (OSx1       , 0x000c,   0, 0)  0   0     0    32     0   10,0    39   0    0    0   0,  0,  0,  0,  0,  0     0    0, 43, 5, 0, 0   15,0    0,  0,  0,  0     0.0
+1599: 3 (OSx1       , 0x000c,   0, 0)  0   0     0    32     0   10,0    39   0    0    0   0,  0,  0,  0,  0,  0     0    0, 43, 5, 0, 0   15,0    0,  0,  0,  0     0.0
+1880:00   0   00    0        1     156.25MHz   D10B_16     0xb2       35C      (17) 34C    0x07    25.750GHz     223       (07) 165       1   
+1900: 0 (OSx1       , 0x000c,   0, 0)  0   0     0    32     0   10,0    39   0    0    0   0,  0,  0,  0,  0,  0     0    0, 43, 5, 0, 0   15,0    0,  0,  0,  0     0.0
+1901: 1 (OSx1       , 0x000c,   0, 0)  0   0     0    32     0   10,0    39   0    0    0   0,  0,  0,  0,  0,  0     0    0, 43, 5, 0, 0   15,0    0,  0,  0,  0     0.0
+1902: 2 (OSx1       , 0x000c,   0, 0)  0   0     0    32     0   10,0    39   0    0    0   0,  0,  0,  0,  0,  0     0    0, 43, 5, 0, 0   15,0    0,  0,  0,  0     0.0
+1903: 3 (OSx1       , 0x000c,   0, 0)  0   0     0    32     0   10,0    39   0    0    0   0,  0,  0,  0,  0,  0     0    0, 43, 5, 0, 0   15,0    0,  0,  0,  0     0.0
+
+===== t07-after-replay (state after replay.py, no emulator; first 40 lines) =====
+>>> extphy ver 0x24
+phy driver: EVOR 1.9
+phy FW version: D00B
+phy FW checksum: 600D
+phy FW status: Running
+<<< rc=0  (7 reads, 6 writes, 1 delays, 0.0 s)
+>>> extphy status 0x24
+phy 0x24, lane=4, line side, link=DOWN, loopback=Disabled, FEC=Enabled
+speed=100000, max_packet=16383, line side interface=CAUI4_C2C, system side interface=CAUI
+low-latency bypass: egress = YES
+low-latency bypass: ingress = YES
+flow control: enabled
+<<< rc=0  (164 reads, 205 writes, 28 delays, 0.1 s)
+>>> extphy ver 0x27
+phy driver: EVOR 1.9
+phy FW version: D00B
+phy FW checksum: 600D
+phy FW status: Running
+<<< rc=0  (7 reads, 6 writes, 1 delays, 0.0 s)
+>>> extphy status 0x27
+phy 0x27, lane=4, line side, link=DOWN, loopback=Disabled, FEC=Enabled
+speed=100000, max_packet=16383, line side interface=CAUI4_C2C, system side interface=CAUI
+low-latency bypass: egress = YES
+low-latency bypass: ingress = YES
+flow control: enabled
+<<< rc=0  (164 reads, 205 writes, 28 delays, 0.1 s)
+>>> extphy status 0x25
+phy 0x25, lane=4, line side, link=DOWN, loopback=Disabled, FEC=Enabled
+speed=100000, max_packet=16383, line side interface=CAUI4_C2C, system side interface=CAUI
+low-latency bypass: egress = YES
+low-latency bypass: ingress = YES
+flow control: enabled
+<<< rc=0  (164 reads, 205 writes, 28 delays, 0.1 s)
+>>> extphy status 0x26
+phy 0x26, lane=4, line side, link=DOWN, loopback=Disabled, FEC=Enabled
+speed=100000, max_packet=16383, line side interface=CAUI4_C2C, system side interface=CAUI
+low-latency bypass: egress = YES
+low-latency bypass: ingress = YES
+flow control: enabled
+<<< rc=0  (164 reads, 205 writes, 28 delays, 0.1 s)

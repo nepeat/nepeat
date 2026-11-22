@@ -1,0 +1,76 @@
+   Sensor    Temperature    High TH    Low TH    Crit High TH    Crit Low TH    Warning          Timestamp
+---------  -------------  ---------  --------  --------------  -------------  ---------  -----------------
+     asic           46.2         95       N/A             100            N/A      False  20261122 01:10:24
+  board_1           35.5         45       N/A              50            N/A      False  20261122 01:10:24
+  board_2           32.5         45       N/A              50            N/A      False  20261122 01:10:24
+  board_3           27.5         45       N/A              50            N/A      False  20261122 01:10:24
+  board_4           24           45       N/A              50            N/A      False  20261122 01:10:24
+  board_5           25.5         45       N/A              50            N/A      False  20261122 01:10:24
+ cpu_area           29           70       N/A              80            N/A      False  20261122 01:10:24
+cpu_board           28.5         45       N/A              50            N/A      False  20261122 01:10:24
+  cpu_die           41           95       N/A             105            N/A      False  20261122 01:10:24
+  Drawer    LED          FAN    Speed    Direction    Presence    Status          Timestamp
+--------  -----  -----------  -------  -----------  ----------  --------  -----------------
+FanTray1  green  Fan 1 front      75%          N/A     Present    Not OK  20261122 01:10:23
+FanTray1  green   Fan 1 rear      73%          N/A     Present        OK  20261122 01:10:23
+FanTray2  green  Fan 2 front      74%          N/A     Present        OK  20261122 01:10:23
+FanTray2  green   Fan 2 rear      72%          N/A     Present        OK  20261122 01:10:23
+FanTray3  green  Fan 3 front      75%          N/A     Present    Not OK  20261122 01:10:24
+FanTray3  green   Fan 3 rear      73%          N/A     Present        OK  20261122 01:10:24
+FanTray4  green  Fan 4 front      75%          N/A     Present    Not OK  20261122 01:10:24
+FanTray4  green   Fan 4 rear      72%          N/A     Present        OK  20261122 01:10:24
+FanTray5  green  Fan 5 front      75%          N/A     Present    Not OK  20261122 01:10:24
+FanTray5  green   Fan 5 rear      73%          N/A     Present        OK  20261122 01:10:24
+FanTray6  green  Fan 6 front      74%          N/A     Present        OK  20261122 01:10:24
+FanTray6  green   Fan 6 rear      72%          N/A     Present        OK  20261122 01:10:24
+PSU    Model    Serial    HW Rev    Voltage (V)    Current (A)    Power (W)    Status    LED
+-----  -------  --------  --------  -------------  -------------  -----------  --------  -----
+PSU 1  N/A      N/A       N/A       N/A            N/A            N/A          OK        green
+PSU 2  N/A      N/A       N/A       N/A            N/A            N/A          NOT OK    off
+TlvInfo Header:
+   Id String:    TlvInfo
+   Version:      1
+   Total Length: 205
+TLV Name             Code      Len  Value
+-------------------  ------  -----  ------------------------------------------------------------------------------------------------------------------
+Product Name         0x21       22  7772-32X-A-AC-F-G-HVDC
+Part Number          0x22       13  FP3AO7632043A
+Serial Number        0x23       15  777232X19300200
+Base MAC Address     0x24        6  1C:EA:0B:38:2B:D5
+Manufacture Date     0x25       19  07/30/2019 09:07:58
+Device Version       0x26        1  1
+Label Revision       0x27        4  R01A
+Platform Name        0x28       28  powerpc-accton_as7772_32x-r0
+ONIE Version         0x29       13  2015.02.00.30
+MAC Addresses        0x2A        2  4
+Manufacturer         0x2B        6  Accton
+Manufacture Country  0x2C        2  TW
+Vendor Name          0x2D        8  Edgecore
+Diag Version         0x2E        7  0.0.2.7
+Vendor Extension     0xFD       23  0x00 0x00 0x01 0x03 0x41 0x73 0x73 0x65 0x74 0x49 0x44 0x3D 0x33 0x39 0x30 0x39 0x30 0x32 0x36 0x35 0x31 0x31 0x00
+CRC-32               0xFE        4  0xA4E56F96
+
+(checksum valid)
+Port         Presence
+-----------  -----------
+Ethernet1/1    Present
+Ethernet2/1    Present
+Ethernet31/1  Present
+Ethernet32/1  Present
+  Interface            Lanes    Speed    MTU    FEC         Alias    Vlan    Oper    Admin             Type    Asym PFC
+-----------  ---------------  -------  -----  -----  ------------  ------  ------  -------  ---------------  ----------
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet8      57,58,59,60     100G   9100    N/A   Ethernet3/1  routed    down     down              N/A         N/A
+ Ethernet12      61,62,63,64     100G   9100    N/A   Ethernet4/1  routed    down     down              N/A         N/A
+ Ethernet16      65,66,67,68     100G   9100    N/A   Ethernet5/1  routed    down     down              N/A         N/A
+ Ethernet20      69,70,71,72     100G   9100    N/A   Ethernet6/1  routed    down     down              N/A         N/A
+Capability codes: (R) Router, (B) Bridge, (O) Other
+   LocalPort    RemoteDevice    RemotePortID    Capability    RemotePortDescr
+------------  --------------  --------------  ------------  -----------------
+ Ethernet1/1    as7772          Ethernet2/1     BR            Ethernet4
+ Ethernet2/1    as7772          Ethernet1/1     BR            Ethernet0
+Ethernet31/1  as7772          Ethernet32/1    BR            Ethernet124
+Ethernet32/1  as7772          Ethernet31/1    BR            Ethernet120
+--------------------------------------
+Total entries displayed:  4

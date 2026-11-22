@@ -1,0 +1,248 @@
+Evora ID scans (clause 45 dev 1 reg 0x8b00/0x8b01 and friends at the 32 vendor ids) taken by evora-rehost/idscan.py
+through our bcm.user, between the stages of the re-hosted vendor init. Newest last.
+
+# 2026-11-21 22:02:50  baseline before any vendor code
+# port id    1.8b00 1.8b01 1.0002 1.8201 1.8213 1.82ff 1.8221 1.8210 1.8b10
+   1  0x000  0000   0000   0000   0000   0000   0000   0000   0000   0000   <- no id
+   2  0x001  2391   80a0   0000   007f   0000   8003   0000   0033   0080
+   3  0x002  2391   80a0   0000   007f   0000   8003   0101   0033   0080
+   4  0x003  2391   80a0   0000   007f   0000   8003   0000   0033   0080
+   5  0x024  2391   80a0   0000   007f   0000   8003   0101   0033   0080
+   6  0x025  2391   80a0   0000   007f   0000   8003   0000   0033   0080
+   7  0x026  2391   80a0   0000   007f   0000   8003   0101   0033   0080
+   8  0x027  2391   80a0   0000   007f   0000   8003   0000   0033   0080
+   9  0x048  2391   80a0   0000   007f   0000   8003   0101   0033   0080
+  10  0x049  2391   80a0   0000   007f   0000   8003   0000   0033   0080
+  11  0x04a  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  12  0x04b  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  13  0x06c  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  14  0x06d  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  15  0x06e  2391   80a0   0000   007f   0000   8003   0101   0033   0080
+  16  0x06f  2391   80a0   0000   007f   0000   8003   0000   0033   0080
+  17  0x110  2391   80a0   0000   007f   0000   8003   0101   0033   0080
+  18  0x111  2391   80a0   0000   007f   0000   8003   0000   0033   0080
+  19  0x112  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  20  0x113  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  21  0x134  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  22  0x135  2391   80a0   0000   007f   0000   8003   0000   0033   0080
+  23  0x136  2391   80a0   0000   007f   0000   8003   0101   0033   0080
+  24  0x137  2391   80a0   0000   007f   0000   8003   0000   0033   0080
+  25  0x158  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  26  0x159  2391   80a0   0000   007f   0000   8003   0000   0033   0080
+  27  0x15a  2391   80a0   0000   007f   0000   8003   0101   0033   0080
+  28  0x15b  2391   80a0   0000   007f   0000   8003   0000   0033   0080
+  29  0x17c  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  30  0x17d  2391   80a0   0000   007f   ffff   0000   0000   0033   0080
+  31  0x17e  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  32  0x17f  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+# answering: 20 of 32; not answering: 0x0 0x4a 0x4b 0x6c 0x6d 0x112 0x113 0x134 0x158 0x17c 0x17e 0x17f
+# 2026-11-21 22:04:31  after init 0x24 4 (broadcast RAM fw download + MACsec bypass + mode config on 0x24-0x27)
+# port id    1.8b00 1.8b01 1.8215 1.8245 1.8251 1.8221 1.82ff 1.8201
+   1  0x000  0000   0000   0000   0000   0000   0000   0000   0000   <- no id
+   2  0x001  2391   80a0   0001   0000   0000   0000   8003   007f
+   3  0x002  2391   80a0   0001   0000   0000   0000   8003   007f
+   4  0x003  2391   80a0   0001   0000   0000   0000   8003   007f
+   5  0x024  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   6  0x025  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   7  0x026  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   8  0x027  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   9  0x048  2391   80a0   0001   0000   0000   0000   8003   007f
+  10  0x049  2391   80a0   0001   0000   0000   0000   8003   007f
+  11  0x04a  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  12  0x04b  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  13  0x06c  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  14  0x06d  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  15  0x06e  2391   80a0   0001   0000   0000   0000   8003   007f
+  16  0x06f  2391   80a0   0001   0000   0000   0000   8003   007f
+  17  0x110  2391   80a0   0001   0000   0000   0000   8003   007f
+  18  0x111  2391   80a0   0001   0000   0000   0000   8003   007f
+  19  0x112  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  20  0x113  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  21  0x134  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  22  0x135  2391   80a0   0001   0000   0000   0000   8003   007f
+  23  0x136  2391   80a0   0001   0000   0000   0000   8003   007f
+  24  0x137  2391   80a0   0001   0000   0000   0000   8003   007f
+  25  0x158  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  26  0x159  2391   80a0   0001   0000   0000   0000   8003   007f
+  27  0x15a  2391   80a0   0001   0000   0000   0000   8003   007f
+  28  0x15b  2391   80a0   0001   0000   0000   0000   8003   007f
+  29  0x17c  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  30  0x17d  2391   80a0   0001   0000   0000   0000   8003   007f
+  31  0x17e  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  32  0x17f  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+# answering: 20 of 32; not answering: 0x0 0x4a 0x4b 0x6c 0x6d 0x112 0x113 0x134 0x158 0x17c 0x17e 0x17f
+# 2026-11-21 22:05:28  after init+cfg of 0x01-0x03 (0x24-0x27 done before)
+# port id    1.8b00 1.8b01 1.8215 1.8245 1.8251 1.8221 1.82ff 1.8201
+   1  0x000  0000   0000   0000   0000   0000   0000   0000   0000   <- no id
+   2  0x001  2391   80a0   0001   0000   0000   0000   8003   007f
+   3  0x002  1900   1900   1900   1900   1900   1900   1900   1900   <- no id
+   4  0x003  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   5  0x024  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   6  0x025  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   7  0x026  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   8  0x027  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   9  0x048  2391   80a0   0001   0000   0000   0000   8003   007f
+  10  0x049  2391   80a0   0001   0000   0000   0000   8003   007f
+  11  0x04a  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  12  0x04b  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  13  0x06c  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  14  0x06d  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  15  0x06e  2391   80a0   0001   0000   0000   0000   8003   007f
+  16  0x06f  2391   80a0   0001   0000   0000   0000   8003   007f
+  17  0x110  2391   80a0   0001   0000   0000   0000   8003   007f
+  18  0x111  2391   80a0   0001   0000   0000   0000   8003   007f
+  19  0x112  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  20  0x113  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  21  0x134  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  22  0x135  2391   80a0   0001   0000   0000   0000   8003   007f
+  23  0x136  2391   80a0   0001   0000   0000   0000   8003   007f
+  24  0x137  2391   80a0   0001   0000   0000   0000   8003   007f
+  25  0x158  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  26  0x159  2391   80a0   0001   0000   0000   0000   8003   007f
+  27  0x15a  2391   80a0   0001   0000   0000   0000   8003   007f
+  28  0x15b  2391   80a0   0001   0000   0000   0000   8003   007f
+  29  0x17c  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  30  0x17d  2391   80a0   0001   0000   0000   0000   8003   007f
+  31  0x17e  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  32  0x17f  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+# answering: 19 of 32; not answering: 0x0 0x2 0x4a 0x4b 0x6c 0x6d 0x112 0x113 0x134 0x158 0x17c 0x17e 0x17f
+# 2026-11-21 22:06:16  recheck bus 0 a minute later
+# port id    1.8b00 1.8b01 1.8201 1.8b10 1.8b02 1.9011 1.8b90 1.900a 1.8213 1.8210 1.82ff
+   1  0x000  0000   0000   0000   0000   0000   0000   0000   0000   0000   0000   0000   <- no id
+   2  0x001  2391   80a0   007f   0080   0000   8136   0001   0004   0000   0033   8003
+   3  0x002  1900   1900   1900   1900   1900   1900   1900   1900   1900   1900   1900   <- no id
+   4  0x003  2391   80a0   007f   00eb   0004   0000   0000   0000   0004   0033   50c0
+   5  0x024  2391   80a0   007f   00eb   0004   0000   0001   0000   0004   0033   50c0
+   6  0x025  2391   80a0   007f   00eb   0004   0000   0000   0000   0004   0033   50c0
+   7  0x026  2391   80a0   007f   00eb   0004   0000   0000   0000   0004   0033   50c0
+   8  0x027  2391   80a0   007f   00eb   0004   0000   0000   0000   0004   0033   50c0
+   9  0x048  2391   80a0   007f   0080   0000   8136   0000   0000   0000   0033   8003
+  10  0x049  2391   80a0   007f   0080   0000   8136   0000   0000   0000   0033   8003
+  11  0x04a  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  12  0x04b  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  13  0x06c  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  14  0x06d  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  15  0x06e  2391   80a0   007f   0080   0000   8136   0000   0000   0000   0033   8003
+  16  0x06f  2391   80a0   007f   0080   0000   8136   0000   0000   0000   0033   8003
+  17  0x110  2391   80a0   007f   0080   0000   8136   0000   0000   0000   0033   8003
+  18  0x111  2391   80a0   007f   0080   0000   8136   0000   0000   0000   0033   8003
+  19  0x112  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  20  0x113  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  21  0x134  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  22  0x135  2391   80a0   007f   0080   0000   8136   0000   0000   0000   0033   8003
+  23  0x136  2391   80a0   007f   0080   0000   8136   0000   0000   0000   0033   8003
+  24  0x137  2391   80a0   007f   0080   0000   8136   0000   0000   0000   0033   8003
+  25  0x158  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  26  0x159  2391   80a0   007f   0080   0000   8136   0000   0000   0000   0033   8003
+  27  0x15a  2391   80a0   007f   0080   0000   8136   0000   0000   0000   0033   8003
+  28  0x15b  2391   80a0   007f   0080   0000   8136   0000   0000   0000   0033   8003
+  29  0x17c  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  30  0x17d  2391   80a0   007f   0080   0000   8136   0000   0000   0000   0033   8003
+  31  0x17e  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  32  0x17f  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+# answering: 19 of 32; not answering: 0x0 0x2 0x4a 0x4b 0x6c 0x6d 0x112 0x113 0x134 0x158 0x17c 0x17e 0x17f
+# 2026-11-21 22:07:10  after init 0x01 1 fw_load=1 + cfg
+# port id    1.8b00 1.8b01 1.8215 1.8245 1.8251 1.8221 1.82ff 1.8201
+   1  0x000  0000   0000   0000   0000   0000   0000   0000   0000   <- no id
+   2  0x001  2391   80a0   0001   0000   0000   0000   4000   007f
+   3  0x002  1900   1900   1900   1900   1900   1900   1900   1900   <- no id
+   4  0x003  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   5  0x024  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   6  0x025  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   7  0x026  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   8  0x027  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   9  0x048  2391   80a0   0001   0000   0000   0000   8003   007f
+  10  0x049  2391   80a0   0001   0000   0000   0000   8003   007f
+  11  0x04a  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  12  0x04b  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  13  0x06c  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  14  0x06d  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  15  0x06e  2391   80a0   0001   0000   0000   0000   8003   007f
+  16  0x06f  2391   80a0   0001   0000   0000   0000   8003   007f
+  17  0x110  2391   80a0   0001   0000   0000   0000   8003   007f
+  18  0x111  2391   80a0   0001   0000   0000   0000   8003   007f
+  19  0x112  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  20  0x113  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  21  0x134  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  22  0x135  2391   80a0   0001   0000   0000   0000   8003   007f
+  23  0x136  2391   80a0   0001   0000   0000   0000   8003   007f
+  24  0x137  2391   80a0   0001   0000   0000   0000   8003   007f
+  25  0x158  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  26  0x159  2391   80a0   0001   0000   0000   0000   8003   007f
+  27  0x15a  2391   80a0   0001   0000   0000   0000   8003   007f
+  28  0x15b  2391   80a0   0001   0000   0000   0000   8003   007f
+  29  0x17c  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  30  0x17d  2391   80a0   0001   0000   0000   0000   8003   007f
+  31  0x17e  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  32  0x17f  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+# answering: 19 of 32; not answering: 0x0 0x2 0x4a 0x4b 0x6c 0x6d 0x112 0x113 0x134 0x158 0x17c 0x17e 0x17f
+# 2026-11-21 22:07:25  after init 0x01 1 (broadcast method, one PHY) + cfg
+# port id    1.8b00 1.8b01 1.8215 1.8245 1.8251 1.8221 1.82ff 1.8201
+   1  0x000  0000   0000   0000   0000   0000   0000   0000   0000   <- no id
+   2  0x001  2391   80a0   0001   0000   0000   0000   4000   007f
+   3  0x002  1900   1900   1900   1900   1900   1900   1900   1900   <- no id
+   4  0x003  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   5  0x024  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   6  0x025  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   7  0x026  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   8  0x027  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   9  0x048  2391   80a0   0001   0000   0000   0000   8003   007f
+  10  0x049  2391   80a0   0001   0000   0000   0000   8003   007f
+  11  0x04a  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  12  0x04b  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  13  0x06c  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  14  0x06d  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  15  0x06e  2391   80a0   0001   0000   0000   0000   8003   007f
+  16  0x06f  2391   80a0   0001   0000   0000   0000   8003   007f
+  17  0x110  2391   80a0   0001   0000   0000   0000   8003   007f
+  18  0x111  2391   80a0   0001   0000   0000   0000   8003   007f
+  19  0x112  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  20  0x113  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  21  0x134  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  22  0x135  2391   80a0   0001   0000   0000   0000   8003   007f
+  23  0x136  2391   80a0   0001   0000   0000   0000   8003   007f
+  24  0x137  2391   80a0   0001   0000   0000   0000   8003   007f
+  25  0x158  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  26  0x159  2391   80a0   0001   0000   0000   0000   8003   007f
+  27  0x15a  2391   80a0   0001   0000   0000   0000   8003   007f
+  28  0x15b  2391   80a0   0001   0000   0000   0000   8003   007f
+  29  0x17c  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  30  0x17d  2391   80a0   0001   0000   0000   0000   8003   007f
+  31  0x17e  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  32  0x17f  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+# answering: 19 of 32; not answering: 0x0 0x2 0x4a 0x4b 0x6c 0x6d 0x112 0x113 0x134 0x158 0x17c 0x17e 0x17f
+# 2026-11-21 22:17:12  after replay.py of init-cfg-0x24-0x27.trace.txt onto 0x24-0x27 (no emulator in the loop)
+# port id    1.8b00 1.8b01 1.8215 1.8245 1.8251 1.8221 1.82ff 1.8201
+   1  0x000  0000   0000   0000   0000   0000   0000   0000   0000   <- no id
+   2  0x001  2391   80a0   0001   0000   0000   0000   4000   007f
+   3  0x002  1900   1900   1900   1900   1900   1900   1900   1900   <- no id
+   4  0x003  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   5  0x024  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   6  0x025  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   7  0x026  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   8  0x027  2391   80a0   d00b   600d   000d   0000   50c0   007f
+   9  0x048  2391   80a0   0001   0000   0000   0000   8003   007f
+  10  0x049  2391   80a0   0001   0000   0000   0000   8003   007f
+  11  0x04a  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  12  0x04b  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  13  0x06c  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  14  0x06d  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  15  0x06e  2391   80a0   0001   0000   0000   0000   8003   007f
+  16  0x06f  2391   80a0   0001   0000   0000   0000   8003   007f
+  17  0x110  2391   80a0   0001   0000   0000   0000   8003   007f
+  18  0x111  2391   80a0   0001   0000   0000   0000   8003   007f
+  19  0x112  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  20  0x113  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  21  0x134  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  22  0x135  2391   80a0   0001   0000   0000   0000   8003   007f
+  23  0x136  2391   80a0   0001   0000   0000   0000   8003   007f
+  24  0x137  2391   80a0   0001   0000   0000   0000   8003   007f
+  25  0x158  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  26  0x159  2391   80a0   0001   0000   0000   0000   8003   007f
+  27  0x15a  2391   80a0   0001   0000   0000   0000   8003   007f
+  28  0x15b  2391   80a0   0001   0000   0000   0000   8003   007f
+  29  0x17c  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  30  0x17d  2391   80a0   0001   ffff   0000   0000   ffff   ffff
+  31  0x17e  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+  32  0x17f  ffff   ffff   ffff   ffff   ffff   ffff   ffff   ffff   <- no id
+# answering: 19 of 32; not answering: 0x0 0x2 0x4a 0x4b 0x6c 0x6d 0x112 0x113 0x134 0x158 0x17c 0x17e 0x17f

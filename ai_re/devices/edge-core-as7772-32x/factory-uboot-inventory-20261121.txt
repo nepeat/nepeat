@@ -1,0 +1,611 @@
+=> help
+?       - alias for 'help'
+askenv  - get environment variables from stdin
+base    - print or set address offset
+bdinfo  - print Board Info structure
+boot    - boot default, i.e., run 'bootcmd'
+bootd   - boot default, i.e., run 'bootcmd'
+bootelf - Boot from an ELF image in memory
+bootm   - boot application image from memory
+bootp   - boot image via network using BOOTP/TFTP protocol
+bootvx  - Boot vxWorks from an ELF image
+chpart  - change active partition
+cmp     - memory compare
+coninfo - print console devices and information
+cp      - memory copy
+cpld    - Reset the board or alternate bank
+cpu     - Multiprocessor CPU boot manipulation and release
+crc32   - checksum calculation
+dhcp    - boot image via network using DHCP/TFTP protocol
+echo    - echo args to console
+editenv - edit environment variable
+env     - environment handling commands
+erase   - erase FLASH memory
+errata  - Report errata workarounds
+exit    - exit script
+ext2load- load binary file from a Ext2 filesystem
+ext2ls  - list files in a directory (default /)
+false   - do nothing, unsuccessfully
+fatinfo - print information about filesystem
+fatload - load binary file from a dos filesystem
+fatls   - list files in a directory (default /)
+fdt     - flattened device tree utility commands
+flinfo  - print FLASH memory information
+fsinfo  - print information about filesystems
+fsload  - load binary file from a filesystem image
+go      - start application at address 'addr'
+help    - print command description/usage
+i2c     - I2C sub-system
+iminfo  - print header information for application image
+imls    - list all images found in flash
+imxtract- extract a part of a multi-image
+interrupts- enable or disable interrupts
+irqinfo - print information about IRQs
+itest   - return true/false on integer compare
+loadb   - load binary file over serial line (kermit mode)
+loads   - load S-Record file over serial line
+loadx   - load binary file over serial line (xmodem mode)
+loady   - load binary file over serial line (ymodem mode)
+loop    - infinite loop on address range
+ls      - list files in a directory (default /)
+md      - memory display
+mdio    - MDIO utility commands
+meminfo - display memory information
+mii     - MII utility commands
+mm      - memory modify (auto-incrementing address)
+mmc     - MMC sub system
+mmcinfo - display MMC info
+mtdparts- define flash/nand partitions
+mtest   - simple RAM read/write test
+mw      - memory write (fill)
+nand    - NAND sub-system
+nboot   - boot from NAND device
+nfs     - boot image via network using NFS protocol
+nm      - memory modify (constant address)
+pci     - list and access PCI Configuration Space
+ping    - send ICMP ECHO_REQUEST to network host
+printenv- print environment variables
+protect - enable or disable FLASH write protection
+reginfo - print register information
+reset   - Perform RESET of the CPU
+run     - run commands in an environment variable
+sata    - SATA sub system
+saveenv - save environment variables to persistent storage
+setenv  - set environment variables
+setexpr - set environment variable as the result of eval expression
+sf      - SPI flash sub-system
+showvar - print local hushshell variables
+sleep   - delay execution for some time
+source  - run script from memory
+sys_eeprom- Display and program the system EEPROM data block.
+test    - minimal test like /bin/sh
+tftpboot- boot image via network using TFTP protocol
+true    - do nothing, successfully
+usb     - USB sub-system
+usbboot - boot from USB device
+usbiddev- Identify internal USB NAND flash device number and set
+environment variable 'usbdev' to that number.
+version - print monitor, compiler and linker version
+
+=> bdinfo
+memstart    = 0x00000000
+memsize     = 0x400000000
+flashstart  = 0xE8000000
+flashsize   = 0x08000000
+flashoffset = 0x00000000
+sramstart   = 0x00000000
+sramsize    = 0x00000000
+immr_base   = 0xFE000000
+bootflags   = 0x00000000
+intfreq     =   1800 MHz
+busfreq     =    600 MHz
+addressing  = 36-bit
+ethaddr     = 1C:EA:0B:38:2B:D5
+IP addr     = 192.168.1.10
+baudrate    = 115200 bps
+relocaddr   = 0x7FEE0000
+
+=> flinfo
+Bank # 1: CFI conformant flash (16 x 16)  Size: 128 MB in 1024 Sectors
+  AMD Standard command set, Manufacturer ID: 0x89, Device ID: 0x227E2801
+  Erase timeout: 2048 ms, write timeout: 1 ms
+  Buffer write timeout: 3 ms, buffer size: 1024 bytes
+
+  Sector Start Addresses:
+  E8000000        E8020000        E8040000        E8060000        E8080000      
+  E80A0000        E80C0000        E80E0000        E8100000        E8120000      
+  E8140000        E8160000        E8180000        E81A0000        E81C0000      
+  E81E0000        E8200000        E8220000        E8240000        E8260000      
+  E8280000        E82A0000        E82C0000        E82E0000        E8300000      
+  E8320000        E8340000        E8360000        E8380000        E83A0000      
+  E83C0000        E83E0000        E8400000        E8420000        E8440000      
+  E8460000        E8480000        E84A0000        E84C0000        E84E0000      
+  E8500000        E8520000        E8540000        E8560000        E8580000      
+  E85A0000        E85C0000        E85E0000        E8600000        E8620000      
+  E8640000        E8660000        E8680000        E86A0000        E86C0000      
+  E86E0000        E8700000        E8720000        E8740000        E8760000      
+  E8780000        E87A0000        E87C0000        E87E0000        E8800000      
+  E8820000        E8840000        E8860000        E8880000        E88A0000      
+  E88C0000        E88E0000        E8900000        E8920000        E8940000      
+  E8960000        E8980000        E89A0000        E89C0000        E89E0000      
+  E8A00000        E8A20000        E8A40000        E8A60000        E8A80000      
+  E8AA0000        E8AC0000        E8AE0000        E8B00000        E8B20000      
+  E8B40000        E8B60000        E8B80000        E8BA0000        E8BC0000      
+  E8BE0000        E8C00000        E8C20000        E8C40000        E8C60000      
+  E8C80000        E8CA0000        E8CC0000        E8CE0000        E8D00000      
+  E8D20000        E8D40000        E8D60000        E8D80000        E8DA0000      
+  E8DC0000        E8DE0000        E8E00000        E8E20000        E8E40000      
+  E8E60000        E8E80000        E8EA0000        E8EC0000        E8EE0000      
+  E8F00000        E8F20000        E8F40000        E8F60000        E8F80000      
+  E8FA0000        E8FC0000        E8FE0000        E9000000        E9020000      
+  E9040000        E9060000        E9080000        E90A0000        E90C0000      
+  E90E0000        E9100000        E9120000        E9140000        E9160000      
+  E9180000        E91A0000        E91C0000        E91E0000        E9200000      
+  E9220000        E9240000 E      E9260000 E      E9280000 E      E92A0000 E    
+  E92C0000 E      E92E0000 E      E9300000 E      E9320000 E      E9340000 E    
+  E9360000 E      E9380000 E      E93A0000 E      E93C0000 E      E93E0000 E    
+  E9400000 E      E9420000 E      E9440000 E      E9460000 E      E9480000 E    
+  E94A0000 E      E94C0000 E      E94E0000 E      E9500000 E      E9520000 E    
+  E9540000 E      E9560000 E      E9580000 E      E95A0000 E      E95C0000 E    
+  E95E0000 E      E9600000 E      E9620000 E      E9640000 E      E9660000 E    
+  E9680000 E      E96A0000 E      E96C0000 E      E96E0000 E      E9700000 E    
+  E9720000 E      E9740000 E      E9760000 E      E9780000 E      E97A0000 E    
+  E97C0000 E      E97E0000 E      E9800000 E      E9820000 E      E9840000 E    
+  E9860000 E      E9880000 E      E98A0000 E      E98C0000 E      E98E0000 E    
+  E9900000 E      E9920000 E      E9940000 E      E9960000 E      E9980000 E    
+  E99A0000 E      E99C0000 E      E99E0000 E      E9A00000 E      E9A20000 E    
+  E9A40000 E      E9A60000 E      E9A80000 E      E9AA0000 E      E9AC0000 E    
+  E9AE0000 E      E9B00000 E      E9B20000 E      E9B40000 E      E9B60000 E    
+  E9B80000 E      E9BA0000 E      E9BC0000 E      E9BE0000 E      E9C00000 E    
+  E9C20000 E      E9C40000 E      E9C60000 E      E9C80000 E      E9CA0000 E    
+  E9CC0000 E      E9CE0000 E      E9D00000 E      E9D20000 E      E9D40000 E    
+  E9D60000 E      E9D80000 E      E9DA0000 E      E9DC0000 E      E9DE0000 E    
+  E9E00000 E      E9E20000 E      E9E40000 E      E9E60000 E      E9E80000 E    
+  E9EA0000 E      E9EC0000 E      E9EE0000 E      E9F00000 E      E9F20000 E    
+  E9F40000 E      E9F60000 E      E9F80000 E      E9FA0000 E      E9FC0000 E    
+  E9FE0000 E      EA000000 E      EA020000 E      EA040000        EA060000      
+  EA080000        EA0A0000        EA0C0000        EA0E0000        EA100000      
+  EA120000        EA140000        EA160000        EA180000        EA1A0000      
+  EA1C0000        EA1E0000        EA200000        EA220000        EA240000      
+  EA260000        EA280000        EA2A0000        EA2C0000        EA2E0000      
+  EA300000        EA320000        EA340000        EA360000        EA380000      
+  EA3A0000        EA3C0000        EA3E0000        EA400000        EA420000      
+  EA440000        EA460000        EA480000        EA4A0000        EA4C0000      
+  EA4E0000        EA500000        EA520000        EA540000        EA560000      
+  EA580000        EA5A0000        EA5C0000        EA5E0000        EA600000      
+  EA620000        EA640000        EA660000        EA680000        EA6A0000      
+  EA6C0000        EA6E0000        EA700000        EA720000        EA740000      
+  EA760000        EA780000        EA7A0000        EA7C0000        EA7E0000      
+  EA800000        EA820000        EA840000        EA860000        EA880000      
+  EA8A0000        EA8C0000        EA8E0000        EA900000        EA920000      
+  EA940000        EA960000        EA980000        EA9A0000        EA9C0000      
+  EA9E0000        EAA00000        EAA20000        EAA40000        EAA60000      
+  EAA80000        EAAA0000        EAAC0000        EAAE0000        EAB00000      
+  EAB20000        EAB40000        EAB60000        EAB80000        EABA0000      
+  EABC0000        EABE0000        EAC00000        EAC20000        EAC40000      
+  EAC60000        EAC80000        EACA0000        EACC0000        EACE0000      
+  EAD00000        EAD20000        EAD40000        EAD60000        EAD80000      
+  EADA0000        EADC0000        EADE0000        EAE00000        EAE20000      
+  EAE40000        EAE60000        EAE80000        EAEA0000        EAEC0000      
+  EAEE0000        EAF00000        EAF20000        EAF40000        EAF60000      
+  EAF80000        EAFA0000        EAFC0000        EAFE0000        EB000000      
+  EB020000        EB040000        EB060000        EB080000        EB0A0000      
+  EB0C0000        EB0E0000        EB100000        EB120000        EB140000      
+  EB160000        EB180000        EB1A0000        EB1C0000        EB1E0000      
+  EB200000        EB220000        EB240000        EB260000        EB280000      
+  EB2A0000        EB2C0000        EB2E0000        EB300000        EB320000      
+  EB340000        EB360000        EB380000        EB3A0000        EB3C0000      
+  EB3E0000        EB400000        EB420000        EB440000        EB460000      
+  EB480000        EB4A0000        EB4C0000        EB4E0000        EB500000      
+  EB520000        EB540000        EB560000        EB580000        EB5A0000      
+  EB5C0000        EB5E0000        EB600000        EB620000        EB640000      
+  EB660000        EB680000        EB6A0000        EB6C0000        EB6E0000      
+  EB700000        EB720000        EB740000        EB760000        EB780000      
+  EB7A0000        EB7C0000        EB7E0000        EB800000        EB820000      
+  EB840000        EB860000        EB880000        EB8A0000        EB8C0000      
+  EB8E0000        EB900000        EB920000        EB940000        EB960000      
+  EB980000        EB9A0000        EB9C0000        EB9E0000        EBA00000      
+  EBA20000        EBA40000        EBA60000        EBA80000        EBAA0000      
+  EBAC0000        EBAE0000        EBB00000        EBB20000        EBB40000      
+  EBB60000        EBB80000        EBBA0000        EBBC0000        EBBE0000      
+  EBC00000        EBC20000        EBC40000        EBC60000        EBC80000      
+  EBCA0000        EBCC0000        EBCE0000        EBD00000        EBD20000      
+  EBD40000        EBD60000        EBD80000        EBDA0000        EBDC0000      
+  EBDE0000        EBE00000        EBE20000        EBE40000        EBE60000 E    
+  EBE80000 E      EBEA0000 E      EBEC0000 E      EBEE0000 E      EBF00000 E    
+  EBF20000 E      EBF40000 E      EBF60000 E      EBF80000 E      EBFA0000 E    
+  EBFC0000 E      EBFE0000 E      EC000000 E      EC020000 E      EC040000      
+  EC060000        EC080000        EC0A0000        EC0C0000        EC0E0000      
+  EC100000        EC120000        EC140000        EC160000        EC180000      
+  EC1A0000        EC1C0000        EC1E0000        EC200000        EC220000      
+  EC240000        EC260000        EC280000        EC2A0000        EC2C0000      
+  EC2E0000        EC300000        EC320000        EC340000        EC360000      
+  EC380000        EC3A0000        EC3C0000        EC3E0000        EC400000      
+  EC420000        EC440000        EC460000        EC480000        EC4A0000      
+  EC4C0000        EC4E0000        EC500000        EC520000        EC540000      
+  EC560000        EC580000        EC5A0000        EC5C0000        EC5E0000      
+  EC600000        EC620000        EC640000        EC660000        EC680000      
+  EC6A0000        EC6C0000        EC6E0000        EC700000        EC720000      
+  EC740000        EC760000        EC780000        EC7A0000        EC7C0000      
+  EC7E0000        EC800000        EC820000        EC840000        EC860000      
+  EC880000        EC8A0000        EC8C0000        EC8E0000        EC900000      
+  EC920000        EC940000        EC960000        EC980000        EC9A0000      
+  EC9C0000        EC9E0000        ECA00000        ECA20000        ECA40000      
+  ECA60000        ECA80000        ECAA0000        ECAC0000        ECAE0000      
+  ECB00000        ECB20000        ECB40000        ECB60000        ECB80000      
+  ECBA0000        ECBC0000        ECBE0000        ECC00000        ECC20000      
+  ECC40000        ECC60000        ECC80000        ECCA0000        ECCC0000      
+  ECCE0000        ECD00000        ECD20000        ECD40000        ECD60000      
+  ECD80000        ECDA0000        ECDC0000        ECDE0000        ECE00000      
+  ECE20000        ECE40000        ECE60000        ECE80000        ECEA0000      
+  ECEC0000        ECEE0000        ECF00000        ECF20000        ECF40000      
+  ECF60000        ECF80000        ECFA0000        ECFC0000        ECFE0000      
+  ED000000        ED020000        ED040000        ED060000        ED080000      
+  ED0A0000        ED0C0000        ED0E0000        ED100000        ED120000      
+  ED140000        ED160000        ED180000        ED1A0000        ED1C0000      
+  ED1E0000        ED200000        ED220000        ED240000        ED260000      
+  ED280000        ED2A0000        ED2C0000        ED2E0000        ED300000      
+  ED320000        ED340000        ED360000        ED380000        ED3A0000      
+  ED3C0000        ED3E0000        ED400000        ED420000        ED440000      
+  ED460000        ED480000        ED4A0000        ED4C0000        ED4E0000      
+  ED500000        ED520000        ED540000        ED560000        ED580000      
+  ED5A0000        ED5C0000        ED5E0000        ED600000        ED620000      
+  ED640000        ED660000        ED680000        ED6A0000        ED6C0000      
+  ED6E0000        ED700000        ED720000        ED740000        ED760000      
+  ED780000        ED7A0000        ED7C0000        ED7E0000        ED800000      
+  ED820000        ED840000        ED860000        ED880000        ED8A0000      
+  ED8C0000        ED8E0000        ED900000        ED920000        ED940000      
+  ED960000        ED980000        ED9A0000        ED9C0000        ED9E0000      
+  EDA00000        EDA20000        EDA40000        EDA60000        EDA80000      
+  EDAA0000        EDAC0000        EDAE0000        EDB00000        EDB20000      
+  EDB40000        EDB60000        EDB80000        EDBA0000        EDBC0000      
+  EDBE0000        EDC00000        EDC20000        EDC40000        EDC60000      
+  EDC80000        EDCA0000        EDCC0000        EDCE0000        EDD00000      
+  EDD20000        EDD40000        EDD60000        EDD80000        EDDA0000      
+  EDDC0000        EDDE0000        EDE00000        EDE20000        EDE40000      
+  EDE60000        EDE80000        EDEA0000        EDEC0000        EDEE0000      
+  EDF00000        EDF20000        EDF40000        EDF60000        EDF80000      
+  EDFA0000        EDFC0000        EDFE0000        EE000000        EE020000      
+  EE040000 E      EE060000 E      EE080000 E      EE0A0000 E      EE0C0000 E    
+  EE0E0000 E      EE100000 E      EE120000 E      EE140000 E      EE160000 E    
+  EE180000 E      EE1A0000 E      EE1C0000 E      EE1E0000 E      EE200000 E    
+  EE220000 E      EE240000 E      EE260000 E      EE280000 E      EE2A0000 E    
+  EE2C0000 E      EE2E0000 E      EE300000 E      EE320000 E      EE340000 E    
+  EE360000 E      EE380000 E      EE3A0000 E      EE3C0000 E      EE3E0000 E    
+  EE400000 E      EE420000 E      EE440000 E      EE460000 E      EE480000 E    
+  EE4A0000 E      EE4C0000 E      EE4E0000 E      EE500000 E      EE520000 E    
+  EE540000 E      EE560000 E      EE580000 E      EE5A0000 E      EE5C0000 E    
+  EE5E0000 E      EE600000 E      EE620000 E      EE640000 E      EE660000 E    
+  EE680000 E      EE6A0000 E      EE6C0000 E      EE6E0000 E      EE700000 E    
+  EE720000 E      EE740000 E      EE760000 E      EE780000 E      EE7A0000 E    
+  EE7C0000 E      EE7E0000 E      EE800000 E      EE820000 E      EE840000 E    
+  EE860000 E      EE880000 E      EE8A0000 E      EE8C0000 E      EE8E0000 E    
+  EE900000 E      EE920000 E      EE940000 E      EE960000 E      EE980000 E    
+  EE9A0000 E      EE9C0000 E      EE9E0000 E      EEA00000 E      EEA20000 E    
+  EEA40000 E      EEA60000 E      EEA80000 E      EEAA0000 E      EEAC0000 E    
+  EEAE0000 E      EEB00000 E      EEB20000 E      EEB40000 E      EEB60000 E    
+  EEB80000 E      EEBA0000 E      EEBC0000 E      EEBE0000 E      EEC00000 E    
+  EEC20000 E      EEC40000 E      EEC60000 E      EEC80000 E      EECA0000 E    
+  EECC0000 E      EECE0000 E      EED00000 E      EED20000 E      EED40000 E    
+  EED60000 E      EED80000 E      EEDA0000 E      EEDC0000 E      EEDE0000 E    
+  EEE00000 E      EEE20000 E      EEE40000 E      EEE60000 E      EEE80000 E    
+  EEEA0000 E      EEEC0000 E      EEEE0000 E      EEF00000 E      EEF20000 E    
+  EEF40000 E      EEF60000 E      EEF80000 E      EEFA0000 E      EEFC0000 E    
+  EEFE0000 E      EF000000 E      EF020000 E      EF040000 E      EF060000 E    
+  EF080000 E      EF0A0000 E      EF0C0000 E      EF0E0000 E      EF100000 E    
+  EF120000 E      EF140000 E      EF160000 E      EF180000 E      EF1A0000 E    
+  EF1C0000 E      EF1E0000 E      EF200000 E      EF220000 E      EF240000 E    
+  EF260000 E      EF280000 E      EF2A0000 E      EF2C0000 E      EF2E0000 E    
+  EF300000 E      EF320000 E      EF340000 E      EF360000 E      EF380000 E    
+  EF3A0000 E      EF3C0000 E      EF3E0000 E      EF400000 E      EF420000 E    
+  EF440000 E      EF460000 E      EF480000 E      EF4A0000 E      EF4C0000 E    
+  EF4E0000 E      EF500000 E      EF520000 E      EF540000 E      EF560000 E    
+  EF580000 E      EF5A0000 E      EF5C0000 E      EF5E0000 E      EF600000 E    
+  EF620000 E      EF640000 E      EF660000 E      EF680000 E      EF6A0000 E    
+  EF6C0000 E      EF6E0000 E      EF700000 E      EF720000 E      EF740000 E    
+  EF760000 E      EF780000 E      EF7A0000 E      EF7C0000 E      EF7E0000 E    
+  EF800000 E      EF820000 E      EF840000 E      EF860000 E      EF880000 E    
+  EF8A0000 E      EF8C0000 E      EF8E0000 E      EF900000 E      EF920000 E    
+  EF940000 E      EF960000 E      EF980000 E      EF9A0000 E      EF9C0000 E    
+  EF9E0000 E      EFA00000 E      EFA20000 E      EFA40000 E      EFA60000 E    
+  EFA80000 E      EFAA0000 E      EFAC0000 E      EFAE0000 E      EFB00000 E    
+  EFB20000 E      EFB40000 E      EFB60000 E      EFB80000 E      EFBA0000 E    
+  EFBC0000 E      EFBE0000 E      EFC00000 E      EFC20000 E      EFC40000 E    
+  EFC60000 E      EFC80000 E      EFCA0000 E      EFCC0000 E      EFCE0000 E    
+  EFD00000 E      EFD20000 E      EFD40000 E      EFD60000 E      EFD80000 E    
+  EFDA0000 E      EFDC0000 E      EFDE0000 E      EFE00000 E      EFE20000 E    
+  EFE40000 E      EFE60000 E      EFE80000 E      EFEA0000 E      EFEC0000 E    
+  EFEE0000 E      EFF00000        EFF20000   RO   EFF40000   RO   EFF60000   RO 
+  EFF80000   RO   EFFA0000   RO   EFFC0000   RO   EFFE0000
+
+=> coninfo
+List of available devices:
+serial   80000003 SIO stdin stdout stderr 
+eserial3 00000003 .IO 
+eserial2 00000003 .IO 
+eserial1 00000003 .IO 
+eserial0 00000003 .IO
+
+=> i2c bus
+Bus 0:	fsl_0
+Bus 1:	fsl_1
+Bus 2:	fsl_2
+Bus 3:	fsl_3
+
+=> i2c dev 0
+Setting bus to 0
+
+=> i2c probe
+Valid chip addresses: 71 72 73 74 75
+
+=> i2c dev 1
+Setting bus to 1
+
+=> i2c dev 2
+Setting bus to 2
+
+=> i2c dev 3
+Setting bus to 3
+
+=> md.b ffdf0000 20
+ffdf0000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
+ffdf0010: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
+
+=> md.l fe008000 60
+fe008000: 000000ff 00000000 010001ff 00000000    ................
+fe008010: 020002ff 00000000 030003ff 00000000    ................
+fe008020: 00000000 00000000 00000000 00000000    ................
+fe008030: 00000000 00000000 00000000 00000000    ................
+fe008040: 00000000 00000000 00000000 00000000    ................
+fe008050: 00000000 00000000 00000000 00000000    ................
+fe008060: 00000000 00000000 00000000 00000000    ................
+fe008070: 00000000 00000000 00000000 00000000    ................
+fe008080: 80054402 80334402 80054402 80334402    ..D..3D...D..3D.
+fe008090: 00000000 00000000 00000000 00000000    ................
+fe0080a0: 00000000 00000000 00000000 00000000    ................
+fe0080b0: 00000000 00000000 00000000 00000000    ................
+fe0080c0: 00000000 00000000 00000000 00000000    ................
+fe0080d0: 00000000 00000000 00000000 00000000    ................
+fe0080e0: 00000000 00000000 00000000 00000000    ................
+fe0080f0: 00000000 00000000 00000000 00000000    ................
+fe008100: 010c1000 da11000c bcb48c56 0040c158    ...........V.@.X
+fe008110: e7048000 00401100 00421c70 00980000    .....@...B.p....
+fe008120: 00000000 0c300100 deadbeef 00000000    .....0..........
+fe008130: 02800000 00000000 00000000 00000000    ................
+fe008140: 00000000 00000000 00000000 00000000    ................
+fe008150: 00000000 00000000 00000000 00000000    ................
+fe008160: 00000001 04401400 00000000 00000000    .....@..........
+fe008170: 89080600 8675f607 00000000 00000000    .....u..........
+
+=> md.l fe008180 4
+fe008180: 00000000 00000000 00000000 00000000    ................
+
+=> md.l fe008200 30
+fe008200: 02061c70 00980000 00421c70 00980000    ...p.....B.p....
+fe008210: 02061c70 00980000 00000000 00000000    ...p............
+fe008220: 00000000 00000000 00000000 00000000    ................
+fe008230: 00000000 00000000 00000000 00000000    ................
+fe008240: 00000000 00000000 00000000 00000000    ................
+fe008250: 00000000 00000000 00000000 00000000    ................
+fe008260: 00000000 00000000 00000000 00000000    ................
+fe008270: 00000000 00000000 00000000 00000000    ................
+fe008280: 00000000 00000000 00000000 00000000    ................
+fe008290: 00000000 00000000 00000000 00000000    ................
+fe0082a0: 00000000 00000000 00000000 00000000    ................
+fe0082b0: 00000000 00000000 00000000 00000000    ................
+
+=> md.l fe008e40 10
+fe008e40: 00000000 00000000 00000000 00000000    ................
+fe008e50: 00000000 00000000 00000000 00000000    ................
+fe008e60: 00000000 00000000 00000000 00000000    ................
+fe008e70: 00000000 00000000 00000000 00000000    ................
+
+=> md.l fe008f00 20
+fe008f00: 00000000 00000002 0000000b 14000c20    ............... 
+fe008f10: 00000000 00000000 00000000 00000000    ................
+fe008f20: 00000000 27002300 27002000 32002b00    ....'.#.'. .2.+.
+fe008f30: 30002f00 29005000 00000000 00000000    0./.).P.........
+fe008f40: 00000000 00000000 08000001 cc000000    ................
+fe008f50: 10000f00 14000d00 1e001600 1b001800    ................
+fe008f60: 16000000 00000800 04444444 44400000    .........DDDD@..
+fe008f70: 0070004d 00000000 00000000 00000000    .p.M............
+
+=> md.l fe000c00 80
+fe000c00: 0000000f e8000000 81f0001b 00000000    ................
+fe000c10: 0000000f f4000000 81800018 00000000    ................
+fe000c20: 0000000f f6000000 83c00018 00000000    ................
+fe000c30: 0000000f ffdf0000 81f0000b 00000000    ................
+fe000c40: 0000000f 00000000 81d00018 00000000    ................
+fe000c50: 0000000f ff800000 81f00013 00000000    ................
+fe000c60: 00000000 d8000000 8030001a 00000000    .........0......
+fe000c70: 0000000f f8030000 8030000f 00000000    .........0......
+fe000c80: 00000000 00000000 00000000 00000000    ................
+fe000c90: 00000000 00000000 00000000 00000000    ................
+fe000ca0: 00000000 00000000 00000000 00000000    ................
+fe000cb0: 00000000 00000000 00000000 00000000    ................
+fe000cc0: 00000000 00000000 00000000 00000000    ................
+fe000cd0: 00000000 00000000 00000000 00000000    ................
+fe000ce0: 00000000 00000000 00000000 00000000    ................
+fe000cf0: 00000000 00000000 00000000 00000000    ................
+fe000d00: 00000000 00000000 00000000 00000000    ................
+fe000d10: 00000000 00000000 00000000 00000000    ................
+fe000d20: 00000000 00000000 00000000 00000000    ................
+fe000d30: 00000000 00000000 00000000 00000000    ................
+fe000d40: 00000000 00000000 00000000 00000000    ................
+fe000d50: 00000000 00000000 00000000 00000000    ................
+fe000d60: 00000000 00000000 00000000 00000000    ................
+fe000d70: 00000000 00000000 00000000 00000000    ................
+fe000d80: 00000000 00000000 00000000 00000000    ................
+fe000d90: 00000000 00000000 00000000 00000000    ................
+fe000da0: 00000000 00000000 00000000 00000000    ................
+fe000db0: 00000000 00000000 00000000 00000000    ................
+fe000dc0: 00000000 00000000 00000000 00000000    ................
+fe000dd0: 00000000 00000000 00000000 00000000    ................
+fe000de0: 00000000 00000000 00000000 00000000    ................
+fe000df0: 00000000 00000000 81000021 00000000    ...........!....
+
+=> md.l fe010000 10
+fe010000: c0000000 00000000 50b3c008 00000000    ........P.......
+fe010010: 00000000 00000000 00000000 00000000    ................
+fe010020: 00000000 00000000 00000000 00000000    ................
+fe010030: 00000000 00000000 00000000 00000000    ................
+
+=> md.l fec20000 4
+fec20000: c0000000 00000021 5093c020 00000000    .......!P.. ....
+
+=> md.l fe130000 4
+fe130000: 00000000 00000000 0000aa01 0000aa01    ................
+
+=> md.l fe018000 10
+fe018000: 72080000 0000000c 00000000 00000000    r...............
+fe018010: 00000100 00000000 00000000 00000000    ................
+fe018020: 00000000 00000000 00000000 00000000    ................
+fe018030: 00000000 00000000 00000000 00000000    ................
+
+=> md.l fe0e0000 20
+fe0e0000: 13fbff7f ff000000 00000000 00000000    ................
+fe0e0010: 00000000 00000000 00000000 00000000    ................
+fe0e0020: ff000000 00000000 24000000 00000000    ........$.......
+fe0e0030: 00000000 00000000 00000000 00000000    ................
+fe0e0040: 00000000 00000000 00000000 00000000    ................
+fe0e0050: 00000000 00000000 00000000 00000000    ................
+fe0e0060: 00000000 00000000 00000000 00000000    ................
+fe0e0070: 00000200 00000000 e0000000 00000000    ................
+
+=> md.l fe0e0100 10
+fe0e0100: 0c060012 12000000 00000000 00000000    ................
+fe0e0110: 6c150002 00004200 fc027000 a1000000    l.....B...p.....
+fe0e0120: 00080000 00000001 00000000 0002201e    .............. .
+fe0e0130: 00000000 50000009 00000000 00000005    ....P...........
+
+=> md.l fe124000 10
+fe124000: 01030000 00000000 00000000 0000000f    ................
+fe124010: e8000101 00000000 0000000f ff800083    ................
+fe124020: 00000000 0000000f ffdf0085 00000000    ................
+fe124030: 00000000 00000000 00000000 00000000    ................
+
+=> md.l fe124010 20
+fe124010: e8000101 00000000 0000000f ff800083    ................
+fe124020: 00000000 0000000f ffdf0085 00000000    ................
+fe124030: 00000000 00000000 00000000 00000000    ................
+fe124040: 00000000 00000000 00000000 00000000    ................
+fe124050: 00000000 00000000 00000000 00000000    ................
+fe124060: 00000000 00000000 00000000 00000000    ................
+fe124070: 00000000 00000000 00000000 00000000    ................
+fe124080: 00000000 00000000 00000000 00000000    ................
+
+=> md.l fe1240a0 20
+fe1240a0: f8000000 00000000 00000000 ffff0000    ................
+fe1240b0: 00000000 00000000 ffff0000 00000000    ................
+fe1240c0: 00000000 00000000 00000000 00000000    ................
+fe1240d0: 00000000 00000000 00000000 00000000    ................
+fe1240e0: 00000000 00000000 00000000 00000000    ................
+fe1240f0: 00000000 00000000 00000000 00000000    ................
+fe124100: 00000000 00000000 00000000 00000000    ................
+fe124110: 00000000 00000000 00000000 00000000    ................
+
+=> md.l fe124130 20
+fe124130: 0000000c 00000000 00000000 85082100    ..............!.
+fe124140: 00100000 00000000 00000000 00000000    ................
+fe124150: 00000000 0000000c 00000000 00000000    ................
+fe124160: 0000000c 00000000 00000000 0000000c    ................
+fe124170: 00000000 00000000 0000000c 00000000    ................
+fe124180: 00000000 0000000c 00000000 00000000    ................
+fe124190: 00000000 00000000 00000000 00000000    ................
+fe1241a0: 00000000 00000000 00000000 00000000    ................
+
+=> md.l fe1241c0 40
+fe1241c0: 40050005 35001a13 0410381c 00000000    @...5.....8.....
+fe1241d0: 00000000 00000000 00000000 00000000    ................
+fe1241e0: 00000000 00000000 00000000 00000000    ................
+fe1241f0: 0e18070a 32390e18 01e0501e 00000000    ....29....P.....
+fe124200: 00000000 00000000 00000000 00000000    ................
+fe124210: 00000000 00000000 00000000 00000000    ................
+fe124220: e00e000e 0e001f00 0e00001f 00000000    ................
+fe124230: 00000000 00000000 00000000 00000000    ................
+fe124240: 00000000 00000000 00000000 00000000    ................
+fe124250: 00000000 00000000 00000000 00000000    ................
+fe124260: 00000000 00000000 00000000 00000000    ................
+fe124270: 00000000 00000000 00000000 00000000    ................
+fe124280: 00000000 00000000 00000000 00000000    ................
+fe124290: 00000000 00000000 00000000 00000000    ................
+fe1242a0: 00000000 00000000 00000000 00000000    ................
+fe1242b0: 00000000 00000000 00000000 00000000    ................
+
+=> md.l fe0ea000 20
+fe0ea000: 464745e8 20860008 08004100 00870000    FGE. .....A.....
+fe0ea010: 00000000 e8000000 00000000 00000000    ................
+fe0ea020: 464745e8 00800009 08004100 008b0000    FGE.......A.....
+fe0ea030: 00000000 e8000000 00000000 00000000    ................
+fe0ea040: 00000000 00000000 00000000 00000000    ................
+fe0ea050: 00000000 00000000 00000000 00000000    ................
+fe0ea060: 00000000 00000000 00000000 00000000    ................
+fe0ea070: 00000000 00000000 00000000 00000000    ................
+
+=> md.l fe0eb000 20
+fe0eb000: 464745e8 00800008 08004100 008c0000    FGE.......A.....
+fe0eb010: 00000000 e8000000 00000000 00000000    ................
+fe0eb020: 464745e8 008a0008 08204100 00830000    FGE...... A.....
+fe0eb030: 00000000 e8000000 00000000 00000000    ................
+fe0eb040: 00000000 00000000 00000000 00000000    ................
+fe0eb050: 00000000 00000000 00000000 00000000    ................
+fe0eb060: 00000000 00000000 00000000 00000000    ................
+fe0eb070: 00000000 00000000 00000000 00000000    ................
+
+=> md.l fe0e8200 20
+fe0e8200: 00000000 00000003 00000000 00000000    ................
+fe0e8210: 00000000 00000000 00000000 00000000    ................
+fe0e8220: 00000000 00000000 00000000 00000000    ................
+fe0e8230: 00000000 00000000 00000000 00000000    ................
+fe0e8240: 00000000 00000000 00000000 00000000    ................
+fe0e8250: 00000000 00000000 00000000 00000000    ................
+fe0e8260: 00000000 00000000 00000000 00000000    ................
+fe0e8270: f1ffcf67 00000000 9335bb0c 00000000    ...g.....5......
+
+=> mii device
+MII devices: 'FSL_MDIO0' 'FM_TGEC_MDIO' 
+Current device: 'FSL_MDIO0'
+
+=> mii info
+PHY 0x1F: OUI = 0xD897, Model = 0x11, Rev = 0x02, 1000baseT, FDX
+
+=> pci
+Scanning PCI devices on bus 0
+BusDevFun  VendorId   DeviceId   Device Class       Sub-Class
+_____________________________________________________________
+00.00.00   0x1957     0x0831     Processor               0x20
+
+=> pci 1
+Scanning PCI devices on bus 1
+BusDevFun  VendorId   DeviceId   Device Class       Sub-Class
+_____________________________________________________________
+01.00.00   0x14e4     0xb930     Network controller      0x00
+01.00.01   0x14e4     0xb930     Network controller      0x00
+
+=> sata init
+SATA0 (No RDY)
+       SATA1 (3 Gbps)
+
+=> sata info
+SATA device 0: Model:  Firm:  Ser#: 
+            Type: Hard Disk
+            Capacity: not available
+SATA device 1: Model: INTEL SSDSCKKR064G8 Firm:  LHF0A2E Ser#: PHLA915603CF064H
+            Type: Hard Disk
+            Capacity: 61057.3 MB = 59.6 GB (125045424 x 512)
+
+=> mmc info
+MMC: no card present
+
+=> cpld
+cpld - Reset the board or alternate bank
+
+Usage:
+cpld reset: reset to default bank
+cpld reset altbank: reset to alternate bank
+
+=> mac
+Unknown command 'mac' - try 'help'
+
+=> fsl_ddr_info
+Unknown command 'fsl_ddr_info' - try 'help'

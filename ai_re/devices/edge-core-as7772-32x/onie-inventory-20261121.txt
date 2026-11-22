@@ -1,0 +1,1121 @@
++ uname -a
+Linux onie 3.12.19-rt30-onie+ #1 SMP Tue Feb 6 18:36:24 CST 2018 ppc64 GNU/Linux
++ cat /proc/mtd /proc/partitions /proc/cmdline /proc/cpuinfo /proc/meminfo /etc/machine.conf
+dev:    size   erasesize  name
+mtd0: 00020000 00020000 "RCW"
+mtd1: 00020000 00020000 "hw-info"
+mtd2: 02000000 00020000 "onie"
+mtd3: 02000000 00020000 "diag"
+mtd4: 03ec0000 00020000 "open"
+mtd5: 00020000 00020000 "Fman-FW"
+mtd6: 00020000 00020000 "uboot-env"
+mtd7: 000c0000 00020000 "uboot"
+major minor  #blocks  name
+
+  31        0        128 mtdblock0
+  31        1        128 mtdblock1
+  31        2      32768 mtdblock2
+  31        3      32768 mtdblock3
+  31        4      64256 mtdblock4
+  31        5        128 mtdblock5
+  31        6        128 mtdblock6
+  31        7        768 mtdblock7
+   8        0   62522712 sda
+   8        1   62522711 sda1
+quiet console=ttyS0,115200 mem=1920M serial_num=777232X19300200 eth_addr=1C:EA:0B:38:2B:D5
+processor	: 0
+cpu		: e6500
+clock		: 1800.000000MHz
+revision	: 2.0 (pvr 8040 0120)
+
+processor	: 1
+cpu		: e6500
+clock		: 1800.000000MHz
+revision	: 2.0 (pvr 8040 0120)
+
+processor	: 2
+cpu		: e6500
+clock		: 1800.000000MHz
+revision	: 2.0 (pvr 8040 0120)
+
+processor	: 3
+cpu		: e6500
+clock		: 1800.000000MHz
+revision	: 2.0 (pvr 8040 0120)
+
+processor	: 4
+cpu		: e6500
+clock		: 1800.000000MHz
+revision	: 2.0 (pvr 8040 0120)
+
+processor	: 5
+cpu		: e6500
+clock		: 1800.000000MHz
+revision	: 2.0 (pvr 8040 0120)
+
+processor	: 6
+cpu		: e6500
+clock		: 1800.000000MHz
+revision	: 2.0 (pvr 8040 0120)
+
+processor	: 7
+cpu		: e6500
+clock		: 1800.000000MHz
+revision	: 2.0 (pvr 8040 0120)
+
+timebase	: 37500000
+platform	: Accton Technology Corporation AS7772_32X
+model		: accton,as7772_32x
+MemTotal:        1871756 kB
+MemFree:         1775404 kB
+Buffers:               0 kB
+Cached:            70452 kB
+SwapCached:            0 kB
+Active:            71096 kB
+Inactive:            256 kB
+Active(anon):      71096 kB
+Inactive(anon):      256 kB
+Active(file):          0 kB
+Inactive(file):        0 kB
+Unevictable:           0 kB
+Mlocked:               0 kB
+SwapTotal:             0 kB
+SwapFree:              0 kB
+Dirty:                 0 kB
+Writeback:             0 kB
+AnonPages:           920 kB
+Mapped:              576 kB
+Shmem:             70452 kB
+Slab:              12304 kB
+SReclaimable:       1468 kB
+SUnreclaim:        10836 kB
+KernelStack:        1456 kB
+PageTables:          212 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:      935876 kB
+Committed_AS:      74216 kB
+VmallocTotal:   4294967296 kB
+VmallocUsed:        1068 kB
+VmallocChunk:   4294933388 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       4096 kB
+onie_version=2015.02.00.30
+onie_vendor_id=259
+onie_platform=powerpc-accton_as7772_32x-r0
+onie_machine=accton_as7772_32x
+onie_machine_rev=0
+onie_arch=powerpc
+onie_config_version=0
+onie_build_date="2018-02-06T18:51+0800"
+onie_partition_type=
+onie_kernel_version=fsl-sdk-v1.7
++ onie-syseeprom
+TlvInfo Header:
+   Id String:    TlvInfo
+   Version:      1
+   Total Length: 205
+TLV Name             Code Len Value
+-------------------- ---- --- -----
+Product Name         0x21  22 7772-32X-A-AC-F-G-HVDC
+Part Number          0x22  13 FP3AO7632043A
+Serial Number        0x23  15 777232X19300200
+Base MAC Address     0x24   6 1C:EA:0B:38:2B:D5
+Manufacture Date     0x25  19 07/30/2019 09:07:58
+Device Version       0x26   1 1
+Label Revision       0x27   4 R01A
+Platform Name        0x28  28 powerpc-accton_as7772_32x-r0
+ONIE Version         0x29  13 2015.02.00.30
+MAC Addresses        0x2A   2 4
+Manufacturer         0x2B   6 Accton
+Country Code         0x2C   2 TW
+Vendor Name          0x2D   8 Edgecore
+Diag Version         0x2E   7 0.0.2.7
+Vendor Extension     0xFD  23  0x00 0x00 0x01 0x03 0x41 0x73 0x73 0x65 0x74 0x49 0x44 0x3D 0x33 0x39 0x30 0x39 0x30 0x32 0x36 0x35 0x31 0x31 0x00
+CRC-32               0xFE   4 0xA4E56F96
+Checksum is valid.
++ lspci -nn
+00:00.0 Class 0604: 1957:0831
+01:00.0 Class 0200: 14e4:b930
+01:00.1 Class 0200: 14e4:b930
++ lspci -vv
+00:00.0 Class 0604: 1957:0831
+01:00.0 Class 0200: 14e4:b930
+01:00.1 Class 0200: 14e4:b930
++ lsusb
+Bus 001 Device 002: ID 0424:2514
+Bus 001 Device 001: ID 1d6b:0002
+Bus 002 Device 001: ID 1d6b:0002
++ mtdinfo -a
+Count of MTD devices:           8
+Present MTD devices:            mtd0, mtd1, mtd2, mtd3, mtd4, mtd5, mtd6, mtd7
+Sysfs interface supported:      yes
+
+mtd0
+Name:                           RCW
+Type:                           nor
+Eraseblock size:                131072 bytes, 128.0 KiB
+Amount of eraseblocks:          1 (131072 bytes, 128.0 KiB)
+Minimum input/output unit size: 1 byte
+Sub-page size:                  1 byte
+Character device major/minor:   90:0
+Bad blocks are allowed:         false
+Device is writable:             true
+
+mtd1
+Name:                           hw-info
+Type:                           nor
+Eraseblock size:                131072 bytes, 128.0 KiB
+Amount of eraseblocks:          1 (131072 bytes, 128.0 KiB)
+Minimum input/output unit size: 1 byte
+Sub-page size:                  1 byte
+Character device major/minor:   90:2
+Bad blocks are allowed:         false
+Device is writable:             true
+
+mtd2
+Name:                           onie
+Type:                           nor
+Eraseblock size:                131072 bytes, 128.0 KiB
+Amount of eraseblocks:          256 (33554432 bytes, 32.0 MiB)
+Minimum input/output unit size: 1 byte
+Sub-page size:                  1 byte
+Character device major/minor:   90:4
+Bad blocks are allowed:         false
+Device is writable:             true
+
+mtd3
+Name:                           diag
+Type:                           nor
+Eraseblock size:                131072 bytes, 128.0 KiB
+Amount of eraseblocks:          256 (33554432 bytes, 32.0 MiB)
+Minimum input/output unit size: 1 byte
+Sub-page size:                  1 byte
+Character device major/minor:   90:6
+Bad blocks are allowed:         false
+Device is writable:             true
+
+mtd4
+Name:                           open
+Type:                           nor
+Eraseblock size:                131072 bytes, 128.0 KiB
+Amount of eraseblocks:          502 (65798144 bytes, 62.8 MiB)
+Minimum input/output unit size: 1 byte
+Sub-page size:                  1 byte
+Character device major/minor:   90:8
+Bad blocks are allowed:         false
+Device is writable:             true
+
+mtd5
+Name:                           Fman-FW
+Type:                           nor
+Eraseblock size:                131072 bytes, 128.0 KiB
+Amount of eraseblocks:          1 (131072 bytes, 128.0 KiB)
+Minimum input/output unit size: 1 byte
+Sub-page size:                  1 byte
+Character device major/minor:   90:10
+Bad blocks are allowed:         false
+Device is writable:             true
+
+mtd6
+Name:                           uboot-env
+Type:                           nor
+Eraseblock size:                131072 bytes, 128.0 KiB
+Amount of eraseblocks:          1 (131072 bytes, 128.0 KiB)
+Minimum input/output unit size: 1 byte
+Sub-page size:                  1 byte
+Character device major/minor:   90:12
+Bad blocks are allowed:         false
+Device is writable:             true
+
+mtd7
+Name:                           uboot
+Type:                           nor
+Eraseblock size:                131072 bytes, 128.0 KiB
+Amount of eraseblocks:          6 (786432 bytes, 768.0 KiB)
+Minimum input/output unit size: 1 byte
+Sub-page size:                  1 byte
+Character device major/minor:   90:14
+Bad blocks are allowed:         false
+Device is writable:             true
+
++ fdisk -l /dev/sda
+
+Disk /dev/sda: 64.0 GB, 64023257088 bytes
+256 heads, 63 sectors/track, 7753 cylinders
+Units = cylinders of 16128 * 512 = 8257536 bytes
+
+   Device Boot      Start         End      Blocks  Id System
+/dev/sda1               1        7754    62522711+ ee EFI GPT
++ blkid
++ cat /sys/block/sda/device/model
+INTEL SSDSCKKR06
++ i2cdetect -y 0
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+10: -- -- -- -- -- -- -- -- -- -- 1a 1b -- -- -- -- 
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+30: -- -- 32 33 -- -- -- -- 38 -- -- -- -- -- -- -- 
+40: -- -- -- -- -- -- -- -- -- -- -- -- UU -- -- -- 
+50: UU -- 52 53 -- -- -- -- -- -- -- -- -- -- -- -- 
+60: -- -- -- -- -- -- -- -- UU -- -- -- -- -- -- -- 
+70: -- -- -- -- -- -- -- --                         
++ i2cdetect -y 1
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+10: -- -- -- 13 -- -- -- -- 18 -- -- 1b -- -- -- -- 
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+70: -- -- -- -- -- -- -- --                         
++ i2cdetect -y 2
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+70: -- -- -- -- -- -- 76 --                         
++ i2cdetect -y 3
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+50: UU -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+70: -- UU UU UU UU UU -- --                         
++ i2cdetect -y 4
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+70: -- UU UU UU UU UU -- --                         
++ i2cdetect -y 5
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+50: -- -- -- 53 -- -- -- -- -- -- -- 5b -- -- -- -- 
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+70: -- UU UU UU UU UU -- --                         
++ i2cdetect -y 6
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+10: 10 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+70: -- UU UU UU UU UU -- --                         
++ i2cdetect -y 7
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+10: -- -- 12 -- -- -- -- -- -- -- -- -- -- -- -- -- 
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+70: -- UU UU UU UU UU -- --                         
++ i2cdetect -y 8
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+20: -- -- -- -- -- 25 -- -- -- -- -- -- -- -- -- -- 
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+70: -- UU UU UU UU UU -- --                         
++ i2cdetect -y 9
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+10: -- -- -- -- -- -- 16 -- -- -- -- -- -- -- -- -- 
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+70: -- UU UU UU UU UU -- --                         
++ i2cdetect -y 10
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+70: -- UU UU UU UU UU -- --                         
++ i2cdetect -y 11
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+10: -- -- -- -- 14 -- -- -- -- -- -- -- -- -- -- -- 
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+70: -- UU UU UU UU UU -- --                         
++ i2cdetect -y 12
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+50: UU -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+70: -- UU UU UU UU UU -- --                         
++ ls -l /sys/bus/i2c/devices/
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 0-004c -> ../../../devices/ffe000000.soc/ffe118000.i2c/i2c-0/0-004c
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 0-0050 -> ../../../devices/ffe000000.soc/ffe118000.i2c/i2c-0/0-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 0-0068 -> ../../../devices/ffe000000.soc/ffe118000.i2c/i2c-0/0-0068
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 1-0077 -> ../../../devices/ffe000000.soc/ffe118100.i2c/i2c-1/1-0077
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 12-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-12/12-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 13-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-13/13-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 14-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-14/14-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 15-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-15/15-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 16-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-16/16-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 17-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-17/17-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 18-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-18/18-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 19-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-19/19-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 20-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-20/20-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 21-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-21/21-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 22-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-22/22-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 23-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-23/23-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 24-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-24/24-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 25-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-25/25-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 26-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-26/26-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 27-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-27/27-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 28-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-28/28-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 29-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-29/29-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 3-0071 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/3-0071
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 3-0072 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/3-0072
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 3-0073 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/3-0073
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 3-0074 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/3-0074
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 3-0075 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/3-0075
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 30-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-30/30-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 31-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-31/31-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 32-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-32/32-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 33-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-33/33-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 34-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-34/34-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 35-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-35/35-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 36-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-36/36-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 37-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-37/37-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 38-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-38/38-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 39-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-39/39-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 40-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-40/40-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 41-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-41/41-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 42-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-42/42-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 43-0050 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-43/43-0050
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-0 -> ../../../devices/ffe000000.soc/ffe118000.i2c/i2c-0
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-1 -> ../../../devices/ffe000000.soc/ffe118100.i2c/i2c-1
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-10 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-10
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-11 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-11
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-12 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-12
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-13 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-13
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-14 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-14
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-15 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-15
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-16 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-16
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-17 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-17
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-18 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-18
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-19 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-19
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-2 -> ../../../devices/ffe000000.soc/ffe119000.i2c/i2c-2
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-20 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-20
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-21 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-21
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-22 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-22
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-23 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-23
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-24 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-24
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-25 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-25
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-26 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-26
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-27 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-27
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-28 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-28
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-29 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-29
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-3 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-30 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-30
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-31 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-31
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-32 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-32
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-33 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-33
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-34 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-34
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-35 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-35
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-36 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-36
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-37 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-37
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-38 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-38
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-39 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-39
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-4 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-4
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-40 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-40
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-41 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-41
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-42 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-42
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-43 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-43
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-5 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-5
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-6 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-6
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-7 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-7
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-8 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-8
+lrwxrwxrwx    1 root     0                0 Jan  1 00:03 i2c-9 -> ../../../devices/ffe000000.soc/ffe119100.i2c/i2c-3/i2c-9
++ cat /sys/bus/i2c/devices/0-004c/name
+/sys/bus/i2c/devices/0-004c adt7461
++ echo /sys/bus/i2c/devices/0-004c adt7461
++ cat /sys/bus/i2c/devices/0-0050/name
+/sys/bus/i2c/devices/0-0050 24c256
++ echo /sys/bus/i2c/devices/0-0050 24c256
++ cat /sys/bus/i2c/devices/0-0068/name
+/sys/bus/i2c/devices/0-0068 ds1672
++ echo /sys/bus/i2c/devices/0-0068 ds1672
++ cat /sys/bus/i2c/devices/1-0077/name
+/sys/bus/i2c/devices/1-0077 pca9546
++ echo /sys/bus/i2c/devices/1-0077 pca9546
++ cat /sys/bus/i2c/devices/12-0050/name
+/sys/bus/i2c/devices/12-0050 24c02
++ echo /sys/bus/i2c/devices/12-0050 24c02
++ cat /sys/bus/i2c/devices/13-0050/name
+/sys/bus/i2c/devices/13-0050 24c02
++ echo /sys/bus/i2c/devices/13-0050 24c02
++ cat /sys/bus/i2c/devices/14-0050/name
+/sys/bus/i2c/devices/14-0050 24c02
++ echo /sys/bus/i2c/devices/14-0050 24c02
++ cat /sys/bus/i2c/devices/15-0050/name
+/sys/bus/i2c/devices/15-0050 24c02
++ echo /sys/bus/i2c/devices/15-0050 24c02
++ cat /sys/bus/i2c/devices/16-0050/name
+/sys/bus/i2c/devices/16-0050 24c02
++ echo /sys/bus/i2c/devices/16-0050 24c02
++ cat /sys/bus/i2c/devices/17-0050/name
+/sys/bus/i2c/devices/17-0050 24c02
++ echo /sys/bus/i2c/devices/17-0050 24c02
++ cat /sys/bus/i2c/devices/18-0050/name
++ echo /sys/bus/i2c/devices/18-0050 24c02/sys/bus/i2c/devices/18-0050 24c02
+
++ cat /sys/bus/i2c/devices/19-0050/name
++ echo /sys/bus/i2c/devices/19-0050/sys/bus/i2c/devices/19-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/20-0050/name
++ echo /sys/bus/i2c/devices/20-0050/sys/bus/i2c/devices/20-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/21-0050/name
++ echo /sys/bus/i2c/devices/21-0050/sys/bus/i2c/devices/21-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/22-0050/name
+/sys/bus/i2c/devices/22-0050 24c02
++ echo /sys/bus/i2c/devices/22-0050 24c02
++ cat /sys/bus/i2c/devices/23-0050/name
++ echo /sys/bus/i2c/devices/23-0050/sys/bus/i2c/devices/23-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/24-0050/name
++ echo /sys/bus/i2c/devices/24-0050/sys/bus/i2c/devices/24-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/25-0050/name
+/sys/bus/i2c/devices/25-0050 24c02
++ echo /sys/bus/i2c/devices/25-0050 24c02
++ cat /sys/bus/i2c/devices/26-0050/name
++ echo /sys/bus/i2c/devices/26-0050/sys/bus/i2c/devices/26-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/27-0050/name
++ echo /sys/bus/i2c/devices/27-0050/sys/bus/i2c/devices/27-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/28-0050/name
++ echo /sys/bus/i2c/devices/28-0050/sys/bus/i2c/devices/28-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/29-0050/name
++ echo /sys/bus/i2c/devices/29-0050/sys/bus/i2c/devices/29-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/3-0071/name
++ echo /sys/bus/i2c/devices/3-0071/sys/bus/i2c/devices/3-0071 pca9548
+ pca9548
++ cat /sys/bus/i2c/devices/3-0072/name
++ echo /sys/bus/i2c/devices/3-0072/sys/bus/i2c/devices/3-0072 pca9548
+ pca9548
++ cat /sys/bus/i2c/devices/3-0073/name
++ echo /sys/bus/i2c/devices/3-0073/sys/bus/i2c/devices/3-0073 pca9548
+ pca9548
++ cat /sys/bus/i2c/devices/3-0074/name
++ echo /sys/bus/i2c/devices/3-0074/sys/bus/i2c/devices/3-0074 pca9548
+ pca9548
++ cat /sys/bus/i2c/devices/3-0075/name
++ echo /sys/bus/i2c/devices/3-0075/sys/bus/i2c/devices/3-0075 pca9548
+ pca9548
++ cat /sys/bus/i2c/devices/30-0050/name
++ echo /sys/bus/i2c/devices/30-0050/sys/bus/i2c/devices/30-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/31-0050/name
++ echo /sys/bus/i2c/devices/31-0050/sys/bus/i2c/devices/31-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/32-0050/name
++ echo /sys/bus/i2c/devices/32-0050/sys/bus/i2c/devices/32-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/33-0050/name
++ echo /sys/bus/i2c/devices/33-0050/sys/bus/i2c/devices/33-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/34-0050/name
++ echo /sys/bus/i2c/devices/34-0050/sys/bus/i2c/devices/34-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/35-0050/name
+/sys/bus/i2c/devices/35-0050 24c02
++ echo /sys/bus/i2c/devices/35-0050 24c02
++ cat /sys/bus/i2c/devices/36-0050/name
++ echo /sys/bus/i2c/devices/36-0050/sys/bus/i2c/devices/36-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/37-0050/name
++ echo /sys/bus/i2c/devices/37-0050/sys/bus/i2c/devices/37-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/38-0050/name
+/sys/bus/i2c/devices/38-0050 24c02
++ echo /sys/bus/i2c/devices/38-0050 24c02
++ cat /sys/bus/i2c/devices/39-0050/name
++ echo /sys/bus/i2c/devices/39-0050/sys/bus/i2c/devices/39-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/40-0050/name
++ echo /sys/bus/i2c/devices/40-0050/sys/bus/i2c/devices/40-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/41-0050/name
++ echo /sys/bus/i2c/devices/41-0050/sys/bus/i2c/devices/41-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/42-0050/name
++ echo /sys/bus/i2c/devices/42-0050/sys/bus/i2c/devices/42-0050 24c02
+ 24c02
++ cat /sys/bus/i2c/devices/43-0050/name
++ echo /sys/bus/i2c/devices/43-0050/sys/bus/i2c/devices/43-0050 24c02
+ 24c02
++ ls /sys/class/hwmon/ /sys/class/gpio
+/sys/class/gpio:
+export
+gpiochip128
+gpiochip160
+gpiochip192
+gpiochip224
+unexport
+
+/sys/class/hwmon/:
+hwmon0
++ lsmod
++ ps w
+  PID USER       VSZ STAT COMMAND
+    1 root      1640 S    init
+    2 root         0 SW   [kthreadd]
+    3 root         0 SW   [ksoftirqd/0]
+    4 root         0 SW   [kworker/0:0]
+    5 root         0 SW<  [kworker/0:0H]
+    6 root         0 SW   [kworker/u16:0]
+    7 root         0 SW   [migration/0]
+    8 root         0 SW   [rcu_bh]
+    9 root         0 SW   [rcu_sched]
+   10 root         0 SW   [rcuc/0]
+   11 root         0 SW   [rcuc/1]
+   12 root         0 SW   [migration/1]
+   13 root         0 SW   [ksoftirqd/1]
+   14 root         0 SW   [kworker/1:0]
+   15 root         0 SW<  [kworker/1:0H]
+   16 root         0 SW   [rcuc/2]
+   17 root         0 SW   [migration/2]
+   18 root         0 SW   [ksoftirqd/2]
+   19 root         0 SW   [kworker/2:0]
+   20 root         0 SW<  [kworker/2:0H]
+   21 root         0 SW   [rcuc/3]
+   22 root         0 SW   [migration/3]
+   23 root         0 SW   [ksoftirqd/3]
+   24 root         0 SW   [kworker/3:0]
+   25 root         0 SW<  [kworker/3:0H]
+   26 root         0 SW   [rcuc/4]
+   27 root         0 SW   [migration/4]
+   28 root         0 SW   [ksoftirqd/4]
+   29 root         0 SW   [kworker/4:0]
+   30 root         0 SW<  [kworker/4:0H]
+   31 root         0 SW   [rcuc/5]
+   32 root         0 SW   [migration/5]
+   33 root         0 SW   [ksoftirqd/5]
+   34 root         0 SW   [kworker/5:0]
+   35 root         0 SW<  [kworker/5:0H]
+   36 root         0 SW   [rcuc/6]
+   37 root         0 SW   [migration/6]
+   38 root         0 SW   [ksoftirqd/6]
+   39 root         0 SW   [kworker/6:0]
+   40 root         0 SW<  [kworker/6:0H]
+   41 root         0 SW   [rcuc/7]
+   42 root         0 SW   [migration/7]
+   43 root         0 SW   [ksoftirqd/7]
+   44 root         0 SW   [kworker/7:0]
+   45 root         0 SW<  [kworker/7:0H]
+   46 root         0 SW<  [khelper]
+   47 root         0 SW<  [writeback]
+   48 root         0 SW<  [bioset]
+   49 root         0 SW<  [kblockd]
+   50 root         0 SW<  [ata_sff]
+   51 root         0 SW   [khubd]
+   52 root         0 SW<  [rpciod]
+   53 root         0 SW   [kworker/5:1]
+   54 root         0 SW   [kworker/0:1]
+   55 root         0 SW   [kworker/1:1]
+   56 root         0 SW   [kworker/3:1]
+   57 root         0 SW   [kworker/6:1]
+   58 root         0 SW   [khungtaskd]
+   59 root         0 SW   [kworker/2:1]
+   60 root         0 SW   [kswapd0]
+   61 root         0 SW   [fsnotify_mark]
+   62 root         0 SW<  [nfsiod]
+   63 root         0 SW<  [crypto]
+   78 root         0 SW   [scsi_eh_0]
+   79 root         0 SW   [kworker/u16:1]
+   80 root         0 SW   [scsi_eh_1]
+   81 root         0 SW   [kworker/u16:2]
+   82 root         0 SW   [kworker/u16:3]
+   87 root         0 SW   [spi0]
+  173 root         0 SW<  [deferwq]
+  174 root         0 SW   [kworker/u16:4]
+  394 root         0 SW   [kworker/7:1]
+  397 root         0 SW   [kworker/4:1]
+ 1002 root      1640 S    syslogd -b 3 -D -L
+ 1018 root      1580 S    /usr/sbin/dropbear -m -B -P
+ 1028 root      1636 S    telnetd -l /bin/onie-console -f /etc/issue.null
+ 1046 root      1680 S    {discover} /bin/sh /bin/discover
+ 1068 root       924 S    iic-util --daemon
+ 1075 root      1644 S    /bin/sh -l
+ 1299 root      1692 S    {exec_installer} /bin/sh /bin/exec_installer /var/run/onie/onie_parms_file.txt
+ 1300 root      1640 S    tee /dev/console
+ 1301 root      1640 S    logger -t onie-exec -p local0.info
+ 1406 root      1636 S    tftp -g -l /installer -r 1C-EA-0B-38-2B-D5/onie-installer-powerpc-accton_as7772_32x-r0 10.60.2.1
+ 1582 root      1624 S    /usr/sbin/dropbear -m -B -P
+ 1583 root      1648 S    sh -c export PATH=$PATH:/sbin:/usr/sbin; set -x; uname -a; cat /proc/mtd /proc/partitions /proc/cmdline /
+ 1592 root         0 SW<  [kworker/6:1H]
+ 1612 root         0 SW<  [kworker/0:1H]
+ 1617 root         0 SW<  [kworker/5:1H]
+ 1628 root         0 SW<  [kworker/7:1H]
+ 1629 root         0 SW<  [kworker/1:1H]
+ 1640 root         0 SW<  [kworker/4:1H]
+ 1645 root         0 SW<  [kworker/2:1H]
+ 1706 root      1640 R    ps w
++ dmesg
+Allocated 16384 bytes for 8 pacas at c00000000fffc000
+Using Accton Technology Corporation AS7772_32X machine description
+MMU: Supported page sizes
+         4 KB as direct
+      1024 KB as direct
+      2048 KB as direct & indirect
+      4096 KB as direct
+     16384 KB as direct
+     65536 KB as direct
+    262144 KB as direct
+   1048576 KB as direct
+MMU: Book3E HW tablewalk enabled
+Found initrd at 0xc00000002f63f000:0xc00000002ffffc6c
+No /soc@ffe000000/qman@318000 property 'fsl,qman-fqd', using memblock_alloc(0000000000400000)
+No /soc@ffe000000/qman@318000 property 'fsl,qman-pfdr', using memblock_alloc(0000000002000000)
+Qman ver:0a01,03,01,02
+No /soc@ffe000000/bman@31a000 property 'fsl,bman-fbpr', using memblock_alloc(0000000001000000)
+Bman ver:0a02,02,01
+No USDPAA memory, no 'usdpaa_mem' bootarg
+Found legacy serial port 0 for /soc@ffe000000/serial@11c500
+  mem=ffe11c500, taddr=ffe11c500, irq=0, clk=300000000, speed=0
+Found legacy serial port 1 for /soc@ffe000000/serial@11c600
+  mem=ffe11c600, taddr=ffe11c600, irq=0, clk=300000000, speed=0
+Found legacy serial port 2 for /soc@ffe000000/serial@11d500
+  mem=ffe11d500, taddr=ffe11d500, irq=0, clk=300000000, speed=0
+Found legacy serial port 3 for /soc@ffe000000/serial@11d600
+  mem=ffe11d600, taddr=ffe11d600, irq=0, clk=300000000, speed=0
+bootconsole [udbg0] enabled
+CPU maps initialized for 2 threads per core
+ (thread shift is 1)
+Starting Linux PPC64 #1 SMP Tue Feb 6 18:36:24 CST 2018
+-----------------------------------------------------
+ppc64_pft_size                = 0x0
+physicalMemorySize            = 0x78000000
+ppc64_caches.dcache_line_size = 0x40
+ppc64_caches.icache_line_size = 0x40
+-----------------------------------------------------
+Linux version 3.12.19-rt30-onie+ (nike_chen@centosx64-build.accton.com.tw) (gcc version 4.7.3 (crosstool-NG 1.19.0 - ONIE-2015.02.00.30) ) #1 SMP Tue Feb 6 18:36:24 CST 2018
+[boot]0012 Setup Arch
+Accton Technology Corporation AS7772_32X
+Top of RAM: 0x78000000, Total RAM: 0x78000000
+Memory hole size: 0MB
+Zone ranges:
+  DMA      [mem 0x00000000-0x77ffffff]
+  Normal   empty
+Movable zone start for each node
+Early memory node ranges
+  node   0: [mem 0x00000000-0x77ffffff]
+On node 0 totalpages: 491520
+free_area_init_node: node 0, pgdat c0000000008124c0, node_mem_map c0000000009b5000
+  DMA zone: 6720 pages used for memmap
+  DMA zone: 0 pages reserved
+  DMA zone: 491520 pages, LIFO batch:31
+MMU: Allocated 2112 bytes of context maps for 255 contexts
+[boot]0015 Setup Done
+PERCPU: Embedded 11 pages/cpu @c000000002500000 s13888 r0 d31168 u131072
+pcpu-alloc: s13888 r0 d31168 u131072 alloc=1*1048576
+pcpu-alloc: [0] 0 1 2 3 4 5 6 7 
+Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 484800
+Kernel command line: quiet console=ttyS0,115200 mem=1920M serial_num=777232X19300200 eth_addr=1C:EA:0B:38:2B:D5
+PID hash table entries: 4096 (order: 3, 32768 bytes)
+Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes)
+Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes)
+Sorting __ex_table...
+Memory: 1795544K/1966080K available (6352K kernel code, 1040K rwdata, 1412K rodata, 276K init, 829K bss, 170536K reserved)
+SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=8, Nodes=1
+Hierarchical RCU implementation.
+	CONFIG_RCU_FANOUT set to non-default value of 32
+NR_IRQS:512 nr_irqs:512 16
+mpic: Setting up MPIC " OpenPIC  " version 1.2 at ffe040000, max 8 CPUs
+mpic: ISU size: 512, shift: 9, mask: 1ff
+mpic: Initializing for 512 sources
+time_init: decrementer frequency = 37.500000 MHz
+time_init: processor frequency   = 1800.000000 MHz
+clocksource: timebase mult[1aaaaaab] shift[24] registered
+clockevent: decrementer mult[999999a] shift[32] cpu[0]
+pid_max: default: 32768 minimum: 301
+Mount-cache hash table entries: 256
+mpic: requesting IPIs...
+e6500 family performance monitor hardware support registered
+Brought up 8 CPUs
+NET: Registered protocol family 16
+Found FSL PCI host bridge at 0x0000000ffe270000. Firmware bus number: 0->1
+PCI host bridge /pcie@ffe270000  ranges:
+ MEM 0x00000000d8000000..0x00000000dfffffff -> 0x00000000d8000000 
+  IO 0x0000000ff8030000..0x0000000ff803ffff -> 0x0000000000000000
+/pcie@ffe270000: PCICSRBAR @ 0xff000007
+/pcie@ffe270000: Setting PCI inbound window greater than memory size
+PCI: Probing PCI hardware
+fsl-pci ffe270000.pcie: PCI host bridge to bus 0000:00
+pci_bus 0000:00: root bus resource [io  0x10000-0x1ffff] (bus address [0x0000-0xffff])
+pci_bus 0000:00: root bus resource [mem 0xd8000000-0xdfffffff]
+pci_bus 0000:00: root bus resource [bus 00-01]
+pci_bus 0000:00: busn_res: [bus 00-01] end is updated to ff
+pci_bus 0000:00: scanning bus
+pci 0000:00:00.0: [1957:0831] type 01 class 0x0b2000
+pci 0000:00:00.0: ignoring class 0x0b2000 (doesn't match header type 01)
+pci 0000:00:00.0: calling .fixup_hide_host_resource_fsl+0x0/0x64
+pci 0000:00:00.0: calling .pcibios_fixup_resources+0x0/0x104
+pci 0000:00:00.0: calling .quirk_fsl_pcie_header+0x0/0x6c
+pci 0000:00:00.0: supports D1 D2
+pci 0000:00:00.0: PME# supported from D0 D1 D2 D3hot
+pci 0000:00:00.0: PME# disabled
+pci_bus 0000:00: fixups for bus
+pci 0000:00:00.0: scanning [bus 01-01] behind bridge, pass 0
+pci 0000:00:00.0: scanning [bus 00-00] behind bridge, pass 1
+pci_bus 0000:01: scanning bus
+pci 0000:01:00.0: [14e4:b930] type 00 class 0x020000
+pci 0000:01:00.0: reg 0x10: [mem 0xd8000000-0xd8007fff 64bit pref]
+pci 0000:01:00.0: reg 0x18: [mem 0xd8800000-0xd8ffffff 64bit pref]
+pci 0000:01:00.0: calling .pcibios_fixup_resources+0x0/0x104
+pci 0000:01:00.0: PME# supported from D0 D3hot D3cold
+pci 0000:01:00.0: PME# disabled
+pci 0000:01:00.1: [14e4:b930] type 00 class 0x020000
+pci 0000:01:00.1: reg 0x10: [mem 0xd9000000-0xd9007fff 64bit pref]
+pci 0000:01:00.1: reg 0x18: [mem 0xd9800000-0xd9ffffff 64bit pref]
+pci 0000:01:00.1: calling .pcibios_fixup_resources+0x0/0x104
+pci 0000:01:00.1: PME# supported from D0 D3hot D3cold
+pci 0000:01:00.1: PME# disabled
+pci_bus 0000:01: fixups for bus
+pci 0000:00:00.0: PCI bridge to [bus 01-ff]
+pci 0000:00:00.0:   bridge window [mem 0xd8000000-0xd9ffffff]
+pci_bus 0000:01: bus scan returning with max=01
+pci_bus 0000:01: busn_res: [bus 01-ff] end is updated to 01
+pci_bus 0000:00: bus scan returning with max=01
+pci_bus 0000:00: busn_res: [bus 00-ff] end is updated to 01
+PCI 0000:00 Cannot reserve Legacy IO [io  0x10000-0x10fff]
+pci 0000:00:00.0: PCI bridge to [bus 01]
+pci 0000:00:00.0:   bridge window [io  0x10000-0x1ffff]
+pci 0000:00:00.0:   bridge window [mem 0xd8000000-0xdfffffff]
+pci_bus 0000:00: resource 4 [io  0x10000-0x1ffff]
+pci_bus 0000:00: resource 5 [mem 0xd8000000-0xdfffffff]
+pci_bus 0000:01: resource 0 [io  0x10000-0x1ffff]
+pci_bus 0000:01: resource 1 [mem 0xd8000000-0xdfffffff]
+PCI: Probing PCI hardware done
+bio: create slab <bio-0> at 0
+SCSI subsystem initialized
+libata version 3.00 loaded.
+usbcore: registered new interface driver usbfs
+usbcore: registered new interface driver hub
+usbcore: registered new device driver usb
+pps_core: LinuxPPS API ver. 1 registered
+pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+PTP clock support registered
+Bman err interrupt handler present
+Bman portal initialised, cpu 0
+Bman portal initialised, cpu 1
+Bman portal initialised, cpu 2
+Bman portal initialised, cpu 3
+Bman portal initialised, cpu 4
+Bman portal initialised, cpu 5
+Bman portal initialised, cpu 6
+Bman portal initialised, cpu 7
+Bman portals initialised
+Qman err interrupt handler present
+QMan: Allocated lookup table at 8000000000000000, entry count 65537
+Qman portal initialised, cpu 0
+Qman portal initialised, cpu 1
+Qman portal initialised, cpu 2
+Qman portal initialised, cpu 3
+Qman portal initialised, cpu 4
+Qman portal initialised, cpu 5
+Qman portal initialised, cpu 6
+Qman portal initialised, cpu 7
+Qman portals initialised
+Bman: BPID allocator includes range 32:32
+Qman: FQID allocator includes range 256:512
+Qman: FQID allocator includes range 32768:32768
+Qman: CGRID allocator includes range 0:256
+Qman: pool channel allocator includes range 1025:15
+Switched to clocksource timebase
+NET: Registered protocol family 2
+TCP established hash table entries: 16384 (order: 6, 262144 bytes)
+TCP bind hash table entries: 16384 (order: 6, 262144 bytes)
+TCP: Hash tables configured (established 16384 bind 16384)
+TCP: reno registered
+UDP hash table entries: 1024 (order: 3, 32768 bytes)
+UDP-Lite hash table entries: 1024 (order: 3, 32768 bytes)
+NET: Registered protocol family 1
+RPC: Registered named UNIX socket transport module.
+RPC: Registered udp transport module.
+RPC: Registered tcp transport module.
+RPC: Registered tcp NFSv4.1 backchannel transport module.
+PCI: CLS 32 bytes, default 64
+Trying to unpack rootfs image as initramfs...
+Freeing initrd memory: 9984K (c00000002f63f000 - c00000002ffff000)
+HugeTLB registered 1 MB page size, pre-allocated 0 pages
+HugeTLB registered 4 MB page size, pre-allocated 0 pages
+HugeTLB registered 16 MB page size, pre-allocated 0 pages
+HugeTLB registered 64 MB page size, pre-allocated 0 pages
+HugeTLB registered 256 MB page size, pre-allocated 0 pages
+HugeTLB registered 1 GB page size, pre-allocated 0 pages
+squashfs: version 4.0 (2009/01/31) Phillip Lougher
+NFS: Registering the id_resolver key type
+Key type id_resolver registered
+Key type id_legacy registered
+jffs2: version 2.2. (NAND) (SUMMARY)  © 2001-2006 Red Hat, Inc.
+msgmni has been set to 3655
+io scheduler noop registered
+io scheduler deadline registered
+io scheduler cfq registered (default)
+Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+serial8250.0: ttyS0 at MMIO 0xffe11c500 (irq = 36, base_baud = 18750000) is a 16550A
+console [ttyS0] enabled, bootconsole disabled
+serial8250.0: ttyS1 at MMIO 0xffe11c600 (irq = 36, base_baud = 18750000) is a 16550A
+serial8250.0: ttyS2 at MMIO 0xffe11d500 (irq = 37, base_baud = 18750000) is a 16550A
+serial8250.0: ttyS3 at MMIO 0xffe11d600 (irq = 37, base_baud = 18750000) is a 16550A
+brd: module loaded
+loop: module loaded
+hwlat_detector: version 1.0.0
+fsl-sata ffe220000.sata: Sata FSL Platform/CSB Driver init
+scsi0 : sata_fsl
+ata1: SATA max UDMA/133 irq 68
+fsl-sata ffe221000.sata: Sata FSL Platform/CSB Driver init
+scsi1 : sata_fsl
+ata2: SATA max UDMA/133 irq 69
+fe8000000.nor: Found 1 x16 devices at 0x0 in 16-bit bank. Manufacturer ID 0x000089 Chip ID 0x00227e
+Amd/Fujitsu Extended Query Table at 0x0040
+  Amd/Fujitsu Extended Query version 1.3.
+number of CFI chips: 1
+8 ofpart partitions found on MTD device fe8000000.nor
+Creating 8 MTD partitions on "fe8000000.nor":
+0x000000000000-0x000000020000 : "RCW"
+0x000000020000-0x000000040000 : "hw-info"
+0x000000040000-0x000002040000 : "onie"
+0x000002040000-0x000004040000 : "diag"
+0x000004040000-0x000007f00000 : "open"
+0x000007f00000-0x000007f20000 : "Fman-FW"
+0x000007f20000-0x000007f40000 : "uboot-env"
+0x000007f40000-0x000008000000 : "uboot"
+libphy: Freescale XGMAC MDIO Bus: probed
+libphy: Freescale XGMAC MDIO Bus: probed
+libphy: Freescale XGMAC MDIO Bus: probed
+libphy: Freescale XGMAC MDIO Bus: probed
+libphy: Freescale XGMAC MDIO Bus: probed
+libphy: Freescale XGMAC MDIO Bus: probed
+libphy: Freescale XGMAC MDIO Bus: probed
+libphy: Freescale XGMAC MDIO Bus: probed
+libphy: Freescale XGMAC MDIO Bus: probed
+cpu4/4: > WARNING (FM) [CPU04, drivers/net/ethernet/freescale/fman/Peripherals/FM/fm.c:3514 FM_Init]: 
+cpu4/4: Hack: No FM reset!
+cpu4/4: 
+Freescale FM module (Feb  6 2018:18:35:46), FMD API version 21.1.0
+Freescale FM Ports module (Feb  6 2018:18:35:47)
+dpaa_debugfs: FSL DPAA Ethernet debugfs entries ()
+dpaa_generic_debugfs: FSL DPAA Ethernet debugfs entries ()
+fsl_mac: fsl_mac: FSL FMan MAC API based driver ()
+fsl_mac ffe4e0000.ethernet: FMan MEMAC
+fsl_mac ffe4e0000.ethernet: FMan MAC address: 1c:ea:0b:38:2b:d5
+fsl_dpa: FSL DPAA Ethernet driver ()
+fsl_dpa: fsl_dpa: Probed interface eth0
+fsl_dpa_shared: FSL DPAA Shared Ethernet driver ()
+fsl_dpa_proxy: FSL DPAA Proxy initialization driver ()
+fsl_oh: FSL FMan Offline Parsing port driver ()
+ehci_hcd: USB 2.0 'Enhanced' Host Controller (EHCI) Driver
+ehci-pci: EHCI PCI platform driver
+fsl-ehci fsl-ehci.0: Freescale On-Chip EHCI Host Controller
+fsl-ehci fsl-ehci.0: new USB bus registered, assigned bus number 1
+fsl-ehci fsl-ehci.0: irq 44, io mem 0xffe210000
+fsl-ehci fsl-ehci.0: USB 2.0 started, EHCI 1.00
+usb usb1: New USB device found, idVendor=1d6b, idProduct=0002
+usb usb1: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+usb usb1: Product: Freescale On-Chip EHCI Host Controller
+usb usb1: Manufacturer: Linux 3.12.19-rt30-onie+ ehci_hcd
+usb usb1: SerialNumber: fsl-ehci.0
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 1 port detected
+fsl-ehci fsl-ehci.1: Freescale On-Chip EHCI Host Controller
+fsl-ehci fsl-ehci.1: new USB bus registered, assigned bus number 2
+fsl-ehci fsl-ehci.1: irq 45, io mem 0xffe211000
+fsl-ehci fsl-ehci.1: USB 2.0 started, EHCI 1.00
+usb usb2: New USB device found, idVendor=1d6b, idProduct=0002
+usb usb2: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+usb usb2: Product: Freescale On-Chip EHCI Host Controller
+usb usb2: Manufacturer: Linux 3.12.19-rt30-onie+ ehci_hcd
+usb usb2: SerialNumber: fsl-ehci.1
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 1 port detected
+usbcore: registered new interface driver usb-storage
+usbcore: registered new interface driver usbserial
+i2c /dev entries driver
+mpc-i2c ffe118000.i2c: timeout 1000000 us
+at24 0-0050: 32768 byte 24c256 EEPROM, writable, 1 bytes/write
+rtc-ds1672 0-0068: chip found, driver version 0.4
+rtc-ds1672 0-0068: rtc core: registered rtc-ds1672 as rtc0
+rtc-ds1672 0-0068: Oscillator not enabled. Set time to enable.
+mpc-i2c ffe118100.i2c: timeout 1000000 us
+mpc-i2c ffe119000.i2c: timeout 1000000 us
+mpc-i2c ffe119100.i2c: timeout 1000000 us
+pca954x 1-0077: probe failed
+i2c i2c-3: Added multiplexed i2c bus 4
+i2c i2c-3: Added multiplexed i2c bus 5
+i2c i2c-3: Added multiplexed i2c bus 6
+i2c i2c-3: Added multiplexed i2c bus 7
+i2c i2c-3: Added multiplexed i2c bus 8
+i2c i2c-3: Added multiplexed i2c bus 9
+i2c i2c-3: Added multiplexed i2c bus 10
+i2c i2c-3: Added multiplexed i2c bus 11
+pca954x 3-0071: registered 8 multiplexed busses for I2C switch pca9548
+at24 12-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 12
+at24 13-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 13
+at24 14-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 14
+at24 15-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 15
+at24 16-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 16
+at24 17-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 17
+at24 18-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 18
+at24 19-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 19
+pca954x 3-0072: registered 8 multiplexed busses for I2C switch pca9548
+at24 20-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 20
+at24 21-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 21
+at24 22-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 22
+at24 23-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 23
+at24 24-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 24
+at24 25-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 25
+at24 26-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 26
+at24 27-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 27
+pca954x 3-0073: registered 8 multiplexed busses for I2C switch pca9548
+at24 28-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 28
+at24 29-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 29
+at24 30-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 30
+at24 31-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 31
+at24 32-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 32
+at24 33-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 33
+at24 34-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 34
+at24 35-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 35
+pca954x 3-0074: registered 8 multiplexed busses for I2C switch pca9548
+at24 36-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 36
+at24 37-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 37
+at24 38-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 38
+at24 39-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 39
+at24 40-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 40
+at24 41-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 41
+at24 42-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 42
+at24 43-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+i2c i2c-3: Added multiplexed i2c bus 43
+pca954x 3-0075: registered 8 multiplexed busses for I2C switch pca9548
+lm90 0-004c: Register 0x4 read failed (-5)
+lm90 0-004c: Failed to read convrate register!
+lm90 0-004c: Register 0x3 read failed (-5)
+lm90 0-004c: Initialization failed!
+sdhci: Secure Digital Host Controller Interface driver
+sdhci: Copyright(c) Pierre Ossman
+sdhci-pltfm: SDHCI platform and OF driver helper
+mmc0: SDHCI controller on ffe114000.sdhc [ffe114000.sdhc] using ADMA
+Freescale USDPAA process driver
+fsl-usdpaa: no region found
+Freescale USDPAA process IRQ driver
+oprofile: using ppc/e6500 performance monitoring.
+TCP: bic registered
+TCP: cubic registered
+TCP: westwood registered
+TCP: htcp registered
+Initializing XFRM netlink socket
+NET: Registered protocol family 10
+mip6: Mobile IPv6
+sit: IPv6 over IPv4 tunneling driver
+NET: Registered protocol family 17
+NET: Registered protocol family 15
+8021q: 802.1Q VLAN Support v1.8
+Key type dns_resolver registered
+console [netcon0] enabled
+netconsole: network logging started
+fsl_dpa_macless: FSL DPAA MACless Ethernet driver ()
+fsl_dpa_generic: FSL DPAA Generic Ethernet driver ()
+rtc-ds1672 0-0068: hctosys: invalid date/time
+usb 1-1: new high-speed USB device number 2 using fsl-ehci
+usb 1-1: New USB device found, idVendor=0424, idProduct=2514
+usb 1-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
+hub 1-1:1.0: USB hub found
+hub 1-1:1.0: 4 ports detected
+ata1: No Device OR PHYRDY change,Hstatus = 0xa0000000
+ata1: SATA link down (SStatus 10 SControl 300)
+ata2: Signature Update detected @ 501 msecs
+ata2: SATA link up 3.0 Gbps (SStatus 123 SControl 300)
+ata2.00: supports DRM functions and may not be fully accessible
+ata2.00: ATA-10: INTEL SSDSCKKR064G8,  LHF0A2E, max UDMA/133
+ata2.00: 125045424 sectors, multi 16: LBA48 NCQ (depth 16/32)
+ata2.00: supports DRM functions and may not be fully accessible
+ata2.00: configured for UDMA/133
+scsi 1:0:0:0: Direct-Access     ATA      INTEL SSDSCKKR06 n/a  PQ: 0 ANSI: 5
+sd 1:0:0:0: [sda] 125045424 512-byte logical blocks: (64.0 GB/59.6 GiB)
+sd 1:0:0:0: [sda] Write Protect is off
+sd 1:0:0:0: [sda] Mode Sense: 00 3a 00 00
+sd 1:0:0:0: [sda] Write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+ sda: sda1
+sd 1:0:0:0: [sda] Attached SCSI disk
+Freeing unused kernel memory: 276K (c00000000079c000 - c0000000007e1000)

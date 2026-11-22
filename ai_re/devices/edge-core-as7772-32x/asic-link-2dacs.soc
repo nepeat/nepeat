@@ -1,0 +1,39 @@
+init all
+g raw CMIC_RATE_ADJUST_EXT_MDIO
+g raw CMIC_MIIM_CONFIG
+vlan remove 1 pbm=ce,xe
+port ce,xe en=0
+vlan create 101 pbm=ce0 ubm=ce0
+pvlan set ce0 101
+vlan create 102 pbm=ce1 ubm=ce1
+pvlan set ce1 102
+vlan create 103 pbm=ce30 ubm=ce30
+pvlan set ce30 103
+vlan create 104 pbm=ce31 ubm=ce31
+pvlan set ce31 104
+port ce0,ce1,ce30,ce31 an=off if=CAUI sp=100000 en=1
+m CLMAC_TX_CTRL.ce0 AVERAGE_IPG=16
+m CLMAC_TX_CTRL.ce1 AVERAGE_IPG=16
+m CLMAC_TX_CTRL.ce30 AVERAGE_IPG=16
+m CLMAC_TX_CTRL.ce31 AVERAGE_IPG=16
+sleep 6
+echo == PS
+ps ce0,ce1,ce30,ce31
+clear c
+tx 1000 pbm=ce0 vlan=101 length=256
+sleep 2
+tx 2000 pbm=ce1 vlan=102 length=1024
+sleep 2
+tx 3000 pbm=ce30 vlan=103 length=512
+sleep 2
+tx 4000 pbm=ce31 vlan=104 length=1518
+sleep 2
+echo == COUNTERS
+show c ce0,ce1,ce30,ce31
+echo == ERR
+show c rfcs
+show c rerpkt
+echo == PS2
+ps ce0,ce1,ce30,ce31
+port ce0,ce1,ce30,ce31 en=0
+exit

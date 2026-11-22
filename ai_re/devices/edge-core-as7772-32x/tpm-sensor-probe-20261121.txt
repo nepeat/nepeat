@@ -1,0 +1,75 @@
+# read-only probe of I2C2 (Linux i2c-1, soc i2c@118100) 0x13/0x18 on the AS7772 under NixOS; i2c-tools byte reads only
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:                                                 
+10:          13                                     
+20:                                                 
+30:                                                 
+40:                                                 
+50:                                                 
+60:                                                 
+70:                                                 
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:                                                 
+10:                         18                      
+20:                                                 
+30:                                                 
+40:                                                 
+50:                                                 
+60:                                                 
+70:                                                 
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:                                                 
+10:                                                 
+20:                                                 
+30:                                                 
+40:                                                 
+50:                                                 
+60:                                                 
+70:                      --
++ date -u
+Sun Nov 22 05:21:34 AM UTC 2026
++ i2cdump -y -r 0x00-0x1f 1 0x18 b
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
+00: 1a 23 00 00 02 7f c9 7f c9 01 01 01 01 01 01 01    ?#..????????????
+10: 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01    ????????????????
++ i2cget -y 1 0x18 0xfe b
+0x4d
++ i2cget -y 1 0x18 0xff b
+0x01
++ i2cdump -y -r 0x00-0x1f 1 0x18 b
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
+00: 1a 23 80 00 02 7f c9 7f c9 01 01 01 01 01 01 01    ?#?.????????????
+10: 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01    ????????????????
++ i2cget -y 1 0x18 0x00 w
+0x001a
++ i2cget -y 1 0x18 0x05 w
+0x007f
++ i2cget -y 1 0x18 0x06 w
+0x00c9
++ i2cget -y 1 0x18 0x07 w
+0x007f
++ echo TPM
+TPM
++ i2cget -y 1 0x13
+0xff
++ i2cget -y 1 0x13
+0xff
++ i2cget -y 1 0x13 0x80 b
+Error: Read failed
++ i2cget -y 1 0x13 0x98 b
+Error: Read failed
++ i2cget -y 1 0x13 0x94 b
+Error: Read failed
++ i2cget -y 1 0x13 0x80 b
+Error: Read failed
++ sensors
++ head -5
+as7760_fan-i2c-4-66
+Adapter: i2c-2-mux (chan_id 0)
+fan1_front:  14500 RPM
+fan1_rear:   12100 RPM
+fan2_front:  14400 RPM
++ uname -r
+7.3.4
++ readlink /run/current-system
+/nix/store/lvhp7jh9sd24n5z8dqbgm1256q5ps0yh-nixos-system-as7772-26.11.20261111.d4f25a3

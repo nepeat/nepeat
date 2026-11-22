@@ -1,0 +1,120 @@
+sal_config_refresh: format error in config.bcm on line 3 (ignored)
+Broadcom Command Monitor: Copyright (c) 1998-2026 Broadcom
+Release: sdk-6.5.27 built 20261115 (Sun Nov 15 09:06:45 2026)
+From nixbld@localhost:/build/openbcm-sdk-6.5.27-patched
+Platform: PPC64BE
+OS: Unix (Posix)
+linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+DMA pool size: 16777216 bytes.
+BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+SOC unit 0 attached to PCI device BCM56930_B1
+ERROR loading rc script on unit 0
+CMIC_RATE_ADJUST.cmic0[9][0x11000]=0x10035
+CMIC_MIIM_CONFIG.cmic0[9][0x11184]=8
+Sleeping for 6 seconds
+== PS
+                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+      ce30(  9)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+      ce31( 13)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+Sleeping for 2 seconds
+Sleeping for 2 seconds
+Sleeping for 2 seconds
+Sleeping for 2 seconds
+== COUNTERS
+RUC.ce0 		    :		      4,000		 +4,000
+RDBGC0.ce0		    :		      2,000		 +2,000
+ING_NIV_RX_FRAMES_VL.ce0    :		      2,000		 +2,000
+R1023.ce0		    :		      2,000		 +2,000
+R1518.ce0		    :		      2,000		 +2,000
+RPKT.ce0		    :		      4,000		 +4,000
+RUCA.ce0		    :		      4,000		 +4,000
+RPRM.ce0		    :		      4,000		 +4,000
+RVLN.ce0		    :		      2,000		 +2,000
+RPOK.ce0		    :		      4,000		 +4,000
+RBYT.ce0		    :		  4,088,000	     +4,088,000
+T255.ce0		    :		      1,000		 +1,000
+T511.ce0		    :		      1,000		 +1,000
+TPOK.ce0		    :		      2,000		 +2,000
+TPKT.ce0		    :		      2,000		 +2,000
+TUCA.ce0		    :		      2,000		 +2,000
+TVLN.ce0		    :		      1,000		 +1,000
+TBYT.ce0		    :		    508,000	       +508,000
+PERQ_PKT(0).ce0 	    :		      1,000		 +1,000
+PERQ_BYTE(0).ce0	    :		    252,000	       +252,000
+UC_PERQ_PKT(0).ce0	    :		      1,000		 +1,000
+UC_PERQ_BYTE(0).ce0	    :		    256,000	       +256,000
+RUC.ce1 		    :		      2,000		 +2,000
+RDBGC0.ce1		    :		      1,000		 +1,000
+ING_NIV_RX_FRAMES_VL.ce1    :		      1,000		 +1,000
+R255.ce1		    :		      1,000		 +1,000
+R511.ce1		    :		      1,000		 +1,000
+RPKT.ce1		    :		      2,000		 +2,000
+RUCA.ce1		    :		      2,000		 +2,000
+RPRM.ce1		    :		      2,000		 +2,000
+RVLN.ce1		    :		      1,000		 +1,000
+RPOK.ce1		    :		      2,000		 +2,000
+RBYT.ce1		    :		    508,000	       +508,000
+T1023.ce1		    :		      2,000		 +2,000
+T1518.ce1		    :		      2,000		 +2,000
+TPOK.ce1		    :		      4,000		 +4,000
+TPKT.ce1		    :		      4,000		 +4,000
+TUCA.ce1		    :		      4,000		 +4,000
+TVLN.ce1		    :		      2,000		 +2,000
+TBYT.ce1		    :		  4,088,000	     +4,088,000
+PERQ_PKT(0).ce1 	    :		      2,000		 +2,000
+PERQ_BYTE(0).ce1	    :		  2,040,000	     +2,040,000
+UC_PERQ_PKT(0).ce1	    :		      2,000		 +2,000
+UC_PERQ_BYTE(0).ce1	    :		  2,048,000	     +2,048,000
+RUC.ce30		    :		      8,000		 +8,000
+RDBGC0.ce30		    :		      4,000		 +4,000
+ING_NIV_RX_FRAMES_VL.ce30   :		      4,000		 +4,000
+R1518.ce30		    :		      8,000		 +8,000
+RPKT.ce30		    :		      8,000		 +8,000
+RUCA.ce30		    :		      8,000		 +8,000
+RPRM.ce30		    :		      8,000		 +8,000
+RVLN.ce30		    :		      4,000		 +4,000
+RPOK.ce30		    :		      8,000		 +8,000
+RBYT.ce30		    :		 12,128,000	    +12,128,000
+T511.ce30		    :		      3,000		 +3,000
+T1023.ce30		    :		      3,000		 +3,000
+TPOK.ce30		    :		      6,000		 +6,000
+TPKT.ce30		    :		      6,000		 +6,000
+TUCA.ce30		    :		      6,000		 +6,000
+TVLN.ce30		    :		      3,000		 +3,000
+TBYT.ce30		    :		  3,060,000	     +3,060,000
+PERQ_PKT(0).ce30	    :		      3,000		 +3,000
+PERQ_BYTE(0).ce30	    :		  1,524,000	     +1,524,000
+UC_PERQ_PKT(0).ce30	    :		      3,000		 +3,000
+UC_PERQ_BYTE(0).ce30	    :		  1,536,000	     +1,536,000
+RUC.ce31		    :		      6,000		 +6,000
+RDBGC0.ce31		    :		      3,000		 +3,000
+ING_NIV_RX_FRAMES_VL.ce31   :		      3,000		 +3,000
+R511.ce31		    :		      3,000		 +3,000
+R1023.ce31		    :		      3,000		 +3,000
+RPKT.ce31		    :		      6,000		 +6,000
+RUCA.ce31		    :		      6,000		 +6,000
+RPRM.ce31		    :		      6,000		 +6,000
+RVLN.ce31		    :		      3,000		 +3,000
+RPOK.ce31		    :		      6,000		 +6,000
+RBYT.ce31		    :		  3,060,000	     +3,060,000
+T1518.ce31		    :		      8,000		 +8,000
+TPOK.ce31		    :		      8,000		 +8,000
+TPKT.ce31		    :		      8,000		 +8,000
+TUCA.ce31		    :		      8,000		 +8,000
+TVLN.ce31		    :		      4,000		 +4,000
+TBYT.ce31		    :		 12,128,000	    +12,128,000
+PERQ_PKT(0).ce31	    :		      4,000		 +4,000
+PERQ_BYTE(0).ce31	    :		  6,056,000	     +6,056,000
+UC_PERQ_PKT(0).ce31	    :		      4,000		 +4,000
+UC_PERQ_BYTE(0).ce31	    :		  6,072,000	     +6,072,000
+== ERR
+== PS2
+                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+      ce30(  9)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+      ce31( 13)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No

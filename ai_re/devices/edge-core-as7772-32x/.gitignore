@@ -1,0 +1,9 @@
+dumps/
+result*
+nixos-build/
+*-private.txt
+serial-*.txt
+.build/
+*.withscrollback
+.capture-offset
+__pycache__/
