@@ -391,6 +391,71 @@ int ob_sdk_init(int unit, const char* config_file, const char* rc_file, char* er
     return BCM_E_NONE;
 }
 
+/* See sdk_glue.h. The diag shell's own "init soc" / "init misc", the path
+ * every MDIO bring-up on the AS7772 used (bcm.user). */
+static int mdio_ready;
+int ob_sdk_init_mdio(int unit, const char* config_file, char* err, int errlen)
+{
+    char cmd[32];
+    int rv, want, have = -1;
+    uint32 rate = 0, cfg = 0;
+    if (!config_file || !*config_file || access(config_file, R_OK) != 0) {
+        seterr(err, errlen, "SDK config file '%s' missing or unreadable (%d)", config_file ? config_file : "", errno);
+        return BCM_E_CONFIG;
+    }
+    rv = sdk_boot(unit, config_file, err, errlen);
+    if (rv < 0) return rv;
+    if (unit < 0 || unit >= soc_ndev || !soc_attached(unit)) {
+        seterr(err, errlen, "no attached switch unit%s (soc_ndev %d)", "", soc_ndev);
+        return BCM_E_UNIT;
+    }
+    snprintf(cmd, sizeof(cmd), "init soc");
+    if (sh_process_command(unit, cmd) != CMD_OK) {
+        seterr(err, errlen, "init soc failed%s (%d)", "", -1);
+        return BCM_E_FAIL;
+    }
+    snprintf(cmd, sizeof(cmd), "init misc");
+    if (sh_process_command(unit, cmd) != CMD_OK) {
+        seterr(err, errlen, "init misc failed%s (%d)", "", -1);
+        return BCM_E_FAIL;
+    }
+    want = soc_property_get(unit, spn_MDIO_OUTPUT_DELAY, -1);
+    if (soc_feature(unit, soc_feature_cmicm) && SOC_REG_IS_VALID(unit, CMIC_MIIM_CONFIGr) &&
+        soc_reg_field_valid(unit, CMIC_MIIM_CONFIGr, MDIO_OUT_DELAYf)) {
+        SOC_IF_ERROR_RETURN(READ_CMIC_MIIM_CONFIGr(unit, &cfg));
+        have = (int)soc_reg_field_get(unit, CMIC_MIIM_CONFIGr, cfg, MDIO_OUT_DELAYf);
+        if (SOC_REG_IS_VALID(unit, CMIC_RATE_ADJUSTr)) (void)READ_CMIC_RATE_ADJUSTr(unit, &rate);
+        if (want >= 0 && have != want) {
+            seterr(err, errlen, "MDIO hold delay on the chip differs from mdio_output_delay%s (chip %d): "
+                   "refusing MDIO access", "", have);
+            return BCM_E_CONFIG;
+        }
+    }
+    mdio_ready = 1;
+    if (err && errlen > 0)
+        snprintf(err, errlen, "%s: init soc + init misc done; external MDIO rate register 0x%08x, hold delay %d%s",
+                 soc_dev_name(unit), (unsigned)rate, have, want >= 0 ? " (as configured)" : " (SDK default)");
+    return BCM_E_NONE;
+}
+
+int ob_sdk_mdio_c45_read(int unit, unsigned phy, unsigned dev, unsigned reg, unsigned* val)
+{
+    uint16 d = 0;
+    int rv;
+    if (!mdio_ready && !sdk_inited) return BCM_E_INIT;
+    if (dev < 1 || dev > 31 || reg > 0xffff) return BCM_E_PARAM;
+    rv = soc_miimc45_read(unit, phy, (uint8)dev, (uint16)reg, &d);
+    *val = d;
+    return rv;
+}
+
+int ob_sdk_mdio_c45_write(int unit, unsigned phy, unsigned dev, unsigned reg, unsigned val)
+{
+    if (!mdio_ready && !sdk_inited) return BCM_E_INIT;
+    if (dev < 1 || dev > 31 || reg > 0xffff || val > 0xffff) return BCM_E_PARAM;
+    return soc_miimc45_write(unit, phy, (uint8)dev, (uint16)reg, (uint16)val);
+}
+
 static void link_handler(int unit, bcm_port_t port, bcm_port_info_t* info)
 {
     (void)unit;
@@ -618,6 +683,26 @@ int ob_sdk_port_fec_set(int unit, int port, int mode)
 
 int ob_sdk_port_autoneg_set(int unit, int port, int on) { return bcm_port_autoneg_set(unit, port, on); }
 int ob_sdk_port_autoneg_get(int unit, int port, int* on) { return bcm_port_autoneg_get(unit, port, on); }
+
+int ob_sdk_port_interface_set(int unit, int port, const char* name)
+{
+    static const struct { const char* name; bcm_port_if_t intf; } map[] = {
+        {"caui", BCM_PORT_IF_CAUI}, {"caui4", BCM_PORT_IF_CAUI4}, {"caui_c2c", BCM_PORT_IF_CAUI_C2C},
+        {"caui_c2m", BCM_PORT_IF_CAUI_C2M}, {"xlaui", BCM_PORT_IF_XLAUI}, {"cr4", BCM_PORT_IF_CR4},
+        {"sr4", BCM_PORT_IF_SR4}, {"lr4", BCM_PORT_IF_LR4}, {"kr4", BCM_PORT_IF_KR4}, {"sfi", BCM_PORT_IF_SFI},
+        {"xfi", BCM_PORT_IF_XFI}, {"cr", BCM_PORT_IF_CR}, {"sr", BCM_PORT_IF_SR}, {"kr", BCM_PORT_IF_KR}};
+    unsigned i;
+    for (i = 0; i < sizeof(map) / sizeof(map[0]); i++)
+        if (strcmp(map[i].name, name) == 0) return bcm_port_interface_set(unit, port, map[i].intf);
+    return BCM_E_PARAM;
+}
+
+int ob_sdk_port_ifg_set(int unit, int port, int bits)
+{
+    int speed = 0, rv = bcm_port_speed_get(unit, port, &speed);
+    if (rv < 0) return rv;
+    return bcm_port_ifg_set(unit, port, speed, BCM_PORT_DUPLEX_FULL, bits);
+}
 
 int ob_sdk_port_loopback_set(int unit, int port, int mode)
 {

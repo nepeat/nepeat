@@ -232,6 +232,12 @@ public:
         return SAI_STATUS_SUCCESS;
     }
     sai_status_t port_autoneg_set(int hw, bool on) override { RV(ob_sdk_port_autoneg_set(unit_, hw, on)); return SAI_STATUS_SUCCESS; }
+    sai_status_t port_interface_set(int hw, const std::string& name) override
+    {
+        RV(ob_sdk_port_interface_set(unit_, hw, name.c_str()));
+        return SAI_STATUS_SUCCESS;
+    }
+    sai_status_t port_ifg_set(int hw, uint32_t bits) override { RV(ob_sdk_port_ifg_set(unit_, hw, (int)bits)); return SAI_STATUS_SUCCESS; }
     sai_status_t port_loopback_set(int hw, Loopback lb) override
     {
         RV(ob_sdk_port_loopback_set(unit_, hw, lb == Loopback::Mac ? 1 : lb == Loopback::Phy ? 2 : 0));

@@ -62,6 +62,10 @@ with counters, CoPP policers, SAI temperatures and the temperature publisher
 | `SAI_OPENBCM_LOG_STDERR` | 0 | also log to stderr (always syslog, `sai-openbcm` prefix, per-API level from `sai_log_set`, default WARN) |
 | `SAI_OPENBCM_TEMP_FILE` / `_PROM` | none | while the switch exists, publish the ASIC temperature to these files, exactly as `openbcm-asic-temp --out/--prom` (same code, `src/temp_files.c`); neither set: no publisher thread |
 | `SAI_OPENBCM_TEMP_INTERVAL` | 5 | publisher period in seconds (1..3600) |
+| `SAI_OPENBCM_PORT_INTERFACE` | SDK default | board port quirk, every front-panel port: interface type the MAC/SerDes runs (`caui`, `caui4`, `xlaui`, `cr4`, `sr4`, `kr4`, `sfi`, `xfi`, ...: `port_interface_names()` in backend.h), set at switch creation and again after every speed change. For boards whose ASIC lanes end at another chip (retimer, MACsec PHY) instead of a cage. Unknown name, or a quirk the chip refuses: the switch is not created |
+| `SAI_OPENBCM_PORT_FEC` | from SAI | `none`/`rs`/`fc`: the ASIC-side FEC is fixed to this; `SAI_PORT_ATTR_FEC_MODE` is accepted, kept and returned, not programmed (the external PHY does the line-side FEC) |
+| `SAI_OPENBCM_PORT_AUTONEG` | from SAI | `off`/`on`: fixed the same way; `AUTO_NEG_MODE` is kept, not programmed |
+| `SAI_OPENBCM_PORT_IFG` | SDK default (96) | average inter-frame gap in bit times (64..504, multiple of 8; `bcm_port_ifg_set`), e.g. 128 = `CLMAC_TX_CTRL AVERAGE_IPG=16` |
 | `SAI_OPENBCM_FAKE_PORTS` / `_LANES` / `_SPEED` | 32 / 4 / 100000 | fake: port count, lanes per port, initial speed |
 | `SAI_OPENBCM_FAKE_LINK` | `admin` | fake: link follows admin state; `none`: never (loopback still links) |
 | `SAI_OPENBCM_FAKE_NETDEV` | `none` | fake: `tap` makes every hostif netif a Linux TAP netdev of that name (MAC set, carrier = hostif OPER_STATUS), as KNET does on the switch; needs CAP_NET_ADMIN and `/dev/net/tun`. For running swss on the fake. |
@@ -256,6 +260,9 @@ CXXFLAGS=-I<SAI/experimental> check`.
   removal), capability table, capacity attributes (values, free counts
   following the model, the still-unsupported ones), fake NETDEV/WIRE profile
   validation, dump, remove/re-create.
+- `test_port_quirks` (in test_sai): the `SAI_OPENBCM_PORT_*` keys: applied to every port at creation and after a
+  speed change, FEC / autoneg kept but not programmed, bad values and a refused quirk fail the create, no key = no call.
+- `tests/test_mdio_script.c`: the MDIO script interpreter on a fake bus (order, polls, failures, refused files).
 - `tests/test_acl.inc` (in test_sai): policer attributes, CoPP rules per trap
   type / action / group (shared meter, colour actions, IP2ME priority), ACL
   table qualifier sets, entries installed only when bound, PORT / direct /
@@ -316,6 +323,29 @@ generated one (`SAI_INIT_CONFIG_FILE` in the system's `sai.profile` under
    left disabled unless the test enabled them; KNET netifs vanish with the next
    SAI start (cleanup) or `rmmod linux-bcm-knet linux-user-bde linux-kernel-bde`.
    A new syncd re-runs `init all`.
+
+## openbcm-mdio-script: PHYs without an SDK driver
+
+`bin/openbcm-mdio-script --config CONFIG.BCM SCRIPT...` runs MDIO scripts through the switch chip's external MDIO
+master, for PHYs between the ASIC and the cages that the SDK cannot drive (first user: the AS7772-32X's BCM82391
+MACsec PHYs, whose only driver is a vendor binary: the script is that library's recorded bring-up). It is a
+separate process that runs once per boot before syncd, not part of libsai, because the PHYs keep their state
+across SDK restarts (inside `create_switch` the 100 s download would be repeated on every syncd start, with
+orchagent waiting on the create), and because a failed PHY bring-up should fail its own unit, not the switch.
+- **Script format** ([src/mdio_script.h](src/mdio_script.h)): text, one operation per line: `W` write, `D` delay,
+  `R` read, `E` read and compare (counted), `P`/`N` poll until a value shows / goes away (fails the script),
+  `L` label. Clause 45 only (device 0 is a syntax error). No chip knowledge in the runner: whatever makes the
+  script decides what is a poll. `--check` parses only (also in fake builds).
+- **SDK bring-up**: `init soc` + `init misc` only (`ob_sdk_init_mdio`). Misc init programs the MDIO clock and hold
+  delay (`rate_ext_mdio_divisor`, `mdio_output_delay`); when the config sets `mdio_output_delay` the chip's field
+  is read back and a difference refuses all MDIO access. Never use MDIO after a bare `init soc` (AS7772: corrupted
+  frames hang its PHYs until a power cycle).
+- Every script is parsed completely before the chip is touched; a missing or malformed file writes nothing.
+  The process takes the per-unit SDK lock (exit 3 when syncd, bcm.user or openbcm-asic-temp holds it).
+- Delays under 20 ms are spun (kernels without high-resolution timers round a sleep up to a tick). About 20 us
+  per MDIO access on the T2080: 963,000 accesses + 54 s of delays in 98 s.
+- NixOS: `hardware.openbcm.mdioScript` ([switch/openbcm.nix](../../modules/switch/openbcm.nix)), script paths
+  outside the store. Tests: `tests/test_mdio_script.c` (fake bus; in `make check`).
 
 ## openbcm-asic-temp
 

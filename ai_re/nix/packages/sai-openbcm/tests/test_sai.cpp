@@ -1674,6 +1674,91 @@ static std::string slurp(const std::string& p)
 }
 static bool exists(const std::string& p) { return std::ifstream(p).good(); }
 
+// Board port quirks (SAI_OPENBCM_PORT_*): applied to every port at creation
+// and after a speed change; fixed FEC / autoneg keep the SAI attribute
+// without programming it; bad values refuse the switch.
+static void test_port_quirks()
+{
+    sai_attribute_t a;
+    sai_object_id_t ports[64];
+    OK(sw->remove_switch(g_sw));
+    g_profile["SAI_OPENBCM_FAKE_PORTS"] = "4";
+    g_profile["SAI_OPENBCM_FAKE_LANES"] = "4";
+    g_profile["SAI_OPENBCM_FAKE_SPEED"] = "100000";
+    for (auto kv : std::vector<std::pair<std::string, std::string>>{
+             {"SAI_OPENBCM_PORT_INTERFACE", "bogus"}, {"SAI_OPENBCM_PORT_FEC", "on"},
+             {"SAI_OPENBCM_PORT_AUTONEG", "0"}, {"SAI_OPENBCM_PORT_IFG", "100"}, {"SAI_OPENBCM_PORT_IFG", "16"},
+             {"SAI_OPENBCM_PORT_IFG", "128x"}}) {
+        g_profile[kv.first] = kv.second;
+        CHECK_EQ(create_switch_default(), SAI_STATUS_INVALID_PARAMETER);
+        CHECK(!ctx().switch_created);
+        g_profile.erase(kv.first);
+    }
+    g_profile["SAI_OPENBCM_PORT_INTERFACE"] = "caui";
+    g_profile["SAI_OPENBCM_PORT_FEC"] = "none";
+    g_profile["SAI_OPENBCM_PORT_AUTONEG"] = "off";
+    g_profile["SAI_OPENBCM_PORT_IFG"] = "128";
+    OK(create_switch_default());
+    a.id = SAI_SWITCH_ATTR_PORT_LIST;
+    a.value.objlist.count = 64;
+    a.value.objlist.list = ports;
+    OK(sw->get_switch_attribute(g_sw, 1, &a));
+    CHECK_EQ(a.value.objlist.count, 4u);
+    for (auto& kv : fake().port_state) {
+        CHECK(kv.second.iface == "caui");
+        CHECK_EQ(kv.second.ifg, 128u);
+        CHECK(kv.second.fec == Fec::None && !kv.second.autoneg && !kv.second.admin);
+    }
+    // SONiC's FEC and autoneg: accepted, returned, not programmed.
+    a.id = SAI_PORT_ATTR_FEC_MODE;
+    a.value.s32 = SAI_PORT_FEC_MODE_RS;
+    OK(pa->set_port_attribute(ports[0], &a));
+    a.value.s32 = 0;
+    OK(pa->get_port_attribute(ports[0], 1, &a));
+    CHECK_EQ(a.value.s32, SAI_PORT_FEC_MODE_RS);
+    CHECK(fake().port_state[1].fec == Fec::None);
+    a.value.s32 = 99;
+    CHECK(SAI_STATUS_IS_INVALID_ATTR_VALUE(pa->set_port_attribute(ports[0], &a)));
+    a.id = SAI_PORT_ATTR_AUTO_NEG_MODE;
+    a.value.booldata = true;
+    OK(pa->set_port_attribute(ports[0], &a));
+    OK(pa->get_port_attribute(ports[0], 1, &a));
+    CHECK(a.value.booldata);
+    CHECK(!fake().port_state[1].autoneg);
+    // A speed change applies the quirks again (the SDK re-does the MAC setup).
+    int before = fake().port_state[1].quirk_calls;
+    fake().port_state[1].ifg = 0;
+    fake().port_state[1].iface.clear();
+    a.id = SAI_PORT_ATTR_SPEED;
+    a.value.u32 = 40000;
+    OK(pa->set_port_attribute(ports[0], &a));
+    CHECK_EQ(fake().port_state[1].quirk_calls, before + 2);
+    CHECK(fake().port_state[1].iface == "caui");
+    CHECK_EQ(fake().port_state[1].ifg, 128u);
+    for (auto& kv : fake().port_state)               // other ports untouched
+        if (kv.first != 1) CHECK_EQ(kv.second.quirk_calls, 2);
+    OK(sw->remove_switch(g_sw));
+    // A quirk the chip refuses (4-lane interface on 1-lane ports) refuses the switch.
+    g_profile["SAI_OPENBCM_FAKE_LANES"] = "1";
+    g_profile["SAI_OPENBCM_FAKE_SPEED"] = "25000";
+    CHECK_EQ(create_switch_default(), SAI_STATUS_FAILURE);
+    CHECK(!ctx().switch_created);
+    // No keys: nothing is touched.
+    for (const char* k : {"SAI_OPENBCM_PORT_INTERFACE", "SAI_OPENBCM_PORT_FEC", "SAI_OPENBCM_PORT_AUTONEG",
+                          "SAI_OPENBCM_PORT_IFG"})
+        g_profile.erase(k);
+    OK(create_switch_default());
+    for (auto& kv : fake().port_state) CHECK_EQ(kv.second.quirk_calls, 0);
+    a.id = SAI_SWITCH_ATTR_PORT_LIST;
+    a.value.objlist.count = 64;
+    a.value.objlist.list = ports;
+    OK(sw->get_switch_attribute(g_sw, 1, &a));
+    a.id = SAI_PORT_ATTR_FEC_MODE;
+    a.value.s32 = SAI_PORT_FEC_MODE_RS;
+    OK(pa->set_port_attribute(ports[0], &a));
+    CHECK(fake().port_state[1].fec == Fec::Rs);
+}
+
 static void test_dump_and_teardown()
 {
     const char* path = "test-dump.txt";
@@ -1744,6 +1829,7 @@ static void test_dump_and_teardown()
     std::this_thread::sleep_for(std::chrono::milliseconds(1200));
     CHECK(!exists(out));
     std::remove(tdir.c_str());
+    test_port_quirks();
     OK(sai_api_uninitialize());
     CHECK(!ctx().switch_created);
     CHECK_EQ(sai_api_uninitialize(), SAI_STATUS_UNINITIALIZED);

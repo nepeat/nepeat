@@ -1,4 +1,5 @@
-"""AS7760-32X chassis: 6 fan drawers (12 rotors), 5 thermals, 2 PSUs,
+"""AS7760-32X chassis: 6 fan drawers (12 rotors), 5 thermals (thermal.py; a
+derivative board has its own sensor list), 2 PSUs,
 32 QSFP28 cages (physical index = SONiC port_config index = cage 1..32),
 ONIE syseeprom.
 
@@ -15,7 +16,7 @@ from .eeprom import Eeprom
 from .fan import FanDrawer
 from .psu import Psu
 from .sfp import Sfp
-from .thermal import AsicThermal, BoardThermal
+from .thermal import AsicThermal, BoardThermal, sensors
 
 POLL = 0.5                                # presence poll period of get_change_event (s)
 
@@ -25,7 +26,8 @@ class Chassis(ChassisBase):
         ChassisBase.__init__(self)
         self._fan_drawer_list = [FanDrawer(i) for i in range(1, 7)]
         self._fan_list = [f for d in self._fan_drawer_list for f in d.get_all_fans()]
-        self._thermal_list = [BoardThermal(i) for i in range(1, 5)] + [AsicThermal(5)]
+        n = len(sensors())
+        self._thermal_list = [BoardThermal(i) for i in range(1, n + 1)] + [AsicThermal(n + 1)]
         self._psu_list = [Psu(1), Psu(2)]
         self._sfp_list = [None] + [Sfp(p) for p in range(1, hw.NUM_PORTS + 1)]
         self._eeprom = None

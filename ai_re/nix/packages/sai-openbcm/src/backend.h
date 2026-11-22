@@ -49,6 +49,14 @@ struct IpPrefix {
 };
 
 enum class Fec { None, Rs, Fc };
+// Interface types SAI_OPENBCM_PORT_INTERFACE accepts (sdk_glue.c maps them
+// to BCM_PORT_IF_*).
+inline const std::vector<std::string>& port_interface_names()
+{
+    static const std::vector<std::string> n = {"caui", "caui4", "caui_c2c", "caui_c2m", "xlaui", "cr4", "sr4",
+                                               "lr4", "kr4", "sfi", "xfi", "cr", "sr", "kr"};
+    return n;
+}
 enum class Loopback { None, Mac, Phy };
 enum class Learn { Hw, Disable, Drop, Cpu };
 
@@ -289,6 +297,11 @@ public:
     virtual sai_status_t port_frame_max_set(int hw, uint32_t bytes) = 0;
     virtual sai_status_t port_fec_set(int hw, Fec f) = 0;
     virtual sai_status_t port_autoneg_set(int hw, bool on) = 0;
+    // Board port quirks (SAI_OPENBCM_PORT_*, sai_port.cpp): the interface
+    // type the MAC/SerDes runs (names: port_interface_names()) and the
+    // average inter-frame gap in bit times.
+    virtual sai_status_t port_interface_set(int hw, const std::string& name) { (void)hw; (void)name; return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t port_ifg_set(int hw, uint32_t bits) { (void)hw; (void)bits; return SAI_STATUS_NOT_SUPPORTED; }
     virtual sai_status_t port_loopback_set(int hw, Loopback lb) = 0;
     virtual sai_status_t port_pvid_set(int hw, uint16_t vid) = 0;
     virtual sai_status_t port_learn_set(int hw, Learn mode) = 0;

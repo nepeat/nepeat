@@ -23,16 +23,20 @@ SDK_CFLAGS = $(shell cat $(OPENBCM)/share/openbcm/cflags) \
   -I$(OPENBCM)/include/openbcm/include -I$(OPENBCM)/include/openbcm/bde \
   -I$(OPENBCM)/include/openbcm/kmod -I$(OPENBCM)/include/openbcm/phymod
 SDK_LIBS = -L$(OPENBCM)/lib -lsdk -Wl,-rpath,$(OPENBCM)/lib
-TOOLS = build/openbcm-asic-temp build/openbcm-diag
+TOOLS = build/openbcm-asic-temp build/openbcm-diag build/openbcm-mdio-script
+MDIO_SDK = -DOB_HAVE_SDK build/sdk_glue.o $(SDK_LIBS)
+MDIO_DEPS = build/sdk_glue.o
 else
 BACKEND_OBJS = build/backend_none.o
 SDK_LIBS =
-TOOLS = build/openbcm-diag
+TOOLS = build/openbcm-diag build/openbcm-mdio-script
+MDIO_SDK =
+MDIO_DEPS =
 endif
 
 OBJS = $(patsubst src/%.cpp,build/%.o,$(CORE)) build/temp_files.o $(BACKEND_OBJS)
 
-all: build/libsai.so.1.0.0 build/test_sai $(TOOLS)
+all: build/libsai.so.1.0.0 build/test_sai build/test_mdio_script $(TOOLS)
 
 build/%.o: src/%.cpp src/*.h
 	@mkdir -p build
@@ -57,6 +61,16 @@ build/openbcm-diag: src/openbcm_diag.c
 	@mkdir -p build
 	$(CC) -std=gnu11 -Wall -Wextra $(CFLAGS) $(LDFLAGS) -o $@ $<
 
+# MDIO script runner for PHYs without an SDK driver (src/mdio_script.h);
+# without the SDK: --check only.
+build/openbcm-mdio-script: src/mdio_script_main.c src/mdio_script.c src/mdio_script.h $(MDIO_DEPS)
+	@mkdir -p build
+	$(CC) -std=gnu11 -Wall -Wextra $(CFLAGS) -Isrc $(LDFLAGS) -o $@ src/mdio_script_main.c src/mdio_script.c $(MDIO_SDK) -lpthread
+
+build/test_mdio_script: tests/test_mdio_script.c src/mdio_script.c src/mdio_script.h
+	@mkdir -p build
+	$(CC) -std=gnu11 -Wall -Wextra $(CFLAGS) -Isrc -o $@ tests/test_mdio_script.c src/mdio_script.c
+
 build/libsai.a: $(OBJS)
 	$(AR) rcs $@ $^
 
@@ -69,8 +83,9 @@ build/libsai.so.1.0.0: $(OBJS) src/libsai.map
 build/test_sai: tests/test_sai.cpp tests/test_acl.inc tests/test_qos.inc build/libsai.a
 	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) -o $@ tests/test_sai.cpp build/libsai.a $(SDK_LIBS) -lpthread
 
-check: build/test_sai
+check: build/test_sai build/test_mdio_script
 	./build/test_sai
+	./build/test_mdio_script
 
 install: build/libsai.so.1.0.0 $(TOOLS)
 	install -Dm755 build/libsai.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libsai.so.1.0.0

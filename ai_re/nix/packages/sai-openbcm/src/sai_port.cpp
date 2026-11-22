@@ -4,6 +4,9 @@
 // from the backend at switch creation; ports cannot be created or removed.
 #include "sai_internal.h"
 
+#include <algorithm>
+#include <cstdlib>
+
 namespace ob {
 
 static const StubDef port_stubs[] = {
@@ -88,6 +91,71 @@ sai_status_t port_stats_get(int hw, uint32_t n, const sai_stat_id_t* ids, uint64
     return SAI_STATUS_SUCCESS;
 }
 
+// ----------------------------------------------------------- board quirks
+sai_status_t port_quirks_parse(const BackendConfig& cfg, PortQuirks& q)
+{
+    q = PortQuirks();
+    std::string v = cfg.get("SAI_OPENBCM_PORT_INTERFACE");
+    if (!v.empty()) {
+        const auto& names = port_interface_names();
+        if (std::find(names.begin(), names.end(), v) == names.end()) {
+            OB_ERR(SAI_API_SWITCH, "SAI_OPENBCM_PORT_INTERFACE '%s': unknown interface type", v.c_str());
+            return SAI_STATUS_INVALID_PARAMETER;
+        }
+        q.interface = v;
+    }
+    v = cfg.get("SAI_OPENBCM_PORT_FEC");
+    if (v == "none") q.fec = (int)Fec::None;
+    else if (v == "rs") q.fec = (int)Fec::Rs;
+    else if (v == "fc") q.fec = (int)Fec::Fc;
+    else if (!v.empty()) {
+        OB_ERR(SAI_API_SWITCH, "SAI_OPENBCM_PORT_FEC '%s': none|rs|fc", v.c_str());
+        return SAI_STATUS_INVALID_PARAMETER;
+    }
+    v = cfg.get("SAI_OPENBCM_PORT_AUTONEG");
+    if (v == "off") q.autoneg = 0;
+    else if (v == "on") q.autoneg = 1;
+    else if (!v.empty()) {
+        OB_ERR(SAI_API_SWITCH, "SAI_OPENBCM_PORT_AUTONEG '%s': off|on", v.c_str());
+        return SAI_STATUS_INVALID_PARAMETER;
+    }
+    v = cfg.get("SAI_OPENBCM_PORT_IFG");
+    if (!v.empty()) {
+        char* end = nullptr;
+        long n = std::strtol(v.c_str(), &end, 10);
+        if (*end || n < 64 || n > 504 || n % 8) {
+            OB_ERR(SAI_API_SWITCH, "SAI_OPENBCM_PORT_IFG '%s': bit times, a multiple of 8 in 64..504", v.c_str());
+            return SAI_STATUS_INVALID_PARAMETER;
+        }
+        q.ifg = (uint32_t)n;
+    }
+    if (!q.interface.empty() || q.fec >= 0 || q.autoneg >= 0 || q.ifg)
+        OB_NOTICE(SAI_API_SWITCH, "port quirks: interface %s, ASIC FEC %s, autoneg %s, IFG %s%s",
+                  q.interface.empty() ? "(SDK)" : q.interface.c_str(),
+                  q.fec < 0 ? "from SAI" : q.fec == (int)Fec::Rs ? "fixed rs" : q.fec == (int)Fec::Fc ? "fixed fc" : "fixed none",
+                  q.autoneg < 0 ? "from SAI" : q.autoneg ? "fixed on" : "fixed off",
+                  q.ifg ? std::to_string(q.ifg).c_str() : "(SDK)", q.ifg ? " bits" : "");
+    return SAI_STATUS_SUCCESS;
+}
+
+// Order as the diag shell's "port ... an=off if=... " does it: autoneg,
+// interface, then FEC and the inter-frame gap.
+void port_quirks_apply(PortObj& p)
+{
+    PortQuirks& q = ctx().port_quirks;
+    Backend& be = *ctx().be;
+    auto check = [&](const char* what, sai_status_t st) {
+        if (st == SAI_STATUS_SUCCESS) return;
+        OB_ERR(SAI_API_PORT, "port %s: quirk %s not applied (%d)", p.sdk_name.c_str(), what, st);
+        q.failed = true;
+    };
+    if (p.cpu) return;
+    if (q.autoneg >= 0) check("autoneg", be.port_autoneg_set(p.hw, q.autoneg != 0));
+    if (!q.interface.empty()) check("interface", be.port_interface_set(p.hw, q.interface));
+    if (q.fec >= 0) check("fec", be.port_fec_set(p.hw, (Fec)q.fec));
+    if (q.ifg) check("ifg", be.port_ifg_set(p.hw, q.ifg));
+}
+
 // ------------------------------------------------------------------- ports
 static PortObj* port_of(sai_object_id_t oid)
 {
@@ -112,7 +180,10 @@ static sai_status_t port_set_one(PortObj& p, const sai_attribute_t& a, uint32_t 
         return attr_backend_status(st, i);
     case SAI_PORT_ATTR_SPEED:
         if (a.value.u32 == 0) return attr_invalid(i);
-        return attr_backend_status(be.port_speed_set(p.hw, a.value.u32), i);
+        st = be.port_speed_set(p.hw, a.value.u32);
+        // A speed change re-does the MAC/SerDes setup: board quirks again.
+        if (st == SAI_STATUS_SUCCESS) port_quirks_apply(p);
+        return attr_backend_status(st, i);
     case SAI_PORT_ATTR_MTU:
         if (a.value.u32 < 68 || a.value.u32 > 9408) return attr_invalid(i);
         // SAI MTU excludes FCS and VLAN tag; the SDK limit is the full frame.
@@ -123,10 +194,22 @@ static sai_status_t port_set_one(PortObj& p, const sai_attribute_t& a, uint32_t 
         if (a.value.s32 != SAI_PORT_FEC_MODE_NONE && a.value.s32 != SAI_PORT_FEC_MODE_RS &&
             a.value.s32 != SAI_PORT_FEC_MODE_FC)
             return attr_invalid(i);
+        if (ctx().port_quirks.fec >= 0) {   // FEC is another chip's job on this board: kept, not programmed
+            p.fec = a.value.s32;
+            OB_INFO(SAI_API_PORT, "port %s FEC mode %d kept (SAI_OPENBCM_PORT_FEC fixes the ASIC side)",
+                    p.sdk_name.c_str(), a.value.s32);
+            return SAI_STATUS_SUCCESS;
+        }
         st = be.port_fec_set(p.hw, to_fec(a.value.s32));
         if (st == SAI_STATUS_SUCCESS) p.fec = a.value.s32;
         return attr_backend_status(st, i);
     case SAI_PORT_ATTR_AUTO_NEG_MODE:
+        if (ctx().port_quirks.autoneg >= 0) {
+            p.autoneg = a.value.booldata;
+            OB_INFO(SAI_API_PORT, "port %s autoneg %d kept (SAI_OPENBCM_PORT_AUTONEG fixes the ASIC side)",
+                    p.sdk_name.c_str(), (int)a.value.booldata);
+            return SAI_STATUS_SUCCESS;
+        }
         st = be.port_autoneg_set(p.hw, a.value.booldata);
         if (st == SAI_STATUS_SUCCESS) p.autoneg = a.value.booldata;
         return attr_backend_status(st, i);

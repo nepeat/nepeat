@@ -317,6 +317,28 @@ sai_status_t FakeBackend::port_autoneg_set(int hw, bool on)
     return SAI_STATUS_SUCCESS;
 }
 
+sai_status_t FakeBackend::port_interface_set(int hw, const std::string& name)
+{
+    std::lock_guard<std::mutex> g(mu);
+    FAKE_PORT(hw);
+    // As the chip: a 4-lane interface type needs a 4-lane port.
+    bool four = name == "caui" || name == "caui4" || name == "caui_c2c" || name == "caui_c2m" || name == "xlaui" ||
+                name == "cr4" || name == "sr4" || name == "lr4" || name == "kr4";
+    if (four && p->info.lanes.size() != 4) return SAI_STATUS_INVALID_PARAMETER;
+    p->iface = name;
+    p->quirk_calls++;
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t FakeBackend::port_ifg_set(int hw, uint32_t bits)
+{
+    std::lock_guard<std::mutex> g(mu);
+    FAKE_PORT(hw);
+    p->ifg = bits;
+    p->quirk_calls++;
+    return SAI_STATUS_SUCCESS;
+}
+
 sai_status_t FakeBackend::port_loopback_set(int hw, Loopback lb)
 {
     std::vector<std::pair<int, bool>> ch;

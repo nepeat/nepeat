@@ -68,6 +68,21 @@ int ob_sdk_temperatures(int unit, int* cur, int* peak, int max, int* count);
  * cycle. Tomahawk only (not TH2). Refused (BCM_E_BUSY) after ob_sdk_init:
  * "init all" armed the SDK's own interrupt handler. */
 int ob_sdk_th_overtemp_shutdown(int unit);
+/* For MDIO access to PHYs the SDK does not manage (openbcm-mdio-script):
+ * "init soc" + "init misc" with config_file, nothing else (no BCM layer, no
+ * port is enabled). Misc init is what programs the external MDIO clock and
+ * hold delay (rate_ext_mdio_divisor, mdio_output_delay) on the CMICm chips;
+ * after a bare "init soc" the chip runs at its reset values, which corrupted
+ * frames on the AS7772 and hung its PHYs until a cold power cycle. So: no
+ * ob_sdk_mdio_* call before this returned success. When the config sets
+ * mdio_output_delay and the chip has the field, it is read back and a
+ * difference fails. err: a line with the MDIO clock registers. */
+int ob_sdk_init_mdio(int unit, const char* config_file, char* err, int errlen);
+/* Clause 45 through the chip's MIIM master; phy = the SDK's address word
+ * (bus in bits 8 and 6:5, address in bits 4:0). Refused (OB_E_INIT) unless
+ * ob_sdk_init_mdio or ob_sdk_init succeeded in this process. */
+int ob_sdk_mdio_c45_read(int unit, unsigned phy, unsigned dev, unsigned reg, unsigned* val);
+int ob_sdk_mdio_c45_write(int unit, unsigned phy, unsigned dev, unsigned reg, unsigned val);
 void ob_sdk_shutdown(int unit);
 int ob_sdk_shell(int unit, const char* cmd);
 /* The same with the shell's stdout output sent to fd (diag socket). */
@@ -107,6 +122,10 @@ int ob_sdk_port_frame_max_set(int unit, int port, int bytes);
 int ob_sdk_port_fec_set(int unit, int port, int mode);           /* 0 none, 1 RS, 2 FC */
 int ob_sdk_port_autoneg_set(int unit, int port, int on);
 int ob_sdk_port_autoneg_get(int unit, int port, int* on);
+/* Board quirks: interface type by name (backend.h port_interface_names) and
+ * the average inter-frame gap in bit times at the port's current speed. */
+int ob_sdk_port_interface_set(int unit, int port, const char* name);
+int ob_sdk_port_ifg_set(int unit, int port, int bits);
 int ob_sdk_port_loopback_set(int unit, int port, int mode);      /* 0 none, 1 MAC, 2 PHY */
 int ob_sdk_port_pvid_set(int unit, int port, int vid);
 int ob_sdk_port_learn_set(int unit, int port, int mode);         /* 0 hw, 1 off, 2 drop, 3 cpu */

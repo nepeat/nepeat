@@ -30,6 +30,27 @@ in {
       default = "himem=0 maxpayload=128 dmasize=16M";
       description = "linux-kernel-bde module options (the AS7760 factory values).";
     };
+    # PHYs in front of the ASIC that the SDK has no driver for (retimers,
+    # MACsec PHYs with a vendor-only library): a recorded MDIO script is run
+    # through the chip's MDIO master once per boot, before anything else
+    # uses the SDK. Format and tool: packages/sai-openbcm (mdio_script.h).
+    mdioScript = {
+      enable = lib.mkEnableOption "running MDIO scripts for external PHYs at boot (openbcm-mdio-script.service)";
+      files = lib.mkOption {
+        type = lib.types.listOf (lib.types.strMatching "/.*");
+        example = [ "/var/lib/evora-phy/init.mdio" ];
+        description = ''
+          Scripts, run in order. Absolute paths on the target, read at run
+          time: private data (vendor firmware words) that is installed by
+          hand and never enters the Nix store. A missing or malformed file
+          fails the unit before any PHY is written.
+        '';
+      };
+      sdkConfig = lib.mkOption {
+        type = lib.types.path;
+        description = "SDK config.bcm for init soc + init misc (it sets the external MDIO clock and hold delay).";
+      };
+    };
     temperature = {
       enable = lib.mkEnableOption "the ASIC die temperature reader (openbcm-asic-temp)";
       interval = lib.mkOption { type = lib.types.ints.between 1 60; default = 5; description = "Seconds between reads."; };
@@ -62,6 +83,31 @@ in {
           [ -c /dev/$d ] || mknod -m 0600 /dev/$d c "$major" 0
         done
       '';
+    };
+
+    # Once per boot (RemainAfterExit; not re-run by nixos-rebuild or a SONiC
+    # restart: the PHYs keep their state while the switch chip is re-inited).
+    # It holds the SDK lock while it runs, so the temperature reader and syncd
+    # are ordered after it. They do not require it: a failed PHY bring-up
+    # leaves the ports down and this unit failed, not the fans without the
+    # ASIC temperature. Re-run by hand: systemctl restart openbcm-mdio-script
+    # with syncd / openbcm-asic-temp stopped.
+    systemd.services.openbcm-mdio-script = lib.mkIf cfg.mdioScript.enable {
+      description = "External PHY bring-up over the switch chip's MDIO bus";
+      wantedBy = [ "multi-user.target" ];
+      requires = [ "openbcm-devices.service" ];
+      after = [ "openbcm-devices.service" ];
+      before = [ "openbcm-asic-temp.service" "sonic-syncd.service" ];
+      restartIfChanged = false;
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = "${sai}/bin/openbcm-mdio-script --config ${cfg.mdioScript.sdkConfig} ${lib.escapeShellArgs cfg.mdioScript.files}";
+        TimeoutStartSec = "15min";
+        NoNewPrivileges = true;
+        ProtectHome = true;
+        PrivateTmp = true;
+      };
     };
 
     systemd.services.openbcm-asic-temp = lib.mkIf cfg.temperature.enable {

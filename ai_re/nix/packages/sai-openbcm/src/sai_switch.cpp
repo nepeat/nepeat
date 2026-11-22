@@ -259,6 +259,8 @@ void switch_build_objects()
         if (st != SAI_STATUS_SUCCESS)
             OB_ERR(SAI_API_SWITCH, "port %s: disable failed (%d)", pi.name.c_str(), st);
         p.admin = false;
+        port_quirks_apply(p);   // board data: interface type, fixed FEC / autoneg, IFG
+        if (c.port_quirks.autoneg >= 0) p.autoneg = c.port_quirks.autoneg != 0;
         bool up = false;
         if (be.port_link_get(pi.hw, up) == SAI_STATUS_SUCCESS && up) p.oper = SAI_PORT_OPER_STATUS_UP;
         for (uint32_t q = 0; q < QUEUES_PER_PORT; q++) {
@@ -369,7 +371,9 @@ static BackendConfig collect_profile()
                                  "SAI_OPENBCM_UNIT", "SAI_OPENBCM_KNET", "SAI_OPENBCM_FAKE_PORTS",
                                  "SAI_OPENBCM_FAKE_LANES", "SAI_OPENBCM_FAKE_SPEED", "SAI_OPENBCM_FAKE_LINK",
                                  "SAI_OPENBCM_FAKE_ON_HARDWARE", "SAI_OPENBCM_RIF_VLAN_BASE",
-                                 "SAI_OPENBCM_TEMP_FILE", "SAI_OPENBCM_TEMP_PROM", "SAI_OPENBCM_TEMP_INTERVAL"};
+                                 "SAI_OPENBCM_TEMP_FILE", "SAI_OPENBCM_TEMP_PROM", "SAI_OPENBCM_TEMP_INTERVAL",
+                                 "SAI_OPENBCM_PORT_INTERFACE", "SAI_OPENBCM_PORT_FEC", "SAI_OPENBCM_PORT_AUTONEG",
+                                 "SAI_OPENBCM_PORT_IFG"};
     for (const char* k : keys) {
         std::string v = profile_get(k, "\x01");
         if (v != "\x01") cfg.profile[k] = v;
@@ -451,7 +455,9 @@ static sai_status_t create_switch(_Out_ sai_object_id_t* switch_id, _In_ uint32_
         }
 
         BackendConfig cfg = collect_profile();
-        sai_status_t st = pick_backend(cfg);
+        sai_status_t st = port_quirks_parse(cfg, c.port_quirks);
+        if (st != SAI_STATUS_SUCCESS) return st;
+        st = pick_backend(cfg);
         if (st != SAI_STATUS_SUCCESS) return st;
         OB_NOTICE(SAI_API_SWITCH, "initializing backend %s", c.be->name());
         st = c.be->init(cfg,
@@ -478,6 +484,15 @@ static sai_status_t create_switch(_Out_ sai_object_id_t* switch_id, _In_ uint32_
         c.switch_stub = stubs;
         c.switch_oid = make_oid(SAI_OBJECT_TYPE_SWITCH, 1);
         switch_build_objects();
+        if (c.port_quirks.failed) {
+            OB_ERR(SAI_API_SWITCH, "a SAI_OPENBCM_PORT_* quirk could not be applied to every port (see above); "
+                                   "refusing to create the switch");
+            switch_clear_objects();
+            c.be->shutdown();
+            c.be.reset();
+            c.switch_oid = 0;
+            return SAI_STATUS_FAILURE;
+        }
         if (const sai_attribute_t* a = find_attr(attr_count, attr_list, SAI_SWITCH_ATTR_FDB_AGING_TIME)) {
             if (c.be->l2_age_set(a->value.u32) == SAI_STATUS_SUCCESS) c.fdb_aging = a->value.u32;
         }

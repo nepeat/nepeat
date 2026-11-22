@@ -41,6 +41,9 @@ public:
         bool link = false;
         Fec fec = Fec::None;
         bool autoneg = false;
+        std::string iface;          // port_interface_set ("" = never set)
+        uint32_t ifg = 0;           // port_ifg_set (0 = never set)
+        int quirk_calls = 0;        // port_interface_set + port_ifg_set calls
         Loopback lb = Loopback::None;
         uint16_t pvid = 1;
         uint32_t frame_max = 9412;
@@ -80,6 +83,8 @@ public:
     sai_status_t port_frame_max_set(int hw, uint32_t bytes) override;
     sai_status_t port_fec_set(int hw, Fec f) override;
     sai_status_t port_autoneg_set(int hw, bool on) override;
+    sai_status_t port_interface_set(int hw, const std::string& name) override;
+    sai_status_t port_ifg_set(int hw, uint32_t bits) override;
     sai_status_t port_loopback_set(int hw, Loopback lb) override;
     sai_status_t port_pvid_set(int hw, uint16_t vid) override;
     sai_status_t port_learn_set(int hw, Learn mode) override;

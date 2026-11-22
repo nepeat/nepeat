@@ -1,4 +1,6 @@
-"""Temperatures: the four board LM75s and the switch ASIC (PVTMON hottest).
+"""Temperatures: the board sensors (hwmon) and the switch ASIC (PVTMON hottest).
+The AS7760 has four LM75s; a derivative board ships its own list as
+sensors.json next to this module (sonic-platform-package.nix `thermals`).
 
 Thresholds mirror fand's policy (nix/modules/thermal/as7760-fan.nix,
 devices/edge-core-7760-32x/thermal.md): board zone 100% fan at 45 C,
@@ -7,9 +9,26 @@ acts on them. The LM75s' own alarm registers are not changed.
 """
 from sonic_platform_base.thermal_base import ThermalBase
 
+import json
+import os
+
 from . import hw
 
-BOARD = [("board_1", 0x48), ("board_2", 0x49), ("board_3", 0x4a), ("cpu_board", 0x4b)]
+# name, hwmon name, I2C address, temp<N>_input, high, critical (C)
+AS7760 = [["board_1", "lm75", 0x48, 1, 45, 50], ["board_2", "lm75", 0x49, 1, 45, 50],
+          ["board_3", "lm75", 0x4a, 1, 45, 50], ["cpu_board", "lm75", 0x4b, 1, 45, 50]]
+_sensors = None
+
+
+def sensors():
+    global _sensors
+    if _sensors is None:
+        try:
+            with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "sensors.json")) as f:
+                _sensors = json.load(f)
+        except FileNotFoundError:
+            _sensors = AS7760
+    return _sensors
 
 
 class _Thermal(ThermalBase):
@@ -88,15 +107,13 @@ class _Thermal(ThermalBase):
 
 
 class BoardThermal(_Thermal):
-    high, critical = 45, 50
-
     def __init__(self, index):
-        name, self.addr = BOARD[index - 1]
+        name, self.chip, self.addr, self.input, self.high, self.critical = sensors()[index - 1]
         _Thermal.__init__(self, name, index)
 
     def _read(self):
-        d = hw.hwmon("lm75", self.addr)
-        v = hw.read_int(d[0] + "/temp1_input") if d else None
+        d = hw.hwmon(self.chip, self.addr)
+        v = hw.read_int("%s/temp%d_input" % (d[0], self.input)) if d else None
         return None if v is None else round(v / 1000.0, 1)
 
 

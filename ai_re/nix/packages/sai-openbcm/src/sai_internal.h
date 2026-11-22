@@ -383,8 +383,24 @@ struct Event {
     FdbEvent fdb;
 };
 
+// Board data for front-panel ports whose line side is another chip (a
+// retimer or MACsec PHY between the ASIC and the cage): profile keys
+// SAI_OPENBCM_PORT_INTERFACE / _FEC / _AUTONEG / _IFG, applied to every
+// front-panel port at switch creation and again after a speed change. With a
+// fixed FEC or autoneg the SAI attribute is kept and returned, not programmed.
+struct PortQuirks {
+    std::string interface;          // "" = SDK default
+    int fec = -1;                   // -1: SAI FEC_MODE programs the ASIC; else (int)Fec, fixed
+    int autoneg = -1;               // -1: SAI AUTO_NEG_MODE programs the ASIC; 0/1 fixed
+    uint32_t ifg = 0;               // average inter-frame gap in bit times; 0 = SDK default
+    bool failed = false;            // a quirk could not be applied (create_switch fails)
+};
+sai_status_t port_quirks_parse(const BackendConfig& cfg, PortQuirks& q);   // sai_port.cpp
+void port_quirks_apply(PortObj& p);
+
 struct Ctx {
     std::recursive_mutex mu;
+    PortQuirks port_quirks;
     bool api_initialized = false;
     sai_service_method_table_t smt{};
     std::unique_ptr<Backend> be;

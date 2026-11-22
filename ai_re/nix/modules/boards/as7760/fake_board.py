@@ -111,12 +111,7 @@ def build(root):
              "outputs": {"fans": {"duty": 53.3, "raw": 136, "rotors": rotors}}}
     put(root, "/run/fand/state.json", json.dumps(state, indent=1))
     for i, (addr, milli) in enumerate([(0x48, 30500), (0x49, 29000), (0x4a, 28500), (0x4b, 31500)]):
-        dev = "/sys/devices/i2c-9/9-%04x" % addr
-        os.makedirs(os.path.join(root, dev.lstrip("/")), exist_ok=True)
-        h = "/sys/class/hwmon/hwmon%d" % (i + 1)
-        put(root, h + "/name", "lm75\n")
-        put(root, h + "/temp1_input", "%d\n" % milli)
-        os.symlink(os.path.join(root, dev.lstrip("/")), os.path.join(root, h.lstrip("/"), "device"))
+        add_hwmon(root, i + 1, "lm75", addr, {1: milli})
     put(root, "/run/asic/temperature", "41.5\n")
     put(root, "/sys/class/mtd/mtd1/name", "hw-info\n")
     put(root, "/sys/class/mtd/mtd1ro/name", "hw-info\n")
@@ -127,6 +122,17 @@ def build(root):
     put(root, "/i2c/cpld1.bin", bytes(cpld))
     put(root, "/i2c/port1.bin", sfp28_dac())
     put(root, "/i2c/port32.bin", qsfp28_sr4())
+
+
+def add_hwmon(root, index, name, addr, temps):
+    """hwmon<index> called name on an I2C client at addr, temps = {N: millidegrees}."""
+    dev = "/sys/devices/i2c-9/9-%04x" % addr
+    os.makedirs(os.path.join(root, dev.lstrip("/")), exist_ok=True)
+    h = "/sys/class/hwmon/hwmon%d" % index
+    put(root, h + "/name", name + "\n")
+    for n, milli in temps.items():
+        put(root, "%s/temp%d_input" % (h, n), "%d\n" % milli)
+    os.symlink(os.path.join(root, dev.lstrip("/")), os.path.join(root, h.lstrip("/"), "device"))
 
 
 if __name__ == "__main__":

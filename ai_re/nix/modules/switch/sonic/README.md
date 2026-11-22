@@ -151,7 +151,9 @@ nix build -L --impure --expr 'let f = builtins.getFlake "path:'$PWD'/nix"; pkgs 
 ## hardware
 
 Runs on the AS7760 at boot (wiring: [boards/as7760](../../boards/as7760/default.nix);
-results: devices/sonic-nixos/PROGRESS.md). Kernel: `NET_VRF` (vrfmgrd; module `vrf`, loaded by vrf.nix), `BRIDGE` + `BRIDGE_VLAN_FILTERING` (vlanmgrd), `VLAN_8021Q`,
+results: devices/sonic-nixos/PROGRESS.md) and on the AS7772 ([boards/as7772](../../boards/as7772/default.nix):
+the same board with MACsec PHYs in front of every port, brought up by `hardware.openbcm.mdioScript` before syncd
+and described to sai-openbcm by its `SAI_OPENBCM_PORT_*` keys; devices/edge-core-as7772-32x/sonic.md). Kernel: `NET_VRF` (vrfmgrd; module `vrf`, loaded by vrf.nix), `BRIDGE` + `BRIDGE_VLAN_FILTERING` (vlanmgrd), `VLAN_8021Q`,
 `NET_TEAM` + `NET_TEAM_MODE_LOADBALANCE` (teamd), `DUMMY`; `TUN` for the
 virtual SAI (`kernelModules` loads them). Vendor SAI: `sai.kind = "vendor"`,
 `sai.package = sonic.sairedis-openbcm libsai`, `sai.libraryPath`,
