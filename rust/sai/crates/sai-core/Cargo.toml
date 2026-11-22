@@ -1,0 +1,17 @@
+[package]
+name = "sai-core"
+description = "Safe core of the Rust SAI: typed object ids, object store with reference rules, the slice's object model, the backend trait and the virtual backend"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+sai-sys.workspace = true
+sai-meta.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true
+
+[lints]
+workspace = true

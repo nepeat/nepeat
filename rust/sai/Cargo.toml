@@ -1,0 +1,58 @@
+# sai-rs: a SAI (libsai.so) in safe Rust behind a small unsafe C-ABI rim. Design: README.md.
+# Its own workspace on purpose (like ../consoled): ../Cargo.toml's crates/* share one lock
+# file and fand's package source is that whole workspace, so a crate there would rebuild
+# fand (and change every appliance's closure) on each edit here, and would put bindgen's
+# dependency tree into fand's lock file.
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+rust-version = "1.87"
+
+[workspace.dependencies]
+sai-sys = { path = "crates/sai-sys" }
+sai-meta = { path = "crates/sai-meta" }
+sai-core = { path = "crates/sai-core" }
+# build-time only: C headers -> Rust declarations (needs libclang at build, nothing at run time)
+bindgen = { version = "0.72", default-features = false, features = ["prettyplease"] }
+# tests only: property tests (object lifecycle, MDIO script parser)
+proptest = { version = "1", default-features = false, features = ["std"] }
+
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+unused_must_use = "deny"
+missing_docs = "warn"
+unreachable_pub = "warn"
+
+[workspace.lints.clippy]
+all = { level = "deny", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+# unsafe hygiene
+undocumented_unsafe_blocks = "deny"
+multiple_unsafe_ops_per_block = "deny"
+missing_safety_doc = "deny"
+unnecessary_safety_comment = "deny"
+unnecessary_safety_doc = "deny"
+# a library loaded into syncd must not abort it
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+indexing_slicing = "deny"
+unreachable = "deny"
+todo = "deny"
+unimplemented = "deny"
+# pedantic lints that would only add noise here
+module_name_repetitions = "allow"
+missing_errors_doc = "allow"
+must_use_candidate = "allow"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "unwind"   # catch_unwind at the C ABI needs it (README, "Panics")
+strip = true

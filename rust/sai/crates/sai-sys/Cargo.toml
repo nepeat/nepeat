@@ -1,0 +1,15 @@
+[package]
+name = "sai-sys"
+description = "Raw SAI 1.19 C ABI: bindgen output from the SAI headers sairedis is pinned to, checked against the C compiler"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+links = "sai-headers"
+build = "build.rs"
+
+[build-dependencies]
+bindgen.workspace = true
+
+[lints]
+workspace = true

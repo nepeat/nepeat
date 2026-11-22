@@ -52,3 +52,12 @@ when the build machine can execute the result.
 | crate | what |
 |---|---|
 | [fand](crates/fand/) | vendor-neutral fan control daemon for switches and appliances |
+
+## Other workspaces
+
+Their own Cargo workspace and lock file each, so that they do not rebuild fand:
+
+| directory | what |
+|---|---|
+| [consoled](consoled/) | serial console server (consoled + line) |
+| [sai](sai/) | a SAI (`libsai.so`) in Rust: safe core, virtual backend, small unsafe C-ABI rim; first slice |

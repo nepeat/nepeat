@@ -1,0 +1,14 @@
+[package]
+name = "sai-meta"
+description = "SAI attribute metadata (value type, flags, allowed object types) generated from the annotations in the SAI headers"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+build = "build.rs"
+
+[dependencies]
+sai-sys.workspace = true
+
+[lints]
+workspace = true

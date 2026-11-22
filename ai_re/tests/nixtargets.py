@@ -91,6 +91,17 @@ let
   vmTest = name: import (src + "/modules/switch/sonic/tests/" + name) { pkgs = p; };
   # a board's sonic_platform package on the build host (its fake-board unit tests: .tests.unit)
   platformPkg = board: p.callPackage (src + "/modules/boards/" + board + "/sonic-platform-package.nix") { inherit sonic; };
+  # The Rust SAI (rust/sai of the monorepo: its own cargo workspace, outside path:./nix, so it
+  # is read from the working tree; every EXTRAS evaluation is --impure). SAI headers: the
+  # sairedis pin; the C MDIO interpreter its Rust port is compared with: sai-openbcm's.
+  saiRsDir = builtins.dirOf @SAI_RS@;
+  saiRs = pk: pk.callPackage @SAI_RS@ {
+    saiSrc = (import (src + "/packages/sonic") { pkgs = pk; }).sources.sairedis;
+    mdioScriptC = builtins.path {
+      path = src + "/packages/sai-openbcm/src"; name = "mdio-script-c";
+      filter = path: type: builtins.elem (baseNameOf path) [ "mdio_script.c" "mdio_script.h" ];
+    };
+  };
   # attribute paths of the derivations in v, at most depth levels down. A value
   # that throws is kept as a path, so its evaluation test fails and names it.
   collect = depth: prefix: v:
@@ -100,7 +111,8 @@ let
        then builtins.concatLists (map (n: collect (depth - 1) (prefix ++ [ n ]) v.${n}) (builtins.attrNames v))
        else [ ];
 in
-""".replace("@FLAKE@", PATH_FLAKE).replace("@SYSTEM@", BUILD_SYSTEM)
+""".replace("@FLAKE@", PATH_FLAKE).replace("@SYSTEM@", BUILD_SYSTEM).replace(
+    "@SAI_RS@", str(AI_RE.parent / "rust" / "sai" / "nix" / "package.nix"))
 
 # id -> (tier, expression, depth). depth 0: the expression is one derivation;
 # depth n: an attribute set walked n levels for derivations (ids id.attr.path).
@@ -115,6 +127,11 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     "as7760-openbcm-libsdk": ("packages", "ppcOpenbcm.libsdk { }", 0),
     "as7760-sai-openbcm": ("packages", "ppcSai", 0),
     "as7760-sairedis-openbcm": ("packages", "ppcSonic.sairedis-openbcm ppcSai", 0),
+    # libsai in Rust (rust/sai: virtual backend, first slice): native with fmt, clippy, unit,
+    # property and C-harness tests and the MDIO interpreter compared with the C one; for the
+    # AS7760's big-endian ppc64 a cross build (bindings checked against the cross gcc).
+    "sai-rs": ("packages", "saiRs p", 0),
+    "as7760-sai-rs": ("packages", "saiRs ppc", 0),
     # Teralynx 7 libsai (CS8210), native build with its checkPhase.
     "sai-teralynx": ("packages", 'p.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }', 0),
     # qemu-user for Marvell's amd64 SAI on the CS8210 + its offline tests
@@ -144,6 +161,8 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     "vm-sonic-openbcm-fake-l3": ("vm", 'vmTest "vm-openbcm-fake-l3.nix"', 0),
     "vm-sonic-bfdd-leak": ("vm", 'vmTest "vm-bfdd-leak.nix"', 0),
     "vm-sai-openbcm-syncd": ("vm", 'import (src + "/packages/sai-openbcm/test-syncd.nix") { pkgs = p; }', 0),
+    # syncd linked against the Rust libsai (virtual backend), its slice through libsairedis.
+    "vm-sai-rs-syncd": ("vm", 'import (saiRsDir + "/test-syncd.nix") { pkgs = p; inherit sonic; libsai = saiRs p; }', 0),
 }
 
 # Discovered ids (regex, full match) that are not targets at all.

@@ -1,0 +1,13 @@
+[package]
+name = "mdio-script"
+description = "MDIO script (clause-45 register recording) parser and interpreter over a bus trait"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true
+
+[lints]
+workspace = true

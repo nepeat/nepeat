@@ -1,0 +1,20 @@
+[package]
+name = "sai-ffi"
+description = "libsai.so: the C ABI of the Rust SAI. The only crate with hand-written unsafe code"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+build = "build.rs"
+
+[lib]
+name = "sai"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+sai-sys.workspace = true
+sai-meta.workspace = true
+sai-core.workspace = true
+
+[lints]
+workspace = true
