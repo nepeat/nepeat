@@ -539,6 +539,10 @@ pub struct SensorConfig {
     /// After a failed reading, keep using the last good value for up to this
     /// long since it was read (default: the global `sensor_grace`, 0).
     pub grace: Option<Secs>,
+    /// "Not online yet": until the sensor's first good reading, and for at
+    /// most this long after the daemon started, a missing reading is not a
+    /// fault (default 0: it is one from the first tick).
+    pub startup_grace: Option<Secs>,
 }
 
 impl SensorConfig {
@@ -1154,6 +1158,8 @@ pub const DEFAULT_KP: f64 = 4.0;
 
 /// Longest allowed sensor `grace` (s).
 pub const MAX_SENSOR_GRACE: f64 = 60.0;
+/// Longest allowed sensor `startup_grace` (s).
+pub const MAX_STARTUP_GRACE: f64 = 3600.0;
 pub const DEFAULT_KI: f64 = 0.05;
 pub const DEFAULT_KD: f64 = 0.0;
 
@@ -1186,6 +1192,9 @@ pub struct ZoneConfig {
     /// Fewer usable sensors than this is a fault (default 1 when the zone
     /// has sensors).
     pub min_sensors: Option<usize>,
+    /// Lowest duty the zone asks for while one of its sensors is not online
+    /// yet (`startup_grace`); default: only its floor.
+    pub waiting_duty: Option<Pct>,
 }
 
 impl ZoneConfig {
@@ -1284,6 +1293,12 @@ impl Config {
             if let Some(g) = s.grace.filter(|g| long(g.0)) {
                 e(format!(
                     "sensors.{name}: grace {}s is above {MAX_SENSOR_GRACE}s; a longer hold hides a dead sensor",
+                    g.0
+                ));
+            }
+            if let Some(g) = s.startup_grace.filter(|g| g.0 > MAX_STARTUP_GRACE) {
+                e(format!(
+                    "sensors.{name}: startup_grace {}s is above {MAX_STARTUP_GRACE}s; a sensor that never comes online must become a fault",
                     g.0
                 ));
             }

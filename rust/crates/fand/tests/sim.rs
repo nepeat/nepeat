@@ -941,3 +941,245 @@ fn no_grace_before_the_first_good_reading() {
     assert_eq!(rig.state("asic"), "failsafe");
     assert!(!rig.in_grace("asic"));
 }
+
+/// A sensor that is "not online yet" at start (the AS7772 ASIC: nothing can
+/// read the chip until the PHY bring-up has the SDK up), with the CPU die as
+/// the stand-in that keeps the fans honest meanwhile.
+const WAIT_RIG: &str = r#"
+sysfs_root: "{root}"
+interval: 2s
+profile: none
+calm_period: 60s
+runtime: { state_file: null, socket: null, calibration_file: null }
+sensors:
+  cpu_die: { type: hwmon, hwmon: max1617, input: temp2 }
+  asic: { type: file, path: /run/asic/temperature, max_age: 20s, grace: 15s, startup_grace: 5m, critical: 100 }
+outputs:
+  fans: { type: hwmon, hwmon: as7760_fan, raw_min: 128 }
+zones:
+  cpu:
+    outputs: [fans]
+    sensors: [cpu_die]
+    policy: { curve: { points: [[65, 53], [80, 75], [90, 100]], hysteresis: 3 } }
+  asic:
+    outputs: [fans]
+    sensors: [asic]
+    policy: delta-asic
+"#;
+
+fn wait_rig(yaml: &str) -> (Rig, PathBuf) {
+    let mut cpu = PathBuf::new();
+    let rig = Rig::build(yaml, true, |r| {
+        cpu = r.fs.hwmon(20, "max1617", "platform/soc/i2c-1/1-0018", None);
+        r.fs.set(&cpu, "temp2_input", "35000");
+    });
+    (rig, cpu)
+}
+
+impl Rig {
+    fn waiting(&self, sensor: &str) -> bool {
+        self.engine.status(self.t).sensors[sensor].waiting
+    }
+}
+
+#[test]
+fn a_sensor_that_is_not_online_yet_is_not_a_fault_and_the_other_zone_cools() {
+    use fand::log::Level;
+    fand::log::capture();
+    let (mut rig, cpu) = wait_rig(WAIT_RIG);
+    // No ASIC file for the first 70 s: no failsafe; the usual startup ramp
+    // from 100 % runs down to the hardware minimum.
+    let duties = rig.run(35);
+    assert_eq!(duties[0], 100.0, "startup duty, not failsafe");
+    // The fans end at the CPU zone's idle point (53 %); the waiting zone
+    // itself asks only for the hardware minimum.
+    assert!(approx(*duties.last().unwrap(), 53.0), "{duties:?}");
+    assert!(approx(rig.zone_duty("asic"), 50.196), "{}", rig.zone_duty("asic"));
+    assert_eq!(rig.state("asic"), "normal");
+    assert_eq!(rig.state("cpu"), "normal");
+    assert!(rig.waiting("asic"));
+    let st = rig.engine.status(rig.t);
+    assert_eq!(st.zones["asic"].waiting, vec!["asic".to_string()]);
+    assert_eq!(st.zones["asic"].temperature, None);
+    assert!(
+        st.sensors["asic"].error.is_some(),
+        "why there is no reading stays visible"
+    );
+    assert!(!st.failsafe);
+    let prom = fand::daemon::prometheus(&st);
+    assert!(prom.contains("fand_sensor_waiting{sensor=\"asic\"} 1"), "{prom}");
+    assert!(prom.contains("fand_zone_failsafe{zone=\"asic\"} 0"), "{prom}");
+    assert!(fand::daemon::summary(&st).contains("(waiting for asic)"));
+    // The stand-in zone does the cooling meanwhile: a hot CPU raises the fans.
+    rig.fs.set(&cpu, "temp2_input", "80000");
+    rig.run(3);
+    assert!(approx(rig.zone_duty("cpu"), 75.0), "{}", rig.zone_duty("cpu"));
+    assert!(approx(rig.engine.output("fans").unwrap().duty.unwrap(), 75.0));
+    rig.fs.set(&cpu, "temp2_input", "35000");
+    // First reading: online, the zone follows its curve from then on.
+    rig.asic_file(Some(90.0)); // delta-asic: 90 %
+    rig.run(3);
+    assert!(!rig.waiting("asic"));
+    assert!(approx(rig.zone_duty("asic"), 90.0), "{}", rig.zone_duty("asic"));
+    assert_eq!(rig.state("asic"), "normal");
+    let log = fand::log::captured();
+    assert!(!log.iter().any(|(l, _)| *l <= Level::Warn), "{log:?}");
+    let info: Vec<&String> = log.iter().filter(|(l, _)| *l == Level::Info).map(|(_, m)| m).collect();
+    assert!(
+        info.iter().any(|m| m.starts_with("sensor asic: not online yet (")
+            && m.ends_with("not a fault for up to 300s after the start")),
+        "{info:?}"
+    );
+    assert!(
+        info.iter()
+            .any(|m| *m == "zone asic: waiting for asic (not online yet): only its floor meanwhile"),
+        "{info:?}"
+    );
+    assert!(
+        info.iter().any(|m| *m == "sensor asic: online after 76s, 90.0 C"),
+        "{info:?}"
+    );
+    assert!(
+        info.iter()
+            .any(|m| *m == "zone asic: all sensors online, resuming curve delta-asic"),
+        "{info:?}"
+    );
+}
+
+#[test]
+fn startup_grace_is_bounded_then_missing_data_is_a_fault() {
+    use fand::log::Level;
+    fand::log::capture();
+    let (mut rig, _cpu) = wait_rig(&WAIT_RIG.replace("startup_grace: 5m", "startup_grace: 60s"));
+    let mut first_fault = None;
+    for _ in 0..40 {
+        let now = rig.t;
+        let d = rig.tick();
+        if rig.state("asic") == "failsafe" {
+            first_fault.get_or_insert((now, d));
+        }
+    }
+    assert_eq!(
+        first_fault,
+        Some((62.0, 100.0)),
+        "not a fault through 60 s, failsafe on the 62 s tick"
+    );
+    assert!(!rig.waiting("asic"));
+    assert_eq!(rig.state("cpu"), "normal");
+    let log = fand::log::captured();
+    assert!(log.iter().any(
+        |(l, m)| *l == Level::Info && m == "sensor asic: still no reading 62s after the start (startup_grace 60s)"
+    ));
+    assert!(
+        log.iter()
+            .any(|(l, m)| *l == Level::Warn && m.starts_with("sensor asic: "))
+    );
+    assert!(
+        log.iter()
+            .any(|(l, m)| *l == Level::Error && m.contains("zone asic: FAILSAFE"))
+    );
+    assert!(!log.iter().any(|(_, m)| m.contains("all sensors online")), "{log:?}");
+    // It then recovers like any sensor: reading, calm period, curve.
+    rig.asic_file(Some(50.0));
+    rig.run(45);
+    assert_eq!(rig.state("asic"), "normal");
+}
+
+#[test]
+fn once_online_a_lost_sensor_is_a_fault_again_after_its_grace_only() {
+    let (mut rig, _cpu) = wait_rig(WAIT_RIG);
+    rig.asic_file(Some(50.0));
+    rig.run(40);
+    assert!(!rig.waiting("asic"));
+    let steady = rig.tick();
+    let last_good = rig.t - DT;
+    // Hand-over gap (writer A stops, writer B starts): held by `grace`.
+    rig.asic_file(None);
+    for _ in 0..3 {
+        assert_eq!(rig.tick(), steady);
+        assert!(rig.in_grace("asic"));
+    }
+    rig.asic_file(Some(51.0));
+    rig.run(5);
+    assert_eq!(rig.state("asic"), "normal");
+    assert!(!rig.in_grace("asic"));
+    // Gone for good, still inside startup_grace (5 min after the start):
+    // failsafe once the 15 s grace is over, never "waiting" again.
+    assert!(rig.t < 300.0 && last_good < rig.t);
+    rig.asic_file(None);
+    let mut states = Vec::new();
+    for _ in 0..10 {
+        rig.tick();
+        assert!(!rig.waiting("asic"));
+        states.push(rig.state("asic"));
+    }
+    assert_eq!(states.iter().filter(|s| **s == "normal").count(), 7, "{states:?}");
+    assert_eq!(*states.last().unwrap(), "failsafe");
+    assert_eq!(rig.raw(), 255);
+}
+
+#[test]
+fn an_early_loss_within_startup_grace_is_still_a_fault() {
+    // Online at 10 s, lost at 20 s: startup_grace (60 s) must not hide that.
+    let (mut rig, _cpu) = wait_rig(&WAIT_RIG.replace("grace: 15s, ", ""));
+    rig.run(5);
+    rig.asic_file(Some(50.0));
+    rig.run(5);
+    assert!(!rig.waiting("asic"));
+    rig.asic_file(None);
+    assert_eq!(rig.tick(), 100.0);
+    assert_eq!(rig.state("asic"), "failsafe");
+    assert!(!rig.waiting("asic"));
+}
+
+#[test]
+fn waiting_duty_and_implausible_first_readings() {
+    // Without a stand-in zone: a configured duty while waiting.
+    let yaml = WAIT_RIG.replace("    policy: delta-asic", "    policy: delta-asic\n    waiting_duty: 70");
+    let (mut rig, _cpu) = wait_rig(&yaml);
+    rig.run(40);
+    assert!(rig.waiting("asic"));
+    assert!(approx(rig.zone_duty("asic"), 70.0), "{}", rig.zone_duty("asic"));
+    assert_eq!(rig.engine.status(rig.t).zones["asic"].demand, Some(70.0));
+    rig.asic_file(Some(50.0));
+    rig.run(40);
+    assert!(approx(rig.zone_duty("asic"), 50.196), "{}", rig.zone_duty("asic"));
+    // A reading that is there but implausible is a fault at once.
+    let (mut rig, _cpu) = wait_rig(WAIT_RIG);
+    rig.asic_file(Some(400.0));
+    assert_eq!(rig.tick(), 100.0);
+    assert_eq!(rig.state("asic"), "failsafe");
+    assert!(!rig.waiting("asic"));
+    // min_sensors: a zone whose only other sensors are waiting is not short.
+    let yaml = WAIT_RIG.replace("sensors: [asic]", "sensors: [asic, cpu_die]\n    min_sensors: 2");
+    let (mut rig, _cpu) = wait_rig(&yaml);
+    rig.run(10);
+    assert_eq!(rig.state("asic"), "normal");
+    assert_eq!(rig.engine.status(rig.t).zones["asic"].temperature, Some(35.0));
+}
+
+#[test]
+fn configs_without_startup_grace_behave_as_before() {
+    // The deployed AS7760 / CS8210 / DMC-12 / TN48M shape: no startup_grace,
+    // so a sensor without a reading is a fault from the first tick.
+    let mut rig = Rig::new(GRACE_RIG);
+    assert_eq!(rig.tick(), 100.0);
+    assert_eq!(rig.state("asic"), "failsafe");
+    assert!(!rig.waiting("asic"));
+    let st = rig.engine.status(rig.t);
+    assert!(st.zones["asic"].waiting.is_empty());
+    let c = Config::parse(&GRACE_RIG.replace("{root}", "/x")).unwrap();
+    assert!(c.sensors["asic"].startup_grace.is_none());
+    assert!(c.zones["asic"].waiting_duty.is_none());
+    let err = Config::parse(
+        &GRACE_RIG
+            .replace("{root}", "/x")
+            .replace("grace: 15s }", "grace: 15s, startup_grace: 2h }"),
+    )
+    .unwrap_err()
+    .0;
+    assert!(
+        err.contains("sensors.asic: startup_grace 7200s is above 3600s"),
+        "{err}"
+    );
+}

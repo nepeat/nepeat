@@ -96,6 +96,7 @@ output through its RPM model.
 | `max_age` | all | exec: `3*interval + timeout` | older readings are stale (errors) |
 | `critical` | all | none | at/above this, every zone using the sensor goes failsafe |
 | `grace` | all | `sensor_grace` | after a failed reading, keep the last good value for up to this long since it was read (at most 60 s), see [Safety model](#safety-model) |
+| `startup_grace` | all | `0s` | "not online yet": until the sensor's first good reading, and for at most this long after the daemon started (up to 1 h), having no reading is not a fault, see [Safety model](#safety-model) |
 
 JSON paths: dot-separated keys; `[]`, `[*]` or `*` for every element of an
 array or every value of an object; `[N]` for an index; a leading `$` is
@@ -238,6 +239,7 @@ a number; a missing file is a NACK.
 | `critical` | none | aggregated temperature at/above which the zone goes failsafe |
 | `failsafe_duty`, `calm_period` | global | per-zone overrides |
 | `min_sensors` | `1` (0 without sensors) | fewer usable sensors is a fault. Set `0` for a zone of optional sensors that may all be absent: it then asks only for its floor |
+| `waiting_duty` | none | lowest duty (percent) the zone asks for while one of its sensors is not online yet (`startup_grace`); without it the zone asks only for its floor meanwhile |
 
 Policies:
 
@@ -316,6 +318,23 @@ recovery or when it runs out; `in_grace` in the status. An exec sensor's
 grace counts from its last successful run, so make it longer than its
 `interval`; a vanished hwmon device is re-resolved only every 10 s, so a
 short grace may not bridge that gap.
+
+**Sensors that are not online at start.** Some sensors cannot have a
+reading when the daemon starts, for a known reason and a bounded time: a
+switch ASIC's die temperature while another program still brings the chip
+up. With `startup_grace` set, such a sensor is *waiting* instead of
+failing: no fault, no failsafe and no `calm_period` at 100 % once it shows
+up. Its zones stay `normal`, leave it out of the aggregation (it counts as
+present for `min_sensors`) and ask for their floor, or for `waiting_duty`
+if set; give the box another zone on a sensor that is there from the start
+(the CPU die, the board) so something real drives the fans meanwhile. The
+wait ends with the first good reading (one INFO line, `online after 132s`)
+or when `startup_grace` has passed since the start, after which the missing
+reading is the ordinary fault. It never comes back: a sensor that has been
+online and disappears gets `grace` at most, however early that happens. A
+reading that is present but implausible is a fault at once. `waiting` in
+the status (sensor: bool, zone: the names), `fand_sensor_waiting`, and
+`(waiting for asic)` in the summary line.
 
 It leaves failsafe only after `calm_period` without any of these, then
 ramps down normally (after the dwell). Every transition is logged with the
@@ -475,6 +494,7 @@ is added to `ReadWritePaths` automatically.
 - `runtime.prometheus_file`: `fand_zone_duty_percent`,
   `fand_zone_temperature_celsius`, `fand_zone_failsafe`,
   `fand_sensor_temperature_celsius`, `fand_sensor_ok`, `fand_sensor_in_grace`,
+  `fand_sensor_waiting`,
   `fand_output_duty_percent`, `fand_output_demand_percent` (requested,
   before the hardware limits), `fand_output_clamped` (1 while raised to the
   hardware minimum), `fand_output_raw`, `fand_output_faults`,
@@ -494,7 +514,8 @@ sensor) covering sensor loss, implausible values, exec failures, fan fault
 flags, stalls, rotors not following, write failures, readback mismatches,
 overrides, rpm floors, hardware-minimum warnings, dry run, PI convergence
 and anti-windup (taking over from a higher zone, ramp/dwell holds), sensor
-grace and panic unwinding. A second simulation drives a DMC-12-like board
+grace, sensors that are not online at start (`startup_grace`,
+`waiting_duty`) and panic unwinding. A second simulation drives a DMC-12-like board
 CPLD (`fakesys::FakeCpld`, an injected I2C backend): the WDT-flag
 handshake at start, after a mid-run reset and when the flag will not clear,
 an unexpected CPLD version, a dead bus, a stalled fan, dry run and exit.

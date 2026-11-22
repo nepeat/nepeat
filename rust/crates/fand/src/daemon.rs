@@ -117,7 +117,12 @@ pub fn summary(s: &Status) -> String {
             other => format!(" {}", other.to_uppercase()),
         };
         let ov = if z.override_duty.is_some() { " (override)" } else { "" };
-        parts.push(format!("{name} {t} -> {:.0}%{state}{ov}", z.duty));
+        let wait = if z.waiting.is_empty() {
+            String::new()
+        } else {
+            format!(" (waiting for {})", z.waiting.join(", "))
+        };
+        parts.push(format!("{name} {t} -> {:.0}%{state}{ov}{wait}", z.duty));
     }
     for (name, o) in &s.outputs {
         if let Some(d) = o.duty {
@@ -211,6 +216,15 @@ pub fn prometheus(s: &Status) -> String {
         s.sensors
             .iter()
             .map(|(n, x)| (sl(n), f64::from(u8::from(x.in_grace))))
+            .collect(),
+    );
+    metric(
+        "fand_sensor_waiting",
+        "1 while a sensor has had no reading since the start and is within its startup_grace",
+        "gauge",
+        s.sensors
+            .iter()
+            .map(|(n, x)| (sl(n), f64::from(u8::from(x.waiting))))
             .collect(),
     );
     let ol = |n: &str| format!("output=\"{}\"", esc(n));
@@ -526,6 +540,7 @@ mod tests {
                 path: None,
                 age: None,
                 in_grace: false,
+                waiting: false,
             },
         );
         let p = prometheus(&s);

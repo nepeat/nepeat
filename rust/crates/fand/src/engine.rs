@@ -254,6 +254,12 @@ pub struct SensorRt {
     last_good: Option<(f64, f64)>,
     /// Failing, but holding `last_good`.
     pub in_grace: bool,
+    /// Seconds after the first update during which "never had a reading"
+    /// is "not online yet" instead of a fault.
+    startup_grace: f64,
+    first_update: Option<f64>,
+    /// No reading yet and still within `startup_grace`: not a fault.
+    pub waiting: bool,
 }
 
 impl SensorRt {
@@ -315,6 +321,9 @@ impl SensorRt {
             grace_ceiling: c.critical,
             last_good: None,
             in_grace: false,
+            startup_grace: c.startup_grace.map_or(0.0, |s| s.0),
+            first_update: None,
+            waiting: false,
         })
     }
 
@@ -350,6 +359,7 @@ impl SensorRt {
     }
 
     pub fn update(&mut self, now: f64, root: &Path) {
+        let t0 = *self.first_update.get_or_insert(now);
         let raw: std::result::Result<(f64, f64), (&'static str, String)> = match &mut self.src {
             Source::Sysfs(loc, res) => match res.get(now, || loc.resolve(root)) {
                 Err(e) => Err(("resolve", e)),
@@ -387,7 +397,11 @@ impl SensorRt {
         });
         match checked {
             Ok((v, at)) => {
-                if self.in_grace {
+                if self.waiting {
+                    self.waiting = false;
+                    self.error = None;
+                    log_info!("sensor {}: online after {:.0}s, {v:.1} C", self.name, now - t0);
+                } else if self.in_grace {
                     self.in_grace = false;
                     self.error = None;
                     let gap = self.last_good.map_or(0.0, |(_, t)| now - t);
@@ -400,6 +414,34 @@ impl SensorRt {
                 self.last_good = Some((v, at));
             }
             Err((kind, msg)) => {
+                // Not online yet: no good reading since the start and still
+                // within startup_grace. Its zones do not fault on it (they
+                // run on their other sensors, their floor or waiting_duty).
+                // A reading that is there but implausible is a fault at once.
+                if self.last_good.is_none() && self.startup_grace > 0.0 && self.error_kind.is_none() {
+                    if kind != "implausible" && now >= t0 && now - t0 <= self.startup_grace {
+                        if !self.waiting {
+                            self.waiting = true;
+                            log_info!(
+                                "sensor {}: not online yet ({msg}); not a fault for up to {}s after the start",
+                                self.name,
+                                self.startup_grace
+                            );
+                        }
+                        self.error = Some(msg);
+                        self.value = None;
+                        return;
+                    }
+                    if self.waiting {
+                        self.waiting = false;
+                        log_info!(
+                            "sensor {}: still no reading {:.0}s after the start (startup_grace {}s)",
+                            self.name,
+                            now - t0,
+                            self.startup_grace
+                        );
+                    }
+                }
                 // Grace: hold the last good value for a short gap (a writer
                 // restarting), counted from when it was read. Never before the
                 // first good reading, never for a value at/above a critical,
@@ -1395,6 +1437,10 @@ pub struct ZoneRt {
     fault_keys: Vec<String>,
     warned_rpm: bool,
     started: bool,
+    /// Duty asked for at least while a sensor is not online yet.
+    waiting_duty: Option<f64>,
+    /// Sensors of this zone that are not online yet (`startup_grace`).
+    pub waiting: Vec<String>,
 }
 
 /// "zones board 45%, asic 45% override": the zones driving output `i`.
@@ -1513,6 +1559,8 @@ impl ZoneRt {
             fault_keys: Vec::new(),
             warned_rpm: false,
             started: false,
+            waiting_duty: z.waiting_duty.map(|p| p.0),
+            waiting: Vec::new(),
         })
     }
 
@@ -1541,6 +1589,7 @@ impl ZoneRt {
         }
         let mut faults: Vec<Fault> = Vec::new();
         let mut vals = Vec::new();
+        let mut waiting: Vec<String> = Vec::new();
         for zs in &self.sensors {
             let s = &sensors[zs.idx];
             match s.value {
@@ -1555,6 +1604,8 @@ impl ZoneRt {
                     }
                     vals.push((v + zs.offset, zs.weight));
                 }
+                // Not online yet: neither a fault nor a value.
+                None if s.waiting => waiting.push(s.name.clone()),
                 None if s.required => faults.push(Fault::new(
                     format!("sensor/{}", s.name),
                     format!("sensor {}: {}", s.name, s.error.as_deref().unwrap_or("no reading")),
@@ -1562,7 +1613,30 @@ impl ZoneRt {
                 None => {}
             }
         }
-        if vals.len() < self.min_sensors {
+        if waiting != self.waiting {
+            match (waiting.is_empty(), self.waiting_duty) {
+                // (when the wait ended in a fault instead, the sensor and the failsafe lines say so)
+                (true, _) if faults.is_empty() => {
+                    log_info!("zone {}: all sensors online, resuming {}", self.name, self.policy_desc)
+                }
+                (true, _) => {}
+                (false, Some(d)) => log_info!(
+                    "zone {}: waiting for {} (not online yet): at least {} meanwhile",
+                    self.name,
+                    waiting.join(", "),
+                    hwmin::pct(d)
+                ),
+                (false, None) => log_info!(
+                    "zone {}: waiting for {} (not online yet): only its floor meanwhile",
+                    self.name,
+                    waiting.join(", ")
+                ),
+            }
+            self.waiting = waiting;
+        }
+        // Sensors that are not online yet count as present here: the zone is
+        // short of sensors only once their startup_grace has run out.
+        if vals.len() + self.waiting.len() < self.min_sensors {
             faults.push(Fault::new(
                 "sensors",
                 format!(
@@ -1665,6 +1739,10 @@ impl ZoneRt {
             // No usable reading but no fault either: only optional sensors and
             // min_sensors allows that, so this zone asks for nothing beyond its floor.
             (None, None) => 0.0,
+        };
+        let demand = match self.waiting_duty {
+            Some(d) if !self.waiting.is_empty() => demand.max(d),
+            _ => demand,
         };
         self.demand = Some(demand);
 
@@ -1948,6 +2026,7 @@ impl Engine {
                         duty: r1(z.duty),
                         override_duty: z.override_.map(|o| o.duty.to_string()),
                         override_remaining: z.override_.map(|o| (o.until - now).max(0.0).round()),
+                        waiting: z.waiting.clone(),
                     },
                 )
             })
@@ -1965,6 +2044,7 @@ impl Engine {
                         path: s.location(),
                         age: s.age.map(r1),
                         in_grace: s.in_grace,
+                        waiting: s.waiting,
                     },
                 )
             })
@@ -2106,6 +2186,9 @@ pub struct ZoneStatus {
     pub duty: f64,
     pub override_duty: Option<String>,
     pub override_remaining: Option<f64>,
+    /// Sensors of the zone that are not online yet (`startup_grace`); the
+    /// zone is "normal" meanwhile and asks for its floor or `waiting_duty`.
+    pub waiting: Vec<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -2117,6 +2200,8 @@ pub struct SensorStatus {
     pub age: Option<f64>,
     /// The reading failed and the last good value is being held (`grace`).
     pub in_grace: bool,
+    /// No reading since the start, within `startup_grace`: not a fault yet.
+    pub waiting: bool,
 }
 
 #[derive(Debug, Serialize)]
