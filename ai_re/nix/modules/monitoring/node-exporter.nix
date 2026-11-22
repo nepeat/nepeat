@@ -109,6 +109,9 @@ in {
       assertions = [ {
         assertion = lib.all (n: builtins.match "[A-Za-z0-9_-]+" n != null) (lib.attrNames producers);
         message = "monitoring.nodeExporter.textfile.producers: names must match [A-Za-z0-9_-]+";
+      } {
+        assertion = !(producers ? cleanup);
+        message = "monitoring.nodeExporter.textfile.producers.cleanup: the name is taken by the stale-file cleaner (prometheus-textfile-cleanup)";
       } ];
       networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
       systemd.tmpfiles.rules = [ "d ${dir} 0755 root root -" ];

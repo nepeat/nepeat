@@ -9,7 +9,9 @@ let
   cfg = config.hardware.dmc12.firmware;
   fw = import ../../../../packages/dmc12-firmware {
     inherit pkgs lib;
-    bootLoader = config.hardware.dmc12.bootLoader;
+    # No boot loader option on a system without the SSD boot modules (netboot):
+    # the tool then reads the layout from /boot, as the standalone build does.
+    bootLoader = config.hardware.dmc12.bootLoader or "auto";
     inherit (cfg) ubootSha256;
   };
   inherit (fw) tool payloads;
