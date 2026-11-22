@@ -1,76 +1,43 @@
 { pkgs }:
-# Upstream U-Boot (nixpkgs buildUBoot, 2026.10) for the Accton AS7760-32X
-# (T2080). Board deltas are patches + Kconfig fragments; see devices/edge-core-7760-32x/u-boot-port.md.
-# The same series also carries the Alpine V2 (arm64) patches, built in
-# ./alpine-v2/; each build takes only its own scopes.
+# Upstream U-Boot (nixpkgs buildUBoot, 2026.10): the shared patch series
+# (./series.nix, ./patches) and the NXP T208x (ppc) builds: Accton AS7760-32X
+# and AS7772-32X. Board deltas are patches + Kconfig fragments; see
+# devices/edge-core-7760-32x/u-boot-port.md. The arm64 platforms build from
+# the same series in ./alpine-v2, ./alpine-v3 and ./armada8k; each build
+# takes only its own scopes. README.md has the patch table and the rules.
 #
 # Toolchain: 32-bit PowerPC Linux-ABI cross gcc without a target libc:
 #  - ppc-embedded (eabi) libgcc will not link with U-Boot's -mrelocatable
 #  - the pinned ppc32 cross glibc fails in "make install" (manual/ runs the
 #    libc.so.6 rule twice) -- and U-Boot needs no libc.
 let
+  inherit (pkgs) lib;
   cross = pkgs.pkgsCross.ppc32;
   inherit ((cross.callPackage (cross.path + "/pkgs/misc/uboot") { stdenv = cross.stdenvNoLibc; })) buildUBoot;
-  # ONE ordered series: later patches rely on the context of earlier ones, so
-  # the numbering is the apply order. scope says who can reuse a patch:
-  #   t208x  - any T208x / e6500 board built from the T208xRDB port
-  #   as7760 - Accton AS7760-32X only (DDR tuning, DT, SPD addresses, identity)
-  #   as7772 - Accton AS7772-32X: applied on top of the as7760 ones (name, DT, DDR HSE bit + wrlvl starts)
-  #   fsl-sata - any board with the Freescale SATA controller: standard boot from its disks
-  #   alpine - any Annapurna Alpine board (V2, V3): DW SSI chip select
-  #   spi-nor-ro - any board: read-only SPI NOR with an optional write window
-  #   alpine-v2 - any Annapurna Alpine V2 board started by the vendor U-Boot or by al-boot stage3
-  #   dmc12  - Edgecore DMC-12-48R-AS0 only (CPLD reset, U-Boot DT bits, defconfig)
-  #   alpine-v3 - any Annapurna Alpine V3 board after al-boot stage3 (target; generic
-  #            fixes the pinned V2 builds must not see)
-  #   cs8210 - Celestica CS8210-32X only (U-Boot DT bits, defconfig)
-  #   armada8k - any Marvell Armada 7040/8040 (AP806 + CP110) board; boards
-  #            bring their control DTS to ./armada8k (no per-board patch)
-  # A sibling board takes the t208x ones and replaces the as7760 ones.
-  # Platforms touch disjoint files: each build applies only its scopes, and
-  # the whole series still applies in order to a pristine tree.
-  series = [
-    { scope = "t208x"; file = "0001-mpc85xx-optionally-skip-CCSR-relocation-for-chainloa.patch"; }
-    { scope = "t208x"; file = "0002-board-t208xrdb-honour-CONFIG_VID-and-CONFIG_PCI.patch"; }
-    { scope = "t208x"; file = "0003-configs-T208xRDB-provide-the-NS16550-clock-for-DM-se.patch"; }
-    { scope = "t208x"; file = "0004-powerpc-dts-t2080rdb-make-i2c0-available-before-relo.patch"; }
-    { scope = "as7760"; file = "0005-AS7760-test-hack-SPD-EEPROMs-at-0x52-0x53.patch"; }
-    { scope = "as7760"; file = "0006-powerpc-dts-add-Accton-AS7760-32X-control-tree.patch"; }
-    { scope = "t208x"; file = "0007-mpc85xx-chainload-restart-secondaries-from-our-boot-.patch"; }
-    { scope = "t208x"; file = "0008-board-t208xrdb-report-all-DDR-to-the-OS.patch"; }
-    { scope = "t208x"; file = "0009-ddr-fsl-honour-the-board-CPO-in-the-A009942-workaround.patch"; }
-    { scope = "as7760"; file = "0010-board-t208xrdb-AS7760-32X-DDR-setup-as-the-factory-does.patch"; }
-    { scope = "t208x"; file = "0011-board-t208xrdb-add-ddrcmp-bring-up-command.patch"; }
-    { scope = "t208x"; file = "0012-board-t208xrdb-add-spltest-bring-up-command.patch"; }
-    { scope = "as7760"; file = "0013-board-t208xrdb-Accton-AS7760-32X-board-identity.patch"; }
-    { scope = "alpine-v2"; file = "0014-arm-add-a-chainloaded-Annapurna-Labs-Alpine-V2-targe.patch"; }
-    { scope = "alpine-v2"; file = "0015-board-alpine-v2-hand-the-al_eth-board-params-and-MAC.patch"; }
-    { scope = "alpine-v2"; file = "0016-net-add-the-Annapurna-Labs-Alpine-V2-integrated-Ethe.patch"; }
-    { scope = "alpine-v2"; file = "0017-pci-add-the-Annapurna-Labs-Alpine-V2-external-PCIe-r.patch"; }
-    { scope = "alpine"; file = "0018-spi-designware-Annapurna-Alpine-chip-select-override.patch"; }
-    { scope = "spi-nor-ro"; file = "0019-mtd-spi-read-only-SPI-NOR-with-an-optional-write-win.patch"; }
-    { scope = "alpine-v2"; file = "0020-board-alpine-v2-SoC-init-from-the-DT-in-place-of-the.patch"; }
-    { scope = "alpine-v2"; file = "0021-board-alpine-v2-say-where-the-environment-came-from.patch"; }
-    { scope = "dmc12"; file = "0022-sysreset-add-the-Edgecore-DMC-12-board-CPLD-reset.patch"; }
-    { scope = "dmc12"; file = "0023-board-Edgecore-DMC-12-48R-AS0-on-the-Alpine-V2-targe.patch"; }
-    { scope = "alpine-v3"; file = "0024-arm-add-an-Annapurna-Labs-Alpine-V3-target-after-al-.patch"; }
-    { scope = "alpine-v3"; file = "0025-spi-mem-read-only-build-optionally-pass-the-4-byte-a.patch"; }
-    { scope = "cs8210"; file = "0026-board-Celestica-CS8210-32X-on-the-Alpine-V3-target.patch"; }
-    { scope = "alpine-v3"; file = "0027-mtd-spi-write-window-up-to-six-ranges-4-byte-chips-s.patch"; }
-    { scope = "cs8210"; file = "0028-board-CS8210-32X-installer-build-boot-SPI-write-wind.patch"; }
-    { scope = "alpine-v3"; file = "0029-board-alpine-v3-SoC-init-from-the-DT-in-place-of-the.patch"; }
-    { scope = "alpine-v3"; file = "0030-pci-add-the-Annapurna-Labs-Alpine-V3-external-PCIe-r.patch"; }
-    { scope = "cs8210"; file = "0031-board-CS8210-32X-what-the-vendor-U-Boot-s-board-cfg-.patch"; }
-    { scope = "armada8k"; file = "0032-arm-mvebu-armada8k-map-all-DRAM-in-the-MMU.patch"; }
-    { scope = "armada8k"; file = "0033-arm-mvebu-armada8k-build-without-networking-or-an-MM.patch"; }
-    { scope = "as7772"; file = "0034-board-t208xrdb-Accton-AS7772-32X-on-the-AS7760-port.patch"; }
-    { scope = "fsl-sata"; file = "0035-ata-fsl_sata-create-a-bootdev-for-each-disk.patch"; }
-  ];
-  patchesFor = scopes: map (s: builtins.path { path = ./patches + "/${s.file}"; name = s.file; })
-    (builtins.filter (s: builtins.elem s.scope scopes) series);
-  # builtins.path: stable store names, so unrelated edits in this tree do not
-  # rebuild U-Boot.
-  patches = patchesFor [ "t208x" "as7760" ];
+  series = import ./series.nix;
+  scopes = lib.unique (map (s: s.scope) series);
+  # The series is rebased for exactly this upstream release, which nixpkgs
+  # picks (buildUBoot's default). After a nixpkgs bump that moves it, patches
+  # can still apply with fuzz and give a different image without any error:
+  # rebase the series (README.md), re-test, then change this.
+  version = "2026.10";
+  seriesOk =
+    let files = map (s: s.file) series; in
+    lib.assertMsg (pkgs.ubootTools.version == version)
+      "uboot: nixpkgs builds U-Boot ${pkgs.ubootTools.version}, the patch series is for ${version} (packages/uboot/default.nix)"
+    && lib.assertMsg (files == builtins.attrNames (builtins.readDir ./patches))
+      "uboot: series.nix and the files in patches/ differ, or the series is not in number order"
+    && lib.assertMsg (lib.all lib.id (lib.imap1 (i: f: lib.hasPrefix "${lib.fixedWidthNumber 4 i}-" f) files))
+      "uboot: patch numbers are not 0001..${lib.fixedWidthNumber 4 (builtins.length files)} without gaps";
+  # A misspelt scope would otherwise select nothing, silently.
+  patchesFor = wanted:
+    assert seriesOk;
+    assert lib.assertMsg (lib.all (s: builtins.elem s scopes) wanted)
+      "uboot.patchesFor: unknown scope in [ ${toString wanted} ]; known: ${toString scopes}";
+    # builtins.path: stable store names, so unrelated edits in this tree do
+    # not rebuild U-Boot.
+    map (s: builtins.path { path = ./patches + "/${s.file}"; name = s.file; })
+      (builtins.filter (s: builtins.elem s.scope wanted) series);
   # Same bytes from any build host, for every board: CC_VERSION_STRING would carry the cross
   # prefix ("aarch64-unknown-linux-gnu-gcc (GCC) ..." vs "gcc (GCC) ..." natively) and shift the
   # whole image. dmc12-firmware pins its payload by sha256, so this is load-bearing there.
@@ -86,6 +53,30 @@ let
       extraMeta.platforms = [ "powerpc-linux" ];
       filesToInstall = files;
     }).overrideAttrs (o: { postPatch = (o.postPatch or "") + reproducibleVersion; });
+
+  # arm64 builder of the Alpine boards (./alpine-v2, ./alpine-v3), all RAM
+  # images at loadAddr: the board's control DTS is copied into arch/arm/dts,
+  # and u-boot.bin is also wrapped as a kernel-type legacy uImage: the vendor
+  # "bootm" then enters us like Linux (MMU and caches off, EL2, x0 = its
+  # DTB); -T standalone would not.
+  mkAlpine = { patches, loadAddr, postInstall ? "" }:
+    { defconfig, dtsName, dts, extraConfig ? "", uimageName }:
+    (pkgs.pkgsCross.aarch64-multiplatform.buildUBoot {
+      inherit defconfig extraConfig;
+      extraPatches = patches;
+      extraMeta.platforms = [ "aarch64-linux" ];
+      filesToInstall = [ "u-boot.bin" "u-boot" "u-boot.map" "u-boot.dtb" ".config" ];
+    }).overrideAttrs (o: {
+      postPatch = o.postPatch + ''
+        cp ${dts} arch/arm/dts/${dtsName}.dts
+      '' + reproducibleVersion;
+      postInstall = ''
+        ./tools/mkimage -A arm64 -O linux -T kernel -C none \
+          -a ${loadAddr} -e ${loadAddr} -n "${uimageName}" \
+          -d u-boot.bin $out/u-boot.uimage
+        ./tools/mkimage -l $out/u-boot.uimage > $out/u-boot.uimage.txt
+      '' + postInstall;
+    });
 
   # Board settings shared by every AS7760 image.
   as7760Config = ''
@@ -128,7 +119,6 @@ let
   # AS7772-32X = the AS7760 board + MACsec PHYs, TPM, M.2 SATA SSD (patch 0034).
   # Later lines win over as7760Config's: own control tree, and SATA back on
   # (the SSD on SATA2 is the boot disk).
-  as7772Patches = patchesFor [ "t208x" "as7760" "as7772" "fsl-sata" ];
   as7772Config = as7760Config + ''
     CONFIG_AS7772_BOARD=y
     CONFIG_DEFAULT_DEVICE_TREE="as7772-32x"
@@ -144,21 +134,20 @@ let
   # environment (same flash location) supplies bootcmd -> nos_bootcmd.
   # Load addresses come from the board code (patch 0013).
   bootCommand = "bootflow scan -lb";
-in {
-  # For other boards: the builder and the raw series.
-  lib = { inherit mk series patchesFor reproducibleVersion; };
 
-  # Stock reference-board NOR image. Build-only; never flash (VID on).
-  t2080rdb-nor = mk { defconfig = "T2080RDB_defconfig"; };
+  # A board of this family is { name, patches, config }; each gets the same
+  # two images.
+  as7760 = { name = "as7760"; patches = patchesFor [ "t208x" "as7760" ]; config = as7760Config; };
+  as7772 = { name = "as7772"; patches = patchesFor [ "t208x" "as7760" "as7772" "fsl-sata" ]; config = as7772Config; };
 
   # THE replacement: stock NOR reset path at 0xEFF40000 (mtd7), environment
   # in NOR at 0xEFF20000 (mtd6, factory format/location), FMan ucode from
   # 0xEFF00000 (mtd5). Does the cold DDR init itself.
-  as7760-nor = mk {
+  norImage = { name, patches, config }: mk {
     defconfig = "T2080RDB_defconfig";
     inherit patches;
-    extraConfig = as7760Config + ''
-      CONFIG_LOCALVERSION="-as7760"
+    extraConfig = config + ''
+      CONFIG_LOCALVERSION="-${name}"
       CONFIG_BOOTDELAY=3
       CONFIG_USE_BOOTCOMMAND=y
       CONFIG_BOOTCOMMAND="${bootCommand}"
@@ -166,18 +155,17 @@ in {
   };
 
   # Stage 2: SDCARD's RAM-linked second stage (TEXT_BASE 0x00200000), started
-  # with "go" from the factory U-Boot (nos_bootcmd). Also carries the SPL for
-  # the spltest cold-DDR experiment.
-  as7760-chainload = mk {
+  # with "go" from the factory U-Boot (nos_bootcmd). The env comment below is
+  # the AS7760's case; on a board without a card the read fails instead, with
+  # the same result (default env).
+  chainloadImage = { name, patches, config, extraConfig ? "", extraFiles ? [ ] }: mk {
     defconfig = "T2080RDB_SDCARD_defconfig";
     inherit patches;
-    files = [ "u-boot.bin" "u-boot" "u-boot.map" ".config" "spl/u-boot-spl.bin" "spl/u-boot-spl" ];
-    extraConfig = as7760Config + ''
+    files = [ "u-boot.bin" "u-boot" "u-boot.map" ".config" ] ++ extraFiles;
+    extraConfig = config + ''
       CONFIG_CHAINLOAD_CCSR_RELOCATED=y
-      CONFIG_LOCALVERSION="-as7760-chainload"
-      CONFIG_CMD_SPLTEST=y
-      # SPL for spltest: keep CCSR where the previous loader put it.
-      # CONFIG_SPL_SYS_CCSR_DO_NOT_RELOCATE is not set
+      CONFIG_LOCALVERSION="-${name}-chainload"
+    '' + extraConfig + ''
       # FMan microcode from the board's NOR "Fman-FW" partition (read-only).
       # CONFIG_SYS_QE_FMAN_FW_IN_MMC is not set
       CONFIG_SYS_QE_FMAN_FW_IN_NOR=y
@@ -189,33 +177,27 @@ in {
       CONFIG_BOOTCOMMAND="env import -c 0xeff20000 0x2000 ethaddr eth1addr eth2addr serial#; ${bootCommand}"
     '';
   };
+in {
+  # For other boards: the builders, the series and the release it is for.
+  lib = { inherit mk mkAlpine series scopes patchesFor reproducibleVersion version; };
 
-  # AS7772-32X: the same two images as the AS7760 (devices/edge-core-as7772-32x/u-boot-port.md).
-  as7772-nor = mk {
-    defconfig = "T2080RDB_defconfig";
-    patches = as7772Patches;
-    extraConfig = as7772Config + ''
-      CONFIG_LOCALVERSION="-as7772"
-      CONFIG_BOOTDELAY=3
-      CONFIG_USE_BOOTCOMMAND=y
-      CONFIG_BOOTCOMMAND="${bootCommand}"
+  # Stock reference-board NOR image. Build-only; never flash (VID on).
+  t2080rdb-nor = mk { defconfig = "T2080RDB_defconfig"; };
+
+  as7760-nor = norImage as7760;
+  # Also carries the SPL for the spltest cold-DDR experiment.
+  as7760-chainload = chainloadImage (as7760 // {
+    extraFiles = [ "spl/u-boot-spl.bin" "spl/u-boot-spl" ];
+    extraConfig = ''
+      CONFIG_CMD_SPLTEST=y
+      # SPL for spltest: keep CCSR where the previous loader put it.
+      # CONFIG_SPL_SYS_CCSR_DO_NOT_RELOCATE is not set
     '';
-  };
-  as7772-chainload = mk {
-    defconfig = "T2080RDB_SDCARD_defconfig";
-    patches = as7772Patches;
-    extraConfig = as7772Config + ''
-      CONFIG_CHAINLOAD_CCSR_RELOCATED=y
-      CONFIG_LOCALVERSION="-as7772-chainload"
-      # CONFIG_SYS_QE_FMAN_FW_IN_MMC is not set
-      CONFIG_SYS_QE_FMAN_FW_IN_NOR=y
-      CONFIG_SYS_FMAN_FW_ADDR=0xEFF00000
-      # env stays in MMC (no card here: CRC fails -> defaults). Never saveenv.
-      CONFIG_BOOTDELAY=2
-      CONFIG_USE_BOOTCOMMAND=y
-      CONFIG_BOOTCOMMAND="env import -c 0xeff20000 0x2000 ethaddr eth1addr eth2addr serial#; ${bootCommand}"
-    '';
-  };
+  });
+
+  # AS7772-32X: the same two images (devices/edge-core-as7772-32x/u-boot-port.md).
+  as7772-nor = norImage as7772;
+  as7772-chainload = chainloadImage as7772;
 
   # Same toolchain/U-Boot tree on QEMU's ppce500 machine, run with -cpu e6500.
   qemu-ppce500 = mk { defconfig = "qemu-ppce500_defconfig"; files = [ "u-boot" "u-boot.bin" ".config" ]; };

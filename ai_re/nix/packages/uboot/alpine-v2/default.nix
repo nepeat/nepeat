@@ -9,7 +9,6 @@
 # copied into arch/arm/dts at build time; U-Boot-only nodes live in the
 # patch series' <board>-u-boot.dtsi.
 let
-  cross = pkgs.pkgsCross.aarch64-multiplatform;
   patches = uboots.lib.patchesFor [ "alpine" "spi-nor-ro" "alpine-v2" "dmc12" ];
   # Link/load address: the vendor "loadaddr". Below it: the vendor U-Boot
   # (relocated to 0x03F0A000, stack ~0x03B04CD0), its DTB copy at
@@ -89,25 +88,8 @@ let
     # CONFIG_CMD_XIMG is not set
   '';
 
-  mk = { defconfig, dtsName, dts, extraConfig ? "", uimageName }:
-    (cross.buildUBoot {
-      inherit defconfig extraConfig;
-      extraPatches = patches;
-      extraMeta.platforms = [ "aarch64-linux" ];
-      filesToInstall = [ "u-boot.bin" "u-boot" "u-boot.map" "u-boot.dtb" ".config" ];
-    }).overrideAttrs (o: {
-      postPatch = o.postPatch + ''
-        cp ${dts} arch/arm/dts/${dtsName}.dts
-      '' + uboots.lib.reproducibleVersion;
-      # Kernel-type legacy uImage: the vendor bootm then enters us like Linux
-      # (MMU and caches off, EL2, x0 = its DTB). -T standalone would not.
-      postInstall = ''
-        ./tools/mkimage -A arm64 -O linux -T kernel -C none \
-          -a ${loadAddr} -e ${loadAddr} -n "${uimageName}" \
-          -d u-boot.bin $out/u-boot.uimage
-        ./tools/mkimage -l $out/u-boot.uimage > $out/u-boot.uimage.txt
-      '';
-    });
+  mk = uboots.lib.mkAlpine { inherit patches loadAddr; };
+  inherit (uboots.lib) version;
   alboot = builtins.path { path = ../../alboot/alboot.py; name = "alboot.py"; };
 in rec {
   inherit loadAddr patches;
@@ -118,7 +100,7 @@ in rec {
     defconfig = "alpine_v2_dmc12_defconfig";
     dtsName = "alpine-v2-dmc12";
     dts = dmc12Dts;
-    uimageName = "U-Boot 2026.10 dmc12 chainload";
+    uimageName = "U-Boot ${version} dmc12 chainload";
     extraConfig = ''
       CONFIG_LOCALVERSION="-dmc12-chainload"
     '';
@@ -135,7 +117,7 @@ in rec {
     defconfig = "alpine_v2_dmc12_defconfig";
     dtsName = "alpine-v2-dmc12";
     dts = dmc12Dts;
-    uimageName = "U-Boot 2026.10 dmc12 selfinit";
+    uimageName = "U-Boot ${version} dmc12 selfinit";
     extraConfig = selfinitConfig;
   };
 
@@ -151,9 +133,9 @@ in rec {
     set -euo pipefail
     mkdir $out
     cp ${dmc12-selfinit}/u-boot.bin ${dmc12-selfinit}/u-boot.dtb ${dmc12-selfinit}/.config $out/
-    python3 ${alboot} wrap --id 0x110 --load 0x08000000 --version 2026.10.0 \
+    python3 ${alboot} wrap --id 0x110 --load 0x08000000 --version ${version}.0 \
       ${dmc12-selfinit}/u-boot.bin $out/u-boot-ipxe-08000000.fimg | tee $out/wrap.txt
-    python3 ${alboot} wrap --id 0x110 --load 0x01100000 --version 2026.10.0 \
+    python3 ${alboot} wrap --id 0x110 --load 0x01100000 --version ${version}.0 \
       ${dmc12-selfinit}/u-boot.bin $out/u-boot-ipxe-01100000.fimg | tee -a $out/wrap.txt
     python3 ${alboot} check $out/*.fimg | tee $out/check.txt
     (cd $out && sha256sum u-boot.bin *.fimg > SHA256SUMS)
@@ -164,7 +146,7 @@ in rec {
     defconfig = "alpine_v2_dmc12_defconfig";
     dtsName = "alpine-v2-qemu-virt";
     dts = builtins.path { path = ./qemu-virt.dts; name = "alpine-v2-qemu-virt.dts"; };
-    uimageName = "U-Boot 2026.10 alpine-v2 qemu";
+    uimageName = "U-Boot ${version} alpine-v2 qemu";
     extraConfig = ''
       CONFIG_LOCALVERSION="-alpine-v2-qemu"
       CONFIG_DEFAULT_DEVICE_TREE="alpine-v2-qemu-virt"

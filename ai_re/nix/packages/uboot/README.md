@@ -1,8 +1,16 @@
 # uboot: one patch series on upstream U-Boot 2026.10
 
-`default.nix` holds the ordered list (`series`); each patch has a **scope** and each build applies
-only its own scopes (`patchesFor`), so a sibling board can take the generic ones. Platforms touch
-disjoint files, so the whole series still applies, in order, to a pristine tree.
+`series.nix` holds the ordered list; each patch has a **scope** and each build applies only its
+own scopes (`patchesFor` in `default.nix`), so a sibling board can take the generic ones. Numbers
+give the apply order inside a build. The series is not one linear branch: `alpine-v2` and
+`alpine-v3` add their PCIe driver at the same spot of `drivers/pci/Makefile`, so 0030 does not
+apply after 0017 (checked 2026-11-22; every set of scopes that is built applies cleanly, 0001
+hunk 2 with fuzz 1).
+
+Evaluation fails when `series.nix` and `patches/` differ, a number is missing or out of order, a
+build asks for a scope that does not exist, or nixpkgs moves to another U-Boot release than the
+one the series is for (`version` in `default.nix`). Which output takes which patches:
+`just uboot-variants` (`variants.nix`).
 
 Rules for new work: **one goal per patch**, and fold fixes into the patch they fix instead of
 stacking follow-ups. That way a U-Boot bump means rebasing each goal once. Prefer new files to
@@ -34,17 +42,29 @@ edits of upstream ones. A refactor of the series must be byte-neutral: same `u-b
 | 0029 | alpine-v3 | SoC init from the DT in place of the vendor U-Boot: MUIO, GPIO, PLL dividers, base MAC; `alpine` command |
 | 0030 | alpine-v3 | external PCIe root complex (own HAL copy built for V3, AVG SerDes iCal; ~25 k lines vendor code) |
 | 0031 | cs8210 | the CS8210 vendor board-cfg as U-Boot DT (SoC init, PCIe ports, endpoints left alone) |
-| 0034 | as7772 | AS7772-32X on top of the as7760 ones: name, control tree, its factory DDR setup (HSE clear, wrlvl starts) |
-| 0035 | fsl-sata | `fsl_sata`: bind a `sata_bootdev` per disk so standard boot finds it (generic; taken by the as7772 builds) |
 | 0032 | armada8k | Armada 7040/8040: map all DRAM in the MMU (EFI crashed on 8 GiB boards) |
 | 0033 | armada8k | Armada 7040/8040: build with NO_NET and without an MMC env |
+| 0034 | as7772 | AS7772-32X on top of the as7760 ones: name, control tree, its factory DDR setup (HSE clear, wrlvl starts) |
+| 0035 | fsl-sata | `fsl_sata`: bind a `sata_bootdev` per disk so standard boot finds it (generic; taken by the as7772 builds) |
 
-Kconfig of the DMC-12 builds (selfinit/stage3app: SPI env, write window, SoC init) is in
-`alpine-v2/default.nix`, not in a patch. AS7772-32X builds (`as7772-nor`, `as7772-chainload`): scopes t208x + as7760 + as7772 + fsl-sata, Kconfig in `default.nix`
-(devices/edge-core-as7772-32x/u-boot-port.md). Tests: `tests.nix` (AS7760, AS7772), `alpine-v2/tests.nix`, `alpine-v3/tests.nix`. Alpine V3 builds:
-`alpine-v3/default.nix` (scopes alpine + spi-nor-ro + alpine-v3 + cs8210; devices/cs8210-32x/u-boot-port.md).
-Armada 7040/8040 RAM chainload builds: `armada8k/default.nix` (scopes spi-nor-ro + armada8k; board control
-DTS copied in at build time; devices/edge-core-as5114-48x/uboot-chainload.md).
+## Builds
+
+| outputs | where | scopes | notes |
+|---|---|---|---|
+| `uboot-as7760-{nor,chainload}` | `default.nix` | t208x + as7760 | a board is `{ name, patches, config }`; `norImage` / `chainloadImage` make its two images. devices/edge-core-7760-32x/u-boot-port.md |
+| `uboot-as7772-{nor,chainload}` | `default.nix` | t208x + as7760 + as7772 + fsl-sata | devices/edge-core-as7772-32x/u-boot-port.md |
+| `uboot-dmc12-*` | `alpine-v2/` | alpine + spi-nor-ro + alpine-v2 + dmc12 | selfinit/stage3app Kconfig (SPI env, write window, SoC init) is in `alpine-v2/default.nix`, not in a patch. devices/dmc-12-48r-as0/u-boot-port.md |
+| `uboot-cs8210*` | `alpine-v3/` | alpine + spi-nor-ro + alpine-v3 + cs8210 | devices/cs8210-32x/u-boot-port.md |
+| `uboot-as5114-chainload` | `armada8k/` | spi-nor-ro + armada8k | RAM chainload, board control DTS copied in at build time. devices/edge-core-as5114-48x/uboot-chainload.md |
+
+The two Alpine directories share one builder (`lib.mkAlpine` in `default.nix`). Tests: `tests.nix`
+(AS7760, AS7772; it also pins the sha256 of the `*-nor` images, which are flashed: a compiler bump
+or a patch edit that changes one has to be acknowledged there), `alpine-v2/tests.nix`,
+`alpine-v3/tests.nix`; `armada8k` checks its safety config in the build itself.
+
+Reproducibility: `reproducibleVersion` takes the cross prefix out of the compiler banner; the
+build date is nixpkgs' `SOURCE_DATE_EPOCH` default, so every banner says "Jan 01 1980" and builds
+are told apart by `CONFIG_LOCALVERSION` and their sha256, not by date.
 
 ## Old numbers (before the 2026-11-15 squash)
 The Alpine/DMC-12 part was 22 patches (0014–0035); it became 10 with the same resulting tree

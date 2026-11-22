@@ -1,17 +1,19 @@
 { pkgs, uboots }:
 # "Does this U-Boot run on the T2080's PowerPC core?" checks that need no board:
-#  static: ELF32 big-endian PowerPC, expected entry, built for -mcpu=e6500,
-#          no SPE (e500v2-only) opcodes, safety-relevant config for chainload,
-#          NOR image size/reset vector identical in shape to the factory one.
+#  static: per image: ELF32 big-endian PowerPC, expected entry, built for
+#          -mcpu=e6500, no SPE (e500v2-only) opcodes; per board (AS7760,
+#          AS7772) the same checks for its NOR and chainload image: safety
+#          config, NOR size/reset vector/layout as the factory one, and the
+#          sha256 of each NOR u-boot.bin (flashed images: pinned).
 #  qemu:   boot the same tree (qemu-ppce500) on an emulated e6500 core and
 #          drive the shell (version, bdinfo, memory read/write/compare).
 let
   binutils = pkgs.pkgsCross.ppc32.buildPackages.binutils-unwrapped;
-  static = pkgs.runCommand "as7760-uboot-static-checks" {
+  static = pkgs.runCommand "t208x-uboot-static-checks" {
     nativeBuildInputs = [ binutils pkgs.python3 pkgs.gnugrep ];
   } ''
     set -euo pipefail
-    check() { # name dir entry
+    elf() { # name dir entry
       local n=$1 d=$2 entry=$3
       echo "== $n"
       h=$(powerpc-unknown-linux-gnu-readelf -h $d/u-boot)
@@ -23,83 +25,82 @@ let
       [ "$spe" = 0 ] || { echo "$n: $spe SPE (e500v2-only) instructions"; exit 1; }
       echo "$n: ok (entry $entry, e6500, $(grep -c . dis.txt) disassembly lines, 0 SPE)"
     }
-    # NOR: ELF entry is the boot page (the reset vector at 0xeffffffc jumps there).
-    check t2080rdb-nor ${uboots.t2080rdb-nor} 0xeffff000
-    check as7760-chainload ${uboots.as7760-chainload} 0x200000
-    check as7760-nor ${uboots.as7760-nor} 0xeffff000
-    # NOR image: exactly the factory partition size, ends in the reset-vector branch.
-    python3 - ${uboots.t2080rdb-nor}/u-boot.bin <<'PY'
+    on()  { local n=$1 c=$2/.config kv; shift 2; for kv; do grep -qx "CONFIG_$kv" $c || { echo "$n: CONFIG_$kv missing"; exit 1; }; done; }
+    off() { local n=$1 c=$2/.config k; shift 2; for k; do ! grep -q "^CONFIG_$k=y" $c || { echo "$n: CONFIG_$k is on"; exit 1; }; done; }
+    # NOR image: exactly the factory partition size, ends in the reset-vector
+    # branch; the ELF entry is the boot page (the vector at 0xeffffffc jumps there).
+    nor() { # name dir
+      elf $1 $2 0xeffff000
+      python3 - $1 $2/u-boot.bin <<'PY'
     import sys
-    b = open(sys.argv[1], "rb").read()
+    b = open(sys.argv[2], "rb").read()
     assert len(b) == 786432, len(b)
     assert b[-4:] == bytes.fromhex("4bfff004"), b[-4:].hex()
-    print("t2080rdb-nor: 768 KiB, reset vector b .-0xffc")
+    print(sys.argv[1] + ": 768 KiB, reset vector b .-0xffc")
     PY
-    # Chainload build must not touch hardware we have not identified.
-    c=${uboots.as7760-chainload}/.config
-    for k in VID MISC_INIT_R USB FSL_SATA_V2; do
-      ! grep -q "^CONFIG_$k=y" $c || { echo "chainload: CONFIG_$k is on"; exit 1; }
-    done
-    grep -qx CONFIG_CHAINLOAD_CCSR_RELOCATED=y $c; grep -qx 'CONFIG_BOOTDELAY=2' $c; grep -q 'bootflow scan -lb' $c
-    grep -qx 'CONFIG_SYS_CLK_FREQ=100000000' $c
-    ! powerpc-unknown-linux-gnu-nm ${uboots.as7760-chainload}/u-boot | grep -qw adjust_vdd
-    echo "chainload: safety config ok"
+    }
+    # Every image of an AS7760-family board: nothing touches hardware the
+    # board does not have (VID regulator, RDB CPLD, USB), its clock and DDR setup.
+    board() { # name dir
+      off $1 $2 VID MISC_INIT_R USB
+      on $1 $2 SYS_CLK_FREQ=100000000 AS7760_BOARD=y AS7760_DDR=y DIMM_SLOTS_PER_CTLR=2
+      grep -q 'bootflow scan -lb' $2/.config
+      ! powerpc-unknown-linux-gnu-nm $2/u-boot | grep -qw adjust_vdd
+    }
     # NOR replacement image: same layout as the factory U-Boot partition.
-    n=${uboots.as7760-nor}/.config
-    for k in VID MISC_INIT_R CHAINLOAD_CCSR_RELOCATED CMD_SPLTEST; do
-      ! grep -q "^CONFIG_$k=y" $n || { echo "nor: CONFIG_$k is on"; exit 1; }
+    board_nor() { # name dir
+      nor $1 $2; board $1 $2
+      off $1 $2 CHAINLOAD_CCSR_RELOCATED CMD_SPLTEST
+      on $1 $2 TEXT_BASE=0xEFF40000 SYS_MONITOR_LEN=786432 ENV_IS_IN_FLASH=y ENV_ADDR=0xEFF20000 \
+        ENV_SIZE=0x2000 ENV_SECT_SIZE=0x20000 SYS_QE_FMAN_FW_IN_NOR=y SYS_FMAN_FW_ADDR=0xEFF00000 PCI=y
+      echo "$1: config ok"
+    }
+    # RAM second stage, started with "go" by the factory U-Boot.
+    board_chainload() { # name dir
+      elf $1 $2 0x200000; board $1 $2
+      on $1 $2 CHAINLOAD_CCSR_RELOCATED=y BOOTDELAY=2 SYS_QE_FMAN_FW_IN_NOR=y SYS_FMAN_FW_ADDR=0xEFF00000
+      echo "$1: safety config ok"
+    }
+    # A NOR image is flashed on a board, so its bytes are pinned: a nixpkgs
+    # bump (compiler), a patch or a Kconfig edit that changes one fails here
+    # and has to be acknowledged in this line. A refactor must not touch them.
+    pin() { # name dir sha256
+      [ "$(sha256sum < $2/u-boot.bin | cut -d' ' -f1)" = "$3" ] || \
+        { echo "$1: u-boot.bin is $(sha256sum < $2/u-boot.bin | cut -d' ' -f1), pinned $3 (tests.nix)"; exit 1; }
+      echo "$1: u-boot.bin $3, unchanged"
+    }
+
+    nor t2080rdb-nor ${uboots.t2080rdb-nor}
+
+    board_nor as7760-nor ${uboots.as7760-nor}
+    board_chainload as7760-chainload ${uboots.as7760-chainload}
+    for d in ${uboots.as7760-nor} ${uboots.as7760-chainload}; do
+      on as7760 $d 'DEFAULT_DEVICE_TREE="as7760-32x"'
+      off as7760 $d FSL_SATA_V2 AS7772_BOARD
     done
-    for kv in TEXT_BASE=0xEFF40000 SYS_MONITOR_LEN=786432 ENV_IS_IN_FLASH=y ENV_ADDR=0xEFF20000 \
-              ENV_SIZE=0x2000 ENV_SECT_SIZE=0x20000 SYS_QE_FMAN_FW_IN_NOR=y SYS_FMAN_FW_ADDR=0xEFF00000 \
-              SYS_CLK_FREQ=100000000 AS7760_DDR=y DIMM_SLOTS_PER_CTLR=2 PCI=y; do
-      grep -qx "CONFIG_$kv" $n || { echo "nor: CONFIG_$kv missing"; exit 1; }
-    done
-    python3 - ${uboots.as7760-nor}/u-boot.bin <<'PY'
-    import sys
-    b = open(sys.argv[1], "rb").read()
-    assert len(b) == 786432, len(b)
-    assert b[-4:] == bytes.fromhex("4bfff004"), b[-4:].hex()
-    print("as7760-nor: 768 KiB, reset vector b .-0xffc")
-    PY
-    ! powerpc-unknown-linux-gnu-nm ${uboots.as7760-nor}/u-boot | grep -qw adjust_vdd
-    echo "nor: config ok"
+    on as7760-chainload ${uboots.as7760-chainload} CMD_SPLTEST=y
+    # The tree's build. The AS7760 itself still runs 2c0d7387 (flashed before the
+    # 2026-11-16 CC_VERSION_STRING change; devices/edge-core-7760-32x/PROGRESS.md).
+    pin as7760-nor ${uboots.as7760-nor} 595d81bf49dfe0fd5ed33cd4d5bdd93f20fdb6fae14af2153de094f5884487c3
+
     # AS7772-32X (AS7760 derivative): same shape, own DT, SATA + GPT for the SSD.
-    check as7772-chainload ${uboots.as7772-chainload} 0x200000
-    check as7772-nor ${uboots.as7772-nor} 0xeffff000
+    board_nor as7772-nor ${uboots.as7772-nor}
+    board_chainload as7772-chainload ${uboots.as7772-chainload}
     for d in ${uboots.as7772-nor} ${uboots.as7772-chainload}; do
-      for k in VID MISC_INIT_R USB; do
-        ! grep -q "^CONFIG_$k=y" $d/.config || { echo "as7772: CONFIG_$k is on"; exit 1; }
-      done
-      for kv in AS7760_BOARD=y AS7772_BOARD=y AS7760_DDR=y 'DEFAULT_DEVICE_TREE="as7772-32x"' FSL_SATA_V2=y \
-                EFI_PARTITION=y SYS_CLK_FREQ=100000000 DIMM_SLOTS_PER_CTLR=2; do
-        grep -qx "CONFIG_$kv" $d/.config || { echo "as7772: CONFIG_$kv missing"; exit 1; }
-      done
-      ! powerpc-unknown-linux-gnu-nm $d/u-boot | grep -qw adjust_vdd
+      on as7772 $d AS7772_BOARD=y 'DEFAULT_DEVICE_TREE="as7772-32x"' FSL_SATA_V2=y EFI_PARTITION=y
     done
-    n=${uboots.as7772-nor}/.config
-    for kv in TEXT_BASE=0xEFF40000 SYS_MONITOR_LEN=786432 ENV_IS_IN_FLASH=y ENV_ADDR=0xEFF20000 \
-              ENV_SIZE=0x2000 ENV_SECT_SIZE=0x20000 SYS_QE_FMAN_FW_IN_NOR=y SYS_FMAN_FW_ADDR=0xEFF00000; do
-      grep -qx "CONFIG_$kv" $n || { echo "as7772-nor: CONFIG_$kv missing"; exit 1; }
-    done
-    ! grep -q "^CONFIG_CHAINLOAD_CCSR_RELOCATED=y" $n
-    python3 - ${uboots.as7772-nor}/u-boot.bin <<'PY'
-    import sys
-    b = open(sys.argv[1], "rb").read()
-    assert len(b) == 786432, len(b)
-    assert b[-4:] == bytes.fromhex("4bfff004"), b[-4:].hex()
-    print("as7772-nor: 768 KiB, reset vector b .-0xffc")
-    PY
-    echo "as7772: config ok"
+    # In the AS7772's boot NOR since 2026-11-21 (devices/edge-core-as7772-32x/u-boot-port.md).
+    pin as7772-nor ${uboots.as7772-nor} 21718a87211a5e4fbca87b675dd78fe9659dd2e5cbebdb0a105530ba4a3ee1aa
     mkdir $out; echo pass > $out/result
   '';
-  qemu = pkgs.runCommand "as7760-uboot-qemu-e6500" {
+  qemu = pkgs.runCommand "t208x-uboot-qemu-e6500" {
     nativeBuildInputs = [ pkgs.qemu pkgs.python3 ];
   } ''
     set -euo pipefail
     python3 ${./qemu-test.py} ${pkgs.qemu}/bin/qemu-system-ppc64 ${uboots.qemu-ppce500}/u-boot | tee log.txt
     mkdir $out; cp log.txt $out/
   '';
-in pkgs.linkFarm "as7760-uboot-tests" [
+in pkgs.linkFarm "t208x-uboot-tests" [
   { name = "static"; path = static; }
   { name = "qemu-e6500"; path = qemu; }
 ]
