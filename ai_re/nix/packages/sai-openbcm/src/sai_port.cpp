@@ -3,6 +3,7 @@
 // sai_qos.cpp; mirror / sampling attributes: sai_mirror.cpp). Ports and their lanes come
 // from the backend at switch creation; ports cannot be created or removed.
 #include "sai_internal.h"
+#include "ext_phy.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -172,7 +173,11 @@ static sai_status_t port_set_one(PortObj& p, const sai_attribute_t& a, uint32_t 
     if (p.cpu) return attr_not_supported(i);
     switch (a.id) {
     case SAI_PORT_ATTR_ADMIN_STATE:
+        // External PHY table: the PHY's line side comes on before the MAC and
+        // goes off after it.
+        if (a.value.booldata) ext_phy_admin(p.hw, true);
         st = be.port_admin_set(p.hw, a.value.booldata);
+        if (st != SAI_STATUS_SUCCESS ? a.value.booldata : !a.value.booldata) ext_phy_admin(p.hw, false);
         if (st == SAI_STATUS_SUCCESS) {
             p.admin = a.value.booldata;
             OB_NOTICE(SAI_API_PORT, "port %s admin %s", p.sdk_name.c_str(), p.admin ? "up" : "down");

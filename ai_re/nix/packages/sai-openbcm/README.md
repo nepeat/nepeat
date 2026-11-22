@@ -66,6 +66,7 @@ with counters, CoPP policers, SAI temperatures and the temperature publisher
 | `SAI_OPENBCM_PORT_FEC` | from SAI | `none`/`rs`/`fc`: the ASIC-side FEC is fixed to this; `SAI_PORT_ATTR_FEC_MODE` is accepted, kept and returned, not programmed (the external PHY does the line-side FEC) |
 | `SAI_OPENBCM_PORT_AUTONEG` | from SAI | `off`/`on`: fixed the same way; `AUTO_NEG_MODE` is kept, not programmed |
 | `SAI_OPENBCM_PORT_IFG` | SDK default (96) | average inter-frame gap in bit times (64..504, multiple of 8; `bcm_port_ifg_set`), e.g. 128 = `CLMAC_TX_CTRL AVERAGE_IPG=16` |
+| `SAI_OPENBCM_EXT_PHY_FILE` | none | board data, the **external PHY table** ([below](#external-phy-table-link-state-behind-a-phy-the-sdk-does-not-manage)): per port, clause-45 sequences that read the line-side link of a PHY between the ASIC and the cage and that run on admin down / up. The port's link is then ASIC link AND line side. Missing or malformed file, a lane no port starts at, a port not in software link scan: the switch is not created |
 | `SAI_OPENBCM_FAKE_PORTS` / `_LANES` / `_SPEED` | 32 / 4 / 100000 | fake: port count, lanes per port, initial speed |
 | `SAI_OPENBCM_FAKE_LINK` | `admin` | fake: link follows admin state; `none`: never (loopback still links) |
 | `SAI_OPENBCM_FAKE_NETDEV` | `none` | fake: `tap` makes every hostif netif a Linux TAP netdev of that name (MAC set, carrier = hostif OPER_STATUS), as KNET does on the switch; needs CAP_NET_ADMIN and `/dev/net/tun`. For running swss on the fake. |
@@ -323,6 +324,48 @@ generated one (`SAI_INIT_CONFIG_FILE` in the system's `sai.profile` under
    left disabled unless the test enabled them; KNET netifs vanish with the next
    SAI start (cleanup) or `rmmod linux-bcm-knet linux-user-bde linux-kernel-bde`.
    A new syncd re-runs `init all`.
+
+## External PHY table: link state behind a PHY the SDK does not manage
+Format and semantics: `src/ext_phy.h`; code `src/sai_extphy.cpp`; checker `bin/openbcm-ext-phy --check FILE` (the
+same parser; the AS7772 board module runs it at build time). No chip knowledge here: the board supplies the table
+(`nix/modules/boards/as7772/ext-phy.nix` generates one for 32 Evora PHYs).
+
+- **Why.** With a retimer or MAC-PHY in front of a port, the ASIC's link ends at that chip: the port is "up"
+  whenever it is admin up, cable or not, and an admin down is invisible to the far end.
+- **Link = ASIC link AND the table's conditions.** The port's `link` sequence is registered as the SDK's per-port
+  link scan handler (`bcm_linkscan_port_register`): the link scan thread asks it on every pass; "line side down"
+  is returned as link down, otherwise the SDK reads the ASIC link as usual. So a line-side loss goes through the
+  SDK's **own link-down path**: MAC disabled, port out of the forwarding link bitmap (hardware LAG/ECMP fail-over
+  sees it), the LED processor's link bit cleared (`led auto on`), link callback, SAI `PORT_STATE_CHANGE`. Nothing
+  in the SAI layer combines states; `OPER_STATUS` is the SDK's link.
+- **What happens to frames while the line side is down:** the ASIC MAC is off (as for any link-down port), so
+  nothing is sent into the PHY; the SerDes lanes to the PHY stay up, which is why the port comes back without
+  retraining the ASIC side.
+- **Debounce.** Down at once on the first failed poll (routing / LACP / BFD want the loss early, and a lost PCS
+  lock is not a glitch at these speeds). Up only after `up-polls` (default 2) good polls `poll-ms` (default
+  500 ms, the factory diag's period) apart: a line that is still training or flapping does not flap the port.
+  A fault (an `E`/`P` mismatch or an MDIO error: the PHY's register protocol did not answer) counts as down.
+- **Admin sequences.** `admin-up` runs before the ASIC port is enabled, `admin-down` after it is disabled, and
+  for every port at switch creation (ports start admin down). On the AS7772 they power the PHY's line side up /
+  down, which is what makes an admin down visible to the far end. A sequence that stops is logged (ERR) and
+  counted; the SAI call still succeeds (orchagent treats a failed set as fatal). The line-side state persists
+  when syncd stops: an admin-down port stays dark until SONiC enables it or the PHYs are re-initialised.
+- **Bus use.** Sequences run in the SDK's link scan thread (polls) and in SAI calls (admin), through
+  `soc_miimc45_*` (the SDK's MIIM lock per operation) and under one sequence lock, so two sequences never
+  interleave. Only admin-up ports are polled. Cost on the AS7772: see `devices/edge-core-as7772-32x/sonic.md`.
+- **Other MDIO users.** `openbcm-mdio-script` runs before syncd exists. Diag-socket `phy raw ...` commands take
+  the sequence lock (never inside one of ours) and **pause the polls** for `holdoff-ms` (default 3 s) after the
+  last one, because such clients run multi-step indirect accesses of their own; link state is frozen meanwhile.
+  An admin change during such a session still runs its sequence at once and can corrupt the session's access
+  in flight: do not change admin state while a PHY tool is running.
+- **`openbcm-diag extphy`**: the table's live state per port (admin, line, fault, last value, polls, faults,
+  transitions, poll time last / average / max in microseconds, admin sequences run / failed).
+- Fake backend: an MDIO register file (`mdio_regs`, `mdio_log`, `mdio_dead`), the gate in its link model and
+  `linkscan()` as one pass; `tests/test_extphy.inc` (parser errors, AND, debounce, faults, admin sequences,
+  hold-off, poll period, no key = nothing).
+- Not done: break-out (the table is per first lane, so it scales; the AS7772 data is one port per cage), a
+  hardware interrupt instead of polling, MACsec-aware link (the PCS status is the same register with MACsec on:
+  not tested).
 
 ## openbcm-mdio-script: PHYs without an SDK driver
 

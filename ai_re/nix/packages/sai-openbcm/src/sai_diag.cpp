@@ -9,6 +9,7 @@
 // are refused. Anything else, writes included, runs as typed: a debug tool.
 // Client: bin/openbcm-diag (src/openbcm_diag.c).
 #include "sai_internal.h"
+#include "ext_phy.h"
 
 #include <cctype>
 #include <cerrno>
@@ -44,6 +45,18 @@ bool refused(const std::string& cmd)
     for (const char* b : bad)
         if (w == b) return true;
     return !w.empty() && w[0] == '!';
+}
+
+// "phy raw ...": MDIO frames as typed, nothing else of the SDK.
+bool raw_mdio(const std::string& cmd)
+{
+    std::string w[2];
+    size_t i = 0;
+    for (int k = 0; k < 2; k++) {
+        while (i < cmd.size() && (cmd[i] == ' ' || cmd[i] == '\t')) i++;
+        while (i < cmd.size() && cmd[i] != ' ' && cmd[i] != '\t') w[k] += (char)std::tolower((unsigned char)cmd[i++]);
+    }
+    return w[0] == "phy" && w[1] == "raw";
 }
 
 void say(int fd, const std::string& s) { (void)!::write(fd, s.data(), s.size()); }
@@ -85,8 +98,15 @@ void serve(int cfd)
             say(cfd, "openbcm-diag: no switch\n");
             return;
         }
+        if (cmd == "extphy") {   // ours, not the SDK's: the external PHY table's state (ext_phy.h)
+            say(cfd, ext_phy_status());
+            return;
+        }
         OB_NOTICE(SAI_API_SWITCH, "diag socket: %s", cmd.c_str());
-        st = g_diag.be->run_shell_to(cmd, cfd);
+        if (raw_mdio(cmd))   // never inside one of the table's sequences; pauses its link polls
+            ext_phy_foreign_mdio([&] { st = g_diag.be->run_shell_to(cmd, cfd); });
+        else
+            st = g_diag.be->run_shell_to(cmd, cfd);
     }
     if (st != SAI_STATUS_SUCCESS) say(cfd, "openbcm-diag: command failed (" + std::to_string(st) + ")\n");
 }

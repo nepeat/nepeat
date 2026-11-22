@@ -12,6 +12,7 @@ D00B, factory TX taps); both DACs (cages 1-2, 31-32) pass frames at line rate; M
 | MDIO timing, source-level | [mdio-review.md](mdio-review.md) |
 | load test, PHY counters, TX taps | [load-test.md](load-test.md) |
 | MACsec | [macsec.md](macsec.md) |
+| link state that follows the cable (line-side link, line power) | [below](#line-side-link-and-power), [sonic.md](sonic.md) |
 | factory boot chain, why the vendor diag fails here | [boot-chain-diff.md](boot-chain-diff.md) |
 
 ## The rule: `init misc` before any external MDIO access
@@ -32,6 +33,11 @@ D00B, factory TX taps); both DACs (cages 1-2, 31-32) pass frames at line rate; M
   factory's values), `evora-rehost/mdio.py` (bridge runs `init soc`, `init misc`); `openbcm-mdio-script` reads
   both values back and refuses to run if they differ.
 - **No clause 22** to these PHYs (never needed; suspected, not proven, to hang them).
+- **Clause 45 device 1 only, and no register sweeps** (both found the hard way, 2026-11-22,
+  [evidence/extlink-explore-20261122.txt](evidence/extlink-explore-20261122.txt)): reads of devices 2-5, 7, 29-31
+  on a running PHY left it answering one constant (0x2391) on every register, the hung state above; a read sweep
+  of 1.8000-1.90ff left the PHY passing traffic but its firmware message interface dead (1.8221 never
+  acknowledges) until the next boot script run. Which register does that was not bisected.
 - The first night's scan scripts are in [evidence/do-not-run/](evidence/do-not-run/README.md): they run at delay 3
   and one sends clause 22.
 - Unverified: whether `init all`'s default external-PHY probe (bus 0-3, addresses 2-9) sends frames to the
@@ -72,6 +78,24 @@ D00B, factory TX taps); both DACs (cages 1-2, 31-32) pass frames at line rate; M
 
 Not done: frames above 8996 B, pause through the PHY, 25G break-out, a cable on the other 28 cages, soak beyond
 26 min, MACsec at boot or under SONiC.
+
+## Line-side link and power
+Measured 2026-11-22 ([evidence/extlink-explore-20261122.txt](evidence/extlink-explore-20261122.txt), sha256 1ecd6bbd3d3f); used by
+`nix/modules/boards/as7772/ext-phy.nix` (how SONiC uses it: [sonic.md](sonic.md)).
+- **The PHY does not pass link state through.** ASIC port disabled: only that PHY's system side drops; its line
+  side keeps transmitting and the far end stays up. Cable side down: the system side, and so the ASIC link, stays up.
+- **Line-side link = PCS live status 0xc161, bits 1:0 = 3** (0 without link; what the vendor `status` prints as
+  link=UP/DOWN; which bit is which is not known). 0xc160 is the latched companion (clear on read). No plain
+  device-1 register carries it (1.826c, 1.8a39, 1.8c01 looked like it between two PHYs and do not follow the line).
+- **Firmware message** (how the vendor library reads and writes the PCS / SerDes registers; one message is 8-10
+  MDIO operations): bytes to 1.a000.. as little-endian words, 1.8222 = 0x1111 (read) or 0x1101 (write) starts it,
+  1.8221 reads 0x11e3 once when done (clear on read), read data at 1.a101 with 1.a100 = 2.
+  Read: `06 00 | side 01 | reg lo hi | lane 00`; write: `09 00 | side 00 | 01 reg-lo | reg-hi lane | 00 data-lo | data-hi xx`;
+  side 1 = line, 0 = system. The side byte alone selects the side (1.8b90 is only for the LMI path).
+- **Line power** (vendor `extphy power <phy> 0|1`, absent from its usage text): per lane 0xd0e1 bit 7 (receiver
+  off; 0xa008 on, 0xa088 off) and 0xd139 bit 0 (transmitter off; 0x0350 / 0x0351); power-on also writes 0xc010
+  (index 6) back as read (0x0003). Same values on every PHY and lane looked at. Off takes the link down at both
+  ends of the cable; on brings it back by itself (far end up 0.8 s later under SONiC). 1.8251 stays 0x000d.
 
 ## Modes (vendor `extphy init ... mode=`)
 The Evora is a MAC-PHY inline on every port; the vendor init brings its MACsec engine up even for bypass.

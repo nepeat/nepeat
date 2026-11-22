@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Unit tests of the SAI layer against the fake backend. No hardware, no
 // redis, no syncd: the test is the SAI adapter host (service method table).
+#include "ext_phy.h"
 #include "fake_backend.h"
 #include "sai_internal.h"
 
@@ -1759,6 +1760,7 @@ static void test_port_quirks()
     CHECK(fake().port_state[1].fec == Fec::Rs);
 }
 
+static void test_ext_phy();   // tests/test_extphy.inc
 static void test_dump_and_teardown()
 {
     const char* path = "test-dump.txt";
@@ -1830,6 +1832,7 @@ static void test_dump_and_teardown()
     CHECK(!exists(out));
     std::remove(tdir.c_str());
     test_port_quirks();
+    test_ext_phy();
     OK(sai_api_uninitialize());
     CHECK(!ctx().switch_created);
     CHECK_EQ(sai_api_uninitialize(), SAI_STATUS_UNINITIALIZED);
@@ -1981,6 +1984,8 @@ static void test_diag()
     CHECK(diag_cmd(path, "l2 show\n") == "(no connect)");
     ::rmdir(dir.c_str());
 }
+
+#include "test_extphy.inc"
 
 int main()
 {

@@ -291,6 +291,15 @@ public:
     // ports
     virtual sai_status_t port_admin_set(int hw, bool up) = 0;
     virtual sai_status_t port_link_get(int hw, bool& up) = 0;
+    // External PHY table (ext_phy.h). Raw clause 45 through the switch chip's
+    // MDIO master (phy = the master's address word), and a per-port gate the
+    // backend's link scan asks on every pass before its own link read:
+    // 0 = the port is down whatever the ASIC says, < 0 = no opinion. The
+    // gate is called from the link scan thread (or from the call that
+    // changes the link) and may do MDIO; an empty gate removes it.
+    virtual sai_status_t mdio_c45_read(unsigned /*phy*/, unsigned /*dev*/, unsigned /*reg*/, unsigned& /*val*/) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t mdio_c45_write(unsigned /*phy*/, unsigned /*dev*/, unsigned /*reg*/, unsigned /*val*/) { return SAI_STATUS_NOT_SUPPORTED; }
+    virtual sai_status_t port_link_gate(int /*hw*/, std::function<int()> /*gate*/) { return SAI_STATUS_NOT_SUPPORTED; }
     virtual sai_status_t port_speed_set(int hw, uint32_t mbps) = 0;
     virtual sai_status_t port_speed_get(int hw, uint32_t& mbps) = 0;
     virtual sai_status_t port_supported_speeds(int hw, std::vector<uint32_t>& out) = 0;

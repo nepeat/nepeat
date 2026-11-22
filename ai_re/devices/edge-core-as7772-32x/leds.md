@@ -2,8 +2,8 @@
 
 2026-11-22. **Our own LED programs run at boot** (syncd loads them at SDK init) and every register read-back is as
 predicted. **Nobody has looked at the panel yet**: colours, lamp positions and blink are the
-[owner's check](#owners-check-by-eye-not-done). Known limit: a lamp shows the ASIC-to-PHY link, which is up
-whenever the port is admin-up, **not the cable** (measured, below).
+[owner's check](#owners-check-by-eye-not-done). Since the external PHY table (2026-11-22, [sonic.md](sonic.md)
+"Link state follows the cable") the link bit a lamp shows is **cable-true** (ASIC link AND the PHY's line side).
 
 ## How the factory drives them (verified offline unless marked)
 Sources: `dumps/x/diag/root/usr/local/bin/` (`portled-*.soc`, `ES7632BTx.hex` sha256 a8636dec35bf, `LED_*.hex`)
@@ -66,11 +66,11 @@ assembled into `led_proc_init.soc` there, which `nix/modules/boards/as7772/defau
 - Lamp: off without link, on with link, **blinking 4 refreshes on / 4 off while frames pass** (deliberately not the
   factory's 1-in-16; `BLINK_BIT` in the source). Refresh: `CMIC_LEDUPn_CLK_PARAMS` 0x5b8d80; the tick counter
   advanced 3-4 per ~0.1 s read interval, i.e. roughly 30 Hz (rough: read timing, not measured).
-- **Link source = the ASIC port's link to the PHY's system side, and that does not follow the cable** (measured
-  2026-11-22): with Ethernet4 shut, Ethernet0 (the other end of the same DAC) stayed up; the empty cage 3 went
-  oper up as soon as it was admin-up. So a lamp means "port admin-up and PHY alive". Correct today only because
-  every uncabled port is admin-down. The same holds for SONiC's oper state. The fix is the factory's way: feed
-  the PHY's line-side link (MDIO) into the link byte / the port state; not written.
+- **Link source = the SDK's link state, which now includes the PHY's line side** (sai-openbcm's external PHY
+  table makes a line-side loss a normal SDK link-down, and the stock linkscan callback writes the link byte from
+  that). Read back 2026-11-22 ([evidence/extlink-live-20261122.txt](evidence/extlink-live-20261122.txt)): with
+  Ethernet4 shut the link bytes of cages 1 **and** 2 are 0; the empty cage 3 admin-up stays 0. Without the table
+  (before, and on any build without it) the link is the ASIC-to-PHY link: lit whenever the port is admin-up.
 - Not covered: 40G (would show blue; `COLOUR equ ZERO` gives yellow for all cages), break-out (needs
   `H1 = 0` and four lamps for that cage: a per-port-config generator, not written), management-port LEDs.
 - Build and check (workstation, from `ai_re/`, in the devshell):
@@ -106,8 +106,9 @@ Tools: [led/led-run.sh](led/led-run.sh) (feeds a `.soc` line by line; `normal` r
 - **Activity:** flood ping over cage 1-2: status bytes 0x20/0x28 read fb/f9 (idle f8), the lamp bits of cages 1 and 2
   toggle, cage 3's status and all of LEDUP0 unchanged; the mirror image for cage 31-32. 2 x 60,000 pings, 0 lost.
   (The host can read the status area at 2 x index: now seen.)
-- **Admin / cable:** Ethernet4 shut: its link byte 0, lamp bit 0, **Ethernet0 stays up**; back up: 1 again.
-  Empty cage 3 (Ethernet8) admin-up: **oper up, link byte 0xb8 = 1**; shut again: 0. Ports restored.
+- **Admin / cable (that day's system, before the external PHY table):** Ethernet4 shut: its link byte 0, lamp
+  bit 0, Ethernet0 stayed up; empty cage 3 (Ethernet8) admin-up: oper up, link byte 0xb8 = 1. Both are fixed
+  since (see "Link source" above).
 - **Deployed:** system `w87fmc0b...` = commit 17b4c25 plus this change only, built from a clean export of HEAD
   (the working tree held another agent's unfinished `nix/` edits, which give a different system and were not
   deployed). `nix store diff-closures` against the previous system `ymqdngj2...`: one new path, the `.soc`.
@@ -143,11 +144,12 @@ makes all four lamps blink for a few seconds each.) Each pattern stays until the
 
 Please write down, per pattern: colour, how many lamps per cage and which position, any cage that differs; for
 the normal state which cages are lit; for the ping whether 1 and 2 blink and roughly how fast. Optional: pull the
-DAC from cage 31: by the measurement above the lamps of 31 and 32 are expected to **stay lit** (the known limit).
+DAC from cage 31: the lamps of 31 and 32 are now expected to **go dark** within a second (and `show interfaces
+status` to show both down): that is also the one test of the cable-true link nobody could do remotely.
 
 ## Unverified
 - Everything visible: colours, one or four lamps per cage, which physical cage a slot lights, blink rate.
 - That the decoder ignores `H0`/`C0` (always 0 in factory data; we send 0).
-- What the factory's PHY link poll reads (the call at 0x11737e60 was not followed), i.e. which PHY register a
-  cable-true link bit would come from.
+- What the factory's PHY link poll reads (the call at 0x11737e60 was not followed). Ours reads the line-side PCS
+  status the vendor `status` command prints ([extphy.md](extphy.md) "Line-side link and power").
 - The as7772 system was built and deployed from an export of HEAD plus this change, not from the working tree.

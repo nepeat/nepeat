@@ -77,6 +77,9 @@ public:
 
     sai_status_t port_admin_set(int hw, bool up) override;
     sai_status_t port_link_get(int hw, bool& up) override;
+    sai_status_t mdio_c45_read(unsigned phy, unsigned dev, unsigned reg, unsigned& val) override;
+    sai_status_t mdio_c45_write(unsigned phy, unsigned dev, unsigned reg, unsigned val) override;
+    sai_status_t port_link_gate(int hw, std::function<int()> gate) override;
     sai_status_t port_speed_set(int hw, uint32_t mbps) override;
     sai_status_t port_speed_get(int hw, uint32_t& mbps) override;
     sai_status_t port_supported_speeds(int hw, std::vector<uint32_t>& out) override;
@@ -179,6 +182,15 @@ public:
 
     // ---- test hooks (not part of the backend interface) ----
     void inject_link(int hw, bool up);                 // e.g. cable pulled
+    void linkscan();                                   // one link scan pass: every port's link (gates asked), changes reported
+    // External PHYs: a register file (unset registers read 0), every access
+    // logged; accesses to a phy in mdio_dead fail. Own lock: gates run
+    // inside link updates, which hold mu.
+    struct MdioOp { char op; unsigned phy, dev, reg, val; };
+    std::mutex mdio_mu;
+    std::map<std::tuple<unsigned, unsigned, unsigned>, unsigned> mdio_regs;   // (phy, dev, reg)
+    std::vector<MdioOp> mdio_log;
+    std::set<unsigned> mdio_dead;
     void inject_fdb(const FdbEvent& ev);               // hardware learn/age
     void set_stat(int hw, PortStat s, uint64_t v);
     void fp_hit(int eid, uint64_t packets, uint64_t bytes);   // traffic on an entry (counter)
@@ -250,6 +262,7 @@ private:
     bool dest_ok(int d);                               // a port, or an existing LAG
     void update_link(Port& p, std::vector<std::pair<int, bool>>& changes);
     void report(const std::vector<std::pair<int, bool>>& changes);
+    std::map<int, std::function<int()>> link_gates_;   // guarded by mu
     LinkCallback link_cb_;
     FdbCallback fdb_cb_;
     bool link_follows_admin_ = true;

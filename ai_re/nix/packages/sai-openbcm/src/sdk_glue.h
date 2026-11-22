@@ -90,6 +90,14 @@ int ob_sdk_init_mdio(int unit, const char* config_file, char* err, int errlen);
  * ob_sdk_init_mdio or ob_sdk_init succeeded in this process. */
 int ob_sdk_mdio_c45_read(int unit, unsigned phy, unsigned dev, unsigned reg, unsigned* val);
 int ob_sdk_mdio_c45_write(int unit, unsigned phy, unsigned dev, unsigned reg, unsigned val);
+/* Per-port link gate for ports whose line side is a chip the SDK does not
+ * manage (bcm_linkscan_port_register): the link scan calls gate(ctx, port)
+ * on every pass; 0 = the port is down, < 0 = no opinion (the SDK reads the
+ * ASIC link as usual). One gate function for all ports; NULL removes the
+ * port's. Software link scan only: OB_E_CONFIG if the port is not in that
+ * mode (the gate would never be asked). */
+typedef int (*ob_gate_cb_t)(void* ctx, int port);
+int ob_sdk_linkscan_port_gate(int unit, int port, ob_gate_cb_t gate, void* ctx);
 void ob_sdk_shutdown(int unit);
 int ob_sdk_shell(int unit, const char* cmd);
 /* The same with the shell's stdout output sent to fd (diag socket). */

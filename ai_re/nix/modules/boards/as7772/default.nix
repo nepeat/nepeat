@@ -12,6 +12,20 @@ let
     cat ${builtins.path { path = boards + "/as7760/as7760-vendor.dts"; name = "as7760-vendor.dts"; }} \
         ${builtins.path { path = boards + "/as7772/as7772-delta.dtsi"; name = "as7772-delta.dtsi"; }} > $out
   '';
+  # External PHY table (./ext-phy.nix), refused at build time if libsai's
+  # parser would refuse it at boot (a native build of the fake-only libsai
+  # provides the checker).
+  saiNative = pkgs.buildPackages.callPackage ../../../packages/sai-openbcm {
+    sonic = import ../../../packages/sonic { pkgs = pkgs.buildPackages; };
+  };
+  extPhyTable = pkgs.runCommand "as7772-ext-phy.tbl" {
+    nativeBuildInputs = [ saiNative ];
+    text = import ./ext-phy.nix { inherit lib; cages = config.services.sonic.cages; };
+    passAsFile = [ "text" ];
+  } ''
+    openbcm-ext-phy --check "$textPath"
+    cp "$textPath" $out
+  '';
 in {
   imports = [ ../as7760 ./tpm-sensor.nix ];
   # mkMerge, not "//": the fand block below also defines services.*, and a
@@ -64,12 +78,20 @@ in {
     SAI_OPENBCM_PORT_AUTONEG = "off";
     SAI_OPENBCM_PORT_FEC = "none";
     SAI_OPENBCM_PORT_IFG = "128";
+    # Link state follows the cable, and admin down reaches the far end:
+    # ./ext-phy.nix (the PHY's line-side link gates the port; its line side
+    # is powered down while the port is admin down).
+    SAI_OPENBCM_EXT_PHY_FILE = "${extPhyTable}";
   };
+  assertions = [ {
+    assertion = !config.services.sonic.enable || config.services.sonic.breakout == { };
+    message = "AS7772: break-out is not supported (the PHY boot script and ./ext-phy.nix are one 100G port per cage)";
+  } ];
   # Port LEDs: this board's own LED programs (./led; devices/edge-core-as7772-32x/leds.md),
   # not the AS7712's that ../as7760 would load: another serial format (14 bits
   # per cage), cages in another order, the SDK's own port-order remap. Every
-  # cage is shown as one 100G port; link is the ASIC port's (PHY system side:
-  # up whenever the port is admin-up, cable or not).
+  # cage is shown as one 100G port; the link bit is the SDK's link, which
+  # with the external PHY table above follows the cable.
   hardware.as7760.ledProgram = openbcm.configs.ledProgram {
     name = "as7772-32x-led_proc_init.soc";
     src = ./led/led_proc_init.soc;

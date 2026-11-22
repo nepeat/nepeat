@@ -209,6 +209,32 @@ public:
         up = u != 0;
         return SAI_STATUS_SUCCESS;
     }
+    sai_status_t mdio_c45_read(unsigned phy, unsigned dev, unsigned reg, unsigned& val) override
+    {
+        // Not RV(): the caller reports (a poll would log every pass).
+        int rv = ob_sdk_mdio_c45_read(unit_, phy, dev, reg, &val);
+        return rv < 0 ? map_rv(rv) : SAI_STATUS_SUCCESS;
+    }
+    sai_status_t mdio_c45_write(unsigned phy, unsigned dev, unsigned reg, unsigned val) override
+    {
+        int rv = ob_sdk_mdio_c45_write(unit_, phy, dev, reg, val);
+        return rv < 0 ? map_rv(rv) : SAI_STATUS_SUCCESS;
+    }
+    // The SDK's per-port link scan handler (bcm_linkscan_port_register): the
+    // scan asks it first and reads the ASIC link only when it has no opinion,
+    // so a gated port goes through the SDK's own link-down path (MAC off,
+    // out of the forwarding link bitmap, LED link bit, link callback).
+    sai_status_t port_link_gate(int hw, std::function<int()> gate) override
+    {
+        bool on = (bool)gate;
+        {
+            std::lock_guard<std::mutex> g(gate_mu_);
+            if (on) gates_[hw] = std::move(gate);
+            else gates_.erase(hw);
+        }
+        RV(ob_sdk_linkscan_port_gate(unit_, hw, on ? &OpenbcmBackend::on_gate : nullptr, this));
+        return SAI_STATUS_SUCCESS;
+    }
     sai_status_t port_speed_set(int hw, uint32_t mbps) override { RV(ob_sdk_port_speed_set(unit_, hw, (int)mbps)); return SAI_STATUS_SUCCESS; }
     sai_status_t port_speed_get(int hw, uint32_t& mbps) override
     {
@@ -482,6 +508,19 @@ private:
         auto* b = static_cast<OpenbcmBackend*>(self);
         if (b->link_) b->link_(port, up != 0);
     }
+    // From the SDK's link scan thread (and from port calls that update the link).
+    static int on_gate(void* self, int port)
+    {
+        auto* b = static_cast<OpenbcmBackend*>(self);
+        std::function<int()> f;
+        {
+            std::lock_guard<std::mutex> g(b->gate_mu_);
+            auto it = b->gates_.find(port);
+            if (it == b->gates_.end()) return -1;
+            f = it->second;
+        }
+        return f();
+    }
     static void on_l2(void* self, const uint8_t mac[6], int vid, int port, int learned)
     {
         auto* b = static_cast<OpenbcmBackend*>(self);
@@ -496,6 +535,8 @@ private:
 
     int unit_ = 0;
     std::mutex temp_mu_;
+    std::mutex gate_mu_;
+    std::map<int, std::function<int()>> gates_;         // hw port -> link gate
     LinkCallback link_;
     FdbCallback fdb_;
     int cpu_egress_ = -1, drop_egress_ = -1;

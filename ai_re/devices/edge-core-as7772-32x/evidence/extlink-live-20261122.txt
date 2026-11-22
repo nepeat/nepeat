@@ -1,0 +1,377 @@
+AS7772-32X: link state follows the cable (external PHY table), live test 2026-11-22
+System /nix/store/3bmhqzvskpcmciy8fpm6xcpzik8mk0nc-nixos-system-as7772-26.11.20261111.d4f25a3 = commit cb4fa25 + the task Q change (sai-openbcm ext-phy, boards/as7772/ext-phy.nix),
+built from an export of HEAD plus the changed files (new files are untracked; deploy.sh builds tracked files only).
+Deployed with "nixos-rebuild boot", then a cold power cycle (PHY 0x00 was hung by the exploration: extlink-explore-20261122.txt).
+Timestamps: workstation UTC in the "==" headers; lines inside are the switch's own output (its clock is 8 h behind UTC).
+
+== 2026-11-22T12:52:14.987Z systemctl poweroff, lab-power 1 off, 12 s, lab-power 1 on
+plug 1 (switch.server_room_lab_plug): off
+plug 1 (switch.server_room_lab_plug): on
+
+== 2026-11-22T12:55:37.937Z after the cold boot: system, bring-up, ports, external PHY table state
+$ readlink /run/current-system; uptime; systemctl --failed --no-legend | wc -l; journalctl -b -u openbcm-mdio-script --no-pager | grep -E 'done in|FAILED|verified' | cut -d' ' -f6- | tail -3; grep EXT_PHY /usr/share/sonic/hwsku/sai.profile; journalctl -b --no-pager | grep -i -E 'external PHY|line side|ext' | grep -i sai | head -20; show interfaces status | grep -E ' up |Interface'; openbcm-diag extp ...
+/nix/store/3bmhqzvskpcmciy8fpm6xcpzik8mk0nc-nixos-system-as7772-26.11.20261111.d4f25a3
+ 04:55:32 up 3 min,  3 users,  load average: 0.71, 0.43, 0.18
+0
+openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: done in 99.0 s: 1058160 of 1058160 operations, 553600 writes, 425857 reads (307099 polls, 14697 re-reads), 0 expected values differed
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 101.4 s
+SAI_OPENBCM_EXT_PHY_FILE=/nix/store/531z720qd235i89fxknp2sbz81pdfj1c-as7772-ext-phy.tbl
+Nov 22 04:54:23 as7772 syncd[785]: :- Syncd: command line:  EnableDiagShell=NO EnableTempView=YES DisableExitSleep=NO EnableUnittests=NO EnableConsistencyCheck=NO EnableSyncMode=NO EnableAsyncRec=NO RedisCommunicationMode=redis_sync EnableSaiBulkSuport=NO StartType=cold ProfileMapFile=/nix/store/g5i47sq3nn864c093gabb5jvnad7668r-sai.profile GlobalContext=0 ContextConfig= BreakConfig= WatchdogWarnTimeSpan=30000000 WatchdogInitTimeSpan=30000000 SupportingBulkCounters= EnablePerPortCounterDiscovery=NO EnableAttrVersionCheck=NO
+Nov 22 04:54:23 as7772 syncd[785]: :- profileGetValue: SAI_STATS_EXT_SWITCH_SUPPORTED: NULL
+Nov 22 04:54:23 as7772 syncd[785]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_NEXT_HOP
+Nov 22 04:54:23 as7772 syncd[785]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_NEXT_HOP_GROUP
+Nov 22 04:54:23 as7772 syncd[785]: :- profileGetValue: SAI_OPENBCM_TEMP_PROM: /run/prometheus-textfile/asic.prom
+Nov 22 04:54:26 as7772 syncd[785]: sai-openbcm NOTICE api=1: external PHY table: 32 ports (32 with a line-side link poll), poll 500 ms, up after 2 good polls, hold-off 3000 ms
+Nov 22 04:54:26 as7772 syncd[785]: sai-openbcm NOTICE api=1: ASIC temperature: 8 monitors, max 45.2 C; every 5 s to /run/asic/temperature and /run/prometheus-textfile/asic.prom
+Nov 22 04:54:30 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 22 04:54:30 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 22 04:54:30 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 22 04:54:30 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+  Interface            Lanes    Speed    MTU    FEC         Alias    Vlan    Oper    Admin             Type    Asym PFC
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later         N/A
+Ethernet120       9,10,11,12     100G   9100    N/A  Ethernet31/1  routed      up       up  QSFP28 or later         N/A
+Ethernet124      13,14,15,16     100G   9100    N/A  Ethernet32/1  routed      up       up  QSFP28 or later         N/A
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce0         49   50 up    up    no     0x0003      134        0    1     0     192     196     318     2    0        7255
+ce1         53   54 up    up    no     0x0003      134        0    1     0     303     198     339     2    0        7131
+ce2         57   58 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5526
+ce3         61   62 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        4380
+ce4         65   68 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        4767
+ce5         69   72 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5041
+ce6         73   76 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        4647
+ce7         77   80 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5279
+ce8         33   34 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5158
+ce9         37   38 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        4160
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+ce0         49   50 up    up    no     0x0003      134        0    1     0     192     196     318     2    0        7255
+ce1         53   54 up    up    no     0x0003      134        0    1     0     303     198     339     2    0        7131
+ce30         9    9 up    up    no     0x0003      134        0    1     0     199     207     336     2    0        6691
+ce31        13   13 up    up    no     0x0003      134        0    1     0     193     193     322     2    0        7346
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce2( 58)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce3( 62)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No
+
+== 2026-11-22T12:56:18.625Z (a)+(d) shut / startup Ethernet4: Ethernet0 (other end of the DAC) must follow
+$ T=$(date "+%Y-%m-%d %H:%M:%S"); echo "T0 $(date +%H:%M:%S.%N)"; config interface shutdown Ethernet4; echo "cmd returned $(date +%H:%M:%S.%N)"; sleep 3; show interfaces status | grep -E "Ethernet4 |Ethernet0 "; ip -br link show Ethernet4; ip -br link show Ethernet0; openbcm-diag "ps" | grep -E "ce(0|1|30|31)\("; sleep 1; T1=$(date "+%Y-%m-%d %H:%M:%S"); echo "T1 $(date +%H:%M:%S.%N)"; config interf ...
+T0 04:55:52.296053004
+cmd returned 04:55:56.399228549
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed    down       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed    down     down  QSFP28 or later         N/A
+Ethernet4        DOWN           1c:ea:0b:38:2b:d5 <BROADCAST,MULTICAST> 
+Ethernet0        DOWN           1c:ea:0b:38:2b:d5 <NO-CARRIER,BROADCAST,MULTICAST,UP> 
+       ce0( 50)  down   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce1( 54)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce30(  9)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce31( 13)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+T1 04:56:05.421372468
+cmd returned 04:56:09.483823996
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later         N/A
+Ethernet4        UP             1c:ea:0b:38:2b:d5 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+Ethernet0        UP             1c:ea:0b:38:2b:d5 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+-- journal
+Nov 22 04:55:56.041148 as7772 systemd-networkd[494]: Ethernet4: Lost carrier
+Nov 22 04:55:56.054766 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce1 admin down
+Nov 22 04:55:56.118659 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+Nov 22 04:55:56.121823 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+Nov 22 04:55:56.123643 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+Nov 22 04:55:56.123749 as7772 orchagent[788]: :- updatePortOperStatus: Port Ethernet0 oper state set from up to down
+Nov 22 04:55:56.126944 as7772 systemd-networkd[494]: Ethernet0: Lost carrier
+Nov 22 04:55:56.128821 as7772 orchagent[788]: :- updatePortOperStatus: Port Ethernet4 oper state set from up to down
+Nov 22 04:56:09.141026 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce1 admin up
+Nov 22 04:56:09.950603 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 22 04:56:09.953823 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+Nov 22 04:56:09.954572 as7772 orchagent[788]: :- updatePortOperStatus: Port Ethernet0 oper state set from down to up
+Nov 22 04:56:09.956999 as7772 systemd-networkd[494]: Ethernet0: Gained carrier
+Nov 22 04:56:10.210635 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 22 04:56:10.469836 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+Nov 22 04:56:10.470630 as7772 orchagent[788]: :- updatePortOperStatus: Port Ethernet4 oper state set from down to up
+Nov 22 04:56:10.473169 as7772 systemd-networkd[494]: Ethernet4: Gained carrier
+
+== 2026-11-22T12:56:45.187Z (a)+(d) shut / startup Ethernet124: Ethernet120 must follow
+$ T=$(date "+%Y-%m-%d %H:%M:%S"); echo "T0 $(date +%H:%M:%S.%N)"; config interface shutdown Ethernet124; echo "cmd returned $(date +%H:%M:%S.%N)"; sleep 3; show interfaces status | grep -E "Ethernet124 |Ethernet120 "; ip -br link show Ethernet124; ip -br link show Ethernet120; openbcm-diag "ps" | grep -E "ce(0|1|30|31)\("; sleep 1; T1=$(date "+%Y-%m-%d %H:%M:%S"); echo "T1 $(date +%H:%M:%S.%N)"; con ...
+T0 04:56:18.938587505
+cmd returned 04:56:23.017092949
+Ethernet120       9,10,11,12     100G   9100    N/A  Ethernet31/1  routed    down       up  QSFP28 or later         N/A
+Ethernet124      13,14,15,16     100G   9100    N/A  Ethernet32/1  routed    down     down  QSFP28 or later         N/A
+Ethernet124      DOWN           1c:ea:0b:38:2b:d5 <BROADCAST,MULTICAST> 
+Ethernet120      DOWN           1c:ea:0b:38:2b:d5 <NO-CARRIER,BROADCAST,MULTICAST,UP> 
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce30(  9)  down   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce31( 13)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+T1 04:56:32.085787076
+cmd returned 04:56:36.132531703
+Ethernet120       9,10,11,12     100G   9100    N/A  Ethernet31/1  routed      up       up  QSFP28 or later         N/A
+Ethernet124      13,14,15,16     100G   9100    N/A  Ethernet32/1  routed      up       up  QSFP28 or later         N/A
+Ethernet124      UP             1c:ea:0b:38:2b:d5 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+Ethernet120      UP             1c:ea:0b:38:2b:d5 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+-- journal
+Nov 22 04:56:22.653606 as7772 systemd-networkd[494]: Ethernet124: Lost carrier
+Nov 22 04:56:22.665868 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce31 admin down
+Nov 22 04:56:22.764789 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce30: line side down (external PHY, value 0x0000)
+Nov 22 04:56:22.767982 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper down
+Nov 22 04:56:22.768957 as7772 orchagent[788]: :- updatePortOperStatus: Port Ethernet120 oper state set from up to down
+Nov 22 04:56:22.769947 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper down
+Nov 22 04:56:22.773088 as7772 systemd-networkd[494]: Ethernet120: Lost carrier
+Nov 22 04:56:22.773971 as7772 orchagent[788]: :- updatePortOperStatus: Port Ethernet124 oper state set from up to down
+Nov 22 04:56:35.791901 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce31 admin up
+Nov 22 04:56:36.592674 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 22 04:56:36.595868 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper up
+Nov 22 04:56:36.596643 as7772 orchagent[788]: :- updatePortOperStatus: Port Ethernet120 oper state set from down to up
+Nov 22 04:56:36.599562 as7772 systemd-networkd[494]: Ethernet120: Gained carrier
+Nov 22 04:56:36.853134 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 22 04:56:37.111931 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper up
+Nov 22 04:56:37.112774 as7772 orchagent[788]: :- updatePortOperStatus: Port Ethernet124 oper state set from down to up
+Nov 22 04:56:37.115276 as7772 systemd-networkd[494]: Ethernet124: Gained carrier
+
+== 2026-11-22T12:57:20.952Z (b) empty cage 3 (Ethernet8) admin up: must stay oper down
+$ T=$(date "+%Y-%m-%d %H:%M:%S"); config interface startup Ethernet8; sleep 6; show interfaces status | grep -E "Ethernet8 "; ip -br link show Ethernet8; openbcm-diag ps | grep -E "ce2\("; openbcm-diag extphy | grep -E "^port|^ce2 "; echo "LED link bytes 0xb0 0xb4 0xb8 (cages 1 2 3, LEDUP1):"; openbcm-diag "led 1 dump" 2>&1 | grep -i -E "^ *b0|00b0|b0:" | head -3; config interface shutdown Ethernet8 ...
+  Ethernet8      57,58,59,60     100G   9100    N/A   Ethernet3/1  routed    down       up              N/A         N/A
+Ethernet8        DOWN           1c:ea:0b:38:2b:d5 <NO-CARRIER,BROADCAST,MULTICAST,UP> 
+       ce2( 58)  down   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce2         57   58 up    down  no     0x0000       22        0    0     0     305     271     316     2    0        7092
+LED link bytes 0xb0 0xb4 0xb8 (cages 1 2 3, LEDUP1):
+  Ethernet8      57,58,59,60     100G   9100    N/A   Ethernet3/1  routed    down     down              N/A         N/A
+Nov 22 04:56:58.538593 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce2 admin up
+Nov 22 04:57:13.577571 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce2 admin down
+
+== 2026-11-22T12:57:33.030Z port LED link bytes (data RAM, bit 0 = link; leds.md): all four ports up
+$ bash /tmp/led-ram.sh 1 0xb0 0xb8 | sed 's/$/   (0xb0 cage 1, 0xb4 cage 2, 0xb8 cage 3)/'; bash /tmp/led-ram.sh 0 0xa8 0xac | sed 's/$/   (0xa8 cage 31, 0xac cage 32)/'
+LEDUP1 0xb0..0xb8: 01 00 00 00 01 00 00 00 00   (0xb0 cage 1, 0xb4 cage 2, 0xb8 cage 3)
+LEDUP0 0xa8..0xac: 01 00 00 00 01   (0xa8 cage 31, 0xac cage 32)
+
+== 2026-11-22T12:58:07.949Z LED link bytes with Ethernet4 shut (cage 1 must go dark too), and with empty cage 3 admin up (must stay dark)
+$ config interface shutdown Ethernet4; config interface startup Ethernet8; sleep 4; bash /tmp/led-ram.sh 1 0xb0 0xb8 | sed 's/$/   (0xb0 cage 1, 0xb4 cage 2, 0xb8 cage 3)/'; bash /tmp/led-ram.sh 0 0xa8 0xac | sed 's/$/   (0xa8 cage 31, 0xac cage 32)/'; show interfaces status | grep -E "Ethernet(0|4|8) "; config interface startup Ethernet4; config interface shutdown Ethernet8; sleep 4; bash /tmp/led- ...
+LEDUP1 0xb0..0xb8: 00 00 00 00 00 00 00 00 00   (0xb0 cage 1, 0xb4 cage 2, 0xb8 cage 3)
+LEDUP0 0xa8..0xac: 01 00 00 00 01   (0xa8 cage 31, 0xac cage 32)
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed    down       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed    down     down  QSFP28 or later         N/A
+  Ethernet8      57,58,59,60     100G   9100    N/A   Ethernet3/1  routed    down       up              N/A         N/A
+LEDUP1 0xb0..0xb8: 01 00 00 00 01 00 00 00 00   (0xb0 cage 1, 0xb4 cage 2, 0xb8 cage 3)
+LEDUP0 0xa8..0xac: 01 00 00 00 01   (0xa8 cage 31, 0xac cage 32)
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet8      57,58,59,60     100G   9100    N/A   Ethernet3/1  routed    down     down              N/A         N/A
+
+== 2026-11-22T13:00:21.956Z (e) flood ping cage 1 -> 2 (ping -f 10.0.1.1 out of Ethernet0), far side Ethernet4 shut at the mark, later started again
+$ s() { echo "$(date +%H:%M:%S.%3N) $1: ce0 TPKT=$(openbcm-diag "show c TPKT.ce0" | awk '/TPKT/{print $4}') RPKT=$(openbcm-diag "show c RPKT.ce0" | awk '/RPKT/{print $4}') ce1 RPKT=$(openbcm-diag "show c RPKT.ce1" | awk '/RPKT/{print $4}') | Ethernet0 oper $(cat /sys/class/net/Ethernet0/operstate) | $(openbcm-diag ps | awk '/ce0\(/{print "ce0 link " $3}')"; }; T=$(date "+%Y-%m-%d %H:%M:%S"); openbcm ...
+04:59:58.372 flood: ce0 TPKT=+797 RPKT=+796 ce1 RPKT=+799 | Ethernet0 oper up | ce0 link up
+04:59:59.519 flood: ce0 TPKT=+540 RPKT=+540 ce1 RPKT=+540 | Ethernet0 oper up | ce0 link up
+--- config interface shutdown Ethernet4
+05:00:03.805 shut: ce0 TPKT=+2,111 RPKT=+2,111 ce1 RPKT=+2,111 | Ethernet0 oper down | ce0 link down
+05:00:04.963 shut: ce0 TPKT=+336 RPKT=+328 ce1 RPKT=+326 | Ethernet0 oper down | ce0 link down
+05:00:06.103 shut: ce0 TPKT= RPKT= ce1 RPKT= | Ethernet0 oper down | ce0 link down
+MAC and forwarding state of ce0 while its line side is down:
+TX_EN=1 RX_EN=0 
+0:parse_symbolic_reference: Register EPC_LINK_BMAP 29985 is not valid for chips using driver BCM56960_A0
+Syntax error parsing "EPC_LINK_BMAP"
+openbcm-diag: command failed (-1)
+10.0.1.0/31 dev Ethernet0 proto kernel scope link src 10.0.1.0 linkdown 
+--- config interface startup Ethernet4
+05:00:10.321 start: ce0 TPKT= RPKT= ce1 RPKT= | Ethernet0 oper down | ce0 link down
+05:00:12.463 start: ce0 TPKT=+19 RPKT=+12 ce1 RPKT=+15 | Ethernet0 oper up | ce0 link up
+05:00:13.607 start: ce0 TPKT=+3 RPKT=+2 ce1 RPKT=+3 | Ethernet0 oper up | ce0 link up
+05:00:15.747 start: ce0 TPKT=+2 RPKT=+2 ce1 RPKT=+2 | Ethernet0 oper up | ce0 link up
+--- 10.0.1.1 ping statistics ---
+3788 packets transmitted, 3772 received, +5 errors, 0.422386% packet loss, time 9324ms
+rtt min/avg/max/mdev = 0.099/1.595/23.555/3.690 ms, pipe 5, ipg/ewma 2.462/3.499 ms
+TX_EN=1 RX_EN=1 
+Nov 22 05:00:03.438489 as7772 systemd-networkd[494]: Ethernet4: Lost carrier
+Nov 22 05:00:03.449410 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce1 admin down
+Nov 22 05:00:03.586729 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+Nov 22 05:00:03.590130 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+Nov 22 05:00:03.591017 as7772 orchagent[788]: :- updatePortOperStatus: Port Ethernet0 oper state set from up to down
+Nov 22 05:00:03.592030 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+Nov 22 05:00:03.594285 as7772 systemd-networkd[494]: Ethernet0: Lost carrier
+Nov 22 05:00:03.596672 as7772 orchagent[788]: :- updatePortOperStatus: Port Ethernet4 oper state set from up to down
+Nov 22 05:00:09.970077 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce1 admin up
+Nov 22 05:00:10.758495 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 22 05:00:10.761673 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+Nov 22 05:00:10.762469 as7772 orchagent[788]: :- updatePortOperStatus: Port Ethernet0 oper state set from down to up
+Nov 22 05:00:10.764763 as7772 systemd-networkd[494]: Ethernet0: Gained carrier
+Nov 22 05:00:11.018823 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 22 05:00:11.278381 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+Nov 22 05:00:11.279328 as7772 orchagent[788]: :- updatePortOperStatus: Port Ethernet4 oper state set from down to up
+Nov 22 05:00:11.281866 as7772 systemd-networkd[494]: Ethernet4: Gained carrier
+
+== 2026-11-22T13:01:10.577Z cost with 4 polled ports: link scan thread CPU over 30 s (clock ticks, 250 Hz kernel = 4 ms each) and poll times
+$ P=$(pidof syncd); th() { for t in /proc/$P/task/*; do n=$(cat $t/comm); case "$n" in bcmLINK*) awk -v n="$n" '{print n, $14+$15}' $t/stat;; esac; done; }; tot() { awk '{print $14+$15}' /proc/$P/stat; }; getconf CLK_TCK; a=$(th); A=$(tot); sleep 30; b=$(th); B=$(tot); echo "bcmLINK ticks before: $a after: $b ; whole syncd: $A -> $B"; openbcm-diag extphy | grep -E "^port|^extphy| up    up"; openbcm- ...
+100
+bcmLINK ticks before: bcmLINK.0 689 after: bcmLINK.0 743 ; whole syncd: 3392 -> 3606
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce0         49   50 up    up    no     0x0003      783        0    4     3     183     194     322     2    0        7255
+ce1         53   54 up    up    no     0x0003      712        0    4     0     183     195     339     8    0        7131
+ce30         9    9 up    up    no     0x0003      783        0    2     1     193     205     336     2    0        6691
+ce31        13   13 up    up    no     0x0003      758        0    2     0     192     201     371     4    0        7346
+LINKscan: Linkscan enabled
+LINKscan:   Software polling interval: 250000 usec
+LINKscan:   Software Port BitMap 0x0000000000000000000000000000000444444451111111144444444422222222: ce,xe
+LINKscan:   Hardware Port BitMap 0x0000000000000000000000000000000000000000000000000000000000000000: none
+LINKscan:   Disabled Port BitMap 0x0000000000000000000000000000000000000000000000000000000000000000: none
+
+== 2026-11-22T13:03:50.874Z all 32 ports admin up for the measurement (28 empty cages)
+$ time (for i in $(seq 8 4 116); do config interface startup Ethernet$i; done) 2>&1 | tail -3; sleep 5; show interfaces status | awk '$9=="up"||$8=="up"{n++} END{print n " ports oper up"}'; show interfaces status | grep -c " up "; P=$(pidof syncd); th() { for t in /proc/$P/task/*; do n=$(cat $t/comm); case "$n" in bcmLINK*) awk -v n="$n" '{print n, $14+$15}' $t/stat;; esac; done; }; tot() { awk '{pr ...
+real	1m54.128s
+user	1m47.244s
+sys	0m6.469s
+(two miscounted lines removed here: they counted admin-up rows; the extphy table below and the next section show the real state)
+bcmLINK ticks before: bcmLINK.0 1017 after: bcmLINK.0 1087 ; whole syncd: 4631 -> 4871
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce0         49   50 up    up    no     0x0003     1095        0    4     3     182     194     323     2    0        7255
+ce1         53   54 up    up    no     0x0003     1024        0    4     0     304     195     339     8    0        7131
+ce2         57   58 up    down  no     0x0000      368        0    0     0     307     253     429     6    0        7595
+ce3         61   62 up    down  no     0x0000      296        0    0     0     183     237     361     2    0        7857
+ce4         65   68 up    down  no     0x0000      288        0    0     0     203     264     382     2    0        7831
+ce5         69   72 up    down  no     0x0000      280        0    0     0     184     257     347     2    0        7977
+ce6         73   76 up    down  no     0x0000      272        0    0     0     181     240     365     2    0        7512
+ce7         77   80 up    down  no     0x0000      265        0    0     0     205     248     379     2    0        7206
+ce8         33   34 up    down  no     0x0000      257        0    0     0     183     259     339     2    0        7394
+ce9         37   38 up    down  no     0x0000      249        0    0     0     303     268     340     2    0        7325
+ce10        41   42 up    down  no     0x0000      241        0    0     0     181     216     318     2    0        6756
+ce11        45   46 up    down  no     0x0000      233        0    0     0     183     219     334     2    0        7472
+ce12        81   84 up    down  no     0x0000      225        0    0     0     302     250     397     2    0        7098
+ce13        85   88 up    down  no     0x0000      217        0    0     0     181     237     326     2    0        7420
+ce14        89   92 up    down  no     0x0000      209        0    0     0     301     260     315     2    0        7648
+ce15        93   96 up    down  no     0x0000      201        0    0     0     181     256     316     2    0        6402
+ce16        97  102 up    down  no     0x0000      193        0    0     0     304     239     315     2    0        8131
+ce17       101  106 up    down  no     0x0000      185        0    0     0     303     254     322     2    0        7579
+ce18       105  110 up    down  no     0x0000      177        0    0     0     182     245     323     2    0        7183
+ce19       109  114 up    down  no     0x0000      169        0    0     0     303     263     325     2    0        6833
+ce20        17   17 up    down  no     0x0000      161        0    0     0     304     260     321     2    0        7014
+ce21        21   21 up    down  no     0x0000      153        0    0     0     302     292     315     2    0        8326
+ce22        25   25 up    down  no     0x0000      145        0    0     0     301     258     316     2    0        6758
+ce23        29   29 up    down  no     0x0000      137        0    0     0     183     258     317     2    0        6957
+ce24       113  118 up    down  no     0x0000      130        0    0     0     183     217     316     2    0        7866
+ce25       117  122 up    down  no     0x0000      122        0    0     0     182     253     313     2    0        7137
+ce26       121  126 up    down  no     0x0000      114        0    0     0     302     248     315     2    0        7224
+ce27       125  130 up    down  no     0x0000      106        0    0     0     303     275     311     2    0        6791
+ce28         1    1 up    down  no     0x0000       98        0    0     0     322     271     334     2    0        7497
+ce29         5    5 up    down  no     0x0000       90        0    0     0     302     260     328     2    0        7630
+ce30         9    9 up    up    no     0x0003     1095        0    2     1     195     205     336     2    0        6691
+ce31        13   13 up    up    no     0x0003     1070        0    2     0     184     201     371     4    0        7346
+
+== 2026-11-22T13:06:17.411Z oper state with all 32 admin up, then the 28 empty cages admin down again
+$ show interfaces status | awk 'NR>2 && $8=="up"{u++} NR>2 && $9=="up"{a++} END{print a " admin up, " u " oper up"}'; show interfaces status | awk 'NR>2 && $8=="up"{print $1}' | tr '\n' ' '; echo; for i in $(seq 8 4 116); do config interface shutdown Ethernet$i; done; sleep 3; show interfaces status | awk 'NR>2 && $8=="up"{u++} NR>2 && $9=="up"{a++} END{print a " admin up, " u " oper up"}'
+32 admin up, 4 oper up
+Ethernet0 Ethernet4 Ethernet120 Ethernet124 
+4 admin up, 4 oper up
+
+== 2026-11-22T13:06:26.320Z phy-status with SONiC up (reads through the diag socket: polls pause), admin-down PHYs have their line side powered down
+$ phy-status 2>&1 | head -12; phy-status 2>&1 | grep -c -i "ok\|active" ; phy-status 2>&1 | grep -i -E "mismatch|differ|!" | head -5; openbcm-diag extphy | head -1; journalctl --since "-1min" --no-pager | grep -i "paused" | tail -2 | cut -c1-200; sleep 4; openbcm-diag extphy | head -1
+== last run of openbcm-mdio-script.service (/run/openbcm-mdio-script/status.txt) ==
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 101.4 s
+  run started 2026-11-22 04:52:40 -0800, took 101.4 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 99.0 s (553600 writes, 425857 reads, 14697 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 43.8 C, 0 failed, longest read 0.13 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+name    phy    id      id2     fw      cksum   sides   state
+cage1   0x000  2391    80a0    d00b    600d    000d    ok
+cage2   0x001  2391    80a0    d00b    600d    000d    ok
+cage3   0x002  2391    80a0    d00b    600d    000d    ok
+cage4   0x003  2391    80a0    d00b    600d    000d    ok
+66
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 99.0 s (553600 writes, 425857 reads, 14697 re-reads; 0 of the recorded values differed)
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (PAUSED now, 1 so far)
+Nov 22 05:06:19 as7772 syncd[785]: sai-openbcm NOTICE api=1: external PHY link polls paused: raw MDIO on the diag socket (resume 3000 ms after the last one)
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 1 so far)
+
+== 2026-11-22T13:06:33.213Z (c) systemctl reboot
+
+== 2026-11-22T13:10:17.260Z (c) after the reboot
+$ readlink /run/current-system; uptime; systemctl --failed --no-legend | wc -l; journalctl -b -u openbcm-mdio-script --no-pager | grep -E 'ok:|FAILED' | cut -d' ' -f6- | tail -1; show interfaces status | awk 'NR>2 && $8=="up"{u++} NR>2 && $9=="up"{a++} END{print a " admin up, " u " oper up"}'; show interfaces status | grep " up "; openbcm-diag extphy | grep -E "^extphy|^port| up    up"; openbcm-diag ...
+/nix/store/3bmhqzvskpcmciy8fpm6xcpzik8mk0nc-nixos-system-as7772-26.11.20261111.d4f25a3
+ 05:10:07 up 3 min,  3 users,  load average: 0.91, 0.66, 0.28
+0
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 102.6 s
+4 admin up, 4 oper up
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later         N/A
+Ethernet120       9,10,11,12     100G   9100    N/A  Ethernet31/1  routed      up       up  QSFP28 or later         N/A
+Ethernet124      13,14,15,16     100G   9100    N/A  Ethernet32/1  routed      up       up  QSFP28 or later         N/A
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce0         49   50 up    up    no     0x0003      163        0    1     0     184     197     322     2    0        7149
+ce1         53   54 up    up    no     0x0003      163        0    1     0     185     191     311     2    0        7214
+ce30         9    9 up    up    no     0x0003      163        0    1     0     194     205     327     2    0        7534
+ce31        13   13 up    up    no     0x0003      163        0    1     0     184     204    1781     2    0        7518
+Nov 22 05:08:50.420394 as7772 syncd[785]: sai-openbcm NOTICE api=1: external PHY table: 32 ports (32 with a line-side link poll), poll 500 ms, up after 2 good polls, hold-off 3000 ms
+Nov 22 05:08:54.373397 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 22 05:08:54.375665 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 22 05:08:54.635980 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper up
+Nov 22 05:08:54.640462 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper up
+Nov 22 05:08:54.899183 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 22 05:08:54.901013 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 22 05:08:55.161442 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+Nov 22 05:08:55.165849 as7772 syncd[785]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+
+== 2026-11-22T13:11:46.626Z (c) sonic-traffic-test.sh after the reboot: evidence/sonic-20261122-extlink-reboot-traffic.txt
+== failed units: 0
+== ping cage 1 -> 2 (1000 x 64 B, then 1000 x 1400 B, then 200 x 8000 B)
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+== ping cage 2 -> 1 (Vrf-a)
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+== ping cage 31 -> 32
+1000 packets transmitted, 1000 received, 0% packet loss, time 1999ms
+1000 packets transmitted, 1000 received, 0% packet loss, time 1999ms
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+== ping cage 32 -> 31 (Vrf-b)
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+
+== 2026-11-22T13:11:58.049Z (c) totals over all 32 ports after the reboot
+$ openbcm-diag extphy | awk 'NR>2{h+=$15; f+=$16; fl+=$9; p+=$8} END{print "admin sequences run: " h ", failed: " f "; link polls: " p ", poll faults: " fl}'
+admin sequences run: 36, failed: 0; link polls: 1440, poll faults: 0
+
+== 2026-11-22T13:12:02.927Z re-hosted vendor library through the diag socket while the polls run (workstation: evora-rehost/phystat.py 0x00 0x17f)
+warning: Git tree '/home/erin/nepeat' is dirty
+ai_re devshell — hardware RE
+serial: tmux new-session -d -s serial 'tio /dev/<port> -b 115200'
+ports : ls /dev/tty.* (macOS) | ls /dev/ttyUSB* /dev/ttyACM* (linux)
+phy 0x000  410.0 C  FEC corrected 0 uncorrected 0 symerr [0, 0, 0, 0]  sys CL82 BER 0
+  line pcs_live ['0000', '0003'] latched ['03ff', '03ff']  RPKT=3233 RFCS=0 RBYT=3264306 ROVR=200 TPKT=3245 TBYT=3266035
+  sys  pcs_live ['03ff', '0003'] latched ['03ff', '03ff']  RPKT=3245 RFCS=0 RBYT=3266035 ROVR=200 TPKT=3233 TBYT=3264306
+phy 0x17f  410.0 C  FEC corrected 0 uncorrected 3 symerr [0, 0, 0, 0]  sys CL82 BER 0
+  line pcs_live ['0000', '0003'] latched ['03ff', '03ff']  RPKT=3245 RFCS=0 RBYT=3266087 ROVR=200 TPKT=3233 TBYT=3264356
+  sys  pcs_live ['03ff', '0003'] latched ['03ff', '03ff']  RPKT=3233 RFCS=0 RBYT=3264356 ROVR=200 TPKT=3245 TBYT=3266087
+
+== 2026-11-22T13:12:07.320Z polls paused during that session and running again; no fault, no flap
+$ journalctl --since "-2min" --no-pager | grep -i "polls paused" | cut -c1-160; sleep 4; openbcm-diag extphy | grep -E "^extphy|^port| up    up"
+Nov 22 05:11:58 as7772 syncd[785]: sai-openbcm NOTICE api=1: external PHY link polls paused: raw MDIO on the diag socket (resume 3000 ms after the last one)
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 1 so far)
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce0         49   50 up    up    no     0x0003      365        0    1     0     184     196     322     2    0        7149
+ce1         53   54 up    up    no     0x0003      365        0    1     0     184     193     334     2    0        7214
+ce30         9    9 up    up    no     0x0003      365        0    1     0     192     204     327     2    0        7534
+ce31        13   13 up    up    no     0x0003      365        0    1     0     183     198    1781     2    0        7518
+
+== 2026-11-22T13:12:38.088Z systemctl restart sonic.target (PHYs keep their state: the admin-down sequences at switch creation meet line sides that are already off, and the four that were on)
+$ T=$(date "+%Y-%m-%d %H:%M:%S"); systemctl restart sonic.target; for i in $(seq 1 40); do n=$(show interfaces status 2>/dev/null | awk 'NR>2 && $8=="up"{u++} END{print u+0}'); [ "$n" = 4 ] && break; sleep 3; done; echo "4 ports oper up $(( $(date +%s) - $(date -d "$T" +%s) )) s after the restart command"; systemctl --failed --no-legend | wc -l; show interfaces status | awk 'NR>2 && $8=="up"{u++} NR ...
+4 ports oper up 16 s after the restart command
+0
+4 admin up, 4 oper up
+admin sequences run: 36, failed: 0; link polls: 79, poll faults: 0
+0
+[exit 1]
+
+== 2026-11-22T13:37:40.388Z final state left on the switch
+$ readlink /run/current-system; uptime; systemctl --failed --no-legend | wc -l; show interfaces status | awk 'NR>2 && $8=="up"{u++} NR>2 && $9=="up"{a++} END{print a " admin up, " u " oper up"}'; show interfaces status | grep " up "; openbcm-diag extphy | awk 'NR>2{h+=$15; f+=$16; fl+=$9} END{print "admin sequences run: " h ", failed: " f ", poll faults: " fl}'; cat /run/asic/temperature; grep -o '" ...
+/nix/store/3bmhqzvskpcmciy8fpm6xcpzik8mk0nc-nixos-system-as7772-26.11.20261111.d4f25a3
+ 05:37:30 up 30 min,  3 users,  load average: 1.28, 0.92, 0.81
+0
+4 admin up, 4 oper up
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later         N/A
+Ethernet120       9,10,11,12     100G   9100    N/A  Ethernet31/1  routed      up       up  QSFP28 or later         N/A
+Ethernet124      13,14,15,16     100G   9100    N/A  Ethernet32/1  routed      up       up  QSFP28 or later         N/A
+admin sequences run: 36, failed: 0, poll faults: 0
+47.2
+"failsafe": false

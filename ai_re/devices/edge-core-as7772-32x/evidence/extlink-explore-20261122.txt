@@ -1,0 +1,92 @@
+AS7772-32X: where the cable-true link state comes from (task Q exploration), 2026-11-22
+Switch: system w87fmc0b..., SONiC up, DACs cages 1-2 and 31-32. All access through syncd's diag socket
+(openbcm-diag "phy raw c45 <phy> 1 <reg> [<val>]") and the re-hosted vendor library (--backend diag).
+Workstation clock 12:18-12:28 UTC. Lines below are the tools' output, trimmed; "=>" lines are my reading.
+
+== 1. vendor "extphy status": what decides link=UP/DOWN (trace all-cfg.trace.txt, recorded 2026-11-21) ==
+status 0x00 (prints link=UP)                      status 0x02 (prints link=DOWN, no cable)
+W 000 1 8b90 0000                                 W 002 1 8b90 0000
+W 000 1 a000 0006                                 W 002 1 a000 0006
+W 000 1 a001 0101                                 W 002 1 a001 0101
+W 000 1 a002 c161                                 W 002 1 a002 c161
+W 000 1 a003 0000                                 W 002 1 a003 0000
+W 000 1 8222 1111                                 W 002 1 8222 1111
+R 000 1 8221 11e3                                 R 002 1 8221 11e3
+R 000 1 a100 0002                                 R 002 1 a100 0002
+R 000 1 a101 0003                                 R 002 1 a101 0000
+(then the same for c160: 000f first read / 0000)  (c160: 0000)
+=> line-side PCS live status 0xc161 (bits 1:0 = 3 with link), latched 0xc160, read through a firmware
+   message on device 1 (1.a000.. request, 1.8222 trigger, 1.8221 = 11e3 done, 1.a100 = 2, 1.a101 = value).
+
+== 2. is there a plain register with the same information? read-only scan of device 1 ==
+for r in 0x8000..0x90ff (without 0x9005, 0x900a): phy raw c45 <phy> 1 r      on PHY 0x00 (cage 1, link up) and 0x02 (cage 3, empty)
+registers that differ between the two:
+8150 0x8150: 0x0018   8150 0x8150: 0x0019
+8228 0x8228: 0x0111   8228 0x8228: 0x0099
+826c 0x826c: 0x0003   826c 0x826c: 0x0000
+8415 0x8415: 0xa095   8415 0x8415: 0x026c
+8a39 0x8a39: 0x0000   8a39 0x8a39: 0x0005
+8c01 0x8c01: 0x28d1   8c01 0x8c01: 0x28c1
+9001 0x9001: 0x0600   9001 0x9001: 0x1113
+9002 0x9002: 0xb010   9002 0x9002: 0x004c
+9004 0x9004: 0x0401   9004 0x9004: 0x0801
+device 1 registers 0x00-0x30 on 0x00: all 0x0000.
+=> candidates 1.826c, 1.8a39, 1.8c01. None of them follows the line (section 4): there is no plain register.
+
+!! DAMAGE 1 (mine): after this scan the firmware message interface of the two scanned PHYs (0x00, 0x02) no longer
+   answers (1.8221 stays 0000 after a request; vendor: "FW Message failure"). Unscanned PHYs are fine:
+>>> extphy reg64 get 0x1 0x4202c161 lane=0 if_side=0
+phy 0x1, addr = 0x4202c161, value64 = 0x3
+>>> extphy reg64 get 0x0 0x4202c161 lane=0 if_side=0
+FW Message failure
+FAILED: bcm_plp_reg64_value_get on lane 0x1 Line side phy_id 0 rv[-1]
+   (trace: W 000 1 8222 1111, then R 000 1 8221 0000 x 20)
+   Some register in 1.8000-1.90ff has a read side effect that stops the message handler. Which one: not bisected.
+   The data path of cage 1 kept working (ce0 up).
+
+== 3. does the line follow the far end's admin state? (pair 31-32, PHYs not scanned) ==
+before:                      0x17e line c161 = 3, sys = 3;  0x17f line = 3, sys = 3
+config interface shutdown Ethernet124 (ASIC port ce31 disabled):
+>>> extphy reg64 get 0x17e 0x4202c161 lane=0 if_side=0   -> value64 = 0x3
+>>> extphy reg64 get 0x17e 0x4202c161 lane=0 if_side=1   -> value64 = 0x3  (system side)
+>>> extphy reg64 get 0x17f 0x4202c161 lane=0 if_side=0   -> value64 = 0x3
+>>> extphy reg64 get 0x17f 0x4202c161 lane=0 if_side=1   -> value64 = 0    (system side)
+Ethernet120 ... up up ; Ethernet124 ... down down
+=> the PHY of the shut port loses its SYSTEM side only; its line side keeps transmitting, so the far PHY (and
+   the far port) stays up. Line-side link alone is cable-true but does not show a far-end admin down.
+   Something must switch the line side off when the port goes admin down.
+
+== 4. vendor "extphy power <phy> 0|1" (not in the usage text): line side off / on ==
+>>> extphy power 0x17f        power status of phy 0x17f: RX = On, TX = On
+>>> extphy power 0x17f 0      rc=0  (72 reads, 137 writes)
+>>> extphy power 0x17f        power status of phy 0x17f: RX = Off, TX = Off
+line c161: 0x17e = 0, 0x17f = 0 ; system side c161: 3 on both ; ASIC ps: ce30 up, ce31 up
+direct registers meanwhile, both PHYs: 826c=0003 8a39=0007 8c01=28d1 8150=0019 (unchanged; 8228 toggles 0111/0099 by itself)
+>>> extphy power 0x17f 1      rc=0  (92 reads, 185 writes)
+>>> extphy status 0x17e / 0x17f: link=UP on both
+decoded (traces dumps/x/evora-trace/q-power-17f-{get,off,on}.trace.txt), per lane 0..3, line side:
+  off: 0xd0e1 a008 -> a088 (bit 7), 0xd139 0350 -> 0351 (bit 0)
+  on : 0xd0e1 a088 -> a008, 0xd139 0351 -> 0350, then 0xc010 (index 6) read 0003, written 0003
+  message layout: read  06 00 | side 01 | reg lo hi | lane 00 ; write 09 00 | side 00 | 01 reg-lo | reg-hi lane | 00 data-lo | data-hi xx
+=> powering the line side down takes the link down at BOTH ends; the ASIC side of both ports stays up
+   (so the ASIC link says nothing); power on brings it back without any re-configuration.
+=> 1.826c, 1.8a39, 1.8c01, 1.8150 do not follow the line. Only the PCS status through the message does.
+
+== 5. the message alone selects the side; 1.8b90 (LMI side select) is not needed ==
+(0x17f powered down: line c161 = 0, system c161 = 3)
+8b90=1, request side byte 01 (line): 8221=11e3 a100=0002 a101=0000
+8b90=0, request side byte 00 (sys) : 8221=11e3 a100=0002 a101=0003
+latched c160 after the flap: 010f, then 0000 (clear on read)
+1.8221 read again without a request: 0000 (clear on read)
+
+== 6. the registers the power sequence rewrites are the same on every PHY looked at ==
+phy 0x1/0x3/0x24/0x113/0x17c/0x17e/0x17f, lanes 0-3: d0e1 = a008, d139 = 0350 ; c010 (index 6) = 0003
+c161: 0003 on 0x1, 0x17e, 0x17f (cabled), 0000 on 0x3, 0x24, 0x113, 0x17c (empty cages)
+
+!! DAMAGE 2 (mine): probing other clause-45 devices on PHY 0x00 hung it:
+dev 2: 0=ffff 1=ffff ... (all ffff)   dev 3, 4, 5: all ffff
+dev 7: 0=2391 1=2391 2=2391 ... (all 2391)   dev 29, 30, 31: all ffff
+afterwards device 1 too: phy 0x0: 8b00=2391 8215=2391 8251=2391   (0x1: 8215=d00b 8251=000d)
+=> PHY 0x00 answers one constant on every register = the "hung until a cold power cycle" state of extphy.md,
+   now with a known trigger: a clause-45 frame to a device other than 1. Recovered by the cold power cycle
+   before the hardware test (transcript extlink-live-20261122.txt).

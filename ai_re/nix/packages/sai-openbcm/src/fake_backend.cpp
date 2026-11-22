@@ -77,6 +77,8 @@ sai_status_t FakeBackend::init(const BackendConfig& cfg, LinkCallback link_cb, F
     if (tap_mode && access("/dev/net/tun", R_OK | W_OK) != 0) return SAI_STATUS_FAILURE;
     link_cb_ = std::move(link_cb);
     fdb_cb_ = std::move(fdb_cb);
+    link_gates_.clear();
+    { std::lock_guard<std::mutex> mg(mdio_mu); mdio_regs.clear(); mdio_log.clear(); mdio_dead.clear(); }
     port_state.clear(); vlans.clear(); l2.clear(); netifs.clear(); traps.clear();
     intfs.clear(); stations.clear(); egress.clear(); hosts.clear(); routes.clear(); ecmps.clear(); lags.clear();
     fp_groups.clear(); fp_entries.clear(); policers.clear();
@@ -223,6 +225,10 @@ sai_status_t FakeBackend::lag_set_members(int tid, const std::vector<LagMember>&
 void FakeBackend::update_link(Port& p, std::vector<std::pair<int, bool>>& changes)
 {
     bool up = p.admin && (p.lb != Loopback::None || link_follows_admin_);
+    if (up) {   // as the SDK's link scan: the gate first, the ASIC link only if it has no opinion
+        auto it = link_gates_.find(p.info.hw);
+        if (it != link_gates_.end() && it->second && it->second() == 0) up = false;
+    }
     if (up != p.link) {
         p.link = up;
         changes.push_back({p.info.hw, up});
@@ -919,6 +925,44 @@ void FakeBackend::fp_hit(int eid, uint64_t packets, uint64_t bytes)
     std::lock_guard<std::mutex> g(mu);
     auto it = fp_entries.find(eid);
     if (it != fp_entries.end()) { it->second.packets += packets; it->second.bytes += bytes; }
+}
+
+void FakeBackend::linkscan()
+{
+    std::vector<std::pair<int, bool>> ch;
+    {
+        std::lock_guard<std::mutex> g(mu);
+        for (auto& kv : port_state) update_link(kv.second, ch);
+    }
+    report(ch);
+}
+
+sai_status_t FakeBackend::mdio_c45_read(unsigned phy, unsigned dev, unsigned reg, unsigned& val)
+{
+    std::lock_guard<std::mutex> g(mdio_mu);
+    if (mdio_dead.count(phy)) return SAI_STATUS_FAILURE;
+    auto it = mdio_regs.find(std::make_tuple(phy, dev, reg));
+    val = it == mdio_regs.end() ? 0 : it->second;
+    mdio_log.push_back({'R', phy, dev, reg, val});
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t FakeBackend::mdio_c45_write(unsigned phy, unsigned dev, unsigned reg, unsigned val)
+{
+    std::lock_guard<std::mutex> g(mdio_mu);
+    if (mdio_dead.count(phy)) return SAI_STATUS_FAILURE;
+    mdio_regs[std::make_tuple(phy, dev, reg)] = val;
+    mdio_log.push_back({'W', phy, dev, reg, val});
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t FakeBackend::port_link_gate(int hw, std::function<int()> gate)
+{
+    std::lock_guard<std::mutex> g(mu);
+    FAKE_PORT(hw);
+    if (gate) link_gates_[hw] = std::move(gate);
+    else link_gates_.erase(hw);
+    return SAI_STATUS_SUCCESS;
 }
 
 void FakeBackend::inject_link(int hw, bool up)

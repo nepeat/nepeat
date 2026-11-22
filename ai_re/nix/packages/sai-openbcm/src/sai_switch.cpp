@@ -2,6 +2,7 @@
 // SWITCH object: backend selection and bring-up, default objects, event
 // delivery (link scan / L2 learn -> SAI notifications). Temperatures: sai_temp.cpp.
 #include "sai_internal.h"
+#include "ext_phy.h"
 
 #include <algorithm>
 #include <sys/stat.h>
@@ -258,6 +259,7 @@ void switch_build_objects()
         sai_status_t st = be.port_admin_set(pi.hw, false);
         if (st != SAI_STATUS_SUCCESS)
             OB_ERR(SAI_API_SWITCH, "port %s: disable failed (%d)", pi.name.c_str(), st);
+        ext_phy_admin(pi.hw, false);   // external PHY (if the board has a table): line side as for admin down
         p.admin = false;
         port_quirks_apply(p);   // board data: interface type, fixed FEC / autoneg, IFG
         if (c.port_quirks.autoneg >= 0) p.autoneg = c.port_quirks.autoneg != 0;
@@ -457,6 +459,8 @@ static sai_status_t create_switch(_Out_ sai_object_id_t* switch_id, _In_ uint32_
         BackendConfig cfg = collect_profile();
         sai_status_t st = port_quirks_parse(cfg, c.port_quirks);
         if (st != SAI_STATUS_SUCCESS) return st;
+        st = ext_phy_load(cfg);   // SAI_OPENBCM_EXT_PHY_FILE: a bad table refuses the switch before the SDK starts
+        if (st != SAI_STATUS_SUCCESS) return st;
         st = pick_backend(cfg);
         if (st != SAI_STATUS_SUCCESS) return st;
         OB_NOTICE(SAI_API_SWITCH, "initializing backend %s", c.be->name());
@@ -479,6 +483,12 @@ static sai_status_t create_switch(_Out_ sai_object_id_t* switch_id, _In_ uint32_
             c.be.reset();
             return st;
         }
+        st = ext_phy_attach(*c.be);   // lanes -> ports, link gates; before the ports are disabled below
+        if (st != SAI_STATUS_SUCCESS) {
+            c.be->shutdown();
+            c.be.reset();
+            return st;
+        }
         if (have_mac) std::memcpy(c.src_mac, mac, 6);
         for (auto& n : notifies) set_notify(n.first, n.second);
         c.switch_stub = stubs;
@@ -488,6 +498,7 @@ static sai_status_t create_switch(_Out_ sai_object_id_t* switch_id, _In_ uint32_
             OB_ERR(SAI_API_SWITCH, "a SAI_OPENBCM_PORT_* quirk could not be applied to every port (see above); "
                                    "refusing to create the switch");
             switch_clear_objects();
+            ext_phy_detach();
             c.be->shutdown();
             c.be.reset();
             c.switch_oid = 0;
@@ -522,6 +533,7 @@ static sai_status_t remove_switch(_In_ sai_object_id_t switch_id)
     temp_publisher_stop();   // removes the files; before the backend goes away
     diag_stop();
     events_stop();   // without the API lock: the notifier may be waiting for it
+    ext_phy_detach();   // link gates off before the backend goes away
     try {
         std::lock_guard<std::recursive_mutex> g(ctx().mu);
         auto& c = ctx();

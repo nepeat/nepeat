@@ -470,6 +470,33 @@ int ob_sdk_mdio_c45_write(int unit, unsigned phy, unsigned dev, unsigned reg, un
     return soc_miimc45_write(unit, phy, (uint8)dev, (uint16)reg, (uint16)val);
 }
 
+static ob_gate_cb_t g_gate_cb;
+static void* g_gate_ctx;
+
+static int ls_port_gate(int unit, bcm_port_t port, int* state)
+{
+    int r = g_gate_cb ? g_gate_cb(g_gate_ctx, port) : -1;
+    (void)unit;
+    if (r < 0) return BCM_E_UNAVAIL;   /* the link scan falls back to the PHY driver's link */
+    *state = r ? 1 : 0;
+    return BCM_E_NONE;
+}
+
+int ob_sdk_linkscan_port_gate(int unit, int port, ob_gate_cb_t gate, void* ctx)
+{
+    int mode = BCM_LINKSCAN_MODE_NONE, rv;
+    if (!gate) {
+        rv = bcm_linkscan_port_unregister(unit, port, ls_port_gate);
+        return rv == BCM_E_NOT_FOUND ? BCM_E_NONE : rv;
+    }
+    rv = bcm_linkscan_mode_get(unit, port, &mode);
+    if (rv < 0) return rv;
+    if (mode != BCM_LINKSCAN_MODE_SW) return BCM_E_CONFIG;
+    g_gate_cb = gate;
+    g_gate_ctx = ctx;
+    return bcm_linkscan_port_register(unit, port, ls_port_gate);
+}
+
 static void link_handler(int unit, bcm_port_t port, bcm_port_info_t* info)
 {
     (void)unit;
