@@ -58,9 +58,12 @@ in pkgs.runCommand "as7760-sdk-config-tests" ({
   }) ''
   set -euo pipefail
   # Stability: change these only with a reviewed generator change.
-  # (2026-11-15: l3_alpm_enable dropped; the old pins c6342e98.../c1ed6737... differ by that line only)
-  echo "aeb00e550c1205b1df57a76a1325c23a05affc26ddb1b31d6f8ca95526003b10  $default" | sha256sum -c
-  echo "4824eef552c54a98132df0e6e478e26f6a765e184e7d76200cf80c3d3c8df280  $labCfg" | sha256sum -c
+  # (2026-11-15: l3_alpm_enable dropped; the old pins c6342e98.../c1ed6737... differ by that line only.
+  #  2026-11-22: header comment wrapped; the old pins aeb00e55.../4824eef5... differ in comment lines only)
+  echo "ac054d3e6d9dea1d24693e808f420dd8c61c29902099de6b4cf983df10c88ab5  $default" | sha256sum -c
+  echo "ae0c97adc2d6f60c5c19c1b76ea3a5d3e206e4d10f7617d1e8ad63a50079517a  $labCfg" | sha256sum -c
+  # No line the SDK would read as two (fgets into SAL_CONFIG_STR_MAX = 256 bytes).
+  for f in $default $labCfg $split $modes; do ! grep -qE '.{255}' $f; done
 
   pm() { grep -E '^portmap_[0-9]+=' "$1" | sort; }
   # Every portmap: logical number in its pipe's range, never a fixed port.

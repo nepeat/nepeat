@@ -41,7 +41,12 @@ in pkgs.runCommand "as7772-sdk-config-tests" ({
   }) ''
   set -euo pipefail
   # Stability: change this only with a reviewed generator or board-data change.
-  echo "1c884e6b1eba42f3a91138994351e8e0c4476692fe9cc87a5a20bf14ba2532ef  $default" | sha256sum -c
+  # (2026-11-22: header comment wrapped, its second line was 285 characters and the SDK
+  #  read the rest as "format error ... on line 3"; the old pin 1c884e6b... differs in comment lines only)
+  echo "10cbd0b24549b57bd3bb0c7f3726d8a91ba1f6fe429faf097237174313441d7a  $default" | sha256sum -c
+  ! grep -qE '.{255}' $default
+  # The base (reference globals + this board's cores; tomahawk.py base).
+  echo "c9e8a135d54da69bfdede48df87fb704bfb7942691db52465d24ca19d1ab61ec  $base" | sha256sum -c
 
   # 32 ports + 2 management, the AS7760's ports and numbering (same cages).
   diff <(grep -E '^portmap_' $default | sort) <(grep -E '^portmap_' $as7760 | sort)

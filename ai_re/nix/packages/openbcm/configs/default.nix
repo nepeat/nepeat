@@ -41,24 +41,15 @@
       python3 -I ${./tomahawk.py} check --base "$base" --spec "$specPath" $out
     '';
 
+  # logical numbers and the keys that are dropped: tomahawk.py (logical_of, GENERATED)
   tomahawkBase = { name ? "tomahawk-base.config.bcm", globals, cores }:
-    let
-      # logical number as tomahawk.py's logical_of: physical + 0/1/3/5 by pipe
-      logical = lane: lane + builtins.elemAt [ 0 1 3 5 ] ((lane - 1) / 32);
-      opt = key: c: attr: if c ? ${attr} then [ "${key}_${toString (logical c.lane)}=${c.${attr}}" ] else [ ];
-      core = c:
-        assert builtins.elem c.lane (builtins.genList (i: 4 * i + 1) 32);
-        [ "portmap_${toString (logical c.lane)}=${toString c.lane}:100" ]
-        ++ opt "xgxs_tx_lane_map" c "tx" ++ opt "xgxs_rx_lane_map" c "rx"
-        ++ opt "phy_xaui_tx_polarity_flip" c "txPolarity" ++ opt "phy_xaui_rx_polarity_flip" c "rxPolarity";
-    in pkgs.runCommand name {
+    pkgs.runCommand name {
+      nativeBuildInputs = [ pkgs.buildPackages.python3 ];
       inherit globals;
-      passAsFile = [ "board" ];
-      board = builtins.concatStringsSep "\n" (builtins.concatMap core cores) + "\n";
+      passAsFile = [ "cores" ];
+      cores = builtins.toJSON cores;
     } ''
-      # the keys tomahawk.py generates (its GENERATED pattern) come from the board, not the reference
-      grep -vE '^[[:space:]]*(portmap|xgxs_[rt]x_lane_map|phy_xaui_[rt]x_polarity_flip|serdes_preemphasis|serdes_driver_current|pbmp_oversubscribe|pbmp_xport_xe|dport_map)' "$globals" > $out
-      cat "$boardPath" >> $out
+      python3 -I ${./tomahawk.py} base --globals "$globals" --cores "$coresPath" --out $out
     '';
 
   ledProgram = { name ? "led_proc_init.soc", src, label ? "a reference LED program" }:
