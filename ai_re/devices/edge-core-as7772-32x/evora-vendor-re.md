@@ -1,6 +1,6 @@
-# AS7772-32X: BCM82391 "Evora" bring-up facts from the vendor `bcm.user`
+# AS7772-32X: BCM82391 "Evora" facts from the vendor `bcm.user`
 
-Offline static RE, 2026-11-21. Nothing here was run on the device. Source: `dumps/x/diag/root/usr/local/sbin/bcm.user`
+Offline static RE, 2026-11-21; what was later confirmed on hardware is marked. Source: `dumps/x/diag/root/usr/local/sbin/bcm.user`
 (sha256 e163e815…fc90, ELF ppc32 BE, stripped; .text VA 0x10000140 = file 0x140, .rodata VA 0x119653f8, .data VA
 0x1238e290 = file 0x237e290, i.e. file offset = VA - 0x10000000 below 0x1238e1c0 and VA - 0x0fff0000 above).
 Method: strings, a lis/addi cross-reference scan, and Ghidra decompilation of single functions (no full
@@ -30,17 +30,17 @@ auto-analysis). The Evora library (0x117c0000-0x118b0000) is built -O0, so the d
 - **phy id = SDK phy_id**, passed unchanged. Table 0x12331120 (32 x 8 bytes: bus, index, phy id) lists
   bus *b* (0-7) -> ids 0x00-0x03, 0x24-0x27, 0x48-0x4b, 0x6c-0x6f, 0x110-0x113, 0x134-0x137, 0x158-0x15b,
   0x17c-0x17f: MDIO address 4*b*+0..3 on external bus *b* (bits 6:5 and bit 8 = bus). `init all` walks this
-  table in groups of 4. This confirms the addressing in [extphy.md](extphy.md).
+  table in groups of 4. Port table: [extphy.md](extphy.md).
 
 ## 2. Chip identification (V)
 - `bcm_plp_init` for Evora (0x117f77e4, slot +8 of the API table 0x12dc348c) probes, in order: dev 1 reg 0x0002,
   0x0003 (**values ignored**), then **dev 1 reg 0x8b00 and 0x8b01**. It accepts 0x8b00 == **0x2391** or 0x2392.
   The full id is `((reg 0x8b01 >> 12) & 0xf) << 16 | reg 0x8b00` = 0x82391 / 0x82392 (0x11835910, used by
   core_identify 0x1181e9ac). If 0x8b00 does not match it reads 1.8000 and returns -26.
-- So our scan of 1.0002/1.0003 says nothing; **the ID read to repeat is clause 45, dev 1, reg 0x8b00 / 0x8b01**.
+- Confirmed live: 0x8b00 = 0x2391, 0x8b01 = 0x80a0 on all 32 ids; 1.0002/1.0003 read 0x0000.
 - The vendor does this read as its first access to a PHY, with no write before it and no reset, GPIO, CPLD or
-  I2C step anywhere on the path (see section 5). I: the PHYs should therefore answer after power-up with only
-  the CMIC MDIO set up (`rate_ext_mdio_divisor=53`).
+  I2C step anywhere on the path (section 5). Confirmed live: the PHYs answer after power-up with only the CMIC
+  MDIO set up by misc init.
 
 ## 3. Firmware (V unless marked)
 Extracted to `dumps/x/evora-fw/` (git-ignored; `SHA256SUMS` there):
@@ -93,8 +93,9 @@ Extracted to `dumps/x/evora-fw/` (git-ignored; `SHA256SUMS` there):
   through an indirect "LMI" interface: status reg 1.900a (bit 0 busy/done, bits 8:3 errors), command/data FIFO
   reg 1.9005, side select reg 1.8b90 (0x1183723c). Internal addresses carry a type in bits 31:24 (0x40-0x46,
   0x49; classifier 0x1182593c, LMI access 0x11826108). The mode-config writes themselves run through the
-  embedded portmod/tefmod/falcon code and were **not** extracted; replaying them by hand is not realistic,
-  linking or re-hosting the vendor library is.
+  embedded portmod/tefmod/falcon code and were **not** extracted statically; they are in the re-host traces
+  ([evora-rehost.md](evora-rehost.md); LMI protocol decoded in `evora-rehost/lmi.py`, MACsec calls in
+  [macsec.md](macsec.md)).
 
 ## 5. Reset / power (negative result)
 - `bcm.user` has no `/dev/i2c` string and no CPLD string; the Evora init path does no GPIO or board access before
@@ -105,8 +106,8 @@ Extracted to `dumps/x/evora-fw/` (git-ignored; `SHA256SUMS` there):
 - CPLD2/3 0x20-0x2b therefore stay undecoded from the vendor side.
 
 ## Not verified / open
-- Nothing was tried on hardware; the 0x8b00 ID read is the first thing to test.
 - The MDIO function names, the firmware header layout, the Falcon version/CRC words and the interface-enum
   meaning beyond the name table are inferences.
-- Broadcast download, stage 0x200, the Falcon microcode load path and every write below `bcm_plp_mode_config_set`,
-  `secy_*`, `cfye_*` and `fec_enable_set` were not traced.
+- Broadcast download, stage 0x200, the Falcon microcode load path and every write below `bcm_plp_mode_config_set`
+  and `fec_enable_set` were not traced statically (they run correctly under the re-host).
+- The per-PHY download steps of section 3 were read from the code, not compared with a trace.

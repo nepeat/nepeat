@@ -1,135 +1,102 @@
 # AS7772-32X: re-hosting the vendor Evora (BCM82391) PHY library
 
-2026-11-21. Tool: [evora-rehost/](evora-rehost/) (scripts only; the vendor binary is read from `dumps/` at run time).
-Evidence: [evora-status-20261121.txt](evora-status-20261121.txt) (vendor console output),
-[evora-idscan-20261121.txt](evora-idscan-20261121.txt) (ID scans between stages), traces in
-`dumps/x/evora-trace/` (git-ignored). Background: [evora-vendor-re.md](evora-vendor-re.md).
+The vendor's own `extphy` code (diag `bcm.user`, ppc32) runs under Unicorn on the workstation, its two MDIO
+callbacks forwarded to the real PHYs. It makes the MDIO traces that the switch replays at boot; it is not needed
+at boot. Tools: [evora-rehost/README.md](evora-rehost/README.md). Rules: [extphy.md](extphy.md). Vendor
+addresses: [evora-vendor-re.md](evora-vendor-re.md). Traces, states and the vendor binary stay in `dumps/`.
 
-## Result
-- **2026-11-22: the bus 0 failure, the "lost" PHY and the silent ids below were all MDIO timing** (the bridge ran
-  `init soc` only: hold delay 3, see [extphy.md](extphy.md)). The bridge now runs `init soc`, `init misc`; with that,
-  `init all` + `cfg` succeed on all 32 PHYs. Read the rest of this section as the record of the first night.
-- **Update, same night, after a cold power cycle (coordinator):** ids 0x00-0x03 answered again; `init 0x00 4` failed
-  at id 0x02 again (firmware verify, then hung); `init 0x00 2` + `cfg 0x00 nphy=2 ...` succeeded and **cages 1-2
-  pass frames** ([extphy.md](extphy.md)). Traces `b0-*.trace.txt`. The bus 0 notes below describe the first attempt.
-- **Works:** the vendor's own `extphy` code (diag `bcm.user`, ppc32) runs under Unicorn on the workstation, with its
-  two MDIO callbacks forwarded to the real PHYs through our OpenBCM `bcm.user` (`phy raw c45`).
-- **Bus 1, ids 0x24-0x27: fully up** in 100G MACsec bypass. `extphy init 0x24 4` (broadcast RAM download, 42 s):
-  "Firmware download success", FW version **D00B**, checksum word 600D, status Running; then
-  `extphy cfg 0x24 nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1` rc 0 (6 s). `status`: speed 100000,
-  line CAUI4_C2C, system CAUI, FEC enabled, low-latency bypass egress+ingress YES, link DOWN (no cable in
-  cages 5-8). `status dsc`: Falcon ucode D10B_16, COM_CLK 156.25 MHz, VCO 25.75 GHz, **PLL_LOCK 1**, 34-35 C,
-  no signal detect on any lane. `status pmdiag`: PCS block/AM lock 0 on line and system side (nothing drives
-  either side: no cable, and our SDK had only done `init soc`, no port enabled).
-- **Bus 0 did not come up, and one PHY was lost doing it** (see "Bus 0"). Id 0x03 has firmware
-  (scan: 1.8215 = d00b, 1.8245 = 600d) and took `cfg`, but the group's MACsec/bypass init stage was skipped;
-  id 0x01 refuses the download; **id 0x02 stopped answering during the vendor init**; id 0x00 had stopped
-  answering before this work touched the bus. So neither DAC cage (ids 0x00, 0x01) could be brought up.
-- **No silent id started answering** after any stage (7 scans: baseline, after init of bus 1, after cfg of
-  bus 1 and each bus 0 attempt, after the replay). I stopped there: the other answering groups
-  (0x48-49, 0x6e-6f, 0x110-111, 0x135-137, 0x159-15b, 0x17d) were **not** initialised, because 1 of 7 PHYs hung
-  in the vendor init and nothing is known to revive a hung PHY short of a power cycle (not tried, not allowed here).
-- The recorded trace of bus 1 **replays without the emulator** (`replay.py`, 49 s) and leaves the four PHYs in
-  the same state (vendor `ver`/`status`/`status dsc` afterwards identical apart from temperature).
-
-## Commands (from `ai_re/`)
+## Commands (from `ai_re/`, in the devshell)
 ```
-PY="nix shell nixpkgs#python3 nixpkgs#python3Packages.unicorn -c python3"      # not in flake.nix yet
 R=devices/edge-core-as7772-32x/evora-rehost;  T=devices/edge-core-as7772-32x/dumps/x/evora-trace
-sudo ssh root@10.60.2.23 systemctl stop openbcm-asic-temp       # the bridge needs the SDK lock; start it again after
-$PY $R/idscan.py --label baseline                                # read-only: 1.8b00/1.8b01 at the 32 ids
-$PY $R/rehost.py 'init 0x24 4' 'info'                            # mock backend: no hardware, polls time out
-$PY $R/rehost.py --backend ssh --trace $T/a.trace.txt --log $T/a.console.txt --save-state $T/a.state 'init 0x24 4'
-$PY $R/rehost.py --backend ssh --load-state $T/a.state --save-state $T/b.state \
+python3 $R/rehost.py 'init 0x24 4' 'info'                        # mock backend: no hardware, polls time out
+python3 $R/idscan.py --label baseline                            # read-only: 1.8b00/1.8b01 at the 32 ids (ssh)
+# ssh backend: own bcm.user on the switch, needs the SDK lock (stop sonic.target and openbcm-asic-temp first);
+# record init traces on freshly booted PHYs (openbcm-mdio-script not run)
+python3 $R/rehost.py --backend ssh --trace $T/a.trace.txt --log $T/a.console.txt --save-state $T/a.state 'init all'
+python3 $R/rehost.py --backend ssh --load-state $T/a.state --save-state $T/b.state \
     'cfg 0x24 nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1' 'ver 0x24' 'status 0x24' 'status 0x24 dsc'
-$PY $R/replay.py $T/init-cfg-0x24-0x27.trace.txt --backend ssh   # no emulator; --map 24=135 moves an id
-$PY $R/summarize.py $T/init-cfg-0x24-0x27.trace.txt              # registers written, polls, LMI addresses
+# diag backend: through syncd, SONiC stays up (status, pre, reg64, phystat.py): see load-test.md
+python3 $R/rehost.py --backend diag --load-state $T/all-cfg.state 'status 0x0'
+python3 $R/mkscript.py -o $T/evora-100g-bypass.mdio $T/all-init.trace.txt $T/all-cfg.trace.txt $T/all-pre.trace.txt
+$R/install-script.sh                                             # to /var/lib/evora-phy, see sonic.md
+# as of 2026-11-22 the workstation's evora-100g-bypass.mdio is the tap-less script (fdda87ade40b); the one on the
+# switch is evora-100g-bypass-taps.mdio (e18dddef7c9e): pass that file to install-script.sh, or rebuild as above
+python3 $R/summarize.py $T/all-init.trace.txt                    # registers written, polls, LMI addresses
 ```
-- Arguments are `extphy` sub-commands as in the vendor usage text; `--stdin` reads more, `-v` prints every MDIO
-  access with the vendor call chain. `init all` works too but walks all 32 ids in groups of 4 and gives up on
-  a group as soon as one PHY in it fails, so use `init <first> <count>` while PHYs are missing.
-- **The library keeps per-PHY state in RAM** (firmware loaded, MACsec devices). `cfg`/`status`/`ver` need the
-  state of the `init` run: same process, or `--save-state`/`--load-state` (the state file holds vendor data:
-  keep it under `dumps/`). Without it `ver` returns -25 and `status` dereferences NULL in
-  `bcm_plp_secy_bypass_get` (also after a failed init; a vendor bug, the emulator stops with "unmapped read").
+- Arguments are `extphy` sub-commands as in the vendor usage text ([evora-vendor-re.md](evora-vendor-re.md));
+  `--stdin` reads more, `-v` prints every MDIO access with the vendor call chain.
+- `init all` walks the 32 ids in groups of 4 and gives up on a group as soon as one PHY in it fails.
+- **The library keeps per-PHY state in RAM.** `cfg`/`status`/`ver` need the state of the `init` run: same
+  process, or `--save-state`/`--load-state` (the state file holds vendor data: keep it under `dumps/`). Without
+  it `ver` returns -25 and `status` dereferences NULL in `bcm_plp_secy_bypass_get` (a vendor bug; the emulator
+  stops with "unmapped read"). `init` of a PHY the loaded state already knows returns -24 ([macsec.md](macsec.md)).
+- Timings: `init all` 331 s for 32 PHYs through ssh, `cfg` 6 s per group; one read about 0.4 ms (ssh), 6 ms (diag).
 
-## From trace to boot-time script (2026-11-22)
-- `evora-rehost/mkscript.py` compiles recorded traces into one MDIO script for `openbcm-mdio-script` on the switch
-  (`replay.py`'s rules written out per operation, plus a read-back verification per PHY);
-  `evora-rehost/install-script.sh` copies it to `/var/lib/evora-phy`. Commands, results and the one timing fix the
-  fast replay needed ("1 us" vendor waits made 10 ms): [sonic.md](sonic.md).
-- The emulator stays the tool that makes traces (new modes, MACsec on, break-out); it is not needed at boot.
+## How it works
+- Unicorn 2.1.4, ppc32 BE, CPU model **e500mc** with `UC_TLB_VIRTUAL`. The binary is built for the e6500:
+  compiler output uses `isel`, and glibc's `memcpy` (0x119164a0) / `memset` (0x11915e64) use 64-bit `ld`/`std`,
+  so those two are replaced by Python (every Unicorn ppc64 model faulted on `isel`). Another unsupported routine would stop the run with "exception 96".
+- glibc start-up runs for real up to `main` (not run) on a minimal Linux syscall layer. No SDK or diag-shell
+  init: the `extphy` handlers are called as `handler(argc, argv)`; the diag's MDIO callbacks
+  0x11737db0 / 0x11737e20 are hooked, so `soc_miimc45_*` is never reached.
+- Time: `gettimeofday` is virtual (advances with requested sleeps), so vendor time-outs count the vendor's own
+  delays, not bridge latency. Sleeps are real on hardware.
+- Writes are pipelined and flushed before every read or delay: order is preserved, **write-to-write spacing is
+  not the vendor's**. Each `phy raw` is a complete CMIC operation, so frames cannot overlap.
+- ssh bridge: `stdbuf -o0 bcm.user` on the switch (`init soc`, `init misc`), synchronised with `echo MK<n>`
+  markers (no prompt on a pipe; `@` is eaten by the diag shell).
+- **Safety guards:** `fw_load` other than 0/1/2 is refused; entering `plp_evora_download_prog_eeprom` with its
+  EEPROM flag (r8) set stops the run; so does a write that newly sets 1.8210 bit 1 or 1.8203 bit 10. (1.8210
+  reads 0x0033 after power-up, bit 1 already set: the guard's first version tripped on that mid-broadcast.)
 
-## How it works / what is emulation artefact
-- Unicorn 2.1.4, ppc32 BE, CPU model **e500mc** with `UC_TLB_VIRTUAL`. The binary is ppc32 code built for the
-  e6500: compiler output uses `isel` (not in the classic 32-bit models), and glibc's hand-written
-  `memcpy`/`memset` use 64-bit `ld`/`std` (not in any 32-bit model; every Unicorn ppc64 model faulted on
-  `isel` in a test). So `memcpy` (0x119164a0) and `memset` (0x11915e64) are replaced by Python. No other libc
-  routine faulted on the paths run so far; another one would stop the run with "exception 96, instruction ...".
-- glibc start-up runs for real (`_start` to the entry of `main`, which is not run) on a minimal Linux syscall
-  layer (brk, anonymous mmap, write, nanosleep, futex stub, uname, ...). No SDK/diag-shell init is done; the
-  `extphy` sub-command handlers are called directly as `handler(argc, argv)`. Nothing in the paths used
-  needed the SDK (`soc_miimc45_*` is never reached: the two diag callbacks 0x11737db0/0x11737e20 are hooked).
-- Time: `gettimeofday` is virtual (advances with the requested sleeps), so vendor time-outs count the vendor's
-  own delays, not bridge latency. Sleeps are real on hardware. One MDIO read costs about 0.4 ms through ssh;
-  writes are pipelined and flushed before every read or delay, so order is preserved but **write-to-write
-  spacing is not the vendor's** (unverified whether any step depends on it; none failed on bus 1).
-- Bridge: `stdbuf -o0 bcm.user` on the switch, synchronised with `echo MK<n>` markers (no prompt on a pipe;
-  `@` is eaten by the diag shell). Reads print `	0x<reg>: 0x<val>`, writes print nothing.
-- Safety: `fw_load` other than 0/1/2 is refused; entering `plp_evora_download_prog_eeprom` with its EEPROM
-  flag (r8) set stops the run; so does a write that newly sets 1.8210 bit 1 or 1.8203 bit 10. (1.8210 reads
-  0x0033 after power-up, bit 1 already set: the first version of this guard tripped on that and aborted one
-  run in the middle of the bus 1 broadcast; the next full run recovered the group.)
+## Trace format and what the traces show
+`R|W <phy> <devad> <reg> <value>`, `D <usec>`, `# marker`. Reference trace
+`dumps/x/evora-trace/init-cfg-0x24-0x27.trace.txt` (sha256 1708fc90687f..., 133094 lines: 52106 reads, 68840
+writes, 12140 delays = 6.8 s). Classification is from traces and replay behaviour, not from source.
+- **Order:** every stage walks the ids ascending. Per PHY: ID read (1.0002, 1.0003, 1.8b00, 1.8b01) + core reset;
+  broadcast enable; **firmware words written to the last id of the group only** (0x27: 24876 writes of 1.8222
+  for a 24032-word image) while the others listen; verify; end; then MACsec init, bypass and mode config.
+- **Reads that steer the code:**
 
-## Trace (`dumps/x/evora-trace/init-cfg-0x24-0x27.trace.txt`, sha256 1708fc90687f..., 133094 lines)
-Format: `R|W <phy> <devad> <reg> <value>`, `D <usec>`, `# marker`. 52106 reads, 68840 writes, 12140 delays
-(6.8 s of requested delay); it ends with the `ver 0x24` and `status 0x24` that followed. Summary: `init-cfg-0x24-0x27.summary.txt` beside it.
-- **Order:** every stage walks the ids ascending (0x24, 0x25, 0x26, 0x27); no "first id of the bus first"
-  special case. Stages: per PHY ID read (1.0002, 1.0003, 1.8b00, 1.8b01) + core reset; per PHY broadcast
-  enable; **the firmware words are written to the last id only (0x27: 24876 writes of 1.8222; the image is
-  24032 words)** while the others listen (1.8222 is also the message-in register after boot, about 850 writes
-  per PHY); per PHY verify; per PHY end; then MACsec init, bypass and mode config per PHY.
-- **Reads that steer the code (polls/branches):** 1.900a (LMI status, 11753 reads; **clears on read**; 0x0001 =
-  write done, 0x0007 = read data ready, bit 2 comes and goes and is ignored), 1.8221 (download handshake,
-  28085 reads: 0xf1ac, 0x0ead, then 0x1000+n per 32 words, 0x0000 between blocks, 0x0303 at the end), 1.8213
-  bit 1 (serboot busy), 1.8251 (& 0xd == 0xd: line/sys TSC active), 1.8210, 1.8245/1.8247 (0x600d),
-  1.8b00/1.8b01 (ID), 1.8b90 (side select read-back). 1.9005 reads are LMI data (a FIFO: each read pops a
-  word); most are read-modify-write inputs, a few are status (temperature, PLL). All other reads are RMW inputs.
-  This classification is from the trace and the replay behaviour, not from source.
-- **Direct dev-1 registers written** (function names are guesses; there is no register map): 1.8201 = 0x007e
-  (in-band reset, bit 0 self-sets again); **1.8b10 = 0x0081 then 0x008b; 1.8b02 = 0x0004; 1.9011 = 0;
-  1.8b03 = 0x8000/0; 1.8b11-1.8b14 = 0x9f3f then 0; 1.8b91 = 0x0004/0x0404/0x0406; 1.8a4c = 0x0a24;
-  1.8255 = 0xbeaf; 1.826d = 1; 1.8b96; 1.8204** - these 0x8bxx/0x82xx chip-level registers are the
-  candidates for reset / clock / pad / broadcast control; 1.82ff, 1.8202, 1.8210, 1.8222, 1.823x = download;
-  1.8b90/1.9005 = LMI; 1.a000-1.a005 (3382 writes, read-back 1.a100/1.a101) = a second indirect port used by
-  the MACsec init. LMI addresses written in the reset stage: 0x020a-0x020d, 0x0214, 0x0224, 0x0228 on both sides.
-  **Nothing in the trace is identifiable as a GPIO or clock-output write to another chip**, but without a
-  register map that is not excluded.
-- **Replay:** `replay.py` re-does every write and delay; reads are compared. Recorded polls are collapsed, 1.900a
-  is replayed read for read (clear-on-read, the delays around it matter), 1.9005 is never re-read. Live result
-  on 0x24-0x27: 0 status/handshake mismatches, 39 reads of 1.900a differing only in bit 2
-  (`replay4.result.txt`). A replay is only valid for a chip that takes the same branches; it stops after 3
-  unresolved handshake mismatches. Not tried on another group or after a power cycle.
+  | register | role |
+  | --- | --- |
+  | 1.900a | LMI status, **clears on read**; 0x0001 = write done, 0x0007 = read data ready, bit 2 comes and goes |
+  | 1.9005 | LMI command/data FIFO: each read pops a word; never re-read |
+  | 1.8221 | download handshake: 0xf1ac, 0x0ead, then 0x1000+n per 32 words, 0x0000 between blocks, 0x0303 at the end |
+  | 1.8213 bit 1 | serboot busy |
+  | 1.8251 | & 0xd == 0xd: line/sys TSC active |
+  | 1.8215, 1.8245/1.8247 | firmware version (d00b; 0x0001 = none, as after power-on), checksum words (0x600d) |
+  | 1.82ff | boot control: 0x8003 untouched, 0x50c0 running (0x4000 on the PHY that refused its download) |
+  | 1.8b90 | LMI side select (0 line, 1 system), read back |
+  | 1.a000-1.a005, read-back 1.a100/1.a101 | second indirect port, used by the MACsec init (firmware messages) |
 
-## Bus 0 (ids 0x00-0x03): what happened, in order
-1. 21:38 (coordinator's scan): 0x00-0x03 all answer 0x2391. 21:57:00, my first read on the switch, before
-   any write of mine: **id 0x00 reads 0x0000 on every register** and has done so since. (At 21:57:17 I wrote
-   1.8b02 = 0 to id 0x00 as a write-syntax test; it was already dead.) Cause unknown to me.
-2. 22:05 `init 0x01 3` (broadcast): id 0x02's first **system-side** LMI read (address 0x020a) never completed
-   ("LMI Access timeout"); line side was fine. The download ran; id 0x03 verified (D00B); id 0x01 "Line/Sys TSC
-   is not active" and shows no firmware (1.8215 = 1). In the "end" stage, right after the system-side LMI write
-   0x020a = 0x047f0664 (the same write that succeeds on the line side and on every other PHY), **id 0x02 began
-   returning 0x1900 for every register** and still does. Writing 1.8201 = 0x007e to ids 0x02 and 0x00 changed nothing.
-3. `init 0x01 1 fw_load=1` and `init 0x01 1`: "ERR:SERBOOT BUSY BIT SET" (1.8213 bit 1 never clears). Id 0x01
-   still answers its ID; 1.82ff reads 0x4000 (0x8003 untouched, 0x50c0 on a running PHY).
-- Observation, not a conclusion: a hung PHY returns one constant for every register (0x0000 at 0x00, 0x1900
-  at 0x02). The 11 ids silent since boot return 0xffff for every register, which has the same shape. Whether
-  they are hung, unpowered or held in reset is not shown by anything here. The hang of 0x02 coincided with
-  taking its system-side core out of reset.
+  All other reads are read-modify-write inputs. LMI protocol decoded: `evora-rehost/lmi.py`.
+- **Direct dev-1 registers written** (functions are guesses; there is no register map): 1.8201 = 0x007e (in-band
+  reset), 1.8b10 = 0x0081 then 0x008b, 1.8b02 = 0x0004, 1.9011 = 0, 1.8b03 = 0x8000/0, 1.8b11-1.8b14 = 0x9f3f
+  then 0, 1.8b91 = 0x0004/0x0404/0x0406, 1.8a4c = 0x0a24, 1.8255 = 0xbeaf, 1.826d = 1, 1.8b96, 1.8204;
+  1.82ff, 1.8202, 1.8210, 1.8222, 1.823x = download. LMI addresses written in the reset stage: 0x020a-0x020d,
+  0x0214, 0x0224, 0x0228, both sides. Nothing is identifiable as a GPIO or clock-output write to
+  another chip (not excluded without a register map).
 
-## Open / unverified
-- No link was tested (no healthy PHY has a cable; the ASIC ports were not enabled).
-- Whether a power cycle revives ids 0x00/0x02 and cures 0x01; whether the remaining 13 answering PHYs init
-  cleanly (not attempted, see Result).
-- `mode=1/2`, break-out, `prbs`, `eyescan`, `polarity`, `pre`, `reg` beyond one `reg get` were not exercised.
-- To add to the devshell later: `python3Packages.unicorn` (capstone was only used for my own disassembly).
+## From trace to boot script
+- `mkscript.py` writes `replay.py`'s rules out per operation (polls collapsed, 1.900a read for read, 1.9005 never
+  re-read) plus a read-back verification per PHY, so the runner on the switch needs no chip knowledge.
+- A replay is only valid for a chip that takes the same branches; the compared read-backs are the check
+  (57,144 values per run, 0 differ). Timing fix it needed (vendor "1 us" waits = 10 ms) and results:
+  [sonic.md](sonic.md). Taps script: [load-test.md](load-test.md).
+
+## The first night (2026-11-21), superseded
+- Bus 1 (0x24-0x27) came up fully; on bus 0, id 0x00 read 0x0000 on every register, id 0x02 hung during the
+  vendor init (0x1900, later 0xff9c, on every register), id 0x01 refused the download ("SERBOOT BUSY"); 11 ids
+  read 0xffff. We took these for bad or reset-held PHYs and stopped.
+- **It was MDIO timing**: the bridge ran `init soc` only ([extphy.md](extphy.md)). With `init misc` and a cold
+  power cycle all 32 PHYs init cleanly. Trace comparison for id 0x02: [mdio-review.md](mdio-review.md).
+- Evidence: `evidence/evora-status-20261121.txt` (vendor console output), `evidence/evora-idscan-20261121.txt`
+  (ID scans between stages), traces `dumps/x/evora-trace/b0-*`, `init-cfg-0x24-0x27.*`, `replay4.result.txt`
+  (live replay on 0x24-0x27: 0 handshake mismatches, 39 reads of 1.900a differing only in bit 2).
+
+## Unverified
+- Whether any vendor step depends on write-to-write spacing (none has failed).
+- Delays the vendor code makes without calling a sleep (busy loops) are not in a trace.
+- `mode=1`, break-out, `prbs config`, `eyescan`, `polarity` were not exercised (`mode=2`, `pre`, `reg64`,
+  `status *`: done, see macsec.md and load-test.md).

@@ -1,17 +1,12 @@
 # AS7772-32X: factory boot chain vs ours (offline RE, 2026-11-22)
 
 Question: does the factory chain (U-Boot 2014.07 1.7.0.12 -> ONIE / diag) do a board-level step (PHY reset, CPLD,
-GPIO, clock, power) that our U-Boot 2026.10 + NixOS skip? Nothing was run on the device for this note.
+GPIO, clock, power) that our U-Boot 2026.10 + NixOS skip? **No.** The only board writes in the whole chain are the
+management PHY, the fan CPLD, the I2C muxes and (manufacturing test only) a PHY-rail voltage margin. Side result:
+why the vendor diag's SDK cannot talk to the ASIC under our U-Boot (section 4).
 
-**Answer: no.** The factory U-Boot writes no GPIO, no I2C device and no CPLD at boot; its code is the AS7760
-loader's, minus one print. The two factory kernels carry no PHY/CPLD/GPIO driver, and no init script touches
-CPLD1-3. The only board writes in the whole chain are the management PHY, the fan CPLD, the I2C muxes and (in the
-manufacturing test only) a PHY-rail voltage margin. This agrees with the MDIO-timing result
-([mdio-review.md](mdio-review.md), [extphy.md](extphy.md)): the silent PHYs were our MDIO setup, not a missing
-board step. Side result: **why the vendor diag's SDK cannot talk to the ASIC under our U-Boot** (section 4).
-
-Evidence marks: **V** verified in the binary/script/capture named, **I** inferred. Addresses are link addresses
-(image base 0xeff40000 = file offset 0 of `dumps/mtd7.bin`); GOT base 0xeffbd5a8 (AS7760 image: 0xeffbd6ac).
+**V** = verified in the binary/script/capture named, **I** = inferred. Addresses are link addresses (image base
+0xeff40000 = file offset 0 of `dumps/mtd7.bin`); GOT base 0xeffbd5a8 (AS7760 image: 0xeffbd6ac).
 
 ## 1. Factory U-Boot: AS7772 (1.7.0.12) vs AS7760 (1.7.0.10)
 Method: both 768 KiB images as 32-bit words, branch displacements and GOT offsets masked, `diff`; then capstone
@@ -26,7 +21,7 @@ disassembly with GOT strings resolved. Text is 0x0-0x65d00.
   (0xfe130008) at 0xeff4aa3c: `(GPDAT & 7) == 1` -> "Prob-E", else "Prob-D" (picks the DDR table; callers
   0xeff4ade0, 0xeff72bec). No `lis 0xfe13` / `addis ..,0x13` anywhere else, so GPDIR/GPODR/GPDAT are never
   written. Factory prompt: GPIO1 = `00000000 00000000 0000aa01 0000aa01` (GPDIR 0 = all inputs),
-  `factory-uboot-inventory-20261121.txt:457`. GPIO2-4 were not captured.
+  `evidence/factory-uboot-inventory-20261121.txt:457`. GPIO2-4 were not captured.
 - **I2C** (V): `i2c_write` (0xeff72f44) has three callers, 0xeff552b8 / 0xeff557a8 / 0xeff55a6c, all inside the
   `i2c` command handlers. Boot-time I2C is read-only: SPD (0xeff6fa84/0xeff6fa9c) and the bus init. No mux
   write, so nothing behind 0x76 or 0x71 is reached at boot.
@@ -49,7 +44,7 @@ disassembly with GOT strings resolved. Text is 0x0-0x65d00.
 | U-Boot `cpld reset` command only (V) | 0xffdf0010/11 | 0x11 = (r & 0xb8) \| 0x44 or 0x40, 0x10 = 0xff | n, no device there |
 | U-Boot LAW6 (V, inventory :420) | PCIe4 memory window | CPU **0x0_d8000000**, 128 MiB | **n: ours opens 0xc_40000000** (section 4) |
 | ONIE kernel 3.12.19 (I, strings) | - | board file `as7772_32x.c` is name + compatible only; no accton/CPLD/GPIO driver, no `gpios` in onie.dts | - |
-| ONIE `S05bcm-knet.sh` (V) | ASIC + PHYs | would run its own `bcm.user`: `init all`, `extphy init` (`etc/knet/rc-32x100.soc`). **Disabled on this unit**: needs U-Boot env `onie_knet`; console says "SWITCH: Disabled" on every ONIE boot | n (our SDK + re-host do this) |
+| ONIE `S05bcm-knet.sh` (V) | ASIC + PHYs | would run its own `bcm.user`: `init all`, `extphy init` (`etc/knet/rc-32x100.soc`). **Disabled on this unit**: needs U-Boot env `onie_knet`; console says "SWITCH: Disabled" on every ONIE boot | y (our SDK + the replayed init) |
 | ONIE `iic-util --daemon` (I, strings) | I2C | TCP server, writes only on request | n, not needed |
 | diag kernel 3.12.19 (V strings, I behaviour) | fan CPLD 0x66 (i2c 4-0066) | built-in `accton_as7772_32x_fanctl` fan control; no driver binds `accton_i2c_cpld` 0x60/62/64 | y (fand) |
 | diag `rcS` S80rclocal (V) | - | `insmod linux-kernel-bde.ko maxpayload=128 dmasize=128M debug=2`, user-bde, mount NOR | n/a |
@@ -57,7 +52,7 @@ disassembly with GOT strings resolved. Text is 0x0-0x65d00.
 | diag `profile.d/11_emi-mgmt-clk125.sh` (V) | mgmt PHY 0x1f | reg 0x1c = 0x9400 (CLK125 off, EMI) | n, cosmetic |
 | diag `cpldutil -trans` / `-setfan`, on demand (V, [cpld.md](cpld.md)) | CPLD1 0x04-0x07; fan CPLD 0x33, 0x11 | QSFP reset pulse; fan duty | y/n per cpld.md |
 | diag `switch_pre_test` -> `vmon_margin.sh LOW`, mfg scenarios only (V) | IR3595C, I2C4 mux 0x71 ch7, 0x14 | reg 0x6e = 0xfb (PHY_VDD1P0_DVDD -3 %); `switch_post_test` writes 0x6e = 0x00 | n (must stay 0x00) |
-| diag `swutil` -> `rc.soc-100G` (V) | ASIC + PHYs | `init all`, `extphy init all`, `extphy cfg`, pre-emphasis | n at boot yet |
+| diag `swutil` -> `rc.soc-100G` (V) | ASIC + PHYs | `init all`, `extphy init all`, `extphy cfg`, pre-emphasis | y, at boot ([sonic.md](sonic.md)) |
 
 No row is a PHY reset, PHY clock or PHY power-enable. No script or binary in either rootfs writes CPLD2/CPLD3.
 Device-tree check (V): onie.dts and diag.dts have no `gpios`, `reset-gpios` or `gpio-leds` node; the four
@@ -65,7 +60,7 @@ Device-tree check (V): onie.dts and diag.dts have no `gpios`, `reset-gpios` or `
 U-Boot tree of patch 0034, so neither side drives a T2080 GPIO.
 
 ## 3. Things found on the way
-- **I2C4 mux 0x71 ch5, 0x16** answers (ONIE `i2cdetect` bus 9, `onie-inventory-20261121.txt`), and is in no
+- **I2C4 mux 0x71 ch5, 0x16** answers (ONIE `i2cdetect` bus 9, `evidence/onie-inventory-20261121.txt`), and is in no
   vendor I2C map or `vmon` list. `vmon_margin.sh` names it in commented-out lines as **PHY_VDD1P0_PLL**
   (`0x16 reg 0x01 = 0x00 / 0x18`, `0xd6 = 0xfff7` word: PMBus-style OPERATION margin). Part unidentified.
 - **"P1014" (mux 0x71 ch4, 0x25) is a Lattice ispPAC-POWR1014(A) sequencer/monitor** (I: name + ADC protocol in
@@ -91,42 +86,29 @@ U-Boot tree of patch 0034, so neither side drives a T2080 GPIO.
   the address mismatch itself is V).
 - Not a board difference. ONIE's SDK would fail the same way under our U-Boot.
 
-## 5. CPLD registers: what the evidence allows
-- **CPLD2/CPLD3 0x20-0x2b: no decode.** No code in the factory U-Boot, either kernel, either rootfs or
-  `cpldtst`/`cpldutil` (only CPLD1 has an expected-value table) refers to them. Structure only (I): two 16-bit
-  pairs (0x20/21 = 0000, 0x2a/2b = 0000) and four single bytes on even addresses (0x22 = f0, 0x24 = cc, 0x26 =
-  40, 0x28 = 00), odd ones unimplemented (ff); 16 bits = the 16 PHYs per CPLD is a guess. They read the same
-  under the factory chain (`i2c-dumps-20261121.txt`, taken from ONIE before the U-Boot flash) and under ours, so
-  **our chain changes none of them**.
-- **CPLD1** `cpldtst` `cpld1_reg_tbl` @0x10013374, 3-byte entries (reg, expected, 0), two lists (V):
-  list 1: 01=02 02=3c 08=ff 09=0d 0a=3f 0b=00 0c=ff 0d=ff 14=ff 15=c7 24=00 25=00 40=7c 41=82 42=00 43=05
-  44=05 45=05 47=0f 48=70; list 2 (all 32 loopback modules fitted): 01=02 04-07=ff 10-13=ff **20-23=00**
-  30-33=00. So 0x20-0x23 is a 32-bit per-cage group next to reset/int/present that reads 0 with and without
-  modules (LPMODE or a mask is a guess); 0x01 expected 2, this unit has code version 4. No meaning recovered for
-  0x09-0x0b, 0x15, 0x24/25, 0x40, 0x42-0x48.
+## 5. CPLD registers
+No code in the factory U-Boot, either kernel, either rootfs or `cpldtst`/`cpldutil` refers to CPLD2/CPLD3
+0x20-0x2b, and they read the same under the factory chain and under ours. Details: [cpld.md](cpld.md).
 
-## 6. Experiments for the live board, ranked
+## 6. Experiments, not run unless marked
 1. **Vendor diag with a corrected PCIe window** (makes the vendor `extphy`/MACsec commands observable). RAM boot
-   as before (`init=/bin/sh`, nothing mounted), but patch the dtb before the jump:
+   as before (`init=/bin/sh`, nothing mounted), patching the dtb before the jump:
    `bootm start ${diag_start}; bootm loados; bootm ramdisk; bootm fdt;
    fdt set /pcie@ffe270000 ranges <0x02000000 0 0xd8000000 0xc 0x40000000 0 0x08000000 0x01000000 0 0 0xf 0xf8030000 0 0x00010000>;
-   bootm prep; bootm go`. Expected: BAR 0 at bus 0xd9000000 behind CPU 0xc_40000000, `g CMIC_DEV_REV_ID` sane,
-   `init all` passes. Risk: none persistent; a wrong window gives a machine check and a reboot. Unverified: that
-   `fdt set` acts on the relocated tree at that point, and that the 3.12 kernel accepts a >4 GiB CPU address
-   here (the AS7760 vendor tree was changed the same way for 7.x only).
-2. **Rail check, read-only** (health, not a fix). `B` = Linux bus of mux 0x71 channel *n* (`i2cdetect -l`).
-   ch7: `i2cget -y $B 0x14 0x6e` and `0x6f` expect 0x00 (no margin left set); ch5: `i2cget -y $B 0x16 0x79 w`
-   (STATUS_WORD, expect 0x0000 if the part is PMBus), `0x01` expect 0x00 or 0x80; ch4 P1014 VMON10:
-   `i2cset -y $B 0x25 0x09 0x09`, then `i2cget` 0x07 and 0x08, expect about 1.0 V (channel index = VMON number - 1 is assumed, not read out of
-   `vmon`'s table). Risk: the P1014 step writes
-   its ADC-mux register, as the vendor `vmon` does; the rest are reads.
-3. **GPIO1-4 state from our U-Boot prompt, read-only:** `md.l fe130000 4; md.l fe131000 4; md.l fe132000 4;
-   md.l fe133000 4`. Expected GPIO1 = `00000000 00000000 0000aa01 ...` as under the factory loader. Risk: none.
-4. **CPLD2/3 0x20-0x2b snapshot after PHY firmware is running and links are up**, compared with cold
-   (read-only `i2cdump` of 0x62/0x64 rows 0x20). A changed bit would identify interrupt/status bits. Risk: none.
-5. Writing CPLD2/3 0x20-0x2b: **not recommended**. No evidence of function, nothing in the factory chain writes
-   them, and the PHYs no longer need it.
-6. Re-flashing the factory U-Boot for an A/B: **not justified** by anything found here (NOR write, no alt bank).
+   bootm prep; bootm go`. Expected: BAR 0 at bus 0xd9000000 behind CPU 0xc_40000000, `g CMIC_DEV_REV_ID` sane.
+   Risk: none persistent (a wrong window = machine check and reboot). Unverified: that `fdt set` acts on the
+   relocated tree at that point, and that the 3.12 kernel accepts a >4 GiB CPU address here.
+2. **Rail check, read-only.** `B` = Linux bus of mux 0x71 channel *n*. ch7: `i2cget -y $B 0x14 0x6e` and `0x6f`
+   expect 0x00 (no margin left set); ch5: `i2cget -y $B 0x16 0x79 w` (STATUS_WORD, 0x0000 if PMBus), `0x01`
+   expect 0x00 or 0x80; ch4 P1014 VMON10: `i2cset -y $B 0x25 0x09 0x09`, then `i2cget` 0x07 and 0x08, expect about
+   1.0 V (channel index = VMON number - 1 is assumed). The P1014 step writes its ADC-mux register, as the vendor
+   `vmon` does; the rest are reads.
+3. **Done** (PROGRESS 2026-11-22): GPIO1 under our chain equals the factory capture (GPDIR 0, data 0x0000aa01;
+   how it was read is not recorded). GPIO2-4 (`md.l fe131000 4`, `fe132000`, `fe133000`) not captured on either.
+4. CPLD2/3 0x20-0x2b snapshot with links up vs cold (read-only `i2cdump` of 0x62/0x64): a changed bit would
+   identify status bits.
+5. Not recommended: writing CPLD2/3 0x20-0x2b (no evidence of function); re-flashing the factory U-Boot for an
+   A/B (NOR write, no alternate bank, nothing here justifies it).
 
 ## Not verified
 - Kernel behaviour is from strings and device trees, not disassembly (both kernels are stripped raw images).

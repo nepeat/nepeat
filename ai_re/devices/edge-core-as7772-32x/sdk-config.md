@@ -1,19 +1,17 @@
 # AS7772-32X Broadcom SDK config
 
-State 2026-11-21: generator written and checked against the factory files **offline only**; nothing here has run
-on the switch, and no port can pass traffic until the PHYs are initialised ([extphy.md](extphy.md)).
+The generated config runs on the switch under SONiC since 2026-11-22 ([sonic.md](sonic.md)); this file is the
+offline comparison with the factory files it was built from (2026-11-21).
 
 - Generator: `nix/modules/boards/as7772/sdk-config.nix` (board data: one tx/rx lane map per cage) on
   `openbcm.configs.tomahawk`; `tomahawkBase` in `nix/packages/openbcm/configs/default.nix` makes the base from
-  board values instead of the public AS7712 file's. Wired as `services.sonic.sai.sdkConfig.generator`
-  (`mkForce` over the AS7760's); SONiC stays off.
-- Output, 32x100G (sha256 b39dfc489607…): `/nix/store/81ifmhl23x8ywhhgrj8las8yybhw593m-as7772-32x-config.bcm`
-  (`nixos-build/result-sdk-config-32x100G`). The as7772 system with SONiC forced on generates the same bytes at
-  `/nix/store/p0g8vb2s11i3k5239ih23g68q6n3n642-as7772-32x-config.bcm`. 128x25G: `nixos-build/result-sdk-config-128x25G`.
+  board values instead of the public AS7712 file's. Wired as `services.sonic.sai.sdkConfig.generator`.
+- Outputs: `nixos-build/result-sdk-config-32x100G`, `result-sdk-config-128x25G` (git-ignored links). Current 32x100G
+  sha256 1c884e6b1eba…, pinned by the test (the 2026-11-21 value b39dfc489607… predates `mdio_output_delay=10`).
+- Tests: `nix/modules/boards/as7772/sdk-config-test.nix` (command in its header). Neutrality for the AS7760:
+  `nixos-build/sdk-config-drvpaths-20261121.txt`.
 - Compare tool: [sdk-config-compare.py](sdk-config-compare.py) `[--full] A B` / `--dump A`: compares what the SDK
   reads (by physical core and lane, defaults applied), so files with other logical numbers compare key by key.
-- Tests: `nix/modules/boards/as7772/sdk-config-test.nix` (command in its header), log
-  `nixos-build/sdk-config-tests-20261121.txt`. Neutrality: `nixos-build/sdk-config-drvpaths-20261121.txt`.
 
 Factory files (`dumps/x/diag/root/usr/local/bin/`, sha256 prefix): config.bcm-100G 7a3dda3be23e, config.bcm-25G
 f2399892171e, config.bcm-MFG ce3cc7429ad2, preem-25G.soc 48d9149e02d0, preem-10G.soc 3b9f9405ccad,
@@ -79,11 +77,9 @@ Lane maps (SDK notation, 0x3210 = straight; an absent key is 0x3210). PHY id = `
 | 31 | 9-12 | 0x17e | 0x0123 / 0x3210 | 0x0123 / 0x0123 | - |
 | 32 | 13-16 | 0x17f | 0x0123 / 0x3210 | 0x0123 / 0x0123 | - |
 
-The `extphy pre` arguments after the lane: 25G file 2, 40-60, 15-31, 4, 0, 8; 10G file 0, 42-72, 9-26, 0, 0, 8
-(decimal ranges over the 128 lines). Their meaning (pre / main / post / ...) is **a guess**, not decoded.
-
-Not done: the two LED programs are not disassembled, so how the AS7772 program orders ports (it has no remap
-registers to lean on) is unknown.
+`extphy pre` arguments after the lane (pre, main, post, post2, post3, amp; line side, see
+[load-test.md](load-test.md)): 25G file 2, 40-60, 15-31, 4, 0, 8; 10G file 0, 42-72, 9-26, 0, 0, 8 (decimal ranges
+over the 128 lines). LED programs and port order: [leds.md](leds.md).
 
 ## Generated 32x100G vs factory config.bcm-100G
 
@@ -96,10 +92,11 @@ the dport map are the same. Remaining differences, each the AS7760 generator's e
 | logical port numbers | compact (1-8, 34-41, 68-75, 102-109) | physical + pipe offset (28 of 34 differ) | keep ours: valid Tomahawk numbers, a breakout never renumbers. The factory 25G file uses exactly ours. **Consequence:** the factory port_map CSV / `extphy` scripts name ports by the factory's 100G numbers, so they do not carry over as they are |
 | `portmap_33/67/101/135` | 132:10, 133:10, 134:10, 135:10 | absent | drop: fixed loopback ports, SDK 6.5.27 ignores the lines |
 | `dport_map_direct` | 1 | 0 | keep ours: diag-shell naming only (what the AS7760 runs) |
-| `rate_ext_mdio_divisor` / `_dividend` | 53 / 1 | 53 / 1 | **AS7772-specific, kept as the factory has it.** Untested by us beyond the 2026-11-21 MDIO scan (which ran with the factory file and got no ID). If MDIO reads stay unreliable, removing both (`sdkConfig.settings.<key> = null`) gives the SDK's 2 MHz |
+| `rate_ext_mdio_divisor` / `_dividend` | 53 / 1 | 53 / 1 | AS7772-specific, as the factory has it; in use at boot |
+| `mdio_output_delay` | absent (SDK default 10) | 10 | pinned 2026-11-22: the factory's effective value ([mdio-review.md](mdio-review.md)) |
 | `ccm_dma_enable`, `ccmdma_intr_enable`, `mem_cache_enable` | 0 | 0 | same (set by the board file, as on the AS7760) |
 | `arl_clean_timeout_usec`, `asf_mem_profile`, `bcm_num_cos`, `bcm_stat_flags`, `bcm_stat_jumbo`, `cdma_timeout_usec`, `dma_desc_timeout_usec`, `ipv6_lpm_128b_enable`, `lpm_scaling_enable`, `max_vp_lags`, `oversubscribe_mode` | absent | public AS7712 values | keep: the SONiC globals the AS7760 runs with. Never run on this board |
-| `miim_intr_enable` | absent | 0 | keep (public AS7712, runs on the AS7760). **PHY-adjacent:** MDIO completion is polled instead of interrupt-driven; the AS7760 has no external MDIO use to prove it there |
+| `miim_intr_enable` | absent | 0 | keep (public AS7712, runs on the AS7760). MDIO completion polled, not interrupt-driven; works here (the PHY script runs through it) |
 | `l3_alpm_enable` | absent | absent | same (the public file's 2 is removed, see the AS7760 file) |
 | `serdes_preemphasis_*`, `serdes_driver_current_*`, `phy_xaui_*_polarity_flip_*` | absent | absent | same. Unlike the AS7760, the public AS7712 taps are **not** carried: they are tuned for ASIC-to-cage traces |
 
@@ -107,16 +104,13 @@ the dport map are the same. Remaining differences, each the AS7760 generator's e
 globals differ as above; the factory puts the management ports and the unused bits 33/67/101 into
 `pbmp_oversubscribe` / `pbmp_xport_xe`, ours has the 128 ports (+ management in `pbmp_xport_xe`), as on the AS7760.
 
-## Not covered by a config.bcm (open, for whoever brings up the ports)
+## Not in a config.bcm
+| what | where it is done now |
+| --- | --- |
+| PHY init, mode, line-side taps (everything `extphy` does) | boot-time MDIO script ([sonic.md](sonic.md), [load-test.md](load-test.md)) |
+| ASIC port settings of the factory rc (autoneg off, CAUI, no ASIC FEC, average IPG 16) | sai.profile `SAI_OPENBCM_PORT_*` keys ([sonic.md](sonic.md)); 26 min at line rate with these |
+| LED program | none loaded (`hardware.as7760.ledProgram = null`); the AS7760's would be wrong here ([leds.md](leds.md)) |
+| cage order (`services.sonic.cages`, the AS7712 map) | rests on the factory dport map and CSV `slot_id` equalling the AS7760's; **checked with cables on cages 1, 2, 31, 32 only** |
 
-- **PHY init, mode and line-side taps**: everything `extphy` does. No code of ours.
-- **ASIC port settings the factory rc applies**: autoneg off, interface CAUI (100G) / CR (25G). The factory enables
-  FEC on the PHY (`fec=1`) and sets none on the ASIC port; whether the ASIC side must run without FEC is
-  **not established**. sai-openbcm's defaults were chosen for the AS7760's direct-attach cages.
-- **IPG 16** on the switch MAC (the vendor's workaround against frame corruption with this PHY).
-- **LED**: with SONiC on, `../as7760/sonic-platform.nix` would load the public AS7712 LED program and port-order
-  remap (`hardware.as7760.ledProgram`), which is the AS7760's, not this board's. Set it to `null` or to a
-  converted `ES7632BTx.hex` before enabling SONiC here. With PHYs in the path the ASIC's link state is the
-  ASIC-to-PHY link, so link LEDs may not follow the cable either way (inference).
-- The cage order (`services.sonic.cages`, the AS7712 map) rests on the factory dport map and CSV `slot_id`
-  being equal to the AS7760's; it has not been checked with a cable on this board.
+Untested: the 128x25G config (never run); the SONiC globals taken from the public AS7712 file beyond what four
+ports at 100G exercise.

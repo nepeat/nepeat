@@ -1,0 +1,1 @@
+**Do not run these.** MDIO scan scripts of 2026-11-21/22, kept as the record of what the transcripts in `../` ran: all start with a bare `init soc` (MDIO hold delay 3, which hangs PHYs until a cold power cycle) and `mdio-silent.soc` also sends clause 22. Rule: [../../extphy.md](../../extphy.md).

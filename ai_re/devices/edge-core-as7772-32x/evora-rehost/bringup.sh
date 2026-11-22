@@ -4,8 +4,9 @@
 #   ./bringup.sh 0x00 2        # first id, count (default: cages 1-2)
 # The ASIC temperature reader is stopped while the MDIO bridge holds the SDK
 # and started again at the end (fand goes failsafe 100% meanwhile).
-# Then, for traffic: ../asic-link-ce0-ce1.soc through bcm.user on the switch.
-# 2026-11-21: these exact commands were run by hand for cages 1-2; this wrapper itself has not been run yet.
+# Then, for traffic: ../asic-link-2dacs.soc through bcm.user on the switch.
+# These commands were run by hand (2026-11-21, cages 1-2); this wrapper itself has never been run.
+# At boot the switch does all 32 PHYs itself (../sonic.md); this is for a group by hand with SONiC stopped.
 # The bridge runs "init soc" + "init misc" (MDIO rate and hold delay from config.bcm); never talk to the PHYs after a bare "init soc".
 # Never send clause-22 frames to these PHYs (extphy.md).
 set -euo pipefail

@@ -334,6 +334,7 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
 - First-boot resize2fs EBUSY → kernel lacked `BLK_DEV_WRITE_MOUNTED` → enable it.
 - Freshly copied files zero-length after a panic → not yet written back → `sync` before risky tests, then verify the store.
 - extlinux builder failed on old generations → no DTB in pre-extlinux generations → deleting them cost rollback history. Tell the owner first.
+- First boot of a new disk image failed in the initrd ("os-release file is missing") → the root filesystem had 0 free inodes, so activation could not create `/etc` → grow the root at image build time (AS7772 `ssd-image.nix`, +1 GiB).
 
 **Bootloader**
 - Autoboot never stops though keys were sent "at the prompt" → tio block-buffers its `--log-file`, so a helper
@@ -423,16 +424,18 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
 - Go node_exporter cross-built fine and died with SIGILL on the e6500 → Go's ppc64 port needs POWER8 → `node-exporter-lite` (`nix/modules/monitoring/README.md`).
 - Switch closure +235 MiB of x86_64 binaries → FRR's installed headers/libtool files referenced the build machine's clippy → strip them and add `disallowedReferences` (sonic-nixos PROGRESS, FRR entry).
 - `nix copy --to ssh-ng://` refused the closure → unsigned paths (nixos-rebuild's copy accepts them); on-box `--rollback` tried to rebuild nixos-rebuild from `<nixpkgs>` → add `--no-reexec` (DMC-12 PROGRESS, 2026-11-15 18:15).
+- `nixos-rebuild switch` failed on a unit with "module not loaded" after adding out-of-tree kmods → the new module tree is not visible to the booted system → reboot after a deploy that adds kernel modules (AS7772 PROGRESS, 2026-11-21 (3)).
 
 **External PHYs in front of the ASIC (AS7772, BCM82391)**
-- MDIO scan of the IEEE ID registers (1.2/1.3) found nothing → this family keeps its chip ID elsewhere (dev 1 0x8b00/0x8b01; siblings 0x8a00) and 1.2 reads 0x0000 on a live chip → get the ID register from the vendor driver before concluding "held in reset".
-- 11 of 32 external PHYs "silent", one "flaky", one failing its firmware download → we talked MDIO after a bare `init soc`: on Tomahawk the external MDC rate and `MDIO_OUT_DELAY` are programmed only by misc init, so the bus ran at the chip's reset values (hold delay 3, the edge) and corrupted frames hung PHYs until a cold power cycle → always `init misc`/`init all` before external MDIO; read the rate/delay registers back; sweep the delay when some addresses answer and others don't; suspect your own bus before the parts (AS7772 PROGRESS, 2026-11-22).
-- A config.bcm key "had no effect" → the SDK stage that reads it was never run → check which init stage consumes a property before concluding it is ignored.
-- No public driver or firmware, vendor binary cannot run natively → run the vendor library's command handlers under Unicorn with its two MDIO callbacks forwarded to the hardware, record the MDIO trace, replay it without the emulator (AS7772 `evora-rehost.md`). Guard any flash/EEPROM-programming path in the emulator first.
-- Vendor diag SDK timed out on every SCHAN under our U-Boot although ours works → not solved; booting the diag with `init=/bin/sh` still gave the command usage text without touching NOR or the disk.
-
-- Deployed system ran the sibling board's SDK config although `path:` builds were right → a board module merged two attrsets with `//`, which dropped a whole `services.*` subtree in the flake that had the second block → `lib.mkMerge` for config blocks; compare a generated file between the deploy flake and the dev flake (AS7772 PROGRESS, 2026-11-22).
-- Replayed vendor init linked and pinged but was not faithful → the vendor's `usleep(1)` is really a long wait and the replay read "done" flags too early → compare every recorded read-back, not link state; and on a trimmed kernel short sleeps round up to the tick (4 ms), so spin them (AS7772 sonic.md).
+- MDIO scan of the IEEE ID registers (1.2/1.3) found nothing → this family keeps its chip ID elsewhere (dev 1 0x8b00/0x8b01; siblings 0x8a00) → get the ID register from the vendor driver before concluding "held in reset".
+- 11 of 32 PHYs "silent", one "flaky", one failing its firmware download → MDIO after a bare `init soc`: Tomahawk sets the external MDC rate and `MDIO_OUT_DELAY` only in misc init, so the bus ran at reset values (hold delay 3, the edge) and corrupted frames hung PHYs until a cold power cycle → `init misc`/`init all` before external MDIO; read the rate/delay registers back; suspect your own bus before the parts (AS7772 `extphy.md`).
+- A config.bcm key "had no effect" → the SDK stage that reads it was never run → check which init stage consumes a property.
+- No public driver or firmware, vendor binary cannot run natively → run the vendor library's command handlers under Unicorn with its MDIO callbacks forwarded to the hardware, record the trace, replay it without the emulator; guard any flash/EEPROM-programming path in the emulator first (AS7772 `evora-rehost.md`).
+- Replayed vendor init linked and pinged but was not faithful → the replay read "done" flags too early → judge a replay by comparing every recorded read-back, not by link state (AS7772 `sonic.md`).
+- Replay at full speed diverged from the recording → a vendor `usleep(1)` is really a long wait → replay such waits as milliseconds (10 ms here).
+- Replay took 469 s instead of 98 s → short sleeps round up to the tick (4 ms) on the trimmed kernel → spin delays under 20 ms instead of sleeping.
+- Vendor diag SDK timed out on every SCHAN under our U-Boot → likely its dtb's PCIe window address (AS7772 `boot-chain-diff.md`, untested) → booting the diag with `init=/bin/sh` still gave the command usage text without touching NOR or the disk.
+- Deployed system ran the sibling board's SDK config although `path:` builds were right → a board module merged two attrsets with `//`, dropping a whole `services.*` subtree in the flake that had the second block → `lib.mkMerge` for config blocks; compare a generated file between the deploy flake and the dev flake (AS7772 PROGRESS, 2026-11-22).
 
 **Process / environment**
 - A shell that runs `pkill -f PATTERN` (or a waiter looping on `pgrep -f PATTERN`) kills or finds *itself*, because

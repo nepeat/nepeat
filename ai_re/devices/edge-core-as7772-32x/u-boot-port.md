@@ -2,7 +2,8 @@
 
 **State (2026-11-21): upstream U-Boot 2026.10 (`#uboot-as7772-nor`, sha256 `21718a87…`, crc32 `8883619c`) is in
 boot NOR (mtd7).** It is the AS7760 port ([../edge-core-7760-32x/u-boot-port.md](../edge-core-7760-32x/u-boot-port.md))
-plus two patches. Build: `nix build path:./nix#uboot-as7772-nor` / `#uboot-as7772-chainload`; series and scopes in
+plus two patches. It boots NixOS from the SSD via `nos_bootcmd = bootflow scan -lb` (saved to mtd6); every cold
+boot since has been clean (PROGRESS log). Build: `nix build path:./nix#uboot-as7772-nor` / `#uboot-as7772-chainload`; series and scopes in
 [nix/packages/uboot/README.md](../../nix/packages/uboot/README.md).
 
 ## what differs from the AS7760
@@ -20,7 +21,7 @@ plus two patches. Build: `nix build path:./nix#uboot-as7772-nor` / `#uboot-as777
 
 ## evidence
 - Factory prompt inventory (bdinfo, flinfo, I2C probes, DDR/LAW/IFC/SerDes/SFP registers):
-  [factory-uboot-inventory-20261121.txt](factory-uboot-inventory-20261121.txt). Secure boot: SFP OSPR = 0 (ITS
+  [evidence/factory-uboot-inventory-20261121.txt](evidence/factory-uboot-inventory-20261121.txt). Secure boot: SFP OSPR = 0 (ITS
   clear), SRK hash all zero, SVR `0x85300011` (non-E part). Of 332 registers also captured on the AS7760, only
   `sdram_cfg` and DDR training results differ (plus two GPIO data bits).
 - RAM chainload from the factory prompt (`tftpboot 0x200000`, `go`): banner, 16 GiB sized, FMan ucode, ping,
@@ -29,7 +30,7 @@ plus two patches. Build: `nix build path:./nix#uboot-as7772-nor` / `#uboot-as777
 - Flash, from the factory prompt, the AS7760 sequence: new image and the verified `dumps/mtd7.bin` both TFTPed and
   CRC-checked in RAM, `cmp.b eff40000` against the backup (proves the address map), then
   `protect off; erase eff40000 efffffff; cp.b; cmp.b; crc32; protect on`. Transcript:
-  [flash-uboot-20261121.txt](flash-uboot-20261121.txt).
+  [evidence/flash-uboot-20261121.txt](evidence/flash-uboot-20261121.txt).
 - After the flash: cold power cycle boots it (DDR trained from SPD by our build), `ddrcmp` 0 differences,
   2 x 16 MiB pattern fill/compare at 0x10000000 and 0x60000000 clean, warm `reset` and unattended autoboot reach
   ONIE through the factory `bootcmd`. Console: `serial-20261121-*-factory-uboot.txt` (git-ignored).
@@ -44,4 +45,4 @@ plus two patches. Build: `nix build path:./nix#uboot-as7772-nor` / `#uboot-as777
 
 ## open
 - USB (off, unidentified), `cpld`/board reset path untested beyond `reset`, TLV MAC from `hw-info` (the MAC comes
-  from the factory env today), cold boot repeated only twice so far.
+  from the factory env today).
