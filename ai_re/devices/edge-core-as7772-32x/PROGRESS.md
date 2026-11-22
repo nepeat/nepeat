@@ -12,8 +12,9 @@
 - **Ports:** 32 BCM82391 "Evora" PHYs initialised at boot (98 s, 100G MACsec bypass, factory TX taps); cages 1-2
   and 31-32 (DACs) up at 100G, the rest admin-down (their PHY line side powered down): [extphy.md](extphy.md).
   **Link state and LEDs follow the cable** (PHY line-side link polled inside the SDK link scan: far end down ->
-  oper down in 67-141 ms). 26 min at line rate, 0 loss ([load-test.md](load-test.md)). MACsec proven live, not
-  at boot ([macsec.md](macsec.md)).
+  oper down in 67-141 ms). 26 min at line rate, 0 loss ([load-test.md](load-test.md)). **MACsec under SONiC at boot on the
+  four DAC ports** (MKA, GCM-AES-XPN-256, lab test key in `/var/lib/sonic-macsec/lab-test.cak`; if the file is
+  missing those ports run in clear): [macsec.md](macsec.md).
 - **MDIO rules:** `init misc` / `init all` before any external MDIO access; clause 45 **device 1 only**; no
   clause 22; no register sweeps. A corrupted or stray access hangs a PHY until a **cold power cycle**.
 - **Boot:** fans 60 % -> 53 % (no failsafe phase); a failed PHY bring-up stops SONiC and says why
@@ -23,7 +24,7 @@
   after SONiC, a raw-SDK session finds admin-down cages dark (reboot or `extphy power <phy> 1`); do not change
   admin state while a PHY tool runs; PSU2 (empty slot) "NOT OK"; TPM 1.2 left disabled as found
   ([tpm-sensor.md](tpm-sensor.md)).
-- **Open:** 28 cages never cabled; nobody has pulled a DAC by hand; MACsec at boot / under SONiC / under load;
+- **Open:** 28 cages never cabled; nobody has pulled a DAC by hand; the 4-frame loss in the MACsec load run (below); MKA against another vendor;
   25G break-out; load through SONiC's forwarding, longer soak; USB in U-Boot; CPLD2/3 0x20-0x2b undecoded
   ([cpld.md](cpld.md)); owner's calls: TPM enable, one FEC display convention, whether the PHY register
   sequences in `nix/modules/boards/as7772/ext-phy.nix` may stay in the public repo.
@@ -76,6 +77,19 @@
 - Transcripts live in [evidence/](evidence/); serial captures (`serial-*.txt`) are git-ignored.
 
 ## Log
+
+### 2026-11-22 (6): MACsec under SONiC; a SAI in Rust started
+- **MACsec under SONiC, at boot, on cages 1, 2, 31, 32:** MKA + GCM-AES-XPN-256 through SONiC's own stack
+  (macsecmgrd, wpa_supplicant, MACsecOrch) and a generic SAI MACsec layer driven by a board sequence table
+  (`ext-macsec.nix`, no vendor code on the switch). 6400 pings 0 lost, rekey every 20 s for 7 min with 0 of
+  210,000 lost, wrong CAK blocks only its link, stack restart / reboot / cold boot pass: [macsec.md](macsec.md).
+- **Encrypted load:** 92.05 Gb/s of frames per port per direction at IPG 48 (-4.5 % vs bypass), FEC 0/0, ASIC
+  46-49 C. **Open defect: 4 of 740 ring frames lost once in the 9 min 20 s run** (not on the cable; two shorter
+  runs clean; PHY counter reads during the run are a suspect, not a finding).
+- **Rust:** `rust/sai` (first slice: bindings with layout checks, safe core, virtual backend, FFI rim; syncd runs
+  against it in a VM; not on hardware yet). Owner's direction: migrate more of the SAI stack to Rust; the MACsec
+  sequence engine and object model (C++, proven) are the next candidates.
+- Pushed to origin/master through `4af6d13`; the MACsec-under-SONiC commits are local until the owner says.
 
 ### 2026-11-22 (5): fans + hard fail, LEDs, cable-true link, code review, all committed
 - **Boot:** no failsafe fan phase (60 % then 53 %), the PHY bring-up publishes the ASIC temperature, failure is a
