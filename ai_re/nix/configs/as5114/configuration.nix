@@ -9,13 +9,13 @@
 {
   imports = [
     (modulesPath + "/installer/sd-card/sd-image.nix")
+    ../lab-access.nix
     ../../modules/profiles/appliance.nix
     ../../modules/profiles/rebuildable.nix
     ../../modules/boards/as5114
   ];
   system.stateVersion = "26.11";
   networking.hostName = "as5114";
-  time.timeZone = "America/Los_Angeles";
 
   # Stock mainline from nixpkgs: it has PRESTERA_PCI, MVPP2, NVMEM_LAYOUT_ONIE_TLV
   # (as on the TN48M). A trimmed kernel is a follow-up.
@@ -44,32 +44,12 @@
 
   # Mgmt only (mvpp2, MAC = TLV base via the U-Boot fixup / nvmem). Prestera
   # front-panel netdevs match nothing, so they stay admin-down.
-  networking.useDHCP = false;
-  networking.useNetworkd = true;
-  networking.usePredictableInterfaceNames = false;
-  systemd.network = {
-    enable = true;
-    wait-online.enable = false;
-    networks."10-mgmt" = {
-      matchConfig.Driver = "mvpp2";
-      networkConfig = { DHCP = "yes"; IPv6AcceptRA = true; };
-      dhcpV4Config.ClientIdentifier = "mac";
-      linkConfig.RequiredForOnline = "no";
-    };
+  # The rest of the network and the root keys: ../lab-access.nix.
+  lab.managementInterface = null;
+  systemd.network.networks."10-mgmt" = {
+    matchConfig.Driver = "mvpp2";
+    networkConfig = { DHCP = "yes"; IPv6AcceptRA = true; };
+    dhcpV4Config.ClientIdentifier = "mac";
+    linkConfig.RequiredForOnline = "no";
   };
-  networking.firewall.allowedTCPPorts = [ 22 ];
-  networking.nftables.enable = true;
-
-  # Serial console is physical access (it already means U-Boot access).
-  services.getty.autologinUser = "root";
-
-  # Same root keys as the DMC-12 / AS7760 (https://github.com/nepeat.keys + the build host).
-  users.users.root.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMVk9i7FG7dc9r4ixwAJT7uPLH3UuqbwIgeZ7Ytmnpvv"
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBdCw3FOLZYLg9E9VSbJYhFFFOFYOS+F0Fzi7PZPW+tv"
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII1xDf7IxdQU/hIvDYL6VCzfV14ZbfyLxJnIYFsBHqxI"
-    "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI6/FNMHDsQ/b6I2vjOeTyyQh02kdSDKRR2FQHGe72DLwypxHO7QTYnhVs9q5GRsFRC0Dj8zwBg+ve/9Ny3I2b0="
-    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCkEDEKqOyMe6QHZ9stWPbm+lE+NKoEer6BRW8LmEAZ7ekxjY+OiBmh0sBLMBbeOMannm7fvQ27bShZCnglDaW9k5Rf2d7vdmRBbvGkNjvg6nbFJT6M64yi8jxPt2FixDhrkcDlFUbKCZMGEJ6z5vSHm5pqDnRXdse3KPQ+Ul8h5pSfM31Nubto4onhhu0xfFuLorxUFD1/opvLs9y/geqQQ8T+zu5Ms05MfVvGD1S+Uo+EieOnhore7KdcfhG4Fi0AkwpfVVB91DS6SVSQJSbVIKLo366PVEl9JdAn59ZvaEOxq70yW36YOIRAFAm1ANLYj3jhbxf68ds7+RjgOqXH"
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA60KDLPhZaDPbstXgHVK4RnZq3dSzfbVzfVBheWOMb+ root@sea420-desktop"
-  ];
 }
