@@ -19,7 +19,7 @@ up)
   systemctl stop sonic.target
   for i in $(seq 30); do systemctl is-active -q sonic-syncd || break; sleep 1; done
   sleep 12; systemctl stop openbcm-asic-temp      # it comes back when syncd stops; the SDK lock allows one process
-  cfg=$(systemctl cat openbcm-mdio-script | sed -n 's/.*--config \([^ ]*\) .*/\1/p')
+  cfg=$(systemctl cat openbcm-mdio-script | grep -o '/nix/store/[^ "]*config\.bcm' | head -1)   # the generated SDK config (MDIO clock, hold delay)
   rm -f $OPENBCM_DIAG_SOCKET; systemctl reset-failed m-load-bcmd 2>/dev/null
   systemd-run --unit m-load-bcmd --collect -E PATH="$PATH" -p StandardOutput=append:/run/m-load-bcmd.out -p StandardError=inherit \
     python3 "$here/bcmd.py" --config "$cfg"
@@ -30,7 +30,8 @@ up)
   D "vlan create 100 pbm=ce0,ce30 ubm=ce0,ce30"; D "vlan create 200 pbm=ce1,ce31 ubm=ce1,ce31"
   D "pvlan set ce0,ce30 100"; D "pvlan set ce1,ce31 200"
   D "port $P an=off if=CAUI sp=100000 en=1"
-  for p in ce0 ce1 ce30 ce31; do D "m CLMAC_TX_CTRL.$p AVERAGE_IPG=16"; D "m CLMAC_RX_MAX_SIZE.$p RX_MAX_SIZE=9130"; done
+  # IPG=48 for PHYs that are doing MACsec (they add 32 B per frame): ../macsec.md "Under SONiC", load
+  for p in ce0 ce1 ce30 ce31; do D "m CLMAC_TX_CTRL.$p AVERAGE_IPG=${IPG:-16}"; D "m CLMAC_RX_MAX_SIZE.$p RX_MAX_SIZE=9130"; done
   sleep 6; D "ps $P"; D "clear c"
   ;;
 fwd)   # the four ring entries

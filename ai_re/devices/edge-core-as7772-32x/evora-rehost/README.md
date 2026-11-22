@@ -15,6 +15,8 @@ Run from the ai_re devshell (it has Unicorn). Background: [../evora-rehost.md](.
 | `lmi.py` | LMI (indirect register) decoder and mock model, used by `macsec.py` |
 | `macsec_test.py` | offline checks of `macsec.py` (mock only, needs `dumps/`) |
 | `macsec-live.sh` | the staged live MACsec test of 2026-11-22 |
+| `seqtool.py`, `seqcheck.py` | decode a trace by register; compare `nix/modules/boards/as7772/ext-macsec.nix` (rendered by sai-openbcm's executor) with recorded traces ([../macsec.md](../macsec.md#under-sonic)) |
+| `macsec-params.py`, `macsec-appdb.py` | random test SA parameter files for `openbcm-diag extmacsec run`; the same as APPL_DB entries for swssconfig |
 | `idscan.py` | read-only chip-ID scan (1.8b00 / 1.8b01) of the 32 ids through the ssh bridge |
 | `replay.py` | replays a trace through the bridge without the emulator (superseded at boot by `mkscript.py`) |
 | `summarize.py` | trace statistics: registers written, polls, LMI addresses |

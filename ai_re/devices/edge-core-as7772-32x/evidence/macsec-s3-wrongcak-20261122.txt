@@ -1,0 +1,17 @@
+== 2026-11-22T14:06:38-08:00 before
+ce30 egress gate open SAs sa---;ce30 ingress gate open SAs sa---;ce0 egress gate open SAs sa---;ce0 ingress gate open SAs sa---;ce1 egress gate open SAs sa---;ce1 ingress gate open SAs sa---;
+cage 1 -> 2: 100 packets transmitted, 100 received, 0% packet loss, time 1581ms
+cage 31 -> 32: 100 packets transmitted, 100 received, 0% packet loss, time 1581ms
+== cage 2 (Ethernet4) -> profile wrong-test (same CKN, other CAK)
+MACsec profile wrong-test written (GCM-AES-XPN-256, key from /var/lib/sonic-macsec/wrong-test.cak)
+port Ethernet4: MACsec profile wrong-test
+ce30 egress gate open SAs sa---;ce30 ingress gate open SAs sa---;ce0 egress gate closed SAs ----;ce0 ingress gate closed SAs ----;ce1 egress gate closed SAs ----;ce1 ingress gate closed SAs ----;
+cage 1 -> 2: 100 packets transmitted, 0 received, +95 errors, 100% packet loss, time 58381ms
+cage 31 -> 32: 100 packets transmitted, 100 received, 0% packet loss, time 1589ms
+     20 KaY: Computed ICV is not equal to Received ICV
+== the declared profile again
+MKA up after 7 s
+ce30 egress gate open SAs sa---;ce30 ingress gate open SAs sa---;ce0 egress gate open SAs -sa--;ce0 ingress gate open SAs -sa--;ce1 egress gate open SAs -sa--;ce1 ingress gate open SAs -sa--;
+cage 1 -> 2: 100 packets transmitted, 100 received, 0% packet loss, time 1581ms
+cage 31 -> 32: 100 packets transmitted, 100 received, 0% packet loss, time 1585ms
+== failed units: 0; profiles: MACSEC_PROFILE|lab-test 

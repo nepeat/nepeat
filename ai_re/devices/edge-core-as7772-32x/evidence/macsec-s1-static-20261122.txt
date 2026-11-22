@@ -1,0 +1,168 @@
+== 2026-11-22T13:45:20-08:00 /nix/store/w6x9s9m18sgjs7nvw5a1xwpir0cvpidj-nixos-system-as7772-26.11.20261111.d4f25a3
+== 0. baseline (bypass)
++ ping -c 200 -i 0.005 -W 1 10.0.1.1
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.111/0.118/0.440/0.026 ms
++ (Vrf-a)
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.108/0.114/0.265/0.017 ms
+extmacsec: 32 ports, 126 sequences; objects: 0 macsec, 0 ports, 0 flows, 0 SCs, 0 SAs, 0 ACL tables, 0 ACL entries
+port      phy  dir     engine gate   AN0 AN1 AN2 AN3 tx   runs fails  max_us last failure
+engines in bypass: 64 of 64
+== 1. engines on, control frames in clear, data dropped (gate closed); ASIC inter-frame gap 48 bytes
++ extmacsec run ce0 reset.egress
+extmacsec: ce0 reset.egress: ok, 9432 us
++ extmacsec run ce0 enable.egress
+extmacsec: ce0 enable.egress: ok, 77848 us
++ extmacsec run ce0 reset.ingress
+extmacsec: ce0 reset.ingress: ok, 10425 us
++ extmacsec run ce0 enable.ingress
+extmacsec: ce0 enable.ingress: ok, 84379 us
++ extmacsec run ce1 reset.egress
+extmacsec: ce1 reset.egress: ok, 9388 us
++ extmacsec run ce1 enable.egress
+extmacsec: ce1 enable.egress: ok, 75069 us
++ extmacsec run ce1 reset.ingress
+extmacsec: ce1 reset.ingress: ok, 10420 us
++ extmacsec run ce1 enable.ingress
+extmacsec: ce1 enable.ingress: ok, 84364 us
++ ping -c 200 -i 0.005 -W 1 10.0.1.1
+200 packets transmitted, 0 received, 100% packet loss, time 2389ms
+
++ (Vrf-a)
+200 packets transmitted, 0 received, +15 errors, 100% packet loss, time 14423ms
+pipe 6
+== 2. SAs: receiver first, then the transmitter; gate open
++ extmacsec run ce1 sa-add-first.ingress.0.gcm-aes-xpn-256 a2b.par
+extmacsec: ce1 sa-add-first.ingress.0.gcm-aes-xpn-256: ok, 18991 us
++ extmacsec run ce1 gate-open.ingress
+extmacsec: ce1 gate-open.ingress: ok, 4164 us
++ extmacsec run ce0 sa-add-first.egress.0.gcm-aes-xpn-256 a2b.par
+extmacsec: ce0 sa-add-first.egress.0.gcm-aes-xpn-256: ok, 10079 us
++ extmacsec run ce0 gate-open.egress
+extmacsec: ce0 gate-open.egress: ok, 4183 us
++ extmacsec run ce0 sa-add-first.ingress.0.gcm-aes-xpn-256 b2a.par
+extmacsec: ce0 sa-add-first.ingress.0.gcm-aes-xpn-256: ok, 18954 us
++ extmacsec run ce0 gate-open.ingress
+extmacsec: ce0 gate-open.ingress: ok, 4157 us
++ extmacsec run ce1 sa-add-first.egress.0.gcm-aes-xpn-256 b2a.par
+extmacsec: ce1 sa-add-first.egress.0.gcm-aes-xpn-256: ok, 10079 us
++ extmacsec run ce1 gate-open.egress
+extmacsec: ce1 gate-open.egress: ok, 4153 us
++ ping -c 200 -i 0.005 -W 1 10.0.1.1
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.108/0.116/0.235/0.012 ms
++ (Vrf-a)
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.110/0.117/0.254/0.017 ms
++ ping -c 200 -i 0.005 -s 1400 10.0.1.1
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.140/0.149/0.271/0.012 ms
++ ping -c 100 -i 0.01 -s 8000 10.0.1.1
+100 packets transmitted, 100 received, 0% packet loss, time 1583ms
+rtt min/avg/max/mdev = 0.282/0.306/0.463/0.033 ms
++ ce0 stats-sa.egress.0
+  octets_encrypted 1123400   out_pkts_encrypted 700 
++ ce1 stats-sa.ingress.0
+  in_pkts_invalid 0   in_pkts_late 0   in_pkts_not_valid 0   in_pkts_ok 700   in_pkts_unchecked 0   octets_encrypted 1123400 
++ ce1 stats-sa.egress.0
+  octets_encrypted 1123400   out_pkts_encrypted 700 
++ ce0 stats-sa.ingress.0
+  in_pkts_invalid 0   in_pkts_late 0   in_pkts_not_valid 0   in_pkts_ok 700   in_pkts_unchecked 0   octets_encrypted 1123400 
++ ce0 pn.egress.0
+extmacsec: ce0 pn.egress.0: ok, 1285 us   pn 705 
++ ce1 pn.ingress.0
+extmacsec: ce1 pn.ingress.0: ok, 1267 us   pn 706 
+-- ASIC counters
+RPKT.ce0		    :			700		   +700 	     60/s
+RBYT.ce0		    :		  1,134,600	     +1,134,600 	479,958/s
+TPKT.ce0		    :			700		   +700 	     60/s
+TBYT.ce0		    :		  1,134,600	     +1,134,600 	479,958/s
+RPKT.ce1		    :			700		   +700 	     60/s
+RBYT.ce1		    :		  1,134,600	     +1,134,600 	479,958/s
+TPKT.ce1		    :			700		   +700 	     60/s
+TBYT.ce1		    :		  1,134,600	     +1,134,600 	479,958/s
+-- link state (external PHY table)
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce0         49   50 up    up    no     0x0003      138        0    1     0     188     199     305     2    0        5857
+ce1         53   54 up    up    no     0x0003      138        0    1     0     384     196     384     2    0        5962
+== 3. wrong key on the receiver of cage 1 -> 2
++ extmacsec run ce1 gate-close.ingress
+extmacsec: ce1 gate-close.ingress: ok, 4168 us
++ extmacsec run ce1 sa-del-last.ingress.0
+extmacsec: ce1 sa-del-last.ingress.0: ok, 3161 us
++ extmacsec run ce1 sa-add-first.ingress.0.gcm-aes-xpn-256 wrong.par
+extmacsec: ce1 sa-add-first.ingress.0.gcm-aes-xpn-256: ok, 18980 us
++ extmacsec run ce1 gate-open.ingress
+extmacsec: ce1 gate-open.ingress: ok, 4160 us
++ ping -c 100 -i 0.005 -W 1 10.0.1.1
+100 packets transmitted, 0 received, 100% packet loss, time 1190ms
+
++ ce0 stats-sa.egress.0
+  octets_encrypted 8600   out_pkts_encrypted 100 
++ ce1 stats-sa.ingress.0
+  in_pkts_invalid 0   in_pkts_late 0   in_pkts_not_valid 100   in_pkts_ok 0   in_pkts_unchecked 0   octets_encrypted 8600 
++ ce1 stats-sa.egress.0
+  octets_encrypted 0   out_pkts_encrypted 0 
++ ce0 stats-sa.ingress.0
+  in_pkts_invalid 0   in_pkts_late 0   in_pkts_not_valid 0   in_pkts_ok 0   in_pkts_unchecked 0   octets_encrypted 0 
+RPKT.ce1		    :			100		   +100 	     43/s
+RFCS.ce1		    :			100		   +100 	     43/s
+-- the right key again
++ extmacsec run ce1 gate-close.ingress
+extmacsec: ce1 gate-close.ingress: ok, 4162 us
++ extmacsec run ce1 sa-del-last.ingress.0
+extmacsec: ce1 sa-del-last.ingress.0: ok, 3186 us
++ extmacsec run ce1 sa-add-first.ingress.0.gcm-aes-xpn-256 a2b.par
+extmacsec: ce1 sa-add-first.ingress.0.gcm-aes-xpn-256: ok, 18984 us
++ extmacsec run ce1 gate-open.ingress
+extmacsec: ce1 gate-open.ingress: ok, 4155 us
++ ping -c 200 -i 0.005 -W 1 10.0.1.1
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.107/0.118/0.243/0.027 ms
++ (Vrf-a)
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.107/0.115/0.223/0.011 ms
+== 4. link state with MACsec on: far end admin down / up
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed    down       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed    down     down  QSFP28 or later         N/A
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later         N/A
+13:45:59 NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+13:46:11 NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+13:46:12 NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
++ ping -c 200 -i 0.005 -W 1 10.0.1.1
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.109/0.125/0.468/0.035 ms
++ (Vrf-a)
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.108/0.115/0.235/0.012 ms
+== 5. back to bypass
++ extmacsec run ce0 gate-close.egress
+extmacsec: ce0 gate-close.egress: ok, 4174 us
++ extmacsec run ce0 disable.egress
+extmacsec: ce0 disable.egress: ok, 34705 us
++ extmacsec run ce0 gate-close.ingress
+extmacsec: ce0 gate-close.ingress: ok, 4162 us
++ extmacsec run ce0 disable.ingress
+extmacsec: ce0 disable.ingress: ok, 35296 us
++ extmacsec run ce1 gate-close.egress
+extmacsec: ce1 gate-close.egress: ok, 4159 us
++ extmacsec run ce1 disable.egress
+extmacsec: ce1 disable.egress: ok, 35167 us
++ extmacsec run ce1 gate-close.ingress
+extmacsec: ce1 gate-close.ingress: ok, 4159 us
++ extmacsec run ce1 disable.ingress
+extmacsec: ce1 disable.ingress: ok, 34645 us
++ ping -c 200 -i 0.005 -W 1 10.0.1.1
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.111/0.118/0.269/0.014 ms
++ (Vrf-a)
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.108/0.120/0.243/0.016 ms
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce0         49   50 up    up    no     0x0003      214        0    2     1     183     197     305     2    0        5857
+ce1         53   54 up    up    no     0x0003      191        0    2     0     312     201     384     4    0        5962
+== failed units: 0

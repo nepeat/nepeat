@@ -1,0 +1,110 @@
+== 2026-11-22T13:47:36-08:00 /nix/store/w6x9s9m18sgjs7nvw5a1xwpir0cvpidj-nixos-system-as7772-26.11.20261111.d4f25a3
+== 0. baseline (bypass)
++ ping cage 1 -> 2, 2 -> 1 (200 each)
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.107/0.116/0.245/0.018 ms
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.109/0.116/0.220/0.012 ms
+ce0 AVERAGE_IPG=0x10  ce1 AVERAGE_IPG=0x10  ce30 AVERAGE_IPG=0x10  
+== 1. swssconfig appdb-set.json (ports not enabled, SCs, SAs, then ports enabled)
+13:47:38 syncd[85132]: :- threadFunction: time span 109 ms for 'create:SAI_OBJECT_TYPE_MACSEC_PORT:oid:0x590000000002ab'
+13:47:38 syncd[85132]: sai-openbcm NOTICE api=43: port ce0: MACsec egress on (external PHY 0x0)
+13:47:38 syncd[85132]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress on (external PHY 0x0)
+13:47:38 orchagent[85154]: :- createMACsecPort: MACsec port Ethernet0 is created.
+13:47:38 orchagent[85154]: :- createMACsecSC: MACsec SC Ethernet0:1cea0b382bd50001 is created.
+13:47:38 orchagent[85154]: :- handleNotification: Get port state change notification id:100000000000e status:2 oper_error_status:0x0
+13:47:38 orchagent[85154]: :- createMACsecSC: MACsec SC Ethernet0:1cea0b382bd50002 is created.
+13:47:38 syncd[85132]: :- collectDataBulk: Bulk get not available for SAI_OBJECT_TYPE_MACSEC_SA, using per object get
+13:47:38 orchagent[85154]: :- createMACsecSA: MACsec SA Ethernet0:1cea0b382bd50001:0 is created.
+13:47:38 orchagent[85154]: :- createMACsecSA: MACsec SA Ethernet0:1cea0b382bd50002:0 is created.
+13:47:38 syncd[85132]: sai-openbcm NOTICE api=43: port ce0: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+13:47:38 syncd[85132]: sai-openbcm NOTICE api=43: port ce0: egress data frames go through the secure channel
+13:47:38 syncd[85132]: sai-openbcm NOTICE api=43: port ce0: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+13:47:38 syncd[85132]: sai-openbcm NOTICE api=43: port ce0: ingress data frames go through the secure channel
+13:47:38 syncd[85132]: sai-openbcm NOTICE api=43: port ce1: MACsec egress on (external PHY 0x1)
+13:47:38 syncd[85132]: sai-openbcm NOTICE api=43: port ce1: MACsec ingress on (external PHY 0x1)
+13:47:38 orchagent[85154]: :- createMACsecPort: MACsec port Ethernet4 is created.
+13:47:38 orchagent[85154]: :- createMACsecSC: MACsec SC Ethernet4:1cea0b382bd50002 is created.
+13:47:38 orchagent[85154]: :- createMACsecSC: MACsec SC Ethernet4:1cea0b382bd50001 is created.
+13:47:38 orchagent[85154]: :- handleNotification: Get port state change notification id:100000000000f status:2 oper_error_status:0x0
+13:47:38 orchagent[85154]: :- handleNotification: Get port state change notification id:100000000000e status:1 oper_error_status:0x0
+13:47:38 syncd[85132]: sai-openbcm NOTICE api=43: port ce1: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+13:47:38 syncd[85132]: sai-openbcm NOTICE api=43: port ce1: egress data frames go through the secure channel
+13:47:38 orchagent[85154]: :- createMACsecSA: MACsec SA Ethernet4:1cea0b382bd50002:0 is created.
+13:47:38 syncd[85132]: sai-openbcm NOTICE api=43: port ce1: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+13:47:38 syncd[85132]: sai-openbcm NOTICE api=43: port ce1: ingress data frames go through the secure channel
+13:47:38 orchagent[85154]: :- createMACsecSA: MACsec SA Ethernet4:1cea0b382bd50001:0 is created.
+13:47:39 orchagent[85154]: :- handleNotification: Get port state change notification id:100000000000f status:1 oper_error_status:0x0
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 4 ports, 4 flows, 4 SCs, 4 SAs, 4 ACL tables, 8 ACL entries
+port      phy  dir     engine gate   AN0 AN1 AN2 AN3 tx   runs fails  max_us last failure
+ce0         0  egress  on     open   sa  -   -   -   0      19     0   79455 
+ce0         0  ingress on     open   sa  -   -   -          18     0   87839 
+ce1         1  egress  on     open   sa  -   -   -   0      19     0   81514 
+ce1         1  ingress on     open   sa  -   -   -          28     0   90993 
+engines in bypass: 60 of 64
+ce0 AVERAGE_IPG=0x30  ce1 AVERAGE_IPG=0x30  ce30 AVERAGE_IPG=0x10  
++ ping cage 1 -> 2, 2 -> 1 (200 each)
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.102/0.137/0.291/0.053 ms
+200 packets transmitted, 200 received, 0% packet loss, time 995ms
+rtt min/avg/max/mdev = 0.107/0.179/0.282/0.049 ms
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.139/0.167/0.305/0.042 ms
+100 packets transmitted, 100 received, 0% packet loss, time 1598ms
+rtt min/avg/max/mdev = 0.283/0.306/0.419/0.028 ms
+-- APPL_STATE / STATE_DB
+MACSEC_EGRESS_SA_TABLE|Ethernet0|1cea0b382bd50001|0
+MACSEC_EGRESS_SA_TABLE|Ethernet4|1cea0b382bd50002|0
+MACSEC_EGRESS_SC_TABLE|Ethernet0|1cea0b382bd50001
+MACSEC_EGRESS_SC_TABLE|Ethernet4|1cea0b382bd50002
+MACSEC_INGRESS_SA_TABLE|Ethernet0|1cea0b382bd50002|0
+MACSEC_INGRESS_SA_TABLE|Ethernet4|1cea0b382bd50001|0
+MACSEC_INGRESS_SC_TABLE|Ethernet0|1cea0b382bd50002
+MACSEC_INGRESS_SC_TABLE|Ethernet4|1cea0b382bd50001
+MACSEC_PORT_TABLE|Ethernet0
+MACSEC_PORT_TABLE|Ethernet4
+-- COUNTERS_DB
+Ethernet0:1cea0b382bd50001:0: ATTR_CURRENT_XPN=725 STAT_OCTETS_ENCRYPTED=868855 STAT_OUT_PKTS_ENCRYPTED=692 
+Ethernet0:1cea0b382bd50002:0: ATTR_CURRENT_XPN=710 STAT_OCTETS_ENCRYPTED=875243 STAT_IN_PKTS_INVALID=0 STAT_IN_PKTS_NOT_VALID=0 STAT_IN_PKTS_OK=677 
+Ethernet4:1cea0b382bd50001:0: ATTR_CURRENT_XPN=726 STAT_OCTETS_ENCRYPTED=892787 STAT_IN_PKTS_INVALID=0 STAT_IN_PKTS_NOT_VALID=0 STAT_IN_PKTS_OK=694 
+Ethernet4:1cea0b382bd50002:0: ATTR_CURRENT_XPN=709 STAT_OCTETS_ENCRYPTED=883273 STAT_OUT_PKTS_ENCRYPTED=678 
+Ethernet0:1cea0b382bd50001:0: ATTR_CURRENT_XPN=725 STAT_OCTETS_ENCRYPTED=868855 STAT_OUT_PKTS_ENCRYPTED=692 
+Ethernet0:1cea0b382bd50002:0: ATTR_CURRENT_XPN=710 STAT_OCTETS_ENCRYPTED=875243 STAT_IN_PKTS_INVALID=0 STAT_IN_PKTS_NOT_VALID=0 STAT_IN_PKTS_OK=677 
+-- SAI objects in ASIC_DB
+      2 ASIC_STATE:SAI_OBJECT_TYPE_MACSEC
+      4 ASIC_STATE:SAI_OBJECT_TYPE_MACSEC_FLOW
+      4 ASIC_STATE:SAI_OBJECT_TYPE_MACSEC_PORT
+      4 ASIC_STATE:SAI_OBJECT_TYPE_MACSEC_SA
+      4 ASIC_STATE:SAI_OBJECT_TYPE_MACSEC_SC
+   keys in ASIC_DB (SAK attribute present, as SONiC records it): 1
+== 2. swssconfig appdb-del.json
+13:47:54 syncd[85132]: sai-openbcm NOTICE api=43: port ce0: egress SA AN 0 removed
+13:47:54 orchagent[85154]: :- deleteMACsecSA: MACsec SA Ethernet0:1cea0b382bd50001:0 is deleted.
+13:47:54 orchagent[85154]: :- deleteMACsecSC: MACsec SC Ethernet0:1cea0b382bd50001 is deleted.
+13:47:54 syncd[85132]: sai-openbcm NOTICE api=43: port ce1: egress SA AN 0 removed
+13:47:54 orchagent[85154]: :- deleteMACsecSA: MACsec SA Ethernet4:1cea0b382bd50002:0 is deleted.
+13:47:54 orchagent[85154]: :- deleteMACsecSC: MACsec SC Ethernet4:1cea0b382bd50002 is deleted.
+13:47:54 syncd[85132]: sai-openbcm NOTICE api=43: port ce0: ingress SA AN 0 removed
+13:47:54 orchagent[85154]: :- deleteMACsecSA: MACsec SA Ethernet0:1cea0b382bd50002:0 is deleted.
+13:47:54 orchagent[85154]: :- deleteMACsecSC: MACsec SC Ethernet0:1cea0b382bd50002 is deleted.
+13:47:54 syncd[85132]: sai-openbcm NOTICE api=43: port ce1: ingress SA AN 0 removed
+13:47:54 orchagent[85154]: :- deleteMACsecSA: MACsec SA Ethernet4:1cea0b382bd50001:0 is deleted.
+13:47:54 orchagent[85154]: :- deleteMACsecSC: MACsec SC Ethernet4:1cea0b382bd50001 is deleted.
+13:47:54 syncd[85132]: sai-openbcm NOTICE api=43: port ce0: MACsec egress off
+13:47:54 syncd[85132]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress off
+13:47:54 syncd[85132]: sai-openbcm NOTICE api=43: port ce1: MACsec egress off
+13:47:54 syncd[85132]: sai-openbcm NOTICE api=43: port ce1: MACsec ingress off
+13:47:54 orchagent[85154]: :- handleNotification: Get port state change notification id:100000000000e status:2 oper_error_status:0x0
+13:47:54 orchagent[85154]: :- handleNotification: Get port state change notification id:100000000000f status:2 oper_error_status:0x0
+13:47:55 orchagent[85154]: :- handleNotification: Get port state change notification id:100000000000e status:1 oper_error_status:0x0
+13:47:55 orchagent[85154]: :- handleNotification: Get port state change notification id:100000000000f status:1 oper_error_status:0x0
+extmacsec: 32 ports, 126 sequences; objects: 0 macsec, 0 ports, 0 flows, 0 SCs, 0 SAs, 0 ACL tables, 0 ACL entries
+port      phy  dir     engine gate   AN0 AN1 AN2 AN3 tx   runs fails  max_us last failure
+engines in bypass: 64 of 64
+ce0 AVERAGE_IPG=0x10  ce1 AVERAGE_IPG=0x10  ce30 AVERAGE_IPG=0x10  
++ ping cage 1 -> 2, 2 -> 1 (200 each)
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.108/0.116/0.429/0.024 ms
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.106/0.112/0.220/0.013 ms
+== failed units: 0; orchagent active, since Sun 2026-11-22 13:44:31 PST

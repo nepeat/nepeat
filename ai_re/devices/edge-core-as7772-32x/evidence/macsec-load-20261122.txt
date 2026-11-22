@@ -1,0 +1,42 @@
+== MACsec load, 2026-11-22: the ring of load-test.md with the PHYs left in MACsec by SONiC (syncd and orchagent killed, then loadtest/ring.sh up with IPG=48, fwd, inject, soak)
+ring filled 14:43:49, stopped 14:53:09 (-08:00); system gcyrw820...
+-- first sample (SDK 10 s window)
+== sample 1795387368.139192721 2026-11-22T14:42:48-08:00
+-- PHY MAC counters, two reads 256 s apart (phystat.py through the test's SDK socket; raw: macsec-load-phystat-20261122.jsonl)
+PHY 0x0: 256 s; egress: from ASIC 17.750 Mpps, mean 648.28 B -> line 17.750 Mpps, mean 680.29 B (+32.01 B/frame); ingress: line mean 680.71 B -> to ASIC 648.70 B (-32.01); errors line RFCS 0 RERPKT 0 TERR 0 sys TERR 0 RFCS 0; FEC corrected 0 uncorrected 0 (since the previous read)
+PHY 0x1: 256 s; egress: from ASIC 17.739 Mpps, mean 648.71 B -> line 17.739 Mpps, mean 680.70 B (+31.99 B/frame); ingress: line mean 680.29 B -> to ASIC 648.28 B (-32.01); errors line RFCS 0 RERPKT 0 TERR 0 sys TERR 0 RFCS 0; FEC corrected 0 uncorrected 0 (since the previous read)
+PHY 0x17e: 256 s; egress: from ASIC 17.739 Mpps, mean 648.72 B -> line 17.739 Mpps, mean 680.71 B (+31.99 B/frame); ingress: line mean 680.28 B -> to ASIC 648.28 B (-32.00); errors line RFCS 0 RERPKT 0 TERR 0 sys TERR 0 RFCS 0; FEC corrected 0 uncorrected 0 (since the previous read)
+PHY 0x17f: 256 s; egress: from ASIC 17.752 Mpps, mean 648.35 B -> line 17.750 Mpps, mean 680.28 B (+31.92 B/frame); ingress: line mean 680.73 B -> to ASIC 648.77 B (-31.95); errors line RFCS 0 RERPKT 0 TERR 0 sys TERR 0 RFCS 0; FEC corrected 0 uncorrected 0 (since the previous read)
+-- after the stop
+== 2026-11-22T14:53:09-08:00 stop
+RDBGC0.ce0		    :			736		     +0
+RPKT.ce0		    :	      9,930,333,763		     +0
+RBYT.ce0		    :	  6,443,769,465,118		     +0
+TPKT.ce0		    :	      9,948,189,372		     +0
+TBYT.ce0		    :	  6,442,974,218,046		     +0
+RDBGC0.ce1		    :			736		     +0
+RPKT.ce1		    :	      9,948,189,370		     +0
+RBYT.ce1		    :	  6,442,974,217,858		     +0
+TPKT.ce1		    :	      9,930,333,765		     +0
+TBYT.ce1		    :	  6,443,769,465,306		     +0
+RPKT.ce30		    :	      9,948,188,632		     +0
+RBYT.ce30		    :	  6,442,973,736,486		     +0
+TPKT.ce30		    :	      9,930,333,027		     +0
+TBYT.ce30		    :	  6,443,768,983,934		     +0
+RPKT.ce31		    :	      9,930,333,025		     +0
+RBYT.ce31		    :	  6,443,768,983,746		     +0
+TPKT.ce31		    :	      9,948,188,634		     +0
+TBYT.ce31		    :	  6,442,973,738,252		     +0
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9126    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9126    No      
+      ce30(  9)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9126    No      
+      ce31( 13)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9126    No      
+samples: 22; guard: 0; asic temperature range: asic 45.7 asic 48.6 ; fand failsafe true: 0
+-- PHY MAC counters after the stop
+PHY 0x0: line RPKT 9930337118 TPKT 9948192718 RFCS 0 TERR 0; sys RPKT 9948192721 TPKT 9930337115 RFCS 0 TERR 0
+PHY 0x1: line RPKT 9948192718 TPKT 9930337118 RFCS 0 TERR 0; sys RPKT 9930337118 TPKT 9948192716 RFCS 0 TERR 0
+PHY 0x17e: line RPKT 9948191996 TPKT 9930336364 RFCS 0 TERR 0; sys RPKT 9930336364 TPKT 9948191994 RFCS 0 TERR 0
+PHY 0x17f: line RPKT 9930336364 TPKT 9948191996 RFCS 0 TERR 0; sys RPKT 9948192002 TPKT 9930336362 RFCS 0 TERR 0
+-- two more runs, no PHY reads during them
+== run of 20 s: RDBGC0.ce0 740 RPKT.ce0 365,726,925 TPKT.ce0 367,733,706 RDBGC0.ce1 740 RPKT.ce1 367,733,706 TPKT.ce1 365,726,925 RPKT.ce30 367,732,966 TPKT.ce30 365,726,185 RPKT.ce31 365,726,185 TPKT.ce31 367,732,966 
+== run of 90 s: RDBGC0.ce0 740 RPKT.ce0 1,607,189,587 TPKT.ce0 1,608,967,110 RDBGC0.ce1 740 RPKT.ce1 1,608,967,110 TPKT.ce1 1,607,189,587 RPKT.ce30 1,608,966,370 TPKT.ce30 1,607,188,847 RPKT.ce31 1,607,188,847 TPKT.ce31 1,608,966,370

@@ -21,6 +21,9 @@ argument structures: ../macsec.md (structures = public epdm_bcm_common_sec_defin
       reg <phy> <addr>... [if_side=0|1] [reg64=1]   library register read (0x44.. / 0x46.. = MACsec engines)
       devinit <phy> macsec|bypass   uninit + init of the MACsec engines without a firmware download (untested on hardware)
       diag <diag-shell command>     ssh / diag backend: run a diag-shell command on the switch (ASIC side of a test)
+      x-vport / x-sa / x-rule / x-rule-upd / x-sa-del / x-rule-del / x-vport-del / x-sa-read / x-stats <phy> side=egress|ingress name=N ...
+                                    named objects, one side per command: several vPorts, BYPASS SAs, EtherType rules,
+                                    rule drop flag (the layout recorded for SONiC, ../macsec.md "Under SONiC")
       show                          the handle registry
   Handles are kept in <state>.macsec.json beside the --save-state / --load-state file.
   The mock backend models only the LMI register interface (lmi.py): it proves marshalling and call order, not the chip.
@@ -117,6 +120,12 @@ class ChipMock(mdio.Mock):
             super().write(phy, 1, 0x8221, (val & 0xff00) | 0xe3)
             self.ack[phy] = (val & 0xff00) | 0xe3
             self.events.append('msg %03x %04x %s' % (phy, val, self.message(phy).hex()))
+            if val == 0x1211 and os.environ.get('EVORA_MOCK_RAMP'):
+                # answer every message read with a ramp (16-bit word i reads i + 1): the counter a field of the
+                # public structure is filled from is then visible in its value (low 16 bits = first word + 1)
+                self.ramp = getattr(self, 'ramp', 0) + 1
+                for i in range(64):
+                    super().write(phy, 1, 0xa101 + i, i + 1 + 256 * self.ramp)
 
     def message(self, phy):
         """Bytes of the firmware message in 1.a000.. (16-bit words, low byte first; byte 0 = bytes after the first two)."""
@@ -343,6 +352,90 @@ class Macsec:
             self.check('cfye_vport_remove', a, s['vport'])
             del s['vport'], s['vport_id']
 
+    # ---- named objects (the layout SONiC needs: an EAPOL vPort with a BYPASS SA beside the data vPort) -------
+    def xo(self, phy, side):
+        return self.slot(phy, side).setdefault('x', {'vport': {}, 'sa': {}, 'rule': {}})
+
+    def x_vport(self, phy, side, name, devupd=1):
+        a = self.access(phy, side)
+        hp = self.buf(b'\0' * 4)
+        self.check('cfye_vport_add', a, hp, self.buf(bytes([0 if side == EGRESS else 3]) + b'\0' * 7))
+        h = self.e.u32(hp)
+        self.xo(phy, side)['vport'][name] = {'h': h, 'id': self.call('cfye_vport_id_get', a, h)}
+        if devupd:
+            exc = self.buf(struct.pack('>IBBH', DROP_INTERNAL, 0, 0, 0))
+            ctl = self.buf(struct.pack('>B3xI', 0, exc))
+            self.check('cfye_device_update', a, self.buf(struct.pack('>4I', ctl, 0, 0, 0)))
+
+    def x_devupd(self, phy, side, bypass, drop):
+        """cfye_device_update: the classifier's low-latency bypass and exception drop action. The booted (mode 0)
+        state is bypass 1 / drop 0; with bypass 0 and no rule a frame is dropped even while the SecY is in bypass."""
+        exc = self.buf(struct.pack('>IBBH', drop, 0, 0, 0))
+        ctl = self.buf(struct.pack('>B3xI', bypass, exc))
+        self.check('cfye_device_update', self.access(phy, side), self.buf(struct.pack('>4I', ctl, 0, 0, 0)))
+
+    def x_rule_struct(self, phy, side, vport, et=None, prio=0, drop=0, ctrl=0):
+        v = self.xo(phy, side)['vport'][vport]['h']
+        data, mask = [0x09000000, 0x101, 0, 0], [0, 0, 0, 0]       # the vendor's (masked-out) data words
+        if et is not None:                                        # frame bytes little-endian: 88 8e -> 0x8e88
+            data[2], mask[2] = ((et & 0xff) << 8) | (et >> 8), 0xffff
+        return v, self.buf(struct.pack('>2I4I4IIBBBx', 0, 3, *data, *mask, v, prio, drop, ctrl))
+
+    def x_rule(self, phy, side, name, vport, enable=1, **kw):
+        a = self.access(phy, side)
+        v, r = self.x_rule_struct(phy, side, vport, **kw)
+        hp = self.buf(b'\0' * 4)
+        self.check('cfye_rule_add', a, v, hp, r)
+        self.xo(phy, side)['rule'][name] = self.e.u32(hp)
+        if enable:
+            self.check('cfye_rule_enable', a, self.e.u32(hp), 1)
+
+    def x_rule_upd(self, phy, side, name, vport, **kw):
+        v, r = self.x_rule_struct(phy, side, vport, **kw)
+        self.check('cfye_rule_update', self.access(phy, side), self.xo(phy, side)['rule'][name], r)
+
+    def x_rule_del(self, phy, side, name):
+        a = self.access(phy, side)
+        h = self.xo(phy, side)['rule'].pop(name)
+        self.check('cfye_rule_disable', a, h, 1)
+        self.check('cfye_rule_remove', a, h)
+
+    def x_sa(self, phy, side, name, vport, action='data', key=None, sci=None, an=0, pn=1, window=0, salt=None, ssci=None,
+             flags=0, pn_hi=0, **kw):
+        o = self.xo(phy, side)
+        hp = self.buf(b'\0' * 4)
+        if action == 'data':
+            rec = self.build_record(side, key, sci, an, pn, window, salt, ssci, pn_hi=pn_hi, flags=flags)
+            st = self.sa_struct(side, rec, sci, an, **kw)
+        else:   # BYPASS / DROP SA: no transform record (bcm_plp_secy_sa_bd_t: fsa_inuse)
+            st = self.buf(struct.pack('>II', 0, 0) + b'\x01' + b'\0' * 19 +
+                          struct.pack('>3I', {'bypass': 0, 'drop': 1}[action], DROP_INTERNAL, PORT_CONTROLLED if action == 'drop' else 1))
+        self.check('secy_sa_add', self.access(phy, side), o['vport'][vport]['id'], hp, st)
+        o['sa'][name] = self.e.u32(hp)
+
+    def x_sa_del(self, phy, side, name):
+        self.check('secy_sa_remove', self.access(phy, side), self.buf(struct.pack('>I', self.xo(phy, side)['sa'].pop(name))))
+
+    def x_vport_del(self, phy, side, name):
+        self.check('cfye_vport_remove', self.access(phy, side), self.xo(phy, side)['vport'].pop(name)['h'])
+
+    def x_sa_read(self, phy, side, name, off, n):
+        out = self.buf(b'\0' * (4 * n))
+        self.check('secy_sa_read', self.access(phy, side), self.buf(struct.pack('>I', self.xo(phy, side)['sa'][name])), off, n, out)
+        return struct.unpack('>%dI' % n, bytes(self.e.uc.mem_read(out, 4 * n)))
+
+    def x_stats(self, phy, side):
+        o, out, e = self.xo(phy, side), {}, side == EGRESS
+        for name, h in sorted(o['sa'].items()):
+            out['sa ' + name] = self.counters('secy_sa_statistics_e_get' if e else 'secy_sa_statistics_i_get',
+                                              SA_STAT_E if e else SA_STAT_I, phy, side, h, by_ref=True)
+        for name, v in sorted(o['vport'].items()):
+            out['secy ' + name] = self.counters('secy_secy_statistics_e_get' if e else 'secy_secy_statistics_i_get',
+                                                SECY_STAT_E if e else SECY_STAT_I, phy, side, v['id'])
+            out['ifc ' + name] = self.counters('secy_ifc_statistics_e_get' if e else 'secy_ifc_statistics_i_get',
+                                               IFC_STAT_E if e else IFC_STAT_I, phy, side, v['id'])
+        return out
+
     def adopt(self, phy):
         """Handles of the objects the vendor's mode 2 created (its global arrays, index phy*8 + side*4)."""
         for side in (EGRESS, INGRESS):
@@ -521,6 +614,42 @@ def run2(m, e, cmd, pos, opt, raw=''):
     elif cmd == 'off':
         for s in sides(opt):
             m.off(phy, s)
+    elif cmd.startswith('x-'):          # named objects: one side per command
+        s = sides(opt)[0]
+        n = opt.get('name')
+        if cmd == 'x-vport':
+            m.x_vport(phy, s, n, int(opt.get('devupd', '1')))
+        elif cmd == 'x-devupd':
+            m.x_devupd(phy, s, int(opt.get('bypass', '1')), int(opt.get('drop', '0')))
+        elif cmd in ('x-rule', 'x-rule-upd'):
+            kw = dict(prio=int(opt.get('prio', '0')), drop=int(opt.get('drop', '0')), ctrl=int(opt.get('ctrl', '0')))
+            if 'et' in opt:
+                kw['et'] = int(opt['et'], 16)
+            if cmd == 'x-rule':
+                m.x_rule(phy, s, n, opt['vport'], int(opt.get('enable', '1')), **kw)
+            else:
+                m.x_rule_upd(phy, s, n, opt['vport'], **kw)
+        elif cmd == 'x-sa':
+            if opt.get('action', 'data') == 'data':
+                key, sci, kw = sa_args(opt)
+                kw.update(flow_args(s, opt), pn_hi=int(opt.get('pn_hi', '0'), 0))
+                m.x_sa(phy, s, n, opt['vport'], 'data', key, sci, **kw)
+            else:
+                m.x_sa(phy, s, n, opt['vport'], opt['action'])
+        elif cmd == 'x-sa-del':
+            m.x_sa_del(phy, s, n)
+        elif cmd == 'x-rule-del':
+            m.x_rule_del(phy, s, n)
+        elif cmd == 'x-vport-del':
+            m.x_vport_del(phy, s, n)
+        elif cmd == 'x-sa-read':
+            w = m.x_sa_read(phy, s, n, int(opt.get('off', '14'), 0), int(opt.get('n', '2'), 0))
+            print('phy %#x %s sa %s words %s' % (phy, 'ingress' if s else 'egress', n, ' '.join('%08x' % x for x in w)))
+        elif cmd == 'x-stats':
+            for grp, d in m.x_stats(phy, s).items():
+                print('phy %#x %s %s: %s' % (phy, 'ingress' if s else 'egress ', grp, ' '.join('%s=%s' % kv for kv in d.items())))
+        else:
+            raise ApiError('unknown command ' + cmd)
     elif cmd == 'bypass':
         for s in sides(opt):
             m.bypass_set(phy, s, int(pos[1], 0))

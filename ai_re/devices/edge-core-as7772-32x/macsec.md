@@ -1,10 +1,93 @@
 # AS7772-32X: MACsec on the Evora (BCM82391) PHYs
 
 2026-11-22. **MACsec works on the chip** (live test, last section but one): vendor mode 2 and our own keys, cages 1-2 and
-31-32. The box is back in bypass (reboot); nothing of this runs at boot. Method: static RE of the vendor `bcm.user` (sha256 e163e815…,
+31-32. **It now runs under SONiC at boot** on the four cabled ports, with MKA and no vendor code on the switch:
+[Under SONiC](#under-sonic). The rest of this file is how the engine was found out. Method: static RE of the vendor `bcm.user` (sha256 e163e815…,
 addresses are VAs, see [evora-vendor-re.md](evora-vendor-re.md)) plus runs of that code under the re-host
 ([evora-rehost.md](evora-rehost.md)) on mock backends, then the live test. **V** = read in the code / seen in an emulator run, **I** = inferred.
 Tool: `evora-rehost/macsec.py` (+ `lmi.py`, `macsec_test.py`, `macsec-live.sh`).
+
+## Under SONiC
+2026-11-22. SONiC's own MACsec stack drives the PHYs: `macsecmgrd` -> one `wpa_supplicant -D macsec_sonic` per port (MKA)
+-> APPL_DB -> orchagent's MACsecOrch -> SAI MACsec objects -> sai-openbcm runs **register sequences from board data**
+(`nix/modules/boards/as7772/ext-macsec.nix`) on the port's PHY. No vendor code, no emulator and no re-host on the switch.
+- **State now:** MACsec (GCM-AES-XPN-256, MKA, lab test key) is **on at boot on cages 1, 2, 31, 32**; the other 28 engines
+  are in bypass. System `gcyrw820...`. Config: `nix/configs/as7772/configuration.nix` (`services.sonic.macsec`).
+- **Look:** `show macsec [--mka] [Ethernet1/1]` (**prints SAKs**: never paste it unfiltered; the test scripts drop the
+  `sak`, `auth_key`, `salt` lines), `sonic-clear macsec`, `openbcm-diag extmacsec` (what each PHY holds: engine, gate, SA per
+  AN, the transmitting AN, sequences run / failed).
+- **Key:** the CAK is a file on the switch outside the store, `/var/lib/sonic-macsec/lab-test.cak` (0600, one line of 64 hex
+  digits, made by hand: `head -c 32 /dev/urandom | od -An -v -tx1 | tr -d ' \n'`). `sonic-macsec-config` reads it at every
+  stack start and writes `MACSEC_PROFILE` (SONiC's "type 7" encoding) and `PORT.macsec`. **Without the file the profile is
+  not written and the ports run in clear** (the unit fails and says so). The key is then in redis (CONFIG_DB; SAKs in
+  APPL_DB and ASIC_DB), as on any SONiC. A new SSD needs the file again.
+- **Both ends are this switch:** the far ends (cages 2, 32) get the board's 2nd / 3rd MAC (`INTERFACE mac_addr`), or the
+  KaY cannot elect a key server ("duplicate MAC detected"). macsecmgrd waits for those addresses before it starts.
+
+### How it is built
+| layer | what | where |
+| --- | --- | --- |
+| board data | sequences per SAI operation with placeholders for key, hash key, SCI, PN, nonce, window (126 sequences, 22,600 clause-45 operations, generated from 250 lines of Nix: LMI register writes + firmware messages by register) | `nix/modules/boards/as7772/ext-macsec.nix` |
+| executor + SAI MACsec API | generic, no chip knowledge: table parser, executor (write, read, compare, poll, keep-and-write-back, named results), `sai_macsec_api_t`, MACsec-stage ACL tables kept as a model, counters accumulated, inter-frame gap 48 B while a port has a MACsec port | `nix/packages/sai-openbcm` (README "MACsec in an external PHY") |
+| SONiC | macsecmgrd, sonic-wpa-supplicant, CLI plug-ins, CAK from a file | `nix/modules/switch/sonic/macsec.nix`, `nix/packages/sonic/wpa-supplicant` |
+- **PHY layout, fixed per port and direction:** vPort 0 = data (rule 1: every frame, its drop flag is the **gate**), vPort 1 =
+  control (rule 0: EtherType 888e, priority 7 -> a BYPASS SA: EAPOL/MKA in clear), SA slot 1 + AN (context id = slot).
+  Egress: writing the vPort's SA register (0x4800) makes the new SA the transmitting one. Ingress: the SC's SA table
+  (0x4800 / 0x4804, 16 bits per AN) is read and written back with one half changed. One SC per port and direction.
+- **Order of things:** MACsec port created = engine out of bypass, EAPOL passes, **data dropped**; first SA + the ACL entry
+  that points at the flow = gate open; last SA removed = gate closed first; MACsec port removed = back to bypass
+  (classifier low-latency bypass restored too: without that a port drops every frame, found the hard way on cages 1-2).
+  A syncd start finds engines a previous process left on (`probe`), empties their SA tables and records and puts
+  them in bypass before SONiC builds its own state.
+- **Where the sequences come from:** `evora-rehost/macsec.py` gained named objects (`x-vport`, `x-sa`, `x-rule`, `x-rule-upd`,
+  `x-devupd`, `x-sa-read`, `x-stats`); five sessions on the real PHYs 0x00 / 0x01 **through syncd with SONiC up** recorded
+  every operation with three parameter sets (ciphers rotated over the ANs). `ext-macsec.nix` was written from the first
+  recording; `evora-rehost/seqcheck.py` renders the table with sai-openbcm's own executor and compares it with all of them:
+  **identical, operation by operation** (4,602 per full session; evidence/macsec-seqcheck-20261122.txt, 70bbf19e2a81).
+  The table's hash is pinned in the board module: change `ext-macsec.nix`, re-run seqcheck, update the hash.
+  Counter order in the hardware blocks: from the library on a mock that answers reads with a ramp (`EVORA_MOCK_RAMP`).
+- Record layout additions to the table above: control word egress `66 e0 4b|4f 92|a2 + 4 x AN` (128 | 256, PN32 | XPN),
+  ingress `6f|ef e0|a0 4b|4f d2|e2`; word 1 = slot; XPN: PN high in word 15, nonce (salt with the SSCI XOR-ed into its
+  first 4 bytes) in words 17-19, **no SCI in an ingress XPN record**; word 23 (LMI, after the record): `80004000`, ingress
+  `+ AN << 29 + slot`. Messages carry an even number of bytes: the last byte of the SA and TCAM messages is never sent.
+
+### Tested on the switch (2026-11-22; evidence/, sha256 prefix)
+| test | result | evidence |
+| --- | --- | --- |
+| S1 static SAs by hand through syncd (`extmacsec run`), SONiC up, cages 1-2, XPN-256 | gate closed: 0 of 400 pings; with SAs: 700 pings (64 / 1400 / 8000 B) 0 lost, encrypted 700 = accepted 700; wrong key: 100 `in_pkts_not_valid`, 100 RFCS at the ASIC, 0 delivered; **link state follows the cable with MACsec on** (far end shut -> down, startup -> up); back to bypass | macsec-s1-static (1205e44e86f7) |
+| S2 static SAs through APPL_DB -> MACsecOrch -> SAI (no MKA) | objects created and removed in orchagent's order, SAs installed when the flow is bound, IPG 48 on / 16 off, COUNTERS_DB filled, pings 0 lost, bypass afterwards | macsec-s2-appdb (831e4dd9d587) |
+| S3 MKA on both links, `macsec-traffic-test.sh` | 6,400 pings (64 / 1400 / 8000 B, both directions, both links) 0 lost; per SC frames encrypted = frames accepted by the peer; every ingress error counter 0 | macsec-s3-traffic (de6a24bbf435) |
+| rekey: `rekey_period` 20 s, 421 s of pings (100,000 each way on cages 1-2, 10,000 on 31-32) | **17 SAK changes per port, AN 0-3 round and round, 0 pings lost**; new ingress SA on both ends, egress 4 s later, old SAs removed 2 s after that | macsec-s3-rekey (40c87a2fa046) |
+| wrong CAK (same CKN) on cage 2 | "Computed ICV is not equal to Received ICV", no SAs, both gates closed, 0 of 100 pings; cages 31-32 unaffected; right CAK back: up in 7 s | macsec-s3-wrongcak (aa20bd488b10) |
+| `systemctl restart sonic.target` | 8 engines found on, reset; MACsec up again, 6,400 pings 0 lost (the run needed a macsecmgrd restart: the far-end MAC was set after wpa_supplicant started; since fixed by the wait, re-proved by the boots below) | macsec-s3-traffic-stack-restart (8be8bab047e7) |
+| reboot | 6,400 pings 0 lost | macsec-s3-traffic-reboot (e44aad0de76c) |
+| cold power cycle, final system, unattended | PHY bring-up 99.0 s, **MACsec up on all four ports before anything was run**, 0 failed units; 6,400 pings 0 lost | macsec-s3-traffic-coldboot (e65517d1ba33) |
+| S4 load: the ring of [load-test.md](load-test.md) with the PHYs left in MACsec by SONiC (syncd killed, plain SDK, IPG 48), 9 min 20 s | each port **17.75 Mpps, 92.05 Gb/s of frames** per direction (IPG 16 in bypass: 18.59 Mpps, 96.4 Gb/s: MACsec costs 4.5 % with this frame mix); every PHY adds **32.0 B per frame** on the line and removes it again; 9.9 x 10^9 frames per port per direction; RS-FEC 0 / 0, no FCS or error counter anywhere; ASIC 45.7-48.6 C, fans on their curve. **4 of the 740 frames of each ring were lost once** (2 per cable direction; not on the cable: PHY line TX = peer line RX); two more runs (20 s, 90 s) lost none | macsec-load (d34e1092d1a6), -phystat, -samples |
+| SONiC back after the load | 8 engines reset at the syncd start, MKA up, 6,400 pings 0 lost | macsec-s3-traffic-after-load (71d4559a5e12) |
+Scripts (run on the switch): `macsec-static-test.sh`, `macsec-appdb-test.sh`, `macsec-traffic-test.sh`, `macsec-rekey-test.sh`,
+`macsec-wrongcak-test.sh`; parameter files: `evora-rehost/macsec-params.py`, `macsec-appdb.py`. Unit tests: sai-openbcm
+`tests/test_macsec.inc` (fake bus: parser, golden rendering, the object model in MACsecOrch's order, key bytes on the bus
+and nowhere in the log).
+
+### Limits, not verified
+- **The 4 lost frames under load** are not explained (one event in 9 min; three `phystat.py` reads of the PHYs ran during
+  that run and none during the two clean ones: a suspect, not a finding). MACsec SA counters were not read under load
+  (SONiC was down); the load did not go through SONiC's forwarding.
+- Sequences for an SC's **first SA with AN > 0** and its **last SA with AN < 3** are compositions of recorded pieces, not
+  recordings (the library cannot be made to allocate those slots first). Both happened on the switch (rekeys, re-MKA
+  with AN 1 first) with traffic passing.
+- TCAM key word 3 carries a byte of uninitialised library memory in the vendor flow; it is beyond the bytes that are sent.
+- One SC per port and direction (point-to-point). Not supported (the SAI call fails): integrity only, SCI not in the
+  SecTAG, confidentiality offset, VLAN tag in clear. Replay protection: sequences exist (flow word bit 16 + window),
+  recorded and compared, **not exercised with traffic**. Cipher suites other than XPN-256: recorded and compared; XPN-256
+  and GCM-AES-128 / XPN (macsec.md live test) seen with traffic, **128-bit and non-XPN not under SONiC**.
+- An egress SA that is removed stays in the PHY's record memory until its slot is reused or the engine is reset.
+- Between link up and macsecmgrd creating the MACsec port a port is in bypass: frames pass in clear for the first seconds
+  of a stack start (the same on any SONiC). MKA to another vendor's switch: never tried (both ends are this code).
+- `show macsec` prints SAKs (upstream behaviour). One SAK was shown on the operator's terminal during bring-up; that
+  session ended with the next restart.
+- No VM test of the SONiC services (the fake backend's ports carry no frames between each other); the unit tests and the
+  switch are the proof.
 
 ## Result
 - **Live:** frames between two PHYs are encrypted (+32 B on the wire, clear frames refused, wrong key = `in_pkts_not_valid`
@@ -117,8 +200,8 @@ python3 $R/macsec.py --oracle $T/all-init.trace.txt:0x03 'extphy init 0x00 1 mod
 - `devinit <phy> macsec|bypass` (uninit + init of the engines without a download) **fails on the mock**
   (`cfye_device_uninit` returns 2: it polls engine state the mock does not model): untested, a fall-back only.
 
-## How MACsec state gets onto the switch (proposal; nothing built)
-Today: the boot unit replays a recorded script; SONiC's syncd then owns the SDK and MDIO.
+## How MACsec state gets onto the switch (the proposal; built as steps 1-3, see [Under SONiC](#under-sonic))
+The boot unit replays a recorded script; SONiC's syncd then owns the SDK and MDIO.
 1. **Device init at boot: the bypass script stays.** Stage B showed that `secy_bypass_set(0)` + vPort + rule + SA turn a
    bypass-initialised PHY into a MACsec one at run time, so no mode-2 boot script and no second firmware download are
    needed. The key-less part (bypass off, vPort, rule) can be a second recorded script in `hardware.openbcm.mdioScript.files`
@@ -167,8 +250,8 @@ clear, because the ASIC sends the VLAN-101-tagged frame it receives on ce1 back 
   - First s1 (`…-025621-s1.txt`): `init 0x00 1 mode=2` returned -24 without touching the chip, because the loaded library
     state already knew PHY 0x00. The vendor init needs a library that does not know the PHY: s1 runs without `--load-state`
     and s2 adds 0x01 to that state. (The stray `cfg` and the ECC-detect write of that attempt were harmless.)
-- Not tested: load at rate with MACsec on, PN exhaustion, replay drops, frames above 1024 B, `off`, `devinit`, break-out,
-  SONiC running on top (the `diag` backend), the other 28 cages.
+- Not tested here (some of it since, under SONiC: load at rate, 8000 B frames, the `diag` backend): PN exhaustion, replay
+  drops, `off`, `devinit`, break-out, the other 28 cages.
 
 ## Not verified / open
 - On the chip only what the live table lists was seen. Counter meanings are the public header's names.

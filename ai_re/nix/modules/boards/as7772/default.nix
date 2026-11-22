@@ -26,6 +26,27 @@ let
     openbcm-ext-phy --check "$textPath"
     cp "$textPath" $out
   '';
+  # External MACsec table (./ext-macsec.nix): the register sequences behind
+  # the SAI MACsec objects. Checked by libsai's parser, and pinned: the text
+  # was compared operation by operation with bus recordings of the real PHYs
+  # (devices/edge-core-as7772-32x/evora-rehost/seqcheck.py, macsec.md "Under
+  # SONiC"). After a change to ./ext-macsec.nix run that again, then update
+  # the hash.
+  extMacsecHash = "f2b9f5cdb371fc1d56cc113b9601220482ce1542caa10fab2aaba486516ea1da";
+  extMacsecTable = pkgs.runCommand "as7772-ext-macsec.tbl" {
+    nativeBuildInputs = [ saiNative ];
+    text = import ./ext-macsec.nix { inherit lib; cages = config.services.sonic.cages; };
+    passAsFile = [ "text" ];
+  } ''
+    openbcm-ext-macsec --check "$textPath"
+    got=$(sha256sum < "$textPath" | cut -d' ' -f1)
+    if [ "$got" != ${extMacsecHash} ]; then
+      echo "AS7772 external MACsec table changed (sha256 $got, pinned ${extMacsecHash}):" >&2
+      echo "check it against the recorded traces (evora-rehost/seqcheck.py), then update extMacsecHash" >&2
+      exit 1
+    fi
+    cp "$textPath" $out
+  '';
 in {
   imports = [ ../as7760 ./tpm-sensor.nix ];
   # mkMerge, not "//": the fand block below also defines services.*, and a
@@ -82,6 +103,10 @@ in {
     # ./ext-phy.nix (the PHY's line-side link gates the port; its line side
     # is powered down while the port is admin down).
     SAI_OPENBCM_EXT_PHY_FILE = "${extPhyTable}";
+    # MACsec in the PHYs (./ext-macsec.nix): the SAI MACsec API works on every
+    # port. Nothing is switched on by this: a port's engine leaves bypass when
+    # SONiC creates its MACsec port (services.sonic.macsec).
+    SAI_OPENBCM_EXT_MACSEC_FILE = "${extMacsecTable}";
   };
   assertions = [ {
     assertion = !config.services.sonic.enable || config.services.sonic.breakout == { };

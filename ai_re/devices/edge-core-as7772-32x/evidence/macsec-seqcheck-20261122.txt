@@ -1,0 +1,8 @@
+== 2026-11-22T13:46:49-08:00 offline: the board table rendered by sai-openbcm's executor vs bus recordings of the vendor library on the real PHYs
+table sha256 f2b9f5cdb371fc1d56cc113b9601220482ce1542caa10fab2aaba486516ea1da (nix/modules/boards/as7772/ext-macsec.nix, real cage map)
+s1: PHY 0x0: 40 sequences, 4602 bus operations identical to the trace (not compared: disable.egress, disable.ingress, an incomplete teardown in this recording)
+s2: PHY 0x0: 40 sequences, 4602 bus operations identical to the trace (not compared: disable.egress, disable.ingress, an incomplete teardown in this recording)
+s3: PHY 0x1: 40 sequences, 4602 bus operations identical to the trace (not compared: disable.egress, disable.ingress, an incomplete teardown in this recording)
+s4: PHY 0x0: 4 sequences, 1952 bus operations identical to the trace
+s5: PHY 0x1: 4 sequences, 1952 bus operations identical to the trace
+recordings (private, dumps/x/evora-trace/r/): 052c027ca784  s1.trace.txt cc7414e9da53  s2.trace.txt 5d4d6a054ffe  s3.trace.txt 152ca9932e9e  s4.trace.txt d3110d8486b4  s5.trace.txt 
