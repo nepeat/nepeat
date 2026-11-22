@@ -71,6 +71,15 @@ def test_eval(t):
 
 
 @pytest.mark.eval
+def test_lock_files_agree():
+    """nix/flake.lock and the root flake.lock pin the systems' nixpkgs to one revision (just update)."""
+    import locks
+    nix, root = locks.revisions()
+    assert nix == root, (f"nix/flake.lock has nixpkgs {nix}, the root flake.lock has nixpkgs-systems {root}: "
+                         "path:./nix tests would build another nixpkgs than deploy.sh (run: just update)")
+
+
+@pytest.mark.eval
 def test_every_output_has_a_tier():
     """A new uboot-* or package output is built by a tier or skipped with a reason."""
     tiers = {"uboot", "packages", "systems", "deploy", "vm"}

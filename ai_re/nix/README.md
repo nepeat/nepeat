@@ -37,9 +37,11 @@ let aiRe = import ../ai_re/nix; in {
 ```
 
 The root `ai_re` flake re-exports the same `nixosModules`,
-`nixosConfigurations` and `packages` (input `nixpkgs-systems`, pinned apart
-from the devshell). A git flake only sees tracked files, so those exports
-appear once `nix/` is committed; `path:./nix` always works.
+`nixosConfigurations` and `packages` (`flakeOutputs` in [default.nix](default.nix);
+input `nixpkgs-systems`, pinned apart from the devshell and kept on the
+revision of `nix/flake.lock` by `just update`). A git flake only sees tracked
+files (`git add -N` new ones; the AS7772 `deploy.sh` refuses otherwise);
+`path:./nix` sees the working tree.
 
 ## what is here
 
@@ -58,7 +60,7 @@ appear once `nix/` is committed; `path:./nix` always works.
 | board | `board-as5114` | Edgecore AS5114-48X (Armada 7040 + A385/Aldrin2): mainline DTS, prestera FW, SPI env access; system `configs/as5114` (`as5114-sd-image`, `as5114-system`) |
 | board | `board-dmc12` | DMC-12-48R-AS0 console server (Alpine V2) on `platforms/alpine-v2` + `linux-alpine`: boot paths (standard/chainload/uboot-menu), SSD image, CPLD, fans (fand from the root flake), env tool; [README](modules/boards/dmc12/README.md) |
 | package | `dmc12-firmware` | installs our U-Boot into a DMC-12's IPXE slots + BOOT_MODE from Linux, payload and factory regions sha-pinned; the board module ships it (and the DT windows it writes); standalone: `nix run --refresh 'github:nepeat/nepeat?dir=ai_re#dmc12-firmware' -- status` ([packages/dmc12-firmware](packages/dmc12-firmware/default.nix)) |
-| package | `uboot-*` | upstream U-Boot; one patch series with a per-patch `scope` in [packages/uboot/default.nix](packages/uboot/default.nix): `t208x` + `as7760` (ppc; + `as7772` + `fsl-sata` for the AS7772-32X: `uboot-as7772-nor`, `uboot-as7772-chainload`), `alpine-v2` + `dmc12` (arm64, RAM chainload from the vendor U-Boot, al_eth network + board-params handoff; `uboot-dmc12-selfinit` adds the external PCIe RC on Annapurna's PCIe HAL, MUIO/CCU setup and read-only SPI NOR, `uboot-dmc12-stage3app` wraps it as an al-boot object; [packages/uboot/alpine-v2](packages/uboot/alpine-v2/default.nix)) |
+| package | `uboot-*` | upstream U-Boot; one patch series with a per-patch `scope` ([packages/uboot/README.md](packages/uboot/README.md): patch table, builds, rules). ppc: `t208x` + `as7760` (`uboot-as7760-nor`, `-chainload`; + `as7772` + `fsl-sata` for `uboot-as7772-*`). arm64 Alpine V2: `alpine` + `spi-nor-ro` + `alpine-v2` + `dmc12` (RAM chainload from the vendor U-Boot; `uboot-dmc12-selfinit` adds external PCIe, MUIO/CCU setup and read-only SPI NOR, `uboot-dmc12-stage3app` wraps it as an al-boot object). arm64 Alpine V3: `alpine` + `spi-nor-ro` + `alpine-v3` + `cs8210` (`uboot-cs8210`, `-selfinit`, `-stage3app`, `-installer`) |
 | package | `uboot-as5114-chainload` | Marvell Armada 7040/8040 RAM chainload U-Boot: generic `mkChainload` in [packages/uboot/armada8k](packages/uboot/armada8k/default.nix) (the TN48M's proven recipe, scopes `spi-nor-ro` + `armada8k`), first board Edgecore AS5114-48X. Never written to SPI: read-only SPI NOR, no bubt/sspi/saveenv, env nowhere, checked at build time. Written for the TN48M to adopt later; its working build in `nepeat/nix` was deliberately not migrated |
 | package | `alboot` | [alboot.py](packages/alboot/alboot.py): Annapurna al-boot SPI TOC/object lister, checker and wrapper (a script, not a derivation); [alboot3.py](packages/alboot/alboot3.py): Alpine V3 additions (every TOC, TOC/BOOT_MODE builders) |
 | package | `fastfetch-tiny` | fastfetch without optional libraries (cross-builds everywhere) |
@@ -95,6 +97,12 @@ tail of the build log in the failure.
 | `just test-vm` | NixOS VM tests of the SONiC stack (kvm) |
 | `just test` | all of the above + `tools/tests` |
 
+Other recipes: `just drvpaths snapshot|diff` (neutrality proof, see the rules
+below), `just update` (bumps the systems' nixpkgs in `nix/flake.lock` and the
+root `flake.lock` to one revision, then `test-eval`; `just update-devshell` for
+the devshell's own inputs), `just uboot-variants` (every U-Boot build with its
+patch scopes).
+
 Arguments go to pytest (`just test-uboot -k as7772`, `just test-list`);
 `just nix_args="--max-jobs 2 --keep-going" test-systems` (or `AI_RE_NIX_ARGS`)
 adds arguments to every `nix build`; `just jobs=3 test-packages` builds three
@@ -115,9 +123,11 @@ A new flake output needs no change; a new package without one needs an
 1. `modules/boards/<board>/default.nix`: import the platform module and the
    function modules that match its parts; set board kernel patches and DT.
 2. Kernel/DT deltas: `packages/linux-<platform>/boards/<board>/`.
-3. U-Boot: reuse the `t208x`-scoped patches from `uboots.lib.series`, add the
-   board's own (DDR, DT, identity) next to them with `scope = "<board>"`.
-4. `configs/<board>/`: identity, keys, network; register it in `configs/default.nix`.
+3. U-Boot: reuse the `t208x`-scoped patches of `packages/uboot/series.nix`, add the
+   board's own (DDR, DT, identity) next to them with `scope = "<board>"`; the board is
+   then one `{ name, patches, config }` record in `packages/uboot/default.nix`.
+4. `configs/<board>/`: identity and ports; import `configs/lab-access.nix` (root
+   keys, time zone, DHCP management port); register it in `configs/default.nix`.
 5. Export new modules in `modules/default.nix`.
 
 ## rules
@@ -133,3 +143,6 @@ A new flake output needs no change; a new package without one needs an
   adding it to a profile; prefer a trimmed local package over a 300 MB closure.
 - Prove a refactor is a no-op: same `.drvPath` / same output hash, or
   `nix store diff-closures old new` showing only the intended change.
+  `just drvpaths snapshot` before, `just drvpaths diff` after: every target
+  `just test` builds, nothing built ([tests/drvpaths.py](../tests/drvpaths.py);
+  `--explain` runs nix-diff on what moved).

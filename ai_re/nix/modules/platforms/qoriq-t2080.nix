@@ -35,7 +35,7 @@ in {
     kernelModules = [ ];
     compressor = "gzip";
   };
-  # No PS/2 keyboard on this board; loop is built in, fan is added by thermal.nix.
+  # No PS/2 keyboard on this board; loop is built in, the fan driver is added by thermal/as7760-fan.nix.
   boot.kernelModules.atkbd = lib.mkForce false;
   boot.loader.grub.enable = false;
   boot.loader.systemd-boot.enable = false;

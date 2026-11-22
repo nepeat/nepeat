@@ -57,7 +57,9 @@ def monorepo() -> Path:
     return Path(r.stdout.strip())
 
 
-PATH_FLAKE = f"path:{NIX_DIR}"
+# AI_RE_PATH_FLAKE: evaluate another copy of nix/ (drvpaths.py --flake, for
+# comparing a saved tree with the working one); the guards still read NIX_DIR.
+PATH_FLAKE = os.environ.get("AI_RE_PATH_FLAKE") or f"path:{NIX_DIR}"
 
 
 def git_flake() -> str:
@@ -87,6 +89,8 @@ let
   qemuIpd = import (src + "/packages/qemu-ipd") { pkgs = pu; };
   uboots = import (src + "/packages/uboot") { pkgs = p; };
   vmTest = name: import (src + "/modules/switch/sonic/tests/" + name) { pkgs = p; };
+  # a board's sonic_platform package on the build host (its fake-board unit tests: .tests.unit)
+  platformPkg = board: p.callPackage (src + "/modules/boards/" + board + "/sonic-platform-package.nix") { inherit sonic; };
   # attribute paths of the derivations in v, at most depth levels down. A value
   # that throws is kept as a path, so its evaluation test fails and names it.
   collect = depth: prefix: v:
@@ -117,11 +121,11 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     # (fetches Marvell's published binaries into the store: unfree).
     "qemu-ipd": ("packages", "qemuIpd", 2),
     # sonic_platform packages and their fake-board unit tests.
-    "as7760-sonic-platform": ("packages", 'p.callPackage (src + "/modules/boards/as7760/sonic-platform-package.nix") { inherit sonic; }', 0),
-    "as7760-sonic-platform-test": ("packages", '(p.callPackage (src + "/modules/boards/as7760/sonic-platform-package.nix") { inherit sonic; }).tests.unit', 0),
+    "as7760-sonic-platform": ("packages", 'platformPkg "as7760"', 0),
+    "as7760-sonic-platform-test": ("packages", '(platformPkg "as7760").tests.unit', 0),
     "as7772-sonic-platform-test": ("packages", 'sys.as7772.config.services.sonic.pmon.platformPackage.tests.unit', 0),
-    "cs8210-sonic-platform": ("packages", 'p.callPackage (src + "/modules/boards/cs8210/sonic-platform-package.nix") { inherit sonic; }', 0),
-    "cs8210-sonic-platform-test": ("packages", '(p.callPackage (src + "/modules/boards/cs8210/sonic-platform-package.nix") { inherit sonic; }).tests.unit', 0),
+    "cs8210-sonic-platform": ("packages", 'platformPkg "cs8210"', 0),
+    "cs8210-sonic-platform-test": ("packages", '(platformPkg "cs8210").tests.unit', 0),
     # Build-time tests that are not flake outputs.
     "as7760-sdk-config-test": ("packages", 'import (src + "/modules/boards/as7760/sdk-config-test.nix") { pkgs = p; system = sys.as7760; }', 1),
     "as7772-sdk-config-test": ("packages", 'import (src + "/modules/boards/as7772/sdk-config-test.nix") { pkgs = p; system = sys.as7772; }', 1),
@@ -133,6 +137,7 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     "vm-sonic-frr": ("vm", 'vmTest "vm-frr.nix"', 0),
     "vm-sonic-bfd": ("vm", 'vmTest "vm-bfd.nix"', 0),
     "vm-sonic-metrics": ("vm", 'vmTest "vm-metrics.nix"', 0),
+    "vm-openbcm-mdio-units": ("vm", 'import (src + "/packages/sai-openbcm/test-mdio-units.nix") { pkgs = p; }', 0),
     "vm-sonic-platform": ("vm", 'vmTest "vm-platform.nix"', 0),
     "vm-sonic-openbcm-fake": ("vm", 'vmTest "vm-openbcm-fake.nix"', 0),
     "vm-sonic-openbcm-fake-acl": ("vm", 'vmTest "vm-openbcm-fake-acl.nix"', 0),
@@ -164,9 +169,6 @@ KNOWN_BROKEN: dict[str, str] = {
     r"(path:dmc12-(?!metrics-test).*|system:dmc12(-netboot)?)":
         "limit of path:./nix: the DMC-12 config needs services.consoled from rust/, which only the root git flake "
         "passes (nix/README.md, 'fand and path:./nix'); built as git:...dmc12*",
-    r"git:(nixosConfigurations\.dmc12-netboot|packages\.x86_64-linux\.dmc12-netboot)":
-        "BUG (found 2026-11-22, not fixed): modules/boards/dmc12/firmware/default.nix:12 reads "
-        "config.hardware.dmc12.bootLoader, which the netboot system (no disk.nix/boot.nix) does not define",
 }
 
 
@@ -219,8 +221,11 @@ PACKAGE_DIRS: dict[str, list[tuple]] = {
     "fastfetch-tiny": [("closure", _AS7760, r"-fastfetch-tiny-"), ("closure", _DMC12, r"-fastfetch-tiny-")],
     "node-exporter-lite": [("target", r"^path:node-exporter-lite-test$"), ("closure", _AS7760, r"-node-exporter-lite")],
     "openbcm": [("target", r"^path:as7760-openbcm-kmods$"), ("target", r"^path:as7760-bcm-user$"),
-                ("target", r"^extra:as7760-openbcm-libsdk$"), ("target", r"^extra:as7760-sdk-config-test$")],
-    "sai-openbcm": [("target", r"^extra:sai-openbcm-fake$"), ("target", r"^extra:as7760-sai-openbcm$")],
+                ("target", r"^extra:as7760-openbcm-libsdk$"),
+                # configs/: the generator on both boards that use it
+                ("target", r"^extra:as7760-sdk-config-test$"), ("target", r"^extra:as7772-sdk-config-test$")],
+    "sai-openbcm": [("target", r"^extra:sai-openbcm-fake$"), ("target", r"^extra:as7760-sai-openbcm$"),
+                    ("target", r"^extra:vm-sai-openbcm-syncd$"), ("target", r"^extra:vm-openbcm-mdio-units$")],
     "sai-teralynx": [("target", r"^extra:sai-teralynx$"), ("target", r"^extra:cs8210-sdk-config-test$")],
     "isai-amd64": [("target", r"^extra:qemu-ipd\.libsai$")],
     "qemu-ipd": [("target", r"^extra:qemu-ipd\.qemu-ipd$"), ("target", r"^extra:qemu-ipd\.tests\.")],

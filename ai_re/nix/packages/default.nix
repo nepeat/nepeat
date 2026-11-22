@@ -20,8 +20,8 @@ in {
   uboot-qemu-ppce500 = uboots.qemu-ppce500;
   uboot-tests = import ./uboot/tests.nix { inherit pkgs uboots; };
 
-  # Upstream U-Boot for Alpine V2 (arm64), same series, alpine-v2 + dmc12
-  # scopes; see ./uboot/alpine-v2/default.nix. RAM only, started by the
+  # Upstream U-Boot for Alpine V2 (arm64), same series, alpine + spi-nor-ro +
+  # alpine-v2 + dmc12 scopes; see ./uboot/alpine-v2/default.nix. RAM only, started by the
   # vendor U-Boot: u-boot.uimage for "bootm", u-boot.bin for "go"/booti.
   uboot-dmc12-chainload = ubootsAlpine.dmc12-chainload;
   # + external PCIe init, MUIO/CCU, read-only SPI NOR (RAM test build), and
@@ -31,8 +31,8 @@ in {
   uboot-alpine-v2-qemu = ubootsAlpine.qemu-virt;     # test fixture build
   uboot-alpine-v2-tests = import ./uboot/alpine-v2/tests.nix { inherit pkgs; alpine = ubootsAlpine; };
 
-  # Upstream U-Boot for Alpine V3 (arm64), same series, alpine + alpine-v3 +
-  # cs8210 scopes; see ./uboot/alpine-v3/default.nix. RAM only, started by
+  # Upstream U-Boot for Alpine V3 (arm64), same series, alpine + spi-nor-ro +
+  # alpine-v3 + cs8210 scopes; see ./uboot/alpine-v3/default.nix. RAM only, started by
   # the vendor U-Boot (loadx, then booti/bootm/go).
   uboot-cs8210 = ubootsAlpineV3.cs8210;
   # Installer: same, boot SPI writable only in the scheme A' windows (0027/0028),

@@ -1,6 +1,8 @@
 # ai_re: test builds of everything under nix/ (U-Boot variants, kernels,
 # packages, NixOS systems and images) and the tools/ unit tests.
 # What is built and how targets are found: tests/nixtargets.py, nix/README.md.
+# Also: drvpaths (neutrality proof of a refactor), update (nixpkgs bump),
+# uboot-variants (every U-Boot build and its patch scopes).
 #
 #   just test                      everything
 #   just test-eval                 fast: every target evaluates (no building) + coverage guards
@@ -61,3 +63,22 @@ test-tools *args:
 # list the targets without running anything
 test-list *args:
     @tests/run-pytest.sh 1 tests --collect-only -q "$@"
+
+# derivation paths of every target, to prove a refactor neutral: "just drvpaths snapshot", edit, "just drvpaths diff" (tests/drvpaths.py --help)
+drvpaths *args:
+    @tests/run-python.sh tests/drvpaths.py "$@"
+
+# every U-Boot variant with its board, patch scopes and outputs (nix/packages/uboot/variants.nix)
+uboot-variants:
+    @nix eval --no-write-lock-file --raw --impure --expr 'import ./nix/packages/uboot/variants.nix { flake = builtins.getFlake "path:{{justfile_directory()}}/nix"; }'
+
+# bump the systems' nixpkgs in both lock files to one revision (nix/flake.lock and the root flake's nixpkgs-systems), then the eval tier; build with "just test" before deploying
+update:
+    nix flake update nixpkgs --flake path:{{justfile_directory()}}/nix
+    nix flake lock --override-input nixpkgs-systems "github:NixOS/nixpkgs/$(tests/run-python.sh tests/locks.py rev)" {{justfile_directory()}}
+    @tests/run-python.sh tests/locks.py check
+    @just test-eval
+
+# bump the devshell's own inputs (root flake nixpkgs, flake-utils); no system is rebuilt by this
+update-devshell:
+    nix flake update nixpkgs flake-utils --flake {{justfile_directory()}}

@@ -89,7 +89,7 @@ in {
       boot.kernelModules = [ "i2c-dev" ];
     }
     (lib.optionalAttrs (rust != null) {
-      # services.fand exists only when the fand module is imported (aiReRust).
+      # services.fand exists only when the fand module is imported (../rust-modules.nix).
       # On u01 since 2026-11-15 (devices/dmc-12-48r-as0/PROGRESS.md).
       services.fand = {
         enable = true;
