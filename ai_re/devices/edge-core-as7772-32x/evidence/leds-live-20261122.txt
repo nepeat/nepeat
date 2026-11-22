@@ -1,0 +1,433 @@
+
+### 2026-11-22T11:59:24.028Z $ date -Is; readlink /run/current-system; D(){ echo "> $*"; openbcm-diag "$@"; }; D "led 0 status"; D "led 1 status"; D "getreg CMIC_LEDUP0_PORT_ORDER_REMAP_0_3"; D "getreg CMIC_LEDUP0_PORT_ORDER_REMAP_60_63"; D "getreg CMIC_LEDUP1_PORT_ORDER_REMAP_16_19"; D "getreg CMIC_LEDUP1_PORT_ORDER_REMAP_0_3"; D "getreg CMIC_LEDUP1_DATA_RAM(176)"; D "getreg CMIC_LEDUP0_CTRL"; D "getreg CMIC_LEDUP0_CLK_PARAMS"; D "getreg CMIC_LEDUP1_CLK_PARAMS"
+2026-11-22T03:59:23-08:00
+/nix/store/ymqdngj2v85g41dqb9m0sh2r6p5m4ir5-nixos-system-as7772-26.11.20261111.d4f25a3
+> led 0 status
+ 1 ce28                 10G HD 0:1
+ 5 ce29                 10G HD 0:5
+ 9 ce30                 10G HD 0:9
+13 ce31                 10G HD 0:13
+17 ce20                 10G HD 0:17
+21 ce21                 10G HD 0:21
+25 ce22                 10G HD 0:25
+29 ce23                 10G HD 0:29
+34  ce8                 10G HD 1:1
+38  ce9                 10G HD 1:5
+42 ce10                 10G HD 1:9
+46 ce11                 10G HD 1:13
+50  ce0                 10G HD 1:17
+54  ce1                 10G HD 1:21
+58  ce2                 10G HD 1:25
+62  ce3                 10G HD 1:29
+66  xe0                 10G HD 2:1
+68  ce4                 10G HD 1:33
+72  ce5                 10G HD 1:37
+76  ce6                 10G HD 1:41
+80  ce7                 10G HD 1:45
+84 ce12                 10G HD 1:49
+88 ce13                 10G HD 1:53
+92 ce14                 10G HD 1:57
+96 ce15                 10G HD 1:61
+100  xe1                 10G HD 2:2
+102 ce16                 10G HD 0:33
+106 ce17                 10G HD 0:37
+110 ce18                 10G HD 0:41
+114 ce19                 10G HD 0:45
+118 ce24                 10G HD 0:49
+122 ce25                 10G HD 0:53
+126 ce26                 10G HD 0:57
+130 ce27                 10G HD 0:61
+> led 1 status
+ 1 ce28                 10G HD 0:1
+ 5 ce29                 10G HD 0:5
+ 9 ce30                 10G HD 0:9
+13 ce31                 10G HD 0:13
+17 ce20                 10G HD 0:17
+21 ce21                 10G HD 0:21
+25 ce22                 10G HD 0:25
+29 ce23                 10G HD 0:29
+34  ce8                 10G HD 1:1
+38  ce9                 10G HD 1:5
+42 ce10                 10G HD 1:9
+46 ce11                 10G HD 1:13
+50  ce0                 10G HD 1:17
+54  ce1                 10G HD 1:21
+58  ce2                 10G HD 1:25
+62  ce3                 10G HD 1:29
+66  xe0                 10G HD 2:1
+68  ce4                 10G HD 1:33
+72  ce5                 10G HD 1:37
+76  ce6                 10G HD 1:41
+80  ce7                 10G HD 1:45
+84 ce12                 10G HD 1:49
+88 ce13                 10G HD 1:53
+92 ce14                 10G HD 1:57
+96 ce15                 10G HD 1:61
+100  xe1                 10G HD 2:2
+102 ce16                 10G HD 0:33
+106 ce17                 10G HD 0:37
+110 ce18                 10G HD 0:41
+114 ce19                 10G HD 0:45
+118 ce24                 10G HD 0:49
+122 ce25                 10G HD 0:53
+126 ce26                 10G HD 0:57
+130 ce27                 10G HD 0:61
+> getreg CMIC_LEDUP0_PORT_ORDER_REMAP_0_3
+CMIC_LEDUP0_PORT_ORDER_REMAP_0_3.cmic0[9][0x20010]=0x71d79f: <REMAP_PORT_3=0x1c,
+   REMAP_PORT_2=0x1d,REMAP_PORT_1=0x1e,REMAP_PORT_0=0x1f>
+> getreg CMIC_LEDUP0_PORT_ORDER_REMAP_60_63
+CMIC_LEDUP0_PORT_ORDER_REMAP_60_63.cmic0[9][0x2004c]=0x8218a3: <
+   REMAP_PORT_63=0x20,REMAP_PORT_62=0x21,REMAP_PORT_61=0x22,REMAP_PORT_60=0x23>
+> getreg CMIC_LEDUP1_PORT_ORDER_REMAP_16_19
+CMIC_LEDUP1_PORT_ORDER_REMAP_16_19.cmic0[9][0x21020]=0x411493: <
+   REMAP_PORT_19=0x10,REMAP_PORT_18=0x11,REMAP_PORT_17=0x12,REMAP_PORT_16=0x13>
+> getreg CMIC_LEDUP1_PORT_ORDER_REMAP_0_3
+CMIC_LEDUP1_PORT_ORDER_REMAP_0_3.cmic0[9][0x21010]=0x1083: <REMAP_PORT_3=0,
+   REMAP_PORT_2=1,REMAP_PORT_1=2,REMAP_PORT_0=3>
+> getreg CMIC_LEDUP1_DATA_RAM(176)
+CMIC_LEDUP1_DATA_RAM(176).cmic0[9][0x216c0]=0: <DATA=0>
+> getreg CMIC_LEDUP0_CTRL
+CMIC_LEDUP0_CTRL.cmic0[9][0x20000]=0x2a8: <LEDUP_SCAN_START_DELAY=0x2a,
+   LEDUP_SCAN_INTRA_PORT_DELAY=4,LEDUP_EN=0>
+> getreg CMIC_LEDUP0_CLK_PARAMS
+CMIC_LEDUP0_CLK_PARAMS.cmic0[9][0x20050]=0x5b8d80: <REFRESH_CYCLE_PERIOD=0x5b8d80>
+> getreg CMIC_LEDUP1_CLK_PARAMS
+CMIC_LEDUP1_CLK_PARAMS.cmic0[9][0x21050]=0x5b8d80: <REFRESH_CYCLE_PERIOD=0x5b8d80>
+### 2026-11-22T11:59:45.930Z $ cd /tmp/led; for c in blue yellow cyan green off; do echo "== pattern $c"; bash led-run.sh pattern-$c.soc 2>&1 | grep -v -E '^ *[0-9]+ +(ce|xe)'; sleep 1; bash led-ram.sh 0 0x80 0x9b; bash led-ram.sh 1 0x80 0x9b; openbcm-diag "getreg CMIC_LEDUP0_CTRL" | head -2; done
+== pattern blue
++ led auto off
++ led 0 stop
++ led 1 stop
++ led 0 prog 02 10 32 0F 87 32 0E 87 32 0F 87 32 0E 87 32 0F 8
++ led 1 prog 02 10 32 0F 87 32 0E 87 32 0F 87 32 0E 87 32 0F 8
++ led 0 start
++ led 1 start
+LEDUP0 0x80..0x9b: 15 40 05 50 01 54 00 15 40 05 50 01 54 00 15 40 05 50 01 54 00 15 40 05 50 01 54 00
+LEDUP1 0x80..0x9b: 15 40 05 50 01 54 00 15 40 05 50 01 54 00 15 40 05 50 01 54 00 15 40 05 50 01 54 00
+CMIC_LEDUP0_CTRL.cmic0[9][0x20000]=0x2a9: <LEDUP_SCAN_START_DELAY=0x2a,
+   LEDUP_SCAN_INTRA_PORT_DELAY=4,LEDUP_EN=1>
+== pattern yellow
++ led auto off
++ led 0 stop
++ led 1 stop
++ led 0 prog 02 10 32 0F 87 32 0E 87 32 0E 87 32 0E 87 32 0F 8
++ led 1 prog 02 10 32 0F 87 32 0E 87 32 0E 87 32 0E 87 32 0F 8
++ led 0 start
++ led 1 start
+LEDUP0 0x80..0x9b: 11 40 04 10 01 44 00 11 40 04 10 01 44 00 11 40 04 10 01 44 00 11 40 04 10 01 44 00
+LEDUP1 0x80..0x9b: 11 40 04 10 01 44 00 11 40 04 10 01 44 00 11 40 04 10 01 44 00 11 40 04 10 01 44 00
+CMIC_LEDUP0_CTRL.cmic0[9][0x20000]=0x2a9: <LEDUP_SCAN_START_DELAY=0x2a,
+   LEDUP_SCAN_INTRA_PORT_DELAY=4,LEDUP_EN=1>
+== pattern cyan
++ led auto off
++ led 0 stop
++ led 1 stop
++ led 0 prog 02 10 32 0E 87 32 0E 87 32 0F 87 32 0E 87 32 0F 8
++ led 1 prog 02 10 32 0E 87 32 0E 87 32 0F 87 32 0E 87 32 0F 8
++ led 0 start
++ led 1 start
+LEDUP0 0x80..0x9b: b4 2d 6d 4b db d2 b6 b4 2d 6d 4b db d2 b6 b4 2d 6d 4b db d2 b6 b4 2d 6d 4b db d2 b6
+LEDUP1 0x80..0x9b: b4 2d 6d 4b db d2 b6 b4 2d 6d 4b db d2 b6 b4 2d 6d 4b db d2 b6 b4 2d 6d 4b db d2 b6
+CMIC_LEDUP0_CTRL.cmic0[9][0x20000]=0x2a9: <LEDUP_SCAN_START_DELAY=0x2a,
+   LEDUP_SCAN_INTRA_PORT_DELAY=4,LEDUP_EN=1>
+== pattern green
++ led auto off
++ led 0 stop
++ led 1 stop
++ led 0 prog 02 10 32 0E 87 32 0E 87 32 0E 87 32 0E 87 32 0F 8
++ led 1 prog 02 10 32 0E 87 32 0E 87 32 0E 87 32 0E 87 32 0F 8
++ led 0 start
++ led 1 start
+LEDUP0 0x80..0x9b: 90 24 24 09 49 42 92 90 24 24 09 49 42 92 90 24 24 09 49 42 92 90 24 24 09 49 42 92
+LEDUP1 0x80..0x9b: 90 24 24 09 49 42 92 90 24 24 09 49 42 92 90 24 24 09 49 42 92 90 24 24 09 49 42 92
+CMIC_LEDUP0_CTRL.cmic0[9][0x20000]=0x2a9: <LEDUP_SCAN_START_DELAY=0x2a,
+   LEDUP_SCAN_INTRA_PORT_DELAY=4,LEDUP_EN=1>
+== pattern off
++ led auto off
++ led 0 stop
++ led 1 stop
++ led 0 prog 02 10 32 0E 87 32 0E 87 32 0F 87 32 0E 87 32 0E 8
++ led 1 prog 02 10 32 0E 87 32 0E 87 32 0F 87 32 0E 87 32 0E 8
++ led 0 start
++ led 1 start
+LEDUP0 0x80..0x9b: 24 09 49 42 92 90 24 24 09 49 42 92 90 24 24 09 49 42 92 90 24 24 09 49 42 92 90 24
+LEDUP1 0x80..0x9b: 24 09 49 42 92 90 24 24 09 49 42 92 90 24 24 09 49 42 92 90 24 24 09 49 42 92 90 24
+CMIC_LEDUP0_CTRL.cmic0[9][0x20000]=0x2a9: <LEDUP_SCAN_START_DELAY=0x2a,
+   LEDUP_SCAN_INTRA_PORT_DELAY=4,LEDUP_EN=1>
+### 2026-11-22T11:59:56.700Z $ cd /tmp/led; echo "== our program"; bash led-run.sh led_proc_init.soc 2>&1 | grep -v -E '^ *[0-9]+ +(ce|xe)'; sleep 2; openbcm-diag "getreg CMIC_LEDUP0_CTRL" | tr -d '\n'; echo; openbcm-diag "getreg CMIC_LEDUP1_CTRL" | tr -d '\n'; echo; for n in 0 1; do bash led-ram.sh $n 0x80 0x9b; bash led-ram.sh $n 0xa0 0xdf; bash led-ram.sh $n 0xf0 0xf0; bash led-ram.sh $n 0xf0 0xf0; done; openbcm-diag "led 0 dump"; openbcm-diag "led 1 dump"
+== our program
++ led 0 prog 02 20 67 44 02 24 67 44 02 28 67 44 02 2C 67 44 0
++ led 0 start
++ led 1 prog 02 10 67 44 02 14 67 44 02 18 67 44 02 1C 67 44 0
++ led 1 start
++ led auto on
+CMIC_LEDUP0_CTRL.cmic0[9][0x20000]=0x2a9: <LEDUP_SCAN_START_DELAY=0x2a,   LEDUP_SCAN_INTRA_PORT_DELAY=4,LEDUP_EN=1>
+CMIC_LEDUP1_CTRL.cmic0[9][0x21000]=0x1e9: <LEDUP_SCAN_START_DELAY=0x1e,   LEDUP_SCAN_INTRA_PORT_DELAY=4,LEDUP_EN=1>
+LEDUP0 0x80..0x9b: 05 40 01 50 00 14 00 05 40 01 50 00 14 00 05 40 01 50 00 14 00 05 40 01 50 01 54 00
+LEDUP0 0xa0..0xdf: 00 00 00 00 00 00 00 00 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+LEDUP0 0xf0..0xf0: de
+LEDUP0 0xf0..0xf0: e1
+LEDUP1 0x80..0x9b: 15 40 05 50 00 14 00 05 40 01 50 00 14 00 05 40 01 50 00 14 00 05 40 01 50 00 14 00
+LEDUP1 0xa0..0xdf: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+LEDUP1 0xf0..0xf0: 97
+LEDUP1 0xf0..0xf0: 9b
+ 02 20 67 44 02 24 67 44 02 28 67 44 02 2c 67 44
+ 02 10 67 44 02 14 67 44 02 18 67 44 02 1c 67 44
+ 02 30 67 44 02 34 67 44 02 38 67 44 02 3c 67 44
+ 02 00 67 44 02 04 67 44 02 08 67 44 02 0c 67 44
+ 86 f0 3a e0 32 0f 87 32 0e 87 32 0f 87 32 0e 87
+ 67 5b 12 09 32 0e 87 91 74 54 57 12 a0 f8 15 1a
+ 00 75 76 28 32 00 32 01 b7 97 75 72 16 f0 1a 02
+ 71 76 32 0f 87 57 32 0e 87 57
+ 02 10 67 44 02 14 67 44 02 18 67 44 02 1c 67 44
+ 02 20 67 44 02 24 67 44 02 28 67 44 02 2c 67 44
+ 02 00 67 44 02 04 67 44 02 08 67 44 02 0c 67 44
+ 02 30 67 44 02 34 67 44 02 38 67 44 02 3c 67 44
+ 86 f0 3a e0 32 0f 87 32 0e 87 32 0f 87 32 0e 87
+ 67 5b 12 09 32 0e 87 91 74 54 57 12 a0 f8 15 1a
+ 00 75 76 28 32 00 32 01 b7 97 75 72 16 f0 1a 02
+ 71 76 32 0f 87 57 32 0e 87 57
+### 2026-11-22T12:00:04.528Z $ ip -4 -br addr show | grep -E 'Ethernet(0|4|120|124) ' ; ip vrf show
+Ethernet120      UP             10.0.31.0/31 
+Ethernet124      UP             10.0.31.1/31 
+Ethernet0        UP             10.0.1.0/31 
+Ethernet4        UP             10.0.1.1/31 
+Name              Table
+-----------------------
+Vrf-a             1001
+Vrf-b             1002
+### 2026-11-22T12:04:14.364Z $ cd /tmp/led; samp(){ n=$1; shift; for i in 1 2 3 4 5 6 7 8 9 10 11 12; do printf '%s ' "$(for a in "$@"; do openbcm-diag "getreg CMIC_LEDUP${n}_DATA_RAM($a)" | sed -n 's/.*]=\(0x\)\?\([0-9a-f]*\):.*/\2/p'; done | tr '\n' ',')"; done; echo; }
+echo "== idle: LEDUP1 status 32(cage1) 40(cage2) 48(cage3,none) frame 0x80,0x82"; samp 1 32 40 48 128 130
+echo "== idle: LEDUP0 status 16(cage31) 24(cage32) frame 0x98,0x99,0x9a"; samp 0 16 24 152 153 154
+ping -f -c 60000 -q 10.0.1.1 > /tmp/led/ping1.txt 2>&1 &
+sleep 1; echo "== flood ping cage 1->2: LEDUP1 status 32 40 48, frame 0x80 0x82"; samp 1 32 40 48 128 130
+echo "   same time LEDUP0 status 16 24, frame 0x99 0x9a"; samp 0 16 24 153 154
+wait; tail -3 /tmp/led/ping1.txt
+ping -f -c 60000 -q 10.0.31.1 > /tmp/led/ping2.txt 2>&1 &
+sleep 1; echo "== flood ping cage 31->32: LEDUP0 status 16 24, frame 0x99 0x9a"; samp 0 16 24 153 154
+echo "   same time LEDUP1 status 32 40, frame 0x80 0x82"; samp 1 32 40 128 130
+wait; tail -3 /tmp/led/ping2.txt
+== idle: LEDUP1 status 32(cage1) 40(cage2) 48(cage3,none) frame 0x80,0x82
+f8,f8,f8,15,5, f8,f8,f8,15,5, f8,f8,f8,15,5, f8,f8,f8,15,5, f8,f8,f8,15,5, f8,f8,f8,15,5, f8,f8,f8,15,5, f8,f8,f8,15,5, f8,f8,f8,15,5, f8,f8,f8,15,5, f8,f8,f8,15,5, f8,f8,f8,15,5, 
+== idle: LEDUP0 status 16(cage31) 24(cage32) frame 0x98,0x99,0x9a
+f8,f8,50,1,54, f8,f8,50,1,54, f8,f8,50,1,54, f8,f8,50,1,54, f8,f8,50,1,54, f8,f8,50,1,54, f8,f8,50,1,54, f8,f8,50,1,54, f8,f8,50,1,54, f8,f8,50,1,54, f8,f8,50,1,54, f8,f8,50,1,54, 
+== flood ping cage 1->2: LEDUP1 status 32 40 48, frame 0x80 0x82
+f8,fb,f8,15,1, fb,fb,f8,15,1, fb,f8,f8,15,5, fb,fb,f8,15,5, fb,fb,f8,15,5, fb,f8,f8,15,5, fb,f8,f8,15,5, fb,fb,f8,15,5, fb,f9,f8,15,5, fb,fb,f8,15,5, f8,f8,f8,5,5, fb,fb,f8,5,5, 
+   same time LEDUP0 status 16 24, frame 0x99 0x9a
+f8,f8,1,54, f8,f8,1,54, f8,f8,1,54, f8,f8,1,54, f8,f8,1,54, f8,f8,1,54, f8,f8,1,54, f8,f8,1,54, f8,f8,1,54, f8,f8,1,54, f8,f8,1,54, f8,f8,1,54, 
+--- 10.0.1.1 ping statistics ---
+60000 packets transmitted, 60000 received, 0% packet loss, time 118553ms
+rtt min/avg/max/mdev = 0.097/1.981/27.548/4.125 ms, pipe 2, ipg/ewma 1.975/0.959 ms
+== flood ping cage 31->32: LEDUP0 status 16 24, frame 0x99 0x9a
+fb,fb,1,54, fb,fb,1,54, fb,fb,0,14, f8,fb,1,14, fb,fb,1,54, fb,fb,1,54, fb,fb,1,14, f8,fb,0,14, fb,f8,1,54, f8,f9,1,54, fb,fb,0,54, f8,f8,0,54, 
+   same time LEDUP1 status 32 40, frame 0x80 0x82
+f8,f8,15,5, f8,f8,15,5, f8,f8,15,5, f8,f8,15,5, f8,f8,15,5, f8,f8,15,5, f8,f8,15,5, f8,f8,15,5, f8,f8,15,5, f8,f8,15,5, f8,f8,15,5, f8,f8,15,5, 
+--- 10.0.31.1 ping statistics ---
+60000 packets transmitted, 60000 received, 0% packet loss, time 120413ms
+rtt min/avg/max/mdev = 0.094/2.011/27.532/4.144 ms, pipe 2, ipg/ewma 2.006/2.559 ms
+### 2026-11-22T12:05:56.562Z $ cd /tmp/led; export SONIC_CLI_IFACE_MODE=alias; st(){ show interfaces status 2>&1 | grep -E 'Ethernet(0|4|8|120|124) '| awk '{print $1, "admin="$(NF-3), "oper="$(NF-4)}' ; show interfaces status 2>&1 | grep -E '^ *Ethernet(0|4|8) ' | cut -c1-110; bash led-ram.sh 1 0xb0 0xbb; bash led-ram.sh 1 0x80 0x83; openbcm-diag "ps ce0-ce2" | tail -4; }
+echo "== before"; st
+echo "== config interface shutdown Ethernet2/1 (Ethernet4)"; config interface shutdown Ethernet2/1; sleep 5; st
+echo "== startup again"; config interface startup Ethernet2/1; sleep 8; st
+echo "== config interface startup Ethernet3/1 (Ethernet8, empty cage 3)"; config interface startup Ethernet3/1; sleep 8; st
+echo "== shutdown again"; config interface shutdown Ethernet3/1; sleep 5; st
+== before
+Ethernet0 admin=QSFP28 oper=up
+Ethernet4 admin=QSFP28 oper=up
+Ethernet8 admin=down oper=routed
+Ethernet120 admin=QSFP28 oper=up
+Ethernet124 admin=QSFP28 oper=up
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later   
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later   
+  Ethernet8      57,58,59,60     100G   9100    N/A   Ethernet3/1  routed    down     down              N/A   
+LEDUP1 0xb0..0xbb: 01 00 00 00 01 00 00 00 00 00 00 00
+LEDUP1 0x80..0x83: 15 40 05 50
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce2( 58)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+== config interface shutdown Ethernet2/1 (Ethernet4)
+Ethernet0 admin=QSFP28 oper=up
+Ethernet4 admin=QSFP28 oper=down
+Ethernet8 admin=down oper=routed
+Ethernet120 admin=QSFP28 oper=up
+Ethernet124 admin=QSFP28 oper=up
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later   
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed    down     down  QSFP28 or later   
+  Ethernet8      57,58,59,60     100G   9100    N/A   Ethernet3/1  routed    down     down              N/A   
+LEDUP1 0xb0..0xbb: 01 00 00 00 00 00 00 00 00 00 00 00
+LEDUP1 0x80..0x83: 15 40 01 50
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce1( 54)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce2( 58)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+== startup again
+Ethernet0 admin=QSFP28 oper=up
+Ethernet4 admin=QSFP28 oper=up
+Ethernet8 admin=down oper=routed
+Ethernet120 admin=QSFP28 oper=up
+Ethernet124 admin=QSFP28 oper=up
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later   
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later   
+  Ethernet8      57,58,59,60     100G   9100    N/A   Ethernet3/1  routed    down     down              N/A   
+LEDUP1 0xb0..0xbb: 01 00 00 00 01 00 00 00 00 00 00 00
+LEDUP1 0x80..0x83: 15 40 05 50
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce2( 58)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+== config interface startup Ethernet3/1 (Ethernet8, empty cage 3)
+Ethernet0 admin=QSFP28 oper=up
+Ethernet4 admin=QSFP28 oper=up
+Ethernet8 admin=up oper=routed
+Ethernet120 admin=QSFP28 oper=up
+Ethernet124 admin=QSFP28 oper=up
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later   
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later   
+  Ethernet8      57,58,59,60     100G   9100    N/A   Ethernet3/1  routed      up       up              N/A   
+LEDUP1 0xb0..0xbb: 01 00 00 00 01 00 00 00 01 00 00 00
+LEDUP1 0x80..0x83: 15 40 05 50
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce2( 58)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+== shutdown again
+Ethernet0 admin=QSFP28 oper=up
+Ethernet4 admin=QSFP28 oper=up
+Ethernet8 admin=down oper=routed
+Ethernet120 admin=QSFP28 oper=up
+Ethernet124 admin=QSFP28 oper=up
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later   
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later   
+  Ethernet8      57,58,59,60     100G   9100    N/A   Ethernet3/1  routed    down     down              N/A   
+LEDUP1 0xb0..0xbb: 01 00 00 00 01 00 00 00 00 00 00 00
+LEDUP1 0x80..0x83: 15 40 05 50
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce2( 58)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No
+### 2026-11-22T12:07:54.324Z workstation: nix store diff-closures <running ymqdngj2> <new w87fmc0b>; deploy (nixos-rebuild switch, flake = git export of HEAD 17b4c25 + leds-nix.patch)
+as7772: ∅ → 32x-led_proc_init.soc
+/nix/store/1zwzi6a6jbdbi1jc4advzsxmc5s7bsk2-as7772-32x-led_proc_init.soc
+SAI_OPENBCM_RC_FILE=/nix/store/1zwzi6a6jbdbi1jc4advzsxmc5s7bsk2-as7772-32x-led_proc_init.soc
+copying path '/nix/store/alx5sdfhdyw1wmcpsd3z24lwv4l4gn93-unit-sonic-syncd.service' to 'ssh://root@10.60.2.23'...
+copying path '/nix/store/8w737jj95npxdwjrgrr4m0xkm4bc0mpx-nixos-tmpfiles.d' to 'ssh://root@10.60.2.23'...
+copying path '/nix/store/7j2kpaqz79pj19jxcabbi1g3ghky847a-tmpfiles.d' to 'ssh://root@10.60.2.23'...
+copying path '/nix/store/is4fsrg4lfkz0fbf639ncc2w5ipx0wj3-X-Restart-Triggers-systemd-tmpfiles-resetup' to 'ssh://root@10.60.2.23'...
+copying path '/nix/store/8hanfj67aww7q804kvwlyly3j2p14ddc-unit-systemd-tmpfiles-resetup.service' to 'ssh://root@10.60.2.23'...
+copying path '/nix/store/y833zv32zfc3bgyinivrr2ayv50dwm1z-system-units' to 'ssh://root@10.60.2.23'...
+copying path '/nix/store/w8hmkw4zcnq8wjhxn9b7103l6iwdqcr4-etc' to 'ssh://root@10.60.2.23'...
+copying path '/nix/store/w87fmc0blkbg6xagdignlrwzhvd0lyah-nixos-system-as7772-26.11.20261111.d4f25a3' to 'ssh://root@10.60.2.23'...
+Starting [systemd-run] /nix/store/w87fmc0blkbg6xagdignlrwzhvd0lyah-nixos-system-as7772-26.11.20261111.d4f25a3/bin/switch-to-configuration switch...
+Started [systemd-run] /nix/store/w87fmc0blkbg6xagdignlrwzhvd0lyah-nixos-system-as7772-26.11.20261111.d4f25a3/bin/switch-to-configuration switch.
+Checking switch inhibitors... done
+as7760: boot files for /nix/store/w87fmc0blkbg6xagdignlrwzhvd0lyah-nixos-system-as7772-26.11.20261111.d4f25a3 installed on /boot/firmware (boot.scr + extlinux)
+switching to system configuration /nix/store/w87fmc0blkbg6xagdignlrwzhvd0lyah-nixos-system-as7772-26.11.20261111.d4f25a3
+stopping the following units: sonic-syncd.service
+activating the configuration...
+setting up /etc...
+reloading user units for root...
+restarting the following user units: nixos-activation.service
+restarting sysinit-reactivation.target
+starting the following units: sonic-syncd.service
+the following new units were started: run-p12690-i5440.timer, sysinit-reactivation.target, systemd-tmpfiles-resetup.service
+finished switching to system configuration /nix/store/w87fmc0blkbg6xagdignlrwzhvd0lyah-nixos-system-as7772-26.11.20261111.d4f25a3
+nixos-rebuild-switch-to-configuration.service: Deactivated successfully.
+nixos-rebuild-switch-to-configuration.service: Consumed 2.487s CPU time over 15.446s wall clock time, 96.6M memory peak.
+Done. The new configuration is /nix/store/w87fmc0blkbg6xagdignlrwzhvd0lyah-nixos-system-as7772-26.11.20261111.d4f25a3
+
+### 2026-11-22T12:08:46.606Z $ cd /tmp/led; date -Is; readlink /run/current-system; systemctl is-active sonic-syncd sonic-orchagent | tr '\n' ' '; echo; systemctl --failed --no-legend | wc -l; journalctl -u sonic-syncd --since -4min --no-pager | grep -i -E 'rc file|led|fail|error' | tail -8 | cut -c1-220; show interfaces status 2>&1 | grep -E ' up ' | cut -c1-100; openbcm-diag "getreg CMIC_LEDUP0_CTRL" | tr -d '\n'; echo; openbcm-diag "getreg CMIC_LEDUP1_CTRL" | tr -d '\n'; echo; openbcm-diag "led 0 dump" | head -2; openbcm-diag "led 1 dump" | head -2; for n in 0 1; do bash led-ram.sh $n 0x80 0x9b; bash led-ram.sh $n 0xa0 0xdf; bash led-ram.sh $n 0xf0 0xf0; bash led-ram.sh $n 0xf0 0xf0; done
+2026-11-22T04:08:38-08:00
+/nix/store/w87fmc0blkbg6xagdignlrwzhvd0lyah-nixos-system-as7772-26.11.20261111.d4f25a3
+active active 
+0
+Nov 22 04:07:48 as7772 syncd[12838]: [SOC KNET RX]soc_knet_handle_rx: unhandled (type=3, opcode=31)
+Nov 22 04:07:51 as7772 syncd[12838]: :- SaiDiscovery: check attr version DISABLED, libsai api version: 11902
+Nov 22 04:07:51 as7772 syncd[12838]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_OVERRIDE_VIRTUAL_ROUTER_ID: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 22 04:07:51 as7772 syncd[12838]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_ECMP_HASH: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 22 04:07:51 as7772 syncd[12838]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_LAG_HASH: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 22 04:07:51 as7772 syncd[12838]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_CPU_INGRESS_BUFFER_POOL: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 22 04:07:51 as7772 syncd[12838]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_CPU_EGRESS_BUFFER_POOL: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 22 04:07:51 as7772 syncd[12838]: :- saiGetVxlanDefaultRouterMacAddress: failed to obtain SAI_SWITCH_ATTR_VXLAN_DEFAULT_ROUTER_MAC, setting to 00:00:00:00:00:00
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 o
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 o
+Ethernet120       9,10,11,12     100G   9100    N/A  Ethernet31/1  routed      up       up  QSFP28 o
+Ethernet124      13,14,15,16     100G   9100    N/A  Ethernet32/1  routed      up       up  QSFP28 o
+CMIC_LEDUP0_CTRL.cmic0[9][0x20000]=0x2a9: <LEDUP_SCAN_START_DELAY=0x2a,   LEDUP_SCAN_INTRA_PORT_DELAY=4,LEDUP_EN=1>
+CMIC_LEDUP1_CTRL.cmic0[9][0x21000]=0x1e9: <LEDUP_SCAN_START_DELAY=0x1e,   LEDUP_SCAN_INTRA_PORT_DELAY=4,LEDUP_EN=1>
+ 02 20 67 44 02 24 67 44 02 28 67 44 02 2c 67 44
+ 02 10 67 44 02 14 67 44 02 18 67 44 02 1c 67 44
+ 02 10 67 44 02 14 67 44 02 18 67 44 02 1c 67 44
+ 02 20 67 44 02 24 67 44 02 28 67 44 02 2c 67 44
+LEDUP0 0x80..0x9b: 05 40 01 50 00 14 00 05 40 01 50 00 14 00 05 40 01 50 00 14 00 05 40 01 50 01 54 00
+LEDUP0 0xa0..0xdf: 00 00 00 00 00 00 00 00 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+LEDUP0 0xf0..0xf0: b8
+LEDUP0 0xf0..0xf0: bc
+LEDUP1 0x80..0x9b: 15 40 05 50 00 14 00 05 40 01 50 00 14 00 05 40 01 50 00 14 00 05 40 01 50 00 14 00
+LEDUP1 0xa0..0xdf: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+LEDUP1 0xf0..0xf0: 70
+LEDUP1 0xf0..0xf0: 74
+### 2026-11-22T12:08:54.080Z $ date -Is; echo rebooting; systemctl reboot
+2026-11-22T04:08:53-08:00
+rebooting
+### 2026-11-22T12:11:58.193Z $ cd /tmp/led; echo "== after reboot"; date -Is; uptime; readlink /run/current-system; grep RC_FILE $(systemctl cat sonic-syncd 2>/dev/null | grep -o '/nix/store/[^ ]*sai[^ ]*profile[^ ]*' | head -1) 2>/dev/null; systemctl --failed --no-legend | wc -l; show interfaces status 2>&1 | grep -E ' up ' | cut -c1-100; openbcm-diag "getreg CMIC_LEDUP0_CTRL" | tr -d '\n'; echo; openbcm-diag "getreg CMIC_LEDUP1_CTRL" | tr -d '\n'; echo; openbcm-diag "led 0 dump" | head -1; openbcm-diag "led 1 dump" | head -1; for n in 0 1; do bash led-ram.sh $n 0x80 0x9b; bash led-ram.sh $n 0xa0 0xdf; bash led-ram.sh $n 0xf0 0xf0; bash led-ram.sh $n 0xf0 0xf0; done
+== after reboot
+2026-11-22T04:11:50-08:00
+ 04:11:50 up 2 min,  3 users,  load average: 0.92, 0.47, 0.18
+/nix/store/w87fmc0blkbg6xagdignlrwzhvd0lyah-nixos-system-as7772-26.11.20261111.d4f25a3
+SAI_OPENBCM_RC_FILE=/nix/store/1zwzi6a6jbdbi1jc4advzsxmc5s7bsk2-as7772-32x-led_proc_init.soc
+0
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 o
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 o
+Ethernet120       9,10,11,12     100G   9100    N/A  Ethernet31/1  routed      up       up  QSFP28 o
+Ethernet124      13,14,15,16     100G   9100    N/A  Ethernet32/1  routed      up       up  QSFP28 o
+CMIC_LEDUP0_CTRL.cmic0[9][0x20000]=0x2a9: <LEDUP_SCAN_START_DELAY=0x2a,   LEDUP_SCAN_INTRA_PORT_DELAY=4,LEDUP_EN=1>
+CMIC_LEDUP1_CTRL.cmic0[9][0x21000]=0x1e9: <LEDUP_SCAN_START_DELAY=0x1e,   LEDUP_SCAN_INTRA_PORT_DELAY=4,LEDUP_EN=1>
+ 02 20 67 44 02 24 67 44 02 28 67 44 02 2c 67 44
+ 02 10 67 44 02 14 67 44 02 18 67 44 02 1c 67 44
+LEDUP0 0x80..0x9b: 05 40 01 50 00 14 00 05 40 01 50 00 14 00 05 40 01 50 00 14 00 05 40 01 50 01 54 00
+LEDUP0 0xa0..0xdf: 00 00 00 00 00 00 00 00 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+LEDUP0 0xf0..0xf0: b0
+LEDUP0 0xf0..0xf0: b4
+LEDUP1 0x80..0x9b: 15 40 05 50 00 14 00 05 40 01 50 00 14 00 05 40 01 50 00 14 00 05 40 01 50 00 14 00
+LEDUP1 0xa0..0xdf: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+LEDUP1 0xf0..0xf0: 79
+LEDUP1 0xf0..0xf0: 7d
+### 2026-11-22T12:14:17.547Z $ cd /tmp/led; echo "== after reboot: activity"; samp(){ n=$1; shift; for i in 1 2 3 4 5 6 7 8; do printf '%s ' "$(for a in "$@"; do openbcm-diag "getreg CMIC_LEDUP${n}_DATA_RAM($a)" | sed -n 's/.*]=\(0x\)\?\([0-9a-f]*\):.*/\2/p'; done | tr '\n' ',')"; done; echo; }
+ping -f -c 8000 -q 10.0.1.1 >/tmp/led/p1.txt 2>&1 & ping -f -c 8000 -q 10.0.31.1 >/tmp/led/p2.txt 2>&1 &
+sleep 1; echo "flood both pairs: LEDUP1 status 32 40 48, frame 0x80 0x82"; samp 1 32 40 48 128 130; echo "LEDUP0 status 16 24 32, frame 0x99 0x9a"; samp 0 16 24 32 153 154
+wait; tail -2 /tmp/led/p1.txt | head -1; tail -2 /tmp/led/p2.txt | head -1; sleep 1; echo idle; samp 1 32 40 128 130; samp 0 16 24 153 154; openbcm-diag "getreg CMIC_LEDUP1_CTRL" | tr -d '\n'; echo; sha256sum /tmp/led/*.soc /tmp/led/*.sh | cut -c1-12,65-
+== after reboot: activity
+flood both pairs: LEDUP1 status 32 40 48, frame 0x80 0x82
+fb,f8,f8,5,5, fb,f8,f8,5,5, fb,fb,f8,15,5, f8,f9,f8,15,5, fb,f8,f8,15,1, fb,fb,f8,5,1, f8,fb,f8,15,5, f8,f8,f8,5,5, 
+LEDUP0 status 16 24 32, frame 0x99 0x9a
+fb,f8,f8,1,14, fb,fb,f8,1,14, fb,fb,f8,1,14, f8,fb,f8,1,54, f8,fb,f8,1,54, fb,fb,f8,1,54, fb,fb,f8,1,54, fb,f8,f8,1,54, 
+8000 packets transmitted, 8000 received, 0% packet loss, time 30545ms
+8000 packets transmitted, 8000 received, 0% packet loss, time 30089ms
+idle
+f8,f8,15,5, f8,f8,15,5, f8,f8,15,5, f8,f8,15,5, f8,f8,15,5, f8,f8,15,5, f8,f8,15,5, f8,f8,15,5, 
+f8,f8,1,54, f8,f8,1,54, f8,f8,1,54, f8,f8,1,54, f8,f8,1,54, f8,f8,1,54, f8,f8,1,54, f8,f8,1,54, 
+CMIC_LEDUP1_CTRL.cmic0[9][0x21000]=0x1e9: <LEDUP_SCAN_START_DELAY=0x1e,   LEDUP_SCAN_INTRA_PORT_DELAY=4,LEDUP_EN=1>
+fb8a24108915  /tmp/led/pattern-blue.soc
+904bfe01926c  /tmp/led/pattern-cyan.soc
+4c1f38d85269  /tmp/led/pattern-green.soc
+740dd6b305a0  /tmp/led/pattern-off.soc
+4ba0b67ce137  /tmp/led/pattern-yellow.soc
+b06460dd6665  /tmp/led/led-ram.sh
+ddfe95079080  /tmp/led/led-run.sh
+cc69c58fc575  /tmp/led/sonic-traffic-test.sh
+### 2026-11-22T12:14:50.980Z $ cd /tmp/led; echo "== led-run.sh normal (restore path test), final state"; bash led-run.sh normal 2>&1 | grep -v -E '^ *[0-9]+ +(ce|xe)'; sleep 2; for n in 0 1; do bash led-ram.sh $n 0x80 0x9b; bash led-ram.sh $n 0xf0 0xf0; done; openbcm-diag "getreg CMIC_LEDUP0_CTRL" | tr -d '\n'; echo; openbcm-diag "getreg CMIC_LEDUP1_CTRL" | tr -d '\n'; echo; show interfaces status 2>&1 | grep -c ' up '; date -Is
+== led-run.sh normal (restore path test), final state
++ led 0 prog 02 20 67 44 02 24 67 44 02 28 67 44 02 2C 67 44 0
++ led 0 start
++ led 1 prog 02 10 67 44 02 14 67 44 02 18 67 44 02 1C 67 44 0
++ led 1 start
++ led auto on
+LEDUP0 0x80..0x9b: 05 40 01 50 00 14 00 05 40 01 50 00 14 00 05 40 01 50 00 14 00 05 40 01 50 01 54 00
+LEDUP0 0xf0..0xf0: 71
+LEDUP1 0x80..0x9b: 15 40 05 50 00 14 00 05 40 01 50 00 14 00 05 40 01 50 00 14 00 05 40 01 50 00 14 00
+LEDUP1 0xf0..0xf0: a3
+CMIC_LEDUP0_CTRL.cmic0[9][0x20000]=0x2a9: <LEDUP_SCAN_START_DELAY=0x2a,   LEDUP_SCAN_INTRA_PORT_DELAY=4,LEDUP_EN=1>
+CMIC_LEDUP1_CTRL.cmic0[9][0x21000]=0x1e9: <LEDUP_SCAN_START_DELAY=0x1e,   LEDUP_SCAN_INTRA_PORT_DELAY=4,LEDUP_EN=1>
+4
+2026-11-22T04:14:50-08:00

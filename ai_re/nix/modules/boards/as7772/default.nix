@@ -65,9 +65,16 @@ in {
     SAI_OPENBCM_PORT_FEC = "none";
     SAI_OPENBCM_PORT_IFG = "128";
   };
-  # ../as7760 would load the AS7712 LED program; this board's LED chain is
-  # another one (factory ES7632BTx.hex, not converted): none, LEDs stay dark.
-  hardware.as7760.ledProgram = null;
+  # Port LEDs: this board's own LED programs (./led; devices/edge-core-as7772-32x/leds.md),
+  # not the AS7712's that ../as7760 would load: another serial format (14 bits
+  # per cage), cages in another order, the SDK's own port-order remap. Every
+  # cage is shown as one 100G port; link is the ASIC port's (PHY system side:
+  # up whenever the port is admin-up, cable or not).
+  hardware.as7760.ledProgram = openbcm.configs.ledProgram {
+    name = "as7772-32x-led_proc_init.soc";
+    src = ./led/led_proc_init.soc;
+    label = "nix/modules/boards/as7772/led/led_proc_init.soc";
+  };
   # pmon: the AS7760 sonic_platform with this board's sensors (six LM75s and
   # the MAX1617: local + T2080 die diode).
   services.sonic.pmon.platformPackage = pkgs.callPackage ../as7760/sonic-platform-package.nix {

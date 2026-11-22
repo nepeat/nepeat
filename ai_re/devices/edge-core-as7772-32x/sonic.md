@@ -21,8 +21,8 @@ declared up: cages 1 <-> 2 and 31 <-> 32 (100G DACs); every other port is admin 
   format `nix/packages/sai-openbcm` (`openbcm-mdio-script`, `src/mdio_script.h`); board wiring
   `nix/modules/boards/as7772/default.nix`; ports in `nix/configs/as7772/configuration.nix`.
 - ASIC side of every port (sai.profile `SAI_OPENBCM_PORT_*`): interface CAUI, autoneg off, no ASIC FEC whatever
-  the SONiC `fec` field says (the PHY does RS-FEC towards the cage), average IPG 16 bytes. No LED program
-  (`hardware.as7760.ledProgram = null`: port LEDs dark).
+  the SONiC `fec` field says (the PHY does RS-FEC towards the cage), average IPG 16 bytes. Port LEDs: our own LED
+  programs, loaded by syncd at SDK init (`hardware.as7760.ledProgram`, [leds.md](leds.md)).
 - The script file is **private** (it contains the vendor firmware words): not in git, not in the Nix store.
 
 ## Make and install the PHY script (workstation, from `ai_re/`)
@@ -126,7 +126,8 @@ not forwarding at rate.
 ## Open
 - Only bypass at 100G on four cabled cages. Not done: load at rate, soak, PHY-side FEC/PCS counters, `extphy pre`
   taps, 25G break-out (needs its own script and SDK config), MACsec on, the other 28 cages with a cable.
-- Port LEDs: none (the factory `ES7632BTx.hex` is not converted).
+- Port LEDs: programs run at boot, register read-back correct, **not yet seen by eye**; a lamp (and SONiC's oper
+  state) follows the ASIC-to-PHY link, i.e. admin state, not the cable ([leds.md](leds.md)).
 - PSU 2 (slot empty) shows "NOT OK" rather than absent: CPLD1 0x02 reads 0x28 and the AS7760 decoding takes
   bit 0 low as present. "Fan 3 front: Not OK" at 76 % is the AS7760 platform code's rpm-versus-fand-expectation
   check with an uncalibrated fand, not a fan fault.

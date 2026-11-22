@@ -1,0 +1,9 @@
+# AS7772 port LED test pattern "cyan" (pattern.asm, build.sh): all 32 cages, no inputs.
+# Run with led-run.sh; back to normal with: led-run.sh <the system's led_proc_init.soc>
+led auto off
+led 0 stop
+led 1 stop
+led 0 prog 02 10 32 0E 87 32 0E 87 32 0F 87 32 0E 87 32 0F 87 12 03 32 0F 87 32 0E 87 32 0F 87 91 74 13 90 74 02 3A E0
+led 1 prog 02 10 32 0E 87 32 0E 87 32 0F 87 32 0E 87 32 0F 87 12 03 32 0F 87 32 0E 87 32 0F 87 91 74 13 90 74 02 3A E0
+led 0 start
+led 1 start
