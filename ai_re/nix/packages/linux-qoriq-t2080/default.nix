@@ -163,6 +163,10 @@ pkgs.linux_latest.override {
     HWMON = yes;
     SENSORS_LM90 = yes;
     SENSORS_LM75 = yes;
+    # TPM 1.2 on I2C (ST33ZP24; AS7772-32X I2C2 0x13). Board-agnostic: binds
+    # only where a device tree has an "st,st33zp24-i2c" node.
+    TCG_TPM = yes;
+    TCG_TIS_ST33ZP24_I2C = yes;
     RTC_CLASS = yes;
     RTC_DRV_DS1672 = yes;
     GPIOLIB = yes;

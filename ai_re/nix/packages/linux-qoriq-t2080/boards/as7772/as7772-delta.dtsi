@@ -1,0 +1,34 @@
+/*
+ * Accton AS7772-32X: appended to ../as7760/as7760-vendor.dts (same board; the
+ * ONIE trees of the two differ only in the model string). Keeps the AS7760
+ * compatible so the shared kernel's corenet machine entry matches.
+ * Adds what the AS7772 diag I2C map lists and the AS7760 tree lacks:
+ * LM75_4/LM75_5 (0x4c/0x4d) next to the other board sensors, and on I2C2
+ * (i2c@118100) the TPM (0x13) and the MAX1617A local/remote sensor (0x18).
+ * The AS7760's pca9546@77 on I2C2 does not exist here (0x77 does not ACK,
+ * "pca954x 1-0077: probe failed"), so it is dropped.
+ * Evidence: devices/edge-core-as7772-32x/tpm-sensor.md.
+ */
+/ {
+	model = "accton,as7772_32x";
+	compatible = "accton,as7772_32x", "accton,as7760_32x";
+
+	soc@ffe000000 {
+		i2c@118100 {
+			/delete-node/ pca9546@77;
+
+			/* ST33ZP24 TPM 1.2 (vendor DT "st33,st33zp24_i2c"); polled, no IRQ or LPCPD GPIO described by the vendor. */
+			tpm@13 { compatible = "st,st33zp24-i2c"; reg = <0x13>; };
+			/* IDs 0x4d/0x01 = MAX1617A (vendor DT: ne1617a, "nxp,max1617a"); lm90 driver, matched by I2C name. */
+			temperature-sensor@18 { compatible = "maxim,max1617"; reg = <0x18>; };
+		};
+		i2c@119000 {
+			pca9548@76 {
+				i2c@1 {
+					temperature-sensor@4c { compatible = "national,lm75"; reg = <0x4c>; };
+					temperature-sensor@4d { compatible = "national,lm75"; reg = <0x4d>; };
+				};
+			};
+		};
+	};
+};

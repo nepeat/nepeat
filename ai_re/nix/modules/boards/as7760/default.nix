@@ -11,8 +11,16 @@ let
   openbcm = import ../../../packages/openbcm { inherit pkgs; };
   sai = pkgs.callPackage ../../../packages/sai-openbcm { inherit sonic; libsdk = openbcm.libsdk { }; };
 in {
+  # The Linux device tree source the boot files are built from. Derivative
+  # boards (boards/as7772) point it at their own tree.
+  options.hardware.as7760.deviceTreeSource = lib.mkOption {
+    type = lib.types.path;
+    default = builtins.path { path = ../../../packages/linux-qoriq-t2080/boards/as7760/as7760-vendor.dts; name = "as7760-vendor.dts"; };
+    description = "Device tree source (.dts) for this board's kernel.";
+  };
   imports = [ ../../platforms/qoriq-t2080.nix ../../thermal/as7760-fan.nix ../../switch/openbcm.nix
               ../../switch/sonic ./monitoring.nix ./sonic-platform.nix ];
+  config = {
   # BCM56930: SDK modules at boot and the die temperature reader (fan control input).
   hardware.openbcm = { enable = true; temperature.enable = true; };
   # Front-panel module EEPROM reader (works for hot-plugged modules).
@@ -56,5 +64,6 @@ in {
         SAI_OPENBCM_DIAG_SOCKET = "/run/sai-openbcm/diag.sock";
       };
     };
+  };
   };
 }

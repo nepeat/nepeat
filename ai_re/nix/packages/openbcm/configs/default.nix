@@ -12,6 +12,14 @@
 # the written config, read back with the SDK's rules, has exactly these ports
 # (lanes, speeds) and the base's lane maps, polarity and pre-emphasis.
 #
+#   .tomahawkBase { globals = <reference config>; cores = [ { lane = 1; tx = "0x0123"; rx = "0x3210"; } ... ]; }
+# A base for .tomahawk made of a board's own per-core values: the global keys
+# of a reference config (its ports and every per-port key are dropped) plus one
+# 100G port per listed core (lane = the core's first physical port) with these
+# lane maps and, if given, txPolarity / rxPolarity (4-bit core masks). For a
+# board whose ASIC lanes go somewhere else than the reference board's (e.g. to
+# retimer PHYs): no pre-emphasis or driver current is carried over.
+#
 #   .ledProgram { src = <led_proc_init.soc>; label = "<where it is from>"; }
 # An LED-processor rc script (SAI_OPENBCM_RC_FILE, rcload after "init all"),
 # copied unchanged; the build fails if it holds anything but LEDUP port-order
@@ -31,6 +39,26 @@
     } ''
       python3 -I ${./tomahawk.py} generate --base "$base" --spec "$specPath" --out $out
       python3 -I ${./tomahawk.py} check --base "$base" --spec "$specPath" $out
+    '';
+
+  tomahawkBase = { name ? "tomahawk-base.config.bcm", globals, cores }:
+    let
+      # logical number as tomahawk.py's logical_of: physical + 0/1/3/5 by pipe
+      logical = lane: lane + builtins.elemAt [ 0 1 3 5 ] ((lane - 1) / 32);
+      opt = key: c: attr: if c ? ${attr} then [ "${key}_${toString (logical c.lane)}=${c.${attr}}" ] else [ ];
+      core = c:
+        assert builtins.elem c.lane (builtins.genList (i: 4 * i + 1) 32);
+        [ "portmap_${toString (logical c.lane)}=${toString c.lane}:100" ]
+        ++ opt "xgxs_tx_lane_map" c "tx" ++ opt "xgxs_rx_lane_map" c "rx"
+        ++ opt "phy_xaui_tx_polarity_flip" c "txPolarity" ++ opt "phy_xaui_rx_polarity_flip" c "rxPolarity";
+    in pkgs.runCommand name {
+      inherit globals;
+      passAsFile = [ "board" ];
+      board = builtins.concatStringsSep "\n" (builtins.concatMap core cores) + "\n";
+    } ''
+      # the keys tomahawk.py generates (its GENERATED pattern) come from the board, not the reference
+      grep -vE '^[[:space:]]*(portmap|xgxs_[rt]x_lane_map|phy_xaui_[rt]x_polarity_flip|serdes_preemphasis|serdes_driver_current|pbmp_oversubscribe|pbmp_xport_xe|dport_map)' "$globals" > $out
+      cat "$boardPath" >> $out
     '';
 
   ledProgram = { name ? "led_proc_init.soc", src, label ? "a reference LED program" }:

@@ -18,9 +18,18 @@ let
   as7760Netboot = mkHost as7760Platform [
     ./as7760/configuration.nix ../modules/profiles/netboot-root.nix ../modules/boards/as7760/sd-persist.nix
   ];
+  # --- Accton AS7772-32X (AS7760 derivative, same platform) -----------------
+  # Installed on the M.2 SATA SSD: the AS7760 image layout, booted by upstream
+  # U-Boot's standard boot (extlinux on p1).
+  as7772 = mkHost as7760Platform [
+    ./as7772/configuration.nix ../modules/boards/as7760/sd-install.nix ../modules/boards/as7772/ssd-image.nix
+  ];
   img = ../packages/as7760-images;
   kernel = as7760.config.boot.kernelPackages.kernel;
-  fanDriver = builtins.head as7760.config.boot.extraModulePackages;
+  # By name, not position: the SDK kmods are in this list too (builtins.head
+  # picked them once they sorted first; found by "just test", 2026-11-22).
+  fanDriver = nixpkgs.lib.findFirst (p: nixpkgs.lib.hasPrefix "as7760-fan" p.name)
+    (throw "as7760: no as7760-fan module in boot.extraModulePackages") as7760.config.boot.extraModulePackages;
   openbcm = import ../packages/openbcm { pkgs = as7760.pkgs; };
   kernelImage = import ../packages/linux-qoriq-t2080/uimage.nix { pkgs = native; targetPkgs = as7760.pkgs; inherit kernel; };
   netboot = import (img + "/netboot-files.nix") { pkgs = native; config = as7760Netboot.config; inherit kernelImage; };
@@ -44,7 +53,7 @@ let
   # Installed on the SATA SSD (sd-image layout), booted by the factory U-Boot's sysboot.
   as5114 = mkHost "aarch64-linux" [ ./as5114/configuration.nix ];
 in {
-  nixosConfigurations = { inherit as7760 dmc12 as5114; as7760-netboot = as7760Netboot; dmc12-netboot = dmc12Netboot; };
+  nixosConfigurations = { inherit as7760 as7772 dmc12 as5114; as7760-netboot = as7760Netboot; dmc12-netboot = dmc12Netboot; };
   packages = {
     as5114-system = as5114.config.system.build.toplevel;
     as5114-sd-image = as5114.config.system.build.sdImage;
@@ -54,6 +63,8 @@ in {
     dmc12-disk-image = dmc12.config.system.build.diskImage;
     dmc12-disk-image-chainload = dmc12Chainload.config.system.build.diskImage;
     dmc12-netboot = dmc12NetbootFiles;
+    as7772-system = as7772.config.system.build.toplevel;
+    as7772-sd-image = as7772.config.system.build.sdImage;
     as7760-system = as7760.config.system.build.toplevel;
     as7760-kernel = kernel;
     as7760-kernel-config = kernel.configfile;

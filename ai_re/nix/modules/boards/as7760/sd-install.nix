@@ -20,7 +20,7 @@ let
       -n 'AS7760 NixOS initrd' -d ${config.system.build.initialRamdisk}/initrd $out
   '';
   dtb = buildPkgs.runCommand "as7760.dtb" { nativeBuildInputs = [ buildPkgs.dtc ]; } ''
-    dtc -I dts -O dtb -o $out ${builtins.path { path = ../../../packages/linux-qoriq-t2080/boards/as7760/as7760-vendor.dts; name = "as7760-vendor.dts"; }} 2>/dev/null
+    dtc -I dts -O dtb -o $out ${config.hardware.as7760.deviceTreeSource} 2>/dev/null
   '';
   fw = "/boot/firmware";
   # NixOS's own extlinux builder (generic-extlinux-compatible): extlinux.conf
