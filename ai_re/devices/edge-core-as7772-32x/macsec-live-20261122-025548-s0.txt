@@ -1,0 +1,151 @@
+>>> extphy status 0x00
+phy 0, lane=4, line side, link=UP, loopback=Disabled, FEC=Enabled
+speed=100000, max_packet=16383, line side interface=CAUI4_C2C, system side interface=CAUI
+low-latency bypass: egress = YES
+low-latency bypass: ingress = YES
+flow control: enabled
+<<< rc=0  (164 reads, 205 writes, 28 delays, 0.1 s)
+>>> bypass? 0x00
+phy 0x0 egress: bypass 1
+phy 0x0 ingress: bypass 1
+>>> bypass? 0x01
+phy 0x1 egress: bypass 1
+phy 0x1 ingress: bypass 1
+>>> reg 0x00 0x4600fffc 0x4400fffc 0x4500fffc 0x4300fffc
+phy 0x0 if_side 0 0x4600fffc = 0x1045ba4
+phy 0x0 if_side 0 0x4400fffc = 0x1045ba4
+phy 0x0 if_side 0 0x4500fffc = 0x1015ca3
+phy 0x0 if_side 0 0x4300fffc = 0x1015ca3
+>>> diag init all
+
+>>> diag vlan remove 1 pbm=ce,xe
+
+>>> diag port ce,xe en=0
+
+>>> diag vlan create 101 pbm=ce0 ubm=ce0
+
+>>> diag pvlan set ce0 101
+
+>>> diag vlan create 102 pbm=ce1 ubm=ce1
+
+>>> diag pvlan set ce1 102
+
+>>> diag vlan create 103 pbm=ce30 ubm=ce30
+
+>>> diag pvlan set ce30 103
+
+>>> diag vlan create 104 pbm=ce31 ubm=ce31
+
+>>> diag pvlan set ce31 104
+
+>>> diag port ce0,ce1,ce30,ce31 an=off if=CAUI sp=100000 en=1
+
+>>> diag m CLMAC_TX_CTRL.ce0 AVERAGE_IPG=48
+
+>>> diag m CLMAC_TX_CTRL.ce1 AVERAGE_IPG=48
+
+>>> diag m CLMAC_TX_CTRL.ce30 AVERAGE_IPG=16
+
+>>> diag m CLMAC_TX_CTRL.ce31 AVERAGE_IPG=16
+
+>>> diag sleep 6
+Sleeping for 6 seconds
+>>> diag ps ce0,ce1,ce30,ce31
+                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+      ce30(  9)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+      ce31( 13)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No
+>>> diag clear c
+
+>>> diag tx 1000 pbm=ce0 vlan=101 length=256
+
+>>> diag sleep 2
+Sleeping for 2 seconds
+>>> diag tx 2000 pbm=ce1 vlan=102 length=1024
+
+>>> diag sleep 2
+Sleeping for 2 seconds
+>>> diag tx 3000 pbm=ce30 vlan=103 length=512
+
+>>> diag sleep 2
+Sleeping for 2 seconds
+>>> diag show c ce0,ce1,ce30,ce31
+RUC.ce0 		    :		      4,000		 +4,000
+RDBGC0.ce0		    :		      2,000		 +2,000
+ING_NIV_RX_FRAMES_VL.ce0    :		      2,000		 +2,000
+R1023.ce0		    :		      2,000		 +2,000
+R1518.ce0		    :		      2,000		 +2,000
+RPKT.ce0		    :		      4,000		 +4,000
+RUCA.ce0		    :		      4,000		 +4,000
+RPRM.ce0		    :		      4,000		 +4,000
+RVLN.ce0		    :		      2,000		 +2,000
+RPOK.ce0		    :		      4,000		 +4,000
+RBYT.ce0		    :		  4,088,000	     +4,088,000
+T255.ce0		    :		      1,000		 +1,000
+T511.ce0		    :		      1,000		 +1,000
+TPOK.ce0		    :		      2,000		 +2,000
+TPKT.ce0		    :		      2,000		 +2,000
+TUCA.ce0		    :		      2,000		 +2,000
+TVLN.ce0		    :		      1,000		 +1,000
+TBYT.ce0		    :		    508,000	       +508,000
+PERQ_PKT(0).ce0 	    :		      1,000		 +1,000
+PERQ_BYTE(0).ce0	    :		    252,000	       +252,000
+UC_PERQ_PKT(0).ce0	    :		      1,000		 +1,000
+UC_PERQ_BYTE(0).ce0	    :		    256,000	       +256,000
+RUC.ce1 		    :		      2,000		 +2,000
+RDBGC0.ce1		    :		      1,000		 +1,000
+ING_NIV_RX_FRAMES_VL.ce1    :		      1,000		 +1,000
+R255.ce1		    :		      1,000		 +1,000
+R511.ce1		    :		      1,000		 +1,000
+RPKT.ce1		    :		      2,000		 +2,000
+RUCA.ce1		    :		      2,000		 +2,000
+RPRM.ce1		    :		      2,000		 +2,000
+RVLN.ce1		    :		      1,000		 +1,000
+RPOK.ce1		    :		      2,000		 +2,000
+RBYT.ce1		    :		    508,000	       +508,000
+T1023.ce1		    :		      2,000		 +2,000
+T1518.ce1		    :		      2,000		 +2,000
+TPOK.ce1		    :		      4,000		 +4,000
+TPKT.ce1		    :		      4,000		 +4,000
+TUCA.ce1		    :		      4,000		 +4,000
+TVLN.ce1		    :		      2,000		 +2,000
+TBYT.ce1		    :		  4,088,000	     +4,088,000
+PERQ_PKT(0).ce1 	    :		      2,000		 +2,000
+PERQ_BYTE(0).ce1	    :		  2,040,000	     +2,040,000
+UC_PERQ_PKT(0).ce1	    :		      2,000		 +2,000
+UC_PERQ_BYTE(0).ce1	    :		  2,048,000	     +2,048,000
+T511.ce30		    :		      3,000		 +3,000
+T1023.ce30		    :		      3,000		 +3,000
+TPOK.ce30		    :		      6,000		 +6,000
+TPKT.ce30		    :		      6,000		 +6,000
+TUCA.ce30		    :		      6,000		 +6,000
+TVLN.ce30		    :		      3,000		 +3,000
+TBYT.ce30		    :		  3,060,000	     +3,060,000
+PERQ_PKT(0).ce30	    :		      3,000		 +3,000
+PERQ_BYTE(0).ce30	    :		  1,524,000	     +1,524,000
+UC_PERQ_PKT(0).ce30	    :		      3,000		 +3,000
+UC_PERQ_BYTE(0).ce30	    :		  1,536,000	     +1,536,000
+RUC.ce31		    :		      6,000		 +6,000
+RDBGC0.ce31		    :		      3,000		 +3,000
+ING_NIV_RX_FRAMES_VL.ce31   :		      3,000		 +3,000
+R511.ce31		    :		      3,000		 +3,000
+R1023.ce31		    :		      3,000		 +3,000
+RPKT.ce31		    :		      6,000		 +6,000
+RUCA.ce31		    :		      6,000		 +6,000
+RPRM.ce31		    :		      6,000		 +6,000
+RVLN.ce31		    :		      3,000		 +3,000
+RPOK.ce31		    :		      6,000		 +6,000
+RBYT.ce31		    :		  3,060,000	     +3,060,000
+>>> diag show c rfcs
+
+>>> diag show c rerpkt
+
+>>> mib 0x00
+phy 0x0 line   MAC: 00=12518526944 01=4165269851 02=4161210205 03=2496055740 04=2495654127 05=4158863242 09=831729126 RPKT=30827309235 0c=29995580000 0d=108 RFCS=1 ROVR=831729126 1e=29995580000 1f=4424 22=29995580108 RBYT=19958619841136 40=12525801011 41=4165308649 42=4161352285 43=2528796364 44=2495629303 45=4158927468 49=831726622 4b=30034505445 TPKT=30867541702 4d=30034505377 4e=66 4f=2 50=1309635 54=1309635 55=831726621 TERR=1 5e=4163 TBYT=19975808227101 75=12518526950 76=19 77=4006 78=4165265820
+phy 0x0 system MAC: 00=12525794401 01=4165308649 02=4161352285 03=2528796364 04=2495629303 05=4158927468 09=831726622 RPKT=30867535092 0c=30034505377 0d=66 0e=2 10=1303025 11=1303025 RERPKT=1 ROVR=831726621 1b=1 1e=30034505377 1f=4163 22=30034505445 RBYT=19975807804061 40=12518526944 41=4165269851 42=4161210205 43=2496055740 44=2495654127 45=4158863242 49=831729126 4b=29995580108 TPKT=30827309235 4d=29995580000 4e=108 55=831729126 TERR=1 5e=4424 TBYT=19958619841136 75=12525794407 76=7 77=4006 78=4165304630
+>>> mib 0x01
+phy 0x1 line   MAC: 00=12525801011 01=4165308649 02=4161352285 03=2528796364 04=2495629303 05=4158927468 09=831726622 RPKT=30867541702 0c=30034505377 0d=66 0e=2 10=1309635 11=1309635 ROVR=831726621 1b=1 1e=30034505377 1f=4163 22=30034505445 RBYT=19975808227101 40=12518526944 41=4165269851 42=4161210205 43=2496055740 44=2495654127 45=4158863242 49=831729126 4b=29995580108 TPKT=30827309235 4d=29995580000 4e=108 55=831729126 TERR=1 5e=4424 TBYT=19958619841136 75=12525801017 76=7 77=4006 78=4165304630
+phy 0x1 system MAC: 00=12518526944 01=4165269851 02=4161210205 03=2496055740 04=2495654127 05=4158863242 09=831729126 RPKT=30827309235 0c=29995580000 0d=108 RFCS=1 RERPKT=1 ROVR=831729126 1e=29995580000 1f=4424 22=29995580108 RBYT=19958619841136 40=12525794415 41=4165308649 42=4161352285 43=2528796364 44=2495629303 45=4158927468 49=831726622 4b=30034505445 TPKT=30867535106 4d=30034505377 4e=66 4f=2 50=1303039 54=1303039 55=831726621 TERR=1 5e=4163 TBYT=19975807804957 75=12518526950 76=19 77=4006 78=4165265820
+trace: {'R': 3808, 'W': 2285, 'D': 1076}

@@ -1,0 +1,68 @@
+>>> extphy status 0x00
+phy 0, lane=4, line side, link=UP, loopback=Disabled, FEC=Enabled
+speed=100000, max_packet=16383, line side interface=CAUI4_C2C, system side interface=CAUI
+low-latency bypass: egress = YES
+low-latency bypass: ingress = YES
+flow control: enabled
+<<< rc=0  (164 reads, 205 writes, 28 delays, 0.1 s)
+STOPPED: TimeoutError("bridge: no output for 300s; buffer tail b''")
+trace: {'R': 196, 'W': 221, 'D': 44}
+>>> bypass? 0x00
+phy 0x0 egress: bypass 1
+phy 0x0 ingress: bypass 1
+>>> bypass? 0x01
+phy 0x1 egress: bypass 1
+phy 0x1 ingress: bypass 1
+>>> reg 0x00 0x4600fffc 0x4400fffc 0x4500fffc 0x4300fffc
+phy 0x0 if_side 0 0x4600fffc = 0x1045ba4
+phy 0x0 if_side 0 0x4400fffc = 0x1045ba4
+phy 0x0 if_side 0 0x4500fffc = 0x1015ca3
+phy 0x0 if_side 0 0x4300fffc = 0x1015ca3
+>>> diag init all
+
+>>> diag vlan remove 1 pbm=ce,xe
+
+>>> diag port ce,xe en=0
+
+>>> diag vlan create 101 pbm=ce0,cpu ubm=ce0
+
+>>> diag pvlan set ce0 101
+
+>>> diag vlan create 102 pbm=ce1,cpu ubm=ce1
+
+>>> diag pvlan set ce1 102
+
+>>> diag vlan create 103 pbm=ce30 ubm=ce30
+
+>>> diag pvlan set ce30 103
+
+>>> diag vlan create 104 pbm=ce31 ubm=ce31
+
+>>> diag pvlan set ce31 104
+
+>>> diag port ce0,ce1,ce30,ce31 an=off if=CAUI sp=100000 en=1
+
+>>> diag m CLMAC_TX_CTRL.ce0 AVERAGE_IPG=48
+
+>>> diag m CLMAC_TX_CTRL.ce1 AVERAGE_IPG=48
+
+>>> diag m CLMAC_TX_CTRL.ce30 AVERAGE_IPG=16
+
+>>> diag m CLMAC_TX_CTRL.ce31 AVERAGE_IPG=16
+
+>>> diag sleep 6
+Sleeping for 6 seconds
+>>> diag ps ce0,ce1,ce30,ce31
+                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+      ce30(  9)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+      ce31( 13)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No
+>>> diag clear c
+
+>>> diag tx 1000 pbm=ce0 vlan=101 length=256
+
+>>> diag sleep 2
+Sleeping for 2 seconds
+>>> diag tx 2000 pbm=ce1 vlan=102 length=1024

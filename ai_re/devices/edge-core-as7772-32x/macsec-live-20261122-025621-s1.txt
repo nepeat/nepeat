@@ -1,0 +1,15 @@
+>>> extphy init 0x00 1 mode=2
+Error: phy = 0, unable to enable ECC detect mechanism.
+<<< rc=-24  (1 reads, 1 writes, 2 delays, 0.1 s)
+>>> extphy cfg 0x00 nphy=1 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+<<< rc=0  (1506 reads, 2315 writes, 524 delays, 1.5 s)
+>>> extphy status 0x00
+phy 0, lane=4, line side, link=DOWN, loopback=Disabled, FEC=Enabled
+speed=100000, max_packet=16383, line side interface=CAUI4_C2C, system side interface=CAUI
+low-latency bypass: egress = YES
+low-latency bypass: ingress = YES
+flow control: enabled
+<<< rc=0  (164 reads, 205 writes, 28 delays, 0.1 s)
+>>> adopt 0x00
+STOPPED: ApiError('phy 0x0 side 0: the vendor arrays hold no handle (was mode 2 run in this state?)')
+trace: {'R': 1671, 'W': 2521, 'D': 554}

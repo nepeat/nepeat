@@ -72,8 +72,11 @@ firmware: [evora-vendor-re.md](evora-vendor-re.md). Public sources (none for Evo
   (`cfye_device_init`, `secy_device_init`, `secy_config_set`) and then sets bypass. We run **bypass** (vendor
   `init` mode 0). Mode 1 = bypass with break-out, mode 2 = "MACsec enabled for power consumption testing"
   (factory burn-in, with `AVERAGE_IPG` 48 instead of 16 on the switch MAC for the 32 bytes MACsec adds).
-- **Nothing encrypted has been tried.** The `extphy` shell has no key commands; the library has the
-  `bcm_plp_secy_*` calls (public header `epdm_sec.h`, see evora-public-sources.md), reachable through the re-host.
+- **MACsec works on the chip (2026-11-22, [macsec.md](macsec.md)):** vendor mode 2 and our own keys (GCM-AES-128,
+  GCM-AES-XPN-256) on cages 1-2; it can be switched on from the booted bypass state without a firmware download
+  (`bypass 0` + `on`, shown on cages 31-32). Evidence: +32 B per frame and no VLAN tag seen by a bypass peer,
+  clear frames refused, encrypted count = peer's `in_pkts_ok`, wrong key = all frames not-valid. No frame was
+  captured; not load-tested; run with SONiC stopped and `AVERAGE_IPG` 48. Tool: `evora-rehost/macsec.py`.
 
 ## What the vendor diag does (`dumps/x/diag/root/usr/local/`)
 - `rc.soc-100G`: `init all`, `port ce an=off if=CAUI`, `extphy init all`, `extphy cfg ...` per bus,

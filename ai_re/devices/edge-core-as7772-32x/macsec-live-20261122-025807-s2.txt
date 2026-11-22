@@ -1,0 +1,205 @@
+>>> extphy init 0x01 1 mode=2
+FW download Started
+25% Downloaded
+50% Downloaded
+75% Downloaded
+Firmware download success. GPREG2:0 retry:18
+MST Dload Done:1
+Slave Dload Done:3
+FW version:0xd00b
+PASSED: MACSec Initialize passed for PHY-ID[1], macsec_side [0] 
+PASSED: MACSec Initialize passed for PHY-ID[1], macsec_side [1] 
+PASSED: bcm_plp_mode_config_set passed for PHY-ID[1], macsec_side [1], If_Side[0] 
+PASSED: bcm_plp_mode_config_set passed for PHY-ID[1], macsec_side [1], If_Side[1] 
+PASSED: bcm_plp_cfye_vport_add for PHY_ID[1], macsec_side[0], return code =[0] 
+PASSED: bcm_plp_cfye_vport_add for PHY_ID[1], macsec_side[1], return code =[0] 
+PASSED: bcm_plp_cfye_vport_id_get for PHY_ID[1], macsec_side[0], vPort Id =[0] 
+PASSED: bcm_plp_cfye_device_update for PHY_ID[1], macsec_side[0], return code =[0] 
+PASSED: bcm_plp_cfye_vport_id_get for PHY_ID[1], macsec_side[1], vPort Id =[0] 
+PASSED: bcm_plp_cfye_device_update for PHY_ID[1], macsec_side[1], return code =[0] 
+PASSED: bcm_plp_secy_sa_add for PHY_ID[1], macsec_side[0], return code =[0] 
+PASSED: bcm_plp_secy_sa_add for PHY_ID[1], macsec_side[1], return code =[0] 
+PASSED: bcm_plp_cfye_rule_add for PHY_ID[1], macsec_side[0], return code =[0] 
+PASSED: bcm_plp_cfye_rule_add for PHY_ID[1], macsec_side[1], return code =[0] 
+PASSED: bcm_plp_cfye_rule_enable pass for PHY_ID[1], macsec_side[0], , return code =[0] 
+PASSED: bcm_plp_cfye_rule_enable pass for PHY_ID[1], macsec_side[1], , return code =[0] 
+++++++++++++++++++++++++++++++++++++++++++++++++
+
+ Please send packets now :
+++++++++++++++++++++++++++++++++++++++++++++++++
+<<< rc=0  (30343 reads, 33569 writes, 2711 delays, 25.2 s)
+>>> extphy cfg 0x01 nphy=1 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+<<< rc=0  (1506 reads, 2315 writes, 524 delays, 1.6 s)
+>>> extphy status 0x01
+phy 0x1, lane=4, line side, link=DOWN, loopback=Disabled, FEC=Enabled
+speed=100000, max_packet=16383, line side interface=CAUI4_C2C, system side interface=CAUI
+low-latency bypass: egress = NO
+low-latency bypass: ingress = NO
+flow control: enabled
+<<< rc=0  (164 reads, 205 writes, 28 delays, 0.1 s)
+>>> adopt 0x01
+>>> diag init all
+
+>>> diag vlan remove 1 pbm=ce,xe
+
+>>> diag port ce,xe en=0
+
+>>> diag vlan create 101 pbm=ce0 ubm=ce0
+
+>>> diag pvlan set ce0 101
+
+>>> diag vlan create 102 pbm=ce1 ubm=ce1
+
+>>> diag pvlan set ce1 102
+
+>>> diag vlan create 103 pbm=ce30 ubm=ce30
+
+>>> diag pvlan set ce30 103
+
+>>> diag vlan create 104 pbm=ce31 ubm=ce31
+
+>>> diag pvlan set ce31 104
+
+>>> diag port ce0,ce1,ce30,ce31 an=off if=CAUI sp=100000 en=1
+
+>>> diag m CLMAC_TX_CTRL.ce0 AVERAGE_IPG=48
+
+>>> diag m CLMAC_TX_CTRL.ce1 AVERAGE_IPG=48
+
+>>> diag m CLMAC_TX_CTRL.ce30 AVERAGE_IPG=16
+
+>>> diag m CLMAC_TX_CTRL.ce31 AVERAGE_IPG=16
+
+>>> diag sleep 6
+Sleeping for 6 seconds
+>>> diag ps ce0,ce1,ce30,ce31
+                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+      ce30(  9)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No      
+      ce31( 13)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9412    No
+>>> extphy reg64 clearmibc 0x00
+<<< rc=0  (3648 reads, 2160 writes, 1068 delays, 3.0 s)
+>>> extphy reg64 clearmibc 0x00 if_side=1
+<<< rc=0  (3633 reads, 2120 writes, 1053 delays, 2.9 s)
+>>> extphy reg64 clearmibc 0x01
+<<< rc=0  (3612 reads, 2064 writes, 1032 delays, 2.8 s)
+>>> extphy reg64 clearmibc 0x01 if_side=1
+<<< rc=0  (3612 reads, 2064 writes, 1032 delays, 2.9 s)
+>>> diag clear c
+
+>>> diag tx 1000 pbm=ce0 vlan=101 length=256
+
+>>> diag sleep 2
+Sleeping for 2 seconds
+>>> diag tx 2000 pbm=ce1 vlan=102 length=1024
+
+>>> diag sleep 2
+Sleeping for 2 seconds
+>>> diag tx 3000 pbm=ce30 vlan=103 length=512
+
+>>> diag sleep 2
+Sleeping for 2 seconds
+>>> diag show c ce0,ce1,ce30,ce31
+RUC.ce0 		    :		      4,000		 +4,000
+RDBGC0.ce0		    :		      2,000		 +2,000
+ING_NIV_RX_FRAMES_VL.ce0    :		      2,000		 +2,000
+R1023.ce0		    :		      2,000		 +2,000
+R1518.ce0		    :		      2,000		 +2,000
+RPKT.ce0		    :		      4,000		 +4,000
+RUCA.ce0		    :		      4,000		 +4,000
+RPRM.ce0		    :		      4,000		 +4,000
+RVLN.ce0		    :		      2,000		 +2,000
+RPOK.ce0		    :		      4,000		 +4,000
+RBYT.ce0		    :		  4,088,000	     +4,088,000
+T255.ce0		    :		      1,000		 +1,000
+T511.ce0		    :		      1,000		 +1,000
+TPOK.ce0		    :		      2,000		 +2,000
+TPKT.ce0		    :		      2,000		 +2,000
+TUCA.ce0		    :		      2,000		 +2,000
+TVLN.ce0		    :		      1,000		 +1,000
+TBYT.ce0		    :		    508,000	       +508,000
+PERQ_PKT(0).ce0 	    :		      1,000		 +1,000
+PERQ_BYTE(0).ce0	    :		    252,000	       +252,000
+UC_PERQ_PKT(0).ce0	    :		      1,000		 +1,000
+UC_PERQ_BYTE(0).ce0	    :		    256,000	       +256,000
+RUC.ce1 		    :		      2,000		 +2,000
+RDBGC0.ce1		    :		      1,000		 +1,000
+ING_NIV_RX_FRAMES_VL.ce1    :		      1,000		 +1,000
+R255.ce1		    :		      1,000		 +1,000
+R511.ce1		    :		      1,000		 +1,000
+RPKT.ce1		    :		      2,000		 +2,000
+RUCA.ce1		    :		      2,000		 +2,000
+RPRM.ce1		    :		      2,000		 +2,000
+RVLN.ce1		    :		      1,000		 +1,000
+RPOK.ce1		    :		      2,000		 +2,000
+RBYT.ce1		    :		    508,000	       +508,000
+T1023.ce1		    :		      2,000		 +2,000
+T1518.ce1		    :		      2,000		 +2,000
+TPOK.ce1		    :		      4,000		 +4,000
+TPKT.ce1		    :		      4,000		 +4,000
+TUCA.ce1		    :		      4,000		 +4,000
+TVLN.ce1		    :		      2,000		 +2,000
+TBYT.ce1		    :		  4,088,000	     +4,088,000
+PERQ_PKT(0).ce1 	    :		      2,000		 +2,000
+PERQ_BYTE(0).ce1	    :		  2,040,000	     +2,040,000
+UC_PERQ_PKT(0).ce1	    :		      2,000		 +2,000
+UC_PERQ_BYTE(0).ce1	    :		  2,048,000	     +2,048,000
+T511.ce30		    :		      3,000		 +3,000
+T1023.ce30		    :		      3,000		 +3,000
+TPOK.ce30		    :		      6,000		 +6,000
+TPKT.ce30		    :		      6,000		 +6,000
+TUCA.ce30		    :		      6,000		 +6,000
+TVLN.ce30		    :		      3,000		 +3,000
+TBYT.ce30		    :		  3,060,000	     +3,060,000
+PERQ_PKT(0).ce30	    :		      3,000		 +3,000
+PERQ_BYTE(0).ce30	    :		  1,524,000	     +1,524,000
+UC_PERQ_PKT(0).ce30	    :		      3,000		 +3,000
+UC_PERQ_BYTE(0).ce30	    :		  1,536,000	     +1,536,000
+RUC.ce31		    :		      6,000		 +6,000
+RDBGC0.ce31		    :		      3,000		 +3,000
+ING_NIV_RX_FRAMES_VL.ce31   :		      3,000		 +3,000
+R511.ce31		    :		      3,000		 +3,000
+R1023.ce31		    :		      3,000		 +3,000
+RPKT.ce31		    :		      6,000		 +6,000
+RUCA.ce31		    :		      6,000		 +6,000
+RPRM.ce31		    :		      6,000		 +6,000
+RVLN.ce31		    :		      3,000		 +3,000
+RPOK.ce31		    :		      6,000		 +6,000
+RBYT.ce31		    :		  3,060,000	     +3,060,000
+>>> diag show c rfcs
+
+>>> diag show c rerpkt
+
+>>> mib 0x00
+phy 0x0 line   MAC: 05=4000 RPKT=4000 0c=4000 1e=4000 22=4000 RBYT=4216000 43=2000 4b=2000 TPKT=2000 4d=2000 TBYT=572000
+phy 0x0 system MAC: 02=1000 03=1000 RPKT=2000 0c=2000 1e=2000 1f=1000 22=2000 RBYT=508000 44=2000 45=2000 4b=4000 TPKT=4000 4d=4000 5e=2000 TBYT=4088000
+>>> mib 0x01
+phy 0x1 line   MAC: 03=2000 RPKT=2000 0c=2000 1e=2000 22=2000 RBYT=572000 45=4000 4b=4000 TPKT=4000 4d=4000 TBYT=4216000
+phy 0x1 system MAC: 04=2000 05=2000 RPKT=4000 0c=4000 1e=4000 1f=2000 22=4000 RBYT=4088000 42=1000 43=1000 4b=2000 TPKT=2000 4d=2000 5e=1000 TBYT=508000
+>>> stats 0x00
+phy 0x0 egress  sa an=0: out_pkts_encrypted_protected=2000 out_pkts_too_long=0 out_pkts_sa_not_inuse=0 out_octets_encrypted_protected=476000
+phy 0x0 egress  secy: out_pkts_transform_error=0 out_pkts_control=0 out_pkts_untagged=0
+phy 0x0 egress  ifc: out_pkts_unicast_uncontrolled=0 out_pkts_multicast_uncontrolled=0 out_pkts_broadcast_uncontrolled=0 out_rx_drop_pkts_uncontrolled=0 out_rx_err_pkts_uncontrolled=0 out_pkts_unicast_controlled=2000 out_pkts_multicast_controlled=0 out_pkts_broadcast_controlled=0 out_rx_drop_pkts_controlled=0 out_rx_err_pkts_controlled=0 out_octets_uncontrolled=0 out_octets_controlled=500000 out_octets_common=564000
+phy 0x0 egress  classifier rule hits: hit=2000
+phy 0x0 ingress sa an=0: in_pkts_unchecked=0 in_pkts_delayed=0 in_pkts_late=0 in_pkts_ok=4000 in_pkts_invalid=0 in_pkts_not_valid=0 in_pkts_not_using_sa=0 in_pkts_unused_sa=0 in_octets_decrypted=4024000 in_octets_validated=0
+phy 0x0 ingress secy: in_pkts_transform_error=0 in_pkts_control=0 in_pkts_untagged=0 in_pkts_no_tag=0 in_pkts_badtag=0 in_pkts_no_sci=0 in_pkts_unknown_sci=0 in_pkts_tagged_ctrl=0
+phy 0x0 ingress ifc: in_pkts_unicast_uncontrolled=4000 in_pkts_multicast_uncontrolled=0 in_pkts_broadcast_uncontrolled=0 in_rx_drop_pkts_uncontrolled=0 in_rx_err_pkts_uncontrolled=0 in_pkts_unicast_controlled=4000 in_pkts_multicast_controlled=0 in_pkts_broadcast_controlled=0 in_rx_drop_pkts_controlled=0 in_rx_err_pkts_controlled=0 in_octets_uncontrolled=4200000 in_octets_controlled=4072000
+phy 0x0 ingress classifier rule hits: hit=4000
+phy 0x0 ingress rxcam: cam_hit=4000
+>>> stats 0x01
+phy 0x1 egress  sa an=0: out_pkts_encrypted_protected=4000 out_pkts_too_long=0 out_pkts_sa_not_inuse=0 out_octets_encrypted_protected=4024000
+phy 0x1 egress  secy: out_pkts_transform_error=0 out_pkts_control=0 out_pkts_untagged=0
+phy 0x1 egress  ifc: out_pkts_unicast_uncontrolled=0 out_pkts_multicast_uncontrolled=0 out_pkts_broadcast_uncontrolled=0 out_rx_drop_pkts_uncontrolled=0 out_rx_err_pkts_uncontrolled=0 out_pkts_unicast_controlled=4000 out_pkts_multicast_controlled=0 out_pkts_broadcast_controlled=0 out_rx_drop_pkts_controlled=0 out_rx_err_pkts_controlled=0 out_octets_uncontrolled=0 out_octets_controlled=4072000 out_octets_common=4200000
+phy 0x1 egress  classifier rule hits: hit=4000
+phy 0x1 ingress sa an=0: in_pkts_unchecked=0 in_pkts_delayed=0 in_pkts_late=0 in_pkts_ok=2000 in_pkts_invalid=0 in_pkts_not_valid=0 in_pkts_not_using_sa=0 in_pkts_unused_sa=0 in_octets_decrypted=476000 in_octets_validated=0
+phy 0x1 ingress secy: in_pkts_transform_error=0 in_pkts_control=0 in_pkts_untagged=0 in_pkts_no_tag=0 in_pkts_badtag=0 in_pkts_no_sci=0 in_pkts_unknown_sci=0 in_pkts_tagged_ctrl=0
+phy 0x1 ingress ifc: in_pkts_unicast_uncontrolled=2000 in_pkts_multicast_uncontrolled=0 in_pkts_broadcast_uncontrolled=0 in_rx_drop_pkts_uncontrolled=0 in_rx_err_pkts_uncontrolled=0 in_pkts_unicast_controlled=2000 in_pkts_multicast_controlled=0 in_pkts_broadcast_controlled=0 in_rx_drop_pkts_controlled=0 in_rx_err_pkts_controlled=0 in_octets_uncontrolled=564000 in_octets_controlled=500000
+phy 0x1 ingress classifier rule hits: hit=2000
+phy 0x1 ingress rxcam: cam_hit=2000
+>>> extphy reg64 chkecc 0x00
+<<< rc=0  (24 reads, 16 writes, 16 delays, 0.0 s)
+>>> extphy reg64 chkmiberr 0x00
+<<< rc=0  (14 reads, 8 writes, 4 delays, 0.0 s)
+trace: {'R': 50884, 'W': 46869, 'D': 8702}
