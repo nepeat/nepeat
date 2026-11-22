@@ -59,5 +59,11 @@
     "repo": "sonic-utilities",
     "rev": "31df09e10cd153ab0f3a32b939fc595e05dc1525",
     "hash": "sha256-yE/6jt6oH13Fl/iMeXbsIM7DaWAizl4lSG7MZtnUnJI="
+  },
+  "wpa-supplicant": {
+    "owner": "sonic-net",
+    "repo": "sonic-wpa-supplicant",
+    "rev": "9a7bdfa022e88357a5e4fbf8796eab676a6f1ff1",
+    "hash": "sha256-SSI0pwR5grygg6korOF5U/a35X8A5uZOp+Bwy4r5iL8="
   }
 }

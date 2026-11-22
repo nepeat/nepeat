@@ -250,11 +250,38 @@ through a shim to sonic-hsflowd.service), hsflowd 2.1.26 (FEATURES=SONIC: mod_so
 (coppmgrd's SAMPLEPACKET trap + genetlink hostif psample). Samples come from the platform SAI through the kernel's
 psample group 1. Packages: [packages/sonic/sflow](../../../packages/sonic/sflow/default.nix) (also sflowtool).
 
+## MACsec
+
+[macsec.nix](macsec.nix), `services.sonic.macsec` (default off): macsecmgrd (bound to orchagent) starts one
+`wpa_supplicant -D macsec_sonic` per port with a profile (sonic-wpa-supplicant, [packages/sonic/wpa-supplicant](../../../packages/sonic/wpa-supplicant/default.nix):
+MKA only, no Wi-Fi/EAP); the driver writes APPL_DB MACSEC_* tables, orchagent's MACsecOrch creates the SAI MACsec
+objects. Needs a SAI with `sai_macsec_api_t` (sai-openbcm: an external MACsec table; first board: AS7772).
+```nix
+services.sonic.macsec = {
+  enable = true;
+  profiles.lab = { cakFile = "/var/lib/sonic-macsec/lab.cak"; ckn = "<hex>"; };   # cipherSuite default GCM-AES-XPN-256
+  ports."Ethernet1/1" = "lab";
+};
+```
+- **The CAK never enters the store:** `cakFile` (one line of hex, 0600; a store path is an assertion failure) is read
+  by `sonic-macsec-config` at every stack start and written to CONFIG_DB `MACSEC_PROFILE` in SONiC's "type 7"
+  encoding together with `PORT.macsec`. Profiles and ports it wrote and that are no longer declared are removed;
+  `config macsec` entries are left alone. A missing or malformed key file: that profile is not written, its ports get no
+  MACsec (they run in clear) and the unit fails.
+- Options per profile: `cipherSuite` (XPN-256 default: a 32-bit PN lasts 29 s at 100G), `priority`, `policy`,
+  `rekeyPeriod`, `replayProtect` / `replayWindow`.
+- macsecmgrd's compiled-in `/sbin/wpa_supplicant`, `/sbin/wpa_cli`, `/etc/wpa_supplicant.conf` are bound into its mount
+  namespace (swss is not rebuilt for it). It starts after every `INTERFACE mac_addr` is on its netdev (wpa_supplicant
+  keeps the MAC it starts with).
+- `show macsec` / `sonic-clear macsec`: docker-macsec's CLI plug-ins through wrappers in front of sonic-utilities'
+  commands. **`show macsec` prints SAKs.** `FEATURE|macsec` is seeded enabled (coppmgrd's EAPOL trap).
+- Not here: a VM test (needs a SAI whose ports pass frames to each other and implement MACsec), fallback CAK, FIPS POST.
+
 ## not here (yet)
 
 buffermgrd only as `buffers.enable` (traditional model: CONFIG_DB BUFFER_* -> APPL_DB, `buffers.pgProfileLookup`;
 on for the CS8210; without it portsorch keeps ports with BUFFER_QUEUE / BUFFER_PG entries admin down),
-the dynamic buffer model, vxlan/nat/macsec managers,
+the dynamic buffer model, vxlan/nat managers,
 `show acl`/`aclshow` (acl-loader needs pyangbind, not packaged),
 frrcfgd/unified FRR mode, BFD offload to the ASIC, swssconfig's switch.json, ledd/pcied/chassisd, SNMP, warm reboot, multi-ASIC,
 breakout at runtime (a split takes effect at the next SDK init: `sonic-nix reload`).

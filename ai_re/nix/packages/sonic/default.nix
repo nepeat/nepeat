@@ -36,5 +36,6 @@ let
     platform = pkgs.callPackage ./platform { sonic = self; };      # pmon daemons, platform CLI, LLDP (./platform/default.nix)
     metrics = pkgs.callPackage ./metrics { };                      # sonic_* textfile producer (./metrics/default.nix)
     sflow = pkgs.callPackage ./sflow { sonic = self; };            # hsflowd, sflowtool, port_index_mapper (./sflow/default.nix)
+    wpa-supplicant = pkgs.callPackage ./wpa-supplicant { sonic = self; };   # MKA for MACsec: wpa_supplicant -D macsec_sonic, wpa_cli
   };
 in self
