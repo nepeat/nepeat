@@ -1,0 +1,131 @@
+== final counters 1795344183.713587192 2026-11-22T02:43:03-08:00, ring stopped: show c Changed Same NonZero (totals since the clear c before the injection)
+RUC.ce0 		    :	     29,094,662,362		     +0
+RDBGC0.ce0		    :			740		     +0
+ING_NIV_RX_FRAMES_VL.ce0    :			740		     +0
+R64.ce0 		    :	     11,799,460,577		     +0
+R127.ce0		    :	      3,931,635,321		     +0
+R255.ce0		    :	      3,930,900,632		     +0
+R511.ce0		    :	      2,358,324,827		     +0
+R1023.ce0		    :	      2,358,193,609		     +0
+R1518.ce0		    :	      3,930,134,512		     +0
+R9216.ce0		    :		786,012,884		     +0
+RPKT.ce0		    :	     29,094,662,362		     +0
+RUCA.ce0		    :	     29,094,662,362		     +0
+RPRM.ce0		    :	     29,094,662,362		     +0
+RVLN.ce0		    :			740		     +0
+RPOK.ce0		    :	     29,094,662,362		     +0
+RBYT.ce0		    :	 18,857,857,167,924		     +0
+T64.ce0 		    :	     11,801,943,995		     +0
+T127.ce0		    :	      3,931,666,454		     +0
+T255.ce0		    :	      3,930,937,079		     +0
+T511.ce0		    :	      2,358,308,160		     +0
+T1023.ce0		    :	      2,358,178,882		     +0
+T1518.ce0		    :	      3,930,147,184		     +0
+T9216.ce0		    :		786,009,666		     +0
+TPOK.ce0		    :	     29,097,191,420		     +0
+TPKT.ce0		    :	     29,097,191,420		     +0
+TUCA.ce0		    :	     29,097,191,420		     +0
+TVLN.ce0		    :			740		     +0
+TBYT.ce0		    :	 18,857,995,899,716		     +0
+UC_PERQ_PKT(0).ce0	    :	     29,097,191,420		     +0
+UC_PERQ_BYTE(0).ce0	    :	 18,857,995,899,716		     +0
+RUC.ce1 		    :	     29,097,191,420		     +0
+RDBGC0.ce1		    :			740		     +0
+ING_NIV_RX_FRAMES_VL.ce1    :			740		     +0
+R64.ce1 		    :	     11,801,943,995		     +0
+R127.ce1		    :	      3,931,666,454		     +0
+R255.ce1		    :	      3,930,937,079		     +0
+R511.ce1		    :	      2,358,308,160		     +0
+R1023.ce1		    :	      2,358,178,882		     +0
+R1518.ce1		    :	      3,930,147,184		     +0
+R9216.ce1		    :		786,009,666		     +0
+RPKT.ce1		    :	     29,097,191,420		     +0
+RUCA.ce1		    :	     29,097,191,420		     +0
+RPRM.ce1		    :	     29,097,191,420		     +0
+RVLN.ce1		    :			740		     +0
+RPOK.ce1		    :	     29,097,191,420		     +0
+RBYT.ce1		    :	 18,857,995,899,716		     +0
+T64.ce1 		    :	     11,799,460,577		     +0
+T127.ce1		    :	      3,931,635,321		     +0
+T255.ce1		    :	      3,930,900,632		     +0
+T511.ce1		    :	      2,358,324,827		     +0
+T1023.ce1		    :	      2,358,193,609		     +0
+T1518.ce1		    :	      3,930,134,512		     +0
+T9216.ce1		    :		786,012,884		     +0
+TPOK.ce1		    :	     29,094,662,362		     +0
+TPKT.ce1		    :	     29,094,662,362		     +0
+TUCA.ce1		    :	     29,094,662,362		     +0
+TVLN.ce1		    :			740		     +0
+TBYT.ce1		    :	 18,857,857,167,924		     +0
+UC_PERQ_PKT(0).ce1	    :	     29,094,662,362		     +0
+UC_PERQ_BYTE(0).ce1	    :	 18,857,857,167,924		     +0
+RUC.ce30		    :	     29,097,190,680		     +0
+R64.ce30		    :	     11,801,943,695		     +0
+R127.ce30		    :	      3,931,666,454		     +0
+R255.ce30		    :	      3,930,936,979		     +0
+R511.ce30		    :	      2,358,308,060		     +0
+R1023.ce30		    :	      2,358,178,822		     +0
+R1518.ce30		    :	      3,930,147,024		     +0
+R9216.ce30		    :		786,009,646		     +0
+RPKT.ce30		    :	     29,097,190,680		     +0
+RUCA.ce30		    :	     29,097,190,680		     +0
+RPRM.ce30		    :	     29,097,190,680		     +0
+RPOK.ce30		    :	     29,097,190,680		     +0
+RBYT.ce30		    :	 18,857,995,418,156		     +0
+T64.ce30		    :	     11,799,460,277		     +0
+T127.ce30		    :	      3,931,635,321		     +0
+T255.ce30		    :	      3,930,900,532		     +0
+T511.ce30		    :	      2,358,324,727		     +0
+T1023.ce30		    :	      2,358,193,549		     +0
+T1518.ce30		    :	      3,930,134,352		     +0
+T9216.ce30		    :		786,012,864		     +0
+TPOK.ce30		    :	     29,094,661,622		     +0
+TPKT.ce30		    :	     29,094,661,622		     +0
+TUCA.ce30		    :	     29,094,661,622		     +0
+TBYT.ce30		    :	 18,857,856,686,364		     +0
+PERQ_PKT(0).ce30	    :		     54,994		     +0
+PERQ_BYTE(0).ce30	    :		 35,632,782		     +0
+UC_PERQ_PKT(0).ce30	    :	     29,094,606,628		     +0
+UC_PERQ_BYTE(0).ce30	    :	 18,857,821,053,582		     +0
+RUC.ce31		    :	     29,094,661,622		     +0
+R64.ce31		    :	     11,799,460,277		     +0
+R127.ce31		    :	      3,931,635,321		     +0
+R255.ce31		    :	      3,930,900,532		     +0
+R511.ce31		    :	      2,358,324,727		     +0
+R1023.ce31		    :	      2,358,193,549		     +0
+R1518.ce31		    :	      3,930,134,352		     +0
+R9216.ce31		    :		786,012,864		     +0
+RPKT.ce31		    :	     29,094,661,622		     +0
+RUCA.ce31		    :	     29,094,661,622		     +0
+RPRM.ce31		    :	     29,094,661,622		     +0
+RPOK.ce31		    :	     29,094,661,622		     +0
+RBYT.ce31		    :	 18,857,856,686,364		     +0
+T64.ce31		    :	     11,801,943,695		     +0
+T127.ce31		    :	      3,931,666,454		     +0
+T255.ce31		    :	      3,930,936,979		     +0
+T511.ce31		    :	      2,358,308,060		     +0
+T1023.ce31		    :	      2,358,178,822		     +0
+T1518.ce31		    :	      3,930,147,024		     +0
+T9216.ce31		    :		786,009,646		     +0
+TPOK.ce31		    :	     29,097,190,680		     +0
+TPKT.ce31		    :	     29,097,190,680		     +0
+TUCA.ce31		    :	     29,097,190,680		     +0
+TBYT.ce31		    :	 18,857,995,418,156		     +0
+PERQ_PKT(0).ce31	    :		     57,889		     +0
+PERQ_BYTE(0).ce31	    :		 37,558,588		     +0
+UC_PERQ_PKT(0).ce31	    :	     29,097,132,791		     +0
+UC_PERQ_BYTE(0).ce31	    :	 18,857,957,859,568		     +0
+                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9126    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9126    No      
+      ce30(  9)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9126    No      
+      ce31( 13)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9126    No      
+mac=02:00:00:00:00:a1 vlan=200 GPORT=0x36 modid=0 port=54/ce1 Hit
+mac=02:00:00:00:00:d1 vlan=100 GPORT=0x32 modid=0 port=50/ce0 Static DiscardDest ReplacePriority
+mac=02:00:00:00:00:d2 vlan=200 GPORT=0x36 modid=0 port=54/ce1 Static DiscardDest ReplacePriority
+mac=02:00:00:00:00:a2 vlan=100 GPORT=0x32 modid=0 port=50/ce0 Hit
+mac=02:00:00:00:00:d1 vlan=200 GPORT=0xd modid=0 port=13/ce31 Static Hit DiscardDest ReplacePriority
+mac=02:00:00:00:00:a1 vlan=100 GPORT=0x9 modid=0 port=9/ce30 Hit
+mac=02:00:00:00:00:a2 vlan=200 GPORT=0xd modid=0 port=13/ce31 Hit
+mac=02:00:00:00:00:d2 vlan=100 GPORT=0x9 modid=0 port=9/ce30 Static Hit DiscardDest ReplacePriority

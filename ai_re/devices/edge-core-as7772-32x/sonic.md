@@ -26,10 +26,10 @@ declared up: cages 1 <-> 2 and 31 <-> 32 (100G DACs); every other port is admin 
 T=devices/edge-core-as7772-32x/dumps/x/evora-trace;  R=devices/edge-core-as7772-32x/evora-rehost
 # (only for a new mode or after a change to the vendor flow: record traces with rehost.py, see evora-rehost.md;
 #  the switch must be freshly booted with SONiC and openbcm-mdio-script stopped)
-python3 $R/mkscript.py -o $T/evora-100g-bypass.mdio $T/all-init.trace.txt $T/all-cfg.trace.txt
+python3 $R/mkscript.py -o $T/evora-100g-bypass.mdio $T/all-init.trace.txt $T/all-cfg.trace.txt $T/all-pre.trace.txt   # pre = factory line-side TX taps
 $R/install-script.sh            # scp to /var/lib/evora-phy (0700), sha256 checked on the switch
 ```
-Installed now: sha256 `fdda87ade40b...` (21 MB). A new SSD image needs `install-script.sh` once: without the file
+Installed now: sha256 `e18dddef7c9e...` (with the factory TX taps, [load-test.md](load-test.md)); the tap-less script `fdda87ade40b...` is kept beside it as `evora-100g-bypass-notaps.mdio`. A new SSD image needs `install-script.sh` once: without the file
 the unit fails ("No such file ... nothing was written to any PHY"), SONiC still starts, the ports stay down.
 
 ## Operating it

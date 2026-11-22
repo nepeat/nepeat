@@ -1,0 +1,30 @@
+# phystat.py summary lines printed during the load soak of 2026-11-22 (ring started 10:15:47 UTC, stopped 10:41:51 UTC).
+# The --json log of these reads was lost to a quoting bug in the ad-hoc logger; these are the lines as printed, times = when the read returned (UTC, +-2 s).
+# Fields: phy, die temperature as latched by the last 'status dsc' (NOT live), RS-FEC corrected / uncorrected codewords and per-lane symbol errors
+# since the previous read (clear on read), sys-side CL82 BER count, PHY line-side MAC RPKT and RFCS (cumulative since the cold boot of 10:00 UTC,
+# so they include the two aborted starts), sys-side RFCS, PCS live status line/sys.
+== 10:16:18 load + 31 s (first FEC read after the cold boot)
+0 410C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=2178859737 RFCS=1 sysRFCS=0 live=0,3/3ff,3
+1 410C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=2256302824 RFCS=0 sysRFCS=1 live=0,3/3ff,3
+17e 410C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=2294928952 RFCS=1 sysRFCS=1 live=0,3/3ff,3
+17f 410C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=2297590578 RFCS=1 sysRFCS=1 live=0,3/3ff,3
+== 10:23:44 after 'status dsc' of 0x00, 0x01
+0 42.3C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=10482114217 RFCS=1 sysRFCS=0 live=0,3/3ff,3
+1 40.4C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=10559849439 RFCS=0 sysRFCS=1 live=0,3/3ff,3
+17e 410C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=10601077585 RFCS=1 sysRFCS=1 live=0,3/3ff,3
+17f 410C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=10602773589 RFCS=1 sysRFCS=1 live=0,3/3ff,3
+== 10:31:10 after 'status dsc' of 0x17e, 0x17f
+0 42.3C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=18764085136 RFCS=1 sysRFCS=0 live=0,3/3ff,3
+1 40.4C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=18841409020 RFCS=0 sysRFCS=1 live=0,3/3ff,3
+17e 42.3C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=18879468192 RFCS=1 sysRFCS=1 live=0,3/3ff,3
+17f 40.9C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=18878729915 RFCS=1 sysRFCS=1 live=0,3/3ff,3
+== 10:38:52 after the second 'status dsc' of 0x00, 0x17f
+0 41.3C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=27371943388 RFCS=1 sysRFCS=0 live=0,3/3ff,3
+1 40.4C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=27449009830 RFCS=0 sysRFCS=1 live=0,3/3ff,3
+17e 42.3C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=27487184338 RFCS=1 sysRFCS=1 live=0,3/3ff,3
+17f 41.3C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=27486494478 RFCS=1 sysRFCS=1 live=0,3/3ff,3
+== 10:42:12 ring stopped
+0 41.3C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=30827301498 RFCS=1 sysRFCS=0 live=0,3/3ff,3
+1 40.4C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=30866224828 RFCS=0 sysRFCS=1 live=0,3/3ff,3
+17e 42.3C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=30866223297 RFCS=1 sysRFCS=1 live=0,3/3ff,3
+17f 41.3C corr=0 uncorr=0 sym=0,0,0,0 ber=0 lineRPKT=30827299990 RFCS=1 sysRFCS=1 live=0,3/3ff,3

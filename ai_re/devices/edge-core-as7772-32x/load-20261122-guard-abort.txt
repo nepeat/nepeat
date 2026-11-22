@@ -1,0 +1,31 @@
+== sample 1795342342.405504930 2026-11-22T02:12:22-08:00
+asic 42.3 C; average current temperature is  41.4 maximum peak temperature is 45.2 
+fand failsafe=True asic: recovering 42.3C duty 100% board: normal 32.5C duty 53%
+17900 21100 17800 21200 17900 21500 18000 21300 18000 21300 17700 21100 
+32500 30000 27000 27000 23500 24000 28000 36000 
+== sample 1795342342.893959962 2026-11-22T02:12:22-08:00
+UC_PERQ_PKT(0).ce1	    :		 14,003,846	    +10,261,723       7,664,311/s
+UC_PERQ_BYTE(0).ce1	    :		904,372,248	   +664,876,376     490,515,925/s
+asic 42.3 C; average current temperature is  41.1 maximum peak temperature is 45.2 
+fand failsafe=True asic: recovering 42.3C duty 100% board: normal 32.5C duty 53%
+17800 21100 17900 21200 17900 21500 17900 21300 18000 21300 17700 21100 
+32500 30000 26500 27000 23500 24000 28000 36000 
+== GUARD: asic 42 C or fand failsafe: stopping the ring
+ADD: mac=02:00:00:00:00:d1 vlan=200 GPORT=0xd modid=0 port=13/ce31 Static DiscardDest ReplacePriority
+ADD: mac=02:00:00:00:00:d1 vlan=100 GPORT=0x32 modid=0 port=50/ce0 Static DiscardDest ReplacePriority
+ADD: mac=02:00:00:00:00:d2 vlan=100 GPORT=0x9 modid=0 port=9/ce30 Static DiscardDest ReplacePriority
+ADD: mac=02:00:00:00:00:d2 vlan=200 GPORT=0x36 modid=0 port=54/ce1 Static DiscardDest ReplacePriority
+mac=02:00:00:00:00:a1 vlan=200 GPORT=0x36 modid=0 port=54/ce1 Hit
+mac=02:00:00:00:00:d1 vlan=100 GPORT=0x32 modid=0 port=50/ce0 Static DiscardDest ReplacePriority
+mac=02:00:00:00:00:d2 vlan=200 GPORT=0x36 modid=0 port=54/ce1 Static DiscardDest ReplacePriority
+mac=02:00:00:00:00:a2 vlan=100 GPORT=0x32 modid=0 port=50/ce0 Hit
+mac=02:00:00:00:00:d1 vlan=200 GPORT=0xd modid=0 port=13/ce31 Static Hit DiscardDest ReplacePriority
+mac=02:00:00:00:00:a1 vlan=100 GPORT=0x9 modid=0 port=9/ce30 Hit
+mac=02:00:00:00:00:a2 vlan=200 GPORT=0xd modid=0 port=13/ce31 Hit
+mac=02:00:00:00:00:d2 vlan=100 GPORT=0x9 modid=0 port=9/ce30 Static Hit DiscardDest ReplacePriority
+                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9126    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9126    No      
+      ce30(  9)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9126    No      
+      ce31( 13)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9126    No      

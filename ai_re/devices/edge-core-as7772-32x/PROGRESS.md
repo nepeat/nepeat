@@ -31,8 +31,9 @@
 - **Known quirks:** fans at 100 % (failsafe) for the first 2 min 45 s of every boot while the PHY script holds the
   SDK; a warm reboot clears the PHYs (the script runs every boot); port LEDs dark (no LED program); PSU2 (empty
   slot) shows "NOT OK"; syncd starts even if the PHY script fails (ports then stay down).
-- **Open:** load at rate + soak (only pings and CPU frames so far); the other 28 cages have never seen a cable;
-  `extphy pre` taps; MACsec on (nothing encrypted tried); 25G break-out; LEDs; USB in U-Boot; CPLD2/3 0x20-0x2b
+- **Load-tested:** both DACs 26 min at 100 % line rate both ways, 0 loss, 0 FEC errors, factory TX taps in the
+  boot script: [load-test.md](load-test.md).
+- **Open:** the other 28 cages have never seen a cable; MACsec on (nothing encrypted tried); 25G break-out; LEDs; USB in U-Boot; CPLD2/3 0x20-0x2b
   undecoded ([cpld.md](cpld.md), not blocking); **nothing is committed** (new nix files are `git add -N`).
 - **Builds:** `just test` (ai_re/Justfile, `tests/`; nix/README.md) builds every U-Boot variant, package and system.
 
@@ -83,6 +84,20 @@ Source, transfer and reread sha256 agree for each NOR partition:
   flash, SD slot empty. PSU2 is not fitted; PSU1 is a 3Y Power YM-2851F.
 
 ## Log
+
+### 2026-11-22 (3): load test at line rate, factory TX taps, PHY counters, commits
+- **Load:** ce0/ce1/ce30/ce31 each 96.4 Gb/s of frames (100.0 % of 100G with IPG 16), 26 min, 29.1e9 frames per
+  port per direction, cable loss 0 and switch loss 0 by exact counter equality, RS-FEC corrected/uncorrected 0,
+  ASIC 46-49 C, fand on its curve. Plain SDK rings with SONiC stopped: [load-test.md](load-test.md).
+- **Taps:** factory line-side per-lane taps now in the boot script (script sha256 `e18dddef7c9e...`, cold boot
+  verified 32/32); eye taller, no measurable error difference on these DACs.
+- **Tools:** `evora-rehost` gains a `diag` MDIO backend (through syncd, SONiC stays up) and `phystat.py`.
+- Mistakes in the run, kept honest in load-test.md: no per-interval rate series (sampler bug), two aborted starts
+  that reset the chip under traffic (one RFCS/RJBR/TERR each on PHY MAC counters, attributed, not proven).
+- **Committed** (master, not pushed): `35d3a03`..`0b018e4` (six commits: misc notes, U-Boot, sai-openbcm, AS7772
+  NixOS, device docs + re-host, `just test`). Left out on purpose: the AS5114 device dir, the DMC-12 handoff,
+  the local APC row in DEVICES.md.
+- In progress when written: MACsec live test, fan start-up policy + hard-fail, LEDs.
 
 ### 2026-11-22 (2): SONiC at boot, PHY init on the switch, `just test`
 - **Runbook phases 5-8 gate:** cold power cycle to SONiC with no workstation (twice): 0 failed units, 4 ports

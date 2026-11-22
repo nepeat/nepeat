@@ -1,0 +1,352 @@
+== sample 1795342546.288880273 2026-11-22T02:15:46-08:00
+asic 46.7 C; average current temperature is  44.4 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 35.5C duty 55%
+13200 15600 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+35500 32500 27500 29000 24500 25500 30000 40000 
+== sample 1795342546.993150994 2026-11-22T02:15:47-08:00
+UC_PERQ_PKT(0).ce1	    :		 16,194,675	     +1,127,997      21,388,012/s
+UC_PERQ_BYTE(0).ce1	    :	      4,007,498,894	   +731,428,524   4,650,569,413/s
+asic 46.7 C; average current temperature is  44.7 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 35.5C duty 55%
+13200 15700 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+35500 32500 27500 29000 24500 25500 30000 40000 
+== sample 1795342574.398140793 2026-11-22T02:16:14-08:00
+asic 46.7 C; average current temperature is  45.4 maximum peak temperature is 49.1 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 35.5C duty 55%
+13100 15700 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32000 28000 29000 24500 25500 30000 41000 
+== sample 1795342601.838031248 2026-11-22T02:16:41-08:00
+asic 47.2 C; average current temperature is  45.0 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.0C duty 56%
+13100 15700 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32000 28000 29500 24500 25500 30000 42000 
+== sample 1795342629.290117034 2026-11-22T02:17:09-08:00
+asic 46.7 C; average current temperature is  44.7 maximum peak temperature is 49.1 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 36.0C duty 56%
+13200 15600 13000 15700 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32000 27500 29500 24500 25500 30000 42000 
+== sample 1795342656.730027137 2026-11-22T02:17:36-08:00
+asic 47.2 C; average current temperature is  45.4 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.0C duty 56%
+13100 15600 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32000 28000 29500 24500 25500 30000 42000 
+== sample 1795342684.169549977 2026-11-22T02:18:04-08:00
+asic 47.2 C; average current temperature is  45.1 maximum peak temperature is 49.1 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.0C duty 56%
+13200 15600 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32000 28000 29500 24500 25500 30000 43000 
+== sample 1795342711.641979896 2026-11-22T02:18:31-08:00
+asic 47.2 C; average current temperature is  45.3 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.0C duty 56%
+13200 15600 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32500 27500 29500 24500 25500 30000 42000 
+== sample 1795342739.081632632 2026-11-22T02:18:59-08:00
+asic 46.7 C; average current temperature is  45.7 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 36.0C duty 56%
+13100 15600 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32500 28000 29500 24500 25500 30000 42000 
+== sample 1795342766.522139726 2026-11-22T02:19:26-08:00
+UC_PERQ_PKT(0).ce30	    :	      4,097,314,949	       +902,655      18,589,840/s
+UC_PERQ_BYTE(0).ce30	    :	  2,650,117,604,958	   +585,296,152  12,053,237,510/s
+UC_PERQ_PKT(0).ce31	    :	      4,101,302,638	     +2,121,965      18,589,750/s
+UC_PERQ_BYTE(0).ce31	    :	  2,651,202,074,872	 +1,375,831,526  12,053,245,109/s
+asic 48.1 C; average current temperature is  45.4 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 48.1C duty 53% board: normal 36.0C duty 56%
+13200 15600 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32500 28000 29500 24500 25500 30000 42000 
+== sample 1795342793.962483735 2026-11-22T02:19:53-08:00
+asic 47.2 C; average current temperature is  45.0 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.0C duty 56%
+13200 15600 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32500 27500 29500 24500 25500 30000 42000 
+== sample 1795342821.405690074 2026-11-22T02:20:21-08:00
+asic 47.2 C; average current temperature is  45.1 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.0C duty 56%
+13100 15600 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32000 27500 29500 24500 25500 30000 43000 
+== sample 1795342848.845511786 2026-11-22T02:20:48-08:00
+asic 46.7 C; average current temperature is  45.6 maximum peak temperature is 49.1 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 36.0C duty 56%
+13100 15600 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32000 28000 29500 24500 25500 30000 42000 
+== sample 1795342876.281407175 2026-11-22T02:21:16-08:00
+asic 46.7 C; average current temperature is  45.2 maximum peak temperature is 49.1 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 36.0C duty 56%
+13200 15600 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32000 27500 29500 24500 25500 30000 43000 
+== sample 1795342903.721768774 2026-11-22T02:21:43-08:00
+asic 46.7 C; average current temperature is  45.1 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.0C duty 56%
+13100 15600 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32500 27500 29500 24500 25500 30000 42000 
+== sample 1795342931.159916581 2026-11-22T02:22:11-08:00
+UC_PERQ_PKT(0).ce0	    :	      7,161,466,709	     +1,438,204      18,586,104/s
+UC_PERQ_BYTE(0).ce0	    :	  4,635,346,256,700	   +932,480,000  12,050,835,095/s
+asic 47.2 C; average current temperature is  45.4 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.0C duty 56%
+13100 15700 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32500 27500 29500 24500 25500 30000 43000 
+== sample 1795342958.617906704 2026-11-22T02:22:38-08:00
+asic 46.7 C; average current temperature is  45.3 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 36.0C duty 56%
+13100 15600 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32500 28000 29500 24500 25500 31000 43000 
+== sample 1795342986.053738258 2026-11-22T02:23:06-08:00
+UC_PERQ_PKT(0).ce0	    :	      8,181,707,722	     +1,119,798      18,589,443/s
+UC_PERQ_BYTE(0).ce0	    :	  5,296,848,498,842	   +726,080,474  12,052,988,646/s
+asic 47.2 C; average current temperature is  44.8 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.0C duty 56%
+13100 15600 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32000 27500 29500 24500 25500 30000 42000 
+== sample 1795343013.493505535 2026-11-22T02:23:33-08:00
+asic 47.2 C; average current temperature is  45.3 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.0C duty 56%
+13100 15700 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32500 28000 29500 24500 25500 30000 43000 
+== sample 1795343040.929848748 2026-11-22T02:24:00-08:00
+UC_PERQ_PKT(0).ce31	    :	      9,202,765,663	     +1,958,230      18,590,600/s
+UC_PERQ_BYTE(0).ce31	    :	  5,958,880,380,036	 +1,269,672,326  12,053,748,303/s
+asic 47.7 C; average current temperature is  45.2 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 36.0C duty 56%
+13100 15700 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32500 28000 29500 25000 26000 31000 42000 
+== sample 1795343068.365922913 2026-11-22T02:24:28-08:00
+asic 48.1 C; average current temperature is  45.5 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 48.1C duty 53% board: normal 36.0C duty 58%
+13100 15600 13000 15800 13200 15500 13000 16000 13200 15700 13000 15700 
+36000 32500 28000 30000 25000 26000 31000 43000 
+== sample 1795343095.807327116 2026-11-22T02:24:55-08:00
+asic 47.7 C; average current temperature is  45.8 maximum peak temperature is 50.1 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 36.0C duty 58%
+13200 15700 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36500 33000 28000 30000 25000 26000 31000 43000 
+== sample 1795343123.245338383 2026-11-22T02:25:23-08:00
+UC_PERQ_PKT(0).ce0	    :	     10,732,472,491	     +1,290,181      18,589,800/s
+UC_PERQ_BYTE(0).ce0	    :	  6,950,709,219,396	   +836,549,182  12,053,203,709/s
+asic 47.7 C; average current temperature is  45.5 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 48.6C duty 53% board: normal 36.5C duty 58%
+13200 15600 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36500 33000 28500 30000 25000 26500 31000 43000 
+== sample 1795343150.682098304 2026-11-22T02:25:50-08:00
+asic 48.6 C; average current temperature is  46.0 maximum peak temperature is 50.6 
+fand failsafe=False asic: normal 48.6C duty 53% board: normal 36.5C duty 58%
+13100 15700 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+37000 33000 28500 30000 25000 26500 31000 43000 
+== sample 1795343178.121850226 2026-11-22T02:26:18-08:00
+asic 47.2 C; average current temperature is  46.0 maximum peak temperature is 50.1 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.5C duty 60%
+13100 15700 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+37000 33000 28500 30000 25000 26500 31000 43000 
+== sample 1795343205.563933023 2026-11-22T02:26:45-08:00
+asic 49.1 C; average current temperature is  45.9 maximum peak temperature is 50.6 
+fand failsafe=False asic: normal 49.1C duty 53% board: normal 37.0C duty 60%
+13200 15600 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+37000 33000 28500 30500 25000 26500 31000 44000 
+== sample 1795343233.022363959 2026-11-22T02:27:13-08:00
+UC_PERQ_PKT(0).ce0	    :	     12,773,252,780	     +1,165,941      18,588,533/s
+UC_PERQ_BYTE(0).ce0	    :	  8,273,907,032,806	   +755,973,870  12,052,400,462/s
+asic 48.6 C; average current temperature is  46.3 maximum peak temperature is 50.1 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 37.0C duty 60%
+13100 15600 13000 15800 13200 15600 13000 16000 13200 15700 13000 15800 
+37000 33000 28500 30000 25000 26500 31000 43000 
+== sample 1795343260.463209630 2026-11-22T02:27:40-08:00
+UC_PERQ_PKT(0).ce30	    :	     13,280,813,829	     +1,336,241      18,589,782/s
+UC_PERQ_BYTE(0).ce30	    :	  8,604,499,750,414	   +866,417,632  12,053,188,914/s
+UC_PERQ_PKT(0).ce31	    :	     13,283,582,042	     +1,335,990      18,589,725/s
+UC_PERQ_BYTE(0).ce31	    :	  8,604,793,458,498	   +866,198,630  12,053,191,412/s
+asic 48.6 C; average current temperature is  46.6 maximum peak temperature is 50.6 
+fand failsafe=False asic: normal 48.6C duty 53% board: normal 37.0C duty 60%
+13200 15700 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+37000 33000 28500 30500 25000 26500 31000 44000 
+== sample 1795343287.902678810 2026-11-22T02:28:07-08:00
+asic 48.1 C; average current temperature is  46.5 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 48.1C duty 53% board: normal 37.0C duty 60%
+13200 15700 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+37000 33500 29000 30500 25000 26500 31000 43000 
+== sample 1795343315.341217177 2026-11-22T02:28:35-08:00
+asic 48.1 C; average current temperature is  46.5 maximum peak temperature is 51.1 
+fand failsafe=False asic: normal 48.1C duty 53% board: normal 37.0C duty 60%
+13200 15600 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+37000 33500 28500 30500 25000 26500 31000 43000 
+== sample 1795343342.781901552 2026-11-22T02:29:02-08:00
+UC_PERQ_PKT(0).ce31	    :	     14,814,211,780	     +1,532,559      18,593,921/s
+UC_PERQ_BYTE(0).ce31	    :	  9,597,220,716,340	   +993,687,670  12,055,882,070/s
+asic 48.1 C; average current temperature is  46.1 maximum peak temperature is 50.6 
+fand failsafe=False asic: normal 48.1C duty 53% board: normal 37.0C duty 60%
+13100 15700 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+37000 33000 28500 30500 25000 26500 31000 43000 
+== sample 1795343370.223027386 2026-11-22T02:29:30-08:00
+asic 47.2 C; average current temperature is  46.0 maximum peak temperature is 50.1 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.5C duty 60%
+13100 15700 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+37000 33000 28500 30500 25000 26000 31000 43000 
+== sample 1795343397.662600928 2026-11-22T02:29:57-08:00
+asic 47.7 C; average current temperature is  45.8 maximum peak temperature is 50.1 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 37.0C duty 60%
+13100 15600 13000 15800 13200 15500 13000 16000 13200 15700 13000 15800 
+37000 33000 28500 30500 25000 26000 31000 43000 
+== sample 1795343425.097462790 2026-11-22T02:30:25-08:00
+asic 48.1 C; average current temperature is  45.8 maximum peak temperature is 50.1 
+fand failsafe=False asic: normal 48.1C duty 53% board: normal 36.5C duty 60%
+13100 15600 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36500 32500 28500 30000 25000 26000 31000 43000 
+== sample 1795343452.533992771 2026-11-22T02:30:52-08:00
+asic 48.1 C; average current temperature is  45.6 maximum peak temperature is 50.1 
+fand failsafe=False asic: normal 48.1C duty 53% board: normal 36.5C duty 60%
+13100 15700 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36500 32500 28500 30000 25000 26000 31000 43000 
+== sample 1795343479.968242972 2026-11-22T02:31:19-08:00
+UC_PERQ_PKT(0).ce30	    :	     17,361,465,745	     +1,067,172      18,591,684/s
+UC_PERQ_BYTE(0).ce30	    :	 11,250,306,177,320	   +691,928,280  12,054,463,952/s
+asic 47.7 C; average current temperature is  46.0 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 36.5C duty 60%
+13100 15700 13000 15700 13200 15500 13000 15900 13200 15700 13000 15800 
+36500 32500 28500 30000 25000 25500 31000 42000 
+== sample 1795343507.373240286 2026-11-22T02:31:47-08:00
+asic 48.1 C; average current temperature is  45.4 maximum peak temperature is 50.1 
+fand failsafe=False asic: normal 48.1C duty 53% board: normal 36.5C duty 60%
+13200 15600 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36500 32500 28000 30000 25000 26000 30000 42000 
+== sample 1795343534.810024471 2026-11-22T02:32:14-08:00
+asic 46.7 C; average current temperature is  45.5 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 36.5C duty 60%
+13200 15600 13000 15700 13200 15600 13000 15900 13200 15700 13000 15800 
+36500 32500 28000 30000 25000 26000 31000 43000 
+== sample 1795343562.261028455 2026-11-22T02:32:42-08:00
+asic 46.7 C; average current temperature is  45.5 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 36.0C duty 60%
+13200 15600 12900 15800 13200 15600 13000 15900 13200 15700 13000 15700 
+36500 32500 28000 30000 24500 25500 31000 43000 
+== sample 1795343589.703562090 2026-11-22T02:33:09-08:00
+asic 47.7 C; average current temperature is  45.4 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 48.1C duty 53% board: normal 36.0C duty 60%
+13200 15700 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36500 32500 28000 30000 24500 26000 31000 43000 
+== sample 1795343617.142200946 2026-11-22T02:33:37-08:00
+asic 47.2 C; average current temperature is  45.3 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.0C duty 60%
+13100 15600 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36500 32500 28000 30000 24500 25500 30000 42000 
+== sample 1795343644.577622343 2026-11-22T02:34:04-08:00
+asic 47.2 C; average current temperature is  45.5 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 36.0C duty 60%
+13200 15600 13000 15700 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32500 28000 29500 25000 25500 30000 42000 
+== sample 1795343672.013847846 2026-11-22T02:34:32-08:00
+asic 47.7 C; average current temperature is  45.2 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 36.0C duty 60%
+13100 15700 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32500 28000 29500 25000 25500 30000 42000 
+== sample 1795343699.454022163 2026-11-22T02:34:59-08:00
+asic 47.2 C; average current temperature is  45.2 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 36.0C duty 60%
+13200 15700 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32500 28000 29500 25000 25500 30000 43000 
+== sample 1795343726.893826551 2026-11-22T02:35:26-08:00
+asic 47.2 C; average current temperature is  45.6 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.0C duty 60%
+13100 15600 12900 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32500 28000 29500 24500 25500 30000 43000 
+== sample 1795343754.354452266 2026-11-22T02:35:54-08:00
+asic 47.2 C; average current temperature is  44.9 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 36.0C duty 60%
+13200 15600 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32500 28000 29500 25000 25500 30000 43000 
+== sample 1795343781.793648037 2026-11-22T02:36:21-08:00
+asic 46.7 C; average current temperature is  45.4 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 36.0C duty 60%
+13100 15600 13000 15800 13200 15600 13000 15900 13200 15700 13000 15700 
+36000 32500 28000 29500 25000 25500 30000 42000 
+== sample 1795343809.233807878 2026-11-22T02:36:49-08:00
+asic 47.7 C; average current temperature is  45.4 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 36.0C duty 60%
+13200 15600 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32500 28000 29500 24500 26000 30000 43000 
+== sample 1795343836.677471991 2026-11-22T02:37:16-08:00
+UC_PERQ_PKT(0).ce1	    :	     23,993,853,011	     +1,718,456      18,589,238/s
+UC_PERQ_BYTE(0).ce1	    :	 15,550,602,728,022	 +1,114,232,164  12,052,888,119/s
+asic 47.7 C; average current temperature is  45.5 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 36.0C duty 60%
+13200 15700 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32500 28000 29500 24500 25500 30000 42000 
+== sample 1795343864.117780968 2026-11-22T02:37:44-08:00
+asic 47.7 C; average current temperature is  45.4 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 36.0C duty 60%
+13100 15600 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32000 28000 30000 24500 25500 30000 42000 
+== sample 1795343891.554485437 2026-11-22T02:38:11-08:00
+asic 48.1 C; average current temperature is  45.6 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 48.1C duty 53% board: normal 36.0C duty 60%
+13100 15600 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32500 27500 29500 24500 25500 30000 43000 
+== sample 1795343918.995604023 2026-11-22T02:38:39-08:00
+asic 47.7 C; average current temperature is  45.7 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 36.0C duty 60%
+13200 15700 13000 15800 13200 15500 13000 15900 13200 15800 13000 15800 
+36000 32500 28000 29500 24500 25500 30000 43000 
+== sample 1795343946.427748716 2026-11-22T02:39:06-08:00
+asic 47.2 C; average current temperature is  45.2 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.0C duty 60%
+13200 15600 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32500 28000 29500 24500 25500 30000 41000 
+== sample 1795343973.827877241 2026-11-22T02:39:33-08:00
+asic 47.7 C; average current temperature is  45.1 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 36.0C duty 60%
+13200 15700 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32000 27500 29500 24500 25500 30000 41000 
+== sample 1795344001.227784511 2026-11-22T02:40:01-08:00
+asic 47.7 C; average current temperature is  45.3 maximum peak temperature is 49.1 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 36.0C duty 60%
+13100 15600 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32500 27500 29500 24500 25500 30000 41000 
+== sample 1795344028.627845928 2026-11-22T02:40:28-08:00
+asic 46.7 C; average current temperature is  45.4 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 36.0C duty 60%
+13200 15700 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32000 28000 29500 24500 25500 30000 40000 
+== sample 1795344056.028063315 2026-11-22T02:40:56-08:00
+asic 46.7 C; average current temperature is  45.3 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 36.0C duty 60%
+13200 15600 13000 15800 13200 15500 13000 15900 13200 15700 13000 15800 
+36000 32000 28000 29500 24500 25500 30000 41000 
+== sample 1795344083.428027608 2026-11-22T02:41:23-08:00
+UC_PERQ_PKT(0).ce30	    :	     28,581,461,102	     +1,883,707      18,591,768/s
+UC_PERQ_BYTE(0).ce30	    :	 18,525,108,583,802	 +1,221,332,382  12,054,493,689/s
+asic 46.2 C; average current temperature is  45.1 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 36.0C duty 60%
+13100 15700 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32000 27500 29500 24500 25500 30000 41000 
+== sample 1795344110.743468973 2026-11-22T02:41:50-08:00
+asic 47.7 C; average current temperature is  45.1 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 36.0C duty 60%
+13200 15700 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32000 27500 29500 24500 25500 30000 40000 
+== STOP 1795344111.014789089 2026-11-22T02:41:51-08:00
+ADD: mac=02:00:00:00:00:d1 vlan=200 GPORT=0xd modid=0 port=13/ce31 Static DiscardDest ReplacePriority
+ADD: mac=02:00:00:00:00:d1 vlan=100 GPORT=0x32 modid=0 port=50/ce0 Static DiscardDest ReplacePriority
+ADD: mac=02:00:00:00:00:d2 vlan=100 GPORT=0x9 modid=0 port=9/ce30 Static DiscardDest ReplacePriority
+ADD: mac=02:00:00:00:00:d2 vlan=200 GPORT=0x36 modid=0 port=54/ce1 Static DiscardDest ReplacePriority
+mac=02:00:00:00:00:a1 vlan=200 GPORT=0x36 modid=0 port=54/ce1 Hit
+mac=02:00:00:00:00:d1 vlan=100 GPORT=0x32 modid=0 port=50/ce0 Static DiscardDest ReplacePriority
+mac=02:00:00:00:00:d2 vlan=200 GPORT=0x36 modid=0 port=54/ce1 Static DiscardDest ReplacePriority
+mac=02:00:00:00:00:a2 vlan=100 GPORT=0x32 modid=0 port=50/ce0 Hit
+mac=02:00:00:00:00:d1 vlan=200 GPORT=0xd modid=0 port=13/ce31 Static Hit DiscardDest ReplacePriority
+mac=02:00:00:00:00:a1 vlan=100 GPORT=0x9 modid=0 port=9/ce30 Hit
+mac=02:00:00:00:00:a2 vlan=200 GPORT=0xd modid=0 port=13/ce31 Hit
+mac=02:00:00:00:00:d2 vlan=100 GPORT=0x9 modid=0 port=9/ce30 Static Hit DiscardDest ReplacePriority
+                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9126    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9126    No      
+      ce30(  9)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9126    No      
+      ce31( 13)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9126    No      
+== sample 1795344117.264846881 2026-11-22T02:41:57-08:00
+asic 47.2 C; average current temperature is  44.8 maximum peak temperature is 49.1 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.0C duty 60%
+13200 15600 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32500 27500 29500 24500 25500 30000 41000 
+== sample 1795344122.649000038 2026-11-22T02:42:02-08:00
+asic 46.7 C; average current temperature is  44.5 maximum peak temperature is 49.1 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 36.0C duty 60%
+13200 15700 13000 15800 13200 15600 13000 15900 13200 15700 13000 15800 
+36000 32000 28000 29500 24500 25500 30000 40000 

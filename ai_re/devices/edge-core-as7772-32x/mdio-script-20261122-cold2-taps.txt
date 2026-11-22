@@ -1,0 +1,217 @@
+2026-11-22T02:01:14-08:00 as7772 systemd[1]: Starting External PHY bring-up over the switch chip's MDIO bus...
+2026-11-22T02:01:16-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: 553600 writes, 411160 reads (307099 polls), 93400 delays (54.3 s), 201 steps
+2026-11-22T02:01:16-08:00 as7772 openbcm-mdio-script[483]: sal_config_refresh: format error in nbk160qsdlxpjbbs9ivy517yydnly5z5-as7772-32x-config.bcm on line 3 (ignored)
+2026-11-22T02:01:16-08:00 as7772 openbcm-mdio-script[483]: Broadcom Command Monitor: Copyright (c) 1998-2026 Broadcom
+2026-11-22T02:01:16-08:00 as7772 openbcm-mdio-script[483]: Release: sdk-6.5.27 built 20261115 (Sun Nov 15 08:57:46 2026)
+2026-11-22T02:01:16-08:00 as7772 openbcm-mdio-script[483]: From nixbld@localhost:/build/openbcm-sdk-6.5.27-patched
+2026-11-22T02:01:16-08:00 as7772 openbcm-mdio-script[483]: Platform: PPC64BE
+2026-11-22T02:01:16-08:00 as7772 openbcm-mdio-script[483]: OS: Unix (Posix)
+2026-11-22T02:01:16-08:00 as7772 openbcm-mdio-script[483]: linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+2026-11-22T02:01:16-08:00 as7772 openbcm-mdio-script[483]: DMA pool size: 16777216 bytes.
+2026-11-22T02:01:17-08:00 as7772 openbcm-mdio-script[483]: BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+2026-11-22T02:01:17-08:00 as7772 openbcm-mdio-script[483]: SOC unit 0 attached to PCI device BCM56930_B1
+2026-11-22T02:01:17-08:00 as7772 openbcm-mdio-script[483]: Boot flags: initialization scripts NOT loaded
+2026-11-22T02:01:17-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+2026-11-22T02:01:17-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy init all
+2026-11-22T02:02:31-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy cfg 0x00 nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+2026-11-22T02:02:34-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy cfg 0x24 nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+2026-11-22T02:02:37-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy cfg 0x48 nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+2026-11-22T02:02:39-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy cfg 0x6c nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+2026-11-22T02:02:43-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy cfg 0x110 nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+2026-11-22T02:02:46-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy cfg 0x134 nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+2026-11-22T02:02:49-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy cfg 0x158 nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+2026-11-22T02:02:52-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy cfg 0x17c nphy=4 speed=100000 if_line=CAUI4_C2C if_sys=CAUI fec=1
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x0 0 0x2 0x2a 0x13 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x0 1 0x2 0x2e 0x15 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x0 2 0x2 0x30 0x12 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x0 3 0x2 0x3c 0x18 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x1 0 0x2 0x2f 0x15 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x1 1 0x2 0x2f 0x14 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x1 2 0x2 0x2f 0x13 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x1 3 0x2 0x32 0x19 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x2 0 0x2 0x32 0x17 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x2 1 0x2 0x36 0x1b 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x2 2 0x2 0x30 0x18 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x2 3 0x2 0x36 0x1b 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x3 0 0x2 0x30 0x1a 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x3 1 0x2 0x30 0x18 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x3 2 0x2 0x30 0x17 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x3 3 0x2 0x34 0x1d 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x24 0 0x2 0x29 0x10 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x24 1 0x2 0x30 0x10 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x24 2 0x2 0x29 0x10 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x24 3 0x2 0x2f 0x10 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x25 0 0x2 0x2f 0x12 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x25 1 0x2 0x2a 0x11 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x25 2 0x2 0x29 0x10 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x25 3 0x2 0x2b 0x12 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x26 0 0x2 0x2f 0x16 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x26 1 0x2 0x2f 0x16 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x26 2 0x2 0x2f 0x14 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x26 3 0x2 0x30 0x18 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x27 0 0x2 0x30 0x1b 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x27 1 0x2 0x30 0x17 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x27 2 0x2 0x30 0x17 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x27 3 0x2 0x32 0x1b 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x48 0 0x2 0x2f 0x11 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x48 1 0x2 0x2f 0x13 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x48 2 0x2 0x2f 0x11 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x48 3 0x2 0x2d 0x13 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x49 0 0x2 0x2f 0x13 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x49 1 0x2 0x30 0x12 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x49 2 0x2 0x2f 0x11 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x49 3 0x2 0x2f 0x15 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x4a 0 0x2 0x30 0x1a 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x4a 1 0x2 0x34 0x1d 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x4a 2 0x2 0x2f 0x18 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x4a 3 0x2 0x34 0x1d 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x4b 0 0x2 0x3b 0x1f 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x4b 1 0x2 0x35 0x19 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x4b 2 0x2 0x2f 0x19 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x4b 3 0x2 0x34 0x1d 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6c 0 0x2 0x2a 0x10 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6c 1 0x2 0x2d 0x11 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6c 2 0x2 0x2a 0x10 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6c 3 0x2 0x2f 0x10 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6d 0 0x2 0x2f 0x14 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6d 1 0x2 0x2a 0x10 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6d 2 0x2 0x2a 0x10 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6d 3 0x2 0x2f 0x12 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6e 0 0x2 0x2f 0x14 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6e 1 0x2 0x31 0x16 0x4 0x0 0x8
+2026-11-22T02:02:55-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6e 2 0x2 0x2f 0x15 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6e 3 0x2 0x34 0x1b 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6f 0 0x2 0x32 0x1a 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6f 1 0x2 0x2f 0x17 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6f 2 0x2 0x2f 0x17 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6f 3 0x2 0x2f 0x1a 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x110 0 0x2 0x28 0x10 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x110 1 0x2 0x2c 0x10 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x110 2 0x2 0x29 0x10 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x110 3 0x2 0x2e 0x10 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x111 0 0x2 0x2a 0x12 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x111 1 0x2 0x29 0x10 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x111 2 0x2 0x28 0x10 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x111 3 0x2 0x2a 0x12 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x112 0 0x2 0x2b 0x16 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x112 1 0x2 0x30 0x18 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x112 2 0x2 0x30 0x16 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x112 3 0x2 0x30 0x17 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x113 0 0x2 0x31 0x18 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x113 1 0x2 0x30 0x17 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x113 2 0x2 0x30 0x16 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x113 3 0x2 0x30 0x1a 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x134 0 0x2 0x29 0x10 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x134 1 0x2 0x2e 0x10 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x134 2 0x2 0x29 0x10 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x134 3 0x2 0x2c 0x12 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x135 0 0x2 0x2f 0x12 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x135 1 0x2 0x2d 0x10 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x135 2 0x2 0x2c 0x11 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x135 3 0x2 0x2c 0x12 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x136 0 0x2 0x30 0x17 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x136 1 0x2 0x32 0x1b 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x136 2 0x2 0x2f 0x16 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x136 3 0x2 0x36 0x1c 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x137 0 0x2 0x30 0x1a 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x137 1 0x2 0x32 0x19 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x137 2 0x2 0x2f 0x18 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x137 3 0x2 0x32 0x1a 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x158 0 0x2 0x2a 0x10 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x158 1 0x2 0x2c 0x11 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x158 2 0x2 0x2a 0x10 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x158 3 0x2 0x2c 0x12 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x159 0 0x2 0x2c 0x11 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x159 1 0x2 0x2c 0xf 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x159 2 0x2 0x2a 0x10 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x159 3 0x2 0x2c 0x12 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x15a 0 0x2 0x35 0x1b 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x15a 1 0x2 0x35 0x1c 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x15a 2 0x2 0x30 0x18 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x15a 3 0x2 0x35 0x1b 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x15b 0 0x2 0x33 0x1b 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x15b 1 0x2 0x33 0x19 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x15b 2 0x2 0x33 0x19 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x15b 3 0x2 0x34 0x1b 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17c 0 0x2 0x2a 0xf 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17c 1 0x2 0x2b 0x10 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17c 2 0x2 0x2b 0xf 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17c 3 0x2 0x2d 0x12 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17d 0 0x2 0x2c 0x11 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17d 1 0x2 0x2c 0x10 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17d 2 0x2 0x2b 0x10 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17d 3 0x2 0x2c 0x11 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17e 0 0x2 0x2c 0x14 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17e 1 0x2 0x30 0x16 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17e 2 0x2 0x2c 0x12 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17e 3 0x2 0x32 0x17 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17f 0 0x2 0x32 0x18 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17f 1 0x2 0x2f 0x14 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17f 2 0x2 0x2f 0x15 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17f 3 0x2 0x2f 0x18 0x4 0x0 0x8
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x0
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x1
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x2
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x3
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x24
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x25
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x26
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x27
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x48
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x49
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x4a
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x4b
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6c
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6d
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6e
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x6f
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x110
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x111
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x112
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x113
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x134
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x135
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x136
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x137
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x158
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x159
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x15a
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x15b
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17c
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17d
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17e
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: extphy pre 0x17f
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x0: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x1: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x2: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x3: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x24: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x25: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x26: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x27: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x48: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x49: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x4a: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x4b: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x6c: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x6d: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x6e: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x6f: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x110: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x111: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x112: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x113: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x134: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x135: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x136: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x137: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x158: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x159: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x15a: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x15b: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x17c: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x17d: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x17e: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: verify phy 0x17f: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+2026-11-22T02:02:56-08:00 as7772 openbcm-mdio-script[483]: openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: done in 99.4 s: 553600 writes, 426459 reads (307099 polls, 15299 re-reads), 0 expected values differed
+2026-11-22T02:02:56-08:00 as7772 systemd[1]: Finished External PHY bring-up over the switch chip's MDIO bus.

@@ -1,0 +1,337 @@
+# Evora line-side DSC rows (vendor "extphy status <id> dsc" through the re-host), TX taps ("extphy pre") and status, 2026-11-22.
+# Extract of the console logs in dumps/x/evora-trace/ (the event-log part of each dump is left out). The dsc prints the line side twice.
+# Columns as the header line: SD LCK RXPPM CLK90 CLKP1 PF(M,L) VGA DCO P1mV M1mV DFE(1..6) TXPPM TXEQ(n1,m,p1,2,3) TXAMP EYE(L,R mUI; U,D mV) LINK_TIME.
+# The RX eye of a PHY is shaped by the TX taps of the PHY at the other end of the DAC (0x00 <-> 0x01, 0x17e <-> 0x17f).
+==== default taps 0/43/5 amp 15, SONiC idle, 09:27 UTC (m-base-c1c2.console.txt)
+>>> extphy pre 0x0
+phy 0: Pretap=0, Maintap=0x2b, Posttap=0x5, Post2tap=0, Post3tap=0, Current=0xf
+<<< rc=0  (24 reads, 31 writes, 0 delays, 0.2 s)
+>>> extphy status 0x0
+phy 0, lane=4, line side, link=UP, loopback=Disabled, FEC=Enabled
+speed=100000, max_packet=16383, line side interface=CAUI4_C2C, system side interface=CAUI
+low-latency bypass: egress = YES
+low-latency bypass: ingress = YES
+flow control: enabled
+<<< rc=0  (164 reads, 205 writes, 28 delays, 1.1 s)
+>>> extphy status 0x0 dsc
+TEMPRATURE:39 PLL RANGE:216
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       39C      (16) 39C    0x08    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    33     2    2,3    25  -6  193  106  41,  7,  5,  1,  1,  0     0    0, 43, 5, 0, 0   15,0  328,359,115,111    65.5
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    32     2    1,3    27  -9  186  101  39, 10,  5,  1,  2,  1     0    0, 43, 5, 0, 0   15,0  312,402,113,113    57.7
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    33    -2    1,3    25  -1  184   96  37,  9,  3,  1,  3,  0     0    0, 43, 5, 0, 0   15,0  312,388,111,111    70.5
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    33     0    3,3    25   0  193  101  39,  7, -1,  0,  3,  0     0    0, 43, 5, 0, 0   15,0  312,417,125,120    70.6
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       40C      (16) 39C    0x08    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    33     2    2,3    25  -6  196  106  41,  8,  5,  1,  1,  0     0    0, 43, 5, 0, 0   15,0  328,343,118,111    65.5
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    32     2    1,3    27  -9  184  103  39,  9,  5,  1,  2,  1     0    0, 43, 5, 0, 0   15,0  296,417,113,111    57.7
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    34    -2    1,3    26  -3  191  103  41, 10,  4,  1,  3,  0     0    0, 43, 5, 0, 0   15,0  312,373,118,113    70.5
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    33     0    3,3    25  -1  193   99  38,  7, -1,  0,  3,  0     0    0, 43, 5, 0, 0   15,0  281,417,127,120    70.6
+<<< rc=0  (25446 reads, 37969 writes, 0 delays, 200.6 s)
+>>> extphy pre 0x1
+phy 0x1: Pretap=0, Maintap=0x2b, Posttap=0x5, Post2tap=0, Post3tap=0, Current=0xf
+<<< rc=0  (24 reads, 31 writes, 0 delays, 0.2 s)
+>>> extphy status 0x1
+phy 0x1, lane=4, line side, link=UP, loopback=Disabled, FEC=Enabled
+speed=100000, max_packet=16383, line side interface=CAUI4_C2C, system side interface=CAUI
+low-latency bypass: egress = YES
+low-latency bypass: ingress = YES
+flow control: enabled
+<<< rc=0  (164 reads, 205 writes, 28 delays, 1.2 s)
+>>> extphy status 0x1 dsc
+TEMPRATURE:37 PLL RANGE:218
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       38C      (16) 38C    0x08    25.750GHz     218       (07) 165       1*  
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1*  1*    0    33     0    3,3    27   0  198   96  38,  7,  3, -4,  4,  0     0    0, 43, 5, 0, 0   15,0  312,359,127,118    64.0
+ 1 (OSx1       , 0x000c,   0, 0)  1*  1*    0    32     1    3,3    27   6  200   96  37,  7,  0, -2,  2,  1     0    0, 43, 5, 0, 0   15,0  312,359,125,127    67.4
+ 2 (OSx1       , 0x000c,   0, 0)  1*  1*    0    34     1    2,3    25   5  196  106  43,  9,  2,  0,  3,  0     0    0, 43, 5, 0, 0   15,0  328,359,125,125    71.2
+ 3 (OSx1       , 0x000c,   0, 0)  1*  1*    0    32     2    2,3    27  -2  188  103  40,  6,  4, -2,  1,  1     0    0, 43, 5, 0, 0   15,0  312,373,113,115    66.1
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       38C      (16) 38C    0x08    25.750GHz     218       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    32     0    3,3    27   0  203   94  36,  7,  2, -4,  4,  0     0    0, 43, 5, 0, 0   15,0  312,359,129,115    64.0
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    32     1    3,3    27   7  200   99  37,  7,  1, -2,  2,  1     0    0, 43, 5, 0, 0   15,0  312,359,125,129    67.4
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    33     1    2,3    25   6  196  103  40,  9,  2,  0,  3,  0     0    0, 43, 5, 0, 0   15,0  328,359,127,129    71.2
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    32     2    2,3    27  -3  191  101  39,  6,  5, -2,  1,  1     0    0, 43, 5, 0, 0   15,0  312,373,115,115    66.1
+<<< rc=0  (25446 reads, 37969 writes, 0 delays, 200.6 s)
+==== default taps, SONiC idle, 09:35 UTC (m-base-c31c32.console.txt)
+>>> extphy pre 0x17e
+phy 0x17e: Pretap=0, Maintap=0x2b, Posttap=0x5, Post2tap=0, Post3tap=0, Current=0xf
+<<< rc=0  (24 reads, 31 writes, 0 delays, 0.2 s)
+>>> extphy status 0x17e
+phy 0x17e, lane=4, line side, link=UP, loopback=Disabled, FEC=Enabled
+speed=100000, max_packet=16383, line side interface=CAUI4_C2C, system side interface=CAUI
+low-latency bypass: egress = YES
+low-latency bypass: ingress = YES
+flow control: enabled
+<<< rc=0  (164 reads, 205 writes, 28 delays, 1.1 s)
+>>> extphy status 0x17e dsc
+TEMPRATURE:38 PLL RANGE:216
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       39C      (16) 38C    0x09    25.750GHz     216       (07) 165       1*  
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1*  1*    0    33     3    1,3    30  -7  198   99  39,  8,  7,  1,  1,  1     0    0, 43, 5, 0, 0   15,0  312,373,122,120    58.4
+ 1 (OSx1       , 0x000c,   0, 0)  1*  1*    0    31     0    1,3    28  -5  198   96  37,  6,  5,  0,  1,  2     0    0, 43, 5, 0, 0   15,0  359,386,127,127    58.6
+ 2 (OSx1       , 0x000c,   0, 0)  1*  1*    0    35     1    1,3    33  -3  212   92  36,  9,  3,  1,  3,  1     0    0, 43, 5, 0, 0   15,0  312,417,141,132    64.3
+ 3 (OSx1       , 0x000c,   0, 0)  1*  1*    0    33    -1    2,3    29   1  200   92  36,  8,  0,  1,  2,  0     0    0, 43, 5, 0, 0   15,0  328,359,129,127    66.1
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       38C      (16) 38C    0x09    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    33     3    1,3    30  -8  196   99  38,  8,  7,  1,  1,  1     0    0, 43, 5, 0, 0   15,0  328,388,125,120    58.4
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    32     0    1,3    28  -4  198   96  38,  6,  5,  0,  1,  2     0    0, 43, 5, 0, 0   15,0  359,402,127,129    58.6
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    34     1    1,3    33  -2  214   94  36,  9,  3,  1,  3,  1     0    0, 43, 5, 0, 0   15,0  312,433,139,132    64.3
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    33    -1    2,3    29   0  200   92  36,  8,  0,  1,  2,  0     0    0, 43, 5, 0, 0   15,0  328,359,129,122    66.1
+<<< rc=0  (25442 reads, 37964 writes, 0 delays, 200.0 s)
+>>> extphy pre 0x17f
+phy 0x17f: Pretap=0, Maintap=0x2b, Posttap=0x5, Post2tap=0, Post3tap=0, Current=0xf
+<<< rc=0  (24 reads, 31 writes, 0 delays, 0.2 s)
+>>> extphy status 0x17f
+phy 0x17f, lane=4, line side, link=UP, loopback=Disabled, FEC=Enabled
+speed=100000, max_packet=16383, line side interface=CAUI4_C2C, system side interface=CAUI
+low-latency bypass: egress = YES
+low-latency bypass: ingress = YES
+flow control: enabled
+<<< rc=0  (164 reads, 205 writes, 28 delays, 1.2 s)
+>>> extphy status 0x17f dsc
+TEMPRATURE:38 PLL RANGE:216
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       38C      (16) 38C    0x09    25.750GHz     216       (07) 165       1*  
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1*  1*    0    32     0    2,3    26   1  205   94  36,  8,  3, -4,  3,  0     0    0, 43, 5, 0, 0   15,0  343,359,132,127    63.8
+ 1 (OSx1       , 0x000c,   0, 0)  1*  1*    0    33     0    2,2    25  -1  205   94  37,  9,  2,  0,  3,  2     0    0, 43, 5, 0, 0   15,0  281,359,129,129    67.6
+ 2 (OSx1       , 0x000c,   0, 0)  1*  1*    0    34     0    1,3    26  -8  193   94  36,  9,  2,  1,  2,  0     0    0, 43, 5, 0, 0   15,0  328,402,120,125    71.1
+ 3 (OSx1       , 0x000c,   0, 0)  1*  1*    0    33     0    0,3    27  -5  191   92  35,  9,  7,  0,  2,  1     0    0, 43, 5, 0, 0   15,0  328,417,120,115    57.5
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       38C      (16) 39C    0x09    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    32     0    2,3    26   1  203   94  36,  8,  3, -4,  3,  0     0    0, 43, 5, 0, 0   15,0  359,359,132,125    63.8
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    32     0    2,3    25  -1  203   94  36,  8,  1, -1,  2,  1     0    0, 43, 5, 0, 0   15,0  281,359,129,132    67.6
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    33     0    1,3    26  -9  193   94  36,  9,  2,  1,  2,  0     0    0, 43, 5, 0, 0   15,0  328,402,120,122    71.1
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    34     0    1,3    28  -5  203   99  38,  7,  6, -1,  1,  2     0    0, 43, 5, 0, 0   15,0  312,433,137,132    57.5
+<<< rc=0  (25438 reads, 37959 writes, 0 delays, 200.2 s)
+==== factory taps applied live to the four cabled PHYs, 09:42 UTC (m-pre-cabled.console.txt)
+>>> extphy pre 0x0 0 0x2 0x2a 0x13 0x4 0x0 0x8
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.3 s)
+>>> extphy pre 0x0 1 0x2 0x2e 0x15 0x4 0x0 0x8
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.3 s)
+>>> extphy pre 0x0 2 0x2 0x30 0x12 0x4 0x0 0x8
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.3 s)
+>>> extphy pre 0x0 3 0x2 0x3c 0x18 0x4 0x0 0x8
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.3 s)
+>>> extphy pre 0x1 0 0x2 0x2f 0x15 0x4 0x0 0x8
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.3 s)
+>>> extphy pre 0x1 1 0x2 0x2f 0x14 0x4 0x0 0x8
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.3 s)
+>>> extphy pre 0x1 2 0x2 0x2f 0x13 0x4 0x0 0x8
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.4 s)
+>>> extphy pre 0x1 3 0x2 0x32 0x19 0x4 0x0 0x8
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.4 s)
+>>> extphy pre 0x17e 0 0x2 0x2c 0x14 0x4 0x0 0x8
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.3 s)
+>>> extphy pre 0x17e 1 0x2 0x30 0x16 0x4 0x0 0x8
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.3 s)
+>>> extphy pre 0x17e 2 0x2 0x2c 0x12 0x4 0x0 0x8
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.3 s)
+>>> extphy pre 0x17e 3 0x2 0x32 0x17 0x4 0x0 0x8
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.3 s)
+>>> extphy pre 0x17f 0 0x2 0x32 0x18 0x4 0x0 0x8
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.3 s)
+>>> extphy pre 0x17f 1 0x2 0x2f 0x14 0x4 0x0 0x8
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.3 s)
+>>> extphy pre 0x17f 2 0x2 0x2f 0x15 0x4 0x0 0x8
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.3 s)
+>>> extphy pre 0x17f 3 0x2 0x2f 0x18 0x4 0x0 0x8
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.3 s)
+>>> extphy pre 0x0
+phy 0: Pretap=0x2, Maintap=0x2a, Posttap=0x13, Post2tap=0x4, Post3tap=0, Current=0x8
+<<< rc=0  (24 reads, 31 writes, 0 delays, 0.2 s)
+>>> extphy pre 0x1
+phy 0x1: Pretap=0x2, Maintap=0x2f, Posttap=0x15, Post2tap=0x4, Post3tap=0, Current=0x8
+<<< rc=0  (24 reads, 31 writes, 0 delays, 0.2 s)
+>>> extphy pre 0x17e
+phy 0x17e: Pretap=0x2, Maintap=0x2c, Posttap=0x14, Post2tap=0x4, Post3tap=0, Current=0x8
+<<< rc=0  (24 reads, 31 writes, 0 delays, 0.2 s)
+>>> extphy pre 0x17f
+phy 0x17f: Pretap=0x2, Maintap=0x32, Posttap=0x18, Post2tap=0x4, Post3tap=0, Current=0x8
+<<< rc=0  (24 reads, 31 writes, 0 delays, 0.2 s)
+==== factory taps, SONiC idle, 09:42 UTC (m-fact-c1c2.console.txt)
+>>> extphy status 0x0 dsc
+TEMPRATURE:41 PLL RANGE:216
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       41C      (16) 40C    0x08    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    35     2    0,3    31  -4  196   59  32, -4,  3,  1,  0,  1     0    2, 42,19, 4, 0    8,0  296,328,120,118    65.5
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    34     2    0,3    34 -10  205   59  33, -5,  3, -1,  1,  2     0    2, 46,21, 4, 0    8,0  296,359,137,139    57.7
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    37    -2    0,3    32  -4  203   40  31, -4,  2, -1,  2,  1     0    2, 48,18, 4, 0    8,0  312,343,134,132    70.5
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    33     0    0,3    32   0  207   73  32, -2, -1,  0,  3,  1     0    2, 60,24, 4, 0    8,0  281,402,144,139    70.6
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       40C      (16) 39C    0x08    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    35     2    0,3    31  -5  196   61  32, -4,  3,  1,  0,  1     0    2, 42,19, 4, 0    8,0  296,312,122,118    65.5
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    34     2    0,3    34 -11  207   59  32, -5,  3, -1,  1,  2     0    2, 46,21, 4, 0    8,0  296,359,141,134    57.7
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    37    -2    0,3    32  -4  205   37  31, -4,  2, -1,  2,  1     0    2, 48,18, 4, 0    8,0  312,343,134,134    70.5
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    33     0    0,3    32   1  210   73  32, -2, -1,  0,  3,  1     0    2, 60,24, 4, 0    8,0  296,386,141,139    70.6
+<<< rc=0  (25438 reads, 37959 writes, 0 delays, 199.4 s)
+>>> extphy status 0x1 dsc
+TEMPRATURE:38 PLL RANGE:218
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       38C      (16) 38C    0x08    25.750GHz     218       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    36     0    0,3    37  -5  212   25  27, -3,  2, -5,  4,  1     0    2, 47,21, 4, 0    8,0  296,296,148,134    64.0
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    35     1    0,3    34   9  200   49  30, -3,  1, -2,  2,  2     0    2, 47,20, 4, 0    8,0  281,296,132,129    67.4
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    36     1    0,3    31   3  200   59  34,  0,  1,  0,  2,  1     0    2, 47,19, 4, 0    8,0  328,359,137,137    71.2
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    31     2    0,3    30  -3  198   80  32, -3,  4, -1,  1,  2     0    2, 50,25, 4, 0    8,0  296,328,129,129    66.1
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       37C      (16) 38C    0x08    25.750GHz     218       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    37     0    0,3    37  -4  212   28  29, -4,  2, -5,  4,  1     0    2, 47,21, 4, 0    8,0  296,296,144,137    64.0
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    34     1    0,3    34  10  203   49  28, -2,  1, -2,  2,  2     0    2, 47,20, 4, 0    8,0  281,296,132,134    67.4
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    35     1    0,3    31   2  200   61  33, -1,  1,  0,  2,  0     0    2, 47,19, 4, 0    8,0  343,359,139,134    71.2
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    31     2    0,3    30  -2  198   80  32, -3,  4, -1,  1,  2     0    2, 50,25, 4, 0    8,0  296,328,127,129    66.1
+<<< rc=0  (25438 reads, 37959 writes, 0 delays, 200.1 s)
+==== factory taps, SONiC idle, 09:49 UTC (m-fact-c31c32.console.txt)
+>>> extphy status 0x17e dsc
+TEMPRATURE:39 PLL RANGE:216
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       39C      (16) 39C    0x09    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    35     3    0,3    35  -8  214   18  23, -8,  4,  0, -1,  2     0    2, 44,20, 4, 0    8,0  296,312,146,144    58.4
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    34     0    0,3    34  -5  210   23  25, -8,  3, -2,  0,  3     0    2, 48,22, 4, 0    8,0  343,328,153,144    58.6
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    38     1    0,3    39   1  224    0  21, -6,  0, -1,  2,  2     0    2, 44,18, 4, 0    8,0  296,343,162,160    64.3
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    37    -1    0,3    36   2  217   14  23, -4, -1, -1,  2,  1     0    2, 50,23, 4, 0    8,0  296,328,146,153    66.1
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       39C      (16) 39C    0x09    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    35     3    0,3    35  -8  214   16  22, -8,  4,  0, -1,  2     0    2, 44,20, 4, 0    8,0  296,312,148,146    58.4
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    34     0    0,3    34  -4  212   23  25, -8,  3, -2,  0,  3     0    2, 48,22, 4, 0    8,0  328,328,146,146    58.6
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    38     1    0,3    39   0  222    2  21, -6,  0, -1,  2,  2     0    2, 44,18, 4, 0    8,0  296,359,165,158    64.3
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    37    -1    0,3    36   1  217   14  23, -4, -1, -1,  2,  1     0    2, 50,23, 4, 0    8,0  296,328,151,148    66.1
+<<< rc=0  (25442 reads, 37964 writes, 0 delays, 200.9 s)
+>>> extphy status 0x17f dsc
+TEMPRATURE:38 PLL RANGE:216
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       37C      (16) 38C    0x09    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    36     0    0,3    34  -1  214   21  25, -5,  2, -6,  3,  1     0    2, 50,24, 4, 0    8,0  281,296,148,137    63.8
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    38     0    0,3    31  -4  212    7  24, -4,  0, -2,  1,  2     0    2, 47,20, 4, 0    8,0  250,281,141,141    67.6
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    38     0    0,3    34 -11  210   16  25, -5,  0, -1,  1,  1     0    2, 47,21, 4, 0    8,0  296,343,141,146    71.1
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    36     0    0,3    33  -5  224   18  23, -8,  4, -1,  0,  3     0    2, 47,24, 4, 0    8,0  281,359,158,153    57.5
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       38C      (16) 37C    0x09    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    36     0    0,3    34   0  214   16  24, -4,  2, -6,  3,  1     0    2, 50,24, 4, 0    8,0  296,296,144,141    63.8
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    38     0    0,3    31  -3  212    4  23, -3,  0, -2,  1,  2     0    2, 47,20, 4, 0    8,0  250,296,141,141    67.6
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    38     0    0,3    34 -10  210   14  24, -5,  0, -1,  1,  1     0    2, 47,21, 4, 0    8,0  296,343,139,146    71.1
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    36     0    0,3    33  -5  222   21  23, -8,  4, -1,  0,  3     0    2, 47,24, 4, 0    8,0  281,343,160,155    57.5
+<<< rc=0  (25438 reads, 37959 writes, 0 delays, 201.7 s)
+==== counter check: lane 0 of 0x00 weakened (main 30, no post, amp 4), 09:56 UTC (m-degrade.console.txt)
+>>> extphy pre 0x0 0 0 30 0 0 0 4
+<<< rc=0  (36 reads, 73 writes, 0 delays, 0.3 s)
+==== factory taps from the boot script, ring at line rate, t+0.5..8 min (m-load-dsc-c1c2.console.txt)
+>>> extphy status 0x0 dsc
+TEMPRATURE:42 PLL RANGE:216
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       42C      (16) 42C    0x08    25.750GHz     216       (07) 165       1*  
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1*  1*    0    34     2    0,3    31  -5  196   56  31, -4,  3,  2,  0,  1     0    2, 42,19, 4, 0    8,0  312,328,129,125    58.9
+ 1 (OSx1       , 0x000c,   0, 0)  1*  1*    0    34     2    0,3    34 -12  203   63  34, -5,  3, -1,  1,  3     0    2, 46,21, 4, 0    8,0  296,343,137,129    57.1
+ 2 (OSx1       , 0x000c,   0, 0)  1*  1*    0    37    -2    0,3    32  -4  200   42  31, -4,  2, -1,  2,  1     0    2, 48,18, 4, 0    8,0  328,343,132,127    69.9
+ 3 (OSx1       , 0x000c,   0, 0)  1*  1*    0    32     0    0,3    32   0  207   75  31, -2, -1,  0,  3,  1     0    2, 60,24, 4, 0    8,0  312,373,139,144    66.5
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       42C      (16) 42C    0x08    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    34     2    0,3    31  -4  193   59  31, -4,  3,  2,  0,  1     0    2, 42,19, 4, 0    8,0  312,328,127,125    58.9
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    34     2    0,3    34 -12  203   63  33, -5,  3, -1,  1,  2     0    2, 46,21, 4, 0    8,0  296,359,139,137    57.1
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    37    -2    0,3    32  -4  200   42  31, -4,  2, -1,  2,  1     0    2, 48,18, 4, 0    8,0  312,359,132,127    69.9
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    32     0    0,3    32   1  207   75  31, -2, -1,  0,  3,  1     0    2, 60,24, 4, 0    8,0  312,373,137,146    66.5
+<<< rc=0  (25438 reads, 37959 writes, 0 delays, 214.6 s)
+>>> extphy status 0x1 dsc
+TEMPRATURE:41 PLL RANGE:218
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       41C      (16) 41C    0x08    25.750GHz     218       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1*  1*    0    36     0    0,3    37  -4  210   28  28, -3,  2, -5,  4,  1     0    2, 47,21, 4, 0    8,0  296,296,139,137    62.2
+ 1 (OSx1       , 0x000c,   0, 0)  1*  1*    0    34     1    0,3    34   9  198   54  29, -2,  1, -2,  2,  2     0    2, 47,20, 4, 0    8,0  281,296,134,129    62.0
+ 2 (OSx1       , 0x000c,   0, 0)  1*  1*    0    35     1    0,3    31   2  198   63  33, -1,  1,  0,  2,  1     0    2, 47,19, 4, 0    8,0  343,359,137,137    73.4
+ 3 (OSx1       , 0x000c,   0, 0)  1*  1*    0    31     2    0,3    31  -1  205   85  33, -3,  5, -1,  1,  2     0    2, 50,25, 4, 0    8,0  312,328,132,134    60.3
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       40C      (16) 41C    0x08    25.750GHz     218       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    36     0    0,3    37  -4  210   28  28, -4,  2, -5,  4,  1     0    2, 47,21, 4, 0    8,0  296,296,137,141    62.2
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    35     1    0,3    34  10  198   51  30, -3,  1, -2,  2,  2     0    2, 47,20, 4, 0    8,0  265,296,129,129    62.0
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    36     1    0,3    31   3  198   59  33,  0,  1,  0,  2,  1     0    2, 47,19, 4, 0    8,0  343,373,132,137    73.4
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    31     2    0,3    31  -1  205   85  34, -3,  5, -1,  1,  2     0    2, 50,25, 4, 0    8,0  296,328,134,134    60.3
+<<< rc=0  (25438 reads, 37959 writes, 0 delays, 215.1 s)
+==== ring at line rate, t+8..15 min (m-load-dsc-c31c32.console.txt)
+>>> extphy status 0x17e dsc
+TEMPRATURE:42 PLL RANGE:216
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       42C      (16) 42C    0x09    25.750GHz     216       (07) 165       1*  
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1*  1*    0    35     3    0,3    35  -8  212   21  23, -7,  4,  0, -1,  2     0    2, 44,20, 4, 0    8,0  281,328,148,141    58.6
+ 1 (OSx1       , 0x000c,   0, 0)  1*  1*    0    34     0    0,3    34  -5  210   21  24, -7,  3, -2,  0,  3     0    2, 48,22, 4, 0    8,0  328,328,144,141    59.6
+ 2 (OSx1       , 0x000c,   0, 0)  1*  1*    0    38     1    0,3    39   0  219    4  22, -6,  0, -1,  2,  2     0    2, 44,18, 4, 0    8,0  296,343,162,155    60.3
+ 3 (OSx1       , 0x000c,   0, 0)  1*  1*    0    37    -1    0,3    36   1  212   18  24, -4, -1, -1,  2,  1     0    2, 50,23, 4, 0    8,0  296,343,148,144    65.8
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       42C      (15) 43C    0x09    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    36     3    0,3    35  -8  212   18  24, -7,  4,  1, -1,  2     0    2, 44,20, 4, 0    8,0  296,328,148,141    58.6
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    34     0    0,3    34  -4  207   25  25, -8,  3, -2,  0,  3     0    2, 48,22, 4, 0    8,0  328,328,139,144    59.6
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    38     1    0,3    39   1  219    4  22, -6,  0, -1,  2,  2     0    2, 44,18, 4, 0    8,0  296,359,160,158    60.3
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    37    -1    0,3    36   1  212   21  24, -4, -1, -1,  2,  1     0    2, 50,23, 4, 0    8,0  296,328,148,146    65.8
+<<< rc=0  (25438 reads, 37959 writes, 0 delays, 214.7 s)
+>>> extphy status 0x17f dsc
+TEMPRATURE:42 PLL RANGE:216
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       42C      (16) 42C    0x09    25.750GHz     216       (07) 165       1*  
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1*  1*    0    36     1    0,3    34   0  210   23  26, -5,  2, -6,  3,  1     0    2, 50,24, 4, 0    8,0  296,296,141,141    63.8
+ 1 (OSx1       , 0x000c,   0, 0)  1*  1*    0    38     0    0,3    31  -4  210    9  24, -3,  0, -2,  1,  2     0    2, 47,20, 4, 0    8,0  250,296,137,137    65.8
+ 2 (OSx1       , 0x000c,   0, 0)  1*  1*    0    38     0    0,3    34 -10  207   16  25, -5,  0,  0,  1,  1     0    2, 47,21, 4, 0    8,0  296,359,141,139    68.9
+ 3 (OSx1       , 0x000c,   0, 0)  1*  1*    0    36     0    0,3    33  -5  217   25  24, -8,  4, -1,  0,  3     0    2, 47,24, 4, 0    8,0  296,343,155,148    63.3
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       41C      (16) 41C    0x09    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    36     1    0,3    34  -1  210   18  24, -5,  2, -5,  3,  1     0    2, 50,24, 4, 0    8,0  296,296,148,139    63.8
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    37     0    0,2    31  -4  212   11  23, -1,  1,  0,  2,  3     0    2, 47,20, 4, 0    8,0  250,281,137,139    65.8
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    38     0    0,3    34 -10  207   18  26, -5,  0, -1,  1,  1     0    2, 47,21, 4, 0    8,0  296,359,144,139    68.9
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    36     0    0,3    33  -5  219   23  23, -8,  4, -1,  0,  3     0    2, 47,24, 4, 0    8,0  296,343,158,148    63.3
+<<< rc=0  (25438 reads, 37959 writes, 0 delays, 215.0 s)
+==== ring at line rate, t+15.5..23 min (m-load-dsc-end.console.txt)
+>>> extphy status 0x0 dsc
+TEMPRATURE:42 PLL RANGE:216
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       42C      (15) 42C    0x08    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    34     2    0,3    32  -4  203   61  33, -4,  3,  2,  0,  1     0    2, 42,19, 4, 0    8,0  312,328,134,129    58.9
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    33     2    0,3    34 -11  205   61  31, -5,  3, -1,  1,  2     0    2, 46,21, 4, 0    8,0  296,359,134,137    57.1
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    37    -2    0,3    32  -4  200   44  32, -4,  2, -1,  2,  1     0    2, 48,18, 4, 0    8,0  328,359,132,127    69.9
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    32     0    0,3    32   0  207   75  31, -2, -1,  0,  3,  1     0    2, 60,24, 4, 0    8,0  312,373,139,144    66.5
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       41C      (15) 42C    0x08    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    33     2    0,3    32  -4  203   66  32, -4,  3,  2,  0,  1     0    2, 42,19, 4, 0    8,0  312,328,134,132    58.9
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    34     2    0,3    34 -11  203   63  34, -5,  3, -1,  1,  2     0    2, 46,21, 4, 0    8,0  296,359,134,137    57.1
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    37    -2    0,3    32  -4  200   42  32, -4,  2, -1,  2,  1     0    2, 48,18, 4, 0    8,0  312,359,132,125    69.9
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    32     0    0,3    32   1  205   75  31, -2, -1,  0,  3,  1     0    2, 60,24, 4, 0    8,0  312,373,137,146    66.5
+<<< rc=0  (25438 reads, 37959 writes, 0 delays, 215.9 s)
+>>> extphy status 0x17f dsc
+TEMPRATURE:42 PLL RANGE:216
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       41C      (16) 41C    0x09    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    36     1    0,3    34   0  210   25  26, -5,  2, -6,  3,  1     0    2, 50,24, 4, 0    8,0  296,296,141,141    63.8
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    37     0    0,3    31  -3  210   11  23, -3,  0, -1,  1,  2     0    2, 47,20, 4, 0    8,0  234,296,137,141    65.8
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    38     0    0,3    34 -10  207   18  25, -6,  0,  0,  1,  1     0    2, 47,21, 4, 0    8,0  296,359,144,139    68.9
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    36     0    0,3    33  -4  219   23  24, -8,  4, -1,  0,  3     0    2, 47,24, 4, 0    8,0  296,343,155,153    63.3
+CORE RST_ST  PLL_PWDN  UC_ATV   COM_CLK   UCODE_VER  AFE_VER   LIVE_TEMP   AVG_TMON   RESCAL   VCO_RATE  ANA_VCO_RANGE  PLL_DIV    PLL_LOCK
+00   0   00    0        1     156.25MHz   D10B_16     0xb2       41C      (16) 41C    0x09    25.750GHz     216       (07) 165       1   
+LN (CDRxN  , UC_CFG,RST,STP)  SD LCK RXPPM CLK90 CLKP1 PF(M,L)  VGA DCO P1mV M1mV  DFE(1,2,3,4,5,6)        TXPPM TXEQ(n1,m,p1,2,3) TXAMP   EYE(L,R,U,D)  LINK_TIME
+ 0 (OSx1       , 0x000c,   0, 0)  1   1     0    35     1    0,3    34   0  212   25  24, -4,  2, -5,  3,  1     0    2, 50,24, 4, 0    8,0  312,296,144,146    63.8
+ 1 (OSx1       , 0x000c,   0, 0)  1   1     0    38     0    0,3    31  -4  210    7  24, -3,  0, -2,  1,  2     0    2, 47,20, 4, 0    8,0  250,296,139,141    65.8
+ 2 (OSx1       , 0x000c,   0, 0)  1   1     0    38     0    0,3    34 -10  207   18  25, -5,  0, -1,  1,  1     0    2, 47,21, 4, 0    8,0  296,359,144,141    68.9
+ 3 (OSx1       , 0x000c,   0, 0)  1   1     0    36     0    0,3    33  -5  219   23  23, -8,  4, -1,  0,  3     0    2, 47,24, 4, 0    8,0  265,343,155,148    63.3
+<<< rc=0  (25438 reads, 37959 writes, 0 delays, 216.6 s)

@@ -145,8 +145,20 @@ class Diag(Ssh):
     LOOP = ('while IFS= read -r l; do case "$l" in "echo MK"*) echo "${l#echo }";; "") ;; '
             '*) openbcm-diag "$l" 2>&1;; esac; done')
 
-    def __init__(self, cmd, log=None):
-        Ssh.__init__(self, cmd, cwd_cmd=self.LOOP, init=('phy raw c45 0x0 0x1 0x8b00',), log=log, expect='0x8b00: 0x2391')
+    def __init__(self, cmd, log=None, sock=None):
+        # sock: another server speaking the same protocol (loadtest/bcmd.py: a private bcm.user, SONiC stopped)
+        sock = sock or os.environ.get('EVORA_DIAG_SOCKET')
+        loop = ('export OPENBCM_DIAG_SOCKET=%s; ' % sock if sock else '') + self.LOOP
+        Ssh.__init__(self, cmd, cwd_cmd=loop, init=('phy raw c45 0x0 0x1 0x8b00',), log=log, expect='0x8b00: 0x2391')
+
+    def close(self):
+        # no 'exit': the server is not ours to end (syncd refuses it; it ended the first bcmd.py, 2026-11-22)
+        try:
+            self.flush()
+            self.p.stdin.close()
+            self.p.wait(10)
+        except Exception:
+            self.p.kill()
 
 
 def make_backend(name, args):

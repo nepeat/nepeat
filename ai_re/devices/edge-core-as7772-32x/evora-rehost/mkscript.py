@@ -2,7 +2,12 @@
 """Compile recorded Evora MDIO traces (mdio.py format, made by rehost.py) into one MDIO script for
 openbcm-mdio-script on the switch (format: nix/packages/sai-openbcm/src/mdio_script.h).
 
-  mkscript.py -o OUT.mdio all-init.trace.txt all-cfg.trace.txt
+  mkscript.py -o OUT.mdio all-init.trace.txt all-cfg.trace.txt [all-pre.trace.txt]
+
+all-pre = the factory TX taps ('extphy pre <id> <lane> ...' for 32 x 4 lanes, preem-25G.soc, then a 'pre <id>' get
+per PHY, recorded from PHYs with default taps): masked register writes, compiled like everything else; its reads
+of the old and new tap values become E lines, so a PHY whose taps do not read back as recorded shows up in the
+runner's count of differing values.
 
 The script is replay.py's behaviour written down operation by operation, so the runner on the switch needs no
 knowledge of this chip:

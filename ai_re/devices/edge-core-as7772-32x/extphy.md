@@ -58,8 +58,14 @@ firmware: [evora-vendor-re.md](evora-vendor-re.md). Public sources (none for Evo
   ce0 -> ce1 2000 / 508,000 B, ce1 -> ce0 4000 / 4,088,000 B, ce30 -> ce31 6000 / 3,060,000 B,
   ce31 -> ce30 8000 / 12,128,000 B; no RFCS / RERPKT. `asic-link-2dacs-20261122-run1.txt` (sha256 9cc557414b1d).
   First link (cages 1-2 only, 2026-11-21): `asic-link-ce0-ce1-20261121-run1.txt`.
-- Not done: netdevs (KNET), real load, PHY-side FEC/PCS error counters, soak, 25G break-out, a cable on the
-  other 28 cages, anything at boot.
+- **Load, 2026-11-22 ([load-test.md](load-test.md)):** both DACs 26 min at 100 % of 100G line rate in both directions
+  (96.4 Gb/s of frames per port per direction at IPG 16, 385.7 Gb/s transmitted in total, 64-8996 B mix), **0
+  frames lost, RS-FEC corrected/uncorrected 0**, ASIC 49 C max. Run with the plain SDK (SONiC stopped) as two
+  counter-rotating L2 rings; SONiC's own forwarding path is ping-tested only.
+- **TX taps:** the factory per-lane line-side taps (`preem-25G.soc`) are in the boot script for all 32 PHYs.
+- PHY counters with SONiC running: `evora-rehost/phystat.py` (FEC, PCS, PHY MAC MIBs) through syncd's diag socket.
+- Not done: frames above 8996 B, pause through the PHY, 25G break-out, a cable on the other 28 cages, soak
+  beyond 26 min.
 
 ## MACsec
 - The Evora is a MAC-PHY inline on every port; the vendor init brings its MACsec engine up
@@ -85,5 +91,5 @@ does no PHY/CPLD/GPIO step that ours skips.
 
 ## Next
 1. Done 2026-11-22: PHY init at boot + SONiC ([sonic.md](sonic.md)). Load at rate and soak are not.
-2. `extphy pre` taps from the factory script; PHY-side error counters under load; soak.
+2. Done 2026-11-22: factory taps, PHY-side counters, 26 min load ([load-test.md](load-test.md)). Longer soak is not.
 3. MACsec on: mode 2 first, then keys through `bcm_plp_secy_*`.
