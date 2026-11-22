@@ -521,6 +521,7 @@ static sai_status_t create_acl_table(_Out_ sai_object_id_t* id, _In_ sai_object_
     return guarded(SAI_API_ACL, __func__, [&]() -> sai_status_t {
         auto& c = ctx();
         if (!id || (n && !attrs)) return SAI_STATUS_INVALID_PARAMETER;
+        if (macsec_acl_stage(n, attrs)) return macsec_acl_table_create(id, n, attrs);   // an external PHY's, not the ASIC's
         AclTableObj t;
         bool has_stage = false;
         for (uint32_t i = 0; i < n; i++) {
@@ -620,6 +621,7 @@ static sai_status_t remove_acl_table(_In_ sai_object_id_t id)
 {
     return guarded(SAI_API_ACL, __func__, [&]() -> sai_status_t {
         auto& c = ctx();
+        if (macsec_acl_table(id)) return macsec_acl_table_remove(id);
         AclTableObj* t = lookup(c.acl_tables, id);
         if (!t) return SAI_STATUS_INVALID_OBJECT_ID;
         if (!t->entries.empty() || acl_referenced(id)) return SAI_STATUS_OBJECT_IN_USE;
@@ -643,9 +645,10 @@ static sai_status_t set_acl_table_attribute(_In_ sai_object_id_t id, _In_ const 
 static sai_status_t get_acl_table_attribute(_In_ sai_object_id_t id, _In_ uint32_t n, _Inout_ sai_attribute_t* attrs)
 {
     return guarded(SAI_API_ACL, __func__, [&]() -> sai_status_t {
+        if (n && !attrs) return SAI_STATUS_INVALID_PARAMETER;
+        if (macsec_acl_table(id)) return macsec_acl_table_get(id, n, attrs);
         AclTableObj* t = lookup(ctx().acl_tables, id);
         if (!t) return SAI_STATUS_INVALID_OBJECT_ID;
-        if (n && !attrs) return SAI_STATUS_INVALID_PARAMETER;
         for (uint32_t i = 0; i < n; i++) {
             sai_attribute_t& a = attrs[i];
             sai_status_t st = SAI_STATUS_SUCCESS;
@@ -1078,6 +1081,7 @@ static sai_status_t create_acl_entry(_Out_ sai_object_id_t* id, _In_ sai_object_
         uint32_t ti = 0;
         const sai_attribute_t* ta = find_attr(n, attrs, SAI_ACL_ENTRY_ATTR_TABLE_ID, &ti);
         if (!ta) return SAI_STATUS_MANDATORY_ATTRIBUTE_MISSING;
+        if (macsec_acl_table(ta->value.oid)) return macsec_acl_entry_create(id, n, attrs);
         AclTableObj* t = lookup(c.acl_tables, ta->value.oid);
         if (!t) return attr_invalid(ti);
         AclEntryObj e;
@@ -1102,6 +1106,7 @@ static sai_status_t remove_acl_entry(_In_ sai_object_id_t id)
 {
     return guarded(SAI_API_ACL, __func__, [&]() -> sai_status_t {
         auto& c = ctx();
+        if (macsec_acl_entry(id)) return macsec_acl_entry_remove(id);
         AclEntryObj* e = lookup(c.acl_entries, id);
         if (!e) return SAI_STATUS_INVALID_OBJECT_ID;
         entry_uninstall(*e);
@@ -1117,9 +1122,10 @@ static sai_status_t set_acl_entry_attribute(_In_ sai_object_id_t id, _In_ const 
 {
     return guarded(SAI_API_ACL, __func__, [&]() -> sai_status_t {
         auto& c = ctx();
+        if (!attr) return SAI_STATUS_INVALID_PARAMETER;
+        if (macsec_acl_entry(id)) return attr->id == SAI_ACL_ENTRY_ATTR_TABLE_ID ? attr_invalid(0) : macsec_acl_entry_set(id, attr);
         AclEntryObj* e = lookup(c.acl_entries, id);
         if (!e) return SAI_STATUS_INVALID_OBJECT_ID;
-        if (!attr) return SAI_STATUS_INVALID_PARAMETER;
         if (attr->id == SAI_ACL_ENTRY_ATTR_TABLE_ID) return attr_invalid(0);
         AclEntryObj n = *e;
         sai_status_t st = entry_attr(n, id, lookup(c.acl_tables, e->table), *attr, 0);
@@ -1138,9 +1144,10 @@ static sai_status_t set_acl_entry_attribute(_In_ sai_object_id_t id, _In_ const 
 static sai_status_t get_acl_entry_attribute(_In_ sai_object_id_t id, _In_ uint32_t n, _Inout_ sai_attribute_t* attrs)
 {
     return guarded(SAI_API_ACL, __func__, [&]() -> sai_status_t {
+        if (n && !attrs) return SAI_STATUS_INVALID_PARAMETER;
+        if (macsec_acl_entry(id)) return macsec_acl_entry_get(id, n, attrs);
         AclEntryObj* e = lookup(ctx().acl_entries, id);
         if (!e) return SAI_STATUS_INVALID_OBJECT_ID;
-        if (n && !attrs) return SAI_STATUS_INVALID_PARAMETER;
         for (uint32_t i = 0; i < n; i++) {
             sai_attribute_t& a = attrs[i];
             if (is_entry_field(a.id)) {

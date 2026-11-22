@@ -15,7 +15,8 @@ WARN = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers
 SAI_CPPFLAGS = -I$(SAI_INC) -Isrc
 CORE = src/sai_api.cpp src/sai_switch.cpp src/sai_port.cpp src/sai_l2.cpp src/sai_hostif.cpp \
        src/sai_l3.cpp src/sai_lag.cpp src/sai_temp.cpp src/sai_caps.cpp src/sai_diag.cpp src/sai_acl.cpp \
-       src/sai_qos.cpp src/sai_mirror.cpp src/sai_hash.cpp src/sai_extphy.cpp src/fake_backend.cpp
+       src/sai_qos.cpp src/sai_mirror.cpp src/sai_hash.cpp src/sai_extphy.cpp src/sai_extmacsec.cpp src/sai_macsec.cpp \
+       src/fake_backend.cpp
 
 ifneq ($(OPENBCM),)
 BACKEND_OBJS = build/openbcm_backend.o build/sdk_glue.o
@@ -23,13 +24,13 @@ SDK_CFLAGS = $(shell cat $(OPENBCM)/share/openbcm/cflags) \
   -I$(OPENBCM)/include/openbcm/include -I$(OPENBCM)/include/openbcm/bde \
   -I$(OPENBCM)/include/openbcm/kmod -I$(OPENBCM)/include/openbcm/phymod
 SDK_LIBS = -L$(OPENBCM)/lib -lsdk -Wl,-rpath,$(OPENBCM)/lib
-TOOLS = build/openbcm-asic-temp build/openbcm-diag build/openbcm-mdio-script build/openbcm-ext-phy
+TOOLS = build/openbcm-asic-temp build/openbcm-diag build/openbcm-mdio-script build/openbcm-ext-phy build/openbcm-ext-macsec
 MDIO_SDK = -DOB_HAVE_SDK build/sdk_glue.o build/temp_files.o $(SDK_LIBS)
 MDIO_DEPS = build/sdk_glue.o build/temp_files.o
 else
 BACKEND_OBJS = build/backend_none.o
 SDK_LIBS =
-TOOLS = build/openbcm-diag build/openbcm-mdio-script build/openbcm-ext-phy
+TOOLS = build/openbcm-diag build/openbcm-mdio-script build/openbcm-ext-phy build/openbcm-ext-macsec
 MDIO_SDK =
 MDIO_DEPS =
 endif
@@ -78,6 +79,10 @@ build/test_mdio_script: tests/test_mdio_script.c $(MDIO_SRC) $(MDIO_HDR)
 build/openbcm-ext-phy: src/ext_phy_check.cpp src/ext_phy.h build/libsai.a
 	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) $(LDFLAGS) -o $@ src/ext_phy_check.cpp build/libsai.a $(SDK_LIBS) -lpthread
 
+# External MACsec table checker / renderer (src/ext_macsec.h): the parser and executor libsai uses.
+build/openbcm-ext-macsec: src/ext_macsec_check.cpp src/ext_macsec.h build/libsai.a
+	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) $(LDFLAGS) -o $@ src/ext_macsec_check.cpp build/libsai.a $(SDK_LIBS) -lpthread
+
 build/libsai.a: $(OBJS)
 	$(AR) rcs $@ $^
 
@@ -87,7 +92,7 @@ build/libsai.so.1.0.0: $(OBJS) src/libsai.map
 	ln -sf libsai.so.1.0.0 build/libsai.so.1
 	ln -sf libsai.so.1 build/libsai.so
 
-build/test_sai: tests/test_sai.cpp tests/test_acl.inc tests/test_qos.inc tests/test_extphy.inc build/libsai.a
+build/test_sai: tests/test_sai.cpp tests/test_acl.inc tests/test_qos.inc tests/test_extphy.inc tests/test_macsec.inc build/libsai.a
 	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) -o $@ tests/test_sai.cpp build/libsai.a $(SDK_LIBS) -lpthread
 
 # test_mdio_script also runs the tool itself (parse failures, status files,

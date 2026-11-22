@@ -9,12 +9,14 @@
 // are refused. Anything else, writes included, runs as typed: a debug tool.
 // Client: bin/openbcm-diag (src/openbcm_diag.c).
 #include "sai_internal.h"
+#include "ext_macsec.h"
 #include "ext_phy.h"
 
 #include <cctype>
 #include <cerrno>
 #include <fcntl.h>
 #include <poll.h>
+#include <sstream>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/un.h>
@@ -100,6 +102,18 @@ void serve(int cfd)
         }
         if (cmd == "extphy") {   // ours, not the SDK's: the external PHY table's state (ext_phy.h)
             say(cfd, ext_phy_status());
+            return;
+        }
+        if (cmd == "extmacsec") {   // the external MACsec table's state (ext_macsec.h)
+            say(cfd, ext_macsec_status());
+            return;
+        }
+        if (cmd.compare(0, 14, "extmacsec run ") == 0) {   // one sequence by hand: extmacsec run <port> <sequence> [<parameter file>]
+            std::istringstream is(cmd.substr(14));
+            std::string port, seq, file;
+            is >> port >> seq >> file;
+            OB_NOTICE(SAI_API_SWITCH, "diag socket: extmacsec run %s %s%s", port.c_str(), seq.c_str(), file.empty() ? "" : " <parameter file>");
+            say(cfd, ext_macsec_diag_run(port, seq, file));
             return;
         }
         OB_NOTICE(SAI_API_SWITCH, "diag socket: %s", cmd.c_str());

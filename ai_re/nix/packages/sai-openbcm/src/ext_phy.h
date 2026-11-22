@@ -42,6 +42,7 @@
 #include "backend.h"
 
 #include <cstdint>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -98,6 +99,9 @@ int ext_phy_gate(int hw);
 // inside one of our sequences, nor ours inside a run of the caller's): takes
 // the sequence lock for fn and starts the hold-off.
 void ext_phy_foreign_mdio(const std::function<void()>& fn);
+// Another user of the same PHYs' register interfaces inside libsai (the external
+// MACsec table's sequences): runs fn under the sequence lock, without a hold-off.
+void ext_phy_locked(const std::function<void()>& fn);
 std::string ext_phy_status();        // text table for the diag socket ("extphy")
 ExtPhyTable& ext_phy_table();        // tests
 

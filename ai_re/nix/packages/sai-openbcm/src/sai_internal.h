@@ -130,6 +130,7 @@ struct PortObj {
     std::vector<sai_object_id_t> mirror_in, mirror_eg;
     sai_object_id_t sample_in = 0, sample_eg = 0;
     sai_object_id_t storm[3] = {0, 0, 0};   // StormKind -> policer (sai_hash.cpp port_storm_attr)
+    bool macsec_ifg = false;        // the MACsec inter-frame gap is programmed (port_quirks_apply)
     StubMap stub;
 };
 
@@ -397,6 +398,7 @@ struct PortQuirks {
 };
 sai_status_t port_quirks_parse(const BackendConfig& cfg, PortQuirks& q);   // sai_port.cpp
 void port_quirks_apply(PortObj& p);
+sai_status_t port_ifg_apply(PortObj& p);            // the inter-frame gap alone (quirk, or the MACsec one)
 
 struct Ctx {
     std::recursive_mutex mu;
@@ -545,6 +547,7 @@ extern const sai_wred_api_t wred_api;
 extern const sai_mirror_api_t mirror_api;
 extern const sai_samplepacket_api_t samplepacket_api;
 extern const sai_hash_api_t hash_api;
+extern const sai_macsec_api_t macsec_api;
 
 // Cross-object helpers implemented in the object files.
 void switch_build_objects();                         // after backend init
@@ -610,6 +613,22 @@ sai_status_t port_mirror_get(PortObj& p, sai_attribute_t& a, uint32_t i, bool& h
 int mirror_backend_id(sai_object_id_t session);      // -1: none / not programmed
 bool mirror_valid(sai_object_id_t session);
 void mirror_clear_objects();
+// MACsec in an external PHY (sai_macsec.cpp, ext_macsec.h): ACL tables of the MACsec stages are
+// kept there (never programmed into the ASIC), the port's MACsec ACL bindings, the inter-frame gap.
+bool macsec_acl_stage(uint32_t n, const sai_attribute_t* attrs);   // a table create with a *_MACSEC stage
+bool macsec_acl_table(sai_object_id_t id);
+bool macsec_acl_entry(sai_object_id_t id);
+sai_status_t macsec_acl_table_create(sai_object_id_t* id, uint32_t n, const sai_attribute_t* attrs);
+sai_status_t macsec_acl_table_remove(sai_object_id_t id);
+sai_status_t macsec_acl_table_get(sai_object_id_t id, uint32_t n, sai_attribute_t* attrs);
+sai_status_t macsec_acl_entry_create(sai_object_id_t* id, uint32_t n, const sai_attribute_t* attrs);
+sai_status_t macsec_acl_entry_remove(sai_object_id_t id);
+sai_status_t macsec_acl_entry_set(sai_object_id_t id, const sai_attribute_t* attr);
+sai_status_t macsec_acl_entry_get(sai_object_id_t id, uint32_t n, sai_attribute_t* attrs);
+sai_status_t port_macsec_set(PortObj& p, const sai_attribute_t& a, uint32_t i, bool& handled);
+sai_status_t port_macsec_get(PortObj& p, sai_attribute_t& a, uint32_t i, bool& handled);
+uint32_t macsec_port_ifg(int hw);                    // bit times while the port has a MACsec port object, 0 = none
+sai_status_t macsec_stats_capability(sai_object_type_t t, sai_stat_capability_list_t* out);
 // Hash objects, storm control, VLAN flood control (sai_hash.cpp).
 void hash_build_objects();                           // switch_build_objects
 sai_status_t switch_hash_set(const sai_attribute_t& a, bool& handled);   // *_DEFAULT_HASH_SEED

@@ -2,6 +2,7 @@
 // SWITCH object: backend selection and bring-up, default objects, event
 // delivery (link scan / L2 learn -> SAI notifications). Temperatures: sai_temp.cpp.
 #include "sai_internal.h"
+#include "ext_macsec.h"
 #include "ext_phy.h"
 
 #include <algorithm>
@@ -461,6 +462,8 @@ static sai_status_t create_switch(_Out_ sai_object_id_t* switch_id, _In_ uint32_
         if (st != SAI_STATUS_SUCCESS) return st;
         st = ext_phy_load(cfg);   // SAI_OPENBCM_EXT_PHY_FILE: a bad table refuses the switch before the SDK starts
         if (st != SAI_STATUS_SUCCESS) return st;
+        st = ext_macsec_load(cfg);   // SAI_OPENBCM_EXT_MACSEC_FILE: the same
+        if (st != SAI_STATUS_SUCCESS) return st;
         st = pick_backend(cfg);
         if (st != SAI_STATUS_SUCCESS) return st;
         OB_NOTICE(SAI_API_SWITCH, "initializing backend %s", c.be->name());
@@ -484,7 +487,12 @@ static sai_status_t create_switch(_Out_ sai_object_id_t* switch_id, _In_ uint32_
             return st;
         }
         st = ext_phy_attach(*c.be);   // lanes -> ports, link gates; before the ports are disabled below
+        if (st == SAI_STATUS_SUCCESS) {
+            st = ext_macsec_attach(*c.be);   // lanes -> ports; engines a previous process left on go back to bypass
+            if (st != SAI_STATUS_SUCCESS) ext_phy_detach();
+        }
         if (st != SAI_STATUS_SUCCESS) {
+            ext_macsec_detach();
             c.be->shutdown();
             c.be.reset();
             return st;
@@ -498,6 +506,7 @@ static sai_status_t create_switch(_Out_ sai_object_id_t* switch_id, _In_ uint32_
             OB_ERR(SAI_API_SWITCH, "a SAI_OPENBCM_PORT_* quirk could not be applied to every port (see above); "
                                    "refusing to create the switch");
             switch_clear_objects();
+            ext_macsec_detach();
             ext_phy_detach();
             c.be->shutdown();
             c.be.reset();
@@ -534,6 +543,13 @@ static sai_status_t remove_switch(_In_ sai_object_id_t switch_id)
     diag_stop();
     events_stop();   // without the API lock: the notifier may be waiting for it
     ext_phy_detach();   // link gates off before the backend goes away
+    try {
+        // The PHYs keep their MACsec state (the engines carry on with the installed SAs while
+        // nobody manages them); the next switch creation puts every engine back into bypass.
+        std::lock_guard<std::recursive_mutex> g(ctx().mu);
+        ext_macsec_detach();
+    } catch (...) {
+    }
     try {
         std::lock_guard<std::recursive_mutex> g(ctx().mu);
         auto& c = ctx();

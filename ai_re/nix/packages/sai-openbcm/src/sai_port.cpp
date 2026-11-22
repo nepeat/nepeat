@@ -154,7 +154,30 @@ void port_quirks_apply(PortObj& p)
     if (q.autoneg >= 0) check("autoneg", be.port_autoneg_set(p.hw, q.autoneg != 0));
     if (!q.interface.empty()) check("interface", be.port_interface_set(p.hw, q.interface));
     if (q.fec >= 0) check("fec", be.port_fec_set(p.hw, (Fec)q.fec));
-    if (q.ifg) check("ifg", be.port_ifg_set(p.hw, q.ifg));
+    port_ifg_apply(p);
+}
+
+// The inter-frame gap follows the port's MACsec state: an external MACsec PHY
+// lengthens every frame, so the table (ext_macsec.h ifg-bits) asks for a wider
+// gap while the port has a MACsec port object. Back to the quirk's value (or
+// the Ethernet 96 bit times when there is none) when the last one is removed.
+// On its own (sai_macsec.cpp calls it): re-applying the interface or autoneg
+// quirk to a port that is up takes its link down for a second.
+sai_status_t port_ifg_apply(PortObj& p)
+{
+    PortQuirks& q = ctx().port_quirks;
+    Backend& be = *ctx().be;
+    if (p.cpu) return SAI_STATUS_SUCCESS;
+    uint32_t mifg = macsec_port_ifg(p.hw);
+    uint32_t want = mifg ? mifg : q.ifg ? q.ifg : p.macsec_ifg ? 96 : 0;
+    p.macsec_ifg = mifg != 0;
+    if (!want) return SAI_STATUS_SUCCESS;
+    sai_status_t st = be.port_ifg_set(p.hw, want);
+    if (st != SAI_STATUS_SUCCESS) {
+        OB_ERR(SAI_API_PORT, "port %s: inter-frame gap %u bit times not applied (%d)", p.sdk_name.c_str(), want, st);
+        q.failed = true;
+    }
+    return st;
 }
 
 // ------------------------------------------------------------------- ports
@@ -247,6 +270,8 @@ static sai_status_t port_set_one(PortObj& p, const sai_attribute_t& a, uint32_t 
     if (handled) return st;
     st = port_mirror_set(p, a, i, handled);
     if (handled) return st;
+    st = port_macsec_set(p, a, i, handled);
+    if (handled) return st;
     if (find_stub(port_stubs, N_PORT_STUBS, a.id)) {
         p.stub[a.id] = a.value;
         OB_INFO(SAI_API_PORT, "port %s attr %d stored (not programmed)", p.sdk_name.c_str(), a.id);
@@ -313,6 +338,8 @@ static sai_status_t port_get_one(PortObj& p, sai_attribute_t& a, uint32_t i)
     qst = port_storm_attr_get(p, a, handled);
     if (handled) return qst;
     qst = port_mirror_get(p, a, i, handled);
+    if (handled) return qst;
+    qst = port_macsec_get(p, a, i, handled);
     if (handled) return qst;
     if (const StubDef* d = find_stub(port_stubs, N_PORT_STUBS, a.id)) {
         auto it = p.stub.find(a.id);

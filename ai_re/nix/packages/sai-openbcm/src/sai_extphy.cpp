@@ -404,6 +404,12 @@ void ext_phy_foreign_mdio(const std::function<void()>& fn)
     fn();
 }
 
+void ext_phy_locked(const std::function<void()>& fn)
+{
+    std::lock_guard<std::mutex> g(g_mu);
+    fn();
+}
+
 std::string ext_phy_status()
 {
     std::lock_guard<std::mutex> g(g_mu);

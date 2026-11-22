@@ -29,7 +29,7 @@ in stdenv.mkDerivation {
   ] ++ lib.optional (libsdk != null) "OPENBCM=${libsdk}";
   env.CXXFLAGS = "-O2 -g -I${sai}/SAI/experimental";
   env.CFLAGS = "-O2 -g";
-  buildFlags = [ "build/libsai.so.1.0.0" "build/openbcm-diag" "build/openbcm-mdio-script" "build/openbcm-ext-phy" ] ++ lib.optional doCheck "build/test_sai"
+  buildFlags = [ "build/libsai.so.1.0.0" "build/openbcm-diag" "build/openbcm-mdio-script" "build/openbcm-ext-phy" "build/openbcm-ext-macsec" ] ++ lib.optional doCheck "build/test_sai"
     ++ lib.optional (libsdk != null) "build/openbcm-asic-temp";
 
   inherit doCheck;

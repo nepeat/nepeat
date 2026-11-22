@@ -364,8 +364,45 @@ same parser; the AS7772 board module runs it at build time). No chip knowledge h
   `linkscan()` as one pass; `tests/test_extphy.inc` (parser errors, AND, debounce, faults, admin sequences,
   hold-off, poll period, no key = nothing).
 - Not done: break-out (the table is per first lane, so it scales; the AS7772 data is one port per cage), a
-  hardware interrupt instead of polling, MACsec-aware link (the PCS status is the same register with MACsec on:
-  not tested).
+  hardware interrupt instead of polling. With MACsec on in the PHY the link still follows the cable (AS7772, tested).
+
+## MACsec in an external PHY (SAI MACsec API)
+Format and sequence names: `src/ext_macsec.h`; parser + executor `src/sai_extmacsec.cpp`; SAI objects
+`src/sai_macsec.cpp`; checker / renderer `bin/openbcm-ext-macsec --check FILE | --render FILE SEQ PHY [PARAMS [READS]]`.
+Profile key `SAI_OPENBCM_EXT_MACSEC_FILE`. No chip knowledge here: the board supplies the table (first user:
+`nix/modules/boards/as7772/ext-macsec.nix`, 32 Evora PHYs; devices/edge-core-as7772-32x/macsec.md "Under SONiC").
+
+- **What it is.** `sai_macsec_api_t` (MACSEC, MACSEC_PORT, MACSEC_FLOW, MACSEC_SC, MACSEC_SA with stats) for ports whose
+  MACsec engine is a PHY the SDK has no driver for. Each SAI operation runs a named clause-45 sequence from the table on
+  the port's PHY; key, GHASH key, SCI, PN, XPN nonce and replay window go into byte placeholders
+  (`key[3].key[2]`). Reads can be compared, polled, kept and written back (`$0&7fff`: read-modify-write of a shared
+  register) or returned as named results (counters, PN). A sequence is not started unless every parameter it needs is
+  there. Without the key nothing changes and every MACsec create is NOT_SUPPORTED.
+- **Model = SONiC MACsecOrch's.** `SCI_IN_INGRESS_MACSEC_ACL` false, four SAs per SC. ACL tables of the
+  `*_MACSEC` stages (and their entries, the port's `INGRESS/EGRESS_MACSEC_ACL`) are kept as a model and never reach the
+  ASIC: an enabled entry with `ACTION_MACSEC_FLOW` is what binds a flow (and so its SC and SAs) to a port and opens
+  the gate. An SA created before that (MACsecOrch with the port not enabled yet) is held, key included, and
+  installed when the binding appears; keys are wiped once in the PHY and are not readable back.
+- **Order on the PHY:** MACSEC_PORT create = `reset` + `enable` (control frames in clear, data dropped), SA =
+  `sa-add[-first]` then `gate-open`; before the last SA or the transmitting egress SA goes, `gate-close`; MACSEC_PORT
+  remove = `disable`. The newest egress SA transmits. At switch creation every port is probed and an engine a previous
+  process left on is reset and disabled.
+- **Inter-frame gap:** `ifg-bits` of the table is programmed while a port has a MACsec port object (alone: the other
+  port quirks are not re-applied, which would flap the link), then the quirk's value (or 96) again.
+- **Counters:** SA and flow statistics by name from the table's `stats-*` sequences, accumulated when the PHY clears on
+  read; `sai_query_stats_capability` answers what the table reads. `CURRENT_XPN` / `MINIMUM_INGRESS_XPN` read the PN
+  from the PHY (`pn.*`). A set of `MINIMUM_INGRESS_XPN` on an installed SA is accepted and not written.
+- **Not supported** (the call fails): integrity only, SCI not in the SecTAG, SecTAG / confidentiality offsets, VLAN tags
+  in clear, more than one SC per port and direction, POST, MACSEC_PORT / SC statistics, changing an SC's cipher or
+  replay setting under installed SAs. `PACKET_ACTION` entries are a model only (a warning when one asks for what the
+  fixed PHY rules do not do).
+- **Locking:** sequences run under the external PHY table's sequence lock (`ext_phy_locked`): never inside a link
+  poll or an admin sequence. Lock order SAI lock -> sequence lock -> the bus master's.
+- **`openbcm-diag extmacsec`**: engines, gates, SA per AN, the transmitting AN, sequences run / failed, last failure.
+  `openbcm-diag "extmacsec run <port> <sequence> [<root-only parameter file>]"` runs one sequence by hand (bring-up).
+- Tests: `tests/test_macsec.inc` on the fake bus (parser errors, a golden rendering, MACsecOrch's order with SAs
+  before the binding, rekey, removal order, counters, PN, the gap, clean-up at creation, key bytes on the bus and in no
+  log line or status text). On hardware: the AS7772 (static SAs, MKA, rekey, load).
 
 ## openbcm-mdio-script: PHYs without an SDK driver
 
