@@ -32,14 +32,23 @@
 # The public file's other globals (bcm_num_cos=10, timeouts, ...) stay; none
 # of them ran on this switch before. settings (from
 # services.sonic.sai.sdkConfig.settings) wins; null removes a key.
-{ openbcm, sonic }:
+# A derivative board (../as7772/sdk-config.nix) passes board: what differs from
+# this board, as a function of the public file ({ path, label }). The
+# management ports and the settings decided above are then its too.
+{ openbcm, sonic
+, board ? (public: { name = "as7760-32x-config.bcm"; base = public.path; inherit (public) label; laneKeys = [ "preemphasis" ]; })
+}:
 { ports, settings ? { } }:
+let
+  file = "device/accton/x86_64-accton_as7712_32x-r0/Accton-AS7712-32X/th-as7712-32x100G.config.bcm";
+  b = board {
+    path = "${sonic.sources.buildimage}/${file}";
+    label = "sonic-buildimage ${builtins.substring 0 12 sonic.sources.buildimage.rev} ${file}";
+  };
+in
 openbcm.configs.tomahawk {
-  name = "as7760-32x-config.bcm";
-  base = "${sonic.sources.buildimage}/device/accton/x86_64-accton_as7712_32x-r0/Accton-AS7712-32X/th-as7712-32x100G.config.bcm";
-  label = "sonic-buildimage ${builtins.substring 0 12 sonic.sources.buildimage.rev} device/accton/x86_64-accton_as7712_32x-r0/Accton-AS7712-32X/th-as7712-32x100G.config.bcm";
+  inherit (b) name base label laneKeys;
   inherit ports;
-  laneKeys = [ "preemphasis" ];
   management = [
     { logical = 66; phys = 129; speed = 10; }
     { logical = 100; phys = 131; speed = 10; }
@@ -49,5 +58,5 @@ openbcm.configs.tomahawk {
     ccmdma_intr_enable = "0";
     mem_cache_enable = "0";
     l3_alpm_enable = null;
-  } // settings;
+  } // (b.settings or { }) // settings;
 }
