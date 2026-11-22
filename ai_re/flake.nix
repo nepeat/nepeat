@@ -97,6 +97,13 @@
           ];
           doCheck = false;
           pythonRelaxDeps = true; # upstream lower bounds vs nixpkgs versions
+          # rename_variable/set_variable_type resolve only against Function's
+          # *committed* formal variables, which raw auto-analysis never populates
+          # for decompiler-synthesized names (uVar1, iVar2, ...) -- so both tools
+          # reliably fail on exactly the names the decompiler shows. Not fixed on
+          # upstream main either (checked 2026-11-18). See the patch and
+          # devices/delta-tn48m/bootrom-functions.md.
+          patches = [ ./tools/ghidra/pyghidra-mcp-0001-commit-decompiler-vars.patch ];
           # chromadb's default embedder downloads an ONNX model from
           # chroma-onnx-models.s3.amazonaws.com the first time the code index is
           # filled, and upstream does that automatically at startup. Turn the
@@ -218,6 +225,9 @@
             git-lfs
 
             # General RE / analysis helpers
+            # APC NMC firmware acquisition and config.ini export over HTTPS/SCP.
+            curl
+            openssh
             binwalk
             squashfsTools # unsquashfs (xz) — extract Raritan PP/SquashFS rootfs
             # Edge-Core AS7760: inspect acquired FAT32 SD and JFFS2 NOR images.
@@ -263,7 +273,11 @@
             # unicorn: emulate LK functions directly (full-system QEMU is out —
             # there is no MT8183 machine model). Gives the instruction-level
             # visibility the locked device refuses to provide.
-            (python3.withPackages (ps: with ps; [ capstone pyelftools unicorn ]))
+            # cryptography: reproduce the APC hw05 salted AES password verifier.
+            # pytest + pytest-xdist: "just test" (tests/, tools/tests): test builds
+            # of every U-Boot variant, package and system under nix/.
+            (python3.withPackages (ps: with ps; [ capstone pyelftools unicorn cryptography pytest pytest-xdist ]))
+            just # task runner for the test tiers (Justfile)
 
             # Amazon's official Fire HD 10 (11th gen) GPL drop contains the
             # exact MT8183 Linux 4.4.146 tree used by amzn-pinnacles.  These

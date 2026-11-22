@@ -1,0 +1,63 @@
+# ai_re: test builds of everything under nix/ (U-Boot variants, kernels,
+# packages, NixOS systems and images) and the tools/ unit tests.
+# What is built and how targets are found: tests/nixtargets.py, nix/README.md.
+#
+#   just test                      everything
+#   just test-eval                 fast: every target evaluates (no building) + coverage guards
+#   just test-uboot -k as7772      pytest arguments pass through
+#   just nix_args="--max-jobs 2" test-systems
+#   just jobs=3 test-packages      three targets at a time
+#
+# Works inside the devshell and outside it (then through "nix develop -c").
+# A later -m replaces the recipe's: just test -m "not vm and not deploy".
+
+# extra arguments for every "nix build" (also: AI_RE_NIX_ARGS)
+nix_args := env_var_or_default("AI_RE_NIX_ARGS", "")
+# targets built at the same time (pytest-xdist workers); nix parallelises inside a build already
+jobs := "1"
+# evaluations at the same time (each one can take a few GB for a NixOS system)
+eval_jobs := "6"
+
+export AI_RE_NIX_ARGS := nix_args
+export PYTHONDONTWRITEBYTECODE := "1"
+
+set positional-arguments
+
+default:
+    @just --list
+
+# everything: evaluation, U-Boot, packages, systems, git-flake (deploy) builds, VM tests, tools
+test *args:
+    @tests/run-pytest.sh "{{jobs}}" tests tools/tests "$@"
+
+# every target evaluates to a derivation, plus the coverage guards; builds nothing
+test-eval *args:
+    @tests/run-pytest.sh "{{eval_jobs}}" tests -m eval "$@"
+
+# every uboot-* output (all boards) and the U-Boot test outputs
+test-uboot *args:
+    @tests/run-pytest.sh "{{jobs}}" tests -m uboot "$@"
+
+# kernels, drivers, SDK/SAI/SONiC packages, build-time tests (flake outputs + EXTRAS in tests/nixtargets.py)
+test-packages *args:
+    @tests/run-pytest.sh "{{jobs}}" tests -m packages "$@"
+
+# NixOS system toplevels and images from path:./nix (the working tree)
+test-systems *args:
+    @tests/run-pytest.sh "{{jobs}}" tests -m systems "$@"
+
+# the root git flake as deploy.sh builds it: tracked files only, with fand
+test-deploy *args:
+    @tests/run-pytest.sh "{{jobs}}" tests -m deploy "$@"
+
+# NixOS VM tests of the SONiC stack (kvm; slow unless cached)
+test-vm *args:
+    @tests/run-pytest.sh "{{jobs}}" tests -m vm "$@"
+
+# unit tests of tools/ (lab-power, ai-re-images); no nix builds
+test-tools *args:
+    @tests/run-pytest.sh 1 tools/tests "$@"
+
+# list the targets without running anything
+test-list *args:
+    @tests/run-pytest.sh 1 tests --collect-only -q "$@"

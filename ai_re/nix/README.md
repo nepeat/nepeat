@@ -49,15 +49,18 @@ appear once `nix/` is committed; `path:./nix` always works.
 | profile | `profile-rebuildable` | on top of appliance: nix + switcher, so an in-place deploy (DMC-12: its `deploy.sh`, from the root flake) deploys in place (copies only new paths); no nixpkgs source/channel/registry, no on-box builds (`max-jobs = 0`), idle-priority daemon, weekly GC (30 d). +53 MiB on the DMC-12. Rollback on the box: `nixos-rebuild switch --rollback --no-reexec`. Image needs a first-boot store registration (DMC-12: `disk.nix`) |
 | profile | `profile-netboot-root` | whole system in the initramfs (squashfs + tmpfs), nothing on disk touched |
 | platform | `platform-qoriq-t2080` | NXP T2080/e6500: allnoconfig kernel, legacy uImage, serial console; option `hardware.qoriqT2080.kernelPatches` |
+| platform | `platform-armada-7040` | Marvell Armada 7040 boards behind a fused vendor U-Boot: stock kernel, board DTS against the kernel's marvell dtsi, extlinux on FAT /boot for the factory `sysboot` |
 | function | `thermal-as7760-fan` | Accton fan-CPLD hwmon driver, sensor labels, monitor service |
 | function | `switch-sonic` | SONiC control plane as NixOS services (`services.sonic`): redis, syncd, orchagent + managers, FRR (bgpd/staticd, FPM, bgpcfgd), crash recovery, Nix/CLI config ownership; [README](modules/switch/sonic/README.md) |
-| function | `switch-openbcm` | Broadcom SDK kmods at boot + /dev nodes, locked `bcm.user`, ASIC die temperature reader (`hardware.openbcm`) |
+| function | `switch-openbcm` | Broadcom SDK kmods at boot + /dev nodes, locked `bcm.user`, ASIC die temperature reader, MDIO scripts for PHYs the SDK cannot drive (`hardware.openbcm`, `.mdioScript`: [sai-openbcm README](packages/sai-openbcm/README.md#openbcm-mdio-script-phys-without-an-sdk-driver)) |
 | function | `monitoring-node-exporter` | Prometheus :9100, control-plane collector set, timer-driven textfile producers; [README](modules/monitoring/README.md) |
 | board | `board-as7760` (+ `-sd-install`, `-sd-persist`) | Accton AS7760-32X |
+| board | `board-as5114` | Edgecore AS5114-48X (Armada 7040 + A385/Aldrin2): mainline DTS, prestera FW, SPI env access; system `configs/as5114` (`as5114-sd-image`, `as5114-system`) |
 | board | `board-dmc12` | DMC-12-48R-AS0 console server (Alpine V2) on `platforms/alpine-v2` + `linux-alpine`: boot paths (standard/chainload/uboot-menu), SSD image, CPLD, fans (fand from the root flake), env tool; [README](modules/boards/dmc12/README.md) |
 | package | `dmc12-firmware` | installs our U-Boot into a DMC-12's IPXE slots + BOOT_MODE from Linux, payload and factory regions sha-pinned; the board module ships it (and the DT windows it writes); standalone: `nix run --refresh 'github:nepeat/nepeat?dir=ai_re#dmc12-firmware' -- status` ([packages/dmc12-firmware](packages/dmc12-firmware/default.nix)) |
-| package | `uboot-*` | upstream U-Boot; one patch series with a per-patch `scope` in [packages/uboot/default.nix](packages/uboot/default.nix): `t208x` + `as7760` (ppc), `alpine-v2` + `dmc12` (arm64, RAM chainload from the vendor U-Boot, al_eth network + board-params handoff; `uboot-dmc12-selfinit` adds the external PCIe RC on Annapurna's PCIe HAL, MUIO/CCU setup and read-only SPI NOR, `uboot-dmc12-stage3app` wraps it as an al-boot object; [packages/uboot/alpine-v2](packages/uboot/alpine-v2/default.nix)) |
-| package | `alboot` | [alboot.py](packages/alboot/alboot.py): Annapurna al-boot SPI TOC/object lister, checker and wrapper (a script, not a derivation) |
+| package | `uboot-*` | upstream U-Boot; one patch series with a per-patch `scope` in [packages/uboot/default.nix](packages/uboot/default.nix): `t208x` + `as7760` (ppc; + `as7772` + `fsl-sata` for the AS7772-32X: `uboot-as7772-nor`, `uboot-as7772-chainload`), `alpine-v2` + `dmc12` (arm64, RAM chainload from the vendor U-Boot, al_eth network + board-params handoff; `uboot-dmc12-selfinit` adds the external PCIe RC on Annapurna's PCIe HAL, MUIO/CCU setup and read-only SPI NOR, `uboot-dmc12-stage3app` wraps it as an al-boot object; [packages/uboot/alpine-v2](packages/uboot/alpine-v2/default.nix)) |
+| package | `uboot-as5114-chainload` | Marvell Armada 7040/8040 RAM chainload U-Boot: generic `mkChainload` in [packages/uboot/armada8k](packages/uboot/armada8k/default.nix) (the TN48M's proven recipe, scopes `spi-nor-ro` + `armada8k`), first board Edgecore AS5114-48X. Never written to SPI: read-only SPI NOR, no bubt/sspi/saveenv, env nowhere, checked at build time. Written for the TN48M to adopt later; its working build in `nepeat/nix` was deliberately not migrated |
+| package | `alboot` | [alboot.py](packages/alboot/alboot.py): Annapurna al-boot SPI TOC/object lister, checker and wrapper (a script, not a derivation); [alboot3.py](packages/alboot/alboot3.py): Alpine V3 additions (every TOC, TOC/BOOT_MODE builders) |
 | package | `fastfetch-tiny` | fastfetch without optional libraries (cross-builds everywhere) |
 
 **fand and `path:./nix`.** fand lives in `rust/` of the monorepo, outside this
@@ -75,6 +78,37 @@ fan and board-temperature metrics); on e6500 the exporter is
 `node-exporter-lite` because Go binaries need POWER8. The DMC-12's
 `boards/dmc12/monitoring.nix` runs upstream node_exporter with
 [dmc12-metrics](packages/dmc12-metrics/README.md). `curl http://<switch>:9100/metrics`.
+
+## tests: `just test`
+
+From `ai_re/` (inside the devshell or not: the recipes go through
+`nix develop -c` when pytest is not on PATH). pytest, one test per target, the
+tail of the build log in the failure.
+
+| recipe | what |
+| --- | --- |
+| `just test-eval` | every target evaluates to a derivation + the coverage guards; builds nothing (about 1.5 min) |
+| `just test-uboot` | every `uboot-*` output (all boards, the qemu fixtures, `uboot-*-tests`) |
+| `just test-packages` | the other package outputs (kernels, drivers, SDK kmods, `*-test`) and what has no flake output: SONiC packages, sai-openbcm, libsdk, sai-teralynx, qemu-ipd, sonic_platform, `sdk-config-test` of each board |
+| `just test-systems` | NixOS toplevels and images from `path:./nix` (the working tree, untracked files included) |
+| `just test-deploy` | the root flake as a git flake, the form `deploy.sh` uses: tracked files only, fand/consoled from `rust/`. Fails for a file that is not `git add`ed yet |
+| `just test-vm` | NixOS VM tests of the SONiC stack (kvm) |
+| `just test` | all of the above + `tools/tests` |
+
+Arguments go to pytest (`just test-uboot -k as7772`, `just test-list`);
+`just nix_args="--max-jobs 2 --keep-going" test-systems` (or `AI_RE_NIX_ARGS`)
+adds arguments to every `nix build`; `just jobs=3 test-packages` builds three
+targets at a time. Cross builds use the configured builders as any `nix build`.
+
+Targets are discovered, not listed: the flake outputs by `nix eval`, the rest
+from the `EXTRAS` expressions in [tests/nixtargets.py](../tests/nixtargets.py)
+(attribute sets are walked for derivations). The hand-kept tables are there
+too: `EXTRAS`, `SKIP` (evaluated, not built), `KNOWN_BROKEN` (open bugs and
+known limits: strict xfail, so a fixed one must be removed) and the coverage
+claims. Guards in the eval tier fail when a `packages/<dir>`, a test-looking
+`.nix` file, a U-Boot variant, a config or a board appears that nothing builds.
+A new flake output needs no change; a new package without one needs an
+`EXTRAS` line.
 
 ## adding a board on a platform that exists (e.g. another T2080 card)
 

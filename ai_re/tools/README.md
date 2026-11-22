@@ -39,8 +39,12 @@ API reference: [Home Assistant REST API](https://developers.home-assistant.io/do
 Run the isolated tests (lab-power and ai-re-images; no hardware, no real dumps):
 
 ```sh
-python3 -m unittest discover -s tools/tests -v
+just test-tools                                  # pytest, from ai_re/
+python3 -m unittest discover -s tools/tests -v   # the same without pytest
 ```
+
+`just test` also test-builds everything under `nix/` (U-Boot variants,
+packages, systems); the tiers are in [nix/README.md](../nix/README.md#tests-just-test).
 
 ## ai-re-images: image catalog
 
