@@ -15,6 +15,18 @@ crate-type = ["cdylib", "rlib"]
 sai-sys.workspace = true
 sai-meta.workspace = true
 sai-core.workspace = true
+# only with the feature "openbcm" (path, not a workspace entry: nothing else depends on it)
+sai-backend-openbcm = { path = "../sai-backend-openbcm", optional = true }
+
+[features]
+# the hardware backend (Broadcom SDK through the C glue): see src/backends.rs, crate
+# sai-backend-openbcm, README "Hardware backend". "openbcm" alone compiles the backend in
+# but links no glue: a library needs exactly one of the two below.
+openbcm = ["dep:sai-backend-openbcm"]
+# the real glue: sdk_glue.c + libsdk, big-endian ppc64, paths in SDK_GLUE_LINK (nix/libsai-openbcm.nix)
+openbcm-real = ["openbcm", "sai-backend-openbcm/real"]
+# the in-memory fake glue: the openbcm code path without a chip (smoke program's self-test)
+openbcm-fake = ["openbcm", "sai-backend-openbcm/fake"]
 
 [lints]
 workspace = true

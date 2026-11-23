@@ -1,0 +1,13 @@
+[package]
+name = "mdio-report"
+description = "What the MDIO script tool tells people and programs about a run: per-PHY verification, failure classes, status files (port of sai-openbcm's mdio_report.c)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+mdio-script.workspace = true
+
+[lints]
+workspace = true

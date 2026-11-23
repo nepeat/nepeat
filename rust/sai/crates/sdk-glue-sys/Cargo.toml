@@ -1,0 +1,20 @@
+[package]
+name = "sdk-glue-sys"
+description = "Raw C interface of sai-openbcm's sdk_glue.h (the only C file that includes Broadcom SDK headers): declarations only"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+links = "ob_sdk_glue"
+build = "build.rs"
+
+[features]
+# Link the real glue: sdk_glue.c compiled with the SDK's cflags, and libsdk. Paths from
+# SDK_GLUE_LINK (build.rs). Only exists for big-endian ppc64.
+real = []
+# Compile fake/fake_glue.c (the same functions over an in-memory register map with scripted
+# faults) with the target's C compiler and link it: tests on any host.
+fake = []
+
+[lints]
+workspace = true

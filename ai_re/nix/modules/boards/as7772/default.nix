@@ -15,9 +15,20 @@ let
   # External PHY table (./ext-phy.nix), refused at build time if libsai's
   # parser would refuse it at boot (a native build of the fake-only libsai
   # provides the checker).
-  saiNative = pkgs.buildPackages.callPackage ../../../packages/sai-openbcm {
+  # With hardware.openbcm.rustPhySeq the parsers are the Rust ones, on the
+  # switch (saiRust) and here: a table is checked by the parser that will
+  # read it at boot.
+  rustPhySeq = config.hardware.openbcm.rustPhySeq;
+  saiNative = pkgs.buildPackages.callPackage ../../../packages/sai-openbcm ({
     sonic = import ../../../packages/sonic { pkgs = pkgs.buildPackages; };
-  };
+  } // lib.optionalAttrs (rustPhySeq != null) { rustPhySeq = pkgs.buildPackages.callPackage rustPhySeq { }; });
+  # With hardware.openbcm.rustMacsec the MACsec object model is the Rust one
+  # (independent of rustPhySeq; either or both select saiRust).
+  rustMacsec = config.hardware.openbcm.rustMacsec;
+  saiRust = pkgs.callPackage ../../../packages/sai-openbcm ({
+    inherit sonic; libsdk = openbcm.libsdk { };
+  } // lib.optionalAttrs (rustPhySeq != null) { rustPhySeq = pkgs.callPackage rustPhySeq { }; }
+    // lib.optionalAttrs (rustMacsec != null) { rustMacsec = pkgs.callPackage rustMacsec { saiSrc = sonic.sources.sairedis; }; });
   extPhyTable = pkgs.runCommand "as7772-ext-phy.tbl" {
     nativeBuildInputs = [ saiNative ];
     text = import ./ext-phy.nix { inherit lib; cages = config.services.sonic.cages; };
@@ -184,5 +195,12 @@ in {
       policy.curve = { points = [ [ 65 53 ] [ 80 75 ] [ 90 100 ] ]; hysteresis = 3; };
     };
   };
+}) (lib.mkIf (rustPhySeq != null || rustMacsec != null) {
+  # syncd on the libsai whose table parsers and sequence executor are the
+  # Rust crate phy-seq (hardware.openbcm.rustPhySeq) and / or whose MACsec
+  # object model is the Rust crate sai-macsec (hardware.openbcm.rustMacsec);
+  # everything else of ../as7760's services.sonic.sai stays.
+  services.sonic.sai.package = lib.mkForce (sonic.sairedis-openbcm saiRust);
+  services.sonic.sai.libraryPath = lib.mkForce [ "${saiRust}/lib" ];
 }) ];
 }

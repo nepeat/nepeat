@@ -12,9 +12,9 @@
 //! callbacks), so the SAI user may call back into the library from its callbacks.
 use crate::Status;
 use core::ffi::CStr;
+use sai_core::backend::Backend;
 use sai_core::backend::Profile;
 use sai_core::sai::Sai;
-use sai_core::virt::VirtualBackend;
 use sai_sys as sys;
 use std::ffi::CString;
 use std::sync::Mutex;
@@ -67,7 +67,8 @@ impl Services {
 /// The initialised API.
 pub(crate) struct Api {
     pub(crate) services: Services,
-    pub(crate) sai: Sai<VirtualBackend>,
+    /// The core over the backend the profile chose (`crate::backends`).
+    pub(crate) sai: Sai<Box<dyn Backend>>,
     /// The notifier thread of the current switch.
     pub(crate) notifier: Option<JoinHandle<()>>,
     /// Counts switch creations: an event of an earlier switch is not applied to a later one.
@@ -84,7 +85,7 @@ pub(crate) fn initialize(services: Services) -> Result<(), Status> {
     }
     *guard = Some(Api {
         services,
-        sai: Sai::new(VirtualBackend::new()),
+        sai: Sai::new(crate::backends::placeholder()),
         notifier: None,
         generation: 0,
     });

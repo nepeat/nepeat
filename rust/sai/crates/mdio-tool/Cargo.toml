@@ -1,0 +1,32 @@
+[package]
+name = "mdio-tool"
+description = "openbcm-mdio-script in Rust: run MDIO scripts through the switch chip's MDIO master at boot, report to status files"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "openbcm-mdio-script-rs"
+path = "src/main.rs"
+
+[features]
+# The SDK backend (--config): code only; which glue is linked is one of the next two.
+sdk = ["dep:sdk-glue"]
+# The real glue + libsdk (ppc64 only; SDK_GLUE_LINK, see sdk-glue-sys).
+sdk-real = ["sdk", "sdk-glue/real"]
+# The fake glue, for tests. A binary built so refuses --config unless MDIO_TOOL_FAKE_SDK=1.
+sdk-fake = ["sdk", "sdk-glue/fake"]
+
+[dependencies]
+mdio-script.workspace = true
+mdio-report.workspace = true
+sdk-glue = { workspace = true, optional = true }
+signal-hook.workspace = true
+
+[dev-dependencies]
+# tests build the tool with the SDK backend on the fake glue
+mdio-tool = { path = ".", features = ["sdk-fake"] }
+
+[lints]
+workspace = true

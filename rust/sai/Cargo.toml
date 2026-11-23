@@ -17,6 +17,28 @@ rust-version = "1.87"
 sai-sys = { path = "crates/sai-sys" }
 sai-meta = { path = "crates/sai-meta" }
 sai-core = { path = "crates/sai-core" }
+# the virtual backend's kernel netdevs (TAP + AF_PACKET wire); libc for their ioctl numbers,
+# struct layouts and syscall declarations (per architecture)
+tap-netdev = { path = "crates/tap-netdev" }
+libc = { version = "0.2", default-features = false }
+# the boot-time MDIO tool and the C SDK glue under it (README "mdio-tool")
+mdio-script = { path = "crates/mdio-script" }
+mdio-report = { path = "crates/mdio-report" }
+sdk-glue-sys = { path = "crates/sdk-glue-sys" }
+sdk-glue = { path = "crates/sdk-glue" }
+# mdio-tool only: SIGTERM / SIGINT set a flag (safe API; std has no signal handling)
+signal-hook = { version = "0.3", default-features = false }
+# external PHY sequence tables (ext-macsec, ext-phy) and their C interface for the C++ libsai
+phy-seq = { path = "crates/phy-seq" }
+# wipes key material (phy-seq's Params) with volatile writes; no dependencies of its own
+zeroize = { version = "1", default-features = false }
+# sai-macsec (it also uses zeroize, with "alloc"): the GHASH key check AES-ECB(SAK, 0^128)
+# (aes: RustCrypto, pure Rust, constant-time software path on ppc64; round keys wiped)
+sai-macsec = { path = "crates/sai-macsec" }
+# sai-macsec's SeqRunner over phy-seq, and the C interface of the model for the C++ libsai
+sai-macsec-phy = { path = "crates/sai-macsec-phy" }
+phy-seq-capi = { path = "crates/phy-seq-capi" }
+aes = { version = "0.9", default-features = false, features = ["zeroize"] }
 # build-time only: C headers -> Rust declarations (needs libclang at build, nothing at run time)
 bindgen = { version = "0.72", default-features = false, features = ["prettyplease"] }
 # tests only: property tests (object lifecycle, MDIO script parser)

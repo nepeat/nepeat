@@ -14,10 +14,12 @@ mod common;
 use common::*;
 use proptest::prelude::*;
 use sai_core::error::Error;
+use sai_core::model::EntryKey;
 use sai_core::oid::RawOid;
-use sai_core::value::{Attr, Value};
+use sai_core::value::{Attr, IpPrefix, Value};
 use sai_core::virt::Op;
 use sai_sys as sys;
+use std::net::{IpAddr, Ipv4Addr};
 
 #[derive(Clone, Debug)]
 enum Step {
@@ -49,6 +51,52 @@ enum Step {
         id: usize,
     },
     FailNext(usize),
+    // attribute-bag objects
+    CreateRouter,
+    CreateInterface {
+        router: usize,
+        port: usize,
+    },
+    CreateNextHop {
+        interface: usize,
+        ip: u8,
+    },
+    CreateScheduler,
+    /// Points a queue at a scheduler (or at nothing): a reference made and dropped by set.
+    SetQueueScheduler {
+        queue: usize,
+        scheduler: Option<usize>,
+    },
+    /// Removes any attribute-bag object the test saw, through any of the bag types.
+    RemoveBag {
+        object_type: usize,
+        id: usize,
+    },
+    // entries
+    CreateFdb {
+        vlan: usize,
+        mac: u8,
+        bridge_port: usize,
+        fixed: bool,
+    },
+    CreateNeighbor {
+        interface: usize,
+        ip: u8,
+    },
+    CreateRoute {
+        router: usize,
+        net: u8,
+        next_hop: Option<usize>,
+    },
+    SetRouteNextHop {
+        entry: usize,
+        next_hop: Option<usize>,
+    },
+    RemoveEntry(usize),
+    FlushFdb {
+        bridge_port: Option<usize>,
+        all_types: bool,
+    },
 }
 
 fn step() -> impl Strategy<Value = Step> {
@@ -64,6 +112,18 @@ fn step() -> impl Strategy<Value = Step> {
         1 => (any::<usize>(), prop_oneof![Just(25_000u32), Just(100_000), Just(7)]).prop_map(|(port, mbps)| Step::SetSpeed { port, mbps }),
         2 => (any::<usize>(), any::<usize>()).prop_map(|(object_type, id)| Step::RemoveAny { object_type, id }),
         2 => any::<usize>().prop_map(Step::FailNext),
+        2 => Just(Step::CreateRouter),
+        3 => (any::<usize>(), any::<usize>()).prop_map(|(router, port)| Step::CreateInterface { router, port }),
+        2 => (any::<usize>(), 0u8..4).prop_map(|(interface, ip)| Step::CreateNextHop { interface, ip }),
+        1 => Just(Step::CreateScheduler),
+        2 => (any::<usize>(), proptest::option::of(any::<usize>())).prop_map(|(queue, scheduler)| Step::SetQueueScheduler { queue, scheduler }),
+        4 => (any::<usize>(), any::<usize>()).prop_map(|(object_type, id)| Step::RemoveBag { object_type, id }),
+        3 => (any::<usize>(), 0u8..4, any::<usize>(), any::<bool>()).prop_map(|(vlan, mac, bridge_port, fixed)| Step::CreateFdb { vlan, mac, bridge_port, fixed }),
+        2 => (any::<usize>(), 0u8..4).prop_map(|(interface, ip)| Step::CreateNeighbor { interface, ip }),
+        3 => (any::<usize>(), 0u8..4, proptest::option::of(any::<usize>())).prop_map(|(router, net, next_hop)| Step::CreateRoute { router, net, next_hop }),
+        1 => (any::<usize>(), proptest::option::of(any::<usize>())).prop_map(|(entry, next_hop)| Step::SetRouteNextHop { entry, next_hop }),
+        3 => any::<usize>().prop_map(Step::RemoveEntry),
+        1 => (proptest::option::of(any::<usize>()), any::<bool>()).prop_map(|(bridge_port, all_types)| Step::FlushFdb { bridge_port, all_types }),
     ]
 }
 
@@ -89,12 +149,25 @@ proptest! {
         let mut vlans = vec![default_vlan];
         let mut bridge_ports = oid_list(get1(&sai, BRIDGE, bridge, sys::SAI_BRIDGE_ATTR_PORT_LIST).unwrap());
         let mut members = oid_list(get1(&sai, VLAN, default_vlan, sys::SAI_VLAN_ATTR_MEMBER_LIST).unwrap());
-        let types = [SWITCH, PORT, VLAN, VLAN_MEMBER, BRIDGE, BRIDGE_PORT, sys::SAI_OBJECT_TYPE_NEXT_HOP];
-        let ops = [Op::PortAdminSet, Op::PortSpeedSet, Op::VlanCreate, Op::VlanDestroy, Op::VlanPortAdd, Op::VlanPortRemove];
+        let types = [SWITCH, PORT, VLAN, VLAN_MEMBER, BRIDGE, BRIDGE_PORT, sys::SAI_OBJECT_TYPE_TUNNEL];
+        let ops = [
+            Op::PortAdminSet, Op::PortSpeedSet, Op::VlanCreate, Op::VlanDestroy, Op::VlanPortAdd, Op::VlanPortRemove,
+            Op::ObjectCreate, Op::ObjectSet, Op::ObjectRemove, Op::EntryCreate, Op::EntrySet, Op::EntryRemove,
+        ];
+        // attribute-bag objects and entries: every id and key the test ever saw
+        let default_router = oid(get1(&sai, SWITCH, switch, sys::SAI_SWITCH_ATTR_DEFAULT_VIRTUAL_ROUTER_ID).unwrap());
+        let mut routers = vec![default_router];
+        let mut interfaces: Vec<RawOid> = Vec::new();
+        let mut next_hops: Vec<RawOid> = Vec::new();
+        let mut schedulers: Vec<RawOid> = Vec::new();
+        let queues = oid_list(get1(&sai, PORT, ports[0], sys::SAI_PORT_ATTR_QOS_QUEUE_LIST).unwrap());
+        let mut keys: Vec<EntryKey> = Vec::new();
+        let bag_types = [VR, RIF, NEXT_HOP, SCHEDULER, QUEUE, sys::SAI_OBJECT_TYPE_STP];
+        let address = |n: u8| IpAddr::V4(Ipv4Addr::new(10, 0, n, 1));
         let mode = |tagged: bool| Value::Enum(if tagged { sys::SAI_VLAN_TAGGING_MODE_TAGGED } else { sys::SAI_VLAN_TAGGING_MODE_UNTAGGED }.cast_signed());
 
         for step in steps {
-            let objects_before = sai.store().map(sai_core::store::Store::len);
+            let objects_before = sai.store().map(|s| (s.len(), s.entry_count()));
             let result: Result<(), Error> = match step {
                 Step::CreateVlan(vid) => sai.create(VLAN, switch, &[Attr::new(sys::SAI_VLAN_ATTR_VLAN_ID, Value::U16(vid))]).map(|id| vlans.push(id)),
                 Step::RemoveVlan(i) => sai.remove(VLAN, pick(&vlans, i)),
@@ -128,17 +201,103 @@ proptest! {
                     sai.backend_mut().fail_next(ops[i % ops.len()], Error::Failure);
                     Ok(())
                 }
+                Step::CreateRouter => sai.create(VR, switch, &[]).map(|id| routers.push(id)),
+                Step::CreateInterface { router, port } => sai
+                    .create(RIF, switch, &port_rif(pick(&routers, router), pick(&ports, port)))
+                    .map(|id| interfaces.push(id)),
+                Step::CreateNextHop { interface, ip } => sai
+                    .create(NEXT_HOP, switch, &[
+                        Attr::new(sys::SAI_NEXT_HOP_ATTR_TYPE, enumerator(sys::SAI_NEXT_HOP_TYPE_IP)),
+                        Attr::new(sys::SAI_NEXT_HOP_ATTR_IP, Value::IpAddress(address(ip))),
+                        Attr::new(sys::SAI_NEXT_HOP_ATTR_ROUTER_INTERFACE_ID, Value::Oid(pick(&interfaces, interface))),
+                    ])
+                    .map(|id| next_hops.push(id)),
+                Step::CreateScheduler => sai.create(SCHEDULER, switch, &[]).map(|id| schedulers.push(id)),
+                Step::SetQueueScheduler { queue, scheduler } => {
+                    let target = scheduler.map_or(RawOid::NULL, |i| pick(&schedulers, i));
+                    sai.set(QUEUE, pick(&queues, queue), &Attr::new(sys::SAI_QUEUE_ATTR_SCHEDULER_PROFILE_ID, Value::Oid(target)))
+                }
+                Step::RemoveBag { object_type, id } => {
+                    let all: Vec<RawOid> = [&routers[..], &interfaces[..], &next_hops[..], &schedulers[..], &queues[..], &[RawOid::NULL]].concat();
+                    sai.remove(bag_types[object_type % bag_types.len()], pick(&all, id))
+                }
+                Step::CreateFdb { vlan, mac, bridge_port, fixed } => {
+                    let key = EntryKey::Fdb { bv_id: pick(&vlans, vlan), mac: [2, 0, 0, 0, 0, mac] };
+                    let entry_type = if fixed { sys::SAI_FDB_ENTRY_TYPE_STATIC } else { sys::SAI_FDB_ENTRY_TYPE_DYNAMIC };
+                    sai.create_entry(switch, key, &[
+                        Attr::new(sys::SAI_FDB_ENTRY_ATTR_TYPE, enumerator(entry_type)),
+                        Attr::new(sys::SAI_FDB_ENTRY_ATTR_BRIDGE_PORT_ID, Value::Oid(pick(&bridge_ports, bridge_port))),
+                    ])
+                    .map(|()| keys.push(key))
+                }
+                Step::CreateNeighbor { interface, ip } => {
+                    let key = EntryKey::Neighbor { rif: pick(&interfaces, interface), ip: address(ip) };
+                    sai.create_entry(switch, key, &[Attr::new(sys::SAI_NEIGHBOR_ENTRY_ATTR_DST_MAC_ADDRESS, Value::Mac([2; 6]))])
+                        .map(|()| keys.push(key))
+                }
+                Step::CreateRoute { router, net, next_hop } => {
+                    let prefix = IpPrefix::new(address(net), IpAddr::V4(Ipv4Addr::new(255, 255, 255, 0))).unwrap();
+                    let key = EntryKey::Route { vr: pick(&routers, router), prefix };
+                    let attrs: Vec<Attr> = next_hop
+                        .map(|i| Attr::new(sys::SAI_ROUTE_ENTRY_ATTR_NEXT_HOP_ID, Value::Oid(pick(&next_hops, i))))
+                        .into_iter()
+                        .collect();
+                    sai.create_entry(switch, key, &attrs).map(|()| keys.push(key))
+                }
+                Step::SetRouteNextHop { entry, next_hop } => match keys.get(entry % keys.len().max(1)) {
+                    Some(key @ EntryKey::Route { .. }) => {
+                        let target = next_hop.map_or(RawOid::NULL, |i| pick(&next_hops, i));
+                        sai.set_entry(switch, key, &Attr::new(sys::SAI_ROUTE_ENTRY_ATTR_NEXT_HOP_ID, Value::Oid(target)))
+                    }
+                    _ => Ok(()),
+                },
+                Step::RemoveEntry(i) => match keys.get(i % keys.len().max(1)) {
+                    Some(key) => sai.remove_entry(switch, key),
+                    None => Ok(()),
+                },
+                Step::FlushFdb { bridge_port, all_types } => {
+                    let mut attrs = Vec::new();
+                    if let Some(i) = bridge_port {
+                        attrs.push(Attr::new(sys::SAI_FDB_FLUSH_ATTR_BRIDGE_PORT_ID, Value::Oid(pick(&bridge_ports, i))));
+                    }
+                    if all_types {
+                        attrs.push(Attr::new(sys::SAI_FDB_FLUSH_ATTR_ENTRY_TYPE, enumerator(sys::SAI_FDB_FLUSH_ENTRY_TYPE_ALL)));
+                    }
+                    // A flush may stop half-way when the backend fails: it is checked by the
+                    // agreement of model and chip below, not by the counts.
+                    match sai.flush_fdb(switch, &attrs) {
+                        Ok(_) | Err(Error::Failure) => Ok(()),
+                        Err(e) => Err(e),
+                    }
+                }
             };
             if let Err(e) = model_and_chip_agree(&sai) {
                 return Err(TestCaseError::fail(format!("after {result:?}: {e}")));
             }
             // a failed call changed nothing that can be counted
             if result.is_err() {
-                prop_assert_eq!(sai.store().map(sai_core::store::Store::len), objects_before);
+                prop_assert_eq!(sai.store().map(|s| (s.len(), s.entry_count())), objects_before);
             }
         }
         // every id of a removed object is dead for good
         let store = sai.store().unwrap();
+        for id in routers.iter().chain(&interfaces).chain(&next_hops).chain(&schedulers) {
+            if !store.contains(*id) {
+                prop_assert!(sai.get(VR, *id, &[]).is_err() && sai.get(RIF, *id, &[]).is_err());
+                prop_assert!(sai.get(NEXT_HOP, *id, &[]).is_err() && sai.get(SCHEDULER, *id, &[]).is_err());
+                // and nothing still names it
+                prop_assert_eq!(store.referrers(*id), 0);
+            }
+        }
+        // an entry whose key or attributes name a removed object cannot exist
+        for (key, attrs) in store.entries() {
+            prop_assert!(store.contains(key.owner()), "{:?}", key);
+            for value in attrs.values() {
+                for target in value.object_ids() {
+                    prop_assert!(store.contains(target), "{:?} names {:?}", key, target);
+                }
+            }
+        }
         for id in vlans.iter().chain(&members).chain(&bridge_ports) {
             if !store.contains(*id) {
                 prop_assert_eq!(sai.get(sys::SAI_OBJECT_TYPE_VLAN, *id, &[]).is_err() && sai.get(VLAN_MEMBER, *id, &[]).is_err() && sai.get(BRIDGE_PORT, *id, &[]).is_err(), true);

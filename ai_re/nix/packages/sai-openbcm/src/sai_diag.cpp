@@ -108,6 +108,10 @@ void serve(int cfd)
             say(cfd, ext_macsec_status());
             return;
         }
+        if (cmd == "extmacsec trace" || cmd.compare(0, 16, "extmacsec trace ") == 0) {   // bus operation trace (ext_macsec.h); holds no key
+            say(cfd, ext_macsec_trace(cmd.substr(15)));
+            return;
+        }
         if (cmd.compare(0, 14, "extmacsec run ") == 0) {   // one sequence by hand: extmacsec run <port> <sequence> [<parameter file>]
             std::istringstream is(cmd.substr(14));
             std::string port, seq, file;

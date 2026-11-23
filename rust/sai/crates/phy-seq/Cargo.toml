@@ -1,0 +1,27 @@
+[package]
+name = "phy-seq"
+description = "External PHY sequence tables (ext-macsec 1, ext-phy 1): parser, parameters, executor over a bus trait"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+# Dev (a clause-45 device number, 1..=31) and the MdioBus trait the adapter in exec.rs wraps
+mdio-script.workspace = true
+# wiping key material on drop without unsafe code of our own (volatile writes); no dependencies
+zeroize.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true
+
+[[bin]]
+name = "openbcm-ext-macsec-rs"
+path = "src/bin/openbcm-ext-macsec-rs.rs"
+
+[[bin]]
+name = "openbcm-ext-phy-rs"
+path = "src/bin/openbcm-ext-phy-rs.rs"
+
+[lints]
+workspace = true

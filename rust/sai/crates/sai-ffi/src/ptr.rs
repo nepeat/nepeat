@@ -99,6 +99,53 @@ pub(crate) unsafe fn out<'a, T>(p: *mut T) -> Result<Out<'a, T>, Status> {
         .ok_or(INVALID)
 }
 
+/// A result array of a known length (the counters of a statistics call): written once, as a
+/// whole, never read.
+pub(crate) struct OutSlice<'a, T> {
+    /// `None` for a length of zero: nothing to write, the pointer was not looked at.
+    start: Option<NonNull<T>>,
+    len: usize,
+    _exclusive: PhantomData<&'a mut [T]>,
+}
+
+impl<T: Copy> OutSlice<'_, T> {
+    /// Stores the results; they must be exactly as many as the array holds.
+    pub(crate) fn write(self, items: &[T]) -> Result<(), Status> {
+        if items.len() != self.len {
+            return Err(sys::SAI_STATUS_FAILURE);
+        }
+        let Some(start) = self.start else { return Ok(()) };
+        // SAFETY: `start` is non-null, aligned and valid for `len` writes with nothing else
+        // accessing them: what [`out_slice`] checked or was promised when it made this value,
+        // which is the only way to make one. `items` has exactly `len` elements (checked) and
+        // is a Rust slice, which cannot overlap an array the C caller has exclusive use of.
+        unsafe { core::ptr::copy_nonoverlapping(items.as_ptr(), start.as_ptr(), self.len) };
+        Ok(())
+    }
+}
+
+/// An output array given as pointer and count. A zero count needs no array; a null pointer
+/// with a count is an error.
+///
+/// # Safety
+/// When `count` is not zero and `p` is not null, `p` is valid for `count` writes of `T` and
+/// nothing else reads or writes them for `'a`.
+pub(crate) unsafe fn out_slice<'a, T>(p: *mut T, count: u32) -> Result<OutSlice<'a, T>, Status> {
+    let len = usize::try_from(count).map_err(|_| INVALID)?;
+    let start = if len == 0 {
+        None
+    } else if p.is_aligned() {
+        Some(NonNull::new(p).ok_or(INVALID)?)
+    } else {
+        return Err(INVALID);
+    };
+    Ok(OutSlice {
+        start,
+        len,
+        _exclusive: PhantomData,
+    })
+}
+
 /// SAI's list convention for results: `count` holds the buffer's capacity on entry and the
 /// number of items on return. When the items do not fit, nothing is written, `count` is set
 /// to the number needed and the answer is `SAI_STATUS_BUFFER_OVERFLOW`, so the caller can
@@ -179,6 +226,23 @@ mod tests {
         assert_eq!(unsafe { inout_slice::<u32>(ptr::null_mut(), 0) }.unwrap(), []);
         // SAFETY: as above.
         assert_eq!(unsafe { inout_slice::<u32>(ptr::null_mut(), 1) }.unwrap_err(), INVALID);
+    }
+
+    #[test]
+    fn output_arrays() {
+        let mut counters = [9u64; 3];
+        // SAFETY (all blocks of this test): a live local array of the stated length, or null.
+        let slot = unsafe { out_slice(counters.as_mut_ptr(), 3) }.unwrap();
+        assert_eq!(slot.write(&[1, 2, 3]), Ok(()));
+        assert_eq!(counters, [1, 2, 3]);
+        // a result of another length is never written
+        let slot = unsafe { out_slice(counters.as_mut_ptr(), 3) }.unwrap();
+        assert_eq!(slot.write(&[7, 7]), Err(sys::SAI_STATUS_FAILURE));
+        assert_eq!(counters, [1, 2, 3]);
+        // no array needed for nothing; null with a count is refused
+        let empty = unsafe { out_slice::<u64>(ptr::null_mut(), 0) }.unwrap();
+        assert_eq!(empty.write(&[]), Ok(()));
+        assert!(unsafe { out_slice::<u64>(ptr::null_mut(), 2) }.is_err());
     }
 
     #[test]

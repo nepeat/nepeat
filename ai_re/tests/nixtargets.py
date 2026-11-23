@@ -99,9 +99,33 @@ let
     saiSrc = (import (src + "/packages/sonic") { pkgs = pk; }).sources.sairedis;
     mdioScriptC = builtins.path {
       path = src + "/packages/sai-openbcm/src"; name = "mdio-script-c";
-      filter = path: type: builtins.elem (baseNameOf path) [ "mdio_script.c" "mdio_script.h" ];
+      filter = path: type: builtins.elem (baseNameOf path) [ "mdio_script.c" "mdio_script.h" "mdio_script_main.c" "mdio_report.c" "mdio_report.h" "temp_files.c" "temp_files.h" "sdk_glue.h" "openbcm_backend.cpp" ];
+    };
+    saiOpenbcmSrc = builtins.path {
+      path = src + "/packages/sai-openbcm/src"; name = "sai-openbcm-src";
+      filter = path: type: builtins.match ".*\\.(cpp|h|c)" (baseNameOf path) != null;
     };
   };
+  # the boot-time MDIO tool in Rust: native (diag socket + fake glue tests, compared with the C
+  # tool), ppc64 with the real glue linked against libsdk, and the units VM test run with it
+  mdioToolRs = p.callPackage (saiRsDir + "/mdio-tool.nix") { saiOpenbcmSrc = src + "/packages/sai-openbcm/src"; };
+  as7760MdioToolRs = ppc.callPackage (saiRsDir + "/mdio-tool.nix") { libsdk = ppcOpenbcm.libsdk { }; saiOpenbcmSrc = src + "/packages/sai-openbcm/src"; };
+  # the Rust libsai with the Broadcom-SDK backend (fake glue natively, libsdk for ppc64)
+  saiRsOpenbcm = pk: args: pk.callPackage (saiRsDir + "/libsai-openbcm.nix") ({ saiRs = saiRs pk; } // args);
+  # the external-PHY sequence engine in Rust (phy-seq + its C interface as a static library),
+  # the C++ libsai built on it, and the AS7772 system with that libsai selected
+  physeq = pk: args: pk.callPackage (saiRsDir + "/phy-seq.nix") args;
+  saiFakeRust = p.callPackage (src + "/packages/sai-openbcm") { inherit sonic; rustPhySeq = physeq p { }; };
+  ppcSaiRust = ppc.callPackage (src + "/packages/sai-openbcm") { sonic = ppcSonic; libsdk = ppcOpenbcm.libsdk { }; rustPhySeq = physeq ppc { }; };
+  as7772Rust = sys.as7772.extendModules { modules = [ { hardware.openbcm.rustPhySeq = saiRsDir + "/phy-seq.nix"; } ]; };
+  # the SAI MACsec object model in Rust behind its C interface (also carries phy-seq's), the
+  # C++ libsai with the model / with model and engine in Rust, and the AS7772 system on both
+  macsecCapi = pk: args: pk.callPackage (saiRsDir + "/sai-macsec-capi.nix") ({ saiSrc = (import (src + "/packages/sonic") { pkgs = pk; }).sources.sairedis; } // args);
+  saiOpenbcmSrcAll = builtins.path { path = src + "/packages/sai-openbcm/src"; name = "sai-openbcm-src"; filter = path: type: builtins.match ".*\\.(cpp|h|c)" (baseNameOf path) != null; };
+  saiFakeRustMacsec = p.callPackage (src + "/packages/sai-openbcm") { inherit sonic; rustMacsec = macsecCapi p { }; };
+  saiFakeRustBoth = p.callPackage (src + "/packages/sai-openbcm") { inherit sonic; rustPhySeq = physeq p { }; rustMacsec = macsecCapi p { }; };
+  ppcSaiRustBoth = ppc.callPackage (src + "/packages/sai-openbcm") { sonic = ppcSonic; libsdk = ppcOpenbcm.libsdk { }; rustPhySeq = physeq ppc { }; rustMacsec = macsecCapi ppc { }; };
+  as7772RustBoth = sys.as7772.extendModules { modules = [ { hardware.openbcm.rustPhySeq = saiRsDir + "/phy-seq.nix"; hardware.openbcm.rustMacsec = saiRsDir + "/sai-macsec-capi.nix"; } ]; };
   # attribute paths of the derivations in v, at most depth levels down. A value
   # that throws is kept as a path, so its evaluation test fails and names it.
   collect = depth: prefix: v:
@@ -127,11 +151,35 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     "as7760-openbcm-libsdk": ("packages", "ppcOpenbcm.libsdk { }", 0),
     "as7760-sai-openbcm": ("packages", "ppcSai", 0),
     "as7760-sairedis-openbcm": ("packages", "ppcSonic.sairedis-openbcm ppcSai", 0),
-    # libsai in Rust (rust/sai: virtual backend, first slice): native with fmt, clippy, unit,
+    # The Rust SAI workspace (rust/sai: libsai.so on the virtual backend + the other crates): native with fmt, clippy, unit,
     # property and C-harness tests and the MDIO interpreter compared with the C one; for the
     # AS7760's big-endian ppc64 a cross build (bindings checked against the cross gcc).
     "sai-rs": ("packages", "saiRs p", 0),
     "as7760-sai-rs": ("packages", "saiRs ppc", 0),
+    # every test executable of that workspace cross-built for ppc64 with its own loader and
+    # libc, to run on a switch ("just sai-rs-test-on <host>"); building it executes nothing.
+    "as7760-sai-rs-target-tests": ("packages", 'ppc.callPackage (saiRsDir + "/target-tests.nix") { saiRs = saiRs ppc; macsecTable = sys.as7772.config.services.sonic.sai.profile.SAI_OPENBCM_EXT_MACSEC_FILE; }', 0),
+    "mdio-tool-rs": ("packages", "mdioToolRs", 0),
+    "as7760-mdio-tool-rs": ("packages", "as7760MdioToolRs", 0),
+    # Rust libsai with the openbcm backend: on the fake glue (native: backend + glue tests, the C
+    # smoke program against the built library) and cross-linked against libsdk for ppc64 (link
+    # with -z defs, soname, exports = the virtual build's; nothing executed).
+    "sai-rs-openbcm-fake": ("packages", "saiRsOpenbcm p { }", 0),
+    "as7760-sai-rs-openbcm": ("packages", 'saiRsOpenbcm ppc { libsdk = ppcOpenbcm.libsdk { }; glueSrc = src + "/packages/sai-openbcm/src"; }', 0),
+    # phy-seq: the sequence engine with its tests, compared with the C++ tools over the AS7772's
+    # tables and generated ones; the C++ libsai on the Rust engine with test_sai unchanged; ppc64.
+    "phy-seq": ("packages", 'physeq p { cxxTools = saiFake; tables = [ sys.as7772.config.services.sonic.sai.profile.SAI_OPENBCM_EXT_MACSEC_FILE sys.as7772.config.services.sonic.sai.profile.SAI_OPENBCM_EXT_PHY_FILE ]; }', 0),
+    "as7760-phy-seq": ("packages", "physeq ppc { }", 0),
+    "sai-openbcm-fake-rust-phy-seq": ("packages", "saiFakeRust", 0),
+    "as7760-sai-openbcm-rust-phy-seq": ("packages", "ppcSaiRust", 0),
+    "as7772-system-rust-phy-seq": ("systems", "as7772Rust.config.system.build.toplevel", 0),
+    # the MACsec object model in Rust: its tests incl. the full Rust path against the full C++
+    # path at MDIO level over the AS7772 table; the C++ libsai with it (test_sai unchanged)
+    "sai-macsec-capi": ("packages", 'macsecCapi p { saiOpenbcmSrc = saiOpenbcmSrcAll; tables = [ sys.as7772.config.services.sonic.sai.profile.SAI_OPENBCM_EXT_MACSEC_FILE ]; }', 0),
+    "sai-openbcm-fake-rust-macsec": ("packages", "saiFakeRustMacsec", 0),
+    "sai-openbcm-fake-rust-both": ("packages", "saiFakeRustBoth", 0),
+    "as7760-sai-openbcm-rust-both": ("packages", "ppcSaiRustBoth", 0),
+    "as7772-system-rust-both": ("systems", "as7772RustBoth.config.system.build.toplevel", 0),
     # Teralynx 7 libsai (CS8210), native build with its checkPhase.
     "sai-teralynx": ("packages", 'p.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }', 0),
     # qemu-user for Marvell's amd64 SAI on the CS8210 + its offline tests
@@ -155,13 +203,24 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     "vm-sonic-bfd": ("vm", 'vmTest "vm-bfd.nix"', 0),
     "vm-sonic-metrics": ("vm", 'vmTest "vm-metrics.nix"', 0),
     "vm-openbcm-mdio-units": ("vm", 'import (src + "/packages/sai-openbcm/test-mdio-units.nix") { pkgs = p; }', 0),
+    "vm-sonic-macsec": ("vm", 'vmTest "vm-macsec.nix"', 0),
     "vm-sonic-platform": ("vm", 'vmTest "vm-platform.nix"', 0),
     "vm-sonic-openbcm-fake": ("vm", 'vmTest "vm-openbcm-fake.nix"', 0),
     "vm-sonic-openbcm-fake-acl": ("vm", 'vmTest "vm-openbcm-fake-acl.nix"', 0),
     "vm-sonic-openbcm-fake-l3": ("vm", 'vmTest "vm-openbcm-fake-l3.nix"', 0),
     "vm-sonic-bfdd-leak": ("vm", 'vmTest "vm-bfdd-leak.nix"', 0),
     "vm-sai-openbcm-syncd": ("vm", 'import (src + "/packages/sai-openbcm/test-syncd.nix") { pkgs = p; }', 0),
-    # syncd linked against the Rust libsai (virtual backend), its slice through libsairedis.
+    # the MDIO units VM test (vm-openbcm-mdio-units, unmodified) with the Rust tool as the binary
+    "vm-mdio-units-rs": ("vm", 'import (saiRsDir + "/test-mdio-units.nix") { pkgs = p; aiReNix = src; }', 0),
+    # sai-openbcm's own smoke test (sai_smoke.py, unchanged) through syncd on the Rust libsai,
+    # and the full SONiC fake-backend tests on it (TAP netdevs; the ACL one fails by design: SKIP)
+    "vm-sai-rs-syncd-parity": ("vm", 'import (saiRsDir + "/test-syncd-parity.nix") { pkgs = p; inherit sonic; libsai = saiRs p; smoke = src + "/packages/sai-openbcm/tests/sai_smoke.py"; }', 0),
+    "vm-sai-rs-sonic": ("vm", 'import (saiRsDir + "/test-sonic-virtual.nix") { pkgs = p; inherit sonic; libsai = saiRs p; fakeTest = src + "/modules/switch/sonic/tests/vm-openbcm-fake.nix"; }', 0),
+    "vm-sai-rs-sonic-l3": ("vm", 'import (saiRsDir + "/test-sonic-virtual-l3.nix") { pkgs = p; inherit sonic; libsai = saiRs p; fakeTest = src + "/modules/switch/sonic/tests/vm-openbcm-fake-l3.nix"; }', 0),
+    "vm-sai-rs-sonic-acl": ("vm", 'import (saiRsDir + "/test-sonic-virtual-acl.nix") { pkgs = p; inherit sonic; libsai = saiRs p; fakeTest = src + "/modules/switch/sonic/tests/vm-openbcm-fake-acl.nix"; }', 0),
+    # the tests that create netdevs (TAP), as root inside a VM
+    "vm-sai-rs-privileged": ("vm", 'import (saiRsDir + "/test-privileged.nix") { pkgs = p; saiRs = saiRs p; }', 0),
+    # syncd linked against the Rust libsai (virtual backend), its first slice through libsairedis.
     "vm-sai-rs-syncd": ("vm", 'import (saiRsDir + "/test-syncd.nix") { pkgs = p; inherit sonic; libsai = saiRs p; }', 0),
 }
 
@@ -176,6 +235,7 @@ EXCLUDE: dict[str, str] = {
 # entry here is a build nobody checks. A stale entry fails test_tables_are_current.
 SKIP: dict[str, str] = {
     "extra:vm-sonic-bfdd-leak": "a 2 x 10 min memory soak (an experiment, not a regression test)",
+    "extra:vm-sai-rs-sonic-acl": "fails by design: the ACL API is not in the Rust SAI slice (create_acl_table: NOT_IMPLEMENTED; rust/sai README, Parity)",
     "git:packages.aarch64-linux.pyghidra-mcp": "devshell tool, only verified on x86_64-linux (flake.nix)",
 }
 

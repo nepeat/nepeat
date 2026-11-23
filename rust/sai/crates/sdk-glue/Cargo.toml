@@ -1,0 +1,23 @@
+[package]
+name = "sdk-glue"
+description = "Safe wrappers over sai-openbcm's SDK glue (sdk-glue-sys): the only crate that calls it, and the only unsafe code on that side"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[features]
+# Which glue is linked (sdk-glue-sys): the real one (ppc64 only, needs SDK_GLUE_LINK) or the
+# fake for tests. With neither, a program that uses this crate does not link.
+real = ["sdk-glue-sys/real"]
+fake = ["sdk-glue-sys/fake"]
+
+[dependencies]
+sdk-glue-sys.workspace = true
+
+[dev-dependencies]
+# this crate's own tests run against the fake glue
+sdk-glue-sys = { workspace = true, features = ["fake"] }
+
+[lints]
+workspace = true

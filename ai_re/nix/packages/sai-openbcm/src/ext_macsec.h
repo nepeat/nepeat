@@ -126,6 +126,17 @@ sai_status_t ext_macsec_exec(const MsIo& io, const std::vector<MsOp>& ops, unsig
                              MsResult* res, std::string& why);
 uint64_t ms_result_u64(const MsResult& r, const std::string& name);
 void ms_wipe(MsParams& p);          // zero the bytes, then clear
+// Which parser / executor this build has: "c++" (sai_extmacsec.cpp) or "rust"
+// (the crate phy-seq behind phy_seq.h; make RUST_PHY_SEQ=...).
+const char* ext_macsec_engine();
+// Diag socket "extmacsec trace [on [all] | off | dump | clear]": records the bus
+// operations of sequence runs ("W phy dev reg val", "R phy dev reg", "D usec",
+// framed by "# run ..." and "= <status>"), the same way for both engines, to
+// compare them on hardware. Off by default; "on" = sequences that write, "on
+// all" = every one (the statistics polls too). A written word made of key
+// material (key, hkey, salt, iv bytes) is shown as "****", read values are
+// not shown at all: the trace holds no key. The last 50000 lines are kept.
+std::string ext_macsec_trace(const std::string& args);
 
 // ---- the switch's table and the SAI side (sai_macsec.cpp) ----
 sai_status_t ext_macsec_load(const BackendConfig& cfg);    // before backend init; unset key: nothing

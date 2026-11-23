@@ -15,6 +15,9 @@
   rustfmt,
   saiSrc,
   mdioScriptC ? null,
+  # optional: the C++ sai-openbcm sources (*.cpp, *.h, *.c of its src/): crates with a
+  # differential test against the C++ compile it from here (sai-macsec: SAI_OPENBCM_SRC)
+  saiOpenbcmSrc ? null,
 }:
 let
   ws = ../.;
@@ -30,7 +33,7 @@ rustPlatform.buildRustPackage {
       (ws + "/Cargo.lock")
       (ws + "/clippy.toml")
       (ws + "/rustfmt.toml")
-      (lib.fileset.fileFilter (f: f.hasExt "rs" || f.hasExt "c" || f.hasExt "mdio" || f.name == "Cargo.toml") (ws + "/crates"))
+      (lib.fileset.fileFilter (f: f.hasExt "rs" || f.hasExt "c" || f.hasExt "cpp" || f.hasExt "h" || f.hasExt "mdio" || f.name == "Cargo.toml") (ws + "/crates"))
     ];
   };
   cargoLock.lockFile = ws + "/Cargo.lock";
@@ -43,7 +46,8 @@ rustPlatform.buildRustPackage {
     # the C compiler must confirm the bindings (sai-sys/build.rs); a build without it fails
     SAI_SYS_ABI_CHECK = "require";
     SAI_SYS_ABI_CC = "${stdenv.cc}/bin/${stdenv.cc.targetPrefix}cc";   # the compiler syncd is built with
-  } // lib.optionalAttrs (mdioScriptC != null) { MDIO_SCRIPT_C_DIR = "${mdioScriptC}"; };
+  } // lib.optionalAttrs (mdioScriptC != null) { MDIO_SCRIPT_C_DIR = "${mdioScriptC}"; }
+    // lib.optionalAttrs (saiOpenbcmSrc != null) { SAI_OPENBCM_SRC = "${saiOpenbcmSrc}"; };
 
   # bindgenHook hands libclang nixpkgs' name of the big-endian ppc64 ELFv2 platform as the
   # target; clang does not know that spelling (it then assumes ELFv1 and looks for glibc

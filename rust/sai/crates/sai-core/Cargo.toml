@@ -9,6 +9,8 @@ rust-version.workspace = true
 [dependencies]
 sai-sys.workspace = true
 sai-meta.workspace = true
+# the virtual backend's TAP netdevs (SAI_RS_VIRTUAL_NETDEV=tap); its only unsafe code is there
+tap-netdev.workspace = true
 
 [dev-dependencies]
 proptest.workspace = true

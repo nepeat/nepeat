@@ -84,6 +84,37 @@ in {
       defaultText = lib.literalExpression "sai-openbcm built on the SDK";
       description = "The sai-openbcm build whose tools the units here run (the VM test of the unit wiring puts stand-ins in).";
     };
+    # Which implementation of the external PHY / MACsec table parsers and of
+    # their sequence executor libsai is built with (packages/sai-openbcm,
+    # argument rustPhySeq). Board modules that give libsai such tables honour
+    # it (boards/as7772); the others have no use for it.
+    rustPhySeq = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+      example = lib.literalExpression "../../../rust/sai/nix/phy-seq.nix";
+      description = ''
+        The monorepo's rust/sai/nix/phy-seq.nix (a callPackage function): libsai then takes the
+        ext-phy / ext-macsec table parsers and the sequence executor from the Rust crate phy-seq.
+        null: the C++ ones. The file lies outside ai_re/nix: a git flake over the repository can
+        name it by a relative path, path:./nix only with --impure and an absolute path.
+      '';
+    };
+    # Which MACsec object model libsai is built with (packages/sai-openbcm,
+    # argument rustMacsec): the C++ one (sai_macsec.cpp) or the Rust crate
+    # sai-macsec behind the same SAI entry points (sai_macsec_rust.cpp).
+    # Independent of rustPhySeq. Honoured by board modules with an external
+    # MACsec table (boards/as7772).
+    rustMacsec = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+      example = lib.literalExpression "../../../rust/sai/nix/sai-macsec-capi.nix";
+      description = ''
+        The monorepo's rust/sai/nix/sai-macsec-capi.nix (a callPackage function taking saiSrc, the
+        sonic-sairedis source): libsai then takes the MACsec object model (MACSEC, MACSEC_PORT,
+        FLOW, SC, SA, the MACsec-stage ACL tables) from the Rust crate sai-macsec. null: the C++ one.
+        Its library also carries phy-seq's C interface, so it combines with rustPhySeq.
+      '';
+    };
     kernelBdeOptions = lib.mkOption {
       type = lib.types.str;
       default = "himem=0 maxpayload=128 dmasize=16M";

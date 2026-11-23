@@ -4,9 +4,11 @@
 //! and for object ids the object types it may name. The C-ABI rim decodes and encodes values
 //! by this table; the core validates calls by it. No C metadata library is linked.
 //!
-//! Not carried (yet): default values, conditions (only the fact that an attribute is
-//! conditional), enum value ranges. Attributes whose type is not one of [`ValueType`]'s
-//! members are listed as [`ValueType::Other`] and answered "not supported" by the rim.
+//! Also carried: the header's `@default` ([`DefaultValue`]), the enumerators of enum-typed
+//! attributes ([`AttrMeta::enum_values`]) and the counter ids of every object type
+//! ([`stat_ids`]). Not carried: conditions (only the fact that an attribute is conditional).
+//! Attributes whose type is not one of [`ValueType`]'s members are listed as
+//! [`ValueType::Other`] and answered "not supported" by the rim.
 #![forbid(unsafe_code)]
 
 use sai_sys as sys;
@@ -58,6 +60,30 @@ pub enum ValueType {
     U32Range,
     /// `ptr` (notification callbacks)
     Pointer,
+    /// `s16list`
+    I16List,
+    /// `u16range`
+    U16Range,
+    /// `s32range`
+    I32Range,
+    /// `ip4` (four bytes in network order)
+    Ip4,
+    /// `ip6`
+    Ip6,
+    /// `ipaddr`
+    IpAddress,
+    /// `ipprefix`
+    IpPrefix,
+    /// `qosmap`
+    QosMapList,
+    /// `maplist`
+    MapList,
+    /// `aclcapability`
+    AclCapability,
+    /// `aclresource`
+    AclResourceList,
+    /// `timespec`
+    Timespec,
     /// Any other member: not decoded by this implementation yet.
     Other,
 }
@@ -106,6 +132,31 @@ impl Flags {
     }
 }
 
+/// The header's `@default` of an attribute: what a get answers while nobody set it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum DefaultValue {
+    /// The header gives none (mandatory and read-only attributes).
+    None,
+    /// `true` / `false`
+    Bool(bool),
+    /// A number or an enumerator.
+    Int(i64),
+    /// `SAI_NULL_OBJECT_ID`
+    NullOid,
+    /// The empty list.
+    Empty,
+    /// `NULL` (pointers)
+    NullPointer,
+    /// The empty string.
+    EmptyText,
+    /// `0.0.0.0`
+    ZeroIp,
+    /// `00:00:00:00:00:00`
+    ZeroMac,
+    /// Depends on the object or the vendor ("internal", "vendor", "attrvalue ...").
+    Special,
+}
+
 /// One attribute of one object type.
 #[derive(Clone, Copy, Debug)]
 pub struct AttrMeta {
@@ -127,9 +178,26 @@ pub struct AttrMeta {
     pub allow_null: bool,
     /// The header attaches a `@condition` or `@validonly` to the attribute (not evaluated here).
     pub conditional: bool,
+    /// For an enum (or a list of enumerators): the enumerators of its type. Empty otherwise.
+    pub enum_values: &'static [i32],
+    /// The header's `@default`.
+    pub default: DefaultValue,
 }
 
-include!(concat!(env!("OUT_DIR"), "/meta.rs"));
+// The generated tables name `sai-sys` constants and cast them to the width of the table
+// they sit in (`as i32` for enumerators, which the C headers define as `int`).
+#[allow(
+    clippy::cast_possible_wrap,
+    clippy::cast_possible_truncation,
+    clippy::cast_lossless,
+    clippy::unnecessary_cast,
+    clippy::unreadable_literal
+)]
+mod generated {
+    use super::{AttrMeta, DefaultValue, Flags, ValueType, sys};
+    include!(concat!(env!("OUT_DIR"), "/meta.rs"));
+}
+pub use generated::{OBJECT_TYPES, UNMAPPED_ATTR_ENUMS, attributes, stat_ids};
 
 /// The metadata of attribute `id` of `object_type`.
 pub fn attribute(object_type: sys::sai_object_type_t, id: sys::sai_attr_id_t) -> Option<&'static AttrMeta> {
@@ -192,6 +260,50 @@ mod tests {
             Some("SAI_OBJECT_TYPE_VLAN")
         );
         assert!(attribute(sys::SAI_OBJECT_TYPE_PORT, 0x7fff_fff0).is_none());
+    }
+
+    #[test]
+    fn defaults_enumerators_and_counters() {
+        let attr = |t, id| attribute(t, id).unwrap();
+        let admin = attr(sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_ADMIN_STATE);
+        assert_eq!(admin.default, DefaultValue::Bool(false));
+        let mtu = attr(sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_MTU);
+        assert_eq!(mtu.default, DefaultValue::Int(1514));
+        let fec = attr(sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_FEC_MODE);
+        assert_eq!(fec.default, DefaultValue::Int(i64::from(sys::SAI_PORT_FEC_MODE_NONE)));
+        assert!(fec.enum_values.contains(&sys::SAI_PORT_FEC_MODE_RS.cast_signed()));
+        assert!(!fec.enum_values.contains(&1000));
+        let pvid = attr(sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_PORT_VLAN_ID);
+        assert_eq!(pvid.default, DefaultValue::Int(1));
+        let lanes = attr(sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_HW_LANE_LIST);
+        assert_eq!((lanes.default, lanes.enum_values.len()), (DefaultValue::None, 0));
+        let acl = attr(sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_INGRESS_ACL);
+        assert_eq!(acl.default, DefaultValue::NullOid);
+        let vr_mac = attr(
+            sys::SAI_OBJECT_TYPE_VIRTUAL_ROUTER,
+            sys::SAI_VIRTUAL_ROUTER_ATTR_SRC_MAC_ADDRESS,
+        );
+        assert_eq!(vr_mac.default, DefaultValue::Special); // attrvalue SAI_SWITCH_ATTR_SRC_MAC_ADDRESS
+        // a list of enumerators
+        let fields = attr(sys::SAI_OBJECT_TYPE_HASH, sys::SAI_HASH_ATTR_NATIVE_HASH_FIELD_LIST);
+        assert_eq!(fields.value_type, ValueType::I32List);
+        assert!(
+            fields
+                .enum_values
+                .contains(&sys::SAI_NATIVE_HASH_FIELD_SRC_IP.cast_signed())
+        );
+        // the new members
+        let ip = attr(sys::SAI_OBJECT_TYPE_NEXT_HOP, sys::SAI_NEXT_HOP_ATTR_IP);
+        assert_eq!(ip.value_type, ValueType::IpAddress);
+        let map = attr(sys::SAI_OBJECT_TYPE_QOS_MAP, sys::SAI_QOS_MAP_ATTR_MAP_TO_VALUE_LIST);
+        assert_eq!(map.value_type, ValueType::QosMapList);
+        let stage = attr(sys::SAI_OBJECT_TYPE_SWITCH, sys::SAI_SWITCH_ATTR_ACL_STAGE_INGRESS);
+        assert_eq!(stage.value_type, ValueType::AclCapability);
+        // counters
+        let port = stat_ids(sys::SAI_OBJECT_TYPE_PORT);
+        assert!(port.contains(&sys::SAI_PORT_STAT_IF_IN_OCTETS.cast_signed()));
+        assert!(stat_ids(sys::SAI_OBJECT_TYPE_QUEUE).contains(&sys::SAI_QUEUE_STAT_PACKETS.cast_signed()));
+        assert_eq!(stat_ids(sys::SAI_OBJECT_TYPE_VLAN_MEMBER), [0i32; 0]);
     }
 
     #[test]

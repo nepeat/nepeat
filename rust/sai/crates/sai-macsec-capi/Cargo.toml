@@ -1,0 +1,28 @@
+[package]
+name = "sai-macsec-capi"
+description = "C interface of the Rust MACsec object model (sai-macsec) for the C++ libsai: a static library (with phy-seq's C interface inside) and sai_macsec_rs.h. The only unsafe code of the MACsec crates besides phy-seq-capi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+build = "build.rs"
+
+[lib]
+name = "sai_macsec_capi"
+crate-type = ["staticlib", "rlib"]
+
+[dependencies]
+sai-sys.workspace = true
+sai-meta.workspace = true
+sai-core.workspace = true
+sai-macsec.workspace = true
+sai-macsec-phy.workspace = true
+# re-exported: the C++ libsai links one Rust static library (two would each carry std)
+phy-seq-capi.workspace = true
+
+[build-dependencies]
+# include/sai_macsec_rs.h -> the declarations the exported functions are checked against
+bindgen.workspace = true
+
+[lints]
+workspace = true

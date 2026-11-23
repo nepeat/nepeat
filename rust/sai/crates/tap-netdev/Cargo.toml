@@ -1,0 +1,18 @@
+[package]
+name = "tap-netdev"
+description = "Linux TAP netdevs and AF_PACKET wires for the Rust SAI's virtual backend: owning handles, the ioctls in one small module"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+# the ioctl numbers (per architecture: powerpc encodes _IOW differently), struct layouts and
+# syscall declarations of the target's C library; nothing else
+libc.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true
+
+[lints]
+workspace = true

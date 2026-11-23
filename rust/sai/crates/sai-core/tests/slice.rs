@@ -76,11 +76,23 @@ fn switch_creation_is_a_second_stage_with_its_own_rules() {
     // an attribute this library does nothing with is refused by index, not dropped
     let extra = [
         Attr::new(sys::SAI_SWITCH_ATTR_INIT_SWITCH, Value::Bool(true)),
-        Attr::new(sys::SAI_SWITCH_ATTR_FDB_AGING_TIME, Value::U32(600)),
+        Attr::new(sys::SAI_SWITCH_ATTR_CRC_CHECK_ENABLE, Value::Bool(false)),
     ];
     assert_eq!(
         sai.create_switch(&extra, &Profile::default()),
         Err(Error::attr(AttrError::NotSupported, 1))
+    );
+    // only an NPU
+    let phy = [
+        Attr::new(sys::SAI_SWITCH_ATTR_INIT_SWITCH, Value::Bool(true)),
+        Attr::new(
+            sys::SAI_SWITCH_ATTR_TYPE,
+            Value::Enum(sys::SAI_SWITCH_TYPE_PHY.cast_signed()),
+        ),
+    ];
+    assert_eq!(
+        sai.create_switch(&phy, &Profile::default()),
+        Err(Error::attr(AttrError::Invalid, 1))
     );
     // a profile typo is an error, not the default
     let typo = Profile::from_pairs([("SAI_RS_VIRTUAL_PORTS", "3x")]);
@@ -137,10 +149,7 @@ fn switch_creation_is_a_second_stage_with_its_own_rules() {
         sai.get(
             SWITCH,
             id,
-            &[
-                sys::SAI_SWITCH_ATTR_PORT_NUMBER,
-                sys::SAI_SWITCH_ATTR_DEFAULT_VIRTUAL_ROUTER_ID
-            ]
+            &[sys::SAI_SWITCH_ATTR_PORT_NUMBER, sys::SAI_SWITCH_ATTR_MAX_STP_INSTANCE]
         ),
         Err(Error::attr(AttrError::NotSupported, 1))
     );
@@ -237,9 +246,11 @@ fn ports_come_from_the_chip_disabled() {
         get1(&sai, PORT, ports[0], sys::SAI_PORT_ATTR_SUPPORTED_SPEED),
         Ok(Value::U32List(vec![10_000, 25_000, 40_000, 50_000, 100_000]))
     );
-    // kept attribute: stored and returned
+    // kept attribute: stored and returned; the header's default until it is set
+    assert_eq!(get1(&sai, PORT, ports[0], sys::SAI_PORT_ATTR_MTU), Ok(Value::U32(1514)));
+    // an attribute nobody keeps is still refused
     assert_eq!(
-        get1(&sai, PORT, ports[0], sys::SAI_PORT_ATTR_MTU),
+        get1(&sai, PORT, ports[0], sys::SAI_PORT_ATTR_ADVERTISED_SPEED),
         Err(Error::attr(AttrError::NotSupported, 0))
     );
     sai.set(PORT, ports[0], &Attr::new(sys::SAI_PORT_ATTR_MTU, Value::U32(9100)))
@@ -501,13 +512,10 @@ fn vlans_and_members() {
 
     // object types SAI has and this slice does not
     assert_eq!(
-        sai.create(sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE, switch, &[]),
+        sai.create(sys::SAI_OBJECT_TYPE_TUNNEL, switch, &[]),
         Err(Error::NotImplemented)
     );
-    assert_eq!(
-        sai.remove(sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE, bp),
-        Err(Error::NotImplemented)
-    );
+    assert_eq!(sai.remove(sys::SAI_OBJECT_TYPE_TUNNEL, bp), Err(Error::NotImplemented));
 }
 
 #[test]

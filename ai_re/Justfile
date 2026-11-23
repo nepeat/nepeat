@@ -82,3 +82,22 @@ update:
 # bump the devshell's own inputs (root flake nixpkgs, flake-utils); no system is rebuilt by this
 update-devshell:
     nix flake update nixpkgs flake-utils --flake {{justfile_directory()}}
+
+# the Rust SAI's test suites, cross-built for big-endian ppc64, run ON a switch over ssh: userspace only, in a scratch dir under /tmp (rust/sai/README.md "Big-endian runs"); e.g. just sai-rs-test-on root@10.60.2.23 sudo ssh
+sai-rs-test-on host *ssh:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    run=$(nix build --no-link --print-out-paths --impure {{nix_args}} --expr '
+      let f = builtins.getFlake "path:{{justfile_directory()}}/nix"; ppc = f.nixosConfigurations.as7760.pkgs;
+          dir = {{justfile_directory()}}/../rust/sai/nix;
+          saiRs = ppc.callPackage (dir + "/package.nix") {
+            saiSrc = (import (f.outPath + "/packages/sonic") { pkgs = ppc; }).sources.sairedis;
+            mdioScriptC = f.outPath + "/packages/sai-openbcm/src";
+            saiOpenbcmSrc = f.outPath + "/packages/sai-openbcm/src";
+          };
+      in (ppc.callPackage (dir + "/target-tests.nix") {
+        inherit saiRs;
+        macsecTable = f.nixosConfigurations.as7772.config.services.sonic.sai.profile.SAI_OPENBCM_EXT_MACSEC_FILE;
+      }).runOn')
+    shift
+    exec "$run/bin/sai-rs-test-on" "{{host}}" "$@"

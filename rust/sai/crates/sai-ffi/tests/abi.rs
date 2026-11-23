@@ -71,6 +71,391 @@ unsafe fn table<T>(api: sai_api_t) -> &'static T {
     unsafe { p.cast::<T>().as_ref() }.unwrap()
 }
 
+/// A value slot as a C caller leaves it on its stack: every byte garbage until a member is set.
+fn garbage(id: sai_attr_id_t) -> sai_attribute_t {
+    let mut a = attr(id);
+    a.value.u64_ = 0xa5a5_a5a5_a5a5_a5a5;
+    a
+}
+
+/// The second slice: default objects, attribute-bag objects, entries (their own function
+/// shapes), counters, capability queries and the entries that answer "not implemented".
+fn objects_entries_and_counters(switch: sai_object_id_t, ports: &[sai_object_id_t; 4]) {
+    let switch_api: &sai_switch_api_t = unsafe { table(SAI_API_SWITCH) };
+    let port_api: &sai_port_api_t = unsafe { table(SAI_API_PORT) };
+    let rif_api: &sai_router_interface_api_t = unsafe { table(SAI_API_ROUTER_INTERFACE) };
+    let fdb_api: &sai_fdb_api_t = unsafe { table(SAI_API_FDB) };
+    let route_api: &sai_route_api_t = unsafe { table(SAI_API_ROUTE) };
+    let neighbor_api: &sai_neighbor_api_t = unsafe { table(SAI_API_NEIGHBOR) };
+    let bridge_api: &sai_bridge_api_t = unsafe { table(SAI_API_BRIDGE) };
+    let queue_api: &sai_queue_api_t = unsafe { table(SAI_API_QUEUE) };
+    let get_switch = switch_api.get_switch_attribute.unwrap();
+    let get_port = port_api.get_port_attribute.unwrap();
+
+    // default objects
+    let mut a = garbage(SAI_SWITCH_ATTR_DEFAULT_VIRTUAL_ROUTER_ID);
+    assert_eq!(unsafe { get_switch(switch, 1, &raw mut a) }, SAI_STATUS_SUCCESS);
+    let vr = unsafe { a.value.oid };
+    assert_eq!(unsafe { sai_object_type_query(vr) }, SAI_OBJECT_TYPE_VIRTUAL_ROUTER);
+    let mut a = garbage(SAI_SWITCH_ATTR_DEFAULT_VLAN_ID);
+    assert_eq!(unsafe { get_switch(switch, 1, &raw mut a) }, SAI_STATUS_SUCCESS);
+    let default_vlan = unsafe { a.value.oid };
+    // a u8 answer changes one byte of the caller's slot and no other
+    let mut a = garbage(SAI_SWITCH_ATTR_QOS_MAX_NUMBER_OF_TRAFFIC_CLASSES);
+    assert_eq!(unsafe { get_switch(switch, 1, &raw mut a) }, SAI_STATUS_SUCCESS);
+    assert_eq!(unsafe { a.value.u8_ }, 8);
+    let mut expected = [0xa5u8; 8];
+    expected[0] = 8;
+    assert_eq!(unsafe { a.value.u64_ }.to_ne_bytes(), expected);
+    // queues: a list of 8, each a QUEUE with a u8 index
+    let mut queues = [0u64; 8];
+    let mut a = attr(SAI_PORT_ATTR_QOS_QUEUE_LIST);
+    a.value.objlist = sai_object_list_t {
+        count: 8,
+        list: queues.as_mut_ptr(),
+    };
+    assert_eq!(unsafe { get_port(ports[0], 1, &raw mut a) }, SAI_STATUS_SUCCESS);
+    assert_eq!(unsafe { a.value.objlist.count }, 8);
+    let mut a = garbage(SAI_QUEUE_ATTR_INDEX);
+    let get_queue = queue_api.get_queue_attribute.unwrap();
+    assert_eq!(unsafe { get_queue(queues[5], 1, &raw mut a) }, SAI_STATUS_SUCCESS);
+    assert_eq!(unsafe { a.value.u8_ }, 5);
+
+    // an attribute-bag object: a router interface on a port
+    let mut rif_attrs = [
+        garbage(SAI_ROUTER_INTERFACE_ATTR_VIRTUAL_ROUTER_ID),
+        garbage(SAI_ROUTER_INTERFACE_ATTR_TYPE),
+        garbage(SAI_ROUTER_INTERFACE_ATTR_PORT_ID),
+    ];
+    rif_attrs[0].value.oid = vr;
+    rif_attrs[1].value.s32 = SAI_ROUTER_INTERFACE_TYPE_PORT.cast_signed();
+    rif_attrs[2].value.oid = ports[0];
+    let create_rif = rif_api.create_router_interface.unwrap();
+    let mut rif = 0;
+    assert_eq!(
+        unsafe { create_rif(&raw mut rif, switch, 2, rif_attrs.as_ptr()) },
+        SAI_STATUS_MANDATORY_ATTRIBUTE_MISSING
+    );
+    assert_eq!(
+        unsafe { create_rif(&raw mut rif, switch, 3, rif_attrs.as_ptr()) },
+        SAI_STATUS_SUCCESS
+    );
+    assert_eq!(unsafe { sai_object_type_query(rif) }, SAI_OBJECT_TYPE_ROUTER_INTERFACE);
+    let mut a = garbage(SAI_ROUTER_INTERFACE_ATTR_MTU);
+    let get_rif = rif_api.get_router_interface_attribute.unwrap();
+    assert_eq!(unsafe { get_rif(rif, 1, &raw mut a) }, SAI_STATUS_SUCCESS);
+    assert_eq!(unsafe { a.value.u32_ }, 1514);
+
+    // entries: the key is a struct, IP addresses are bytes in network order
+    let mut neighbor: sai_neighbor_entry_t = unsafe { core::mem::zeroed() };
+    neighbor.switch_id = switch;
+    neighbor.rif_id = rif;
+    neighbor.ip_address.addr_family = SAI_IP_ADDR_FAMILY_IPV4;
+    neighbor.ip_address.addr.ip4 = u32::from_ne_bytes([10, 0, 0, 2]);
+    let mut mac = garbage(SAI_NEIGHBOR_ENTRY_ATTR_DST_MAC_ADDRESS);
+    mac.value.mac = [2, 0, 0, 0, 0, 7];
+    let create_neighbor = neighbor_api.create_neighbor_entry.unwrap();
+    assert_eq!(
+        unsafe { create_neighbor(ptr::null(), 1, &raw const mac) },
+        SAI_STATUS_INVALID_PARAMETER
+    );
+    assert_eq!(
+        unsafe { create_neighbor(&raw const neighbor, 1, &raw const mac) },
+        SAI_STATUS_SUCCESS
+    );
+    assert_eq!(
+        unsafe { create_neighbor(&raw const neighbor, 1, &raw const mac) },
+        SAI_STATUS_ITEM_ALREADY_EXISTS
+    );
+    let mut a = garbage(SAI_NEIGHBOR_ENTRY_ATTR_DST_MAC_ADDRESS);
+    let get_neighbor = neighbor_api.get_neighbor_entry_attribute.unwrap();
+    assert_eq!(
+        unsafe { get_neighbor(&raw const neighbor, 1, &raw mut a) },
+        SAI_STATUS_SUCCESS
+    );
+    assert_eq!(unsafe { a.value.mac }, [2, 0, 0, 0, 0, 7]);
+    assert_eq!(unsafe { a.value.u64_ }.to_ne_bytes()[6..], [0xa5, 0xa5]);
+    // the interface is held by its neighbor
+    let remove_rif = rif_api.remove_router_interface.unwrap();
+    assert_eq!(unsafe { remove_rif(rif) }, SAI_STATUS_OBJECT_IN_USE);
+
+    let mut route: sai_route_entry_t = unsafe { core::mem::zeroed() };
+    route.switch_id = switch;
+    route.vr_id = vr;
+    route.destination.addr_family = SAI_IP_ADDR_FAMILY_IPV6;
+    route.destination.addr.ip6 = [0xfc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    route.destination.mask.ip6 = [0xff, 0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let create_route = route_api.create_route_entry.unwrap();
+    assert_eq!(
+        unsafe { create_route(&raw const route, 0, ptr::null()) },
+        SAI_STATUS_SUCCESS
+    );
+    let mut a = garbage(SAI_ROUTE_ENTRY_ATTR_PACKET_ACTION);
+    let get_route = route_api.get_route_entry_attribute.unwrap();
+    assert_eq!(
+        unsafe { get_route(&raw const route, 1, &raw mut a) },
+        SAI_STATUS_SUCCESS
+    );
+    assert_eq!(unsafe { a.value.s32 }, SAI_PACKET_ACTION_FORWARD.cast_signed());
+    let mut drop_it = garbage(SAI_ROUTE_ENTRY_ATTR_PACKET_ACTION);
+    drop_it.value.s32 = SAI_PACKET_ACTION_DROP.cast_signed();
+    let set_route = route_api.set_route_entry_attribute.unwrap();
+    assert_eq!(
+        unsafe { set_route(&raw const route, &raw const drop_it) },
+        SAI_STATUS_SUCCESS
+    );
+    assert_eq!(
+        unsafe { get_route(&raw const route, 1, &raw mut a) },
+        SAI_STATUS_SUCCESS
+    );
+    assert_eq!(unsafe { a.value.s32 }, SAI_PACKET_ACTION_DROP.cast_signed());
+    // a key of another switch, a family that is none
+    route.switch_id = ports[0];
+    assert_eq!(
+        unsafe { get_route(&raw const route, 1, &raw mut a) },
+        SAI_STATUS_INVALID_OBJECT_TYPE
+    );
+    route.switch_id = switch;
+    let remove_route = route_api.remove_route_entry.unwrap();
+    assert_eq!(unsafe { remove_route(&raw const route) }, SAI_STATUS_SUCCESS);
+    assert_eq!(unsafe { remove_route(&raw const route) }, SAI_STATUS_ITEM_NOT_FOUND);
+    route.destination.addr_family = 5;
+    assert_eq!(unsafe { remove_route(&raw const route) }, SAI_STATUS_INVALID_PARAMETER);
+    let remove_neighbor = neighbor_api.remove_neighbor_entry.unwrap();
+    assert_eq!(unsafe { remove_neighbor(&raw const neighbor) }, SAI_STATUS_SUCCESS);
+    assert_eq!(unsafe { remove_rif(rif) }, SAI_STATUS_SUCCESS);
+
+    // FDB entries and their flush
+    let mut bridge_ports = [0u64; 4];
+    let mut a = attr(SAI_SWITCH_ATTR_DEFAULT_1Q_BRIDGE_ID);
+    assert_eq!(unsafe { get_switch(switch, 1, &raw mut a) }, SAI_STATUS_SUCCESS);
+    let bridge = unsafe { a.value.oid };
+    let mut a = attr(SAI_BRIDGE_ATTR_PORT_LIST);
+    a.value.objlist = sai_object_list_t {
+        count: 4,
+        list: bridge_ports.as_mut_ptr(),
+    };
+    let get_bridge = bridge_api.get_bridge_attribute.unwrap();
+    assert_eq!(unsafe { get_bridge(bridge, 1, &raw mut a) }, SAI_STATUS_SUCCESS);
+    let fdb = sai_fdb_entry_t {
+        switch_id: switch,
+        mac_address: [2, 0, 0, 0, 0, 9],
+        bv_id: default_vlan,
+    };
+    let mut fdb_attrs = [
+        garbage(SAI_FDB_ENTRY_ATTR_TYPE),
+        garbage(SAI_FDB_ENTRY_ATTR_BRIDGE_PORT_ID),
+    ];
+    fdb_attrs[0].value.s32 = SAI_FDB_ENTRY_TYPE_DYNAMIC.cast_signed();
+    fdb_attrs[1].value.oid = bridge_ports[1];
+    let create_fdb = fdb_api.create_fdb_entry.unwrap();
+    assert_eq!(
+        unsafe { create_fdb(&raw const fdb, 2, fdb_attrs.as_ptr()) },
+        SAI_STATUS_SUCCESS
+    );
+    let mut a = garbage(SAI_FDB_ENTRY_ATTR_BRIDGE_PORT_ID);
+    let get_fdb = fdb_api.get_fdb_entry_attribute.unwrap();
+    assert_eq!(unsafe { get_fdb(&raw const fdb, 1, &raw mut a) }, SAI_STATUS_SUCCESS);
+    assert_eq!(unsafe { a.value.oid }, bridge_ports[1]);
+    let flush = fdb_api.flush_fdb_entries.unwrap();
+    assert_eq!(unsafe { flush(switch, 1, ptr::null()) }, SAI_STATUS_INVALID_PARAMETER);
+    assert_eq!(unsafe { flush(switch, 0, ptr::null()) }, SAI_STATUS_SUCCESS);
+    assert_eq!(
+        unsafe { get_fdb(&raw const fdb, 1, &raw mut a) },
+        SAI_STATUS_ITEM_NOT_FOUND
+    );
+
+    // counters: read, read with a mode, clear; pointers are checked before anything is read
+    let ids = [SAI_PORT_STAT_IF_IN_OCTETS, SAI_PORT_STAT_IF_OUT_OCTETS];
+    let mut counters = [7u64; 2];
+    let get_stats = port_api.get_port_stats.unwrap();
+    let get_stats_ext = port_api.get_port_stats_ext.unwrap();
+    let clear_stats = port_api.clear_port_stats.unwrap();
+    assert_eq!(
+        unsafe { get_stats(ports[0], 2, ids.as_ptr(), counters.as_mut_ptr()) },
+        SAI_STATUS_SUCCESS
+    );
+    assert_eq!(counters, [0, 0]);
+    assert_eq!(
+        unsafe { get_stats(ports[0], 2, ids.as_ptr(), ptr::null_mut()) },
+        SAI_STATUS_INVALID_PARAMETER
+    );
+    assert_eq!(
+        unsafe { get_stats(ports[0], 2, ptr::null(), counters.as_mut_ptr()) },
+        SAI_STATUS_INVALID_PARAMETER
+    );
+    assert_eq!(
+        unsafe { get_stats(ports[0], 0, ptr::null(), ptr::null_mut()) },
+        SAI_STATUS_SUCCESS
+    );
+    assert_eq!(
+        unsafe {
+            get_stats_ext(
+                ports[0],
+                2,
+                ids.as_ptr(),
+                SAI_STATS_MODE_READ_AND_CLEAR,
+                counters.as_mut_ptr(),
+            )
+        },
+        SAI_STATUS_SUCCESS
+    );
+    assert_eq!(
+        unsafe { get_stats_ext(ports[0], 2, ids.as_ptr(), 77, counters.as_mut_ptr()) },
+        SAI_STATUS_INVALID_PARAMETER
+    );
+    assert_eq!(unsafe { clear_stats(ports[0], 2, ids.as_ptr()) }, SAI_STATUS_SUCCESS);
+    let jabbers = [SAI_PORT_STAT_ETHER_STATS_JABBERS];
+    counters = [7; 2];
+    assert_eq!(
+        unsafe { get_stats(ports[0], 1, jabbers.as_ptr(), counters.as_mut_ptr()) },
+        SAI_STATUS_NOT_SUPPORTED
+    );
+    assert_eq!(counters, [7, 7], "a failed read wrote counters");
+    let switch_stats = switch_api.get_switch_stats.unwrap();
+    assert_eq!(
+        unsafe { switch_stats(switch, 0, ptr::null(), ptr::null_mut()) },
+        SAI_STATUS_NOT_SUPPORTED
+    );
+
+    // no entry of a table is null; what is not implemented says so and touches nothing
+    let create_ports = port_api.create_ports.unwrap();
+    let mut created = [0x55u64; 2];
+    assert_eq!(
+        unsafe {
+            create_ports(
+                switch,
+                2,
+                ptr::null(),
+                ptr::null_mut(),
+                SAI_BULK_OP_ERROR_MODE_STOP_ON_ERROR,
+                created.as_mut_ptr(),
+                ptr::null_mut(),
+            )
+        },
+        SAI_STATUS_NOT_IMPLEMENTED
+    );
+    assert_eq!(created, [0x55; 2]);
+    let mut tunnel = 0x55;
+    assert_eq!(
+        unsafe { switch_api.create_switch_tunnel.unwrap()(&raw mut tunnel, switch, 0, ptr::null()) },
+        SAI_STATUS_NOT_IMPLEMENTED
+    );
+    assert_eq!(tunnel, 0x55);
+    let mdio = switch_api.switch_mdio_read.unwrap();
+    assert_eq!(
+        unsafe { mdio(switch, 1, 2, 1, ptr::null_mut()) },
+        SAI_STATUS_NOT_IMPLEMENTED
+    );
+
+    // capability queries
+    let mut capability = sai_attr_capability_t {
+        create_implemented: true,
+        set_implemented: false,
+        get_implemented: false,
+    };
+    assert_eq!(
+        unsafe {
+            sai_query_attribute_capability(switch, SAI_OBJECT_TYPE_PORT, SAI_PORT_ATTR_SPEED, &raw mut capability)
+        },
+        SAI_STATUS_SUCCESS
+    );
+    assert_eq!(
+        (
+            capability.create_implemented,
+            capability.set_implemented,
+            capability.get_implemented
+        ),
+        (false, true, true)
+    );
+    assert_eq!(
+        unsafe { sai_query_attribute_capability(switch, SAI_OBJECT_TYPE_PORT, SAI_PORT_ATTR_SPEED, ptr::null_mut()) },
+        SAI_STATUS_INVALID_PARAMETER
+    );
+    let mut values = [0i32; 4];
+    let mut list = sai_s32_list_t {
+        count: 0,
+        list: ptr::null_mut(),
+    };
+    assert_eq!(
+        unsafe {
+            sai_query_attribute_enum_values_capability(
+                switch,
+                SAI_OBJECT_TYPE_PORT,
+                SAI_PORT_ATTR_FEC_MODE,
+                &raw mut list,
+            )
+        },
+        SAI_STATUS_BUFFER_OVERFLOW
+    );
+    assert_eq!(list.count, 3);
+    list = sai_s32_list_t {
+        count: 4,
+        list: values.as_mut_ptr(),
+    };
+    assert_eq!(
+        unsafe {
+            sai_query_attribute_enum_values_capability(
+                switch,
+                SAI_OBJECT_TYPE_PORT,
+                SAI_PORT_ATTR_FEC_MODE,
+                &raw mut list,
+            )
+        },
+        SAI_STATUS_SUCCESS
+    );
+    assert_eq!(list.count, 3);
+    assert_eq!(
+        values[..3],
+        [SAI_PORT_FEC_MODE_NONE, SAI_PORT_FEC_MODE_RS, SAI_PORT_FEC_MODE_FC].map(u32::cast_signed)
+    );
+    assert_eq!(
+        unsafe {
+            sai_query_attribute_enum_values_capability(switch, SAI_OBJECT_TYPE_PORT, SAI_PORT_ATTR_SPEED, &raw mut list)
+        },
+        SAI_STATUS_NOT_SUPPORTED
+    );
+    assert_eq!(
+        unsafe {
+            sai_query_attribute_enum_values_capability(
+                switch,
+                SAI_OBJECT_TYPE_PORT,
+                SAI_PORT_ATTR_FEC_MODE,
+                ptr::null_mut(),
+            )
+        },
+        SAI_STATUS_INVALID_PARAMETER
+    );
+    let mut stats = [sai_stat_capability_t {
+        stat_enum: 0,
+        stat_modes: 0,
+    }; 32];
+    let mut stat_list = sai_stat_capability_list_t {
+        count: 32,
+        list: stats.as_mut_ptr(),
+    };
+    assert_eq!(
+        unsafe { sai_query_stats_capability(switch, SAI_OBJECT_TYPE_PORT, &raw mut stat_list) },
+        SAI_STATUS_SUCCESS
+    );
+    assert_eq!(stat_list.count, 15);
+    assert!(
+        stats[..15]
+            .iter()
+            .any(|s| s.stat_enum == SAI_PORT_STAT_IF_IN_OCTETS && s.stat_modes & SAI_STATS_MODE_READ != 0)
+    );
+    assert_eq!(
+        unsafe { sai_query_stats_capability(switch, SAI_OBJECT_TYPE_VLAN, &raw mut stat_list) },
+        SAI_STATUS_NOT_SUPPORTED
+    );
+    let mut count = 5u32;
+    assert_eq!(
+        unsafe { sai_get_object_count(switch, SAI_OBJECT_TYPE_VLAN, &raw mut count) },
+        SAI_STATUS_NOT_SUPPORTED
+    );
+    assert_eq!(count, 5);
+}
+
 #[test]
 fn the_slice_through_the_c_abi() {
     let services = sai_service_method_table_t {
@@ -124,7 +509,7 @@ fn the_slice_through_the_c_abi() {
         SAI_STATUS_INVALID_PARAMETER
     );
     assert_eq!(
-        unsafe { sai_api_query(SAI_API_ROUTE, &raw mut p) },
+        unsafe { sai_api_query(SAI_API_TUNNEL, &raw mut p) },
         SAI_STATUS_NOT_IMPLEMENTED
     );
     assert_eq!(
@@ -260,7 +645,7 @@ fn the_slice_through_the_c_abi() {
     // errors name the attribute's position
     let mut two = [
         attr(SAI_SWITCH_ATTR_PORT_NUMBER),
-        attr(SAI_SWITCH_ATTR_DEFAULT_VIRTUAL_ROUTER_ID),
+        attr(SAI_SWITCH_ATTR_MAX_STP_INSTANCE),
     ];
     assert_eq!(
         unsafe { get_switch(switch, 2, two.as_mut_ptr()) },
@@ -358,6 +743,8 @@ fn the_slice_through_the_c_abi() {
     assert_eq!(unsafe { remove_member(member) }, SAI_STATUS_SUCCESS);
     assert_eq!(unsafe { remove_member(member) }, SAI_STATUS_INVALID_OBJECT_ID);
     assert_eq!(unsafe { remove_vlan(vlan) }, SAI_STATUS_SUCCESS);
+
+    objects_entries_and_counters(switch, &ports);
 
     // --- teardown: remove, then everything answers "uninitialized"; the API can start over
     let remove_switch = switch_api.remove_switch.unwrap();

@@ -199,7 +199,11 @@ fn refused_files() {
     assert!(matches!(e, LoadError::File(_)));
     assert_eq!(e.code(), mdio_script::E_FILE);
 
-    let dir = std::path::Path::new(env!("CARGO_TARGET_TMPDIR"));
+    // SAI_RS_TEST_TMPDIR: where a copied test executable runs, the build tree does not exist.
+    let dir = std::env::var_os("SAI_RS_TEST_TMPDIR").map_or_else(
+        || std::path::PathBuf::from(env!("CARGO_TARGET_TMPDIR")),
+        std::path::PathBuf::from,
+    );
     let path = dir.join(format!("mdio-script-interp-{}.mdio", std::process::id()));
     std::fs::write(&path, "").unwrap();
     let e = Script::load(&path).unwrap_err();

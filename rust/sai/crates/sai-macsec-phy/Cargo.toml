@@ -1,0 +1,19 @@
+[package]
+name = "sai-macsec-phy"
+description = "sai-macsec's SeqRunner over phy-seq: the board's external MACsec table (ext-macsec 1) run by the Rust executor on a clause-45 bus"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+sai-core.workspace = true
+sai-macsec.workspace = true
+phy-seq.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true
+sai-sys.workspace = true
+
+[lints]
+workspace = true

@@ -4,8 +4,17 @@
 // calls, raw MDIO of the diag socket from its thread). Lock order: SAI lock
 // -> g_mu -> the bus master's own lock; nothing here calls back into the SAI
 // layer or a port API of the backend while holding g_mu.
+//
+// The table parser and the sequence executor (run_seq) exist twice, chosen at
+// build time: C++ in this file (default), or, with -DOB_RUST_PHY_SEQ (make
+// RUST_PHY_SEQ=...), the Rust crate phy-seq called through phy_seq.h. The
+// structs of ext_phy.h and everything else here (link gate, debounce, counters,
+// locks, hold-off) are the same in both.
 #include "ext_phy.h"
 #include "sai_internal.h"
+#ifdef OB_RUST_PHY_SEQ
+#include "phy_seq.h"
+#endif
 
 #include <chrono>
 #include <cstdio>
@@ -32,6 +41,7 @@ uint64_t now_us()
                std::chrono::steady_clock::now().time_since_epoch()).count();
 }
 
+#ifndef OB_RUST_PHY_SEQ
 bool num(const std::string& s, int base, unsigned long max, unsigned& out)
 {
     if (s.empty() || s[0] == '-' || s[0] == '+') return false;
@@ -41,6 +51,7 @@ bool num(const std::string& s, int base, unsigned long max, unsigned& out)
     out = (unsigned)v;
     return true;
 }
+#endif
 
 struct SeqResult {
     bool fault = false;      // E / P mismatch or MDIO error
@@ -61,6 +72,7 @@ void wait_us(unsigned us)
     while (now_us() < end) {}
 }
 
+#ifndef OB_RUST_PHY_SEQ
 std::string op_str(const ExtOp& o)
 {
     char b[96];
@@ -127,6 +139,79 @@ SeqResult run_seq(Backend& be, const std::vector<ExtOp>& ops)
     }
     return r;
 }
+#else
+// The callbacks of phy_seq_exec (called by Rust code: no exception may leave them).
+extern "C" {
+static int32_t rs_read(void* ctx, uint32_t, uint16_t phy, uint8_t dev, uint16_t reg, uint16_t* value) noexcept
+{
+    try {
+        unsigned v = 0;
+        sai_status_t st = static_cast<Backend*>(ctx)->mdio_c45_read(phy, dev, reg, v);
+        *value = (uint16_t)v;
+        return st;
+    } catch (...) {
+        return SAI_STATUS_FAILURE;
+    }
+}
+
+static int32_t rs_write(void* ctx, uint32_t, uint16_t phy, uint8_t dev, uint16_t reg, uint16_t value) noexcept
+{
+    try {
+        return static_cast<Backend*>(ctx)->mdio_c45_write(phy, dev, reg, value);
+    } catch (...) {
+        return SAI_STATUS_FAILURE;
+    }
+}
+
+static void rs_delay(void*, uint32_t, uint32_t usec) noexcept { wait_us(usec); }
+} // extern "C"
+
+// The operation for phy_seq_exec, which checks every field again; false when a
+// value does not even fit the field (no parsed table has such an operation).
+bool op_to(const ExtOp& o, phy_seq_op& f)
+{
+    f = phy_seq_op();
+    if (o.phy > 0xffff || o.dev > 0xff || o.reg > 0xffff || o.val > 0xffff || o.mask > 0xffff) return false;
+    f.line = o.line;
+    f.op = (uint8_t)o.op;
+    f.phy = (uint16_t)o.phy;
+    f.dev = (uint8_t)o.dev;
+    f.reg = (uint16_t)o.reg;
+    f.value_kind = PHY_SEQ_VALUE_CONST;
+    f.value = (uint16_t)o.val;
+    f.mask = (uint16_t)o.mask;
+    f.tries = o.tries;
+    f.usec = o.interval_us;
+    return true;
+}
+
+SeqResult run_seq(Backend& be, const std::vector<ExtOp>& ops)
+{
+    SeqResult r;
+    char why[200];
+    std::vector<phy_seq_op> flat(ops.size());
+    for (size_t i = 0; i < ops.size(); i++)
+        if (!op_to(ops[i], flat[i])) {
+            std::snprintf(why, sizeof(why), "line %u: operation %c cannot be expressed", ops[i].line, ops[i].op);
+            r.fault = true;
+            r.why = why;
+            return r;
+        }
+    phy_seq_io io = {&be, rs_read, rs_write, rs_delay, nullptr};
+    phy_seq_outcome out = {0, 0, 0};
+    why[0] = 0;
+    int32_t rc = phy_seq_exec(PHY_SEQ_FORMAT_EXT_PHY, flat.data(), flat.size(), nullptr, 0, 0, nullptr, 0, &io, &out, why,
+                              sizeof(why));
+    if (rc == PHY_SEQ_OK) {
+        r.cond = out.cond != 0;
+        r.last = out.last;
+        return r;
+    }
+    r.fault = true;
+    r.why = why[0] ? std::string(why) : "phy-seq: error " + std::to_string(rc);
+    return r;
+}
+#endif
 
 ExtPort* port_of_hw(int hw)
 {
@@ -135,6 +220,7 @@ ExtPort* port_of_hw(int hw)
 }
 } // namespace
 
+#ifndef OB_RUST_PHY_SEQ
 bool ext_phy_parse(const std::string& text, ExtPhyTable& t, std::string& err)
 {
     t = ExtPhyTable();
@@ -228,6 +314,69 @@ bool ext_phy_parse(const std::string& text, ExtPhyTable& t, std::string& err)
     }
     return true;
 }
+#else
+bool ext_phy_parse(const std::string& text, ExtPhyTable& t, std::string& err)
+{
+    t = ExtPhyTable();
+    if (phy_seq_abi() != PHY_SEQ_ABI) {
+        err = "phy-seq library has interface version " + std::to_string(phy_seq_abi()) + ", this build expects " + std::to_string(PHY_SEQ_ABI);
+        return false;
+    }
+    phy_seq_table* tab = nullptr;
+    char msg[1024];
+    int32_t rc = phy_seq_parse(PHY_SEQ_FORMAT_EXT_PHY, (const uint8_t*)text.data(), text.size(), &tab, msg, sizeof(msg));
+    if (rc != PHY_SEQ_OK) {
+        err = rc == PHY_SEQ_E_PARSE ? std::string(msg) : "phy-seq: error " + std::to_string(rc);
+        return false;
+    }
+    struct Free {
+        phy_seq_table* t;
+        ~Free() { phy_seq_free(t); }
+    } free_it{tab};
+    auto fail = [&](int32_t code) {
+        err = "phy-seq: error " + std::to_string(code);
+        return false;
+    };
+    phy_seq_info info;
+    if ((rc = phy_seq_table_info(tab, &info)) != PHY_SEQ_OK) return fail(rc);
+    ExtPhyTable out;
+    out.poll_ms = info.poll_ms;
+    out.up_polls = info.up_polls;
+    out.holdoff_ms = info.holdoff_ms;
+    for (uint32_t i = 0; i < info.ports; i++) {
+        phy_seq_port pp;
+        if ((rc = phy_seq_table_port(tab, i, &pp)) != PHY_SEQ_OK) return fail(rc);
+        ExtPort p;
+        p.lane = pp.lane;
+        p.line = pp.line;
+        std::vector<ExtOp>* secs[3] = {&p.link, &p.down, &p.up};   // the order of phy_seq.h: link, admin-down, admin-up
+        for (uint32_t k = 0; k < 3; k++) {
+            phy_seq_seq s;
+            if ((rc = phy_seq_table_seq(tab, 3 * i + k, &s)) != PHY_SEQ_OK) return fail(rc);
+            secs[k]->reserve(s.n_ops);
+            for (size_t j = 0; j < s.n_ops; j++) {
+                const phy_seq_op& f = s.ops[j];
+                ExtOp o;
+                o.op = (char)f.op;
+                o.phy = f.phy;
+                o.dev = f.dev;
+                o.reg = f.reg;
+                if (f.op != 'R') o.val = f.value;
+                if (f.op != 'R' && f.op != 'W') o.mask = f.mask;
+                if (f.op == 'P') {
+                    o.tries = f.tries;
+                    o.interval_us = f.usec;
+                }
+                o.line = f.line;
+                secs[k]->push_back(o);
+            }
+        }
+        out.ports.push_back(std::move(p));
+    }
+    t = std::move(out);
+    return true;
+}
+#endif
 
 sai_status_t ext_phy_load(const BackendConfig& cfg)
 {
@@ -421,6 +570,9 @@ std::string ext_phy_status()
                   g_tab.ports.size(), g_tab.poll_ms, g_tab.up_polls, g_tab.holdoff_ms,
                   now_ms < g_hold_until ? "PAUSED now" : "not paused", (unsigned long long)g_holdoffs);
     s += b;
+#ifdef OB_RUST_PHY_SEQ
+    s += "extphy: table parser and sequence executor: rust (phy-seq)\n";
+#endif
     s += "port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us\n";
     for (auto& p : g_tab.ports) {
         std::snprintf(b, sizeof(b), "%-8s %5u %4d %-5s %-5s %-5s  0x%04x %8llu %8llu %4llu %5llu %7llu %7llu %7llu %5llu %4llu %11llu\n",

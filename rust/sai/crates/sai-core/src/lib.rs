@@ -9,6 +9,9 @@
 //!   duplicate and missing attributes, object ids of the wrong type.
 //! - [`backend`]: what the model needs from a switch chip ([`backend::Backend`]), and
 //!   [`virt`], the in-memory implementation.
+//! - [`bag`]: the object types whose whole state is their attributes, and the entries
+//!   (FDB, neighbor, route): one implementation driven by the metadata.
+//! - [`caps`]: what the capability queries answer.
 //! - [`sai`]: the entry points ([`sai::Sai`]): create, remove, set, get by object type, and
 //!   the events a backend raises turned into notifications.
 //!
@@ -18,6 +21,8 @@
 
 pub mod attrs;
 pub mod backend;
+pub mod bag;
+pub mod caps;
 pub mod error;
 pub mod model;
 pub mod oid;

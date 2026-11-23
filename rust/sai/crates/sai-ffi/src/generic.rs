@@ -2,15 +2,18 @@
 //! the safe core under the lock, encode. The exported trampolines ([`crate::tables`]) only
 //! name the object type.
 use crate::Status;
+use crate::convert::EntryStruct;
 use crate::log;
 use crate::{convert, notify, ptr, state};
 use sai_core::error::{AttrError, Error};
+use sai_core::model::EntryKey;
 use sai_core::oid::{ObjectType, RawOid, TypedId};
+use sai_core::sai::Sai;
 use sai_core::value::{Attr, Value};
 use sai_sys as sys;
 
 /// The profile keys the library reads, besides the backend's own.
-const BACKEND_KEY: &str = "SAI_RS_BACKEND";
+use crate::backends::{self, BACKEND_KEY};
 
 fn implemented(object_type: sys::sai_object_type_t) -> Result<(), Status> {
     ObjectType::from_sai(object_type)
@@ -93,25 +96,30 @@ pub(crate) unsafe fn create_switch(
 
     // The profile is read through the SAI user's callbacks: outside the lock.
     let services = state::with_api(|api| Ok(api.services))?;
-    let keys: Vec<&str> = core::iter::once(BACKEND_KEY)
-        .chain(sai_core::virt::PROFILE_KEYS)
-        .collect();
-    let profile = services.profile(profile_id, &keys);
+    let profile = services.profile(profile_id, &backends::profile_keys());
     // The virtual switch is never chosen implicitly: on a real switch a library that
     // "succeeds" without programming anything must be something the operator asked for.
-    if profile.get(BACKEND_KEY) != Some("virtual") {
+    let Some(backend) = backends::select(profile.get(BACKEND_KEY)) else {
         log::emit(
             sys::SAI_API_SWITCH,
             sys::SAI_LOG_LEVEL_ERROR,
             format_args!(
-                "{BACKEND_KEY}={:?} in the SAI profile: only \"virtual\" exists, and it must be asked for",
-                profile.get(BACKEND_KEY)
+                "{BACKEND_KEY}={:?} in the SAI profile: this library has {}, and one must be asked for",
+                profile.get(BACKEND_KEY),
+                backends::AVAILABLE
             ),
         );
         return Err(sys::SAI_STATUS_FAILURE);
-    }
+    };
+    let backend_name = backend.name();
 
-    let id = state::with_api(|api| {
+    let (id, front_ports) = state::with_api(|api| {
+        if api.sai.switch_id().is_some() {
+            return Err(sys::SAI_STATUS_ITEM_ALREADY_EXISTS);
+        }
+        // No switch: the core holds a backend that was never initialised, or one that was
+        // shut down with its switch. The chosen one takes its place.
+        api.sai = Sai::new(backend);
         let id = api.sai.create_switch(&attrs, &profile).map_err(Error::status)?;
         api.generation += 1;
         let started = api
@@ -122,7 +130,7 @@ pub(crate) unsafe fn create_switch(
         match started {
             Ok(handle) => {
                 api.notifier = Some(handle);
-                Ok(id)
+                Ok((id, api.sai.backend().ports().len()))
             }
             Err(status) => {
                 // No thread, no notifications: not a switch to hand out.
@@ -134,7 +142,14 @@ pub(crate) unsafe fn create_switch(
     log::emit(
         sys::SAI_API_SWITCH,
         sys::SAI_LOG_LEVEL_WARN,
-        format_args!("VIRTUAL backend selected: no hardware is programmed"),
+        format_args!(
+            "{}; switch created: {front_ports} front-panel ports",
+            if backend_name == "virtual" {
+                "VIRTUAL backend selected: no hardware is programmed"
+            } else {
+                "backend selected: openbcm (the Broadcom SDK through the C glue)"
+            }
+        ),
     );
     out.write(id.raw().0);
     Ok(())
@@ -221,10 +236,21 @@ pub(crate) unsafe fn get(
     let attrs = unsafe { ptr::inout_slice(attr_list, attr_count) }?;
     let ids: Vec<sys::sai_attr_id_t> = attrs.iter().map(|a| a.id).collect();
     let values = state::with_api(|api| api.sai.get(object_type, RawOid(oid), &ids).map_err(Error::status))?;
+    // SAFETY: the core returns values of the kind SAI defines for each requested id (it
+    // checks), so a list result goes to the list member this function's contract covers.
+    unsafe { encode_all(attrs, &values) }
+}
+
+/// Encodes the results of a get into the caller's attributes. Every attribute is encoded
+/// even after a list did not fit.
+///
+/// # Safety
+/// For each value that is a list, the caller of the SAI function initialised the list member
+/// of the attribute at the same position that carries it: [`convert::encode`]'s contract.
+unsafe fn encode_all(attrs: &mut [sys::sai_attribute_t], values: &[Value]) -> Result<(), Status> {
     let mut overflow = false;
-    for (slot, value) in attrs.iter_mut().zip(&values) {
-        // SAFETY: the core returns values of the kind SAI defines for each requested id (it
-        // checks), so a list result goes to the list member this function's contract covers.
+    for (slot, value) in attrs.iter_mut().zip(values) {
+        // SAFETY: this function's contract.
         match unsafe { convert::encode(value, &mut slot.value) } {
             Ok(()) => {}
             Err(sys::SAI_STATUS_BUFFER_OVERFLOW) => overflow = true,
@@ -236,4 +262,154 @@ pub(crate) unsafe fn get(
     } else {
         Ok(())
     }
+}
+
+/// Reads counters, for every object type; `mode` is `SAI_STATS_MODE_READ` or
+/// `SAI_STATS_MODE_READ_AND_CLEAR`. The pointers are checked before anything is read or
+/// cleared.
+///
+/// # Safety
+/// As the `sai_get_*_stats_fn` / `sai_get_*_stats_ext_fn` types in the SAI headers:
+/// `counter_ids` points to `number_of_counters` ids, not written to during the call, and
+/// `counters` is valid for that many writes and not accessed otherwise (or the count is zero).
+pub(crate) unsafe fn get_stats(
+    object_type: sys::sai_object_type_t,
+    oid: sys::sai_object_id_t,
+    number_of_counters: u32,
+    counter_ids: *const sys::sai_stat_id_t,
+    mode: sys::sai_stats_mode_t,
+    counters: *mut u64,
+) -> Result<(), Status> {
+    implemented(object_type)?;
+    let clear = match mode {
+        sys::SAI_STATS_MODE_READ => false,
+        sys::SAI_STATS_MODE_READ_AND_CLEAR => true,
+        _ => return Err(sys::SAI_STATUS_INVALID_PARAMETER),
+    };
+    // SAFETY: this function's contract.
+    let ids = unsafe { ptr::in_slice(counter_ids, number_of_counters) }?;
+    // SAFETY: this function's contract.
+    let out = unsafe { ptr::out_slice(counters, number_of_counters) }?;
+    let values = state::with_api(|api| {
+        api.sai
+            .stats_get(object_type, RawOid(oid), ids, clear)
+            .map_err(Error::status)
+    })?;
+    out.write(&values)
+}
+
+/// Zeroes counters, for every object type.
+///
+/// # Safety
+/// As the `sai_clear_*_stats_fn` types in the SAI headers: `counter_ids` points to
+/// `number_of_counters` ids, not written to during the call (or the count is zero).
+pub(crate) unsafe fn clear_stats(
+    object_type: sys::sai_object_type_t,
+    oid: sys::sai_object_id_t,
+    number_of_counters: u32,
+    counter_ids: *const sys::sai_stat_id_t,
+) -> Result<(), Status> {
+    implemented(object_type)?;
+    // SAFETY: this function's contract.
+    let ids = unsafe { ptr::in_slice(counter_ids, number_of_counters) }?;
+    state::with_api(|api| {
+        api.sai
+            .stats_clear(object_type, RawOid(oid), ids)
+            .map_err(Error::status)
+    })
+}
+
+/// The switch id and the key out of an entry struct.
+///
+/// # Safety
+/// `entry` is null or points to an entry struct the C caller filled in (for an IP address in
+/// it: the member its family names), not written to during the call.
+unsafe fn entry_key<E: EntryStruct>(entry: *const E) -> Result<(RawOid, EntryKey), Status> {
+    // SAFETY: this function's contract.
+    let entry = unsafe { ptr::in_ref(entry) }?;
+    // SAFETY: this function's contract is `EntryStruct::key`'s.
+    unsafe { entry.key() }.map_err(Error::status)
+}
+
+/// Create, for the object types whose key is a struct.
+///
+/// # Safety
+/// As the `sai_create_*_entry_fn` types in the SAI headers: `entry` as for [`entry_key`];
+/// `attr_list` / `attr_count` as for [`decode_list`].
+pub(crate) unsafe fn entry_create<E: EntryStruct>(
+    entry: *const E,
+    attr_count: u32,
+    attr_list: *const sys::sai_attribute_t,
+) -> Result<(), Status> {
+    // SAFETY: this function's contract.
+    let (switch, key) = unsafe { entry_key(entry) }?;
+    // SAFETY: this function's contract.
+    let attrs = unsafe { decode_list(E::OBJECT_TYPE, attr_list, attr_count) }?;
+    state::with_api(|api| api.sai.create_entry(switch, key, &attrs).map_err(Error::status))
+}
+
+/// Remove, for the object types whose key is a struct.
+///
+/// # Safety
+/// `entry` as for [`entry_key`].
+pub(crate) unsafe fn entry_remove<E: EntryStruct>(entry: *const E) -> Result<(), Status> {
+    // SAFETY: this function's contract.
+    let (switch, key) = unsafe { entry_key(entry) }?;
+    state::with_api(|api| api.sai.remove_entry(switch, &key).map_err(Error::status))
+}
+
+/// Set, for the object types whose key is a struct.
+///
+/// # Safety
+/// `entry` as for [`entry_key`]; `attr` as for [`set`].
+pub(crate) unsafe fn entry_set<E: EntryStruct>(
+    entry: *const E,
+    attr: *const sys::sai_attribute_t,
+) -> Result<(), Status> {
+    // SAFETY: this function's contract.
+    let (switch, key) = unsafe { entry_key(entry) }?;
+    // SAFETY: this function's contract.
+    let attr = unsafe { ptr::in_ref(attr) }?;
+    let attr = decode_one(E::OBJECT_TYPE, attr, Call::Set).map_err(Error::status)?;
+    state::with_api(|api| api.sai.set_entry(switch, &key, &attr).map_err(Error::status))
+}
+
+/// Get, for the object types whose key is a struct.
+///
+/// # Safety
+/// `entry` as for [`entry_key`]; `attr_list` / `attr_count` as for [`get`].
+pub(crate) unsafe fn entry_get<E: EntryStruct>(
+    entry: *const E,
+    attr_count: u32,
+    attr_list: *mut sys::sai_attribute_t,
+) -> Result<(), Status> {
+    // SAFETY: this function's contract.
+    let (switch, key) = unsafe { entry_key(entry) }?;
+    // SAFETY: this function's contract.
+    let attrs = unsafe { ptr::inout_slice(attr_list, attr_count) }?;
+    let ids: Vec<sys::sai_attr_id_t> = attrs.iter().map(|a| a.id).collect();
+    let values = state::with_api(|api| api.sai.get_entry(switch, &key, &ids).map_err(Error::status))?;
+    // SAFETY: the core returns values of the kind SAI defines for each requested id, so a
+    // list result goes to the list member this function's contract covers.
+    unsafe { encode_all(attrs, &values) }
+}
+
+/// `flush_fdb_entries`.
+///
+/// # Safety
+/// As `sai_flush_fdb_entries_fn` in the SAI headers: `attr_list` / `attr_count` as for
+/// [`decode_list`].
+pub(crate) unsafe fn flush_fdb(
+    switch_id: sys::sai_object_id_t,
+    attr_count: u32,
+    attr_list: *const sys::sai_attribute_t,
+) -> Result<(), Status> {
+    // SAFETY: this function's contract.
+    let attrs = unsafe { decode_list(sys::SAI_OBJECT_TYPE_FDB_FLUSH, attr_list, attr_count) }?;
+    state::with_api(|api| {
+        api.sai
+            .flush_fdb(RawOid(switch_id), &attrs)
+            .map(|_| ())
+            .map_err(Error::status)
+    })
 }

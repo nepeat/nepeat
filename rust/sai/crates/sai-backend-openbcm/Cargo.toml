@@ -1,0 +1,28 @@
+[package]
+name = "sai-backend-openbcm"
+description = "The Rust SAI's hardware backend: sai-core's Backend over the Broadcom SDK through sai-openbcm's C glue (sdk-glue). No unsafe code"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+build = "build.rs"
+
+[features]
+# Which glue is linked (sdk-glue-sys): the real one (sdk_glue.c + libsdk, big-endian ppc64,
+# SDK_GLUE_LINK) or the in-memory fake. Exactly one in anything that is linked; the tests
+# of this crate use the fake through the dev-dependency below.
+real = ["sdk-glue/real"]
+fake = ["sdk-glue/fake"]
+
+[dependencies]
+sai-core.workspace = true
+sdk-glue.workspace = true
+
+[dev-dependencies]
+sdk-glue = { workspace = true, features = ["fake"] }
+# status codes by name, for the comparison with the C++ backend's table
+sai-sys.workspace = true
+proptest.workspace = true
+
+[lints]
+workspace = true

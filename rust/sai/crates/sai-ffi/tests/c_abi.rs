@@ -1,6 +1,9 @@
 //! Builds `tests/harness.c` with the C compiler against the real SAI headers and runs it on
 //! the built `libsai.so`: the slice through the real C ABI, loaded with `dlopen` as syncd's
 //! link would see it.
+//!
+//! Where no C compiler is (the ppc64 test bundle run on a switch, README "Big-endian runs"):
+//! `SAI_FFI_HARNESS` names the harness built beforehand and `SAI_FFI_LIBSAI` the library.
 // Test code: a failed unwrap, index or panic is the test failing.
 #![allow(
     clippy::unwrap_used,
@@ -14,6 +17,9 @@ use std::process::Command;
 
 /// The cdylib cargo built for this test run: next to the test executable or one level up.
 fn libsai() -> PathBuf {
+    if let Some(lib) = std::env::var_os("SAI_FFI_LIBSAI") {
+        return PathBuf::from(lib);
+    }
     let exe = std::env::current_exe().expect("test executable path");
     let deps = exe.parent().expect("deps directory");
     [deps, deps.parent().expect("profile directory")]
@@ -23,8 +29,11 @@ fn libsai() -> PathBuf {
         .unwrap_or_else(|| panic!("libsai.so not found near {}", exe.display()))
 }
 
-#[test]
-fn c_harness_drives_the_slice_through_dlopen() {
+/// The harness executable and whether this run built it (and so removes it).
+fn harness() -> (PathBuf, bool) {
+    if let Some(prebuilt) = std::env::var_os("SAI_FFI_HARNESS") {
+        return (PathBuf::from(prebuilt), false);
+    }
     let inc = Path::new(env!("SAI_FFI_SAI_INC"));
     let experimental = inc.parent().expect("SAI directory").join("experimental");
     let out = Path::new(env!("CARGO_TARGET_TMPDIR")).join(format!("harness-{}", std::process::id()));
@@ -48,8 +57,16 @@ fn c_harness_drives_the_slice_through_dlopen() {
         String::from_utf8_lossy(&compile.stderr)
     );
 
-    let run = Command::new(&out).arg(libsai()).output().expect("run the harness");
-    let _ = std::fs::remove_file(&out);
+    (out, true)
+}
+
+#[test]
+fn c_harness_drives_the_slice_through_dlopen() {
+    let (exe, built_here) = harness();
+    let run = Command::new(&exe).arg(libsai()).output().expect("run the harness");
+    if built_here {
+        let _ = std::fs::remove_file(&exe);
+    }
     let stdout = String::from_utf8_lossy(&run.stdout);
     let stderr = String::from_utf8_lossy(&run.stderr);
     println!("{stdout}{stderr}");

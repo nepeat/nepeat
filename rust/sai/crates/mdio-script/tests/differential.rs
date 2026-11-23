@@ -5,6 +5,10 @@
 //! of scripts; its canonical output must equal what this crate produces on the same fake bus
 //! (tests/common/mod.rs). Without the variable the tests say so and pass.
 //!
+//! On a machine without a C compiler (the ppc64 test bundle run on a switch, README "Big-endian
+//! runs") `MDIO_SCRIPT_C_DRIVER` names the driver built beforehand and `SAI_RS_TEST_TMPDIR` a
+//! directory for the generated scripts.
+//!
 //! Scripts with a syntax error are compared on the parse pass only: the C interpreter would run
 //! the lines before the error, this crate runs nothing (see the crate documentation).
 
@@ -35,8 +39,16 @@ struct Driver {
 fn driver() -> Option<&'static Driver> {
     static DRIVER: OnceLock<Option<Result<Driver, String>>> = OnceLock::new();
     let built = DRIVER.get_or_init(|| {
+if let Some(exe) = std::env::var_os("MDIO_SCRIPT_C_DRIVER") {
+            return Some(scratch_dir().map(|dir| Driver {
+                exe: PathBuf::from(exe),
+                dir,
+            }));
+        }
         let Some(c_dir) = std::env::var_os("MDIO_SCRIPT_C_DIR") else {
-            eprintln!("differential: MDIO_SCRIPT_C_DIR is not set, the comparison with mdio_script.c is SKIPPED");
+            eprintln!(
+                "differential: neither MDIO_SCRIPT_C_DRIVER nor MDIO_SCRIPT_C_DIR is set, the comparison with mdio_script.c is SKIPPED"
+            );
             return None;
         };
         Some(build(Path::new(&c_dir)))
@@ -46,9 +58,18 @@ fn driver() -> Option<&'static Driver> {
         .map(|built| built.as_ref().unwrap_or_else(|e| panic!("{e}")))
 }
 
-fn build(c_dir: &Path) -> Result<Driver, String> {
-    let dir = Path::new(env!("CARGO_TARGET_TMPDIR")).join(format!("mdio-script-differential-{}", std::process::id()));
+/// A directory of this process for scripts and the driver: under `SAI_RS_TEST_TMPDIR` when set
+/// (the build tree does not exist where a copied test executable runs), else cargo's.
+fn scratch_dir() -> Result<PathBuf, String> {
+    let base = std::env::var_os("SAI_RS_TEST_TMPDIR")
+        .map_or_else(|| PathBuf::from(env!("CARGO_TARGET_TMPDIR")), PathBuf::from);
+    let dir = base.join(format!("mdio-script-differential-{}", std::process::id()));
     std::fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+    Ok(dir)
+}
+
+fn build(c_dir: &Path) -> Result<Driver, String> {
+    let dir = scratch_dir()?;
     let exe = dir.join("driver");
     let cc = std::env::var_os("CC").unwrap_or_else(|| "cc".into());
     let out = Command::new(&cc)

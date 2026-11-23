@@ -3,6 +3,8 @@ use crate::Status;
 use crate::guard::{guard, guard_value};
 use crate::{log, ptr, state, tables};
 use core::ffi::{c_char, c_void};
+use sai_core::caps;
+use sai_core::error::Error;
 use sai_core::oid::RawOid;
 use sai_sys as sys;
 
@@ -48,14 +50,12 @@ pub unsafe extern "C" fn sai_api_query(api: sys::sai_api_t, api_method_table: *m
         // SAFETY: this function's contract.
         let out = unsafe { ptr::out(api_method_table) }?;
         state::with_api(|_| Ok(()))?; // SAI_STATUS_UNINITIALIZED before sai_api_initialize
-        let table: *const c_void = match api {
-            sys::SAI_API_SWITCH => (&raw const tables::SWITCH_API).cast(),
-            sys::SAI_API_PORT => (&raw const tables::PORT_API).cast(),
-            sys::SAI_API_VLAN => (&raw const tables::VLAN_API).cast(),
-            sys::SAI_API_BRIDGE => (&raw const tables::BRIDGE_API).cast(),
-            sys::SAI_API_UNSPECIFIED => return Err(sys::SAI_STATUS_INVALID_PARAMETER),
-            other if other < sys::SAI_API_MAX => return Err(sys::SAI_STATUS_NOT_IMPLEMENTED),
-            _ => return Err(sys::SAI_STATUS_INVALID_PARAMETER),
+        let table: *const c_void = match tables::of(api) {
+            Some(table) => table,
+            None if api == sys::SAI_API_UNSPECIFIED || api >= sys::SAI_API_MAX => {
+                return Err(sys::SAI_STATUS_INVALID_PARAMETER);
+            }
+            None => return Err(sys::SAI_STATUS_NOT_IMPLEMENTED),
         };
         out.write(table.cast_mut());
         Ok(())
@@ -100,24 +100,127 @@ pub unsafe extern "C" fn sai_query_api_version(version: *mut sys::sai_api_versio
     })
 }
 
-/// Entry points that exist so that SAI users link, and that answer "not implemented" without
-/// looking at their arguments.
-macro_rules! not_implemented {
-    ($($(#[$doc:meta])* fn $name:ident($($arg:ident: $ty:ty),* $(,)?);)*) => {$(
+/// Which of create, set and get an attribute is implemented for (the table of
+/// `sai_core::caps`, the C++ sai-openbcm's). An attribute that is not in the table is
+/// answered with all three false, and success.
+///
+/// # Safety
+/// `attr_capability` is null or valid for a write of a `sai_attr_capability_t`.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sai_query_attribute_capability(
+    _switch_id: sys::sai_object_id_t,
+    object_type: sys::sai_object_type_t,
+    attr_id: sys::sai_attr_id_t,
+    attr_capability: *mut sys::sai_attr_capability_t,
+) -> Status {
+    guard(GLOBAL, || {
+        // SAFETY: this function's contract.
+        let out = unsafe { ptr::out(attr_capability) }?;
+        // Cut to what the backend programs; before sai_api_initialize, the table itself.
+        let capability = state::with_api(|api| Ok(api.sai.attribute_capability(object_type, attr_id)))
+            .unwrap_or_else(|_| caps::attribute(object_type, attr_id));
+        out.write(sys::sai_attr_capability_t {
+            create_implemented: capability.create,
+            set_implemented: capability.set,
+            get_implemented: capability.get,
+        });
+        Ok(())
+    })
+}
+
+/// The enumerators of an attribute that are implemented, with SAI's list convention (count
+/// in: capacity; out: needed). `SAI_STATUS_NOT_SUPPORTED` for attributes without a list.
+///
+/// # Safety
+/// `enum_values_capability` is null or points to a list whose count is the capacity of the
+/// buffer its pointer names (valid for that many writes), or zero; nothing else accesses
+/// either during the call.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sai_query_attribute_enum_values_capability(
+    _switch_id: sys::sai_object_id_t,
+    object_type: sys::sai_object_type_t,
+    attr_id: sys::sai_attr_id_t,
+    enum_values_capability: *mut sys::sai_s32_list_t,
+) -> Status {
+    guard(GLOBAL, || {
+        // SAFETY: this function's contract.
+        let list = unsafe { ptr::inout_slice(enum_values_capability, 1) }?
+            .first_mut()
+            .ok_or(sys::SAI_STATUS_INVALID_PARAMETER)?;
+        let values = state::with_api(|api| {
+            api.sai
+                .enum_values_capability(object_type, attr_id)
+                .map_err(Error::status)
+        })?;
+        // SAFETY: this function's contract is `write_list`'s for the list's count and buffer.
+        unsafe { ptr::write_list(&mut list.count, list.list, &values) }
+    })
+}
+
+/// The counters the chip has for objects of a type, each readable and clearable, with SAI's
+/// list convention.
+///
+/// # Safety
+/// `stats_capability` is null or points to a list whose count is the capacity of the buffer
+/// its pointer names (valid for that many writes), or zero; nothing else accesses either
+/// during the call.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sai_query_stats_capability(
+    _switch_id: sys::sai_object_id_t,
+    object_type: sys::sai_object_type_t,
+    stats_capability: *mut sys::sai_stat_capability_list_t,
+) -> Status {
+    guard(GLOBAL, || {
+        // SAFETY: this function's contract.
+        let list = unsafe { ptr::inout_slice(stats_capability, 1) }?
+            .first_mut()
+            .ok_or(sys::SAI_STATUS_INVALID_PARAMETER)?;
+        let counters = state::with_api(|api| api.sai.stats_capability(object_type).map_err(Error::status))?;
+        let items: Vec<sys::sai_stat_capability_t> = counters
+            .into_iter()
+            .map(|stat_enum| sys::sai_stat_capability_t {
+                stat_enum,
+                stat_modes: sys::SAI_STATS_MODE_READ | sys::SAI_STATS_MODE_READ_AND_CLEAR,
+            })
+            .collect();
+        // SAFETY: this function's contract is `write_list`'s for the list's count and buffer.
+        unsafe { ptr::write_list(&mut list.count, list.list, &items) }
+    })
+}
+
+/// Entry points that exist so that SAI users link, and that answer one fixed status
+/// without looking at their arguments.
+macro_rules! fixed_status {
+    ($status:ident: $($(#[$doc:meta])* fn $name:ident($($arg:ident: $ty:ty),* $(,)?);)*) => {$(
         $(#[$doc])*
         ///
-        /// Not implemented in this slice: answers `SAI_STATUS_NOT_IMPLEMENTED` and reads or
-        /// writes nothing through its pointer arguments.
+        /// Answers one fixed status (see the source) and reads or writes nothing through its
+        /// pointer arguments.
         #[unsafe(no_mangle)]
         pub extern "C" fn $name($(_: $ty),*) -> Status {
-            sys::SAI_STATUS_NOT_IMPLEMENTED
+            sys::$status
         }
     )*};
 }
 
-not_implemented! {
+fixed_status! { SAI_STATUS_NOT_IMPLEMENTED:
     /// `sai_dbg_generate_dump`
     fn sai_dbg_generate_dump(dump_file_name: *const c_char);
+    /// `sai_bulk_get_attribute`
+    fn sai_bulk_get_attribute(
+        switch_id: sys::sai_object_id_t, object_type: sys::sai_object_type_t, object_count: u32, object_key: *const sys::sai_object_key_t,
+        attr_count: *mut u32, attr_list: *mut *mut sys::sai_attribute_t, object_statuses: *mut Status,
+    );
+    /// `sai_query_object_stage`
+    fn sai_query_object_stage(
+        switch_id: sys::sai_object_id_t, object_type: sys::sai_object_type_t, attr_count: u32, attr_list: *const sys::sai_attribute_t,
+        stage: *mut sys::sai_object_stage_t,
+    );
+}
+
+// As the C++ sai-openbcm answers them: syncd and orchagent take "not supported" as "ask
+// the switch attributes instead" (CRM) or "walk the objects yourself" (discovery).
+fixed_status! { SAI_STATUS_NOT_SUPPORTED:
     /// `sai_object_type_get_availability`
     fn sai_object_type_get_availability(
         switch_id: sys::sai_object_id_t, object_type: sys::sai_object_type_t, attr_count: u32, attr_list: *const sys::sai_attribute_t, count: *mut u64,
@@ -129,28 +232,6 @@ not_implemented! {
     /// `sai_get_object_key`
     fn sai_get_object_key(
         switch_id: sys::sai_object_id_t, object_type: sys::sai_object_type_t, object_count: *mut u32, object_list: *mut sys::sai_object_key_t,
-    );
-    /// `sai_bulk_get_attribute`
-    fn sai_bulk_get_attribute(
-        switch_id: sys::sai_object_id_t, object_type: sys::sai_object_type_t, object_count: u32, object_key: *const sys::sai_object_key_t,
-        attr_count: *mut u32, attr_list: *mut *mut sys::sai_attribute_t, object_statuses: *mut Status,
-    );
-    /// `sai_query_attribute_capability`
-    fn sai_query_attribute_capability(
-        switch_id: sys::sai_object_id_t, object_type: sys::sai_object_type_t, attr_id: sys::sai_attr_id_t, attr_capability: *mut sys::sai_attr_capability_t,
-    );
-    /// `sai_query_attribute_enum_values_capability`
-    fn sai_query_attribute_enum_values_capability(
-        switch_id: sys::sai_object_id_t, object_type: sys::sai_object_type_t, attr_id: sys::sai_attr_id_t, enum_values_capability: *mut sys::sai_s32_list_t,
-    );
-    /// `sai_query_stats_capability`
-    fn sai_query_stats_capability(
-        switch_id: sys::sai_object_id_t, object_type: sys::sai_object_type_t, stats_capability: *mut sys::sai_stat_capability_list_t,
-    );
-    /// `sai_query_object_stage`
-    fn sai_query_object_stage(
-        switch_id: sys::sai_object_id_t, object_type: sys::sai_object_type_t, attr_count: u32, attr_list: *const sys::sai_attribute_t,
-        stage: *mut sys::sai_object_stage_t,
     );
 }
 

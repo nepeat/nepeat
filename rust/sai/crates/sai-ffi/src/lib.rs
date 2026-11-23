@@ -20,6 +20,7 @@
 // Exported functions take raw pointers by the nature of a C ABI; their contracts are in "# Safety".
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
 
+mod backends;
 mod convert;
 mod generic;
 pub mod global;

@@ -20,6 +20,7 @@ struct Tags {
     allow_null: bool,
     conditional: bool,
     ignore: bool,
+    default: Option<String>,
 }
 
 struct Attr {
@@ -40,14 +41,34 @@ fn main() {
     headers.sort();
     let sources: Vec<String> = headers.iter().map(|p| fs::read_to_string(p).expect("header")).collect();
 
-    // Pass 1: enum type names (an attribute of such a type travels as s32) and object types.
-    let mut enums = BTreeSet::new();
+    // Pass 1: enum types with their enumerators (an attribute of such a type travels as s32;
+    // the enumerators are its valid values) and object types.
+    let mut enums: BTreeMap<String, Vec<String>> = BTreeMap::new();
     let mut object_types = Vec::new();
     for src in &sources {
+        let mut open: Option<Vec<String>> = None;
         for line in src.lines() {
             let line = line.trim();
-            if let Some(name) = line.strip_prefix("} sai_").and_then(|r| r.strip_suffix("_t;")) {
-                enums.insert(format!("sai_{name}_t")); // struct typedefs land here too; the type map wins over this set
+            if line.starts_with("typedef enum _sai_") {
+                open = Some(Vec::new());
+            } else if let Some(name) = line.strip_prefix("} sai_").and_then(|r| r.strip_suffix("_t;")) {
+                if let Some(values) = open.take() {
+                    enums.insert(format!("sai_{name}_t"), values);
+                }
+            } else if let Some(values) = open.as_mut() {
+                let name: String = line
+                    .chars()
+                    .take_while(|c| c.is_ascii_uppercase() || c.is_ascii_digit() || *c == '_')
+                    .collect();
+                // Range markers are bounds of the enum, not values an attribute can take.
+                let marker = name.ends_with("_START")
+                    || name.ends_with("_END")
+                    || name.ends_with("_MAX")
+                    || name.ends_with("_RANGE_BASE")
+                    || name.contains("CUSTOM_RANGE");
+                if name.starts_with("SAI_") && !marker && !values.contains(&name) {
+                    values.push(name);
+                }
             }
             if let Some(rest) = line.strip_prefix("SAI_OBJECT_TYPE_") {
                 let name: String = rest
@@ -128,6 +149,25 @@ fn main() {
     );
 
     let mut out = String::new();
+    // One table per enum type that an attribute or a counter list uses.
+    let used: BTreeSet<String> = tables
+        .values()
+        .flatten()
+        .filter_map(|a| enum_of(a.tags.ty.as_deref().unwrap_or_default(), &enums))
+        .chain(enums.keys().filter(|e| e.ends_with("_stat_t")).cloned())
+        .collect();
+    for name in &used {
+        let values = enums.get(name).expect("a used enum is a known enum");
+        let list: Vec<String> = values.iter().map(|v| format!("sys::{v} as i32")).collect();
+        writeln!(
+            out,
+            "static {}: [i32; {}] = [{}];",
+            enum_ident(name),
+            values.len(),
+            list.join(", ")
+        )
+        .expect("write");
+    }
     for (object_type, attrs) in &tables {
         let ident = object_type.trim_start_matches("SAI_OBJECT_TYPE_");
         writeln!(out, "static {ident}: [AttrMeta; {}] = [", attrs.len()).expect("write");
@@ -149,10 +189,14 @@ fn main() {
                 format!("Flags::from_bits({flags})")
             };
             let objects: Vec<String> = a.tags.objects.iter().map(|o| format!("sys::{o}")).collect();
+            let enum_values = enum_of(a.tags.ty.as_deref().unwrap_or_default(), &enums)
+                .map_or_else(|| "&[]".to_string(), |e| format!("&{}", enum_ident(&e)));
+            let default = default_expr(a.tags.default.as_deref().unwrap_or_default());
             writeln!(
                 out,
                 "    AttrMeta {{ object_type: sys::{object_type}, id: sys::{}, name: \"{}\", value_type: ValueType::{value_type}, \
-                 type_name: \"{type_name}\", flags: {flags}, allowed_objects: &[{}], allow_null: {}, conditional: {} }},",
+                 type_name: \"{type_name}\", flags: {flags}, allowed_objects: &[{}], allow_null: {}, conditional: {}, \
+                 enum_values: {enum_values}, default: {default} }},",
                 a.name,
                 a.name,
                 objects.join(", "),
@@ -174,6 +218,18 @@ fn main() {
             object_type.trim_start_matches("SAI_OBJECT_TYPE_")
         )
         .expect("write");
+    }
+    out.push_str("        _ => &[],\n    }\n}\n");
+    out.push_str("/// The counter ids of an object type (its `sai_*_stat_t` enumerators); empty when it has none.\n");
+    out.push_str("pub fn stat_ids(object_type: sys::sai_object_type_t) -> &'static [i32] {\n    match object_type {\n");
+    for object_type in &object_types {
+        let stat = format!(
+            "sai_{}_stat_t",
+            object_type.trim_start_matches("SAI_OBJECT_TYPE_").to_lowercase()
+        );
+        if used.contains(&stat) {
+            writeln!(out, "        sys::{object_type} => &{},", enum_ident(&stat)).expect("write");
+        }
     }
     out.push_str("        _ => &[],\n    }\n}\n");
     out.push_str("/// Every object type of the headers with its name.\n");
@@ -221,13 +277,14 @@ fn parse_tag(line: &str, tags: &mut Tags) {
         }
         "allownull" => tags.allow_null = rest == "true",
         "condition" | "validonly" => tags.conditional = true,
+        "default" => tags.default = Some(rest.to_string()),
         "ignore" => tags.ignore = true,
         _ => {}
     }
 }
 
 /// The union member an `@type` travels in, and the C type name for messages.
-fn value_type(ty: &str, enums: &BTreeSet<String>) -> (&'static str, String) {
+fn value_type(ty: &str, enums: &BTreeMap<String, Vec<String>>) -> (&'static str, String) {
     let mut words = ty.split_whitespace();
     let first = words.next().unwrap_or_default();
     let second = words.next();
@@ -250,36 +307,69 @@ fn value_type(ty: &str, enums: &BTreeSet<String>) -> (&'static str, String) {
         "sai_u16_list_t" => "U16List",
         "sai_u32_list_t" => "U32List",
         "sai_s32_list_t" => "I32List",
+        "sai_s16_list_t" => "I16List",
+        "sai_u16_range_t" => "U16Range",
+        "sai_s32_range_t" => "I32Range",
+        "sai_ip4_t" => "Ip4",
+        "sai_ip6_t" => "Ip6",
+        "sai_ip_address_t" => "IpAddress",
+        "sai_ip_prefix_t" => "IpPrefix",
+        "sai_qos_map_list_t" => "QosMapList",
+        "sai_map_list_t" => "MapList",
+        "sai_acl_capability_t" => "AclCapability",
+        "sai_acl_resource_list_t" => "AclResourceList",
+        "sai_timespec_t" => "Timespec",
         "sai_vlan_list_t" => "VlanList",
         "sai_u32_range_t" => "U32Range",
         "sai_pointer_t" => "Pointer",
         // An enum typedef and nothing else: the s32 member.
-        t if second.is_none() && enums.contains(t) && !is_struct_type(t) => "Enum",
+        t if second.is_none() && enums.contains_key(t) => "Enum",
         _ => "Other",
     };
     (vt, second.map_or_else(|| first.to_string(), |s| format!("{first} {s}")))
 }
 
-/// Typedef names that pass 1 cannot tell from enums (it only sees the closing `} sai_x_t;` line).
-fn is_struct_type(t: &str) -> bool {
-    t.ends_with("_list_t")
-        || t.ends_with("_range_t")
-        || t.ends_with("_data_t")
-        || t.ends_with("_entry_t")
-        || t.ends_with("_config_t")
-        || t.ends_with("_info_t")
-        || matches!(
-            t,
-            "sai_ip_address_t"
-                | "sai_ip_prefix_t"
-                | "sai_timespec_t"
-                | "sai_latch_status_t"
-                | "sai_json_t"
-                | "sai_prbs_rx_state_t"
-                | "sai_port_lane_latch_status_t"
-                | "sai_fabric_port_reachability_t"
-                | "sai_taps_t"
-                | "sai_prbs_bit_error_rate_t"
-                | "sai_attr_capability_t"
-        )
+/// The enum type whose enumerators are an attribute's values: `@type sai_x_t` or
+/// `@type sai_s32_list_t sai_x_t`.
+fn enum_of(ty: &str, enums: &BTreeMap<String, Vec<String>>) -> Option<String> {
+    let mut words = ty.split_whitespace();
+    let first = words.next()?;
+    let name = match (first, words.next()) {
+        ("sai_s32_list_t" | "sai_int32_t", Some(second)) => second,
+        (first, None) => first,
+        _ => return None,
+    };
+    enums.contains_key(name).then(|| name.to_string())
+}
+
+/// The name of an enum's value table in the generated code.
+fn enum_ident(name: &str) -> String {
+    format!("E_{}", name.to_uppercase())
+}
+
+/// The header's `@default` as a `DefaultValue` expression. Defaults that need the object or
+/// the vendor to be known ("internal", "vendor", "attrvalue ...", "const", "disabled") are
+/// `Special`: per-type code answers them or nobody does.
+fn default_expr(text: &str) -> String {
+    let first = text.split_whitespace().next().unwrap_or_default();
+    let number = first
+        .strip_prefix("0x")
+        .map_or_else(|| first.parse::<i64>().ok(), |hex| i64::from_str_radix(hex, 16).ok());
+    let constant = first.starts_with("SAI_")
+        && first
+            .chars()
+            .all(|c| c.is_ascii_uppercase() || c.is_ascii_digit() || c == '_');
+    match first {
+        "" => "DefaultValue::None".into(),
+        "true" => "DefaultValue::Bool(true)".into(),
+        "false" => "DefaultValue::Bool(false)".into(),
+        "SAI_NULL_OBJECT_ID" => "DefaultValue::NullOid".into(),
+        "empty" => "DefaultValue::Empty".into(),
+        "NULL" => "DefaultValue::NullPointer".into(),
+        "\"\"" => "DefaultValue::EmptyText".into(),
+        "0.0.0.0" => "DefaultValue::ZeroIp".into(),
+        "00:00:00:00:00:00" => "DefaultValue::ZeroMac".into(),
+        _ if constant => format!("DefaultValue::Int(sys::{first} as i64)"),
+        _ => number.map_or_else(|| "DefaultValue::Special".into(), |n| format!("DefaultValue::Int({n})")),
+    }
 }

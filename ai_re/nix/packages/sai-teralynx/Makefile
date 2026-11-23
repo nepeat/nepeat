@@ -34,7 +34,8 @@ endif
 CORE = sai_api.cpp sai_switch.cpp sai_port.cpp sai_l2.cpp sai_hostif.cpp sai_l3.cpp sai_lag.cpp \
        sai_temp.cpp sai_caps.cpp sai_diag.cpp sai_acl.cpp sai_qos.cpp sai_mirror.cpp sai_hash.cpp sai_extphy.cpp \
        sai_extmacsec.cpp sai_macsec.cpp fake_backend.cpp
-FRONTEND_NOT_USED = backend_none.cpp openbcm_backend.cpp ext_phy_check.cpp ext_macsec_check.cpp
+# sai_macsec_rust.cpp: the MACsec model in Rust behind sai-openbcm's RUST_MACSEC switch (replaces sai_macsec.cpp there)
+FRONTEND_NOT_USED = backend_none.cpp openbcm_backend.cpp ext_phy_check.cpp ext_macsec_check.cpp sai_macsec_rust.cpp
 FE_UNKNOWN = $(filter-out $(CORE) $(FRONTEND_NOT_USED),$(notdir $(wildcard $(FRONTEND)/*.cpp)))
 ifneq ($(FE_UNKNOWN),)
 $(error FRONTEND has .cpp files this Makefile does not list: $(FE_UNKNOWN); add them to CORE or FRONTEND_NOT_USED)

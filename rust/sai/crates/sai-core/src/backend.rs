@@ -7,6 +7,10 @@
 //! [`EventSink`] it is given at [`Backend::init`]. Sending only queues: it may be called from
 //! any thread, including an SDK callback, and never takes a lock of the SAI layer.
 use crate::error::{Error, Result};
+use crate::model::EntryKey;
+use crate::oid::RawOid;
+use crate::value::Attr;
+use sai_sys as sys;
 use std::collections::BTreeMap;
 use std::sync::mpsc;
 
@@ -79,6 +83,61 @@ impl Profile {
     }
 }
 
+/// Fixed sizes of the chip's tables (what the switch's capacity attributes answer).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ChipLimits {
+    /// Lowest ACL entry priority.
+    pub acl_priority_min: u32,
+    /// Highest ACL entry priority.
+    pub acl_priority_max: u32,
+    /// ECMP groups.
+    pub ecmp_groups: u32,
+    /// Paths per ECMP group.
+    pub ecmp_paths: u32,
+    /// ECMP member entries in all.
+    pub ecmp_members: u32,
+    /// Packet buffer in kB.
+    pub buffer_kb: u64,
+    /// IPv4 routes.
+    pub v4_routes: u32,
+    /// IPv6 routes.
+    pub v6_routes: u32,
+    /// Host entries (an IPv6 neighbor takes two).
+    pub hosts: u32,
+    /// Next hops (egress objects).
+    pub next_hops: u32,
+    /// MAC table entries.
+    pub fdb: u32,
+}
+
+/// What a counter read is about, in the chip's terms.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum StatsObject {
+    /// A port.
+    Port(HwPort),
+    /// An egress queue of a port.
+    Queue {
+        /// The port.
+        port: HwPort,
+        /// The queue's index.
+        index: u8,
+    },
+    /// An ingress priority group of a port.
+    PriorityGroup {
+        /// The port.
+        port: HwPort,
+        /// The group's index.
+        index: u8,
+    },
+    /// Any other object, by its type and id.
+    Other {
+        /// The SAI object type.
+        object_type: sys::sai_object_type_t,
+        /// The object.
+        id: RawOid,
+    },
+}
+
 /// Something the chip did on its own.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BackendEvent {
@@ -89,6 +148,21 @@ pub enum BackendEvent {
         /// The new state.
         up: bool,
     },
+}
+
+/// A host interface of type NETDEV on a front-panel port, as the SAI layer resolved it for
+/// [`Backend::hostif_create`]: the netdev a KNET-style chip makes for it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct HostifNetdev<'a> {
+    /// `SAI_HOSTIF_ATTR_NAME`: 1..=15 bytes (checked by the SAI layer).
+    pub name: &'a str,
+    /// The port `SAI_HOSTIF_ATTR_OBJ_ID` names.
+    pub port: HwPort,
+    /// The switch's source MAC address (`SAI_SWITCH_ATTR_SRC_MAC_ADDRESS`), which the C++
+    /// library gives every port netdev.
+    pub mac: [u8; 6],
+    /// `SAI_HOSTIF_ATTR_OPER_STATUS` at creation (default false): the netdev's carrier.
+    pub oper_up: bool,
 }
 
 /// Where a backend reports events. Cloneable; sending never blocks.
@@ -106,6 +180,96 @@ impl EventSink {
     pub fn send(&self, event: BackendEvent) {
         // The receiver is gone once the switch is: nothing to tell anyone.
         let _ = self.0.send(event);
+    }
+}
+
+impl<B: Backend + ?Sized> Backend for Box<B> {
+    fn name(&self) -> &'static str {
+        (**self).name()
+    }
+    fn init(&mut self, profile: &Profile, events: EventSink) -> Result<()> {
+        (**self).init(profile, events)
+    }
+    fn shutdown(&mut self) {
+        (**self).shutdown();
+    }
+    fn ports(&self) -> Vec<PortInfo> {
+        (**self).ports()
+    }
+    fn cpu_port(&self) -> HwPort {
+        (**self).cpu_port()
+    }
+    fn port_admin_set(&mut self, hw: HwPort, up: bool) -> Result<()> {
+        (**self).port_admin_set(hw, up)
+    }
+    fn port_link_get(&self, hw: HwPort) -> Result<bool> {
+        (**self).port_link_get(hw)
+    }
+    fn port_speed_set(&mut self, hw: HwPort, mbps: u32) -> Result<()> {
+        (**self).port_speed_set(hw, mbps)
+    }
+    fn port_speed_get(&self, hw: HwPort) -> Result<u32> {
+        (**self).port_speed_get(hw)
+    }
+    fn port_supported_speeds(&self, hw: HwPort) -> Result<Vec<u32>> {
+        (**self).port_supported_speeds(hw)
+    }
+    fn vlan_create(&mut self, vid: Vid) -> Result<()> {
+        (**self).vlan_create(vid)
+    }
+    fn vlan_destroy(&mut self, vid: Vid) -> Result<()> {
+        (**self).vlan_destroy(vid)
+    }
+    fn vlan_port_add(&mut self, vid: Vid, hw: HwPort, untagged: bool) -> Result<()> {
+        (**self).vlan_port_add(vid, hw, untagged)
+    }
+    fn vlan_port_remove(&mut self, vid: Vid, hw: HwPort) -> Result<()> {
+        (**self).vlan_port_remove(vid, hw)
+    }
+    fn vlan_members(&self, vid: Vid) -> Result<Vec<(HwPort, bool)>> {
+        (**self).vlan_members(vid)
+    }
+    fn port_queues(&self) -> u8 {
+        (**self).port_queues()
+    }
+    fn port_priority_groups(&self) -> u8 {
+        (**self).port_priority_groups()
+    }
+    fn limits(&self) -> Result<ChipLimits> {
+        (**self).limits()
+    }
+    fn programs(&self, object_type: sys::sai_object_type_t) -> bool {
+        (**self).programs(object_type)
+    }
+    fn object_create(&mut self, object_type: sys::sai_object_type_t, id: RawOid, attrs: &[Attr]) -> Result<()> {
+        (**self).object_create(object_type, id, attrs)
+    }
+    fn hostif_create(&mut self, id: RawOid, netdev: &HostifNetdev<'_>, attrs: &[Attr]) -> Result<()> {
+        (**self).hostif_create(id, netdev, attrs)
+    }
+    fn object_set(&mut self, object_type: sys::sai_object_type_t, id: RawOid, attr: &Attr) -> Result<()> {
+        (**self).object_set(object_type, id, attr)
+    }
+    fn object_remove(&mut self, object_type: sys::sai_object_type_t, id: RawOid) -> Result<()> {
+        (**self).object_remove(object_type, id)
+    }
+    fn entry_create(&mut self, key: &EntryKey, attrs: &[Attr]) -> Result<()> {
+        (**self).entry_create(key, attrs)
+    }
+    fn entry_set(&mut self, key: &EntryKey, attr: &Attr) -> Result<()> {
+        (**self).entry_set(key, attr)
+    }
+    fn entry_remove(&mut self, key: &EntryKey) -> Result<()> {
+        (**self).entry_remove(key)
+    }
+    fn stats_supported(&self, object_type: sys::sai_object_type_t) -> Result<Vec<sys::sai_stat_id_t>> {
+        (**self).stats_supported(object_type)
+    }
+    fn stats_get(&mut self, object: StatsObject, counters: &[sys::sai_stat_id_t], clear: bool) -> Result<Vec<u64>> {
+        (**self).stats_get(object, counters, clear)
+    }
+    fn stats_clear(&mut self, object: StatsObject, counters: &[sys::sai_stat_id_t]) -> Result<()> {
+        (**self).stats_clear(object, counters)
     }
 }
 
@@ -143,4 +307,77 @@ pub trait Backend: Send {
     fn vlan_port_remove(&mut self, vid: Vid, hw: HwPort) -> Result<()>;
     /// The members of a VLAN with their tagging (true = untagged).
     fn vlan_members(&self, vid: Vid) -> Result<Vec<(HwPort, bool)>>;
+
+    // ---- Everything below has a default: a backend that does not have the feature says so
+    // (`NotSupported`) or reports none of it, and the SAI layer answers accordingly.
+
+    /// Egress queues per front-panel port (the SAI layer makes one QUEUE object and one
+    /// scheduler group for each). Default: none.
+    fn port_queues(&self) -> u8 {
+        0
+    }
+    /// Ingress priority groups per front-panel port. Default: none.
+    fn port_priority_groups(&self) -> u8 {
+        0
+    }
+    /// The chip's table sizes.
+    fn limits(&self) -> Result<ChipLimits> {
+        Err(Error::NotSupported)
+    }
+
+    /// Whether [`Backend::object_create`], [`Backend::object_set`] and
+    /// [`Backend::object_remove`] (or the entry operations, for an entry type) can succeed for
+    /// objects of `object_type`; for `SAI_OBJECT_TYPE_PORT`: whether the port attributes
+    /// without an operation of their own can be set. The capability queries advertise only
+    /// what this answers yes to ([`crate::caps`]). Default: no (the defaults below refuse).
+    fn programs(&self, _object_type: sys::sai_object_type_t) -> bool {
+        false
+    }
+
+    /// An object whose whole state is its attributes is about to be created with the id
+    /// `id` ([`crate::bag`]): program it, or refuse. Also called for attributes of ports
+    /// that have no operation of their own above (`object_set` with a port id).
+    fn object_create(&mut self, _object_type: sys::sai_object_type_t, _id: RawOid, _attrs: &[Attr]) -> Result<()> {
+        Err(Error::NotSupported)
+    }
+    /// A host interface of type NETDEV is about to be created: make its netdev, or refuse.
+    /// Called instead of [`Backend::object_create`] for these (its later attribute changes and
+    /// its removal come through [`Backend::object_set`] and [`Backend::object_remove`] as for
+    /// any bag object). Default: [`Backend::object_create`], no netdev.
+    fn hostif_create(&mut self, id: RawOid, _netdev: &HostifNetdev<'_>, attrs: &[Attr]) -> Result<()> {
+        self.object_create(sys::SAI_OBJECT_TYPE_HOSTIF, id, attrs)
+    }
+    /// One attribute of such an object is about to change.
+    fn object_set(&mut self, _object_type: sys::sai_object_type_t, _id: RawOid, _attr: &Attr) -> Result<()> {
+        Err(Error::NotSupported)
+    }
+    /// Such an object is about to be removed.
+    fn object_remove(&mut self, _object_type: sys::sai_object_type_t, _id: RawOid) -> Result<()> {
+        Err(Error::NotSupported)
+    }
+    /// An FDB, neighbor or route entry is about to be created.
+    fn entry_create(&mut self, _key: &EntryKey, _attrs: &[Attr]) -> Result<()> {
+        Err(Error::NotSupported)
+    }
+    /// One attribute of an entry is about to change.
+    fn entry_set(&mut self, _key: &EntryKey, _attr: &Attr) -> Result<()> {
+        Err(Error::NotSupported)
+    }
+    /// An entry is about to be removed.
+    fn entry_remove(&mut self, _key: &EntryKey) -> Result<()> {
+        Err(Error::NotSupported)
+    }
+
+    /// The counters the chip has for objects of a type.
+    fn stats_supported(&self, _object_type: sys::sai_object_type_t) -> Result<Vec<sys::sai_stat_id_t>> {
+        Err(Error::NotSupported)
+    }
+    /// Reads counters, in the order asked; with `clear` they are zeroed after the read.
+    fn stats_get(&mut self, _object: StatsObject, _counters: &[sys::sai_stat_id_t], _clear: bool) -> Result<Vec<u64>> {
+        Err(Error::NotSupported)
+    }
+    /// Zeroes counters.
+    fn stats_clear(&mut self, _object: StatsObject, _counters: &[sys::sai_stat_id_t]) -> Result<()> {
+        Err(Error::NotSupported)
+    }
 }

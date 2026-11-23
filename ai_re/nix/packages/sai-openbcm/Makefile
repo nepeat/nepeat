@@ -1,6 +1,17 @@
 # sai-openbcm: libsai.so on the Broadcom OpenBCM SDK (or the fake backend).
 #   make SAI_INC=<dir with sai.h>                      fake-only libsai + tests
 #   make SAI_INC=... OPENBCM=<libsdk prefix>           + openbcm backend
+#   make ... RUST_PHY_SEQ=<prefix>                     the external PHY / MACsec table parsers and the sequence
+#                                                      executor from the Rust crate phy-seq instead of the C++ ones
+#                                                      (<prefix>/lib/libphy_seq_capi.a, <prefix>/include/phy_seq.h:
+#                                                      rust/sai/nix/phy-seq.nix). Same structs, same tests.
+#   make ... RUST_MACSEC=<prefix>                      the MACsec object model from the Rust crate sai-macsec:
+#                                                      src/sai_macsec_rust.cpp instead of src/sai_macsec.cpp
+#                                                      (<prefix>/lib/libsai_macsec_capi.a, <prefix>/include/sai_macsec_rs.h:
+#                                                      rust/sai/nix/sai-macsec-capi.nix). Independent of RUST_PHY_SEQ (the
+#                                                      engine stays the build's choice); its library also carries phy_seq.h's
+#                                                      functions, so with both only it is linked (two Rust static libraries
+#                                                      would each bring std): RUST_PHY_SEQ may then name the same prefix.
 # Variables: CXX, CC, CXXFLAGS, CFLAGS, LDFLAGS, PREFIX, DESTDIR.
 # Exports are controlled by src/libsai.map (sai_* only), not by visibility.
 SAI_INC ?= /usr/include/sai
@@ -35,9 +46,27 @@ MDIO_SDK =
 MDIO_DEPS =
 endif
 
+RUST_PHY_SEQ ?=
+ifneq ($(RUST_PHY_SEQ),)
+SAI_CPPFLAGS += -DOB_RUST_PHY_SEQ -I$(RUST_PHY_SEQ)/include
+# a Rust static library carries std; what it needs from the system: libc, libgcc_s (unwinding), libdl, libpthread.
+# --gc-sections: the archive member is all of std's code the crate could reach, one section per function;
+# the link keeps what libsai's seven entry points use.
+RUST_LIBS = $(RUST_PHY_SEQ)/lib/libphy_seq_capi.a -ldl -Wl,--gc-sections
+else
+RUST_LIBS =
+endif
+
+RUST_MACSEC ?=
+ifneq ($(RUST_MACSEC),)
+SAI_CPPFLAGS += -DOB_RUST_MACSEC -I$(RUST_MACSEC)/include
+RUST_LIBS = $(RUST_MACSEC)/lib/libsai_macsec_capi.a -ldl -Wl,--gc-sections
+CORE := $(filter-out src/sai_macsec.cpp,$(CORE)) src/sai_macsec_rust.cpp
+endif
+
 OBJS = $(patsubst src/%.cpp,build/%.o,$(CORE)) build/temp_files.o $(BACKEND_OBJS)
 
-all: build/libsai.so.1.0.0 build/test_sai build/test_mdio_script $(TOOLS)
+all: build/libsai.so.1.0.0 build/test_sai build/test_extmacsec_trace build/test_mdio_script $(TOOLS)
 
 build/%.o: src/%.cpp src/*.h
 	@mkdir -p build
@@ -77,28 +106,34 @@ build/test_mdio_script: tests/test_mdio_script.c $(MDIO_SRC) $(MDIO_HDR)
 
 # External PHY table checker (src/ext_phy.h): the parser libsai uses.
 build/openbcm-ext-phy: src/ext_phy_check.cpp src/ext_phy.h build/libsai.a
-	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) $(LDFLAGS) -o $@ src/ext_phy_check.cpp build/libsai.a $(SDK_LIBS) -lpthread
+	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) $(LDFLAGS) -o $@ src/ext_phy_check.cpp build/libsai.a $(RUST_LIBS) $(SDK_LIBS) -lpthread
 
 # External MACsec table checker / renderer (src/ext_macsec.h): the parser and executor libsai uses.
 build/openbcm-ext-macsec: src/ext_macsec_check.cpp src/ext_macsec.h build/libsai.a
-	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) $(LDFLAGS) -o $@ src/ext_macsec_check.cpp build/libsai.a $(SDK_LIBS) -lpthread
+	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) $(LDFLAGS) -o $@ src/ext_macsec_check.cpp build/libsai.a $(RUST_LIBS) $(SDK_LIBS) -lpthread
 
 build/libsai.a: $(OBJS)
 	$(AR) rcs $@ $^
 
 build/libsai.so.1.0.0: $(OBJS) src/libsai.map
 	$(CXX) -shared -fPIC -Wl,-z,defs -Wl,-soname,libsai.so.1 -Wl,--version-script=src/libsai.map $(LDFLAGS) \
-	  -o $@ $(OBJS) $(SDK_LIBS) -lpthread
+	  -o $@ $(OBJS) $(RUST_LIBS) $(SDK_LIBS) -lpthread
 	ln -sf libsai.so.1.0.0 build/libsai.so.1
 	ln -sf libsai.so.1 build/libsai.so
 
 build/test_sai: tests/test_sai.cpp tests/test_acl.inc tests/test_qos.inc tests/test_extphy.inc tests/test_macsec.inc build/libsai.a
-	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) -o $@ tests/test_sai.cpp build/libsai.a $(SDK_LIBS) -lpthread
+	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) -o $@ tests/test_sai.cpp build/libsai.a $(RUST_LIBS) $(SDK_LIBS) -lpthread
+
+# The sequence trace (ext_macsec.h "extmacsec trace") against a golden text: the same text for
+# the C++ and the Rust engine, and no key byte in it.
+build/test_extmacsec_trace: tests/test_extmacsec_trace.cpp src/ext_macsec.h build/libsai.a
+	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) -o $@ tests/test_extmacsec_trace.cpp build/libsai.a $(RUST_LIBS) $(SDK_LIBS) -lpthread
 
 # test_mdio_script also runs the tool itself (parse failures, status files,
 # --verify-only against a fake diag socket).
-check: build/test_sai build/test_mdio_script build/openbcm-mdio-script
+check: build/test_sai build/test_extmacsec_trace build/test_mdio_script build/openbcm-mdio-script
 	./build/test_sai
+	./build/test_extmacsec_trace
 	./build/test_mdio_script build/openbcm-mdio-script
 
 install: build/libsai.so.1.0.0 $(TOOLS)

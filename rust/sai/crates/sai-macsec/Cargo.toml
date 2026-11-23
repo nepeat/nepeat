@@ -1,0 +1,20 @@
+[package]
+name = "sai-macsec"
+description = "SAI MACsec object model (MACSEC, MACSEC_PORT, MACSEC_FLOW, MACSEC_SC, MACSEC_SA and the MACsec-stage ACL glue) for an external MACsec PHY driven by named board sequences; port of sai-openbcm's sai_macsec.cpp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+build = "build.rs"
+
+[dependencies]
+sai-sys.workspace = true
+sai-core.workspace = true
+zeroize = { workspace = true, features = ["alloc"] }   # Zeroizing<Vec<u8>>
+aes.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true
+
+[lints]
+workspace = true

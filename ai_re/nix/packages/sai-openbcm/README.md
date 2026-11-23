@@ -404,6 +404,26 @@ Profile key `SAI_OPENBCM_EXT_MACSEC_FILE`. No chip knowledge here: the board sup
   before the binding, rekey, removal order, counters, PN, the gap, clean-up at creation, key bytes on the bus and in no
   log line or status text). On hardware: the AS7772 (static SAs, MKA, rekey, load).
 
+## Rust parts (optional)
+
+Two build switches take parts of this library from the Rust workspace `rust/sai` (details,
+evidence and limits: [rust/sai/README.md](../../../../rust/sai/README.md), "Wiring into the C++
+libsai"). Both are off by default; nothing of either has run on a chip.
+
+- `make RUST_PHY_SEQ=<prefix>` (nix `rustPhySeq` = `rust/sai/nix/phy-seq.nix`, NixOS
+  `hardware.openbcm.rustPhySeq`): the ext-phy / ext-macsec table parsers and the sequence
+  executor from the crate phy-seq. The runtime around them (link gate, debounce, locks) stays here.
+  Marker: `share/sai-openbcm/phy-seq-engine`.
+- `make RUST_MACSEC=<prefix>` (nix `rustMacsec` = `rust/sai/nix/sai-macsec-capi.nix`, NixOS
+  `hardware.openbcm.rustMacsec`): the MACsec object model from the crate sai-macsec;
+  `src/sai_macsec_rust.cpp` replaces `src/sai_macsec.cpp`. Marker: `share/sai-openbcm/macsec-model`.
+- Independent; with both only the MACsec library is linked (it carries `phy_seq.h`'s functions).
+  `test_sai` passes unchanged on the Rust engine, the Rust model and both (3154 checks, 2026-11-22).
+- Bus trace, either engine: `openbcm-diag "extmacsec trace [on [all] | off | dump | clear]"` (off by
+  default, key words `****`; `tests/test_extmacsec_trace.cpp`). The hook and the `#ifdef`s are in
+  the default sources: every system with this package got a new drvPath; the default build is
+  otherwise byte-identical.
+
 ## openbcm-mdio-script: PHYs without an SDK driver
 
 `bin/openbcm-mdio-script --config CONFIG.BCM SCRIPT...` runs MDIO scripts through the switch chip's external MDIO

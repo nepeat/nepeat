@@ -140,6 +140,16 @@ macro_rules! object_types {
                     None => Err(Error::InvalidObjectType),
                 }
             }
+
+            /// The object type of the id.
+            pub const fn object_type(self) -> ObjectType {
+                match self { $(Self::$variant(_) => ObjectType::$variant,)* }
+            }
+
+            /// The id as the C ABI carries it.
+            pub fn raw(self) -> RawOid {
+                match self { $(Self::$variant(id) => id.raw(),)* }
+            }
         }
     };
 }
@@ -157,9 +167,95 @@ object_types! {
     Bridge = SAI_OBJECT_TYPE_BRIDGE, BridgeId;
     /// A port's attachment to a bridge.
     BridgePort = SAI_OBJECT_TYPE_BRIDGE_PORT, BridgePortId;
+    /// A spanning tree instance (only the default one exists).
+    Stp = SAI_OBJECT_TYPE_STP, StpId;
+    /// A virtual router.
+    VirtualRouter = SAI_OBJECT_TYPE_VIRTUAL_ROUTER, VirtualRouterId;
+    /// A router interface.
+    RouterInterface = SAI_OBJECT_TYPE_ROUTER_INTERFACE, RouterInterfaceId;
+    /// A next hop.
+    NextHop = SAI_OBJECT_TYPE_NEXT_HOP, NextHopId;
+    /// A next hop group.
+    NextHopGroup = SAI_OBJECT_TYPE_NEXT_HOP_GROUP, NextHopGroupId;
+    /// A next hop's membership of a group.
+    NextHopGroupMember = SAI_OBJECT_TYPE_NEXT_HOP_GROUP_MEMBER, NextHopGroupMemberId;
+    /// A host interface (a netdev for a port).
+    Hostif = SAI_OBJECT_TYPE_HOSTIF, HostifId;
+    /// A trap group.
+    HostifTrapGroup = SAI_OBJECT_TYPE_HOSTIF_TRAP_GROUP, HostifTrapGroupId;
+    /// A trap.
+    HostifTrap = SAI_OBJECT_TYPE_HOSTIF_TRAP, HostifTrapId;
+    /// A user-defined trap.
+    HostifUserDefinedTrap = SAI_OBJECT_TYPE_HOSTIF_USER_DEFINED_TRAP, HostifUserDefinedTrapId;
+    /// A host interface table entry.
+    HostifTableEntry = SAI_OBJECT_TYPE_HOSTIF_TABLE_ENTRY, HostifTableEntryId;
+    /// An egress queue of a port.
+    Queue = SAI_OBJECT_TYPE_QUEUE, QueueId;
+    /// An ingress priority group of a port.
+    IngressPriorityGroup = SAI_OBJECT_TYPE_INGRESS_PRIORITY_GROUP, IngressPriorityGroupId;
+    /// A scheduler group of a port.
+    SchedulerGroup = SAI_OBJECT_TYPE_SCHEDULER_GROUP, SchedulerGroupId;
+    /// A scheduler profile.
+    Scheduler = SAI_OBJECT_TYPE_SCHEDULER, SchedulerId;
+    /// A policer.
+    Policer = SAI_OBJECT_TYPE_POLICER, PolicerId;
+    /// A buffer pool.
+    BufferPool = SAI_OBJECT_TYPE_BUFFER_POOL, BufferPoolId;
+    /// A buffer profile.
+    BufferProfile = SAI_OBJECT_TYPE_BUFFER_PROFILE, BufferProfileId;
+    /// A traffic-class map (`QOS_MAP`).
+    QosMap = SAI_OBJECT_TYPE_QOS_MAP, QosMapId;
+    /// A WRED profile.
+    Wred = SAI_OBJECT_TYPE_WRED, WredId;
+    /// A hash object (the switch's LAG and ECMP hash).
+    Hash = SAI_OBJECT_TYPE_HASH, HashId;
+    /// A link aggregation group (a `PortChannel`).
+    Lag = SAI_OBJECT_TYPE_LAG, LagId;
+    /// A port's membership of a LAG.
+    LagMember = SAI_OBJECT_TYPE_LAG_MEMBER, LagMemberId;
+}
+
+/// The object types that have no object id: their key is a struct (`sai_fdb_entry_t`, ...).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum EntryType {
+    /// `SAI_OBJECT_TYPE_FDB_ENTRY`
+    Fdb,
+    /// `SAI_OBJECT_TYPE_NEIGHBOR_ENTRY`
+    Neighbor,
+    /// `SAI_OBJECT_TYPE_ROUTE_ENTRY`
+    Route,
+}
+
+impl EntryType {
+    /// Every implemented entry type.
+    pub const ALL: &[Self] = &[Self::Fdb, Self::Neighbor, Self::Route];
+
+    /// The SAI object type number.
+    pub const fn sai(self) -> sys::sai_object_type_t {
+        match self {
+            Self::Fdb => sys::SAI_OBJECT_TYPE_FDB_ENTRY,
+            Self::Neighbor => sys::SAI_OBJECT_TYPE_NEIGHBOR_ENTRY,
+            Self::Route => sys::SAI_OBJECT_TYPE_ROUTE_ENTRY,
+        }
+    }
+
+    /// The implemented entry type with this SAI number.
+    pub const fn from_sai(t: sys::sai_object_type_t) -> Option<Self> {
+        match t {
+            sys::SAI_OBJECT_TYPE_FDB_ENTRY => Some(Self::Fdb),
+            sys::SAI_OBJECT_TYPE_NEIGHBOR_ENTRY => Some(Self::Neighbor),
+            sys::SAI_OBJECT_TYPE_ROUTE_ENTRY => Some(Self::Route),
+            _ => None,
+        }
+    }
 }
 
 impl ObjectType {
+    /// The raw id of index `index` of this type (only its low 48 bits are used).
+    pub(crate) fn id(self, index: u64) -> RawOid {
+        RawOid((u64::from(self.sai()) << TYPE_SHIFT) | (index & INDEX_MASK))
+    }
+
     /// The lowest and highest raw id an object of this type can have (for range scans).
     pub(crate) fn id_range(self) -> core::ops::RangeInclusive<RawOid> {
         let base = u64::from(self.sai()) << TYPE_SHIFT;
@@ -182,9 +278,16 @@ mod tests {
         assert_eq!(AnyId::decode(port.raw()), Ok(AnyId::Port(port)));
         assert_eq!(AnyId::decode(RawOid::NULL), Err(Error::InvalidObjectId));
         // a type SAI knows and this library does not implement
-        let route = RawOid(u64::from(sys::SAI_OBJECT_TYPE_NEXT_HOP) << 56 | 1);
+        let route = RawOid(u64::from(sys::SAI_OBJECT_TYPE_TUNNEL) << 56 | 1);
         assert_eq!(AnyId::decode(route), Err(Error::InvalidObjectType));
-        assert_eq!(route.sai_object_type(), sys::SAI_OBJECT_TYPE_NEXT_HOP);
+        assert_eq!(route.sai_object_type(), sys::SAI_OBJECT_TYPE_TUNNEL);
+        let queue = ObjectType::Queue.id(0x0305);
+        assert_eq!(AnyId::decode(queue).map(AnyId::object_type), Ok(ObjectType::Queue));
+        assert_eq!(AnyId::decode(queue).map(AnyId::raw), Ok(queue));
+        for entry in EntryType::ALL {
+            assert_eq!(EntryType::from_sai(entry.sai()), Some(*entry));
+            assert_eq!(ObjectType::from_sai(entry.sai()), None);
+        }
         // type bits that name nothing
         assert_eq!(
             RawOid(0xff00_0000_0000_0001).sai_object_type(),
