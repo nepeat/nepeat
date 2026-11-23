@@ -5,81 +5,22 @@
 // drives it (SAs before the flow is bound, gate, rekey, counters, PN), the
 // inter-frame gap, clean-up of what a previous process left, and that key
 // bytes reach the bus and nothing else. Included by test_sai.cpp; leaves a
-// default switch. Uses the helpers of test_extphy.inc.
+// default switch. Uses the helpers of test_extphy.inc. The parser and the executor's golden
+// rendering (pure C++ units): tests/test_units.cpp.
 
 static sai_macsec_api_t* ma;   // (aa: the ACL API, test_acl.inc)
 
-// A made-up PHY: one register per thing, so the bus log reads like a story.
-//   1.100 / 1.101   engine bypass (egress / ingress), 1.110 / 1.111 "reset"
-//   1.120 / 1.121   gate (1 = open)
-//   1.2d0..         SA install, d = direction (0 egress, 1 ingress): 2d0 = marker (first<<8 | cipher<<4 | an),
-//                   2d1.. key / hash key / sci / pn / window / iv bytes
-//   1.300 + an      SA removal (bit 15: "last"), ingress: read-modify-write of 1.310
-//   1.4xx           counters, 1.500.. PN
-static std::string ms_table(bool gates = true, bool probe = true)
-{
-    std::string t = "ext-macsec 1\n# test table\ncounters clear-on-read\nifg-bits 384\nport 1 10\nport 5 11\n";
-    const char* dirs[2] = {"egress", "ingress"};
-    const char* ciphers[4] = {"gcm-aes-128", "gcm-aes-256", "gcm-aes-xpn-128", "gcm-aes-xpn-256"};
-    char b[256];
-    for (int d = 0; d < 2; d++) {
-        std::string dn = dirs[d];
-        if (probe) t += "seq probe." + dn + "\nX p 1 10" + std::to_string(d) + " bypass[0]\n";
-        t += "seq reset." + dn + "\nW p 1 11" + std::to_string(d) + " 1\n";
-        t += "seq enable." + dn + "\nW p 1 10" + std::to_string(d) + " 0\nD 10\n";
-        t += "seq disable." + dn + "\nW p 1 10" + std::to_string(d) + " 1\n";
-        if (gates) {
-            t += "seq gate-open." + dn + "\nW p 1 12" + std::to_string(d) + " 1\n";
-            t += "seq gate-close." + dn + "\nW p 1 12" + std::to_string(d) + " 0\n";
-        }
-        t += "seq stats-flow." + dn + "\nX p 1 4f0 control_pkts[0]\nX p 1 4f1 control_pkts[1]\nX p 1 4f2 x_unknown[0]\n";
-        for (int an = 0; an < 4; an++) {
-            for (int c = 0; c < 4; c++) {
-                bool xpn = c >= 2, k256 = c & 1;
-                for (int first = 0; first < 2; first++) {
-                    std::snprintf(b, sizeof(b), "seq sa-add%s.%s.%d.%s\nW p 1 2%d0 %x\n", first ? "-first" : "", dirs[d], an, ciphers[c], d,
-                                  (first << 8) | (c << 4) | an);
-                    t += b;
-                    std::snprintf(b, sizeof(b), "W p 1 2%d1 key[1].key[0]\nW p 1 2%d2 key[%d].key[%d]\nW p 1 2%d3 hkey[15].hkey[0]\n", d, d,
-                                  k256 ? 31 : 15, k256 ? 30 : 14, d);
-                    t += b;
-                    std::snprintf(b, sizeof(b), "W p 1 2%d4 sci[0].sci[7]\nW p 1 2%d5 pn[1].pn[0]\nW p 1 2%d6 %s\nW p 1 2%d7 window[1].window[0]\n", d, d, d,
-                                  xpn ? "pn[5].pn[4]" : "0", d);
-                    t += b;
-                    if (xpn) {
-                        std::snprintf(b, sizeof(b), "W p 1 2%d8 iv[0].iv[3]\nW p 1 2%d9 iv[4].iv[11]\nW p 1 2%da ssci[0].salt[0]\n", d, d, d);
-                        t += b;
-                    }
-                    if (d == 1) t += "X p 1 310 $0\nW p 1 310 $0&ff00|" + std::string(1, (char)('1' + an)) + "\n";
-                    std::snprintf(b, sizeof(b), "P p 1 2%df 1 1 3 0\n", d);
-                    t += b;
-                }
-            }
-            if (d == 1 && an == 0) t += "seq sa-add-first.ingress.0.gcm-aes-128.replay\nW p 1 210 f00\nW p 1 217 window[1].window[0]\nP p 1 21f 1 1 3 0\n";
-            std::snprintf(b, sizeof(b), "seq sa-del.%s.%d\nW p 1 3%d%d 1\nseq sa-del-last.%s.%d\nW p 1 3%d%d 8001\n", dirs[d], an, d, an, dirs[d], an, d, an);
-            t += b;
-            std::snprintf(b, sizeof(b), "seq pn.%s.%d\nX p 1 5%d%d pn[0]\nX p 1 5%d%d pn[1]\nX p 1 5%d%d pn[2]\nX p 1 5%d%d pn[3]\n", dirs[d], an, d, an * 4,
-                          d, an * 4 + 1, d, an * 4 + 2, d, an * 4 + 3);
-            t += b;
-            std::snprintf(b, sizeof(b), "seq stats-sa.%s.%d\nX p 1 4%d%d %s[0]\nX p 1 4%d%d %s[1]\n", dirs[d], an, d, an * 2,
-                          d ? "in_pkts_ok" : "out_pkts_encrypted", d, an * 2 + 1, d ? "in_pkts_ok" : "out_pkts_encrypted");
-            t += b;
-        }
-    }
-    return t;
-}
+// The made-up PHY table: ms_table() in tests/test_tables.h.
 
 struct MsBus { std::vector<std::string> ops; };
 static std::vector<std::string> ms_log_take()
 {
-    std::lock_guard<std::mutex> g(fake().mdio_mu);
     std::vector<std::string> v;
     char b[64];
-    for (auto& o : fake().mdio_log) {
+    for (auto& o : tp::mdio_log(true)) {
         std::snprintf(b, sizeof(b), "%c %x %x.%03x %x", o.op, o.phy, o.dev, o.reg, o.op == 'W' ? o.val : 0);
         v.push_back(b);
     }
-    fake().mdio_log.clear();
     return v;
 }
 static std::vector<std::string> ms_writes()   // "reg=val" of the writes since the last call
@@ -162,104 +103,7 @@ static uint64_t ms_stat(sai_object_type_t t, sai_object_id_t id, sai_stat_id_t s
 
 static void test_macsec()
 {
-    // ---- parser
-    MsTable t;
-    std::string err;
-    CHECK(ext_macsec_parse(ms_table(), t, err));
-    CHECK_EQ(t.ports.size(), 2u);
-    CHECK_EQ(t.ports[5], 0x11u);
-    CHECK_EQ(t.ifg_bits, 384u);
-    CHECK(t.clear_on_read);
-    CHECK(t.find("sa-add-first.ingress.3.gcm-aes-xpn-256") != nullptr);
-    CHECK(t.find("sa-add.ingress.3.gcm-aes-xpn-512") == nullptr);
-    CHECK(ext_macsec_parse("ext-macsec 1\n", t, err));   // empty: valid
-    CHECK(ext_macsec_parse("ext-macsec 1\ncounters absolute\nseq a\nW 10 1 a000 $0|1\n", t, err) == false);   // $0 never read
-    struct { const char* text; const char* in_err; } bad[] = {
-        {"", "line 1"},
-        {"ext-phy 1\n", "line 1"},
-        {"ext-macsec 2\n", "line 1"},
-        {"ext-macsec 1\nW p 1 a000 6\n", "outside a sequence"},
-        {"ext-macsec 1\nseq a\nW p 0 a000 6\n", "clause 22"},
-        {"ext-macsec 1\nseq a\nW p 20 a000 6\n", "line 3"},
-        {"ext-macsec 1\nseq a\nW q 1 a000 6\n", "phy"},
-        {"ext-macsec 1\nseq a\nW p 1 a000 10000\n", "value"},
-        {"ext-macsec 1\nseq a\nW p 1 a000 key[32].00\n", "value"},        // beyond the longest key
-        {"ext-macsec 1\nseq a\nW p 1 a000 hkey[16].00\n", "value"},
-        {"ext-macsec 1\nseq a\nW p 1 a000 secret[0].00\n", "value"},      // unknown parameter
-        {"ext-macsec 1\nseq a\nW p 1 a000 0.key[0]\n", "value"},          // a byte is two hex digits
-        {"ext-macsec 1\nseq a\nW p 1 a000 $16\n", "value"},
-        {"ext-macsec 1\nseq a\nW p 1 a000 $0\n", "before an X"},
-        {"ext-macsec 1\nseq a\nX p 1 a000 $16\n", "destination"},
-        {"ext-macsec 1\nseq a\nX p 1 a000 pn[8]\n", "destination"},
-        {"ext-macsec 1\nseq a\nX p 1 a000 pn\n", "destination"},
-        {"ext-macsec 1\nseq a\nE p 1 a000 3 1\n", "outside the mask"},
-        {"ext-macsec 1\nseq a\nP p 1 a000 1 1 0 0\n", "tries"},
-        {"ext-macsec 1\nseq a\nD 200000\n", "D <usec"},
-        {"ext-macsec 1\nseq a\nC p 1 a000 1 1\n", "unknown keyword"},
-        {"ext-macsec 1\nseq a\nseq a\n", "twice"},
-        {"ext-macsec 1\nseq A\n", "seq <name>"},
-        {"ext-macsec 1\nport 1 10\nport 1 11\n", "twice"},
-        {"ext-macsec 1\nport 1\n", "port <first lane"},
-        {"ext-macsec 1\ncounters sometimes\n", "counters"},
-        {"ext-macsec 1\nifg-bits 9999\n", "ifg-bits"},
-    };
-    for (auto& b : bad) {
-        err.clear();
-        CHECK(!ext_macsec_parse(b.text, t, err));
-        if (err.find(b.in_err) == std::string::npos) {
-            g_fail++;
-            std::fprintf(stderr, "FAIL ext-macsec parse: '%s' gave '%s', wanted '%s' in it\n", b.text, err.c_str(), b.in_err);
-        }
-        g_checks++;
-    }
-
-    // ---- executor against a golden rendering (no switch needed)
-    {
-        CHECK(ext_macsec_parse("ext-macsec 1\nseq s\nR p 1 900a\nW p 1 a000 key[1].key[0]\nW 22 1 a001 00.sci[7]\nX p 1 9005 $3\nX p 1 9005 $4\n"
-                               "W p 1 9005 $3&7fff\nW p 1 9005 $4|8002\nD 7\nE p 1 a100 2 f\nP p 1 8221 12e3 ffff 3 5\nX p 1 a101 pn[0]\nX p 1 a102 pn[2]\n", t, err));
-        std::vector<std::string> log;
-        std::map<unsigned, std::vector<unsigned>> answers = {{0x9005, {0x8001, 0x0010}}, {0xa100, {0x12}}, {0x8221, {0, 0x12e3}}, {0xa101, {0xbeef}}, {0xa102, {0x1}}};
-        MsIo io;
-        char b[64];
-        io.rd = [&](unsigned p, unsigned d, unsigned r, unsigned& v, const MsOp&) {
-            auto& q = answers[r];
-            v = q.empty() ? 0 : q.front();
-            if (!q.empty()) q.erase(q.begin());
-            std::snprintf(b, sizeof(b), "R %x %x.%04x", p, d, r);
-            log.push_back(b);
-            return SAI_STATUS_SUCCESS;
-        };
-        io.wr = [&](unsigned p, unsigned d, unsigned r, unsigned v) {
-            std::snprintf(b, sizeof(b), "W %x %x.%04x %04x", p, d, r, v);
-            log.push_back(b);
-            return SAI_STATUS_SUCCESS;
-        };
-        io.delay = [&](unsigned us) { log.push_back("D " + std::to_string(us)); };
-        MsParams par = {{"key", {0x11, 0x22}}, {"sci", {1, 2, 3, 4, 5, 6, 7, 8}}};
-        MsResult res;
-        OK(ext_macsec_exec(io, *t.find("s"), 0x30, par, &res, err));
-        const char* golden = "R 30 1.900a|W 30 1.a000 2211|W 22 1.a001 0008|R 30 1.9005|R 30 1.9005|W 30 1.9005 0001|W 30 1.9005 8012|D 7|R 30 1.a100|"
-                             "R 30 1.8221|D 5|R 30 1.8221|R 30 1.a101|R 30 1.a102";
-        std::string got;
-        for (auto& l : log) got += (got.empty() ? "" : "|") + l;
-        CHECK(got == golden);
-        CHECK_EQ(ms_result_u64(res, "pn"), 0x10000beefull);
-        // a missing parameter byte: nothing is accessed
-        log.clear();
-        par["key"] = {0x11};
-        CHECK_EQ(ext_macsec_exec(io, *t.find("s"), 0x30, par, &res, err), SAI_STATUS_INVALID_PARAMETER);
-        CHECK(log.empty());
-        CHECK(err.find("key[1]") != std::string::npos);
-        // a compare that fails stops the sequence there and names the line, not a value of ours
-        par["key"] = {0x11, 0x22};
-        answers = {{0xa100, {0x13}}};
-        log.clear();
-        CHECK_EQ(ext_macsec_exec(io, *t.find("s"), 0x30, par, &res, err), SAI_STATUS_FAILURE);
-        CHECK(log.back() == "R 30 1.a100");
-        CHECK(err.find("line 11") != std::string::npos);
-        ms_wipe(par);
-        CHECK(par.empty());
-    }
+    // ---- parser and executor (golden rendering): tests/test_units.cpp (pure C++ units)
 
     // ---- no table: the API is there and says so
     OK(sai_api_query(SAI_API_MACSEC, (void**)&ma));
@@ -279,14 +123,14 @@ static void test_macsec()
     std::string f_lane = xp_write("ext-macsec 1\nport 3 10\n");
     g_profile["SAI_OPENBCM_EXT_MACSEC_FILE"] = f_lane;
     CHECK_EQ(create_switch_default(), SAI_STATUS_INVALID_PARAMETER);
-    CHECK(!ctx().switch_created);
-    CHECK(!ext_macsec_active());
+    CHECK(!tp::switch_created());
+    CHECK(!tp::ext_macsec_active());
 
     // ---- the good table. Port 0 = lane 1 = PHY 0x10, port 1 = lane 5 = PHY 0x11.
     std::string f_good = xp_write(ms_table());
     g_profile["SAI_OPENBCM_EXT_MACSEC_FILE"] = f_good;
     OK(create_switch_default());
-    CHECK(ext_macsec_active());
+    CHECK(tp::ext_macsec_active());
     // every engine read 0 = "not in bypass" (the fake's registers start at 0): all four were reset and disabled
     MS_BUS("110=1 100=1 111=1 101=1 110=1 100=1 111=1 101=1");
     sai_object_id_t ports[64];
@@ -296,8 +140,8 @@ static void test_macsec()
     a.value.objlist.list = ports;
     OK(sw->get_switch_attribute(g_sw, 1, &a));
     sai_object_id_t p0 = ports[0], p2 = ports[2];
-    int hw0 = ctx().ports[p0].hw;
-    CHECK_EQ(fake().port_state[hw0].ifg, 128u);
+    int hw0 = tp::backend_id(p0);
+    CHECK_EQ(tp::port(hw0).ifg, 128u);
     for (unsigned phy : {0x10u, 0x11u})   // the SA sequences poll 1.2df for 1
         for (unsigned r : {0x20fu, 0x21fu}) xp_reg(phy, r, 1);
 
@@ -319,11 +163,11 @@ static void test_macsec()
     // MACSEC_PORT: the engine comes out of bypass (after a reset), the inter-frame gap widens
     const int32_t EGR = SAI_MACSEC_DIRECTION_EGRESS, ING = SAI_MACSEC_DIRECTION_INGRESS;
     ms_create(ma->create_macsec_port, {ms_s32(SAI_MACSEC_PORT_ATTR_MACSEC_DIRECTION, EGR), ms_oid(SAI_MACSEC_PORT_ATTR_PORT_ID, p2)}, SAI_STATUS_NOT_SUPPORTED);   // not in the table
-    int qc0 = fake().port_state[hw0].quirk_calls;
+    int qc0 = tp::port(hw0).quirk_calls;
     sai_object_id_t mp_e = ms_create(ma->create_macsec_port, {ms_s32(SAI_MACSEC_PORT_ATTR_MACSEC_DIRECTION, EGR), ms_oid(SAI_MACSEC_PORT_ATTR_PORT_ID, p0)});
     MS_BUS("110=1 100=0");
-    CHECK_EQ(fake().port_state[hw0].ifg, 384u);
-    CHECK_EQ(fake().port_state[hw0].quirk_calls, qc0 + 1);   // the gap alone: no interface / autoneg re-set (a link flap on a live port)
+    CHECK_EQ(tp::port(hw0).ifg, 384u);
+    CHECK_EQ(tp::port(hw0).quirk_calls, qc0 + 1);   // the gap alone: no interface / autoneg re-set (a link flap on a live port)
     sai_object_id_t mp_i = ms_create(ma->create_macsec_port, {ms_s32(SAI_MACSEC_PORT_ATTR_MACSEC_DIRECTION, ING), ms_oid(SAI_MACSEC_PORT_ATTR_PORT_ID, p0)});
     MS_BUS("111=1 101=0");
     ms_create(ma->create_macsec_port, {ms_s32(SAI_MACSEC_PORT_ATTR_MACSEC_DIRECTION, ING), ms_oid(SAI_MACSEC_PORT_ATTR_PORT_ID, p0)}, SAI_STATUS_ITEM_ALREADY_EXISTS);
@@ -331,13 +175,13 @@ static void test_macsec()
     a.id = SAI_PORT_ATTR_SPEED;
     a.value.u32 = 100000;
     OK(pa->set_port_attribute(p0, &a));
-    CHECK_EQ(fake().port_state[hw0].ifg, 384u);
+    CHECK_EQ(tp::port(hw0).ifg, 384u);
     ms_log_take();
 
     // flows, the MACsec ACL tables with MACsecOrch's entries, bound to the port: nothing reaches the ASIC or the PHY
     sai_object_id_t f_e = ms_create(ma->create_macsec_flow, {ms_s32(SAI_MACSEC_FLOW_ATTR_MACSEC_DIRECTION, EGR)});
     sai_object_id_t f_i = ms_create(ma->create_macsec_flow, {ms_s32(SAI_MACSEC_FLOW_ATTR_MACSEC_DIRECTION, ING)});
-    size_t fp_before = fake().fp_groups.size();
+    size_t fp_before = tp::count(tp::T_FP_GROUPS);
     int32_t bind = SAI_ACL_BIND_POINT_TYPE_PORT;
     sai_object_id_t tbl[2], eapol[2], data[2];
     for (int d = 0; d < 2; d++) {
@@ -363,7 +207,7 @@ static void test_macsec()
         OK(pa->get_port_attribute(p0, 1, &a));
         CHECK_EQ(a.value.oid, tbl[d]);
     }
-    CHECK_EQ(fake().fp_groups.size(), fp_before);
+    CHECK_EQ(tp::count(tp::T_FP_GROUPS), fp_before);
     CHECK(ms_log_take().empty());
     a = ms_oid(SAI_PORT_ATTR_EGRESS_MACSEC_ACL, tbl[1]);
     CHECK_EQ(pa->set_port_attribute(p0, &a), SAI_STATUS_INVALID_ATTR_VALUE_0);   // an ingress table on the egress side
@@ -401,12 +245,12 @@ static void test_macsec()
     CHECK(lfd >= 0 && saved >= 0);
     std::fflush(stderr);
     ::dup2(lfd, 2);
-    log_configure(true);
+    tp::log_to_stderr(true);
     sai_log_set(SAI_API_MACSEC, SAI_LOG_LEVEL_DEBUG);
     sai_log_set(SAI_API_SWITCH, SAI_LOG_LEVEL_DEBUG);
     sai_object_id_t sa_e0 = ms_create(ma->create_macsec_sa, ms_sa_attrs(EGR, sc_e, 0, false, false, 7));
     CHECK(ms_log_take().empty());
-    CHECK(ext_macsec_status().find("waiting for their flow") != std::string::npos);
+    CHECK(tp::ext_macsec_status().find("waiting for their flow") != std::string::npos);
     a.id = SAI_MACSEC_SA_ATTR_CURRENT_XPN;
     OK(ma->get_macsec_sa_attribute(sa_e0, 1, &a));
     CHECK_EQ(a.value.u64, 7u);   // as configured: not in the PHY yet
@@ -417,7 +261,7 @@ static void test_macsec()
     OK(aa->set_acl_entry_attribute(data[0], &a));
     //         marker: first, cipher 0, AN 0 | key[1].key[0] | key[15].key[14] | hkey[15].hkey[0] | sci[0].sci[7] | pn | pn hi | window
     MS_BUS("200=100 201=c1c0 202=cfce 203=8f80 204=1c01 205=7 206=0 207=0 120=1");
-    CHECK(ext_macsec_status().find("waiting") == std::string::npos);
+    CHECK(tp::ext_macsec_status().find("waiting") == std::string::npos);
     // rekey: AN 1 created when it becomes the encoding AN; it transmits; then the old one goes (no bus access needed to switch back)
     sai_object_id_t sa_e1 = ms_create(ma->create_macsec_sa, ms_sa_attrs(EGR, sc_e, 1, false, false, 1));
     MS_BUS("200=1 201=c2c1 202=d0cf 203=8f80 204=1c01 205=1 206=0 207=0");
@@ -469,7 +313,7 @@ static void test_macsec()
     // a sequence that fails (the PHY does not acknowledge): the SA is not created, nothing of it stays
     xp_reg(0x10, 0x21f, 0);
     ms_create(ma->create_macsec_sa, ms_sa_attrs(ING, sc_i, 0, true, true, 1), SAI_STATUS_FAILURE);
-    CHECK(ext_macsec_status().find("sa-add.ingress.0.gcm-aes-xpn-256") != std::string::npos);   // the last failure, by name
+    CHECK(tp::ext_macsec_status().find("sa-add.ingress.0.gcm-aes-xpn-256") != std::string::npos);   // the last failure, by name
     xp_reg(0x10, 0x21f, 1);
     ms_log_take();
 
@@ -477,11 +321,11 @@ static void test_macsec()
     std::fflush(stderr);
     ::dup2(saved, 2);
     ::close(saved);
-    log_configure(false);
+    tp::log_to_stderr(false);
     sai_log_set(SAI_API_MACSEC, SAI_LOG_LEVEL_NOTICE);
     sai_log_set(SAI_API_SWITCH, SAI_LOG_LEVEL_NOTICE);
     {
-        std::string text, st = ext_macsec_status();
+        std::string text, st = tp::ext_macsec_status();
         char buf[4096];
         ::lseek(lfd, 0, SEEK_SET);
         for (ssize_t n; (n = ::read(lfd, buf, sizeof(buf))) > 0;) text.append(buf, (size_t)n);
@@ -529,13 +373,13 @@ static void test_macsec()
     CHECK_EQ(ma->remove_macsec(m_e), SAI_STATUS_OBJECT_IN_USE);
     OK(ma->remove_macsec_port(mp_e));
     MS_BUS("100=1");
-    CHECK_EQ(fake().port_state[hw0].ifg, 384u);   // the ingress MACsec port is still there
+    CHECK_EQ(tp::port(hw0).ifg, 384u);   // the ingress MACsec port is still there
     OK(ma->remove_macsec_port(mp_i));
     MS_BUS("101=1");
-    CHECK_EQ(fake().port_state[hw0].ifg, 128u);
+    CHECK_EQ(tp::port(hw0).ifg, 128u);
     OK(ma->remove_macsec(m_e));
     OK(ma->remove_macsec(m_i));
-    CHECK(ext_macsec_status().find("0 macsec, 0 ports, 0 flows, 0 SCs, 0 SAs, 0 ACL tables, 0 ACL entries") != std::string::npos);
+    CHECK(tp::ext_macsec_status().find("0 macsec, 0 ports, 0 flows, 0 SCs, 0 SAs, 0 ACL tables, 0 ACL entries") != std::string::npos);
 
     // ---- a table without gate sequences and without probe: nothing at creation, SAs still work
     OK(sw->remove_switch(g_sw));
@@ -549,13 +393,13 @@ static void test_macsec()
     a.value.objlist.list = ports;
     OK(sw->get_switch_attribute(g_sw, 1, &a));
     p0 = ports[0];
-    hw0 = ctx().ports[p0].hw;
+    hw0 = tp::backend_id(p0);
     xp_reg(0x10, 0x20f, 1);
     m_e = ms_create(ma->create_macsec, {ms_s32(SAI_MACSEC_ATTR_DIRECTION, EGR)});
     mp_e = ms_create(ma->create_macsec_port, {ms_s32(SAI_MACSEC_PORT_ATTR_MACSEC_DIRECTION, EGR), ms_oid(SAI_MACSEC_PORT_ATTR_PORT_ID, p0)});
-    CHECK_EQ(fake().port_state[hw0].ifg, 384u);
+    CHECK_EQ(tp::port(hw0).ifg, 384u);
     OK(ma->remove_macsec_port(mp_e));
-    CHECK_EQ(fake().port_state[hw0].ifg, 96u);   // no quirk: the Ethernet default
+    CHECK_EQ(tp::port(hw0).ifg, 96u);   // no quirk: the Ethernet default
     OK(ma->remove_macsec(m_e));
 
     // ---- back to a default switch

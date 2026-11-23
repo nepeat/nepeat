@@ -245,7 +245,7 @@ I = inferred (API exists, form or semantics not seen in use).
   the shim's learn-ring guard (`t_learn.cpp`: the mock replays libifcs' learn pass through its PLT with injected
   all-ones reads; the GOT redirect uses the build host's relocation types, so x86 runs it). 1047 checks (all areas, 2026-11-17).
 - sai-openbcm's `tests/test_sai.cpp`, unchanged, against this library's
-  objects (frontend + fake backend): 2667 checks.
+  objects (frontend + fake backend): `test_sai` 3012 + `test_units` 140 checks (2026-11-23).
 - Built natively with nix (`callPackage ./sai-teralynx { inherit sonic; }`) and
   for aarch64 (static_asserts hold). `TEST_IFCS_DUMP=1` prints the IFCS calls.
 - On the chip: `oracle/scripts/traps-hw.json` (frames over the loop,

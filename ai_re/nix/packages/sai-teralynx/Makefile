@@ -35,7 +35,9 @@ CORE = sai_api.cpp sai_switch.cpp sai_port.cpp sai_l2.cpp sai_hostif.cpp sai_l3.
        sai_temp.cpp sai_caps.cpp sai_diag.cpp sai_acl.cpp sai_qos.cpp sai_mirror.cpp sai_hash.cpp sai_extphy.cpp \
        sai_extmacsec.cpp sai_macsec.cpp fake_backend.cpp
 # sai_macsec_rust.cpp: the MACsec model in Rust behind sai-openbcm's RUST_MACSEC switch (replaces sai_macsec.cpp there)
-FRONTEND_NOT_USED = backend_none.cpp openbcm_backend.cpp ext_phy_check.cpp ext_macsec_check.cpp sai_macsec_rust.cpp
+# recording_backend.cpp: test-only (the frontend tests' call log), built for build/test_sai below
+FRONTEND_NOT_USED = backend_none.cpp openbcm_backend.cpp ext_phy_check.cpp ext_macsec_check.cpp sai_macsec_rust.cpp \
+                    recording_backend.cpp
 FE_UNKNOWN = $(filter-out $(CORE) $(FRONTEND_NOT_USED),$(notdir $(wildcard $(FRONTEND)/*.cpp)))
 ifneq ($(FE_UNKNOWN),)
 $(error FRONTEND has .cpp files this Makefile does not list: $(FE_UNKNOWN); add them to CORE or FRONTEND_NOT_USED)
@@ -117,10 +119,22 @@ build/test_ifcs: $(TEST_SRCS) tests/harness.h build/libsai.so.1.0.0
 TEST_BINS = build/test_ifcs build/mock/libifcs.so build/libsai-teralynx-shim.so
 ifneq ($(FRONTEND_TESTS),)
 # sai-openbcm's own unit test, unchanged, on this library's objects (frontend
-# + fake backend sanity; our backend is only constructed, never initialised).
-build/test_sai: $(FRONTEND_TESTS)/test_sai.cpp $(FRONTEND_TESTS)/test_acl.inc build/libsai.a
-	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(CPPFLAGS_ALL) -o $@ $< build/libsai.a -ldl -lpthread
-TEST_BINS += build/test_sai
+# + fake backend sanity; our backend is only constructed, never initialised):
+# test_sai.cpp sees the SAI headers and its test port header only, the port
+# (test_port_cpp.cpp, + the frontend's recording_backend.cpp) the frontend's
+# internals; test_units.cpp: the frontend's pure C++ units.
+FE_TEST_HDRS = $(wildcard $(FRONTEND_TESTS)/*.h $(FRONTEND_TESTS)/*.inc)
+build/test_sai.o: $(FRONTEND_TESTS)/test_sai.cpp $(FE_TEST_HDRS)
+	@mkdir -p build
+	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) -I$(SAI_INC) -I$(FRONTEND_TESTS) -c $< -o $@
+build/test_port_cpp.o: $(FRONTEND_TESTS)/test_port_cpp.cpp $(FE_TEST_HDRS) $(wildcard $(FRONTEND)/*.h)
+	@mkdir -p build
+	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(CPPFLAGS_ALL) -I$(FRONTEND_TESTS) -c $< -o $@
+build/test_sai: build/test_sai.o build/test_port_cpp.o build/fe/recording_backend.o build/libsai.a
+	$(CXX) -std=c++17 $(CXXFLAGS) -o $@ $^ -ldl -lpthread
+build/test_units: $(FRONTEND_TESTS)/test_units.cpp $(FE_TEST_HDRS) build/libsai.a
+	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(CPPFLAGS_ALL) -I$(FRONTEND_TESTS) -o $@ $< build/libsai.a -ldl -lpthread
+TEST_BINS += build/test_sai build/test_units
 endif
 
 tests: $(TEST_BINS)
@@ -128,6 +142,7 @@ tests: $(TEST_BINS)
 check: tests
 	./build/test_ifcs $(abspath build/mock/libifcs.so) $(abspath build/check-tmp)
 	if [ -x build/test_sai ]; then ./build/test_sai; fi
+	if [ -x build/test_units ]; then ./build/test_units; fi
 
 install: build/libsai.so.1.0.0 build/libsai-teralynx-shim.so build/openbcm-diag build/sai-teralynx-smoke
 	install -Dm755 build/libsai.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libsai.so.1.0.0

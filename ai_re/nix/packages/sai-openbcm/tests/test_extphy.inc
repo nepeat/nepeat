@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // External PHY table (SAI_OPENBCM_EXT_PHY_FILE, src/ext_phy.h): parsing, the
 // link = ASIC link AND line-side conditions rule, debounce, faults, the admin
-// sequences, hold-off. Included by test_sai.cpp; leaves a default switch.
+// sequences, hold-off. Included by test_sai.cpp; leaves a default switch. The table texts:
+// tests/test_tables.h; the parser's own unit tests: tests/test_units.cpp.
 
 static std::string xp_write(const std::string& text)
 {
@@ -42,82 +43,18 @@ static void xp_admin(sai_object_id_t port, bool up)
     a.value.booldata = up;
     OK(pa->set_port_attribute(port, &a));
 }
-static void xp_reg(unsigned phy, unsigned reg, unsigned v)
-{
-    std::lock_guard<std::mutex> g(fake().mdio_mu);
-    fake().mdio_regs[std::make_tuple(phy, 1u, reg)] = v;
-}
+static void xp_reg(unsigned phy, unsigned reg, unsigned v) { tp::mdio_set(phy, 1u, reg, v); }
 static int xp_writes(unsigned phy, unsigned reg, unsigned val)
 {
-    std::lock_guard<std::mutex> g(fake().mdio_mu);
     int n = 0;
-    for (auto& o : fake().mdio_log)
+    for (auto& o : tp::mdio_log())
         if (o.op == 'W' && o.phy == phy && o.reg == reg && o.val == val) n++;
     return n;
 }
 
 static void test_ext_phy()
 {
-    // ---- parser
-    ExtPhyTable t;
-    std::string err;
-    const char* good =
-        "ext-phy 1\n# comment\npoll-ms 0\nup-polls 2\nholdoff-ms 50\n"
-        "port 1\nlink\n"
-        "  R 10 1 8221\n  W 10 1 a002 c161\n  W 10 1 8222 1111\n  P 10 1 8221 11e3 ffff 3 0\n  E 10 1 a100 2\n"
-        "  C 10 1 a101 3 3\n"
-        "admin-down\n  W 10 1 d139 351\n"
-        "admin-up\n  E 10 1 d0e1 a008 ff7f\n  W 10 1 d139 350\n"
-        "port 5\nlink\n  C 11 1 a101 3 3\n";
-    CHECK(ext_phy_parse(good, t, err));
-    CHECK_EQ(t.ports.size(), 2u);
-    CHECK_EQ(t.poll_ms, 0u);
-    CHECK_EQ(t.up_polls, 2u);
-    CHECK_EQ(t.holdoff_ms, 50u);
-    CHECK_EQ(t.ports[0].link.size(), 6u);
-    CHECK_EQ(t.ports[0].down.size(), 1u);
-    CHECK_EQ(t.ports[0].up.size(), 2u);
-    CHECK_EQ(t.ports[0].up[0].mask, 0xff7fu);
-    CHECK_EQ(t.ports[0].link[3].tries, 3u);
-    CHECK(ext_phy_parse("ext-phy 1\n", t, err));   // no ports: valid, nothing to do
-    CHECK_EQ(t.poll_ms, 500u);
-    CHECK_EQ(t.up_polls, 2u);
-    struct { const char* text; const char* in_err; } bad[] = {
-        {"", "line 1"},
-        {"mdio-script 1\n", "line 1"},
-        {"ext-phy 2\n", "line 1"},
-        {"ext-phy 1\nport 1\nlink\nC 10 0 1 3 3\n", "clause 22"},              // dev 0
-        {"ext-phy 1\nport 1\nlink\nC 10 20 1 3 3\n", "line 4"},                // dev > 31
-        {"ext-phy 1\nport 1\nlink\nC 10 1 10000 3 3\n", "line 4"},             // reg > ffff
-        {"ext-phy 1\nport 1\nlink\nC 10 1 a101 3\n", "line 4"},                // C without mask
-        {"ext-phy 1\nport 1\nlink\nC 10 1 a101 3 1\n", "outside the mask"},
-        {"ext-phy 1\nport 1\nlink\nW 10 1 a000 6\n", "without a C"},
-        {"ext-phy 1\nport 1\nadmin-down\nC 10 1 a101 3 3\n", "outside a link"},
-        {"ext-phy 1\nport 1\n", "no sequence"},
-        {"ext-phy 1\nW 10 1 a000 6\n", "outside"},
-        {"ext-phy 1\nport 1\nW 10 1 a000 6\n", "outside"},
-        {"ext-phy 1\nlink\n", "before any port"},
-        {"ext-phy 1\nport 1\nlink\nC 10 1 a101 3 3\nport 1\nlink\nC 10 1 a101 3 3\n", "twice"},
-        {"ext-phy 1\nport 1\nlink\nC 10 1 a101 3 3\nlink\nC 10 1 a101 3 3\n", "twice"},
-        {"ext-phy 1\nport x\n", "line 2"},
-        {"ext-phy 1\nport 1\nlink\nP 10 1 8221 11e3 ffff 0 0\nC 10 1 a101 3 3\n", "tries"},
-        {"ext-phy 1\nport 1\nlink\nP 10 1 8221 11e3 ffff 5 200000\nC 10 1 a101 3 3\n", "interval"},
-        {"ext-phy 1\nport 1\nlink\nX 10 1 8221\n", "unknown keyword"},
-        {"ext-phy 1\nport 1\nlink\nW 10 1 a000 zz\n", "line 4"},
-        {"ext-phy 1\nport 1\nlink\nW 10 1 a000 -6\n", "line 4"},
-        {"ext-phy 1\npoll-ms 70000\n", "poll-ms"},
-        {"ext-phy 1\nup-polls 0\n", "up-polls"},
-        {"ext-phy 1\nport 1\nlink\nC 10 1 a101 3 3\npoll-ms 100\n", "after the first port"},
-    };
-    for (auto& b : bad) {
-        err.clear();
-        CHECK(!ext_phy_parse(b.text, t, err));
-        if (err.find(b.in_err) == std::string::npos) {
-            g_fail++;
-            std::fprintf(stderr, "FAIL ext-phy parse: '%s' gave '%s', wanted '%s' in it\n", b.text, err.c_str(), b.in_err);
-        }
-        g_checks++;
-    }
+    // ---- parser: tests/test_units.cpp (a pure C++ unit; the Rust side tests its own in phy-seq)
 
     // ---- switch creation: missing file, bad table, unknown lane
     sai_object_id_t ports[64];
@@ -128,25 +65,25 @@ static void test_ext_phy()
     g_profile["SAI_OPENBCM_FAKE_SPEED"] = "100000";
     g_profile["SAI_OPENBCM_EXT_PHY_FILE"] = "/nonexistent/ext-phy.tbl";
     CHECK_EQ(create_switch_default(), SAI_STATUS_FAILURE);
-    CHECK(!ctx().switch_created);
+    CHECK(!tp::switch_created());
     std::string f_bad = xp_write("ext-phy 1\nport 1\n");
     g_profile["SAI_OPENBCM_EXT_PHY_FILE"] = f_bad;
     CHECK_EQ(create_switch_default(), SAI_STATUS_INVALID_PARAMETER);
-    CHECK(!ctx().switch_created);
+    CHECK(!tp::switch_created());
     std::string f_lane = xp_write("ext-phy 1\nport 3\nlink\nC 10 1 a101 3 3\n");   // lane 3 is inside port 0, not its first
     g_profile["SAI_OPENBCM_EXT_PHY_FILE"] = f_lane;
     CHECK_EQ(create_switch_default(), SAI_STATUS_INVALID_PARAMETER);
-    CHECK(!ctx().switch_created);
-    CHECK(!ext_phy_active());
+    CHECK(!tp::switch_created());
+    CHECK(!tp::ext_phy_active());
 
     // ---- the good table: fake ports hw 1 (lane 1), 5 (lane 5), 9, 13
-    std::string f_good = xp_write(good);
+    std::string f_good = xp_write(kExtPhyGood);
     g_profile["SAI_OPENBCM_EXT_PHY_FILE"] = f_good;
     std::string ddir = "/tmp/sai-extphy-diag-" + std::to_string(::getpid());
     std::string dsock = ddir + "/diag.sock";
     g_profile["SAI_OPENBCM_DIAG_SOCKET"] = dsock;
     OK(create_switch_default());
-    CHECK(ext_phy_active());
+    CHECK(tp::ext_phy_active());
     a.id = SAI_SWITCH_ATTR_PORT_LIST;
     a.value.objlist.count = 64;
     a.value.objlist.list = ports;
@@ -174,25 +111,25 @@ static void test_ext_phy()
     CHECK_EQ(xp_writes(0x10, 0xd139, 0x350), 1);
     CHECK(xp_quiet());
     CHECK(!xp_oper(p0));
-    CHECK(fake().port_state[1].admin);
-    for (int i = 0; i < 5; i++) fake().linkscan();
+    CHECK(tp::port(1).admin);
+    for (int i = 0; i < 5; i++) tp::linkscan();
     CHECK(xp_quiet());
     CHECK(!xp_oper(p0));
     // Line side up: one good poll is not enough (up-polls 2), the second is.
     xp_reg(0x10, 0xa101, 3);
-    fake().linkscan();
+    tp::linkscan();
     CHECK(xp_quiet());
     CHECK(!xp_oper(p0));
-    fake().linkscan();
+    tp::linkscan();
     CHECK(wait_for([&] { return !g_port_events.empty(); }));
     CHECK_EQ(xp_events(p0, SAI_PORT_OPER_STATUS_UP), 1);
     CHECK(xp_oper(p0));
     xp_clear();
-    fake().linkscan();
+    tp::linkscan();
     CHECK(xp_quiet());
     // One bad poll takes it down at once; one bit of the condition is enough.
     xp_reg(0x10, 0xa101, 1);
-    fake().linkscan();
+    tp::linkscan();
     CHECK(wait_for([&] { return !g_port_events.empty(); }));
     CHECK_EQ(xp_events(p0, SAI_PORT_OPER_STATUS_DOWN), 1);
     CHECK(!xp_oper(p0));
@@ -200,69 +137,69 @@ static void test_ext_phy()
     // A flapping line never reaches two good polls in a row.
     for (int i = 0; i < 4; i++) {
         xp_reg(0x10, 0xa101, i % 2 ? 0 : 3);
-        fake().linkscan();
+        tp::linkscan();
     }
     CHECK(xp_quiet());
     xp_reg(0x10, 0xa101, 3);
-    fake().linkscan();
-    fake().linkscan();
+    tp::linkscan();
+    tp::linkscan();
     CHECK(wait_for([&] { return !g_port_events.empty(); }));
     CHECK(xp_oper(p0));
     xp_clear();
     // AND: line side up, ASIC link down -> down.
-    fake().inject_link(1, false);
+    tp::inject_link(1, false);
     CHECK(wait_for([&] { return !g_port_events.empty(); }));
     CHECK_EQ(xp_events(p0, SAI_PORT_OPER_STATUS_DOWN), 1);
     CHECK(!xp_oper(p0));
     xp_clear();
-    fake().linkscan();   // ASIC link back (the fake follows admin), line side still good
+    tp::linkscan();   // ASIC link back (the fake follows admin), line side still good
     CHECK(wait_for([&] { return !g_port_events.empty(); }));
     CHECK(xp_oper(p0));
     xp_clear();
     // Fault: the PHY stops answering (MDIO error) -> down at once, back after two good polls.
-    { std::lock_guard<std::mutex> g(fake().mdio_mu); fake().mdio_dead.insert(0x10); }
-    fake().linkscan();
+    tp::mdio_set_dead(0x10, true);
+    tp::linkscan();
     CHECK(wait_for([&] { return !g_port_events.empty(); }));
     CHECK(!xp_oper(p0));
-    CHECK(ext_phy_status().find("FAULT") != std::string::npos);
+    CHECK(tp::ext_phy_status().find("FAULT") != std::string::npos);
     xp_clear();
-    { std::lock_guard<std::mutex> g(fake().mdio_mu); fake().mdio_dead.clear(); }
-    fake().linkscan();
-    fake().linkscan();
+    tp::mdio_set_dead(0x10, false);
+    tp::linkscan();
+    tp::linkscan();
     CHECK(wait_for([&] { return !g_port_events.empty(); }));
     CHECK(xp_oper(p0));
-    CHECK(ext_phy_status().find("FAULT") == std::string::npos);
+    CHECK(tp::ext_phy_status().find("FAULT") == std::string::npos);
     xp_clear();
     // Fault: the poll (P) never sees its value, or the E check fails -> down.
     xp_reg(0x10, 0x8221, 0);
-    fake().linkscan();
+    tp::linkscan();
     CHECK(wait_for([&] { return !g_port_events.empty(); }));
     CHECK(!xp_oper(p0));
     xp_clear();
     xp_reg(0x10, 0x8221, 0x11e3);
     xp_reg(0x10, 0xa100, 7);
-    fake().linkscan();
-    fake().linkscan();
+    tp::linkscan();
+    tp::linkscan();
     CHECK(xp_quiet());
     CHECK(!xp_oper(p0));
     xp_reg(0x10, 0xa100, 2);
-    fake().linkscan();
-    fake().linkscan();
+    tp::linkscan();
+    tp::linkscan();
     CHECK(wait_for([&] { return !g_port_events.empty(); }));
     CHECK(xp_oper(p0));
     xp_clear();
 
     // Hold-off: raw MDIO on the diag socket runs under the sequence lock and
     // pauses the polls (state frozen) for holdoff-ms after the last one.
-    size_t shells = fake().shell_log.size();
+    size_t shells = tp::shell_log().size();
     CHECK(diag_cmd(dsock, "phy raw c45 0x10 1 0x8b00\n") == "fake: phy raw c45 0x10 1 0x8b00\n");
-    CHECK_EQ(fake().shell_log.size(), shells + 1);
+    CHECK_EQ(tp::shell_log().size(), shells + 1);
     xp_reg(0x10, 0xa101, 0);
-    fake().linkscan();
+    tp::linkscan();
     CHECK(xp_oper(p0));                                  // not polled: still up
-    CHECK(ext_phy_status().find("PAUSED") != std::string::npos);
+    CHECK(tp::ext_phy_status().find("PAUSED") != std::string::npos);
     std::this_thread::sleep_for(std::chrono::milliseconds(80));
-    fake().linkscan();
+    tp::linkscan();
     CHECK(wait_for([&] { return !g_port_events.empty(); }));
     CHECK(!xp_oper(p0));
     xp_clear();
@@ -270,12 +207,12 @@ static void test_ext_phy()
     std::string stx = diag_cmd(dsock, "extphy\n");
     CHECK(stx.rfind("extphy: 2 ports", 0) == 0);
     CHECK(stx.find("ce0") != std::string::npos && stx.find("ce1") != std::string::npos);
-    CHECK_EQ(fake().shell_log.size(), shells + 1);
+    CHECK_EQ(tp::shell_log().size(), shells + 1);
 
     // Admin down: the ASIC port first, then the admin-down sequence; no poll while down.
     xp_reg(0x10, 0xa101, 3);
-    fake().linkscan();
-    fake().linkscan();
+    tp::linkscan();
+    tp::linkscan();
     CHECK(wait_for([&] { return !g_port_events.empty(); }));
     xp_clear();
     xp_admin(p0, false);
@@ -284,13 +221,13 @@ static void test_ext_phy()
     CHECK_EQ(xp_events(p0, SAI_PORT_OPER_STATUS_DOWN), 1);
     xp_clear();
     size_t ops;
-    { std::lock_guard<std::mutex> g(fake().mdio_mu); ops = fake().mdio_log.size(); }
-    fake().linkscan();
-    { std::lock_guard<std::mutex> g(fake().mdio_mu); CHECK_EQ(fake().mdio_log.size(), ops); }
+    ops = tp::mdio_log().size();
+    tp::linkscan();
+    CHECK_EQ(tp::mdio_log().size(), ops);
     // Admin up again starts from "down": two good polls (the first is made by the enable itself).
     xp_admin(p0, true);
     CHECK(xp_quiet());
-    fake().linkscan();
+    tp::linkscan();
     CHECK(wait_for([&] { return !g_port_events.empty(); }));
     CHECK(xp_oper(p0));
     xp_clear();
@@ -300,19 +237,19 @@ static void test_ext_phy()
     xp_reg(0x10, 0xd0e1, 0x1234);
     xp_admin(p0, true);
     CHECK_EQ(xp_writes(0x10, 0xd139, 0x350), 2);         // the write after the failed E did not run
-    CHECK(fake().port_state[1].admin);
+    CHECK(tp::port(1).admin);
     xp_clear();
 
     // Port 1: a table entry with only a link condition (no admin sequences).
     xp_reg(0x11, 0xa101, 3);
     xp_admin(p1, true);
     CHECK(xp_quiet());
-    fake().linkscan();
+    tp::linkscan();
     CHECK(wait_for([&] { return !g_port_events.empty(); }));
     CHECK_EQ(xp_events(p1, SAI_PORT_OPER_STATUS_UP), 1);
     xp_clear();
     OK(sw->remove_switch(g_sw));
-    CHECK(!ext_phy_active());
+    CHECK(!tp::ext_phy_active());
 
     // poll-ms: between polls the cached state answers (here: one poll, then none for a minute).
     std::string f_slow = xp_write("ext-phy 1\npoll-ms 60000\nup-polls 1\nport 1\nlink\nC 10 1 a101 3 3\n");
@@ -330,7 +267,7 @@ static void test_ext_phy()
     CHECK(xp_oper(ports[0]));
     xp_clear();
     xp_reg(0x10, 0xa101, 0);
-    fake().linkscan();
+    tp::linkscan();
     CHECK(xp_quiet());
     CHECK(xp_oper(ports[0]));
     OK(sw->remove_switch(g_sw));
@@ -338,9 +275,9 @@ static void test_ext_phy()
     // No key: nothing registered, no MDIO, ports as ever.
     g_profile.erase("SAI_OPENBCM_EXT_PHY_FILE");
     OK(create_switch_default());
-    CHECK(!ext_phy_active());
-    { std::lock_guard<std::mutex> g(fake().mdio_mu); CHECK_EQ(fake().mdio_log.size(), 0u); }
-    CHECK(ext_phy_status().find("no external PHY table") != std::string::npos);
+    CHECK(!tp::ext_phy_active());
+    CHECK_EQ(tp::mdio_log().size(), 0u);
+    CHECK(tp::ext_phy_status().find("no external PHY table") != std::string::npos);
     for (auto& f : {f_bad, f_lane, f_good, f_slow}) std::remove(f.c_str());
     ::rmdir(ddir.c_str());
 }

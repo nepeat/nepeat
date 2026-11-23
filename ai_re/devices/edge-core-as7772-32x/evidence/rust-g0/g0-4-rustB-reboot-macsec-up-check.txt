@@ -1,0 +1,8 @@
+# 2026-11-23T03:39:06.993Z macsec-up-check.sh -t 60 exit=0
+== 2026-11-22T19:39:00-08:00 qaz8s0kknczx... up 127.08 s; the start of sonic-syncd: 116.115 s; limit 60 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +9.0 s, secured +14.5 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.0 s, secured +14.5 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +9.3 s, secured +15.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.7 s, secured +15.4 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 15.4 s after the start of sonic-syncd (limit 60 s)

@@ -8,6 +8,7 @@ use crate::attrs::{self, CreateArgs};
 use crate::backend::{Backend, BackendEvent, EventSink, HwPort, Profile, StatsObject, Vid};
 use crate::bag;
 use crate::caps::{self, AttrCapability};
+use crate::dispatch::{self, Cx};
 use crate::error::{AttrError, Error, Result};
 use crate::model::{Bag, Bridge, BridgePort, EntryKey, Kept, Port, PortKind, Switch, Vlan, VlanMember};
 use crate::oid::{AnyId, BridgeId, BridgePortId, ObjectType, PortId, RawOid, SwitchId, TypedId, VlanId, VlanMemberId};
@@ -326,17 +327,29 @@ impl<B: Backend> Sai<B> {
             ObjectType::Vlan => create_vlan(backend, store, attrs).map(TypedId::raw),
             ObjectType::VlanMember => create_vlan_member(backend, store, attrs).map(TypedId::raw),
             ObjectType::BridgePort => create_bridge_port(store, running.id, attrs).map(TypedId::raw),
-            other => bag::create(backend, store, other, attrs),
+            other => dispatch::create(
+                Cx {
+                    backend,
+                    store,
+                    switch: running.id,
+                },
+                other,
+                attrs,
+            ),
         }
     }
 
     /// The backend and the store of the switch, for an operation that changes both.
-    fn parts(&mut self) -> Result<(&mut B, &mut Store, SwitchId)> {
+    fn parts(&mut self) -> Result<Cx<'_, B>> {
         match self {
             Self {
                 backend,
                 switch: Some(running),
-            } => Ok((backend, &mut running.store, running.id)),
+            } => Ok(Cx {
+                backend,
+                store: &mut running.store,
+                switch: running.id,
+            }),
             _ => Err(Error::Uninitialized),
         }
     }
@@ -354,37 +367,33 @@ impl<B: Backend> Sai<B> {
     /// Creates an FDB, neighbor or route entry. `switch` is the switch id of its key.
     pub fn create_entry(&mut self, switch: RawOid, key: EntryKey, attrs: &[Attr]) -> Result<()> {
         self.check_switch(switch)?;
-        let (backend, store, _) = self.parts()?;
-        bag::create_entry(backend, store, key, attrs)
+        dispatch::create_entry(self.parts()?, key, attrs)
     }
 
     /// Removes an entry.
     pub fn remove_entry(&mut self, switch: RawOid, key: &EntryKey) -> Result<()> {
         self.check_switch(switch)?;
-        let (backend, store, _) = self.parts()?;
-        bag::remove_entry(backend, store, key)
+        dispatch::remove_entry(self.parts()?, key)
     }
 
     /// Sets one attribute of an entry.
     pub fn set_entry(&mut self, switch: RawOid, key: &EntryKey, attr: &Attr) -> Result<()> {
         self.check_switch(switch)?;
-        let (backend, store, _) = self.parts()?;
-        bag::set_entry(backend, store, key, attr)
+        dispatch::set_entry(self.parts()?, key, attr)
     }
 
     /// Gets attributes of an entry, in the order of `ids`.
     pub fn get_entry(&self, switch: RawOid, key: &EntryKey, ids: &[sys::sai_attr_id_t]) -> Result<Vec<Value>> {
         self.check_switch(switch)?;
         let running = self.switch.as_ref().ok_or(Error::Uninitialized)?;
-        bag::get_entry(&running.store, key, ids)
+        dispatch::get_entry(&self.backend, &running.store, key, ids)
     }
 
     /// `flush_fdb_entries`: removes the FDB entries matching the attributes and returns
     /// their keys.
     pub fn flush_fdb(&mut self, switch: RawOid, attrs: &[Attr]) -> Result<Vec<EntryKey>> {
         self.check_switch(switch)?;
-        let (backend, store, _) = self.parts()?;
-        bag::flush_fdb(backend, store, attrs)
+        dispatch::flush_fdb(self.parts()?, attrs)
     }
 
     /// Reads counters of an object, in the order of `counters`; with `clear` they are zeroed
@@ -498,7 +507,15 @@ impl<B: Backend> Sai<B> {
                 store.remove::<VlanMember>(id).map(|_| ())
             }
             AnyId::BridgePort(id) => store.remove::<BridgePort>(id).map(|_| ()),
-            other => bag::remove(backend, store, other.object_type(), other.raw()),
+            other => dispatch::remove(
+                Cx {
+                    backend,
+                    store,
+                    switch: running.id,
+                },
+                other.object_type(),
+                other.raw(),
+            ),
         }
     }
 
@@ -573,7 +590,16 @@ impl<B: Backend> Sai<B> {
                 | AnyId::BridgePort(_),
                 ..,
             ) => Err(attr_err(AttrError::NotSupported)),
-            (other, ..) => bag::set(backend, store, other.object_type(), other.raw(), attr),
+            (other, ..) => dispatch::set(
+                Cx {
+                    backend,
+                    store,
+                    switch: running.id,
+                },
+                other.object_type(),
+                other.raw(),
+                attr,
+            ),
         }
     }
 
@@ -610,6 +636,7 @@ impl<B: Backend> Sai<B> {
             return Vec::new();
         };
         match event {
+            BackendEvent::Fdb(event) => crate::l2::fdb_event(&mut running.store, event),
             BackendEvent::Link { hw, up } => {
                 let port = PortId::from_index(u64::from(hw.0));
                 match running
@@ -649,7 +676,7 @@ impl<B: Backend> Sai<B> {
             AnyId::Vlan(_) | AnyId::VlanMember(_) | AnyId::Bridge(_) | AnyId::BridgePort(_) => {
                 get_bridging(store, id, attr)?
             }
-            other => return bag::get(store, other.raw(), meta),
+            other => return dispatch::get(&self.backend, store, other.object_type(), other.raw(), meta),
         };
         if let Some(value) = own {
             return Ok(value);

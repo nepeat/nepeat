@@ -12,11 +12,13 @@
 //!   everything.
 //!
 //! Types with behaviour of their own (ports, VLANs, bridge ports: [`crate::sai`]) are not
-//! bags. The few rules the metadata does not carry (conditions) are in [`validate`].
+//! bags; an area module takes a type over through [`crate::dispatch`] (LAGs: [`crate::lag`]).
+//! The few rules the metadata does not carry (conditions) are in [`validate`].
 use crate::attrs::{self, CreateArgs};
 use crate::backend::{Backend, HostifNetdev};
+use crate::dispatch::Area;
 use crate::error::{AttrError, Error, Result};
-use crate::model::{Bag, Bridge, BridgePort, EntryKey, Kept, Port, PortKind, Switch, Vlan};
+use crate::model::{Bag, Bridge, EntryKey, Kept, Port, PortKind, Switch, Vlan};
 use crate::oid::{ObjectType, PortId, RawOid, TypedId};
 use crate::store::Store;
 use crate::value::{Attr, Value};
@@ -109,40 +111,6 @@ fn validate(store: &Store, object_type: ObjectType, attrs: &[Attr]) -> Result<()
         }
         // One trap per trap type.
         ObjectType::HostifTrap if taken(sys::SAI_HOSTIF_TRAP_ATTR_TRAP_TYPE) => Err(Error::ItemAlreadyExists),
-        // The C++ library's rules (sai_lag.cpp): a front-panel port, in one LAG at most, that
-        // has no bridge port or router interface of its own (orchagent removes the default
-        // bridge ports first).
-        ObjectType::LagMember => {
-            let index = attrs
-                .iter()
-                .position(|a| a.id == sys::SAI_LAG_MEMBER_ATTR_PORT_ID)
-                .ok_or(Error::MandatoryAttributeMissing)?;
-            let Some(Value::Oid(port)) = find(sys::SAI_LAG_MEMBER_ATTR_PORT_ID) else {
-                return Err(Error::MandatoryAttributeMissing);
-            };
-            let front = PortId::try_from(*port)
-                .ok()
-                .and_then(|id| store.get::<Port>(id).ok())
-                .is_some_and(|p| matches!(p.kind, PortKind::Front { .. }));
-            if !front {
-                return Err(Error::attr(AttrError::InvalidValue, index));
-            }
-            if taken(sys::SAI_LAG_MEMBER_ATTR_PORT_ID) {
-                return Err(Error::ItemAlreadyExists);
-            }
-            let bridged = store.iter::<BridgePort>().any(|(_, b)| b.port.raw() == *port);
-            let routed = !naming(
-                store,
-                ObjectType::RouterInterface,
-                sys::SAI_ROUTER_INTERFACE_ATTR_PORT_ID,
-                *port,
-            )
-            .is_empty();
-            if bridged || routed {
-                return Err(Error::ObjectInUse);
-            }
-            Ok(())
-        }
         _ => Ok(()),
     }
 }
@@ -180,6 +148,12 @@ fn netdev_of<'a>(store: &Store, object_type: ObjectType, attrs: &'a [Attr]) -> R
     }))
 }
 
+/// The attribute-bag implementation as a dispatch area: every [`Area`] default.
+#[derive(Clone, Copy, Debug)]
+pub struct BagArea;
+
+impl Area for BagArea {}
+
 /// Creates an attribute-bag object.
 pub(crate) fn create<B: Backend>(
     backend: &mut B,
@@ -187,12 +161,25 @@ pub(crate) fn create<B: Backend>(
     object_type: ObjectType,
     attrs: &[Attr],
 ) -> Result<RawOid> {
+    create_with(backend, store, object_type, attrs, |_, _, _| Ok(()))
+}
+
+/// Creates an attribute-bag object with an area's own rules, checked after the bag's (so the
+/// order of the checks, and the error a bad call gets, stays the bag's).
+pub(crate) fn create_with<B: Backend>(
+    backend: &mut B,
+    store: &mut Store,
+    object_type: ObjectType,
+    attrs: &[Attr],
+    area_rules: fn(&Store, ObjectType, &[Attr]) -> Result<()>,
+) -> Result<RawOid> {
     if !user_created(object_type) {
         return Err(Error::NotSupported);
     }
     CreateArgs::check(object_type.sai(), attrs)?;
     check_references(store, attrs)?;
     validate(store, object_type, attrs)?;
+    area_rules(store, object_type, attrs)?;
     let id = store.peek_id(object_type);
     match netdev_of(store, object_type, attrs)? {
         Some(netdev) => backend.hostif_create(id, &netdev, attrs)?,
@@ -262,7 +249,7 @@ fn count(n: usize) -> Result<Value> {
 }
 
 /// The bags of `object_type` whose attribute `attr` names `target`.
-fn naming(store: &Store, object_type: ObjectType, attr: sys::sai_attr_id_t, target: RawOid) -> Vec<RawOid> {
+pub(crate) fn naming(store: &Store, object_type: ObjectType, attr: sys::sai_attr_id_t, target: RawOid) -> Vec<RawOid> {
     store
         .bags(object_type)
         .filter(|(_, bag)| bag.attrs.get(&attr) == Some(&Value::Oid(target)))
@@ -297,17 +284,6 @@ fn computed(store: &Store, id: RawOid, bag: &Bag, attr: sys::sai_attr_id_t) -> R
                 .map_or(RawOid::NULL, |(bridge, _)| bridge.raw()),
         ),
         (ObjectType::Stp, sys::SAI_STP_ATTR_PORT_LIST) => Value::OidList(Vec::new()),
-        (ObjectType::Lag, sys::SAI_LAG_ATTR_PORT_LIST) => Value::OidList(
-            naming(store, ObjectType::LagMember, sys::SAI_LAG_MEMBER_ATTR_LAG_ID, id)
-                .into_iter()
-                .filter_map(
-                    |member| match store.bag(member).ok()?.attrs.get(&sys::SAI_LAG_MEMBER_ATTR_PORT_ID) {
-                        Some(Value::Oid(port)) => Some(*port),
-                        _ => None,
-                    },
-                )
-                .collect(),
-        ),
         (ObjectType::NextHopGroup, sys::SAI_NEXT_HOP_GROUP_ATTR_NEXT_HOP_COUNT) => count(
             naming(
                 store,

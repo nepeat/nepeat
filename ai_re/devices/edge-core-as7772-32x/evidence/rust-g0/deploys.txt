@@ -1,0 +1,96 @@
+# deploy 1: ./deploy.sh switch (HEAD 9df9efe; working-tree drvPath = rev-pinned drvPath llpb7z0i... at that time)
+
+building the system configuration...
+warning: Git tree '/home/erin/nepeat' is dirty
+Starting [systemd-run] /nix/store/q4nbqvf2a7hcn7fq2ahaqn90jns8bkzm-nixos-system-as7772-26.11.20261111.d4f25a3/bin/switch-to-configuration switch...
+Started [systemd-run] /nix/store/q4nbqvf2a7hcn7fq2ahaqn90jns8bkzm-nixos-system-as7772-26.11.20261111.d4f25a3/bin/switch-to-configuration switch.
+Checking switch inhibitors... done
+as7760: boot files for /nix/store/q4nbqvf2a7hcn7fq2ahaqn90jns8bkzm-nixos-system-as7772-26.11.20261111.d4f25a3 installed on /boot/firmware (boot.scr + extlinux)
+switching to system configuration /nix/store/q4nbqvf2a7hcn7fq2ahaqn90jns8bkzm-nixos-system-as7772-26.11.20261111.d4f25a3
+stopping the following units: sonic-syncd.service
+NOT restarting the following changed units: openbcm-mdio-script.service
+activating the configuration...
+setting up /etc...
+reloading user units for root...
+restarting the following user units: nixos-activation.service
+restarting sysinit-reactivation.target
+reloading the following units: dbus-broker.service
+starting the following units: sonic-syncd.service
+the following new units were started: run-p6686-i12746.timer, sysinit-reactivation.target, systemd-tmpfiles-resetup.service
+finished switching to system configuration /nix/store/q4nbqvf2a7hcn7fq2ahaqn90jns8bkzm-nixos-system-as7772-26.11.20261111.d4f25a3
+nixos-rebuild-switch-to-configuration.service: Deactivated successfully.
+nixos-rebuild-switch-to-configuration.service: Consumed 2.439s CPU time over 16.285s wall clock time, 97M memory peak.
+Done. The new configuration is /nix/store/q4nbqvf2a7hcn7fq2ahaqn90jns8bkzm-nixos-system-as7772-26.11.20261111.d4f25a3
+
+# deploy 2: variant B (rustPhySeq + rustMacsec) built from HEAD by g0.nix, nix copy, nix-env --set system profile, switch-to-configuration switch
+
+Running as unit: agent-h-switch-b.service
+Checking switch inhibitors... done
+as7760: boot files for /nix/store/qaz8s0kknczx97ph7zkxrn3r9mavsncj-nixos-system-as7772-26.11.20261111.d4f25a3 installed on /boot/firmware (boot.scr + extlinux)
+stopping the following units: sonic-syncd.service, systemd-tmpfiles-resetup.service
+activating the configuration...
+setting up /etc...
+reloading user units for root...
+restarting the following user units: nixos-activation.service
+restarting sysinit-reactivation.target
+starting the following units: sonic-syncd.service, systemd-tmpfiles-resetup.service
+the following new units were started: run-p22612-i3310.timer
+          Finished with result: success
+Main processes terminated with: code=exited, status=0/SUCCESS
+               Service runtime: 15.681s
+             CPU time consumed: 2.389s
+                   Memory peak: 63.3M
+/nix/store/qaz8s0kknczx97ph7zkxrn3r9mavsncj-nixos-system-as7772-26.11.20261111.d4f25a3
+system-21-link
+
+# deploy 3: variant A (rustPhySeq only), same way
+
+restarting sysinit-reactivation.target
+starting the following units: sonic-syncd.service
+the following new units were started: run-p4231-i16814.timer, sysinit-reactivation.target, systemd-tmpfiles-resetup.service
+          Finished with result: success
+Main processes terminated with: code=exited, status=0/SUCCESS
+               Service runtime: 16.384s
+             CPU time consumed: 2.454s
+                   Memory peak: 97.1M
+/nix/store/ljhf30gc33d8qf3gns2lrk2lmqfrl59a-nixos-system-as7772-26.11.20261111.d4f25a3
+
+# deploy 4: rollback: deploy.sh's nixos-rebuild command with the flake pinned to &rev=9df9efe (the working tree no longer equalled HEAD)
+
+building the system configuration...
+Starting [systemd-run] /nix/store/q4nbqvf2a7hcn7fq2ahaqn90jns8bkzm-nixos-system-as7772-26.11.20261111.d4f25a3/bin/switch-to-configuration switch...
+Started [systemd-run] /nix/store/q4nbqvf2a7hcn7fq2ahaqn90jns8bkzm-nixos-system-as7772-26.11.20261111.d4f25a3/bin/switch-to-configuration switch.
+Checking switch inhibitors... done
+as7760: boot files for /nix/store/q4nbqvf2a7hcn7fq2ahaqn90jns8bkzm-nixos-system-as7772-26.11.20261111.d4f25a3 installed on /boot/firmware (boot.scr + extlinux)
+switching to system configuration /nix/store/q4nbqvf2a7hcn7fq2ahaqn90jns8bkzm-nixos-system-as7772-26.11.20261111.d4f25a3
+stopping the following units: sonic-syncd.service, systemd-tmpfiles-resetup.service
+activating the configuration...
+setting up /etc...
+reloading user units for root...
+restarting the following user units: nixos-activation.service
+restarting sysinit-reactivation.target
+starting the following units: sonic-syncd.service, systemd-tmpfiles-resetup.service
+the following new units were started: prometheus-textfile-as7760.service, prometheus-textfile-sonic.service, run-p6557-i8919.timer
+finished switching to system configuration /nix/store/q4nbqvf2a7hcn7fq2ahaqn90jns8bkzm-nixos-system-as7772-26.11.20261111.d4f25a3
+nixos-rebuild-switch-to-configuration.service: Deactivated successfully.
+nixos-rebuild-switch-to-configuration.service: Consumed 2.389s CPU time over 15.397s wall clock time, 63.9M memory peak.
+Done. The new configuration is /nix/store/q4nbqvf2a7hcn7fq2ahaqn90jns8bkzm-nixos-system-as7772-26.11.20261111.d4f25a3
+
+# build expression (g0.nix)
+
+
+let
+  rev = "9df9efe61dc2f8c4e1471d5cb7659dfcef7a9401";
+  src = builtins.fetchGit { url = "file:///home/erin/nepeat"; inherit rev; };
+  f = builtins.getFlake "git+file:///home/erin/nepeat?dir=ai_re&rev=${rev}";
+  ppc = f.nixosConfigurations.as7760.pkgs;
+  rs = src + "/rust/sai/nix";
+  sys = f.nixosConfigurations.as7772;
+in {
+  mdioToolRs = ppc.callPackage (rs + "/mdio-tool.nix") { };
+  head = sys.config.system.build.toplevel;
+  rustBoth = (sys.extendModules { modules = [ { hardware.openbcm.rustPhySeq = rs + "/phy-seq.nix"; hardware.openbcm.rustMacsec = rs + "/sai-macsec-capi.nix"; } ]; }).config.system.build.toplevel;
+  rustA = (sys.extendModules { modules = [ { hardware.openbcm.rustPhySeq = rs + "/phy-seq.nix"; } ]; }).config.system.build.toplevel;
+}
+
+# nix store diff-closures q4nbqvf2 (HEAD) -> qaz8s0kk (B): sai-openbcm +7.4 MiB; -> ljhf30gc (A): sai-openbcm +5.5 MiB; j7y63gfr -> q4nbqvf2: sai-openbcm +141.6 KiB

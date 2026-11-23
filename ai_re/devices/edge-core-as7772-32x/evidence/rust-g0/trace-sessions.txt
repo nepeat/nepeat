@@ -1,0 +1,193 @@
+# trace-run.sh (run on the switch)
+
+#!/usr/bin/env bash
+# agent H, G0 S4: trace one MACsec bring-up inside the running syncd: trace on, restart macsecmgrd
+# (MACsec ports torn down, MKA again, MACsec objects made again), wait for 8 open gates, trace off, dump.
+#   bash -l trace-run.sh <out-file-on-box>
+set -u
+out=$1
+D() { openbcm-diag "$@"; }
+echo "== $(date -Is) $(readlink /run/current-system)"
+echo "== syncd pid $(systemctl show -P MainPID sonic-syncd), libsai: $(grep -o '/nix/store/[^ ]*libsai.so[^ ]*' /proc/$(systemctl show -P MainPID sonic-syncd)/maps | sort -u)"
+D extmacsec | grep -E '^ce|bypass'
+D "extmacsec trace clear" >/dev/null; D "extmacsec trace on"
+t0=$(date +%s.%N)
+systemctl restart sonic-macsecmgrd
+for i in $(seq 90); do [ "$(D extmacsec | grep -c ' open ')" = 8 ] && break; sleep 1; done
+echo "== 8 gates open after $i s; settling 15 s"
+sleep 15
+D "extmacsec trace off"
+D "extmacsec trace dump" > "$out"
+head -1 "$out"
+D extmacsec | grep -E '^ce|bypass'
+echo "== runs: $(grep -c '^# run' "$out"); lines $(wc -l < "$out"); masked writes: $(grep -c '\*\*\*\*' "$out"); failed runs: $(grep '^= ' "$out" | grep -vc '^= 0$')"
+c=$(cat /var/lib/sonic-macsec/lab-test.cak); echo "== CAK string in dump: $(grep -ci -F "$c" "$out")"
+
+
+# C++ runs 1-3 (system q4nbqvf2, HEAD default)
+
+== 2026-11-22T19:17:44-08:00 /nix/store/q4nbqvf2a7hcn7fq2ahaqn90jns8bkzm-nixos-system-as7772-26.11.20261111.d4f25a3
+== syncd pid 6833, libsai: /nix/store/ai81c9s3lbcz4c53ykxwzwq9yd8f9nfz-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+ce30      17e  egress  on     open   sa  -   -   -   0    1290     0   82367 
+ce30      17e  ingress on     open   sa  -   -   -        1367     0   89885 
+ce31      17f  egress  on     open   sa  -   -   -   0    1326     0   81817 
+ce31      17f  ingress on     open   sa  -   -   -        1418     0   89750 
+ce0         0  egress  on     open   -   -   sa  -   2    1246     0   80628 
+ce0         0  ingress on     open   -   -   sa  -        1323     0   89602 
+ce1         1  egress  on     open   -   -   sa  -   2    1289     0   81559 
+ce1         1  ingress on     open   -   -   sa  -        1381     0   89794 
+engines in bypass: 56 of 64
+extmacsec trace: on (sequences that write), engine c++, 0 runs, 0 lines kept, 0 dropped
+== 8 gates open after 8 s; settling 15 s
+extmacsec trace: off, engine c++, 232 runs, 25608 lines kept, 0 dropped
+extmacsec trace: off, engine c++, 232 runs, 25608 lines kept, 0 dropped
+ce30      17e  egress  on     open   sa  -   -   -   0    1320     0   83024 
+ce30      17e  ingress on     open   sa  -   -   -        1397     0   89885 
+ce31      17f  egress  on     open   sa  -   -   -   0    1355     0   81817 
+ce31      17f  ingress on     open   sa  -   -   -        1447     0   89750 
+ce0         0  egress  on     open   sa  -   -   -   0    1275     0   83454 
+ce0         0  ingress on     open   sa  -   -   -        1352     0   89602 
+ce1         1  egress  on     open   sa  -   -   -   0    1317     0   83457 
+ce1         1  ingress on     open   sa  -   -   -        1409     0   89794 
+engines in bypass: 56 of 64
+== runs: 232; lines 25609; masked writes: 256; failed runs: 0
+== CAK string in dump: 0
+
+== 2026-11-22T19:19:02-08:00 /nix/store/q4nbqvf2a7hcn7fq2ahaqn90jns8bkzm-nixos-system-as7772-26.11.20261111.d4f25a3
+== syncd pid 6833, libsai: /nix/store/ai81c9s3lbcz4c53ykxwzwq9yd8f9nfz-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+ce30      17e  egress  on     open   sa  -   -   -   0    1379     0   83024 
+ce30      17e  ingress on     open   sa  -   -   -        1456     0   89885 
+ce31      17f  egress  on     open   sa  -   -   -   0    1414     0   81817 
+ce31      17f  ingress on     open   sa  -   -   -        1506     0   89750 
+ce0         0  egress  on     open   sa  -   -   -   0    1334     0   83454 
+ce0         0  ingress on     open   sa  -   -   -        1411     0   89602 
+ce1         1  egress  on     open   sa  -   -   -   0    1376     0   83457 
+ce1         1  ingress on     open   sa  -   -   -        1468     0   89794 
+engines in bypass: 56 of 64
+extmacsec trace: on (sequences that write), engine c++, 0 runs, 0 lines kept, 0 dropped
+== 8 gates open after 8 s; settling 15 s
+extmacsec trace: off, engine c++, 240 runs, 26168 lines kept, 0 dropped
+extmacsec trace: off, engine c++, 240 runs, 26168 lines kept, 0 dropped
+ce30      17e  egress  on     open   sa  -   -   -   0    1410     0   83024 
+ce30      17e  ingress on     open   sa  -   -   -        1487     0   92329 
+ce31      17f  egress  on     open   sa  -   -   -   0    1444     0   81817 
+ce31      17f  ingress on     open   sa  -   -   -        1536     0   89750 
+ce0         0  egress  on     open   sa  -   -   -   0    1364     0   83454 
+ce0         0  ingress on     open   sa  -   -   -        1441     0   89602 
+ce1         1  egress  on     open   sa  -   -   -   0    1405     0   83457 
+ce1         1  ingress on     open   sa  -   -   -        1497     0   89794 
+engines in bypass: 56 of 64
+== runs: 240; lines 26169; masked writes: 256; failed runs: 0
+== CAK string in dump: 0
+
+== 2026-11-22T19:19:46-08:00 /nix/store/q4nbqvf2a7hcn7fq2ahaqn90jns8bkzm-nixos-system-as7772-26.11.20261111.d4f25a3
+== syncd pid 6833, libsai: /nix/store/ai81c9s3lbcz4c53ykxwzwq9yd8f9nfz-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+ce30      17e  egress  on     open   sa  -   -   -   0    1432     0   83024 
+ce30      17e  ingress on     open   sa  -   -   -        1509     0   92329 
+ce31      17f  egress  on     open   sa  -   -   -   0    1466     0   81817 
+ce31      17f  ingress on     open   sa  -   -   -        1558     0   89750 
+ce0         0  egress  on     open   sa  -   -   -   0    1386     0   83454 
+ce0         0  ingress on     open   sa  -   -   -        1463     0   89602 
+ce1         1  egress  on     open   sa  -   -   -   0    1427     0   83457 
+ce1         1  ingress on     open   sa  -   -   -        1519     0   89794 
+engines in bypass: 56 of 64
+extmacsec trace: on (sequences that write), engine c++, 0 runs, 0 lines kept, 0 dropped
+== 8 gates open after 8 s; settling 15 s
+extmacsec trace: off, engine c++, 228 runs, 25100 lines kept, 0 dropped
+extmacsec trace: off, engine c++, 228 runs, 25100 lines kept, 0 dropped
+ce30      17e  egress  on     open   sa  -   -   -   0    1461     0   83024 
+ce30      17e  ingress on     open   sa  -   -   -        1538     0   92329 
+ce31      17f  egress  on     open   sa  -   -   -   0    1494     0   81817 
+ce31      17f  ingress on     open   sa  -   -   -        1586     0   91862 
+ce0         0  egress  on     open   sa  -   -   -   0    1415     0   83454 
+ce0         0  ingress on     open   sa  -   -   -        1492     0   92625 
+ce1         1  egress  on     open   sa  -   -   -   0    1455     0   83457 
+ce1         1  ingress on     open   sa  -   -   -        1547     0   89794 
+engines in bypass: 56 of 64
+== runs: 228; lines 25101; masked writes: 256; failed runs: 0
+== CAK string in dump: 0
+
+# Rust B runs 1-2 (system qaz8s0kk)
+
+== 2026-11-22T19:21:27-08:00 /nix/store/qaz8s0kknczx97ph7zkxrn3r9mavsncj-nixos-system-as7772-26.11.20261111.d4f25a3
+== syncd pid 22759, libsai: /nix/store/d2sj2040radhpcjsd0fjnsa9829b230h-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+ce30      17e  egress  on     open   sa  -   -   -   0      36     0   80866 
+ce30      17e  ingress on     open   sa  -   -   -          36     0   89464 
+ce31      17f  egress  on     open   sa  -   -   -   0      35     0   80848 
+ce31      17f  ingress on     open   sa  -   -   -          35     0   89313 
+ce0         0  egress  on     open   sa  -   -   -   0      36     0   80646 
+ce0         0  ingress on     open   sa  -   -   -          36     0   89427 
+ce1         1  egress  on     open   sa  -   -   -   0      35     0   81038 
+ce1         1  ingress on     open   sa  -   -   -          35     0   89659 
+engines in bypass: 56 of 64
+extmacsec trace: on (sequences that write), engine rust, 0 runs, 0 lines kept, 0 dropped
+== 8 gates open after 8 s; settling 15 s
+extmacsec trace: off, engine rust, 232 runs, 25152 lines kept, 0 dropped
+extmacsec trace: off, engine rust, 232 runs, 25152 lines kept, 0 dropped
+ce30      17e  egress  on     open   sa  -   -   -   0      65     0   82901 
+ce30      17e  ingress on     open   sa  -   -   -          65     0   92653 
+ce31      17f  egress  on     open   sa  -   -   -   0      63     0   81109 
+ce31      17f  ingress on     open   sa  -   -   -          63     0   89313 
+ce0         0  egress  on     open   sa  -   -   -   0      66     0   82706 
+ce0         0  ingress on     open   sa  -   -   -          66     0   92417 
+ce1         1  egress  on     open   sa  -   -   -   0      64     0   83137 
+ce1         1  ingress on     open   sa  -   -   -          64     0   89659 
+engines in bypass: 56 of 64
+== runs: 232; lines 25153; masked writes: 256; failed runs: 0
+== CAK string in dump: 0
+
+== 2026-11-22T19:22:11-08:00 /nix/store/qaz8s0kknczx97ph7zkxrn3r9mavsncj-nixos-system-as7772-26.11.20261111.d4f25a3
+== syncd pid 22759, libsai: /nix/store/d2sj2040radhpcjsd0fjnsa9829b230h-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+ce30      17e  egress  on     open   sa  -   -   -   0      87     0   82901 
+ce30      17e  ingress on     open   sa  -   -   -          87     0   92653 
+ce31      17f  egress  on     open   sa  -   -   -   0      85     0   81109 
+ce31      17f  ingress on     open   sa  -   -   -          85     0   89313 
+ce0         0  egress  on     open   sa  -   -   -   0      88     0   82706 
+ce0         0  ingress on     open   sa  -   -   -          88     0   92417 
+ce1         1  egress  on     open   sa  -   -   -   0      86     0   83137 
+ce1         1  ingress on     open   sa  -   -   -          86     0   89659 
+engines in bypass: 56 of 64
+extmacsec trace: on (sequences that write), engine rust, 0 runs, 0 lines kept, 0 dropped
+== 8 gates open after 8 s; settling 15 s
+extmacsec trace: off, engine rust, 224 runs, 25048 lines kept, 0 dropped
+extmacsec trace: off, engine rust, 224 runs, 25048 lines kept, 0 dropped
+ce30      17e  egress  on     open   sa  -   -   -   0     115     0   83081 
+ce30      17e  ingress on     open   sa  -   -   -         115     0   92653 
+ce31      17f  egress  on     open   sa  -   -   -   0     113     0   81109 
+ce31      17f  ingress on     open   sa  -   -   -         113     0   89313 
+ce0         0  egress  on     open   sa  -   -   -   0     116     0   83177 
+ce0         0  ingress on     open   sa  -   -   -         116     0   93020 
+ce1         1  egress  on     open   sa  -   -   -   0     114     0   83137 
+ce1         1  ingress on     open   sa  -   -   -         114     0   89659 
+engines in bypass: 56 of 64
+== runs: 224; lines 25049; masked writes: 256; failed runs: 0
+== CAK string in dump: 0
+
+# Rust A run 1 (system ljhf30gc)
+
+== 2026-11-22T19:50:42-08:00 /nix/store/ljhf30gc33d8qf3gns2lrk2lmqfrl59a-nixos-system-as7772-26.11.20261111.d4f25a3
+== syncd pid 4376, libsai: /nix/store/20ckkd0xia1x4wyqf9lrsxlyvys5dmbj-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+ce30      17e  egress  on     open   sa  -   -   -   0      17     0   82128 
+ce30      17e  ingress on     open   sa  -   -   -          17     0   91212 
+ce31      17f  egress  on     open   sa  -   -   -   0      16     0   81731 
+ce31      17f  ingress on     open   sa  -   -   -          16     0   89690 
+ce0         0  egress  on     open   sa  -   -   -   0      17     0   82430 
+ce0         0  ingress on     open   sa  -   -   -          17     0   89558 
+ce1         1  egress  on     open   sa  -   -   -   0      16     0   79911 
+ce1         1  ingress on     open   sa  -   -   -          16     0   89467 
+engines in bypass: 56 of 64
+extmacsec trace: on (sequences that write), engine rust, 0 runs, 0 lines kept, 0 dropped
+== 8 gates open after 7 s; settling 15 s
+extmacsec trace: off, engine rust, 236 runs, 26116 lines kept, 0 dropped
+extmacsec trace: off, engine rust, 236 runs, 26116 lines kept, 0 dropped
+ce30      17e  egress  on     open   sa  -   -   -   0      47     0   82873 
+ce30      17e  ingress on     open   sa  -   -   -          47     0   92823 
+ce31      17f  egress  on     open   sa  -   -   -   0      45     0   81731 
+ce31      17f  ingress on     open   sa  -   -   -          45     0   91617 
+ce0         0  egress  on     open   sa  -   -   -   0      47     0   82430 
+ce0         0  ingress on     open   sa  -   -   -          47     0   92201 
+ce1         1  egress  on     open   sa  -   -   -   0      45     0   82516 
+ce1         1  ingress on     open   sa  -   -   -          45     0   89467 
+engines in bypass: 56 of 64
+== runs: 236; lines 26117; masked writes: 256; failed runs: 0
+== CAK string in dump: 0

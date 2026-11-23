@@ -1,0 +1,86 @@
+warning: Git tree '/home/erin/nepeat' is dirty
+ai_re devshell — hardware RE
+serial: tmux new-session -d -s serial 'tio /dev/<port> -b 115200'
+ports : ls /dev/tty.* (macOS) | ls /dev/ttyUSB* /dev/ttyACM* (linux)
+warning: Nix search path entry '/nix/var/nix/profiles/per-user/root/channels' does not exist, ignoring
+these 4 derivations will be built:
+  /nix/store/4y6gmcx320iyv87cdcaii9fyn93gw889-sai-openbcm-fake-0.1.0.drv
+  /nix/store/0a5ffdhhpf9p92m1mmy7wdcys0zpd8l2-as7772-ext-macsec.tbl.drv
+  /nix/store/zpxljmgcgpwskf4szpknsi28kwkw5cw9-sai-rs-target-tests-powerpc64-unknown-linux-gnuabielfv2-0.1.0.drv
+  /nix/store/74zfxzkm8blqflpf1r1ry48nyrc8yzs6-sai-rs-test-on.drv
+cannot build on 'ssh-ng://erin@10g.warc.zip': error: failed to start SSH connection to '10g.warc.zip'
+building '/nix/store/4y6gmcx320iyv87cdcaii9fyn93gw889-sai-openbcm-fake-0.1.0.drv'...
+building '/nix/store/0a5ffdhhpf9p92m1mmy7wdcys0zpd8l2-as7772-ext-macsec.tbl.drv'...
+building '/nix/store/zpxljmgcgpwskf4szpknsi28kwkw5cw9-sai-rs-target-tests-powerpc64-unknown-linux-gnuabielfv2-0.1.0.drv'...
+building '/nix/store/74zfxzkm8blqflpf1r1ry48nyrc8yzs6-sai-rs-test-on.drv'...
+sai-rs tests for powerpc64-unknown-linux-gnuabielfv2 on root@10.60.2.23 (bundle /nix/store/j97j9fc4k2iv80ikmqdpcfxxw9jn9hdm-sai-rs-target-tests-powerpc64-unknown-linux-gnuabielfv2-0.1.0)
+== sai-rs target tests: powerpc64-unknown-linux-gnuabielfv2 on Linux 7.3.4 ppc64, 2026-11-23T03:12:27Z
+ok    abi-abef021e96fccc95: test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+ok    backend-ba8fe9a46a11cf13: test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+ok    before_init-19f8c80de9ad93d9: test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    c_abi-46f223d5309534cb: test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    c_abi-813096e8d744311d: test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+ok    c_abi-f9e9698dfdaccbbe: test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.40s
+ok    cli-e0b7459271fd38f3: test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.51s
+ok    differential-19f17235429725cd: test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.83s
+ok    differential-2599f78fbd12a60d: test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+ok    differential-36e0891a08e3274d: test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.62s
+ok    differential-94a6aa9bb9a1f1f2: test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.24s
+ok    differential-d63e2288bc09fd79: test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 23.72s
+ok    e2e-d049a4af0a0d6285: test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 44.06s
+ok    extphy-e06c14bb6b56604f: test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+ok    fake-f848e409fee9c782: test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+ok    interpreter-b84d86f9c44e10e5: test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+ok    library-492e2c3231cb9eb5: test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+ok    lifecycle_prop-46425ce3835ff1f7: test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 30.94s
+ok    macsec-00ff0f68dce62655: test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+ok    mdio_report-9124ef9838db1476: test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    mdio_script-19e41df92c824e1d: test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    mdio_tool-6784cb12c0d19484: test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    model-de61c01ebfb1a7e2: test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+ok    netdev-aa4916355df25355: test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+ok    objects-8596411734f343bf: test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+ok    openbcm_ext_macsec_rs-3ff632edf38859c0: test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    openbcm_ext_phy_rs-031f79285843d35f: test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    openbcm_mdio_script_rs-9eb107c61d5c2d76: test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    parity-1504019e66f9a8e4: test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+        SKIPPED: no openbcm_backend.cpp (set SAI_OPENBCM_SRC to sai-openbcm's src directory)
+        SKIPPED: no openbcm_backend.cpp (set SAI_OPENBCM_SRC to sai-openbcm's src directory)
+ok    parity-d9a743d4ec3c5188: test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+ok    phy_seq-7a6269120366e133: test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    phy_seq_capi-85b92dbab9529600: test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    privileged-d58ff43fd2697142: test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    proptests-0aa3219754e5c3c7: test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.46s
+ok    proptests-14dd47a4d558e866: test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.74s
+ok    proptests-e54d20f3d53520c0: test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.63s
+grep: /tmp/sai-rs-tests.u3swHo/tmp/suite-output.txt: binary file matches
+ok    quirks-cdab9ce723cff74d: 
+ok    report-e51e027366810199: test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+ok    run-b8df1064e7a72951: test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+ok    runner-e7b20fdf8ef359ce: test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+ok    sai-27c87b4df17d71d1: test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+ok    sai_backend_openbcm-3e85b31dd6a69667: test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    sai_core-b7611301beacf97b: test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.39s
+ok    sai_macsec-094ddf92e93364b0: test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    sai_macsec_capi-3ce116fe5bcd735a: test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    sai_macsec_phy-22d59fa3c9aceeaf: test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    sai_meta-bd7f9366911893a2: test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+ok    sai_sys-3ecac39a8781f870: test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    sdk_glue-fa844036305aa013: test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    sdk_glue_sys-21bbcded26495108: test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+ok    slice-0d7b8808f05ba113: test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+ok    smoke-51323a5b15397bd2: test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+        SKIPPED: needs the smoke program and SAI_SMOKE_LIBSAI=<libsai.so built with --features openbcm-fake>
+ok    switch-6ec4f5b05711fe47: test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+ok    tap_netdev-c981457c07b7a3b6: test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+ok    C harness on the release libsai.so: HARNESS_OK 371
+-- what the suites report about themselves
+   differential: 16 backbone scripts agree with the C++ (3957 comparisons so far in this run)
+   differential: 272 scripts with a failing sequence agree with the C++ (26010 comparisons so far in this run)
+   e2e: synthetic table, 4 backbone scripts; so far in this run 745 operations and 2557 bus accesses agree with the C++ (comparisons)
+   e2e: synthetic table, 64 random scripts; so far in this run 9193 operations and 81102 bus accesses agree with the C++ (comparisons)
+   e2e: AS7772 table, 4 backbone scripts (16 engine lines with an installed SA and an open gate); so far in this run 9902 operations and 119818 bus accesses agree with the C++ (comparisons)
+   e2e: AS7772 table, 48 random scripts; so far in this run 15014 operations and 387206 bus accesses agree with the C++ (comparisons)
+   e2e: the C++ library with the Rust model, 2 tables x (4 backbones + 32 random scripts); so far in this run 15205 operations and 394568 bus accesses agree with the C++ (comparisons)
+== 55 of 55 suites passed, 291 Rust tests passed, 0 failed
+EXIT=0

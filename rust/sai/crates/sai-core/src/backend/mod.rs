@@ -1,18 +1,82 @@
-//! What the object model needs from a switch chip: the operations of this slice, in the
-//! spirit of the C++ `ob::Backend` (ports are the SDK's logical port numbers, VLANs are
-//! 802.1Q VIDs, every call answers with a SAI-level error). Implementations: [`crate::virt`]
-//! (in memory); later one over the C SDK glue.
+//! What the object model needs from a switch chip: the C++ `ob::Backend`
+//! (`sai-openbcm/src/backend.h`) operation for operation (ports are the SDK's logical port
+//! numbers, VLANs are 802.1Q VIDs, every call answers with a SAI-level error).
+//! Implementations: [`crate::virt`] (in memory), `sai-backend-openbcm` (the SDK glue).
 //!
-//! A backend reports what the chip does on its own (link changes) through the
-//! [`EventSink`] it is given at [`Backend::init`]. Sending only queues: it may be called from
-//! any thread, including an SDK callback, and never takes a lock of the SAI layer.
+//! - [`Backend`]: the supertrait. It still carries the first slice's 15 operations (`name`,
+//!   `init`, ports, VLANs) and 14 generic methods (`object_create`, `entry_*`, `stats_*`, ...)
+//!   that serve the attribute bags until each area is typed; those go area by area.
+//! - [`ops`]: the typed operations, one sub-trait per group of `backend.h` ([`ops::Base`],
+//!   [`ops::Shell`], [`ops::Temp`], [`ops::Mdio`], [`ops::PortOps`], [`ops::Lag`], [`ops::L2`],
+//!   [`ops::Hostif`], [`ops::L3`], [`ops::Field`], [`ops::Policer`], [`ops::Qos`], [`ops::Mirror`],
+//!   [`ops::Sample`], [`ops::Hash`], [`ops::Storm`]); [`types`]: their argument types.
+//! - [`recording::Recording`]: a decorator that logs every call in the C++ recording backend's
+//!   line format ([`log`]).
+//!
+//! A backend reports what the chip does on its own (link changes, learned and aged addresses)
+//! through the [`EventSink`] it is given at [`Backend::init`]. Sending only queues: it may be
+//! called from any thread, including an SDK callback, and never takes a lock of the SAI layer.
+//! A per-port [`types::LinkGate`] is the one callback into SAI-side code that a backend makes
+//! synchronously; its rules are on the type.
 use crate::error::{Error, Result};
 use crate::model::EntryKey;
 use crate::oid::RawOid;
 use crate::value::Attr;
 use sai_sys as sys;
 use std::collections::BTreeMap;
-use std::sync::mpsc;
+use std::sync::{Arc, mpsc};
+
+/// One line in the recording decorator, by the kind of the operation's answer:
+/// `status(names)`: a status and, on success, outputs (none, one value, or a structure whose
+/// fields are the C++ outputs); `value()`: a value instead of a status; `query()` /
+/// `query_status(names)`: the same, logged only in full mode (answers fixed for the life of the
+/// backend).
+macro_rules! record {
+    ($slf:ident, $op:ident, status(), [$($a:ident),*]) => {
+        record!(@call $slf, $op, false, [$($a),*], super::log::no_outs)
+    };
+    ($slf:ident, $op:ident, status($name:ident), [$($a:ident),*]) => {
+        record!(@call $slf, $op, false, [$($a),*], |v, s| super::log::LogOut::log_out(&super::log::One(v), &[stringify!($name)], s))
+    };
+    ($slf:ident, $op:ident, outs($($name:ident),+), [$($a:ident),*]) => {
+        record!(@call $slf, $op, false, [$($a),*], |v, s| super::log::LogOut::log_out(v, &[$(stringify!($name)),+], s))
+    };
+    ($slf:ident, $op:ident, query_status($name:ident), [$($a:ident),*]) => {
+        record!(@call $slf, $op, true, [$($a),*], |v, s| super::log::LogOut::log_out(&super::log::One(v), &[stringify!($name)], s))
+    };
+    ($slf:ident, $op:ident, value(), [$($a:ident),*]) => {
+        record!(@value $slf, $op, false, [$($a),*])
+    };
+    ($slf:ident, $op:ident, query(), [$($a:ident),*]) => {
+        record!(@value $slf, $op, true, [$($a),*])
+    };
+    (@call $slf:ident, $op:ident, $query:expr, [$($a:ident),*], $outs:expr) => {{
+        #[allow(unused_mut, reason = "an operation without arguments")]
+        let mut args = String::new();
+        $(super::log::arg(&mut args, stringify!($a), &$a);)*
+        let result = $slf.inner.$op($($a),*);
+        $slf.record($query, || super::log::call_line(stringify!($op), &args, &result, $outs));
+        result
+    }};
+    (@value $slf:ident, $op:ident, $query:expr, [$($a:ident),*]) => {{
+        #[allow(unused_mut, reason = "an operation without arguments")]
+        let mut args = String::new();
+        $(super::log::arg(&mut args, stringify!($a), &$a);)*
+        let value = $slf.inner.$op($($a),*);
+        $slf.record($query, || super::log::value_line(stringify!($op), &args, &value));
+        value
+    }};
+}
+
+pub mod log;
+pub mod ops;
+pub mod recording;
+pub mod types;
+
+pub use ops::{
+    Base, Field, Hash, Hostif, L2, L3, Lag, Mdio, Mirror, Policer, PortOps, Qos, Sample, Shell, Storm, Temp,
+};
+pub use recording::{CallLog, Mode, Recording};
 
 /// A chip logical port number.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -68,6 +132,16 @@ impl Profile {
         self.0.get(key).map(String::as_str)
     }
 
+    /// The value of the first of `keys` that is set (a key and its aliases, preferred first).
+    pub fn get_any(&self, keys: &[&str]) -> Option<&str> {
+        keys.iter().find_map(|key| self.get(key))
+    }
+
+    /// The pairs, keys in byte order.
+    pub fn iter(&self) -> impl Iterator<Item = (&str, &str)> {
+        self.0.iter().map(|(k, v)| (k.as_str(), v.as_str()))
+    }
+
     /// The value of `key` as a number: `default` when absent, `InvalidParameter` when it does
     /// not parse or is outside `range` (a typo must not silently become the default).
     pub fn number(&self, key: &str, default: u32, range: core::ops::RangeInclusive<u32>) -> Result<u32> {
@@ -83,9 +157,12 @@ impl Profile {
     }
 }
 
-/// Fixed sizes of the chip's tables (what the switch's capacity attributes answer).
+/// Fixed sizes of the chip's tables (what the switch's capacity attributes answer today,
+/// through [`Backend::limits`]). The C++ splits this into [`types::ChipLimits`] (fixed) and
+/// [`types::TableUsage`] (free entries, [`ops::Base::table_usage`]); this goes with the switch
+/// area's port.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct ChipLimits {
+pub struct Capacities {
     /// Lowest ACL entry priority.
     pub acl_priority_min: u32,
     /// Highest ACL entry priority.
@@ -141,13 +218,15 @@ pub enum StatsObject {
 /// Something the chip did on its own.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BackendEvent {
-    /// A port's link went up or down.
+    /// A port's link went up or down (C++ `LinkCallback`).
     Link {
         /// The port.
         hw: HwPort,
         /// The new state.
         up: bool,
     },
+    /// The chip learned or aged an address (C++ `FdbCallback`, `ob::FdbEvent`).
+    Fdb(types::FdbEvent),
 }
 
 /// A host interface of type NETDEV on a front-panel port, as the SAI layer resolved it for
@@ -165,21 +244,49 @@ pub struct HostifNetdev<'a> {
     pub oper_up: bool,
 }
 
+/// An observer of every event a sink is sent ([`EventSink::tapped`]).
+pub type EventTap = Arc<dyn Fn(&BackendEvent) + Send + Sync>;
+
 /// Where a backend reports events. Cloneable; sending never blocks.
-#[derive(Clone, Debug)]
-pub struct EventSink(mpsc::Sender<BackendEvent>);
+#[derive(Clone)]
+pub struct EventSink {
+    tx: mpsc::Sender<BackendEvent>,
+    tap: Option<EventTap>,
+}
+
+impl core::fmt::Debug for EventSink {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("EventSink")
+            .field("tapped", &self.tap.is_some())
+            .finish_non_exhaustive()
+    }
+}
 
 impl EventSink {
     /// A sink and the receiving end the notifier reads.
     pub fn channel() -> (Self, mpsc::Receiver<BackendEvent>) {
         let (tx, rx) = mpsc::channel();
-        (Self(tx), rx)
+        (Self { tx, tap: None }, rx)
+    }
+
+    /// The same sink, with `tap` called (on the sender's thread) for every event before it is
+    /// queued: how the recording decorator logs events where they happen. Replaces an earlier
+    /// tap.
+    #[must_use]
+    pub fn tapped(self, tap: impl Fn(&BackendEvent) + Send + Sync + 'static) -> Self {
+        Self {
+            tx: self.tx,
+            tap: Some(Arc::new(tap)),
+        }
     }
 
     /// Queues an event. Events sent after the switch was removed are dropped.
     pub fn send(&self, event: BackendEvent) {
+        if let Some(tap) = &self.tap {
+            tap(&event);
+        }
         // The receiver is gone once the switch is: nothing to tell anyone.
-        let _ = self.0.send(event);
+        let _ = self.tx.send(event);
     }
 }
 
@@ -235,7 +342,7 @@ impl<B: Backend + ?Sized> Backend for Box<B> {
     fn port_priority_groups(&self) -> u8 {
         (**self).port_priority_groups()
     }
-    fn limits(&self) -> Result<ChipLimits> {
+    fn limits(&self) -> Result<Capacities> {
         (**self).limits()
     }
     fn programs(&self, object_type: sys::sai_object_type_t) -> bool {
@@ -273,8 +380,31 @@ impl<B: Backend + ?Sized> Backend for Box<B> {
     }
 }
 
-/// The chip operations of this slice.
-pub trait Backend: Send {
+/// Everything the SAI layer needs from a chip: the typed sub-traits ([`ops`]) and, for now,
+/// the first slice's operations and the generic methods below.
+///
+/// A backend that has none of a group's operations yet implements the sub-trait with its
+/// default bodies (`impl L3 for MyBackend {}`, or [`crate::typed_defaults!`] for several), which
+/// answer `NotSupported` as the C++ defaults do.
+pub trait Backend:
+    Send
+    + Base
+    + Shell
+    + Temp
+    + Mdio
+    + PortOps
+    + Lag
+    + L2
+    + Hostif
+    + L3
+    + Field
+    + Policer
+    + Qos
+    + Mirror
+    + Sample
+    + Hash
+    + Storm
+{
     /// A name for logs.
     fn name(&self) -> &'static str;
     /// Brings the chip up. Called once per switch creation; on error nothing is left running.
@@ -321,7 +451,7 @@ pub trait Backend: Send {
         0
     }
     /// The chip's table sizes.
-    fn limits(&self) -> Result<ChipLimits> {
+    fn limits(&self) -> Result<Capacities> {
         Err(Error::NotSupported)
     }
 
@@ -381,3 +511,38 @@ pub trait Backend: Send {
         Err(Error::NotSupported)
     }
 }
+
+/// The C++ `ob::Backend` operations that are still methods of [`Backend`] (with the same names
+/// and meaning); [`ops::OP_NAMES`] has the other 106.
+pub const LEGACY_CPP_OPS: [&str; 15] = [
+    "name",
+    "init",
+    "shutdown",
+    "cpu_port",
+    "ports",
+    "port_admin_set",
+    "port_link_get",
+    "port_speed_set",
+    "port_speed_get",
+    "port_supported_speeds",
+    "vlan_create",
+    "vlan_destroy",
+    "vlan_port_add",
+    "vlan_port_remove",
+    "vlan_members",
+];
+
+/// Implements typed sub-traits ([`crate::backend::ops`]) with their default bodies for a
+/// backend that has none of their operations yet: `typed_defaults!(MyBackend: Base, Shell, L3);`.
+/// When an area is ported to the backend, its trait leaves the list and gets a real impl.
+#[macro_export]
+macro_rules! typed_defaults {
+    ($ty:ty: $($tr:ident),+ $(,)?) => {
+        $(impl $crate::backend::ops::$tr for $ty {})+
+    };
+}
+
+/// Records the names of the typed operations called (tests: [`ops::OP_NAMES`] is complete).
+#[cfg(test)]
+#[derive(Default)]
+pub(crate) struct OpNames(pub(crate) core::cell::RefCell<Vec<&'static str>>);

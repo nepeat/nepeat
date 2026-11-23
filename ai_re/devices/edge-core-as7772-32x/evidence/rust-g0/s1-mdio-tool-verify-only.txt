@@ -1,0 +1,1671 @@
+# G0 S1: openbcm-mdio-script (C, from the HEAD sai-openbcm on the box) vs openbcm-mdio-script-rs (HEAD rust/sai, nix/mdio-tool.nix, no SDK)
+# both: --verify-only --diag-socket /run/sai-openbcm/diag.sock --names <unit names file> /var/lib/evora-phy/evora-100g-bypass.mdio (sha256 e18dddef7c9e...)
+# C  = /nix/store/ai81c9s3lbcz4c53ykxwzwq9yd8f9nfz-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0/bin/openbcm-mdio-script
+# RS = /nix/store/bln17inlxavynda6ka8ajiyps3b28yl6-openbcm-mdio-script-rs-nosdk-powerpc64-unknown-linux-gnuabielfv2-0.1.0/bin/openbcm-mdio-script-rs
+# pre-check (C --check): verification section = 160 assertions from line 1058173, all clause 45 device 1 (awk over the script on the box)
+## pre-check
+C=/nix/store/ai81c9s3lbcz4c53ykxwzwq9yd8f9nfz-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0/bin/openbcm-mdio-script NAMES=/nix/store/hwda1m535dq64i2xx8grkkrciqczz6j7-openbcm-mdio-names
+e18dddef7c9e
+openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: 553600 writes, 411160 reads (307099 polls), 93400 delays (54.3 s), 201 steps; verification: 160 reads from line 1058173
+last non-verify op line 1058172
+verify dev 1 160
+verify assertions 160
+## session
+c plain rc 0 2.25 s
+c json rc 0
+rs plain rc 0 1.20 s
+rs json rc 0
+out: identical (34 lines)
+err: identical (0 lines)
+rc: identical (1 lines)
+jrc: identical (1 lines)
+jerr: identical (0 lines)
+json (filtered): identical
+json raw differs in:
+4c4
+<   "finished": 1795403805,
+---
+>   "finished": 1795403815,
+8c8
+<   "pid": 21247,
+---
+>   "pid": 21264,
+42,43c42,43
+<   "seconds": 2.1,
+<   "started": 1795403803,
+---
+>   "seconds": 1.1,
+>   "started": 1795403814,
+--- c.out head
+name    phy    id      id2     fw      cksum   sides   state
+cage1   0x000  2391    80a0    d00b    600d    000d    ok
+cage2   0x001  2391    80a0    d00b    600d    000d    ok
+cage3   0x002  2391    80a0    d00b    600d    000d    ok
+cage4   0x003  2391    80a0    d00b    600d    000d    ok
+cage5   0x024  2391    80a0    d00b    600d    000d    ok
+cage6   0x025  2391    80a0    d00b    600d    000d    ok
+cage7   0x026  2391    80a0    d00b    600d    000d    ok
+cage8   0x027  2391    80a0    d00b    600d    000d    ok
+cage9   0x048  2391    80a0    d00b    600d    000d    ok
+cage10  0x049  2391    80a0    d00b    600d    000d    ok
+cage11  0x04a  2391    80a0    d00b    600d    000d    ok
+cage12  0x04b  2391    80a0    d00b    600d    000d    ok
+cage13  0x06c  2391    80a0    d00b    600d    000d    ok
+cage14  0x06d  2391    80a0    d00b    600d    000d    ok
+cage15  0x06e  2391    80a0    d00b    600d    000d    ok
+cage16  0x06f  2391    80a0    d00b    600d    000d    ok
+cage17  0x110  2391    80a0    d00b    600d    000d    ok
+cage18  0x111  2391    80a0    d00b    600d    000d    ok
+cage19  0x112  2391    80a0    d00b    600d    000d    ok
+--- c.err
+--- json keys
+["asic_temperature","failure","finished","mode","operations_done","operations_total","pid","scripts","sdk","seconds","started","state","summary","verified","version"]
+{"outcome":null,"class":null,"checks":0}
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 4 so far)
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce0         49   50 up    up    no     0x0003     2015        0    1     0     197     195     366     2    0        6162
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  c.err
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  c.jerr
+e694cf03df3d1838d556af72b6b6625f9a45662cd13672fec873ca51c2f07faf  c.jf
+9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa  c.jrc
+288aed75a10d0f12bc7bf748d475ee85d650c11b3d8bd136cbcdfa41b25a22ff  c.json
+dc0e9f1b4c1ef1aba1724f0cc6c7a48162bb5cebb652bd8480fa6d1630a688a0  c.out
+9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa  c.rc
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  rs.err
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  rs.jerr
+e694cf03df3d1838d556af72b6b6625f9a45662cd13672fec873ca51c2f07faf  rs.jf
+9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa  rs.jrc
+746fdb055cda3232761f38ce41bc3b5fc0392f5fc2f01cfd81cfc4743a2f6d3b  rs.json
+dc0e9f1b4c1ef1aba1724f0cc6c7a48162bb5cebb652bd8480fa6d1630a688a0  rs.out
+9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa  rs.rc
+## C stdout (Rust stdout identical, same sha256)
+name    phy    id      id2     fw      cksum   sides   state
+cage1   0x000  2391    80a0    d00b    600d    000d    ok
+cage2   0x001  2391    80a0    d00b    600d    000d    ok
+cage3   0x002  2391    80a0    d00b    600d    000d    ok
+cage4   0x003  2391    80a0    d00b    600d    000d    ok
+cage5   0x024  2391    80a0    d00b    600d    000d    ok
+cage6   0x025  2391    80a0    d00b    600d    000d    ok
+cage7   0x026  2391    80a0    d00b    600d    000d    ok
+cage8   0x027  2391    80a0    d00b    600d    000d    ok
+cage9   0x048  2391    80a0    d00b    600d    000d    ok
+cage10  0x049  2391    80a0    d00b    600d    000d    ok
+cage11  0x04a  2391    80a0    d00b    600d    000d    ok
+cage12  0x04b  2391    80a0    d00b    600d    000d    ok
+cage13  0x06c  2391    80a0    d00b    600d    000d    ok
+cage14  0x06d  2391    80a0    d00b    600d    000d    ok
+cage15  0x06e  2391    80a0    d00b    600d    000d    ok
+cage16  0x06f  2391    80a0    d00b    600d    000d    ok
+cage17  0x110  2391    80a0    d00b    600d    000d    ok
+cage18  0x111  2391    80a0    d00b    600d    000d    ok
+cage19  0x112  2391    80a0    d00b    600d    000d    ok
+cage20  0x113  2391    80a0    d00b    600d    000d    ok
+cage21  0x134  2391    80a0    d00b    600d    000d    ok
+cage22  0x135  2391    80a0    d00b    600d    000d    ok
+cage23  0x136  2391    80a0    d00b    600d    000d    ok
+cage24  0x137  2391    80a0    d00b    600d    000d    ok
+cage25  0x158  2391    80a0    d00b    600d    000d    ok
+cage26  0x159  2391    80a0    d00b    600d    000d    ok
+cage27  0x15a  2391    80a0    d00b    600d    000d    ok
+cage28  0x15b  2391    80a0    d00b    600d    000d    ok
+cage29  0x17c  2391    80a0    d00b    600d    000d    ok
+cage30  0x17d  2391    80a0    d00b    600d    000d    ok
+cage31  0x17e  2391    80a0    d00b    600d    000d    ok
+cage32  0x17f  2391    80a0    d00b    600d    000d    ok
+32 of 32 PHYs as the script expects
+
+## C --json filtered by jq -S 'del(.pid, .started, .finished, .seconds)' (Rust identical, same sha256)
+{
+  "asic_temperature": null,
+  "failure": null,
+  "mode": "verify",
+  "operations_done": 1058160,
+  "operations_total": 1058160,
+  "scripts": [
+    {
+      "file": {
+        "delays": 93400,
+        "expected_values_differed": 0,
+        "labels": 201,
+        "operations": 1058160,
+        "poll_rereads": 0,
+        "polls": 307099,
+        "reads": 411160,
+        "verify_checks": 160,
+        "verify_failed": 0,
+        "writes": 553600
+      },
+      "path": "/var/lib/evora-phy/evora-100g-bypass.mdio",
+      "result": "ok",
+      "run": {
+        "delays": 93400,
+        "expected_values_differed": 0,
+        "labels": 201,
+        "operations": 1058160,
+        "poll_rereads": 0,
+        "polls": 307099,
+        "reads": 411160,
+        "verify_checks": 160,
+        "verify_failed": 0,
+        "writes": 553600
+      },
+      "seconds": 0.0,
+      "verify_line": 1058173
+    }
+  ],
+  "sdk": "through syncd's diag socket /run/sai-openbcm/diag.sock",
+  "state": "ok",
+  "summary": "32 PHYs verified, all as the script expects",
+  "verified": {
+    "phys": [
+      {
+        "name": "cage1",
+        "phy": "0x0",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage2",
+        "phy": "0x1",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage3",
+        "phy": "0x2",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage4",
+        "phy": "0x3",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage5",
+        "phy": "0x24",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage6",
+        "phy": "0x25",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage7",
+        "phy": "0x26",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage8",
+        "phy": "0x27",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage9",
+        "phy": "0x48",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage10",
+        "phy": "0x49",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage11",
+        "phy": "0x4a",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage12",
+        "phy": "0x4b",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage13",
+        "phy": "0x6c",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage14",
+        "phy": "0x6d",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage15",
+        "phy": "0x6e",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage16",
+        "phy": "0x6f",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage17",
+        "phy": "0x110",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage18",
+        "phy": "0x111",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage19",
+        "phy": "0x112",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage20",
+        "phy": "0x113",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage21",
+        "phy": "0x134",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage22",
+        "phy": "0x135",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage23",
+        "phy": "0x136",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage24",
+        "phy": "0x137",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage25",
+        "phy": "0x158",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage26",
+        "phy": "0x159",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage27",
+        "phy": "0x15a",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage28",
+        "phy": "0x15b",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage29",
+        "phy": "0x17c",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage30",
+        "phy": "0x17d",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage31",
+        "phy": "0x17e",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      },
+      {
+        "name": "cage32",
+        "phy": "0x17f",
+        "registers": [
+          {
+            "expected": "0x2391",
+            "mask": "0xffff",
+            "name": "id",
+            "ok": true,
+            "read": "0x2391",
+            "reg": "1.8b00"
+          },
+          {
+            "expected": "0x80a0",
+            "mask": "0xffff",
+            "name": "id2",
+            "ok": true,
+            "read": "0x80a0",
+            "reg": "1.8b01"
+          },
+          {
+            "expected": "0xd00b",
+            "mask": "0xffff",
+            "name": "fw",
+            "ok": true,
+            "read": "0xd00b",
+            "reg": "1.8215"
+          },
+          {
+            "expected": "0x600d",
+            "mask": "0xffff",
+            "name": "cksum",
+            "ok": true,
+            "read": "0x600d",
+            "reg": "1.8245"
+          },
+          {
+            "expected": "0x000d",
+            "mask": "0x000d",
+            "name": "sides",
+            "ok": true,
+            "read": "0x000d",
+            "reg": "1.8251"
+          }
+        ],
+        "state": "ok"
+      }
+    ],
+    "phys_ok": 32,
+    "phys_total": 32,
+    "when": "now"
+  },
+  "version": 1
+}

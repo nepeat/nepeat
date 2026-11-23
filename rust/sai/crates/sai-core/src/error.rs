@@ -51,6 +51,16 @@ pub enum Error {
     InvalidObjectType,
     /// `SAI_STATUS_INVALID_OBJECT_ID`
     InvalidObjectId,
+    /// `SAI_STATUS_INVALID_PORT_NUMBER`
+    InvalidPortNumber,
+    /// `SAI_STATUS_INVALID_PORT_MEMBER`
+    InvalidPortMember,
+    /// `SAI_STATUS_NO_MEMORY`
+    NoMemory,
+    /// `SAI_STATUS_BUFFER_OVERFLOW`
+    BufferOverflow,
+    /// `SAI_STATUS_ADDR_NOT_FOUND`
+    AddrNotFound,
     /// One of the per-attribute ranges, with the attribute's index in the call.
     Attr(AttrError, u16),
 }
@@ -88,6 +98,11 @@ impl Error {
             Self::ObjectInUse => sys::SAI_STATUS_OBJECT_IN_USE,
             Self::InvalidObjectType => sys::SAI_STATUS_INVALID_OBJECT_TYPE,
             Self::InvalidObjectId => sys::SAI_STATUS_INVALID_OBJECT_ID,
+            Self::InvalidPortNumber => sys::SAI_STATUS_INVALID_PORT_NUMBER,
+            Self::InvalidPortMember => sys::SAI_STATUS_INVALID_PORT_MEMBER,
+            Self::NoMemory => sys::SAI_STATUS_NO_MEMORY,
+            Self::BufferOverflow => sys::SAI_STATUS_BUFFER_OVERFLOW,
+            Self::AddrNotFound => sys::SAI_STATUS_ADDR_NOT_FOUND,
             // The ranges count downwards: SAI_STATUS_CODE(base + index) = -(base + index).
             Self::Attr(kind, index) => {
                 let base = match kind {

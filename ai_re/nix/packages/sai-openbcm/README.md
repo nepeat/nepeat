@@ -418,7 +418,13 @@ libsai"). Both are off by default; nothing of either has run on a chip.
   `hardware.openbcm.rustMacsec`): the MACsec object model from the crate sai-macsec;
   `src/sai_macsec_rust.cpp` replaces `src/sai_macsec.cpp`. Marker: `share/sai-openbcm/macsec-model`.
 - Independent; with both only the MACsec library is linked (it carries `phy_seq.h`'s functions).
-  `test_sai` passes unchanged on the Rust engine, the Rust model and both (3154 checks, 2026-11-22).
+  `test_sai` passes unchanged on the Rust engine, the Rust model and both (3154 checks, 2026-11-22). Since 2026-11-23
+  `test_sai` reaches the library only through the SAI C ABI and the test port (`tests/test_port.h`, here
+  implemented by `tests/test_port_cpp.cpp`), so the same source can run against another libsai: 3014 checks; the
+  140 that test C++ units directly (status helpers, ext-PHY / ext-MACsec parsers) are `tests/test_units.cpp`.
+  `make driver-check`: `tests/frontend_driver.cpp` runs the op scripts in `tests/driver-scripts/` through the
+  library on a recording backend (`src/recording_backend.cpp`, not part of the library) and prints statuses,
+  attributes and backend calls: the C++ side of the differential against `rust/sai`.
 - Bus trace, either engine: `openbcm-diag "extmacsec trace [on [all] | off | dump | clear]"` (off by
   default, key words `****`; `tests/test_extmacsec_trace.cpp`). The hook and the `#ifdef`s are in
   the default sources: every system with this package got a new drvPath; the default build is

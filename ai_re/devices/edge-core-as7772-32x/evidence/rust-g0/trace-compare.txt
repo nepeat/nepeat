@@ -1,0 +1,24 @@
+# G0 S4 trace comparison (agent H, 2026-11-23). Method: each dump split into runs ("# run N: phy P, K operations from line L" ... "= status").
+# A run is named by the table sequence that contains line L. Periodic sequences (pn.*, stats-sa.*: SA packet number and counter reads that
+# MACsecOrch / flex counters issue every few seconds; they contain message writes, so mode "on" traces them) are compared as the SET of distinct
+# operation lists per (phy, sequence) - their count depends on time. All other runs ("event" runs) are compared per PHY as an ORDERED list of
+# (sequence name, FNV-1a of every operation line R/W/D incl. register, value or ****, op count, status). Cross-PHY interleaving is not compared
+# (it follows MKA/orchagent timing per port).
+
+cxx2 vs cxx3: event runs 80 / 80, event bus operations 22560 / 22560, per-PHY event differences 0, periodic variant differences 0; periodic runs 160 / 148
+cxx1 vs cxx2: event runs 80 / 80, event bus operations 22560 / 22560, per-PHY event differences 2 (phys 0,1), periodic variant differences 4; periodic runs 152 / 160
+   phy 0: cxx1 differs only in sa-del-last.egress.2, sa-del-last.ingress.2 (cxx1 started with this PHY's SA on AN 2, runs 2/3 on AN 0: teardown of another AN, expected)
+   phy 1: cxx1 differs only in sa-del-last.egress.2, sa-del-last.ingress.2 (cxx1 started with this PHY's SA on AN 2, runs 2/3 on AN 0: teardown of another AN, expected)
+   periodic: cxx1 has one pn.egress.2 + pn.ingress.2 read on phys 0 and 1 (made before the teardown, on the AN 2 SA); runs 2/3 have none: same cause
+cxx2 vs rust1: event runs 80 / 80, event bus operations 22560 / 22560, per-PHY event differences 0, periodic variant differences 0; periodic runs 160 / 152
+cxx3 vs rust2: event runs 80 / 80, event bus operations 22560 / 22560, per-PHY event differences 0, periodic variant differences 0; periodic runs 148 / 144
+rust1 vs rust2: event runs 80 / 80, event bus operations 22560 / 22560, per-PHY event differences 0, periodic variant differences 0; periodic runs 152 / 144
+cxx2 vs rustA1: event runs 80 / 80, event bus operations 22560 / 22560, per-PHY event differences 0, periodic variant differences 0; periodic runs 160 / 156
+cxx3 vs rustA1: event runs 80 / 80, event bus operations 22560 / 22560, per-PHY event differences 0, periodic variant differences 0; periodic runs 148 / 156
+rust1 vs rustA1: event runs 80 / 80, event bus operations 22560 / 22560, per-PHY event differences 0, periodic variant differences 0; periodic runs 152 / 156
+
+Totals per dump (runs, lines incl. headers): cxx1 232 runs / event lines 22720 / periodic runs 152; cxx2 240 runs / event lines 22720 / periodic runs 160; cxx3 228 runs / event lines 22720 / periodic runs 148; rust1 232 runs / event lines 22720 / periodic runs 152; rust2 224 runs / event lines 22720 / periodic runs 144; rustA1 236 runs
+Masked words (****) per dump: 256 in every dump (8 SA installs x 32 words). Failed runs: 0 in every dump. Dropped lines: 0.
+Key material: every MKA restart makes a new SAK; event runs of cxx2/cxx3/rust1/rust2/rustA1 hash identically across those different SAKs, so no recorded word depends on the key. The lab CAK string was grepped on the switch in each dump: 0.
+Per-PHY event sequence of a bring-up (identical in all of runs 2/3 and the Rust runs): gate-close.egress, sa-del-last.egress.0, gate-close.ingress, sa-del-last.ingress.0, disable.egress, disable.ingress, reset.egress, enable.egress, reset.ingress, enable.ingress, (disable/disable/reset/enable/reset/enable again: wpa_supplicant makes each MACsec port twice), sa-add-first.egress.0.gcm-aes-xpn-256, gate-open.egress, sa-add-first.ingress.0.gcm-aes-xpn-256, gate-open.ingress = 20 runs per PHY, 4 PHYs (0x000, 0x001, 0x17e, 0x17f).
+Not covered by the trace: the attach-time probe/reset at syncd start (trace is off until a diag command reaches the new syncd), ext-phy link/admin sequences (not traced by design), rekey sequences (no rekey in the window; rekey was exercised by macsec-rekey-test.sh on both libraries, 68 egress SA installs each).

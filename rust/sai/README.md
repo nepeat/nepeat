@@ -6,17 +6,13 @@ library stays the SAI the switches run; every Rust part is off by default.
 
 Status, stated plainly:
 
-- **Nothing here has driven a switch chip.** No Rust code has programmed an ASIC, a PHY or
-  an MDIO bus. On the real AS7772 (big-endian ppc64) only the userspace test bundle ran
-  ([Big-endian runs](#big-endian-runs)): last full run 2026-11-23 01:34Z, 54 of 55 suites,
-  295 Rust tests, C harness 371 checks on the release libsai, including the MACsec
-  end-to-end comparison (15,543 operations / 402,537 bus accesses equal between the full
-  Rust path and the full C++ path) and the sai-macsec differential (27,257 comparisons).
-  The failing suite (`mdio-tool` differential) was a defect of the bundle's helper wrapper
-  (argv[0] of a helper started through the bundle's loader), fixed afterwards in
-  `nix/target-tests-run.sh` and confirmed under qemu-user on the build host; **the re-run on
-  the switch is pending** (two attempts at 01:53Z and 01:59Z were cut off by reboots of the
-  box by other work).
+- **On hardware (AS7772, G0, 2026-11-23):** the Rust external-PHY engine and MACsec model, inside the
+  C++ libsai, programmed the MACsec PHYs under SONiC (bus traces equal to the C++; traffic, rekey, wrong
+  CAK, reboot, cold boot pass), and the Rust MDIO tool read the PHYs through syncd's diag socket with the
+  C tool's output. **No Rust SAI frontend or backend has driven the ASIC**, and the Rust MDIO tool has not
+  done the boot-time PHY bring-up. The box runs the C++ library.
+- The userspace test bundle on the AS7772 (big-endian ppc64, [Big-endian runs](#big-endian-runs)): 55 of
+  55 suites, 291 Rust tests, C harness 371 checks on the release libsai (2026-11-23, G0).
 - What that run found: no endianness defect. Every failure on the box was environmental
   (virtual / fake backends refusing next to `/dev/linux-*-bde`, build-tree temp paths, C
   compiled at test time) and is fixed.
@@ -25,7 +21,7 @@ Status, stated plainly:
 
 ## Migration status
 
-"Bundle" = the AS7772 userspace run above. No Rust part has run on a chip.
+"Bundle" = the AS7772 userspace run above. "On chip": see the status above (G0).
 
 | component | C/C++ today (default on the switch) | Rust (crate) | parity evidence, where tested | on chip | selected by |
 |---|---|---|---|---|---|
@@ -42,6 +38,52 @@ Status, stated plainly:
 | MACsec object model | `sai_macsec.cpp` | `sai-macsec` + `sai-macsec-phy` + `sai-macsec-capi`, inside the C++ libsai (`sai_macsec_rust.cpp`) | differential + e2e vs the C++; `test_sai` unchanged; bundle | no | `make RUST_MACSEC`, nix `rustMacsec`, `hardware.openbcm.rustMacsec` |
 | diag socket | `sai_diag.cpp` | not ported | | | |
 | temperatures (SAI attributes, `openbcm-asic-temp`) | `sai_temp.cpp`, `temp_files.c` | only `sdk-glue::temp` (for `mdio-tool --temp-out`) | `mdio-tool` tests on the fake glue | no | |
+
+## Plan: replacing the C++ (accepted 2026-11-23)
+
+Goal: our own C/C++ SAI (`ai_re/nix/packages/sai-openbcm/src`, later `sai-teralynx`) is replaced by this
+workspace; what stays C is the boundary to third parties (`sdk_glue.c` for the OpenBCM SDK, the Teralynx shim).
+The C++ stays the boot default and selectable until a board is proven on the Rust path on hardware.
+
+**Target architecture.** `sai-ffi` (rim) over `sai-core`: the model plus the frontend semantics of
+`sai_*.cpp`, one module per area (switch, port, l2, lag, l3, hostif, acl / copp, qos, mirror, hash, caps,
+dump), over typed backend sub-traits that mirror the C++ `ob::Backend` op for op (121 ops; optional groups
+default to "not supported", with the same capability probes). Backends: `virt` (parity with
+`fake_backend.cpp`, records a call log), `sai-backend-openbcm` (the 72 ops of `openbcm_backend.cpp` over
+`sdk_glue.h`, 75 functions), later `sai-backend-teralynx`. Beside the core, all `forbid(unsafe_code)`: the
+external-PHY runtime (link gate, debounce, hold-off, admin sequences) over `phy-seq`, `sai-macsec` called
+natively, the diag socket, temperatures. `phy-seq-capi` and `sai-macsec-capi` exist only to plug Rust into the
+C++ and go away with it. The library reads the C++ profile key names (`SAI_OPENBCM_*`).
+
+**Parity.** (1) `tests/test_sai.cpp` was white-box (3154 checks); since G1a it runs on a narrow test port
+(`tests/test_port.h`), implemented over the C++ internals and, for this library, over a test-only C ABI
+(cargo feature, never deployed), so one test source runs against both. (2) Differential: the same op scripts
+into both libraries, comparing statuses, attributes and backend call logs. (3) Every fake-backend VM test of
+`ai_re/nix/modules/switch/sonic/tests`. (4) The bundle on the big-endian target. (5) Hardware gates on the
+AS7772 with the device's test scripts and bus-trace comparison.
+
+| gate | content | status |
+|---|---|---|
+| G0 | hardware baseline with the phase-2 code: bundle, MDIO tool verify-only, MACsec on the C++ library with the Rust engine + model | done 2026-11-23 on the AS7772: bundle 55/55 suites (291 tests, harness 371); Rust MDIO tool `--verify-only` output equal to the C tool (32/32 PHYs, 160 reads); MACsec bring-up bus traces equal between C++, Rust engine, Rust engine + model (80 sequence runs / 22,560 bus operations per PHY); traffic, rekey, wrong CAK, reboot, cold boot, `kill -9` syncd pass on the Rust engine + model; box back on the C++ library. Evidence: `ai_re/devices/edge-core-as7772-32x/evidence/rust-g0/README.md` |
+| G1a | trait split, area skeletons, test port in the C++ tests, recording backends, frontend driver | done 2026-11-23: `test_sai` 3014 + `test_units` 140 (was 3154), default `libsai.so` byte-identical; 121 backend ops typed (`sai-core::backend`), dispatch table, `Recording`, virt at fake parity; 314 Rust tests; unsafe unchanged (194) |
+| G1 | frontend complete on the virtual backend (test port suite, differential, all fake VM tests incl. ACL + MACsec) | |
+| G2 | hardware backend covers `openbcm_backend.cpp`; smoke on the AS7772 with SONiC stopped | |
+| G3 | no C++ shims: Rust MDIO tool as the boot unit, ext-PHY runtime + MACsec native in `libsai.so` | |
+| G4 | syncd on the Rust library on the AS7772 (opt-in): full feature set, device scripts, reboot, cold boot, rollback | |
+| G5 | Rust the default on the AS7772, C++ selectable; soak (owner's approval) | |
+| G6 | delete the sai-openbcm C++ except `sdk_glue.c`; the frozen C++ frontend moves into sai-teralynx | |
+
+**Owner decisions.** The AS7760 is off the bench: the AS7772 proof counts for it (same ASIC, SDK, glue), so
+G6 deletes the sai-openbcm C++ for both boards, after G4 and G5 on the AS7772. Before G6 the AS7760 system must
+build and pass every offline tier on the Rust library (LACP PortChannels, VRF / ECMP, ingress ACL + counters,
+CoPP, 25G break-out, the AS7712 LED program + port-order remap, serdes pre-emphasis keys), and the G6 report
+lists which AS7760 behaviours never ran on silicon. sai-teralynx: offline track only, its C++ stays until the CS8210 is proven. MACsec: D1, Q7 and Q10 are
+fixed in Rust (each with a test); every other Q item keeps the C++ behaviour. The clear-traffic window
+(hold MACsec-profiled ports closed until the MACsec port exists; leave engines on at stack stop) is designed
+as profile keys, off, not enabled without the owner. No bulk API and no warm boot (the C++ has neither).
+`safe fn` declarations only for glue calls whose arguments are all scalars and whose C side checks ranges;
+anything with pointers, buffers or callbacks keeps a small unsafe block with a SAFETY contract; both kinds are
+counted. Bindings derived from vendor ifcs files are generated at build time, never committed.
 
 ## Where it lives, and why here
 
@@ -399,7 +441,7 @@ bring-up release the live handle's claim; the first slice's MDIO label round tri
 
 ## Not done
 
-- **Nothing on the chip**; no hardware runbook has been executed.
+- No Rust SAI frontend or backend on the ASIC; no boot-time PHY bring-up by the Rust MDIO tool.
 - Hardware backend: ports, VLANs, link events only (no PHY admin sequences, MACsec reset,
   temperatures, diag socket, KNET netdevs, L2 / L3 / ACL).
 - Frontend: ACL, mirror, samplepacket, MACsec objects in `libsai.so`, STP ports, bulk, dump,
@@ -411,16 +453,16 @@ bring-up release the live handle's claim; the first slice's MDIO label round tri
 - Deploy path: the root git flake with the Rust options is unbuilt; the new files are
   untracked, so a git flake does not see them (`ai_re/tools/nix-untracked.sh`). Only `path:`
   builds of `as7772-system-rust-phy-seq` / `-both` exist.
-- Re-run owed: the bundle on the switch after the wrapper fix.
 
 ## Hardware runbooks
 
-Written, not executed, not pasted here: the MDIO tool (`--verify-only` through the diag
-socket against the C tool, then a cold boot with the C unit masked), MACsec on the Rust
-engine / model (trace comparison with `openbcm-diag "extmacsec trace on"` / `dump` against a
-C++ reference, traffic, rekey, wrong CAK, reboot, cold boot, rollback), and the openbcm
-smoke (`sai-openbcm-smoke --sonic-is-stopped ...`, SONiC stopped; it resets the chip). They
-are in the coordinator's hands and move into `ai_re/devices/edge-core-as7772-32x/` when run.
+Run on the AS7772 (G0, 2026-11-23; evidence in `ai_re/devices/edge-core-as7772-32x/evidence/rust-g0/`): the
+bundle, the MDIO tool `--verify-only` through the diag socket against the C tool, MACsec on the C++ library
+with the Rust engine (`rustPhySeq`) and with engine + model (`rustMacsec`). Not traced there: the probe /
+reset at syncd start, ext-PHY sequences, rekeys (covered by the rekey test). **Not run yet**: a cold boot with
+the Rust MDIO tool as the boot unit, and the openbcm smoke of the Rust `libsai.so`
+(`sai-openbcm-smoke --sonic-is-stopped ...`, SONiC stopped; it resets the chip): no Rust SAI frontend or
+backend has driven the ASIC.
 
 ## Build and test
 

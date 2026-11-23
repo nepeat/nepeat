@@ -20,15 +20,28 @@ static sai_object_id_t mk_policer(uint64_t cir, uint64_t cbs, int32_t red = SAI_
     return p;
 }
 
-static int fake_policer(sai_object_id_t p) { return ctx().policers[p].pid; }
-
-// Fake FP entries in the CoPP group.
-static std::vector<FakeBackend::FpEntry> copp_entries()
+static int fake_policer(sai_object_id_t p) { return tp::backend_id(p); }
+static bool has(const tp::FpEntry& e, tp::Qual q) { return (e.present >> q) & 1u; }
+static tp::Policer policer_of(int pid)
 {
-    std::vector<FakeBackend::FpEntry> v;
-    std::lock_guard<std::mutex> g(fake().mu);
-    for (auto& e : fake().fp_entries)
-        if (e.second.gid == ctx().copp_gid) v.push_back(e.second);
+    tp::Policer p{};
+    tp::policer(pid, p);
+    return p;
+}
+static tp::FpGroup fp_group_of(int gid)
+{
+    tp::FpGroup g{};
+    tp::fp_group(gid, g);
+    return g;
+}
+
+// Backend FP entries in the CoPP group.
+static std::vector<tp::FpEntry> copp_entries()
+{
+    std::vector<tp::FpEntry> v;
+    int gid = tp::copp_group();
+    for (auto& e : tp::fp_entries())
+        if (e.gid == gid) v.push_back(e);
     return v;
 }
 
@@ -50,8 +63,7 @@ static void test_policer_copp()
     // policer objects: CoppOrch's attributes
     sai_object_id_t p = mk_policer(600, 600);
     {
-        std::lock_guard<std::mutex> g(fake().mu);
-        auto& f = fake().policers.at(fake_policer(p)).cfg;
+        tp::Policer f = policer_of(fake_policer(p));
         CHECK(f.packets && !f.tr_tcm && f.cir == 600 && f.cbs == 600 && !f.color_blind);
     }
     sai_attribute_t ga[3];
@@ -65,10 +77,7 @@ static void test_policer_copp()
     sai_attribute_t s;
     s.id = SAI_POLICER_ATTR_CIR; s.value.u64 = 1000;
     OK(poa->set_policer_attribute(p, &s));
-    {
-        std::lock_guard<std::mutex> g(fake().mu);
-        CHECK_EQ(fake().policers.at(fake_policer(p)).cfg.cir, 1000u);
-    }
+    CHECK_EQ(policer_of(fake_policer(p)).cir, 1000u);
     s.id = SAI_POLICER_ATTR_MODE; s.value.s32 = SAI_POLICER_MODE_TR_TCM;
     CHECK_EQ(poa->set_policer_attribute(p, &s), SAI_STATUS_INVALID_ATTR_VALUE_0);   // create-only
     {
@@ -97,21 +106,20 @@ static void test_policer_copp()
     sai_attribute_t pa1;
     pa1.id = SAI_HOSTIF_TRAP_GROUP_ATTR_POLICER; pa1.value.oid = p;
     OK(ha->set_hostif_trap_group_attribute(grp, &pa1));
-    CHECK_EQ(ctx().copp_gid, -1);   // no trap yet: no CoPP group
+    CHECK_EQ(tp::copp_group(), -1);   // no trap yet: no CoPP group
     sai_object_id_t arp = mk_trap(SAI_HOSTIF_TRAP_TYPE_ARP_REQUEST, SAI_PACKET_ACTION_COPY, grp);
     auto v = copp_entries();
-    CHECK(ctx().copp_gid >= 0);
+    CHECK(tp::copp_group() >= 0);
     CHECK_EQ(v.size(), 1u);
     if (v.size() == 1) {
-        auto& r = v[0].rule;
-        CHECK(r.m.has(FpQual::IpType) && r.m.ip_type == SAI_ACL_IP_TYPE_ARP_REQUEST);
+        auto& r = v[0];
+        CHECK(has(r, tp::Q_IP_TYPE) && r.ip_type == SAI_ACL_IP_TYPE_ARP_REQUEST);
         CHECK(r.policer == fake_policer(p) && r.red_drop && r.cpu_copy_only && !r.drop);
-        CHECK(!r.m.has(FpQual::InPorts));   // every port
+        CHECK(!has(r, tp::Q_IN_PORTS));   // every port
     }
     {
-        std::lock_guard<std::mutex> g(fake().mu);
-        auto& fg = fake().fp_groups.at(ctx().copp_gid);
-        CHECK(fg.qset & (1u << (int)FpQual::DstCpu));
+        tp::FpGroup fg = fp_group_of(tp::copp_group());
+        CHECK(fg.qset & (1u << tp::Q_DST_CPU));
         CHECK(fg.priority > 999);
     }
     sai_object_id_t lacp = mk_trap(SAI_HOSTIF_TRAP_TYPE_LACP, SAI_PACKET_ACTION_TRAP, grp);
@@ -122,24 +130,24 @@ static void test_policer_copp()
     CHECK_EQ(v.size(), 1u + 1 + 2 + 1);
     int n_lacp = 0, n_bgp = 0, n_ip2me = 0;
     for (auto& e : v) {
-        auto& r = e.rule;
-        if (r.m.has(FpQual::EtherType) && r.m.ether == 0x8809) { n_lacp++; CHECK(r.red_drop && !r.cpu_copy_only && r.priority == 200); }
-        if (r.m.has(FpQual::L4DstPort) && r.m.l4_dst == 179) { n_bgp++; CHECK(r.m.has(FpQual::DstCpu) && r.priority == 150); }
-        if (r.m.has(FpQual::L4SrcPort) && r.m.l4_src == 179) n_bgp++;
-        if (r.m.present == (1u << (int)FpQual::DstCpu)) { n_ip2me++; CHECK(r.priority == 100 && r.red_drop); }
+        auto& r = e;
+        if (has(r, tp::Q_ETHER_TYPE) && r.ether == 0x8809) { n_lacp++; CHECK(r.red_drop && !r.cpu_copy_only && r.priority == 200); }
+        if (has(r, tp::Q_L4_DST_PORT) && r.l4_dst == 179) { n_bgp++; CHECK(has(r, tp::Q_DST_CPU) && r.priority == 150); }
+        if (has(r, tp::Q_L4_SRC_PORT) && r.l4_src == 179) n_bgp++;
+        if (r.present == (1u << tp::Q_DST_CPU)) { n_ip2me++; CHECK(r.priority == 100 && r.red_drop); }
     }
     CHECK_EQ(n_lacp, 1);
     CHECK_EQ(n_bgp, 2);
     CHECK_EQ(n_ip2me, 1);
     // the policer is shared (one meter for the group)
-    for (auto& e : v) CHECK_EQ(e.rule.policer, fake_policer(p));
+    for (auto& e : v) CHECK_EQ(e.policer, fake_policer(p));
     CHECK_EQ(poa->remove_policer(p), SAI_STATUS_OBJECT_IN_USE);
     // red action FORWARD: entries re-installed without the colour drop
     s.id = SAI_POLICER_ATTR_RED_PACKET_ACTION; s.value.s32 = SAI_PACKET_ACTION_FORWARD;
     OK(poa->set_policer_attribute(p, &s));
     v = copp_entries();
     CHECK_EQ(v.size(), 5u);
-    for (auto& e : v) CHECK(!e.rule.red_drop);
+    for (auto& e : v) CHECK(!e.red_drop);
     s.value.s32 = SAI_PACKET_ACTION_DROP;
     OK(poa->set_policer_attribute(p, &s));
     // a trap that stops going to the CPU loses its rule; another group without a policer: none
@@ -156,9 +164,9 @@ static void test_policer_copp()
     // policer off the group: no CoPP entries, group gone
     pa1.value.oid = SAI_NULL_OBJECT_ID;
     OK(ha->set_hostif_trap_group_attribute(grp, &pa1));
-    CHECK_EQ(ctx().copp.size(), 0u);
-    CHECK_EQ(ctx().copp_gid, -1);
-    pa1.value.oid = make_oid(SAI_OBJECT_TYPE_POLICER, 999);
+    CHECK_EQ(tp::copp_rule_count(), 0u);
+    CHECK_EQ(tp::copp_group(), -1);
+    pa1.value.oid = tp::make_oid(SAI_OBJECT_TYPE_POLICER, 999);
     CHECK_EQ(ha->set_hostif_trap_group_attribute(grp, &pa1), SAI_STATUS_INVALID_ATTR_VALUE_0);
     // policer on the default trap group (CoppOrch's "default"): traps in it are policed
     sai_object_id_t def = get_oid(g_sw, SAI_SWITCH_ATTR_DEFAULT_TRAP_GROUP);
@@ -167,16 +175,13 @@ static void test_policer_copp()
     sai_object_id_t lldp = mk_trap(SAI_HOSTIF_TRAP_TYPE_LLDP, SAI_PACKET_ACTION_TRAP, SAI_NULL_OBJECT_ID);
     CHECK_EQ(copp_entries().size(), 1u);
     for (auto t : {arp, lacp, bgp, ip2me, ttl, lldp}) OK(ha->remove_hostif_trap(t));
-    CHECK_EQ(ctx().copp.size(), 0u);
+    CHECK_EQ(tp::copp_rule_count(), 0u);
     pa1.value.oid = SAI_NULL_OBJECT_ID;
     OK(ha->set_hostif_trap_group_attribute(def, &pa1));
     OK(ha->remove_hostif_trap_group(grp));
     OK(ha->remove_hostif_trap_group(grp2));
     OK(poa->remove_policer(p));
-    {
-        std::lock_guard<std::mutex> g(fake().mu);
-        CHECK(fake().policers.empty() && fake().fp_entries.empty() && fake().fp_groups.empty());
-    }
+    CHECK(tp::count(tp::T_POLICERS) == 0 && tp::count(tp::T_FP_ENTRIES) == 0 && tp::count(tp::T_FP_GROUPS) == 0);
 }
 
 static sai_attribute_t field_bool(sai_attr_id_t id)
@@ -273,11 +278,12 @@ static sai_status_t mk_rule(sai_object_id_t* e, sai_object_id_t table, uint32_t 
     return aa->create_acl_entry(e, g_sw, (uint32_t)a.size(), a.data());
 }
 
-static const FakeBackend::FpEntry* fake_entry(sai_object_id_t e)
+// The backend entry an ACL entry is installed as (nullptr: not installed). The pointer is
+// valid until the next call.
+static const tp::FpEntry* fake_entry(sai_object_id_t e)
 {
-    int eid = ctx().acl_entries[e].eid;
-    auto it = fake().fp_entries.find(eid);
-    return eid < 0 || it == fake().fp_entries.end() ? nullptr : &it->second;
+    static tp::FpEntry last;
+    return tp::fp_entry(tp::backend_id(e), last) ? &last : nullptr;
 }
 
 static uint64_t counter_packets(sai_object_id_t k)
@@ -335,12 +341,11 @@ static void test_acl()
     // table -> SDK field group with the table's qualifiers + in-ports
     sai_object_id_t t = mk_l3_table();
     {
-        std::lock_guard<std::mutex> g(fake().mu);
-        auto& fg = fake().fp_groups.at(ctx().acl_tables[t].gid);
-        CHECK(fg.qset & (1u << (int)FpQual::InPorts));
-        CHECK(fg.qset & (1u << (int)FpQual::DstIp));
-        CHECK(fg.qset & (1u << (int)FpQual::IcmpTypeCode));
-        CHECK(!(fg.qset & (1u << (int)FpQual::DstIp6)));
+        tp::FpGroup fg = fp_group_of(tp::backend_id(t));
+        CHECK(fg.qset & (1u << tp::Q_IN_PORTS));
+        CHECK(fg.qset & (1u << tp::Q_DST_IP));
+        CHECK(fg.qset & (1u << tp::Q_ICMP_TYPE_CODE));
+        CHECK(!(fg.qset & (1u << tp::Q_DST_IP6)));
     }
     sai_attribute_t tg;
     tg.id = SAI_ACL_TABLE_ATTR_FIELD_DST_IP;
@@ -355,14 +360,14 @@ static void test_acl()
     // rule: drop to 10.0.0.1, with a counter; table not bound -> not installed
     sai_object_id_t k = mk_counter(t), e = 0;
     OK(mk_rule(&e, t, 9000, k, 10, 0, 0, 1, SAI_PACKET_ACTION_DROP));
-    CHECK_EQ(ctx().acl_entries[e].eid, -1);
+    CHECK_EQ(tp::backend_id(e), -1);
     sai_object_id_t bad;
     CHECK(mk_rule(&bad, t, 10, 0, 10, 0, 0, 2, SAI_PACKET_ACTION_DROP, SAI_ACL_ENTRY_ATTR_FIELD_OUTER_VLAN_ID) != SAI_STATUS_SUCCESS);
     CHECK(mk_rule(&bad, t, 11, k, 10, 0, 0, 3, SAI_PACKET_ACTION_DROP) == SAI_STATUS_OBJECT_IN_USE);   // counter taken
 
     // PortsOrch: table group, bind it to the port, member = the table
     sai_object_id_t port_a = g_ports[20], port_b = g_ports[21];
-    int hw_a = ctx().ports[port_a].hw, hw_b = ctx().ports[port_b].hw;
+    int hw_a = tp::backend_id(port_a), hw_b = tp::backend_id(port_b);
     sai_object_id_t grp = 0, mem = 0;
     sai_object_id_t bpl[1] = {SAI_ACL_BIND_POINT_TYPE_PORT};   // portsorch passes an object list
     sai_attribute_t g3[3];
@@ -373,21 +378,20 @@ static void test_acl()
     sai_attribute_t bind;
     bind.id = SAI_PORT_ATTR_INGRESS_ACL; bind.value.oid = grp;
     OK(pa->set_port_attribute(port_a, &bind));
-    CHECK_EQ(ctx().acl_entries[e].eid, -1);   // the table is not a member yet
+    CHECK_EQ(tp::backend_id(e), -1);   // the table is not a member yet
     sai_attribute_t m3[3];
     m3[0].id = SAI_ACL_TABLE_GROUP_MEMBER_ATTR_ACL_TABLE_GROUP_ID; m3[0].value.oid = grp;
     m3[1].id = SAI_ACL_TABLE_GROUP_MEMBER_ATTR_ACL_TABLE_ID; m3[1].value.oid = t;
     m3[2].id = SAI_ACL_TABLE_GROUP_MEMBER_ATTR_PRIORITY; m3[2].value.u32 = 100;
     OK(aa->create_acl_table_group_member(&mem, g_sw, 3, m3));
     {
-        std::lock_guard<std::mutex> g(fake().mu);
         auto* fe = fake_entry(e);
         CHECK(fe != nullptr);
         if (fe) {
-            CHECK(fe->rule.drop && fe->rule.counter && fe->rule.priority == 9000);
-            CHECK(fe->rule.m.ports == std::vector<int>{hw_a});
-            CHECK(fe->rule.m.has(FpQual::DstIp) && fe->rule.m.dst.addr[0] == 10 && fe->rule.m.dst.addr[3] == 1);
-            CHECK(fe->rule.m.dst_mask.addr[3] == 0xff);
+            CHECK(fe->drop && fe->counter && fe->priority == 9000);
+            CHECK(fe->in_ports == std::vector<int>{hw_a});
+            CHECK(has(*fe, tp::Q_DST_IP) && fe->dst.addr[0] == 10 && fe->dst.addr[3] == 1);
+            CHECK(fe->dst_mask.addr[3] == 0xff);
         }
     }
     sai_attribute_t gb;
@@ -399,16 +403,15 @@ static void test_acl()
     bind.id = SAI_PORT_ATTR_INGRESS_ACL;
 
     // counter: hits on the SDK entry; kept when the entry is re-created
-    fake().fp_hit(ctx().acl_entries[e].eid, 5, 500);
+    tp::fp_hit(tp::backend_id(e), 5, 500);
     CHECK_EQ(counter_packets(k), 5u);
     OK(pa->set_port_attribute(port_b, &bind));   // second port in the same group
     {
-        std::lock_guard<std::mutex> g(fake().mu);
         auto* fe = fake_entry(e);
-        CHECK(fe && fe->rule.m.ports == (std::vector<int>{std::min(hw_a, hw_b), std::max(hw_a, hw_b)}));
+        CHECK(fe && fe->in_ports == (std::vector<int>{std::min(hw_a, hw_b), std::max(hw_a, hw_b)}));
     }
     CHECK_EQ(counter_packets(k), 5u);
-    fake().fp_hit(ctx().acl_entries[e].eid, 2, 200);
+    tp::fp_hit(tp::backend_id(e), 2, 200);
     CHECK_EQ(counter_packets(k), 7u);
     sai_attribute_t kz;
     kz.id = SAI_ACL_COUNTER_ATTR_PACKETS; kz.value.u64 = 0;
@@ -423,17 +426,16 @@ static void test_acl()
     ea.value.aclaction.parameter.s32 = SAI_PACKET_ACTION_FORWARD;
     OK(aa->set_acl_entry_attribute(e, &ea));
     {
-        std::lock_guard<std::mutex> g(fake().mu);
         auto* fe = fake_entry(e);
-        CHECK(fe && !fe->rule.drop && fe->rule.drop_cancel);
+        CHECK(fe && !fe->drop && fe->drop_cancel);
     }
     ea.id = SAI_ACL_ENTRY_ATTR_ADMIN_STATE;
     ea.value.booldata = false;
     OK(aa->set_acl_entry_attribute(e, &ea));
-    CHECK_EQ(ctx().acl_entries[e].eid, -1);
+    CHECK_EQ(tp::backend_id(e), -1);
     ea.value.booldata = true;
     OK(aa->set_acl_entry_attribute(e, &ea));
-    CHECK(ctx().acl_entries[e].eid >= 0);
+    CHECK(tp::backend_id(e) >= 0);
     std::memset(&ea, 0, sizeof(ea));
     ea.id = SAI_ACL_ENTRY_ATTR_ACTION_COUNTER;   // the same counter again: no conflict with itself
     ea.value.aclaction.enable = true;
@@ -459,16 +461,14 @@ static void test_acl()
     lb.id = SAI_LAG_ATTR_INGRESS_ACL; lb.value.oid = grp;
     OK(la->set_lag_attribute(lag, &lb));
     {
-        std::lock_guard<std::mutex> g(fake().mu);
         auto* fe = fake_entry(e);
-        CHECK(fe && fe->rule.m.ports.size() == 3);
+        CHECK(fe && fe->in_ports.size() == 3);
     }
     ma[1].value.oid = g_ports[23];
     OK(la->create_lag_member(&lm2, g_sw, 2, ma));
     {
-        std::lock_guard<std::mutex> g(fake().mu);
         auto* fe = fake_entry(e);
-        CHECK(fe && fe->rule.m.ports.size() == 4);
+        CHECK(fe && fe->in_ports.size() == 4);
     }
     OK(la->remove_lag_member(lm2));
     lb.value.oid = SAI_NULL_OBJECT_ID;
@@ -478,7 +478,7 @@ static void test_acl()
 
     // every advertised get on the ACL / POLICER objects works on a live one
     sai_object_id_t pol = mk_policer(100, 100);
-    for (auto& cp : attr_caps()) {
+    for (auto& cp : tp::attr_caps()) {
         if (!cp.get) continue;
         sai_object_id_t oid = cp.ot == SAI_OBJECT_TYPE_ACL_TABLE ? t : cp.ot == SAI_OBJECT_TYPE_ACL_ENTRY ? e
                             : cp.ot == SAI_OBJECT_TYPE_ACL_COUNTER ? k : cp.ot == SAI_OBJECT_TYPE_ACL_TABLE_GROUP ? grp
@@ -521,10 +521,10 @@ static void test_acl()
     OK(aa->remove_acl_table_group(grp));
     OK(aa->remove_acl_table(t));
     {
-        std::lock_guard<std::mutex> g(fake().mu);
-        CHECK(fake().fp_entries.empty() && fake().fp_groups.empty());
+        CHECK(tp::count(tp::T_FP_ENTRIES) == 0 && tp::count(tp::T_FP_GROUPS) == 0);
     }
-    CHECK(ctx().acl_tables.empty() && ctx().acl_entries.empty() && ctx().acl_bind.empty());
+    CHECK(tp::object_count(SAI_OBJECT_TYPE_ACL_TABLE) == 0 && tp::object_count(SAI_OBJECT_TYPE_ACL_ENTRY) == 0 &&
+          tp::acl_binding_count() == 0);
 
     // L3V6: an IPv6 match keeps all 16 bytes
     {
@@ -552,9 +552,8 @@ static void test_acl()
         bind.value.oid = tv6;
         OK(pa->set_port_attribute(port_b, &bind));
         {
-            std::lock_guard<std::mutex> g(fake().mu);
-            auto* fe = fake_entry(ev6);
-            CHECK(fe && fe->rule.m.has(FpQual::DstIp6) && fe->rule.m.dst.v6 && fe->rule.m.dst.addr[15] == 0x2f);
+                auto* fe = fake_entry(ev6);
+            CHECK(fe && has(*fe, tp::Q_DST_IP6) && fe->dst.v6 && fe->dst.addr[15] == 0x2f);
         }
         bind.value.oid = SAI_NULL_OBJECT_ID;
         OK(pa->set_port_attribute(port_b, &bind));
@@ -568,9 +567,8 @@ static void test_acl()
     bind.value.oid = t;
     OK(pa->set_port_attribute(port_a, &bind));
     {
-        std::lock_guard<std::mutex> g(fake().mu);
         auto* fe = fake_entry(e);
-        CHECK(fe && fe->rule.drop && fe->rule.copy_cpu && !fe->rule.counter);
+        CHECK(fe && fe->drop && fe->copy_cpu && !fe->counter);
     }
     bind.value.oid = SAI_NULL_OBJECT_ID;
     OK(pa->set_port_attribute(port_a, &bind));

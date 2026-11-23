@@ -197,6 +197,9 @@ impl OpenbcmBackend {
     }
 }
 
+// The typed operations are not on this backend yet (G2): their defaults answer NotSupported.
+sai_core::typed_defaults!(OpenbcmBackend: Base, Shell, Temp, Mdio, PortOps, Lag, L2, Hostif, L3, Field, Policer, Qos, Mirror, Sample, Hash, Storm);
+
 impl Backend for OpenbcmBackend {
     fn name(&self) -> &'static str {
         "openbcm"

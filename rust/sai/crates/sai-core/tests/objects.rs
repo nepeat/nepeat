@@ -941,6 +941,8 @@ fn every_advertised_get_works_on_a_live_object() {
 /// optional features gets from the trait's default bodies.
 struct Minimal(VirtualBackend);
 
+sai_core::typed_defaults!(Minimal: Base, Shell, Temp, Mdio, PortOps, Lag, L2, Hostif, L3, Field, Policer, Qos, Mirror, Sample, Hash, Storm);
+
 impl Backend for Minimal {
     fn name(&self) -> &'static str {
         "minimal"

@@ -66,7 +66,7 @@ endif
 
 OBJS = $(patsubst src/%.cpp,build/%.o,$(CORE)) build/temp_files.o $(BACKEND_OBJS)
 
-all: build/libsai.so.1.0.0 build/test_sai build/test_extmacsec_trace build/test_mdio_script $(TOOLS)
+all: build/libsai.so.1.0.0 build/test_sai build/test_units build/test_extmacsec_trace build/test_mdio_script $(TOOLS)
 
 build/%.o: src/%.cpp src/*.h
 	@mkdir -p build
@@ -121,8 +121,47 @@ build/libsai.so.1.0.0: $(OBJS) src/libsai.map
 	ln -sf libsai.so.1.0.0 build/libsai.so.1
 	ln -sf libsai.so.1 build/libsai.so
 
-build/test_sai: tests/test_sai.cpp tests/test_acl.inc tests/test_qos.inc tests/test_extphy.inc tests/test_macsec.inc build/libsai.a
-	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) -o $@ tests/test_sai.cpp build/libsai.a $(RUST_LIBS) $(SDK_LIBS) -lpthread
+# ---- tests (nothing below is part of libsai)
+# test_sai.cpp + its .inc files see the SAI headers and tests/test_port.h only (no -Isrc): the
+# library is reached through the SAI C ABI and the test port. tests/test_port_cpp.cpp implements
+# the port over the C++ internals; another libsai links test_sai.o with its own port.
+TEST_SAI_SRC = tests/test_sai.cpp tests/test_port.h tests/test_tables.h tests/test_acl.inc tests/test_qos.inc \
+               tests/test_extphy.inc tests/test_macsec.inc
+build/test_sai.o: $(TEST_SAI_SRC)
+	@mkdir -p build
+	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) -I$(SAI_INC) -Itests -c $< -o $@
+
+build/test_port_cpp.o: tests/test_port_cpp.cpp tests/test_port.h src/*.h
+	@mkdir -p build
+	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) -Itests -c $< -o $@
+
+TEST_PORT_OBJS = build/test_port_cpp.o build/recording_backend.o
+build/test_sai: build/test_sai.o $(TEST_PORT_OBJS) build/libsai.a
+	$(CXX) -std=c++17 $(CXXFLAGS) $(LDFLAGS) -o $@ build/test_sai.o $(TEST_PORT_OBJS) build/libsai.a $(RUST_LIBS) $(SDK_LIBS) -lpthread
+
+# Unit tests of library internals with no meaning for another libsai (table parsers, status helpers).
+build/test_units: tests/test_units.cpp tests/test_tables.h src/*.h build/libsai.a
+	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) -Itests -o $@ $< build/libsai.a $(RUST_LIBS) $(SDK_LIBS) -lpthread
+
+# The differential driver (tests/frontend_driver.cpp): op scripts against this library on the
+# fake backend, with the backend call log (src/recording_backend.h). Name tables from the SAI
+# headers (tests/driver_names.awk).
+build/driver_names.inc: tests/driver_names.awk $(wildcard $(SAI_INC)/sai*.h)
+	@mkdir -p build
+	awk -f tests/driver_names.awk $(SAI_INC)/sai*.h > $@.tmp && mv $@.tmp $@
+
+build/frontend_driver: tests/frontend_driver.cpp build/driver_names.inc $(TEST_PORT_OBJS) build/libsai.a
+	$(CXX) -std=c++17 $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) -Itests -Ibuild $(LDFLAGS) -o $@ $< $(TEST_PORT_OBJS) build/libsai.a $(RUST_LIBS) $(SDK_LIBS) -lpthread
+
+# Every backbone script runs, twice, with the same output (the oracle is deterministic).
+DRIVER_SCRIPTS = $(sort $(wildcard tests/driver-scripts/*.ops))
+driver-check: build/frontend_driver
+	@mkdir -p build/driver-out
+	@set -e; for s in $(DRIVER_SCRIPTS); do n=$$(basename $$s .ops); \
+	  ./build/frontend_driver $$s > build/driver-out/$$n.1; ./build/frontend_driver $$s > build/driver-out/$$n.2; \
+	  cmp -s build/driver-out/$$n.1 build/driver-out/$$n.2 || { echo "driver: $$n differs between runs"; exit 1; }; \
+	  if grep -q '^= PARSE_ERROR' build/driver-out/$$n.1; then echo "driver: $$n has a parse error"; exit 1; fi; \
+	  echo "driver: $$n $$(grep -c '^>' build/driver-out/$$n.1) ops, $$(grep -c '^  be ' build/driver-out/$$n.1) backend calls, deterministic"; done
 
 # The sequence trace (ext_macsec.h "extmacsec trace") against a golden text: the same text for
 # the C++ and the Rust engine, and no key byte in it.
@@ -131,8 +170,9 @@ build/test_extmacsec_trace: tests/test_extmacsec_trace.cpp src/ext_macsec.h buil
 
 # test_mdio_script also runs the tool itself (parse failures, status files,
 # --verify-only against a fake diag socket).
-check: build/test_sai build/test_extmacsec_trace build/test_mdio_script build/openbcm-mdio-script
+check: build/test_sai build/test_units build/test_extmacsec_trace build/test_mdio_script build/openbcm-mdio-script driver-check
 	./build/test_sai
+	./build/test_units
 	./build/test_extmacsec_trace
 	./build/test_mdio_script build/openbcm-mdio-script
 
@@ -145,4 +185,4 @@ install: build/libsai.so.1.0.0 $(TOOLS)
 clean:
 	rm -rf build
 
-.PHONY: all check install clean
+.PHONY: all check driver-check install clean
