@@ -25,3 +25,5 @@ devices/*/ghidra/
 *.rep/
 *.rep
 *.lock~
+# just drvpaths snapshots
+.drvpaths/
