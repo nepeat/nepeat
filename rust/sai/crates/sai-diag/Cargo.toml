@@ -1,6 +1,6 @@
 [package]
 name = "sai-diag"
-description = "The SAI library's diag socket (port of sai-openbcm's sai_diag.cpp): one SDK diag-shell command per unix-socket connection, run under the library's lock"
+description = "The SAI library's diag socket (port of sai-openbcm's sai_diag.cpp): one SDK diag-shell command per unix-socket connection, run under the library's lock; raw MDIO and external-PHY transactions served without it"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

@@ -54,13 +54,14 @@ pub trait SeqRunner {
     /// Must not re-apply anything else of the port (a link flap on a live port).
     fn set_ifg(&mut self, port: PortKey, macsec_bits: u32) -> Result<(), SeqError>;
 
-    /// Whether the poll sequence `name` of `port` (`pn.*`, `stats-sa.*`, `stats-flow.*` run
-    /// for a get, never for an install / remove / gate / clear) is to be skipped now: the model
-    /// then answers from its last read. The library's runner says yes while raw MDIO of the
-    /// diag socket holds the PHY polls off (a deliberate improvement on the C++, which never
-    /// skipped these); the default never skips.
-    fn poll_deferred(&mut self, _port: PortKey, _name: &str) -> bool {
-        false
+    /// Runs the poll sequence `name` of `port` (`pn.*`, `stats-sa.*`, `stats-flow.*` run for a
+    /// get, never for an install / remove / gate / clear), as [`SeqRunner::run`], or skips it:
+    /// `None`, and the model answers from its last read. The library's runner skips while a diag
+    /// lease holds the PHY (crate `sai-extphy`: bounded, a deliberate improvement on the C++,
+    /// which never skipped these); the default never skips. Deciding and running in one call
+    /// leaves no gap for a lease to begin in between.
+    fn run_poll(&mut self, port: PortKey, name: &str, params: &Params) -> Option<Result<Results, SeqError>> {
+        Some(self.run(port, name, params))
     }
 }
 

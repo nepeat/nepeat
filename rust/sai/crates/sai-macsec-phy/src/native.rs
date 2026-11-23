@@ -1,6 +1,7 @@
 //! The `MACsec` model natively in the Rust library: `sai_core::macsec`'s seam ([`MacsecModel`],
 //! [`MacsecLoader`]) implemented over `sai-macsec` (the objects) and `phy-seq` (the board's
-//! table, run on the bus the core lends for each call, under the external-PHY lock). No C ABI and
+//! table, run on the bus the core lends for each call, with its PHYs held by the external-PHY
+//! arbitration). No C ABI and
 //! no C++ in between; the rim registers [`LOADER`] with the core.
 //!
 //! What this module adds to [`crate::PhySeqRunner`]'s path, and nothing else:
@@ -8,8 +9,10 @@
 //! - **The bus of a call.** The model's calls take a [`SeqRunner`]; here one is made per call
 //!   ([`CallRunner`]) around the core's [`MacsecIo`]: a sequence runs inside
 //!   [`MacsecIo::with_bus`] (the backend's `mdio_c45_read` / `_write`, so the recording backend
-//!   logs every access), the gap goes to [`MacsecIo::set_ifg`] (the port code's
-//!   `port_ifg_apply`).
+//!   logs every access) with the PHYs its operations address held; a periodic read (`pn.*`,
+//!   `stats-*` for a get: `SeqRunner::run_poll`) may be skipped while a diag lease holds its PHY,
+//!   a diag-socket `extmacsec run` refused inside a transaction (`Error::ObjectInUse`). The gap goes
+//!   to [`MacsecIo::set_ifg`] (the port code's `port_ifg_apply`).
 //! - **Ids.** `MACsec`-stage ACL tables and entries get the id the ACL area chose
 //!   ([`MacsecIo::next_id`], sai-macsec's D7); the `MACsec` objects count by themselves.
 //! - **Values.** The core's attribute values to the model's and back, by attribute: the key
@@ -23,8 +26,8 @@ use phy_seq::{Dest, MacsecTable, Op, OpKind};
 use sai_core::backend::HwPort;
 use sai_core::backend::types::{MdioDev, PhyAddr};
 use sai_core::macsec::{
-    AclSide, ChipPortInfo, MacsecBus, MacsecIo, MacsecLoader, MacsecModel, MacsecObject, MacsecOptions, MacsecPending,
-    Secret, StatsMode,
+    AclSide, BusTurn, BusUse, ChipPortInfo, MacsecBus, MacsecIo, MacsecLoader, MacsecModel, MacsecObject,
+    MacsecOptions, MacsecPending, Secret, StatsMode,
 };
 use sai_core::oid::{PortId, RawOid};
 use sai_core::value::{AclAction as CoreAction, AclField as CoreField, AclFieldData, AclKind, AclParam, FieldMatch};
@@ -364,6 +367,83 @@ struct CallRunner<'a> {
     trace: &'a mut Trace,
 }
 
+impl CallRunner<'_> {
+    /// Runs sequence `name` on the PHYs of `port` (`poll`: a periodic read the arbitration may
+    /// skip: `None`).
+    fn exec(
+        &mut self,
+        port: PortKey,
+        name: &str,
+        params: &Params,
+        poll: bool,
+    ) -> Option<core::result::Result<Results, SeqError>> {
+        let fail = |status, why: String| Some(Err(SeqError { status, why }));
+        let Some(engine) = self.engine else {
+            return fail(Error::NotSupported, "no external MACsec table".to_owned());
+        };
+        let Some(&phy) = engine.phy_of.get(&port) else {
+            return fail(
+                Error::NotSupported,
+                format!("port {} has no MACsec PHY in the table", port.0),
+            );
+        };
+        let Some(seq) = engine.table.sequence(name) else {
+            return fail(
+                Error::NotSupported,
+                format!("the external MACsec table has no sequence {name}"),
+            );
+        };
+        let Some(hw) = hw_of(port) else {
+            return fail(Error::InvalidParameter, format!("port {} is not a chip port", port.0));
+        };
+        let ops = seq.ops();
+        let phys = sai_extphy_phys(ops, phy);
+        let traced = self.trace.wants(ops);
+        let par = phy_params(params);
+        let mut outcome = None;
+        let mut lines = None;
+        let use_ = if poll { BusUse::Poll(name) } else { BusUse::Op };
+        let turn = self.io.with_bus(hw, &phys, use_, &mut |bus| {
+            let mut on = CoreBus {
+                bus,
+                lines: traced.then(Vec::new),
+                op: None,
+                ops,
+            };
+            outcome = Some(seq.run(&mut on, phy, &par));
+            lines = on.lines;
+        });
+        drop(par); // wiped
+        match turn {
+            BusTurn::Ran => {}
+            BusTurn::Skipped => return None,
+            BusTurn::Refused(why) => return fail(Error::ObjectInUse, why),
+        }
+        let outcome = outcome
+            .ok_or_else(|| SeqError {
+                status: Error::Failure,
+                why: "the bus was not lent".to_owned(),
+            })
+            .and_then(|o| {
+                o.map(|results| model_results(&results))
+                    .map_err(|e| seq_error(&e, |status| status.error()))
+            });
+        if let Some(lines) = lines {
+            let status = outcome
+                .as_ref()
+                .map_or_else(|e| e.status.status(), |_| sys::SAI_STATUS_SUCCESS);
+            self.trace.keep(phy, ops, lines, status);
+        }
+        Some(outcome)
+    }
+}
+
+/// The PHYs a `MACsec` sequence addresses when it runs for the port whose PHY is `phy`.
+fn sai_extphy_phys(ops: &[Op], phy: u16) -> Vec<u16> {
+    let set: std::collections::BTreeSet<u16> = ops.iter().filter_map(Op::reg).map(|r| r.phy.resolve(phy)).collect();
+    set.into_iter().collect()
+}
+
 impl SeqRunner for CallRunner<'_> {
     fn sequence_names(&self) -> Vec<String> {
         self.engine.map_or_else(Vec::new, |e| e.names.clone())
@@ -378,54 +458,21 @@ impl SeqRunner for CallRunner<'_> {
     }
 
     fn run(&mut self, port: PortKey, name: &str, params: &Params) -> core::result::Result<Results, SeqError> {
-        let Some(engine) = self.engine else {
-            return Err(SeqError {
-                status: Error::NotSupported,
-                why: "no external MACsec table".to_owned(),
-            });
-        };
-        let Some(&phy) = engine.phy_of.get(&port) else {
-            return Err(SeqError {
-                status: Error::NotSupported,
-                why: format!("port {} has no MACsec PHY in the table", port.0),
-            });
-        };
-        let Some(seq) = engine.table.sequence(name) else {
-            return Err(SeqError {
-                status: Error::NotSupported,
-                why: format!("the external MACsec table has no sequence {name}"),
-            });
-        };
-        let ops = seq.ops();
-        let traced = self.trace.wants(ops);
-        let par = phy_params(params);
-        let mut outcome = None;
-        let mut lines = None;
-        self.io.with_bus(&mut |bus| {
-            let mut on = CoreBus {
-                bus,
-                lines: traced.then(Vec::new),
-                op: None,
-                ops,
-            };
-            outcome = Some(seq.run(&mut on, phy, &par));
-            lines = on.lines;
-        });
-        drop(par); // wiped
-        let outcome = outcome
-            .ok_or_else(|| SeqError {
+        self.exec(port, name, params, false).unwrap_or_else(|| {
+            Err(SeqError {
                 status: Error::Failure,
-                why: "the bus was not lent".to_owned(),
-            })?
-            .map(|results| model_results(&results))
-            .map_err(|e| seq_error(&e, |status| status.error()));
-        if let Some(lines) = lines {
-            let status = outcome
-                .as_ref()
-                .map_or_else(|e| e.status.status(), |_| sys::SAI_STATUS_SUCCESS);
-            self.trace.keep(phy, ops, lines, status);
-        }
-        outcome
+                why: "skipped".to_owned(),
+            })
+        })
+    }
+
+    fn run_poll(
+        &mut self,
+        port: PortKey,
+        name: &str,
+        params: &Params,
+    ) -> Option<core::result::Result<Results, SeqError>> {
+        self.exec(port, name, params, true)
     }
 
     fn set_ifg(&mut self, port: PortKey, macsec_bits: u32) -> core::result::Result<(), SeqError> {
@@ -437,10 +484,6 @@ impl SeqRunner for CallRunner<'_> {
             status: e,
             why: format!("inter-frame gap not applied ({})", e.status()),
         })
-    }
-
-    fn poll_deferred(&mut self, port: PortKey, name: &str) -> bool {
-        hw_of(port).is_some_and(|hw| self.io.poll_deferred(hw, name))
     }
 }
 

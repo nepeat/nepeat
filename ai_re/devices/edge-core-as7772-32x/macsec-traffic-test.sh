@@ -1,39 +1,52 @@
 #!/usr/bin/env bash
 # Run ON the AS7772 (root, login shell) with SONiC up and MACsec configured (services.sonic.macsec): the traffic test
 # of sonic-traffic-test.sh over the two DAC loops with MKA-negotiated MACsec, and SONiC's MACsec counters.
-#   bash -l macsec-traffic-test.sh [count]
-# Both ends of each link are this switch: the far ends (cages 2, 32) sit in VRFs and get their own MAC address
-# (the KaY cannot elect a key server between two ends with one MAC: "duplicate MAC detected"). Runtime config only.
+#   bash -l macsec-traffic-test.sh [--dry-run] [count]    the test; --dry-run prints the CONFIG_DB writes, makes none
+#   bash -l macsec-traffic-test.sh --cleanup [--dry-run]   undo an interrupted run of this or of sonic-traffic-test.sh
+# Needs loadtest/sonic-test-lib.sh beside it (or in ./loadtest/). Both ends of each link are this switch: the far ends
+# (cages 2, 32) go into VRFs Vrf-a / Vrf-b and keep their own MAC address (the KaY cannot elect a key server between
+# two ends with one MAC: "duplicate MAC detected"). Runtime config only, put back exactly: CONFIG_DB snapshot before
+# the first write, restore on every exit, then the whole CONFIG_DB and the kernel state compared with the snapshot
+# (sonic-test-lib.sh); a run refuses to start over an earlier run's leftovers. Not yet run on the switch in this form.
 # MKA has to be up by itself: nothing is restarted here, and the test fails when a port has no SA after 60 s.
 # "show macsec" prints SAKs: everything shown here is filtered (no sak / auth_key / salt lines).
 set -u
-n=${1:-1000}
+here=$(cd "$(dirname "$0")" && pwd)
+lib=
+for l in "${SONIC_TEST_LIB:-}" "$here/loadtest/sonic-test-lib.sh" "$here/sonic-test-lib.sh"; do
+  if [ -n "$l" ] && [ -r "$l" ]; then lib=$l; break; fi
+done
+[ -n "$lib" ] || { echo "sonic-test-lib.sh not found: copy loadtest/sonic-test-lib.sh next to this script"; exit 2; }
+# shellcheck source=loadtest/sonic-test-lib.sh
+. "$lib"
+st_args "$@"
+n=${ST_ARGS[0]:-1000}
+ST_PHASES=("${ST_PAIRS_PHASES[@]}")
 export SONIC_CLI_IFACE_MODE=alias
 D() { openbcm-diag "$@"; }
 macsec() { show macsec "$@" 2>&1 | grep -v -i -E 'sak|auth_key|salt'; }
+mka() { for _ in $(seq "$1"); do [ "$(D extmacsec | grep -c ' open ')" = 8 ] && return 0; sleep 1; done; return 1; }
+st_verify_extra() {   # MKA again on all four ports after the restore (re-creating a far end's entry sets its MAC)
+  if mka 60; then echo "== MKA: 8 SAs open after the restore"
+  else echo "== FAIL: MKA not up on all four ports 60 s after the restore"; D extmacsec; return 1; fi
+}
+[ "$ST_MODE" = cleanup ] && st_cleanup vrf-pairs
 echo "== $(date -Is) $(readlink /run/current-system)"
 echo "== uptime: $(uptime)"
 systemctl is-active openbcm-mdio-script sonic-syncd sonic-orchagent sonic-macsecmgrd fand | tr '\n' ' '; echo
 echo "== failed units: $(systemctl --failed --no-legend | wc -l)"
-ip vrf show | grep -q Vrf-a || config vrf add Vrf-a
-ip vrf show | grep -q Vrf-b || config vrf add Vrf-b
-sleep 2
-ip link show Ethernet4 | grep -q 'master Vrf-a' || config interface vrf bind Ethernet2/1 Vrf-a
-ip link show Ethernet124 | grep -q 'master Vrf-b' || config interface vrf bind Ethernet32/1 Vrf-b
-sleep 2
-ip -4 addr show Ethernet0 | grep -q 10.0.1.0 || config interface ip add Ethernet1/1 10.0.1.0/31
-ip -4 addr show Ethernet4 | grep -q 10.0.1.1 || config interface ip add Ethernet2/1 10.0.1.1/31
-ip -4 addr show Ethernet120 | grep -q 10.0.31.0 || config interface ip add Ethernet31/1 10.0.31.0/31
-ip -4 addr show Ethernet124 | grep -q 10.0.31.1 || config interface ip add Ethernet32/1 10.0.31.1/31
-# far ends: the board's 2nd and 3rd MAC (base + 1, + 2). The NixOS configuration sets them; if one is missing it is
-# written here and macsecmgrd starts that port's MKA session again by itself when intfmgrd has set the address.
-for pm in Ethernet4=1c:ea:0b:38:2b:d6 Ethernet124=1c:ea:0b:38:2b:d7; do
-  p=${pm%%=*}; m=${pm#*=}
-  [ "$(sonic-db-cli CONFIG_DB hget "INTERFACE|$p" mac_addr)" = "$m" ] || { sonic-db-cli CONFIG_DB hset "INTERFACE|$p" mac_addr "$m" >/dev/null; echo "far-end MAC address of $p was not in CONFIG_DB: set"; }
+st_pairs_check
+for p in Ethernet4 Ethernet124; do
+  want=FAR_MAC_$p; have=$(st_hget "INTERFACE|$p" mac_addr)
+  [ "$have" = "${!want}" ] || st_refuse "CONFIG_DB INTERFACE|$p mac_addr is '$have', not ${!want}: MACsec needs the far end's own address (--cleanup puts it back)"
 done
+st_refusals || exit 1
+st_begin vrf-pairs arm
+echo "== setup: VRFs, far ends into them, addresses (CONFIG_DB)"
+st_pairs_up || { echo "FAIL: setup did not complete"; exit 1; }
+[ "$ST_DRY" = 1 ] && exit 0
 # MKA must be up BY ITSELF: this test restarts nothing. It waits 60 s for an egress SA on every port and fails
 # without one (macsec-up-check.sh says why and how long the start took).
-mka() { for i in $(seq $1); do [ "$(D extmacsec | grep -c ' open ')" = 8 ] && return 0; sleep 1; done; return 1; }
 t_mka=$(date +%s)
 if ! mka 60; then
   echo "FAIL: MKA is not up on all four ports after 60 s and this test does not restart anything"
@@ -62,7 +75,7 @@ ping -q -c 200 -i 0.005 -s 8000 10.0.31.1 | tail -2
 echo "== ping cage 32 -> 31 (Vrf-b)"
 ip vrf exec Vrf-b ping -q -c "$n" -i 0.002 10.0.31.0 | tail -2
 sleep 12
-echo "== MACsec counters (show macsec, since sonic-clear macsec; flex counters poll every 10 s)"
+echo "== MACsec SA counters (show macsec: counted from each SA's install, not reset by sonic-clear macsec; flex counters poll every 10 s)"
 macsec | grep -E '^MACsec port|Egress S|Ingress S|encoding_an|ENCRYPTED  |PKTS_OK|NOT_VALID|INVALID|LATE|UNCHECKED|CURRENT_XPN'
 echo "== per link: frames encrypted by the sender = frames accepted by the receiver?"
 python3 - <<'EOF'

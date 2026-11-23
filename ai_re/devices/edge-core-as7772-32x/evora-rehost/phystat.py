@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """PHY-side counters of Evora PHYs through the re-hosted vendor 'extphy reg64 get', SONiC running.
 
-  phystat.py [--taps] [--json] [--backend diag|ssh] 0x00 0x01 0x17e 0x17f
+  phystat.py [--taps] [--json] [--backend diag|ssh] [--txn phy|all|off] 0x00 0x01 0x17e 0x17f
 
 One line of JSON per PHY (--json) or a table. Uses the saved library state of the init run (all-cfg.state) and,
-by default, the 'diag' backend (clause 45 through syncd's diag socket, see mdio.py). Register addresses are the
+by default, the 'diag' backend (clause 45 through syncd's diag socket, see mdio.py), each register read (one vendor
+'reg64 get', a firmware-message conversation) inside its own diag transaction on that PHY (--txn phy; 'all': on every
+PHY; 'off': bare raw MDIO, for a libsai without 'extphy txn'), so syncd's own MDIO users stay off the PHY during the
+conversation. Note: reading counters that clear on read takes those counts away from SONiC. Register addresses are the
 vendor's (status pmdiag prints them: 0x42.. = TSCF/Falcon, 0x41.. = CLMAC/MIB); the RS-FEC counter addresses are
 from the public OpenBCM TSCF-16nm register header (the Evora PCS matches that layout: its 0x92b0 name is the
 16nm one), read back as plausible on this chip but not documented for it:
@@ -15,7 +18,7 @@ from the public OpenBCM TSCF-16nm register header (the Evora PCS matches that la
   temp      : Falcon die temperature, line side core: 410.04 - 0.48705 * (0xd03e & 0x3ff)  (formula of the public
               falcon API; agrees with the vendor 'status dsc' LIVE_TEMP)
 """
-import argparse, json, os, re, sys, time
+import argparse, contextlib, json, os, re, sys, time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import rehost
 
@@ -26,7 +29,7 @@ MIB = {'RPKT': 0x0b, 'RFCS': 0x0f, 'RERPKT': 0x18, 'RBYT': 0x3d, 'RXPF': 0x11, '
 
 
 class Phy:
-    def __init__(self, backend='diag', state=None, ssh='sudo ssh -T root@10.60.2.23'):
+    def __init__(self, backend='diag', state=None, ssh='sudo ssh -T root@10.60.2.23', txn='phy'):
         a = argparse.Namespace(bin=rehost.DEFAULT_BIN, backend=backend, ssh=ssh, bridge_log=None, trace=None, log=None,
                                verbose=False, strace=False, itrace=None)
         self.e = rehost.Emu(a)
@@ -34,6 +37,7 @@ class Phy:
         self.e.say = lambda s: self.buf.append(s)
         self.e.boot()
         self.e.load_state(state or os.path.join(T, 'all-cfg.state'))
+        self.txn = txn if hasattr(self.e.be, 'transaction') else 'off'
 
     def cmd(self, line):
         self.buf = []
@@ -41,7 +45,9 @@ class Phy:
         return rc, ''.join(self.buf)
 
     def reg(self, phy, addr, side=0, lane=0):
-        rc, out = self.cmd('reg64 get 0x%x 0x%x lane=%d if_side=%d' % (phy, addr, lane, side))
+        scope = None if self.txn == 'off' else ('all' if self.txn == 'all' else [phy])
+        with (self.e.be.transaction(scope) if scope else contextlib.nullcontext()):
+            rc, out = self.cmd('reg64 get 0x%x 0x%x lane=%d if_side=%d' % (phy, addr, lane, side))
         m = re.search(r'value64 = (0x[0-9a-fA-F]+|\d+)', out)
         if rc or not m:
             raise RuntimeError('reg64 get failed: rc=%d %r' % (rc, out))
@@ -87,8 +93,10 @@ def main():
     ap.add_argument('--taps', action='store_true', help='also the TX FIR registers of both sides, per lane')
     ap.add_argument('--json', action='store_true')
     ap.add_argument('--interval', type=float, default=0, help='repeat every N seconds until killed')
+    ap.add_argument('--txn', choices=['phy', 'all', 'off'], default='phy',
+                    help="diag transaction per register read: on its PHY (default), on all PHYs, or none")
     a = ap.parse_args()
-    p = Phy(a.backend, a.state)
+    p = Phy(a.backend, a.state, txn=a.txn)
     try:
         while True:
             for s in a.phys:

@@ -29,7 +29,8 @@ fan rpm, board sensors every 30 s), [load-20261122-phystat.txt](evidence/load-20
 
 **What this does not show**
 - **SONiC was stopped.** The ring ran on a plain SDK shell with SONiC's port settings (CAUI, autoneg off, IPG 16).
-  SONiC's own forwarding (SAI L2/L3) has still only seen pings.
+  Through SONiC's forwarding (Rust SAI, MACsec on): [evidence/rust-g4-load](evidence/rust-g4-load/README.md), 30 min,
+  92.07 Gb/s per port, 0 loss; its PHY FEC is not established ([planned run](#planned-30-min-through-sonic-with-phy-fec-sampling-planned-not-run)).
 - **No per-interval rate series.** The 30 s sampler asked for `show c nz`, which prints nothing. The rates are two
   SDK 10 s windows at t + 20 s (this run and an aborted start: equal to 5 digits) plus totals over the duration;
   PHY MAC frame counts between reads (18.60 Mpps over 908 s) agree. [loadtest/ring.sh](loadtest/ring.sh) is fixed
@@ -79,6 +80,41 @@ Order: `ring.sh up` (stops SONiC), `fwd`, `inject`, `soak`, `stop`, `down` (star
 | 0x4200d094, d095, d131, d132, d0d2 | TX FIR per lane: pre (low byte) + post1 (high byte), main, post2, post3, amplitude |
 | 0x4200d03e | die temperature (410.04 - 0.48705 x value); only refreshed by `status dsc`, reads 0 before the first |
 | CLMIB (0x41..) | a full MAC per side, counters not clear on read. `ROVR` counts every frame over 1518 B and still forwards it: a jumbo counter here, not an error (after the test = the number of 8996 B frames) |
+
+## Planned: 30 min through SONiC with PHY FEC sampling (planned, not run)
+The SONiC-path ring ([evidence/rust-g4-load](evidence/rust-g4-load/README.md): 30 min, 92.07 Gb/s per port, 0 loss,
+MACsec on) has no PHY FEC result: `phystat.py` collided with syncd's MACsec counter reads on the PHYs' message
+interface. Run this once the MDIO serialisation redesign is the boot default. Scripts:
+[loadtest/sonic-ring.sh](loadtest/sonic-ring.sh) + [loadtest/sonic-test-lib.sh](loadtest/sonic-test-lib.sh) (and
+`macsec-up-check.sh`, `macsec-traffic-test.sh`) copied to `/root`; switch commands are `bash -l /root/...`.
+Workstation, devshell, this directory: `P="python3 evora-rehost/phystat.py --json 0x00 0x01 0x17e 0x17f"`.
+Every step tee'd to `evidence/<tag>-ring-fec/*.txt`, README with sha256 as rust-g4-load.
+
+| t (min) | where | command | record |
+| --- | --- | --- | --- |
+| -10 | switch | `readlink /run/booted-system`; one `$P` from the workstation, then `journalctl -u sonic-syncd --since -1min` | the redesign's system; that probe read leaves 0 `stopped` / `Failed to get attr` lines, else stop here |
+| -5 | switch | `macsec-up-check.sh`; `sonic-ring.sh check`; `openbcm-diag extphy`; `openbcm-diag extmacsec` | PASS; CHECK OK; poll / fault / hold-off counts; 8 SAs |
+| -3 | ws | `$P > p0.jsonl` | clears the clear-on-read FEC counters (counts since link-up: not a result) |
+| -2 | ws | 60 s idle, `$P > p1.jsonl` | idle reference, expected 0 / 0 / 0 |
+| 0 | switch | `sonic-ring.sh up`; `sonic-ring.sh inject` | 4 static FDB entries; snapshot path |
+| 0-30 | switch (tmux) | `end=$(($(date +%s) + 1800)); while [ $(date +%s) -lt $end ]; do sonic-ring.sh sample; if grep -q '"failsafe": true' /run/fand/state.json; then sonic-ring.sh stop; break; fi; sleep 60; done >> samples.txt`; `sonic-ring.sh macsec >> macsec.txt` every 5 min | as rust-g4-load d0 / d1 |
+| 5, 10 ... 30 | ws | `$P >> p-run.jsonl` (6 reads; each holds its PHY in short diag transactions: that port's link state is cached meanwhile; no admin change meanwhile) | per PHY and interval: fec_corr, fec_uncorr, fec_symerr[4], PCS live both sides, sys_cl82_ber, MIB RFCS / RERPKT / RJBR / TERR, run time |
+| after each read | switch | `journalctl -u sonic-syncd --since '<read start>' -o cat > j.txt; grep -c -e stopped -e 'FW Message failure' -e 'Failed to get attr' j.txt` | 0 |
+| 30 | both | `sonic-ring.sh stop`; `sample`; `$P > p-after.jsonl`; `sonic-ring.sh down` | drained frames; "RESTORED and verified" |
+| 32 | switch | `openbcm-diag extphy`; `extmacsec`; `macsec-up-check.sh`; `macsec-traffic-test.sh` | as at -5; PASS; 6400 pings 0 lost |
+
+Pass, all of:
+- **Reads clean:** every phystat run (probe, p0, p1, six during, after) reads all four PHYs with no `FW Message failure`; syncd logs no MACsec sequence
+  failure and no `Failed to get attr` during the run; `extphy` 0 poll faults; 8 SAs at every sample.
+- **FEC:** uncorrected codewords 0 on every PHY in every interval. Corrected and symbol errors recorded per interval
+  (0 in the SDK-shell run above); a non-zero count is reported with its interval, not a failure by itself. An
+  uncorrected count on a cable with exact frame equality and 0 RFCS is a bad read (as 0x17f in rust-g4-load): that
+  fails the run on "reads clean", not the cable.
+- **Traffic** as rust-g4-load: per cable TPKT / TBYT delta = the peer's RPKT / RBYT delta; injected = drained; per SC
+  OUT_PKTS_ENCRYPTED = the peer's IN_PKTS_OK; 0 MACsec ingress errors; no ASIC error counter; PHY line RPKT delta = the
+  peer's line TPKT delta.
+- **Thermal:** no fand failsafe; ASIC peak recorded against rust-g4-load's 48.6 C.
+- **Restore:** `down` ends "RESTORED and verified"; 0 failed units after.
 
 ## Factory TX taps
 - `preem-25G.soc` (run by `rc.soc-100G` after `cfg`): 128 lines `extphy pre <id> <lane> <pre> <main> <post> <post2>
@@ -130,5 +166,5 @@ $R/install-script.sh $T/evora-100g-bypass-taps.mdio
   relying on it.
 - **Thermal headroom is large at this load** (+2.4 C ASIC, +3 to 5 C PHYs, fans did not move). Four ports are not
   a worst case; 32 loaded ports and MACsec on are untested.
-- Not done: a load run through SONiC's forwarding, hours-long soak, `eyescan`, PRBS, live PHY temperature (needs
-  the write `status dsc` makes to 0x4200d03d decoded), an exporter for the PHY counters.
+- Not done: PHY FEC under SONiC load (planned above), hours-long soak under load, `eyescan`, PRBS, live PHY temperature
+  (needs the write `status dsc` makes to 0x4200d03d decoded), an exporter for the PHY counters.

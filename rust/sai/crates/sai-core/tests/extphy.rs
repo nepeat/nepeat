@@ -15,7 +15,7 @@
 use sai_core::Error;
 use sai_core::backend::types::{MdioDev, PhyAddr};
 use sai_core::backend::{BackendEvent, HwPort, Mode, Profile, Recording, Shell};
-use sai_core::extphy::{self, ManualClock};
+use sai_core::extphy::{self, DiagTarget, DiagWho, ManualClock};
 use sai_core::oid::{RawOid, TypedId};
 use sai_core::sai::{Notification, Sai};
 use sai_core::value::{Attr, Value};
@@ -288,9 +288,14 @@ fn link_is_the_asic_link_and_the_line_side() {
     r.linkscan();
     assert_eq!(r.up_down(p0), (1, 0));
 
-    // hold-off: raw MDIO of the diag socket runs under the runtime's lock and pauses the polls
+    // hold-off: raw MDIO of the diag socket (no transaction) runs in its PHY's slot and pauses that
+    // PHY's polls
     let shells = r.sai.backend().inner().shell_log().len();
-    extphy::ext_phy_foreign_mdio(&mut r.sai, |b| b.run_shell("phy raw c45 0x10 1 0x8b00")).unwrap();
+    extphy::ext_phy_raw_shell(&mut r.sai, DiagWho::Bare, DiagTarget::Phy(0x10), |b| {
+        b.run_shell("phy raw c45 0x10 1 0x8b00")
+    })
+    .unwrap()
+    .unwrap();
     assert_eq!(r.sai.backend().inner().shell_log().len(), shells + 1);
     r.reg(0x10, 0xa101, 0);
     r.linkscan();

@@ -7,7 +7,7 @@ Trace line format (one per event, in order):
   # ...                             comment / marker
 All numbers hex except the delay.
 """
-import re, subprocess, sys, time, select, os
+import contextlib, re, subprocess, sys, time, select, os
 
 
 class Trace:
@@ -106,15 +106,19 @@ class Ssh:
                 return out
             self._fill(timeout)
 
+    def raw(self, line):
+        """The diag shell line of one raw access (Diag: inside a transaction, carried by it)."""
+        return line
+
     def read(self, phy, devad, reg):
-        out = self.cmd('phy raw c45 0x%x 0x%x 0x%x' % (phy, devad, reg))
+        out = self.cmd(self.raw('phy raw c45 0x%x 0x%x 0x%x' % (phy, devad, reg)))
         m = re.findall(r'^\s*0x([0-9a-fA-F]+): 0x([0-9a-fA-F]{4})\s*$', out, re.M)
         if len(m) != 1 or out.count('\n') != 1 or int(m[0][0], 16) != reg:
             raise RuntimeError('bridge: unexpected answer to a read (or noise from earlier writes): %r' % out)
         return int(m[0][1], 16)
 
     def write(self, phy, devad, reg, val):
-        self.p.stdin.write(('phy raw c45 0x%x 0x%x 0x%x 0x%x\n' % (phy, devad, reg, val & 0xffff)).encode())
+        self.p.stdin.write((self.raw('phy raw c45 0x%x 0x%x 0x%x 0x%x' % (phy, devad, reg, val & 0xffff)) + '\n').encode())
         self.dirty = True
 
     def flush(self):
@@ -150,6 +154,59 @@ class Diag(Ssh):
         sock = sock or os.environ.get('EVORA_DIAG_SOCKET')
         loop = ('export OPENBCM_DIAG_SOCKET=%s; ' % sock if sock else '') + self.LOOP
         Ssh.__init__(self, cmd, cwd_cmd=loop, init=('phy raw c45 0x0 0x1 0x8b00',), log=log, expect='0x8b00: 0x2391')
+
+    # Transactions (Rust libsai, 'extphy txn' on the diag socket): while one is open on a PHY, syncd's own
+    # MDIO users stay off it (link polls answer their last verdict, MACsec PN / counter reads their last
+    # value, MACsec changes wait), so a multi-register firmware conversation is not cut. Every raw line
+    # then carries the transaction ('extphy txn <n> phy raw ...'). A lease runs out 1 s after the last
+    # access and 2 s after the begin at the latest: keep one transaction per conversation.
+    txn = None
+
+    def raw(self, line):
+        return line if self.txn is None else 'extphy txn %d %s' % (self.txn, line)
+
+    def begin(self, phys, ms=None, wait=10.0):
+        """Begin a transaction on phys (MDIO address words, or 'all'); retried while another client holds them."""
+        self.flush()
+        scope = 'all' if phys == 'all' else ','.join('0x%x' % p for p in phys)
+        line = 'extphy txn begin %s%s' % (scope, ' %d' % ms if ms else '')
+        deadline = time.time() + wait
+        while True:
+            out = self.cmd(line)
+            m = re.match(r'txn (\d+) begun', out)
+            if m:
+                self.txn = int(m.group(1))
+                return self.txn
+            if 'try again' not in out or time.time() > deadline:
+                raise RuntimeError('bridge: %s: %r' % (line, out))
+            time.sleep(0.05)
+
+    def end(self):
+        """End the transaction; RuntimeError when it had expired (what was read inside may be void)."""
+        t = self.txn
+        try:
+            self.flush()
+        finally:
+            self.txn = None
+            out = self.cmd('extphy txn end %d' % t)
+        if not out.startswith('txn %d ended' % t):
+            raise RuntimeError('bridge: transaction %d: %r' % (t, out))
+
+    @contextlib.contextmanager
+    def transaction(self, phys, ms=None):
+        self.begin(phys, ms)
+        ok = False
+        try:
+            yield
+            ok = True
+        finally:
+            if ok:
+                self.end()
+            else:
+                try:
+                    self.end()
+                except Exception:
+                    pass
 
     def close(self):
         # no 'exit': the server is not ours to end (syncd refuses it; it ended the first bcmd.py, 2026-11-22)

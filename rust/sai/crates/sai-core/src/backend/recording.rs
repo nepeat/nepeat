@@ -223,6 +223,10 @@ impl<B: Backend> Backend for Recording<B> {
 
     /// The backend's handle, logged into this decorator's log (the C++ gate calls the
     /// recording backend itself).
+    fn diag_mdio_native(&self) -> bool {
+        self.inner.diag_mdio_native()
+    }
+
     fn mdio_bus(&self) -> Option<MdioBus> {
         let inner = self.inner.mdio_bus()?;
         Some(Arc::new(RecordedBus {

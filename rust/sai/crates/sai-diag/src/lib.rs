@@ -13,10 +13,21 @@
 //!   ([`DiagHost::with_handler`]), never beside a SAI call. Its output is collected while the lock
 //!   is held and written to the client after the lock is released: a client that does not read
 //!   never holds up a SAI call.
+//! - **Raw MDIO and transactions do not take the library's lock** (Rust only): `phy raw c45 ...`
+//!   and `extphy txn ...` go to the [`PhyDiag`] the library handed to
+//!   [`DiagServer::start_with`] (the core's PHY arbitration and a handle of the MDIO master), so a
+//!   tool's multi-second session never stalls notifications or port sets. A raw line it does not
+//!   serve itself (clause 22, another bus, devad 0, or a library that serves none) runs through the
+//!   backend's shell under the lock as before ([`DiagHandler::raw_mdio`]).
+//! - **Transactions** (`extphy txn begin <phy[,phy...]|all> [ms]` -> `txn <n> begun ...`,
+//!   `extphy txn <n> phy raw ...`, `extphy txn renew <n> [ms]`, `extphy txn end <n>`, `extphy txn
+//!   list`): a client's lease on PHYs across connections, so that a multi-register firmware
+//!   conversation is not cut by the library's own MDIO users; time-limited (crate `sai-extphy`). A
+//!   bare `phy raw ...` keeps working: an implicit lease of the table's `holdoff-ms` on its PHY.
 //! - Refused ([`command::REFUSED_WORDS`]): a first word that would end or re-initialise the SDK,
 //!   anything starting with `!`, any `;`. Our own commands ([`command::Command`]): `extphy`,
-//!   `extmacsec`, `extmacsec trace ...`, `extmacsec run ...`; everything else goes to the
-//!   backend's diag shell, writes included: a debug tool.
+//!   `extmacsec`, `extmacsec trace ...`, `extmacsec run ...`, `extphy txn ...`; everything else goes
+//!   to the backend's diag shell, writes included: a debug tool.
 //! - Every failure the server reports starts with [`MARKER`] (`openbcm-diag: `): the client exits 1
 //!   when it sees it.
 //!
@@ -40,7 +51,7 @@
 pub mod command;
 mod server;
 
-pub use command::{Command, MacsecRun, MdioAccess, Rejection, ShellCommand};
+pub use command::{Command, MacsecRun, MdioAccess, RawC45, RawRequest, RawTarget, Rejection, ShellCommand, Txn};
 pub use server::{DiagServer, StartError};
 
 use std::os::fd::BorrowedFd;
@@ -58,6 +69,66 @@ pub const MARKER: &str = "openbcm-diag: ";
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct ShellFailed(pub i32);
 
+/// Why a raw MDIO command was not run, or failed.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum RawFailed {
+    /// The backend's shell failed it.
+    Shell(ShellFailed),
+    /// The PHY arbitration refused it (a transaction that expired, another client's transaction):
+    /// the client's message.
+    Refused(String),
+}
+
+/// A command's answer from the library: its text, then (when it failed) the failure line the
+/// server writes after [`MARKER`].
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Reply {
+    /// What the command printed.
+    pub text: String,
+    /// Why it failed (without the marker and the line feed).
+    pub failure: Option<String>,
+}
+
+impl Reply {
+    /// A successful answer.
+    pub fn ok(text: impl Into<String>) -> Self {
+        Self {
+            text: text.into(),
+            failure: None,
+        }
+    }
+
+    /// A failure without other output.
+    pub fn failed(why: impl Into<String>) -> Self {
+        Self {
+            text: String::new(),
+            failure: Some(why.into()),
+        }
+    }
+
+    /// The bytes the client gets.
+    pub fn into_bytes(self) -> Vec<u8> {
+        let mut out = self.text.into_bytes();
+        if let Some(why) = self.failure {
+            out.extend_from_slice(MARKER.as_bytes());
+            out.extend_from_slice(why.as_bytes());
+            out.push(b'\n');
+        }
+        out
+    }
+}
+
+/// The external PHYs' raw MDIO and transactions, served **without** the library's lock (so a
+/// long diag session never holds up SAI calls or notifications): implemented by the core over
+/// its PHY arbitration and a handle of the MDIO master, handed to [`DiagServer::start_with`].
+pub trait PhyDiag: Send + Sync {
+    /// A raw MDIO command: `None` when it is not one the library serves itself (the server
+    /// then runs it through the backend's shell, under the lock: [`DiagHandler::raw_mdio`]).
+    fn raw(&self, request: &RawRequest<'_>) -> Option<Reply>;
+    /// `extphy txn ...` but a raw access ([`Txn::Raw`] goes to [`PhyDiag::raw`]).
+    fn txn(&self, txn: &Txn<'_>) -> Reply;
+}
+
 /// What the library does with a command (implemented by the core). Every method runs under the
 /// library's lock and only once [`DiagHandler::switch_created`] said yes.
 pub trait DiagHandler {
@@ -72,10 +143,24 @@ pub trait DiagHandler {
     fn ext_macsec_trace(&mut self, args: &str) -> String;
     /// `extmacsec run PORT SEQUENCE [PARAMETER FILE]`: one sequence by hand.
     fn ext_macsec_run(&mut self, run: &MacsecRun<'_>) -> String;
-    /// Anything else: the backend's diag shell, its output written to `out`.
-    /// [`MdioAccess::Raw`] (`phy raw ...`) must not run inside one of the external PHY table's
-    /// sequences and pauses its link polls (C++ `ext_phy_foreign_mdio`).
+    /// Anything else: the backend's diag shell, its output written to `out` (raw MDIO goes to
+    /// [`DiagHandler::raw_mdio`]).
     fn shell(&mut self, command: &ShellCommand<'_>, out: BorrowedFd<'_>) -> Result<(), ShellFailed>;
+    /// `phy raw ...` that [`PhyDiag`] did not serve: through the backend's shell, never inside
+    /// one of the library's PHY sequences, within the PHY arbitration (C++
+    /// `ext_phy_foreign_mdio`). Default: the shell as it is.
+    fn raw_mdio(&mut self, request: &RawRequest<'_>, out: BorrowedFd<'_>) -> Result<(), RawFailed> {
+        let command = ShellCommand {
+            line: request.line,
+            mdio: MdioAccess::Raw,
+        };
+        self.shell(&command, out).map_err(RawFailed::Shell)
+    }
+    /// `extphy txn ...` when no [`PhyDiag`] serves it. Default: not served.
+    fn ext_phy_txn(&mut self, txn: &Txn<'_>) -> Reply {
+        let _ = txn;
+        Reply::failed("extphy txn: no external PHY arbitration in this library")
+    }
 }
 
 /// The importance of a log line.

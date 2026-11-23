@@ -61,7 +61,7 @@ dump), over typed backend sub-traits that mirror the C++ `ob::Backend` op for op
 default to "not supported", with the same capability probes). Backends: `virt` (parity with
 `fake_backend.cpp`, records a call log), `sai-backend-openbcm` (the 72 ops of `openbcm_backend.cpp` over
 `sdk_glue.h`, 75 functions), later `sai-backend-teralynx`. Beside the core, all `forbid(unsafe_code)`: the
-external-PHY runtime (link gate, debounce, hold-off, admin sequences) over `phy-seq`, `sai-macsec` called
+external-PHY runtime (link gate, debounce, per-PHY MDIO arbitration, admin sequences) over `phy-seq`, `sai-macsec` called
 natively, the diag socket, temperatures. (`phy-seq-capi` and `sai-macsec-capi` plugged Rust into the C++ for G0
 and were deleted with it.) The library reads the C++ profile key names (`SAI_OPENBCM_*`).
 
@@ -433,13 +433,70 @@ captured contents (else SKIPPED).
 ### sai-extphy, sai-diag, openbcm-diag
 
 - `sai-extphy`: the runtime of `sai_extphy.cpp` around `phy-seq`'s parser and executor: the link
-  gate the backend's link scan asks, debounce (`up-polls`), hold-off after foreign MDIO, the admin
-  sequences, counters and status text, behind its own lock (never the SAI lock). The SAI layer
-  holds it per switch (`sai-core::extphy`).
+  gate the backend's link scan asks, debounce (`up-polls`), the admin sequences, counters and
+  status text, and the **MDIO arbitration** of every library user of the PHYs plus the diag
+  socket's **transactions** (below). Never the SAI lock. The SAI layer holds it per switch
+  (`sai-core::extphy`).
 - `sai-diag`: the diag socket server of `sai_diag.cpp` (one thread, one connection at a time,
   root only, the command under the SAI lock, output written after it is released; differences
-  in its `lib.rs`). `openbcm-diag`: the client `openbcm_diag.c`, same command line, bytes and exit
-  codes (differential against the C tool).
+  in its `lib.rs`), except raw MDIO and `extphy txn`, which the switch's `sai_core::diag::DiagPort`
+  serves **without** the SAI lock. `openbcm-diag`: the client `openbcm_diag.c`, same command line,
+  bytes and exit codes (differential against the C tool).
+
+#### MDIO serialisation and diag transactions (2026-11-23, replaces the hold-off of 9d64222)
+
+The Evora PHYs' firmware-message and MACsec register interfaces are conversations (request words,
+doorbell 1.8222, ack 1.8221 that clears on read, result words): a foreign access in the middle
+breaks both parties (the AS7772's `pn.* stopped ... 1.8221 read 0x0000` and the tool's "FW Message
+failure", `ai_re/devices/edge-core-as7772-32x/evidence/rust-g6/` f1, g2).
+
+- **What the C++ did:** one global mutex for every sequence run (link poll, admin, MACsec); the gate
+  took it blocking on the SDK link-scan thread; `phy raw` of the diag socket ran under it *and* the
+  SAI lock; a global `holdoff-ms` hold-off after each `phy raw` paused the **link polls only**
+  (`sai_extphy.cpp:506`); MACsec sequences never looked at it (`sai_macsec.cpp:153`).
+- **Now:** a **slot per PHY** (MDIO address word): every user holds the PHYs its sequence addresses
+  for the whole run; different PHYs interleave (the SDK serialises single frames). A global slot only
+  for raw diag MDIO that names no single PHY (broadcast bit, clause 22, `sbus`, unparsed).
+- **Transactions** (diag socket, Rust only): `extphy txn begin <phy[,phy...]|all> [ms]` ->
+  `txn <n> begun: ...`; `extphy txn <n> phy raw c45 ...` (each access renews it); `extphy txn renew
+  <n> [ms]`; `extphy txn end <n>`; `extphy txn [list]`. A lease: `LEASE_DEFAULT_MS` 1000 after each
+  access unless asked, never more than `LEASE_MAX_MS` 2000 from its begin (a dead client blocks
+  nothing longer). A request of a transaction that ran out is refused (`openbcm-diag: extphy txn <n>:
+  expired ...: what the PHY did since is unknown`). A bare `phy raw` inside another client's
+  transaction is refused; without one it gets an **implicit lease** of `holdoff-ms` on its PHY (the
+  old hold-off, per PHY now) so today's tools keep working.
+- **Who waits for what** while a lease holds a PHY: the link gate never waits (cached verdict,
+  counted) but waits behind short library runs (<= ~18 ms) rather than skipping a pass; MACsec periodic
+  reads (`pn.*`, `stats-sa.*`, `stats-flow.*` of a get) skip (the model's last read answers, counted,
+  no error line), and a read that has not reached its PHY for `MACSEC_POLL_DEFER_MAX_MS` 10 s waits
+  for the transaction to end (<= 2 s) and reads, never inside one; SONiC's MACsec changes (SA
+  install / remove, gate, enable / disable, clears) and admin sequences wait for a **transaction**
+  (<= 2 s, under the SAI lock), never dropped, and pass implicit leases (as in the C++); a diag
+  `extmacsec run` is refused inside a transaction. A new transaction waits for library runs on its
+  PHYs and for library users already waiting, so back-to-back transactions cannot starve them.
+- **Lock order**, by construction: SAI lock, then a lease, then a PHY slot, then the MDIO master's
+  own lock. The runtime's mutexes are leaves (`sai-extphy` `leaf`: debug builds assert no nesting,
+  no logger and no bus access under them); slots are never held while anything waits; the gate
+  closure and the `DiagPort` have no way to take the SAI lock; the diag server serves raw clause-45
+  MDIO and transactions over the backend's MDIO handle (answer format the SDK shell's `\t0x%02x:
+  0x%04x`) when a PHY table is attached and the backend's shell would answer it from that bus
+  (`Backend::diag_mdio_native`; the virtual chip only in `ShellMdio::Answer`); everything else still
+  goes through the SDK shell under the SAI lock, within the arbitration.
+- **Visibility**: the `extphy` text keeps the C++ header (`PAUSED now` = some lease live, `N so far` =
+  leases begun) and table, then four lines: transactions begun / ended / expired, hold-offs, busy /
+  void refusals; link polls answered from a lease and gate waits (count, max, total us, measured from
+  before the wait); MACsec polls skipped, forced reads (max wait), runs that waited for a transaction,
+  `extmacsec run` refused; then one line per live lease. Log: a NOTICE per implicit lease begun
+  (`external PHY phy 0x10: link polls and MACsec polls paused: raw MDIO on the diag socket without a
+  transaction ...`), per expiry, per forced read, per MACsec run that waited; INFO per transaction
+  begun / ended.
+- **Not solved, documented:** MACsec counters clear on read; a diag read of them (transaction or not)
+  takes those counts from SONiC's statistics. A client that dies in the middle of a conversation leaves
+  the PHY's message interface in an unknown state for the next user after its lease runs out.
+- Tools: `evora-rehost/mdio.py` (`Diag.transaction()`) and `phystat.py` (one transaction per register
+  read, `--txn phy|all|off`). Tests: `sai-extphy/tests/arbitration.rs` (a stateful fake of the
+  message interface, `sai_extphy::fwphy`, that breaks a conversation on any foreign access, as the
+  hardware does), `sai-core/tests/macsec.rs` (through the SAI layer and the socket, real threads).
 
 ### sai-test-port, sai-driver (the parity harnesses)
 
@@ -538,16 +595,13 @@ comparison at 50a6aa7). Also:
   - the STP, next-hop and table-entry sets look the object up first (C++: no lookup, no lock);
   - MACsec: D1, D9 (Q7), D10 (Q10) fixed; `NO_MEMORY` / `INVALID_PORT_NUMBER` from the model
     become `FAILURE`;
-  - deliberate improvement (2026-11-23): the raw-MDIO hold-off (`holdoff-ms` after a diag `phy raw`)
-    also defers the MACsec PN / counter polls syncd asks for (`pn.*`, `stats-sa.*`, `stats-flow.*` of
-    a get: the last read answers, the next read catches up); the C++ held off its link polls only
-    (`sai_extphy.cpp:506`; `sai_macsec.cpp:153` runs every sequence under the lock without a hold-off
-    check), so a PN read could land inside a tool's PHY firmware-message conversation on the AS7772
-    (`pn.egress.0 stopped ... read 0x0000`, the tool's "FW Message failure"). One poll sequence is
-    deferred at most 10 s in a row (`MACSEC_POLL_DEFER_MAX_MS`; then it runs inside the hold-off),
-    so a tool polling for minutes cannot hide a PN nearing exhaustion. SA install / remove / gate and
-    counter clears are never deferred (as in the C++). Code: `sai-extphy` `ExtPhy::macsec_poll_deferred`;
-    tests: `sai-extphy/tests/runtime.rs`, `sai-core/tests/macsec.rs`;
+  - deliberate improvement (2026-11-23): MDIO arbitration per PHY with diag transactions (section
+    "MDIO serialisation and diag transactions"): the MACsec PN / counter polls skip while a diag lease
+    holds their PHY (the C++ held off its link polls only and ran every sequence under one lock, so a
+    PN read could land inside a tool's firmware-message conversation), the gate never waits for a
+    diag client, raw MDIO runs without the SAI lock; the status text gains its arbitration lines;
+    `phy raw c45` on a switch with a PHY table is answered by the library over its MDIO handle (the
+    SDK shell's format), not by the SDK shell;
   - the virtual chip's QoS, mirror and L2-extras models are off (as the C++ fake's toggles) and
     reachable only through the test port and the driver (`feature`).
 - **syncd** (`vm-sai-rs-syncd`, `nix/test-syncd.nix`, Rust key names): syncd on this `libsai.so`

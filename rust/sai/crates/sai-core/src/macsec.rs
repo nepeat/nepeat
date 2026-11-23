@@ -13,7 +13,7 @@
 //! `sai-macsec` depends on this crate (its ids, errors and statuses are this crate's), so this
 //! crate cannot depend on it. The dependency stays one way: this module defines what the core
 //! needs ([`MacsecModel`], [`MacsecLoader`]) and what it offers the model during a call
-//! ([`MacsecIo`]: the bus under the external-PHY lock, the port's gap); `sai-macsec-phy`'s
+//! ([`MacsecIo`]: the bus with its PHYs held by the external-PHY arbitration, the port's gap); `sai-macsec-phy`'s
 //! `native` module implements them, and the rim (`sai-ffi`) hands its loader to the core
 //! ([`crate::extphy::Hooks`]). No C ABI and no C++ in between. A core without a loader (tests of
 //! other areas) answers every `MACsec` call `NOT_SUPPORTED`.
@@ -206,8 +206,7 @@ pub struct MacsecOptions {
 
 // ------------------------------------------------------------------ what the model gets
 
-/// The clause-45 bus for one sequence run, taken under the external-PHY lock
-/// ([`MacsecIo::with_bus`]).
+/// The clause-45 bus for one sequence run, with its PHYs held ([`MacsecIo::with_bus`]).
 pub trait MacsecBus {
     /// `mdio_c45_read` on the backend.
     fn read(&mut self, phy: PhyAddr, dev: MdioDev, reg: u16) -> Result<u16>;
@@ -217,23 +216,46 @@ pub trait MacsecBus {
     fn delay_us(&mut self, us: u32);
 }
 
+/// What a sequence run is for the PHY arbitration (`sai_extphy::MacsecUse`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum BusUse<'a> {
+    /// A change `SONiC` asked for (or the start-up clean-up): waits for a diag transaction on its
+    /// PHYs, never dropped.
+    Op,
+    /// The periodic read `name` of a get (`pn.*`, `stats-*`): skipped while a diag lease holds
+    /// its PHY (bounded).
+    Poll(&'a str),
+}
+
+/// What became of a sequence run ([`MacsecIo::with_bus`]).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum BusTurn {
+    /// It ran.
+    Ran,
+    /// A periodic read skipped: the model answers its last read.
+    Skipped,
+    /// Refused (a diag-socket `extmacsec run` inside a transaction): why.
+    Refused(String),
+}
+
 /// What the core offers the model during one of its calls.
 pub trait MacsecIo {
-    /// Runs `run` with the bus, under the external-PHY table's lock: a sequence never
-    /// interleaves with a link poll, an admin sequence or raw MDIO of the diag socket.
-    fn with_bus(&mut self, run: &mut dyn FnMut(&mut dyn MacsecBus));
+    /// Runs `run` with the bus and the PHYs `phys` held (the sequence of chip port `hw`): a
+    /// sequence never interleaves with a link poll, an admin sequence, another sequence on those
+    /// PHYs or a diag client's transaction on them (crate `sai-extphy`, "Serialisation").
+    fn with_bus(
+        &mut self,
+        hw: HwPort,
+        phys: &[u16],
+        use_: BusUse<'_>,
+        run: &mut dyn FnMut(&mut dyn MacsecBus),
+    ) -> BusTurn;
     /// The port's `MACsec` gap changed (`macsec_bits` != 0: it has a `MACSEC_PORT`, 0: no
     /// longer): the port code re-applies its gap (only the gap: C++ `port_ifg_apply`).
     fn set_ifg(&mut self, hw: HwPort, macsec_bits: u32) -> Result<()>;
     /// The id a new `MACsec`-stage ACL table / entry gets: the ACL area's, from the allocator
     /// the other ACL objects use (sai-macsec's D7); `None` for other objects (the model counts).
     fn next_id(&mut self, object: MacsecObject) -> Option<RawOid>;
-    /// Whether the poll sequence `name` (`pn.*`, `stats-*` for a get) on `hw` is to be
-    /// skipped now: raw MDIO of the diag socket holds the PHY polls off
-    /// ([`ExtPhy::macsec_poll_deferred`], bounded). The default never skips.
-    fn poll_deferred(&mut self, _hw: HwPort, _name: &str) -> bool {
-        false
-    }
 }
 
 /// The `MACsec` model of one switch (implemented by `sai-macsec-phy`'s `native` module over
@@ -392,7 +414,7 @@ impl<B: Backend + ?Sized> MacsecBus for BackendBus<'_, B> {
 }
 
 /// [`MacsecIo`] over the backend, the store (without the model, taken out for the call) and
-/// the external-PHY lock.
+/// the external-PHY arbitration.
 pub(crate) struct CoreIo<'a, B: ?Sized> {
     pub(crate) backend: &'a mut B,
     /// `None` while the switch is being created (no port objects yet).
@@ -401,13 +423,32 @@ pub(crate) struct CoreIo<'a, B: ?Sized> {
     pub(crate) clock: Arc<dyn Clock>,
     /// The id the ACL area chose for the table / entry being created.
     pub(crate) alloc: Option<RawOid>,
+    /// The call is the diag socket's `extmacsec run`: refused inside a diag transaction.
+    pub(crate) diag_run: bool,
 }
 
 impl<B: Backend + ?Sized> MacsecIo for CoreIo<'_, B> {
-    fn with_bus(&mut self, run: &mut dyn FnMut(&mut dyn MacsecBus)) {
+    fn with_bus(
+        &mut self,
+        hw: HwPort,
+        phys: &[u16],
+        use_: BusUse<'_>,
+        run: &mut dyn FnMut(&mut dyn MacsecBus),
+    ) -> BusTurn {
         let backend: &B = self.backend;
         let clock = &*self.clock;
-        self.phy.locked(|| run(&mut BackendBus { backend, clock }));
+        let use_ = match (use_, self.diag_run) {
+            (_, true) => sai_extphy::MacsecUse::DiagRun,
+            (BusUse::Op, false) => sai_extphy::MacsecUse::Op,
+            (BusUse::Poll(name), false) => sai_extphy::MacsecUse::Poll(name),
+        };
+        match self.phy.macsec_run(sai_extphy::ChipPort(hw.0), phys, use_, || {
+            run(&mut BackendBus { backend, clock });
+        }) {
+            sai_extphy::Turn::Ran(()) => BusTurn::Ran,
+            sai_extphy::Turn::Skipped => BusTurn::Skipped,
+            sai_extphy::Turn::Refused(why) => BusTurn::Refused(why),
+        }
     }
 
     fn set_ifg(&mut self, hw: HwPort, macsec_bits: u32) -> Result<()> {
@@ -424,10 +465,6 @@ impl<B: Backend + ?Sized> MacsecIo for CoreIo<'_, B> {
             return Ok(());
         }
         crate::port::port_ifg_apply(self.backend, store, port)
-    }
-
-    fn poll_deferred(&mut self, hw: HwPort, name: &str) -> bool {
-        self.phy.macsec_poll_deferred(sai_extphy::ChipPort(hw.0), name)
     }
 
     fn next_id(&mut self, object: MacsecObject) -> Option<RawOid> {
@@ -455,7 +492,7 @@ pub(crate) fn with_model<B: Backend + ?Sized, T>(
     store: &mut Store,
     call: impl FnOnce(&mut dyn MacsecModel, &mut dyn MacsecIo) -> Result<T>,
 ) -> Result<T> {
-    with_model_alloc(backend, store, None, call)
+    with_model_alloc(backend, store, None, false, call)
 }
 
 /// [`with_model`] for a create whose id the caller chose.
@@ -463,6 +500,7 @@ fn with_model_alloc<B: Backend + ?Sized, T>(
     backend: &mut B,
     store: &mut Store,
     alloc: Option<RawOid>,
+    diag_run: bool,
     call: impl FnOnce(&mut dyn MacsecModel, &mut dyn MacsecIo) -> Result<T>,
 ) -> Result<T> {
     let Some(mut model) = store.ext_mut().macsec.model.take() else {
@@ -482,6 +520,7 @@ fn with_model_alloc<B: Backend + ?Sized, T>(
             phy,
             clock,
             alloc,
+            diag_run,
         };
         call(model.as_mut(), &mut io)
     };
@@ -636,7 +675,7 @@ pub fn ext_macsec_diag_run<B: Backend>(sai: &mut Sai<B>, port: &str, seq: &str, 
         }
     };
     let lent: Vec<(&str, &[u8])> = params.iter().map(|(n, b)| (n.as_str(), b.as_slice())).collect();
-    with_model(backend, store, |m, io| Ok(m.diag_run(io, port, seq, &lent))).unwrap_or_default()
+    with_model_alloc(backend, store, None, true, |m, io| Ok(m.diag_run(io, port, seq, &lent))).unwrap_or_default()
 }
 
 // ------------------------------------------------------------------ hooks of the port and ACL areas
@@ -787,7 +826,7 @@ fn acl_create<B: Backend + ?Sized>(
     id: RawOid,
     attrs: &[Attr],
 ) -> Result<()> {
-    let made = with_model_alloc(backend, store, Some(id), |m, io| m.create(io, object, attrs))?;
+    let made = with_model_alloc(backend, store, Some(id), false, |m, io| m.create(io, object, attrs))?;
     if made == id {
         Ok(())
     } else {
@@ -907,6 +946,7 @@ pub(crate) fn ext_macsec_attach<B: Backend + ?Sized>(
             phy,
             clock,
             alloc: None,
+            diag_run: false,
         };
         pending.attach(&mut io, &ports, ext.options)?
     };

@@ -1,19 +1,20 @@
 //! The external-PHY runtime of the SAI: what `sai_extphy.cpp` of the C++ sai-openbcm does around
-//! its table parser and sequence executor (those are `phy-seq`). A board whose front-panel
-//! ports end at another chip the SDK has no driver for (the AS7772's Evora retimer / `MACsec`
-//! PHYs) gives a table (`ext-phy 1`, `SAI_OPENBCM_EXT_PHY_FILE`) with up to three clause-45
-//! sequences per port; this crate runs them:
+//! its table parser and sequence executor (those are `phy-seq`), and the MDIO arbitration of
+//! every library user of those PHYs. A board whose front-panel ports end at another chip the SDK
+//! has no driver for (the AS7772's Evora retimer / `MACsec` PHYs) gives a table (`ext-phy 1`,
+//! `SAI_OPENBCM_EXT_PHY_FILE`) with up to three clause-45 sequences per port; this crate runs them:
 //!
 //! | C++ (`ext_phy.h`) | here |
 //! |---|---|
 //! | `ext_phy_load` | [`ExtPhy::load`] (file read and parsed before the backend starts) |
 //! | `ext_phy_attach` | [`ExtPhy::attach`]: first lanes to ports, the bus handle; the SAI layer then probes the bus and registers the gates |
-//! | `ext_phy_detach` | [`ExtPhy::gated_ports`] (gates to unregister, without this crate's lock) + [`ExtPhy::clear`] |
+//! | `ext_phy_detach` | [`ExtPhy::gated_ports`] (gates to unregister, without this crate's locks) + [`ExtPhy::clear`] |
 //! | `ext_phy_gate` | [`ExtPhy::gate`]: the verdict for the backend's link scan |
 //! | `ext_phy_admin` | [`ExtPhy::admin`]: admin-up before the ASIC port is enabled, admin-down after it is disabled |
-//! | `ext_phy_foreign_mdio` | [`ExtPhy::foreign_mdio`]: raw MDIO of the diag socket, under the lock, starts the hold-off |
-//! | `ext_phy_locked` | [`ExtPhy::locked`]: the external `MACsec` table's sequences, under the lock |
+//! | `ext_phy_foreign_mdio` | [`ExtPhy::diag_access`]: one raw MDIO access of the diag socket, with or without a transaction |
+//! | `ext_phy_locked` | [`ExtPhy::macsec_run`]: one external `MACsec` table sequence on its PHYs |
 //! | `ext_phy_status` | [`ExtPhy::status`]: the diag socket's `extphy` text |
+//! | (none) | [`ExtPhy::txn_begin`], [`ExtPhy::txn_renew`], [`ExtPhy::txn_end`], [`ExtPhy::leases`]: diag transactions |
 //!
 //! # Rules (the C++'s, kept)
 //!
@@ -22,16 +23,47 @@
 //!   table, for a port without a link sequence, and while the port is admin down.
 //! - **Debounce**: one failed poll (a `C` that does not hold, a fault, an MDIO error) takes
 //!   the port down at once; up needs `up-polls` (2) good polls in a row, `poll-ms` (500)
-//!   apart. Between polls, and during the hold-off, the last verdict answers.
-//! - **Hold-off**: raw MDIO on the diag socket pauses the polls `holdoff-ms` (3000) after the
-//!   last one.
+//!   apart. Between polls, and while a diag lease holds one of the poll's PHYs, the last verdict
+//!   answers.
 //! - **Admin**: every admin change starts the port from "line side down". A sequence that
 //!   stops is logged and counted; the SAI call still succeeds.
-//! - **One lock** of its own for all of it. The gate runs on the backend's link-scan thread:
-//!   it takes this lock and the bus handle's, never the SAI lock. Lock order: SAI lock, then
-//!   this one, then the bus master's.
 //! - **Bus**: clause 45 only. Devices are [`phy_seq::Dev`] (1..=31); the board table's
 //!   device-1-only rule is the table's (`ext-phy.nix`).
+//!
+//! # Serialisation (replaces the C++'s one lock and hold-off)
+//!
+//! The PHYs' firmware-message and `MACsec` register interfaces are conversations (request words,
+//! the doorbell 1.8222, the ack 1.8221 that clears on read, result words): a foreign access in the
+//! middle breaks both parties. So every user of a PHY takes that PHY's **slot** for its whole
+//! conversation, and different PHYs interleave freely (the SDK serialises single MDIO frames):
+//!
+//! | user | thread | while a diag lease holds one of its PHYs |
+//! |---|---|---|
+//! | link poll ([`ExtPhy::gate`]) | SDK link scan | never waits: the cached verdict (counted); waits only behind short library holders |
+//! | admin sequence ([`ExtPhy::admin`]) | SAI call | waits for a transaction to end or run out ([`LEASE_MAX_MS`]) |
+//! | `MACsec` change ([`MacsecUse::Op`]: SA install / remove, gate, enable, clear) | SAI call | waits, as admin: never dropped |
+//! | `MACsec` periodic read ([`MacsecUse::Poll`]: PN, SA / flow stats) | SAI call (syncd's counter thread) | skipped: the model's last read answers (counted, no error); after [`MACSEC_POLL_DEFER_MAX_MS`] of skips it waits for a transaction to end, then reads (never inside one) |
+//! | diag `extmacsec run` ([`MacsecUse::DiagRun`]) | diag socket, SAI lock | refused (the transaction's client is the one who would have to end it) |
+//! | diag raw access ([`ExtPhy::diag_access`]) | diag socket, **no** SAI lock for clause 45 | in its transaction: served; without one (bare): refused inside another client's transaction, else an implicit lease of `holdoff-ms` on that PHY (the C++ hold-off, per PHY) |
+//!
+//! A **transaction** (`extphy txn begin <phys|all> [ms]` on the diag socket) is a lease: it lasts
+//! [`LEASE_DEFAULT_MS`] (or what was asked, at most [`LEASE_MAX_MS`]) after its begin and each
+//! access, never more than [`LEASE_MAX_MS`] from its begin, so a dead client blocks nothing for
+//! longer. A request of a transaction that ran out is refused ("expired": what the PHY did since is
+//! unknown). Implicit leases (bare accesses) pause the polls only: `MACsec` changes and admin
+//! sequences do not wait for them, and a forced PN read runs between two of their accesses (as
+//! the C++ and the old tools behaved). Raw MDIO that names no single PHY (broadcast, clause 22,
+//! another bus) takes the **global** slot (every PHY) and, without a transaction, an implicit lease
+//! on all PHYs.
+//!
+//! **Lock order** (enforced by construction): SAI lock, then a lease, then a PHY's slot, then the
+//! bus master's own lock. The runtime's state mutex and the arbiter's mutex are leaves (module
+//! `leaf`, checked in debug builds); slots are never held while anything waits; the gate closure
+//! and the diag socket's raw path hold no SAI lock (they have no way to take it); log lines are
+//! written after every lock is released.
+//!
+//! **Hazard, documented and not solved**: the `MACsec` counters clear on read. A diag read of them
+//! (transaction or not) takes those counts away from `SONiC`'s accumulated statistics.
 //!
 //! # Differences from the C++
 //!
@@ -40,27 +72,34 @@
 //! - The state is one value per switch ([`ExtPhy`], cheap to clone: one shared runtime), not
 //!   a process global; a new switch gets a new one (the C++ resets its global at load).
 //! - The status text always has the "rust (phy-seq)" engine line (the C++ prints it only when
-//!   built with the Rust engine; this library has no other).
-//! - **Deliberate improvement: the hold-off also defers the external `MACsec` table's polls**
-//!   ([`ExtPhy::macsec_poll_deferred`]: `pn.*` and `stats-*` runs that syncd's counter
-//!   polls ask for). The C++ held off its link polls only, so a PN / counter read could land
-//!   between the requests of a tool's multi-register PHY firmware-message conversation (seen on
-//!   the AS7772: the read gets 0x0000, the tool "FW Message failure"). While deferred the model
-//!   answers from its last read; one poll sequence is deferred at most
-//!   [`MACSEC_POLL_DEFER_MAX_MS`] in a row (then it runs inside the hold-off), so a tool that
-//!   polls for minutes cannot hide a PN nearing exhaustion. SA install / remove / gate
-//!   sequences and counter clears are never deferred (as in the C++).
+//!   built with the Rust engine; this library has no other), and after the port table the
+//!   arbitration lines (leases, counters).
+//! - The C++ had **one** mutex for every sequence run (link poll, admin, `MACsec`), the gate took it
+//!   blocking, raw diag MDIO ran under it and the SAI lock, and its global `holdoff-ms` hold-off
+//!   held the **link polls only** (`MACsec` never: a PN / counter read could land between the
+//!   requests of a tool's conversation, seen on the AS7772 as "1.8221 read 0x0000"). Here: per-PHY
+//!   slots, leases, the table above.
 #![forbid(unsafe_code)]
 
+mod arbiter;
 mod clock;
+#[cfg(feature = "testing")]
+pub mod fwphy;
+mod leaf;
 
+pub use arbiter::{
+    ArbCounts, DiagTarget, DiagWho, LEASE_DEFAULT_MS, LEASE_MAX_MS, LeaseScope, LeaseView, TxnEnded, TxnInfo,
+    TxnRefused,
+};
 pub use clock::{Clock, ManualClock, SystemClock};
 pub use phy_seq::{Dev, ExtPhyTable, ParseError};
 
+use arbiter::{Arbiter, LibTurn, LibWant};
+use leaf::Leaf;
 use phy_seq::{Op, Params, Section};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::{self, Write as _};
-use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
+use std::sync::{Arc, Mutex, PoisonError};
 
 /// A chip logical port (the backend's port number).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -78,13 +117,13 @@ impl fmt::Display for BusStatus {
 }
 
 /// The clause-45 MDIO master as the runtime uses it: a handle of its own (the gate runs on
-/// the backend's link-scan thread, where the SAI layer's backend cannot be borrowed), with
-/// its own lock inside.
-pub trait PhyBus: Send {
+/// the backend's link-scan thread, where the SAI layer's backend cannot be borrowed), shared by
+/// the threads that run sequences on different PHYs at once, with the master's own lock inside.
+pub trait PhyBus: Send + Sync {
     /// Reads `dev.reg` of the PHY at address word `phy`.
-    fn read(&mut self, phy: u16, dev: Dev, reg: u16) -> Result<u16, BusStatus>;
+    fn read(&self, phy: u16, dev: Dev, reg: u16) -> Result<u16, BusStatus>;
     /// Writes `value` to `dev.reg` of the PHY at address word `phy`.
-    fn write(&mut self, phy: u16, dev: Dev, reg: u16, value: u16) -> Result<(), BusStatus>;
+    fn write(&self, phy: u16, dev: Dev, reg: u16, value: u16) -> Result<(), BusStatus>;
 }
 
 /// What the gate says about its port on one link-scan pass (C++ `ext_phy_gate`: `0` /
@@ -119,7 +158,7 @@ pub enum Level {
     Info,
 }
 
-/// Receives the runtime's log lines (called under the runtime's lock: it must not call back).
+/// Receives the runtime's log lines (called with none of the runtime's locks held).
 pub type Logger = Arc<dyn Fn(Api, Level, &str) + Send + Sync>;
 
 /// A front-panel port of the chip, as attach resolves the table's lanes.
@@ -166,7 +205,7 @@ pub struct PortCounters {
     pub hooks: u64,
     /// Admin sequences that stopped.
     pub hook_fail: u64,
-    /// Duration of the last poll, us.
+    /// Duration of the last poll, us (from when it had its PHYs).
     pub last_us: u64,
     /// Longest poll, us.
     pub max_us: u64,
@@ -192,10 +231,35 @@ pub struct PortState {
 }
 
 /// The longest one `MACsec` poll sequence (a port's `pn.<dir>.<an>`, `stats-sa.*`,
-/// `stats-flow.*`) is deferred in a row by the raw-MDIO hold-off: then it runs anyway, inside
-/// the hold-off, and the next deferral starts again. Bounds how stale a PN read can be while
-/// a tool polls the PHY continuously (syncd asks for the PN about once a second).
+/// `stats-flow.*`) goes without reading its PHY while diag leases make it skip: then it waits
+/// for the transaction to end (at most [`LEASE_MAX_MS`]) and reads.
+/// Bounds how stale a PN read can be while a tool works on the PHY continuously (syncd asks for
+/// the PN about once a second).
 pub const MACSEC_POLL_DEFER_MAX_MS: u64 = 10_000;
+
+/// What a `MACsec` table sequence is, for the arbitration (crate documentation's table).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum MacsecUse<'a> {
+    /// Something `SONiC` asked to change (SA install / remove, gate, enable / disable, a clear),
+    /// or the start-up clean-up: waits for a transaction on its PHYs, never dropped.
+    Op,
+    /// A periodic read for a get (`pn.*`, `stats-sa.*`, `stats-flow.*`), by its sequence name:
+    /// skipped while a lease holds its PHY (bounded by [`MACSEC_POLL_DEFER_MAX_MS`]).
+    Poll(&'a str),
+    /// `extmacsec run` of the diag socket: refused while a transaction holds its PHY.
+    DiagRun,
+}
+
+/// What became of a `MACsec` sequence ([`ExtPhy::macsec_run`]).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Turn<R> {
+    /// It ran; what it returned.
+    Ran(R),
+    /// A periodic read skipped: a lease holds its PHY (the caller answers its last read).
+    Skipped,
+    /// Refused (a diag run inside a transaction): why.
+    Refused(String),
+}
 
 /// The most good polls counted (the C++ `1000000`).
 const GOOD_MAX: u32 = 1_000_000;
@@ -207,40 +271,35 @@ struct PortRt {
     state: PortState,
     next_poll_ms: u64,
     counters: PortCounters,
+    /// The PHYs of its link sequence (sorted, no doubles).
+    link_phys: Vec<u16>,
+    /// The PHYs of all its sequences: what an admin change holds (so that it never runs beside
+    /// the port's own poll).
+    all_phys: Vec<u16>,
 }
 
 struct State {
-    table: ExtPhyTable,
+    table: Arc<ExtPhyTable>,
     ports: Vec<PortRt>,
     by_hw: BTreeMap<ChipPort, usize>,
     /// Set by attach: the C++ `g_be` (the table is active).
-    bus: Option<Box<dyn PhyBus>>,
-    hold_until_ms: u64,
-    holdoffs: u64,
-    /// `MACsec` poll sequences deferred by the current hold-off: when each was first deferred.
-    macsec_deferred: BTreeMap<(ChipPort, String), u64>,
-    /// The hold-off (its `holdoffs` number) the deferral notice was logged for.
-    macsec_deferred_logged: u64,
-    macsec_counts: MacsecPollCounts,
-}
-
-/// What the hold-off did to the external `MACsec` table's polls (since the runtime was made).
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub struct MacsecPollCounts {
-    /// Polls answered from the model's last read.
-    pub deferred: u64,
-    /// Polls run inside a hold-off because [`MACSEC_POLL_DEFER_MAX_MS`] had passed.
-    pub forced: u64,
+    bus: Option<Arc<dyn PhyBus>>,
+    /// Counts attaches and clears: a gate that waited for its PHYs across one does nothing.
+    epoch: u64,
+    /// When each `MACsec` poll sequence last read its PHY (or was first skipped).
+    last_read: BTreeMap<(ChipPort, String), u64>,
 }
 
 struct Shared {
     state: Mutex<State>,
     /// Replaceable (tests: a manual clock once the switch is up).
     clock: Mutex<Arc<dyn Clock>>,
+    arb: Arbiter,
     log: Logger,
 }
 
-/// The runtime of one switch's external-PHY table. Clones share it (the gates hold clones).
+/// The runtime of one switch's external-PHY table and the arbiter of its MDIO bus. Clones share
+/// it (the gates hold clones).
 #[derive(Clone)]
 pub struct ExtPhy {
     shared: Arc<Shared>,
@@ -248,10 +307,13 @@ pub struct ExtPhy {
 
 impl fmt::Debug for ExtPhy {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let st = self.lock();
+        let (ports, active) = {
+            let st = self.lock();
+            (st.ports.len(), st.bus.is_some())
+        };
         f.debug_struct("ExtPhy")
-            .field("ports", &st.ports.len())
-            .field("active", &st.bus.is_some())
+            .field("ports", &ports)
+            .field("active", &active)
             .finish_non_exhaustive()
     }
 }
@@ -270,16 +332,18 @@ struct SeqOutcome {
 
 /// The executor's view of the bus: the handle, with the clock's waits.
 struct OnBus<'a> {
-    bus: &'a mut dyn PhyBus,
+    bus: &'a dyn PhyBus,
     clock: &'a dyn Clock,
 }
 
 impl phy_seq::Bus for OnBus<'_> {
     type Error = BusStatus;
     fn read(&mut self, phy: u16, dev: Dev, reg: u16) -> Result<u16, BusStatus> {
+        leaf::assert_free("an MDIO read");
         self.bus.read(phy, dev, reg)
     }
     fn write(&mut self, phy: u16, dev: Dev, reg: u16, value: u16) -> Result<(), BusStatus> {
+        leaf::assert_free("an MDIO write");
         self.bus.write(phy, dev, reg, value)
     }
     fn delay_us(&mut self, us: u32) {
@@ -288,7 +352,7 @@ impl phy_seq::Bus for OnBus<'_> {
 }
 
 /// Runs an ext-phy sequence (fixed PHYs, constant values: no parameters).
-fn run_seq(bus: &mut dyn PhyBus, clock: &dyn Clock, ops: &[Op]) -> SeqOutcome {
+fn run_seq(bus: &dyn PhyBus, clock: &dyn Clock, ops: &[Op]) -> SeqOutcome {
     match phy_seq::run(&mut OnBus { bus, clock }, ops, 0, &Params::new()) {
         Ok(out) => SeqOutcome {
             fault: false,
@@ -305,6 +369,102 @@ fn run_seq(bus: &mut dyn PhyBus, clock: &dyn Clock, ops: &[Op]) -> SeqOutcome {
     }
 }
 
+/// The PHYs `ops` address (sorted, no doubles), for a sequence run for a port whose PHY is
+/// `port_phy` (ext-phy tables name fixed PHYs only; `MACsec` tables also `p`).
+pub fn phys_of(ops: &[Op], port_phy: u16) -> Vec<u16> {
+    let set: BTreeSet<u16> = ops
+        .iter()
+        .filter_map(Op::reg)
+        .map(|r| r.phy.resolve(port_phy))
+        .collect();
+    set.into_iter().collect()
+}
+
+fn union(a: &[u16], b: &[u16]) -> Vec<u16> {
+    let set: BTreeSet<u16> = a.iter().chain(b).copied().collect();
+    set.into_iter().collect()
+}
+
+/// Counts a link poll's outcome `r` (it took `dt` us) on port `rt`, the next one due at
+/// `next_poll_ms`: the debounce; the verdict and the log lines.
+fn record_poll(
+    rt: &mut PortRt,
+    r: &SeqOutcome,
+    dt: u64,
+    next_poll_ms: u64,
+    up_polls: u32,
+) -> (Verdict, Vec<(Level, String)>) {
+    let mut lines: Vec<(Level, String)> = Vec::new();
+    let c = &mut rt.counters;
+    c.polls += 1;
+    c.last_us = dt;
+    c.total_us = c.total_us.saturating_add(dt);
+    c.max_us = c.max_us.max(dt);
+    rt.next_poll_ms = next_poll_ms;
+    if !r.fault {
+        rt.state.last_val = r.last;
+    }
+    if r.fault != rt.state.fault {
+        lines.push(if r.fault {
+            (
+                Level::Warn,
+                format!("port {}: external PHY link poll fault: {}", rt.name, r.why),
+            )
+        } else {
+            (
+                Level::Notice,
+                format!("port {}: external PHY link poll answers again", rt.name),
+            )
+        });
+        rt.state.fault = r.fault;
+    }
+    if r.fault {
+        rt.counters.faults += 1;
+    }
+    if !r.fault && r.cond {
+        if rt.state.good < GOOD_MAX {
+            rt.state.good += 1;
+        }
+        if !rt.state.ext_up && rt.state.good >= up_polls {
+            rt.state.ext_up = true;
+            rt.counters.ups += 1;
+            lines.push((
+                Level::Notice,
+                format!(
+                    "port {}: line side up (external PHY, value 0x{:04x}, {} good polls)",
+                    rt.name, r.last, rt.state.good
+                ),
+            ));
+        }
+    } else {
+        rt.state.good = 0;
+        if rt.state.ext_up {
+            rt.state.ext_up = false;
+            rt.counters.downs += 1;
+            lines.push((
+                Level::Notice,
+                if r.fault {
+                    format!("port {}: line side down (external PHY, poll fault)", rt.name)
+                } else {
+                    format!(
+                        "port {}: line side down (external PHY, value 0x{:04x})",
+                        rt.name, r.last
+                    )
+                },
+            ));
+        }
+    }
+    (verdict_of(&rt.state), lines)
+}
+
+fn verdict_of(state: &PortState) -> Verdict {
+    if state.ext_up {
+        Verdict::NoOpinion
+    } else {
+        Verdict::Down
+    }
+}
+
 impl ExtPhy {
     /// A switch without a table: inactive, every gate without an opinion.
     pub fn inactive(clock: Arc<dyn Clock>, log: Logger) -> Self {
@@ -317,17 +477,15 @@ impl ExtPhy {
         Self {
             shared: Arc::new(Shared {
                 state: Mutex::new(State {
-                    table,
+                    table: Arc::new(table),
                     ports,
                     by_hw: BTreeMap::new(),
                     bus: None,
-                    hold_until_ms: 0,
-                    holdoffs: 0,
-                    macsec_deferred: BTreeMap::new(),
-                    macsec_deferred_logged: 0,
-                    macsec_counts: MacsecPollCounts::default(),
+                    epoch: 0,
+                    last_read: BTreeMap::new(),
                 }),
                 clock: Mutex::new(clock),
+                arb: Arbiter::default(),
                 log,
             }),
         }
@@ -373,13 +531,20 @@ impl ExtPhy {
         }
     }
 
-    fn lock(&self) -> MutexGuard<'_, State> {
-        // A panic under the lock (none is possible in this code) leaves whole fields behind.
-        self.shared.state.lock().unwrap_or_else(PoisonError::into_inner)
+    fn lock(&self) -> Leaf<'_, State> {
+        leaf::lock(&self.shared.state)
     }
 
     fn log(&self, api: Api, level: Level, text: &str) {
+        leaf::assert_free("a log line");
         (self.shared.log)(api, level, text);
+    }
+
+    /// The arbiter's log lines, written now (after its lock).
+    fn log_notes(&self) {
+        for text in self.shared.arb.take_notes() {
+            self.log(Api::Switch, Level::Notice, &text);
+        }
     }
 
     /// Whether the table has ports at all (a table without ports is never attached).
@@ -399,8 +564,9 @@ impl ExtPhy {
             if st.table.ports().is_empty() {
                 return Ok(gated);
             }
+            let table = Arc::clone(&st.table);
             let mut missing = None;
-            for (i, (tp, rt)) in st.table.ports().iter().zip(st.ports.iter_mut()).enumerate() {
+            for (i, (tp, rt)) in table.ports().iter().zip(st.ports.iter_mut()).enumerate() {
                 if let Some(p) = ports.iter().rfind(|p| p.first_lane == Some(tp.lane())) {
                     rt.hw = Some(p.hw);
                     rt.name.clone_from(&p.name);
@@ -412,13 +578,22 @@ impl ExtPhy {
                     });
                     break;
                 };
+                rt.link_phys = phys_of(tp.ops(Section::Link), 0);
+                rt.all_phys = union(
+                    &rt.link_phys,
+                    &union(
+                        &phys_of(tp.ops(Section::AdminUp), 0),
+                        &phys_of(tp.ops(Section::AdminDown), 0),
+                    ),
+                );
                 st.by_hw.insert(hw, i);
                 if !tp.ops(Section::Link).is_empty() {
                     gated.push(hw);
                 }
             }
             if missing.is_none() {
-                st.bus = Some(bus);
+                st.bus = Some(Arc::from(bus));
+                st.epoch += 1;
             }
             missing
         };
@@ -449,7 +624,8 @@ impl ExtPhy {
     }
 
     /// The ports whose gate an active table registered: what detach unregisters (without
-    /// this lock: the backend may be waiting for a gate call to return). Empty when inactive.
+    /// this crate's locks: the backend may be waiting for a gate call to return). Empty when
+    /// inactive.
     pub fn gated_ports(&self) -> Vec<ChipPort> {
         let st = self.lock();
         if st.bus.is_none() {
@@ -464,14 +640,16 @@ impl ExtPhy {
             .collect()
     }
 
-    /// `ext_phy_detach`'s second half: forgets the table and the bus.
+    /// `ext_phy_detach`'s second half: forgets the table and the bus (leases stay: they are
+    /// about PHYs, not the table).
     pub fn clear(&self) {
         let mut st = self.lock();
         st.bus = None;
         st.by_hw.clear();
-        st.table = ExtPhyTable::default();
+        st.table = Arc::new(ExtPhyTable::default());
         st.ports.clear();
-        st.macsec_deferred.clear();
+        st.last_read.clear();
+        st.epoch += 1;
     }
 
     /// `ext_phy_active`: a table is attached.
@@ -481,225 +659,373 @@ impl ExtPhy {
 
     /// `ext_phy_admin`: the port's admin state changes. Call with `up` before enabling the
     /// ASIC port, with `!up` after disabling it. Restarts the debounce from "down" and runs
-    /// the port's admin-up / admin-down sequence (if it has one).
+    /// the port's admin-up / admin-down sequence (if it has one). Takes the port's PHYs first
+    /// (waiting for a diag transaction on them to end or run out).
     pub fn admin(&self, hw: ChipPort, up: bool) {
         let clock = self.clock();
         let clock = &*clock;
-        let mut guard = self.lock();
-        let st = &mut *guard;
-        let (Some(bus), Some(&i)) = (st.bus.as_mut(), st.by_hw.get(&hw)) else {
+        let (i, phys, epoch) = {
+            let st = self.lock();
+            let (Some(_), Some(&i)) = (st.bus.as_ref(), st.by_hw.get(&hw)) else {
+                return;
+            };
+            let Some(rt) = st.ports.get(i) else {
+                return;
+            };
+            (i, rt.all_phys.clone(), st.epoch)
+        };
+        let turn = self.shared.arb.lib(clock, &phys, LibWant::Wait);
+        let LibTurn::Slot {
+            slot,
+            waited_us,
+            for_txn,
+            ..
+        } = turn
+        else {
+            return; // Wait never answers "leased"
+        };
+        self.count_op_wait(waited_us, for_txn);
+        let (bus, table, name) = {
+            let mut guard = self.lock();
+            let st = &mut *guard;
+            if st.epoch != epoch {
+                return;
+            }
+            let (Some(bus), Some(rt)) = (st.bus.clone(), st.ports.get_mut(i)) else {
+                return;
+            };
+            rt.state.admin = up;
+            rt.state.ext_up = false;
+            rt.state.good = 0;
+            rt.next_poll_ms = 0;
+            (bus, Arc::clone(&st.table), rt.name.clone())
+        };
+        let Some(tp) = table.ports().get(i) else {
             return;
         };
-        let (Some(tp), Some(rt)) = (st.table.ports().get(i), st.ports.get_mut(i)) else {
-            return;
-        };
-        rt.state.admin = up;
-        rt.state.ext_up = false;
-        rt.state.good = 0;
-        rt.next_poll_ms = 0;
         let ops = tp.ops(if up { Section::AdminUp } else { Section::AdminDown });
         if ops.is_empty() {
             return;
         }
         let t0 = clock.now_us();
-        let r = run_seq(bus.as_mut(), clock, ops);
+        let r = run_seq(&*bus, clock, ops);
         let dt = clock.now_us().saturating_sub(t0);
-        rt.counters.hooks += 1;
-        rt.counters.hook_max_us = rt.counters.hook_max_us.max(dt);
+        {
+            let mut st = self.lock();
+            if st.epoch == epoch {
+                if let Some(rt) = st.ports.get_mut(i) {
+                    rt.counters.hooks += 1;
+                    rt.counters.hook_max_us = rt.counters.hook_max_us.max(dt);
+                    if r.fault {
+                        rt.counters.hook_fail += 1;
+                    }
+                }
+            }
+        }
+        drop(slot);
         let dir = if up { "up" } else { "down" };
         let (level, text) = if r.fault {
-            rt.counters.hook_fail += 1;
             (
                 Level::Error,
-                format!("port {}: external PHY admin-{dir} sequence stopped: {}", rt.name, r.why),
+                format!("port {name}: external PHY admin-{dir} sequence stopped: {}", r.why),
             )
         } else {
             (
                 Level::Info,
-                format!("port {}: external PHY admin-{dir} sequence done ({dt} us)", rt.name),
+                format!("port {name}: external PHY admin-{dir} sequence done ({dt} us)"),
             )
         };
-        drop(guard);
         self.log(Api::Port, level, &text);
     }
 
-    /// `ext_phy_gate`: asked by the backend's link scan, per pass and port.
+    fn count_op_wait(&self, waited_us: u64, for_txn: Option<u64>) {
+        if for_txn.is_some() {
+            self.shared.arb.count(|c| {
+                c.op_waits += 1;
+                c.op_wait_us_max = c.op_wait_us_max.max(waited_us);
+            });
+        }
+        self.log_notes();
+    }
+
+    /// `ext_phy_gate`: asked by the backend's link scan, per pass and port. Never waits for a
+    /// diag lease (the cached verdict answers, counted); waits behind a library holder of the
+    /// poll's PHYs (a `MACsec` or admin run, milliseconds; counted with its time).
     pub fn gate(&self, hw: ChipPort) -> Verdict {
         let clock = self.clock();
         let clock = &*clock;
-        let mut guard = self.lock();
-        let st = &mut *guard;
-        let (Some(bus), Some(&i)) = (st.bus.as_mut(), st.by_hw.get(&hw)) else {
-            return Verdict::NoOpinion;
-        };
-        let (Some(tp), Some(rt)) = (st.table.ports().get(i), st.ports.get_mut(i)) else {
-            return Verdict::NoOpinion;
-        };
-        let link = tp.ops(Section::Link);
-        if link.is_empty() || !rt.state.admin {
-            return Verdict::NoOpinion;
-        }
-        let verdict = |rt: &PortRt| {
-            if rt.state.ext_up {
-                Verdict::NoOpinion
-            } else {
-                Verdict::Down
+        // is a poll due? (no PHY taken yet)
+        let (i, phys, epoch) = {
+            let st = self.lock();
+            let (Some(_), Some(&i)) = (st.bus.as_ref(), st.by_hw.get(&hw)) else {
+                return Verdict::NoOpinion;
+            };
+            let (Some(tp), Some(rt)) = (st.table.ports().get(i), st.ports.get(i)) else {
+                return Verdict::NoOpinion;
+            };
+            if tp.ops(Section::Link).is_empty() || !rt.state.admin {
+                return Verdict::NoOpinion;
             }
+            if clock.now_us() / 1000 < rt.next_poll_ms {
+                return verdict_of(&rt.state);
+            }
+            (i, rt.link_phys.clone(), st.epoch)
         };
-        let t0 = clock.now_us();
-        let now_ms = t0 / 1000;
-        if now_ms < st.hold_until_ms || now_ms < rt.next_poll_ms {
-            return verdict(rt);
-        }
-        let r = run_seq(bus.as_mut(), clock, link);
-        let dt = clock.now_us().saturating_sub(t0);
-        let c = &mut rt.counters;
-        c.polls += 1;
-        c.last_us = dt;
-        c.total_us = c.total_us.saturating_add(dt);
-        c.max_us = c.max_us.max(dt);
-        rt.next_poll_ms = now_ms.saturating_add(u64::from(st.table.poll_ms()));
-        if !r.fault {
-            rt.state.last_val = r.last;
-        }
-        let mut lines: Vec<(Level, String)> = Vec::new();
-        if r.fault != rt.state.fault {
-            lines.push(if r.fault {
-                (
-                    Level::Warn,
-                    format!("port {}: external PHY link poll fault: {}", rt.name, r.why),
-                )
-            } else {
-                (
-                    Level::Notice,
-                    format!("port {}: external PHY link poll answers again", rt.name),
-                )
+        // the wait is measured from before the request, inside the arbiter
+        let (slot, waited_us) = match self.shared.arb.lib(clock, &phys, LibWant::Skip) {
+            LibTurn::Leased(_) => {
+                self.shared.arb.count(|c| c.gate_cached += 1);
+                self.log_notes(); // a lease that ran out meanwhile
+                return self.cached(i, epoch);
+            }
+            LibTurn::Slot { slot, waited_us, .. } => (slot, waited_us),
+        };
+        if waited_us > 0 {
+            self.shared.arb.count(|c| {
+                c.gate_waits += 1;
+                c.gate_wait_us_max = c.gate_wait_us_max.max(waited_us);
+                c.gate_wait_us_total = c.gate_wait_us_total.saturating_add(waited_us);
             });
-            rt.state.fault = r.fault;
         }
-        if r.fault {
-            rt.counters.faults += 1;
-        }
-        if !r.fault && r.cond {
-            if rt.state.good < GOOD_MAX {
-                rt.state.good += 1;
+        // the PHYs are ours: is the poll still due (an admin change may have run meanwhile)?
+        let t1 = clock.now_us();
+        let now_ms = t1 / 1000;
+        let (bus, table, poll_ms, up_polls) = {
+            let st = self.lock();
+            let Some(rt) = st.ports.get(i).filter(|_| st.epoch == epoch) else {
+                return Verdict::NoOpinion;
+            };
+            let Some(bus) = st.bus.clone() else {
+                return Verdict::NoOpinion;
+            };
+            if !rt.state.admin {
+                return Verdict::NoOpinion;
             }
-            if !rt.state.ext_up && rt.state.good >= st.table.up_polls() {
-                rt.state.ext_up = true;
-                rt.counters.ups += 1;
-                lines.push((
-                    Level::Notice,
-                    format!(
-                        "port {}: line side up (external PHY, value 0x{:04x}, {} good polls)",
-                        rt.name, r.last, rt.state.good
-                    ),
-                ));
+            if now_ms < rt.next_poll_ms {
+                return verdict_of(&rt.state);
             }
-        } else {
-            rt.state.good = 0;
-            if rt.state.ext_up {
-                rt.state.ext_up = false;
-                rt.counters.downs += 1;
-                lines.push((
-                    Level::Notice,
-                    if r.fault {
-                        format!("port {}: line side down (external PHY, poll fault)", rt.name)
-                    } else {
-                        format!(
-                            "port {}: line side down (external PHY, value 0x{:04x})",
-                            rt.name, r.last
-                        )
-                    },
-                ));
+            (bus, Arc::clone(&st.table), st.table.poll_ms(), st.table.up_polls())
+        };
+        let Some(tp) = table.ports().get(i) else {
+            return Verdict::NoOpinion;
+        };
+        let r = run_seq(&*bus, clock, tp.ops(Section::Link));
+        let dt = clock.now_us().saturating_sub(t1);
+        let (v, lines) = {
+            let mut st = self.lock();
+            if st.epoch != epoch {
+                return Verdict::NoOpinion;
             }
-        }
-        let v = verdict(rt);
-        drop(guard);
+            let Some(rt) = st.ports.get_mut(i) else {
+                return Verdict::NoOpinion;
+            };
+            record_poll(rt, &r, dt, now_ms.saturating_add(u64::from(poll_ms)), up_polls)
+        };
+        drop(slot);
         for (level, text) in lines {
             self.log(Api::Port, level, &text);
         }
+        self.log_notes();
         v
     }
 
-    /// `ext_phy_foreign_mdio`: runs `f` (raw MDIO of the diag socket) under the lock, so it
-    /// never lands inside one of the table's sequences, and pauses the polls for `holdoff-ms`
-    /// after it.
-    pub fn foreign_mdio<R>(&self, f: impl FnOnce() -> R) -> R {
-        let mut st = self.lock();
-        let holdoff = u64::from(st.table.holdoff_ms());
-        let mut paused = None;
-        if st.bus.is_some() && holdoff != 0 {
-            let now_ms = self.clock().now_us() / 1000;
-            if now_ms >= st.hold_until_ms {
-                st.holdoffs += 1;
-                paused = Some(holdoff);
-            }
-            st.hold_until_ms = now_ms.saturating_add(holdoff);
+    /// The last verdict of port `i` (a lease holds its PHYs).
+    fn cached(&self, i: usize, epoch: u64) -> Verdict {
+        let st = self.lock();
+        match st.ports.get(i).filter(|_| st.epoch == epoch) {
+            Some(rt) if rt.state.admin => verdict_of(&rt.state),
+            _ => Verdict::NoOpinion,
         }
-        if let Some(ms) = paused {
+    }
+
+    /// Runs `f` (one external `MACsec` table sequence of chip port `port`, on the PHYs
+    /// `phys`: [`phys_of`]) with those PHYs held, as `use_` says (crate documentation's table).
+    /// Logs one notice per forced poll and per run that waited for a transaction.
+    pub fn macsec_run<R>(&self, port: ChipPort, phys: &[u16], use_: MacsecUse<'_>, f: impl FnOnce() -> R) -> Turn<R> {
+        let clock = self.clock();
+        let clock = &*clock;
+        match use_ {
+            MacsecUse::Op => {
+                let LibTurn::Slot {
+                    slot,
+                    waited_us,
+                    for_txn,
+                    ..
+                } = self.shared.arb.lib(clock, phys, LibWant::Wait)
+                else {
+                    return Turn::Refused("not served".to_owned()); // Wait never answers "leased"
+                };
+                self.count_op_wait(waited_us, for_txn);
+                let r = f();
+                drop(slot);
+                if let Some(t) = for_txn {
+                    self.log(
+                        Api::Switch,
+                        Level::Notice,
+                        &format!(
+                            "external MACsec sequence on chip port {} waited {} ms for diag transaction {t}",
+                            port.0,
+                            waited_us / 1000
+                        ),
+                    );
+                }
+                Turn::Ran(r)
+            }
+            MacsecUse::DiagRun => match self.shared.arb.lib(clock, phys, LibWant::NoWait) {
+                LibTurn::Leased(t) => {
+                    self.shared.arb.count(|c| c.diag_run_refused += 1);
+                    Turn::Refused(format!(
+                        "chip port {}: its PHY is in diag transaction {}: end it first",
+                        port.0,
+                        t.unwrap_or_default()
+                    ))
+                }
+                LibTurn::Slot { slot, .. } => {
+                    let r = f();
+                    drop(slot);
+                    Turn::Ran(r)
+                }
+            },
+            MacsecUse::Poll(name) => self.poll_run(clock, (port, name.to_owned()), phys, f),
+        }
+    }
+
+    /// A periodic read: skipped while a lease holds its PHY, unless it last read the PHY
+    /// [`MACSEC_POLL_DEFER_MAX_MS`] ago: then it waits for the transaction to end (decided under
+    /// the arbiter's lock with the wait, so no new transaction slips in before it) and reads.
+    fn poll_run<R>(&self, clock: &dyn Clock, key: (ChipPort, String), phys: &[u16], f: impl FnOnce() -> R) -> Turn<R> {
+        let now_ms = clock.now_us() / 1000;
+        let last = self.lock().last_read.get(&key).copied();
+        let overdue = last.is_some_and(|t| now_ms.saturating_sub(t) >= MACSEC_POLL_DEFER_MAX_MS);
+        let want = if overdue { LibWant::Wait } else { LibWant::Skip };
+        let (slot, waited_us, for_txn, leased) = match self.shared.arb.lib(clock, phys, want) {
+            LibTurn::Slot {
+                slot,
+                waited_us,
+                for_txn,
+                leased,
+            } => (slot, waited_us, for_txn, leased),
+            LibTurn::Leased(_) => {
+                self.lock().last_read.entry(key).or_insert(now_ms);
+                self.shared.arb.count(|c| c.polls_skipped += 1);
+                self.log_notes();
+                return Turn::Skipped;
+            }
+        };
+        let read_ms = clock.now_us() / 1000;
+        self.lock().last_read.insert(key.clone(), read_ms);
+        let r = f();
+        drop(slot);
+        if overdue && leased {
+            self.shared.arb.count(|c| {
+                c.forced_reads += 1;
+                c.forced_wait_us_max = c.forced_wait_us_max.max(waited_us);
+            });
+            let skipped_ms = now_ms.saturating_sub(last.unwrap_or(now_ms));
+            let (port, name) = key;
+            let text = match for_txn {
+                Some(t) => format!(
+                    "external MACsec poll {name} on chip port {} skipped for {skipped_ms} ms, the most allowed: \
+                     read after diag transaction {t} (waited {} ms)",
+                    port.0,
+                    waited_us / 1000
+                ),
+                None => format!(
+                    "external MACsec poll {name} on chip port {} skipped for {skipped_ms} ms, the most allowed: \
+                     read between two raw MDIO accesses of a diag client without a transaction",
+                    port.0
+                ),
+            };
+            self.log(Api::Switch, Level::Notice, &text);
+        }
+        self.log_notes();
+        Turn::Ran(r)
+    }
+
+    /// One raw MDIO access of the diag socket: `f` (the access) runs with `target` held, never
+    /// inside a library sequence; a bare access (no transaction) holds its PHY's polls off
+    /// `holdoff-ms` after it (the C++ hold-off, per PHY, only while a table is attached).
+    pub fn diag_access<R>(&self, who: DiagWho, target: DiagTarget, f: impl FnOnce() -> R) -> Result<R, TxnRefused> {
+        let clock = self.clock();
+        let holdoff = {
+            let st = self.lock();
+            if st.bus.is_some() {
+                u64::from(st.table.holdoff_ms())
+            } else {
+                0
+            }
+        };
+        let slot = self.shared.arb.diag(&*clock, who, target, holdoff);
+        self.log_notes();
+        let slot = slot?;
+        let r = f();
+        drop(slot);
+        Ok(r)
+    }
+
+    /// `extphy txn begin`: a transaction on `scope` (its lease `ms` after each access, default
+    /// [`LEASE_DEFAULT_MS`], at most [`LEASE_MAX_MS`]).
+    pub fn txn_begin(&self, scope: LeaseScope, ms: Option<u64>) -> Result<TxnInfo, TxnRefused> {
+        let clock = self.clock();
+        let r = self.shared.arb.begin(&*clock, scope, ms.unwrap_or(LEASE_DEFAULT_MS));
+        self.log_notes();
+        if let Ok(info) = &r {
             self.log(
                 Api::Switch,
-                Level::Notice,
+                Level::Info,
                 &format!(
-                    "external PHY link polls paused: raw MDIO on the diag socket (resume {ms} ms after the last one)"
+                    "external PHY diag transaction {} begun: {} (lease {} ms, at most {} ms)",
+                    info.txn, info.scope, info.step_ms, info.max_left_ms
                 ),
             );
         }
-        f()
+        r
     }
 
-    /// Whether the external `MACsec` table's poll sequence `name` (`pn.*`, `stats-*`: what
-    /// syncd's counter polls ask for) on chip port `port` is to be skipped now: the raw-MDIO
-    /// hold-off is on (globally, as for the link polls), and this sequence has not been
-    /// deferred for [`MACSEC_POLL_DEFER_MAX_MS`] in a row yet. The caller then answers from
-    /// its last read (the PHY's counters keep counting, the next read catches up). Not for
-    /// sequences `SONiC` asks for (install, remove, gate, clear): those are never deferred.
-    /// Logs one notice per hold-off that defers a poll, and one per forced run.
-    /// A deliberate improvement on the C++ (its hold-off held the link polls only).
-    pub fn macsec_poll_deferred(&self, port: ChipPort, name: &str) -> bool {
-        let mut st = self.lock();
-        let now_ms = self.clock().now_us() / 1000;
-        if st.bus.is_none() || now_ms >= st.hold_until_ms {
-            st.macsec_deferred.clear();
-            return false;
+    /// `extphy txn renew`: extends a transaction (and changes its step when `ms` is given).
+    pub fn txn_renew(&self, txn: u64, ms: Option<u64>) -> Result<TxnInfo, TxnRefused> {
+        let clock = self.clock();
+        let r = self.shared.arb.renew(&*clock, txn, ms);
+        self.log_notes();
+        r
+    }
+
+    /// `extphy txn end`: ends a transaction; one that expired answers [`TxnRefused::Expired`].
+    pub fn txn_end(&self, txn: u64) -> Result<TxnEnded, TxnRefused> {
+        let clock = self.clock();
+        let r = self.shared.arb.end(&*clock, txn);
+        self.log_notes();
+        if let Ok(e) = &r {
+            self.log(
+                Api::Switch,
+                Level::Info,
+                &format!(
+                    "external PHY diag transaction {} ended: {} accesses in {} ms",
+                    e.txn, e.accesses, e.held_ms
+                ),
+            );
         }
-        let key = (port, name.to_owned());
-        let since = *st.macsec_deferred.entry(key.clone()).or_insert(now_ms);
-        let waited = now_ms.saturating_sub(since);
-        let line = if waited >= MACSEC_POLL_DEFER_MAX_MS {
-            st.macsec_deferred.insert(key, now_ms); // read now: the next deferral counts from here
-            st.macsec_counts.forced += 1;
-            Some(format!(
-                "external MACsec poll {name} on chip port {} runs inside the raw-MDIO hold-off: deferred {waited} ms, the most allowed",
-                port.0
-            ))
-        } else {
-            st.macsec_counts.deferred += 1;
-            let episode = st.holdoffs;
-            (st.macsec_deferred_logged != episode).then(|| {
-                st.macsec_deferred_logged = episode;
-                format!(
-                    "external MACsec PN / counter polls deferred: raw MDIO on the diag socket (last values answer until the hold-off ends, at most {MACSEC_POLL_DEFER_MAX_MS} ms per poll)"
-                )
-            })
-        };
-        drop(st);
-        if let Some(text) = line {
-            self.log(Api::Switch, Level::Notice, &text);
-        }
-        waited < MACSEC_POLL_DEFER_MAX_MS
+        r
     }
 
-    /// What the hold-off did to the external `MACsec` table's polls.
-    pub fn macsec_poll_counts(&self) -> MacsecPollCounts {
-        self.lock().macsec_counts
+    /// The live leases.
+    pub fn leases(&self) -> Vec<LeaseView> {
+        let clock = self.clock();
+        let v = self.shared.arb.leases(&*clock);
+        self.log_notes();
+        v
     }
 
-    /// `ext_phy_locked`: runs `f` (another user of the same PHYs' register interfaces: the
-    /// external `MACsec` table's sequences) under the lock, without a hold-off.
-    pub fn locked<R>(&self, f: impl FnOnce() -> R) -> R {
-        let _st = self.lock();
-        f()
+    /// How many library users (admin sequences, `MACsec` runs, link polls) wait for their PHYs now:
+    /// for tests, which wait for it instead of sleeping (feature `testing`).
+    #[cfg(feature = "testing")]
+    pub fn waiting(&self) -> u32 {
+        self.shared.arb.waiting()
+    }
+
+    /// What the arbitration did so far.
+    pub fn counts(&self) -> ArbCounts {
+        self.shared.arb.counts()
     }
 
     /// The runtime state of a port of the table (`None` for another port).
@@ -714,13 +1040,14 @@ impl ExtPhy {
         st.by_hw.get(&hw).and_then(|&i| st.ports.get(i)).map(|rt| rt.counters)
     }
 
-    /// `ext_phy_status`: the diag socket's `extphy` text.
+    /// `ext_phy_status`: the diag socket's `extphy` text: the C++ table, then the arbitration.
     pub fn status(&self) -> String {
+        let leases = self.leases();
+        let counts = self.counts();
         let st = self.lock();
         if st.bus.is_none() {
             return "extphy: no external PHY table (SAI_OPENBCM_EXT_PHY_FILE)\n".to_owned();
         }
-        let now_ms = self.clock().now_us() / 1000;
         let t = &st.table;
         let mut s = format!(
             "extphy: {} ports, poll {} ms, up after {} good polls, hold-off {} ms ({}, {} so far)\n",
@@ -728,12 +1055,8 @@ impl ExtPhy {
             t.poll_ms(),
             t.up_polls(),
             t.holdoff_ms(),
-            if now_ms < st.hold_until_ms {
-                "PAUSED now"
-            } else {
-                "not paused"
-            },
-            st.holdoffs
+            if leases.is_empty() { "not paused" } else { "PAUSED now" },
+            counts.implicit_begun + counts.txn_begun
         );
         s.push_str("extphy: table parser and sequence executor: rust (phy-seq)\n");
         s.push_str(
@@ -771,6 +1094,60 @@ impl ExtPhy {
                 c.hook_max_us
             );
         }
+        drop(st);
+        status_tail(&mut s, &counts, &leases);
         s
+    }
+}
+
+/// The arbitration lines of the status text.
+fn status_tail(s: &mut String, c: &ArbCounts, leases: &[LeaseView]) {
+    let _ = writeln!(
+        s,
+        "extphy: MDIO per PHY; diag transactions: {LEASE_DEFAULT_MS} ms after each access unless asked, at most {LEASE_MAX_MS} ms; \
+         raw MDIO without one: hold-off per PHY"
+    );
+    let _ = writeln!(
+        s,
+        "extphy: leases now {}; transactions begun {}, ended {}, expired {}; raw MDIO hold-offs {}; refused: busy {}, void {}",
+        leases.len(),
+        c.txn_begun,
+        c.txn_ended,
+        c.txn_expired,
+        c.implicit_begun,
+        c.busy_refused,
+        c.void_refused
+    );
+    let _ = writeln!(
+        s,
+        "extphy: link polls answered from the last verdict during a lease {}; waits for a library run before a poll {} (max {} us, total {} us)",
+        c.gate_cached, c.gate_waits, c.gate_wait_us_max, c.gate_wait_us_total
+    );
+    let _ = writeln!(
+        s,
+        "extphy: MACsec polls skipped during a lease {}; forced reads after {MACSEC_POLL_DEFER_MAX_MS} ms {} (max wait {} us); \
+         MACsec / admin runs that waited for a transaction {} (max {} us); extmacsec run refused {}",
+        c.polls_skipped, c.forced_reads, c.forced_wait_us_max, c.op_waits, c.op_wait_us_max, c.diag_run_refused
+    );
+    for l in leases {
+        match l.txn {
+            Some(t) => {
+                let _ = writeln!(
+                    s,
+                    "extphy:   txn {t} {}: {} ms left (at most {} ms), {} accesses",
+                    l.scope,
+                    l.left_ms,
+                    l.max_left_ms.unwrap_or_default(),
+                    l.accesses
+                );
+            }
+            None => {
+                let _ = writeln!(
+                    s,
+                    "extphy:   raw MDIO hold-off {}: {} ms left, {} accesses",
+                    l.scope, l.left_ms, l.accesses
+                );
+            }
+        }
     }
 }

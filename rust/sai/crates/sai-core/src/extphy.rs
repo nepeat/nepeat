@@ -1,9 +1,9 @@
 //! The external PHY runtime's seam in the core (AS7772 retimers and `MACsec` PHYs): the
 //! per-switch state ([`External`], kept in the store), switch creation's `ext_phy_load` /
 //! `ext_phy_attach` / `ext_phy_detach`, the admin hook of the port area ([`ext_phy_admin`]),
-//! the diag socket's `extphy` and raw-MDIO hold-off, and the `MACsec` clear-window keys. The
-//! runtime itself (link gate, debounce, hold-off, admin sequences, counters, status text, its
-//! one lock) is the crate `sai-extphy`; this module wires it to the backend.
+//! the diag socket's `extphy`, raw MDIO and transactions, and the `MACsec` clear-window keys. The
+//! runtime itself (link gate, debounce, admin sequences, counters, status text, the per-PHY MDIO
+//! arbitration and diag leases) is the crate `sai-extphy`; this module wires it to the backend.
 //!
 //! # The gate and the bus
 //!
@@ -13,8 +13,16 @@
 //! virtual chip the register file behind its own lock; through the recording decorator every
 //! access is logged as the `mdio_c45_read` / `_write` it stands for, as the C++ gate's calls on
 //! the recording backend are). A gate closure holds a clone of the runtime and of the `MACsec`
-//! hold: it takes the runtime's lock and the handle's, nothing else. Lock order: SAI lock, the
-//! runtime's lock, the bus master's.
+//! hold: it takes the runtime's PHY slot for its port's PHYs and the handle's lock, never the
+//! SAI lock. Lock order: SAI lock, a diag lease, a PHY's slot, the bus master's (`sai-extphy`,
+//! "Serialisation").
+//!
+//! # The diag socket's raw MDIO
+//!
+//! With a table attached ([`manages_phys`]), `phy raw c45 ...` and `extphy txn ...` are served
+//! by [`crate::diag::DiagPort`] **without** the SAI lock, over the same MDIO handle, inside the
+//! arbitration; what it does not serve (and everything without a table) runs through the
+//! backend's shell under the SAI lock via [`ext_phy_raw_shell`].
 //!
 //! # Profile keys
 //!
@@ -38,7 +46,10 @@ use std::collections::BTreeSet;
 use std::fmt;
 use std::sync::Arc;
 
-pub use sai_extphy::{ChipPort as ChipPortNo, Clock, ExtPhy, ManualClock, SystemClock};
+pub use sai_extphy::{
+    ArbCounts, ChipPort as ChipPortNo, Clock, DiagTarget, DiagWho, ExtPhy, LEASE_DEFAULT_MS, LEASE_MAX_MS, LeaseScope,
+    LeaseView, MACSEC_POLL_DEFER_MAX_MS, ManualClock, SystemClock, TxnRefused,
+};
 
 /// `SAI_OPENBCM_EXT_PHY_FILE`
 pub const EXT_PHY_FILE: &str = "SAI_OPENBCM_EXT_PHY_FILE";
@@ -125,13 +136,13 @@ fn logger() -> Logger {
 struct HandleBus(MdioBus);
 
 impl PhyBus for HandleBus {
-    fn read(&mut self, phy: u16, dev: Dev, reg: u16) -> core::result::Result<u16, BusStatus> {
+    fn read(&self, phy: u16, dev: Dev, reg: u16) -> core::result::Result<u16, BusStatus> {
         let dev = MdioDev::new(dev.get()).ok_or(BusStatus(Error::InvalidParameter.status()))?;
         self.0
             .read(PhyAddr(u32::from(phy)), dev, reg)
             .map_err(|e| BusStatus(e.status()))
     }
-    fn write(&mut self, phy: u16, dev: Dev, reg: u16, value: u16) -> core::result::Result<(), BusStatus> {
+    fn write(&self, phy: u16, dev: Dev, reg: u16, value: u16) -> core::result::Result<(), BusStatus> {
         let dev = MdioDev::new(dev.get()).ok_or(BusStatus(Error::InvalidParameter.status()))?;
         self.0
             .write(PhyAddr(u32::from(phy)), dev, reg, value)
@@ -324,14 +335,31 @@ pub fn ext_phy_status<B: Backend>(sai: &Sai<B>) -> String {
     )
 }
 
-/// Runs `body`, raw MDIO of the diag socket (`phy raw ...`), on the backend under the runtime's
-/// lock, and pauses the link polls for `holdoff-ms` after it (C++ `ext_phy_foreign_mdio`).
-pub fn ext_phy_foreign_mdio<B: Backend, T>(sai: &mut Sai<B>, body: impl FnOnce(&mut B) -> T) -> T {
+/// Runs `body`, raw MDIO of the diag socket (`phy raw ...`) on the backend's shell, within the
+/// PHY arbitration (C++ `ext_phy_foreign_mdio`): never inside a library sequence on `target`,
+/// refused inside another client's transaction; without a transaction (`who` [`DiagWho::Bare`])
+/// it holds the polls of `target` off `holdoff-ms` after it. Under the SAI lock (the caller's):
+/// only for what the arbitration's own path ([`crate::diag::DiagPort`], no SAI lock) does not
+/// serve.
+pub fn ext_phy_raw_shell<B: Backend, T>(
+    sai: &mut Sai<B>,
+    who: DiagWho,
+    target: DiagTarget,
+    body: impl FnOnce(&mut B) -> T,
+) -> core::result::Result<T, TxnRefused> {
     let phy = sai.store().map(|s| s.ext().phy.clone());
     match phy {
-        Some(phy) => phy.foreign_mdio(|| body(sai.backend_mut())),
-        None => body(sai.backend_mut()),
+        Some(phy) => phy.diag_access(who, target, || body(sai.backend_mut())),
+        None => Ok(body(sai.backend_mut())),
     }
+}
+
+/// Whether the library runs sequences of its own on external PHYs (an external PHY or
+/// `MACsec` table is attached): only then does the diag socket serve clause-45 raw MDIO itself
+/// (outside the SAI lock); otherwise the SDK shell answers it as before.
+pub(crate) fn manages_phys<B: Backend>(sai: &Sai<B>) -> bool {
+    sai.store()
+        .is_some_and(|s| s.ext().phy.active() || s.ext().macsec.model.as_ref().is_some_and(|m| m.active()))
 }
 
 /// Whether an external PHY table is attached (C++ `ext_phy_active`).

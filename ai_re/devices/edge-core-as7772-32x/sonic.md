@@ -69,7 +69,10 @@ the unit fails (`script-missing`, nothing is written to any PHY) and SONiC does 
     `grace` (45 s, last value held): bring-up -> syncd 6 s, reader -> bring-up 4 s, measured.
   - Not changed: any real fault (sensor lost for longer, fan fault, critical temperature) is 100 % at once.
 - `openbcm-diag "<cmd>"`: diag shell inside syncd. [sonic-traffic-test.sh](sonic-traffic-test.sh) (run on the
-  switch): runtime VRFs + /31s on both DAC pairs, pings, SONiC and ASIC counters.
+  switch): VRFs + /31s on both DAC pairs, pings, SONiC and ASIC counters. Both traffic tests and the load ring put
+  CONFIG_DB and the kernel back exactly and check it (full CONFIG_DB comparison), refuse to start over leftovers,
+  and have `--cleanup` / `--dry-run` ([loadtest/sonic-test-lib.sh](loadtest/sonic-test-lib.sh); offline test
+  `loadtest/test/run.sh`; this form not yet run on the switch).
 
 ## Link state follows the cable
 Since 2026-11-22. Before, a port was oper up whenever it was admin up (the ASIC's link ends at the PHY's system
@@ -81,11 +84,19 @@ side) and an admin down never reached the far end. Now (`SAI_OPENBCM_EXT_PHY_FIL
 - **Admin down powers the PHY's line side down** (admin up: on again), so the far end sees it. All 28 unused
   cages are therefore dark towards the cable. This state survives a stack restart and ends with a reboot.
 - `openbcm-diag extphy`: per port admin, line, fault, last value, poll counts and times.
+- **Detection time** (far end dark -> this port oper down) is set by the cadence, not by the PHY: the SDK link-scan
+  pass runs every 250 ms (254-258 ms measured) and the gate reads a port's PHY on every second pass (poll-ms 500), so
+  it is about **0-0.52 s, mean about 0.26 s**, plus ~3 ms of SDK and notifier work. The earlier 67 / 102 / 141 ms were
+  three C++ runs (MACsec off) that all landed in the first pass
+  ([evidence/extlink-live-20261122.txt](evidence/extlink-live-20261122.txt)); the three Rust runs (MACsec on, 491 /
+  305 / 282 ms, [evidence/rust-g6](evidence/rust-g6/README.md) c9) all landed one pass later. Same code path in both
+  (gate, SDK glue, notifier). Pending: 20 + 20 runs (MACsec on / off) to confirm the distribution. poll-ms is an owner
+  decision and unchanged; a shorter one costs bus time on every pass.
 - Measured ([evidence/extlink-live-20261122.txt](evidence/extlink-live-20261122.txt), sha256 6fa2f8ca9b0c; 3 runs each):
 
   | event | result |
   | --- | --- |
-  | far end admin down -> this port oper down (syncd "admin down" to "oper down") | 67 / 102 / 141 ms; orchagent 1 ms later, netdev carrier 4 ms later |
+  | far end admin down -> this port oper down (syncd "admin down" to "oper down") | 67 / 102 / 141 ms (all three in the first pass, see above); orchagent 1 ms later, netdev carrier 4 ms later |
   | far end admin up -> this port oper up | 0.79-0.81 s; the port that was started itself: 1.31-1.33 s |
   | empty cage admin up | stays oper down (ASIC `ps` "down", LED link byte 0) |
   | flood ping over a DAC, far end shut | near port down, its counters stop, `CLMAC_CTRL RX_EN=0`, kernel route "linkdown"; pings resume after startup |
@@ -94,12 +105,15 @@ side) and an admin down never reached the far end. Now (`SAI_OPENBCM_EXT_PHY_FIL
   | admin sequence | 144 (down) / 216 (up) MDIO operations, 4-8 ms |
   | cold boot, reboot, `systemctl restart sonic.target` | 4 ports up, 28 dark, 0 failed sequences, 0 poll faults; `sonic-traffic-test.sh` 6400 pings 0 lost |
 - The `config interface ...` command itself takes 4 s before syncd sees anything (SONiC's Python CLI).
-- **PHY tools and the polls.** `phy-status`, `phystat.py` and the re-host's `diag` backend pause the polls
-  automatically (3 s after their last MDIO command; link state is frozen meanwhile). **Do not change a port's
-  admin state while such a tool runs**: the admin sequence shares the PHY's message interface with it.
+- **PHY tools and the polls** (library after 9d64222, not yet run on the box; rust/sai README "MDIO
+  arbitration"). A tool's diag access takes a lease on that PHY: a bare `phy raw` 3 s, an explicit transaction
+  (`extphy txn begin`, as `phystat.py` uses) 1 s per access and at most 2 s. Meanwhile that PHY's link state is
+  the cached one and its MACsec counter reads are skipped; an admin change or SA install on it waits for the
+  transaction (at most 2 s). Other PHYs are not affected. Counts: `openbcm-diag extphy`. On the deployed
+  47c0012 the old rule holds: all polls pause for 3 s after a tool's access, MACsec counter reads do not, and
+  a tool run can collide with them (rust-g6); do not change admin state while a tool runs.
 - Not tested: pulling a cable by hand (the stand-in was powering down the far PHY's line side, which is the same
-  loss of signal at this end), a link partner that is not this switch, MACsec on (same register, [macsec.md](macsec.md)
-  flows all ran with SONiC stopped). A raw-SDK session after SONiC (load test, `bcm.user`) finds the line side of
+  loss of signal at this end), a link partner that is not this switch. With MACsec on: rust-g6 c9 / c10 above. A raw-SDK session after SONiC (load test, `bcm.user`) finds the line side of
   every port SONiC had admin down still off: reboot first, or `extphy power <phy> 1`.
 - If the PHY's message interface stops answering, the port is down with `FAULT` in `openbcm-diag extphy` and a
   WARN in the journal ("external PHY link poll fault"); a reboot re-initialises the PHYs.
@@ -162,11 +176,11 @@ not forwarding at rate.
   The compared values are the only check that the chip follows the recording.
 
 ## Open
-- Only bypass at 100G on four cabled cages. Not done: load at rate, soak, PHY-side FEC/PCS counters, `extphy pre`
-  taps, 25G break-out (needs its own script and SDK config), MACsec on, the other 28 cages with a cable.
+- Four cabled cages at 100G. Done since: MACsec on ([macsec.md](macsec.md)), load at rate through SONiC
+  ([load-test.md](load-test.md)), factory taps. Not done: PHY-side FEC under that load (planned, load-test.md), 25G
+  break-out (needs its own script and SDK config), the other 28 cages with a cable.
 - Port LEDs: programs run at boot, register read-back correct, **not yet seen by eye** ([leds.md](leds.md)).
 - PSU 2 (slot empty) shows "NOT OK" rather than absent: CPLD1 0x02 reads 0x28 and the AS7760 decoding takes
   bit 0 low as present. "Fan 3 front: Not OK" at 76 % is the AS7760 platform code's rpm-versus-fand-expectation
   check with an uncalibrated fand, not a fan fault.
-- The `sonic-nix` saved config is empty: the VRFs and addresses of the traffic test were runtime only.
-- Nothing is committed.
+- The `sonic-nix` saved config is empty: the test scripts never `config save`.

@@ -20,15 +20,23 @@ use sai_core::Error;
 use sai_core::backend::types::{MdioDev, PhyAddr};
 use sai_core::backend::{HwPort, Mode, Profile, Recording};
 use sai_core::error::AttrError;
-use sai_core::extphy::{self, ManualClock};
+use sai_core::extphy::{self, DiagTarget, DiagWho, ManualClock};
 use sai_core::macsec::{self, MacsecObject, Secret, StatsMode};
 use sai_core::oid::{RawOid, TypedId};
 use sai_core::sai::Sai;
 use sai_core::value::{AclAction, AclField, AclFieldData, AclKind, AclParam, Attr, FieldMatch, Value};
-use sai_core::virt::VirtualBackend;
+use sai_core::virt::{MdioDevice, ShellMdio, VirtualBackend};
+use sai_diag::{DiagHandler, DiagHost, DiagServer, Level};
+use sai_extphy::fwphy::FwPhy;
 use sai_sys as sys;
 use std::fmt::Write as _;
+use std::io::{Read as _, Write as _};
+use std::os::fd::BorrowedFd;
+use std::os::unix::fs::MetadataExt as _;
 use std::sync::Arc;
+use std::sync::Mutex;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::{Duration, Instant};
 
 const PORT: sys::sai_object_type_t = sys::SAI_OBJECT_TYPE_PORT;
 const SWITCH: sys::sai_object_type_t = sys::SAI_OBJECT_TYPE_SWITCH;
@@ -1042,12 +1050,13 @@ fn the_trace_hides_key_words() {
 }
 
 /// A deliberate improvement on the C++ (whose hold-off held the link polls only): raw MDIO of the
-/// diag socket (a tool's PHY firmware-message conversation) defers the PN and counter polls
-/// syncd asks for while the hold-off lasts; the last read answers, the next read catches up;
-/// SA installs and counter clears are not deferred; a tool that polls for minutes cannot keep
-/// the PN from being read every `MACSEC_POLL_DEFER_MAX_MS`.
+/// diag socket without a transaction (a tool's PHY firmware-message conversation) makes the PN
+/// and counter polls of that PHY that syncd asks for skip while its hold-off lasts; the last read
+/// answers, the next read catches up; SA installs and counter clears are not held up by it; a
+/// tool that polls for minutes cannot keep the PN from being read every
+/// `MACSEC_POLL_DEFER_MAX_MS`.
 #[test]
-fn the_raw_mdio_hold_off_defers_the_pn_and_counter_polls() {
+fn raw_mdio_without_a_transaction_skips_the_pn_and_counter_polls() {
     let phy_table = table_file(
         "ext-phy 1
 poll-ms 0
@@ -1075,13 +1084,15 @@ link
     };
     let pkts = |r: &mut Rig| r.stat(MacsecObject::Sa, sa, sys::SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED);
     let ops = |r: &Rig| r.sai.backend().inner().mdio().lock().unwrap().log.len();
-    let tool = |r: &mut Rig| extphy::ext_phy_foreign_mdio(&mut r.sai, |_| ());
+    let tool = |r: &mut Rig| {
+        extphy::ext_phy_raw_shell(&mut r.sai, DiagWho::Bare, DiagTarget::Phy(0x10), |_| ()).unwrap();
+    };
     r.reg(0x10, 0x500, 0x10);
     r.reg(0x10, 0x400, 5);
     assert_eq!(pn(&mut r), Value::U64(0x10));
     assert_eq!(pkts(&mut r), 5);
 
-    // raw MDIO at t; the polls at t+1 s are deferred: nothing on the bus, the last read answers
+    // raw MDIO at t; the polls at t+1 s skip: nothing on the bus, the last read answers
     tool(&mut r);
     r.reg(0x10, 0x500, 0x20);
     clock.advance_ms(1000);
@@ -1093,7 +1104,7 @@ link
         0
     );
     assert_eq!(ops(&r), before);
-    // what SONiC asks for is not deferred: an SA install runs at once
+    // what SONiC asks for is not held up by raw MDIO without a transaction: an SA install runs at once
     r.bus();
     r.mk(MacsecObject::Sa, &sa_attrs(EGR, sc, 1, false, false, 1)).unwrap();
     assert!(!r.bus().is_empty());
@@ -1102,19 +1113,20 @@ link
     clock.advance_ms(2000);
     assert_eq!(pn(&mut r), Value::U64(0x20));
     assert_eq!(pkts(&mut r), 5 + 5);
-    let counts = extphy::ext_phy(&r.sai).unwrap().macsec_poll_counts();
-    assert_eq!((counts.deferred, counts.forced), (3, 0));
+    let counts = extphy::ext_phy(&r.sai).unwrap().counts();
+    assert_eq!((counts.polls_skipped, counts.forced_reads), (3, 0));
 
     // a clear inside the hold-off still reads the PHY first
     tool(&mut r);
     let before = ops(&r);
     r.sai.macsec_clear_stats(MacsecObject::Sa, sa).unwrap();
     assert!(ops(&r) > before);
-    assert_eq!(pkts(&mut r), 0); // deferred: the cleared value
+    assert_eq!(pkts(&mut r), 0); // skipped: the cleared value
     clock.advance_ms(3000);
 
     // a tool polling for five minutes (raw MDIO every 500 ms), syncd asking for the PN every
-    // second: the PN is read every 10 s, so its exhaustion cannot hide behind the tool
+    // second: the PN is read 10 s after its last read (the catch-up above, 3 s before the
+    // loop), then every 10 s, so its exhaustion cannot hide behind the tool
     let mut reads = Vec::new();
     for ms in (0..300_000u64).step_by(500) {
         tool(&mut r);
@@ -1129,6 +1141,349 @@ link
         }
         clock.advance_ms(500);
     }
-    assert_eq!(reads.len(), 29, "{reads:?}");
+    assert_eq!(reads.len(), 30, "{reads:?}");
+    assert_eq!(reads[0], 7000);
     assert!(reads.windows(2).all(|w| w[1] - w[0] == 10_000), "{reads:?}");
+}
+
+// ------------------------------------------------------------------ diag transactions (X1)
+
+/// The interleaving detector of `sai-extphy` behind the virtual MDIO master: every access goes
+/// through it (it records accesses inside another party's open conversation); it answers only
+/// the message registers (ack, doorbell, request and result words), the register file the rest.
+#[derive(Debug)]
+struct FwDevice(Arc<FwPhy>);
+
+fn message_reg(reg: u16) -> bool {
+    matches!(reg, 0x8221 | 0x8222 | 0xa000..=0xa1ff)
+}
+
+impl MdioDevice for FwDevice {
+    fn read(&self, phy: PhyAddr, dev: MdioDev, reg: u16) -> Option<u16> {
+        let v = self.0.access(u16::try_from(phy.0).unwrap(), dev.get(), reg, None);
+        message_reg(reg).then_some(v)
+    }
+    fn write(&self, phy: PhyAddr, dev: MdioDev, reg: u16, val: u16) {
+        self.0.access(u16::try_from(phy.0).unwrap(), dev.get(), reg, Some(val));
+    }
+}
+
+/// The rim's host over a core behind one mutex (the SAI lock).
+struct TxnHost {
+    sai: Mutex<Core>,
+    uid: u32,
+}
+
+impl DiagHost for TxnHost {
+    fn with_handler(&self, body: &mut dyn FnMut(Option<&mut dyn DiagHandler>)) {
+        let mut sai = self.sai.lock().unwrap();
+        body(Some(&mut *sai));
+    }
+    fn peer_uid(&self, _conn: BorrowedFd<'_>) -> Option<u32> {
+        Some(self.uid)
+    }
+    fn log(&self, _level: Level, _text: &str) {}
+}
+
+/// Waits until `cond` holds (a handshake on the runtime's state, no fixed sleep; the 60 s
+/// watchdog only turns a hang into a failure).
+fn until(what: &str, cond: impl Fn() -> bool) {
+    let t0 = Instant::now();
+    while !cond() {
+        assert!(t0.elapsed() < Duration::from_secs(60), "never happened: {what}");
+        std::thread::yield_now();
+    }
+}
+
+fn ask(path: &std::path::Path, line: &str) -> String {
+    let mut s = std::os::unix::net::UnixStream::connect(path).unwrap();
+    s.write_all(format!("{line}\n").as_bytes()).unwrap();
+    s.shutdown(std::net::Shutdown::Write).unwrap();
+    let mut out = String::new();
+    s.read_to_string(&mut out).unwrap();
+    out
+}
+
+/// A link sequence that is a firmware-message conversation on PHY 0x10 (port 1).
+const CONV_PHY_TABLE: &str = "ext-phy 1\npoll-ms 0\nup-polls 1\nholdoff-ms 3000\nport 1\nlink\n  R 10 1 8221\n  \
+    W 10 1 a000 c161\n  W 10 1 8222 1111\n  P 10 1 8221 11e3 ffff 3 0\n  E 10 1 a100 2\n  C 10 1 a101 3 3\n";
+
+struct TxnRig {
+    host: Arc<TxnHost>,
+    fw: Arc<FwPhy>,
+    ext: extphy::ExtPhy,
+    path: std::path::PathBuf,
+    p0: RawOid,
+    sc: RawOid,
+    sa: RawOid,
+    /// The runtime's clock: leases run out only when a test moves it.
+    clock: ManualClock,
+    _server: DiagServer,
+    dir: std::path::PathBuf,
+}
+
+fn txn_rig(name: &str) -> TxnRig {
+    let phy_table = table_file(CONV_PHY_TABLE);
+    let mut r = rig(
+        &ms_table(true, true),
+        &[("SAI_OPENBCM_EXT_PHY_FILE", phy_table.as_str())],
+    );
+    std::fs::remove_file(&phy_table).unwrap();
+    let fw = FwPhy::new();
+    fw.set(0x10, 0xa100, 2);
+    fw.set(0x10, 0xa101, 3);
+    r.sai.backend().inner().mdio().lock().unwrap().device = Some(Arc::new(FwDevice(Arc::clone(&fw))));
+    // the SDK shell's answer: the library may serve clause-45 raw MDIO itself
+    r.sai.backend_mut().inner_mut().set_shell_mdio(ShellMdio::Answer);
+    let clock = ManualClock::new();
+    extphy::set_clock(&r.sai, Arc::new(clock.clone()));
+    let (p0, _, _, sc) = bound(&mut r);
+    r.sai
+        .set(PORT, p0, &Attr::new(sys::SAI_PORT_ATTR_ADMIN_STATE, Value::Bool(true)))
+        .unwrap();
+    let sa = r.mk(MacsecObject::Sa, &sa_attrs(EGR, sc, 0, false, false, 1)).unwrap();
+    let ext = extphy::ext_phy(&r.sai).unwrap();
+    let phy = sai_core::diag::phy_diag(&r.sai).unwrap();
+    let base: std::path::PathBuf = std::env::var_os("SAI_RS_TEST_TMPDIR").map_or_else(std::env::temp_dir, Into::into);
+    let dir = base.join(format!("x1-{}-{name}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    let uid = std::fs::metadata(&dir).unwrap().uid();
+    let host = Arc::new(TxnHost {
+        sai: Mutex::new(r.sai),
+        uid,
+    });
+    let path = dir.join("diag.sock");
+    let as_dyn: Arc<dyn DiagHost> = host.clone();
+    let server = DiagServer::start_with(path.to_str().unwrap(), as_dyn, Some(phy)).unwrap();
+    TxnRig {
+        host,
+        fw,
+        ext,
+        path,
+        p0,
+        sc,
+        sa,
+        clock,
+        _server: server,
+        dir,
+    }
+}
+
+impl Drop for TxnRig {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.dir);
+    }
+}
+
+/// One firmware-message conversation of a diag client through the socket (`txn`: its
+/// transaction); the ack it read.
+fn socket_conversation(path: &std::path::Path, txn: Option<u64>, cmd: u16) -> String {
+    let prefix = txn.map_or_else(String::new, |t| format!("extphy txn {t} "));
+    let raw = |rest: String| ask(path, &format!("{prefix}phy raw c45 0x10 1 {rest}"));
+    let mut out = raw("0x8221".into());
+    out += &raw("0xa000 0xc161".into());
+    out += &raw(format!("0x8222 0x{cmd:x}"));
+    let ack = raw("0x8221".into());
+    out += &raw("0xa100".into());
+    out += &raw("0xa101".into());
+    assert!(!out.contains("openbcm-diag:"), "{out}");
+    ack
+}
+
+/// The diag socket with the switch's PHY arbitration: a transaction's raw MDIO is served without
+/// the SAI lock (an SA install that waits for the transaction holds it meanwhile), the install
+/// runs once the transaction ends, the PN get inside it answers its last read without a bus
+/// access, the link poll answers its last verdict; nothing interleaves. The recording backend
+/// logs the served accesses as the MDIO operations they are (no shell command).
+#[test]
+fn a_diag_transaction_holds_sonic_changes_off_and_needs_no_sai_lock() {
+    let t = txn_rig("txn");
+    let ops = |t: &TxnRig| {
+        t.host
+            .sai
+            .lock()
+            .unwrap()
+            .backend()
+            .inner()
+            .mdio()
+            .lock()
+            .unwrap()
+            .log
+            .len()
+    };
+    let log = t.host.sai.lock().unwrap().backend().log();
+    log.take();
+    let begun = ask(&t.path, "extphy txn begin 0x10 2000");
+    assert_eq!(
+        begun,
+        "txn 1 begun: phy 0x10, lease 2000 ms after each access, at most 2000 ms\n"
+    );
+    // a bare access to that PHY now is another client's: refused at once
+    let refused = ask(&t.path, "phy raw c45 0x10 1 0x8b00");
+    assert!(
+        refused.starts_with("openbcm-diag: phy 0x10 is in diag transaction 1"),
+        "{refused}"
+    );
+    // the tool's conversation, half-way
+    let p = |rest: &str| ask(&t.path, &format!("extphy txn 1 phy raw c45 0x10 1 {rest}"));
+    assert_eq!(p("0x8221"), "\t0x8221: 0x0000\n");
+    assert_eq!(p("0xa000 0xc161"), "");
+    assert_eq!(p("0x8222 0x1888"), "");
+    // syncd's PN poll: the last read, nothing on the bus; the link poll: its last verdict
+    let before = ops(&t);
+    let pn = t
+        .host
+        .sai
+        .lock()
+        .unwrap()
+        .macsec_get(MacsecObject::Sa, t.sa, &[sys::SAI_MACSEC_SA_ATTR_CURRENT_XPN])
+        .unwrap();
+    assert_eq!(pn, [Value::U64(1)]);
+    assert_eq!(t.ext.gate(extphy::ChipPortNo(1)), sai_extphy::Verdict::NoOpinion);
+    assert_eq!(ops(&t), before);
+    // an SA install (rekey): waits for the transaction, holding the SAI lock
+    let done = Arc::new(AtomicBool::new(false));
+    let sai_thread = {
+        let (host, done, sc) = (Arc::clone(&t.host), Arc::clone(&done), t.sc);
+        std::thread::spawn(move || {
+            let mut sai = host.sai.lock().unwrap();
+            sai.macsec_create(MacsecObject::Sa, &sa_attrs(EGR, sc, 1, false, false, 1))
+                .unwrap();
+            done.store(true, Ordering::SeqCst);
+        })
+    };
+    until("the SA install waits for the transaction", || t.ext.waiting() == 1);
+    assert!(!done.load(Ordering::SeqCst));
+    // the SAI lock is held: raw MDIO of the transaction is still served
+    assert_eq!(p("0x8221"), "\t0x8221: 0x18e3\n");
+    assert_eq!(p("0xa100"), "\t0xa100: 0x0002\n");
+    assert_eq!(p("0xa101"), "\t0xa101: 0x0003\n");
+    assert_eq!(t.ext.waiting(), 1);
+    assert!(!done.load(Ordering::SeqCst));
+    assert!(ask(&t.path, "extphy txn list").contains("txn 1 phy 0x10: "));
+    assert!(ask(&t.path, "extphy txn end 1").starts_with("txn 1 ended: 6 accesses in "));
+    sai_thread.join().unwrap();
+    assert!(done.load(Ordering::SeqCst));
+    assert_eq!(t.fw.violations(), Vec::<String>::new());
+    let c = t.ext.counts();
+    assert_eq!((c.txn_begun, c.txn_ended, c.gate_cached), (1, 1, 1));
+    assert!(c.polls_skipped >= 1 && c.op_waits >= 1, "{c:?}");
+    // served by the arbitration: MDIO operations in the call log, no shell command
+    let lines = log.take();
+    assert!(
+        lines
+            .iter()
+            .any(|l| l.starts_with("mdio_c45_read(phy=16, dev=1, reg=33313)")), // 0x10, 1.8221
+        "{lines:?}"
+    );
+    assert!(lines.iter().all(|l| !l.starts_with("run_shell_to(")), "{lines:?}");
+    // an expired transaction says so
+    assert!(ask(&t.path, "extphy txn begin 0x10 1").starts_with("txn 2 begun"));
+    t.clock.advance_ms(2);
+    let void = ask(&t.path, "extphy txn 2 phy raw c45 0x10 1 0x8221");
+    assert!(void.starts_with("openbcm-diag: extphy txn 2: expired"), "{void}");
+    assert!(ask(&t.path, "extphy txn bogus").starts_with("openbcm-diag: usage: extphy txn begin"));
+    // the status text has the arbitration lines
+    let text = ask(&t.path, "extphy");
+    assert!(text.contains("transactions begun 2, ended 1, expired 1"), "{text}");
+}
+
+/// Real threads through the SAI layer: the SDK link scan (the gate of the conversation-shaped
+/// link sequence on PHY 0x10), syncd's SAI calls (PN and counter gets, admin flaps, SA installs
+/// and removals on that PHY), and a diag client on the socket (transactions with conversations,
+/// some abandoned to run out). No access lands inside another party's conversation, no thread
+/// stalls (watchdog), no library sequence fails.
+#[test]
+fn link_scan_sai_and_diag_threads_on_one_phy_never_interleave() {
+    const ROUNDS: u64 = 30;
+    let t = Arc::new(txn_rig("stress"));
+    let stop = Arc::new(AtomicBool::new(false));
+    let rounds: Arc<[std::sync::atomic::AtomicU64; 3]> = Arc::new(Default::default());
+    let mut threads: Vec<std::thread::JoinHandle<()>> = Vec::new();
+    {
+        let (t, stop, rounds) = (Arc::clone(&t), Arc::clone(&stop), Arc::clone(&rounds));
+        threads.push(std::thread::spawn(move || {
+            while !stop.load(Ordering::SeqCst) {
+                t.ext.gate(extphy::ChipPortNo(1));
+                rounds[0].fetch_add(1, Ordering::SeqCst);
+                std::thread::yield_now();
+            }
+        }));
+    }
+    {
+        let (t, stop, rounds) = (Arc::clone(&t), Arc::clone(&stop), Arc::clone(&rounds));
+        threads.push(std::thread::spawn(move || {
+            let mut n = 0u64;
+            let p0 = t.p0;
+            while !stop.load(Ordering::SeqCst) {
+                let mut sai = t.host.sai.lock().unwrap();
+                sai.macsec_get(MacsecObject::Sa, t.sa, &[sys::SAI_MACSEC_SA_ATTR_CURRENT_XPN])
+                    .unwrap();
+                sai.macsec_stats(
+                    MacsecObject::Sa,
+                    t.sa,
+                    &[sys::SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED],
+                    StatsMode::Read,
+                )
+                .unwrap();
+                if n.is_multiple_of(5) {
+                    let sa = sai
+                        .macsec_create(MacsecObject::Sa, &sa_attrs(EGR, t.sc, 2, false, false, 1))
+                        .unwrap();
+                    sai.macsec_remove(MacsecObject::Sa, sa).unwrap();
+                }
+                if n.is_multiple_of(7) {
+                    for up in [false, true] {
+                        sai.set(PORT, p0, &Attr::new(sys::SAI_PORT_ATTR_ADMIN_STATE, Value::Bool(up)))
+                            .unwrap();
+                    }
+                }
+                drop(sai);
+                n += 1;
+                rounds[1].fetch_add(1, Ordering::SeqCst);
+                std::thread::yield_now();
+            }
+        }));
+    }
+    {
+        let (t, stop, rounds) = (Arc::clone(&t), Arc::clone(&stop), Arc::clone(&rounds));
+        threads.push(std::thread::spawn(move || {
+            let mut n = 0u64;
+            while !stop.load(Ordering::SeqCst) {
+                let begun = ask(&t.path, "extphy txn begin 0x10 200");
+                let txn = begun
+                    .strip_prefix("txn ")
+                    .and_then(|r| r.split(' ').next())
+                    .and_then(|w| w.parse::<u64>().ok())
+                    .unwrap_or_else(|| panic!("{begun}"));
+                assert_eq!(socket_conversation(&t.path, Some(txn), 0x1999), "\t0x8221: 0x19e3\n");
+                if n % 4 == 3 {
+                    // the client dies: its lease runs out by itself (the clock moves past it)
+                    t.clock.advance_ms(201);
+                    assert!(ask(&t.path, &format!("extphy txn end {txn}")).contains("expired"));
+                } else {
+                    assert!(ask(&t.path, &format!("extphy txn end {txn}")).starts_with("txn "));
+                }
+                n += 1;
+                rounds[2].fetch_add(1, Ordering::SeqCst);
+            }
+        }));
+    }
+    until("every thread did its rounds", || {
+        rounds.iter().all(|n| n.load(Ordering::SeqCst) >= ROUNDS)
+    });
+    stop.store(true, Ordering::SeqCst);
+    for th in threads {
+        until("the threads finish (else: deadlock)", || th.is_finished());
+        th.join().unwrap();
+    }
+    assert_eq!(t.fw.violations(), Vec::<String>::new());
+    let sai = t.host.sai.lock().unwrap();
+    let status = macsec::ext_macsec_status(&sai);
+    assert!(!status.contains(": line "), "a MACsec sequence failed:\n{status}");
+    let c = t.ext.counts();
+    assert!(c.txn_begun >= ROUNDS && c.txn_expired >= ROUNDS / 4, "{c:?}");
+    let phy = t.ext.port_counters(extphy::ChipPortNo(1)).unwrap();
+    assert_eq!(phy.faults, 0, "{phy:?}");
 }

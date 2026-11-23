@@ -108,6 +108,8 @@ fn rust(request: &[u8]) -> String {
         Ok(Command::ExtMacsecTrace(args)) => format!("trace:{args}"),
         Ok(Command::ExtMacsecRun(r)) => format!("run:{}|{}|{}", r.port, r.sequence, r.param_file.unwrap_or("")),
         Ok(Command::Shell(s)) => format!("shell:{}:{}", s.mdio == MdioAccess::Raw, s.line),
+        // Rust only (no piece spells "txn": never generated here; command.rs tests it)
+        Ok(Command::Txn { line, .. }) => format!("txn:{line}"),
     }
 }
 

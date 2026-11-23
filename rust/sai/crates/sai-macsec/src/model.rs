@@ -482,13 +482,30 @@ impl Macsec {
         params: &Params,
         missing_ok: bool,
     ) -> Result<Results> {
+        self.run_as(runner, hw, dir, name, params, missing_ok, false)
+            .map(Option::unwrap_or_default)
+    }
+
+    /// [`Self::run`], or for a poll (`poll`) [`SeqRunner::run_poll`]: `None` when the runner
+    /// skipped it (nothing run, nothing counted or logged).
+    #[allow(clippy::too_many_arguments, reason = "run's arguments and the kind of run")]
+    fn run_as(
+        &mut self,
+        runner: &mut dyn SeqRunner,
+        hw: PortKey,
+        dir: Dir,
+        name: &str,
+        params: &Params,
+        missing_ok: bool,
+        poll: bool,
+    ) -> Result<Option<Results>> {
         if !self.ports.contains_key(&hw) {
             return Err(Error::NotSupported);
         }
         let port = self.port_name(hw);
         if !runner.has(name) {
             if missing_ok {
-                return Ok(Results::new());
+                return Ok(Some(Results::new()));
             }
             self.log(
                 Level::Error,
@@ -497,7 +514,14 @@ impl Macsec {
             return Err(Error::NotSupported);
         }
         let t0 = Instant::now();
-        let outcome = runner.run(hw, name, params);
+        let outcome = if poll {
+            match runner.run_poll(hw, name, params) {
+                Some(outcome) => outcome,
+                None => return Ok(None),
+            }
+        } else {
+            runner.run(hw, name, params)
+        };
         let dt = u64::try_from(t0.elapsed().as_micros()).unwrap_or(u64::MAX);
         if let Some(engine) = self.engine_mut(hw, dir) {
             engine.runs += 1;
@@ -509,7 +533,7 @@ impl Macsec {
                     Level::Info,
                     format_args!("port {port}: external MACsec sequence {name} done ({dt} us)"),
                 );
-                Ok(results)
+                Ok(Some(results))
             }
             Err(e) => {
                 if let Some(engine) = self.engine_mut(hw, dir) {
@@ -784,8 +808,8 @@ impl Macsec {
     }
 
     /// Reads the counters of sequence `name` (`poll_counters`): `None` when the table
-    /// does not have it, or when `deferrable` (a get, not a clear) and the runner defers it
-    /// ([`SeqRunner::poll_deferred`]: the counters then keep their last read).
+    /// does not have it, or when `deferrable` (a get, not a clear) and the runner skips it
+    /// ([`SeqRunner::run_poll`]: the counters then keep their last read).
     pub(crate) fn poll(
         &mut self,
         runner: &mut dyn SeqRunner,
@@ -794,10 +818,10 @@ impl Macsec {
         name: &str,
         deferrable: bool,
     ) -> Result<Option<Results>> {
-        if !runner.has(name) || (deferrable && runner.poll_deferred(hw, name)) {
+        if !runner.has(name) {
             return Ok(None);
         }
-        self.run(runner, hw, dir, name, &Params::new(), false).map(Some)
+        self.run_as(runner, hw, dir, name, &Params::new(), false, deferrable)
     }
 
     /// Adds what was read to `acc`: accumulating when the PHY clears on read, replacing

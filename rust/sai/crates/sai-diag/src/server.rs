@@ -1,6 +1,6 @@
 //! The server thread (`sai_diag.cpp` `diag_start`, `loop`, `serve`, `diag_stop`).
-use crate::command::{self, Command, READ_LIMIT};
-use crate::{DiagHandler, DiagHost, Level, MARKER, ShellFailed, strerror};
+use crate::command::{self, Command, READ_LIMIT, RawRequest, Txn};
+use crate::{DiagHandler, DiagHost, Level, MARKER, PhyDiag, RawFailed, Reply, ShellFailed, strerror};
 use std::fmt;
 use std::fs;
 use std::io::{self, Read, Write};
@@ -69,6 +69,12 @@ impl DiagServer {
     /// stale socket there is replaced) and starts the thread. Logs the C++ notice on success; the
     /// caller logs the error.
     pub fn start(path: &str, host: Arc<dyn DiagHost>) -> Result<Self, StartError> {
+        Self::start_with(path, host, None)
+    }
+
+    /// [`DiagServer::start`] with the library's PHY arbitration: raw MDIO and `extphy txn` are
+    /// served by `phy` without the library's lock (crate documentation).
+    pub fn start_with(path: &str, host: Arc<dyn DiagHost>, phy: Option<Arc<dyn PhyDiag>>) -> Result<Self, StartError> {
         if path.len() >= SUN_PATH || !path.starts_with('/') {
             return Err(StartError::NotUsable(path.to_owned()));
         }
@@ -99,7 +105,7 @@ impl DiagServer {
                 let stop = Arc::clone(&stop);
                 std::thread::Builder::new()
                     .name("sai-diag".into())
-                    .spawn(move || accept_loop(&listener, &stop, &*host, owner))?
+                    .spawn(move || accept_loop(&listener, &stop, &*host, phy.as_deref(), owner))?
             };
             Ok((waker, stop, thread))
         })();
@@ -142,14 +148,14 @@ impl Drop for DiagServer {
     }
 }
 
-fn accept_loop(listener: &UnixListener, stop: &AtomicBool, host: &dyn DiagHost, owner: u32) {
+fn accept_loop(listener: &UnixListener, stop: &AtomicBool, host: &dyn DiagHost, phy: Option<&dyn PhyDiag>, owner: u32) {
     loop {
         let accepted = listener.accept();
         if stop.load(Ordering::SeqCst) {
             return;
         }
         match accepted {
-            Ok((conn, _)) => serve(host, conn, owner),
+            Ok((conn, _)) => serve(host, phy, conn, owner),
             Err(e) if e.kind() == io::ErrorKind::Interrupted => {}
             // EMFILE and the like: try again, without spinning
             Err(_) => std::thread::sleep(Duration::from_millis(10)),
@@ -176,7 +182,7 @@ fn read_request(conn: &mut UnixStream) -> Vec<u8> {
     request
 }
 
-fn serve(host: &dyn DiagHost, mut conn: UnixStream, owner: u32) {
+fn serve(host: &dyn DiagHost, phy: Option<&dyn PhyDiag>, mut conn: UnixStream, owner: u32) {
     match host.peer_uid(conn.as_fd()) {
         Some(uid) if uid == 0 || uid == owner => {}
         _ => return say(&mut conn, b"openbcm-diag: root only\n"),
@@ -186,7 +192,7 @@ fn serve(host: &dyn DiagHost, mut conn: UnixStream, owner: u32) {
     let request = read_request(&mut conn);
     match command::parse(&request) {
         Ok(command) => {
-            let answer = execute(host, &command);
+            let answer = execute(host, phy, &command);
             say(&mut conn, &answer);
         }
         Err(rejection) => say(&mut conn, &rejection.message()),
@@ -228,11 +234,29 @@ impl Spool {
 enum Outcome {
     NoSwitch,
     Text(String),
+    Reply(Reply),
     Shell(Result<(), ShellFailed>),
+    Raw(Result<(), RawFailed>),
 }
 
-/// Runs a command under the lock; the answer is written by the caller, after the lock.
-fn execute(host: &dyn DiagHost, command: &Command<'_>) -> Vec<u8> {
+/// Runs a command (under the lock unless the PHY arbitration serves it); the answer is written
+/// by the caller, after the lock.
+fn execute(host: &dyn DiagHost, phy: Option<&dyn PhyDiag>, command: &Command<'_>) -> Vec<u8> {
+    match command {
+        Command::Txn { line, txn } => {
+            host.log(Level::Notice, &format!("diag socket: {line}"));
+            return match (txn, phy) {
+                (Txn::Raw(request), _) => raw(host, phy, request),
+                (txn, Some(phy)) => phy.txn(txn).into_bytes(),
+                (txn, None) => locked(host, None, &mut |h, _| Outcome::Reply(h.ext_phy_txn(txn))),
+            };
+        }
+        Command::Shell(shell) if shell.mdio == command::MdioAccess::Raw => {
+            host.log(Level::Notice, &format!("diag socket: {}", shell.line));
+            return raw(host, phy, &RawRequest::new(shell.line, None));
+        }
+        _ => {}
+    }
     let spool = match command {
         Command::Shell(_) => match Spool::new() {
             Ok(spool) => Some(spool),
@@ -240,22 +264,78 @@ fn execute(host: &dyn DiagHost, command: &Command<'_>) -> Vec<u8> {
         },
         _ => None,
     };
-    let mut outcome = Outcome::NoSwitch;
-    host.with_handler(&mut |handler| {
-        if let Some(handler) = handler.filter(|h| h.switch_created()) {
-            outcome = run(host, handler, command, spool.as_ref().map(Spool::fd));
-        }
-    });
-    let mut answer = spool.map(Spool::finish).unwrap_or_default();
+    let mut answer = Vec::new();
+    let outcome = {
+        let fd = spool.as_ref().map(Spool::fd);
+        let mut outcome = Outcome::NoSwitch;
+        host.with_handler(&mut |handler| {
+            if let Some(handler) = handler.filter(|h| h.switch_created()) {
+                outcome = run(host, handler, command, fd);
+            }
+        });
+        outcome
+    };
+    if let Some(spool) = spool {
+        answer = spool.finish();
+    }
+    finish(answer, outcome)
+}
+
+/// The answer after the spooled output.
+fn finish(mut answer: Vec<u8>, outcome: Outcome) -> Vec<u8> {
     match outcome {
         Outcome::NoSwitch => answer.extend_from_slice(b"openbcm-diag: no switch\n"),
         Outcome::Text(text) => answer.extend_from_slice(text.as_bytes()),
-        Outcome::Shell(Ok(())) => {}
-        Outcome::Shell(Err(ShellFailed(status))) => {
+        Outcome::Reply(reply) => answer.extend(reply.into_bytes()),
+        Outcome::Shell(Ok(())) | Outcome::Raw(Ok(())) => {}
+        Outcome::Shell(Err(ShellFailed(status))) | Outcome::Raw(Err(RawFailed::Shell(ShellFailed(status)))) => {
             answer.extend_from_slice(format!("{MARKER}command failed ({status})\n").as_bytes());
+        }
+        Outcome::Raw(Err(RawFailed::Refused(why))) => {
+            answer.extend_from_slice(format!("{MARKER}{why}\n").as_bytes());
         }
     }
     answer
+}
+
+/// Runs `body` on the handler under the lock, with a spool for shell output when `spooled`.
+fn locked(
+    host: &dyn DiagHost,
+    spooled: Option<()>,
+    body: &mut dyn FnMut(&mut dyn DiagHandler, Option<BorrowedFd<'_>>) -> Outcome,
+) -> Vec<u8> {
+    let spool = match spooled {
+        Some(()) => match Spool::new() {
+            Ok(spool) => Some(spool),
+            Err(e) => return format!("{MARKER}cannot collect the output: {}\n", strerror(&e)).into_bytes(),
+        },
+        None => None,
+    };
+    let outcome = {
+        let fd = spool.as_ref().map(Spool::fd);
+        let mut outcome = Outcome::NoSwitch;
+        host.with_handler(&mut |handler| {
+            if let Some(handler) = handler.filter(|h| h.switch_created()) {
+                outcome = body(handler, fd);
+            }
+        });
+        outcome
+    };
+    let answer = spool.map(Spool::finish).unwrap_or_default();
+    finish(answer, outcome)
+}
+
+/// A raw MDIO command: the PHY arbitration without the lock when it serves it, else the
+/// backend's shell under the lock (within the arbitration: [`DiagHandler::raw_mdio`]).
+fn raw(host: &dyn DiagHost, phy: Option<&dyn PhyDiag>, request: &RawRequest<'_>) -> Vec<u8> {
+    if let Some(reply) = phy.and_then(|p| p.raw(request)) {
+        return reply.into_bytes();
+    }
+    locked(host, Some(()), &mut |handler, fd| {
+        Outcome::Raw(fd.map_or(Err(RawFailed::Shell(ShellFailed(-1))), |fd| {
+            handler.raw_mdio(request, fd)
+        }))
+    })
 }
 
 fn run(
@@ -289,5 +369,7 @@ fn run(
             // Shell commands always come with the spool (`execute`).
             Outcome::Shell(out.map_or(Err(ShellFailed(-1)), |fd| handler.shell(shell, fd)))
         }
+        // served before the lock (`execute`)
+        Command::Txn { .. } => Outcome::NoSwitch,
     }
 }

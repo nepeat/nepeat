@@ -1,29 +1,40 @@
 #!/usr/bin/env bash
 # Run ON the AS7772 (root, login shell) with SONiC up: pings across both loopback DACs
 # (cage 1 <-> 2 and 31 <-> 32) through the KNET netdevs, each far end in its own VRF,
-# with SONiC and ASIC counters. The VRF/IP config is runtime only (no "config save").
-#   bash -l sonic-traffic-test.sh [count]
+# with SONiC and ASIC counters.
+#   bash -l sonic-traffic-test.sh [--dry-run] [count]    --dry-run prints the CONFIG_DB writes, makes none
+#   bash -l sonic-traffic-test.sh --cleanup [--dry-run]   undo an interrupted run of this or of macsec-traffic-test.sh
+# Needs loadtest/sonic-test-lib.sh beside it (or in ./loadtest/). Runtime config only, put back exactly (snapshot,
+# restore on every exit, whole CONFIG_DB and kernel state compared, sonic-test-lib.sh); refuses to start over an
+# earlier run's leftovers. Not yet run on the switch in this form. With MACsec on, use macsec-traffic-test.sh.
 set -u
-n=${1:-1000}
+here=$(cd "$(dirname "$0")" && pwd)
+lib=
+for l in "${SONIC_TEST_LIB:-}" "$here/loadtest/sonic-test-lib.sh" "$here/sonic-test-lib.sh"; do
+  if [ -n "$l" ] && [ -r "$l" ]; then lib=$l; break; fi
+done
+[ -n "$lib" ] || { echo "sonic-test-lib.sh not found: copy loadtest/sonic-test-lib.sh next to this script"; exit 2; }
+# shellcheck source=loadtest/sonic-test-lib.sh
+. "$lib"
+st_args "$@"
+n=${ST_ARGS[0]:-1000}
+ST_PHASES=("${ST_PAIRS_PHASES[@]}")
 export SONIC_CLI_IFACE_MODE=alias
 D() { openbcm-diag "$@"; }
+[ "$ST_MODE" = cleanup ] && st_cleanup vrf-pairs
 echo "== $(date -Is) $(readlink /run/current-system)"
 echo "== uptime: $(uptime)"
 systemctl is-active openbcm-mdio-script sonic-syncd sonic-orchagent fand | tr '\n' ' '; echo
 journalctl -b -u openbcm-mdio-script --no-pager | grep -E 'rate register|done in|FAILED' | cut -d' ' -f6-
 echo "== failed units: $(systemctl --failed --no-legend | wc -l)"
 show interfaces status 2>&1 | grep -E 'Interface|---| up '
-ip vrf show | grep -q Vrf-a || config vrf add Vrf-a
-ip vrf show | grep -q Vrf-b || config vrf add Vrf-b
-sleep 2
-ip link show Ethernet4 | grep -q 'master Vrf-a' || config interface vrf bind Ethernet2/1 Vrf-a
-ip link show Ethernet124 | grep -q 'master Vrf-b' || config interface vrf bind Ethernet32/1 Vrf-b
-sleep 2
-ip -4 addr show Ethernet0 | grep -q 10.0.1.0 || config interface ip add Ethernet1/1 10.0.1.0/31
-ip -4 addr show Ethernet4 | grep -q 10.0.1.1 || config interface ip add Ethernet2/1 10.0.1.1/31
-ip -4 addr show Ethernet120 | grep -q 10.0.31.0 || config interface ip add Ethernet31/1 10.0.31.0/31
-ip -4 addr show Ethernet124 | grep -q 10.0.31.1 || config interface ip add Ethernet32/1 10.0.31.1/31
-sleep 5
+st_pairs_check
+st_refusals || exit 1
+st_begin vrf-pairs arm
+echo "== setup: VRFs, far ends into them, addresses (CONFIG_DB)"
+st_pairs_up || { echo "FAIL: setup did not complete"; exit 1; }
+[ "$ST_DRY" = 1 ] && exit 0
+sleep 5   # orchagent: routes of the new addresses
 ping -c 3 -W 2 10.0.1.1 >/dev/null; ping -c 3 -W 2 10.0.31.1 >/dev/null     # ARP
 D clear c >/dev/null
 sonic-clear counters >/dev/null 2>&1

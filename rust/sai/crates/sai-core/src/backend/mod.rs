@@ -359,6 +359,9 @@ impl<B: Backend + ?Sized> Backend for Box<B> {
     fn mdio_bus(&self) -> Option<types::MdioBus> {
         (**self).mdio_bus()
     }
+    fn diag_mdio_native(&self) -> bool {
+        (**self).diag_mdio_native()
+    }
 }
 
 /// Everything the SAI layer needs from a chip: the typed sub-traits ([`ops`]) and, for now,
@@ -481,6 +484,16 @@ pub trait Backend:
     /// recording decorator. Default: none (the backend has no MDIO for an external PHY table).
     fn mdio_bus(&self) -> Option<types::MdioBus> {
         None
+    }
+
+    /// Whether the backend's diag shell answers `phy raw c45 PHY DEV REG [VALUE]` from the MDIO
+    /// master behind [`Backend::mdio_bus`] (the SDK's shell does: `soc_miimc45_read` / `_write`,
+    /// the calls of the handle), so that the diag socket may serve such a line itself over the
+    /// handle, outside the SAI lock, with the same bus effect and answer (`crate::diag`). Not a C++
+    /// operation and not logged. Default yes; the virtual chip only in
+    /// [`crate::virt::ShellMdio::Answer`] (its default shell is the C++ fake's echo).
+    fn diag_mdio_native(&self) -> bool {
+        true
     }
 }
 

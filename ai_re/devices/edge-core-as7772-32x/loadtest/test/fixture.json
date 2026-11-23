@@ -1,0 +1,301 @@
+{
+ "db": {
+  "0": {
+   "PORT_TABLE:Ethernet0": {
+    "t": "hash",
+    "v": {
+     "oper_status": "up",
+     "admin_status": "up"
+    }
+   },
+   "LLDP_ENTRY_TABLE:Ethernet0": {
+    "t": "hash",
+    "v": {
+     "lldp_rem_sys_name": "as7772",
+     "lldp_rem_port_id": "Ethernet2/1",
+     "lldp_rem_port_desc": "Ethernet4",
+     "lldp_rem_chassis_id": "1c:ea:0b:38:2b:d5"
+    }
+   },
+   "PORT_TABLE:Ethernet4": {
+    "t": "hash",
+    "v": {
+     "oper_status": "up",
+     "admin_status": "up"
+    }
+   },
+   "LLDP_ENTRY_TABLE:Ethernet4": {
+    "t": "hash",
+    "v": {
+     "lldp_rem_sys_name": "as7772",
+     "lldp_rem_port_id": "Ethernet1/1",
+     "lldp_rem_port_desc": "Ethernet0",
+     "lldp_rem_chassis_id": "1c:ea:0b:38:2b:d5"
+    }
+   },
+   "PORT_TABLE:Ethernet8": {
+    "t": "hash",
+    "v": {
+     "oper_status": "down",
+     "admin_status": "down"
+    }
+   },
+   "PORT_TABLE:Ethernet120": {
+    "t": "hash",
+    "v": {
+     "oper_status": "up",
+     "admin_status": "up"
+    }
+   },
+   "LLDP_ENTRY_TABLE:Ethernet120": {
+    "t": "hash",
+    "v": {
+     "lldp_rem_sys_name": "as7772",
+     "lldp_rem_port_id": "Ethernet32/1",
+     "lldp_rem_port_desc": "Ethernet124",
+     "lldp_rem_chassis_id": "1c:ea:0b:38:2b:d5"
+    }
+   },
+   "PORT_TABLE:Ethernet124": {
+    "t": "hash",
+    "v": {
+     "oper_status": "up",
+     "admin_status": "up"
+    }
+   },
+   "LLDP_ENTRY_TABLE:Ethernet124": {
+    "t": "hash",
+    "v": {
+     "lldp_rem_sys_name": "as7772",
+     "lldp_rem_port_id": "Ethernet31/1",
+     "lldp_rem_port_desc": "Ethernet120",
+     "lldp_rem_chassis_id": "1c:ea:0b:38:2b:d5"
+    }
+   },
+   "INTF_TABLE:Ethernet4": {
+    "t": "hash",
+    "v": {
+     "popped": "1"
+    }
+   },
+   "INTF_TABLE:Ethernet124": {
+    "t": "hash",
+    "v": {
+     "popped": "1"
+    }
+   }
+  },
+  "4": {
+   "CONFIG_DB_INITIALIZED": {
+    "t": "string",
+    "v": "1"
+   },
+   "DEVICE_METADATA|localhost": {
+    "t": "hash",
+    "v": {
+     "hostname": "as7772",
+     "mac": "1c:ea:0b:38:2b:d5",
+     "platform": "powerpc64-accton_as7772_32x-r0"
+    }
+   },
+   "FEATURE|macsec": {
+    "t": "hash",
+    "v": {
+     "state": "enabled"
+    }
+   },
+   "FLEX_COUNTER_TABLE|PORT": {
+    "t": "hash",
+    "v": {
+     "FLEX_COUNTER_STATUS": "enable"
+    }
+   },
+   "INTERFACE|Ethernet4": {
+    "t": "hash",
+    "v": {
+     "mac_addr": "1c:ea:0b:38:2b:d6"
+    }
+   },
+   "INTERFACE|Ethernet124": {
+    "t": "hash",
+    "v": {
+     "mac_addr": "1c:ea:0b:38:2b:d7"
+    }
+   },
+   "LOGGER|intfmgrd": {
+    "t": "hash",
+    "v": {
+     "LOGLEVEL": "NOTICE",
+     "LOGOUTPUT": "SYSLOG"
+    }
+   },
+   "MACSEC_PROFILE|lab-test": {
+    "t": "hash",
+    "v": {
+     "cipher_suite": "GCM-AES-XPN-256",
+     "priority": "0",
+     "send_sci": "true"
+    }
+   },
+   "PORT|Ethernet0": {
+    "t": "hash",
+    "v": {
+     "alias": "Ethernet1/1",
+     "admin_status": "up",
+     "mtu": "9100",
+     "speed": "100000",
+     "macsec": "lab-test",
+     "fec": "rs"
+    }
+   },
+   "PORT|Ethernet4": {
+    "t": "hash",
+    "v": {
+     "alias": "Ethernet2/1",
+     "admin_status": "up",
+     "mtu": "9100",
+     "speed": "100000",
+     "macsec": "lab-test",
+     "fec": "rs"
+    }
+   },
+   "PORT|Ethernet8": {
+    "t": "hash",
+    "v": {
+     "alias": "Ethernet3/1",
+     "admin_status": "down",
+     "mtu": "9100",
+     "speed": "100000"
+    }
+   },
+   "PORT|Ethernet120": {
+    "t": "hash",
+    "v": {
+     "alias": "Ethernet31/1",
+     "admin_status": "up",
+     "mtu": "9100",
+     "speed": "100000",
+     "macsec": "lab-test",
+     "fec": "rs"
+    }
+   },
+   "PORT|Ethernet124": {
+    "t": "hash",
+    "v": {
+     "alias": "Ethernet32/1",
+     "admin_status": "up",
+     "mtu": "9100",
+     "speed": "100000",
+     "macsec": "lab-test",
+     "fec": "rs"
+    }
+   }
+  },
+  "6": {
+   "PORT_TABLE|Ethernet0": {
+    "t": "hash",
+    "v": {
+     "state": "ok",
+     "netdev_oper_status": "up"
+    }
+   },
+   "MACSEC_EGRESS_SA_TABLE|Ethernet0|1cea0b382bd50001|0": {
+    "t": "hash",
+    "v": {
+     "state": "ok"
+    }
+   },
+   "MACSEC_INGRESS_SA_TABLE|Ethernet0|1cea0b382bd60001|0": {
+    "t": "hash",
+    "v": {
+     "state": "ok"
+    }
+   },
+   "PORT_TABLE|Ethernet4": {
+    "t": "hash",
+    "v": {
+     "state": "ok",
+     "netdev_oper_status": "up"
+    }
+   },
+   "MACSEC_EGRESS_SA_TABLE|Ethernet4|1cea0b382bd60001|0": {
+    "t": "hash",
+    "v": {
+     "state": "ok"
+    }
+   },
+   "MACSEC_INGRESS_SA_TABLE|Ethernet4|1cea0b382bd50001|0": {
+    "t": "hash",
+    "v": {
+     "state": "ok"
+    }
+   },
+   "PORT_TABLE|Ethernet8": {
+    "t": "hash",
+    "v": {
+     "state": "ok",
+     "netdev_oper_status": "down"
+    }
+   },
+   "PORT_TABLE|Ethernet120": {
+    "t": "hash",
+    "v": {
+     "state": "ok",
+     "netdev_oper_status": "up"
+    }
+   },
+   "MACSEC_EGRESS_SA_TABLE|Ethernet120|1cea0b382bd50001|0": {
+    "t": "hash",
+    "v": {
+     "state": "ok"
+    }
+   },
+   "MACSEC_INGRESS_SA_TABLE|Ethernet120|1cea0b382bd70001|0": {
+    "t": "hash",
+    "v": {
+     "state": "ok"
+    }
+   },
+   "PORT_TABLE|Ethernet124": {
+    "t": "hash",
+    "v": {
+     "state": "ok",
+     "netdev_oper_status": "up"
+    }
+   },
+   "MACSEC_EGRESS_SA_TABLE|Ethernet124|1cea0b382bd70001|0": {
+    "t": "hash",
+    "v": {
+     "state": "ok"
+    }
+   },
+   "MACSEC_INGRESS_SA_TABLE|Ethernet124|1cea0b382bd50001|0": {
+    "t": "hash",
+    "v": {
+     "state": "ok"
+    }
+   },
+   "INTERFACE_TABLE|Ethernet4": {
+    "t": "hash",
+    "v": {
+     "vrf": ""
+    }
+   },
+   "INTERFACE_TABLE|Ethernet124": {
+    "t": "hash",
+    "v": {
+     "vrf": ""
+    }
+   }
+  }
+ },
+ "sysctl": {
+  "net.ipv6.conf.default.disable_ipv6": "0",
+  "net.ipv6.conf.Bridge.disable_ipv6": "0",
+  "net.ipv6.conf.Ethernet0.disable_ipv6": "0",
+  "net.ipv6.conf.Ethernet4.disable_ipv6": "0",
+  "net.ipv6.conf.Ethernet120.disable_ipv6": "0",
+  "net.ipv6.conf.Ethernet124.disable_ipv6": "0"
+ },
+ "stuck": []
+}

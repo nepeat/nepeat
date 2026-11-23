@@ -11,7 +11,7 @@
 - **Ports:** 32 BCM82391 "Evora" PHYs initialised at boot (98 s, 100G MACsec bypass, factory TX taps); cages 1-2
   and 31-32 (DACs) up at 100G, the rest admin-down (their PHY line side powered down): [extphy.md](extphy.md).
   **Link state and LEDs follow the cable** (PHY line-side link polled inside the SDK link scan: far end down ->
-  oper down in 67-141 ms). 26 min at line rate, 0 loss ([load-test.md](load-test.md)). **MACsec under SONiC at boot on the
+  oper down within about 0-0.5 s: bounded by the 250 ms link scan and the 500 ms gate poll; measurement pending). 26 min at line rate, 0 loss ([load-test.md](load-test.md)). **MACsec under SONiC at boot on the
   four DAC ports** (MKA, GCM-AES-XPN-256, lab test key in `/var/lib/sonic-macsec/lab-test.cak`; if the file is
   missing those ports run in clear): [macsec.md](macsec.md).
 - **MDIO rules:** `init misc` / `init all` before any external MDIO access; clause 45 **device 1 only**; no

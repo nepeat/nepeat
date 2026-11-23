@@ -814,10 +814,10 @@ impl Macsec {
             return Ok(pn);
         };
         let name = seq::pn(dir, an);
-        if !runner.has(&name) || runner.poll_deferred(hw, &name) {
+        // a get: the runner may skip the read (a diag lease on the PHY), the last read answers
+        let Some(read) = self.poll(runner, hw, dir, &name, true)? else {
             return Ok(pn);
-        }
-        let read = self.run(runner, hw, dir, &name, &Params::new(), false)?;
+        };
         let mut pn = read.u64(param::PN);
         if !cipher.is_xpn() {
             pn &= u64::from(u32::MAX);

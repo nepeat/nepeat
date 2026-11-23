@@ -48,7 +48,7 @@ mod typed;
 pub use netdev::{NetdevMode, parse_wire};
 pub use state::{
     EgressKind, FpEntry, FpGroup, FpModel, Genl, HwQ, Intf, KnetNetif, KnetNetifs, L2Entry, L2Table, L2xModel, L3Model,
-    Lags, MdioModel, MdioOp, MirrorModel, QosModel, Toggles, Traps, VirtPort,
+    Lags, MdioDevice, MdioModel, MdioOp, MirrorModel, QosModel, Toggles, Traps, VirtPort,
 };
 pub use typed::ShellMdio;
 
@@ -139,7 +139,8 @@ impl crate::backend::types::MdioAccess for VirtBus {
         if mdio.dead.contains(&phy) {
             return Err(Error::Failure);
         }
-        let val = mdio.regs.get(&(phy, dev, reg)).copied().unwrap_or(0);
+        let device = mdio.device.as_ref().and_then(|d| d.read(phy, dev, reg));
+        let val = device.unwrap_or_else(|| mdio.regs.get(&(phy, dev, reg)).copied().unwrap_or(0));
         mdio.log.push(MdioOp {
             write: false,
             phy,
@@ -161,6 +162,9 @@ impl crate::backend::types::MdioAccess for VirtBus {
         let mut mdio = self.mdio.lock().unwrap_or_else(PoisonError::into_inner);
         if mdio.dead.contains(&phy) {
             return Err(Error::Failure);
+        }
+        if let Some(d) = &mdio.device {
+            d.write(phy, dev, reg, val);
         }
         mdio.regs.insert((phy, dev, reg), val);
         mdio.log.push(MdioOp {
@@ -884,6 +888,11 @@ impl Backend for VirtualBackend {
 
     fn mdio_bus(&self) -> Option<crate::backend::types::MdioBus> {
         Some(Arc::new(self.bus()))
+    }
+
+    /// Only when its shell answers `phy raw c45` reads from the MDIO model (as the SDK's does).
+    fn diag_mdio_native(&self) -> bool {
+        self.shell_mdio == ShellMdio::Answer
     }
 
     fn init(&mut self, profile: &Profile, events: EventSink) -> Result<()> {

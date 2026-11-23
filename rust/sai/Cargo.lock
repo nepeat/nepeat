@@ -440,6 +440,7 @@ name = "sai-extphy"
 version = "0.1.0"
 dependencies = [
  "phy-seq",
+ "sai-extphy",
 ]
 
 [[package]]

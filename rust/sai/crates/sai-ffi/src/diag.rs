@@ -1,10 +1,12 @@
 //! The diag socket (crate `sai-diag`, the port of `sai_diag.cpp`) on the API lock: its commands
-//! run on the core under the same mutex as every SAI call. Started by `create_switch` when the
+//! run on the core under the same mutex as every SAI call, but raw MDIO and `extphy txn` on a
+//! switch with external PHY tables, which the switch's `sai_core::diag::DiagPort` serves without
+//! it (lock order: API lock, a diag lease, a PHY's slot, the MDIO master's lock). Started by `create_switch` when the
 //! profile has `SAI_OPENBCM_DIAG_SOCKET`; stopped by `remove_switch` and `sai_api_uninitialize`,
 //! always after the lock was released (the server's thread may be waiting for it).
 use crate::state;
 use sai_core::backend::Profile;
-use sai_diag::{DiagHandler, DiagHost, DiagServer, Level};
+use sai_diag::{DiagHandler, DiagHost, DiagServer, Level, PhyDiag};
 use std::os::fd::{AsRawFd, BorrowedFd};
 use std::sync::Arc;
 
@@ -49,9 +51,11 @@ impl DiagHost for Host {
     }
 }
 
-/// The server of a switch created with `profile`, when the profile asks for one.
-pub(crate) fn start(profile: &Profile) -> Option<DiagServer> {
-    sai_core::diag::start(profile, Arc::new(Host))
+/// The server of a switch created with `profile`, when the profile asks for one; `phy`: the
+/// switch's external-PHY arbitration (`sai_core::diag::phy_diag`), which serves raw MDIO and
+/// transactions without the API lock.
+pub(crate) fn start(profile: &Profile, phy: Option<Arc<dyn PhyDiag>>) -> Option<DiagServer> {
+    sai_core::diag::start(profile, Arc::new(Host), phy)
 }
 
 /// The test port's `diag_start(path)`: the server at `path` as `create_switch` starts it with
@@ -61,7 +65,10 @@ pub(crate) fn start(profile: &Profile) -> Option<DiagServer> {
 pub(crate) fn test_start(path: &str) {
     let _ = state::with_api(|api| {
         if api.diag.is_none() {
-            api.diag = start(&Profile::from_pairs([(sai_diag::SOCKET_KEY, path)]));
+            api.diag = start(
+                &Profile::from_pairs([(sai_diag::SOCKET_KEY, path)]),
+                sai_core::diag::phy_diag(&api.sai),
+            );
         }
         Ok(())
     });

@@ -68,7 +68,7 @@ pub struct ShellCommand<'a> {
 }
 
 /// A command line that is not refused.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Command<'a> {
     /// `extphy`
     ExtPhy,
@@ -78,8 +78,230 @@ pub enum Command<'a> {
     ExtMacsecTrace(&'a str),
     /// `extmacsec run ...`
     ExtMacsecRun(MacsecRun<'a>),
+    /// `extphy txn ...`: a diag transaction on external PHYs (Rust only; [`Txn`]).
+    Txn {
+        /// The line as received (for the log).
+        line: &'a str,
+        /// What it asks for.
+        txn: Txn<'a>,
+    },
     /// Everything else.
     Shell(ShellCommand<'a>),
+}
+
+/// What an `extphy txn` line asks for (Rust only; the C++ had no transactions). A transaction
+/// leases PHYs across connections: `begin` answers its number, every raw access of the client
+/// carries it (`extphy txn <n> phy raw ...`), `end` gives the PHYs back. See `sai-extphy`.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Txn<'a> {
+    /// `extphy txn begin <phy[,phy...]|all> [ms]`: `phys` `None` = all PHYs.
+    Begin {
+        /// The MDIO address words (sorted, no doubles), or all.
+        phys: Option<Vec<u16>>,
+        /// The lease after each access, ms (the library's default when absent).
+        ms: Option<u64>,
+    },
+    /// `extphy txn renew <n> [ms]`
+    Renew {
+        /// The transaction.
+        txn: u64,
+        /// A new lease per access, ms.
+        ms: Option<u64>,
+    },
+    /// `extphy txn end <n>`
+    End {
+        /// The transaction.
+        txn: u64,
+    },
+    /// `extphy txn` or `extphy txn list`: the leases.
+    List,
+    /// `extphy txn <n> phy raw ...`: one raw access of transaction `n`.
+    Raw(RawRequest<'a>),
+    /// Anything else after `extphy txn`: the usage line.
+    Usage,
+}
+
+/// The usage line of `extphy txn`.
+pub const TXN_USAGE: &str = "usage: extphy txn begin <phy[,phy...]|all> [ms] | renew <n> [ms] | end <n> | list | \
+                             <n> phy raw c45 <phy> <dev> <reg> [<value>]";
+
+/// What a raw MDIO line addresses.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum RawTarget {
+    /// One PHY: a clause-45 access to an address word without the broadcast bit (0x400).
+    Phy(u16),
+    /// No single PHY: clause 22, `sbus` / `sim`, a broadcast address, a line that does not parse.
+    Global,
+}
+
+/// `phy raw c45 PHY DEV REG [VALUE]` as the library serves it itself (every number in range:
+/// an address word up to 0x7ff without the broadcast bit, device 1..=31, 16-bit register and
+/// value).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct RawC45 {
+    /// The MDIO address word.
+    pub phy: u16,
+    /// The clause-45 device.
+    pub dev: u8,
+    /// The register.
+    pub reg: u16,
+    /// The value of a write; `None` for a read.
+    pub value: Option<u16>,
+}
+
+/// One raw MDIO command of the diag socket: a bare `phy raw ...` line, or one carried by a
+/// transaction.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct RawRequest<'a> {
+    /// The `phy raw ...` line (what the SDK shell would run).
+    pub line: &'a str,
+    /// The transaction it belongs to (`None`: a client without one).
+    pub txn: Option<u64>,
+    /// What it addresses.
+    pub target: RawTarget,
+    /// The line as a clause-45 access the library can serve itself, when it is one.
+    pub c45: Option<RawC45>,
+}
+
+impl<'a> RawRequest<'a> {
+    /// The request of a `phy raw ...` line of transaction `txn`.
+    pub fn new(line: &'a str, txn: Option<u64>) -> Self {
+        Self {
+            line,
+            txn,
+            target: raw_target(line),
+            c45: raw_c45(line),
+        }
+    }
+}
+
+/// A whole word as the SDK shell's `sal_strtoul(word, NULL, 0)` reads a number: `0x` / `0X`
+/// hex, a leading `0` octal, else decimal. Anything `strtoul` would read differently (a sign,
+/// characters after the number, a value over 32 bits) is `None`.
+pub fn c_number(word: &str) -> Option<u32> {
+    if let Some(hex) = word.strip_prefix("0x").or_else(|| word.strip_prefix("0X")) {
+        return (!hex.is_empty() && hex.bytes().all(|b| b.is_ascii_hexdigit()))
+            .then(|| u32::from_str_radix(hex, 16).ok())
+            .flatten();
+    }
+    if !word.bytes().all(|b| b.is_ascii_digit()) || word.is_empty() {
+        return None;
+    }
+    if word.len() > 1 && word.starts_with('0') {
+        return u32::from_str_radix(word, 8).ok();
+    }
+    word.parse().ok()
+}
+
+/// The words of a raw line, split as the SDK shell splits them (spaces and tabs).
+fn raw_words(line: &str) -> Vec<&str> {
+    line.split([' ', '\t']).filter(|w| !w.is_empty()).collect()
+}
+
+fn is_word(word: Option<&&str>, keyword: &str) -> bool {
+    word.is_some_and(|w| w.eq_ignore_ascii_case(keyword))
+}
+
+/// The address word of a clause-45 `phy raw` line, when it names one PHY.
+fn c45_phy(words: &[&str]) -> Option<u16> {
+    if !(is_word(words.first(), "phy") && is_word(words.get(1), "raw") && is_word(words.get(2), "c45")) {
+        return None;
+    }
+    let phy = c_number(words.get(3)?)?;
+    (phy <= 0x7ff && phy & 0x400 == 0)
+        .then(|| u16::try_from(phy).ok())
+        .flatten()
+}
+
+/// What a `phy raw` line addresses ([`RawTarget`]).
+pub fn raw_target(line: &str) -> RawTarget {
+    c45_phy(&raw_words(line)).map_or(RawTarget::Global, RawTarget::Phy)
+}
+
+/// A `phy raw c45 PHY DEV REG [VALUE]` line the library can serve itself ([`RawC45`]).
+pub fn raw_c45(line: &str) -> Option<RawC45> {
+    let words = raw_words(line);
+    let phy = c45_phy(&words)?;
+    let dev = u8::try_from(c_number(words.get(4)?)?)
+        .ok()
+        .filter(|d| (1..=31).contains(d))?;
+    let reg = u16::try_from(c_number(words.get(5)?)?).ok()?;
+    let value = match words.get(6..).unwrap_or_default() {
+        [] => None,
+        [v] => Some(u16::try_from(c_number(v)?).ok()?),
+        _ => return None,
+    };
+    Some(RawC45 { phy, dev, reg, value })
+}
+
+/// The rest of `text` after its first word and the blanks behind it (`None`: no first word).
+fn after_word(text: &str) -> Option<(&str, &str)> {
+    let text = text.trim_start_matches(c_space);
+    let end = text.find(c_space).unwrap_or(text.len());
+    let (word, rest) = text.split_at(end);
+    (!word.is_empty()).then(|| (word, rest.trim_start_matches(c_space)))
+}
+
+/// `extphy txn ...` (`None`: the line is not one).
+fn txn(line: &str) -> Option<Txn<'_>> {
+    let (first, rest) = after_word(line)?;
+    let (second, rest) = after_word(rest)?;
+    if first != "extphy" || second != "txn" {
+        return None;
+    }
+    let mut words = c_words(rest);
+    let sub = words.next();
+    let a = words.next();
+    let b = words.next();
+    let more = words.next().is_some();
+    let ms = |w: Option<&str>| -> Option<Option<u64>> {
+        match w {
+            None => Some(None),
+            Some(w) => w.parse::<u64>().ok().filter(|m| *m > 0).map(Some),
+        }
+    };
+    let number = |w: Option<&str>| w.and_then(|w| w.parse::<u64>().ok());
+    Some(match sub {
+        None | Some("list") if a.is_none() => Txn::List,
+        Some("begin") if !more => {
+            let Some(scope) = a else {
+                return Some(Txn::Usage);
+            };
+            let phys = if scope == "all" {
+                None
+            } else {
+                let parsed: Option<std::collections::BTreeSet<u16>> = scope
+                    .split(',')
+                    .map(|w| {
+                        c_number(w)
+                            .filter(|p| *p <= 0x7ff && p & 0x400 == 0)
+                            .and_then(|p| u16::try_from(p).ok())
+                    })
+                    .collect();
+                match parsed {
+                    Some(set) if !set.is_empty() => Some(set.into_iter().collect()),
+                    _ => return Some(Txn::Usage),
+                }
+            };
+            match ms(b) {
+                Some(ms) => Txn::Begin { phys, ms },
+                None => Txn::Usage,
+            }
+        }
+        Some("renew") if !more => match (number(a), ms(b)) {
+            (Some(txn), Some(ms)) => Txn::Renew { txn, ms },
+            _ => Txn::Usage,
+        },
+        Some("end") if b.is_none() => match number(a) {
+            Some(txn) => Txn::End { txn },
+            None => Txn::Usage,
+        },
+        Some(n) => match (n.parse::<u64>().ok(), after_word(rest)) {
+            (Some(txn), Some((_, raw))) if raw_mdio(raw) => Txn::Raw(RawRequest::new(raw, Some(txn))),
+            _ => Txn::Usage,
+        },
+        None => Txn::Usage,
+    })
 }
 
 /// C `isspace` in the C locale (Rust's `is_ascii_whitespace` leaves out the vertical tab).
@@ -167,6 +389,9 @@ fn classify(line: &str) -> Command<'_> {
             sequence,
             param_file,
         });
+    }
+    if let Some(txn) = txn(line) {
+        return Command::Txn { line, txn };
     }
     Command::Shell(ShellCommand {
         line,
@@ -272,6 +497,104 @@ mod tests {
                 param_file: None,
             }))
         );
+    }
+
+    #[test]
+    fn transactions_and_raw_targets() {
+        let t = |l: &'static str| match parse(l.as_bytes()) {
+            Ok(Command::Txn { line, txn }) => {
+                assert_eq!(line, l.trim_end());
+                txn
+            }
+            other => panic!("{l:?}: {other:?}"),
+        };
+        assert_eq!(t("extphy txn"), Txn::List);
+        assert_eq!(t("extphy txn list"), Txn::List);
+        assert_eq!(
+            t("extphy txn begin 0x10"),
+            Txn::Begin {
+                phys: Some(vec![0x10]),
+                ms: None
+            }
+        );
+        assert_eq!(
+            t("extphy txn begin 0x17f,0x0,1,0x17f 1500"),
+            Txn::Begin {
+                phys: Some(vec![0, 1, 0x17f]),
+                ms: Some(1500)
+            }
+        );
+        assert_eq!(t("extphy txn begin all"), Txn::Begin { phys: None, ms: None });
+        assert_eq!(t("extphy txn renew 7 300"), Txn::Renew { txn: 7, ms: Some(300) });
+        assert_eq!(t("extphy txn end 7"), Txn::End { txn: 7 });
+        assert_eq!(
+            t("extphy txn 7 phy raw c45 0x10 1 0x8221"),
+            Txn::Raw(RawRequest {
+                line: "phy raw c45 0x10 1 0x8221",
+                txn: Some(7),
+                target: RawTarget::Phy(0x10),
+                c45: Some(RawC45 {
+                    phy: 0x10,
+                    dev: 1,
+                    reg: 0x8221,
+                    value: None
+                })
+            })
+        );
+        for bad in [
+            "extphy txn begin",
+            "extphy txn begin 0x400",
+            "extphy txn begin 0x10 0",
+            "extphy txn begin 0x10 x",
+            "extphy txn begin 0x10,",
+            "extphy txn begin 0x10 5 6",
+            "extphy txn end",
+            "extphy txn end x",
+            "extphy txn end 1 2",
+            "extphy txn renew",
+            "extphy txn 7 ps",
+            "extphy txn 7",
+            "extphy txn list x",
+            "extphy txn x",
+        ] {
+            assert_eq!(t(bad), Txn::Usage, "{bad}");
+        }
+        // not a transaction line
+        assert_eq!(parse(b"extphy txnx"), Ok(shell("extphy txnx")));
+        assert_eq!(parse(b"EXTPHY txn"), Ok(shell("EXTPHY txn")));
+        // what a raw line addresses, and what the library serves itself
+        assert_eq!(raw_target("phy raw c45 0x10 1 0x8b00"), RawTarget::Phy(0x10));
+        assert_eq!(raw_target("PHY\tRAW C45 020 0 0x8b00"), RawTarget::Phy(0o20));
+        assert_eq!(raw_target("phy raw c45 0x410 1 0x8b00"), RawTarget::Global);
+        assert_eq!(raw_target("phy raw 0x10 2"), RawTarget::Global);
+        assert_eq!(raw_target("phy raw sbus 0x10 1 2"), RawTarget::Global);
+        assert_eq!(raw_target("phy raw c45 x 1 2"), RawTarget::Global);
+        assert_eq!(
+            raw_c45("phy raw c45 0x17e 0x1 0xd139 0x351"),
+            Some(RawC45 {
+                phy: 0x17e,
+                dev: 1,
+                reg: 0xd139,
+                value: Some(0x351)
+            })
+        );
+        for not_served in [
+            "phy raw c45 0x10 0 0x8b00",
+            "phy raw c45 0x10 32 0x8b00",
+            "phy raw c45 0x10 1 0x10000",
+            "phy raw c45 0x10 1 2 0x10000",
+            "phy raw c45 0x10 1 2 3 4",
+            "phy raw c45 0x10 1",
+            "phy raw c45 0x800 1 2",
+            "phy raw c45 -1 1 2",
+            "phy raw c45 0x10 1 2x",
+        ] {
+            assert_eq!(raw_c45(not_served), None, "{not_served}");
+        }
+        assert_eq!(c_number("010"), Some(8));
+        assert_eq!(c_number("0"), Some(0));
+        assert_eq!(c_number("0x"), None);
+        assert_eq!(c_number("08"), None);
     }
 
     #[test]

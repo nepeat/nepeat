@@ -101,6 +101,17 @@ pub struct MdioModel {
     pub log: Vec<MdioOp>,
     /// PHYs that do not answer.
     pub dead: BTreeSet<PhyAddr>,
+    /// A device model behind the bus (tests: a stateful PHY), asked before the register file.
+    pub device: Option<std::sync::Arc<dyn MdioDevice>>,
+}
+
+/// A device behind the virtual MDIO master (tests: a PHY's stateful firmware-message interface),
+/// called with the MDIO model's lock held (one access at a time, as the SDK's MIIM lock).
+pub trait MdioDevice: Send + Sync + std::fmt::Debug {
+    /// A read: `Some` answers it, `None` leaves it to the register file.
+    fn read(&self, phy: PhyAddr, dev: MdioDev, reg: u16) -> Option<u16>;
+    /// A write (the register file keeps the value too).
+    fn write(&self, phy: PhyAddr, dev: MdioDev, reg: u16, val: u16);
 }
 
 /// An L2 entry (C++ `FakeBackend::L2`).

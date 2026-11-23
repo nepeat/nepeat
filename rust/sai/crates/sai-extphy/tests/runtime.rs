@@ -10,8 +10,8 @@
 )]
 
 use sai_extphy::{
-    Api, BusStatus, ChipPort, Dev, ExtPhy, Level, LoadError, Logger, MACSEC_POLL_DEFER_MAX_MS, MacsecPollCounts,
-    ManualClock, NoPortAtLane, PhyBus, PortRef, Verdict,
+    Api, BusStatus, ChipPort, Dev, DiagTarget, DiagWho, ExtPhy, Level, LoadError, Logger, MACSEC_POLL_DEFER_MAX_MS,
+    MacsecUse, ManualClock, NoPortAtLane, PhyBus, PortRef, Turn, Verdict,
 };
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::{Arc, Mutex};
@@ -54,7 +54,7 @@ impl Bus {
 }
 
 impl PhyBus for Bus {
-    fn read(&mut self, phy: u16, dev: Dev, reg: u16) -> Result<u16, BusStatus> {
+    fn read(&self, phy: u16, dev: Dev, reg: u16) -> Result<u16, BusStatus> {
         assert_eq!(dev.get(), 1);
         let mut c = self.0.lock().unwrap();
         if c.dead.contains(&phy) {
@@ -64,7 +64,7 @@ impl PhyBus for Bus {
         c.log.push(('R', phy, reg, v));
         Ok(v)
     }
-    fn write(&mut self, phy: u16, dev: Dev, reg: u16, value: u16) -> Result<(), BusStatus> {
+    fn write(&self, phy: u16, dev: Dev, reg: u16, value: u16) -> Result<(), BusStatus> {
         assert_eq!(dev.get(), 1);
         let mut c = self.0.lock().unwrap();
         if c.dead.contains(&phy) {
@@ -242,28 +242,37 @@ fn line_side_debounce_faults_admin_sequences_and_hold_off() {
     assert_eq!(ext.gate(P0), Verdict::Down);
     assert_eq!(ext.gate(P0), Verdict::NoOpinion);
 
-    // hold-off: the polls pause (state frozen) for holdoff-ms after the last raw MDIO
-    let ran = ext.foreign_mdio(|| 7);
-    assert_eq!(ran, 7);
-    assert!(lines.lock().unwrap().iter().any(
-        |l| l.2 == "external PHY link polls paused: raw MDIO on the diag socket (resume 50 ms after the last one)"
-    ));
+    // hold-off: raw MDIO without a transaction pauses the polls of its PHY (state frozen) for
+    // holdoff-ms after the last access (the C++ hold-off, per PHY now)
+    let raw = |phy: u16| ext.diag_access(DiagWho::Bare, DiagTarget::Phy(phy), || 7).unwrap();
+    assert_eq!(raw(0x10), 7);
+    assert!(lines.lock().unwrap().iter().any(|l| l.2
+        == "external PHY phy 0x10: link polls and MACsec polls paused: raw MDIO on the diag socket without a \
+            transaction (resume 50 ms after the last one)"));
     bus.set(0x10, 0xa101, 0);
     let ops = bus.ops();
     assert_eq!(ext.gate(P0), Verdict::NoOpinion);
     assert_eq!(bus.ops(), ops);
     assert!(ext.status().contains("PAUSED now, 1 so far"));
+    assert_eq!(ext.counts().gate_cached, 1);
     clock.advance_ms(49);
     assert_eq!(ext.gate(P0), Verdict::NoOpinion);
     clock.advance_ms(1);
     assert_eq!(ext.gate(P0), Verdict::Down);
     assert!(ext.status().contains("not paused, 1 so far"));
     // a new hold-off is counted; a second raw command inside it extends it without a second count
-    ext.foreign_mdio(|| ());
+    raw(0x10);
     clock.advance_ms(40);
-    ext.foreign_mdio(|| ());
+    raw(0x10);
     clock.advance_ms(40);
     assert!(ext.status().contains("PAUSED now, 2 so far"));
+    clock.advance_ms(50);
+    // per PHY: raw MDIO to PHY 0x11 (port ce1's) leaves ce0's polls alone
+    raw(0x11);
+    bus.set(0x10, 0xa101, 3);
+    let polls = ext.port_counters(P0).unwrap().polls;
+    assert_eq!(ext.gate(P0), Verdict::Down);
+    assert_eq!(ext.port_counters(P0).unwrap().polls, polls + 1);
     clock.advance_ms(50);
 
     // admin down: then nothing is polled
@@ -352,13 +361,17 @@ fn the_status_text_is_the_cpp_table() {
          extphy: table parser and sequence executor: rust (phy-seq)\n\
          port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us\n\
          ce0          1    1 up    up    no     0x0003        3        1    1     0       0       0       0     1    0           0\n\
-         ce1          5    5 down  down  no     0x0000        0        0    0     0       0       0       0     0    0           0\n"
+         ce1          5    5 down  down  no     0x0000        0        0    0     0       0       0       0     0    0           0\n\
+         extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY\n\
+         extphy: leases now 0; transactions begun 0, ended 0, expired 0; raw MDIO hold-offs 0; refused: busy 0, void 0\n\
+         extphy: link polls answered from the last verdict during a lease 0; waits for a library run before a poll 0 (max 0 us, total 0 us)\n\
+         extphy: MACsec polls skipped during a lease 0; forced reads after 10000 ms 0 (max wait 0 us); MACsec / admin runs that waited for a transaction 0 (max 0 us); extmacsec run refused 0\n"
     );
 }
 
 #[test]
-fn the_gate_takes_only_the_runtimes_lock() {
-    // a link-scan thread asks while another thread runs admin sequences and raw MDIO
+fn the_gate_runs_beside_admin_sequences_and_macsec_runs() {
+    // a link-scan thread asks while another thread runs admin sequences and MACsec sequences
     let Rig { ext, bus, .. } = rig(GOOD);
     ext.attach(&ports(), Box::new(bus.clone())).unwrap();
     bus.set(0x10, 0x8221, 0x11e3);
@@ -375,62 +388,71 @@ fn the_gate_takes_only_the_runtimes_lock() {
     };
     for i in 0..500 {
         ext.admin(P0, i % 2 == 0);
-        ext.locked(|| ());
+        assert_eq!(ext.macsec_run(P0, &[0x10], MacsecUse::Op, || 1), Turn::Ran(1));
     }
     scan.join().unwrap();
     assert!(ext.port_counters(P0).unwrap().hooks >= 500);
 }
 
-/// A deliberate improvement on the C++: the raw-MDIO hold-off also defers the external `MACsec`
-/// table's poll sequences (PN, counters), per sequence at most `MACSEC_POLL_DEFER_MAX_MS` in a
-/// row, so a tool polling the PHY for minutes cannot hide a PN nearing exhaustion.
+/// A deliberate improvement on the C++ (whose hold-off held the link polls only): raw MDIO
+/// without a transaction also holds off the external `MACsec` table's poll sequences (PN,
+/// counters) of that PHY; a poll skipped for `MACSEC_POLL_DEFER_MAX_MS` in a row runs anyway,
+/// between two raw accesses (an implicit lease is not a transaction), so a tool polling the PHY
+/// for minutes cannot hide a PN nearing exhaustion. `SONiC`'s changes do not wait for it.
 #[test]
-fn the_hold_off_defers_macsec_polls_and_bounds_the_deferral() {
+fn raw_mdio_without_a_transaction_skips_macsec_polls_and_bounds_the_skips() {
     const PN: &str = "pn.egress.0";
     const STATS: &str = "stats-sa.egress.0";
     let Rig { ext, bus, clock, lines } = rig(&GOOD.replace("holdoff-ms 50", "holdoff-ms 3000"));
-    // not attached: no hold-off, nothing deferred
-    assert!(!ext.macsec_poll_deferred(P0, PN));
-    ext.foreign_mdio(|| ());
-    assert!(!ext.macsec_poll_deferred(P0, PN));
+    let poll = |port: ChipPort, phy: u16, name: &str| {
+        ext.macsec_run(port, &[phy], MacsecUse::Poll(name), || ()) == Turn::Ran(())
+    };
+    let raw = |phy: u16| ext.diag_access(DiagWho::Bare, DiagTarget::Phy(phy), || ()).unwrap();
+    // not attached: no hold-off (as the C++), nothing skipped
+    raw(0x10);
+    assert!(poll(P0, 0x10, PN));
     assert_eq!(ext.attach(&ports(), Box::new(bus.clone())), Ok(vec![P0, P1]));
-    // no raw MDIO: polls run
-    assert!(!ext.macsec_poll_deferred(P0, PN));
-    // raw MDIO at t; a poll due at t+1 s is deferred (one notice per hold-off), runs after it
-    ext.foreign_mdio(|| ());
+    assert!(poll(P0, 0x10, PN));
+    // raw MDIO at t; polls of that PHY at t+1 s are skipped, of another PHY not
+    raw(0x10);
     clock.advance_ms(1000);
-    assert!(ext.macsec_poll_deferred(P0, PN));
-    assert!(ext.macsec_poll_deferred(P0, STATS));
-    assert!(ext.macsec_poll_deferred(P1, PN)); // global, as the link polls' hold-off
-    let notice = "external MACsec PN / counter polls deferred: raw MDIO on the diag socket (last values answer until the hold-off ends, at most 10000 ms per poll)";
-    let count = |text: &str| lines.lock().unwrap().iter().filter(|l| l.2.starts_with(text)).count();
-    assert_eq!(count(notice), 1);
+    assert!(!poll(P0, 0x10, PN));
+    assert!(!poll(P0, 0x10, STATS));
+    assert!(poll(P1, 0x11, PN));
     clock.advance_ms(1999);
-    assert!(ext.macsec_poll_deferred(P0, PN));
+    assert!(!poll(P0, 0x10, PN));
     clock.advance_ms(1); // t+3 s: the hold-off is over
-    assert!(!ext.macsec_poll_deferred(P0, PN));
-    assert!(!ext.macsec_poll_deferred(P0, STATS));
-    assert_eq!(ext.macsec_poll_counts(), MacsecPollCounts { deferred: 4, forced: 0 });
+    assert!(poll(P0, 0x10, PN));
+    assert!(poll(P0, 0x10, STATS));
+    assert_eq!(ext.counts().polls_skipped, 3);
+    // what SONiC changes does not wait for a hold-off
+    raw(0x10);
+    assert_eq!(ext.macsec_run(P0, &[0x10], MacsecUse::Op, || 5), Turn::Ran(5));
+    assert_eq!(ext.counts().op_waits, 0);
+    clock.advance_ms(3000);
     // a tool that polls continuously (raw MDIO every 500 ms) for five minutes, syncd asking
     // for the PN every second: the PN is still read at least every MACSEC_POLL_DEFER_MAX_MS
-    let mut runs = Vec::new();
+    // (the last read before was at the end of the hold-off above, 3 s before the loop)
+    let mut runs = vec![0u64.wrapping_sub(3000)];
     for ms in (0..300_000u64).step_by(500) {
-        ext.foreign_mdio(|| ());
-        if ms % 1000 == 0 && !ext.macsec_poll_deferred(P0, PN) {
+        raw(0x10);
+        if ms % 1000 == 0 && poll(P0, 0x10, PN) {
             runs.push(ms);
         }
         clock.advance_ms(500);
     }
-    assert_eq!(runs.len(), 29, "{runs:?}");
-    assert_eq!(runs[0], MACSEC_POLL_DEFER_MAX_MS);
+    assert_eq!(runs.len(), 1 + 30, "{runs:?}");
+    assert_eq!(runs[1], MACSEC_POLL_DEFER_MAX_MS - 3000);
     assert!(
-        runs.windows(2).all(|w| w[1] - w[0] == MACSEC_POLL_DEFER_MAX_MS),
+        runs.windows(2)
+            .all(|w| w[1].wrapping_sub(w[0]) == MACSEC_POLL_DEFER_MAX_MS),
         "{runs:?}"
     );
-    assert_eq!(count(notice), 2);
-    let forced = "external MACsec poll pn.egress.0 on chip port 1 runs inside the raw-MDIO hold-off: deferred 10000 ms, the most allowed";
-    assert_eq!(count(forced), 29);
-    assert_eq!(ext.macsec_poll_counts().forced, 29);
-    // the status text (the C++'s) does not change
-    assert!(ext.status().contains("hold-off 3000 ms (PAUSED now, 2 so far)"));
+    let forced = "external MACsec poll pn.egress.0 on chip port 1 skipped for 10000 ms, the most allowed: \
+                  read between two raw MDIO accesses of a diag client without a transaction";
+    let count = |text: &str| lines.lock().unwrap().iter().filter(|l| l.2 == text).count();
+    assert_eq!(count(forced), 30);
+    assert_eq!(ext.counts().forced_reads, 30);
+    // the status text's header (the C++'s): paused, three hold-offs so far (t, t+3 s, the loop)
+    assert!(ext.status().contains("hold-off 3000 ms (PAUSED now, 3 so far)"));
 }

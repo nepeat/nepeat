@@ -123,12 +123,13 @@ fn the_checks_of_test_diag() {
     let host = host();
     // no key (or an empty one): nothing
     let as_dyn: Arc<dyn DiagHost> = host.clone();
-    assert!(sai_core::diag::start(&Profile::default(), as_dyn.clone()).is_none());
-    assert!(sai_core::diag::start(&Profile::from_pairs([(sai_diag::SOCKET_KEY, "")]), as_dyn.clone()).is_none());
+    assert!(sai_core::diag::start(&Profile::default(), as_dyn.clone(), None).is_none());
+    assert!(sai_core::diag::start(&Profile::from_pairs([(sai_diag::SOCKET_KEY, "")]), as_dyn.clone(), None).is_none());
     assert!(!path.exists());
     let server = sai_core::diag::start(
         &Profile::from_pairs([(sai_diag::SOCKET_KEY, path.to_str().unwrap())]),
         as_dyn,
+        None,
     )
     .unwrap();
     let meta = std::fs::symlink_metadata(&path).unwrap();

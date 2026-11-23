@@ -184,7 +184,7 @@ pub(crate) unsafe fn create_switch(
             Ok(handle) => {
                 api.notifier = Some(handle);
                 if api.diag.is_none() {
-                    api.diag = crate::diag::start(&profile);
+                    api.diag = crate::diag::start(&profile, sai_core::diag::phy_diag(&api.sai));
                 }
                 Ok(id)
             }

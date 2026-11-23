@@ -1,6 +1,6 @@
 [package]
 name = "sai-extphy"
-description = "The external-PHY runtime of the SAI (sai_extphy.cpp): per-port link gate with debounce and hold-off, admin up / down sequences, counters, status text, over phy-seq's ext-phy table and executor"
+description = "The external-PHY runtime of the SAI (sai_extphy.cpp): per-port link gate with debounce, admin up / down sequences, counters, status text, over phy-seq's ext-phy table and executor; the per-PHY MDIO arbitration of every library user and the diag socket's transactions (leases)"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -9,6 +9,15 @@ rust-version.workspace = true
 [dependencies]
 # the ext-phy table parser and the sequence executor (Dev: clause 45 devices 1..=31 only)
 phy-seq.workspace = true
+
+[features]
+# src/fwphy.rs: the stateful fake of the PHYs' firmware-message interface that detects
+# interleaving (tests of this crate and of sai-core)
+testing = []
+
+[dev-dependencies]
+# the crate's own tests use its fake (src/fwphy.rs)
+sai-extphy = { path = ".", features = ["testing"] }
 
 [lints]
 workspace = true

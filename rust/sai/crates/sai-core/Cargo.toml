@@ -24,6 +24,8 @@ testing = []
 
 [dev-dependencies]
 proptest.workspace = true
+# tests/macsec.rs: the stateful fake of the PHYs' firmware-message interface (interleaving detector)
+sai-extphy = { workspace = true, features = ["testing"] }
 # tests/macsec.rs: the MACsec model behind the core's seam, as the rim registers it
 sai-macsec-phy.workspace = true
 
