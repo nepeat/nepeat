@@ -3,8 +3,13 @@
 { config, lib, pkgs, aiReRust ? null, ... }:
 let
   kernel = config.boot.kernelPackages.kernel;
-  inherit (import ../../packages/as7760-fan { inherit pkgs kernel; }) driver tool;
   cfg = config.hardware.as7760Fan;
+  fanPkgs = import ../../packages/as7760-fan { inherit pkgs kernel; };
+  inherit (fanPkgs) tool;
+  # Same module name (as7760_fan), sysfs attributes and behaviour either way.
+  driver = if cfg.driver == "rust"
+    then pkgs.callPackage ../../packages/as7760-fan/rust.nix { inherit kernel; }
+    else fanPkgs.driver;
   board = id: { type = "hwmon"; hwmon = { name = "lm75"; of_node = "pca9548@76/i2c@1/temperature-sensor@${id}"; }; plausible = [ (-10) 110 ]; };
   # Die temperature from openbcm-asic-temp (modules/switch/openbcm.nix).
   asicTemp = config.hardware.openbcm.temperature.enable or false;
@@ -13,6 +18,14 @@ in {
   imports = lib.optional (aiReRust != null) aiReRust.nixosModules.fand;
 
   options.hardware.as7760Fan = {
+    driver = lib.mkOption {
+      type = lib.types.enum [ "c" "rust" ];
+      default = "c";
+      description = ''
+        The fan CPLD hwmon driver: "c" (packages/as7760-fan/src) or "rust"
+        (packages/as7760-fan/rust; needs hardware.qoriqT2080.rust).
+      '';
+    };
     controller = lib.mkOption {
       type = lib.types.enum [ "monitor" "fand" ];
       default = if aiReRust != null then "fand" else "monitor";

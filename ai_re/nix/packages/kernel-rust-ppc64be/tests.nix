@@ -239,6 +239,9 @@ let
   '';
 in
 {
+  # for a board kernel (the hardware trial): kernel -> derivation
+  abiTestFor = abiTest;
+  layoutCheckFor = layoutCheck;
   inherit e6500 e6500-kunit pseries;
   c-neutral = cNeutral;
   abi-e6500 = abiTest e6500;

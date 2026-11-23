@@ -9,7 +9,7 @@ Paths without a prefix are in the kernel source.
 | --- | --- | --- |
 | Alpine v2/v3 (DMC-12, CS8210), arm64 | yes | `arch/arm64/Kconfig:228` (`HAVE_RUST if RUSTC_SUPPORTS_ARM64`, little endian). nixpkgs turns it on for aarch64 from 6.12 (`common-config.nix`, `rustByDefault`), so linux-alpine's `trimmed`/`lean` variants have it already; `minimal` (allnoconfig, the DMC-12's default) gets it with `rust = true` / `hardware.alpineV2.kernelRust` (+0.98 MB Image) |
 | Armada 7040 (AS5114), arm64 | yes | stock nixpkgs kernel: on already |
-| QorIQ T2080 (AS7760, AS7772), ppc64 big endian | **no** | `arch/powerpc/Kconfig:288-289` selects `HAVE_RUST` only for `PPC32` and `PPC64 && CPU_LITTLE_ENDIAN`; `arch/powerpc/Makefile:65` and `rust/Makefile` (bindgen target) hard-code powerpc64le; powerpc is not in `Documentation/rust/arch-support.rst`. Also: rustc's `powerpc64-unknown-linux-gnu` is ELFv1, our kernel is ELFv2 (`powerpc64-unknown-linux-gnuelfv2` exists, tier 3), and bindgen's clang does not know `-mcpu=e6500`. An experimental enablement patch is separate work: `../linux-qoriq-t2080/experimental` (opt-in, never a board's default kernel) |
+| QorIQ T2080 (AS7760, AS7772), ppc64 big endian | opt-in | upstream 7.3 selects `HAVE_RUST` only for ppc32 and ppc64le (`arch/powerpc/Kconfig:288-289`). Our six-patch series for 64-bit big-endian ELFv2 (Book3E and Book3S) is in [../kernel-rust-ppc64be](../kernel-rust-ppc64be/README.md): `linux-qoriq-t2080 { rust = true; }`, NixOS `hardware.qoriqT2080.rust`; ABI, layout and QEMU proofs there. Not the boards' default kernel until it has run on the switch |
 
 Out-of-tree Rust modules build with `make -C <kernel.dev>/build M=...` like C
 ones; a Rust-enabled kernel's `moduleBuildDependencies` carry rustc and bindgen,

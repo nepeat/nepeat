@@ -119,6 +119,19 @@ Not covered by the QEMU parity test: the verify-mismatch and SMBus-error paths
 of a duty write (i2c-stub always stores what is written); they mirror the C
 code line by line but have run in neither driver under test.
 
+## on a board
+
+NixOS: `hardware.qoriqT2080.rust = true` (platforms/qoriq-t2080.nix) builds the
+board kernel with the series; `hardware.as7760Fan.driver = "rust"`
+(thermal/as7760-fan.nix) swaps in the Rust fan driver. Both default off; the
+pair builds in `just test` as `extra:as7772-system-rust-kernel`. Against the
+board kernel the config changes only by the `RUST*`/`RUSTC_*`/`BINDGEN_*`
+symbols; every out-of-tree module (BDE/KNET, the fan driver) is rebuilt for it
+by NixOS. There is no `MODVERSIONS` or `MODULE_SIG`: both kernels have the
+vermagic `7.3.4 SMP preempt mod_unload`, so a module built for the other kernel
+would load without complaint. Load only modules built for the running kernel
+(`tests.nix` `abiTestFor`/`layoutCheckFor` take a board kernel).
+
 ## what the tests cannot catch
 
 Paths not executed (QEMU only runs what the tests call; TCG checks opcodes per

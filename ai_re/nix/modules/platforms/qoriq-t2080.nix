@@ -7,6 +7,8 @@ let
   baseKernel = import ../../packages/linux-qoriq-t2080 {
     inherit pkgs lib;
     boardPatches = config.hardware.qoriqT2080.kernelPatches;
+    # opt-in Rust (packages/kernel-rust-ppc64be): another kernel derivation
+    rust = config.hardware.qoriqT2080.rust;
   };
   # Also install a legacy uImage: U-Boot on PowerPC boots extlinux entries with
   # bootm, which needs a U-Boot image header rather than a bare vmlinux.
@@ -24,6 +26,11 @@ in {
     type = lib.types.listOf lib.types.attrs;
     default = [ ];
     description = "Board kernel patches ({ name, patch }), applied to the shared T2080 kernel.";
+  };
+  options.hardware.qoriqT2080.rust = lib.mkOption {
+    type = lib.types.bool;
+    default = false;
+    description = "CONFIG_RUST in the T2080 kernel (the ppc64 big-endian series of packages/kernel-rust-ppc64be), to load modules written in Rust. Another kernel derivation; off by default.";
   };
   config = {
   boot.kernelPackages = pkgs.linuxPackagesFor kernel;
