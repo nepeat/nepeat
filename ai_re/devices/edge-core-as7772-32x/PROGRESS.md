@@ -24,7 +24,7 @@
   after SONiC, a raw-SDK session finds admin-down cages dark (reboot or `extphy power <phy> 1`); do not change
   admin state while a PHY tool runs; PSU2 (empty slot) "NOT OK"; TPM 1.2 left disabled as found
   ([tpm-sensor.md](tpm-sensor.md)).
-- **Open:** 28 cages never cabled; nobody has pulled a DAC by hand; the 4-frame loss in the MACsec load run (below); MKA against another vendor;
+- **Open:** 28 cages never cabled; nobody has pulled a DAC by hand; frames pass in clear for a few seconds around a stack stop/start on MACsec ports (measured, not closed: [macsec.md](macsec.md)); MKA against another vendor;
   25G break-out; load through SONiC's forwarding, longer soak; USB in U-Boot; CPLD2/3 0x20-0x2b undecoded
   ([cpld.md](cpld.md)); owner's calls: TPM enable, one FEC display convention, whether the PHY register
   sequences in `nix/modules/boards/as7772/ext-phy.nix` may stay in the public repo.
@@ -77,6 +77,23 @@
 - Transcripts live in [evidence/](evidence/); serial captures (`serial-*.txt`) are git-ignored.
 
 ## Log
+
+### 2026-11-22/23 (7): MACsec loss fixed, MKA start-up fixed, Rust phase 2
+- **Encrypted-load loss, fixed:** with XPN the 32-bit PN field is 0 at every low-word wrap and the PHY's ingress
+  SecTAG check (chip default) rejected that frame: one per 2^32 per SA. One extra write in the ingress SA
+  sequences; 2.06e11 encrypted frames over 44 wraps, 0 lost: [macsec-loss.md](macsec-loss.md).
+- **MKA start-up, fixed:** MKA did not come up after a stack or syncd restart (the hidden macsecmgrd restart in
+  the traffic test masked it; cold boot and reboot always worked). macsecmgrd now starts a port's session only
+  when the netdev has its configured address and follows changes (swss patch 0003). Every start path 100 % on the
+  final system (3 cold boots, 4 reboots, 5 stack restarts, 3 syncd restarts): [macsec.md](macsec.md).
+- **Open, measured:** on MACsec ports frames pass in clear for a few seconds around stack stop and start (engines
+  go to bypass before the ports stop forwarding; ND/LLDP/ARP cross before engines are on). Closing it needs SAI
+  work + an owner decision.
+- **Rust:** phase 2 committed (`rust/sai`): MACsec engine + model in Rust behind default-off switches, agreeing with
+  the C++ on this box's CPU; full SONiC fake-backend VM test on the Rust libsai; nothing Rust has driven the chip
+  yet. An orchestrated replacement of our C++ SAI by Rust is in progress (`rust/sai/README.md`).
+- Deployed system `j7y63gfr...` = HEAD `c9443cf` (the Rust phase-2 commit after it changes the default SAI
+  build by a trace hook, not deployed).
 
 ### 2026-11-22 (6): MACsec under SONiC; a SAI in Rust started
 - **MACsec under SONiC, at boot, on cages 1, 2, 31, 32:** MKA + GCM-AES-XPN-256 through SONiC's own stack
