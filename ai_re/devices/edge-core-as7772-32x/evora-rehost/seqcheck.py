@@ -85,7 +85,7 @@ def session(a, prefix):
     P = json.load(open(prefix + '.params.json'))
     phy, n, total = P['phy'], 0, 0
     secs = seqtool.sections(prefix + '.trace.txt')
-    enable, devupd, skipped = {}, set(), []
+    enable, devupd, skipped, extra = {}, set(), [], [0]
     for title, ops in secs:
         w = title.split()
         if w[0] != 'macsec':
@@ -143,7 +143,16 @@ def session(a, prefix):
             if seq == 'skip':
                 pos += par
                 continue
-            exp = render(a, seq, phy, par, [o[4] for o in ops[pos:] if o[0] == 'R'])
+            own_tail = seq.startswith('sa-add-first.ingress.')
+            exp = render(a, seq, phy, par, [o[4] for o in ops[pos:] if o[0] == 'R'] + ([0, 1] if own_tail else []))
+            if own_tail:
+                # the table's own last write, which no recording has: the SecTAG checks for the SC's cipher (LMI write
+                # of ingress transform 0x5000: PN-is-zero check off for XPN, ../macsec-loss.md). Checked here, then cut.
+                own, exp = exp[-8:], exp[:-8]
+                want = [0x1308, 0x3f if '-xpn-' in seq else 0x7f, 0xe588, 0x5000]
+                if [(int(e[3], 16), int(e[4], 16)) for e in own if e[0] == 'W'] != [(0x9005, v) for v in want]:
+                    raise AssertionError('%s: the trailing SecTAG-check write is not the expected one' % seq)
+                extra[0] += 1
             pos = compare(exp, ops, pos, '%s [%s]' % (seq, cmd))
             n += 1
             total += len(exp)
@@ -151,8 +160,9 @@ def session(a, prefix):
             raise AssertionError('%s: %d trace operations left after the table sequence(s)' % (cmd, len(ops) - pos))
     if enable:
         raise AssertionError('unfinished enable/disable groups: %s' % list(enable))
-    print('%s: PHY 0x%x: %d sequences, %d bus operations identical to the trace%s' % (
-        os.path.basename(prefix), phy, n, total, ' (not compared: %s, an incomplete teardown in this recording)' % ', '.join(skipped) if skipped else ''))
+    print('%s: PHY 0x%x: %d sequences, %d bus operations identical to the trace%s%s' % (
+        os.path.basename(prefix), phy, n, total,
+        '; %d own SecTAG-check writes (8 operations each) beyond the recordings' % extra[0] if extra[0] else '', ' (not compared: %s, an incomplete teardown in this recording)' % ', '.join(skipped) if skipped else ''))
 
 
 def main():

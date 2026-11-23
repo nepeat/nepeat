@@ -32,7 +32,7 @@ let
   # (devices/edge-core-as7772-32x/evora-rehost/seqcheck.py, macsec.md "Under
   # SONiC"). After a change to ./ext-macsec.nix run that again, then update
   # the hash.
-  extMacsecHash = "f2b9f5cdb371fc1d56cc113b9601220482ce1542caa10fab2aaba486516ea1da";
+  extMacsecHash = "1ef74ead737f7e0189a101e63735b34d4a85968c459ce7383246a3a815aff5c7";
   extMacsecTable = pkgs.runCommand "as7772-ext-macsec.tbl" {
     nativeBuildInputs = [ saiNative ];
     text = import ./ext-macsec.nix { inherit lib; cages = config.services.sonic.cages; };

@@ -1,0 +1,91 @@
+== MACsec load after the SecTAG-check fix, 2026-11-22 (macsec-loss.md): the ring of load-test.md, PHYs left in MACsec by SONiC
+(GCM-AES-XPN-256 SAs made by MKA with the fixed table; syncd, orchagent, macsecmgrd killed; loadtest/ring.sh up with IPG=48, fwd, inject, soak)
+system /nix/store/wchbsjy4l9al...; table sha256 1ef74ead737f...; before the run, read from the PHYs (macsec.py reg, raw SDK):
+phy 0x0 if_side 0 0x44005000 = 0xe588003f
+phy 0x0 if_side 0 0x4400fe00 = 0x0
+phy 0x0 if_side 0 0x4600fe00 = 0x0
+phy 0x1 if_side 0 0x44005000 = 0xe588003f
+phy 0x1 if_side 0 0x4400fe00 = 0x0
+phy 0x17e if_side 0 0x44005000 = 0xe588003f
+phy 0x17e if_side 0 0x4400fe00 = 0x0
+phy 0x17f if_side 0 0x44005000 = 0xe588003f
+phy 0x17f if_side 0 0x4400fe00 = 0x0
+(0x44005000 = ingress SecTAG checks, e588003f = PN-is-zero check off; 0x4400fe00 / 0x4600fe00 = 0: engines not in bypass)
+
+== run (a): no PHY access at all during the run. filled 15:37:12 (1795390632), stopped 16:11:52 (1795392712): 2080 s
+rate at the first full sample: 17.747 Mpps per port per direction -> the low 32 bits of a packet number wrap every 242.0 s
+frames per SA: 36.92 x 10^9 = 8.6 x 2^32: 8 wraps on each of the 4 SAs (packet numbers started at a few thousand)
+-- ASIC after the stop (every non-zero counter name: RUC RDBGC0 ING_NIV_RX_FRAMES_VL R64 R127 R255 R511 R1023 R1518 R9216 RPKT RUCA RPRM RVLN RPOK RBYT T64 T127 T255 T511 T1023 T1518 T9216 TPOK TPKT TUCA TVLN TBYT UC_PERQ_PKT(0) UC_PERQ_BYTE(0) PERQ_PKT(0) PERQ_BYTE(0))
+== stop 2026-11-22T16:11:52-08:00 1795392712
+ ce0( 50) up 4 100G FD SW No Forward TX RX None FA CAUI 9126 No 
+ ce1( 54) up 4 100G FD SW No Forward TX RX None FA CAUI 9126 No 
+ ce30( 9) up 4 100G FD SW No Forward TX RX None FA CAUI 9126 No 
+ ce31( 13) up 4 100G FD SW No Forward TX RX None FA CAUI 9126 No 
+RDBGC0.ce0 : 740 +0
+RPKT.ce0 : 36,921,144,258 +0
+RBYT.ce0 : 23,933,790,693,658 +0
+TPKT.ce0 : 36,923,142,686 +0
+TBYT.ce0 : 23,933,898,491,044 +0
+RDBGC0.ce1 : 740 +0
+RPKT.ce1 : 36,923,142,686 +0
+RBYT.ce1 : 23,933,898,491,044 +0
+TPKT.ce1 : 36,921,144,258 +0
+TBYT.ce1 : 23,933,790,693,658 +0
+RPKT.ce30 : 36,923,141,946 +0
+RBYT.ce30 : 23,933,898,009,484 +0
+TPKT.ce30 : 36,921,143,518 +0
+TBYT.ce30 : 23,933,790,212,098 +0
+PERQ_PKT(0).ce30 : 53,713 +0
+RPKT.ce31 : 36,921,143,518 +0
+RBYT.ce31 : 23,933,790,212,098 +0
+TPKT.ce31 : 36,923,141,946 +0
+TBYT.ce31 : 23,933,898,009,484 +0
+PERQ_PKT(0).ce31 : 55,831 +0
+-- PHY MAC counters, read before the fill and after the stop (phystat.py; difference)
+PHY 0x0: sys RPKT +36923142686 -> line TPKT +36923142686 (+32.000 B/frame); line RPKT +36921144258 -> sys TPKT +36921144258 (-32.000 B/frame); RFCS:0/0 RERPKT:0/0 TERR:0/0 TFCS:0/0 RUND:0/0 RFRG:0/0 RJBR:0/0 TUFL:0/0 (line/sys)
+PHY 0x1: sys RPKT +36921144258 -> line TPKT +36921144258 (+32.000 B/frame); line RPKT +36923142686 -> sys TPKT +36923142686 (-32.000 B/frame); RFCS:0/0 RERPKT:0/0 TERR:0/0 TFCS:0/0 RUND:0/0 RFRG:0/0 RJBR:0/0 TUFL:0/0 (line/sys)
+PHY 0x17e: sys RPKT +36921143518 -> line TPKT +36921143518 (+32.000 B/frame); line RPKT +36923141946 -> sys TPKT +36923141946 (-32.000 B/frame); RFCS:0/0 RERPKT:0/0 TERR:0/0 TFCS:0/0 RUND:0/0 RFRG:0/0 RJBR:0/0 TUFL:0/0 (line/sys)
+PHY 0x17f: sys RPKT +36923141946 -> line TPKT +36923141946 (+32.000 B/frame); line RPKT +36921143518 -> sys TPKT +36921143518 (-32.000 B/frame); RFCS:0/0 RERPKT:0/0 TERR:0/0 TFCS:0/0 RUND:0/0 RFRG:0/0 RJBR:0/0 TUFL:0/0 (line/sys)
+RS-FEC corrected / uncorrected / symbol errors, CL82 BER count at the read after the stop: 0 | 0 | 0,0,0,0 | 0 ; 0 | 0 | 0,0,0,0 | 0 ; 0 | 0 | 0,0,0,0 | 0 ; 0 | 0 | 0,0,0,0 | 0
+samples: 76 (30 s; macsec-loss-soak-a-samples-20261122.txt); guard 0; ASIC 46.2-49.6 C; fand failsafe true: 0
+RESULT (a): 740 of 740 frames of each ring discarded at the stop; TPKT of every port = RPKT of its cable peer; every PHY hop equal to the frame
+
+== run (b): the same, continued on the same SAs, with phystat.py reading all four PHYs every 30 s (26 reads per PHY, 16:12:27 - 16:25:21)
+filled 16:12:23 (1795392743), stopped 16:26:02 (1795393562): 819 s; 14.55 x 10^9 frames per SA; packet numbers 8.6 -> 11.98 x 2^32: 3 more wraps per SA
+-- ASIC after the stop
+== stop 2026-11-22T16:26:02-08:00 1795393562
+ ce0( 50) up 4 100G FD SW No Forward TX RX None FA CAUI 9126 No 
+ ce1( 54) up 4 100G FD SW No Forward TX RX None FA CAUI 9126 No 
+ ce30( 9) up 4 100G FD SW No Forward TX RX None FA CAUI 9126 No 
+ ce31( 13) up 4 100G FD SW No Forward TX RX None FA CAUI 9126 No 
+RDBGC0.ce0 : 740 +0
+RPKT.ce0 : 14,545,950,444 +0
+RBYT.ce0 : 9,426,527,381,626 +0
+TPKT.ce0 : 14,547,711,063 +0
+TBYT.ce0 : 9,426,610,340,600 +0
+RDBGC0.ce1 : 740 +0
+RPKT.ce1 : 14,547,711,063 +0
+RBYT.ce1 : 9,426,610,340,600 +0
+TPKT.ce1 : 14,545,950,444 +0
+TBYT.ce1 : 9,426,527,381,626 +0
+RPKT.ce30 : 14,547,710,323 +0
+RBYT.ce30 : 9,426,609,859,040 +0
+TPKT.ce30 : 14,545,949,704 +0
+TBYT.ce30 : 9,426,526,900,066 +0
+PERQ_PKT(0).ce30 : 59,776 +0
+RPKT.ce31 : 14,545,949,704 +0
+RBYT.ce31 : 9,426,526,900,066 +0
+TPKT.ce31 : 14,547,710,323 +0
+TBYT.ce31 : 9,426,609,859,040 +0
+PERQ_PKT(0).ce31 : 53,668 +0
+-- PHY MAC counters: read after (a) and after (b); difference
+PHY 0x0: sys RPKT +14547711063 -> line TPKT +14547711063 (+32.000 B/frame); line RPKT +14545950444 -> sys TPKT +14545950444 (-32.000 B/frame); RFCS:0/0 RERPKT:0/0 TERR:0/0 TFCS:0/0 RUND:0/0 RFRG:0/0 RJBR:0/0 TUFL:0/0 (line/sys)
+PHY 0x1: sys RPKT +14545950444 -> line TPKT +14545950444 (+32.000 B/frame); line RPKT +14547711063 -> sys TPKT +14547711063 (-32.000 B/frame); RFCS:0/0 RERPKT:0/0 TERR:0/0 TFCS:0/0 RUND:0/0 RFRG:0/0 RJBR:0/0 TUFL:0/0 (line/sys)
+PHY 0x17e: sys RPKT +14545949704 -> line TPKT +14545949704 (+32.000 B/frame); line RPKT +14547710323 -> sys TPKT +14547710323 (-32.000 B/frame); RFCS:0/0 RERPKT:0/0 TERR:0/0 TFCS:0/0 RUND:0/0 RFRG:0/0 RJBR:0/0 TUFL:0/0 (line/sys)
+PHY 0x17f: sys RPKT +14547710323 -> line TPKT +14547710323 (+32.000 B/frame); line RPKT +14545949704 -> sys TPKT +14545949704 (-32.000 B/frame); RFCS:0/0 RERPKT:0/0 TERR:0/0 TFCS:0/0 RUND:0/0 RFRG:0/0 RJBR:0/0 TUFL:0/0 (line/sys)
+-- the 26 reads during the run + the one after: PHY 0x0 FEC corrected 0 uncorrected 0 symbol 0 CL82 BER 0, PCS live status values seen 1; PHY 0x1 FEC corrected 0 uncorrected 0 symbol 0 CL82 BER 0, PCS live status values seen 1; PHY 0x17e FEC corrected 0 uncorrected 0 symbol 0 CL82 BER 0, PCS live status values seen 1; PHY 0x17f FEC corrected 0 uncorrected 0 symbol 0 CL82 BER 0, PCS live status values seen 1
+samples: 30; guard 0; ASIC 45.2-48.6 C; fand failsafe true: 0
+RESULT (b): 740 of 740 per ring, all hops equal
+
+== total: 4 SAs x 51.47 x 10^9 frames = 2.06 x 10^11 encrypted frame crossings, 44 low-word wraps, 0 frames lost
+(before the fix: 1 frame lost per wrap per SA: 8 of 8 wraps in the run of macsec-load-20261122.txt, 4 of 4 in macsec-loss-wrap-before-fix-20261122.txt)

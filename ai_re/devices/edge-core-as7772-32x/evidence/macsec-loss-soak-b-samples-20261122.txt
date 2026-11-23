@@ -1,0 +1,330 @@
+== sample 1795392743.935216019 2026-11-22T16:12:23-08:00
+RPKT.ce0 : 11,635,786 +0 19,709,745/s
+TPKT.ce0 : 13,628,963 +0 23,085,968/s
+RPKT.ce1 : 13,634,318 +0 23,095,039/s
+TPKT.ce1 : 11,641,661 +0 19,719,697/s
+RPKT.ce30 : 13,572,765 +0 22,990,775/s
+TPKT.ce30 : 11,580,175 +0 19,615,546/s
+RPKT.ce31 : 11,585,448 +0 19,624,478/s
+TPKT.ce31 : 13,578,631 +0 23,000,711/s
+asic 45.7 C; average current temperature is 43.8 maximum peak temperature is 48.1 
+fand failsafe=False asic: normal 45.7C duty 53% board: normal 35.5C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795392771.337728263 2026-11-22T16:12:51-08:00
+RPKT.ce0 : 497,941,895 +0 17,747,197/s
+TPKT.ce0 : 499,935,056 +0 17,747,175/s
+RPKT.ce1 : 499,940,325 +0 17,747,130/s
+TPKT.ce1 : 497,947,669 +0 17,747,088/s
+RPKT.ce30 : 499,878,758 +0 17,747,221/s
+TPKT.ce30 : 497,886,116 +0 17,747,211/s
+RPKT.ce31 : 497,891,356 +0 17,747,159/s
+TPKT.ce31 : 499,884,616 +0 17,747,148/s
+asic 45.7 C; average current temperature is 44.4 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 45.7C duty 53% board: normal 35.5C duty 62% cpu: normal 39.0C duty 53%
+== sample 1795392798.737875105 2026-11-22T16:13:18-08:00
+RPKT.ce0 : 984,208,976 +0 17,746,967/s
+TPKT.ce0 : 986,202,158 +0 17,747,027/s
+RPKT.ce1 : 986,207,477 +0 17,747,025/s
+TPKT.ce1 : 984,214,808 +0 17,746,983/s
+RPKT.ce30 : 986,145,753 +0 17,746,829/s
+TPKT.ce30 : 984,153,127 +0 17,746,835/s
+RPKT.ce31 : 984,158,525 +0 17,746,927/s
+TPKT.ce31 : 986,151,696 +0 17,746,894/s
+asic 46.7 C; average current temperature is 44.6 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 35.5C duty 62% cpu: normal 39.0C duty 53%
+== sample 1795392826.141999222 2026-11-22T16:13:46-08:00
+RPKT.ce0 : 1,470,543,724 +0 17,746,350/s
+TPKT.ce0 : 1,472,536,940 +0 17,746,422/s
+RPKT.ce1 : 1,472,542,261 +0 17,746,436/s
+TPKT.ce1 : 1,470,549,606 +0 17,746,381/s
+RPKT.ce30 : 1,472,480,552 +0 17,746,232/s
+TPKT.ce30 : 1,470,487,959 +0 17,746,271/s
+RPKT.ce31 : 1,470,493,275 +0 17,746,287/s
+TPKT.ce31 : 1,472,486,498 +0 17,746,312/s
+asic 46.7 C; average current temperature is 44.3 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 35.5C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795392853.545582441 2026-11-22T16:14:13-08:00
+RPKT.ce0 : 1,956,871,565 +0 17,746,571/s
+TPKT.ce0 : 1,958,864,730 +0 17,746,558/s
+RPKT.ce1 : 1,958,870,159 +0 17,746,650/s
+TPKT.ce1 : 1,956,877,485 +0 17,746,612/s
+RPKT.ce30 : 1,958,807,960 +0 17,746,672/s
+TPKT.ce30 : 1,956,815,322 +0 17,746,659/s
+RPKT.ce31 : 1,956,820,652 +0 17,746,586/s
+TPKT.ce31 : 1,958,813,912 +0 17,746,672/s
+asic 46.2 C; average current temperature is 44.3 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 35.5C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795392880.949832815 2026-11-22T16:14:40-08:00
+RPKT.ce0 : 2,443,205,704 +0 17,748,064/s
+TPKT.ce0 : 2,445,198,898 +0 17,748,134/s
+RPKT.ce1 : 2,445,204,196 +0 17,748,055/s
+TPKT.ce1 : 2,443,211,526 +0 17,748,036/s
+RPKT.ce30 : 2,445,142,620 +0 17,748,289/s
+TPKT.ce30 : 2,443,149,982 +0 17,748,222/s
+RPKT.ce31 : 2,443,155,258 +0 17,748,160/s
+TPKT.ce31 : 2,445,148,526 +0 17,748,280/s
+asic 45.2 C; average current temperature is 44.7 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 45.2C duty 53% board: normal 35.5C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795392908.367370661 2026-11-22T16:15:08-08:00
+RPKT.ce0 : 2,929,777,032 +0 17,747,374/s
+TPKT.ce0 : 2,931,770,218 +0 17,747,462/s
+RPKT.ce1 : 2,931,775,574 +0 17,747,367/s
+TPKT.ce1 : 2,929,782,909 +0 17,747,327/s
+RPKT.ce30 : 2,931,711,186 +0 17,744,938/s
+TPKT.ce30 : 2,929,718,559 +0 17,744,949/s
+RPKT.ce31 : 2,929,723,860 +0 17,744,926/s
+TPKT.ce31 : 2,931,717,086 +0 17,744,896/s
+asic 46.2 C; average current temperature is 44.5 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 46.2C duty 53% board: normal 35.5C duty 62% cpu: normal 41.0C duty 53%
+== sample 1795392935.807763331 2026-11-22T16:15:35-08:00
+RPKT.ce0 : 3,416,750,918 +0 17,746,962/s
+TPKT.ce0 : 3,418,744,041 +0 17,746,885/s
+RPKT.ce1 : 3,418,749,360 +0 17,746,882/s
+TPKT.ce1 : 3,416,756,708 +0 17,746,897/s
+RPKT.ce30 : 3,418,687,560 +0 17,746,963/s
+TPKT.ce30 : 3,416,694,986 +0 17,746,973/s
+RPKT.ce31 : 3,416,700,166 +0 17,746,893/s
+TPKT.ce31 : 3,418,693,362 +0 17,746,919/s
+asic 47.2 C; average current temperature is 44.3 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 35.5C duty 62% cpu: normal 41.0C duty 53%
+== sample 1795392963.253574251 2026-11-22T16:16:03-08:00
+RPKT.ce0 : 3,903,819,129 +0 17,746,767/s
+TPKT.ce0 : 3,905,812,341 +0 17,746,849/s
+RPKT.ce1 : 3,905,817,658 +0 17,746,820/s
+TPKT.ce1 : 3,903,824,987 +0 17,746,805/s
+RPKT.ce30 : 3,905,756,122 +0 17,746,870/s
+TPKT.ce30 : 3,903,763,466 +0 17,746,821/s
+RPKT.ce31 : 3,903,768,765 +0 17,746,822/s
+TPKT.ce31 : 3,905,762,020 +0 17,746,894/s
+asic 46.2 C; average current temperature is 44.5 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 46.2C duty 53% board: normal 35.5C duty 62% cpu: normal 41.0C duty 53%
+== sample 1795392990.679610429 2026-11-22T16:16:30-08:00
+RPKT.ce0 : 4,390,383,881 +0 17,746,251/s
+TPKT.ce0 : 4,392,377,104 +0 17,746,351/s
+RPKT.ce1 : 4,392,382,420 +0 17,746,293/s
+TPKT.ce1 : 4,390,389,772 +0 17,746,292/s
+RPKT.ce30 : 4,392,320,562 +0 17,746,078/s
+TPKT.ce30 : 4,390,327,956 +0 17,746,070/s
+RPKT.ce31 : 4,390,333,269 +0 17,746,049/s
+TPKT.ce31 : 4,392,326,450 +0 17,746,051/s
+asic 46.2 C; average current temperature is 44.4 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 46.2C duty 53% board: normal 35.5C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795393018.081672093 2026-11-22T16:16:58-08:00
+RPKT.ce0 : 4,876,862,219 +0 17,746,772/s
+TPKT.ce0 : 4,878,855,398 +0 17,746,820/s
+RPKT.ce1 : 4,878,860,738 +0 17,746,837/s
+TPKT.ce1 : 4,876,868,102 +0 17,746,834/s
+RPKT.ce30 : 4,878,799,120 +0 17,746,764/s
+TPKT.ce30 : 4,876,806,481 +0 17,746,753/s
+RPKT.ce31 : 4,876,811,754 +0 17,746,692/s
+TPKT.ce31 : 4,878,805,005 +0 17,746,751/s
+asic 46.2 C; average current temperature is 44.5 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 46.2C duty 53% board: normal 35.5C duty 62% cpu: normal 39.0C duty 53%
+== sample 1795393045.481600249 2026-11-22T16:17:25-08:00
+RPKT.ce0 : 5,363,123,062 +0 17,746,376/s
+TPKT.ce0 : 5,365,116,190 +0 17,746,380/s
+RPKT.ce1 : 5,365,121,602 +0 17,746,346/s
+TPKT.ce1 : 5,363,128,949 +0 17,746,342/s
+RPKT.ce30 : 5,365,059,260 +0 17,746,161/s
+TPKT.ce30 : 5,363,066,671 +0 17,746,209/s
+RPKT.ce31 : 5,363,072,032 +0 17,746,257/s
+TPKT.ce31 : 5,365,065,217 +0 17,746,164/s
+asic 46.7 C; average current temperature is 44.6 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 35.5C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795393072.885916136 2026-11-22T16:17:52-08:00
+RPKT.ce0 : 5,849,462,008 +0 17,747,470/s
+TPKT.ce0 : 5,851,455,177 +0 17,747,501/s
+RPKT.ce1 : 5,851,460,494 +0 17,747,384/s
+TPKT.ce1 : 5,849,467,856 +0 17,747,399/s
+RPKT.ce30 : 5,851,398,719 +0 17,747,799/s
+TPKT.ce30 : 5,849,406,122 +0 17,747,838/s
+RPKT.ce31 : 5,849,411,408 +0 17,747,830/s
+TPKT.ce31 : 5,851,404,591 +0 17,747,752/s
+asic 47.7 C; average current temperature is 44.6 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 35.5C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795393100.289498700 2026-11-22T16:18:20-08:00
+RPKT.ce0 : 6,335,788,528 +0 17,746,892/s
+TPKT.ce0 : 6,337,781,697 +0 17,746,930/s
+RPKT.ce1 : 6,337,787,045 +0 17,746,898/s
+TPKT.ce1 : 6,335,794,436 +0 17,746,937/s
+RPKT.ce30 : 6,337,725,387 +0 17,747,065/s
+TPKT.ce30 : 6,335,732,755 +0 17,747,006/s
+RPKT.ce31 : 6,335,738,020 +0 17,746,930/s
+TPKT.ce31 : 6,337,731,276 +0 17,747,037/s
+asic 46.2 C; average current temperature is 44.0 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 46.2C duty 53% board: normal 35.5C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795393127.693729329 2026-11-22T16:18:47-08:00
+RPKT.ce0 : 6,822,127,859 +0 17,746,742/s
+TPKT.ce0 : 6,824,120,981 +0 17,746,642/s
+RPKT.ce1 : 6,824,126,393 +0 17,746,769/s
+TPKT.ce1 : 6,822,133,731 +0 17,746,755/s
+RPKT.ce30 : 6,824,064,130 +0 17,746,115/s
+TPKT.ce30 : 6,822,071,543 +0 17,746,121/s
+RPKT.ce31 : 6,822,077,116 +0 17,746,456/s
+TPKT.ce31 : 6,824,070,373 +0 17,746,487/s
+asic 47.7 C; average current temperature is 44.6 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 45.2C duty 53% board: normal 35.5C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795393155.101044933 2026-11-22T16:19:15-08:00
+RPKT.ce0 : 7,308,502,725 +0 17,747,614/s
+TPKT.ce0 : 7,310,495,892 +0 17,747,600/s
+RPKT.ce1 : 7,310,501,269 +0 17,747,626/s
+TPKT.ce1 : 7,308,508,602 +0 17,747,644/s
+RPKT.ce30 : 7,310,439,489 +0 17,747,908/s
+TPKT.ce30 : 7,308,446,895 +0 17,747,940/s
+RPKT.ce31 : 7,308,452,211 +0 17,747,932/s
+TPKT.ce31 : 7,310,445,356 +0 17,747,884/s
+asic 46.2 C; average current temperature is 44.1 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 46.2C duty 53% board: normal 35.5C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795393182.539829254 2026-11-22T16:19:42-08:00
+RPKT.ce0 : 7,795,457,740 +0 17,747,479/s
+TPKT.ce0 : 7,797,450,918 +0 17,747,478/s
+RPKT.ce1 : 7,797,456,229 +0 17,747,448/s
+TPKT.ce1 : 7,795,463,548 +0 17,747,401/s
+RPKT.ce30 : 7,797,394,536 +0 17,747,841/s
+TPKT.ce30 : 7,795,401,946 +0 17,747,825/s
+RPKT.ce31 : 7,795,407,238 +0 17,747,831/s
+TPKT.ce31 : 7,797,400,459 +0 17,747,894/s
+asic 46.7 C; average current temperature is 44.2 maximum peak temperature is 48.6 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 35.5C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795393209.979413607 2026-11-22T16:20:09-08:00
+RPKT.ce0 : 8,282,424,138 +0 17,747,044/s
+TPKT.ce0 : 8,284,417,312 +0 17,747,093/s
+RPKT.ce1 : 8,284,422,663 +0 17,747,064/s
+TPKT.ce1 : 8,282,430,001 +0 17,747,042/s
+RPKT.ce30 : 8,284,360,602 +0 17,746,697/s
+TPKT.ce30 : 8,282,367,972 +0 17,746,708/s
+RPKT.ce31 : 8,282,373,326 +0 17,746,738/s
+TPKT.ce31 : 8,284,366,536 +0 17,746,736/s
+asic 47.7 C; average current temperature is 45.1 maximum peak temperature is 49.1 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 35.5C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795393237.421750077 2026-11-22T16:20:37-08:00
+RPKT.ce0 : 8,769,424,308 +0 17,742,397/s
+TPKT.ce0 : 8,771,417,477 +0 17,742,405/s
+RPKT.ce1 : 8,771,424,977 +0 17,744,578/s
+TPKT.ce1 : 8,769,432,306 +0 17,744,518/s
+RPKT.ce30 : 8,771,360,139 +0 17,741,392/s
+TPKT.ce30 : 8,769,367,512 +0 17,741,419/s
+RPKT.ce31 : 8,769,372,936 +0 17,741,573/s
+TPKT.ce31 : 8,771,366,096 +0 17,741,483/s
+asic 47.2 C; average current temperature is 44.7 maximum peak temperature is 49.1 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 35.5C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795393264.861789769 2026-11-22T16:21:04-08:00
+RPKT.ce0 : 9,256,419,408 +0 17,746,744/s
+TPKT.ce0 : 9,258,412,530 +0 17,746,663/s
+RPKT.ce1 : 9,258,417,945 +0 17,746,731/s
+TPKT.ce1 : 9,256,425,303 +0 17,746,753/s
+RPKT.ce30 : 9,258,356,396 +0 17,746,928/s
+TPKT.ce30 : 9,256,363,776 +0 17,746,896/s
+RPKT.ce31 : 9,256,369,052 +0 17,746,888/s
+TPKT.ce31 : 9,258,362,224 +0 17,746,863/s
+asic 47.2 C; average current temperature is 45.2 maximum peak temperature is 49.1 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.0C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795393292.275600684 2026-11-22T16:21:32-08:00
+RPKT.ce0 : 9,742,751,188 +0 17,746,782/s
+TPKT.ce0 : 9,744,744,336 +0 17,746,818/s
+RPKT.ce1 : 9,744,749,744 +0 17,746,840/s
+TPKT.ce1 : 9,742,757,085 +0 17,746,832/s
+RPKT.ce30 : 9,744,688,022 +0 17,746,802/s
+TPKT.ce30 : 9,742,695,421 +0 17,746,782/s
+RPKT.ce31 : 9,742,700,728 +0 17,746,813/s
+TPKT.ce31 : 9,744,693,908 +0 17,746,827/s
+asic 47.7 C; average current temperature is 45.3 maximum peak temperature is 49.1 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 36.0C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795393319.681581047 2026-11-22T16:21:59-08:00
+RPKT.ce0 : 10,229,298,352 +0 17,747,161/s
+TPKT.ce0 : 10,231,291,536 +0 17,747,186/s
+RPKT.ce1 : 10,231,296,917 +0 17,747,171/s
+TPKT.ce1 : 10,229,304,256 +0 17,747,176/s
+RPKT.ce30 : 10,231,235,365 +0 17,747,186/s
+TPKT.ce30 : 10,229,242,743 +0 17,747,158/s
+RPKT.ce31 : 10,229,247,975 +0 17,747,119/s
+TPKT.ce31 : 10,231,241,198 +0 17,747,163/s
+asic 46.7 C; average current temperature is 45.2 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 36.0C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795393347.085629883 2026-11-22T16:22:27-08:00
+RPKT.ce0 : 10,715,632,314 +0 17,746,863/s
+TPKT.ce0 : 10,717,625,538 +0 17,746,966/s
+RPKT.ce1 : 10,717,630,879 +0 17,746,907/s
+TPKT.ce1 : 10,715,638,222 +0 17,746,904/s
+RPKT.ce30 : 10,717,569,210 +0 17,746,923/s
+TPKT.ce30 : 10,715,576,617 +0 17,746,963/s
+RPKT.ce31 : 10,715,581,865 +0 17,746,858/s
+TPKT.ce31 : 10,717,575,087 +0 17,746,888/s
+asic 48.6 C; average current temperature is 45.5 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 48.6C duty 53% board: normal 36.0C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795393374.489474314 2026-11-22T16:22:54-08:00
+RPKT.ce0 : 11,201,965,557 +0 17,744,695/s
+TPKT.ce0 : 11,203,958,756 +0 17,744,716/s
+RPKT.ce1 : 11,203,964,859 +0 17,745,540/s
+TPKT.ce1 : 11,201,972,226 +0 17,745,569/s
+RPKT.ce30 : 11,203,901,077 +0 17,743,420/s
+TPKT.ce30 : 11,201,908,453 +0 17,743,392/s
+RPKT.ce31 : 11,201,913,658 +0 17,743,296/s
+TPKT.ce31 : 11,203,906,930 +0 17,743,377/s
+asic 47.7 C; average current temperature is 45.5 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.5C duty 62% cpu: normal 41.0C duty 53%
+== sample 1795393401.894254822 2026-11-22T16:23:21-08:00
+RPKT.ce0 : 11,688,311,386 +0 17,748,259/s
+TPKT.ce0 : 11,690,304,557 +0 17,748,228/s
+RPKT.ce1 : 11,690,309,822 +0 17,748,209/s
+TPKT.ce1 : 11,688,317,166 +0 17,748,208/s
+RPKT.ce30 : 11,690,248,398 +0 17,748,968/s
+TPKT.ce30 : 11,688,255,782 +0 17,748,984/s
+RPKT.ce31 : 11,688,261,066 +0 17,748,966/s
+TPKT.ce31 : 11,690,254,262 +0 17,748,953/s
+asic 47.2 C; average current temperature is 45.8 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.5C duty 62% cpu: normal 42.0C duty 53%
+== sample 1795393429.300340474 2026-11-22T16:23:49-08:00
+RPKT.ce0 : 12,174,674,598 +0 17,747,111/s
+TPKT.ce0 : 12,176,667,734 +0 17,747,033/s
+RPKT.ce1 : 12,176,673,161 +0 17,747,108/s
+TPKT.ce1 : 12,174,680,489 +0 17,747,083/s
+RPKT.ce30 : 12,176,610,814 +0 17,748,395/s
+TPKT.ce30 : 12,174,618,228 +0 17,748,441/s
+RPKT.ce31 : 12,174,623,585 +0 17,748,416/s
+TPKT.ce31 : 12,176,616,807 +0 17,748,457/s
+asic 47.7 C; average current temperature is 45.6 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.7C duty 53% board: normal 36.5C duty 62% cpu: normal 41.0C duty 53%
+== sample 1795393456.739240591 2026-11-22T16:24:16-08:00
+RPKT.ce0 : 12,661,623,026 +0 17,746,971/s
+TPKT.ce0 : 12,663,616,197 +0 17,746,975/s
+RPKT.ce1 : 12,663,621,490 +0 17,746,947/s
+TPKT.ce1 : 12,661,628,828 +0 17,746,922/s
+RPKT.ce30 : 12,663,559,426 +0 17,746,923/s
+TPKT.ce30 : 12,661,566,853 +0 17,746,930/s
+RPKT.ce31 : 12,661,572,151 +0 17,746,943/s
+TPKT.ce31 : 12,663,565,317 +0 17,746,943/s
+asic 47.2 C; average current temperature is 45.5 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 47.2C duty 53% board: normal 36.0C duty 62% cpu: normal 41.0C duty 53%
+== sample 1795393484.177556513 2026-11-22T16:24:44-08:00
+RPKT.ce0 : 13,148,577,303 +0 17,746,378/s
+TPKT.ce0 : 13,150,570,422 +0 17,746,368/s
+RPKT.ce1 : 13,150,575,856 +0 17,746,454/s
+TPKT.ce1 : 13,148,583,206 +0 17,746,456/s
+RPKT.ce30 : 13,150,513,976 +0 17,746,195/s
+TPKT.ce30 : 13,148,521,319 +0 17,746,145/s
+RPKT.ce31 : 13,148,526,606 +0 17,746,082/s
+TPKT.ce31 : 13,150,519,860 +0 17,746,159/s
+asic 46.7 C; average current temperature is 45.5 maximum peak temperature is 49.6 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 36.0C duty 62% cpu: normal 41.0C duty 53%
+== sample 1795393511.581724669 2026-11-22T16:25:11-08:00
+RPKT.ce0 : 13,634,913,195 +0 17,746,541/s
+TPKT.ce0 : 13,636,906,359 +0 17,746,535/s
+RPKT.ce1 : 13,636,911,716 +0 17,746,488/s
+TPKT.ce1 : 13,634,919,100 +0 17,746,552/s
+RPKT.ce30 : 13,636,849,478 +0 17,746,351/s
+TPKT.ce30 : 13,634,856,850 +0 17,746,360/s
+RPKT.ce31 : 13,634,862,251 +0 17,746,412/s
+TPKT.ce31 : 13,636,855,429 +0 17,746,392/s
+asic 47.2 C; average current temperature is 44.9 maximum peak temperature is 49.1 
+fand failsafe=False asic: normal 46.7C duty 53% board: normal 36.0C duty 62% cpu: normal 40.0C duty 53%
+== sample 1795393538.985575427 2026-11-22T16:25:38-08:00
+RPKT.ce0 : 14,121,243,858 +0 17,746,004/s
+TPKT.ce0 : 14,123,236,993 +0 17,746,010/s
+RPKT.ce1 : 14,123,242,388 +0 17,746,040/s
+TPKT.ce1 : 14,121,249,719 +0 17,746,001/s
+RPKT.ce30 : 14,123,180,438 +0 17,745,589/s
+TPKT.ce30 : 14,121,187,812 +0 17,745,531/s
+RPKT.ce31 : 14,121,193,173 +0 17,745,609/s
+TPKT.ce31 : 14,123,186,358 +0 17,745,628/s
+asic 46.2 C; average current temperature is 44.8 maximum peak temperature is 49.1 
+fand failsafe=False asic: normal 46.2C duty 53% board: normal 36.0C duty 62% cpu: normal 40.0C duty 53%

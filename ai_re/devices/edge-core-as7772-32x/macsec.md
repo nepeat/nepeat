@@ -12,7 +12,7 @@ Tool: `evora-rehost/macsec.py` (+ `lmi.py`, `macsec_test.py`, `macsec-live.sh`).
 -> APPL_DB -> orchagent's MACsecOrch -> SAI MACsec objects -> sai-openbcm runs **register sequences from board data**
 (`nix/modules/boards/as7772/ext-macsec.nix`) on the port's PHY. No vendor code, no emulator and no re-host on the switch.
 - **State now:** MACsec (GCM-AES-XPN-256, MKA, lab test key) is **on at boot on cages 1, 2, 31, 32**; the other 28 engines
-  are in bypass. System `gcyrw820...`. Config: `nix/configs/as7772/configuration.nix` (`services.sonic.macsec`).
+  are in bypass. System `wchbsjy4l9al...`. Config: `nix/configs/as7772/configuration.nix` (`services.sonic.macsec`).
 - **Look:** `show macsec [--mka] [Ethernet1/1]` (**prints SAKs**: never paste it unfiltered; the test scripts drop the
   `sak`, `auth_key`, `salt` lines), `sonic-clear macsec`, `openbcm-diag extmacsec` (what each PHY holds: engine, gate, SA per
   AN, the transmitting AN, sequences run / failed).
@@ -27,7 +27,7 @@ Tool: `evora-rehost/macsec.py` (+ `lmi.py`, `macsec_test.py`, `macsec-live.sh`).
 ### How it is built
 | layer | what | where |
 | --- | --- | --- |
-| board data | sequences per SAI operation with placeholders for key, hash key, SCI, PN, nonce, window (126 sequences, 22,600 clause-45 operations, generated from 250 lines of Nix: LMI register writes + firmware messages by register) | `nix/modules/boards/as7772/ext-macsec.nix` |
+| board data | sequences per SAI operation with placeholders for key, hash key, SCI, PN, nonce, window (126 sequences, 22,886 clause-45 operations, generated from 200 lines of Nix: LMI register writes + firmware messages by register) | `nix/modules/boards/as7772/ext-macsec.nix` |
 | executor + SAI MACsec API | generic, no chip knowledge: table parser, executor (write, read, compare, poll, keep-and-write-back, named results), `sai_macsec_api_t`, MACsec-stage ACL tables kept as a model, counters accumulated, inter-frame gap 48 B while a port has a MACsec port | `nix/packages/sai-openbcm` (README "MACsec in an external PHY") |
 | SONiC | macsecmgrd, sonic-wpa-supplicant, CLI plug-ins, CAK from a file | `nix/modules/switch/sonic/macsec.nix`, `nix/packages/sonic/wpa-supplicant` |
 - **PHY layout, fixed per port and direction:** vPort 0 = data (rule 1: every frame, its drop flag is the **gate**), vPort 1 =
@@ -43,7 +43,9 @@ Tool: `evora-rehost/macsec.py` (+ `lmi.py`, `macsec_test.py`, `macsec-live.sh`).
   `x-devupd`, `x-sa-read`, `x-stats`); five sessions on the real PHYs 0x00 / 0x01 **through syncd with SONiC up** recorded
   every operation with three parameter sets (ciphers rotated over the ANs). `ext-macsec.nix` was written from the first
   recording; `evora-rehost/seqcheck.py` renders the table with sai-openbcm's own executor and compares it with all of them:
-  **identical, operation by operation** (4,602 per full session; evidence/macsec-seqcheck-20261122.txt, 70bbf19e2a81).
+  **identical, operation by operation** (4,602 per full session; evidence/macsec-seqcheck-20261122.txt, 2cad73d22619).
+  One write is ours and in no recording: the SecTAG checks at the end of `sa-add-first.ingress.*`
+  ([macsec-loss.md](macsec-loss.md)); seqcheck checks its value and compares the rest.
   The table's hash is pinned in the board module: change `ext-macsec.nix`, re-run seqcheck, update the hash.
   Counter order in the hardware blocks: from the library on a mock that answers reads with a ramp (`EVORA_MOCK_RAMP`).
 - Record layout additions to the table above: control word egress `66 e0 4b|4f 92|a2 + 4 x AN` (128 | 256, PN32 | XPN),
@@ -62,17 +64,22 @@ Tool: `evora-rehost/macsec.py` (+ `lmi.py`, `macsec_test.py`, `macsec-live.sh`).
 | `systemctl restart sonic.target` | 8 engines found on, reset; MACsec up again, 6,400 pings 0 lost (the run needed a macsecmgrd restart: the far-end MAC was set after wpa_supplicant started; since fixed by the wait, re-proved by the boots below) | macsec-s3-traffic-stack-restart (8be8bab047e7) |
 | reboot | 6,400 pings 0 lost | macsec-s3-traffic-reboot (e44aad0de76c) |
 | cold power cycle, final system, unattended | PHY bring-up 99.0 s, **MACsec up on all four ports before anything was run**, 0 failed units; 6,400 pings 0 lost | macsec-s3-traffic-coldboot (e65517d1ba33) |
-| S4 load: the ring of [load-test.md](load-test.md) with the PHYs left in MACsec by SONiC (syncd killed, plain SDK, IPG 48), 9 min 20 s | each port **17.75 Mpps, 92.05 Gb/s of frames** per direction (IPG 16 in bypass: 18.59 Mpps, 96.4 Gb/s: MACsec costs 4.5 % with this frame mix); every PHY adds **32.0 B per frame** on the line and removes it again; 9.9 x 10^9 frames per port per direction; RS-FEC 0 / 0, no FCS or error counter anywhere; ASIC 45.7-48.6 C, fans on their curve. **4 of the 740 frames of each ring were lost once** (2 per cable direction; not on the cable: PHY line TX = peer line RX); two more runs (20 s, 90 s) lost none | macsec-load (d34e1092d1a6), -phystat, -samples |
+| S4 load: the ring of [load-test.md](load-test.md) with the PHYs left in MACsec by SONiC (syncd killed, plain SDK, IPG 48), 9 min 20 s | each port **17.75 Mpps, 92.05 Gb/s of frames** per direction (IPG 16 in bypass: 18.59 Mpps, 96.4 Gb/s: MACsec costs 4.5 % with this frame mix); every PHY adds **32.0 B per frame** on the line and removes it again; 9.9 x 10^9 frames per port per direction; RS-FEC 0 / 0, no FCS or error counter anywhere; ASIC 45.7-48.6 C, fans on their curve. **4 of the 740 frames of each ring were lost** (2 per cable direction): one frame per SA at each wrap of the packet number's low 32 bits, **found and fixed**, next row | macsec-load (d34e1092d1a6), -phystat, -samples |
+| S4 after the fix ([macsec-loss.md](macsec-loss.md)): the ingress engine's "PN field is not 0" SecTAG check is switched off for XPN SAs by the table | wrap test (first PN 2^32 - 256): 1 frame lost per SA before (`in_pkts_bad_tag`), 0 after; ring 34 min 40 s without any PHY access + 13 min 39 s with PHY reads every 30 s: **2.06 x 10^11 encrypted frames, 44 low-word wraps, 0 lost**, every hop equal to the frame | macsec-loss-wrap-before-fix (068be0a9d340), -after-fix (c71d4970c207), macsec-loss-soak (d9ee0a0a1938) |
 | SONiC back after the load | 8 engines reset at the syncd start, MKA up, 6,400 pings 0 lost | macsec-s3-traffic-after-load (71d4559a5e12) |
 Scripts (run on the switch): `macsec-static-test.sh`, `macsec-appdb-test.sh`, `macsec-traffic-test.sh`, `macsec-rekey-test.sh`,
-`macsec-wrongcak-test.sh`; parameter files: `evora-rehost/macsec-params.py`, `macsec-appdb.py`. Unit tests: sai-openbcm
+`macsec-wrongcak-test.sh`, `macsec-wrap-test.sh`; parameter files: `evora-rehost/macsec-params.py`, `macsec-appdb.py`. Unit tests: sai-openbcm
 `tests/test_macsec.inc` (fake bus: parser, golden rendering, the object model in MACsecOrch's order, key bytes on the bus
 and nowhere in the log).
 
 ### Limits, not verified
-- **The 4 lost frames under load** are not explained (one event in 9 min; three `phystat.py` reads of the PHYs ran during
-  that run and none during the two clean ones: a suspect, not a finding). MACsec SA counters were not read under load
-  (SONiC was down); the load did not go through SONiC's forwarding.
+- The 4 lost frames under load are explained and fixed ([macsec-loss.md](macsec-loss.md): the chip's default SecTAG check
+  refuses PN field 0, which XPN reaches every 2^32 frames; `phystat.py` reads were not the cause). Left open there: the
+  32-bit suites' variant of the write and `macsec.py`-made SAs were not run. MACsec SA counters were not read under
+  load (SONiC was down); the load did not go through SONiC's forwarding.
+- **MKA did not come up by itself after two stack starts on 2026-11-22 afternoon** (a syncd-only restart by a deploy, a
+  `sonic.target` start after the load test): "duplicated SCI" until macsecmgrd was restarted. The wait for the far
+  ends' MAC (stack-restart row above) does not cover every start; `macsec-traffic-test.sh` restarts macsecmgrd itself.
 - Sequences for an SC's **first SA with AN > 0** and its **last SA with AN < 3** are compositions of recorded pieces, not
   recordings (the library cannot be made to allocate those slots first). Both happened on the switch (rekeys, re-MKA
   with AN 1 first) with traffic passing.

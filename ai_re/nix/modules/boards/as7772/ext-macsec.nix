@@ -133,6 +133,12 @@ let
     ++ (if dir == "egress" || !c.xpn then bytes "sci" 8 else zeros 8)
     ++ zeros 8;
   inuse = an: x "8000" + slot an;
+  # The ingress engine's SecTAG checks (channel 0, 0x5000: bits 0-6 = EtherType, V, KaY, C/E, SC, SL, PN; high half =
+  # the EtherType 88e5). The chip's reset value 0xe588007f has them all on and the vendor flow never writes it. Bit 6
+  # refuses a frame whose 32-bit PN field is 0 (in_pkts_bad_tag): right for a 32-bit packet number, wrong with XPN,
+  # where the field is the low half and is 0 once every 2^32 frames (one frame lost every 4 min at 100G; found under
+  # load, devices/edge-core-as7772-32x/macsec-loss.md). Not from a recording: our own write, after the SC's first SA.
+  sectagChecks = c: lmiW eng.ingress.sec (x "5000") (x "e5880000" + (if c.xpn then x "3f" else x "7f"));
   saAdd = dir: an: c: first: replay: let e = eng.${dir}; s = slot an; cw = control dir an c;
       camReg = x "4800" + 4 * (an / 2); even = mod an 2 == 0; in
     optionals first (lmiW e.sec (x "4a00") 0)
@@ -149,7 +155,8 @@ let
     ++ lmiW e.sec (128 * s + 92) (x "80004000" + (if dir == "ingress" then an * 536870912 + s else 0))
     ++ optionals first (lmiW e.sec (x "4a00") (if dir == "egress" then x "270083" else x "12008a" + (if replay then 65536 else 0))
                         ++ lmiW e.sec (x "4a04") (x "c00"))
-    ++ clear e.sec (x "8000" + 128 * s) saWords.${dir};
+    ++ clear e.sec (x "8000" + 128 * s) saWords.${dir}
+    ++ optionals (first && dir == "ingress") (sectagChecks c);
   saDel = dir: an: last: let e = eng.${dir}; camReg = x "4800" + 4 * (an / 2); even = mod an 2 == 0; in
     if dir == "egress" then optionals last (lmiW e.sec (x "4800") (slot an) ++ lmiW e.sec (x "4a00") 0)
     else lmiR e.sec camReg [ "X" "$0" ] [ "X" "$1" ] ++ lmiW' e.sec camReg (if even then "$0&7fff" else "$0") (if even then "$1" else "$1&7fff")

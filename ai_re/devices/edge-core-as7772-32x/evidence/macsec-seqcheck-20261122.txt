@@ -5,4 +5,11 @@ s2: PHY 0x0: 40 sequences, 4602 bus operations identical to the trace (not compa
 s3: PHY 0x1: 40 sequences, 4602 bus operations identical to the trace (not compared: disable.egress, disable.ingress, an incomplete teardown in this recording)
 s4: PHY 0x0: 4 sequences, 1952 bus operations identical to the trace
 s5: PHY 0x1: 4 sequences, 1952 bus operations identical to the trace
-recordings (private, dumps/x/evora-trace/r/): 052c027ca784  s1.trace.txt cc7414e9da53  s2.trace.txt 5d4d6a054ffe  s3.trace.txt 152ca9932e9e  s4.trace.txt d3110d8486b4  s5.trace.txt 
+recordings (private, dumps/x/evora-trace/r/): 052c027ca784  s1.trace.txt cc7414e9da53  s2.trace.txt 5d4d6a054ffe  s3.trace.txt 152ca9932e9e  s4.trace.txt d3110d8486b4  s5.trace.txt
+== 2026-11-22T15:38:33-08:00 after the SecTAG-check write was added to the 32 sa-add-first.ingress sequences (macsec-loss.md)
+table sha256 1ef74ead737f7e0189a101e63735b34d4a85968c459ce7383246a3a815aff5c7; differs from f2b9f5cd... only by those 32 x 8 lines (diff of the two rendered tables)
+s1: PHY 0x0: 40 sequences, 4602 bus operations identical to the trace; 1 own SecTAG-check writes (8 operations each) beyond the recordings (not compared: disable.egress, disable.ingress, an incomplete teardown in this recording)
+s2: PHY 0x0: 40 sequences, 4602 bus operations identical to the trace; 1 own SecTAG-check writes (8 operations each) beyond the recordings (not compared: disable.egress, disable.ingress, an incomplete teardown in this recording)
+s3: PHY 0x1: 40 sequences, 4602 bus operations identical to the trace; 1 own SecTAG-check writes (8 operations each) beyond the recordings (not compared: disable.egress, disable.ingress, an incomplete teardown in this recording)
+s4: PHY 0x0: 4 sequences, 1952 bus operations identical to the trace
+s5: PHY 0x1: 4 sequences, 1952 bus operations identical to the trace
