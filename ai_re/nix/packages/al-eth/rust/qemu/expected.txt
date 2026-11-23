@@ -1,0 +1,21 @@
+TEST: start
+TEST: module loaded
+TEST: netdev registered
+TEST: link up
+TEST: carrier on
+TEST: traffic mtu 1500
+TEST: mtu 3800
+TEST: traffic mtu 3800
+TEST: mtu 9000 refused
+TEST: rx mode
+TEST: mac set
+TEST: multicast mac refused
+TEST: stats
+TEST: up/down cycles
+TEST: down while busy
+TEST: unload/reload cycles
+TEST: unload while busy
+TEST: kmemleak clean
+TEST: dma-api clean
+TEST: no warning taint
+TEST: done

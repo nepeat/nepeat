@@ -1,0 +1,16 @@
+# al_eth in Rust: one crate (al_eth.rs + hal/ + knet/ + trace.rs), built as the module
+# "al_eth" (the board's driver) or, with AL_ETH_MODNAME=al_eth_rs, as "al_eth_rs"
+# (module and PCI driver name: loadable beside a system whose al_eth is the C one).
+# AL_ETH_TRACE=1 (al_eth_rs only): every register/config access and delay recorded
+# (trace.rs, debugfs al_eth_rs/trace).
+# (no --check-cfg: the kernel's own build does not enable cfg checking)
+ifeq ($(AL_ETH_TRACE),1)
+rustflags-y += --cfg al_eth_trace
+endif
+ifeq ($(AL_ETH_MODNAME),al_eth_rs)
+rustflags-y += --cfg al_eth_rs
+obj-m := al_eth_rs.o
+al_eth_rs-y := al_eth.o
+else
+obj-m := al_eth.o
+endif

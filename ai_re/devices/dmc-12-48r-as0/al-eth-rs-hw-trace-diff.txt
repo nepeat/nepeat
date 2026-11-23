@@ -1,0 +1,71 @@
+Rust al_eth (al_eth_rs, tracing build 8fyq0qin) vs C al_eth on the DMC-12, hardware MMIO traces, 2026-11-23
+Inputs (git-ignored, dumps/al-eth-trace/): trace-rs-20261123.bin (sha256 a82caaf3908919d3..., 48329 records, 0 dropped;
+insmod -> probe -> open -> DHCP -> a few s of traffic) and trace-c-20261123.txt (sha256 921f075719f31ba2..., 48912 records).
+Method: nix/packages/al-eth/trace/rs2txt.py (binary -> C text format), parse.py on both (control path per call +
+datapath), call-by-call line diff, every differing line classified (scripts: scratchpad alint/hwdiff/cmp.py, dp.py).
+
+CONTROL PATH (probe, open, rx_mode, stats)
+Calls: C probe, 5x stats, open, then rx_mode/stats; Rust the same sequence. 13 calls compared (46025 C / 46003 Rust
+lines); the C trace has 2 more trailing calls (2 rx_mode) because it ran longer before it was copied.
+Every difference, in order:
+1. probe and open, PCI config 0x004 (command), the FLR's save/restore: C "CR/CW 004 00100006", Rust "CR/CW 004 00100406"
+   (4 lines). Bit 10 = INTx Disable: set by the PCI core when MSI-X is enabled. The Rust driver enables MSI-X at probe
+   (before the FLRs), the C at open after its FLR. Expected; the same cause as the MSI-X restore after the FLR
+   (pci_restore_msi_state: PCI-core accesses, not in either trace).
+2. open, EC 0x800..0x824 (10 writes): the Toeplitz RSS key. Random per open (get_random_bytes / get_random_u32). Expected.
+3. open, UDMA queue base registers 0x?028/0x?044 for tx0-3 and rx0-3 (12 writes): descriptor and completion ring bus
+   addresses. Different DMA allocations. Expected.
+4. stats, MAC counter registers (16 reads): the counter values (traffic). Same registers in the same order. Expected.
+Nothing else differs: same register offsets, values and order in probe (including the board-parameter, MAC address,
+FLR and adapter-init sequences), open (MAC/UDMA/IOFIC/EC programming, MTU, refill doorbells, unmasks, MAC start), all
+7 rx_mode calls (byte for byte equal to the C's), the delays (D 1000 x4, D 100 x1).
+Expected items with no difference:
+- rx_mode-in-open removal: neither driver writes the MAC filter in open; the first rx_mode call follows open in both.
+- C's uninitialised hdr_split_len_sel (default control table, EC 0x7ac): both wrote the same value (bits 18:15 = 0
+  in the C again).
+- unicast-table fix: no secondary unicast address in either run (all rx_mode calls: no promisc, no allmulti, multicast
+  present, no unicast extras), so the C bug was not exercised.
+- FLR + MSI-X restore: the restore is PCI-core only (untraced); visible only as item 1.
+
+DATAPATH (softirq/hardirq accesses; C ~20 s of traffic, Rust a few s: compare patterns, not totals)
+queue      access                                  C     Rust
+rx0        W doorbell (refill)                   203       98
+rx0        W irq unmask                          205      103
+rx1        W doorbell (refill)                   183      198
+rx1        W irq unmask                          185      211
+rx2        W doorbell (refill)                   123      214
+rx2        W irq unmask                          123      233
+rx3        W doorbell (refill)                   188       45
+rx3        W irq unmask                          188       47
+tx0        R completion head read                  5        4
+tx0        W doorbell                              5        3
+tx0        W irq unmask                            5        4
+tx1        R completion head read                  2        4
+tx1        W doorbell                              2        3
+tx1        W irq unmask                            2        4
+tx2        R completion head read                  5        3
+tx2        W doorbell                              5        2
+tx2        W irq unmask                            5        3
+tx3        R completion head read                 10        7
+tx3        W doorbell                             10        6
+tx3        W irq unmask                           10        7
+vec 000    R moderation interval                 203       98
+vec 000    W moderation interval                 203       98
+vec 008    R moderation interval                 183      198
+vec 008    W moderation interval                 183      198
+vec 010    R moderation interval                 123      214
+vec 010    W moderation interval                 123      214
+vec 018    R moderation interval                 188       45
+vec 018    W moderation interval                 188       45
+Patterns, both drivers: each RX poll that saw packets = refill doorbell + moderation read/write + unmask (one per queue
+bit, main IOFIC group B 0x1c058); each TX poll = completion-head read + unmask (group C 0x1c098); TX doorbell per
+packet batch. Offsets and values identical in form.
+Findings:
+- Rust has one extra TX completion read + unmask per TX queue and 4 extra RX unmasks at the start: the one forced poll
+  of all 8 NAPI contexts after open (by design: covers an interrupt between unmask in Port::up and napi_enable).
+- Rust has more RX polls that complete with no packet (unmask without a moderation update): 39 of 594 RX unmasks
+  (6.6%) vs C 4 of 701 (0.6%); they come right after a poll that did deliver packets (same queue). Harmless (one poll +
+  one MMIO write; no queue left masked, no lost interrupt) but a difference. Likely cause, unverified: the NAPI context
+  rescheduled (an interrupt arrived during the poll: NAPIF_STATE_MISSED) more often, e.g. from timing (Rust trace taken
+  during DHCP/startup bursts) or the poll's shape; to check with napi poll counters on a longer steady run.
+No other datapath difference.

@@ -1,5 +1,6 @@
 # CS8210-32X kernel: nixpkgs' latest mainline plus a board DTS, one small SPI
-# patch and the out-of-tree al_eth NIC driver. No vendor kernel fork.
+# patch and the out-of-tree al_eth NIC driver (ai_re/nix/packages/al-eth). No
+# vendor kernel fork.
 #
 # Structure borrowed from https://codeberg.org/dma/dmc12-nixos (the Alpine v2
 # K2C-AB sibling of this board's Alpine v3 K2X-N CPU card).
@@ -137,41 +138,10 @@ let
         dtc -I dts -O dtb -@ -o $out/amazon/alpine-v3-cs8210.dtb cs8210.pp.dts
       '';
 
-  # Vendored Annapurna Labs al_eth (QNAP source drop, via delroth and
-  # dmc12-nixos), patched here for the Alpine v3 integrated NIC.
-  alEthModule = kpkgs.stdenv.mkDerivation {
-    pname = "al_eth";
-    inherit (kernel) version;
-    src = ./kernel/al_eth/src;
-
-    # makeFlags must reach bash as an array: the kernel's flags contain
-    # spaces-by-$(space) tricks that do not survive string flattening.
-    __structuredAttrs = true;
-    strictDeps = true;
-
-    hardeningDisable = [ "all" ];
-    nativeBuildInputs = kernel.moduleBuildDependencies;
-
-    makeFlags = kernel.commonMakeFlags ++ [
-      "-C"
-      "${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"
-      "KCFLAGS=-DCONFIG_AL_ETH_ALPINE_V2"
-    ];
-
-    buildPhase = ''
-      runHook preBuild
-      make "''${makeFlags[@]}" M=$(pwd) modules
-      runHook postBuild
-    '';
-
-    installPhase = ''
-      runHook preInstall
-      make "''${makeFlags[@]}" M=$(pwd) INSTALL_MOD_PATH=$out modules_install
-      runHook postInstall
-    '';
-
-    meta.description = "Annapurna Labs al_eth NIC, out-of-tree, for the CS8210 kernel";
-  };
+  # Annapurna Labs al_eth (QNAP source drop, via delroth and dmc12-nixos,
+  # patched for the Alpine v3 NIC): the one source tree and derivation are
+  # ai_re's, shared with the DMC-12 (and U-Boot vendors its HAL files).
+  alEthModule = kpkgs.callPackage ../../../../ai_re/nix/packages/al-eth { inherit kernel; };
   # Marvell's GPL "ipd" PCIe driver for Innovium/Teralynx switch ASICs
   # (github.com/Marvell-switching/mrvl-teralynx, the driver SONiC builds).
   # It gives the userspace switch SDK register access, DMA rings and

@@ -1,0 +1,142 @@
+Rust al_eth on the DMC-12 u01: hardware log, 2026-11-23 (box clock PST)
+Method: trial boot of T3 = git dmc12 (scratch rev 6f86e1c0: trial-boot + Rust cpld reset + alint integration) with
+hardware.alpineV2.kernelRustNet + kernelDebug (Image a9vlsp8i, 17.13 MB: KFENCE, SLUB debug, lockdep,
+DEBUG_ATOMIC_SLEEP, DEBUG_OBJECTS, DMA-API debug, kmemleak, DEBUG_NET; no KASAN: Rust needs clang for it),
+command line + slub_debug=FZPU kfence.sample_interval=100; the C al_eth drives eth0 at boot. Rust driver tests
+by guarded live swap (nic-swap.sh: CPLD watchdog armed 258 s, rmmod al_eth, insmod al_eth_rs.ko, network
+checks, back to al_eth or reboot).
+
+1. 22:31 trial T3 (nonce ebeab07dd97b): verified at 43 s (debug kernel), C al_eth up.
+2. 22:33:00 swap to al_eth_rs (hvgmqm59): KERNEL STACK OVERFLOW in probe (16 KiB task stack exhausted inside
+   alloc_etherdev_mqs called from knet Registration::new in the pin-init closure of set_drvdata) -> panic ->
+   reset -> U-Boot "no request" -> default generation; ssh back ~25 s after the crash, unattended.
+   Cause under fix: large by-value frames on the probe path. Console:
+[22:32:11.084] dmc12 login: root (automatic login)
+
+[22:32:18.251] ]3008;start=3a63298c181749ea895c008d405ed63e;user=root;hostname=dmc12;machineid=9890ddab441e430687c680721a90411c;bootid=ecf382cf3e974151b368ea7c09283c8d;pid=817;pidfdid=4326;comm=login
+[22:32:18.482] []0;root@dmc12: ~root@dmc12:~]# [   93.258382] al_eth_rs 0000:00:01.0: of_irq_parse_pci: failed with rc=-22
+[22:33:02.464] [   93.275589] Insufficient stack space to handle exception!
+[22:33:02.470] [   93.275595] ESR: 0x0000000096000047 -- DABT (current EL)
+[22:33:02.475] [   93.275601] FAR: 0xffff800082eaffc0
+[22:33:02.479] [   93.275603] Task stack:     [0xffff800082eb0000..0xffff800082eb4000]
+[22:33:02.485] [   93.275606] IRQ stack:      [0xffff800082158000..0xffff80008215c000]
+[22:33:02.491] [   93.275608] Overflow stack: [0xffff00023f594100..0xffff00023f595100]
+[22:33:02.497] [   93.275613] CPU: 2 UID: 0 PID: 1064 Comm: insmod Tainted: G        W  O        7.3.4 #1-NixOS PREEMPTLAZY 
+[22:33:02.507] [   93.275621] Tainted: [W]=WARN, [O]=OOT_MODULE
+[22:33:02.511] [   93.275623] Hardware name: Edgecore DMC-12-48R-AS0 (DT)
+[22:33:02.517] [   93.275625] pstate: 400000c5 (nZcv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[22:33:02.523] [   93.275630] pc : mark_lock+0x4/0x354
+[22:33:02.527] [   93.275638] lr : __lock_acquire+0x654/0x1138
+[22:33:02.531] [   93.275642] sp : ffff800082eaff60
+[22:33:02.535] [   93.275644] x29: ffff800082eb0050 x28: ffff800081acd000 x27: 0000000000000003
+[22:33:02.542] [   93.275651] x26: 0000000000000001 x25: 0000000000000000 x24: 0000000000000001
+[22:33:02.549] [   93.275657] x23: ffff800080cf23a8 x22: 000000000000001b x21: ffff80008105d2c0
+[22:33:02.556] [   93.275663] x20: ffff000207102ec0 x19: ffff000207103858 x18: 0000000000000028
+[22:33:02.563] [   93.275669] x17: 0000000000000000 x16: 0000000000000000 x15: 0003000000000080
+[22:33:02.570] [   93.275675] x14: 000000bb00020000 x13: 0000000000000002 x12: 0000000000000002
+[22:33:02.577] [   93.275680] x11: 0000000000026ae2 x10: 0000000000000901 x9 : ffff800081027d00
+[22:33:02.584] [   93.275686] x8 : ffff00023f5acc58 x7 : ffff800080221a70 x6 : 0000000000000000
+[22:33:02.592] [   93.275692] x5 : 0000000000000000 x4 : 0000000098000000 x3 : 990000000004801b
+[22:33:02.599] [   93.275698] x2 : 0000000000000002 x1 : ffff000207103858 x0 : ffff000207102ec0
+[22:33:02.606] [   93.275704] Kernel panic - not syncing: kernel stack overflow
+[22:33:02.612] [   93.423129] CPU: 2 UID: 0 PID: 1064 Comm: insmod Tainted: G        W  O        7.3.4 #1-NixOS PREEMPTLAZY 
+[22:33:02.621] [   93.432773] Tainted: [W]=WARN, [O]=OOT_MODULE
+[22:33:02.626] [   93.437121] Hardware name: Edgecore DMC-12-48R-AS0 (DT)
+[22:33:02.631] [   93.442338] Call trace:
+[22:33:02.633] [   93.444779]  show_stack+0x14/0x1c (C)
+[22:33:02.637] [   93.448441]  dump_stack_lvl+0x6c/0x90
+[22:33:02.641] [   93.452101]  dump_stack+0x14/0x1c
+[22:33:02.644] [   93.455413]  vpanic+0x288/0x2e8
+[22:33:02.647] [   93.458551]  nmi_panic+0x6c/0xa4
+[22:33:02.650] [   93.461777]  panic_bad_stack+0x100/0x10c
+[22:33:02.654] [   93.465696]  handle_bad_stack+0x2c/0x40
+[22:33:02.658] [   93.469529]  __bad_stack+0x80/0x84
+[22:33:02.661] [   93.472925]  mark_lock+0x4/0x354 (P)
+[22:33:02.665] [   93.476496]  lock_acquire+0x1a4/0x2c8
+[22:33:02.669] [   93.480154]  _raw_spin_trylock+0x54/0x7c
+[22:33:02.673] [   93.484072]  get_page_from_freelist+0x1b8/0x81c
+[22:33:02.677] [   93.488598]  __alloc_frozen_pages_noprof+0x128/0x290
+[22:33:02.682] [   93.493558]  ___kmalloc_large_node+0x70/0xe8
+[22:33:02.686] [   93.497823]  __kmalloc_large_node_noprof+0x24/0x80
+[22:33:02.691] [   93.502608]  __kvmalloc_node_noprof+0x84/0x424
+[22:33:02.695] [   93.507047]  alloc_netdev_mqs+0xac/0x4ec
+[22:33:02.699] [   93.510966]  alloc_etherdev_mqs+0x28/0x30
+[22:33:02.703] [   93.514971]  _RINvMsc_NtNtCsbWk9flmpsBt_6al_eth4knet6netdevINtB6_12RegistrationNtBa_4PrivE3newINtCs5YzuqVeREBU_8pin_init11InitClosureNCNCNCNvXsc_Ba_NtBa_5AlEthNtNtCsgD1NOyMMgVc_6kern
+[22:33:02.726] [   93.537559]  _RINvMs_NtCsgD1NOyMMgVc_6kernel6deviceINtB5_6DeviceNtB5_12CoreInternalE11set_drvdataNtCsbWk9flmpsBt_6al_eth4DataINtCs5YzuqVeREBU_8pin_init11InitClosureNCNvXsc_B1l_NtB1l_
+[22:33:02.748] [   93.559704]  _RINvNtCsgD1NOyMMgVc_6kernel5error11from_resultlNCNvMs0_NtB4_3pciINtBR_7AdapterNtCsbWk9flmpsBt_6al_eth5AlEthE14probe_callback0EB1g_+0x30/0x4c [al_eth_rs]
+[22:33:02.763] [   93.574563]  _RNvMs0_NtCsgD1NOyMMgVc_6kernel3pciINtB5_7AdapterNtCsbWk9flmpsBt_6al_eth5AlEthE14probe_callbackBM_+0x44/0xa8 [al_eth_rs]
+[22:33:02.775] [   93.586559]  pci_device_probe+0x10c/0x1a4
+[22:33:02.779] [   93.590566]  really_probe+0x11c/0x244
+[22:33:02.783] [   93.594224]  __driver_probe_device+0x11c/0x12c
+[22:33:02.787] [   93.598662]  driver_probe_device+0x44/0xec
+[22:33:02.791] [   93.602754]  __driver_attach+0xe0/0xf0
+[22:33:02.795] [   93.606498]  bus_for_each_dev+0x80/0xd4
+[22:33:02.799] [   93.610329]  driver_attach+0x20/0x28
+[22:33:02.803] [   93.613899]  bus_add_driver+0xe4/0x1dc
+[22:33:02.806] [   93.617644]  driver_register+0xac/0xe8
+[22:33:02.810] [   93.621387]  __pci_register_driver+0x5c/0x68
+[22:33:02.814] [   93.625653]  init_module+0x7c/0xfa0 [al_eth_rs]
+[22:33:02.819] [   93.630192]  do_one_initcall+0xdc/0x264
+[22:33:02.822] [   93.634025]  do_init_module+0x58/0x214
+[22:33:02.826] [   93.637771]  load_module+0x1864/0x18e4
+[22:33:02.830] [   93.641517]  init_module_from_file+0xb8/0xd0
+[22:33:02.834] [   93.645783]  idempotent_init_module+0x114/0x22c
+[22:33:02.839] [   93.650310]  __arm64_sys_finit_module+0x48/0x84
+[22:33:02.843] [   93.654834]  invoke_syscall.constprop.0+0xa0/0xc0
+[22:33:02.848] [   93.659533]  do_el0_svc+0x84/0xa4
+3. 22:53 trial T3 again, swap to the stack-fixed module (ivs0hqdr): probe OK; first rtnl stats read ->
+   "rust_kernel: panicked at knet/netdev.rs:640:36: misaligned pointer dereference: address must be a multiple of 0x8
+   but is 0xffff000206b0c144" (ndo_get_stats64's storage is 4-byte aligned inside the netlink message on arm64; the
+   Rust debug assertions caught a reference that would be UB) -> Oops in rtnl, network dead -> the CPLD watchdog
+   (armed by nic-swap) reset the board at 22:57:44 -> default. Fixed in knet (read/write_unaligned copy).
+   nic-swap's watchdog shortened 258 -> 93 s, trials now add oops=panic (an Oops reboots in 10 s).
+4. 23:00-23:07 trial T3 (c3888ef72dca), 3 swaps to ydlw54p5: probe OK, eth0 up, carrier 1, but ZERO interrupts on
+   all 9 MSI-X vectors; RX delivered ~3k packets (the post-open NAPI poll loop) then starved (rx fifo errors);
+   TX queues timed out (NETDEV WATCHDOG 31 s), DHCP never done. Each time nic-swap restored the C al_eth after
+   90 s, network back in 2 s, no reboot. Under investigation (interrupt enable path vs the C trace).
+   Side finding (C): rmmod al_eth WARNs in pci_disable_device <- pcim_disable_device (device disabled twice).
+
+5. FIRST LINK (23:22, trial c3888ef72dca): module with the MSI-X-after-FLR fix (8fyq0qin, tracing build): network up
+   2 s after insmod, DHCP, all 9 vectors firing, ping 50/50 to the workstation, rtt 0.28 ms avg, no checker report.
+   Rust hardware trace vs the C one (al-eth-rs-hw-trace-diff.txt): control path identical except the expected
+   classes (PCI command INTx-disable bit, random RSS key, ring DMA addresses, MAC counter values).
+6. 23:25-23:45 datapath, normal build 0ck4xy39, T3 debug kernel (iperf3 TCP 20 s, box = server; box_tx = box sends):
+   | driver | box_tx | box_rx | box CPU |
+   | C al_eth (same boot) | 934 Mbit/s, 941 retr | 355 Mbit/s, 882 retr | ~21 % |
+   | Rust al_eth_rs | 931 Mbit/s, 0 retr | 207-208 Mbit/s, 67-378 retr | 12-27 % |
+   Passed: 300 MiB random each way over ssh (sha256 23882de2... equal), ping sizes 0..65000 (fragmented) 0 loss,
+   flood ping 20000 x 1400 B twice 0 loss, ARP flush/relearn, IPv6 link-local multicast, promisc and allmulti on/off,
+   MTU 9000/1280/576/68/1500 (iperf unchanged afterwards; 576 drops 1228-B replies by the MAC limit, as the C),
+   DMA-API: 4091 streaming mappings while up (the 4 RX rings), 0 errors; no KFENCE/slub/lockdep/DMA-API reports.
+   FAILED: after stress-ng --vm 2 --vm-bytes 80% (40 s) the Rust driver stays degraded until reloaded (box_tx ~2
+   Mbit/s with the sender at 82-98 % CPU, box_rx 36 Mbit/s, RX length errors 157,788); in a second run the guard's
+   ping failed during the stress and nic-swap restored the C. Under fix (RX refill after allocation failure).
+   RX is ~40 % slower than the C (queue IRQs all on CPU0; the C spreads them).
+7. 23:46-23:51 nic-loops.sh with 0ck4xy39: 100 rmmod/insmod cycles + 100 ip link down/up cycles (10 every 10th load),
+   each followed by a network check (carrier, IPv4, gateway + workstation ping): all passed in 281 s, worst
+   load-to-network 1333 ms. Afterwards: 0 al_eth_rs DMA-API mappings left, DMA-API error_count 0, kmemleak only the
+   boot-time ramfs object (not ours), SUnreclaim 91.3 -> 91.4 MB, no WARN/BUG/KFENCE/lockdep line; C al_eth restored.
+8. 23:58-00:38 module xl5zmc37 (no NAPI spin on refill failure + IRQ affinity like the C): after stress-ng --vm 80%
+   no degradation (930/211 Mbit/s, 0 length errors). 40 min soak on the debug kernel with the Rust driver serving the
+   box (consoled etc.): ping 0 % loss every 2-4 min, SUnreclaim flat 91.2 MB, no checker report. Found: rx_bytes not
+   monotonic (raw 32-bit MAC counter, the C does the same) -> fixed in f48z7jgq (64-bit software counters).
+9. 00:41- trial T4 = release kernel (rustNet, no debug; w995znk4), C vs Rust f48z7jgq (GRO frags RX, ethtool -c/-C/-g/-S,
+   monotonic stats), iperf3 20 s, box = server:
+   | | box_tx single | box_rx single | box_rx 4 streams | idle ping avg/max/stddev |
+   | C al_eth | 934-938 Mbit/s, ~1415 retr | 844-940, 144-7185 retr | 941, 592 retr; pings fine | 0.206/2.685/0.220 ms |
+   | Rust al_eth_rs | 940-941 Mbit/s, 0 retr | 844-847, 4962-7634 retr | 847-852, 9-12k retr; 37 % ping loss | 0.180/0.303/0.055 ms |
+   ethtool -C adaptive off rx-usecs 0/50 and back on work (rx-usecs 50: CPU 66 -> 54 %, same throughput).
+   Open bug: under 4-stream RX load 12.8 % of the frames the MAC accepted are never delivered and not counted
+   (mac_rx_frames_ok +1,263,854 vs delivered +1,101,610): suspected NAPI completing with work pending; under fix.
+10. 01:12 T4: the 4-stream loss is not specific to Rust: on the same boot the C gave 847 Mbit/s / 11.5k retr under -P 4
+   too (its 941 earlier was the random RSS key spreading the flows better). New ethtool -S counters (m2f1xkf7) put the
+   drop in the Ethernet controller: ec_rfw_in_mac_drop == ec_udma0_msw_drop_sop, 20-48k frames per 15 s run;
+   msw_drop_q_full 0, rx_refill_short 0 (the rings never ran dry).
+11. 01:22 T3 (debug) with yl4r976s (GRO frags RX, NAPI decision in hal, C's TX queue selection): 100 unload/reload +
+   100 down/up in 288 s, worst load-to-network 1340 ms, 0 DMA-API mappings left, 0 errors, no checker report;
+   box_rx 350-356 Mbit/s on the debug kernel (was 208; the C 355), no degradation after stress-ng --vm 80 %, 300 MiB
+   sha256 equal. Regression: box_tx 685-989 retransmits per 20 s (0 before): the ported al_eth_select_queue
+   reorders flows across TX queues; being reverted (the core's queue pick keeps a flow on one queue).
+12. 01:37 T3 (debug), vk0w1s6g (= yl4r976s minus the select_queue port): box_tx 938 Mbit/s, 0-27 retr; box_rx 351-357
+   (C 355); idle ping 0.298 ms avg. 01:43 rebooted to the default generation (system-25, C drivers), request idle,
+   CPLD watchdog disarmed. Not yet run on the box: the same code for the release kernel (gx7v2h4p), and an hours-long soak.

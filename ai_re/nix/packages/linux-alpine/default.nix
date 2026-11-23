@@ -27,9 +27,40 @@
 # have it already (nixpkgs turns it on for aarch64 from 6.12); minimal gets it
 # with `rust = true` (opt-in: the default derivation is unchanged). Check with
 # `kernel.withRust`. See ../kernel-rust/README.md.
-{ pkgs, lib, boardConfig ? { }, variant ? "trimmed", rust ? false }:
+# Opt-in on top of `rust` (minimal only; defaults leave every derivation as it was):
+# - `rustNet`: the kernel-rust patch that binds netdevice.h/etherdevice.h/skbuff.h
+#   for Rust NIC drivers (the Rust al_eth, ../al-eth/rust/knet);
+# - `debug`: the memory/locking debug set for test kernels (`debugConfig` below;
+#   GCC-built, so KFENCE rather than KASAN: RUST needs CC_IS_CLANG for KASAN).
+{ pkgs, lib, boardConfig ? { }, variant ? "trimmed", rust ? false, rustNet ? false, debug ? false }:
+assert lib.assertMsg ((rustNet || debug) -> (rust && variant == "minimal"))
+  "linux-alpine: rustNet and debug need rust = true and variant = \"minimal\"";
 let
-  minimalKernel = pkgs.linux_latest.override {
+  # Test-kernel debug options (`debug = true`): what catches memory and
+  # locking bugs in driver code without KASAN (Kconfig: RUST depends on
+  # !KASAN || CC_IS_CLANG; these kernels are GCC builds). Boot with
+  # slub_debug=FZPU (and e.g. kfence.sample_interval=10) to turn SLUB checks on.
+  debugConfig = with lib.kernel; {
+    DEBUG_KERNEL = yes;
+    KALLSYMS_ALL = yes;
+    KFENCE = yes; # sampled guard-page allocations: OOB/UAF/double free
+    SLUB_DEBUG = yes; # red zones, poisoning, free checks (slub_debug=)
+    INIT_ON_FREE_DEFAULT_ON = yes;
+    DEBUG_KMEMLEAK = yes; # /sys/kernel/debug/kmemleak
+    DEBUG_LIST = yes;
+    PROVE_LOCKING = yes; # lockdep
+    DEBUG_ATOMIC_SLEEP = yes;
+    DEBUG_OBJECTS = yes;
+    DEBUG_OBJECTS_FREE = yes;
+    DEBUG_OBJECTS_TIMERS = yes;
+    DEBUG_OBJECTS_WORK = yes;
+    DMA_API_DEBUG = yes; # map/unmap pairing, sync and direction checks
+    DEBUG_NET = yes;
+    NET_DEV_REFCNT_TRACKER = yes;
+    RUST_DEBUG_ASSERTIONS = yes;
+    RUST_OVERFLOW_CHECKS = yes;
+  };
+  minimalKernel = pkgs.linux_latest.override ({
     defconfig = "allnoconfig";
     enableCommonConfig = false;
     autoModules = false;
@@ -265,8 +296,14 @@ let
       USB_NET_AX88179_178A = module;
     }
     // lib.optionalAttrs rust { RUST = yes; }
+    // lib.optionalAttrs debug debugConfig
     // boardConfig;
-  };
+  } // lib.optionalAttrs rustNet {
+    kernelPatches = pkgs.linux_latest.kernelPatches ++ [{
+      name = "rust-net-bindings-and-helpers";
+      patch = ../kernel-rust/0001-rust-net-bindings-and-helpers.patch;
+    }];
+  });
   # Foreign SoC families nixpkgs turns on for aarch64 (7.3.4 config, 2026-11-15);
   # their sub-options (R8A*, TEGRA_*_SOC, ...) depend on these.
   foreignArchs = [

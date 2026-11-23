@@ -20,11 +20,6 @@ in
       description = "Linux I2C bus of the CPLD (pinned by the board DT aliases).";
     };
     reboot = lib.mkEnableOption "full board reset through the CPLD on reboot" // { default = true; };
-    rebootDriver = lib.mkOption {
-      type = lib.types.enum [ "c" "rust" ];
-      default = "c";
-      description = "Implementation of the reboot module: packages/dmc12-cpld-reset (C) or its Rust twin (rust.nix; turns on hardware.alpineV2.kernelRust). Same module name, parameter and behaviour; only the C one has run on hardware.";
-    };
     interruptmon = {
       enable = lib.mkEnableOption "CPLD interrupt monitor (alarms + uplink re-sync)" // { default = true; };
       alarms = lib.mkOption {
@@ -37,15 +32,15 @@ in
 
   config = lib.mkMerge [
     (lib.mkIf cfg.reboot {
-      # Kernel reboot notifier (packages/dmc12-cpld-reset). u01 2026-11-15: a
+      # Kernel reboot notifier (packages/dmc12-cpld-reset, Rust). u01 2026-11-15: a
       # systemd-shutdown hook never ran in NixOS's exitrd, although the same
       # script run by hand resets the board (CPLD WDT flag 0x03 afterwards).
+      # The C module it replaced was deleted after the Rust one reset u01 through
+      # the CPLD in a trial boot (2026-11-23, devices/dmc-12-48r-as0/trial-boot-20261123.txt).
       boot.extraModulePackages = [
-        (if cfg.rebootDriver == "rust"
-         then config.boot.kernelPackages.callPackage ../../../../packages/dmc12-cpld-reset/rust.nix { }
-         else config.boot.kernelPackages.callPackage ../../../../packages/dmc12-cpld-reset { })
+        (config.boot.kernelPackages.callPackage ../../../../packages/dmc12-cpld-reset/rust.nix { })
       ];
-      hardware.alpineV2.kernelRust = lib.mkIf (cfg.rebootDriver == "rust") true;
+      hardware.alpineV2.kernelRust = true;   # the module is Rust
       boot.kernelModules = [ "dmc12_cpld_reset" ];
       boot.extraModprobeConfig = "options dmc12_cpld_reset bus=${toString cfg.bus}";
     })

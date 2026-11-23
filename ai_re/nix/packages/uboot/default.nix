@@ -38,6 +38,31 @@ let
     # not rebuild U-Boot.
     map (s: builtins.path { path = ./patches + "/${s.file}"; name = s.file; })
       (builtins.filter (s: builtins.elem s.scope wanted) series);
+  # The vendor files of those patches (series.nix), as a postPatch snippet that
+  # copies them in. Each source is a store path of just the listed files, so
+  # an edit elsewhere in that tree (e.g. the Linux glue of al-eth) does not
+  # rebuild U-Boot. "" when no wanted patch has any: builds without them keep
+  # their postPatch and drvPath.
+  vendorSrc = { al-eth = ../al-eth/src; };
+  vendorFor = wanted:
+    assert seriesOk;
+    lib.concatMapStrings (s:
+      let
+        v = s.vendor;
+        dir = vendorSrc.${v.from};
+        missing = builtins.filter (f: !builtins.pathExists (dir + "/${f}")) v.files;
+        src = builtins.path {
+          path = dir;
+          name = "uboot-${lib.removeSuffix ".patch" s.file}-vendor";
+          filter = p: _: builtins.elem (baseNameOf p) v.files;
+        };
+      in
+      assert lib.assertMsg (missing == [ ])
+        "uboot: ${s.file} vendors ${toString missing}, not in packages/${v.from}/src";
+      ''
+        cp ${lib.concatMapStringsSep " " (f: "${src}/${f}") v.files} ${v.into}/
+      '')
+      (builtins.filter (s: s ? vendor && builtins.elem s.scope wanted) series);
   # Same bytes from any build host, for every board: CC_VERSION_STRING would carry the cross
   # prefix ("aarch64-unknown-linux-gnu-gcc (GCC) ..." vs "gcc (GCC) ..." natively) and shift the
   # whole image. dmc12-firmware pins its payload by sha256, so this is load-bearing there.
@@ -59,7 +84,7 @@ let
   # and u-boot.bin is also wrapped as a kernel-type legacy uImage: the vendor
   # "bootm" then enters us like Linux (MMU and caches off, EL2, x0 = its
   # DTB); -T standalone would not.
-  mkAlpine = { patches, loadAddr, postInstall ? "" }:
+  mkAlpine = { patches, loadAddr, vendor ? "", postInstall ? "" }:
     { defconfig, dtsName, dts, extraConfig ? "", uimageName }:
     (pkgs.pkgsCross.aarch64-multiplatform.buildUBoot {
       inherit defconfig extraConfig;
@@ -69,7 +94,7 @@ let
     }).overrideAttrs (o: {
       postPatch = o.postPatch + ''
         cp ${dts} arch/arm/dts/${dtsName}.dts
-      '' + reproducibleVersion;
+      '' + vendor + reproducibleVersion;
       postInstall = ''
         ./tools/mkimage -A arm64 -O linux -T kernel -C none \
           -a ${loadAddr} -e ${loadAddr} -n "${uimageName}" \
@@ -179,7 +204,7 @@ let
   };
 in {
   # For other boards: the builders, the series and the release it is for.
-  lib = { inherit mk mkAlpine series scopes patchesFor reproducibleVersion version; };
+  lib = { inherit mk mkAlpine series scopes patchesFor vendorFor reproducibleVersion version; };
 
   # Stock reference-board NOR image. Build-only; never flash (VID on).
   t2080rdb-nor = mk { defconfig = "T2080RDB_defconfig"; };

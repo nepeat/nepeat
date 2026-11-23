@@ -20,6 +20,10 @@
 # at one spot of drivers/pci/Makefile, so 0030 does not apply after 0017).
 # Pure data, no pkgs: ./variants.nix reads it too. patchesFor checks that it
 # lists exactly the files of ./patches, numbered 0001.. in this order.
+# vendor: files a patch needs but does not carry, because ai_re already holds
+# them elsewhere (one copy): `from` names the source tree (vendorSrc in
+# ./default.nix), copied into `into` after all patches by vendorFor. No
+# later patch may edit them (they are not there yet when patches apply).
 [
   { scope = "t208x"; file = "0001-mpc85xx-optionally-skip-CCSR-relocation-for-chainloa.patch"; }
   { scope = "t208x"; file = "0002-board-t208xrdb-honour-CONFIG_VID-and-CONFIG_PCI.patch"; }
@@ -36,7 +40,39 @@
   { scope = "as7760"; file = "0013-board-t208xrdb-Accton-AS7760-32X-board-identity.patch"; }
   { scope = "alpine-v2"; file = "0014-arm-add-a-chainloaded-Annapurna-Labs-Alpine-V2-targe.patch"; }
   { scope = "alpine-v2"; file = "0015-board-alpine-v2-hand-the-al_eth-board-params-and-MAC.patch"; }
-  { scope = "alpine-v2"; file = "0016-net-add-the-Annapurna-Labs-Alpine-V2-integrated-Ethe.patch"; }
+  { scope = "alpine-v2"; file = "0016-net-add-the-Annapurna-Labs-Alpine-V2-integrated-Ethe.patch";
+    # The HAL the driver builds on, not in the patch: copied unmodified from
+    # packages/al-eth/src (the one al_eth source tree) after patching.
+    vendor = {
+      from = "al-eth";
+      into = "drivers/net/al_eth";
+      files = [
+        "al_hal_common.h"
+        "al_hal_eth.h"
+        "al_hal_eth_alu.h"
+        "al_hal_eth_ec_regs.h"
+        "al_hal_eth_mac_regs.h"
+        "al_hal_eth_main.c"
+        "al_hal_iofic.c"
+        "al_hal_iofic.h"
+        "al_hal_iofic_regs.h"
+        "al_hal_reg_utils.h"
+        "al_hal_types.h"
+        "al_hal_udma.h"
+        "al_hal_udma_config.c"
+        "al_hal_udma_config.h"
+        "al_hal_udma_iofic.c"
+        "al_hal_udma_iofic.h"
+        "al_hal_udma_iofic_regs.h"
+        "al_hal_udma_main.c"
+        "al_hal_udma_regs.h"
+        "al_hal_udma_regs_gen.h"
+        "al_hal_udma_regs_m2s.h"
+        "al_hal_udma_regs_s2m.h"
+        "al_hal_unit_adapter_regs.h"
+      ];
+    };
+  }
   { scope = "alpine-v2"; file = "0017-pci-add-the-Annapurna-Labs-Alpine-V2-external-PCIe-r.patch"; }
   { scope = "alpine"; file = "0018-spi-designware-Annapurna-Alpine-chip-select-override.patch"; }
   { scope = "spi-nor-ro"; file = "0019-mtd-spi-read-only-SPI-NOR-with-an-optional-write-win.patch"; }

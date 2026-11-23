@@ -1,8 +1,9 @@
-# The DMC-12 CPLD board reset in Rust (./rust): same module name, parameter and
-# behaviour as the C module of ./default.nix, which stays the default. Needs a
+# The DMC-12 CPLD board reset in Rust (./rust): the module the board uses
+# (boards/dmc12/cpld). It replaced a C module (deleted 2026-11-23 after this one
+# reset u01 through the CPLD; same module name, parameter and behaviour). Needs a
 # kernel with CONFIG_RUST (linux-alpine: `rust = true`; NixOS:
 # hardware.alpineV2.kernelRust). The build runs the sequence logic's unit tests on
-# the build host; ../kernel-rust runs both modules in QEMU. Notes and unsafe inventory: ../kernel-rust/README.md.
+# the build host; ../kernel-rust runs it in QEMU against the C module's recorded behaviour. Notes and unsafe inventory: ../kernel-rust/README.md.
 { lib, stdenv, kernel, buildPackages }:
 assert lib.assertMsg (kernel.withRust or false)
   "dmc12-cpld-reset-rs: kernel ${kernel.name} is built without CONFIG_RUST";

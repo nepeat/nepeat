@@ -9,7 +9,8 @@
 #  eth-params: ./eth-test, the al_eth board-params/MAC handoff encoding of
 #          include/alpine_v2_eth.h (from the patch series) against the
 #          Annapurna HAL in ../../al-eth/src, compiled for the host; and
-#          the HAL copy inside the driver patch is verbatim.
+#          the driver patch carries no HAL copy (only the two platform
+#          shims): the build vendors it from ../../al-eth/src.
 #  qemu:   ./qemu-test.py on QEMU virt with the same board code.
 #  selfinit: dmc12-selfinit (external PCIe init, MUIO/GPIO/CCU, SPI NOR
 #          read-only except the env window): config, linked/absent code
@@ -135,24 +136,21 @@ let
     mkdir ub; (cd ub && patch -s -p1 < ../header.diff)
     cp ub/include/alpine_v2_eth.h hal/
 
-    # The HAL in the U-Boot patch is the Linux driver's, byte for byte,
-    # apart from the two platform shims.
+    # The U-Boot patches carry only the two platform shims of the HAL; the
+    # rest is copied in from packages/al-eth/src (series.nix vendor), so
+    # there is one copy in the repo. A HAL file back in a patch fails here.
     for p in ${toString alpine.patches}; do
       filterdiff -i '*/drivers/net/al_eth/al_hal_*' "$p"
     done > hal.diff
     mkdir uh; (cd uh && patch -s -p1 < ../hal.diff)
-    n=0
-    for f in uh/drivers/net/al_eth/al_hal_*; do
-      b=$(basename $f)
-      case $b in al_hal_plat_services.h|al_hal_plat_types.h) continue;; esac
-      cmp -s $f $hal/$b || { echo "hal: $b differs from packages/al-eth/src"; exit 1; }
-      n=$((n + 1))
-    done
-    [ $n -ge 20 ] || { echo "hal: only $n files"; exit 1; }
-    echo "hal: ok ($n files in the U-Boot patch identical to packages/al-eth/src)"
+    [ "$(ls uh/drivers/net/al_eth | tr '\n' ' ')" = "al_hal_plat_services.h al_hal_plat_types.h " ] || \
+      { echo "hal: patch files besides the shims:"; ls uh/drivers/net/al_eth; exit 1; }
+    n=$(grep -o '/al_hal_[a-z0-9_]*\.[ch]' <<<'${alpine.vendor}' | wc -l)
+    [ $n -ge 20 ] || { echo "hal: only $n vendored files"; exit 1; }
+    echo "hal: ok ($n HAL files vendored from packages/al-eth/src, none in the patches)"
     $CC -O1 -Wall -Werror -Wno-unused-function -Ihal -o t $test/eth-params-test.c -lz
     ./t | tee log.txt
-    echo "hal: ok ($n files verbatim)" >> log.txt
+    echo "hal: ok ($n files vendored from packages/al-eth/src)" >> log.txt
     mkdir $out; cp log.txt $out/
   '';
 
@@ -413,7 +411,7 @@ let
     filesToInstall = [ "u-boot" "u-boot.dtb" ".config" ];
   }).overrideAttrs (o: {
     pname = "uboot-sandbox-spi-window";
-    postPatch = o.postPatch + alpine.reproducibleVersion + ''
+    postPatch = o.postPatch + alpine.vendor + alpine.reproducibleVersion + ''
       cp ${./sandbox-window/sfwtest.c} cmd/sfwtest.c
       echo 'obj-$(CONFIG_SANDBOX) += sfwtest.o' >> cmd/Makefile
       substituteInPlace arch/sandbox/dts/sandbox.dtsi \

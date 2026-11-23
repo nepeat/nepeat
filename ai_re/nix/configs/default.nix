@@ -46,8 +46,6 @@ let
   dmc12Netboot = mkHost "aarch64-linux" [
     ./dmc12/configuration.nix ../modules/profiles/netboot-root.nix { boot.loader.grub.enable = false; }
   ];
-  # Same system on the Rust-enabled kernel with the Rust CPLD reset module (opt-in, not deployed).
-  dmc12Rust = dmc12.extendModules { modules = [ { hardware.dmc12.cpld.rebootDriver = "rust"; } ]; };
   dmc12NetbootFiles = import ../packages/dmc12-images/netboot-files.nix { pkgs = native; config = dmc12Netboot.config; };
 
   # --- Edgecore AS5114-48X (Armada 7040) -----------------------------------
@@ -60,7 +58,6 @@ in {
     as5114-sd-image = as5114.config.system.build.sdImage;
     dmc12-system = dmc12.config.system.build.toplevel;
     dmc12-kernel = dmc12.config.boot.kernelPackages.kernel;
-    dmc12-rust-system = dmc12Rust.config.system.build.toplevel;
     dmc12-dtbs = dmc12.config.system.build.alpineDtbs;
     dmc12-disk-image = dmc12.config.system.build.diskImage;
     dmc12-disk-image-chainload = dmc12Chainload.config.system.build.diskImage;

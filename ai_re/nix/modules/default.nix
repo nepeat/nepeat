@@ -9,6 +9,7 @@
   profile-rebuildable = ./profiles/rebuildable.nix;
   profile-systemd-minimal = ./profiles/systemd-minimal.nix;
   profile-netboot-root = ./profiles/netboot-root.nix;
+  profile-trial-boot = ./profiles/trial-boot;   # one-shot trial boots with automatic revert (U-Boot standard boot)
   platform-qoriq-t2080 = ./platforms/qoriq-t2080.nix;
   platform-armada-7040 = ./platforms/armada-7040.nix;
   thermal-as7760-fan = ./thermal/as7760-fan.nix;

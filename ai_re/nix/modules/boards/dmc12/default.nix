@@ -13,6 +13,7 @@
     ./uboot-env     # fw_printenv + dmc12-uboot-env (our U-Boot's env window in SPI)
     ./firmware      # dmc12-firmware: our U-Boot into the IPXE slots + BOOT_MODE, from Linux
     ./console-server.nix   # consoled: the 48 serial ports over ssh
+    ./trial-boot.nix       # board hooks for profile-trial-boot (only when a system enables it)
   ];
 
   # Stage 1 is plain ext4 on the SSD: no LVM, no LUKS unlock via TPM2/FIDO2 (they pull in

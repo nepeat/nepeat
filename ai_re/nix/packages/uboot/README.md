@@ -17,6 +17,13 @@ stacking follow-ups. That way a U-Boot bump means rebasing each goal once. Prefe
 edits of upstream ones. A refactor of the series must be byte-neutral: same `u-boot.bin` sha256
 (or same drvPath) for every affected build.
 
+Vendor code ai_re already holds elsewhere stays out of the patches: a `series.nix` entry's
+`vendor` names the files, and `vendorFor` (`default.nix`) copies them into the tree after all
+patches (store path of just those files, so other edits there do not rebuild U-Boot). Today: 0016
+takes 23 HAL files from `packages/al-eth/src` (the one al_eth tree, also built for the DMC-12 and
+CS8210 kernels). To work on 0016 in a git tree, apply the series and `cp` those files in first;
+leave them out of `git format-patch` again.
+
 | # | scope | goal |
 |---|---|---|
 | 0001, 0007 | t208x | chainloading: keep CCSR where it is; restart secondaries from our boot page |
@@ -26,7 +33,7 @@ edits of upstream ones. A refactor of the series must be byte-neutral: same `u-b
 | 0005, 0006, 0010, 0013 | as7760 | AS7760-32X: SPD test hack, control-tree DT, factory DDR setup, board identity |
 | 0014 | alpine-v2 | chainloaded / stage3-app Alpine V2 target (incl. in-place initrd/FDT boot) |
 | 0015 | alpine-v2 | al_eth board params + MAC handed to Linux |
-| 0016 | alpine-v2 | al_eth driver (Annapurna HAL, ~22 k lines vendor code) |
+| 0016 | alpine-v2 | al_eth driver; its Annapurna HAL (23 files, ~22 k lines) is not in the patch but `vendor`ed from `packages/al-eth/src` at build time |
 | 0017 | alpine-v2 | external PCIe root complex (Annapurna HAL, ~19 k lines vendor code) |
 | 0018 | alpine | DW SSI: Alpine CS override; deselect before the controller init and each transfer |
 | 0019 | spi-nor-ro | read-only SPI NOR with an optional write window (env), exact opcode allowlist (generic; scope was `alpine` until 2026-11-18, same drvPaths) |

@@ -9,7 +9,10 @@
 # copied into arch/arm/dts at build time; U-Boot-only nodes live in the
 # patch series' <board>-u-boot.dtsi.
 let
-  patches = uboots.lib.patchesFor [ "alpine" "spi-nor-ro" "alpine-v2" "dmc12" ];
+  scopes = [ "alpine" "spi-nor-ro" "alpine-v2" "dmc12" ];
+  patches = uboots.lib.patchesFor scopes;
+  # 0016's HAL, from packages/al-eth/src (series.nix vendor).
+  vendor = uboots.lib.vendorFor scopes;
   # Link/load address: the vendor "loadaddr". Below it: the vendor U-Boot
   # (relocated to 0x03F0A000, stack ~0x03B04CD0), its DTB copy at
   # 0x04078000, firmware at 0x0 and 0x02000000. Above it: vendor initrd
@@ -88,11 +91,11 @@ let
     # CONFIG_CMD_XIMG is not set
   '';
 
-  mk = uboots.lib.mkAlpine { inherit patches loadAddr; };
+  mk = uboots.lib.mkAlpine { inherit patches vendor loadAddr; };
   inherit (uboots.lib) version;
   alboot = builtins.path { path = ../../alboot/alboot.py; name = "alboot.py"; };
 in rec {
-  inherit loadAddr patches;
+  inherit loadAddr patches vendor;
   inherit (uboots.lib) reproducibleVersion;
 
   # RAM-only second stage for the DMC-12. Never flashed.

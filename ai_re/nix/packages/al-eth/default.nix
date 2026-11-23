@@ -3,8 +3,10 @@
 # copy is the CS8210's patched one (nepeat/nix/nixos/module/cs8210, 9e23110):
 # SPEED_UNKNOWN reopen fix, C22 MDIO accessors, carrier from MAC link status
 # for ports with no PHY/LM, minimal ethtool ops, and a rev 4 -> 2 mapping
-# guarded to v3 parts. The CS8210 module still carries its own copy; move it
-# here when that board joins ai_re/nix.
+# guarded to v3 parts; since b9a74d0 also the al_eth_close() guard for ports
+# whose link task was never set up. The one copy in the repo: the DMC-12 and
+# the CS8210 (nepeat/nix nixos/module/cs8210/kernel.nix) build this package,
+# and U-Boot's patch 0016 vendors its HAL files from ./src (uboot/series.nix).
 #   pkgs.callPackage ./al-eth { kernel = config.boot.kernelPackages.kernel; }
 { lib, stdenv, kernel }:
 stdenv.mkDerivation {

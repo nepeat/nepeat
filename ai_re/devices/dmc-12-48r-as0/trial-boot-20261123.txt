@@ -1,0 +1,99 @@
+DMC-12 u01 (10.60.2.10): trial boot + auto-revert proof, 2026-11-23 (UTC 05:27-05:47; box clock PST)
+Mechanism: nix/modules/profiles/trial-boot (+ boards/dmc12/trial-boot.nix). Default generation throughout:
+system-25 n9dacdhh (unchanged, never re-deployed). Trial T1 = git HEAD 79e306a dmc12 + trial-boot module
+(q997a5sc; closure diff vs HEAD's dmc12: only trial-boot, its unit). T2 = T1 + hardware.dmc12.cpld.rebootDriver = "rust"
+(9mk4qpn0; Rust-enabled minimal kernel, Rust dmc12_cpld_reset).
+One-time loader setup (trial-boot setup): /boot/boot.scr (1551 B, sha256 204e7538) + U-Boot env bootmeths="script extlinux"
+(one dmc12-uboot-env write, 2026-11-22 21:27:09 PST, counter now 6 writes total; env window 0xf90000/0xfa0000 only).
+Per trial: closure copy (~12 MiB of SSD writes for T1), /var/lib/trial-boot/extlinux.conf (<1 KiB), one 512-B request
+sector (sda LBA 2047, before sda1 at 2048; all zero before) written by Linux, cleared by U-Boot. Nothing copied to /boot.
+
+| trial | what | outcome | timing (from 'stage --reboot') |
+| (i) T1 | as the current system | U-Boot: request cleared, CPLD WDT armed (174 ticks), sysboot from sda2 store; verifier: verified at 29 s kernel uptime, WDT disarmed; not promoted; manual reboot -> default (no request) | ssh up 37 s; back on default 37 s after reboot |
+| (ii) T1 + module_blacklist=al_eth | no NIC | verifier: "FAILED: after 180 s: no eth0", re-arm, reboot -> default | back on default (ssh) 228 s |
+| (ii') same, first attempt with a broken kick | verifier kicks did not reload the CPLD count (see finding 1) | the CPLD watchdog armed by U-Boot reset the whole board ~180 s after arming (stage2 banner, no shutdown): the hang backstop, proven by accident | back on default 231 s |
+| (iii) T1 + rdinit=/bogus | kernel panic before userspace | "VFS: Unable to mount root fs", "Rebooting in 10 seconds", sp805 reset, U-Boot: no request (+ disarm) -> default | back on default 45 s |
+| (iv) T2 | Rust-enabled kernel + Rust dmc12_cpld_reset | verified at 29 s; reboot: "dmc12_cpld_reset: board reset via CPLD" -> stage2 2.1 s later (full board reset, no fallback) -> default | ssh up 35 s; back 36 s |
+Every revert was unattended (no console input, no power cycle). History on the box: /var/lib/trial-boot/history.
+
+Findings
+1. CPLD watchdog (measured live): writing 0x29 while the count runs only sets the load value; writing 0x2a = 0 reloads
+   the count (the kick); 0x28 0->1 starts from the load value. cpld.md's "write = load" holds, but a kick is 0x2a.
+   Board hooks fixed (kick = 0x29 <- t, 0x2a <- 0). Side effect: the kick clears 0x2a b1 (fans-full after a WDT reset).
+2. dmc12_cpld_reset (C, and the Rust twin: same sequence) assumes 0x28 = 0: with the watchdog already running its
+   0x29<-1, 0x28<-1 does nothing and the kernel falls back to the sp805 after 2 s ("CPLD did not reset the board,
+   falling back", trial ii). Harmless here (SoC reset, U-Boot's script disarms the CPLD watchdog on the default path);
+   a robust sequence would write 0x28<-0 first (or kick 0x2a<-0 after 0x29<-1).
+3. The verifier must run with an explicit PATH (systemd units have none): caught by the NixOS VM test, not on the box.
+
+Tests before hardware: trial-boot-qemu-test (real alpine-v2 U-Boot + this boot.scr, 7 scenarios) and trial-boot-linux
+(NixOS VM: setup/stage/cancel/status/promote refusals, verifier pass and fail->reboot), both PASS.
+Serial capture (git-ignored): serial-trialboot-20261123.txt. Console excerpt (ANSI stripped):
+[21:27:24.201] ]3008;end=0bd724e2676642a8883e7a224a5e2357\]104\[547185.368315] dmc12-cpld-reset: board reset via CPLD
+[21:27:26.225] stage2_loader_k2 v2.60.3
+[21:27:28.561] U-Boot 2026.10-dmc12-selfinit (Jan 01 1980 - 00:00:00 +0000)
+[21:27:32.729] trial-boot: trial requested
+[21:27:32.745] trial-boot: request cleared
+[21:27:32.775] trial-boot: watchdog armed, booting the trial
+[21:27:32.779] Retrieving file: /var/lib/trial-boot/extlinux.conf
+[21:27:33.572] Starting kernel ...
+[21:28:35.623] ]3008;end=b2fe44e6b47143d3bedafa9e4bcd6bf3\]104\[   62.155807] dmc12-cpld-reset: board reset via CPLD
+[21:28:37.587] stage2_loader_k2 v2.60.3
+[21:28:39.915] U-Boot 2026.10-dmc12-selfinit (Jan 01 1980 - 00:00:00 +0000)
+[21:28:44.078] trial-boot: no request
+[21:28:47.714] Starting kernel ...
+[21:29:12.976] ]3008;end=dffbabb0bfda4a44b0a8489589f8f5d5\]104\[   25.349672] dmc12-cpld-reset: board reset via CPLD
+[21:29:15.307] stage2_loader_k2 v2.60.3
+[21:29:17.650] U-Boot 2026.10-dmc12-selfinit (Jan 01 1980 - 00:00:00 +0000)
+[21:29:21.824] trial-boot: trial requested
+[21:29:21.840] trial-boot: request cleared
+[21:29:21.870] trial-boot: watchdog armed, booting the trial
+[21:29:21.873] Retrieving file: /var/lib/trial-boot/extlinux.conf
+[21:29:22.669] Starting kernel ...
+[21:29:34.448] []0;root@dmc12: ~root@dmc12:~]# stage2_loader_k2 v2.60.3
+[21:32:34.375] U-Boot 2026.10-dmc12-selfinit (Jan 01 1980 - 00:00:00 +0000)
+[21:32:38.539] trial-boot: no request
+[21:32:42.175] Starting kernel ...
+[21:35:15.729] ]3008;end=140797efd0a54031b0e0ac1895a86507\]104\[  153.648026] dmc12-cpld-reset: board reset via CPLD
+[21:35:18.185] stage2_loader_k2 v2.60.3
+[21:35:20.520] U-Boot 2026.10-dmc12-selfinit (Jan 01 1980 - 00:00:00 +0000)
+[21:35:24.692] trial-boot: trial requested
+[21:35:24.706] trial-boot: request cleared
+[21:35:24.735] trial-boot: watchdog armed, booting the trial
+[21:35:24.739] Retrieving file: /var/lib/trial-boot/extlinux.conf
+[21:35:25.534] Starting kernel ...
+[21:38:37.079] ]3008;end=e3f7ab6b2cbe40a39d5fabcbf8b05083\]104\[  191.619727] dmc12-cpld-reset: board reset via CPLD
+[21:38:39.271] [  193.621234] dmc12-cpld-reset: CPLD did not reset the board, falling back
+[21:38:39.314] [  193.666215] reboot: Restarting system
+[21:38:39.362] stage2_loader_k2 v2.60.3
+[21:38:41.697] U-Boot 2026.10-dmc12-selfinit (Jan 01 1980 - 00:00:00 +0000)
+[21:38:45.873] trial-boot: no request
+[21:38:49.509] Starting kernel ...
+[21:39:04.250] ]3008;end=345aab2266714831967d174580c565df\]104\[   15.003411] dmc12-cpld-reset: board reset via CPLD
+[21:39:06.512] stage2_loader_k2 v2.60.3
+[21:39:08.839] U-Boot 2026.10-dmc12-selfinit (Jan 01 1980 - 00:00:00 +0000)
+[21:39:13.003] trial-boot: trial requested
+[21:39:13.019] trial-boot: request cleared
+[21:39:13.048] trial-boot: watchdog armed, booting the trial
+[21:39:13.053] Retrieving file: /var/lib/trial-boot/extlinux.conf
+[21:39:13.847] Starting kernel ...
+[21:39:15.275] [    1.305716] VFS: Cannot open root device "fstab" or unknown-block(0,0): error -19
+[21:39:15.384] [    1.305795] Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)
+[21:39:15.466] [    1.506333] Rebooting in 10 seconds..
+[21:39:25.515] stage2_loader_k2 v2.60.3
+[21:39:27.841] U-Boot 2026.10-dmc12-selfinit (Jan 01 1980 - 00:00:00 +0000)
+[21:39:32.014] trial-boot: no request
+[21:39:35.650] Starting kernel ...
+[21:45:11.128] ]3008;end=6f05ca73743f478e9373abd4f2970686\]104\[  335.599676] dmc12-cpld-reset: board reset via CPLD
+[21:45:13.407] stage2_loader_k2 v2.60.3
+[21:45:15.733] U-Boot 2026.10-dmc12-selfinit (Jan 01 1980 - 00:00:00 +0000)
+[21:45:19.898] trial-boot: trial requested
+[21:45:19.914] trial-boot: request cleared
+[21:45:19.944] trial-boot: watchdog armed, booting the trial
+[21:45:19.947] Retrieving file: /var/lib/trial-boot/extlinux.conf
+[21:45:20.901] Starting kernel ...
+[21:46:12.443] ]3008;end=3e36a983f1f74e6d8be5c24103e7e3e4\]104\[   51.616251] dmc12_cpld_reset: board reset via CPLD
+[21:46:14.561] stage2_loader_k2 v2.60.3
+[21:46:16.886] U-Boot 2026.10-dmc12-selfinit (Jan 01 1980 - 00:00:00 +0000)
+[21:46:21.052] trial-boot: no request
+[21:46:24.688] Starting kernel ...

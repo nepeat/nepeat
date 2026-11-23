@@ -1,0 +1,2 @@
+# fake_nic: knet's QEMU test module (fake_nic.rs + ../knet via #[path]).
+obj-m := fake_nic.o

@@ -1,0 +1,72 @@
+al_eth: C driver on the DMC-12 (hardware recording) vs the Rust HAL
+=====================================================================
+Date: 2026-11-23. Recording: dumps/al-eth-trace/trace-c-20261123.txt
+(sha256 921f075719f31ba28f30538f3d824ecc53d7e0d9f57f7233e36a3c6e65171852,
+48,912 records, 0 dropped; al_eth_trace on 0000:00:01.0, PCI revision 0x02:
+insmod, probe, open, DHCP, ~20 s of traffic). Box not touched for this.
+
+Method
+  nix/packages/al-eth/trace/parse.py <recording> -o hw.txt --datapath dp.txt
+  difftest --hw --board hw.txt   (nix/packages/al-eth/difftest/difftest.rs)
+  The control path (process context) becomes one replay scenario: the Rust
+  HAL runs the same calls, its register reads are answered with the values
+  the board returned (they must come in the same order at the same offsets),
+  and every write, PCI config access and delay must be identical. Inputs
+  taken from the recording: the 10 Toeplitz key words (get_random_bytes) and
+  the descriptor ring bus addresses (dma_alloc_coherent). Rx-mode calls run in
+  softirq context (netif_addr_lock_bh); their arguments are recovered from the
+  MAC table entries they wrote.
+
+Result: 0 differences.
+  calls replayed: probe 1, up (al_eth_open incl. its change_mtu) 1,
+  rx_mode 8 (all promisc 0, allmulti 0, multicast list non-empty, no
+  secondary unicast), stats 3 (5 earlier stats calls before open touch no
+  register and are skipped). 46,045 lines compared:
+    probe: 64 reads, 22,136 writes, 8 config reads, 12 config writes, 5 delays
+    open:  65 reads, 23,555 writes, 8 config reads, 12 config writes, 4 delays
+    stats: 96 reads
+  every hardware read was consumed by the Rust in order (no leftover, no
+  read the C did not make).
+
+Harness differences found while doing it (not driver differences):
+  - ring bus addresses: the replay first used its synthetic addresses
+    (queue DRBP/CRBP writes differed); now taken from the recording.
+  - Rx buffer refill: the replay first injected the simulated scenarios'
+    allocation failures (every 61st), so it posted 60 instead of 1023
+    buffers per queue (doorbell 0x3c vs 0x3ff); --board turns injection off.
+  - parse.py: al_eth_up_complete's own change_mtu mark is part of open; Rx
+    mode marks/EC writes in softirq context are calls, not datapath.
+
+The three C findings from code reading:
+  1. hdr_split_len_sel uninitialised in al_eth_config_rx_fwd: the C wrote
+     rfw.ctrl_table_def (EC +0x7ac) = 0x0000131c on this boot, bits 18:15 = 0:
+     the stack garbage happened to be 0, so C == Rust here. The bug is real
+     (uninitialised read) but latent in this build; not confirmed as harmful.
+  2. al_eth_mac_table_unicast_add ignores its address: not observable here
+     (no secondary unicast address was ever set: entries 1..3 untouched).
+     Stands from code reading only.
+  3. no dma_rmb on Rx completion: not visible in an MMIO recording (it is
+     about memory loads); n/a.
+
+PCI revision 0x02: confirmed by the recording too (probe ran as rev 2; the
+UDMA programming id register +0x1e084 reads 0x1c360002 = rev 2).
+
+New scenario from the recording: dmc12_board (difftest/scenarios.c): the
+first value of each of the 40 non-zero registers read at probe (UDMA
+revision, queue cfg/pointer reset values, M2S/S2M config defaults, EC/MAC
+defaults, board params, MAC address). It drives al_udma_set_defaults' rev >= 2
+branch (M2S data FIFO depth), which the zero-bank scenarios did not.
+C vs Rust: 27 scenarios, 13,198 calls, 1,936,443 lines, 0 differences.
+
+Data path (softirq context, not replayed: its inputs are DMA memory the
+recorder cannot see): 2,858 accesses, all UDMA:
+  701 x W u 1c058; 203 x W u 1c500; 203 x W u 11038; 203 x R u 1c500; 188 x W u 1c518; 188 x W u 14038; 188 x R u 1c518; 183 x W u 1c508; 183 x W u 12038; 183 x R u 1c508; 123 x W u 1c510; 123 x W u 13038; 123 x R u 1c510; 22 x W u 1c098; 10 x W u 04038; 10 x R u 0404c; 5 x W u 03038; 5 x W u 01038; 5 x R u 0304c; 5 x R u 0104c; 2 x W u 02038; 2 x R u 0204c;
+  = Rx/Tx interrupt unmask (main iofic group B/C mask-clear 0x1c058/0x1c098),
+  adaptive moderation (grp_int_mod 0x1c500..0x1c518 read-modify-write),
+  Rx refill doorbells (S2M queue drtp_inc 0x11038..0x14038), Tx doorbells
+  (M2S 0x01038..0x04038) and Tx completion head reads (crhp 0x0104c..). The
+  pattern matches the Rust TxQueue/RxQueue paths; their per-packet
+  equivalence is covered by the simulated tx_*/rx_* scenarios only.
+
+Not covered by this recording: close/down, remove, MTU change, promiscuous,
+allmulti, secondary unicast, set_mac.

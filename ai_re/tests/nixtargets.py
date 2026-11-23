@@ -183,8 +183,8 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     "as7760-sai-openbcm-rust-both": ("packages", "ppcSaiRustBoth", 0),
     "as7772-system-rust-both": ("systems", "as7772RustBoth.config.system.build.toplevel", 0),
     # Rust in the kernel (arm64): the DMC-12 kernel recipe with CONFIG_RUST (+ QEMU virt bits),
-    # dmc12-cpld-reset in C and in Rust against it (the Rust build runs its logic's unit tests),
-    # and both run in QEMU: Rust sample module loads, same SMBus writes and fallbacks, 4 scenarios.
+    # dmc12-cpld-reset in Rust (the build runs its logic's unit tests), run in QEMU: Rust sample
+    # module loads, the SMBus writes and fallbacks the deleted C module made, 4 scenarios.
     "kernel-rust": ("packages", 'import (src + "/packages/kernel-rust") { pkgs = p; }', 1),
     # Rust in the kernel on 64-bit big-endian powerpc (kernel-rust-ppc64be): the patch series
     # on the T2080 recipe (e6500, the hardware candidate) and a POWER8 pseries guest, the
@@ -194,6 +194,17 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     # al_eth pieces in Rust, host-tested: the board-parameter registers against 400k vectors
     # from the C HAL functions themselves; no_std, unsafe forbidden.
     "al-eth-rs": ("packages", 'p.callPackage (src + "/packages/al-eth/rust.nix") { }', 0),
+    # the C al_eth with every HAL register access recorded (/proc/al_eth_trace, module al_eth_trace),
+    # for the DMC-12's kernel: what captured the hardware trace the Rust HAL is diffed against
+    "al-eth-trace-dmc12": ("packages", '(np.lib.nixosSystem { specialArgs.aiReRust = null; modules = [ (src + "/modules/boards/dmc12") { nixpkgs.buildPlatform = "x86_64-linux"; nixpkgs.hostPlatform = "aarch64-linux"; boot.loader.grub.enable = false; fileSystems."/".device = "/dev/x"; system.stateVersion = "26.05"; } ]; }).config.boot.kernelPackages.callPackage (src + "/packages/al-eth/trace") { }', 0),
+    # profile-trial-boot: its boot.scr in the real alpine-v2 U-Boot on QEMU (7 scenarios: one-shot,
+    # panic, missing conf, watchdog arm failure, no script, bootmeths unset), and its Linux half
+    # (trial-boot CLI, verifier pass and fail -> reboot) in a NixOS VM
+    # the Rust al_eth module (packages/al-eth/rust-module.nix) against the debug net kernel: 100 load/unload
+    # cycles and a foreign-NIC probe refusal with no checker report (QEMU has no Alpine NIC: probe is not reached)
+    "al-eth-rs-qemu": ("packages", 'import (src + "/packages/al-eth/rust-qemu-test.nix") { pkgs = p; }', 0),
+    "trial-boot-qemu": ("packages", 'import (src + "/modules/profiles/trial-boot/test.nix") { pkgs = p; }', 0),
+    "vm-trial-boot-linux": ("vm", 'import (src + "/modules/profiles/trial-boot/test-linux.nix") { pkgs = p; }', 0),
     # Teralynx 7 libsai (CS8210), native build with its checkPhase.
     "sai-teralynx": ("packages", 'p.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }', 0),
     # qemu-user for Marvell's amd64 SAI on the CS8210 + its offline tests
@@ -299,7 +310,8 @@ PACKAGE_DIRS: dict[str, list[tuple]] = {
     "uboot": [("target", r"^path:uboot-")],
     # scripts, no derivation of their own; the stage3app builds run them
     "alboot": [("target", r"^path:uboot-dmc12-stage3app$"), ("target", r"^path:uboot-cs8210-stage3app$")],
-    "al-eth": [("closure", _DMC12, r"-al_eth-"), ("target", r"^extra:al-eth-rs$")],
+    "al-eth": [("closure", _DMC12, r"-al_eth-"), ("target", r"^extra:al-eth-rs$"), ("target", r"^extra:al-eth-rs-qemu$"),
+               ("target", r"^path:uboot-dmc12-chainload$")],   # U-Boot vendors its HAL files from al-eth/src
     "linux-alpine": [("target", r"^git:packages\.x86_64-linux\.dmc12-kernel$")],
     "linux-qoriq-t2080": [("target", r"^path:as7760-kernel$"), ("target", r"^path:as7760-kernel-image$"),
                           ("target", r"^extra:kernel-rust-ppc64be\.e6500$")],
@@ -339,6 +351,9 @@ TEST_FILES: dict[str, str] = {
     "packages/node-exporter-lite/test.nix": "output:node-exporter-lite-test",
     "packages/as7760-metrics/test.nix": "output:as7760-metrics-test",
     "packages/dmc12-metrics/test.nix": "output:dmc12-metrics-test",
+    "modules/profiles/trial-boot/test.nix": "extra:trial-boot-qemu",
+    "packages/al-eth/rust-qemu-test.nix": "extra:al-eth-rs-qemu",
+    "modules/profiles/trial-boot/test-linux.nix": "extra:vm-trial-boot-linux",
     "packages/qemu-ipd/tests/default.nix": "extra:qemu-ipd",
     "packages/kernel-rust-ppc64be/tests.nix": "extra:kernel-rust-ppc64be",
     "modules/switch/sonic/tests/common.nix": "none:shared switch config of the VM tests, not a test",

@@ -1,0 +1,422 @@
+From: ai_re <ai_re@localhost>
+Subject: [PATCH] rust: bindings and helpers for net_device, NAPI, sk_buff and
+ streaming DMA
+
+Adds linux/netdevice.h, etherdevice.h, skbuff.h and if_vlan.h to the Rust
+bindings and C helpers for the static inlines (and a few bitfield /
+anonymous-union field accessors of struct sk_buff) a NIC driver needs:
+netdev_priv, NAPI add/del/schedule/gro_receive, carrier and TX queue state,
+BQL, the TX queue lock, eth_hw_addr_set/random, skb head/frag/offload
+accessors, netdev_alloc_frag/skb_free_frag/skb_add_rx_frag, and
+dma_map_single/unmap_single/mapping_error/sync_single_for_{cpu,device}.
+No logic: every helper is a one-line call or field access, so bindgen
+checks every signature the driver uses.
+
+Used by the out-of-tree Rust al_eth (ai_re nix/packages/al-eth/rust/knet)
+on the opt-in Rust-enabled Alpine kernel only (linux-alpine rustNet = true).
+
+Scope: kernel-rust (7.3.4).
+---
+diff --color -ruN a/rust/bindings/bindings_helper.h b/rust/bindings/bindings_helper.h
+--- a/rust/bindings/bindings_helper.h
++++ b/rust/bindings/bindings_helper.h
+@@ -56,6 +56,7 @@
+ #include <linux/dma-mapping.h>
+ #include <linux/dma-resv.h>
+ #include <linux/errname.h>
++#include <linux/etherdevice.h>
+ #include <linux/ethtool.h>
+ #include <linux/fdtable.h>
+ #include <linux/file.h>
+@@ -63,6 +64,7 @@
+ #include <linux/fwctl.h>
+ #include <linux/fs.h>
+ #include <linux/i2c.h>
++#include <linux/if_vlan.h>
+ #include <linux/interrupt.h>
+ #include <linux/io-pgtable.h>
+ #include <linux/ioport.h>
+@@ -72,6 +74,7 @@
+ #include <linux/mdio.h>
+ #include <linux/mm.h>
+ #include <linux/miscdevice.h>
++#include <linux/netdevice.h>
+ #include <linux/of_device.h>
+ #include <linux/pci.h>
+ #include <linux/phy.h>
+@@ -87,6 +90,7 @@
+ #include <linux/sched.h>
+ #include <linux/security.h>
+ #include <linux/serdev.h>
++#include <linux/skbuff.h>
+ #include <linux/slab.h>
+ #include <linux/sys_soc.h>
+ #include <linux/task_work.h>
+diff --color -ruN a/rust/helpers/dma.c b/rust/helpers/dma.c
+--- a/rust/helpers/dma.c
++++ b/rust/helpers/dma.c
+@@ -49,3 +49,38 @@
+ {
+ 	dma_set_max_seg_size(dev, size);
+ }
++
++__rust_helper dma_addr_t rust_helper_dma_map_single_attrs(struct device *dev, void *ptr,
++							  size_t size,
++							  enum dma_data_direction dir,
++							  unsigned long attrs)
++{
++	return dma_map_single_attrs(dev, ptr, size, dir, attrs);
++}
++
++__rust_helper void rust_helper_dma_unmap_single_attrs(struct device *dev, dma_addr_t addr,
++						      size_t size,
++						      enum dma_data_direction dir,
++						      unsigned long attrs)
++{
++	dma_unmap_single_attrs(dev, addr, size, dir, attrs);
++}
++
++__rust_helper int rust_helper_dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
++{
++	return dma_mapping_error(dev, dma_addr);
++}
++
++__rust_helper void rust_helper_dma_sync_single_for_cpu(struct device *dev, dma_addr_t addr,
++						       size_t size,
++						       enum dma_data_direction dir)
++{
++	dma_sync_single_for_cpu(dev, addr, size, dir);
++}
++
++__rust_helper void rust_helper_dma_sync_single_for_device(struct device *dev, dma_addr_t addr,
++							  size_t size,
++							  enum dma_data_direction dir)
++{
++	dma_sync_single_for_device(dev, addr, size, dir);
++}
+diff --color -ruN a/rust/helpers/helpers.c b/rust/helpers/helpers.c
+--- a/rust/helpers/helpers.c
++++ b/rust/helpers/helpers.c
+@@ -75,6 +75,7 @@
+ #include "maple_tree.c"
+ #include "mm.c"
+ #include "mutex.c"
++#include "netdevice.c"
+ #include "net/genetlink.c"
+ #include "of.c"
+ #include "page.c"
+@@ -93,6 +94,7 @@
+ #include "security.c"
+ #include "serdev.c"
+ #include "signal.c"
++#include "skbuff.c"
+ #include "slab.c"
+ #include "spinlock.c"
+ #include "string.c"
+diff --color -ruN a/rust/helpers/netdevice.c b/rust/helpers/netdevice.c
+--- a/rust/helpers/netdevice.c
++++ b/rust/helpers/netdevice.c
+@@ -0,0 +1,136 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include <linux/etherdevice.h>
++#include <linux/netdevice.h>
++
++#ifdef CONFIG_NET
++
++__rust_helper void *rust_helper_netdev_priv(const struct net_device *dev)
++{
++	return netdev_priv(dev);
++}
++
++__rust_helper void rust_helper_netif_napi_add(struct net_device *dev,
++					      struct napi_struct *napi,
++					      int (*poll)(struct napi_struct *, int))
++{
++	netif_napi_add(dev, napi, poll);
++}
++
++__rust_helper void rust_helper_netif_napi_add_tx(struct net_device *dev,
++						 struct napi_struct *napi,
++						 int (*poll)(struct napi_struct *, int))
++{
++	netif_napi_add_tx(dev, napi, poll);
++}
++
++__rust_helper void rust_helper_netif_napi_del(struct napi_struct *napi)
++{
++	netif_napi_del(napi);
++}
++
++__rust_helper bool rust_helper_napi_schedule(struct napi_struct *n)
++{
++	return napi_schedule(n);
++}
++
++__rust_helper gro_result_t rust_helper_napi_gro_receive(struct napi_struct *napi,
++							struct sk_buff *skb)
++{
++	return napi_gro_receive(napi, skb);
++}
++
++__rust_helper bool rust_helper_netif_carrier_ok(const struct net_device *dev)
++{
++	return netif_carrier_ok(dev);
++}
++
++__rust_helper bool rust_helper_netif_running(const struct net_device *dev)
++{
++	return netif_running(dev);
++}
++
++__rust_helper struct netdev_queue *
++rust_helper_netdev_get_tx_queue(const struct net_device *dev, unsigned int index)
++{
++	return netdev_get_tx_queue(dev, index);
++}
++
++__rust_helper void rust_helper_netif_tx_stop_queue(struct netdev_queue *dev_queue)
++{
++	netif_tx_stop_queue(dev_queue);
++}
++
++__rust_helper bool rust_helper_netif_tx_queue_stopped(const struct netdev_queue *dev_queue)
++{
++	return netif_tx_queue_stopped(dev_queue);
++}
++
++__rust_helper void rust_helper_netif_tx_start_all_queues(struct net_device *dev)
++{
++	netif_tx_start_all_queues(dev);
++}
++
++__rust_helper void rust_helper_netif_tx_disable(struct net_device *dev)
++{
++	netif_tx_disable(dev);
++}
++
++__rust_helper void rust_helper_netdev_tx_sent_queue(struct netdev_queue *dev_queue,
++						    unsigned int bytes)
++{
++	netdev_tx_sent_queue(dev_queue, bytes);
++}
++
++__rust_helper void rust_helper_netdev_tx_completed_queue(struct netdev_queue *dev_queue,
++							 unsigned int pkts, unsigned int bytes)
++{
++	netdev_tx_completed_queue(dev_queue, pkts, bytes);
++}
++
++__rust_helper void rust_helper_netdev_tx_reset_queue(struct netdev_queue *q)
++{
++	netdev_tx_reset_queue(q);
++}
++
++__rust_helper void rust_helper___netif_tx_lock(struct netdev_queue *txq, int cpu)
++{
++	__netif_tx_lock(txq, cpu);
++}
++
++__rust_helper void rust_helper___netif_tx_unlock(struct netdev_queue *txq)
++{
++	__netif_tx_unlock(txq);
++}
++
++__rust_helper void rust_helper___netif_tx_lock_bh(struct netdev_queue *txq)
++{
++	__netif_tx_lock_bh(txq);
++}
++
++__rust_helper void rust_helper___netif_tx_unlock_bh(struct netdev_queue *txq)
++{
++	__netif_tx_unlock_bh(txq);
++}
++
++__rust_helper void rust_helper_eth_hw_addr_set(struct net_device *dev, const u8 *addr)
++{
++	eth_hw_addr_set(dev, addr);
++}
++
++__rust_helper void rust_helper_eth_hw_addr_random(struct net_device *dev)
++{
++	eth_hw_addr_random(dev);
++}
++
++__rust_helper void rust_helper_dev_kfree_skb_any(struct sk_buff *skb)
++{
++	dev_kfree_skb_any(skb);
++}
++
++__rust_helper void rust_helper_dev_consume_skb_any(struct sk_buff *skb)
++{
++	dev_consume_skb_any(skb);
++}
++
++#endif /* CONFIG_NET */
+diff --color -ruN a/rust/helpers/skbuff.c b/rust/helpers/skbuff.c
+--- a/rust/helpers/skbuff.c
++++ b/rust/helpers/skbuff.c
+@@ -0,0 +1,163 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include <linux/if_vlan.h>
++#include <linux/skbuff.h>
++#include <linux/tcp.h>
++
++#ifdef CONFIG_NET
++
++__rust_helper unsigned int rust_helper_skb_headlen(const struct sk_buff *skb)
++{
++	return skb_headlen(skb);
++}
++
++__rust_helper struct skb_shared_info *rust_helper_skb_shinfo(const struct sk_buff *skb)
++{
++	return skb_shinfo(skb);
++}
++
++__rust_helper bool rust_helper_skb_is_gso(const struct sk_buff *skb)
++{
++	return skb_is_gso(skb);
++}
++
++__rust_helper void rust_helper_skb_record_rx_queue(struct sk_buff *skb, u16 rx_queue)
++{
++	skb_record_rx_queue(skb, rx_queue);
++}
++
++__rust_helper u16 rust_helper_skb_get_queue_mapping(const struct sk_buff *skb)
++{
++	return skb_get_queue_mapping(skb);
++}
++
++__rust_helper void rust_helper_skb_set_hash(struct sk_buff *skb, __u32 hash,
++					    enum pkt_hash_types type)
++{
++	skb_set_hash(skb, hash, type);
++}
++
++__rust_helper void rust_helper_skb_reserve(struct sk_buff *skb, int len)
++{
++	skb_reserve(skb, len);
++}
++
++__rust_helper unsigned int rust_helper_skb_frag_size(const skb_frag_t *frag)
++{
++	return skb_frag_size(frag);
++}
++
++__rust_helper unsigned int rust_helper_skb_frag_off(const skb_frag_t *frag)
++{
++	return skb_frag_off(frag);
++}
++
++__rust_helper struct page *rust_helper_skb_frag_page(const skb_frag_t *frag)
++{
++	return skb_frag_page(frag);
++}
++
++__rust_helper int rust_helper_skb_transport_offset(const struct sk_buff *skb)
++{
++	return skb_transport_offset(skb);
++}
++
++__rust_helper int rust_helper_skb_network_offset(const struct sk_buff *skb)
++{
++	return skb_network_offset(skb);
++}
++
++__rust_helper void rust_helper_skb_tx_timestamp(struct sk_buff *skb)
++{
++	skb_tx_timestamp(skb);
++}
++
++__rust_helper void *rust_helper_netdev_alloc_frag(unsigned int fragsz)
++{
++	return netdev_alloc_frag(fragsz);
++}
++
++__rust_helper void rust_helper_skb_free_frag(void *addr)
++{
++	skb_free_frag(addr);
++}
++
++__rust_helper void rust_helper_skb_add_rx_frag(struct sk_buff *skb, int i,
++					       struct page *page, int off, int size,
++					       unsigned int truesize)
++{
++	skb_add_rx_frag(skb, i, page, off, size, truesize);
++}
++
++__rust_helper struct page *rust_helper_virt_to_head_page(const void *x)
++{
++	return virt_to_head_page(x);
++}
++
++__rust_helper void rust_helper___vlan_hwaccel_put_tag(struct sk_buff *skb,
++						      __be16 vlan_proto, u16 vlan_tci)
++{
++	__vlan_hwaccel_put_tag(skb, vlan_proto, vlan_tci);
++}
++
++__rust_helper int rust_helper_skb_checksum_start_offset(const struct sk_buff *skb)
++{
++	return skb_checksum_start_offset(skb);
++}
++
++__rust_helper unsigned int rust_helper_tcp_hdrlen(const struct sk_buff *skb)
++{
++	return tcp_hdrlen(skb);
++}
++
++/*
++ * Field accessors: ip_summed is a bitfield and protocol/csum_offset sit in
++ * anonymous unions (struct_group), which bindgen exposes only through
++ * config-dependent generated names.
++ */
++__rust_helper u8 rust_helper_skb_ip_summed(const struct sk_buff *skb)
++{
++	return skb->ip_summed;
++}
++
++__rust_helper void rust_helper_skb_set_ip_summed(struct sk_buff *skb, u8 ip_summed)
++{
++	skb->ip_summed = ip_summed;
++}
++
++__rust_helper u16 rust_helper_skb_csum_offset(const struct sk_buff *skb)
++{
++	return skb->csum_offset;
++}
++
++__rust_helper __be16 rust_helper_skb_protocol(const struct sk_buff *skb)
++{
++	return skb->protocol;
++}
++
++__rust_helper void rust_helper_skb_set_protocol(struct sk_buff *skb, __be16 protocol)
++{
++	skb->protocol = protocol;
++}
++
++__rust_helper bool rust_helper_skb_vlan_tag_present(const struct sk_buff *skb)
++{
++	return skb_vlan_tag_present(skb);
++}
++
++__rust_helper u16 rust_helper_skb_vlan_tag_get(const struct sk_buff *skb)
++{
++	return skb_vlan_tag_get(skb);
++}
++
++__rust_helper unsigned int rust_helper_skb_tailroom(const struct sk_buff *skb)
++{
++	return skb_tailroom(skb);
++}
++
++__rust_helper void *rust_helper_page_address(const struct page *page)
++{
++	return page_address(page);
++}
++
++#endif /* CONFIG_NET */

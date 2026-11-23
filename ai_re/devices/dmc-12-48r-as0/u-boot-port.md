@@ -41,7 +41,8 @@ network stack); result links `nixos-build/result-uboot-dmc12-eth-{a,b}`.
   - 0017 `alpine-v2`: initrd and FDT used in place (`fdt_high`/`initrd_high`).
   - 0018 `alpine-v2`: al_eth board params + MAC handoff before Linux, `aleth` command.
   - 0019 `dmc12`: the port's DT node (00:01.0, rgmii fixed-link 1000, EEPROM MAC).
-  - 0020 `alpine-v2`: the al_eth network driver (HAL copied verbatim from `packages/al-eth/src`).
+  - 0020 `alpine-v2`: the al_eth network driver (HAL unmodified from `packages/al-eth/src`; since
+    2026-11-23 not in the patch (now 0016) but copied in at build time, `vendor` in `series.nix`).
   - 0021 `dmc12`: network on in the defconfig, no ethernet bootdev.
   - 0022–0028: the [self-init build](#self-init-build-pcie-muio-ccu-read-only-spi-ram-tested-on-u01)
     (external PCIe RC, Alpine SSI CS override, read-only SPI NOR, MUIO/CCU, DT bits).
@@ -65,7 +66,8 @@ network stack); result links `nixos-build/result-uboot-dmc12-eth-{a,b}`.
     DMC-12 params `60000001 00000004 00000000`, 20000 random param sets through
     `al_eth_board_params_set/get`, MACs through `al_eth_mac_addr_store/read`, and the
     ONIE TLV parser (the CRC convention was also checked by hand on the u01 EEPROM
-    dump). Also: the 23 HAL files inside patch 0020 are byte-identical to `packages/al-eth/src`.
+    dump). Also: patch 0016 (old 0020) carries only the two HAL platform shims; the 23
+    HAL files come from `packages/al-eth/src` at build time (series.nix `vendor`).
   - **qemu-virt:** the same patches and board code on `virt,highmem=off,virtualization=on`
     (Cortex-A57, EL2), with a test DT ([qemu-virt.dts](../../nix/packages/uboot/alpine-v2/qemu-virt.dts)).
     1. Entered like the vendor `bootm`: MMU off, x0 = DTB.
