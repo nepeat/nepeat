@@ -60,7 +60,7 @@ in
       };
     };
     assertions = [{
-      assertion = config.hardware.dmc12.bootLoader == "standard";
+      assertion = (config.hardware.dmc12.bootLoader or null) == "standard";
       message = "dmc12 trial-boot needs hardware.dmc12.bootLoader = \"standard\" (our U-Boot's standard boot)";
     }];
   };

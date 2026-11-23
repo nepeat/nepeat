@@ -158,6 +158,18 @@ Phase 1
 - [x] unpack offline: GPT, both ext4 (debugfs, read-only), all 4 uImages, both initramfs
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
+### 2026-11-23: Rust al_eth and Rust CPLD reset are the default; trial boots with auto-revert
+- **Runs now:** system-26 (`jz6cgwn3`): Rust-enabled kernel, NIC driver `al_eth` version `0.2-rust` (`nix/packages/al-eth/rust`),
+  Rust `dmc12_cpld_reset`. Rollback: system-25 (C drivers) in the boot menu. The vendor C al_eth tree stays in the repo
+  (CS8210 modes, U-Boot HAL, unreached code retained) but nothing here loads it.
+- **Proof:** guarded live swaps, then a 3 h soak on the release kernel: 0 % ping loss, 12/12 transfer checksums, TX
+  939-944 Mbit/s with 0 retransmits, error counters 0, slab flat; promoted with `trial-boot promote`:
+  [al-eth-rs-hw-20261123.txt](al-eth-rs-hw-20261123.txt), [soak-al-eth-rs-20261123.txt](soak-al-eth-rs-20261123.txt).
+- **Trial boots:** `trial-boot` (one-shot generation, network verifier, CPLD watchdog backstop; reverts by itself):
+  [trial-boot-20261123.txt](trial-boot-20261123.txt). Tools: [nic-swap.sh](nic-swap.sh), [net-guard.sh](net-guard.sh).
+- **Cost on record:** the driver's kernel abstraction layer has about 155 unsafe blocks (7.3 and 7.4 have no Rust
+  net_device/NAPI/skb/ethtool APIs); the hardware layer has none.
+
 ## Log (newest first)
 - 2026-11-16 14:05: **p01 runs our U-Boot from SPI.** Forge 41a06a5 (lock c337363) deployed by comin, one reboot
   for the DT windows (status: factory, IPXE 0/1 blank, pins match, disk `both`), `dmc12-firmware install` (owner)

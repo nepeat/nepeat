@@ -18,5 +18,17 @@
   ];
 
   environment.systemPackages = [ pkgs.picocom pkgs.tio ];
+  # The NIC driver is the Rust al_eth (packages/al-eth/rust-module.nix; Rust-enabled kernel with the
+  # net bindings). Promoted on u01 2026-11-23 (system-26) after a trial boot and a 3 h soak of this
+  # exact system on the release kernel (devices/dmc-12-48r-as0/al-eth-rs-hw-20261123.txt,
+  # soak-al-eth-rs-20261123.txt); the C module stays available as ethDriver = "c" (system-25 = rollback).
+  hardware.alpineV2.ethDriver = "rust";
+  # One-shot trial boots with automatic revert (modules/profiles/trial-boot): the verifier pings the
+  # gateway and the lab workstation. Only where our U-Boot's standard boot reads the disk (not the
+  # netboot system, not the chainload layout).
+  system.trialBoot = {
+    enable = lib.mkDefault ((config.hardware.dmc12.bootLoader or null) == "standard");
+    verify.hosts = [ "10.60.2.208" ];
+  };
   # eth0 (al_eth, RGMII to the uplink PHY pair: 1G copper or SFP) is the management port: ../lab-access.nix.
 }
