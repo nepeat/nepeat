@@ -77,6 +77,20 @@
 
 ## Log
 
+### 2026-11-23 (2): Rust-enabled kernel and Rust fan driver are the default; the C fan driver is deleted
+- **Running:** generation 31 (`na3yx1c2`): the 47c0012 system + Linux 7.3.4 with `CONFIG_RUST=y` (64-bit big-endian,
+  our six-patch series `nix/packages/kernel-rust-ppc64be`) + `as7760_fan` in Rust. Verified on the box. Rollback:
+  generation 30 in the boot menu (type its number at "Enter choice:" within 3 s).
+- **Proof** ([evidence/rust-kernel/README.md](evidence/rust-kernel/README.md)): ABI conformance module 338/338 twice on the
+  real e6500 (8 CPUs); fan sysfs identical to the C driver's (27 lines), pwm writes and rejections as the C on the real
+  CPLD; fand never in failsafe; SONiC + MACsec scripts pass; **2 h 3 min at line rate through SONiC with MACsec on**:
+  1.30e11 frames per port per direction, 0 discards, 0 errors, MACsec invalid/late 0, ASIC 46.7-48.1 C.
+- **Repo:** `hardware.qoriqT2080.rust` defaults to true (the AS7760 gets it too: unproven on its hardware, powered
+  off); `as7760_fan.c` deleted, the QEMU test compares the Rust driver with a recording of the C behaviour.
+- **Risks on record:** the driver has 11 unsafe blocks (7.3 has no hwmon/SMBus Rust API); rustc warns the
+  `-hard-float` target feature this needs will become a hard error (would break the build loudly on a future rustc);
+  kernel taint shows W from the ABI module's two deliberate warnings until the next reboot.
+
 ### 2026-11-23: the box runs SONiC on the Rust SAI; our C++ SAI for the Broadcom boards is deleted
 - **Running:** `as7772-rust` built from `50a6aa7`: syncd on the Rust `libsai.so` (`rust/sai`), Rust `openbcm-diag`,
   `openbcm-asic-temp` and boot-time MDIO tool. Verified on the box (syncd maps the Rust library). The tree after

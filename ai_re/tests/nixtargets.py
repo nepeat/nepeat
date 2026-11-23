@@ -174,9 +174,6 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     # on the T2080 recipe (e6500, the hardware candidate) and a POWER8 pseries guest, the
     # ABI conformance module, the bindgen-vs-GCC layout check, the Rust as7760-fan; QEMU:
     # ABI module + samples + fan parity on e6500, KUnit doctests, the same on pseries.
-    # the AS7772 system with the Rust-enabled kernel and the Rust fan driver (the hardware trial's
-    # option pair: hardware.qoriqT2080.rust + hardware.as7760Fan.driver), so the pair keeps building
-    "as7772-system-rust-kernel": ("systems", '(sys.as7772.extendModules { modules = [ { hardware.qoriqT2080.rust = true; hardware.as7760Fan.driver = "rust"; } ]; }).config.system.build.toplevel', 0),
     "kernel-rust-ppc64be": ("packages", 'import (src + "/packages/kernel-rust-ppc64be/tests.nix") { pkgs = p; inherit ppc; }', 1),
     # al_eth pieces in Rust, host-tested: the board-parameter registers against 400k vectors
     # from the C HAL functions themselves; no_std, unsafe forbidden.

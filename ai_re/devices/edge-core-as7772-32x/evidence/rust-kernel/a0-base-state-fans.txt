@@ -1,0 +1,76 @@
+== 2026-11-23T08:55:00-08:00 system /nix/store/631c5hx7kznld417zvpvp38w7ml2dc05-nixos-system-as7772-26.11.20261111.d4f25a3
+kernel 7.3.4 #1-NixOS SMP PREEMPT @1794334210 rust=0
+cmdline init=/nix/store/631c5hx7kznld417zvpvp38w7ml2dc05-nixos-system-as7772-26.11.20261111.d4f25a3/init console=ttyS0,115200n8 panic=10 pcie_aspm.policy=performance root=fstab loglevel=4 net.ifnames=0 lsm=landlock,yama,bpf
+uptime 407.29 s
+active active active active 
+failed units: 0
+linux_bcm_knet        102400  0
+linux_user_bde         36864  0
+linux_kernel_bde       81920  2 linux_bcm_knet,linux_user_bde
+as7760_fan             12288  0
+taint 4608
+[    0.030661] /pcie@ffe250000: WARNING: Outbound window cfg leaves gaps in memory map. Adjusting the memory map could reduce unnecessary bounce buffering.
+[    0.031027] /pcie@ffe270000: WARNING: Outbound window cfg leaves gaps in memory map. Adjusting the memory map could reduce unnecessary bounce buffering.
+[    0.034440] WARNING: drivers/iommu/iommu.c:654 at __iommu_probe_device+0x27c/0x420, CPU#6: swapper/0/1
+[    0.034467] CPU: 6 UID: 0 PID: 1 Comm: swapper/0 Not tainted 7.3.4 #1-NixOS PREEMPTLAZY 
+[    0.034487] REGS: c00000008012f700 TRAP: 0700   Not tainted  (7.3.4)
+[    0.034926] WARNING: drivers/iommu/iommu.c:654 at __iommu_probe_device+0x27c/0x420, CPU#6: swapper/0/1
+[    0.034945] CPU: 6 UID: 0 PID: 1 Comm: swapper/0 Tainted: G        W           7.3.4 #1-NixOS PREEMPTLAZY 
+[    0.034953] Tainted: [W]=WARN
+[    0.034968] REGS: c00000008012f700 TRAP: 0700   Tainted: G        W            (7.3.4)
+[    0.035393] WARNING: drivers/iommu/iommu.c:654 at __iommu_probe_device+0x27c/0x420, CPU#6: swapper/0/1
+[    0.035411] CPU: 6 UID: 0 PID: 1 Comm: swapper/0 Tainted: G        W           7.3.4 #1-NixOS PREEMPTLAZY 
+[    0.035420] Tainted: [W]=WARN
+[    0.035434] REGS: c00000008012f700 TRAP: 0700   Tainted: G        W            (7.3.4)
+[   13.294152] as7760_fan: loading out-of-tree module taints kernel.
+Nov 23 08:48:31 as7772 fand[438]: sensor asic: online after 4s, 43.8 C
+Nov 23 08:48:31 as7772 fand[438]: zone asic: all sensors online, resuming curve delta-asic
+Nov 23 08:50:11 as7772 fand[438]: sensor asic: no reading (/run/asic/temperature: no such file), holding 43.8 C for up to 45s
+Nov 23 08:50:15 as7772 fand[438]: sensor asic: reading back after 6s, 44.7 C
+Nov 23 08:53:27 as7772 fand[438]: asic 47.7C -> 53%; board 37.0C -> 60%; cpu 41.0C -> 53%; fans=60% 13000-15900rpm
+
+dev 4-0066 driver as7760_fan module as7760_fan
+fan1_fault -r--r--r-- 0
+fan1_input -r--r--r-- 17000
+fan1_label -r--r--r-- fan1_front
+fan2_fault -r--r--r-- 0
+fan2_input -r--r--r-- 14200
+fan2_label -r--r--r-- fan1_rear
+fan3_fault -r--r--r-- 0
+fan3_input -r--r--r-- 16900
+fan3_label -r--r--r-- fan2_front
+fan4_fault -r--r--r-- 0
+fan4_input -r--r--r-- 14100
+fan4_label -r--r--r-- fan2_rear
+fan5_fault -r--r--r-- 0
+fan5_input -r--r--r-- 17100
+fan5_label -r--r--r-- fan3_front
+fan6_fault -r--r--r-- 0
+fan6_input -r--r--r-- 14100
+fan6_label -r--r--r-- fan3_rear
+fan7_fault -r--r--r-- 0
+fan7_input -r--r--r-- 17000
+fan7_label -r--r--r-- fan4_front
+fan8_fault -r--r--r-- 0
+fan8_input -r--r--r-- 14100
+fan8_label -r--r--r-- fan4_rear
+fan9_fault -r--r--r-- 0
+fan9_input -r--r--r-- 17000
+fan9_label -r--r--r-- fan5_front
+fan10_fault -r--r--r-- 0
+fan10_input -r--r--r-- 14200
+fan10_label -r--r--r-- fan5_rear
+fan11_fault -r--r--r-- 0
+fan11_input -r--r--r-- 16800
+fan11_label -r--r--r-- fan6_front
+fan12_fault -r--r--r-- 0
+fan12_input -r--r--r-- 14000
+fan12_label -r--r--r-- fan6_rear
+name -r--r--r-- as7760_fan
+pwm1 -rw-r--r-- 170
+
+cage29  0x17c  2391    80a0    d00b    600d    000d    ok
+cage30  0x17d  2391    80a0    d00b    600d    000d    ok
+cage31  0x17e  2391    80a0    d00b    600d    000d    ok
+cage32  0x17f  2391    80a0    d00b    600d    000d    ok
+32 of 32 PHYs as the script expects

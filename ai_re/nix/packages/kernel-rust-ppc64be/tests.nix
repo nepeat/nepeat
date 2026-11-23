@@ -142,7 +142,6 @@ let
     installPhase = "cp report.txt $out/";
   };
 
-  fanC = kernel: (import ../as7760-fan { pkgs = ppc; inherit kernel; }).driver;
   fanRs = kernel: ppc.callPackage ../as7760-fan/rust.nix { inherit kernel; };
 
   busybox = ppc.pkgsStatic.busybox;
@@ -197,13 +196,12 @@ let
         -kernel ${kernel}/vmlinux -initrd ${initrd name files extraSh (if samples then kernel else null)} \
         -append "console=${consoles.${machine}} panic=-1" || { tail -50 $out/console.txt; exit 1; }
       KUNIT=${if kunit then "1" else "0"} FAN=${if fan then "1" else "0"} CPUS=4 \
-        bash ${./check-console.sh} $out/console.txt | tee $out/result.txt
+        FAN_EXPECTED=${../as7760-fan/qemu-expected.txt} bash ${./check-console.sh} $out/console.txt | tee $out/result.txt
     '';
   abiFiles = kernel: [ [ "${abiTest kernel}/rust_ppc64_abi.ko" "m/rust_ppc64_abi.ko" ] ];
   stub = kernel: "${kernel.modules}/lib/modules/${kernel.modDirVersion}/kernel/drivers/i2c/i2c-stub.ko";
   fanFiles = kernel: [
     [ (stub kernel) "m/i2c-stub.ko" ]
-    [ "${fanC kernel}/lib/modules/${kernel.modDirVersion}/extra/as7760_fan.ko" "m/fan-c/as7760_fan.ko" ]
     [ "${fanRs kernel}/lib/modules/${kernel.modDirVersion}/extra/as7760_fan.ko" "m/fan-rs/as7760_fan.ko" ]
   ];
   # The series with CONFIG_RUST off must not change the C kernel: every section

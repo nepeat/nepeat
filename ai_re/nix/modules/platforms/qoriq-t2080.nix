@@ -7,7 +7,7 @@ let
   baseKernel = import ../../packages/linux-qoriq-t2080 {
     inherit pkgs lib;
     boardPatches = config.hardware.qoriqT2080.kernelPatches;
-    # opt-in Rust (packages/kernel-rust-ppc64be): another kernel derivation
+    # CONFIG_RUST (packages/kernel-rust-ppc64be), the default since 2026-11-23
     rust = config.hardware.qoriqT2080.rust;
   };
   # Also install a legacy uImage: U-Boot on PowerPC boots extlinux entries with
@@ -29,8 +29,8 @@ in {
   };
   options.hardware.qoriqT2080.rust = lib.mkOption {
     type = lib.types.bool;
-    default = false;
-    description = "CONFIG_RUST in the T2080 kernel (the ppc64 big-endian series of packages/kernel-rust-ppc64be), to load modules written in Rust. Another kernel derivation; off by default.";
+    default = true;
+    description = "CONFIG_RUST in the T2080 kernel (the ppc64 big-endian series of packages/kernel-rust-ppc64be), for the kernel modules written in Rust (the fan driver of thermal/as7760-fan.nix needs it). Default since 2026-11-23 (proven on the AS7772: packages/kernel-rust-ppc64be/README.md); false gives the kernel without the series.";
   };
   config = {
   boot.kernelPackages = pkgs.linuxPackagesFor kernel;

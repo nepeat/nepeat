@@ -5,8 +5,8 @@ State of 2026-11-23: Linux 7.3.4, nixpkgs rustc 1.99.1 (LLVM 23.1.3), bindgen
 and ppc64le only (`arch/powerpc/Kconfig:288-289`). This directory carries the
 big-endian enablement ahead of upstream, written to be sendable, plus its proof.
 Platform-generic: any ppc64 BE board's kernel recipe takes it; the T2080 one does
-with `import ../linux-qoriq-t2080 { rust = true; }` (a separate derivation: the
-default kernel's drvPath is unchanged).
+with `import ../linux-qoriq-t2080 { rust = true; }`, which the T2080 boards use by
+default since 2026-11-23 (`hardware.qoriqT2080.rust`).
 
 ## the series (`patches/`, scopes in `default.nix`)
 
@@ -97,10 +97,11 @@ rustc does the same (captured, equal).
 Same module/driver/hwmon name `as7760_fan`, OF id `accton,as7760-fan`, same
 `pwm1`, `fan1..12_input/_fault/_label` (modes 0644/0444), values, errnos and
 register sequence (0x33=0, 0x11=duty, read-back, full-speed fallback) as
-`../as7760-fan/src/as7760_fan.c`, so `fand` and `sonic_platform` see no
-difference. Register logic in `logic.rs` (no kernel types, 3 host tests run in
-the build, the write rounding checked over -1000..1000). The C driver stays the
-default until the Rust one has run on the switch; then it is deleted (owner).
+the C driver it replaced (deleted 2026-11-23), so `fand` and `sonic_platform`
+see no difference. Register logic in `logic.rs` (no kernel types, 3 host tests run in
+the build, the write rounding checked over -1000..1000). The QEMU test compares
+it with `../as7760-fan/qemu-expected.txt`, the C driver's behaviour in the same
+scenario on i2c-stub (recorded from both drivers' identical runs, 47c0012).
 
 7.3's kernel crate has I2C drivers, OF tables, Mutex and ARef, but no hwmon and
 no SMBus API: hwmon types come from the bindings (patch 0006), registration is
@@ -121,16 +122,41 @@ code line by line but have run in neither driver under test.
 
 ## on a board
 
-NixOS: `hardware.qoriqT2080.rust = true` (platforms/qoriq-t2080.nix) builds the
-board kernel with the series; `hardware.as7760Fan.driver = "rust"`
-(thermal/as7760-fan.nix) swaps in the Rust fan driver. Both default off; the
-pair builds in `just test` as `extra:as7772-system-rust-kernel`. Against the
-board kernel the config changes only by the `RUST*`/`RUSTC_*`/`BINDGEN_*`
-symbols; every out-of-tree module (BDE/KNET, the fan driver) is rebuilt for it
-by NixOS. There is no `MODVERSIONS` or `MODULE_SIG`: both kernels have the
-vermagic `7.3.4 SMP preempt mod_unload`, so a module built for the other kernel
-would load without complaint. Load only modules built for the running kernel
+NixOS: `hardware.qoriqT2080.rust` (platforms/qoriq-t2080.nix, **default true
+since 2026-11-23**) builds the board kernel with the series; the fan driver
+(thermal/as7760-fan.nix) is the Rust one and needs it. Against the board kernel
+the config changes only by the `RUST*`/`RUSTC_*`/`BINDGEN_*` symbols; every
+out-of-tree module (BDE/KNET, the fan driver) is rebuilt for it by NixOS. There
+is no `MODVERSIONS` or `MODULE_SIG`: with and without the series the vermagic
+is `7.3.4 SMP preempt mod_unload`, so a module built for the other kernel would
+load without complaint. Load only modules built for the running kernel
 (`tests.nix` `abiTestFor`/`layoutCheckFor` take a board kernel).
+
+## proof on hardware (AS7772, 2026-11-23)
+
+Evidence: [devices/edge-core-as7772-32x/evidence/rust-kernel/](../../../devices/edge-core-as7772-32x/evidence/rust-kernel/).
+Base `631c5hx7` (47c0012, attr as7772, C fan driver) -> trial `na3yx1c2`
+(same + `hardware.qoriqT2080.rust` + the Rust fan driver; closure diff: kernel,
+its modules, BDE/KNET rebuilt, initrd/uImage, fan driver). Two warm boots on the
+trial, console logged. Green:
+- kernel with `CONFIG_RUST=y`, the Rust `as7760_fan` bound (4-0066), sysfs
+  (device, every attribute, mode, label, fault) identical to the C driver's;
+  pwm1 writes on the real CPLD: 200->204, 128/129->136, 254/255->255, 100/127/256/-1/abc
+  EINVAL (= the C driver in QEMU); fand ran its curve throughout, never failsafe
+- ABI module on the real e6500, 8 CPUs: 338/338, twice; kernel log: only the
+  module's two deliberate warn_on; otherwise the base's boot-time iommu/PCIe
+  warnings and nothing else
+- MKA up on 4 ports by itself (14.8-15.3 s), sonic-traffic-test and
+  macsec-traffic-test 0 lost, encrypted = accepted, 32/32 PHYs
+- 2 h 3 min line-rate soak through SONiC with MACsec on (`loadtest/sonic-ring.sh`):
+  1.30 x 10^11 frames per port per direction, 17.7 Mpps / 92.1 Gb/s
+  (94.9 Gb/s with preamble and IPG) per port, 0 discards and 0 errors until the
+  stop (then 740 frames dropped at ce0 and the other ring's copied to the CPU once, as designed), MACsec IN_PKTS_INVALID/NOT_VALID/LATE 0, 8 SAs open
+  throughout, ASIC 45-48 C, fans 13,000-17,100 rpm on fand's curve
+- left running the trial (profile generation 31); the base is generation 30 in
+  the extlinux menu ("Enter choice:", 3 s)
+
+Not proven on the AS7760 (same platform, same fan CPLD; powered off).
 
 ## what the tests cannot catch
 

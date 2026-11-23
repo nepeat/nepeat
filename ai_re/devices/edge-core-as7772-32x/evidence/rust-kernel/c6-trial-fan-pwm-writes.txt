@@ -1,0 +1,17 @@
+after fand stop pwm1=255
+write 200 ok pwm1=204 fan1=18800
+write 100 err(Invalid argument) pwm1=204 fan1=18900
+write 127 err(Invalid argument) pwm1=204 fan1=19000
+write 128 ok pwm1=136 fan1=18300
+write 129 ok pwm1=136 fan1=14100
+write 254 ok pwm1=255 fan1=14100
+write 255 ok pwm1=255 fan1=16700
+write 256 err(Invalid argument) pwm1=255 fan1=18300
+write -1 err(Invalid argument) pwm1=255 fan1=19400
+write abc err(Invalid argument) pwm1=255 fan1=19600
+write 170 ok pwm1=170 fan1=20200
+active
+pwm1 after fand start=153
+Nov 23 09:05:10 as7772 fand[3673]: starting: 3 zone(s), 8 sensor(s), 1 output(s), interval 2s, exit duty 100%
+Nov 23 09:05:10 as7772 fand[3673]: running: asic 47.2C -> 60%; board 36.5C -> 60%; cpu 41.0C -> 60%; fans=60% 16900-20400rpm
+Nov 23 09:05:10 as7772 systemd[1]: Started fand fan control daemon.

@@ -1,0 +1,732 @@
+[    0.000000] OF: reserved mem: 0x00000003ff000000..0x00000003ffffffff (16384 KiB) map non-reusable bman-fbpr
+[    0.000000] OF: reserved mem: 0x00000003fec00000..0x00000003feffffff (4096 KiB) map non-reusable qman-fqd
+[    0.000000] OF: reserved mem: 0x00000003fc000000..0x00000003fdffffff (32768 KiB) map non-reusable qman-pfdr
+[    0.000000] Activating Kernel Userspace Execution Prevention
+[    0.000000] MMU: Supported page sizes
+[    0.000000]          4 KB as direct
+[    0.000000]       2048 KB as direct & indirect
+[    0.000000]       4096 KB as direct
+[    0.000000]      16384 KB as direct
+[    0.000000]      65536 KB as direct
+[    0.000000]     262144 KB as direct
+[    0.000000]    1048576 KB as direct
+[    0.000000] MMU: Book3E HW tablewalk enabled
+[    0.000000] Linux version 7.3.4 (nixbld@localhost) (powerpc64-unknown-linux-gnuabielfv2-gcc (GCC) 16.2.0, GNU ld (GNU Binutils) 2.46) #1-NixOS SMP PREEMPT @1794334210
+[    0.000000] Found initrd at 0xc000000002807000:0xc000000003fffc8f
+[    0.000000] Hardware name: accton,as7772_32x e6500 0x80400120 CoreNet Generic
+[    0.000000] Found legacy serial port 0 for /soc@ffe000000/serial@11c500
+[    0.000000]   mem=0x0000000ffe11c500, taddr=0x0000000ffe11c500, irq=0, clk=300000000, speed=0
+[    0.000000] Found legacy serial port 1 for /soc@ffe000000/serial@11c600
+[    0.000000]   mem=0x0000000ffe11c600, taddr=0x0000000ffe11c600, irq=0, clk=300000000, speed=0
+[    0.000000] Found legacy serial port 2 for /soc@ffe000000/serial@11d500
+[    0.000000]   mem=0x0000000ffe11d500, taddr=0x0000000ffe11d500, irq=0, clk=300000000, speed=0
+[    0.000000] Found legacy serial port 3 for /soc@ffe000000/serial@11d600
+[    0.000000]   mem=0x0000000ffe11d600, taddr=0x0000000ffe11d600, irq=0, clk=300000000, speed=0
+[    0.000000] printk: legacy bootconsole [udbg0] enabled
+[    0.000000] CPU maps initialized for 2 threads per core
+[    0.000000]  (thread shift is 1)
+[    0.000000] Allocated 1856 bytes for 8 pacas
+[    0.000000] -----------------------------------------------------
+[    0.000000] phys_mem_size     = 0x400000000
+[    0.000000] dcache_bsize      = 0x40
+[    0.000000] icache_bsize      = 0x40
+[    0.000000] cpu_features      = 0x0000000300900396
+[    0.000000]   possible        = 0x0000000300900396
+[    0.000000]   always          = 0x0000000300800394
+[    0.000000] cpu_user_features = 0xdc008000 0x08000000
+[    0.000000] mmu_features      = 0x000a0010
+[    0.000000]   possible        = 0x00000000000a0410
+[    0.000000]   always          = 0x0000000000000010
+[    0.000000] firmware_features = 0x0000000000000000
+[    0.000000] -----------------------------------------------------
+[    0.000000] ioremap() called early from of_iomap+0x7c/0x84. Use early_ioremap() instead
+[    0.000000] CoreNet Generic board
+[    0.000000] barrier-nospec: using isync; sync as speculation barrier
+[    0.000000] barrier-nospec: patched 208 locations
+[    0.000000] Top of RAM: 0x400000000, Total RAM: 0x400000000
+[    0.000000] Memory hole size: 0MB
+[    0.000000] MMU: Allocated 2112 bytes of context maps for 255 contexts
+[    0.000000] Zone ranges:
+[    0.000000]   DMA      [mem 0x0000000000000000-0x000000007fffffff]
+[    0.000000]   Normal   [mem 0x0000000080000000-0x00000003ffffffff]
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000000000000-0x00000003ffffffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000000000000-0x00000003ffffffff]
+[    0.000000] percpu: Embedded 17 pages/cpu s31896 r0 d37736 u131072
+[    0.000000] pcpu-alloc: s31896 r0 d37736 u131072 alloc=1*1048576
+[    0.000000] pcpu-alloc: [0] 0 1 2 3 4 5 6 7 
+[    0.000000] Kernel command line: init=/nix/store/631c5hx7kznld417zvpvp38w7ml2dc05-nixos-system-as7772-26.11.20261111.d4f25a3/init console=ttyS0,115200n8 panic=10 pcie_aspm.policy=performance root=fstab loglevel=4 net.ifnames=0 lsm=landlock,yama,bpf
+[    0.000000] printk: log buffer data + meta data: 131072 + 458752 = 589824 bytes
+[    0.000000] Dentry cache hash table entries: 2097152 (order: 12, 16777216 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 1048576 (order: 11, 8388608 bytes, linear)
+[    0.000000] software IO TLB: area num 8.
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 4194304
+[    0.000000] mem auto-init: stack:all(zero), heap alloc:off, heap free:off
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=8, Nodes=1
+[    0.000000] rcu: Hierarchical RCU implementation.
+[    0.000000] rcu: 	RCU event tracing is enabled.
+[    0.000000] 	Trampoline variant of Tasks RCU enabled.
+[    0.000000] 	Tracing variant of Tasks RCU enabled.
+[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[    0.000000] RCU Tasks: Setting shift to 3 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=8.
+[    0.000000] NR_IRQS: 512, nr_irqs: 512, preallocated irqs: 16
+[    0.000000] mpic: Setting up MPIC " OpenPIC  " version 1.2 at ffe040000, max 8 CPUs
+[    0.000000] mpic: ISU size: 512, shift: 9, mask: 1ff
+[    0.000000] mpic: Initializing for 512 sources
+[    0.000000] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[    0.000000] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.000000] time_init: decrementer frequency = 37.500000 MHz
+[    0.000000] time_init: processor frequency   = 1800.000000 MHz
+[    0.000001] clocksource: timebase: mask: 0xffffffffffffffff max_cycles: 0x8a60dd6a9, max_idle_ns: 440795204056 ns
+[    0.000007] clocksource: timebase mult[1aaaaaab] shift[24] registered
+[    0.000021] clockevent: decrementer mult[999999a] shift[32] cpu[0]
+[    0.002979] Console: colour dummy device 80x25
+[    0.003011] pid_max: default: 32768 minimum: 301
+[    0.003262] Mount-cache hash table entries: 32768 (order: 6, 262144 bytes, linear)
+[    0.003334] Mountpoint-cache hash table entries: 32768 (order: 6, 262144 bytes, linear)
+[    0.003588] VFS: Finished mounting rootfs on nullfs
+[    0.004845] rcu: Hierarchical SRCU implementation.
+[    0.004851] rcu: 	Max phase no-delay instances is 1000.
+[    0.005241] smp: Bringing up secondary CPUs ...
+[    0.008263] smp: Brought up 1 node, 8 CPUs
+[    0.008449] Memory: 16326416K/16777216K available (7416K kernel code, 812K rwdata, 2264K rodata, 356K init, 290K bss, 443284K reserved, 0K cma-reserved)
+[    0.009852] devtmpfs: initialized
+[    0.015735] posixtimers hash table entries: 4096 (order: 4, 65536 bytes, linear)
+[    0.015806] futex hash table entries: 2048 (131072 bytes on 1 NUMA nodes, total 128 KiB, linear).
+[    0.017373] Machine: accton,as7772_32x
+[    0.017379] SoC family: QorIQ T2080
+[    0.017383] SoC ID: svr:0x85300011, Revision: 1.1
+[    0.017784] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    0.030204] Found FSL PCI host bridge at 0x0000000ffe240000. Firmware bus number: 0->255
+[    0.030212] PCI host bridge /pcie@ffe240000  ranges:
+[    0.030227]  MEM 0x0000000c00000000..0x0000000c1fffffff -> 0x00000000e0000000 
+[    0.030237]   IO 0x0000000ff8000000..0x0000000ff800ffff -> 0x0000000000000000
+[    0.030264] /pcie@ffe240000: PCICSRBAR @ 0xdf000000
+[    0.030272] setup_pci_atmu: end of DRAM 400000000
+[    0.030284] /pcie@ffe240000: Setup 64-bit PCI DMA window
+[    0.030291] /pcie@ffe240000: DMA window size is 0xdf000000
+[    0.030581] Found FSL PCI host bridge at 0x0000000ffe250000. Firmware bus number: 0->255
+[    0.030588] PCI host bridge /pcie@ffe250000  ranges:
+[    0.030602]  MEM 0x0000000c20000000..0x0000000c2fffffff -> 0x00000000e0000000 
+[    0.030611]   IO 0x0000000ff8010000..0x0000000ff801ffff -> 0x0000000000000000
+[    0.030634] /pcie@ffe250000: PCICSRBAR @ 0xff000000
+[    0.030642] setup_pci_atmu: end of DRAM 400000000
+[    0.030653] /pcie@ffe250000: Setup 64-bit PCI DMA window
+[    0.030661] /pcie@ffe250000: WARNING: Outbound window cfg leaves gaps in memory map. Adjusting the memory map could reduce unnecessary bounce buffering.
+[    0.030669] /pcie@ffe250000: DMA window size is 0xe0000000
+[    0.030948] Found FSL PCI host bridge at 0x0000000ffe270000. Firmware bus number: 0->255
+[    0.030955] PCI host bridge /pcie@ffe270000  ranges:
+[    0.030969]  MEM 0x0000000c40000000..0x0000000c47ffffff -> 0x00000000d8000000 
+[    0.030978]   IO 0x0000000ff8030000..0x0000000ff803ffff -> 0x0000000000000000
+[    0.031001] /pcie@ffe270000: PCICSRBAR @ 0xff000000
+[    0.031009] setup_pci_atmu: end of DRAM 400000000
+[    0.031020] /pcie@ffe270000: Setup 64-bit PCI DMA window
+[    0.031027] /pcie@ffe270000: WARNING: Outbound window cfg leaves gaps in memory map. Adjusting the memory map could reduce unnecessary bounce buffering.
+[    0.031035] /pcie@ffe270000: DMA window size is 0xd8000000
+[    0.033179] platform ff6000000.qman-portal: Adding to iommu group 0
+[    0.033217] platform ff6004000.qman-portal: Adding to iommu group 1
+[    0.033249] platform ff6008000.qman-portal: Adding to iommu group 2
+[    0.033282] platform ff600c000.qman-portal: Adding to iommu group 3
+[    0.033315] platform ff6010000.qman-portal: Adding to iommu group 4
+[    0.033351] platform ff6014000.qman-portal: Adding to iommu group 5
+[    0.033385] platform ff6018000.qman-portal: Adding to iommu group 6
+[    0.033418] platform ff601c000.qman-portal: Adding to iommu group 7
+[    0.033451] platform ff6020000.qman-portal: Adding to iommu group 8
+[    0.033489] platform ff6024000.qman-portal: Adding to iommu group 9
+[    0.033523] platform ff6028000.qman-portal: Adding to iommu group 10
+[    0.033556] platform ff602c000.qman-portal: Adding to iommu group 11
+[    0.033590] platform ff6030000.qman-portal: Adding to iommu group 12
+[    0.033626] platform ff6034000.qman-portal: Adding to iommu group 13
+[    0.033670] platform ff6038000.qman-portal: Adding to iommu group 14
+[    0.033704] platform ff603c000.qman-portal: Adding to iommu group 15
+[    0.033737] platform ff6040000.qman-portal: Adding to iommu group 16
+[    0.033770] platform ff6044000.qman-portal: Adding to iommu group 17
+[    0.033837] platform ffe114000.sdhc: Adding to iommu group 18
+[    0.033936] platform ffe100300.dma: Adding to iommu group 19
+[    0.033973] platform ffe101300.dma: Adding to iommu group 20
+[    0.034007] platform ffe102300.dma: Adding to iommu group 21
+[    0.034076] platform ffe210000.usb: Adding to iommu group 22
+[    0.034109] platform ffe211000.usb: Adding to iommu group 23
+[    0.034151] platform ffe316000.pme: Adding to iommu group 24
+[    0.034185] platform ffe318000.qman: Adding to iommu group 25
+[    0.034218] platform ffe31a000.bman: Adding to iommu group 26
+[    0.034256] platform ffe220000.sata: Adding to iommu group 27
+[    0.034293] platform ffe221000.sata: Adding to iommu group 28
+[    0.034322] ------------[ cut here ]------------
+[    0.034327] fsl-pci ffe240000.pcie: late IOMMU probe at driver bind, something fishy here!
+[    0.034440] WARNING: drivers/iommu/iommu.c:654 at __iommu_probe_device+0x27c/0x420, CPU#6: swapper/0/1
+[    0.034457] Modules linked in:
+[    0.034467] CPU: 6 UID: 0 PID: 1 Comm: swapper/0 Not tainted 7.3.4 #1-NixOS PREEMPTLAZY 
+[    0.034475] Hardware name: accton,as7772_32x e6500 0x80400120 CoreNet Generic
+[    0.034481] NIP:  c00000000043e2e4 LR: c00000000043e2e0 CTR: 0000000000000000
+[    0.034487] REGS: c00000008012f700 TRAP: 0700   Not tainted  (7.3.4)
+[    0.034492] MSR:  0000000080029002 <CE,EE,ME>  CR: 24000240  XER: 20000000
+[    0.034514] IRQMASK: 0 
+               GPR00: c00000000043e2e0 c00000008012f9a0 c00000000097b000 000000000000004e 
+               GPR04: 0000000000017fe8 c00000008012f740 0000000000000001 0000000000000001 
+               GPR08: 3fffffffffffefff 0000000000000000 c00000008017ac40 0000000044000240 
+               GPR12: 6e67206669736879 c00000003fffd5c0 c0000000000018b4 0000000000000000 
+               GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000 
+               GPR20: 0000000000000000 0000000000000000 0000000000000000 0000000000000000 
+               GPR24: 0000000000000000 fffffffffffff000 0000000000000000 c00000008012fb00 
+               GPR28: c000000000ad7198 c00000000077fb48 c0000000808b8680 c0000000808ac410 
+[    0.034637] NIP [c00000000043e2e4] __iommu_probe_device+0x27c/0x420
+[    0.034645] LR [c00000000043e2e0] __iommu_probe_device+0x278/0x420
+[    0.034653] Call Trace:
+[    0.034657] [c00000008012f9a0] [c00000000043e2e0] __iommu_probe_device+0x278/0x420 (unreliable)
+[    0.034670] [c00000008012fa50] [c00000000043e4c4] probe_iommu_group+0x3c/0x68
+[    0.034681] [c00000008012fa90] [c000000000448b74] bus_for_each_dev+0x98/0xd0
+[    0.034694] [c00000008012fae0] [c00000000043dbe8] iommu_device_register+0xe4/0x208
+[    0.034705] [c00000008012fb50] [c00000000099e06c] pamu_domain_init+0x108/0x13c
+[    0.034723] [c00000008012fc00] [c00000000099df0c] fsl_pamu_init+0x104/0x15c
+[    0.034735] [c00000008012fc80] [c0000000000014b8] do_one_initcall+0x90/0x1cc
+[    0.034748] [c00000008012fd40] [c000000000975544] kernel_init_freeable+0x2d4/0x2d8
+[    0.034763] [c00000008012fde0] [c0000000000018e4] kernel_init+0x38/0x154
+[    0.034773] [c00000008012fe50] [c000000000000594] ret_from_kernel_user_thread+0x14/0x1c
+[    0.034784] ---- interrupt: 0 at 0x0
+[    0.034790] Code: 7fe3fb78 4800532d 60000000 e8bf0050 7c641b78 2c250000 40c20008 e8bf0000 3c62fff4 386384b3 4bbf38ad 60000000 <0fe00000> ebbf01e0 7fe4fb78 7fa3eb78 
+[    0.034843] ---[ end trace 0000000000000000 ]---
+[    0.034856] fsl-pci ffe240000.pcie: Adding to iommu group 29
+[    0.034897] ------------[ cut here ]------------
+[    0.034902] fsl-pci ffe250000.pcie: late IOMMU probe at driver bind, something fishy here!
+[    0.034926] WARNING: drivers/iommu/iommu.c:654 at __iommu_probe_device+0x27c/0x420, CPU#6: swapper/0/1
+[    0.034937] Modules linked in:
+[    0.034945] CPU: 6 UID: 0 PID: 1 Comm: swapper/0 Tainted: G        W           7.3.4 #1-NixOS PREEMPTLAZY 
+[    0.034953] Tainted: [W]=WARN
+[    0.034958] Hardware name: accton,as7772_32x e6500 0x80400120 CoreNet Generic
+[    0.034962] NIP:  c00000000043e2e4 LR: c00000000043e2e0 CTR: 0000000000000000
+[    0.034968] REGS: c00000008012f700 TRAP: 0700   Tainted: G        W            (7.3.4)
+[    0.034974] MSR:  0000000080029002 <CE,EE,ME>  CR: 24000240  XER: 20000000
+[    0.034995] IRQMASK: 0 
+               GPR00: c00000000043e2e0 c00000008012f9a0 c00000000097b000 000000000000004e 
+               GPR04: 0000000000017fe8 c00000008012f740 0000000000000001 0000000000000001 
+               GPR08: 3fffffffffffefff 0000000000000000 c00000008017ac40 0000000044000240 
+               GPR12: 6e67206669736879 c00000003fffd5c0 c0000000000018b4 0000000000000000 
+               GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000 
+               GPR20: 0000000000000000 0000000000000000 0000000000000000 0000000000000000 
+               GPR24: 0000000000000000 fffffffffffff000 0000000000000000 c00000008012fb00 
+               GPR28: c000000000ad7198 c00000000077fb48 c0000000808cb3c0 c0000000808b1410 
+[    0.035118] NIP [c00000000043e2e4] __iommu_probe_device+0x27c/0x420
+[    0.035125] LR [c00000000043e2e0] __iommu_probe_device+0x278/0x420
+[    0.035133] Call Trace:
+[    0.035137] [c00000008012f9a0] [c00000000043e2e0] __iommu_probe_device+0x278/0x420 (unreliable)
+[    0.035150] [c00000008012fa50] [c00000000043e4c4] probe_iommu_group+0x3c/0x68
+[    0.035161] [c00000008012fa90] [c000000000448b74] bus_for_each_dev+0x98/0xd0
+[    0.035172] [c00000008012fae0] [c00000000043dbe8] iommu_device_register+0xe4/0x208
+[    0.035183] [c00000008012fb50] [c00000000099e06c] pamu_domain_init+0x108/0x13c
+[    0.035195] [c00000008012fc00] [c00000000099df0c] fsl_pamu_init+0x104/0x15c
+[    0.035207] [c00000008012fc80] [c0000000000014b8] do_one_initcall+0x90/0x1cc
+[    0.035218] [c00000008012fd40] [c000000000975544] kernel_init_freeable+0x2d4/0x2d8
+[    0.035229] [c00000008012fde0] [c0000000000018e4] kernel_init+0x38/0x154
+[    0.035240] [c00000008012fe50] [c000000000000594] ret_from_kernel_user_thread+0x14/0x1c
+[    0.035250] ---- interrupt: 0 at 0x0
+[    0.035256] Code: 7fe3fb78 4800532d 60000000 e8bf0050 7c641b78 2c250000 40c20008 e8bf0000 3c62fff4 386384b3 4bbf38ad 60000000 <0fe00000> ebbf01e0 7fe4fb78 7fa3eb78 
+[    0.035309] ---[ end trace 0000000000000000 ]---
+[    0.035321] fsl-pci ffe250000.pcie: Adding to iommu group 30
+[    0.035363] ------------[ cut here ]------------
+[    0.035368] fsl-pci ffe270000.pcie: late IOMMU probe at driver bind, something fishy here!
+[    0.035393] WARNING: drivers/iommu/iommu.c:654 at __iommu_probe_device+0x27c/0x420, CPU#6: swapper/0/1
+[    0.035403] Modules linked in:
+[    0.035411] CPU: 6 UID: 0 PID: 1 Comm: swapper/0 Tainted: G        W           7.3.4 #1-NixOS PREEMPTLAZY 
+[    0.035420] Tainted: [W]=WARN
+[    0.035424] Hardware name: accton,as7772_32x e6500 0x80400120 CoreNet Generic
+[    0.035428] NIP:  c00000000043e2e4 LR: c00000000043e2e0 CTR: 0000000000000000
+[    0.035434] REGS: c00000008012f700 TRAP: 0700   Tainted: G        W            (7.3.4)
+[    0.035440] MSR:  0000000080029002 <CE,EE,ME>  CR: 24000240  XER: 20000000
+[    0.035461] IRQMASK: 0 
+               GPR00: c00000000043e2e0 c00000008012f9a0 c00000000097b000 000000000000004e 
+               GPR04: 0000000000017fe8 c00000008012f740 0000000000000001 0000000000000001 
+               GPR08: 3fffffffffffefff 0000000000000000 c00000008017ac40 0000000044000240 
+               GPR12: 6e67206669736879 c00000003fffd5c0 c0000000000018b4 0000000000000000 
+               GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000 
+               GPR20: 0000000000000000 0000000000000000 0000000000000000 0000000000000000 
+               GPR24: 0000000000000000 fffffffffffff000 0000000000000000 c00000008012fb00 
+               GPR28: c000000000ad7198 c00000000077fb48 c0000000808cb2c0 c0000000808b0410 
+[    0.035583] NIP [c00000000043e2e4] __iommu_probe_device+0x27c/0x420
+[    0.035591] LR [c00000000043e2e0] __iommu_probe_device+0x278/0x420
+[    0.035599] Call Trace:
+[    0.035603] [c00000008012f9a0] [c00000000043e2e0] __iommu_probe_device+0x278/0x420 (unreliable)
+[    0.035616] [c00000008012fa50] [c00000000043e4c4] probe_iommu_group+0x3c/0x68
+[    0.035627] [c00000008012fa90] [c000000000448b74] bus_for_each_dev+0x98/0xd0
+[    0.035638] [c00000008012fae0] [c00000000043dbe8] iommu_device_register+0xe4/0x208
+[    0.035649] [c00000008012fb50] [c00000000099e06c] pamu_domain_init+0x108/0x13c
+[    0.035661] [c00000008012fc00] [c00000000099df0c] fsl_pamu_init+0x104/0x15c
+[    0.035673] [c00000008012fc80] [c0000000000014b8] do_one_initcall+0x90/0x1cc
+[    0.035684] [c00000008012fd40] [c000000000975544] kernel_init_freeable+0x2d4/0x2d8
+[    0.035696] [c00000008012fde0] [c0000000000018e4] kernel_init+0x38/0x154
+[    0.035706] [c00000008012fe50] [c000000000000594] ret_from_kernel_user_thread+0x14/0x1c
+[    0.035717] ---- interrupt: 0 at 0x0
+[    0.035723] Code: 7fe3fb78 4800532d 60000000 e8bf0050 7c641b78 2c250000 40c20008 e8bf0000 3c62fff4 386384b3 4bbf38ad 60000000 <0fe00000> ebbf01e0 7fe4fb78 7fa3eb78 
+[    0.035775] ---[ end trace 0000000000000000 ]---
+[    0.035798] fsl-pci ffe270000.pcie: Adding to iommu group 31
+[    0.048363] software IO TLB: mapped [mem 0x0000000004000000-0x0000000008000000] (64MB)
+[    0.048609] Setting up Freescale MSI support
+[    0.049116] Setting up Freescale MSI support
+[    0.049606] Setting up Freescale MSI support
+[    0.050806] iommu: Default domain type: Translated
+[    0.050812] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.051089] SCSI subsystem initialized
+[    0.051169] libata version 3.00 loaded.
+[    0.051292] usbcore: registered new interface driver usbfs
+[    0.051322] usbcore: registered new interface driver hub
+[    0.051351] usbcore: registered new device driver usb
+[    0.051385] pps_core: LinuxPPS API ver. 1 registered
+[    0.051391] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+[    0.051404] PTP clock support registered
+[    0.051473] fsl-ifc ffe124000.localbus: Freescale Integrated Flash Controller
+[    0.051491] fsl-ifc ffe124000.localbus: IFC version 1.3, 8 banks
+[    0.052219] PCI: Probing PCI hardware
+[    0.052301] fsl-pci ffe240000.pcie: PCI host bridge to bus 0000:00
+[    0.052312] pci_bus 0000:00: root bus resource [io  0xc000180000010000-0xc00018000001ffff] (bus address [0x0000-0xffff])
+[    0.052322] pci_bus 0000:00: root bus resource [mem 0xc00000000-0xc1fffffff] (bus address [0xe0000000-0xffffffff])
+[    0.052330] pci_bus 0000:00: root bus resource [bus 00-ff]
+[    0.052338] pci_bus 0000:00: busn_res: [bus 00-ff] end is updated to ff
+[    0.052410] pci 0000:00:00.0: [1957:0831] type 01 class 0x060400 PCIe Root Port
+[    0.052436] pci 0000:00:00.0: BAR 0 [mem 0xdf000000-0xdfffffff]
+[    0.052446] pci 0000:00:00.0: ROM [mem 0xc00000000-0xc00ffffff pref]
+[    0.052455] pci 0000:00:00.0: PCI bridge to [bus 01]
+[    0.052557] pci 0000:00:00.0: supports D1 D2
+[    0.052564] pci 0000:00:00.0: PME# supported from D0 D1 D2 D3hot
+[    0.052781] pci 0000:00:00.0: Adding to iommu group 32
+[    0.055993] pci 0000:00:00.0: PCI bridge to [bus 01-ff]
+[    0.056020] pci_bus 0000:01: busn_res: [bus 01-ff] end is updated to 01
+[    0.056030] pci_bus 0000:00: busn_res: [bus 00-ff] end is updated to 01
+[    0.056101] fsl-pci ffe250000.pcie: PCI host bridge to bus 0001:00
+[    0.056110] pci_bus 0001:00: root bus resource [io  0xc000180000030000-0xc00018000003ffff] (bus address [0x0000-0xffff])
+[    0.056119] pci_bus 0001:00: root bus resource [mem 0xc20000000-0xc2fffffff] (bus address [0xe0000000-0xefffffff])
+[    0.056128] pci_bus 0001:00: root bus resource [bus 00-ff]
+[    0.056135] pci_bus 0001:00: busn_res: [bus 00-ff] end is updated to ff
+[    0.056194] pci 0001:00:00.0: [1957:0831] type 01 class 0x060400 PCIe Root Port
+[    0.056219] pci 0001:00:00.0: BAR 0 [mem 0xff000000-0xffffffff]
+[    0.056228] pci 0001:00:00.0: ROM [mem 0xc20000000-0xc20ffffff pref]
+[    0.056236] pci 0001:00:00.0: PCI bridge to [bus 01]
+[    0.056312] pci 0001:00:00.0: supports D1 D2
+[    0.056318] pci 0001:00:00.0: PME# supported from D0 D1 D2 D3hot
+[    0.056500] pci 0001:00:00.0: Adding to iommu group 33
+[    0.059651] pci 0001:00:00.0: PCI bridge to [bus 01-ff]
+[    0.059677] pci_bus 0001:01: busn_res: [bus 01-ff] end is updated to 01
+[    0.059687] pci_bus 0001:00: busn_res: [bus 00-ff] end is updated to 01
+[    0.059763] fsl-pci ffe270000.pcie: PCI host bridge to bus 0003:00
+[    0.059772] pci_bus 0003:00: root bus resource [io  0xc000180000050000-0xc00018000005ffff] (bus address [0x0000-0xffff])
+[    0.059781] pci_bus 0003:00: root bus resource [mem 0xc40000000-0xc47ffffff] (bus address [0xd8000000-0xdfffffff])
+[    0.059789] pci_bus 0003:00: root bus resource [bus 00-ff]
+[    0.059797] pci_bus 0003:00: busn_res: [bus 00-ff] end is updated to ff
+[    0.059855] pci 0003:00:00.0: [1957:0831] type 01 class 0x060400 PCIe Root Port
+[    0.059879] pci 0003:00:00.0: BAR 0 [mem 0xff000000-0xffffffff]
+[    0.059889] pci 0003:00:00.0: ROM [mem 0xe0000000-0xe0ffffff pref]
+[    0.059897] pci 0003:00:00.0: PCI bridge to [bus 01]
+[    0.059910] pci 0003:00:00.0:   bridge window [mem 0xe1000000-0xe2ffffff]
+[    0.059979] pci 0003:00:00.0: supports D1 D2
+[    0.059985] pci 0003:00:00.0: PME# supported from D0 D1 D2 D3hot
+[    0.060171] pci 0003:00:00.0: Adding to iommu group 34
+[    0.063288] pci 0003:01:00.0: [14e4:b930] type 00 class 0x020000 PCIe Endpoint
+[    0.063342] pci 0003:01:00.0: BAR 0 [mem 0xe1000000-0xe1007fff 64bit pref]
+[    0.063353] pci 0003:01:00.0: BAR 2 [mem 0xe1800000-0xe1ffffff 64bit pref]
+[    0.063506] pci 0003:01:00.0: PME# supported from D0 D3hot D3cold
+[    0.063706] pci 0003:01:00.0: Adding to iommu group 34
+[    0.063769] pci 0003:01:00.1: [14e4:b930] type 00 class 0x020000 PCIe Endpoint
+[    0.063823] pci 0003:01:00.1: BAR 0 [mem 0xe2000000-0xe2007fff 64bit pref]
+[    0.063834] pci 0003:01:00.1: BAR 2 [mem 0xe2800000-0xe2ffffff 64bit pref]
+[    0.063970] pci 0003:01:00.1: PME# supported from D0 D3hot D3cold
+[    0.064159] pci 0003:01:00.1: Adding to iommu group 34
+[    0.076089] pci 0003:01:00.0: ASPM: default states L0s
+[    0.076130] pci 0003:00:00.0: PCI bridge to [bus 01-ff]
+[    0.076155] pci_bus 0003:01: busn_res: [bus 01-ff] end is updated to 01
+[    0.076165] pci_bus 0003:00: busn_res: [bus 00-ff] end is updated to 01
+[    0.076180] PCI: Cannot allocate resource region 0 of device 0000:00:00.0, will remap
+[    0.076186] PCI: Cannot allocate resource region 6 of device 0000:00:00.0, will remap
+[    0.076196] PCI: Cannot allocate resource region 0 of device 0001:00:00.0, will remap
+[    0.076202] PCI: Cannot allocate resource region 6 of device 0001:00:00.0, will remap
+[    0.076210] PCI: Cannot allocate resource region 0 of device 0003:00:00.0, will remap
+[    0.076216] PCI: Cannot allocate resource region 6 of device 0003:00:00.0, will remap
+[    0.076224] PCI: Cannot allocate resource region 0 of device 0003:01:00.0, will remap
+[    0.076230] PCI: Cannot allocate resource region 2 of device 0003:01:00.0, will remap
+[    0.076237] PCI: Cannot allocate resource region 0 of device 0003:01:00.1, will remap
+[    0.076243] PCI: Cannot allocate resource region 2 of device 0003:01:00.1, will remap
+[    0.076259] PCI 0000:00 Cannot reserve Legacy IO [io  0xc000180000010000-0x10fff]
+[    0.076267] PCI 0001:00 Cannot reserve Legacy IO [io  0xc000180000030000-0x30fff]
+[    0.076274] PCI 0003:00 Cannot reserve Legacy IO [io  0xc000180000050000-0x50fff]
+[    0.076291] pci 0000:00:00.0: BAR 0 [mem size 0x01000000]: can't assign; no space
+[    0.076299] pci 0000:00:00.0: BAR 0 [mem size 0x01000000]: failed to assign
+[    0.076307] pci 0000:00:00.0: ROM [mem size 0x01000000 pref]: can't assign; no space
+[    0.076315] pci 0000:00:00.0: ROM [mem size 0x01000000 pref]: failed to assign
+[    0.076324] pci 0000:00:00.0: BAR 0 [mem size 0x01000000]: can't assign; no space
+[    0.076331] pci 0000:00:00.0: BAR 0 [mem size 0x01000000]: failed to assign
+[    0.076339] pci 0000:00:00.0: PCI bridge to [bus 01]
+[    0.076348] pci 0000:00:00.0:   bridge window [io  0xc000180000010000-0xc00018000001ffff]
+[    0.076357] pci 0000:00:00.0:   bridge window [mem 0xc00000000-0xc1fffffff]
+[    0.076367] pci_bus 0000:00: Some PCI device resources are unassigned, try booting with pci=realloc
+[    0.076373] pci_bus 0000:00: resource 4 [io  0xc000180000010000-0xc00018000001ffff]
+[    0.076381] pci_bus 0000:00: resource 5 [mem 0xc00000000-0xc1fffffff]
+[    0.076388] pci_bus 0000:01: resource 0 [io  0xc000180000010000-0xc00018000001ffff]
+[    0.076396] pci_bus 0000:01: resource 1 [mem 0xc00000000-0xc1fffffff]
+[    0.076406] pci 0001:00:00.0: BAR 0 [mem size 0x01000000]: can't assign; no space
+[    0.076413] pci 0001:00:00.0: BAR 0 [mem size 0x01000000]: failed to assign
+[    0.076421] pci 0001:00:00.0: ROM [mem size 0x01000000 pref]: can't assign; no space
+[    0.076429] pci 0001:00:00.0: ROM [mem size 0x01000000 pref]: failed to assign
+[    0.076437] pci 0001:00:00.0: BAR 0 [mem size 0x01000000]: can't assign; no space
+[    0.076444] pci 0001:00:00.0: BAR 0 [mem size 0x01000000]: failed to assign
+[    0.076452] pci 0001:00:00.0: PCI bridge to [bus 01]
+[    0.076460] pci 0001:00:00.0:   bridge window [io  0xc000180000030000-0xc00018000003ffff]
+[    0.076469] pci 0001:00:00.0:   bridge window [mem 0xc20000000-0xc2fffffff]
+[    0.076479] pci_bus 0001:00: Some PCI device resources are unassigned, try booting with pci=realloc
+[    0.076485] pci_bus 0001:00: resource 4 [io  0xc000180000030000-0xc00018000003ffff]
+[    0.076493] pci_bus 0001:00: resource 5 [mem 0xc20000000-0xc2fffffff]
+[    0.076500] pci_bus 0001:01: resource 0 [io  0xc000180000030000-0xc00018000003ffff]
+[    0.076507] pci_bus 0001:01: resource 1 [mem 0xc20000000-0xc2fffffff]
+[    0.076519] pci 0003:00:00.0: BAR 0 [mem size 0x01000000]: can't assign; no space
+[    0.076527] pci 0003:00:00.0: BAR 0 [mem size 0x01000000]: failed to assign
+[    0.076535] pci 0003:00:00.0: ROM [mem size 0x01000000 pref]: can't assign; no space
+[    0.076542] pci 0003:00:00.0: ROM [mem size 0x01000000 pref]: failed to assign
+[    0.076551] pci 0003:00:00.0: bridge window [mem size 0x01100000 64bit pref]: can't assign; no space
+[    0.076558] pci 0003:00:00.0: bridge window [mem size 0x01100000 64bit pref]: failed to assign
+[    0.076567] pci 0003:00:00.0: BAR 0 [mem size 0x01000000]: can't assign; no space
+[    0.076575] pci 0003:00:00.0: BAR 0 [mem size 0x01000000]: failed to assign
+[    0.076583] pci 0003:00:00.0: bridge window [mem size 0x01100000 64bit pref]: can't assign; no space
+[    0.076590] pci 0003:00:00.0: bridge window [mem size 0x01100000 64bit pref]: failed to assign
+[    0.076601] pci 0003:01:00.0: BAR 2 [mem 0xc40000000-0xc407fffff 64bit pref]: assigned
+[    0.076618] pci 0003:01:00.1: BAR 2 [mem 0xc40800000-0xc40ffffff 64bit pref]: assigned
+[    0.076634] pci 0003:01:00.0: BAR 0 [mem 0xc41000000-0xc41007fff 64bit pref]: assigned
+[    0.076651] pci 0003:01:00.1: BAR 0 [mem 0xc41008000-0xc4100ffff 64bit pref]: assigned
+[    0.076666] pci 0003:00:00.0: PCI bridge to [bus 01]
+[    0.076674] pci 0003:00:00.0:   bridge window [io  0xc000180000050000-0xc00018000005ffff]
+[    0.076683] pci 0003:00:00.0:   bridge window [mem 0xc40000000-0xc47ffffff]
+[    0.076693] pci_bus 0003:00: Some PCI device resources are unassigned, try booting with pci=realloc
+[    0.076699] pci_bus 0003:00: resource 4 [io  0xc000180000050000-0xc00018000005ffff]
+[    0.076707] pci_bus 0003:00: resource 5 [mem 0xc40000000-0xc47ffffff]
+[    0.076714] pci_bus 0003:01: resource 0 [io  0xc000180000050000-0xc00018000005ffff]
+[    0.076722] pci_bus 0003:01: resource 1 [mem 0xc40000000-0xc47ffffff]
+[    0.076729] pci_bus 0003:01: resource 2 [mem size 0x01100000 64bit pref]
+[    0.077199] PCI: Probing PCI hardware done
+[    0.077298] vgaarb: loaded
+[    0.077453] clocksource: Switched to clocksource timebase
+[    0.082514] NET: Registered PF_INET protocol family
+[    0.083047] IP idents hash table entries: 262144 (order: 9, 2097152 bytes, linear)
+[    0.092428] tcp_listen_portaddr_hash hash table entries: 8192 (order: 5, 131072 bytes, linear)
+[    0.092492] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    0.092519] TCP established hash table entries: 131072 (order: 8, 1048576 bytes, linear)
+[    0.092947] TCP bind hash table entries: 65536 (order: 9, 2097152 bytes, linear)
+[    0.094127] TCP: Hash tables configured (established 131072 bind 65536)
+[    0.094279] UDP hash table entries: 8192 (order: 7, 524288 bytes, linear)
+[    0.094672] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    0.094751] PCI: CLS 32 bytes, default 64
+[    0.095066] Unpacking initramfs...
+[    0.095700] workingset: timestamp_bits=46 (anon: 41) max_order=22 bucket_order=0 (anon: 0)
+[    0.095944] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    0.095963] jffs2: version 2.2. (NAND) © 2001-2006 Red Hat, Inc.
+[    0.096247] NET: Registered PF_ALG protocol family
+[    0.096286] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 249)
+[    0.114803] pcieport 0000:00:00.0: AER: enabled with IRQ 20
+[    0.115089] pcieport 0001:00:00.0: AER: enabled with IRQ 21
+[    0.115381] pcieport 0003:00:00.0: AER: enabled with IRQ 23
+[    0.135780] bman_portal ff4000000.bman-portal: Portal initialised, cpu 0
+[    0.135910] bman_portal ff4004000.bman-portal: Portal initialised, cpu 1
+[    0.136014] bman_portal ff4008000.bman-portal: Portal initialised, cpu 2
+[    0.136110] bman_portal ff400c000.bman-portal: Portal initialised, cpu 3
+[    0.136211] bman_portal ff4010000.bman-portal: Portal initialised, cpu 4
+[    0.136307] bman_portal ff4014000.bman-portal: Portal initialised, cpu 5
+[    0.136406] bman_portal ff4018000.bman-portal: Portal initialised, cpu 6
+[    0.136507] bman_portal ff401c000.bman-portal: Portal initialised, cpu 7
+[    0.137663] qman_portal ff6000000.qman-portal: Portal initialised, cpu 0
+[    0.137837] qman_portal ff6004000.qman-portal: Portal initialised, cpu 1
+[    0.137955] qman_portal ff6008000.qman-portal: Portal initialised, cpu 2
+[    0.138078] qman_portal ff600c000.qman-portal: Portal initialised, cpu 3
+[    0.138198] qman_portal ff6010000.qman-portal: Portal initialised, cpu 4
+[    0.138322] qman_portal ff6014000.qman-portal: Portal initialised, cpu 5
+[    0.138444] qman_portal ff6018000.qman-portal: Portal initialised, cpu 6
+[    0.138697] qman_portal ff601c000.qman-portal: Portal initialised, cpu 7
+[    0.139742] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+[    0.140592] printk: console [ttyS0] disabled
+[    0.140722] serial8250.0: ttyS0 MMIO:0x0000000ffe11c500 (irq = 36, base_baud = 18750000) is a 16550A
+[    0.140760] printk: console [ttyS0] enabled
+[    0.140773] printk: legacy bootconsole [udbg0] disabled
+[    0.141297] serial8250.0: ttyS1 MMIO:0x0000000ffe11c600 (irq = 36, base_baud = 18750000) is a 16550A
+[    0.141609] serial8250.0: ttyS2 MMIO:0x0000000ffe11d500 (irq = 37, base_baud = 18750000) is a 16550A
+[    0.141919] serial8250.0: ttyS3 MMIO:0x0000000ffe11d600 (irq = 37, base_baud = 18750000) is a 16550A
+[    0.142880] printk: console [ttyS0] disabled
+[    0.149774] ffe11c500.serial: ttyS0 MMIO:0x0000000ffe11c500 (irq = 36, base_baud = 18750000) is a 16550
+[    0.149891] printk: console [ttyS0] enabled
+[    0.150417] ffe11c600.serial: ttyS1 MMIO:0x0000000ffe11c600 (irq = 36, base_baud = 18750000) is a 16550
+[    0.150865] ffe11d500.serial: ttyS2 MMIO:0x0000000ffe11d500 (irq = 37, base_baud = 18750000) is a 16550
+[    0.151340] ffe11d600.serial: ttyS3 MMIO:0x0000000ffe11d600 (irq = 37, base_baud = 18750000) is a 16550
+[    0.155652] loop: module loaded
+[    0.156016] fsl-sata ffe220000.sata: Sata FSL Platform/CSB Driver init
+[    0.156485] scsi host0: sata_fsl
+[    0.156597] ata1: SATA max UDMA/133 irq 68 lpm-pol 0
+[    0.156667] fsl-sata ffe221000.sata: Sata FSL Platform/CSB Driver init
+[    0.157012] scsi host1: sata_fsl
+[    0.157098] ata2: SATA max UDMA/133 irq 69 lpm-pol 0
+[    0.160766] physmap-flash fe8000000.nor: physmap platform flash device: [mem 0xfe8000000-0xfefffffff]
+[    0.160845] fe8000000.nor: Found 1 x16 devices at 0x0 in 16-bit bank. Manufacturer ID 0x000089 Chip ID 0x00227e
+[    0.160859] Amd/Fujitsu Extended Query Table at 0x0040
+[    0.160879]   Amd/Fujitsu Extended Query version 1.3.
+[    0.160886] number of CFI chips: 1
+[    0.661459] ata1: No Device OR PHYRDY change,Hstatus = 0xa0000000
+[    0.661484] ata1: SATA link down (SStatus 10 SControl 300)
+[    0.673469] ata2: Signature Update detected @ 508 msecs
+[    0.837478] ata2: SATA link up 3.0 Gbps (SStatus 123 SControl 300)
+[    0.838176] ata2.00: Model 'INTEL SSDSCKKR064G8', rev ' LHF0A2E', applying quirks: zeroaftertrim
+[    0.838211] ata2.00: supports DRM functions and may not be fully accessible
+[    0.838217] ata2.00: ATA-10: INTEL SSDSCKKR064G8,  LHF0A2E, max UDMA/133
+[    0.838225] ata2.00: 125045424 sectors, multi 16: LBA48 NCQ (depth 16/32)
+[    0.838232] ata2.00: ATA Identify Device Log not supported
+[    0.838236] ata2.00: Security Log not supported
+[    0.838241] ata2.00: Features: HIPM DIPM
+[    0.838381] ata2.00: supports DRM functions and may not be fully accessible
+[    0.838387] ata2.00: Security Log not supported
+[    0.838396] ata2.00: configured for UDMA/133
+[    0.838740] scsi 1:0:0:0: Direct-Access     ATA      INTEL SSDSCKKR06 0A2E PQ: 0 ANSI: 5
+[    0.839766] sd 1:0:0:0: Attached scsi generic sg0 type 0
+[    0.839773] ata2.00: Enabling discard_zeroes_data
+[    0.839808] sd 1:0:0:0: [sda] 125045424 512-byte logical blocks: (64.0 GB/59.6 GiB)
+[    0.839845] sd 1:0:0:0: [sda] Write Protect is off
+[    0.839852] sd 1:0:0:0: [sda] Mode Sense: 00 3a 00 00
+[    0.839914] sd 1:0:0:0: [sda] Write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+[    0.840028] sd 1:0:0:0: [sda] Preferred minimum I/O size 512 bytes
+[    0.840573] ata2.00: Enabling discard_zeroes_data
+[    0.849193] Freeing initrd memory: 24544K
+[    0.853973] 8 fixed-partitions partitions found on MTD device fe8000000.nor
+[    0.853981] Creating 8 MTD partitions on "fe8000000.nor":
+[    0.853987] 0x000000000000-0x000000020000 : "RCW"
+[    0.854254] 0x000000020000-0x000000040000 : "hw-info"
+[    0.854447] 0x000000040000-0x000002040000 : "onie"
+[    0.854645] 0x000002040000-0x000004040000 : "diag"
+[    0.854853] 0x000004040000-0x000007f00000 : "open"
+[    0.855046] 0x000007f00000-0x000007f20000 : "Fman-FW"
+[    0.855249] 0x000007f20000-0x000007f40000 : "uboot-env"
+[    0.855461] 0x000007f40000-0x000008000000 : "uboot"
+[    0.861829]  sda: sda1 sda2
+[    0.862075] sd 1:0:0:0: [sda] Attached SCSI disk
+[    0.865072] platform ffe488000.port: Adding to iommu group 35
+[    0.869369] platform ffe489000.port: Adding to iommu group 36
+[    0.870048] platform ffe48a000.port: Adding to iommu group 37
+[    0.870691] platform ffe48b000.port: Adding to iommu group 38
+[    0.871335] platform ffe48c000.port: Adding to iommu group 39
+[    0.871975] platform ffe48d000.port: Adding to iommu group 40
+[    0.872622] platform ffe490000.port: Adding to iommu group 41
+[    0.873269] platform ffe491000.port: Adding to iommu group 42
+[    0.883220] fsl_dpaa_mac ffe4e0000.ethernet: FMan MEMAC
+[    0.883225] fsl_dpaa_mac ffe4e0000.ethernet: FMan MAC address: 1c:ea:0b:38:2b:d5
+[    0.886803] fsl_dpaa_mac ffe4e0000.ethernet eth0: Probed interface eth0
+[    0.887185] /soc@ffe000000/usb@210000: Invalid 'dr_mode' property, fallback to host mode
+[    0.887251] platform fsl-ehci.0: Adding to iommu group 43
+[    0.887372] platform fsl-ehci.1: Adding to iommu group 44
+[    0.887663] fsl-ehci fsl-ehci.0: Freescale On-Chip EHCI Host Controller
+[    0.887678] fsl-ehci fsl-ehci.0: new USB bus registered, assigned bus number 1
+[    1.197792] fsl-ehci fsl-ehci.0: irq 44, io mem 0xffe210000
+[    1.209457] fsl-ehci fsl-ehci.0: USB 2.0 started, EHCI 1.00
+[    1.209935] hub 1-0:1.0: USB hub found
+[    1.209964] hub 1-0:1.0: 1 port detected
+[    1.210202] fsl-ehci fsl-ehci.1: Freescale On-Chip EHCI Host Controller
+[    1.210214] fsl-ehci fsl-ehci.1: new USB bus registered, assigned bus number 2
+[    1.520391] fsl-ehci fsl-ehci.1: irq 45, io mem 0xffe211000
+[    1.529456] fsl-ehci fsl-ehci.1: USB 2.0 started, EHCI 1.00
+[    1.529852] hub 2-0:1.0: USB hub found
+[    1.529879] hub 2-0:1.0: 1 port detected
+[    1.530213] usbcore: registered new interface driver uas
+[    1.530282] usbcore: registered new interface driver usb-storage
+[    1.530303] i2c_dev: i2c /dev entries driver
+[    1.530723] mpc-i2c ffe118000.i2c: timeout 1000000 us
+[    1.532120] rtc-ds1672 0-0068: registered as rtc0
+[    1.533246] rtc-ds1672 0-0068: setting system clock to 2026-11-23T16:48:14 UTC (1795452494)
+[    1.533340] mpc-i2c ffe118100.i2c: timeout 1000000 us
+[    1.553474] tpm tpm0: starting up the TPM manually
+[    1.769477] tpm tpm0: TPM is disabled/deactivated (0x7)
+[    1.769858] mpc-i2c ffe119000.i2c: timeout 1000000 us
+[    1.770084] mpc-i2c ffe119100.i2c: timeout 1000000 us
+[    1.771580] i2c i2c-2: Added multiplexed i2c bus 4
+[    1.771978] i2c i2c-2: Added multiplexed i2c bus 5
+[    1.772090] i2c i2c-2: Added multiplexed i2c bus 6
+[    1.772196] i2c i2c-2: Added multiplexed i2c bus 7
+[    1.772309] i2c i2c-2: Added multiplexed i2c bus 8
+[    1.772431] i2c i2c-2: Added multiplexed i2c bus 9
+[    1.772541] i2c i2c-2: Added multiplexed i2c bus 10
+[    1.772647] i2c i2c-2: Added multiplexed i2c bus 11
+[    1.772655] pca954x 2-0076: registered 8 multiplexed busses for I2C switch pca9548
+[    1.773377] i2c i2c-3: Added multiplexed i2c bus 12
+[    1.773490] i2c i2c-3: Added multiplexed i2c bus 13
+[    1.773596] i2c i2c-3: Added multiplexed i2c bus 14
+[    1.773703] i2c i2c-3: Added multiplexed i2c bus 15
+[    1.773815] i2c i2c-3: Added multiplexed i2c bus 16
+[    1.773920] i2c i2c-3: Added multiplexed i2c bus 17
+[    1.774025] i2c i2c-3: Added multiplexed i2c bus 18
+[    1.774143] i2c i2c-3: Added multiplexed i2c bus 19
+[    1.774151] pca954x 3-0071: registered 8 multiplexed busses for I2C switch pca9548
+[    1.774585] i2c i2c-3: Added multiplexed i2c bus 20
+[    1.774754] i2c i2c-3: Added multiplexed i2c bus 21
+[    1.774924] i2c i2c-3: Added multiplexed i2c bus 22
+[    1.775099] i2c i2c-3: Added multiplexed i2c bus 23
+[    1.775265] i2c i2c-3: Added multiplexed i2c bus 24
+[    1.775440] i2c i2c-3: Added multiplexed i2c bus 25
+[    1.775616] i2c i2c-3: Added multiplexed i2c bus 26
+[    1.775783] i2c i2c-3: Added multiplexed i2c bus 27
+[    1.775791] pca954x 3-0072: registered 8 multiplexed busses for I2C switch pca9548
+[    1.776242] i2c i2c-3: Added multiplexed i2c bus 28
+[    1.776424] i2c i2c-3: Added multiplexed i2c bus 29
+[    1.776628] i2c i2c-3: Added multiplexed i2c bus 30
+[    1.776796] i2c i2c-3: Added multiplexed i2c bus 31
+[    1.776967] i2c i2c-3: Added multiplexed i2c bus 32
+[    1.777139] i2c i2c-3: Added multiplexed i2c bus 33
+[    1.777321] i2c i2c-3: Added multiplexed i2c bus 34
+[    1.777513] i2c i2c-3: Added multiplexed i2c bus 35
+[    1.777521] pca954x 3-0073: registered 8 multiplexed busses for I2C switch pca9548
+[    1.777968] i2c i2c-3: Added multiplexed i2c bus 36
+[    1.778145] i2c i2c-3: Added multiplexed i2c bus 37
+[    1.778319] i2c i2c-3: Added multiplexed i2c bus 38
+[    1.778492] i2c i2c-3: Added multiplexed i2c bus 39
+[    1.778666] i2c i2c-3: Added multiplexed i2c bus 40
+[    1.778843] i2c i2c-3: Added multiplexed i2c bus 41
+[    1.779014] i2c i2c-3: Added multiplexed i2c bus 42
+[    1.779189] i2c i2c-3: Added multiplexed i2c bus 43
+[    1.779197] pca954x 3-0074: registered 8 multiplexed busses for I2C switch pca9548
+[    1.779644] i2c i2c-3: Added multiplexed i2c bus 44
+[    1.779821] i2c i2c-3: Added multiplexed i2c bus 45
+[    1.779997] i2c i2c-3: Added multiplexed i2c bus 46
+[    1.780175] i2c i2c-3: Added multiplexed i2c bus 47
+[    1.780351] i2c i2c-3: Added multiplexed i2c bus 48
+[    1.780530] i2c i2c-3: Added multiplexed i2c bus 49
+[    1.780706] i2c i2c-3: Added multiplexed i2c bus 50
+[    1.780879] i2c i2c-3: Added multiplexed i2c bus 51
+[    1.780887] pca954x 3-0075: registered 8 multiplexed busses for I2C switch pca9548
+[    1.783321] lm75 5-0048: hwmon0: sensor 'lm75'
+[    1.785113] lm75 5-0049: hwmon1: sensor 'lm75'
+[    1.786909] lm75 5-004a: hwmon2: sensor 'lm75'
+[    1.788707] lm75 5-004b: hwmon3: sensor 'lm75'
+[    1.790502] lm75 5-004c: hwmon4: sensor 'lm75'
+[    1.792298] lm75 5-004d: hwmon5: sensor 'lm75'
+[    1.794607] qoriq-cpufreq qoriq-cpufreq: Disabling due to erratum A-008083
+[    1.825464] mmc0: SDHCI controller on ffe114000.sdhc [ffe114000.sdhc] using ADMA 64-bit
+[    1.922397] at24 24-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+[    1.923347] at24 25-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+[    2.562396] at24 46-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+[    2.563341] at24 47-0050: 256 byte 24c02 EEPROM, writable, 1 bytes/write
+[    2.690670] NET: Registered PF_INET6 protocol family
+[    2.691405] Segment Routing with IPv6
+[    2.691437] In-situ OAM (IOAM) with IPv6
+[    2.691508] NET: Registered PF_PACKET protocol family
+[    2.707626] clk: Disabling unused clocks
+[    2.707958] Freeing unused kernel image (initmem) memory: 356K
+[    2.707963] This architecture does not have kernel memory protection.
+[    2.707975] Run /init as init process
+[    2.707978]   with arguments:
+[    2.707981]     /init
+[    2.707984]   with environment:
+[    2.707986]     HOME=/
+[    2.707989]     TERM=linux
+[    3.070376] systemd[1]: Successfully made /usr/ read-only.
+[    3.749526] systemd[1]: systemd 262 running in system mode (+PAM +AUDIT -SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP -GNUTLS +OPENSSL +ACL +BLKID -CURL +ELFUTILS -FIDO2 +IDN2 +KMOD -LIBCRYPTSETUP -LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY -P11KIT +QRENCODE -TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD -BPF_FRAMEWORK -BTF -XKBCOMMON +UTMP +LIBARCHIVE)
+[    3.749550] systemd[1]: Detected architecture ppc64.
+[    3.749560] systemd[1]: Running in initrd.
+[    3.765750] systemd[1]: Initializing machine ID from random generator.
+[    3.765937] systemd[1]: Hostname set to <as7772>.
+[    3.900410] systemd[1]: Queued start job for default target Initrd Default Target.
+[    3.916574] systemd[1]: Created slice Slice /system/modprobe.
+[    3.929696] systemd[1]: Started Dispatch Password Requests to Console Directory Watch.
+[    3.945536] systemd[1]: Expecting device /dev/disk/by-label/NIXOS_SD...
+[    3.957549] systemd[1]: Reached target Path Units.
+[    3.969533] systemd[1]: Reached target Slice Units.
+[    3.981540] systemd[1]: Reached target Swaps.
+[    3.993541] systemd[1]: Reached target Timer Units.
+[    4.005733] systemd[1]: Listening on D-Bus System Message Bus Socket.
+[    4.017756] systemd[1]: Listening on Journal Socket (/dev/log).
+[    4.029755] systemd[1]: Listening on Journal Sockets.
+[    4.041661] systemd[1]: Listening on udev Kernel Socket.
+[    4.053878] systemd[1]: Listening on udev Varlink Socket.
+[    4.065548] systemd[1]: Reached target Socket Units.
+[    4.077607] systemd[1]: Create List of Static Device Nodes skipped, unmet condition check ConditionFileNotEmpty=/lib/modules/7.3.4/modules.devname
+[    4.079806] systemd[1]: Starting Load Kernel Module configfs...
+[    4.111494] systemd[1]: Starting Journal Service...
+[    4.124567] systemd[1]: Starting Load Kernel Modules...
+[    4.151059] systemd[1]: Starting Create Static Device Nodes in /dev gracefully...
+[    4.167861] systemd[1]: Starting Coldplug All udev Devices...
+[    4.181183] systemd[1]: modprobe@configfs.service: Deactivated successfully.
+[    4.181998] systemd[1]: Finished Load Kernel Module configfs.
+[    4.199655] systemd[1]: Finished Load Kernel Modules.
+[    4.210865] systemd[1]: Finished Create Static Device Nodes in /dev gracefully.
+[    4.225384] systemd-journald[105]: Collecting audit messages is disabled.
+[    4.226968] systemd[1]: Kernel Configuration File System skipped, unmet condition check ConditionPathExists=/sys/kernel/config
+[    4.229070] systemd[1]: Starting Apply Kernel Variables...
+[    4.243783] systemd[1]: Starting Create Static Device Nodes in /dev...
+[    4.286872] systemd[1]: Finished Apply Kernel Variables.
+[    4.299033] systemd[1]: Finished Create Static Device Nodes in /dev.
+[    4.313930] systemd[1]: Reached target Preparation for Local File Systems.
+[    4.325553] systemd[1]: Reached target Local File Systems.
+[    4.340502] systemd[1]: Starting Rule-based Manager for Device Events and Files...
+[    4.467697] systemd[1]: Started Journal Service.
+[    5.496864] EXT4-fs (sda2): mounted filesystem 44444444-4444-4444-8888-888888888888 r/w with ordered data mode. Quota mode: disabled.
+[    9.805465] random: crng init done
+[   10.864782] systemd-journald[105]: Received SIGTERM from PID 1 (systemd).
+[   12.009507] systemd[1]: systemd 262 running in system mode (+PAM +AUDIT -SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP -GNUTLS +OPENSSL +ACL +BLKID -CURL +ELFUTILS -FIDO2 +IDN2 +KMOD -LIBCRYPTSETUP -LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY -P11KIT +QRENCODE -TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD -BPF_FRAMEWORK -BTF -XKBCOMMON +UTMP +LIBARCHIVE)
+[   12.009530] systemd[1]: Detected architecture ppc64.
+[   12.745651] systemd[1]: initrd-switch-root.service: Deactivated successfully.
+[   12.746161] systemd[1]: Stopped initrd-switch-root.service.
+[   12.760464] systemd[1]: systemd-journald.service: Scheduled restart job, restart counter is at 1.
+[   12.763181] systemd[1]: Created slice Slice /system/getty.
+[   12.775711] systemd[1]: Created slice Slice /system/serial-getty.
+[   12.791387] systemd[1]: Created slice User and Session Slice.
+[   12.805722] systemd[1]: Started Dispatch Password Requests to Console Directory Watch.
+[   12.821721] systemd[1]: Started Forward Password Requests to Wall Directory Watch.
+[   12.837597] systemd[1]: Expecting device /dev/ttyS0...
+[   12.849540] systemd[1]: Stopped target initrd-fs.target.
+[   12.861557] systemd[1]: Stopped target initrd-root-fs.target.
+[   12.873531] systemd[1]: Stopped target initrd-switch-root.target.
+[   12.885606] systemd[1]: Reached target Path Units.
+[   12.897534] systemd[1]: Reached target Remote File Systems.
+[   12.909529] systemd[1]: Reached target Slice Units.
+[   12.921568] systemd[1]: Reached target Swaps.
+[   12.936875] systemd[1]: Listening on Query the User Interactively for a Password.
+[   12.952929] systemd[1]: Listening on Process Core Dump Socket.
+[   12.967436] systemd[1]: Listening on Credential Encryption/Decryption.
+[   12.983832] systemd[1]: Listening on Factory Reset Management.
+[   12.997721] systemd[1]: Listening on Hostname Service Socket.
+[   13.014621] systemd[1]: Starting Journal Log Access Socket...
+[   13.029619] systemd[1]: Journal Audit Socket skipped, unmet condition check ConditionSecurity=audit
+[   13.033135] systemd[1]: Listening on Console Output Muting Service Socket.
+[   13.046058] systemd[1]: Listening on Network Management Metrics Varlink Socket.
+[   13.062027] systemd[1]: Listening on Network Management Varlink Socket.
+[   13.073892] systemd[1]: Listening on Network Management Netlink Socket.
+[   13.085889] systemd[1]: Listening on Userspace Out-Of-Memory (OOM) Killer Socket.
+[   13.101784] systemd[1]: Listening on Resolve Monitor Varlink Socket.
+[   13.113768] systemd[1]: Listening on Resolve Service Varlink Socket.
+[   13.125780] systemd[1]: Listening on udev Varlink Socket.
+[   13.137867] systemd[1]: Huge Pages File System skipped, unmet condition check ConditionPathExists=/sys/kernel/mm/hugepages
+[   13.138216] systemd[1]: POSIX Message Queue File System skipped, unmet condition check ConditionPathExists=/proc/sys/fs/mqueue
+[   13.142840] systemd[1]: Mounting Kernel Debug File System...
+[   13.154043] systemd[1]: Kernel Trace File System skipped, unmet condition check ConditionPathExists=/sys/kernel/tracing
+[   13.154340] systemd[1]: Create List of Static Device Nodes skipped, unmet condition check ConditionFileNotEmpty=/run/booted-system/kernel-modules/lib/modules/7.3.4/modules.devname
+[   13.158719] systemd[1]: Starting Load Kernel Module configfs...
+[   13.184655] systemd[1]: Starting Load Kernel Module drm...
+[   13.201765] systemd[1]: Starting Load Kernel Module efi_pstore...
+[   13.217639] systemd[1]: Starting Load Kernel Module fuse...
+[   13.237910] systemd[1]: Starting Journal Service...
+[   13.253720] systemd[1]: Starting Load Kernel Modules...
+[   13.272888] systemd[1]: Starting Userspace Out-Of-Memory (OOM) Killer...
+[   13.289492] systemd[1]: Starting Remount Root and Kernel File Systems...
+[   13.294152] as7760_fan: loading out-of-tree module taints kernel.
+[   13.296326] 8021q: 802.1Q VLAN Support v1.8
+[   13.306701] systemd[1]: Starting Create Static Device Nodes in /dev gracefully...
+[   13.326003] systemd[1]: Starting Coldplug All udev Devices...
+[   13.344574] systemd[1]: Listening on Journal Log Access Socket.
+[   13.349577] systemd-journald[301]: Collecting audit messages is disabled.
+[   13.358218] systemd[1]: Mounted Kernel Debug File System.
+[   13.371132] systemd[1]: modprobe@configfs.service: Deactivated successfully.
+[   13.371909] systemd[1]: Finished Load Kernel Module configfs.
+[   13.373693] EXT4-fs (sda2): re-mounted 44444444-4444-4444-8888-888888888888.
+[   13.387806] systemd[1]: Started Journal Service.
+[   13.571500] systemd-journald[301]: Received client request to flush runtime journal.
+[   15.123218] fsl_dpaa_mac ffe4e0000.ethernet eth0: PHY [0x0000000ffe4fc000:1f] driver [Broadcom BCM54616S] (irq=POLL)
+[   15.123480] fsl_dpaa_mac ffe4e0000.ethernet eth0: configuring for inband/sgmii link mode
+[   19.202246] fsl_dpaa_mac ffe4e0000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+[  118.483894] Bridge: port 1(dummy) entered blocking state
+[  118.483910] Bridge: port 1(dummy) entered disabled state
+[  118.483966] dummy: entered allmulticast mode
+[  118.484243] dummy: entered promiscuous mode
+[  118.495987] Bridge: port 1(dummy) entered blocking state
+[  118.496011] Bridge: port 1(dummy) entered forwarding state
+[  118.504725] Bridge: port 1(dummy) entered disabled state
+[  118.513261] Bridge: port 1(dummy) entered blocking state
+[  118.513276] Bridge: port 1(dummy) entered forwarding state
+[  126.298795] IPv6: Ethernet120: IPv6 duplicate address fe80::1eea:bff:fe38:2bd5 used by 1c:ea:0b:38:2b:d5 detected!
+[  127.434871] IPv6: Ethernet0: IPv6 duplicate address fe80::1eea:bff:fe38:2bd5 used by 1c:ea:0b:38:2b:d5 detected!
+[  127.434908] IPv6: Ethernet4: IPv6 duplicate address fe80::1eea:bff:fe38:2bd5 used by 1c:ea:0b:38:2b:d5 detected!

@@ -1,0 +1,35 @@
+== 2026-11-23T09:08:28-08:00 system /nix/store/na3yx1c2yqyaf5vi1lk7n915aylwp1a1-nixos-system-as7772-26.11.20261111.d4f25a3
+kernel 7.3.4 #1-NixOS SMP PREEMPT @1794334210 rust=1
+cmdline init=/nix/store/na3yx1c2yqyaf5vi1lk7n915aylwp1a1-nixos-system-as7772-26.11.20261111.d4f25a3/init console=ttyS0,115200n8 panic=10 pcie_aspm.policy=performance root=fstab loglevel=4 net.ifnames=0 lsm=landlock,yama,bpf
+uptime 133.32 s
+active active active active 
+failed units: 0
+linux_bcm_knet        102400  0
+linux_user_bde         36864  0
+linux_kernel_bde       81920  2 linux_bcm_knet,linux_user_bde
+as7760_fan             28672  0
+taint 4608
+[    0.031077] /pcie@ffe250000: WARNING: Outbound window cfg leaves gaps in memory map. Adjusting the memory map could reduce unnecessary bounce buffering.
+[    0.031447] /pcie@ffe270000: WARNING: Outbound window cfg leaves gaps in memory map. Adjusting the memory map could reduce unnecessary bounce buffering.
+[    0.034892] WARNING: drivers/iommu/iommu.c:654 at __iommu_probe_device+0x27c/0x420, CPU#6: swapper/0/1
+[    0.034923] CPU: 6 UID: 0 PID: 1 Comm: swapper/0 Not tainted 7.3.4 #1-NixOS PREEMPTLAZY 
+[    0.034943] REGS: c00000008012f700 TRAP: 0700   Not tainted  (7.3.4)
+[    0.035390] WARNING: drivers/iommu/iommu.c:654 at __iommu_probe_device+0x27c/0x420, CPU#6: swapper/0/1
+[    0.035409] CPU: 6 UID: 0 PID: 1 Comm: swapper/0 Tainted: G        W           7.3.4 #1-NixOS PREEMPTLAZY 
+[    0.035418] Tainted: [W]=WARN
+[    0.035433] REGS: c00000008012f700 TRAP: 0700   Tainted: G        W            (7.3.4)
+[    0.035864] WARNING: drivers/iommu/iommu.c:654 at __iommu_probe_device+0x27c/0x420, CPU#6: swapper/0/1
+[    0.035884] CPU: 6 UID: 0 PID: 1 Comm: swapper/0 Tainted: G        W           7.3.4 #1-NixOS PREEMPTLAZY 
+[    0.035893] Tainted: [W]=WARN
+[    0.035907] REGS: c00000008012f700 TRAP: 0700   Tainted: G        W            (7.3.4)
+[   12.354004] as7760_fan: loading out-of-tree module taints kernel.
+Nov 23 09:06:28 as7772 systemd[1]: Started fand fan control daemon.
+Nov 23 09:06:32 as7772 fand[434]: sensor asic: online after 4s, 43.8 C
+Nov 23 09:06:32 as7772 fand[434]: zone asic: all sensors online, resuming curve delta-asic
+Nov 23 09:08:12 as7772 fand[434]: sensor asic: no reading (/run/asic/temperature: no such file), holding 44.3 C for up to 45s
+Nov 23 09:08:16 as7772 fand[434]: sensor asic: reading back after 6s, 44.3 C
+dev 4-0066 driver as7760_fan module as7760_fan
+name -r--r--r-- as7760_fan
+pwm1 -rw-r--r-- 136
+PASS: MKA up on 4 ports without intervention, the slowest 14.8 s after the start of sonic-syncd (limit 60 s)
+]0;32 of 32 PHYs as the script expects

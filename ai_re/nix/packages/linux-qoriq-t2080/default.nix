@@ -2,8 +2,9 @@
 # boards: allnoconfig + exactly what the platform needs. Board deltas go in
 # boardPatches (./boards/<board>/), not in this file.
 # rust: CONFIG_RUST through the shared ppc64 big-endian series
-# (../kernel-rust-ppc64be); opt-in, a separate derivation, never a board's
-# default. extraConfig: more structuredExtraConfig (tests, QEMU platform).
+# (../kernel-rust-ppc64be). Off here; the boards' kernel has it on through
+# hardware.qoriqT2080.rust (modules/platforms/qoriq-t2080.nix, default true since
+# 2026-11-23). extraConfig: more structuredExtraConfig (tests, QEMU platform).
 { pkgs, lib, boardPatches ? [ ], rust ? false, extraConfig ? { } }:
 let
   rustPpc64be = import ../kernel-rust-ppc64be { inherit lib; };

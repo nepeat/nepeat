@@ -1,0 +1,54 @@
+bound yes driver=as7760_fan
+name=as7760_fan
+fan10_fault mode=-r--r--r-- value=0
+fan10_input mode=-r--r--r-- value=5500
+fan10_label mode=-r--r--r-- value=fan5_rear
+fan11_fault mode=-r--r--r-- value=0
+fan11_input mode=-r--r--r-- value=25500
+fan11_label mode=-r--r--r-- value=fan6_front
+fan12_fault mode=-r--r--r-- value=0
+fan12_input mode=-r--r--r-- value=100
+fan12_label mode=-r--r--r-- value=fan6_rear
+fan1_fault mode=-r--r--r-- value=0
+fan1_input mode=-r--r--r-- value=1000
+fan1_label mode=-r--r--r-- value=fan1_front
+fan2_fault mode=-r--r--r-- value=0
+fan2_input mode=-r--r--r-- value=1100
+fan2_label mode=-r--r--r-- value=fan1_rear
+fan3_fault mode=-r--r--r-- value=0
+fan3_input mode=-r--r--r-- value=2000
+fan3_label mode=-r--r--r-- value=fan2_front
+fan4_fault mode=-r--r--r-- value=1
+fan4_input mode=-r--r--r-- value=0
+fan4_label mode=-r--r--r-- value=fan2_rear
+fan5_fault mode=-r--r--r-- value=1
+fan5_input mode=-r--r--r-- value=0
+fan5_label mode=-r--r--r-- value=fan3_front
+fan6_fault mode=-r--r--r-- value=1
+fan6_input mode=-r--r--r-- value=3300
+fan6_label mode=-r--r--r-- value=fan3_rear
+fan7_fault mode=-r--r--r-- value=0
+fan7_input mode=-r--r--r-- value=4000
+fan7_label mode=-r--r--r-- value=fan4_front
+fan8_fault mode=-r--r--r-- value=0
+fan8_input mode=-r--r--r-- value=4400
+fan8_label mode=-r--r--r-- value=fan4_rear
+fan9_fault mode=-r--r--r-- value=0
+fan9_input mode=-r--r--r-- value=5000
+fan9_label mode=-r--r--r-- value=fan5_front
+pwm1 mode=-rw-r--r-- value=85
+write 100 err duty=0x05 pre=0xaa pwm1=85
+write 127 err duty=0x05 pre=0xaa pwm1=85
+write 128 ok duty=0x08 pre=0x00 pwm1=136
+write 129 ok duty=0x08 pre=0x00 pwm1=136
+write 170 ok duty=0x0a pre=0x00 pwm1=170
+write 200 ok duty=0x0c pre=0x00 pwm1=204
+write 254 ok duty=0x0f pre=0x00 pwm1=255
+write 255 ok duty=0x0f pre=0x00 pwm1=255
+write 256 err duty=0x0f pre=0xaa pwm1=255
+write -1 err duty=0x0f pre=0xaa pwm1=255
+write abc err duty=0x0f pre=0xaa pwm1=255
+duty-out-of-range pwm1=I/O error
+all-absent faults=1 1 1 1 1 1 1 1 1 1 1 1 
+probe-duty-0x20 hwmon=0
+rmmod ok

@@ -1,9 +1,9 @@
 #!/bin/sh
 # Run inside the QEMU guest of ../kernel-rust-ppc64be/tests.nix (as /extra.sh):
-# the same scenario against the C driver (/m/fan-c) and the Rust one
-# (/m/fan-rs), each bound to an i2c-stub chip at 0x66. Every observable result
-# is a "FAN <impl> ..." line (stdout, collected by qemu-init.sh); the host
-# compares the two sets line by line.
+# the Rust as7760_fan (/m/fan-rs) bound to an i2c-stub chip at 0x66, the scenario
+# run twice. Every observable result is a "FAN rust ..." line (stdout, collected
+# by qemu-init.sh); the host compares each run with ./qemu-expected.txt, what the
+# C driver this one replaced did in the same scenario (recorded 2026-11-23, 47c0012).
 export PATH=/bin
 insmod /m/i2c-stub.ko chip_addr=0x66 || { echo "TEST: FAIL i2c-stub"; exit 0; }
 B=
@@ -48,7 +48,6 @@ run() { # impl dir
   echo 0x66 > "$D/delete_device"
   rmmod as7760_fan && echo "FAN $impl rmmod ok"
 }
-run c fan-c
 run rust fan-rs
 run rust fan-rs
 echo "TEST: fan scenarios done"

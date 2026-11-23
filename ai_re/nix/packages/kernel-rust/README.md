@@ -9,7 +9,7 @@ Paths without a prefix are in the kernel source.
 | --- | --- | --- |
 | Alpine v2/v3 (DMC-12, CS8210), arm64 | yes | `arch/arm64/Kconfig:228` (`HAVE_RUST if RUSTC_SUPPORTS_ARM64`, little endian). nixpkgs turns it on for aarch64 from 6.12 (`common-config.nix`, `rustByDefault`), so linux-alpine's `trimmed`/`lean` variants have it already; `minimal` (allnoconfig, the DMC-12's default) gets it with `rust = true` / `hardware.alpineV2.kernelRust` (+0.98 MB Image) |
 | Armada 7040 (AS5114), arm64 | yes | stock nixpkgs kernel: on already |
-| QorIQ T2080 (AS7760, AS7772), ppc64 big endian | opt-in | upstream 7.3 selects `HAVE_RUST` only for ppc32 and ppc64le (`arch/powerpc/Kconfig:288-289`). Our six-patch series for 64-bit big-endian ELFv2 (Book3E and Book3S) is in [../kernel-rust-ppc64be](../kernel-rust-ppc64be/README.md): `linux-qoriq-t2080 { rust = true; }`, NixOS `hardware.qoriqT2080.rust`; ABI, layout and QEMU proofs there. Not the boards' default kernel until it has run on the switch |
+| QorIQ T2080 (AS7760, AS7772), ppc64 big endian | yes (our series) | upstream 7.3 selects `HAVE_RUST` only for ppc32 and ppc64le (`arch/powerpc/Kconfig:288-289`). Our six-patch series for 64-bit big-endian ELFv2 (Book3E and Book3S) is in [../kernel-rust-ppc64be](../kernel-rust-ppc64be/README.md); the boards' kernel has it on (`hardware.qoriqT2080.rust`, default since 2026-11-23, proven on the AS7772); the fan driver is Rust |
 
 Out-of-tree Rust modules build with `make -C <kernel.dev>/build M=...` like C
 ones; a Rust-enabled kernel's `moduleBuildDependencies` carry rustc and bindgen,

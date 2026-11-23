@@ -1,0 +1,17 @@
+[  194.144494] rust_ppc64_abi: ppc64abi: start (24 structs)
+[  194.178353] rust_ppc64_abi: ppc64abi: hammer ran on 8 CPUs x 20000 iterations
+[  194.198121] rust_ppc64_abi: ppc64abi: fmt 255 -1 0xdeadbeef Some(3) end
+[  194.198268] WARNING: abi_main.rs:381 at _RNvXs_CsdkTsLf9fC2o_8abi_mainNtB4_3AbiNtNtCsgD1NOyMMgVc_6kernel6module6Module4init+0x15c8/0x1754 [rust_ppc64_abi], CPU#7: insmod/2186
+[  194.199162] rust_ppc64_abi: ppc64abi: survived warn_on at abi_main.rs:381
+[  194.199167] rust_ppc64_abi: ppc64abi: RESULT pass=338 fail=0
+[  194.204564] rust_ppc64_abi: ppc64abi: unloaded
+[  194.224663] rust_ppc64_abi: ppc64abi: start (24 structs)
+[  194.257544] rust_ppc64_abi: ppc64abi: hammer ran on 8 CPUs x 20000 iterations
+[  194.277441] rust_ppc64_abi: ppc64abi: fmt 255 -1 0xdeadbeef Some(3) end
+[  194.277589] WARNING: abi_main.rs:381 at _RNvXs_CsdkTsLf9fC2o_8abi_mainNtB4_3AbiNtNtCsgD1NOyMMgVc_6kernel6module6Module4init+0x15c8/0x1754 [rust_ppc64_abi], CPU#7: insmod/2196
+[  194.278485] rust_ppc64_abi: ppc64abi: survived warn_on at abi_main.rs:381
+[  194.278490] rust_ppc64_abi: ppc64abi: RESULT pass=338 fail=0
+[  194.283417] rust_ppc64_abi: ppc64abi: unloaded
+taint 4608
+8
+cpu		: e6500, altivec supported

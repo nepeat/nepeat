@@ -1,10 +1,10 @@
-# The AS7760 fan CPLD hwmon driver in Rust (./rust): same module, driver and
-# hwmon name, same sysfs attributes and behaviour as the C one of ./default.nix,
-# which stays the default until the Rust one is proven on the switch (owner:
-# then the C driver is deleted). Needs a kernel with CONFIG_RUST: for the T2080
-# boards linux-qoriq-t2080 { rust = true; } (../kernel-rust-ppc64be). The build
-# runs the register logic's unit tests on the build host; the QEMU parity test
-# against the C driver is ../kernel-rust-ppc64be/tests.nix (fan-parity).
+# The AS7760 fan CPLD hwmon driver in Rust (./rust): hwmon name as7760_fan,
+# pwm1 + fan1..12_input/_fault/_label. It replaced the C driver on 2026-11-23
+# after the AS7772 trial (../kernel-rust-ppc64be/README.md "proof on hardware").
+# Needs a kernel with CONFIG_RUST: linux-qoriq-t2080 { rust = true; } (NixOS
+# hardware.qoriqT2080.rust, the default). The build runs the register logic's
+# unit tests on the build host; ../kernel-rust-ppc64be/tests.nix (qemu-e6500)
+# runs the module on i2c-stub against ./qemu-expected.txt, recorded from the C driver.
 { lib, stdenv, kernel, buildPackages }:
 assert lib.assertMsg (kernel.withRust or false)
   "as7760-fan-rs: kernel ${kernel.name} is built without CONFIG_RUST";

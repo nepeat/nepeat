@@ -1,0 +1,8 @@
+warning/error-class kernel log lines (normalised) present on the trial boot and not on the base boot:
+WARNING: abi_main.rs:N at _RNvXs_CsdkTsLfNfCNo_Nabi_mainNtBN_NAbiNtNtCsgDNNOyMMgVc_NkernelNmoduleNModuleNinit+X/X [rust_ppcN_abi], CPU: insmod/N
+CPU UID: N PID: N Comm: insmod Tainted: G        W  O        N.N.N #N-NixOS PREEMPTLAZY 
+Tainted: [W]=WARN, [O]=OOT_MODULE
+REGS: X TRAP: N   Tainted: G        W  O         (N.N.N)
+REGS: X TRAP: NcN   Tainted: G        W  O         (N.N.N)
+rust_ppcN_abi: ppcNabi: survived warn_on at abi_main.rs:N
+rust_ppcN_abi: ppcNabi: RESULT pass=N fail=N

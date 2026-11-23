@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Checks a QEMU console log of tests.nix. Env: CPUS, KUNIT=1 (doctests ran),
-# FAN=1 (the as7760-fan scenario ran: C and Rust lines must be identical).
+# FAN=1 (the as7760-fan scenario ran: each Rust run must equal FAN_EXPECTED).
 set -euo pipefail
 log=$1
 fail() { echo "FAIL: $*"; exit 1; }
@@ -31,12 +31,12 @@ if [ "$KUNIT" = 1 ]; then
   grep -qE '^ok [0-9]+ rust_doctests_kernel' <<<"$c" || fail "doctest suite not ok"
 fi
 if [ "$FAN" = 1 ]; then
+  # FAN_EXPECTED: what the C driver did in the same scenario (as7760-fan/qemu-expected.txt)
   d=$(mktemp -d)
-  grep '^FAN c ' <<<"$c" | sed 's/^FAN c //' > "$d/c.txt"
   grep '^FAN rust ' <<<"$c" | sed 's/^FAN rust //' > "$d/rs.txt"
-  [ "$(wc -l < "$d/c.txt")" -ge 50 ] || fail "fan scenario too short"
-  cat "$d/c.txt" "$d/c.txt" | diff -u - "$d/rs.txt" || fail "Rust as7760_fan differs from the C driver"
+  [ "$(wc -l < "$FAN_EXPECTED")" -ge 50 ] || fail "fan expectation too short"
+  cat "$FAN_EXPECTED" "$FAN_EXPECTED" | diff -u - "$d/rs.txt" || fail "Rust as7760_fan differs from the recorded C behaviour"
   grep -q 'fan scenarios done' <<<"$c" || fail "fan scenario incomplete"
-  echo "fan: $(wc -l < "$d/c.txt") observations, Rust == C (twice)"
+  echo "fan: $(wc -l < "$FAN_EXPECTED") observations, Rust == recorded C (twice)"
 fi
 echo "PASS: $(grep -m1 'ppc64abi: RESULT' <<<"$c" | sed 's/.*RESULT //') per ABI run, $(grep -c '^TEST: loaded' <<<"$c") module loads"

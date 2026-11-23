@@ -1,0 +1,29 @@
+as7760_fan sysfs, base (C driver, a0) vs trial (Rust driver, c0): device, driver/module name, every attribute's mode, labels, faults, pwm1 mode (pwm1 value and *_input are live and set by fand)
+IDENTICAL (27 lines)
+  dev 4-0066 driver as7760_fan module as7760_fan
+  fan1_fault -r--r--r-- 0
+  fan1_label -r--r--r-- fan1_front
+  fan2_fault -r--r--r-- 0
+  fan2_label -r--r--r-- fan1_rear
+  fan3_fault -r--r--r-- 0
+  fan3_label -r--r--r-- fan2_front
+  fan4_fault -r--r--r-- 0
+  fan4_label -r--r--r-- fan2_rear
+  fan5_fault -r--r--r-- 0
+  fan5_label -r--r--r-- fan3_front
+  fan6_fault -r--r--r-- 0
+  fan6_label -r--r--r-- fan3_rear
+  fan7_fault -r--r--r-- 0
+  fan7_label -r--r--r-- fan4_front
+  fan8_fault -r--r--r-- 0
+  fan8_label -r--r--r-- fan4_rear
+  fan9_fault -r--r--r-- 0
+  fan9_label -r--r--r-- fan5_front
+  fan10_fault -r--r--r-- 0
+  fan10_label -r--r--r-- fan5_rear
+  fan11_fault -r--r--r-- 0
+  fan11_label -r--r--r-- fan6_front
+  fan12_fault -r--r--r-- 0
+  fan12_label -r--r--r-- fan6_rear
+  name -r--r--r-- as7760_fan
+  pwm1 -rw-r--r-- <duty>

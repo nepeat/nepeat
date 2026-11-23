@@ -66,7 +66,7 @@ channels. The fan and temperature drivers use child adapters, so userspace
 does not race the kernel by writing raw mux registers or depend on changing
 Linux bus numbers.
 
-[Driver](../../nix/packages/as7760-fan/src/as7760_fan.c): hwmon name `as7760_fan`, twelve labeled
+[Driver](../../nix/packages/as7760-fan/rust/main.rs) (Rust since 2026-11-23; the C one it replaced behaved identically: `qemu-expected.txt` there): hwmon name `as7760_fan`, twelve labeled
 `fan*_input`/`fan*_fault` values, one shared `pwm1` (128–255 accepted). Probe is
 read-only. Writes follow the vendor's manual sequence, verify duty readback,
 and attempt full speed if duty programming fails. An unusable bus cannot be

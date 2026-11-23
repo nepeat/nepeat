@@ -1,0 +1,21 @@
+Not checking switch inhibitors (action = boot)
+as7760: boot files for /nix/store/na3yx1c2yqyaf5vi1lk7n915aylwp1a1-nixos-system-as7772-26.11.20261111.d4f25a3 installed on /boot/firmware (boot.scr + extlinux)
+  29   2026-11-23 04:42:47   
+  30   2026-11-23 08:09:29   
+  31   2026-11-23 08:55:25   (current)
+LABEL nixos-default
+  MENU LABEL NixOS - Default
+  APPEND init=/nix/store/na3yx1c2yqyaf5vi1lk7n915aylwp1a1-nixos-system-as7772-26.11.20261111.d4f25a3/init console=ttyS0,115200n8 panic=10 pcie_aspm.policy=perfo
+LABEL nixos-31-default
+  MENU LABEL NixOS - Configuration 31-default (2026-11-23 08:55 - 26.11.20261111.d4f25a3)
+  APPEND init=/nix/store/na3yx1c2yqyaf5vi1lk7n915aylwp1a1-nixos-system-as7772-26.11.20261111.d4f25a3/init console=ttyS0,115200n8 panic=10 pcie_aspm.policy=perfo
+LABEL nixos-30-default
+  MENU LABEL NixOS - Configuration 30-default (2026-11-23 08:09 - 26.11.20261111.d4f25a3)
+  APPEND init=/nix/store/631c5hx7kznld417zvpvp38w7ml2dc05-nixos-system-as7772-26.11.20261111.d4f25a3/init console=ttyS0,115200n8 panic=10 pcie_aspm.policy=perfo
+LABEL nixos-29-default
+  MENU LABEL NixOS - Configuration 29-default (2026-11-23 04:42 - 26.11.20261111.d4f25a3)
+  APPEND init=/nix/store/64296gcvk4yyhq2k8yjxwib67kil0bxz-nixos-system-as7772-26.11.20261111.d4f25a3/init console=ttyS0,115200n8 panic=10 pcie_aspm.policy=perfo
+LABEL nixos-28-default
+  MENU LABEL NixOS - Configuration 28-default (2026-11-23 03:16 - 26.11.20261111.d4f25a3)
+  APPEND init=/nix/store/zvih1crw43xfr1nvs33gqmr9l7dj6nm2-nixos-system-as7772-26.11.20261111.d4f25a3/init console=ttyS0,115200n8 panic=10 pcie_aspm.policy=perfo== pre-reboot: pwm1=255 rpm=18300 15300
+2026-11-23T08:55:38-08:00
