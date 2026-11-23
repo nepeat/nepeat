@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Compile recorded Evora MDIO traces (mdio.py format, made by rehost.py) into one MDIO script for
-openbcm-mdio-script on the switch (format: nix/packages/sai-openbcm/src/mdio_script.h).
+openbcm-mdio-script on the switch (format: rust/sai/crates/mdio-script/src/lib.rs).
 
   mkscript.py -o OUT.mdio all-init.trace.txt all-cfg.trace.txt [all-pre.trace.txt]
 

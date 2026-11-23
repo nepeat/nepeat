@@ -1,0 +1,175 @@
+# 2026-11-23T16:27:30.822Z S=/nix/store/b8qllq6130hk80yvjb0mpi7fyp6nj1j5-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+P=$(systemctl cat sonic-syncd | grep -o '/nix/store/[^ ]*-sai\.profile' | head -n1)
+echo "== $(date -u -Is) libsai $S ; profile $P"; cat $P
+echo "knet lines this boot before: $(journalctl -b -k | grep -c soc_knet_handle_rx)"
+systemctl stop sonic.target; sleep 15; systemctl stop openbcm-asic-temp
+echo "units: $(systemctl is-active sonic-syncd sonic-orchagent openbcm-asic-temp | tr '\n' ' ')"
+flock -n /run/openbcm-unit0.lock true && echo "SDK lock free" || echo "SDK lock HELD"
+for mode in tables recreate; do a=; [ $mode = recreate ] && a=--recreate
+echo "== $(date -u -Is) smoke run: $mode ($a)"
+$S/bin/sai-openbcm-smoke --sonic-is-stopped --libsai $S/lib/libsai.so --profile $P --cabled 49,53,9,13 --lag-port 57 --mdio-phy 0x0 --mdio-reg 0x8b00 --mdio-expect 0x2391 --log-stderr $a 2>&1 | grep -vE "^(sai-rs|sai-openbcm) .*(DEBUG|INFO)" 
+echo "== exit ${PIPESTATUS[0]}  $(date -u -Is)"; sleep 3; done
+echo "knet lines this boot after: $(journalctl -b -k | grep -c soc_knet_handle_rx)"
+echo "== $(date -u -Is) restart sonic.target"; systemctl start openbcm-asic-temp; systemctl start sonic.target; sleep 5; systemctl is-active sonic-syncd openbcm-asic-temp
+# exit 0
+== 2026-11-23T16:27:31+00:00 libsai /nix/store/b8qllq6130hk80yvjb0mpi7fyp6nj1j5-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0 ; profile /nix/store/sir97irdjxc0h69i63lbcajaxr5arjls-sai.profile
+SAI_INIT_CONFIG_FILE=/nix/store/h1lk5i6n06k8mh2v2bmsy4va497gbyi4-as7772-32x-config.bcm
+SAI_OPENBCM_BACKEND=openbcm
+SAI_OPENBCM_DIAG_SOCKET=/run/sai-openbcm/diag.sock
+SAI_OPENBCM_EXT_MACSEC_FILE=/nix/store/c0873nwla2zp8a0vkrzhvvnq5m5pipq3-as7772-ext-macsec.tbl
+SAI_OPENBCM_EXT_PHY_FILE=/nix/store/110qq60gbbw2qb5ysw2wm6hnpfwlzf6x-as7772-ext-phy.tbl
+SAI_OPENBCM_PORT_AUTONEG=off
+SAI_OPENBCM_PORT_FEC=none
+SAI_OPENBCM_PORT_IFG=128
+SAI_OPENBCM_PORT_INTERFACE=caui
+SAI_OPENBCM_RC_FILE=/nix/store/1zwzi6a6jbdbi1jc4advzsxmc5s7bsk2-as7772-32x-led_proc_init.soc
+SAI_OPENBCM_TEMP_FILE=/run/asic/temperature
+SAI_OPENBCM_TEMP_PROM=/run/prometheus-textfile/asic.prom
+knet lines this boot before: 0
+units: inactive inactive inactive 
+SDK lock free
+== 2026-11-23T16:27:46+00:00 smoke run: tables ()
+PASS load library=/nix/store/b8qllq6130hk80yvjb0mpi7fyp6nj1j5-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so backend=openbcm
+PASS profile file=/nix/store/sir97irdjxc0h69i63lbcajaxr5arjls-sai.profile keys=12 served:SAI_RS_BACKEND=openbcm served:SAI_OPENBCM_LOG_STDERR=1 SAI_OPENBCM_EXT_PHY_FILE=/nix/store/110qq60gbbw2qb5ysw2wm6hnpfwlzf6x-as7772-ext-phy.tbl SAI_OPENBCM_EXT_MACSEC_FILE=/nix/store/c0873nwla2zp8a0vkrzhvvnq5m5pipq3-as7772-ext-macsec.tbl diag-socket=/run/sai-openbcm/diag.sock
+creating the switch (backend openbcm): the switch chip is reset now
+Broadcom Command Monitor: Copyright (c) 1998-2026 Broadcom
+Release: sdk-6.5.27 built 20261115 (Sun Nov 15 08:57:46 2026)
+From nixbld@localhost:/build/openbcm-sdk-6.5.27-patched
+Platform: PPC64BE
+OS: Unix (Posix)
+linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+DMA pool size: 16777216 bytes.
+BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+SOC unit 0 attached to PCI device BCM56930_B1
+Boot flags: initialization scripts NOT loaded
+PASS create-switch switch=0x2100000000000001 ms=4271
+ lane port               lanes                  speed admin oper
+    1 0x0100000000000001 1,2,3,4               100000  down down
+    5 0x0100000000000005 5,6,7,8               100000  down down
+    9 0x0100000000000009 9,10,11,12            100000  down down
+   13 0x010000000000000d 13,14,15,16           100000  down down
+   17 0x0100000000000011 17,18,19,20           100000  down down
+   21 0x0100000000000015 21,22,23,24           100000  down down
+   25 0x0100000000000019 25,26,27,28           100000  down down
+   29 0x010000000000001d 29,30,31,32           100000  down down
+   33 0x0100000000000022 33,34,35,36           100000  down down
+   37 0x0100000000000026 37,38,39,40           100000  down down
+   41 0x010000000000002a 41,42,43,44           100000  down down
+   45 0x010000000000002e 45,46,47,48           100000  down down
+   49 0x0100000000000032 49,50,51,52           100000  down down
+   53 0x0100000000000036 53,54,55,56           100000  down down
+   57 0x010000000000003a 57,58,59,60           100000  down down
+   61 0x010000000000003e 61,62,63,64           100000  down down
+   65 0x0100000000000044 65,66,67,68           100000  down down
+   69 0x0100000000000048 69,70,71,72           100000  down down
+   73 0x010000000000004c 73,74,75,76           100000  down down
+   77 0x0100000000000050 77,78,79,80           100000  down down
+   81 0x0100000000000054 81,82,83,84           100000  down down
+   85 0x0100000000000058 85,86,87,88           100000  down down
+   89 0x010000000000005c 89,90,91,92           100000  down down
+   93 0x0100000000000060 93,94,95,96           100000  down down
+   97 0x0100000000000066 97,98,99,100          100000  down down
+  101 0x010000000000006a 101,102,103,104       100000  down down
+  105 0x010000000000006e 105,106,107,108       100000  down down
+  109 0x0100000000000072 109,110,111,112       100000  down down
+  113 0x0100000000000076 113,114,115,116       100000  down down
+  117 0x010000000000007a 117,118,119,120       100000  down down
+  121 0x010000000000007e 121,122,123,124       100000  down down
+  125 0x0100000000000082 125,126,127,128       100000  down down
+PASS ports ports=32 cpu=0x0100000000000000 lanes=128 speed=100000 cabled=4
+PASS admin-up 49=admin-up 53=admin-up 9=admin-up 13=admin-up
+PASS oper-up ext-phy=the-profile's-table 49=up@1039ms/notif1 53=up@1039ms/notif1 9=up@1039ms/notif1 13=up@1039ms/notif1
+PASS vlan vlan=100 member=49 untagged
+PASS fdb mac=00:00:5e:00:53:01 vlan=100 port=49 static
+PASS lag lag=0x0200000000000001 member=57 member-removed lag-removed 57-back-in-vlan1
+PASS hostif name=sai-smoke0 port=49
+PASS hostif-netdev netdev=/sys/class/net/sai-smoke0 ipv6-off=yes oper-up->carrier=1 oper-down->carrier=0 back-to-port's=up
+PASS l3 rif=port-13 neighbour=192.0.2.2 next-hop=0x0400000000000001 route=198.51.100.0/24
+PASS acl table+counter+entry(dst=192.0.2.1,forward)+group-bound-to=49 counter-packets=0 bytes=0
+PASS policer packets sr_tcm cir=600->1000 cbs=600
+PASS port-stats 49=in:0/0,out:0/0,in-err:0 53=in:0/0,out:0/0,in-err:0 9=in:0/0,out:0/0,in-err:0 13=in:0/0,out:0/0,in-err:0
+PASS temperature list=[44,45,45,45,45,45,45,43] max=46 average=44
+PASS diag cmd='ps' bytes=3566 first='                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop'
+PASS mdio-read cmd='phy raw c45 0x0 0x1 0x8b00' phy=0x0 dev=1 reg=0x8b00 value=0x2391
+PASS teardown policer acl-member acl-unbound acl-group acl-entry acl-counter acl-table route next-hop neighbour rif hostif netdev-gone fdb vlan-member vlan
+PASS admin-down 49=down@102ms/notif1 53=down@102ms/notif1 9=down@102ms/notif1 13=down@102ms/notif1 all-32-ports-admin-down
+PASS remove-switch link-notifications=8 (unknown port: 0)
+SKIP recreate not asked (--recreate: a second "init all" in this process)
+PASS uninitialize 
+SMOKE_OK 22 PASS, 1 SKIP: 32 ports, the cabled ones up and down again, everything removed
+== exit 0  2026-11-23T16:27:52+00:00
+== 2026-11-23T16:27:55+00:00 smoke run: recreate (--recreate)
+PASS load library=/nix/store/b8qllq6130hk80yvjb0mpi7fyp6nj1j5-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so backend=openbcm
+PASS profile file=/nix/store/sir97irdjxc0h69i63lbcajaxr5arjls-sai.profile keys=12 served:SAI_RS_BACKEND=openbcm served:SAI_OPENBCM_LOG_STDERR=1 SAI_OPENBCM_EXT_PHY_FILE=/nix/store/110qq60gbbw2qb5ysw2wm6hnpfwlzf6x-as7772-ext-phy.tbl SAI_OPENBCM_EXT_MACSEC_FILE=/nix/store/c0873nwla2zp8a0vkrzhvvnq5m5pipq3-as7772-ext-macsec.tbl diag-socket=/run/sai-openbcm/diag.sock
+creating the switch (backend openbcm): the switch chip is reset now
+Broadcom Command Monitor: Copyright (c) 1998-2026 Broadcom
+Release: sdk-6.5.27 built 20261115 (Sun Nov 15 08:57:46 2026)
+From nixbld@localhost:/build/openbcm-sdk-6.5.27-patched
+Platform: PPC64BE
+OS: Unix (Posix)
+linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+DMA pool size: 16777216 bytes.
+BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+SOC unit 0 attached to PCI device BCM56930_B1
+Boot flags: initialization scripts NOT loaded
+PASS create-switch switch=0x2100000000000001 ms=3387
+ lane port               lanes                  speed admin oper
+    1 0x0100000000000001 1,2,3,4               100000  down down
+    5 0x0100000000000005 5,6,7,8               100000  down down
+    9 0x0100000000000009 9,10,11,12            100000  down down
+   13 0x010000000000000d 13,14,15,16           100000  down down
+   17 0x0100000000000011 17,18,19,20           100000  down down
+   21 0x0100000000000015 21,22,23,24           100000  down down
+   25 0x0100000000000019 25,26,27,28           100000  down down
+   29 0x010000000000001d 29,30,31,32           100000  down down
+   33 0x0100000000000022 33,34,35,36           100000  down down
+   37 0x0100000000000026 37,38,39,40           100000  down down
+   41 0x010000000000002a 41,42,43,44           100000  down down
+   45 0x010000000000002e 45,46,47,48           100000  down down
+   49 0x0100000000000032 49,50,51,52           100000  down down
+   53 0x0100000000000036 53,54,55,56           100000  down down
+   57 0x010000000000003a 57,58,59,60           100000  down down
+   61 0x010000000000003e 61,62,63,64           100000  down down
+   65 0x0100000000000044 65,66,67,68           100000  down down
+   69 0x0100000000000048 69,70,71,72           100000  down down
+   73 0x010000000000004c 73,74,75,76           100000  down down
+   77 0x0100000000000050 77,78,79,80           100000  down down
+   81 0x0100000000000054 81,82,83,84           100000  down down
+   85 0x0100000000000058 85,86,87,88           100000  down down
+   89 0x010000000000005c 89,90,91,92           100000  down down
+   93 0x0100000000000060 93,94,95,96           100000  down down
+   97 0x0100000000000066 97,98,99,100          100000  down down
+  101 0x010000000000006a 101,102,103,104       100000  down down
+  105 0x010000000000006e 105,106,107,108       100000  down down
+  109 0x0100000000000072 109,110,111,112       100000  down down
+  113 0x0100000000000076 113,114,115,116       100000  down down
+  117 0x010000000000007a 117,118,119,120       100000  down down
+  121 0x010000000000007e 121,122,123,124       100000  down down
+  125 0x0100000000000082 125,126,127,128       100000  down down
+PASS ports ports=32 cpu=0x0100000000000000 lanes=128 speed=100000 cabled=4
+PASS admin-up 49=admin-up 53=admin-up 9=admin-up 13=admin-up
+PASS oper-up ext-phy=the-profile's-table 49=up@1040ms/notif1 53=up@1040ms/notif1 9=up@1040ms/notif1 13=up@1040ms/notif1
+PASS vlan vlan=100 member=49 untagged
+PASS fdb mac=00:00:5e:00:53:01 vlan=100 port=49 static
+PASS lag lag=0x0200000000000001 member=57 member-removed lag-removed 57-back-in-vlan1
+PASS hostif name=sai-smoke0 port=49
+PASS hostif-netdev netdev=/sys/class/net/sai-smoke0 ipv6-off=yes oper-up->carrier=1 oper-down->carrier=0 back-to-port's=up
+PASS l3 rif=port-13 neighbour=192.0.2.2 next-hop=0x0400000000000001 route=198.51.100.0/24
+PASS acl table+counter+entry(dst=192.0.2.1,forward)+group-bound-to=49 counter-packets=0 bytes=0
+PASS policer packets sr_tcm cir=600->1000 cbs=600
+PASS port-stats 49=in:0/0,out:0/0,in-err:0 53=in:0/0,out:0/0,in-err:0 9=in:0/0,out:0/0,in-err:0 13=in:0/0,out:0/0,in-err:0
+PASS temperature list=[45,44,44,45,45,46,44,44] max=47 average=45
+PASS diag cmd='ps' bytes=3566 first='                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop'
+PASS mdio-read cmd='phy raw c45 0x0 0x1 0x8b00' phy=0x0 dev=1 reg=0x8b00 value=0x2391
+PASS teardown policer acl-member acl-unbound acl-group acl-entry acl-counter acl-table route next-hop neighbour rif hostif netdev-gone fdb vlan-member vlan
+PASS admin-down 49=down@102ms/notif1 53=down@102ms/notif1 9=down@102ms/notif1 13=down@102ms/notif1 all-32-ports-admin-down
+PASS remove-switch link-notifications=8 (unknown port: 0)
+RISK recreate: a second create_switch in this process re-runs "init all" on the SDK that stayed attached (no detach): the chip is reset again; untested on hardware (C++ and Rust)
+PASS recreate ports=32 removed
+PASS uninitialize 
+SMOKE_OK 23 PASS, 0 SKIP: 32 ports, the cabled ones up and down again, everything removed
+== exit 0  2026-11-23T16:28:04+00:00
+knet lines this boot after: 0
+== 2026-11-23T16:28:07+00:00 restart sonic.target
+active
+inactive

@@ -1,0 +1,9 @@
+# 2026-11-23T16:46:14.129Z bash -l /root/sonic-ring.sh check
+# exit 0
+Ethernet0 Ethernet4 Ethernet120 Ethernet124 <- oper up
+Ethernet4    as7772          Ethernet1/1     BR            Ethernet0
+Ethernet120  as7772          Ethernet32/1    BR            Ethernet124
+Ethernet124  as7772          Ethernet31/1    BR            Ethernet120
+--------------------------------------------------
+Total entries displayed:  3
+CHECK OK: 4 ports up, all LLDP neighbours are this switch

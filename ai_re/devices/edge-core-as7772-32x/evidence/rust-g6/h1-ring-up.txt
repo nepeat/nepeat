@@ -1,0 +1,42 @@
+# 2026-11-23T16:46:32.680Z bash -l /root/sonic-ring.sh up
+# exit 1
+INTERFACE|Ethernet0: {'NULL': 'NULL'}
+INTERFACE|Ethernet4: {'vrf_name': 'Vrf-a', 'mac_addr': '1c:ea:0b:38:2b:d6'}
+INTERFACE|Ethernet120: {'NULL': 'NULL'}
+INTERFACE|Ethernet124: {'vrf_name': 'Vrf-b', 'mac_addr': '1c:ea:0b:38:2b:d7'}
+    hairpin off guard off root_block off fastleave off learning on flood on mcast_flood on bcast_flood on mcast_router 1 mcast_to_unicast off neigh_suppress off neigh_vlan_suppress off neigh_forward_grat off vlan_tunnel off isolated off locked off mab off mcast_n_groups 0 mcast_max_groups 0 
+    hairpin off guard off root_block off fastleave off learning off flood off mcast_flood off bcast_flood off mcast_router 1 mcast_to_unicast off neigh_suppress off neigh_vlan_suppress off neigh_forward_grat off vlan_tunnel off isolated off locked off mab off mcast_n_groups 0 mcast_max_groups 0 
+    hairpin off guard off root_block off fastleave off learning off flood off mcast_flood off bcast_flood off mcast_router 1 mcast_to_unicast off neigh_suppress off neigh_vlan_suppress off neigh_forward_grat off vlan_tunnel off isolated off locked off mab off mcast_n_groups 0 mcast_max_groups 0 
+    hairpin off guard off root_block off fastleave off learning off flood off mcast_flood off bcast_flood off mcast_router 1 mcast_to_unicast off neigh_suppress off neigh_vlan_suppress off neigh_forward_grat off vlan_tunnel off isolated off locked off mab off mcast_n_groups 0 mcast_max_groups 0 
+    hairpin off guard off root_block off fastleave off learning off flood off mcast_flood off bcast_flood off mcast_router 1 mcast_to_unicast off neigh_suppress off neigh_vlan_suppress off neigh_forward_grat off vlan_tunnel off isolated off locked off mab off mcast_n_groups 0 mcast_max_groups 0 
++-----------+--------------+-------------+----------------+-------------+--------------------------+
+|   VLAN ID | IP Address   | Ports       | Port Tagging   | Proxy ARP   | Static Anycast Gateway   |
++===========+==============+=============+================+=============+==========================+
+|       100 |              | Ethernet0   | untagged       | disabled    | disabled                 |
+|           |              | Ethernet120 | untagged       |             |                          |
++-----------+--------------+-------------+----------------+-------------+--------------------------+
+|       200 |              | Ethernet4   | untagged       | disabled    | disabled                 |
+|           |              | Ethernet124 | untagged       |             |                          |
++-----------+--------------+-------------+----------------+-------------+--------------------------+
+vlan 1	ports cpu,xe (0x0000000000000000000000000000000000000010000000040000000000000001), untagged xe (0x0000000000000000000000000000000000000010000000040000000000000000) MCAST_FLOOD_UNKNOWN
+vlan 100	ports cpu (0x0000000000000000000000000000000000000000000000000000000000000001), untagged none (0x0000000000000000000000000000000000000000000000000000000000000000) MCAST_FLOOD_UNKNOWN
+vlan 200	ports cpu (0x0000000000000000000000000000000000000000000000000000000000000001), untagged none (0x0000000000000000000000000000000000000000000000000000000000000000) MCAST_FLOOD_UNKNOWN
+vlan 4091	ports cpu,ce1 (0x0000000000000000000000000000000000000000000000000040000000000001), untagged ce1 (0x0000000000000000000000000000000000000000000000000040000000000000) MCAST_FLOOD_UNKNOWN
+vlan 4092	ports cpu,ce31 (0x0000000000000000000000000000000000000000000000000000000000002001), untagged ce31 (0x0000000000000000000000000000000000000000000000000000000000002000) MCAST_FLOOD_UNKNOWN
+vlan 4093	ports cpu,ce30 (0x0000000000000000000000000000000000000000000000000000000000000201), untagged ce30 (0x0000000000000000000000000000000000000000000000000000000000000200) MCAST_FLOOD_UNKNOWN
+vlan 4094	ports cpu,ce0 (0x0000000000000000000000000000000000000000000000000004000000000001), untagged ce0 (0x0000000000000000000000000000000000000000000000000004000000000000) MCAST_FLOOD_UNKNOWN
+mac=1c:ea:0b:38:2b:d7 vlan=4093 GPORT=0x9 modid=0 port=9/ce30 Hit
+mac=1c:ea:0b:38:2b:d7 vlan=1 GPORT=0x9 modid=0 port=9/ce30 Hit
+mac=1c:ea:0b:38:2b:d6 vlan=4094 GPORT=0x32 modid=0 port=50/ce0 Hit
+mac=1c:ea:0b:38:2b:d7 vlan=4091 GPORT=0x36 modid=0 port=54/ce1 Hit
+mac=1c:ea:0b:38:2b:d6 vlan=4092 GPORT=0xd modid=0 port=13/ce31 Hit
+mac=1c:ea:0b:38:2b:d5 vlan=1 GPORT=0xd modid=0 port=13/ce31 Hit
+mac=1c:ea:0b:38:2b:d5 vlan=4092 GPORT=0xd modid=0 port=13/ce31 Hit
+mac=1c:ea:0b:38:2b:d5 vlan=4091 GPORT=0x36 modid=0 port=54/ce1 Hit
+Ethernet0 1c:ea:0b:38:2b:d5 ipv6-off=1
+Ethernet4 1c:ea:0b:38:2b:d6 ipv6-off=1
+Ethernet120 1c:ea:0b:38:2b:d5 ipv6-off=1
+Ethernet124 1c:ea:0b:38:2b:d7 ipv6-off=1
+Vlan100@Bridge   UP             1c:ea:0b:38:2b:d5 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+Vlan200@Bridge   UP             1c:ea:0b:38:2b:d5 <BROADCAST,MULTICAST,UP,LOWER_UP>
+[exit 1]

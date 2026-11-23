@@ -538,6 +538,16 @@ comparison at 50a6aa7). Also:
   - the STP, next-hop and table-entry sets look the object up first (C++: no lookup, no lock);
   - MACsec: D1, D9 (Q7), D10 (Q10) fixed; `NO_MEMORY` / `INVALID_PORT_NUMBER` from the model
     become `FAILURE`;
+  - deliberate improvement (2026-11-23): the raw-MDIO hold-off (`holdoff-ms` after a diag `phy raw`)
+    also defers the MACsec PN / counter polls syncd asks for (`pn.*`, `stats-sa.*`, `stats-flow.*` of
+    a get: the last read answers, the next read catches up); the C++ held off its link polls only
+    (`sai_extphy.cpp:506`; `sai_macsec.cpp:153` runs every sequence under the lock without a hold-off
+    check), so a PN read could land inside a tool's PHY firmware-message conversation on the AS7772
+    (`pn.egress.0 stopped ... read 0x0000`, the tool's "FW Message failure"). One poll sequence is
+    deferred at most 10 s in a row (`MACSEC_POLL_DEFER_MAX_MS`; then it runs inside the hold-off),
+    so a tool polling for minutes cannot hide a PN nearing exhaustion. SA install / remove / gate and
+    counter clears are never deferred (as in the C++). Code: `sai-extphy` `ExtPhy::macsec_poll_deferred`;
+    tests: `sai-extphy/tests/runtime.rs`, `sai-core/tests/macsec.rs`;
   - the virtual chip's QoS, mirror and L2-extras models are off (as the C++ fake's toggles) and
     reachable only through the test port and the driver (`feature`).
 - **syncd** (`vm-sai-rs-syncd`, `nix/test-syncd.nix`, Rust key names): syncd on this `libsai.so`

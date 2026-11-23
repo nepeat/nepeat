@@ -20,6 +20,7 @@ use sai_core::Error;
 use sai_core::backend::types::{MdioDev, PhyAddr};
 use sai_core::backend::{HwPort, Mode, Profile, Recording};
 use sai_core::error::AttrError;
+use sai_core::extphy::{self, ManualClock};
 use sai_core::macsec::{self, MacsecObject, Secret, StatsMode};
 use sai_core::oid::{RawOid, TypedId};
 use sai_core::sai::Sai;
@@ -27,6 +28,7 @@ use sai_core::value::{AclAction, AclField, AclFieldData, AclKind, AclParam, Attr
 use sai_core::virt::VirtualBackend;
 use sai_sys as sys;
 use std::fmt::Write as _;
+use std::sync::Arc;
 
 const PORT: sys::sai_object_type_t = sys::SAI_OBJECT_TYPE_PORT;
 const SWITCH: sys::sai_object_type_t = sys::SAI_OBJECT_TYPE_SWITCH;
@@ -1037,4 +1039,96 @@ fn the_trace_hides_key_words() {
         assert!(!dump.contains(k), "{k} in the trace");
     }
     assert!(macsec::ext_macsec_trace(&mut r.sai, "clear").contains("0 runs, 0 lines kept"));
+}
+
+/// A deliberate improvement on the C++ (whose hold-off held the link polls only): raw MDIO of the
+/// diag socket (a tool's PHY firmware-message conversation) defers the PN and counter polls
+/// syncd asks for while the hold-off lasts; the last read answers, the next read catches up;
+/// SA installs and counter clears are not deferred; a tool that polls for minutes cannot keep
+/// the PN from being read every `MACSEC_POLL_DEFER_MAX_MS`.
+#[test]
+fn the_raw_mdio_hold_off_defers_the_pn_and_counter_polls() {
+    let phy_table = table_file(
+        "ext-phy 1
+poll-ms 0
+holdoff-ms 3000
+port 5
+link
+  C 11 1 a101 3 3
+",
+    );
+    let mut r = rig(
+        &ms_table(true, true),
+        &[("SAI_OPENBCM_EXT_PHY_FILE", phy_table.as_str())],
+    );
+    std::fs::remove_file(&phy_table).unwrap();
+    assert!(extphy::ext_phy_active(&r.sai));
+    let clock = ManualClock::new();
+    extphy::set_clock(&r.sai, Arc::new(clock.clone()));
+    let (_, flow, _, sc) = bound(&mut r);
+    let sa = r.mk(MacsecObject::Sa, &sa_attrs(EGR, sc, 0, false, false, 1)).unwrap();
+    let pn = |r: &mut Rig| {
+        r.sai
+            .macsec_get(MacsecObject::Sa, sa, &[sys::SAI_MACSEC_SA_ATTR_CURRENT_XPN])
+            .unwrap()
+            .remove(0)
+    };
+    let pkts = |r: &mut Rig| r.stat(MacsecObject::Sa, sa, sys::SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED);
+    let ops = |r: &Rig| r.sai.backend().inner().mdio().lock().unwrap().log.len();
+    let tool = |r: &mut Rig| extphy::ext_phy_foreign_mdio(&mut r.sai, |_| ());
+    r.reg(0x10, 0x500, 0x10);
+    r.reg(0x10, 0x400, 5);
+    assert_eq!(pn(&mut r), Value::U64(0x10));
+    assert_eq!(pkts(&mut r), 5);
+
+    // raw MDIO at t; the polls at t+1 s are deferred: nothing on the bus, the last read answers
+    tool(&mut r);
+    r.reg(0x10, 0x500, 0x20);
+    clock.advance_ms(1000);
+    let before = ops(&r);
+    assert_eq!(pn(&mut r), Value::U64(0x10));
+    assert_eq!(pkts(&mut r), 5);
+    assert_eq!(
+        r.stat(MacsecObject::Flow, flow, sys::SAI_MACSEC_FLOW_STAT_CONTROL_PKTS),
+        0
+    );
+    assert_eq!(ops(&r), before);
+    // what SONiC asks for is not deferred: an SA install runs at once
+    r.bus();
+    r.mk(MacsecObject::Sa, &sa_attrs(EGR, sc, 1, false, false, 1)).unwrap();
+    assert!(!r.bus().is_empty());
+
+    // t+3 s: the hold-off is over, the reads catch up (the PHY's counter cleared on read)
+    clock.advance_ms(2000);
+    assert_eq!(pn(&mut r), Value::U64(0x20));
+    assert_eq!(pkts(&mut r), 5 + 5);
+    let counts = extphy::ext_phy(&r.sai).unwrap().macsec_poll_counts();
+    assert_eq!((counts.deferred, counts.forced), (3, 0));
+
+    // a clear inside the hold-off still reads the PHY first
+    tool(&mut r);
+    let before = ops(&r);
+    r.sai.macsec_clear_stats(MacsecObject::Sa, sa).unwrap();
+    assert!(ops(&r) > before);
+    assert_eq!(pkts(&mut r), 0); // deferred: the cleared value
+    clock.advance_ms(3000);
+
+    // a tool polling for five minutes (raw MDIO every 500 ms), syncd asking for the PN every
+    // second: the PN is read every 10 s, so its exhaustion cannot hide behind the tool
+    let mut reads = Vec::new();
+    for ms in (0..300_000u64).step_by(500) {
+        tool(&mut r);
+        if ms % 1000 == 0 {
+            r.reg(0x10, 0x500, u16::try_from(ms / 1000).unwrap());
+            let at = ops(&r);
+            let got = pn(&mut r);
+            if ops(&r) > at {
+                assert_eq!(got, Value::U64(ms / 1000));
+                reads.push(ms);
+            }
+        }
+        clock.advance_ms(500);
+    }
+    assert_eq!(reads.len(), 29, "{reads:?}");
+    assert!(reads.windows(2).all(|w| w[1] - w[0] == 10_000), "{reads:?}");
 }

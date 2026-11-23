@@ -784,15 +784,17 @@ impl Macsec {
     }
 
     /// Reads the counters of sequence `name` (`poll_counters`): `None` when the table
-    /// does not have it.
+    /// does not have it, or when `deferrable` (a get, not a clear) and the runner defers it
+    /// ([`SeqRunner::poll_deferred`]: the counters then keep their last read).
     pub(crate) fn poll(
         &mut self,
         runner: &mut dyn SeqRunner,
         hw: PortKey,
         dir: Dir,
         name: &str,
+        deferrable: bool,
     ) -> Result<Option<Results>> {
-        if !runner.has(name) {
+        if !runner.has(name) || (deferrable && runner.poll_deferred(hw, name)) {
             return Ok(None);
         }
         self.run(runner, hw, dir, name, &Params::new(), false).map(Some)

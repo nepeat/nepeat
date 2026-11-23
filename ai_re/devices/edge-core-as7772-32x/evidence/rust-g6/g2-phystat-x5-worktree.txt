@@ -1,0 +1,118 @@
+# phystat.py --json 0x00 0x01 0x17e 0x17f x5, SONiC up, MACsec on, working-tree build kh01796s (agent F hold-off fix)
+
+## fix-1 start 2026-11-23 08:45:01 (box local) exit 0 FW-Message-failure 0 syncd-stopped 2
+{"phy": 0, "t": 1795452302.3022702, "temp_c": 410.0, "fec_corr": 0, "fec_uncorr": 0, "fec_symerr": [0, 0, 0, 0], "line_pcs_live": [0, 3], "line_lock_latched": [0, 0], "line_mib": {"RPKT": 3551, "RFCS": 0, "RERPKT": 0, "RBYT": 3419782, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3501, "TFCS": 0, "TERR": 0, "TBYT": 3412807, "TXPF": 0, "TUFL": 0}, "sys_pcs_live": [1023, 3], "sys_lock_latched": [1023, 1023], "sys_mib": {"RPKT": 3509, "RFCS": 0, "RERPKT": 0, "RBYT": 3310135, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3535, "TFCS": 0, "TERR": 0, "TBYT": 3313659, "TXPF": 0, "TUFL": 0}, "sys_cl82_ber": 0}
+{"phy": 1, "t": 1795452304.9128504, "temp_c": 410.0, "fec_corr": 1, "fec_uncorr": 3, "fec_symerr": [2, 0, 0, 0], "line_pcs_live": [0, 3], "line_lock_latched": [0, 0], "line_mib": {"RPKT": 3502, "RFCS": 0, "RERPKT": 0, "RBYT": 3412973, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3552, "TFCS": 0, "TERR": 0, "TBYT": 3419948, "TXPF": 0, "TUFL": 0}, "sys_pcs_live": [1023, 3], "sys_lock_latched": [1023, 1023], "sys_mib": {"RPKT": 3566, "RFCS": 0, "RERPKT": 0, "RBYT": 3317843, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3502, "TFCS": 0, "TERR": 0, "TBYT": 3309261, "TXPF": 0, "TUFL": 0}, "sys_cl82_ber": 0}
+{"phy": 382, "t": 1795452307.5196314, "temp_c": 410.0, "fec_corr": 0, "fec_uncorr": 0, "fec_symerr": [0, 0, 0, 0], "line_pcs_live": [0, 3], "line_lock_latched": [1023, 1023], "line_mib": {"RPKT": 3537, "RFCS": 0, "RERPKT": 0, "RBYT": 3417811, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3504, "TFCS": 0, "TERR": 0, "TBYT": 3413307, "TXPF": 0, "TUFL": 0}, "sys_pcs_live": [1023, 3], "sys_lock_latched": [1023, 1023], "sys_mib": {"RPKT": 3511, "RFCS": 0, "RERPKT": 0, "RBYT": 3310575, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3525, "TFCS": 0, "TERR": 0, "TBYT": 3312217, "TXPF": 0, "TUFL": 0}, "sys_cl82_ber": 0}
+{"phy": 383, "t": 1795452310.133366, "temp_c": 410.0, "fec_corr": 1, "fec_uncorr": 6, "fec_symerr": [6, 0, 0, 0], "line_pcs_live": [0, 3], "line_lock_latched": [1023, 1023], "line_mib": {"RPKT": 3505, "RFCS": 0, "RERPKT": 0, "RBYT": 3413473, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3538, "TFCS": 0, "TERR": 0, "TBYT": 3417977, "TXPF": 0, "TUFL": 0}, "sys_pcs_live": [1023, 3], "sys_lock_latched": [1023, 1023], "sys_mib": {"RPKT": 3556, "RFCS": 0, "RERPKT": 0, "RBYT": 3316567, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3505, "TFCS": 0, "TERR": 0, "TBYT": 3309927, "TXPF": 0, "TUFL": 0}, "sys_cl82_ber": 0}
+# journal (filtered)
+2026-11-23T08:45:12.556559-08:00 as7772 syncd[5733]: sai-openbcm ERROR api=43: port ce31: external MACsec sequence pn.ingress.0 stopped: line 11818: P phy 0x17f 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T08:45:12.556633-08:00 as7772 syncd[5733]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002ff: -1
+2026-11-23T08:45:12.568832-08:00 as7772 syncd[5733]: sai-openbcm ERROR api=43: port ce31: external MACsec sequence pn.egress.0 stopped: line 2588: P phy 0x17f 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T08:45:12.568881-08:00 as7772 syncd[5733]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c000000000300: -1
+count stopped: 2
+
+## fix-2 start 2026-11-23 08:45:15 (box local) exit 0 FW-Message-failure 0 syncd-stopped 3
+{"phy": 0, "t": 1795452316.225544, "temp_c": 410.0, "fec_corr": 0, "fec_uncorr": 0, "fec_symerr": [0, 0, 0, 0], "line_pcs_live": [0, 3], "line_lock_latched": [0, 0], "line_mib": {"RPKT": 3558, "RFCS": 0, "RERPKT": 0, "RBYT": 3420944, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3507, "TFCS": 0, "TERR": 0, "TBYT": 3413969, "TXPF": 0, "TUFL": 0}, "sys_pcs_live": [1023, 3], "sys_lock_latched": [0, 0], "sys_mib": {"RPKT": 3516, "RFCS": 0, "RERPKT": 0, "RBYT": 3311297, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3542, "TFCS": 0, "TERR": 0, "TBYT": 3314821, "TXPF": 0, "TUFL": 0}, "sys_cl82_ber": 0}
+{"phy": 1, "t": 1795452318.8267677, "temp_c": 410.0, "fec_corr": 0, "fec_uncorr": 0, "fec_symerr": [0, 0, 0, 0], "line_pcs_live": [0, 3], "line_lock_latched": [0, 0], "line_mib": {"RPKT": 3509, "RFCS": 0, "RERPKT": 0, "RBYT": 3414135, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3559, "TFCS": 0, "TERR": 0, "TBYT": 3421110, "TXPF": 0, "TUFL": 0}, "sys_pcs_live": [1023, 3], "sys_lock_latched": [0, 0], "sys_mib": {"RPKT": 3572, "RFCS": 0, "RERPKT": 0, "RBYT": 3319005, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3509, "TFCS": 0, "TERR": 0, "TBYT": 3310423, "TXPF": 0, "TUFL": 0}, "sys_cl82_ber": 0}
+{"phy": 382, "t": 1795452321.4300003, "temp_c": 410.0, "fec_corr": 0, "fec_uncorr": 0, "fec_symerr": [0, 0, 0, 0], "line_pcs_live": [0, 3], "line_lock_latched": [0, 0], "line_mib": {"RPKT": 3544, "RFCS": 0, "RERPKT": 0, "RBYT": 3418973, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3511, "TFCS": 0, "TERR": 0, "TBYT": 3414469, "TXPF": 0, "TUFL": 0}, "sys_pcs_live": [1023, 3], "sys_lock_latched": [0, 0], "sys_mib": {"RPKT": 3518, "RFCS": 0, "RERPKT": 0, "RBYT": 3311737, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3532, "TFCS": 0, "TERR": 0, "TBYT": 3313379, "TXPF": 0, "TUFL": 0}, "sys_cl82_ber": 0}
+Traceback (most recent call last):
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 116, in <module>
+    main()
+    ~~~~^^
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 95, in main
+    r = p.snapshot(int(s, 0), a.taps)
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 63, in snapshot
+    r[n + '_mib'] = {k: self.reg(phy, 0x41000000 | v, side) for k, v in MIB.items()}
+                        ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 47, in reg
+    raise RuntimeError('reg64 get failed: rc=%d %r' % (rc, out))
+RuntimeError: reg64 get failed: rc=-1 '>>> extphy reg64 get 0x17f 0x4100006f lane=0 if_side=0\n LMI Access timeout\nFAILED: bcm_plp_reg64_value_get on lane 0x1 Line side phy_id 383 rv[-9]\n<<< rc=-1  (22 reads, 4 writes, 21 delays, 0.2 s)\n'
+# journal (filtered)
+2026-11-23T08:45:22.593884-08:00 as7772 syncd[5733]: sai-openbcm ERROR api=43: port ce30: external MACsec sequence pn.egress.0 stopped: line 2588: P phy 0x17e 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T08:45:22.593942-08:00 as7772 syncd[5733]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002fd: -1
+2026-11-23T08:45:22.606191-08:00 as7772 syncd[5733]: sai-openbcm ERROR api=43: port ce30: external MACsec sequence pn.ingress.0 stopped: line 11818: P phy 0x17e 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T08:45:22.606246-08:00 as7772 syncd[5733]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002fe: -1
+2026-11-23T08:45:25.598255-08:00 as7772 syncd[5733]: sai-openbcm ERROR api=43: port ce31: external MACsec sequence stats-sa.egress.0 stopped: line 2606: P phy 0x17f 1.900a read 0x0004, expected 0x0007 (mask 0x0007, 20 reads)
+2026-11-23T08:45:25.598316-08:00 as7772 syncd[5733]: :- collectData: Failed to get stats of MACSEC SA Counter 0x5c00000000000034: -1
+count stopped: 3
+
+## fix-3 start 2026-11-23 08:45:28 (box local) exit 0 FW-Message-failure 0 syncd-stopped 7
+{"phy": 0, "t": 1795452329.1489408, "temp_c": 410.0, "fec_corr": 0, "fec_uncorr": 0, "fec_symerr": [0, 0, 0, 0], "line_pcs_live": [0, 3], "line_lock_latched": [0, 0], "line_mib": {"RPKT": 3564, "RFCS": 0, "RERPKT": 0, "RBYT": 3421940, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3514, "TFCS": 0, "TERR": 0, "TBYT": 3414965, "TXPF": 0, "TUFL": 0}, "sys_pcs_live": [1023, 3], "sys_lock_latched": [0, 0], "sys_mib": {"RPKT": 3522, "RFCS": 0, "RERPKT": 0, "RBYT": 3312293, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3549, "TFCS": 0, "TERR": 0, "TBYT": 3315817, "TXPF": 0, "TUFL": 0}, "sys_cl82_ber": 0}
+{"phy": 1, "t": 1795452331.7469063, "temp_c": 410.0, "fec_corr": 0, "fec_uncorr": 0, "fec_symerr": [0, 0, 0, 0], "line_pcs_live": [0, 3], "line_lock_latched": [0, 0], "line_mib": {"RPKT": 3516, "RFCS": 0, "RERPKT": 0, "RBYT": 3415402, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3567, "TFCS": 0, "TERR": 0, "TBYT": 3422543, "TXPF": 0, "TUFL": 0}, "sys_pcs_live": [1023, 3], "sys_lock_latched": [0, 0], "sys_mib": {"RPKT": 3580, "RFCS": 0, "RERPKT": 0, "RBYT": 3320240, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3517, "TFCS": 0, "TERR": 0, "TBYT": 3311824, "TXPF": 0, "TUFL": 0}, "sys_cl82_ber": 0}
+Traceback (most recent call last):
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 116, in <module>
+    main()
+    ~~~~^^
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 95, in main
+    r = p.snapshot(int(s, 0), a.taps)
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 63, in snapshot
+    r[n + '_mib'] = {k: self.reg(phy, 0x41000000 | v, side) for k, v in MIB.items()}
+                        ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 47, in reg
+    raise RuntimeError('reg64 get failed: rc=%d %r' % (rc, out))
+RuntimeError: reg64 get failed: rc=-1 '>>> extphy reg64 get 0x17e 0x4100001c lane=0 if_side=1\n LMI Access timeout\nFAILED: bcm_plp_reg64_value_get on lane 0x1 System side phy_id 382 rv[-9]\n<<< rc=-1  (22 reads, 4 writes, 21 delays, 0.1 s)\n'
+# journal (filtered)
+2026-11-23T08:45:28.941240-08:00 as7772 syncd[5733]: sai-openbcm WARN api=2: port ce31: external PHY link poll fault: line 11609: P phy 0x17f 1.8221 never read 0x11e3 (mask 0xffff) in 100 reads, last 0x0000
+2026-11-23T08:45:28.941260-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=2: port ce31: line side down (external PHY, poll fault)
+2026-11-23T08:45:32.631273-08:00 as7772 syncd[5733]: sai-openbcm ERROR api=43: port ce1: external MACsec sequence pn.ingress.0 stopped: line 11818: P phy 0x1 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T08:45:32.631329-08:00 as7772 syncd[5733]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002f9: -1
+2026-11-23T08:45:32.643556-08:00 as7772 syncd[5733]: sai-openbcm ERROR api=43: port ce1: external MACsec sequence pn.egress.0 stopped: line 2588: P phy 0x1 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T08:45:32.643605-08:00 as7772 syncd[5733]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002fa: -1
+2026-11-23T08:45:32.658454-08:00 as7772 syncd[5733]: sai-openbcm ERROR api=43: port ce31: external MACsec sequence pn.ingress.0 stopped: line 11818: P phy 0x17f 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T08:45:32.658503-08:00 as7772 syncd[5733]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002ff: -1
+2026-11-23T08:45:32.670709-08:00 as7772 syncd[5733]: sai-openbcm ERROR api=43: port ce31: external MACsec sequence pn.egress.0 stopped: line 2588: P phy 0x17f 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T08:45:32.670760-08:00 as7772 syncd[5733]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c000000000300: -1
+2026-11-23T08:45:35.585756-08:00 as7772 syncd[5733]: sai-openbcm ERROR api=43: port ce31: external MACsec sequence stats-sa.ingress.0 stopped: line 11830: P phy 0x17f 1.900a read 0x0004, expected 0x0001 (mask 0x0001, 20 reads)
+2026-11-23T08:45:35.585805-08:00 as7772 syncd[5733]: :- collectData: Failed to get stats of MACSEC SA Counter 0x5c00000000000033: -1
+2026-11-23T08:45:36.188472-08:00 as7772 syncd[5733]: sai-openbcm ERROR api=43: port ce31: external MACsec sequence gate-close.ingress stopped: line 8197: P phy 0x17f 1.900a read 0x0000, expected 0x0001 (mask 0x0001, 20 reads)
+2026-11-23T08:45:36.564814-08:00 as7772 syncd[5733]: sai-openbcm ERROR api=43: port ce30: external MACsec sequence gate-close.egress stopped: line 1259: P phy 0x17e 1.900a read 0x0000, expected 0x0001 (mask 0x0001, 20 reads)
+count stopped: 7
+
+## fix-4 start 2026-11-23 08:45:39 (box local) exit 0 FW-Message-failure 0 syncd-stopped 0
+{"phy": 0, "t": 1795452340.0565975, "temp_c": 410.0, "fec_corr": 0, "fec_uncorr": 0, "fec_symerr": [0, 0, 0, 0], "line_pcs_live": [0, 3], "line_lock_latched": [0, 0], "line_mib": {"RPKT": 3571, "RFCS": 0, "RERPKT": 0, "RBYT": 3423207, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3520, "TFCS": 0, "TERR": 0, "TBYT": 3416066, "TXPF": 0, "TUFL": 0}, "sys_pcs_live": [1023, 3], "sys_lock_latched": [0, 0], "sys_mib": {"RPKT": 3529, "RFCS": 0, "RERPKT": 0, "RBYT": 3313528, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3555, "TFCS": 0, "TERR": 0, "TBYT": 3316886, "TXPF": 0, "TUFL": 0}, "sys_cl82_ber": 0}
+{"phy": 1, "t": 1795452342.6488955, "temp_c": 410.0, "fec_corr": 0, "fec_uncorr": 0, "fec_symerr": [0, 0, 0, 0], "line_pcs_live": [0, 3], "line_lock_latched": [0, 0], "line_mib": {"RPKT": 3521, "RFCS": 0, "RERPKT": 0, "RBYT": 3416398, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3572, "TFCS": 0, "TERR": 0, "TBYT": 3423373, "TXPF": 0, "TUFL": 0}, "sys_pcs_live": [1023, 3], "sys_lock_latched": [0, 0], "sys_mib": {"RPKT": 3585, "RFCS": 0, "RERPKT": 0, "RBYT": 3321070, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3522, "TFCS": 0, "TERR": 0, "TBYT": 3312654, "TXPF": 0, "TUFL": 0}, "sys_cl82_ber": 0}
+{"phy": 382, "t": 1795452345.3396425, "temp_c": 410.0, "fec_corr": 0, "fec_uncorr": 0, "fec_symerr": [0, 0, 0, 0], "line_pcs_live": [0, 3], "line_lock_latched": [0, 0], "line_mib": {"RPKT": 3547, "RFCS": 0, "RERPKT": 0, "RBYT": 3419471, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3524, "TFCS": 0, "TERR": 0, "TBYT": 3416351, "TXPF": 0, "TUFL": 0}, "sys_pcs_live": [1023, 3], "sys_lock_latched": [0, 0], "sys_mib": {"RPKT": 3531, "RFCS": 0, "RERPKT": 0, "RBYT": 3313587, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3535, "TFCS": 0, "TERR": 0, "TBYT": 3313877, "TXPF": 0, "TUFL": 0}, "sys_cl82_ber": 0}
+{"phy": 383, "t": 1795452348.1891625, "temp_c": 410.0, "fec_corr": 0, "fec_uncorr": 0, "fec_symerr": [0, 0, 0, 0], "line_pcs_live": [0, 3], "line_lock_latched": [0, 0], "line_mib": {"RPKT": 3525, "RFCS": 0, "RERPKT": 0, "RBYT": 3416453, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3547, "TFCS": 0, "TERR": 0, "TBYT": 3419471, "TXPF": 0, "TUFL": 0}, "sys_pcs_live": [1023, 3], "sys_lock_latched": [0, 0], "sys_mib": {"RPKT": 3565, "RFCS": 0, "RERPKT": 0, "RBYT": 3318061, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3525, "TFCS": 0, "TERR": 0, "TBYT": 3312811, "TXPF": 0, "TUFL": 0}, "sys_cl82_ber": 0}
+# journal (filtered)
+count stopped: 0
+
+## fix-5 start 2026-11-23 08:45:53 (box local) exit 0 FW-Message-failure 0 syncd-stopped 1
+Traceback (most recent call last):
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 116, in <module>
+    main()
+    ~~~~^^
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 95, in main
+    r = p.snapshot(int(s, 0), a.taps)
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 63, in snapshot
+    r[n + '_mib'] = {k: self.reg(phy, 0x41000000 | v, side) for k, v in MIB.items()}
+                        ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 47, in reg
+    raise RuntimeError('reg64 get failed: rc=%d %r' % (rc, out))
+RuntimeError: reg64 get failed: rc=-1 '>>> extphy reg64 get 0x0 0x4100004c lane=0 if_side=0\n LMI Access timeout\nFAILED: bcm_plp_reg64_value_get on lane 0x1 Line side phy_id 0 rv[-9]\n<<< rc=-1  (22 reads, 4 writes, 21 delays, 0.1 s)\n'
+# journal (filtered)
+2026-11-23T08:45:55.513803-08:00 as7772 syncd[5733]: sai-openbcm ERROR api=43: port ce0: external MACsec sequence stats-sa.ingress.0 stopped: line 11836: P phy 0x0 1.900a read 0x0004, expected 0x0007 (mask 0x0007, 20 reads)
+2026-11-23T08:45:55.513865-08:00 as7772 syncd[5733]: :- collectData: Failed to get stats of MACSEC SA Counter 0x5c0000000000002d: -1
+count stopped: 1
+
+# deferral / pause NOTICE lines
+2026-11-23T08:45:02.209471-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external PHY link polls paused: raw MDIO on the diag socket (resume 3000 ms after the last one)
+2026-11-23T08:45:02.496348-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec PN / counter polls deferred: raw MDIO on the diag socket (last values answer until the hold-off ends, at most 10000 ms per poll)
+2026-11-23T08:45:12.536324-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec poll pn.egress.0 on chip port 50 runs inside the raw-MDIO hold-off: deferred 10040 ms, the most allowed
+2026-11-23T08:45:12.537668-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec poll pn.ingress.0 on chip port 50 runs inside the raw-MDIO hold-off: deferred 10041 ms, the most allowed
+2026-11-23T08:45:12.539107-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec poll pn.ingress.0 on chip port 54 runs inside the raw-MDIO hold-off: deferred 10042 ms, the most allowed
+2026-11-23T08:45:12.540531-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec poll pn.egress.0 on chip port 54 runs inside the raw-MDIO hold-off: deferred 10044 ms, the most allowed
+2026-11-23T08:45:12.541826-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec poll pn.egress.0 on chip port 9 runs inside the raw-MDIO hold-off: deferred 10045 ms, the most allowed
+2026-11-23T08:45:12.543102-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec poll pn.ingress.0 on chip port 9 runs inside the raw-MDIO hold-off: deferred 10046 ms, the most allowed
+2026-11-23T08:45:12.544552-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec poll pn.ingress.0 on chip port 13 runs inside the raw-MDIO hold-off: deferred 10048 ms, the most allowed
+2026-11-23T08:45:12.556832-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec poll pn.egress.0 on chip port 13 runs inside the raw-MDIO hold-off: deferred 10060 ms, the most allowed
+2026-11-23T08:45:15.480354-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 50 runs inside the raw-MDIO hold-off: deferred 10004 ms, the most allowed
+2026-11-23T08:45:15.494533-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 50 runs inside the raw-MDIO hold-off: deferred 10018 ms, the most allowed
+2026-11-23T08:45:15.511058-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 54 runs inside the raw-MDIO hold-off: deferred 10034 ms, the most allowed
+2026-11-23T08:45:15.527057-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 54 runs inside the raw-MDIO hold-off: deferred 10050 ms, the most allowed
+2026-11-23T08:45:15.542464-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 9 runs inside the raw-MDIO hold-off: deferred 10066 ms, the most allowed
+2026-11-23T08:45:15.558469-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 9 runs inside the raw-MDIO hold-off: deferred 10082 ms, the most allowed
+2026-11-23T08:45:15.575067-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 13 runs inside the raw-MDIO hold-off: deferred 10098 ms, the most allowed
+2026-11-23T08:45:15.591257-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 13 runs inside the raw-MDIO hold-off: deferred 10115 ms, the most allowed
+2026-11-23T08:45:16.134095-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external PHY link polls paused: raw MDIO on the diag socket (resume 3000 ms after the last one)
+2026-11-23T08:45:16.552450-08:00 as7772 syncd[5733]: sai-openbcm NOTICE api=1: external MACsec PN / counter polls deferred: raw MDIO on the diag socket (last values answer until the hold-off ends, at most 10000 ms per poll)

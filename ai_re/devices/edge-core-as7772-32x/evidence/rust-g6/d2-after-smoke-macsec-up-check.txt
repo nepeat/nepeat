@@ -1,0 +1,14 @@
+# 2026-11-23T16:28:35.582Z bash -l /root/macsec-up-check.sh; systemctl --failed --no-legend; systemctl is-active openbcm-asic-temp; systemctl show -p Conflicts,PartOf openbcm-asic-temp; ls -la /run/asic/temperature; cat /run/asic/temperature
+# exit 0
+== 2026-11-23T08:28:36-08:00 631c5hx7kznl... up 1112.68 s; the start of sonic-syncd: 1085.513 s; limit 60 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +9.8 s, secured +15.8 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.8 s, secured +15.8 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.1 s, secured +16.0 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +11.4 s, secured +16.1 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 16.1 s after the start of sonic-syncd (limit 60 s)
+]0;inactive
+PartOf=
+Conflicts=shutdown.target
+-rw-r--r-- 1 root root 5 Nov 23 08:28 /run/asic/temperature
+45.2

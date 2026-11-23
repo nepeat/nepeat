@@ -1,0 +1,256 @@
+== 2026-11-23T13:31:17Z sys=64296gcv boot=64296gcv up=260.28s load=1.17 0.67 0.29
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138640k cpu=19s; orchagent(788) rss=58256k cpu=1s; wpa_supplicant(1105) rss=13236k cpu=0s; wpa_supplicant(1124) rss=13264k cpu=0s; wpa_supplicant(1158) rss=13300k cpu=0s; wpa_supplicant(1175) rss=13308k cpu=0s; 
+temps: asic=47.7 fand failsafe=False asic:47.7C/53% board:37.0C/60% cpu:43.0C/53% hwmon=37000 33500 29000 30000 25000 27000 31000 43000 
+failed units: 0 
+since -6min: journal err+ 32, syncd/orchagent err-lines 106, kernel warn+ 127, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T13:35:01Z sys=64296gcv boot=64296gcv up=484.29s load=0.98 0.69 0.36
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138924k cpu=38s; orchagent(788) rss=58652k cpu=1s; wpa_supplicant(1105) rss=13236k cpu=0s; wpa_supplicant(1124) rss=13268k cpu=0s; wpa_supplicant(1158) rss=13300k cpu=0s; wpa_supplicant(1175) rss=13308k cpu=0s; 
+temps: asic=48.1 fand failsafe=False asic:48.1C/53% board:37.0C/60% cpu:42.0C/53% hwmon=37000 33000 29000 30000 25000 26500 31000 42000 
+failed units: 0 
+since 2026-11-23 13:31:17 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T13:40:01Z sys=64296gcv boot=64296gcv up=784.29s load=0.95 0.87 0.55
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138924k cpu=64s; orchagent(788) rss=58652k cpu=2s; wpa_supplicant(1105) rss=13236k cpu=0s; wpa_supplicant(1124) rss=13268k cpu=0s; wpa_supplicant(1158) rss=13300k cpu=0s; wpa_supplicant(1175) rss=13308k cpu=0s; 
+temps: asic=48.1 fand failsafe=False asic:48.1C/53% board:37.0C/60% cpu:41.0C/53% hwmon=36500 33000 28500 30000 25000 26000 31000 42000 
+failed units: 0 
+since 2026-11-23 13:35:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T13:45:01Z sys=64296gcv boot=64296gcv up=1084.29s load=0.78 0.88 0.63
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138924k cpu=90s; orchagent(788) rss=58548k cpu=3s; wpa_supplicant(1105) rss=13236k cpu=0s; wpa_supplicant(1124) rss=13268k cpu=0s; wpa_supplicant(1158) rss=13300k cpu=0s; wpa_supplicant(1175) rss=13308k cpu=0s; 
+temps: asic=46.7 fand failsafe=False asic:46.7C/53% board:36.5C/62% cpu:41.0C/53% hwmon=36500 33000 28500 30000 25000 26000 31000 42000 
+failed units: 0 
+since 2026-11-23 13:40:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T13:50:01Z sys=64296gcv boot=64296gcv up=1384.29s load=0.54 0.84 0.71
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138924k cpu=115s; orchagent(788) rss=58548k cpu=3s; wpa_supplicant(1105) rss=13236k cpu=0s; wpa_supplicant(1124) rss=13268k cpu=0s; wpa_supplicant(1158) rss=13300k cpu=0s; wpa_supplicant(1175) rss=13308k cpu=0s; 
+temps: asic=47.7 fand failsafe=False asic:47.7C/53% board:36.5C/62% cpu:41.0C/53% hwmon=36500 33000 29000 30000 25000 27000 31000 41000 
+failed units: 0 
+since 2026-11-23 13:45:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T13:55:01Z sys=64296gcv boot=64296gcv up=1684.30s load=0.44 0.65 0.68
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138924k cpu=141s; orchagent(788) rss=58548k cpu=4s; wpa_supplicant(1105) rss=13236k cpu=0s; wpa_supplicant(1124) rss=13268k cpu=1s; wpa_supplicant(1158) rss=13300k cpu=0s; wpa_supplicant(1175) rss=13308k cpu=0s; 
+temps: asic=47.7 fand failsafe=False asic:47.7C/53% board:36.0C/62% cpu:40.0C/53% hwmon=36000 33000 28500 29500 25000 25500 30000 41000 
+failed units: 0 
+since 2026-11-23 13:50:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T14:00:01Z sys=64296gcv boot=64296gcv up=1984.29s load=1.09 0.98 0.83
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138924k cpu=167s; orchagent(788) rss=58548k cpu=5s; wpa_supplicant(1105) rss=13236k cpu=1s; wpa_supplicant(1124) rss=13268k cpu=1s; wpa_supplicant(1158) rss=13300k cpu=1s; wpa_supplicant(1175) rss=13308k cpu=1s; 
+temps: asic=45.7 fand failsafe=False asic:45.7C/53% board:36.0C/62% cpu:39.0C/53% hwmon=36000 32500 28000 29500 25000 25500 30000 40000 
+failed units: 0 
+since 2026-11-23 13:55:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T14:05:00Z sys=64296gcv boot=64296gcv up=2283.07s load=0.84 0.78 0.77
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138924k cpu=193s; orchagent(788) rss=58548k cpu=5s; wpa_supplicant(1105) rss=13236k cpu=1s; wpa_supplicant(1124) rss=13268k cpu=1s; wpa_supplicant(1158) rss=13300k cpu=1s; wpa_supplicant(1175) rss=13308k cpu=1s; 
+temps: asic=46.7 fand failsafe=False asic:47.2C/53% board:36.0C/62% cpu:40.0C/53% hwmon=36000 33000 29000 29500 25000 27000 30000 41000 
+failed units: 0 
+since 2026-11-23 14:00:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T14:10:01Z sys=64296gcv boot=64296gcv up=2584.29s load=0.94 0.98 0.86
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138924k cpu=219s; orchagent(788) rss=58548k cpu=6s; wpa_supplicant(1105) rss=13236k cpu=1s; wpa_supplicant(1124) rss=13268k cpu=1s; wpa_supplicant(1158) rss=13300k cpu=1s; wpa_supplicant(1175) rss=13308k cpu=1s; 
+temps: asic=47.7 fand failsafe=False asic:47.7C/53% board:36.0C/62% cpu:40.0C/53% hwmon=36000 33000 28500 29500 25000 26000 30000 41000 
+failed units: 0 
+since 2026-11-23 14:05:00 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T14:15:01Z sys=64296gcv boot=64296gcv up=2884.30s load=0.67 0.79 0.81
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138924k cpu=244s; orchagent(788) rss=58548k cpu=6s; wpa_supplicant(1105) rss=13240k cpu=1s; wpa_supplicant(1124) rss=13268k cpu=1s; wpa_supplicant(1158) rss=13300k cpu=1s; wpa_supplicant(1175) rss=13308k cpu=1s; 
+temps: asic=47.2 fand failsafe=False asic:47.2C/53% board:36.0C/62% cpu:40.0C/53% hwmon=36000 32500 28000 29500 24500 25500 30000 40000 
+failed units: 0 
+since 2026-11-23 14:10:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T14:20:01Z sys=64296gcv boot=64296gcv up=3184.30s load=1.05 1.00 0.91
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138924k cpu=270s; orchagent(788) rss=58548k cpu=7s; wpa_supplicant(1105) rss=13240k cpu=1s; wpa_supplicant(1124) rss=13268k cpu=1s; wpa_supplicant(1158) rss=13300k cpu=1s; wpa_supplicant(1175) rss=13308k cpu=1s; 
+temps: asic=46.7 fand failsafe=False asic:46.7C/53% board:35.5C/62% cpu:40.0C/53% hwmon=35500 32500 28000 29500 24500 25500 30000 40000 
+failed units: 0 
+since 2026-11-23 14:15:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T14:25:01Z sys=64296gcv boot=64296gcv up=3484.30s load=0.70 0.86 0.87
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=296s; orchagent(788) rss=58548k cpu=8s; wpa_supplicant(1105) rss=13240k cpu=1s; wpa_supplicant(1124) rss=13268k cpu=2s; wpa_supplicant(1158) rss=13300k cpu=2s; wpa_supplicant(1175) rss=13308k cpu=1s; 
+temps: asic=46.2 fand failsafe=False asic:46.2C/53% board:36.5C/62% cpu:40.0C/53% hwmon=36500 33000 29000 29500 25000 26500 30000 41000 
+failed units: 0 
+since 2026-11-23 14:20:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T14:30:00Z sys=64296gcv boot=64296gcv up=3783.57s load=0.74 0.97 0.95
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=322s; orchagent(788) rss=58548k cpu=8s; wpa_supplicant(1105) rss=13240k cpu=2s; wpa_supplicant(1124) rss=13268k cpu=2s; wpa_supplicant(1158) rss=13300k cpu=2s; wpa_supplicant(1175) rss=13308k cpu=2s; 
+temps: asic=46.2 fand failsafe=False asic:46.2C/53% board:36.0C/62% cpu:41.0C/53% hwmon=36000 33000 28500 29500 25000 26000 30000 41000 
+failed units: 0 
+since 2026-11-23 14:25:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T14:35:01Z sys=64296gcv boot=64296gcv up=4084.29s load=0.83 0.81 0.88
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=348s; orchagent(788) rss=58548k cpu=9s; wpa_supplicant(1105) rss=13240k cpu=2s; wpa_supplicant(1124) rss=13268k cpu=2s; wpa_supplicant(1158) rss=13300k cpu=2s; wpa_supplicant(1175) rss=13308k cpu=2s; 
+temps: asic=46.2 fand failsafe=False asic:46.2C/53% board:36.0C/62% cpu:40.0C/53% hwmon=35500 32500 28000 29500 24500 25500 30000 41000 
+failed units: 0 
+since 2026-11-23 14:30:00 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T14:40:01Z sys=64296gcv boot=64296gcv up=4384.29s load=1.75 1.14 0.97
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=373s; orchagent(788) rss=58548k cpu=10s; wpa_supplicant(1105) rss=13240k cpu=2s; wpa_supplicant(1124) rss=13268k cpu=2s; wpa_supplicant(1158) rss=13300k cpu=2s; wpa_supplicant(1175) rss=13308k cpu=2s; 
+temps: asic=46.2 fand failsafe=False asic:47.2C/53% board:35.5C/62% cpu:40.0C/53% hwmon=35500 32500 28000 29500 24500 25500 30000 40000 
+failed units: 0 
+since 2026-11-23 14:35:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T14:45:01Z sys=64296gcv boot=64296gcv up=4684.29s load=0.60 0.78 0.87
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=399s; orchagent(788) rss=58548k cpu=10s; wpa_supplicant(1105) rss=13240k cpu=2s; wpa_supplicant(1124) rss=13268k cpu=2s; wpa_supplicant(1158) rss=13300k cpu=2s; wpa_supplicant(1175) rss=13308k cpu=2s; 
+temps: asic=47.2 fand failsafe=False asic:47.7C/53% board:36.5C/62% cpu:41.0C/53% hwmon=36500 33000 29000 30000 25000 27000 31000 41000 
+failed units: 0 
+since 2026-11-23 14:40:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T14:50:01Z sys=64296gcv boot=64296gcv up=4984.28s load=1.50 1.11 0.98
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=425s; orchagent(788) rss=58548k cpu=11s; wpa_supplicant(1105) rss=13240k cpu=2s; wpa_supplicant(1124) rss=13268k cpu=3s; wpa_supplicant(1158) rss=13300k cpu=2s; wpa_supplicant(1175) rss=13308k cpu=2s; 
+temps: asic=46.7 fand failsafe=False asic:46.2C/53% board:36.0C/62% cpu:40.0C/53% hwmon=36000 32500 28500 29500 25000 25500 30000 41000 
+failed units: 0 
+since 2026-11-23 14:45:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T14:55:01Z sys=64296gcv boot=64296gcv up=5284.29s load=0.66 0.76 0.86
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=451s; orchagent(788) rss=58548k cpu=12s; wpa_supplicant(1105) rss=13240k cpu=3s; wpa_supplicant(1124) rss=13268k cpu=3s; wpa_supplicant(1158) rss=13300k cpu=3s; wpa_supplicant(1175) rss=13308k cpu=2s; 
+temps: asic=47.2 fand failsafe=False asic:47.2C/53% board:36.0C/62% cpu:40.0C/53% hwmon=36000 32500 28000 29500 24500 25500 30000 40000 
+failed units: 0 
+since 2026-11-23 14:50:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T15:00:01Z sys=64296gcv boot=64296gcv up=5584.29s load=0.67 0.79 0.85
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=477s; orchagent(788) rss=58548k cpu=12s; wpa_supplicant(1105) rss=13240k cpu=3s; wpa_supplicant(1124) rss=13268k cpu=3s; wpa_supplicant(1158) rss=13300k cpu=3s; wpa_supplicant(1175) rss=13308k cpu=3s; 
+temps: asic=48.1 fand failsafe=False asic:48.1C/53% board:36.0C/62% cpu:41.0C/53% hwmon=36500 33000 29000 29500 25000 26500 30000 41000 
+failed units: 0 
+since 2026-11-23 14:55:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T15:05:01Z sys=64296gcv boot=64296gcv up=5884.29s load=0.62 0.74 0.82
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=502s; orchagent(788) rss=58548k cpu=13s; wpa_supplicant(1105) rss=13240k cpu=3s; wpa_supplicant(1124) rss=13268k cpu=3s; wpa_supplicant(1158) rss=13300k cpu=3s; wpa_supplicant(1175) rss=13308k cpu=3s; 
+temps: asic=46.7 fand failsafe=False asic:46.7C/53% board:36.5C/62% cpu:40.0C/53% hwmon=36500 33000 28500 29500 25000 26000 30000 41000 
+failed units: 0 
+since 2026-11-23 15:00:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T15:10:01Z sys=64296gcv boot=64296gcv up=6184.29s load=1.06 1.05 0.93
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=528s; orchagent(788) rss=58548k cpu=13s; wpa_supplicant(1105) rss=13240k cpu=3s; wpa_supplicant(1124) rss=13268k cpu=3s; wpa_supplicant(1158) rss=13300k cpu=3s; wpa_supplicant(1175) rss=13308k cpu=3s; 
+temps: asic=46.2 fand failsafe=False asic:46.2C/53% board:36.0C/62% cpu:40.0C/53% hwmon=36000 32500 28000 29500 24500 25500 30000 41000 
+failed units: 0 
+since 2026-11-23 15:05:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T15:15:01Z sys=64296gcv boot=64296gcv up=6484.30s load=0.84 0.87 0.88
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=554s; orchagent(788) rss=58548k cpu=14s; wpa_supplicant(1105) rss=13240k cpu=3s; wpa_supplicant(1124) rss=13268k cpu=4s; wpa_supplicant(1158) rss=13300k cpu=3s; wpa_supplicant(1175) rss=13308k cpu=3s; 
+temps: asic=46.7 fand failsafe=False asic:46.7C/53% board:36.0C/62% cpu:40.0C/53% hwmon=36000 32500 28000 29500 24500 25500 30000 40000 
+failed units: 0 
+since 2026-11-23 15:10:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T15:20:01Z sys=64296gcv boot=64296gcv up=6784.29s load=0.68 0.81 0.85
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=580s; orchagent(788) rss=58548k cpu=15s; wpa_supplicant(1105) rss=13240k cpu=3s; wpa_supplicant(1124) rss=13268k cpu=4s; wpa_supplicant(1158) rss=13300k cpu=4s; wpa_supplicant(1175) rss=13308k cpu=3s; 
+temps: asic=45.7 fand failsafe=False asic:45.7C/53% board:36.5C/62% cpu:41.0C/53% hwmon=36500 33000 29000 29500 25000 27000 30000 41000 
+failed units: 0 
+since 2026-11-23 15:15:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T15:25:01Z sys=64296gcv boot=64296gcv up=7084.29s load=0.54 0.73 0.80
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=606s; orchagent(788) rss=58548k cpu=15s; wpa_supplicant(1105) rss=13240k cpu=4s; wpa_supplicant(1124) rss=13268k cpu=4s; wpa_supplicant(1158) rss=13300k cpu=4s; wpa_supplicant(1175) rss=13308k cpu=3s; 
+temps: asic=47.2 fand failsafe=False asic:47.2C/53% board:36.0C/62% cpu:40.0C/53% hwmon=36000 33000 28500 30000 25000 26000 30000 41000 
+failed units: 0 
+since 2026-11-23 15:20:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T15:30:01Z sys=64296gcv boot=64296gcv up=7384.29s load=1.11 1.09 0.94
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=632s; orchagent(788) rss=58548k cpu=16s; wpa_supplicant(1105) rss=13240k cpu=4s; wpa_supplicant(1124) rss=13268k cpu=4s; wpa_supplicant(1158) rss=13300k cpu=4s; wpa_supplicant(1175) rss=13308k cpu=4s; 
+temps: asic=46.2 fand failsafe=False asic:46.2C/53% board:36.0C/62% cpu:40.0C/53% hwmon=36000 32500 28000 29500 24500 25500 30000 40000 
+failed units: 0 
+since 2026-11-23 15:25:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T15:35:01Z sys=64296gcv boot=64296gcv up=7684.29s load=0.66 0.78 0.84
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=657s; orchagent(788) rss=58548k cpu=17s; wpa_supplicant(1105) rss=13240k cpu=4s; wpa_supplicant(1124) rss=13268k cpu=4s; wpa_supplicant(1158) rss=13300k cpu=4s; wpa_supplicant(1175) rss=13308k cpu=4s; 
+temps: asic=46.2 fand failsafe=False asic:46.2C/53% board:35.5C/62% cpu:40.0C/53% hwmon=36000 32500 28000 29500 24500 25500 30000 40000 
+failed units: 0 
+since 2026-11-23 15:30:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T15:40:01Z sys=64296gcv boot=64296gcv up=7984.29s load=1.02 0.96 0.89
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=683s; orchagent(788) rss=58548k cpu=17s; wpa_supplicant(1105) rss=13240k cpu=4s; wpa_supplicant(1124) rss=13268k cpu=4s; wpa_supplicant(1158) rss=13300k cpu=4s; wpa_supplicant(1175) rss=13308k cpu=4s; 
+temps: asic=46.2 fand failsafe=False asic:46.2C/53% board:35.5C/62% cpu:40.0C/53% hwmon=36000 32500 28500 29500 25000 26000 30000 40000 
+failed units: 0 
+since 2026-11-23 15:35:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T15:45:00Z sys=64296gcv boot=64296gcv up=8282.97s load=0.82 0.88 0.89
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=709s; orchagent(788) rss=58548k cpu=18s; wpa_supplicant(1105) rss=13240k cpu=4s; wpa_supplicant(1124) rss=13268k cpu=5s; wpa_supplicant(1158) rss=13300k cpu=4s; wpa_supplicant(1175) rss=13308k cpu=4s; 
+temps: asic=47.7 fand failsafe=False asic:47.2C/53% board:36.0C/62% cpu:41.0C/53% hwmon=36500 33000 29000 30000 25000 26500 30000 41000 
+failed units: 0 
+since 2026-11-23 15:40:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T15:50:01Z sys=64296gcv boot=64296gcv up=8584.29s load=1.62 1.16 0.99
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=735s; orchagent(788) rss=58548k cpu=18s; wpa_supplicant(1105) rss=13240k cpu=4s; wpa_supplicant(1124) rss=13268k cpu=5s; wpa_supplicant(1158) rss=13300k cpu=5s; wpa_supplicant(1175) rss=13308k cpu=4s; 
+temps: asic=47.2 fand failsafe=False asic:47.2C/53% board:35.5C/62% cpu:40.0C/53% hwmon=35500 32500 28000 29500 25000 25500 30000 41000 
+failed units: 0 
+since 2026-11-23 15:45:00 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T15:55:01Z sys=64296gcv boot=64296gcv up=8884.29s load=0.62 0.84 0.90
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=760s; orchagent(788) rss=58548k cpu=19s; wpa_supplicant(1105) rss=13240k cpu=5s; wpa_supplicant(1124) rss=13268k cpu=5s; wpa_supplicant(1158) rss=13300k cpu=5s; wpa_supplicant(1175) rss=13308k cpu=4s; 
+temps: asic=46.7 fand failsafe=False asic:46.7C/53% board:36.0C/62% cpu:40.0C/53% hwmon=36000 32500 28500 29500 24500 26000 30000 40000 
+failed units: 0 
+since 2026-11-23 15:50:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T16:00:01Z sys=64296gcv boot=64296gcv up=9184.30s load=1.53 0.99 0.92
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=786s; orchagent(788) rss=58548k cpu=20s; wpa_supplicant(1105) rss=13240k cpu=5s; wpa_supplicant(1124) rss=13268k cpu=5s; wpa_supplicant(1158) rss=13300k cpu=5s; wpa_supplicant(1175) rss=13308k cpu=5s; 
+temps: asic=47.2 fand failsafe=False asic:47.2C/53% board:36.5C/62% cpu:40.0C/53% hwmon=36500 33000 29000 30000 25000 26500 30000 41000 
+failed units: 0 
+since 2026-11-23 15:55:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0
+== 2026-11-23T16:05:01Z sys=64296gcv boot=64296gcv up=9484.29s load=0.93 0.93 0.91
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138928k cpu=812s; orchagent(788) rss=58548k cpu=20s; wpa_supplicant(1105) rss=13240k cpu=5s; wpa_supplicant(1124) rss=13268k cpu=5s; wpa_supplicant(1158) rss=13300k cpu=5s; wpa_supplicant(1175) rss=13308k cpu=5s; 
+temps: asic=46.7 fand failsafe=False asic:46.7C/53% board:36.0C/62% cpu:40.0C/53% hwmon=36000 32500 28000 29500 25000 25500 30000 41000 
+failed units: 0 
+since 2026-11-23 16:00:01 UTC: journal err+ 0, syncd/orchagent err-lines 0, kernel warn+ 0, soc_knet_handle_rx 0, dup-MAC/SCI 0

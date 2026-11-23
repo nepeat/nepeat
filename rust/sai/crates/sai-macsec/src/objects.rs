@@ -500,7 +500,7 @@ impl Macsec {
                 .next_back()
         });
         if let Some(hw) = hw.filter(|hw| self.engine(*hw, dir).is_some_and(|e| e.enabled)) {
-            if let Some(read) = self.poll(runner, hw, dir, &seq::stats_flow(dir))? {
+            if let Some(read) = self.poll(runner, hw, dir, &seq::stats_flow(dir), true)? {
                 let mode = self.counters;
                 if let Some(flow) = self.flows.get_mut(&id) {
                     Self::accumulate(mode, &mut flow.acc, &read);
@@ -814,7 +814,7 @@ impl Macsec {
             return Ok(pn);
         };
         let name = seq::pn(dir, an);
-        if !runner.has(&name) {
+        if !runner.has(&name) || runner.poll_deferred(hw, &name) {
             return Ok(pn);
         }
         let read = self.run(runner, hw, dir, &name, &Params::new(), false)?;
@@ -870,12 +870,13 @@ impl Macsec {
         Ok(out)
     }
 
-    /// Reads the SA's counters from the PHY when it is installed (`sa_poll`).
-    fn sa_poll(&mut self, runner: &mut dyn SeqRunner, id: SaId) -> Result<()> {
+    /// Reads the SA's counters from the PHY when it is installed (`sa_poll`). `deferrable`:
+    /// a get (the runner may defer it), not a clear.
+    fn sa_poll(&mut self, runner: &mut dyn SeqRunner, id: SaId, deferrable: bool) -> Result<()> {
         let (Some((dir, an)), Some(hw)) = (self.sas.get(&id).map(|sa| (sa.dir, sa.an)), self.holder(id)) else {
             return Ok(());
         };
-        if let Some(read) = self.poll(runner, hw, dir, &seq::stats_sa(dir, an))? {
+        if let Some(read) = self.poll(runner, hw, dir, &seq::stats_sa(dir, an), deferrable)? {
             let mode = self.counters;
             if let Some(sa) = self.sas.get_mut(&id) {
                 Self::accumulate(mode, &mut sa.acc, &read);
@@ -894,7 +895,7 @@ impl Macsec {
         if !self.sas.contains_key(&id) {
             return Err(Error::InvalidObjectId);
         }
-        self.sa_poll(runner, id)?;
+        self.sa_poll(runner, id, true)?;
         let sa = self.sas.get(&id).ok_or(Error::InvalidObjectId)?;
         Ok(stats::fill(stats::SA_STATS, &sa.acc, ids))
     }
@@ -919,7 +920,7 @@ impl Macsec {
         if self.counters != CounterMode::ClearOnRead {
             return Err(Error::NotSupported);
         }
-        let _ = self.sa_poll(runner, id);
+        let _ = self.sa_poll(runner, id, false);
         if let Some(sa) = self.sas.get_mut(&id) {
             sa.acc.clear();
         }

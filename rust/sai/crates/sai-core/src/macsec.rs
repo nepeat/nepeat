@@ -228,6 +228,12 @@ pub trait MacsecIo {
     /// The id a new `MACsec`-stage ACL table / entry gets: the ACL area's, from the allocator
     /// the other ACL objects use (sai-macsec's D7); `None` for other objects (the model counts).
     fn next_id(&mut self, object: MacsecObject) -> Option<RawOid>;
+    /// Whether the poll sequence `name` (`pn.*`, `stats-*` for a get) on `hw` is to be
+    /// skipped now: raw MDIO of the diag socket holds the PHY polls off
+    /// ([`ExtPhy::macsec_poll_deferred`], bounded). The default never skips.
+    fn poll_deferred(&mut self, _hw: HwPort, _name: &str) -> bool {
+        false
+    }
 }
 
 /// The `MACsec` model of one switch (implemented by `sai-macsec-phy`'s `native` module over
@@ -418,6 +424,10 @@ impl<B: Backend + ?Sized> MacsecIo for CoreIo<'_, B> {
             return Ok(());
         }
         crate::port::port_ifg_apply(self.backend, store, port)
+    }
+
+    fn poll_deferred(&mut self, hw: HwPort, name: &str) -> bool {
+        self.phy.macsec_poll_deferred(sai_extphy::ChipPort(hw.0), name)
     }
 
     fn next_id(&mut self, object: MacsecObject) -> Option<RawOid> {

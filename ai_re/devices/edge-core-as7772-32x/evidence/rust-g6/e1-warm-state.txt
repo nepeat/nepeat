@@ -1,0 +1,15 @@
+# 2026-11-23T16:31:31.284Z date -u +%FT%TZ; uptime; readlink /run/current-system /run/booted-system; systemctl is-system-running; systemctl --failed --no-legend; systemctl is-active openbcm-asic-temp sonic-syncd; head -6 /run/openbcm-mdio-script/status.txt
+# exit 0
+2026-11-23T16:31:31Z
+ 08:31:31 up 2 min,  3 users,  load average: 1.09, 0.50, 0.19
+/nix/store/631c5hx7kznld417zvpvp38w7ml2dc05-nixos-system-as7772-26.11.20261111.d4f25a3
+/nix/store/631c5hx7kznld417zvpvp38w7ml2dc05-nixos-system-as7772-26.11.20261111.d4f25a3
+running
+inactive
+active
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 102.0 s
+  run started 2026-11-23 16:29:19 +0000, took 102.0 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 99.5 s (553600 writes, 427714 reads, 16554 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 43.8 C, 0 failed, longest read 0.13 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected

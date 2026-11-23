@@ -1,0 +1,12 @@
+2026-11-23T16:33:23.134Z systemctl poweroff
+2026-11-23T16:33:44.624Z host unreachable; lab-power 1 off
+ai_re devshell — hardware RE
+serial: tmux new-session -d -s serial 'tio /dev/<port> -b 115200'
+ports : ls /dev/tty.* (macOS) | ls /dev/ttyUSB* /dev/ttyACM* (linux)
+plug 1 (switch.server_room_lab_plug): off
+2026-11-23T16:34:05.261Z lab-power 1 on
+ai_re devshell — hardware RE
+serial: tmux new-session -d -s serial 'tio /dev/<port> -b 115200'
+ports : ls /dev/tty.* (macOS) | ls /dev/ttyUSB* /dev/ttyACM* (linux)
+plug 1 (switch.server_room_lab_plug): on
+2026-11-23T16:38:24.303Z up + checks done

@@ -41,6 +41,15 @@
 //!   a process global; a new switch gets a new one (the C++ resets its global at load).
 //! - The status text always has the "rust (phy-seq)" engine line (the C++ prints it only when
 //!   built with the Rust engine; this library has no other).
+//! - **Deliberate improvement: the hold-off also defers the external `MACsec` table's polls**
+//!   ([`ExtPhy::macsec_poll_deferred`]: `pn.*` and `stats-*` runs that syncd's counter
+//!   polls ask for). The C++ held off its link polls only, so a PN / counter read could land
+//!   between the requests of a tool's multi-register PHY firmware-message conversation (seen on
+//!   the AS7772: the read gets 0x0000, the tool "FW Message failure"). While deferred the model
+//!   answers from its last read; one poll sequence is deferred at most
+//!   [`MACSEC_POLL_DEFER_MAX_MS`] in a row (then it runs inside the hold-off), so a tool that
+//!   polls for minutes cannot hide a PN nearing exhaustion. SA install / remove / gate
+//!   sequences and counter clears are never deferred (as in the C++).
 #![forbid(unsafe_code)]
 
 mod clock;
@@ -182,6 +191,12 @@ pub struct PortState {
     pub last_val: u16,
 }
 
+/// The longest one `MACsec` poll sequence (a port's `pn.<dir>.<an>`, `stats-sa.*`,
+/// `stats-flow.*`) is deferred in a row by the raw-MDIO hold-off: then it runs anyway, inside
+/// the hold-off, and the next deferral starts again. Bounds how stale a PN read can be while
+/// a tool polls the PHY continuously (syncd asks for the PN about once a second).
+pub const MACSEC_POLL_DEFER_MAX_MS: u64 = 10_000;
+
 /// The most good polls counted (the C++ `1000000`).
 const GOOD_MAX: u32 = 1_000_000;
 
@@ -202,6 +217,20 @@ struct State {
     bus: Option<Box<dyn PhyBus>>,
     hold_until_ms: u64,
     holdoffs: u64,
+    /// `MACsec` poll sequences deferred by the current hold-off: when each was first deferred.
+    macsec_deferred: BTreeMap<(ChipPort, String), u64>,
+    /// The hold-off (its `holdoffs` number) the deferral notice was logged for.
+    macsec_deferred_logged: u64,
+    macsec_counts: MacsecPollCounts,
+}
+
+/// What the hold-off did to the external `MACsec` table's polls (since the runtime was made).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct MacsecPollCounts {
+    /// Polls answered from the model's last read.
+    pub deferred: u64,
+    /// Polls run inside a hold-off because [`MACSEC_POLL_DEFER_MAX_MS`] had passed.
+    pub forced: u64,
 }
 
 struct Shared {
@@ -294,6 +323,9 @@ impl ExtPhy {
                     bus: None,
                     hold_until_ms: 0,
                     holdoffs: 0,
+                    macsec_deferred: BTreeMap::new(),
+                    macsec_deferred_logged: 0,
+                    macsec_counts: MacsecPollCounts::default(),
                 }),
                 clock: Mutex::new(clock),
                 log,
@@ -439,6 +471,7 @@ impl ExtPhy {
         st.by_hw.clear();
         st.table = ExtPhyTable::default();
         st.ports.clear();
+        st.macsec_deferred.clear();
     }
 
     /// `ext_phy_active`: a table is attached.
@@ -613,6 +646,53 @@ impl ExtPhy {
             );
         }
         f()
+    }
+
+    /// Whether the external `MACsec` table's poll sequence `name` (`pn.*`, `stats-*`: what
+    /// syncd's counter polls ask for) on chip port `port` is to be skipped now: the raw-MDIO
+    /// hold-off is on (globally, as for the link polls), and this sequence has not been
+    /// deferred for [`MACSEC_POLL_DEFER_MAX_MS`] in a row yet. The caller then answers from
+    /// its last read (the PHY's counters keep counting, the next read catches up). Not for
+    /// sequences `SONiC` asks for (install, remove, gate, clear): those are never deferred.
+    /// Logs one notice per hold-off that defers a poll, and one per forced run.
+    /// A deliberate improvement on the C++ (its hold-off held the link polls only).
+    pub fn macsec_poll_deferred(&self, port: ChipPort, name: &str) -> bool {
+        let mut st = self.lock();
+        let now_ms = self.clock().now_us() / 1000;
+        if st.bus.is_none() || now_ms >= st.hold_until_ms {
+            st.macsec_deferred.clear();
+            return false;
+        }
+        let key = (port, name.to_owned());
+        let since = *st.macsec_deferred.entry(key.clone()).or_insert(now_ms);
+        let waited = now_ms.saturating_sub(since);
+        let line = if waited >= MACSEC_POLL_DEFER_MAX_MS {
+            st.macsec_deferred.insert(key, now_ms); // read now: the next deferral counts from here
+            st.macsec_counts.forced += 1;
+            Some(format!(
+                "external MACsec poll {name} on chip port {} runs inside the raw-MDIO hold-off: deferred {waited} ms, the most allowed",
+                port.0
+            ))
+        } else {
+            st.macsec_counts.deferred += 1;
+            let episode = st.holdoffs;
+            (st.macsec_deferred_logged != episode).then(|| {
+                st.macsec_deferred_logged = episode;
+                format!(
+                    "external MACsec PN / counter polls deferred: raw MDIO on the diag socket (last values answer until the hold-off ends, at most {MACSEC_POLL_DEFER_MAX_MS} ms per poll)"
+                )
+            })
+        };
+        drop(st);
+        if let Some(text) = line {
+            self.log(Api::Switch, Level::Notice, &text);
+        }
+        waited < MACSEC_POLL_DEFER_MAX_MS
+    }
+
+    /// What the hold-off did to the external `MACsec` table's polls.
+    pub fn macsec_poll_counts(&self) -> MacsecPollCounts {
+        self.lock().macsec_counts
     }
 
     /// `ext_phy_locked`: runs `f` (another user of the same PHYs' register interfaces: the

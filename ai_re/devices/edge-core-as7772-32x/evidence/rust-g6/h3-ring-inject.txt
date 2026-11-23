@@ -1,0 +1,23 @@
+# 2026-11-23T16:47:06.018Z bash -l /root/sonic-ring.sh inject; bash -l /root/sonic-ring.sh sample
+# exit 0
+Ethernet0 sent 740
+Ethernet4 sent 740
+== sample 1795452426 2026-11-23T16:47:06Z
+SAI Ethernet0 0 0 223916 149268 2451 1642 0 0 0 0 
+SAI Ethernet4 0 0 147270 227360 1624 2475 0 0 0 0 
+SAI Ethernet120 0 0 146946 223126 1628 2445 0 0 0 0 
+SAI Ethernet124 0 0 220729 151723 2426 1665 0 0 0 0 
+ASIC ce0 RDBGC1.ce0=2,368 RPKT.ce0=2,451 RBYT.ce0=223,916 TPKT.ce0=2,079 TBYT.ce0=190,650 UC_PERQ_PKT(0).ce0=2,236 
+ASIC ce1 RDBGC1.ce1=1,540 RPKT.ce1=2,066 RBYT.ce1=189,932 TPKT.ce1=2,475 TBYT.ce1=227,360 UC_PERQ_PKT(0).ce1=2,475 
+ASIC ce30 RDBGC1.ce30=1,551 RPKT.ce30=1,629 RBYT.ce30=147,112 TPKT.ce30=2,445 TBYT.ce30=223,126 UC_PERQ_PKT(0).ce30=2,445 
+ASIC ce31 RDBGC1.ce31=2,354 RPKT.ce31=2,426 RBYT.ce31=220,729 TPKT.ce31=1,666 TBYT.ce31=151,889 UC_PERQ_PKT(0).ce31=1,666 
+CPU PERQ_PKT(0).cpu0=8,719 
+NETDEV Ethernet0 rx/tx/rxdrop/txdrop 3189 2383 9 3 
+NETDEV Ethernet4 rx/tx/rxdrop/txdrop 2365 3215 9 0 
+NETDEV Ethernet120 rx/tx/rxdrop/txdrop 1628 2446 9 0 
+NETDEV Ethernet124 rx/tx/rxdrop/txdrop 2427 1666 10 14 
+TEMP asic 46.7 failsafe=False asic:47.2C/53% board:36.5C/60% cpu:42.0C/53%
+HWMON 36500 33000 28500 30000 25000 26000 31000 43000  FANS 13100 15700 13000 15800 13200 15500 13000 15900 13200 15800 13000 15800 
+PROC syncd(5733) cpu%=15.8 rss=139460k cpus=23; orchagent(5735) cpu%=1.0 rss=58584k cpus=1;  load=2.44 1.60 0.85
+MKA open-SAs=8 failed-units=0 oper-up=4
+KBRIDGE fwd: 20 bridge-tx; fdb entries for d1/d2: 0

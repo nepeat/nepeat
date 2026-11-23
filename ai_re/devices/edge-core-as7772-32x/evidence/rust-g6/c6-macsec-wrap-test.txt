@@ -1,0 +1,71 @@
+# 2026-11-23T16:24:49.101Z bash -l /root/macsec-wrap-test.sh /var/lib/evora-phy/g6wrap low wrap; rc=$?; rm -rf /var/lib/evora-phy/g6wrap; exit $rc
+# exit 0
+== 2026-11-23T08:24:49-08:00 /nix/store/631c5hx7kznld417zvpvp38w7ml2dc05-nixos-system-as7772-26.11.20261111.d4f25a3
+table /nix/store/c0873nwla2zp8a0vkrzhvvnq5m5pipq3-as7772-ext-macsec.tbl: 32 writes of the ingress SecTAG-check register 0x5000 in it (0 = the table before the fix)
+== 0. SONiC MACsec off on cages 1, 2 (CONFIG_DB PORT.macsec removed)
+SONiC MACsec engines on ce0 / ce1: 0 (0 = both ports left to this test)
+20 packets transmitted, 20 received, 0% packet loss, time 308ms
+== 1. engines on, gap 48 bytes
+== set low: first packet number (8 bytes, low first) a2b 0100000000000000, b2a 0100000000000000
+-- packet numbers before
+ce0 pn.egress.0    extmacsec: ce0 pn.egress.0: ok, 1267 us   pn 0 
+ce1 pn.ingress.0   extmacsec: ce1 pn.ingress.0: ok, 1267 us   pn 0 
+ce1 pn.egress.0    extmacsec: ce1 pn.egress.0: ok, 1267 us   pn 0 
+ce0 pn.ingress.0   extmacsec: ce0 pn.ingress.0: ok, 1279 us   pn 0 
++ ping -c 600 -i 0.01 10.0.1.1 (cage 1 -> 2; replies come back 2 -> 1)
+600 packets transmitted, 600 received, 0% packet loss, time 9582ms;
+-- packet numbers after
+ce0 pn.egress.0    extmacsec: ce0 pn.egress.0: ok, 1283 us   pn 0 
+ce1 pn.ingress.0   extmacsec: ce1 pn.ingress.0: ok, 1273 us   pn 0 
+ce1 pn.egress.0    extmacsec: ce1 pn.egress.0: ok, 1273 us   pn 0 
+ce0 pn.ingress.0   extmacsec: ce0 pn.ingress.0: ok, 1311 us   pn 0 
+-- SecY counters, non-zero (cleared before the egress SAs were made)
+ce0 stats-sa.egress.0      
+ce1 stats-flow.ingress     multicast_pkts_uncontrolled=5 octets_controlled=59975 octets_uncontrolled=59975 ucast_pkts_uncontrolled=600 
+ce1 stats-sa.ingress.0     
+ce0 stats-flow.egress      multicast_pkts_uncontrolled=5 octets_uncontrolled=59975 out_octets_common=59975 ucast_pkts_uncontrolled=600 
+ce1 stats-sa.egress.0      
+ce0 stats-flow.ingress     multicast_pkts_uncontrolled=5 octets_controlled=59975 octets_uncontrolled=59975 ucast_pkts_uncontrolled=600 
+ce0 stats-sa.ingress.0     
+ce1 stats-flow.egress      multicast_pkts_uncontrolled=5 octets_uncontrolled=59975 out_octets_common=59975 ucast_pkts_uncontrolled=600 
+-- ASIC
+RPKT.ce0=605 TPKT.ce0=605 
+RPKT.ce1=605 TPKT.ce1=605 
+== set wrap: first packet number (8 bytes, low first) a2b d4feffff00000000, b2a d4feffff00000000
+-- packet numbers before
+ce0 pn.egress.0    extmacsec: ce0 pn.egress.0: ok, 1277 us   pn 0 
+ce1 pn.ingress.0   extmacsec: ce1 pn.ingress.0: ok, 1272 us   pn 0 
+ce1 pn.egress.0    extmacsec: ce1 pn.egress.0: ok, 1274 us   pn 0 
+ce0 pn.ingress.0   extmacsec: ce0 pn.ingress.0: ok, 1292 us   pn 0 
++ ping -c 600 -i 0.01 10.0.1.1 (cage 1 -> 2; replies come back 2 -> 1)
+600 packets transmitted, 600 received, 0% packet loss, time 9586ms;
+-- packet numbers after
+ce0 pn.egress.0    extmacsec: ce0 pn.egress.0: ok, 1291 us   pn 0 
+ce1 pn.ingress.0   extmacsec: ce1 pn.ingress.0: ok, 1294 us   pn 0 
+ce1 pn.egress.0    extmacsec: ce1 pn.egress.0: ok, 1282 us   pn 0 
+ce0 pn.ingress.0   extmacsec: ce0 pn.ingress.0: ok, 1286 us   pn 0 
+-- SecY counters, non-zero (cleared before the egress SAs were made)
+ce0 stats-sa.egress.0      
+ce1 stats-flow.ingress     octets_controlled=58860 octets_uncontrolled=58860 ucast_pkts_uncontrolled=601 
+ce1 stats-sa.ingress.0     
+ce0 stats-flow.egress      octets_uncontrolled=58860 out_octets_common=58860 ucast_pkts_uncontrolled=601 
+ce1 stats-sa.egress.0      
+ce0 stats-flow.ingress     octets_controlled=58860 octets_uncontrolled=58860 ucast_pkts_uncontrolled=601 
+ce0 stats-sa.ingress.0     
+ce1 stats-flow.egress      octets_uncontrolled=58860 out_octets_common=58860 ucast_pkts_uncontrolled=601 
+-- ASIC
+RPKT.ce0=601 TPKT.ce0=601 
+RPKT.ce1=601 TPKT.ce1=601 
+== back to bypass, SONiC's MACsec back on the two ports
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+port      phy  dir     engine gate   AN0 AN1 AN2 AN3 tx   runs fails  max_us last failure
+ce30      17e  egress  on     open   sa  -   -   -   0     959     0   82465 
+ce30      17e  ingress on     open   sa  -   -   -        1035     0   89603 
+ce31      17f  egress  on     open   sa  -   -   -   0     995     0   81459 
+ce31      17f  ingress on     open   sa  -   -   -        1088     0   89679 
+ce0         0  egress  on     open   sa  -   -   -   0     878     0   81549 
+ce0         0  ingress on     open   sa  -   -   -         953     0   89666 
+ce1         1  egress  on     open   sa  -   -   -   0     919     0   81527 
+ce1         1  ingress on     open   sa  -   -   -        1011     0   89632 
+100 packets transmitted, 100 received, 0% packet loss, time 1583ms
+== failed units: 0

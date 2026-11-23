@@ -1,0 +1,14 @@
+# 2026-11-23T16:26:35.048Z for k in 1 2; do T0=$(date '+%F %T'); config interface shutdown Ethernet4; for i in $(seq 20); do [ "$(sonic-db-cli APPL_DB hget 'PORT_TABLE:Ethernet0' oper_status)" = down ] && break; sleep 0.5; done; sleep 1; journalctl -u sonic-syncd --since "$T0" -o short-iso-precise --no-pager | grep -E "port ce[01]" | grep -E "admin|oper|line side"; config interface startup Ethernet4; for i in $(seq 30); do [ "$(sonic-db-cli APPL_DB hget 'PORT_TABLE:Ethernet0' oper_status)$(sonic-db-cli APPL_DB hget 'PORT_TABLE:Ethernet4' oper_status)" = upup ] && break; sleep 0.5; done; echo "run $k back up: $(sonic-db-cli APPL_DB hget 'PORT_TABLE:Ethernet0' oper_status)/$(sonic-db-cli APPL_DB hget 'PORT_TABLE:Ethernet4' oper_status)"; sleep 6; done; M=$(cut -d' ' -f1 /proc/uptime); bash -l /root/macsec-up-check.sh -t 60 -s @$(echo $M | awk '{print $1-20}') | tail -2
+# exit 0
+2026-11-23T08:26:39.140582-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce1 admin down
+2026-11-23T08:26:39.188486-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+2026-11-23T08:26:39.442684-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+2026-11-23T08:26:39.446040-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+run 1 back up: up/up
+2026-11-23T08:26:55.583873-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce1 admin down
+2026-11-23T08:26:55.604648-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+2026-11-23T08:26:55.862688-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+2026-11-23T08:26:55.865883-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+run 2 back up: up/up
+PASS: MKA up on 4 ports without intervention, the slowest 2.7 s after the given moment (limit 60 s)
+]0;

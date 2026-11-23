@@ -1,0 +1,55 @@
+2026-11-23T16:12:30Z
+/nix/store/631c5hx7kznld417zvpvp38w7ml2dc05-nixos-system-as7772-26.11.20261111.d4f25a3
+/nix/store/631c5hx7kznld417zvpvp38w7ml2dc05-nixos-system-as7772-26.11.20261111.d4f25a3
+running
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 102.2 s
+  run started 2026-11-23 16:10:19 +0000, took 102.2 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 99.7 s (553600 writes, 427904 reads, 16744 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 43.8 C, 0 failed, longest read 0.14 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+name    phy    id      id2     fw      cksum   sides   state
+cage1   0x000  2391    80a0    d00b    600d    000d    ok
+cage2   0x001  2391    80a0    d00b    600d    000d    ok
+cage3   0x002  2391    80a0    d00b    600d    000d    ok
+cage4   0x003  2391    80a0    d00b    600d    000d    ok
+cage5   0x024  2391    80a0    d00b    600d    000d    ok
+cage6   0x025  2391    80a0    d00b    600d    000d    ok
+cage7   0x026  2391    80a0    d00b    600d    000d    ok
+cage8   0x027  2391    80a0    d00b    600d    000d    ok
+cage9   0x048  2391    80a0    d00b    600d    000d    ok
+cage10  0x049  2391    80a0    d00b    600d    000d    ok
+cage11  0x04a  2391    80a0    d00b    600d    000d    ok
+cage12  0x04b  2391    80a0    d00b    600d    000d    ok
+cage13  0x06c  2391    80a0    d00b    600d    000d    ok
+cage14  0x06d  2391    80a0    d00b    600d    000d    ok
+cage15  0x06e  2391    80a0    d00b    600d    000d    ok
+cage16  0x06f  2391    80a0    d00b    600d    000d    ok
+cage17  0x110  2391    80a0    d00b    600d    000d    ok
+cage18  0x111  2391    80a0    d00b    600d    000d    ok
+cage19  0x112  2391    80a0    d00b    600d    000d    ok
+cage20  0x113  2391    80a0    d00b    600d    000d    ok
+cage21  0x134  2391    80a0    d00b    600d    000d    ok
+cage22  0x135  2391    80a0    d00b    600d    000d    ok
+cage23  0x136  2391    80a0    d00b    600d    000d    ok
+cage24  0x137  2391    80a0    d00b    600d    000d    ok
+cage25  0x158  2391    80a0    d00b    600d    000d    ok
+cage26  0x159  2391    80a0    d00b    600d    000d    ok
+cage27  0x15a  2391    80a0    d00b    600d    000d    ok
+cage28  0x15b  2391    80a0    d00b    600d    000d    ok
+cage29  0x17c  2391    80a0    d00b    600d    000d    ok
+cage30  0x17d  2391    80a0    d00b    600d    000d    ok
+cage31  0x17e  2391    80a0    d00b    600d    000d    ok
+cage32  0x17f  2391    80a0    d00b    600d    000d    ok
+{'version': 1, 'state': 'ok', 'mode': 'run', 'summary': '32 PHYs verified after 1058160 operations in 102.2 s', 'pid': 498, 'started': 1795450219, 'finished': 1795450321, 'seconds': 102.2, 'operations_done': 1058160, 'operations_total': 1058160, 'sdk': 'BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)', 'failure': None}
+syncd=917
+/nix/store/b8qllq6130hk80yvjb0mpi7fyp6nj1j5-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+/nix/store/r0cpvivn70m99i7g8q1z6132nfshlzc6-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c/bin/syncd
+/nix/store/r0cpvivn70m99i7g8q1z6132nfshlzc6-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c/lib/libsaimetadata.so.0.0.0
+/nix/store/r0cpvivn70m99i7g8q1z6132nfshlzc6-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c/lib/libsaimeta.so.0.0.0
+ExecStart={ path=/nix/store/b8qllq6130hk80yvjb0mpi7fyp6nj1j5-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/bin/openbcm-mdio-script ; argv[]=/nix/store/b8qllq6130hk80yvjb0mpi7fyp6nj1j5-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/bin/openbcm-mdio-script --config /nix/store/h1lk5i6n06k8mh2v2bmsy4va497gbyi4-as7772-32x-config.bcm --status-file /run/openbcm-mdio-script/status.json --names /nix/store/hwda1m535dq64i2xx8grkkrciqczz6j7-openbcm-mdio-names --hint interrupted=the PHYs may be half-programmed: systemctl restart sonic.target runs the bring-up again (it resets them first) --hint phy-not-answering=an Evora PHY that reads one constant is hung until a COLD power cycle (lab plug 1, or pull the cord); a reboot or a re-run does not help. It boots by itself afterwards --hint script-malformed=the PHY script is truncated or damaged: install it again (evora-rehost/install-script.sh checks its sha256), then: systemctl restart sonic.target --hint script-missing=the PHY script is private and installed by hand: on the workstation run devices/edge-core-as7772-32x/evora-rehost/install-script.sh, then here: systemctl restart sonic.target --hint sdk-busy=systemctl stop sonic.target openbcm-asic-temp (and any bcm.user), then: systemctl restart sonic.target --hint sequence-diverged=run it again: systemctl restart sonic.target (about 100 s). If it stops at the same line twice, cold power cycle; phy-status --live shows every PHY --hint verify-mismatch=run it again: systemctl restart sonic.target (about 100 s); a PHY that still differs after a cold power cycle is a hardware or script problem --temp-out /run/asic/temperature --temp-interval 5 --temp-prom /run/prometheus-textfile/asic.prom /var/lib/evora-phy/evora-100g-bypass.mdio ; ignore_errors=no ; start_time=[Mon 2026-11-23 08:10:18 PST] ; stop_time=[Mon 2026-11-23 08:12:01 PST] ; pid=498 ; code=exited ; status=0 }
+Nov 23 08:12:01 as7772 openbcm-mdio-script[498]: openbcm-mdio-script: verify phy 0x17e: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+Nov 23 08:12:01 as7772 openbcm-mdio-script[498]: openbcm-mdio-script: verify phy 0x17f: id 2391/80a0, firmware d00b, checksum 600d, both sides active
+Nov 23 08:12:01 as7772 openbcm-mdio-script[498]: openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: done in 99.7 s: 1058160 of 1058160 operations, 553600 writes, 427904 reads (307099 polls, 16744 re-reads), 0 expected values differed
+Nov 23 08:12:01 as7772 openbcm-mdio-script[498]: openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 102.2 s
+Nov 23 08:12:01 as7772 systemd[1]: Finished External PHY bring-up over the switch chip's MDIO bus.

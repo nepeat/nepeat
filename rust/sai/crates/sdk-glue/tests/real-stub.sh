@@ -19,7 +19,7 @@
 #                (-nostdlibinc -resource-dir=<clang's> -idirafter <T's glibc-dev>/include). Run
 #                through $RUNNER (default: qemu-ppc64 -L ${QEMU_LD_PREFIX:-/}), the test's own
 #                children too (SDK_GLUE_STUB_RUNNER).
-# The header: $SDK_GLUE_INC, $MDIO_SCRIPT_C_DIR, $SAI_OPENBCM_SRC, else the monorepo's copy (as
+# The header: $SDK_GLUE_INC, else the monorepo's copy (as
 # sdk-glue-sys/build.rs looks). Build products: $REAL_STUB_OUT (default
 # $CARGO_TARGET_DIR/real-stub/<variant>, CARGO_TARGET_DIR default target/).
 set -euo pipefail
@@ -39,7 +39,7 @@ while [ $# -gt 0 ]; do
 done
 
 inc=""
-for d in "${SDK_GLUE_INC:-}" "${MDIO_SCRIPT_C_DIR:-}" "${SAI_OPENBCM_SRC:-}" "$ws/../../ai_re/nix/packages/sai-openbcm/src"; do
+for d in "${SDK_GLUE_INC:-}" "$ws/../../ai_re/nix/packages/sai-openbcm/src"; do
     if [ -n "$d" ] && [ -f "$d/sdk_glue.h" ]; then inc=$d; break; fi
 done
 [ -n "$inc" ] || { echo "real-stub.sh: no sdk_glue.h (set SDK_GLUE_INC)" >&2; exit 2; }

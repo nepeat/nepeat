@@ -113,7 +113,7 @@ Metrics go to `/run/prometheus-textfile/fand.prom` (`fand_*`, scraped with
 node-exporter).
 
 **ASIC die temperature** (`openbcm-asic-temp.service`,
-[module](../../nix/modules/switch/openbcm.nix), [tool](../../nix/packages/sai-openbcm/src/asic_temp.c)):
+[module](../../nix/modules/switch/openbcm.nix), [tool](../../../rust/sai/crates/openbcm-asic-temp/src/lib.rs)):
 the Tomahawk's eight PVTMON monitors through the Broadcom SDK, every 5 s, attach
 only (no `init all`, ports untouched). Writes the hottest to
 `/run/asic/temperature` and `switch_asic_*` to the textfile collector; both

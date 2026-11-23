@@ -438,6 +438,10 @@ impl SeqRunner for CallRunner<'_> {
             why: format!("inter-frame gap not applied ({})", e.status()),
         })
     }
+
+    fn poll_deferred(&mut self, port: PortKey, name: &str) -> bool {
+        hw_of(port).is_some_and(|hw| self.io.poll_deferred(hw, name))
+    }
 }
 
 /// The table for questions that run nothing (status text, capability).

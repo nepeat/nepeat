@@ -1,0 +1,9 @@
+# 2026-11-23T16:44:58.172Z readlink /run/current-system /run/booted-system; pid=$(pidof syncd); grep -E "libsai" /proc/$pid/maps | awk "{print \$6}" | sort -u; bash -l /root/macsec-up-check.sh | tail -2; systemctl --failed --no-legend
+# exit 0
+/nix/store/kh01796ssvawwww60a9q8h1sxlz9bnls-nixos-system-as7772-26.11.20261111.d4f25a3
+/nix/store/631c5hx7kznld417zvpvp38w7ml2dc05-nixos-system-as7772-26.11.20261111.d4f25a3
+/nix/store/5l1l61fpq8gd4i2jcinr37n22ja23hq4-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+/nix/store/ssadnh1rv9bkcfq4cf3yvqfiyvwm43k6-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c/lib/libsaimetadata.so.0.0.0
+/nix/store/ssadnh1rv9bkcfq4cf3yvqfiyvwm43k6-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c/lib/libsaimeta.so.0.0.0
+PASS: MKA up on 4 ports without intervention, the slowest 16.6 s after the start of sonic-syncd (limit 60 s)
+]0;

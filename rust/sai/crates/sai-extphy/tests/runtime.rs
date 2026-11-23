@@ -10,8 +10,8 @@
 )]
 
 use sai_extphy::{
-    Api, BusStatus, ChipPort, Dev, ExtPhy, Level, LoadError, Logger, ManualClock, NoPortAtLane, PhyBus, PortRef,
-    Verdict,
+    Api, BusStatus, ChipPort, Dev, ExtPhy, Level, LoadError, Logger, MACSEC_POLL_DEFER_MAX_MS, MacsecPollCounts,
+    ManualClock, NoPortAtLane, PhyBus, PortRef, Verdict,
 };
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::{Arc, Mutex};
@@ -379,4 +379,58 @@ fn the_gate_takes_only_the_runtimes_lock() {
     }
     scan.join().unwrap();
     assert!(ext.port_counters(P0).unwrap().hooks >= 500);
+}
+
+/// A deliberate improvement on the C++: the raw-MDIO hold-off also defers the external `MACsec`
+/// table's poll sequences (PN, counters), per sequence at most `MACSEC_POLL_DEFER_MAX_MS` in a
+/// row, so a tool polling the PHY for minutes cannot hide a PN nearing exhaustion.
+#[test]
+fn the_hold_off_defers_macsec_polls_and_bounds_the_deferral() {
+    const PN: &str = "pn.egress.0";
+    const STATS: &str = "stats-sa.egress.0";
+    let Rig { ext, bus, clock, lines } = rig(&GOOD.replace("holdoff-ms 50", "holdoff-ms 3000"));
+    // not attached: no hold-off, nothing deferred
+    assert!(!ext.macsec_poll_deferred(P0, PN));
+    ext.foreign_mdio(|| ());
+    assert!(!ext.macsec_poll_deferred(P0, PN));
+    assert_eq!(ext.attach(&ports(), Box::new(bus.clone())), Ok(vec![P0, P1]));
+    // no raw MDIO: polls run
+    assert!(!ext.macsec_poll_deferred(P0, PN));
+    // raw MDIO at t; a poll due at t+1 s is deferred (one notice per hold-off), runs after it
+    ext.foreign_mdio(|| ());
+    clock.advance_ms(1000);
+    assert!(ext.macsec_poll_deferred(P0, PN));
+    assert!(ext.macsec_poll_deferred(P0, STATS));
+    assert!(ext.macsec_poll_deferred(P1, PN)); // global, as the link polls' hold-off
+    let notice = "external MACsec PN / counter polls deferred: raw MDIO on the diag socket (last values answer until the hold-off ends, at most 10000 ms per poll)";
+    let count = |text: &str| lines.lock().unwrap().iter().filter(|l| l.2.starts_with(text)).count();
+    assert_eq!(count(notice), 1);
+    clock.advance_ms(1999);
+    assert!(ext.macsec_poll_deferred(P0, PN));
+    clock.advance_ms(1); // t+3 s: the hold-off is over
+    assert!(!ext.macsec_poll_deferred(P0, PN));
+    assert!(!ext.macsec_poll_deferred(P0, STATS));
+    assert_eq!(ext.macsec_poll_counts(), MacsecPollCounts { deferred: 4, forced: 0 });
+    // a tool that polls continuously (raw MDIO every 500 ms) for five minutes, syncd asking
+    // for the PN every second: the PN is still read at least every MACSEC_POLL_DEFER_MAX_MS
+    let mut runs = Vec::new();
+    for ms in (0..300_000u64).step_by(500) {
+        ext.foreign_mdio(|| ());
+        if ms % 1000 == 0 && !ext.macsec_poll_deferred(P0, PN) {
+            runs.push(ms);
+        }
+        clock.advance_ms(500);
+    }
+    assert_eq!(runs.len(), 29, "{runs:?}");
+    assert_eq!(runs[0], MACSEC_POLL_DEFER_MAX_MS);
+    assert!(
+        runs.windows(2).all(|w| w[1] - w[0] == MACSEC_POLL_DEFER_MAX_MS),
+        "{runs:?}"
+    );
+    assert_eq!(count(notice), 2);
+    let forced = "external MACsec poll pn.egress.0 on chip port 1 runs inside the raw-MDIO hold-off: deferred 10000 ms, the most allowed";
+    assert_eq!(count(forced), 29);
+    assert_eq!(ext.macsec_poll_counts().forced, 29);
+    // the status text (the C++'s) does not change
+    assert!(ext.status().contains("hold-off 3000 ms (PAUSED now, 2 so far)"));
 }

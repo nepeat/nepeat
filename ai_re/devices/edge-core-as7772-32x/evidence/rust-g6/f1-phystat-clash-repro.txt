@@ -1,0 +1,36 @@
+# 2026-11-23 08:38:37 (box local) phystat.py --json 0x00 0x01 0x17e 0x17f, SONiC up, MACsec on, build 631c5hx7 (47c0012)
+# phystat exit 0, FW Message failure 1, syncd 'stopped' lines 6
+[0mdirenv: loading ~/nepeat/ai_re/.envrc
+[0mdirenv: using flake
+[0mdirenv: nix-direnv: Using cached dev shell
+[0mdirenv: loading ~/nepeat/ai_re/.envrc.local
+{"phy": 0, "t": 1795451918.2198746, "temp_c": 410.0, "fec_corr": 0, "fec_uncorr": 0, "fec_symerr": [0, 0, 0, 0], "line_pcs_live": [0, 3], "line_lock_latched": [1023, 1023], "line_mib": {"RPKT": 3321, "RFCS": 0, "RERPKT": 0, "RBYT": 3381136, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3295, "TFCS": 0, "TERR": 0, "TBYT": 3377381, "TXPF": 0, "TUFL": 0}, "sys_pcs_live": [1023, 3], "sys_lock_latched": [1023, 1023], "sys_mib": {"RPKT": 3296, "RFCS": 0, "RERPKT": 0, "RBYT": 3274418, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3315, "TFCS": 0, "TERR": 0, "TBYT": 3276784, "TXPF": 0, "TUFL": 0}, "sys_cl82_ber": 0}
+{"phy": 1, "t": 1795451920.936285, "temp_c": 410.0, "fec_corr": 0, "fec_uncorr": 3, "fec_symerr": [0, 0, 0, 0], "line_pcs_live": [0, 3], "line_lock_latched": [1023, 1023], "line_mib": {"RPKT": 3296, "RFCS": 0, "RERPKT": 0, "RBYT": 3377547, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3323, "TFCS": 0, "TERR": 0, "TBYT": 3381468, "TXPF": 0, "TUFL": 0}, "sys_pcs_live": [1023, 3], "sys_lock_latched": [1023, 1023], "sys_mib": {"RPKT": 3325, "RFCS": 0, "RERPKT": 0, "RBYT": 3278261, "RXPF": 0, "ROVR": 200, "RJBR": 0, "RMTUE": 0, "RUND": 0, "RFRG": 0, "R16383": 0, "TPKT": 3297, "TFCS": 0, "TERR": 0, "TBYT": 3274513, "TXPF": 0, "TUFL": 0}, "sys_cl82_ber": 0}
+Traceback (most recent call last):
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 116, in <module>
+    main()
+    ~~~~^^
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 95, in main
+    r = p.snapshot(int(s, 0), a.taps)
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 57, in snapshot
+    r['fec_corr'] = self.pair(phy, 0xc352)
+                    ~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 51, in pair
+    l = self.reg(phy, 0x42020000 | lo, side); h = self.reg(phy, 0x42020000 | (lo + 1), side)
+  File "/home/erin/nepeat/ai_re/devices/edge-core-as7772-32x/evora-rehost/phystat.py", line 47, in reg
+    raise RuntimeError('reg64 get failed: rc=%d %r' % (rc, out))
+RuntimeError: reg64 get failed: rc=-1 '>>> extphy reg64 get 0x17e 0x4202c352 lane=0 if_side=0\nFW Message failure\nFAILED: bcm_plp_reg64_value_get on lane 0x1 Line side phy_id 382 rv[-1]\n<<< rc=-1  (21 reads, 6 writes, 0 delays, 0.1 s)\n'
+# journalctl -u sonic-syncd (filtered)
+2026-11-23T08:38:40.681634-08:00 as7772 syncd[915]: sai-openbcm ERROR api=43: port ce0: external MACsec sequence pn.egress.0 stopped: line 2588: P phy 0x0 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T08:38:40.681700-08:00 as7772 syncd[915]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002f9: -1
+2026-11-23T08:38:40.693862-08:00 as7772 syncd[915]: sai-openbcm ERROR api=43: port ce0: external MACsec sequence pn.ingress.0 stopped: line 11818: P phy 0x0 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T08:38:40.693912-08:00 as7772 syncd[915]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002fa: -1
+2026-11-23T08:38:41.688448-08:00 as7772 syncd[915]: sai-openbcm ERROR api=43: port ce1: external MACsec sequence pn.ingress.0 stopped: line 11818: P phy 0x1 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T08:38:41.688503-08:00 as7772 syncd[915]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002fb: -1
+2026-11-23T08:38:41.700721-08:00 as7772 syncd[915]: sai-openbcm ERROR api=43: port ce1: external MACsec sequence pn.egress.0 stopped: line 2588: P phy 0x1 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T08:38:41.700773-08:00 as7772 syncd[915]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002fc: -1
+2026-11-23T08:38:42.692605-08:00 as7772 syncd[915]: sai-openbcm ERROR api=43: port ce1: external MACsec sequence pn.ingress.0 stopped: line 11818: P phy 0x1 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T08:38:42.692677-08:00 as7772 syncd[915]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002fb: -1
+2026-11-23T08:38:42.704961-08:00 as7772 syncd[915]: sai-openbcm ERROR api=43: port ce1: external MACsec sequence pn.egress.0 stopped: line 2588: P phy 0x1 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T08:38:42.705027-08:00 as7772 syncd[915]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002fc: -1
+count stopped: 6

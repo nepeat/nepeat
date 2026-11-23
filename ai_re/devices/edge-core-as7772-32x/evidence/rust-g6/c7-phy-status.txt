@@ -1,0 +1,115 @@
+# 2026-11-23T16:25:41.888Z phy-status 2>&1; echo; openbcm-diag extphy 2>&1 | head -40
+# exit 0
+== last run of openbcm-mdio-script.service (/run/openbcm-mdio-script/status.txt) ==
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 102.2 s
+  run started 2026-11-23 16:10:19 +0000, took 102.2 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 99.7 s (553600 writes, 427904 reads, 16744 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 43.8 C, 0 failed, longest read 0.14 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+name    phy    id      id2     fw      cksum   sides   state
+cage1   0x000  2391    80a0    d00b    600d    000d    ok
+cage2   0x001  2391    80a0    d00b    600d    000d    ok
+cage3   0x002  2391    80a0    d00b    600d    000d    ok
+cage4   0x003  2391    80a0    d00b    600d    000d    ok
+cage5   0x024  2391    80a0    d00b    600d    000d    ok
+cage6   0x025  2391    80a0    d00b    600d    000d    ok
+cage7   0x026  2391    80a0    d00b    600d    000d    ok
+cage8   0x027  2391    80a0    d00b    600d    000d    ok
+cage9   0x048  2391    80a0    d00b    600d    000d    ok
+cage10  0x049  2391    80a0    d00b    600d    000d    ok
+cage11  0x04a  2391    80a0    d00b    600d    000d    ok
+cage12  0x04b  2391    80a0    d00b    600d    000d    ok
+cage13  0x06c  2391    80a0    d00b    600d    000d    ok
+cage14  0x06d  2391    80a0    d00b    600d    000d    ok
+cage15  0x06e  2391    80a0    d00b    600d    000d    ok
+cage16  0x06f  2391    80a0    d00b    600d    000d    ok
+cage17  0x110  2391    80a0    d00b    600d    000d    ok
+cage18  0x111  2391    80a0    d00b    600d    000d    ok
+cage19  0x112  2391    80a0    d00b    600d    000d    ok
+cage20  0x113  2391    80a0    d00b    600d    000d    ok
+cage21  0x134  2391    80a0    d00b    600d    000d    ok
+cage22  0x135  2391    80a0    d00b    600d    000d    ok
+cage23  0x136  2391    80a0    d00b    600d    000d    ok
+cage24  0x137  2391    80a0    d00b    600d    000d    ok
+cage25  0x158  2391    80a0    d00b    600d    000d    ok
+cage26  0x159  2391    80a0    d00b    600d    000d    ok
+cage27  0x15a  2391    80a0    d00b    600d    000d    ok
+cage28  0x15b  2391    80a0    d00b    600d    000d    ok
+cage29  0x17c  2391    80a0    d00b    600d    000d    ok
+cage30  0x17d  2391    80a0    d00b    600d    000d    ok
+cage31  0x17e  2391    80a0    d00b    600d    000d    ok
+cage32  0x17f  2391    80a0    d00b    600d    000d    ok
+
+== the PHYs now (read only) ==
+through syncd (/run/sai-openbcm/diag.sock)
+name    phy    id      id2     fw      cksum   sides   state
+cage1   0x000  2391    80a0    d00b    600d    000d    ok
+cage2   0x001  2391    80a0    d00b    600d    000d    ok
+cage3   0x002  2391    80a0    d00b    600d    000d    ok
+cage4   0x003  2391    80a0    d00b    600d    000d    ok
+cage5   0x024  2391    80a0    d00b    600d    000d    ok
+cage6   0x025  2391    80a0    d00b    600d    000d    ok
+cage7   0x026  2391    80a0    d00b    600d    000d    ok
+cage8   0x027  2391    80a0    d00b    600d    000d    ok
+cage9   0x048  2391    80a0    d00b    600d    000d    ok
+cage10  0x049  2391    80a0    d00b    600d    000d    ok
+cage11  0x04a  2391    80a0    d00b    600d    000d    ok
+cage12  0x04b  2391    80a0    d00b    600d    000d    ok
+cage13  0x06c  2391    80a0    d00b    600d    000d    ok
+cage14  0x06d  2391    80a0    d00b    600d    000d    ok
+cage15  0x06e  2391    80a0    d00b    600d    000d    ok
+cage16  0x06f  2391    80a0    d00b    600d    000d    ok
+cage17  0x110  2391    80a0    d00b    600d    000d    ok
+cage18  0x111  2391    80a0    d00b    600d    000d    ok
+cage19  0x112  2391    80a0    d00b    600d    000d    ok
+cage20  0x113  2391    80a0    d00b    600d    000d    ok
+cage21  0x134  2391    80a0    d00b    600d    000d    ok
+cage22  0x135  2391    80a0    d00b    600d    000d    ok
+cage23  0x136  2391    80a0    d00b    600d    000d    ok
+cage24  0x137  2391    80a0    d00b    600d    000d    ok
+cage25  0x158  2391    80a0    d00b    600d    000d    ok
+cage26  0x159  2391    80a0    d00b    600d    000d    ok
+cage27  0x15a  2391    80a0    d00b    600d    000d    ok
+cage28  0x15b  2391    80a0    d00b    600d    000d    ok
+cage29  0x17c  2391    80a0    d00b    600d    000d    ok
+cage30  0x17d  2391    80a0    d00b    600d    000d    ok
+cage31  0x17e  2391    80a0    d00b    600d    000d    ok
+cage32  0x17f  2391    80a0    d00b    600d    000d    ok
+32 of 32 PHYs as the script expects
+
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (PAUSED now, 1 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce0         49   50 up    up    no     0x0003     1584        0    1     0     191     197     355     2    0        7335
+ce1         53   54 up    up    no     0x0003     1584        0    1     0     191     196     345     2    0        7941
+ce2         57   58 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5325
+ce3         61   62 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5206
+ce4         65   68 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5436
+ce5         69   72 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5060
+ce6         73   76 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        4844
+ce7         77   80 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        4800
+ce8         33   34 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5004
+ce9         37   38 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        4965
+ce10        41   42 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5326
+ce11        45   46 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        4952
+ce12        81   84 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5447
+ce13        85   88 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5062
+ce14        89   92 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5051
+ce15        93   96 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5057
+ce16        97  102 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        4940
+ce17       101  106 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5177
+ce18       105  110 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5303
+ce19       109  114 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5204
+ce20        17   17 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5068
+ce21        21   21 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5190
+ce22        25   25 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5197
+ce23        29   29 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5205
+ce24       113  118 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5070
+ce25       117  122 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        4820
+ce26       121  126 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5327
+ce27       125  130 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5186
+ce28         1    1 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        4810
+ce29         5    5 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5135
+ce30         9    9 up    up    no     0x0003     1584        0    1     0     211     215     358     2    0        7739
+ce31        13   13 up    up    no     0x0003     1584        0    1     0     191     197     324     2    0        7544

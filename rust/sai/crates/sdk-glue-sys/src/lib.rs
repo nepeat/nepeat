@@ -8,9 +8,8 @@
 //! `build.rs` runs bindgen over `sdk_glue.h` (all functions, the five structs `ob_port_info_t`,
 //! `ob_table_usage_t`, `ob_chip_limits_t`, `ob_fp_rule_t`, `ob_policer_cfg_t`, the three
 //! callback types, the `OB_E_*` codes, `OB_LAG_DEST_BIT`, the `OB_FPQ_*` qualifier bits and the
-//! `OB_FP_*` IP types). The header is required: `SDK_GLUE_INC`, else `MDIO_SCRIPT_C_DIR` or
-//! `SAI_OPENBCM_SRC` (sai-openbcm's src directory), else the monorepo's own copy next to this
-//! workspace. Then, with the target's C compiler (`SDK_GLUE_SYS_CC`, ...; x86_64 natively, the
+//! `OB_FP_*` IP types). The header is required: `SDK_GLUE_INC`, else the monorepo's own copy
+//! (`ai_re/nix/packages/sai-openbcm/src`). Then, with the target's C compiler (`SDK_GLUE_SYS_CC`, ...; x86_64 natively, the
 //! cross gcc for big-endian ppc64): every size, alignment and field offset bindgen asserted
 //! (clang's view, compiled into this crate as `const` assertions) and every `OB_*` constant as a
 //! `_Static_assert` against the header, and every function declared again (C refuses an

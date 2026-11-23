@@ -1,0 +1,44 @@
+# 2026-11-23T16:25:55.722Z set -u; T0=$(date -u +%FT%T.%NZ); echo "== $T0 shutdown Ethernet4 (far end of Ethernet0)"; M0=$(cut -d' ' -f1 /proc/uptime); s=$(date +%s.%N); config interface shutdown Ethernet4; e=$(date +%s.%N); echo "config cmd took $(echo "$e - $s" | bc) s"; for i in $(seq 20); do o=$(sonic-db-cli STATE_DB hget 'PORT_TABLE|Ethernet0' oper_status 2>/dev/null; sonic-db-cli APPL_DB hget 'PORT_TABLE:Ethernet0' oper_status); echo "$o" | grep -q down && break; sleep 0.5; done; echo "Ethernet0 oper (STATE/APPL): $(echo $o)"; cat /sys/class/net/Ethernet0/carrier /sys/class/net/Ethernet0/operstate; /root/led-ram.sh 1 0xb0 0xb4; openbcm-diag extphy 2>&1 | grep -E "ce0 |ce1 |port" | head -5; echo "== journal (syncd) since $T0"; journalctl -u sonic-syncd --since "$(date -d $T0 '+%F %T')" -o short-iso-precise --no-pager | grep -iE "admin|oper|link|Ethernet0|Ethernet4|ce0|ce1" | head -30; echo "== startup Ethernet4"; M1=$(cut -d' ' -f1 /proc/uptime); T1=$(date -u +%FT%T.%NZ); config interface startup Ethernet4; for i in $(seq 30); do a=$(sonic-db-cli APPL_DB hget 'PORT_TABLE:Ethernet0' oper_status); b=$(sonic-db-cli APPL_DB hget 'PORT_TABLE:Ethernet4' oper_status); [ "$a$b" = upup ] && break; sleep 0.5; done; echo "after startup: Ethernet0=$a Ethernet4=$b"; sleep 1; /root/led-ram.sh 1 0xb0 0xb4; journalctl -u sonic-syncd --since "$(date -d $T1 '+%F %T')" -o short-iso-precise --no-pager | grep -iE "admin|oper|link|Ethernet0|Ethernet4|ce0|ce1" | head -20; echo "== macsec-up-check -s @$M1"; sleep 5; bash -l /root/macsec-up-check.sh -s @$M1 -t 60; echo "up-check rc $?"; ping -q -c 200 -i 0.01 -I Ethernet0 10.0.1.1 2>&1 | tail -2 | head -1
+# exit 0
+== 2026-11-23T16:25:56.208037355Z shutdown Ethernet4 (far end of Ethernet0)
+bash: line 1: bc: command not found
+config cmd took  s
+Ethernet0 oper (STATE/APPL): down
+0
+down
+LEDUP1 0xb0..0xb4: 00 00 00 00 00
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 1 so far)
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce0         49   50 up    down  no     0x0000     1613        0    1     1     193     197     355     2    0        7335
+ce1         53   54 down  down  no     0x0003     1611        0    1     0     199     196     345     3    0        7941
+== journal (syncd) since 2026-11-23T16:25:56.208037355Z
+2026-11-23T08:25:59.963079-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce1 admin down
+2026-11-23T08:26:00.196593-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+2026-11-23T08:26:00.450659-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+2026-11-23T08:26:00.453756-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+== startup Ethernet4
+after startup: Ethernet0=up Ethernet4=up
+LEDUP1 0xb0..0xb4: 01 00 00 00 01
+2026-11-23T08:26:04.682906-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=43: port ce0: ingress data frames are dropped
+2026-11-23T08:26:04.686318-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=43: port ce0: ingress SA AN 0 removed
+2026-11-23T08:26:04.705610-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=43: port ce0: egress data frames are dropped
+2026-11-23T08:26:04.706776-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=43: port ce0: egress SA AN 0 removed
+2026-11-23T08:26:04.817822-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce1 admin up
+2026-11-23T08:26:05.574643-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T08:26:05.577943-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+2026-11-23T08:26:05.579120-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T08:26:05.841301-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+2026-11-23T08:26:06.017440-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=43: port ce1: ingress data frames are dropped
+2026-11-23T08:26:06.020827-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=43: port ce1: ingress SA AN 0 removed
+2026-11-23T08:26:06.037738-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=43: port ce1: egress data frames are dropped
+2026-11-23T08:26:06.038887-08:00 as7772 syncd[917]: sai-openbcm NOTICE api=43: port ce1: egress SA AN 0 removed
+== macsec-up-check -s @957.10
+== 2026-11-23T08:26:13-08:00 631c5hx7kznl... up 969.20 s; the given moment: 957.10 s; limit 60 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +- s, secured +7.7 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +- s, secured +9.8 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 0; MKA sessions started since: 0; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 9.8 s after the given moment (limit 60 s)
+]0;up-check rc 0
+200 packets transmitted, 200 received, 0% packet loss, time 3186ms
