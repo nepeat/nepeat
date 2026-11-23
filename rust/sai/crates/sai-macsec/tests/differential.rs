@@ -1,4 +1,6 @@
-//! Differential test against the C++ sai-openbcm (`sai_macsec.cpp` on its fake backend).
+//! Differential test against the C++ frontend (`sai_macsec.cpp` on its fake backend; frozen since
+//! 2026-11-23 in `ai_re/nix/packages/sai-teralynx/frontend/src`, which the CS8210's libsai still
+//! compiles: a live comparison, no golden).
 //!
 //! A script of MACsec object operations runs on both implementations over the same made-up
 //! PHY table; per operation the SAI status, the values read and every access of the MDIO bus
@@ -7,7 +9,7 @@
 //!
 //! - `$SAI_RS_TEST_BIN/sai-macsec-cpp-driver` and `...-fixed`: drivers built beforehand (a
 //!   machine without a compiler; `build.rs`); else
-//! - `SAI_OPENBCM_SRC` (or `MDIO_SCRIPT_C_DIR`, the same directory in the Nix build) = sai-openbcm's
+//! - `SAI_OPENBCM_SRC` = the frozen frontend's
 //!   `src` directory and `SAI_INC` = SAI's `inc`: the driver is compiled here (`$CXX`, `$CC`);
 //! - neither: the comparison is SKIPPED, said on stderr, and the tests pass.
 //!
@@ -80,7 +82,8 @@ macro_rules! summary {
         summary_line(&format!($($t)*))
     };
 }
-/// The C++ sources of the library on its fake backend (the Makefile's CORE + backend_none).
+/// The C++ sources of the library on its fake backend (the frontend's CORE; driver.cpp defines
+/// `make_openbcm_backend`).
 const CPP: &[&str] = &[
     "sai_api",
     "sai_switch",
@@ -100,7 +103,6 @@ const CPP: &[&str] = &[
     "sai_extmacsec",
     "sai_macsec",
     "fake_backend",
-    "backend_none",
 ];
 
 struct Driver {
@@ -129,18 +131,16 @@ fn driver() -> Option<&'static Driver> {
                 return Some(scratch_dir().map(|dir| Driver { exe, fixed, dir }));
             }
         }
-        let src = ["SAI_OPENBCM_SRC", "MDIO_SCRIPT_C_DIR"]
-            .iter()
-            .filter_map(std::env::var_os)
+        let src = std::env::var_os("SAI_OPENBCM_SRC")
             .map(PathBuf::from)
-            .find(|d| d.join("sai_macsec.cpp").is_file());
+            .filter(|d| d.join("sai_macsec.cpp").is_file());
         let inc = std::env::var_os("SAI_INC").map(PathBuf::from);
         let driver_src = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/cpp/driver.cpp");
         match (src, inc) {
             (Some(src), Some(inc)) if driver_src.is_file() => Some(build(&src, &inc, &driver_src)),
             _ => {
                 summary!(
-                    "differential: no $SAI_RS_TEST_BIN/{DRIVER_NAME} + {FIXED_NAME}, and SAI_OPENBCM_SRC (sai-openbcm/src) + SAI_INC \
+                    "differential: no $SAI_RS_TEST_BIN/{DRIVER_NAME} + {FIXED_NAME}, and SAI_OPENBCM_SRC (sai-teralynx/frontend/src) + SAI_INC \
                      + tests/cpp/driver.cpp are not all there: the comparison with the C++ sai_macsec.cpp is SKIPPED"
                 );
                 None
@@ -164,7 +164,7 @@ fn build(src: &Path, inc: &Path, driver_src: &Path) -> Result<Driver, String> {
             .arg("-I")
             .arg(src);
     };
-    // every translation unit at once: the library is 19 files
+    // every translation unit at once: the library is 18 files
     let mut jobs = Vec::new();
     for unit in CPP {
         let mut c = Command::new(&cxx);

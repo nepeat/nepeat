@@ -2,6 +2,7 @@
 //! (`Switch::init`), i.e. on the process's Rust fake with its hooks (`sdk_glue::fake`), on any host
 //! (and on big-endian ppc64 from the bundle). Once the C fake's tests; the per-chip versions are in
 //! `rust_fake.rs`.
+#![cfg(ob_glue_rust_only)]
 #![allow(
     clippy::unwrap_used,
     clippy::panic,

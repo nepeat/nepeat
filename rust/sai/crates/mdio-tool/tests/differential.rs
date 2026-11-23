@@ -1,15 +1,19 @@
-//! Differential test against the C tool: the same command line, scripts, names and (fake) chip
-//! for `openbcm-mdio-script` built from sai-openbcm's C sources and for this crate's binary;
-//! exit code, stdout, stderr, `status.json`, `status.txt` and the chip's access trace must be
-//! the same bytes once run times, the pid and the directory are masked. The chip: for the C tool
-//! `tests/c/mdio_stub.c` (the MDIO side of the glue in C), for the Rust tool sdk-glue's Rust fake;
-//! both read the same scenario, so this also holds the stub and the Rust fake to each other.
+//! Golden test against the C tool: the same command line, scripts, names and (fake) chip as
+//! `openbcm-mdio-script` built from sai-openbcm's C sources had (`mdio_script_main.c`,
+//! `mdio_script.c`, `mdio_report.c`; with the SDK on `tests/c/mdio_stub.c`, the MDIO side of the
+//! glue in C) for this crate's binary on sdk-glue's Rust fake; exit code, stdout, stderr,
+//! `status.json`, `status.txt` and the chip's access trace must be the bytes the C tool gave once
+//! run times, the pid and the directories are masked, and through the diag socket the commands
+//! sent must be the C tool's.
 //!
-//! The C tool is built by `build.rs` when `MDIO_SCRIPT_C_DIR` is set at build time (never at
-//! test time). Where the build tree is not (a copied test executable), `SAI_RS_TEST_BIN` names
-//! a directory with `openbcm-mdio-script-c`, `openbcm-mdio-script-c-fake` (from
-//! `$OUT_DIR/target-tests`) and `openbcm-mdio-script-rs` (the binary cargo builds for this
-//! test: with the fake glue). Without the C tool the tests say so and pass.
+//! Until 2026-11-23 the C tool was built by `build.rs` and run next to this binary (159 runs, all
+//! equal). Its results, captured at commit 50a6aa7 (sha256 of the C files in the header), are
+//! `golden/differential.txt`: one record per run, with the case's name, arguments and a digest of
+//! its input files, so an edited case shows as "golden inputs differ". The golden is not
+//! regenerated from this crate's output: a deliberate behaviour change edits the record by hand
+//! with a reason. Where the build tree is not (a copied test executable), `SAI_RS_TEST_BIN` may
+//! name a directory with `openbcm-mdio-script-rs` (the binary cargo builds for this test: with
+//! the fake glue).
 #![allow(
     clippy::unwrap_used,
     clippy::panic,
@@ -28,37 +32,167 @@ use std::process::Command;
 
 use common::{NAMES, put, scratch, script_text};
 
-struct Tools {
-    c: PathBuf,
-    c_fake: PathBuf,
-    rust: PathBuf,
+const GOLDEN: &str = include_str!("golden/differential.txt");
+
+/// This crate's binary: the one cargo built, or `openbcm-mdio-script-rs` in `SAI_RS_TEST_BIN`.
+fn rust_tool() -> PathBuf {
+    std::env::var_os("SAI_RS_TEST_BIN")
+        .map(|d| PathBuf::from(d).join("openbcm-mdio-script-rs"))
+        .filter(|p| p.is_file())
+        .unwrap_or_else(|| PathBuf::from(env!("CARGO_BIN_EXE_openbcm-mdio-script-rs")))
 }
 
-fn tools() -> Option<Tools> {
-    let bundle = std::env::var_os("SAI_RS_TEST_BIN").map(PathBuf::from);
-    let built = Some(env!("MDIO_TOOL_C_HELPERS"))
-        .filter(|d| !d.is_empty())
-        .map(PathBuf::from);
-    let helpers = bundle
-        .clone()
-        .filter(|d| d.join("openbcm-mdio-script-c-fake").is_file())
-        .or(built);
-    let Some(helpers) = helpers else {
-        eprintln!(
-            "differential: the C tool was not built (MDIO_SCRIPT_C_DIR at build time, or SAI_RS_TEST_BIN), \
-             the comparison with mdio_script_main.c is SKIPPED"
-        );
-        return None;
-    };
-    let rust = bundle
-        .map(|d| d.join("openbcm-mdio-script-rs"))
-        .filter(|p| p.is_file())
-        .unwrap_or_else(|| PathBuf::from(env!("CARGO_BIN_EXE_openbcm-mdio-script-rs")));
-    Some(Tools {
-        c: helpers.join("openbcm-mdio-script-c"),
-        c_fake: helpers.join("openbcm-mdio-script-c-fake"),
-        rust,
+/// 64-bit FNV-1a.
+fn fnv1a64(bytes: &[u8]) -> u64 {
+    bytes.iter().fold(0xcbf2_9ce4_8422_2325, |h, &b| {
+        (h ^ u64::from(b)).wrapping_mul(0x0000_0100_0000_01b3)
     })
+}
+
+/// The digest of a case's input files (`{d}` not replaced).
+fn inputs_digest(files: &[(&str, &str)]) -> u64 {
+    let mut bytes = Vec::new();
+    for (name, text) in files {
+        bytes.extend_from_slice(name.as_bytes());
+        bytes.push(0);
+        bytes.extend_from_slice(text.as_bytes());
+        bytes.push(0);
+    }
+    fnv1a64(&bytes)
+}
+
+/// One run of the C tool, from the golden.
+struct Record {
+    /// `<test> <i>`
+    id: String,
+    /// name, arguments, without the SDK, input digest: what identifies the case
+    case: String,
+    result: Result_,
+    /// the commands sent to the diag socket (`verification_through_a_diag_socket`)
+    commands: Vec<String>,
+}
+
+/// The lines of a `|`-prefixed block from `lines`, up to the next line that is not one; a
+/// following `\ no newline at end` takes the last newline away.
+fn block<'a>(lines: &mut std::iter::Peekable<impl Iterator<Item = &'a str>>) -> String {
+    let mut text = String::new();
+    while let Some(l) = lines.next_if(|l| l.starts_with('|')) {
+        text.push_str(&l[1..]);
+        text.push('\n');
+    }
+    if lines.next_if(|l| *l == "\\ no newline at end").is_some() {
+        text.pop();
+    }
+    text
+}
+
+/// `golden/differential.txt`: records of `case <test> <i>`, `name`, `args` (Rust's `{:?}`),
+/// `no_sdk`, `inputs` (FNV-1a), `code`, then the blocks `stdout`, `stderr`, `file <path>` and
+/// `commands` (one per line), `end`; `#` lines between records are comments.
+fn golden(test: &str) -> Vec<Record> {
+    let mut records = Vec::new();
+    let mut lines = GOLDEN.lines().peekable();
+    while let Some(line) = lines.next() {
+        if line.is_empty() || line.starts_with('#') {
+            continue;
+        }
+        let id = line
+            .strip_prefix("case ")
+            .unwrap_or_else(|| panic!("golden: expected a case line, not {line:?}"))
+            .to_owned();
+        let mut field = |key: &str| {
+            let l = lines.next().unwrap_or_default();
+            l.strip_prefix(key)
+                .and_then(|v| v.strip_prefix(' '))
+                .unwrap_or_else(|| panic!("golden {id}: expected {key}, not {l:?}"))
+                .to_owned()
+        };
+        let case = [field("name"), field("args"), field("no_sdk"), field("inputs")].join("\n");
+        let code = field("code");
+        let mut result = Result_ {
+            code: (code != "none").then(|| code.parse().unwrap()),
+            stdout: String::new(),
+            stderr: String::new(),
+            files: Vec::new(),
+        };
+        let mut commands = Vec::new();
+        loop {
+            let l = lines.next().unwrap_or_else(|| panic!("golden {id}: no end"));
+            match l {
+                "end" => break,
+                "stdout" => result.stdout = block(&mut lines),
+                "stderr" => result.stderr = block(&mut lines),
+                "commands" => commands = block(&mut lines).split_inclusive('\n').map(str::to_owned).collect(),
+                _ => {
+                    let path = l
+                        .strip_prefix("file ")
+                        .unwrap_or_else(|| panic!("golden {id}: unexpected {l:?}"));
+                    result.files.push((path.to_owned(), block(&mut lines)));
+                }
+            }
+        }
+        if id.split(' ').next() == Some(test) {
+            records.push(Record {
+                id,
+                case,
+                result,
+                commands,
+            });
+        }
+    }
+    records
+}
+
+/// The golden records of one test, in the order the test runs its cases.
+struct Golden {
+    test: &'static str,
+    records: std::vec::IntoIter<Record>,
+    count: usize,
+}
+
+impl Golden {
+    fn new(test: &'static str) -> Self {
+        let records = golden(test);
+        Self {
+            test,
+            count: records.len(),
+            records: records.into_iter(),
+        }
+    }
+
+    /// The next record, after checking that it was made for this case.
+    fn next(&mut self, case: &Case<'_>) -> Record {
+        let this = format!(
+            "{}\n{:?}\n{}\n{:016x}",
+            case.name,
+            case.args,
+            u8::from(case.no_sdk),
+            inputs_digest(case.files)
+        );
+        let record = self.records.next().unwrap_or_else(|| {
+            panic!(
+                "{}: case '{}' is not in the golden ({} records): golden inputs differ\n{this}",
+                self.test, case.name, self.count
+            )
+        });
+        assert!(
+            record.case == this,
+            "golden {}: made for another case, golden inputs differ (the test was edited)\n--- golden\n{}\n--- this case\n{this}",
+            record.id,
+            record.case
+        );
+        record
+    }
+
+    /// Every record was used.
+    fn finish(mut self) {
+        let rest = self.records.len();
+        assert!(
+            self.records.next().is_none(),
+            "{}: {rest} golden records not run: golden inputs differ",
+            self.test
+        );
+    }
 }
 
 /// Replaces the run of digits and dots after every `marker` by `N`.
@@ -78,9 +212,12 @@ fn mask_number(text: &str, marker: &str) -> String {
     out
 }
 
-/// What differs between two runs of one tool: times, the pid, the directory.
+/// What differs between two runs of one tool: times, the pid, the directory (`<DIR>`) and the
+/// directory of the test (`<BASE>`: the diag socket's).
 fn mask(bytes: &[u8], dir: &Path) -> String {
-    let mut text = String::from_utf8_lossy(bytes).replace(dir.to_str().unwrap(), "<DIR>");
+    let mut text = String::from_utf8_lossy(bytes)
+        .replace(dir.to_str().unwrap(), "<DIR>")
+        .replace(dir.parent().unwrap().to_str().unwrap(), "<BASE>");
     for marker in [
         "\"pid\": ",
         "\"started\": ",
@@ -112,7 +249,7 @@ fn mask(bytes: &[u8], dir: &Path) -> String {
 
 struct Case<'a> {
     name: &'a str,
-    /// `{d}` is replaced by the tool's directory.
+    /// `{d}` is replaced by the tool's directory, `{b}` by the test's (that directory's parent).
     args: &'a [&'a str],
     /// Files in the tool's directory (`{d}` replaced in the content too).
     files: &'a [(&'a str, &'a str)],
@@ -132,12 +269,13 @@ fn run_one(exe: &Path, dir: &Path, case: &Case<'_>, fake_env: bool) -> Result_ {
     let _ = std::fs::remove_dir_all(dir);
     std::fs::create_dir_all(dir).unwrap();
     let d = dir.to_str().unwrap();
+    let b = dir.parent().unwrap().to_str().unwrap();
     for (name, text) in case.files {
         put(dir, name, &text.replace("{d}", d));
     }
     let mut cmd = Command::new(exe);
     cmd.arg0("openbcm-mdio-script")
-        .args(case.args.iter().map(|a| a.replace("{d}", d)))
+        .args(case.args.iter().map(|a| a.replace("{d}", d).replace("{b}", b)))
         .env("TZ", "UTC")
         .env_remove("NOTIFY_SOCKET")
         .env_remove("POSIXLY_CORRECT")
@@ -178,17 +316,34 @@ fn walk(dir: &Path) -> Vec<PathBuf> {
     out
 }
 
-fn compare(tools: &Tools, base: &Path, case: &Case<'_>) -> Result_ {
-    let c_exe = if case.no_sdk { &tools.c } else { &tools.c_fake };
-    let c = run_one(c_exe, &base.join("c"), case, false);
-    let rust = run_one(&tools.rust, &base.join("r"), case, !case.no_sdk);
+/// Runs this crate's tool on `case` and compares with the C tool's run in the golden; with
+/// `commands` (what the diag server received) also the commands this run sent.
+fn compare(
+    golden: &mut Golden,
+    base: &Path,
+    case: &Case<'_>,
+    commands: Option<&std::sync::Mutex<Vec<String>>>,
+) -> Result_ {
+    let want = golden.next(case);
+    let before = commands.map(|c| c.lock().unwrap().len());
+    let rust = run_one(&rust_tool(), &base.join("r"), case, !case.no_sdk);
     assert!(
-        c == rust,
-        "C and Rust disagree in case '{}' ({:?})\n--- C\n{c:#?}\n--- Rust\n{rust:#?}",
+        want.result == rust,
+        "Rust differs from the C tool's golden {} in case '{}' ({:?})\n--- C (golden)\n{:#?}\n--- Rust\n{rust:#?}",
+        want.id,
         case.name,
-        case.args
+        case.args,
+        want.result
     );
-    c
+    if let (Some(commands), Some(before)) = (commands, before) {
+        let sent = commands.lock().unwrap()[before..].to_vec();
+        assert_eq!(
+            sent, want.commands,
+            "golden {} '{}': the diag socket commands differ from the C tool's",
+            want.id, case.name
+        );
+    }
+    rust
 }
 
 const RUN: &[&str] = &[
@@ -204,7 +359,7 @@ const TRACE: &str = "trace {d}/trace.txt\n";
 
 #[test]
 fn runs_on_the_fake_chip() {
-    let Some(tools) = tools() else { return };
+    let mut golden = Golden::new("runs_on_the_fake_chip");
     let base = scratch("diff-run");
     let ok = script_text(&["0", "1"]);
     let healthy = "reg 0 1 8b00 2391\nreg 0 1 8b01 80a0\nreg 0 1 8215 d00b\nreg 0 1 8251 2d\n\
@@ -214,7 +369,7 @@ fn runs_on_the_fake_chip() {
     let mut n = 0;
     let mut go = |name: &str, args: &[&str], files: &[(&str, &str)], code: i32| {
         let r = compare(
-            &tools,
+            &mut golden,
             &base,
             &Case {
                 name,
@@ -222,6 +377,7 @@ fn runs_on_the_fake_chip() {
                 files,
                 no_sdk: false,
             },
+            None,
         );
         assert_eq!(r.code, Some(code), "case '{name}': {r:#?}");
         n += 1;
@@ -398,22 +554,23 @@ fn runs_on_the_fake_chip() {
             code,
         );
     }
+    golden.finish();
     eprintln!(
-        "differential: {n} runs on the fake chip agree with the C tool (exit code, stdout, stderr, status files, bus trace)"
+        "differential: {n} runs on the fake chip agree with the C tool's golden (exit code, stdout, stderr, status files, bus trace)"
     );
     std::fs::remove_dir_all(base).unwrap();
 }
 
 #[test]
 fn everything_before_the_chip() {
-    let Some(tools) = tools() else { return };
+    let mut golden = Golden::new("everything_before_the_chip");
     let base = scratch("diff-cli");
     let ok: &'static str = Box::leak(script_text(&["0", "1"]).into_boxed_str());
     let mut n = 0;
     for no_sdk in [false, true] {
         let mut go = |name: &str, args: &[&str], files: &[(&str, &str)], code: i32| {
             let r = compare(
-                &tools,
+                &mut golden,
                 &base,
                 &Case {
                     name,
@@ -421,6 +578,7 @@ fn everything_before_the_chip() {
                     files,
                     no_sdk,
                 },
+                None,
             );
             assert_eq!(r.code, Some(code), "case '{name}': {r:#?}");
             n += 1;
@@ -531,7 +689,7 @@ fn everything_before_the_chip() {
     }
     // a build without the SDK asked to run
     let r = compare(
-        &tools,
+        &mut golden,
         &base,
         &Case {
             name: "without the SDK",
@@ -539,11 +697,13 @@ fn everything_before_the_chip() {
             files: &[("init.mdio", ok), ("chip.cfg", "")],
             no_sdk: true,
         },
+        None,
     );
     assert_eq!(r.code, Some(1));
     assert!(r.stderr.contains("built without the SDK"));
+    golden.finish();
     eprintln!(
-        "differential: {} command lines that never reach a chip agree with the C tool",
+        "differential: {} command lines that never reach a chip agree with the C tool's golden",
         n + 1
     );
     std::fs::remove_dir_all(base).unwrap();
@@ -551,13 +711,12 @@ fn everything_before_the_chip() {
 
 #[test]
 fn verification_through_a_diag_socket() {
-    let Some(tools) = tools() else { return };
+    let mut golden = Golden::new("verification_through_a_diag_socket");
     let base = scratch("diff-diag");
     // one server for both tools; its path is outside the masked directories
     let sock = base.join("diag.sock");
     let listener = UnixListener::bind(&sock).unwrap();
     let commands = std::sync::Mutex::new(Vec::new());
-    let sock_arg: &'static str = Box::leak(sock.to_str().unwrap().to_owned().into_boxed_str());
     let mut n = 0;
     std::thread::scope(|scope| {
         scope.spawn(|| common::diag_server(&listener, &commands));
@@ -584,11 +743,15 @@ fn verification_through_a_diag_socket() {
                 ],
             ] {
                 for no_sdk in [false, true] {
-                    let args: Vec<&str> =
-                        [&["--verify-only", "--diag-socket", sock_arg], extra, &["{d}/init.mdio"]].concat();
+                    let args: Vec<&str> = [
+                        &["--verify-only", "--diag-socket", "{b}/diag.sock"],
+                        extra,
+                        &["{d}/init.mdio"],
+                    ]
+                    .concat();
                     let before = commands.lock().unwrap().len();
                     let r = compare(
-                        &tools,
+                        &mut golden,
                         &base,
                         &Case {
                             name: "diag",
@@ -596,18 +759,18 @@ fn verification_through_a_diag_socket() {
                             files: f,
                             no_sdk,
                         },
+                        Some(&commands),
                     );
                     assert_eq!(r.code, Some(code), "{r:#?}");
-                    // both tools sent the same commands, reads only
+                    // the C tool's commands (compare checked them), reads only
                     let sent = commands.lock().unwrap()[before..].to_vec();
-                    let (c, rust) = sent.split_at(sent.len() / 2);
-                    assert_eq!(c, rust);
                     assert!(sent.iter().all(|c| c.starts_with("phy raw c45 0x")), "{sent:?}");
                     n += 1;
                 }
             }
         }
     });
-    eprintln!("differential: {n} read-only verifications through a diag socket agree with the C tool");
+    golden.finish();
+    eprintln!("differential: {n} read-only verifications through a diag socket agree with the C tool's golden");
     std::fs::remove_dir_all(base).unwrap();
 }

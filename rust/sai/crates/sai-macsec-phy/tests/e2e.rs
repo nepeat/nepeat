@@ -13,7 +13,9 @@
 //! `sys.as7772.config.services.sonic.sai.profile.SAI_OPENBCM_EXT_MACSEC_FILE`; read where it is,
 //! never copied). The C++ side: `$SAI_RS_TEST_BIN/sai-macsec-cpp-chip-driver` and `...-fixed`
 //! (prebuilt by sai-macsec's build.rs for a cross build), else compiled here from
-//! `SAI_OPENBCM_SRC` (sai-openbcm's `src`) and `SAI_INC`; neither: SKIPPED (said on stderr).
+//! `SAI_OPENBCM_SRC` (the C++ frontend's `src`, frozen since 2026-11-23 in
+//! `ai_re/nix/packages/sai-teralynx/frontend/src`: a live comparison) and `SAI_INC`; neither:
+//! SKIPPED (said on stderr).
 //!
 //! Scripts never move a flow between ports (variables of one parity only meet the port of that
 //! parity): there the two differ on purpose (sai-macsec's D1). For sai-macsec's D9 and D10 (the
@@ -108,8 +110,8 @@ const CPP: &[&str] = &[
 
 struct Driver {
     exe: PathBuf,
-    /// The C++ with the owner's fixes (sai-macsec's D9, D10); the C++ drivers have one.
-    fixed: Option<PathBuf>,
+    /// The C++ with the owner's fixes (sai-macsec's D9, D10).
+    fixed: PathBuf,
     dir: PathBuf,
 }
 
@@ -129,16 +131,14 @@ fn driver() -> Option<&'static Driver> {
             if exe.is_file() && fixed.is_file() {
                 return Some(scratch_dir().map(|dir| Driver {
                     exe,
-                    fixed: Some(fixed),
+                    fixed,
                     dir,
                 }));
             }
         }
-        let src = ["SAI_OPENBCM_SRC", "MDIO_SCRIPT_C_DIR"]
-            .iter()
-            .filter_map(std::env::var_os)
+        let src = std::env::var_os("SAI_OPENBCM_SRC")
             .map(PathBuf::from)
-            .find(|d| d.join("sai_macsec.cpp").is_file());
+            .filter(|d| d.join("sai_macsec.cpp").is_file());
         let inc = std::env::var_os("SAI_INC").map(PathBuf::from);
         let driver_src = Path::new(env!("CARGO_MANIFEST_DIR")).join("../sai-macsec/tests/cpp/driver.cpp");
         match (src, inc) {
@@ -230,26 +230,7 @@ fn build(src: &Path, inc: &Path, driver_src: &Path) -> Result<Driver, String> {
             ));
         }
     }
-    Ok(Driver {
-        exe,
-        fixed: Some(fixed),
-        dir,
-    })
-}
-
-/// A second C++ driver (SAI_MACSEC_E2E_RUST_DRIVER, else `$SAI_RS_TEST_BIN/sai-macsec-rs-chip-driver`):
-/// driver.cpp's chip variant built on the C++
-/// library with the Rust model inside (sai_macsec_rust.cpp + libsai_macsec_capi.a): the rim
-/// (attribute unions, statuses, lists, callbacks) against the C++ model through the SAI API.
-fn rust_model_driver() -> Option<Driver> {
-    let in_bin = std::env::var_os("SAI_RS_TEST_BIN")
-        .map(|b| Path::new(&b).join("sai-macsec-rs-chip-driver"))
-        .filter(|p| p.is_file());
-    let exe = std::env::var_os("SAI_MACSEC_E2E_RUST_DRIVER")
-        .map(PathBuf::from)
-        .or(in_bin)?;
-    let dir = scratch_dir().ok()?;
-    Some(Driver { exe, fixed: None, dir })
+    Ok(Driver { exe, fixed, dir })
 }
 
 impl Driver {
@@ -259,8 +240,7 @@ impl Driver {
 
     /// The C++ with sai-macsec's D9 / D10.
     fn fixed_output(&self, table: &Path, script: &str) -> String {
-        let fixed = self.fixed.as_ref().expect("a C++ driver has its fixed variant");
-        self.run(fixed, table, script)
+        self.run(&self.fixed, table, script)
     }
 
     fn run(&self, exe: &Path, table: &Path, script: &str) -> String {
@@ -1254,56 +1234,6 @@ fn run_random(driver: &Driver, table: &Path, board: &Board, n: u64, max_random: 
 }
 
 // ------------------------------------------------------------------ tests
-
-fn compare_drivers(cpp: &Driver, rs: &Driver, table: &Path, script: &str) -> Result<(), String> {
-    // the C++ library with the Rust model has sai-macsec's D9 / D10 too (the model is the same)
-    let b = normalise(&rs.output(table, script));
-    held_to_the_cpp(cpp, table, script, &b, "C++ with the Rust model")
-}
-
-/// The C++ library with the Rust model inside, against the C++ one, through the SAI API: the
-/// same scripts on the synthetic table and (SAI_MACSEC_E2E_TABLE) the AS7772 one.
-#[test]
-fn the_library_with_the_rust_model_agrees_with_the_cpp() {
-    let Some(rs) = rust_model_driver() else {
-        summary(
-            "e2e: SAI_MACSEC_E2E_RUST_DRIVER is not set: the C++ library with the Rust model is not compared (SKIPPED)",
-        );
-        return;
-    };
-    let Some(cpp) = driver() else { return };
-    let mut tables = vec![(synthetic_path(cpp), synthetic_board())];
-    if let Some(t) = std::env::var_os("SAI_MACSEC_E2E_TABLE").map(PathBuf::from) {
-        let text = std::fs::read_to_string(&t).unwrap();
-        tables.push((t, as7772_board(&text)));
-    }
-    let n = cases(32);
-    let mut seeds = Vec::new();
-    for (table, board) in &tables {
-        let text = std::fs::read_to_string(table).unwrap();
-        let scripts = if board.phys[0] == "17c" {
-            as7772_backbones(&text, board)
-        } else {
-            backbones(board)
-        };
-        for s in scripts {
-            compare_drivers(cpp, &rs, table, &s).unwrap_or_else(|why| panic!("{why}"));
-        }
-        let run = seeded::run(seeded::first_seed(), n, &script(board, 60), |s| {
-            compare_drivers(cpp, &rs, table, &s).map_err(TestCaseError::fail)
-        });
-        seeds.push(run.seeds());
-        run.assert_ok(
-            "the_library_with_the_rust_model_agrees_with_the_cpp",
-            "SAI_MACSEC_E2E_CASES",
-        );
-    }
-    report(&format!(
-        "the C++ library with the Rust model, {} tables x (4 backbones + {n} random scripts; {})",
-        tables.len(),
-        seeds.join(", ")
-    ));
-}
 
 /// The Rust path alone, always: the backbone completes on the synthetic table, the key words
 /// reach the bus in the table's byte order, and the model's invariants hold after each line.

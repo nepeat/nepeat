@@ -40,6 +40,7 @@ use crate::backend::Backend;
 use crate::backend::types::{FilterId, GenlId, MacAddr, NetifId, TrapKind, TrapSpec};
 use crate::dispatch::{Area, Cx};
 use crate::error::{AttrError, Error, Result};
+use crate::log;
 use crate::model::{Kind, Object, Port, PortKind, Switch};
 use crate::oid::{HostifId, HostifTableEntryId, HostifTrapGroupId, HostifTrapId, ObjectType, PortId, RawOid, TypedId};
 use crate::store::Store;
@@ -558,6 +559,10 @@ impl HostifArgs {
             match (attr.id, &attr.value) {
                 (sys::SAI_HOSTIF_ATTR_TYPE, Value::Enum(t)) => {
                     if *t != e(sys::SAI_HOSTIF_TYPE_NETDEV) && *t != e(sys::SAI_HOSTIF_TYPE_GENETLINK) {
+                        log::error(
+                            sys::SAI_API_HOSTIF,
+                            format_args!("hostif type {t} not supported (NETDEV, GENETLINK)"),
+                        );
                         return Err(not_supported(index));
                     }
                     args.kind = Some((*t, index));
@@ -615,7 +620,13 @@ fn create_hostif<B: Backend>(backend: &mut B, store: &mut Store, attrs: &[Attr])
         .and_then(|id| store.get::<Port>(id).ok().map(|p| (id, p)))
         .filter(|(_, p)| matches!(p.kind, PortKind::Front { .. }))
         .map(|(id, p)| (id, p.hw, p.pvid))
-        .ok_or(Error::NotSupported)?;
+        .ok_or_else(|| {
+            log::error(
+                sys::SAI_API_HOSTIF,
+                format_args!("hostif {name}: only front-panel PORT objects are supported"),
+            );
+            Error::NotSupported
+        })?;
     if store
         .iter::<HostInterface>()
         .any(|(_, h)| h.name == name || h.obj == args.obj)
@@ -623,7 +634,14 @@ fn create_hostif<B: Backend>(backend: &mut B, store: &mut Store, attrs: &[Attr])
         return Err(Error::ItemAlreadyExists);
     }
     let mac = switch_mac(store)?;
-    let made = backend.netif_create(&name, hw, pvid, mac, args.vlan_tag.keeps_tag())?;
+    let made = backend
+        .netif_create(&name, hw, pvid, mac, args.vlan_tag.keeps_tag())
+        .inspect_err(|err| {
+            log::error(
+                sys::SAI_API_HOSTIF,
+                format_args!("hostif {name}: netif create failed ({})", err.status()),
+            );
+        })?;
     // The C++ ignores the carrier call's status: the host interface exists either way.
     let _ = backend.netif_carrier_set(&name, args.oper_up);
     let chip = HostifChip::Netdev {
@@ -631,13 +649,22 @@ fn create_hostif<B: Backend>(backend: &mut B, store: &mut Store, attrs: &[Attr])
         netif: made.netif_id,
         filter: made.filter_id,
     };
-    store
-        .insert(args.into_hostif(name, chip))
+    let sdk_name = store.get::<Port>(port).map(|p| p.name.clone()).unwrap_or_default();
+    let id = store
+        .insert(args.into_hostif(name.clone(), chip))
         .map(TypedId::raw)
         .inspect_err(|_| {
             // not reached (nothing it names can be missing); the netif must not outlive the call
             let _ = backend.netif_destroy(made.netif_id, made.filter_id);
-        })
+        })?;
+    log::notice(
+        sys::SAI_API_HOSTIF,
+        format_args!(
+            "hostif {name} on {sdk_name} (netif {}, filter {})",
+            made.netif_id.0, made.filter_id.0
+        ),
+    );
+    Ok(id)
 }
 
 /// The GENETLINK branch of C++ `create_hostif` (`sai_hostif.cpp`:78): only with a backend that
@@ -649,8 +676,15 @@ fn create_genetlink<B: Backend>(
     name: String,
     type_index: usize,
 ) -> Result<RawOid> {
+    let unsupported = |name: &str| {
+        log::error(
+            sys::SAI_API_HOSTIF,
+            format_args!("hostif {name}: GENETLINK not supported by the backend"),
+        );
+        not_supported(type_index)
+    };
     if !backend.mirror_supported() {
-        return Err(not_supported(type_index));
+        return Err(unsupported(&name));
     }
     if name.is_empty() || args.mcgrp.is_empty() {
         return Err(Error::MandatoryAttributeMissing);
@@ -660,15 +694,21 @@ fn create_genetlink<B: Backend>(
     }
     let genl = match backend.genetlink_create(&name, &args.mcgrp) {
         Ok(genl) => genl,
-        Err(Error::NotSupported) => return Err(not_supported(type_index)),
+        Err(Error::NotSupported) => return Err(unsupported(&name)),
         Err(other) => return Err(other),
     };
-    store
+    let (mcgrp, shown) = (args.mcgrp.clone(), name.clone());
+    let id = store
         .insert(args.into_hostif(name, HostifChip::Genetlink { genl }))
         .map(TypedId::raw)
         .inspect_err(|_| {
             let _ = backend.genetlink_destroy(genl);
-        })
+        })?;
+    log::notice(
+        sys::SAI_API_HOSTIF,
+        format_args!("hostif {shown}: genetlink, group {mcgrp} (backend {})", genl.0),
+    );
+    Ok(id)
 }
 
 /// C++ `remove_hostif`: not while a table entry names it; the backend's `ITEM_NOT_FOUND` counts
@@ -809,7 +849,16 @@ fn program<B: Backend>(backend: &mut B, store: &Store, trap: &mut Trap, action: 
     }
     let programming = match backend.trap_set(trap.trap_type.kind(), action.to_cpu()) {
         Ok(()) => Programming::Control,
-        Err(Error::NotSupported) => Programming::Kept,
+        Err(Error::NotSupported) => {
+            log::notice(
+                sys::SAI_API_HOSTIF,
+                format_args!(
+                    "trap type {} kept but not programmed (no SDK control for it)",
+                    trap.trap_type.0
+                ),
+            );
+            Programming::Kept
+        }
         Err(other) => return Err(other),
     };
     if trap.programming != Programming::Full {
@@ -981,6 +1030,18 @@ fn create_table_entry<B: Backend>(backend: &mut B, store: &mut Store, attrs: &[A
         return store.insert(entry).map(TypedId::raw).inspect_err(|_| {
             let _ = backend.genetlink_trap_set(genl, trap_type.0, false);
         });
+    }
+    let native = entry.entry_type.0 == e(sys::SAI_HOSTIF_TABLE_ENTRY_TYPE_WILDCARD)
+        && (entry.channel.0 == e(sys::SAI_HOSTIF_TABLE_ENTRY_CHANNEL_TYPE_NETDEV_PHYSICAL_PORT)
+            || entry.channel.0 == e(sys::SAI_HOSTIF_TABLE_ENTRY_CHANNEL_TYPE_NETDEV_LOGICAL_PORT));
+    if !native {
+        log::notice(
+            sys::SAI_API_HOSTIF,
+            format_args!(
+                "hostif table entry type {} channel {} kept but not programmed",
+                entry.entry_type.0, entry.channel.0
+            ),
+        );
     }
     store.insert(entry).map(TypedId::raw)
 }

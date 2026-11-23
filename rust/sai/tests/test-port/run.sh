@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
-# The UNMODIFIED C++ suite (sai-openbcm tests/test_sai.cpp + its .inc files) against the Rust
-# libsai through the test port (tests/test_port_rust.cpp over sai_rs_test_query), with a
-# per-section progress table. See README.md.
+# The UNMODIFIED C++ suite (tests/test_sai.cpp + its .inc files of the C++ frontend, frozen since
+# 2026-11-23 in ai_re/nix/packages/sai-teralynx/frontend) against the Rust libsai through the test
+# port (test_port_rust.cpp here, over sai_rs_test_query), with a per-section progress table. See
+# README.md.
 #
 #   run.sh [--strict] [--no-cpp-ref]
 # Environment (all optional except SAI_INC):
 #   SAI_INC            dir with sai.h (its ../experimental is added too)              required
 #   LIBSAI             a prebuilt libsai.so with the test port (else: cargo build -p sai-ffi --features test-port)
-#   SAI_OPENBCM_TESTS  sai-openbcm's tests dir     default: the repo's ai_re/nix/packages/sai-openbcm/tests
+#   SAI_OPENBCM_TESTS  the frozen frontend's tests dir   default: the repo's ai_re/nix/packages/sai-teralynx/frontend/tests
 #   SAI_RS_TEST_INC    dir with sai_rs_test.h      default: the repo's crates/sai-test-port/include
-#   CXX, CXXFLAGS      default c++, "-O2 -g" (the sai-openbcm Makefile's default)
+#   CXX, CXXFLAGS, CC  default c++, "-O2 -g" (the C++ Makefile's default), cc
 #   BUILD_DIR          build + run dir             default: a new mktemp dir (the source tree stays read-only)
 #   SUMMARY            the table is written here   default: $BUILD_DIR/summary.txt
 #   CPP_REF            build | none | <dir>        the C++ reference run for the comparison columns: build it from
-#                      SAI_OPENBCM_TESTS/.. (default when that tree has src/), skip it, or take
-#                      <dir>/test_port_cpp.o, recording_backend.o, libsai.a from a built sai-openbcm build/ dir
+#                      SAI_OPENBCM_TESTS/../src (default when that tree has it), skip it, or take
+#                      <dir>/test_port_cpp.o, recording_backend.o, libsai.a from a build of your own
 #   TEST_TIMEOUT       seconds per test run        default 900
 #   TRACE=0            run untraced (as when ptrace is refused): FAIL-line attribution only
 #   HARNESS_STRICT=1   like --strict: exit 1 on any failure, crash or non-zero test exit
@@ -37,12 +38,13 @@ die() { echo "run.sh: $*" >&2; exit 2; }
 here=$(cd "$(dirname "$0")" && pwd)
 ws=$(cd "$here/../.." && pwd)   # rust/sai
 : "${SAI_INC:?run.sh: SAI_INC must name the dir with sai.h}"
-tests=${SAI_OPENBCM_TESTS:-$ws/../../ai_re/nix/packages/sai-openbcm/tests}
+tests=${SAI_OPENBCM_TESTS:-$ws/../../ai_re/nix/packages/sai-teralynx/frontend/tests}
 [ -f "$tests/test_sai.cpp" ] || die "no test_sai.cpp in $tests (set SAI_OPENBCM_TESTS)"
-[ -f "$tests/test_port_rust.cpp" ] || die "no test_port_rust.cpp in $tests"
+[ -f "$here/test_port_rust.cpp" ] || die "no test_port_rust.cpp in $here"
 tests=$(cd "$tests" && pwd)
 rs_inc=${SAI_RS_TEST_INC:-$ws/crates/sai-test-port/include}
 CXX=${CXX:-c++}
+CC=${CC:-cc}
 CXXFLAGS=${CXXFLAGS:--O2 -g}
 BUILD_DIR=${BUILD_DIR:-$(mktemp -d "${TMPDIR:-/tmp}/sai-test-port.XXXXXX")}
 mkdir -p "$BUILD_DIR"
@@ -50,10 +52,10 @@ BUILD_DIR=$(cd "$BUILD_DIR" && pwd)
 SUMMARY=${SUMMARY:-$BUILD_DIR/summary.txt}
 timeout_s=${TEST_TIMEOUT:-900}
 if [ -z "$cpp_ref" ]; then
-    if [ -f "$tests/../src/sai_api.cpp" ] && [ -f "$tests/../Makefile" ]; then cpp_ref=build; else cpp_ref=none; fi
+    if [ -f "$tests/../src/sai_api.cpp" ]; then cpp_ref=build; else cpp_ref=none; fi
 fi
 
-# The sai-openbcm Makefile's flags for test_sai.o, plus -fno-inline: every test_* function keeps
+# The C++ Makefile's flags for test_sai.o (sai-teralynx's, as sai-openbcm's were), plus -fno-inline: every test_* function keeps
 # its own symbol for section_trace (the checks are the same code, just not inlined).
 WARN="-Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers"
 INC="-I$SAI_INC -I$SAI_INC/../experimental -I$tests"
@@ -86,7 +88,7 @@ port_inc=
 # shellcheck disable=SC2086
 $CXX -std=c++17 $WARN $CXXFLAGS -fno-inline $INC -c "$tests/test_sai.cpp" -o "$B/test_sai.o" || die "test_sai.o did not compile"
 # shellcheck disable=SC2086
-$CXX -std=c++17 $WARN $CXXFLAGS $INC $port_inc -c "$tests/test_port_rust.cpp" -o "$B/test_port_rust.o" || die "test_port_rust.o did not compile"
+$CXX -std=c++17 $WARN $CXXFLAGS $INC $port_inc -c "$here/test_port_rust.cpp" -o "$B/test_port_rust.o" || die "test_port_rust.o did not compile"
 # shellcheck disable=SC2086
 $CXX -std=c++17 $CXXFLAGS -no-pie -o "$B/test_sai_rust" "$B/test_sai.o" "$B/test_port_rust.o" \
     -L"$libdir" -lsai -Wl,-rpath,"$libdir" -ldl -lpthread || die "test_sai_rust did not link"
@@ -103,14 +105,21 @@ awk -f "$here/plan.awk" "$tests/test_sai.cpp" "$tests"/test_*.inc >"$B/plan.tsv"
 ref_bin=
 if [ "$cpp_ref" = build ]; then
     log "building the C++ reference (CPP_REF=none skips it)"
-    rm -rf "$B/cpp-ref"
-    mkdir -p "$B/cpp-ref"
-    cp -R "$tests/../src" "$tests/../Makefile" "$B/cpp-ref/"
-    cp -R "$tests" "$B/cpp-ref/tests"
-    chmod -R u+w "$B/cpp-ref"
-    if make -C "$B/cpp-ref" -j"$(nproc 2>/dev/null || echo 4)" SAI_INC="$SAI_INC" CXX="$CXX" CXXFLAGS="$CXXFLAGS -I$SAI_INC/../experimental" \
-        build/libsai.a build/test_port_cpp.o build/recording_backend.o >"$B/cpp-ref.build.txt" 2>&1; then
-        cpp_ref=$B/cpp-ref/build
+    # as the C++ Makefile builds them: every frontend .cpp but the test-only recording backend
+    # into libsai.a with temp_files.c, the fake backend only (no SDK backend: a null factory)
+    src=$(cd "$tests/../src" && pwd) r=$B/cpp-ref
+    rm -rf "$r"
+    mkdir -p "$r"
+    printf '#include "backend.h"\nnamespace ob { Backend* make_openbcm_backend() { return nullptr; } }\n' >"$r/backend_none.cpp"
+    # shellcheck disable=SC2086
+    if (set -e
+        flags="-std=c++17 -fPIC $WARN $CXXFLAGS -I$SAI_INC -I$SAI_INC/../experimental -I$src"
+        for c in "$src"/*.cpp "$r/backend_none.cpp"; do $CXX $flags -c "$c" -o "$r/$(basename "$c" .cpp).o"; done
+        $CC -std=gnu11 -fPIC $WARN -O2 -g -I"$src" -c "$src/temp_files.c" -o "$r/temp_files.o"
+        $CXX $flags -I"$tests" -c "$tests/test_port_cpp.cpp" -o "$r/test_port_cpp.o"
+        ar rcs "$r/libsai.a" $(ls "$r"/*.o | grep -v -e /recording_backend.o -e /test_port_cpp.o)
+       ) >"$B/cpp-ref.build.txt" 2>&1; then
+        cpp_ref=$r
     else
         log "C++ reference did not build (log: $B/cpp-ref.build.txt); no comparison"
         cpp_ref=none

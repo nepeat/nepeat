@@ -90,14 +90,17 @@ sai-rs-test-on host *ssh:
     run=$(nix build --no-link --print-out-paths --impure {{nix_args}} --expr '
       let f = builtins.getFlake "path:{{justfile_directory()}}/nix"; ppc = f.nixosConfigurations.as7760.pkgs;
           dir = {{justfile_directory()}}/../rust/sai/nix;
+          as7772 = f.nixosConfigurations.as7772.extendModules { modules = [ { hardware.openbcm.rustSai = dir; } ]; };
+          profile = as7772.config.services.sonic.sai.profile;
           saiRs = ppc.callPackage (dir + "/package.nix") {
             saiSrc = (import (f.outPath + "/packages/sonic") { pkgs = ppc; }).sources.sairedis;
-            mdioScriptC = f.outPath + "/packages/sai-openbcm/src";
-            saiOpenbcmSrc = f.outPath + "/packages/sai-openbcm/src";
+            glueSrc = f.outPath + "/packages/sai-openbcm/src";
+            cppFrontendSrc = builtins.path { path = f.outPath + "/packages/sai-teralynx/frontend/src"; name = "sai-cpp-frontend-src"; };
           };
       in (ppc.callPackage (dir + "/target-tests.nix") {
         inherit saiRs;
-        macsecTable = f.nixosConfigurations.as7772.config.services.sonic.sai.profile.SAI_OPENBCM_EXT_MACSEC_FILE;
+        macsecTable = profile.SAI_OPENBCM_EXT_MACSEC_FILE;
+        extPhyTable = profile.SAI_OPENBCM_EXT_PHY_FILE;
       }).runOn')
     shift
     exec "$run/bin/sai-rs-test-on" "{{host}}" "$@"

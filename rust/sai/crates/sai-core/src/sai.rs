@@ -179,7 +179,13 @@ impl<B: Backend> Sai<B> {
         match object_type {
             ObjectType::Switch => Err(Error::InvalidParameter),
             // Ports come from the chip configuration (no breakout yet).
-            ObjectType::Port => Err(Error::NotSupported),
+            ObjectType::Port => {
+                crate::log::error(
+                    sys::SAI_API_PORT,
+                    format_args!("dynamic port creation (breakout) is not supported; ports come from the SDK config"),
+                );
+                Err(Error::NotSupported)
+            }
             other => dispatch::create(
                 Cx {
                     backend,
@@ -478,7 +484,10 @@ impl<B: Backend> Sai<B> {
                 }
                 Ok(())
             }
-            AnyId::Port(_) => Err(Error::NotSupported),
+            AnyId::Port(_) => {
+                crate::log::error(sys::SAI_API_PORT, format_args!("port removal is not supported"));
+                Err(Error::NotSupported)
+            }
             other => dispatch::remove(
                 Cx {
                     backend,
@@ -634,9 +643,15 @@ impl<B: Backend> Sai<B> {
                 let port = PortId::from_index(u64::from(hw.0));
                 match running
                     .store
-                    .update::<Port, _>(port, |p| core::mem::replace(&mut p.oper_up, up))
+                    .update::<Port, _>(port, |p| (core::mem::replace(&mut p.oper_up, up), p.name.clone()))
                 {
-                    Ok(was) if was != up => vec![Notification::PortOperStatus { port, up }],
+                    Ok((was, name)) if was != up => {
+                        crate::log::notice(
+                            sys::SAI_API_PORT,
+                            format_args!("port {name} (hw {}) oper {}", hw.0, if up { "up" } else { "down" }),
+                        );
+                        vec![Notification::PortOperStatus { port, up }]
+                    }
                     _ => Vec::new(),
                 }
             }

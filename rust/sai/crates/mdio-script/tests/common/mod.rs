@@ -1,5 +1,6 @@
-//! Shared by the test binaries: the deterministic fake bus of the differential test (the same
-//! rules as `tests/differential_driver.c`), the canonical result text, and script generators.
+//! Shared by the test binaries: the deterministic fake bus of the differential test, the
+//! canonical result text (the rules of the C driver `differential_driver.c` whose outputs are the
+//! goldens in `tests/golden/`, captured at commit 50a6aa7, where the driver is), and script generators.
 #![allow(
     clippy::unwrap_used,
     clippy::panic,
@@ -54,7 +55,7 @@ pub(crate) fn jobs() -> impl Strategy<Value = (u32, bool, u64)> {
     (0u32..1000, any::<bool>(), prop_oneof![3 => Just(0u64), 2 => 1u64..40])
 }
 
-/// The bus of `tests/differential_driver.c`.
+/// The bus of the C driver `differential_driver.c` (commit 50a6aa7).
 pub(crate) struct DiffBus {
     seed: u32,
     ready_after: i64,
@@ -123,7 +124,7 @@ impl MdioBus for DiffBus {
     }
 }
 
-/// The callbacks of `tests/differential_driver.c`.
+/// The callbacks of the C driver `differential_driver.c` (commit 50a6aa7).
 pub(crate) struct DiffHooks {
     tick: bool,
     abort_k: u64,
@@ -230,7 +231,7 @@ fn result(out: &mut String, tag: &str, rc: i32, st: &Stats, err: &str) {
     writeln!(out, "{tag} err={}", esc_text(err)).unwrap();
 }
 
-/// What `tests/differential_driver.c` prints for the same script and job.
+/// What the C driver `differential_driver.c` printed for the same script and job (the goldens).
 pub(crate) fn rust_output(data: &[u8], job: Job) -> String {
     let mut text = String::new();
     let script = match Script::parse_bytes(data) {

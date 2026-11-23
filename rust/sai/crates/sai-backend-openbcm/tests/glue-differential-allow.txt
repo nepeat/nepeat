@@ -1,4 +1,5 @@
-# The glue-call differential's allow-list (tests/glue_differential.rs): one line per expected
-# difference, <script stem or *> TAB <regex on the op line> TAB <reason>. Every differing op block
-# must be covered, every entry must cover one (stale entries fail).
+# The glue-call differential's allow-list (tests/glue_differential.rs, the Rust stack against the
+# C++ golden of commit 50a6aa7 in tests/golden/): one line per expected difference, <script stem or *>
+# TAB <regex on the op line> TAB <reason>. Every differing op block must be covered, every entry must
+# cover one (stale entries fail).
 *	^switch( |$)	create_switch: the C++ frontend asks ob_sdk_cpu_port twice (sai_switch.cpp:240 and :243, be.cpu_port() for the CPU port's OID and for its hw), sai-core once (switch.rs:357); a constant query of the glue (CMIC_PORT), nothing programmed

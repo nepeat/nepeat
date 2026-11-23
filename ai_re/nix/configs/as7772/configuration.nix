@@ -6,11 +6,11 @@
 {
   imports = [ ../lab-access.nix ../../modules/profiles/appliance.nix ../../modules/boards/as7772 ];
   system.stateVersion = "26.11";
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "openbcm-bcm-user" "openbcm-libsdk" "sai-openbcm" ];
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "openbcm-bcm-user" "openbcm-libsdk" ];
   networking.hostName = "as7772";
   # Base MAC from the board's ONIE TlvInfo (NOR hw-info, 0x24).
   services.sonic.macAddress = "1c:ea:0b:38:2b:d5";
-  # SONiC at boot (modules/boards/as7772: sai-openbcm behind the Evora PHYs,
+  # SONiC at boot (modules/boards/as7772: the Rust SAI behind the Evora PHYs,
   # which openbcm-mdio-script brings up first from the private script in
   # /var/lib/evora-phy). Lab cabling: two 100G DACs, cage 1 <-> 2 and
   # 31 <-> 32, nothing else; every other port stays admin down (the seed).

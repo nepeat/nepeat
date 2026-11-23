@@ -1,0 +1,147 @@
+BGP_DEVICE_GLOBAL|STATE
+CONFIG_DB_INITIALIZED
+DEVICE_METADATA|localhost
+FEATURE|bgp
+FEATURE|lldp
+FEATURE|macsec
+FLEX_COUNTER_TABLE|PORT
+INTERFACE|Ethernet124
+INTERFACE|Ethernet4
+LOGGER|CmisManagerTask
+LOGGER|coppmgrd
+LOGGER|DomInfoUpdateTask
+LOGGER|fdbsyncd
+LOGGER|fpmsyncd
+LOGGER|intfmgrd
+LOGGER|macsecmgrd
+LOGGER|nbrmgrd
+LOGGER|neighsyncd
+LOGGER|orchagent
+LOGGER|portmgrd
+LOGGER|portsyncd
+LOGGER|SAI_API_ACL
+LOGGER|SAI_API_ARS
+LOGGER|SAI_API_ARS_PROFILE
+LOGGER|SAI_API_BFD
+LOGGER|SAI_API_BMTOR
+LOGGER|SAI_API_BRIDGE
+LOGGER|SAI_API_BUFFER
+LOGGER|SAI_API_COUNTER
+LOGGER|SAI_API_DASH_ACL
+LOGGER|SAI_API_DASH_APPLIANCE
+LOGGER|SAI_API_DASH_DIRECTION_LOOKUP
+LOGGER|SAI_API_DASH_ENI
+LOGGER|SAI_API_DASH_FLOW
+LOGGER|SAI_API_DASH_HA
+LOGGER|SAI_API_DASH_INBOUND_ROUTING
+LOGGER|SAI_API_DASH_METER
+LOGGER|SAI_API_DASH_OUTBOUND_CA_TO_PA
+LOGGER|SAI_API_DASH_OUTBOUND_PORT_MAP
+LOGGER|SAI_API_DASH_OUTBOUND_ROUTING
+LOGGER|SAI_API_DASH_PA_VALIDATION
+LOGGER|SAI_API_DASH_TRUSTED_VNI
+LOGGER|SAI_API_DASH_TUNNEL
+LOGGER|SAI_API_DASH_VIP
+LOGGER|SAI_API_DASH_VNET
+LOGGER|SAI_API_DEBUG_COUNTER
+LOGGER|SAI_API_DTEL
+LOGGER|SAI_API_FDB
+LOGGER|SAI_API_FW
+LOGGER|SAI_API_GENERIC_PROGRAMMABLE
+LOGGER|SAI_API_HASH
+LOGGER|SAI_API_HOSTIF
+LOGGER|SAI_API_ICMP_ECHO
+LOGGER|SAI_API_IPMC
+LOGGER|SAI_API_IPMC_GROUP
+LOGGER|SAI_API_IPSEC
+LOGGER|SAI_API_ISOLATION_GROUP
+LOGGER|SAI_API_L2MC
+LOGGER|SAI_API_L2MC_GROUP
+LOGGER|SAI_API_LAG
+LOGGER|SAI_API_MACSEC
+LOGGER|SAI_API_MCAST_FDB
+LOGGER|SAI_API_MIRROR
+LOGGER|SAI_API_MPLS
+LOGGER|SAI_API_MY_MAC
+LOGGER|SAI_API_NAT
+LOGGER|SAI_API_NEIGHBOR
+LOGGER|SAI_API_NEXT_HOP
+LOGGER|SAI_API_NEXT_HOP_GROUP
+LOGGER|SAI_API_OCS
+LOGGER|SAI_API_OTN_ATTENUATOR
+LOGGER|SAI_API_OTN_OA
+LOGGER|SAI_API_PERFMON
+LOGGER|SAI_API_POE
+LOGGER|SAI_API_POLICER
+LOGGER|SAI_API_PON
+LOGGER|SAI_API_PORT
+LOGGER|SAI_API_PREFIX_COMPRESSION
+LOGGER|SAI_API_PTP_PDELAY
+LOGGER|SAI_API_QOS_MAP
+LOGGER|SAI_API_QUEUE
+LOGGER|SAI_API_ROUTE
+LOGGER|SAI_API_ROUTER_INTERFACE
+LOGGER|SAI_API_RPF_GROUP
+LOGGER|SAI_API_SAMPLEPACKET
+LOGGER|SAI_API_SCHEDULER
+LOGGER|SAI_API_SCHEDULER_GROUP
+LOGGER|SAI_API_SRV6
+LOGGER|SAI_API_STP
+LOGGER|SAI_API_SWITCH
+LOGGER|SAI_API_SYNCE
+LOGGER|SAI_API_SYSTEM_PORT
+LOGGER|SAI_API_TAM
+LOGGER|SAI_API_TUNNEL
+LOGGER|SAI_API_TWAMP
+LOGGER|SAI_API_UDF
+LOGGER|SAI_API_VIRTUAL_CHANNEL
+LOGGER|SAI_API_VIRTUAL_ROUTER
+LOGGER|SAI_API_VLAN
+LOGGER|SAI_API_WRED
+LOGGER|SfpStateUpdateTask
+LOGGER|syncd
+LOGGER|teammgrd
+LOGGER|teamsyncd
+LOGGER|tlm_teamd
+LOGGER|vlanmgrd
+LOGGER|vrfmgrd
+LOGGER|xcvrd
+MACSEC_PROFILE|lab-test
+SYSTEM_DEFAULTS|software_bfd
+== INTERFACE
+INTERFACE|Ethernet124: {'mac_addr': '1c:ea:0b:38:2b:d7'}
+INTERFACE|Ethernet4: {'mac_addr': '1c:ea:0b:38:2b:d6'}
+== COPP
+COPP_TABLE:queue1_group1: {'cbs': '6000', 'cir': '6000', 'meter_type': 'packets', 'mode': 'sr_tcm', 'queue': '1', 'red_action': 'drop', 'trap_action': 'trap', 'trap_priority': '1', 'trap_ids': 'ip2me'}
+COPP_TABLE:queue3_group1: {'cbs': '100', 'cir': '100', 'meter_type': 'packets', 'mode': 'sr_tcm', 'queue': '3', 'red_action': 'drop', 'trap_action': 'trap', 'trap_priority': '4', 'trap_ids': 'lldp,udld'}
+COPP_TABLE:queue4_group2: {'cbs': '600', 'cir': '600', 'meter_type': 'packets', 'mode': 'sr_tcm', 'queue': '4', 'red_action': 'drop', 'trap_action': 'copy', 'trap_priority': '4', 'trap_ids': 'arp_req,arp_resp,neigh_discovery'}
+COPP_TABLE:queue1_group3: {'cbs': '200', 'cir': '200', 'meter_type': 'packets', 'mode': 'sr_tcm', 'queue': '1', 'red_action': 'drop', 'trap_action': 'trap', 'trap_priority': '1', 'trap_ids': 'neighbor_miss'}
+COPP_TABLE:default: {'cbs': '600', 'cir': '600', 'meter_type': 'packets', 'mode': 'sr_tcm', 'queue': '0', 'red_action': 'drop'}
+COPP_TABLE:queue4_group1: {'cbs': '6000', 'cir': '6000', 'meter_type': 'packets', 'mode': 'sr_tcm', 'queue': '4', 'red_action': 'drop', 'trap_action': 'trap', 'trap_priority': '4', 'trap_ids': 'bgp,bgpv6,eapol,lacp'}
+== sysctl
+Ethernet0 0
+Ethernet4 0
+Ethernet120 0
+Ethernet124 0
+default 0
+all 0
+Ethernet120      UP             fe80::1eea:bff:fe38:2bd5/64 
+Ethernet124      UP             fe80::1eea:bff:fe38:2bd5/64 
+Ethernet0        UP             fe80::1eea:bff:fe38:2bd5/64 
+Ethernet4        UP             fe80::1eea:bff:fe38:2bd5/64 
+== lldp
+Capability codes: (R) Router, (B) Bridge, (O) Other
+LocalPort    RemoteDevice    RemotePortID    Capability    RemotePortDescr
+-----------  --------------  --------------  ------------  -----------------
+Ethernet0    as7772          Ethernet2/1     BR            Ethernet4
+Ethernet4    as7772          Ethernet1/1     BR            Ethernet0
+Ethernet120  as7772          Ethernet32/1    BR            Ethernet124
+Ethernet124  as7772          Ethernet31/1    BR            Ethernet120
+--------------------------------------------------
+Total entries displayed:  4
+== oper up
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later         N/A
+Ethernet120       9,10,11,12     100G   9100    N/A  Ethernet31/1  routed      up       up  QSFP28 or later         N/A
+Ethernet124      13,14,15,16     100G   9100    N/A  Ethernet32/1  routed      up       up  QSFP28 or later         N/A
+active active active active sonic-cfggen

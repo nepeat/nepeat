@@ -1,5 +1,6 @@
-//! The C++-vs-Rust frontend differential: every op script of sai-openbcm's
-//! `tests/driver-scripts/*.ops` runs through the C++ `frontend_driver` (the C++ libsai on its fake
+//! The C++-vs-Rust frontend differential (live: the C++ frontend is frozen since 2026-11-23 in
+//! `ai_re/nix/packages/sai-teralynx/frontend`, which the CS8210's libsai compiles): every op
+//! script of its `tests/driver-scripts/*.ops` runs through the C++ `frontend_driver` (the C++ libsai on its fake
 //! backend) and through this crate's driver (the Rust core on its virtual backend); the outputs are
 //! compared op block by op block (`sai_driver::compare`). Every differing block must be covered by
 //! an entry of `tests/differential-allow.txt`, and every entry must cover a block.
@@ -8,12 +9,12 @@
 //! - `SAI_DRIVER_CPP`: a prebuilt `frontend_driver` (a Nix check passes one in); or
 //! - `$SAI_RS_TEST_BIN/sai-cpp-frontend-driver`, with the scripts and the allow-list in
 //!   `$SAI_RS_TEST_BIN/sai-driver/` (prebuilt by `build.rs` for a target without a compiler); or
-//! - built here from `SAI_OPENBCM_TESTS` (sai-openbcm's `tests`; else `$SAI_OPENBCM_SRC/../tests`)
+//! - built here from `SAI_OPENBCM_TESTS` (the frozen frontend's `tests`; else `$SAI_OPENBCM_SRC/../tests`)
 //!   and `SAI_INC`, with `$CXX` / `$CC` (cached in the target's temp directory by a hash of the inputs).
 //!
-//! Besides sai-openbcm's scripts, this crate's own `tests/driver-scripts/*.ops` (the external-PHY
+//! Besides the frontend's scripts, this crate's own `tests/driver-scripts/*.ops` (the external-PHY
 //! runtime and the `MACsec` objects, with key material) run through both drivers on the tables of
-//! sai-openbcm's `tests/test_tables.h` ([`extra_scripts`]).
+//! the frontend's `tests/test_tables.h` ([`extra_scripts`]).
 //!
 //! Without the C++ sources (the sai-rs package: `SAI_OPENBCM_SRC` is a copy of `src` only) the
 //! comparison is SKIPPED, said on stderr and in `$SAI_RS_TEST_SUMMARY`. With them, a missing
@@ -66,15 +67,15 @@ const EXT_PHY_TOKEN: &str = "@EXT_PHY_TABLE@";
 const EXT_MACSEC_TOKEN: &str = "@EXT_MACSEC_TABLE@";
 
 /// This crate's own scripts (`tests/driver-scripts`: the external-PHY runtime and the `MACsec`
-/// objects, which sai-openbcm's scripts do not reach), with their table tokens replaced by files
-/// written into `dir`: the tables of sai-openbcm's `tests/test_tables.h` (`kExtPhyGood`, without
+/// objects, which the frontend's scripts do not reach), with their table tokens replaced by files
+/// written into `dir`: the tables of the frontend's `tests/test_tables.h` (`kExtPhyGood`, without
 /// its hold-off so nothing depends on the clock; `ms_table()`), printed by a three-line C++
 /// program built with `$CXX`. Without the C++ test sources (the prebuilt bundle) or a compiler,
 /// none (said in the summary).
 fn extra_scripts(sources: &Result<cpp_build::Sources, String>, dir: &Path) -> Vec<PathBuf> {
     let own = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/driver-scripts");
     let Ok(s) = sources else {
-        summary("sai-driver differential: own scripts SKIPPED (no sai-openbcm tests dir for the tables)");
+        summary("sai-driver differential: own scripts SKIPPED (no C++ frontend tests dir for the tables)");
         return Vec::new();
     };
     let dir = dir.join("sai-driver-extra");

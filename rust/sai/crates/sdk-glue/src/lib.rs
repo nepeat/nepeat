@@ -134,7 +134,7 @@ pub use field::{FpEntry, FpQual, FpRule, IpType};
 pub use l2::Dest;
 pub use l3::RouteTarget;
 pub use lag::TrunkMember;
-pub use link::{CallbackStats, Gate, L2Event};
+pub use link::{Callback, CallbackIssue, CallbackStats, Gate, L2Event};
 pub use mdio::{MdioBus, Mmd};
 pub use netif::Netif;
 pub use policer::PolicerCfg;

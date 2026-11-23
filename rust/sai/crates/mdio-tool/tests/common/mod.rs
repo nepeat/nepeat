@@ -51,7 +51,8 @@ pub(crate) fn put(dir: &Path, name: &str, text: &str) -> PathBuf {
     path
 }
 
-/// The register values of the C test's bus (`tests/test_mdio_script.c`, `b_read`).
+/// The register values of the C test's bus (sai-openbcm's `tests/test_mdio_script.c`, `b_read`, at
+/// commit 50a6aa7).
 pub(crate) fn bus_value(phy: u16, reg: u16, stuck: bool, hang: bool) -> Result<u16, BusError> {
     Ok(match (phy, reg) {
         (0x26, _) => return Err(BusError),

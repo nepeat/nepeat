@@ -1,0 +1,17 @@
+== reboot 2026-11-23T12:42:57Z
+== 2026-11-23T12:45:22Z
+/nix/store/64296gcvk4yyhq2k8yjxwib67kil0bxz-nixos-system-as7772-26.11.20261111.d4f25a3
+/nix/store/64296gcvk4yyhq2k8yjxwib67kil0bxz-nixos-system-as7772-26.11.20261111.d4f25a3
+ 04:45:22 up 2 min,  3 users,  load average: 1.16, 0.45, 0.17
+failed: 0
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 101.0 s
+  run started 2026-11-23 12:43:30 +0000, took 101.0 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 98.5 s (553600 writes, 426711 reads, 15551 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 43.8 C, 0 failed, longest read 0.13 ms
+status.json seconds 101.0 | summary 32 PHYs verified after 1058160 operations in 101.0 s
+     Active: active (exited) since Mon 2026-11-23 04:45:10 PST; 11s ago
+     Status: "ok: 32 PHYs verified after 1058160 operations in 101.0 s"
+Nov 23 04:45:10 as7772 openbcm-mdio-script[500]: openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: done in 98.5 s: 1058160 of 1058160 operations, 553600 writes, 426711 reads (307099 polls, 15551 re-reads), 0 expected values differed
+Nov 23 04:45:10 as7772 openbcm-mdio-script[500]: openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 101.0 s
+Nov 23 04:45:10 as7772 systemd[1]: Finished External PHY bring-up over the switch chip's MDIO bus.

@@ -1,0 +1,29 @@
+# phy-seq golden: the AS7772's generated ext-phy table (1 run: --check)
+# The answers of sai-openbcm's C++ tool openbcm-ext-phy (the C++ engine, built by
+# ai_re/nix/packages/sai-openbcm as bin/openbcm-ext-phy, 6fbkmj3x235wrwyzywh3wyckd9br2jka-sai-openbcm-fake-0.1.0),
+# captured 2026-11-23 from ai_re/nix/packages/sai-openbcm at commit 50a6aa7 (sources unmodified):
+#   src/ext_phy_check.cpp     sha256 d8109c5e3164ddd82f7687404b8a3ce1bff774dc405e4720af8ec5bfde945248
+#   src/sai_extphy.cpp        sha256 ab211c51ea01c05b20ad628527bdff4f644d46b990f7973e2bade24b468ee53d
+#   src/ext_phy.h             sha256 1d59a8e869269ec3e0f8da8317878dd574a41c3fb9b4779e6c44428a5a746804
+# Produced by a one-off capture test in crates/phy-seq/tests/differential.rs (the same transcript
+# code as the test, with the C++ tool as the runner instead of phy_seq::cli; removed afterwards):
+#   PHY_SEQ_CXX_EXT_PHY=.../bin/openbcm-ext-phy PHY_SEQ_TABLES=<as7772 ext-macsec>:<as7772 ext-phy> \
+#     cargo test -p phy-seq --test differential -- --ignored capture_from_cxx
+# The live differential (C++ against Rust, random seeds) agreed on every comparison just before.
+# The table: nixosConfigurations.as7772.config.services.sonic.sai.profile.SAI_OPENBCM_EXT_PHY_FILE
+#   /nix/store/qbghbgwjdkp85i8hgyiyf3qfjzhnxrgp-as7772-ext-phy.tbl
+#   sha256 67d1071efcef74847ab3c97b5bb5bb0ee9ef19d5fbccb5ec24625f6c776de80a
+# The test compares only a PHY_SEQ_TABLES file with the length and FNV-1a 64 of the "table" line
+# below (others: SKIPPED). The table text is not stored here (Nix generates it).
+# NOT to be regenerated from the Rust output. A deliberate change of behaviour edits the affected
+# lines by hand and adds a "# changed <date>: <reason>" line here, like an allow-list entry.
+# Format: "== <section: the input>", then per run "-- <args>" and "exit N", "out <stdout>",
+#   "err <stderr>" (or "exit N" only: usage errors, whose text names the program; or
+#   "-- <args> = <FNV-1a 64 of the full run text>"). Strings escaped (\\ \" \n \r \t \xNN); the
+#   scratch directory is written $D.
+table 206745 b42767a65ec02947
+== board table
+-- "--check" "$D/table"
+exit 0
+out "$D/table: 32 ports (32 with a link poll), poll 500 ms, up after 2 good polls, hold-off 3000 ms; operations: link 288, admin-down 4608, admin-up 6912\n"
+err ""

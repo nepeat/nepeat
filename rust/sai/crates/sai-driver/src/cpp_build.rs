@@ -1,9 +1,11 @@
-//! Builds sai-openbcm's C++ `tests/frontend_driver.cpp` out of tree, as its Makefile's
-//! `build/frontend_driver` rule does: the library's CORE sources on the fake backend (without
-//! `backend_none`: the driver defines `make_openbcm_backend` itself), `recording_backend`,
+//! Builds the C++ frontend's `tests/frontend_driver.cpp` out of tree, as sai-openbcm's Makefile's
+//! `build/frontend_driver` rule did: the library's CORE sources on the fake backend (the driver
+//! defines `make_openbcm_backend` itself), `recording_backend`,
 //! `tests/test_port_cpp.cpp`, `temp_files.c` and `driver_names.inc` (`tests/driver_names.awk`
 //! over `$SAI_INC/sai*.h`). Shared by `build.rs` (the prebuilt copy for a target without a
-//! compiler) and `tests/differential.rs` (a native build at test time).
+//! compiler) and `tests/differential.rs` (a native build at test time). The C++ is the frontend
+//! frozen on 2026-11-23 in `ai_re/nix/packages/sai-teralynx/frontend/{src,tests}` (the CS8210's
+//! libsai still compiles it): the comparison stays live, no golden.
 #![allow(dead_code, reason = "shared by build.rs and tests/differential.rs; each uses a part")]
 
 use std::env;
@@ -39,9 +41,9 @@ const CPP: &[&str] = &[
 
 /// Where the C++ sources are.
 pub(crate) struct Sources {
-    /// sai-openbcm's `src`.
+    /// The frozen frontend's `src`.
     pub(crate) src: PathBuf,
-    /// sai-openbcm's `tests` (`frontend_driver.cpp`, `driver-scripts/`).
+    /// The frozen frontend's `tests` (`frontend_driver.cpp`, `driver-scripts/`).
     pub(crate) tests: PathBuf,
 }
 
@@ -56,18 +58,18 @@ pub(crate) fn find_sources() -> Result<Sources, String> {
         .map(PathBuf::from)
         .or_else(|| var("SAI_OPENBCM_SRC").map(|s| Path::new(&s).join("../tests")))
         .filter(|t| t.join("frontend_driver.cpp").is_file() && t.join("driver-scripts").is_dir())
-        .ok_or("no sai-openbcm tests directory with frontend_driver.cpp and driver-scripts/ (SAI_OPENBCM_TESTS, or SAI_OPENBCM_SRC/../tests)")?;
+        .ok_or("no C++ frontend tests directory with frontend_driver.cpp and driver-scripts/ (SAI_OPENBCM_TESTS, or SAI_OPENBCM_SRC/../tests)")?;
     let src = var("SAI_OPENBCM_SRC").map_or_else(|| tests.join("../src"), PathBuf::from);
     if !src.join("recording_backend.cpp").is_file() {
         return Err(format!(
-            "no sai-openbcm sources with recording_backend.cpp in {}",
+            "no C++ frontend sources with recording_backend.cpp in {}",
             src.display()
         ));
     }
     Ok(Sources { src, tests })
 }
 
-/// The tables of sai-openbcm's `tests/test_tables.h` as files in `dir`, for sai-driver's own
+/// The tables of the frontend's `tests/test_tables.h` as files in `dir`, for sai-driver's own
 /// scripts: the external `MACsec` table (`ms_table()`) and the external PHY table (`kExtPhyGood`,
 /// without its hold-off so nothing depends on the clock), printed by a three-line C++ program
 /// built with `cxx`. Returns (`MACsec` table, PHY table).
@@ -294,7 +296,7 @@ pub(crate) struct Prebuild<'a> {
 }
 
 /// [`prebuild`] of any variant: the driver built for the target into `$OUT_DIR/target-tests`, with
-/// sai-openbcm's op scripts and the crate's allow-list in `target-tests/<data>/`. Returns a note.
+/// the frontend's op scripts and the crate's allow-list in `target-tests/<data>/`. Returns a note.
 pub(crate) fn prebuild_variant(
     out: &Path,
     p: &Prebuild<'_>,

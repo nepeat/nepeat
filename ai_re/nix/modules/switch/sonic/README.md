@@ -133,12 +133,12 @@ ranges `Ethernet1/1-4` and `Ethernet1/3-3/1` (missing subports are gaps) in
 nix build -L --impure --expr 'let f = builtins.getFlake "path:'$PWD'/nix"; pkgs = import f.inputs.nixpkgs { system = "x86_64-linux"; };
   in import ./nix/modules/switch/sonic/tests/eval.nix { inherit pkgs; }'   # breakout assertions, YANG failure, sdkConfig plumbing
 # same with tests/vm.nix: two VMs (switch 3 GB + LACP peer 1 GB), ~8 min
-# tests/vm-openbcm-fake.nix: vm.nix's checks on sai-openbcm's fake backend (args: sai-openbcm README)
-# tests/vm-openbcm-fake-l3.nix: one VM on sai-openbcm's fake: VRF, ECMP group, flex counters, CLI lists
+# tests/vm-openbcm-fake.nix: vm.nix's checks on our SAI's fake (virtual) backend
+# tests/vm-openbcm-fake-l3.nix: one VM on that fake: VRF, ECMP group, flex counters, CLI lists
 # tests/vm-macsec.nix: MACsec start-up on the virtual SAI (MKA between two ports of the switch, sessions follow the port address)
 # tests/vm-openbcm-fake-acl.nix: CoPP policers + an L3 ACL through orchagent on the fake
-#   the three vm-openbcm-fake* take openbcm = { implementation = "rust"; rustSai = <monorepo>/rust/sai/nix; }
-#   (hardware.openbcm, tests/openbcm-sai.nix): the same test on the Rust libsai (just test-vm -k rust)
+#   the three vm-openbcm-fake* need openbcm = { rustSai = <monorepo>/rust/sai/nix; } (hardware.openbcm,
+#   tests/openbcm-sai.nix: the Rust SAI the boards run, no SDK), or libsai / sairedis given; just test-vm -k openbcm
 # tests/vm-frr.nix: switch 3 GB + peer 1 GB (FRR): eBGP over a PortChannel, routes to APPL/ASIC_DB,
 #   static routes, config interface ip remove, crash recovery, config reload w/o saved file, ~25 min
 # tests/vm-platform.nix: one VM (3 GB, vs): pmon on the fake AS7760 board, show platform/transceiver, LLDP self-loop
@@ -156,12 +156,12 @@ nix build -L --impure --expr 'let f = builtins.getFlake "path:'$PWD'/nix"; pkgs 
 Runs on the AS7760 at boot (wiring: [boards/as7760](../../boards/as7760/default.nix);
 results: devices/sonic-nixos/PROGRESS.md) and on the AS7772 ([boards/as7772](../../boards/as7772/default.nix):
 the same board with MACsec PHYs in front of every port, brought up by `hardware.openbcm.mdioScript` before syncd
-and described to sai-openbcm by its `SAI_OPENBCM_PORT_*` keys; devices/edge-core-as7772-32x/sonic.md). Kernel: `NET_VRF` (vrfmgrd; module `vrf`, loaded by vrf.nix), `BRIDGE` + `BRIDGE_VLAN_FILTERING` (vlanmgrd), `VLAN_8021Q`,
+and described to the SAI by its `SAI_OPENBCM_PORT_*` keys; devices/edge-core-as7772-32x/sonic.md). Kernel: `NET_VRF` (vrfmgrd; module `vrf`, loaded by vrf.nix), `BRIDGE` + `BRIDGE_VLAN_FILTERING` (vlanmgrd), `VLAN_8021Q`,
 `NET_TEAM` + `NET_TEAM_MODE_LOADBALANCE` (teamd), `DUMMY`; `TUN` for the
 virtual SAI (`kernelModules` loads them). Vendor SAI: `sai.kind = "vendor"`,
 `sai.package = sonic.sairedis-openbcm libsai`, `sai.libraryPath` (boards/as7760: libsai is
-`hardware.openbcm.package`, the C++ sai-openbcm or, with `hardware.openbcm.implementation = "rust"`,
-rust/sai's drop-in; `hardware.openbcm.mdioTool` picks the boot-time MDIO tool alone),
+`hardware.openbcm.package`, the Rust SAI of rust/sai (`hardware.openbcm.rustSai`; the C++ sai-openbcm
+was deleted on 2026-11-23), its tools and boot-time MDIO tool included),
 `sai.sdkConfig` / `sai.initConfigFile`, `sai.profile`. syncd `Conflicts=` the units in
 `sai.conflicts` (default: openbcm-asic-temp when enabled; one SDK process
 per unit) and starts after them. `sai.restartOnStop` units are started
@@ -260,7 +260,7 @@ psample group 1. Packages: [packages/sonic/sflow](../../../packages/sonic/sflow/
 [macsec.nix](macsec.nix), `services.sonic.macsec` (default off): macsecmgrd (bound to orchagent) starts one
 `wpa_supplicant -D macsec_sonic` per port with a profile (sonic-wpa-supplicant, [packages/sonic/wpa-supplicant](../../../packages/sonic/wpa-supplicant/default.nix):
 MKA only, no Wi-Fi/EAP); the driver writes APPL_DB MACSEC_* tables, orchagent's MACsecOrch creates the SAI MACsec
-objects. Needs a SAI with `sai_macsec_api_t` (sai-openbcm: an external MACsec table; first board: AS7772).
+objects. Needs a SAI with `sai_macsec_api_t` (ours: an external MACsec table, rust/sai `sai-macsec`; first board: AS7772).
 ```nix
 services.sonic.macsec = {
   enable = true;

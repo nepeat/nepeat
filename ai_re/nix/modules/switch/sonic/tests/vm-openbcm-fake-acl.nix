@@ -1,4 +1,4 @@
-# ACL and CoPP policing on sai-openbcm's FAKE backend under services.sonic
+# ACL and CoPP policing on our SAI's FAKE (virtual) backend under services.sonic
 # (one VM, 3 GB): CoppOrch's policers reach the SAI (no NOT_IMPLEMENTED) and
 # become CoPP field entries; an L3 ACL table + DROP rule written to CONFIG_DB
 # (and one via `config acl add table`) become an ACL table, a table group
@@ -6,18 +6,20 @@
 # go away again. Script: vm-acl-test.py.
 #   nix build -L --impure --expr 'let f = builtins.getFlake "path:<ai_re>/nix";
 #     pkgs = import f.inputs.nixpkgs { system = "x86_64-linux"; };
-#     in import <ai_re>/nix/modules/switch/sonic/tests/vm-openbcm-fake-acl.nix { inherit pkgs; }'
+#     in import <ai_re>/nix/modules/switch/sonic/tests/vm-openbcm-fake-acl.nix { inherit pkgs;
+#       openbcm.rustSai = <monorepo>/rust/sai/nix; }'
 { pkgs
 , sonic ? import ../../../../packages/sonic { inherit pkgs; }
-  # hardware.openbcm settings choosing the SAI under test (modules/switch/openbcm.nix), e.g.
-  # { implementation = "rust"; rustSai = <monorepo>/rust/sai/nix; }; default: the C++ sai-openbcm.
+  # hardware.openbcm settings for the SAI under test (modules/switch/openbcm.nix):
+  # { rustSai = <monorepo>/rust/sai/nix; } (required unless libsai / sairedis are given: the SAI
+  # is the Rust one, outside this tree; the C++ sai-openbcm was deleted on 2026-11-23).
 , openbcm ? { }
   # libsai / sairedis given explicitly win over that (rust/sai/nix's wrappers pass them).
 , libsai ? null
 , sairedis ? null }:
 let sai = import ./openbcm-sai.nix { inherit sonic openbcm libsai sairedis; }; in
 pkgs.testers.runNixOSTest {
-  name = "sonic-acl-openbcm-fake" + sai.nameSuffix;
+  name = "sonic-acl-openbcm-fake";
   nodes.switch = { lib, options, ... }: {
     imports = [ ./common.nix sai.module ];
     virtualisation.memorySize = 3072;

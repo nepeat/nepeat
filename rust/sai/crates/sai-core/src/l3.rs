@@ -49,6 +49,7 @@ use crate::backend::{Backend, HwPort, Profile, Vid};
 use crate::dispatch::{Area, Cx};
 use crate::error::{AttrError, Error, Result};
 use crate::lag::Attach;
+use crate::log;
 use crate::model::{EntryKey, Kept, Kind, Object, Switch, Vlan};
 use crate::oid::{
     LagId, NextHopGroupId, NextHopGroupMemberId, NextHopId, ObjectType, RawOid, RouterInterfaceId, TypedId,
@@ -791,11 +792,20 @@ fn create_vr<B: Backend>(backend: &B, store: &mut Store, attrs: &[Attr]) -> Resu
     }
     let ChipLimits { vrf_max, .. } = backend.chip_limits()?;
     let used: BTreeSet<Vrf> = store.iter::<VirtualRouter>().map(|(_, v)| v.vrf).collect();
-    vr.vrf = (1..=vrf_max)
-        .map(Vrf)
-        .find(|vrf| !used.contains(vrf))
-        .ok_or(Error::InsufficientResources)?;
-    store.insert(vr)
+    vr.vrf = (1..=vrf_max).map(Vrf).find(|vrf| !used.contains(vrf)).ok_or_else(|| {
+        log::error(
+            sys::SAI_API_VIRTUAL_ROUTER,
+            format_args!("no free VRF id (chip maximum {vrf_max})"),
+        );
+        Error::InsufficientResources
+    })?;
+    let vrf = vr.vrf;
+    let id = store.insert(vr)?;
+    log::notice(
+        sys::SAI_API_VIRTUAL_ROUTER,
+        format_args!("virtual router: SDK VRF {}", vrf.0),
+    );
+    Ok(id)
 }
 
 fn default_vr_of(store: &Store) -> Option<RawOid> {
@@ -977,7 +987,13 @@ fn create_rif<B: Backend>(cx: Cx<'_, B>, attrs: &[Attr]) -> Result<RouterInterfa
             RifKind::Vlan { vlan: id, vid }
         }
         RIF_LOOPBACK => RifKind::Loopback,
-        _ => return Err(Error::NotSupported),
+        other => {
+            log::error(
+                sys::SAI_API_ROUTER_INTERFACE,
+                format_args!("router interface type {other} not supported"),
+            );
+            return Err(Error::NotSupported);
+        }
     };
     let mut rif = RouterInterface {
         vr,
@@ -1002,7 +1018,16 @@ fn create_rif<B: Backend>(cx: Cx<'_, B>, attrs: &[Attr]) -> Result<RouterInterfa
             return Err(e);
         }
     }
-    store.insert(rif)
+    let line = format!(
+        "rif type {} vid {} intf {} vrf {}",
+        rif.type_sai(),
+        rif.vid().map_or(0, Vid::get),
+        rif.intf.map_or(-1, |i| i64::from(i.0)),
+        rif.vrf.0
+    );
+    let id = store.insert(rif)?;
+    log::notice(sys::SAI_API_ROUTER_INTERFACE, format_args!("{line}"));
+    Ok(id)
 }
 
 /// The SDK side of a RIF with an interface: the switch's and the RIF's my-station entries, the L3
@@ -1183,10 +1208,15 @@ fn create_next_hop<B: Backend>(cx: Cx<'_, B>, attrs: &[Attr]) -> Result<NextHopI
         .ok()
         .filter(|id| store.get::<RouterInterface>(*id).is_ok())
         .ok_or(Error::InvalidParameter)?;
-    let egress = match store.l3.neighbors.get(&(rif, ip)) {
-        Some(neighbor) => neighbor.egress,
+    let egress = if let Some(neighbor) = store.l3.neighbors.get(&(rif, ip)) {
+        neighbor.egress
+    } else {
         // Points at the CPU (glean) until the neighbor resolves it.
-        None => backend.l3_egress_glean()?,
+        log::info(
+            sys::SAI_API_NEXT_HOP,
+            format_args!("next hop without neighbor: points at the CPU (glean) until it resolves"),
+        );
+        backend.l3_egress_glean()?
     };
     store.insert(NextHop { ip, rif, egress })
 }
@@ -1285,10 +1315,16 @@ fn reprogram_routes_using<B: Backend>(backend: &mut B, store: &mut Store, object
         let Some((_, vrf)) = vr_vrf(store, key.0.raw()) else {
             continue;
         };
-        if backend.l3_route_add(vrf, key.1, target, true).is_ok() {
-            if let Some(route) = store.l3.routes.get_mut(&key) {
-                route.target = target;
+        match backend.l3_route_add(vrf, key.1, target, true) {
+            Ok(()) => {
+                if let Some(route) = store.l3.routes.get_mut(&key) {
+                    route.target = target;
+                }
             }
+            Err(err) => log::error(
+                sys::SAI_API_ROUTE,
+                format_args!("re-pointing a route failed ({})", err.status()),
+            ),
         }
     }
 }
@@ -1418,10 +1454,15 @@ fn egress_for_neighbor<B: Backend>(
         }
         RifKind::Loopback => None,
     };
-    match dest {
-        Some(dest) => Ok((backend.l3_egress_create(intf, mac, dest, vid)?, Some(dest))),
+    if let Some(dest) = dest {
+        Ok((backend.l3_egress_create(intf, mac, dest, vid)?, Some(dest)))
+    } else {
         // The egress port is unknown (no FDB entry yet): to the CPU.
-        None => Ok((backend.l3_egress_cpu()?, None)),
+        log::warn(
+            sys::SAI_API_NEIGHBOR,
+            format_args!("neighbor {mac}: egress port unknown (no FDB entry yet); sending to CPU"),
+        );
+        Ok((backend.l3_egress_cpu()?, None))
     }
 }
 
@@ -1490,8 +1531,13 @@ fn create_neighbor<B: Backend>(cx: Cx<'_, B>, rif: RawOid, ip: IpAddr, attrs: &[
             .map(|(_, m)| m.group)
             .collect();
         for group in groups {
-            // As the C++: a group that cannot follow stays as it was (logged there).
-            let _ = group_sync(backend, store, group);
+            // As the C++: a group that cannot follow stays as it was, logged.
+            if group_sync(backend, store, group).is_err() {
+                log::error(
+                    sys::SAI_API_NEXT_HOP_GROUP,
+                    format_args!("next-hop group update after neighbor resolution failed"),
+                );
+            }
         }
     }
     Ok(())
@@ -1572,6 +1618,8 @@ fn group_sync<B: Backend>(backend: &mut B, store: &mut Store, id: NextHopGroupId
         .filter(|p| *p > 0)
         .unwrap_or(ECMP_PATHS_UNKNOWN);
     let mut egress = Vec::new();
+    // every path asked for (members x weight), also those past the chip's limit
+    let mut asked: u64 = 0;
     for member in &group.members {
         let Ok(member) = store.get::<NextHopGroupMember>(*member) else {
             continue;
@@ -1583,12 +1631,21 @@ fn group_sync<B: Backend>(backend: &mut B, store: &mut Store, id: NextHopGroupId
         if egress_shared(backend, nh_egress) {
             continue; // unresolved: not in the group
         }
+        asked = asked.saturating_add(u64::from(weight));
         for _ in 0..weight {
             if egress.len() >= paths {
                 break; // more paths (members x weight) than the chip takes: the rest is left out
             }
             egress.push(nh_egress);
         }
+    }
+    if usize::try_from(asked).is_ok_and(|asked| asked > paths) && paths != ECMP_PATHS_UNKNOWN {
+        log::warn(
+            sys::SAI_API_NEXT_HOP_GROUP,
+            format_args!(
+                "next-hop group: {asked} paths (members x weight), the chip takes {paths}; the rest is left out"
+            ),
+        );
     }
     if egress == group.programmed && group.ecmp.is_some() != egress.is_empty() {
         return Ok(());
@@ -1600,8 +1657,13 @@ fn group_sync<B: Backend>(backend: &mut B, store: &mut Store, id: NextHopGroupId
                 g.programmed.clear();
             })?;
             reprogram_routes_using(backend, store, id.raw()); // -> drop
-            // As the C++: a failed destroy is only logged there.
-            let _ = backend.l3_ecmp_destroy(old);
+            // As the C++: a failed destroy is only logged.
+            if let Err(err) = backend.l3_ecmp_destroy(old) {
+                log::error(
+                    sys::SAI_API_NEXT_HOP_GROUP,
+                    format_args!("ECMP group {} destroy failed ({})", old.0, err.status()),
+                );
+            }
             Ok(())
         }
         Some(ecmp) => {

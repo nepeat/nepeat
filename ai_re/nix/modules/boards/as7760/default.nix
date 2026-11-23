@@ -9,7 +9,7 @@
 let
   sonic = import ../../../packages/sonic { inherit pkgs; };
   openbcm = import ../../../packages/openbcm { inherit pkgs; };
-  # libsai and its tools: the C++ sai-openbcm or the Rust one (hardware.openbcm.implementation).
+  # libsai and its tools: the Rust SAI (hardware.openbcm.package, rust/sai).
   sai = config.hardware.openbcm.package;
 in {
   # The Linux device tree source the boot files are built from. Derivative
@@ -36,7 +36,7 @@ in {
       (builtins.readFile ../../../packages/linux-qoriq-t2080/boards/as7760/as7760-machine.patch);
   } ];
 
-  # SONiC on this board. syncd (sai-openbcm) owns the ASIC while it runs, so
+  # SONiC on this board. syncd (the Rust libsai) owns the ASIC while it runs, so
   # openbcm-asic-temp stops and syncd publishes the same temperature file for
   # fand; it is started again when the stack stops.
   # With SONiC on, syncd owns the ASIC from boot: don't start the reader at
@@ -61,7 +61,7 @@ in {
         SAI_OPENBCM_TEMP_FILE = config.hardware.openbcm.temperature.file;
         SAI_OPENBCM_TEMP_PROM = "/run/prometheus-textfile/asic.prom";
         # Debug: root-only socket for diag-shell commands while syncd owns
-        # the chip (client: openbcm-diag). See the sai-openbcm README.
+        # the chip (client: openbcm-diag). See rust/sai/README.md (sai-diag).
         SAI_OPENBCM_DIAG_SOCKET = "/run/sai-openbcm/diag.sock";
       };
     };

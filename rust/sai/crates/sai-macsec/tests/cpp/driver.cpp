@@ -4,14 +4,15 @@
 // prints, per operation, the SAI status, the values read and every access of the fake MDIO
 // bus. The Rust test runs the same script on the Rust model and compares the text.
 //
-// Built from the unmodified sai-openbcm sources (this file is the only addition and lives
-// in the Rust crate): c++ -std=c++17 -I<SAI/inc> -I<sai-openbcm/src> driver.cpp <CORE .cpp>
-// backend_none.cpp temp_files.o -lpthread. It reaches into the library the way the C++ unit
-// test does (ctx(), FakeBackend's MDIO log and registers).
+// Built from the unmodified C++ frontend sources (frozen since 2026-11-23 in
+// ai_re/nix/packages/sai-teralynx/frontend/src; this file is the only addition and lives in the
+// Rust crate): c++ -std=c++17 -I<SAI/inc> -I<frontend/src> driver.cpp <CORE .cpp> temp_files.o
+// -lpthread. It reaches into the library the way the C++ unit test does (ctx(), FakeBackend's
+// MDIO log and registers).
 //
 //   driver <table file> <script file>
 //
-// Built with -DSAI_MACSEC_DRIVER_CHIP (and without backend_none.cpp): the "chip" variant with
+// Built with -DSAI_MACSEC_DRIVER_CHIP: the "chip" variant with
 // read-only overlay registers ("rdreg"), for sai-macsec-phy's tests/e2e.rs on a real board table.
 //
 // Environment (both optional, for sai-macsec-phy's tests/e2e.rs):
@@ -65,7 +66,7 @@ static sai_object_id_t g_ports[64];
 static FakeBackend& fake() { return *dynamic_cast<FakeBackend*>(ctx().be.get()); }
 
 #ifdef SAI_MACSEC_DRIVER_CHIP
-// The "chip" variant (built with -DSAI_MACSEC_DRIVER_CHIP instead of backend_none.cpp, profile
+// The "chip" variant (built with -DSAI_MACSEC_DRIVER_CHIP, profile
 // SAI_OPENBCM_BACKEND=openbcm): the fake backend with registers whose reads do not see the
 // writes ("rdreg": a command / data FIFO such as the AS7772 PHYs' 1.9005 reads what the
 // engine answers, not the last word written). Everything else is the fake's.
@@ -91,6 +92,11 @@ namespace ob {
 Backend* make_openbcm_backend() { return new ChipFake; }
 } // namespace ob
 static ChipFake& chip() { return *dynamic_cast<ChipFake*>(ctx().be.get()); }
+#else
+// No SDK backend in this build (what sai-openbcm's backend_none.cpp was: the fake backend only).
+namespace ob {
+Backend* make_openbcm_backend() { return nullptr; }
+} // namespace ob
 #endif
 
 static std::map<std::string, sai_object_id_t> vars;

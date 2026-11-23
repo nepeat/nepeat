@@ -1,6 +1,6 @@
-//! What the C++ libsai needs when the model runs inside it (sai-macsec-capi): ids from the
-//! library's allocator (D7), the table attached before the SAI ports exist and the ports
-//! handed over later (no D5 any more).
+//! What a library holding the model needs (`sai_core::macsec`; until 2026-11-23 also the C++
+//! libsai through sai-macsec-capi): ids from the library's allocator (D7), the table attached
+//! before the SAI ports exist and the ports handed over later (no D5 any more).
 
 #![allow(
     clippy::unwrap_used,

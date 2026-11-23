@@ -1,0 +1,16 @@
++-----------+--------------+---------+----------------+-------------+--------------------------+
+| VLAN ID   | IP Address   | Ports   | Port Tagging   | Proxy ARP   | Static Anycast Gateway   |
++===========+==============+=========+================+=============+==========================+
++-----------+--------------+---------+----------------+-------------+--------------------------+
+mac=1c:ea:0b:38:2b:d7 vlan=1 GPORT=0x9 modid=0 port=9/ce30 Hit
+mac=1c:ea:0b:38:2b:d6 vlan=1 GPORT=0x32 modid=0 port=50/ce0 Hit
+mac=1c:ea:0b:38:2b:d5 vlan=1 GPORT=0xd modid=0 port=13/ce31 Hit
+mac=1c:ea:0b:38:2b:d5 vlan=4093 GPORT=0xd modid=0 port=13/ce31 Hit
+mac=1c:ea:0b:38:2b:d5 vlan=4094 GPORT=0x36 modid=0 port=54/ce1 Hit
+(a reboot restores the generated CONFIG_DB and the sysctls)
+== CONFIG_DB after down
+INTERFACE|Ethernet124: {'mac_addr': '1c:ea:0b:38:2b:d7'}
+INTERFACE|Ethernet4: {'mac_addr': '1c:ea:0b:38:2b:d6'}
+
+0
+MKA 8

@@ -1,8 +1,8 @@
-# AS7772-32X: the external MACsec table for sai-openbcm
-# (packages/sai-openbcm/src/ext_macsec.h, sai.profile SAI_OPENBCM_EXT_MACSEC_FILE).
+# AS7772-32X: the external MACsec table for the SAI
+# (format: rust/sai crate phy-seq, `ext-macsec 1`; sai.profile SAI_OPENBCM_EXT_MACSEC_FILE).
 # The MACsec engine of every port is in its BCM82391 "Evora" PHY: an EIP-163
 # classifier and an EIP-164 transform engine per direction. This file gives
-# sai-openbcm the register sequences that realise the SAI MACsec objects.
+# the SAI the register sequences that realise the SAI MACsec objects.
 # What the registers are, how the sequences were recorded and checked against
 # the chip: devices/edge-core-as7772-32x/macsec.md ("Under SONiC").
 #

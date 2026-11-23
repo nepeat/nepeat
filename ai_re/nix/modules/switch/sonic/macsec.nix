@@ -3,8 +3,8 @@
 # sonic-wpa-supplicant with the macsec_sonic driver (MKA; what it negotiates
 # goes to APPL_DB MACSEC_* tables) and orchagent's MACsecOrch (already part
 # of orchagent), which creates the SAI MACsec objects. The SAI must
-# implement sai_macsec_api_t (sai-openbcm: an external MACsec table,
-# packages/sai-openbcm/README.md). CONFIG_DB FEATURE|macsec is seeded
+# implement sai_macsec_api_t (ours: an external MACsec table, rust/sai crate
+# sai-macsec). CONFIG_DB FEATURE|macsec is seeded
 # enabled: coppmgrd installs the EAPOL trap only for an enabled feature.
 #
 # Keys. A profile's CAK is read from a file outside the store when the stack

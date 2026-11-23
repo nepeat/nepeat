@@ -1,0 +1,14 @@
+== 2026-11-23T13:29:22Z
+/nix/store/64296gcvk4yyhq2k8yjxwib67kil0bxz-nixos-system-as7772-26.11.20261111.d4f25a3
+/nix/store/64296gcvk4yyhq2k8yjxwib67kil0bxz-nixos-system-as7772-26.11.20261111.d4f25a3
+system-29-link
+ 05:29:22 up 2 min,  3 users,  load average: 0.93, 0.41, 0.16
+failed: 0
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 101.2 s
+status.json seconds 101.2 | summary 32 PHYs verified after 1058160 operations in 101.2 s
+== CONFIG_DB keys (non-LOGGER)
+BGP_DEVICE_GLOBAL|STATE CONFIG_DB_INITIALIZED DEVICE_METADATA|localhost FEATURE|bgp FEATURE|lldp FEATURE|macsec FLEX_COUNTER_TABLE|PORT INTERFACE|Ethernet124 INTERFACE|Ethernet4 MACSEC_PROFILE|lab-test SYSTEM_DEFAULTS|software_bfd 
+INTERFACE|Ethernet4: {'mac_addr': '1c:ea:0b:38:2b:d6'}
+INTERFACE|Ethernet124: {'mac_addr': '1c:ea:0b:38:2b:d7'}
+vlans: 1; ipv6 default off=0
+knet lines this boot: 0

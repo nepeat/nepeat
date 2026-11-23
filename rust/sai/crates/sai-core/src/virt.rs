@@ -18,6 +18,7 @@
 //! | `SAI_RS_VIRTUAL_NETDEV` | `none` | `tap`: each host interface is also a Linux TAP netdev ([`netdev`]) |
 //! | `SAI_RS_VIRTUAL_WIRE` | | `<netif>:<ifname>,...` (tap only): that netdev's frames to and from host interface `<ifname>` |
 //! | `SAI_RS_VIRTUAL_COMPAT` | `rust` | `cpp`: the C++ fake's port numbers and answers where they differ (below) |
+//! | `SAI_RS_VIRTUAL_PORT_MAP` | | a file of `port <logical> <first lane> <lanes> <speed> <name>` lines ([`parse_port_map`]): the front-panel ports, as a chip's SDK config lays them out (break-out, mixed lane counts); `PORTS` / `LANES` / `SPEED` are then not read. The same lines are `sdk-glue`'s Rust-fake scenario directive |
 //!
 //! Differences from the C++ fake, all kept for the existing Rust tests and listed for the
 //! differential: logical ports are `1, 2, 3...` (C++, and here with `COMPAT=cpp`:
@@ -184,7 +185,7 @@ pub enum Compat {
 }
 
 /// The profile keys this backend reads (the rim asks the SAI user for exactly these).
-pub const PROFILE_KEYS: [&str; 15] = [
+pub const PROFILE_KEYS: [&str; 17] = [
     "SAI_RS_VIRTUAL_PORTS",
     "SAI_RS_VIRTUAL_LANES",
     "SAI_RS_VIRTUAL_SPEED",
@@ -193,6 +194,7 @@ pub const PROFILE_KEYS: [&str; 15] = [
     "SAI_RS_VIRTUAL_NETDEV",
     "SAI_RS_VIRTUAL_WIRE",
     "SAI_RS_VIRTUAL_COMPAT",
+    "SAI_RS_VIRTUAL_PORT_MAP",
     "SAI_OPENBCM_FAKE_PORTS",
     "SAI_OPENBCM_FAKE_LANES",
     "SAI_OPENBCM_FAKE_SPEED",
@@ -200,7 +202,108 @@ pub const PROFILE_KEYS: [&str; 15] = [
     "SAI_OPENBCM_FAKE_ON_HARDWARE",
     "SAI_OPENBCM_FAKE_NETDEV",
     "SAI_OPENBCM_FAKE_WIRE",
+    "SAI_OPENBCM_FAKE_PORT_MAP",
 ];
+
+/// A front-panel port of a port map ([`parse_port_map`]).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct MappedPort {
+    /// The logical port (1..; 0 is the CPU port).
+    pub hw: HwPort,
+    /// Its lanes, from the first one up.
+    pub lanes: Vec<u32>,
+    /// Its speed as the chip comes up, Mb/s.
+    pub speed: u32,
+    /// The SDK's name.
+    pub name: String,
+}
+
+/// At most this many ports in a map (as `PORTS`).
+const MAP_PORTS_MAX: usize = 256;
+
+/// Parses a port map: one `port <logical> <first lane> <lanes> <speed> <name>` line per
+/// front-panel port (decimal numbers; logical 1..=65535, lanes 1..=8, speed 1..=800000 Mb/s, the
+/// name 1..=15 bytes), `#` comments and blank lines; no logical port, lane or name twice, at
+/// most 256 ports. The ports in the order of their logical numbers (the order the SDK lists
+/// them in). `Err`: the first bad line (1-based) and why.
+pub fn parse_port_map(text: &str) -> core::result::Result<Vec<MappedPort>, (usize, &'static str)> {
+    let mut ports: BTreeMap<HwPort, MappedPort> = BTreeMap::new();
+    let mut lanes_seen = std::collections::BTreeSet::new();
+    for (index, raw) in text.lines().enumerate() {
+        let line = index + 1;
+        let text = raw.trim();
+        if text.is_empty() || text.starts_with('#') {
+            continue;
+        }
+        let w: Vec<&str> = text.split_whitespace().collect();
+        let [word, logical, first, lanes, speed, name] = w.as_slice() else {
+            return Err((line, "not 'port <logical> <first lane> <lanes> <speed> <name>'"));
+        };
+        if *word != "port" {
+            return Err((line, "not 'port <logical> <first lane> <lanes> <speed> <name>'"));
+        }
+        let number = |s: &str| s.parse::<u32>().ok();
+        let hw = number(logical)
+            .and_then(|n| u16::try_from(n).ok())
+            .filter(|n| *n > 0)
+            .map(HwPort)
+            .ok_or((line, "logical port: 1..=65535"))?;
+        let first = number(first)
+            .filter(|n| *n > 0)
+            .ok_or((line, "first lane: a number from 1"))?;
+        let count = number(lanes)
+            .filter(|n| (1..=8).contains(n))
+            .ok_or((line, "lanes: 1..=8"))?;
+        let speed = number(speed)
+            .filter(|n| (1..=800_000).contains(n))
+            .ok_or((line, "speed: 1..=800000 Mb/s"))?;
+        if name.len() > 15 {
+            return Err((line, "name: at most 15 bytes"));
+        }
+        let lanes: Vec<u32> = (0..count).map(|l| first.saturating_add(l)).collect();
+        if lanes.iter().any(|l| !lanes_seen.insert(*l)) {
+            return Err((line, "a lane of another port"));
+        }
+        if ports.values().any(|p| p.name == *name) {
+            return Err((line, "the name of another port"));
+        }
+        let port = MappedPort {
+            hw,
+            lanes,
+            speed,
+            name: (*name).to_owned(),
+        };
+        if ports.insert(hw, port).is_some() {
+            return Err((line, "the logical port of another port"));
+        }
+        if ports.len() > MAP_PORTS_MAX {
+            return Err((line, "more than 256 ports"));
+        }
+    }
+    if ports.is_empty() {
+        return Err((0, "no port"));
+    }
+    Ok(ports.into_values().collect())
+}
+
+/// The ports of `SAI_RS_VIRTUAL_PORT_MAP`, when the profile names a map; a file that cannot be
+/// read or parsed is logged and refused.
+fn port_map(profile: &Profile) -> Result<Option<Vec<MappedPort>>> {
+    let Some(path) = get(profile, "PORT_MAP").filter(|p| !p.is_empty()) else {
+        return Ok(None);
+    };
+    let text = std::fs::read_to_string(path).map_err(|e| {
+        crate::log::error(sys::SAI_API_SWITCH, format_args!("SAI_RS_VIRTUAL_PORT_MAP {path}: {e}"));
+        Error::InvalidParameter
+    })?;
+    parse_port_map(&text).map(Some).map_err(|(line, why)| {
+        crate::log::error(
+            sys::SAI_API_SWITCH,
+            format_args!("SAI_RS_VIRTUAL_PORT_MAP {path} line {line}: {why}"),
+        );
+        Error::InvalidParameter
+    })
+}
 
 /// A key and its C++ name.
 fn key(name: &str) -> [String; 2] {
@@ -695,6 +798,12 @@ impl VirtualBackend {
         let allowed = get(profile, "ON_HARDWARE") == Some("1")
             || std::env::var_os("SAI_RS_VIRTUAL_ON_HARDWARE").is_some_and(|v| v == "1");
         if !allowed && HARDWARE_MARKERS.iter().any(|m| Path::new(m).exists()) {
+            crate::log::error(
+                sys::SAI_API_SWITCH,
+                format_args!(
+                    "SAI_OPENBCM_BACKEND=fake but Broadcom BDE devices exist on this host; refusing (set SAI_OPENBCM_FAKE_ON_HARDWARE=1 to override)"
+                ),
+            );
             return Err(Error::Failure);
         }
         let count = number(profile, "PORTS", 32, 1..=256)?;
@@ -738,15 +847,17 @@ impl VirtualBackend {
             // Never next to a real chip, whatever SAI_RS_VIRTUAL_ON_HARDWARE says: its KNET
             // netdevs have the same names.
             if HARDWARE_MARKERS.iter().any(|m| Path::new(m).exists()) {
-                netdev::note(format_args!(
-                    "SAI_RS_VIRTUAL_NETDEV=tap refused: this host has a switch chip"
-                ));
+                crate::log::error(
+                    sys::SAI_API_SWITCH,
+                    format_args!("SAI_RS_VIRTUAL_NETDEV=tap refused: this host has a switch chip"),
+                );
                 return Err(Error::Failure);
             }
             if !netdev::tun_available() {
-                netdev::note(format_args!(
-                    "SAI_RS_VIRTUAL_NETDEV=tap: /dev/net/tun cannot be opened read-write"
-                ));
+                crate::log::error(
+                    sys::SAI_API_SWITCH,
+                    format_args!("SAI_RS_VIRTUAL_NETDEV=tap: /dev/net/tun cannot be opened read-write"),
+                );
                 return Err(Error::Failure);
             }
         }
@@ -778,8 +889,15 @@ impl Backend for VirtualBackend {
     fn init(&mut self, profile: &Profile, events: EventSink) -> Result<()> {
         self.check("init")?;
         let (count, lanes, speed) = self.read_profile(profile)?;
+        let map = port_map(profile)?;
         self.clear();
-        for i in 0..count {
+        // A port map lays the ports out as given; else `count` ports of `lanes` lanes each.
+        let uniform = if map.is_some() { 0 } else { count };
+        for port in map.unwrap_or_default() {
+            self.ports
+                .insert(port.hw, VirtPort::new(port.lanes, port.speed, port.name));
+        }
+        for i in 0..uniform {
             // Logical ports from 1 (0 is the CPU port, as on the Broadcom chips); the C++ fake
             // leaves gaps like the SDK (one number per lane).
             let number = match self.compat {

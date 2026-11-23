@@ -1,8 +1,8 @@
-# AS7772-32X: the external PHY table for sai-openbcm
-# (packages/sai-openbcm/src/ext_phy.h, sai.profile SAI_OPENBCM_EXT_PHY_FILE).
+# AS7772-32X: the external PHY table for the SAI
+# (format: rust/sai crate phy-seq, `ext-phy 1`; sai.profile SAI_OPENBCM_EXT_PHY_FILE).
 # Every cage sits behind a BCM82391 "Evora" MAC-PHY; the ASIC port's own link
 # ends at the PHY's system side and is up whenever the port is admin up. Per
-# cage this gives sai-openbcm:
+# cage this gives the SAI:
 #   link        the PHY's line-side PCS live status (0xc161 bits 1:0 = 3):
 #               the port is up only while the cable side is;
 #   admin-down  line-side receiver and transmitter powered down, per lane

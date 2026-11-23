@@ -1,7 +1,9 @@
-//! The error table against the C++ backend's: reads `map_rv` from sai-openbcm's
-//! `openbcm_backend.cpp` (directory in `SAI_OPENBCM_SRC`, or `MDIO_SCRIPT_C_DIR` when the file
-//! is there) and compares every glue code. Skips with a message when the source is not around
-//! (a switch, a build that only has the MDIO sources).
+//! The error table against the C++ backend's, from a golden: `tests/golden/parity-map-rv.txt` is
+//! `map_rv` of sai-openbcm's `openbcm_backend.cpp` for every code of `sdk_glue.h` (19 codes,
+//! success, the default) and the profile keys that backend reads, captured at commit 50a6aa7
+//! before the C++ was deleted (the file's header says how). Every code is compared with this
+//! backend's `sai_error`; nothing is read at run time (the golden is compiled in), so the test
+//! also runs on the switch.
 #![allow(
     clippy::unwrap_used,
     clippy::expect_used,
@@ -15,34 +17,13 @@ mod common;
 use common::note;
 use sai_backend_openbcm::status::sai_error;
 use sai_sys as sys;
-use std::collections::BTreeMap;
-use std::path::PathBuf;
 
-/// The glue's codes by name (`sdk_glue.h`).
-const CODES: [(&str, i32); 19] = [
-    ("OB_E_INTERNAL", -1),
-    ("OB_E_MEMORY", -2),
-    ("OB_E_UNIT", -3),
-    ("OB_E_PARAM", -4),
-    ("OB_E_EMPTY", -5),
-    ("OB_E_FULL", -6),
-    ("OB_E_NOT_FOUND", -7),
-    ("OB_E_EXISTS", -8),
-    ("OB_E_TIMEOUT", -9),
-    ("OB_E_BUSY", -10),
-    ("OB_E_FAIL", -11),
-    ("OB_E_DISABLED", -12),
-    ("OB_E_BADID", -13),
-    ("OB_E_RESOURCE", -14),
-    ("OB_E_CONFIG", -15),
-    ("OB_E_UNAVAIL", -16),
-    ("OB_E_INIT", -17),
-    ("OB_E_PORT", -18),
-    ("OB_E_MDIO_CLOCK", -100),
-];
+/// The C++ table as captured (see its header); edited by hand only, never from the Rust side.
+const GOLDEN: &str = include_str!("golden/parity-map-rv.txt");
 
 fn status(name: &str) -> sys::sai_status_t {
     match name {
+        "SAI_STATUS_SUCCESS" => sys::SAI_STATUS_SUCCESS,
         "SAI_STATUS_FAILURE" => sys::SAI_STATUS_FAILURE,
         "SAI_STATUS_NO_MEMORY" => sys::SAI_STATUS_NO_MEMORY,
         "SAI_STATUS_INVALID_PARAMETER" => sys::SAI_STATUS_INVALID_PARAMETER,
@@ -63,96 +44,103 @@ fn status(name: &str) -> sys::sai_status_t {
 /// return). None.
 const DIFFERENCES: [(&str, &str, &str); 0] = [];
 
-fn source() -> Option<String> {
-    ["SAI_OPENBCM_SRC", "MDIO_SCRIPT_C_DIR"]
-        .iter()
-        .filter_map(std::env::var_os)
-        .map(|dir| PathBuf::from(dir).join("openbcm_backend.cpp"))
-        .find_map(|path| std::fs::read_to_string(path).ok())
+/// The golden's rows.
+struct Golden {
+    /// (name, value, the C++ status) per glue error code
+    codes: Vec<(String, i32, String)>,
+    /// (name, value, status) of the success code
+    success: (String, i32, String),
+    /// `map_rv`'s answer for a code it has no case for
+    default: String,
+    /// the keys `openbcm_backend.cpp` reads from the profile
+    keys: Vec<String>,
 }
 
-/// `case A: case B: return STATUS;` lines of `map_rv`, and its default.
-fn cpp_table(text: &str) -> (BTreeMap<String, String>, String) {
-    let start = text
-        .find("static sai_status_t map_rv(int rv)")
-        .expect("map_rv in openbcm_backend.cpp");
-    let body = &text[start..];
-    let body = &body[..body.find("\n}\n").expect("end of map_rv")];
-    let mut table = BTreeMap::new();
-    let mut default = None;
-    for line in body.lines() {
-        let line = line.trim();
-        let Some((cases, ret)) = line.split_once("return ") else {
-            continue;
-        };
-        let ret = ret.trim_end_matches(';').to_owned();
-        if cases.starts_with("default:") {
-            default = Some(ret);
+fn golden() -> Golden {
+    let (mut codes, mut success, mut default, mut keys) = (Vec::new(), None, None, Vec::new());
+    for (n, line) in GOLDEN.lines().enumerate() {
+        if line.starts_with('#') || line.trim().is_empty() {
             continue;
         }
-        for case in cases.split("case ").filter(|c| !c.trim().is_empty()) {
-            table.insert(case.trim().trim_end_matches(':').to_owned(), ret.clone());
+        let words: Vec<&str> = line.split_whitespace().collect();
+        let row = |w: &[&str]| -> (String, i32, String) {
+            match w {
+                [name, value, status] => (
+                    (*name).to_owned(),
+                    value
+                        .parse()
+                        .unwrap_or_else(|e| panic!("golden line {}: {value}: {e}", n + 1)),
+                    (*status).to_owned(),
+                ),
+                _ => panic!("golden line {}: {line}", n + 1),
+            }
+        };
+        match words.as_slice() {
+            ["code", rest @ ..] => codes.push(row(rest)),
+            ["success", rest @ ..] => success = Some(row(rest)),
+            ["default", status] => default = Some((*status).to_owned()),
+            ["profile-key", key] => keys.push((*key).to_owned()),
+            _ => panic!("golden line {}: {line}", n + 1),
         }
     }
-    (table, default.expect("map_rv has a default"))
+    Golden {
+        codes,
+        success: success.expect("a success row in the golden"),
+        default: default.expect("a default row in the golden"),
+        keys,
+    }
 }
 
 #[test]
 fn error_codes_map_as_in_the_cpp_backend() {
-    let Some(text) = source() else {
-        note("SKIPPED: no openbcm_backend.cpp (set SAI_OPENBCM_SRC to sai-openbcm's src directory)");
-        return;
-    };
-    let (mut table, default) = cpp_table(&text);
+    let g = golden();
+    assert_eq!(g.codes.len(), 19, "the golden has the 19 error codes of sdk_glue.h");
+    // a success is not an error: the backend never maps it
     assert_eq!(
-        table.remove_entry("OB_E_NONE").map(|(_, v)| v).as_deref(),
-        Some("SAI_STATUS_SUCCESS")
+        (g.success.0.as_str(), g.success.1, g.success.2.as_str()),
+        ("OB_E_NONE", 0, "SAI_STATUS_SUCCESS")
     );
-    // every case of the C++ switch is a code this test walks
-    for name in table.keys() {
-        assert!(
-            CODES.iter().any(|(n, _)| n == name),
-            "map_rv has a case for {name}, unknown here"
-        );
-    }
+    assert!(sdk_glue::Error::from_raw(g.success.1).is_none());
     let mut compared = 0;
-    for (name, raw) in CODES {
-        let cpp = table.get(name).unwrap_or(&default);
-        let ours = sai_error(sdk_glue::Error::from_raw(raw).unwrap()).status();
-        match DIFFERENCES.iter().find(|(n, _, _)| *n == name) {
+    for (name, raw, cpp) in &g.codes {
+        let error = sdk_glue::Error::from_raw(*raw).unwrap_or_else(|| panic!("{name} = {raw} is not an error code"));
+        let ours = sai_error(error).status();
+        match DIFFERENCES.iter().find(|(n, _, _)| n == name) {
             Some((_, cpp_expected, ours_expected)) => {
-                assert_eq!(cpp, cpp_expected, "{name}: the C++ changed, revisit the difference");
+                assert_eq!(
+                    cpp, cpp_expected,
+                    "{name}: the golden and the listed difference disagree"
+                );
                 assert_eq!(ours, status(ours_expected), "{name}");
             }
-            None => assert_eq!(ours, status(cpp), "{name}: C++ returns {cpp}"),
+            None => assert_eq!(ours, status(cpp), "{name}: the C++ returned {cpp} (golden)"),
         }
         compared += 1;
     }
     // codes the SDK may return that have no name
+    assert!(g.codes.iter().all(|(_, raw, _)| *raw != -57));
     assert_eq!(
         sai_error(sdk_glue::Error::from_raw(-57).unwrap()).status(),
-        status(&default)
+        status(&g.default)
     );
     note(&format!(
-        "{compared} comparisons with openbcm_backend.cpp map_rv, {} listed differences",
+        "{compared} comparisons with openbcm_backend.cpp map_rv (golden of 50a6aa7), {} listed differences",
         DIFFERENCES.len()
     ));
 }
 
 #[test]
 fn the_cpp_reads_the_same_profile_keys() {
-    let Some(text) = source() else {
-        note("SKIPPED: no openbcm_backend.cpp (set SAI_OPENBCM_SRC to sai-openbcm's src directory)");
-        return;
-    };
-    for key in [
+    let mut cpp = golden().keys;
+    cpp.sort();
+    let mut ours = vec![
         sai_backend_openbcm::CONFIG_KEY,
         sai_backend_openbcm::RC_KEY,
         sai_backend_openbcm::UNIT_KEY,
-    ] {
-        assert!(
-            text.contains(&format!("cfg.get(\"{key}\"")),
-            "openbcm_backend.cpp does not read {key}"
-        );
-    }
+    ];
+    ours.sort_unstable();
+    assert_eq!(
+        cpp, ours,
+        "the profile keys of openbcm_backend.cpp (golden of 50a6aa7) and this backend's"
+    );
 }

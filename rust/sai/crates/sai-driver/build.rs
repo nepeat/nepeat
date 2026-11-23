@@ -10,7 +10,8 @@
 //!    at run time; the test finds them through `$SAI_RS_TEST_BIN`). Never with
 //!    `SAI_DRIVER_PREBUILD=0`; a native test run compiles the driver itself.
 //!
-//! Inputs of 2: `SAI_OPENBCM_TESTS` (sai-openbcm's `tests` directory) or `$SAI_OPENBCM_SRC/../tests`,
+//! Inputs of 2: `SAI_OPENBCM_TESTS` (the frozen C++ frontend's `tests` directory,
+//! `ai_re/nix/packages/sai-teralynx/frontend/tests`) or `$SAI_OPENBCM_SRC/../tests`,
 //! `SAI_OPENBCM_SRC` (else `<tests>/../src`), `SAI_INC`, and the target's compilers:
 //! `SAI_DRIVER_CXX` / `SAI_DRIVER_CC`, else derived from `SAI_SYS_ABI_CC`, else (native) `CXX` / `CC`.
 // A build script reports a failure by panicking with a message.

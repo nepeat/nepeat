@@ -1,43 +1,36 @@
-# The Rust SAI as a drop-in for the C++ package ai_re/nix/packages/sai-openbcm: the same
-# outputs under the same names, so a NixOS configuration can swap hardware.openbcm.package /
-# services.sonic.sai.package wholesale (README "Crates"; the C++ package's default.nix).
+# The SAI package of the AS7760 / AS7772 (hardware.openbcm.package, ai_re/nix/modules/switch/openbcm.nix):
+# the Rust libsai and its switch tools under the names the C++ sai-openbcm had (deleted 2026-11-23),
+# so the NixOS modules, units and scripts kept their paths (README "Drop-in package").
 #   with the SDK (the switch; big-endian ppc64, links the Broadcom SDK: unfree, not redistributable):
 #     ppc.callPackage ./sai-openbcm-rs.nix {
 #       saiSrc = <sonic-sairedis source>;            # SAI headers (sonic.sources.sairedis)
 #       libsdk = <packages/openbcm libsdk { }>;
-#       saiOpenbcmSrc = <ai_re/nix/packages/sai-openbcm/src>;   # sdk_glue.c / sdk_glue.h (the glue stays C)
+#       glueSrc = <ai_re/nix/packages/sai-openbcm/src>;   # sdk_glue.c / sdk_glue.h (the glue stays C)
 #     }
 #   without (any platform: the VM tests, a build host's table checkers):
-#     pkgs.callPackage ./sai-openbcm-rs.nix { saiSrc = ...; saiOpenbcmSrc = ...; }   (libsdk = null)
+#     pkgs.callPackage ./sai-openbcm-rs.nix { saiSrc = ...; glueSrc = ...; }   (libsdk = null)
 #   saiRs (optional): the workspace build (./package.nix) for the same pkgs, to share one that
 #     exists already (ai_re/tests/nixtargets.py passes its own); default: ./package.nix { saiSrc;
-#     mdioScriptC = saiOpenbcmSrc; } (sdk-glue-sys needs sdk_glue.h; natively its check phase runs
-#     the workspace's tests, the comparisons with the C tools included). So an edit anywhere in
-#     saiOpenbcmSrc rebuilds the Rust parts, as it rebuilds the C++ package.
+#     glueSrc; } (natively its check phase runs the workspace's tests).
 #
-# Installs (C++ package: the same paths):
+# Installs:
 #   lib/libsai.so -> libsai.so.1 -> libsai.so.1.0.0   sai-ffi; with libsdk feature openbcm-real (the
 #                                  openbcm backend on sdk_glue.c + libsdk), without openbcm-fake (the
 #                                  virtual backend + the openbcm backend on sdk-glue's in-memory chip);
 #                                  -z defs, soname libsai.so.1, the 17 exports of the virtual-backend
 #                                  library: ./libsai-openbcm.nix's checks
 #   bin/openbcm-diag               crate openbcm-diag (openbcm-diag-rs)
-#   bin/openbcm-mdio-script        crate mdio-tool (openbcm-mdio-script-rs); with libsdk feature sdk-real,
-#                                  as ./mdio-tool.nix's passthru.asOpenbcmMdioScript; without: diag socket
-#                                  and --check only, as the C++ fake package's
+#   bin/openbcm-mdio-script        crate mdio-tool (openbcm-mdio-script-rs); with libsdk feature sdk-real;
+#                                  without: diag socket and --check only
 #   bin/openbcm-ext-phy, bin/openbcm-ext-macsec   crate phy-seq's checkers (openbcm-ext-*-rs): --check,
 #                                  --render (ext-macsec)
-#   bin/openbcm-asic-temp          crate openbcm-asic-temp, feature sdk-real: with libsdk only, as the C++
-#   share/sai-openbcm/backends     "fake openbcm" with libsdk, "fake" without (the C++ text)
-#   share/sai-openbcm/phy-seq-engine, macsec-model   "rust" (the C++ package writes them only when built
-#                                  with rustPhySeq / rustMacsec; here both are Rust always)
-# Not in the C++ package: bin/sai-openbcm-smoke (crates/sai-backend-openbcm/smoke; refuses without
-# --sonic-is-stopped), share/sai-rs/libsai-openbcm.txt (the library's link report).
-# Differences from the C++ package: no include/sai-openbcm/backend.h (nothing reads it; the Rust
-# backend interface is no C header); no passthru.rustPhySeq / rustMacsec (they select parts of the
-# C++ library; the Rust library has both natively); passthru.implementation = "rust"; the native
-# library also answers SAI_OPENBCM_BACKEND=openbcm (in-memory glue) where the C++ fake refuses it;
-# the binaries are copies, so the result does not keep the build derivations alive.
+#   bin/openbcm-asic-temp          crate openbcm-asic-temp, feature sdk-real: with libsdk only
+#   bin/sai-openbcm-smoke          crates/sai-backend-openbcm/smoke (refuses without --sonic-is-stopped)
+#   share/sai-openbcm/backends     "fake openbcm" with libsdk, "fake" without
+#   share/sai-openbcm/phy-seq-engine, macsec-model   "rust"
+#   share/sai-rs/libsai-openbcm.txt   the library's link report
+# The native library also answers SAI_OPENBCM_BACKEND=openbcm (in-memory glue). The binaries are
+# copies, so the result does not keep the build derivations alive.
 # Cargo invocations: the workspace build (saiRs: diag, MDIO tool without the SDK, table checkers;
 # the export reference), and one for the library: with libsdk together with the two SDK tools
 # (sai-ffi's openbcm-real, sdk-real of mdio-tool and openbcm-asic-temp: all on the real glue, so they
@@ -47,18 +40,16 @@
   stdenv,
   callPackage,
   saiSrc,
-  saiOpenbcmSrc,
+  glueSrc,
   libsdk ? null,
-  # sdk-glue-sys reads sdk_glue.h from mdioScriptC (and the tests compare with the C tools there)
-  saiRs ? callPackage ./package.nix { inherit saiSrc; mdioScriptC = saiOpenbcmSrc; },
+  saiRs ? callPackage ./package.nix { inherit saiSrc glueSrc; },
 }:
 let
   withSdk = libsdk != null;
   bin = "${stdenv.cc.bintools.bintools}/bin/${stdenv.cc.targetPrefix}";
   # libsai with the openbcm backend and the smoke program (+ the SDK tools in the same build)
   base = callPackage ./libsai-openbcm.nix ({ inherit saiRs; } // lib.optionalAttrs withSdk {
-    inherit libsdk;
-    glueSrc = saiOpenbcmSrc;
+    inherit libsdk glueSrc;
   });
   parts = if !withSdk then base else base.overrideAttrs (old: {
     # unqualified features: each goes to the selected packages that have it (sai-ffi: openbcm-real;
@@ -117,7 +108,6 @@ stdenv.mkDerivation {
   passthru = {
     inherit libsdk;
     inherit (saiRs) saiHeaders;
-    implementation = "rust";
     tools = builtins.attrNames tools;
     parts = { inherit saiRs parts; };
   };

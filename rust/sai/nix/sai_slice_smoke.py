@@ -1,5 +1,5 @@
 # The slice of the Rust SAI through libsairedis -> redis -> syncd -> libsai (what
-# test-syncd.nix runs). Modelled on ai_re/nix/packages/sai-openbcm/tests/sai_smoke.py, cut
+# test-syncd.nix runs). Modelled on ./sai_smoke.py (the C++ sai-openbcm's), cut
 # to the objects the slice has: switch, ports, VLAN, VLAN member, port state notification.
 # Prints one "key value" line per step; exits non-zero on the first failure.
 import ctypes, os, sys, time

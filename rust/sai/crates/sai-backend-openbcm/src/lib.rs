@@ -65,9 +65,12 @@
 //!   last of the two SAI attributes wrote (the IPv4 address overwrites only the first 4 bytes);
 //!   here the IPv6 address with the IPv4 address over its first 4 bytes, as when the IPv4
 //!   attribute comes last.
-//! * Messages go to stderr, one line each (C++: syslog). A failed glue call is logged as the
-//!   C++ `RV()` logs it (the call's text and the SDK's message), except `OB_E_UNAVAIL`, which
-//!   the C++ logs at info level and this backend not at all.
+//! * Messages go to the library's log ([`sai_core::log`]: syslog, per-API levels, stderr with
+//!   `SAI_OPENBCM_LOG_STDERR=1`) with the C++ API, level and text. A failed glue call is logged
+//!   as the C++ `RV()` logs it (`SAI_API_UNSPECIFIED`, the call's text and the SDK's message;
+//!   `OB_E_UNAVAIL` at info level, the rest as errors). Lines of this backend's own (no C++
+//!   counterpart: a refused unit number, a second init, an event or port out of the SAI's range,
+//!   a callback that panicked or was refused in `sdk-glue`) are errors of the API they concern.
 #![forbid(unsafe_code)]
 
 mod field;
@@ -77,9 +80,10 @@ pub mod status;
 use sai_core::backend::types::{Dest, EgressId, FdbChange, FdbEvent, MacAddr, TrunkId};
 use sai_core::backend::{Backend, BackendEvent, EventSink, HwPort, PortInfo, Profile, Vid};
 use sai_core::error::{Error, Result};
+use sai_core::log;
+use sai_sys as sys;
 use sdk_glue::{Code, InitError, PolicerCfg, Switch};
 use std::collections::BTreeMap;
-use std::io::Write as _;
 use std::path::{Path, PathBuf};
 
 /// `SAI_INIT_CONFIG_FILE` (SAI's own key, `SAI_KEY_INIT_CONFIG_FILE`): the SDK config file.
@@ -101,20 +105,17 @@ pub const KNET_LINK: &str = "/proc/bcm/knet/link";
 /// or `none` (then nothing that uses the backend links).
 pub const GLUE: &str = sdk_glue::LINKED;
 
-/// One line on stderr. The library is loaded into syncd, whose stderr is the journal.
-pub(crate) fn log(message: &str) {
-    // A closed stderr is no reason to fail a SAI call.
-    let _ = writeln!(std::io::stderr().lock(), "sai-rs openbcm: {message}");
-}
-
-/// A glue call as the C++ `RV(call)` macro handles it: a failure is logged with the call's text
-/// (`call`, the C++ source of it) and the SDK's message, except `OB_E_UNAVAIL` (the C++ logs that
-/// at info level), and mapped by [`status::sai_error`].
+/// A glue call as the C++ `RV(call)` macro handles it: a failure is logged (`SAI_API_UNSPECIFIED`)
+/// with the call's text (`call`, the C++ source of it) and the SDK's message, `OB_E_UNAVAIL` at
+/// info level and the rest as errors, and mapped by [`status::sai_error`].
 pub(crate) fn rv<T>(call: &str, result: core::result::Result<T, sdk_glue::Error>) -> Result<T> {
     result.map_err(|error| {
-        if error.code() != Code::Unavail {
-            log(&format!("{call}: {error}"));
-        }
+        let level = if error.code() == Code::Unavail {
+            sys::SAI_LOG_LEVEL_INFO
+        } else {
+            sys::SAI_LOG_LEVEL_ERROR
+        };
+        log::emit(sys::SAI_API_UNSPECIFIED, level, format_args!("{call}: {error}"));
         status::sai_error(error)
     })
 }
@@ -202,9 +203,10 @@ fn fdb_event(event: sdk_glue::L2Event) -> Option<FdbEvent> {
 /// The profile's config file, checked as the C++ does before the SDK is started.
 fn config_file(profile: &Profile) -> Result<&Path> {
     let Some(config) = profile.get(CONFIG_KEY).filter(|v| !v.is_empty()) else {
-        log(&format!(
-            "{CONFIG_KEY} not set in the profile; refusing to start the SDK with compiled-in defaults"
-        ));
+        log::error(
+            sys::SAI_API_SWITCH,
+            format_args!("{CONFIG_KEY} not set in the profile; refusing to start the SDK with compiled-in defaults"),
+        );
         return Err(Error::Failure);
     };
     let path = Path::new(config);
@@ -212,9 +214,10 @@ fn config_file(profile: &Profile) -> Result<&Path> {
     // not a config file.
     let readable = path.is_file() && std::fs::File::open(path).is_ok();
     if !readable {
-        log(&format!(
-            "SDK config file {config} missing or unreadable; refusing to start"
-        ));
+        log::error(
+            sys::SAI_API_SWITCH,
+            format_args!("SDK config file {config} missing or unreadable; refusing to start"),
+        );
         return Err(Error::Failure);
     }
     Ok(path)
@@ -226,7 +229,10 @@ fn unit(profile: &Profile) -> Result<i32> {
         return Ok(0);
     };
     text.trim().parse::<u8>().map(i32::from).map_err(|_| {
-        log(&format!("{UNIT_KEY} '{text}': not a unit number (0..255)"));
+        log::error(
+            sys::SAI_API_SWITCH,
+            format_args!("{UNIT_KEY} '{text}': not a unit number (0..255)"),
+        );
         Error::InvalidParameter
     })
 }
@@ -306,6 +312,14 @@ impl OpenbcmBackend {
     /// Steps 3 to 5 of the bring-up on a chip that is up (the C++ order). On an error the caller
     /// drops `switch`, which unregisters and shuts the BCM layer down.
     fn after_sdk_init(mut switch: Switch, events: EventSink) -> Result<Up> {
+        // No glue call: what sdk-glue's trampolines refused or caught goes to the library's log.
+        switch.set_callback_reporter(|issue| {
+            let api = match issue.callback() {
+                sdk_glue::Callback::L2 => sys::SAI_API_FDB,
+                sdk_glue::Callback::Link | sdk_glue::Callback::Gate => sys::SAI_API_PORT,
+            };
+            log::error(api, format_args!("SDK callback: {issue}"));
+        });
         let link_events = events.clone();
         rv(
             "ob_sdk_register_callbacks(unit_, &OpenbcmBackend::on_link, &OpenbcmBackend::on_l2, this)",
@@ -313,29 +327,38 @@ impl OpenbcmBackend {
                 // From SDK threads: only queue.
                 move |port, up| match u16::try_from(port) {
                     Ok(port) => link_events.send(BackendEvent::Link { hw: HwPort(port), up }),
-                    Err(_) => log(&format!("link event of port {port}: out of the SAI's range, dropped")),
+                    Err(_) => log::error(
+                        sys::SAI_API_PORT,
+                        format_args!("link event of port {port}: out of the SAI's range, dropped"),
+                    ),
                 },
                 move |event| match fdb_event(event) {
                     Some(event) => events.send(BackendEvent::Fdb(event)),
-                    None => log(&format!("L2 event {event:?}: out of the SAI's range, dropped")),
+                    None => log::error(
+                        sys::SAI_API_FDB,
+                        format_args!("L2 event {event:?}: out of the SAI's range, dropped"),
+                    ),
                 },
             ),
         )?;
         let cpu = rv("ob_sdk_l3_egress_special(unit_, 0, &cpu)", switch.l3_egress_cpu())?;
         let drop = rv("ob_sdk_l3_egress_special(unit_, 1, &drop)", switch.l3_egress_drop())?;
         if let Ok(lim) = switch.chip_limits() {
-            log(&format!(
-                "SDK tables: host {}, route {}, egress {}, L2 {}; buffer {} B; ECMP {} groups x {} paths, {} member entries; VRF ids up to {}",
-                lim.max_host,
-                lim.max_route,
-                lim.max_nexthop,
-                lim.max_l2,
-                lim.buffer_bytes,
-                lim.ecmp_groups,
-                lim.ecmp_paths,
-                lim.ecmp_members,
-                lim.vrf_max
-            ));
+            log::notice(
+                sys::SAI_API_SWITCH,
+                format_args!(
+                    "SDK tables: host {}, route {}, egress {}, L2 {}; buffer {} B; ECMP {} groups x {} paths, {} member entries; VRF ids up to {}",
+                    lim.max_host,
+                    lim.max_route,
+                    lim.max_nexthop,
+                    lim.max_l2,
+                    lim.buffer_bytes,
+                    lim.ecmp_groups,
+                    lim.ecmp_paths,
+                    lim.ecmp_members,
+                    lim.vrf_max
+                ),
+            );
         }
         Ok(Up {
             switch,
@@ -355,32 +378,44 @@ impl Backend for OpenbcmBackend {
 
     fn init(&mut self, profile: &Profile, events: EventSink) -> Result<()> {
         if self.up.is_some() {
-            log("init: the chip is already up");
+            log::error(sys::SAI_API_SWITCH, format_args!("init: the chip is already up"));
             return Err(Error::Failure);
         }
         let config = config_file(profile)?;
         let rc = profile.get(RC_KEY).filter(|v| !v.is_empty()).map(Path::new);
         let unit = unit(profile)?;
-        log(&format!(
-            "SDK init: unit {unit}, config {}, rc {}",
-            config.display(),
-            rc.map_or_else(|| "(none)".to_owned(), |p| p.display().to_string())
-        ));
+        log::notice(
+            sys::SAI_API_SWITCH,
+            format_args!(
+                "SDK init: unit {unit}, config {}, rc {}",
+                config.display(),
+                rc.map_or_else(|| "(none)".to_owned(), |p| p.display().to_string())
+            ),
+        );
         let (switch, message) = self.bring_up(unit, config, rc).map_err(|error| match error {
             InitError::Sdk { error, message } => {
-                log(&format!("SDK init failed: {message} ({error})"));
+                log::error(
+                    sys::SAI_API_SWITCH,
+                    format_args!("SDK init failed: {message} ({error})"),
+                );
                 status::sai_error(error)
             }
             InitError::BadPath => {
-                log("SDK init failed: a path holds a NUL byte");
+                log::error(
+                    sys::SAI_API_SWITCH,
+                    format_args!("SDK init failed: a path holds a NUL byte"),
+                );
                 Error::InvalidParameter
             }
             InitError::AlreadyOpen => {
-                log("SDK init failed: the SDK is already open in this process");
+                log::error(
+                    sys::SAI_API_SWITCH,
+                    format_args!("SDK init failed: the SDK is already open in this process"),
+                );
                 Error::Failure
             }
         })?;
-        log(&format!("SDK init: {message}"));
+        log::notice(sys::SAI_API_SWITCH, format_args!("SDK init: {message}"));
         // An error drops the switch inside: callbacks unregistered, BCM layer shut down.
         self.up = Some(Self::after_sdk_init(switch, events)?);
         Ok(())
@@ -399,17 +434,20 @@ impl Backend for OpenbcmBackend {
         let raw = match up.switch.ports() {
             Ok(raw) => raw,
             Err(error) => {
-                log(&format!("port config: {error}"));
+                log::error(sys::SAI_API_SWITCH, format_args!("port config: {error}"));
                 return Vec::new();
             }
         };
         let mut ports = Vec::with_capacity(raw.len());
         for port in raw {
             let Ok(number) = u16::try_from(port.port) else {
-                log(&format!(
-                    "port {}: logical number {} is out of the SAI's range",
-                    port.name, port.port
-                ));
+                log::error(
+                    sys::SAI_API_PORT,
+                    format_args!(
+                        "port {}: logical number {} is out of the SAI's range",
+                        port.name, port.port
+                    ),
+                );
                 continue;
             };
             let autoneg = up.switch.port_autoneg_get(port.port).unwrap_or(false);

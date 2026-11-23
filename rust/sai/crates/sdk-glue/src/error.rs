@@ -130,9 +130,10 @@ impl Error {
         if text.is_null() {
             return format!("error {}", self.raw);
         }
-        // SAFETY: text is not null (checked above) and, by the contract just stated, points to a
-        // NUL-terminated string literal: valid for reads up to its NUL for the whole life of
-        // the process and never written.
+        // SAFETY: text is not null (checked above) and points to a NUL-terminated string that
+        // stays valid and unchanged at least until this thread's next ob_sdk_errmsg call
+        // (sdk_glue.c: a literal for the life of the process; the test stub: a thread-local
+        // buffer). It is copied out right here, before any other glue call.
         let text = unsafe { CStr::from_ptr(text) };
         text.to_string_lossy().into_owned()
     }

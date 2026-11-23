@@ -9,7 +9,7 @@
 #   import ./sdk-config.nix { inherit openbcm sonic; } { ports = [ ... ]; settings = { }; }
 # Keys beyond the public file, decided per key (factory 32x100G config):
 #   management ports  66=129:10 and 100=131:10 kept (xe0/xe1 as the bring-up ran
-#                     them; sai-openbcm hides them). The factory's 67=133:10 and
+#                     them; the SAI hides them). The factory's 67=133:10 and
 #                     101=134:10 are dropped: 67/101 are fixed loopback ports in
 #                     SDK 6.5.27, so the SDK ignores those lines.
 #   dport_map_*       generated (diag-shell numbers in front-panel order, as

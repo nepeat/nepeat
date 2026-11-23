@@ -2,7 +2,9 @@
 #   import ./configs { inherit nixpkgs; }  ->  { nixosConfigurations, packages }
 # nixpkgs: a nixpkgs flake/input (needs .lib.nixosSystem and to be importable).
 # rust: { nixosModules.fand, .consoled } from the monorepo's rust/ (the root
-# flake passes it); null: the AS7760/AS7772 keep the older fan monitor.
+# flake passes it); null: the AS7760/AS7772 keep the older fan monitor and have
+# no SAI (theirs is rust/sai, outside path:./nix: their systems do not evaluate
+# there, as the DMC-12's; nixtargets KNOWN_BROKEN).
 { nixpkgs, buildSystem ? "x86_64-linux", rust ? null }:
 let
   native = import nixpkgs { system = buildSystem; };
@@ -13,30 +15,22 @@ let
 
   # --- Accton AS7760-32X ---------------------------------------------------
   as7760Platform = import ./as7760/platform.nix;
+  # The SAI of the AS7760 and AS7772: the Rust one in the monorepo's rust/sai
+  # (modules/switch/openbcm.nix hardware.openbcm.rustSai; since 2026-11-23,
+  # rust/sai/README.md gates G5 / G6). Reachable from the root git flake only.
+  saiRust = nixpkgs.lib.optional (rust != null) { hardware.openbcm.rustSai = ../../../rust/sai/nix; };
   # Installed system on the SD card (nixpkgs sd-image layout; deploy in place).
-  as7760 = mkHost as7760Platform [ ./as7760/configuration.nix ../modules/boards/as7760/sd-install.nix ];
+  as7760 = mkHost as7760Platform ([ ./as7760/configuration.nix ../modules/boards/as7760/sd-install.nix ] ++ saiRust);
   # Same system, root in RAM (squashfs store in the initramfs) for TFTP boots.
-  as7760Netboot = mkHost as7760Platform [
+  as7760Netboot = mkHost as7760Platform ([
     ./as7760/configuration.nix ../modules/profiles/netboot-root.nix ../modules/boards/as7760/sd-persist.nix
-  ];
+  ] ++ saiRust);
   # --- Accton AS7772-32X (AS7760 derivative, same platform) -----------------
   # Installed on the M.2 SATA SSD: the AS7760 image layout, booted by upstream
   # U-Boot's standard boot (extlinux on p1).
-  as7772 = mkHost as7760Platform [
+  as7772 = mkHost as7760Platform ([
     ./as7772/configuration.nix ../modules/boards/as7760/sd-install.nix ../modules/boards/as7772/ssd-image.nix
-  ];
-  # The Rust SAI (rust/sai/README.md gates G3/G4) on these two, opt-in. rust/sai is outside
-  # path:./nix: they evaluate in the root flake only. Deploy: DEPLOY_ATTR=<name> deploy.sh.
-  #   *-rust-mdio: the C++ libsai, the Rust boot-time MDIO tool (hardware.openbcm.mdioTool)
-  #   *-rust:      the Rust libsai and tools (hardware.openbcm.implementation), its MDIO tool too
-  withRustSai = system: openbcm: system.extendModules {
-    modules = [ { hardware.openbcm = openbcm // { rustSai = ../../../rust/sai/nix; }; } ];
-  };
-  rustSaiSystems = {
-    as7772-rust-mdio = withRustSai as7772 { mdioTool = "rust"; };
-    as7772-rust = withRustSai as7772 { implementation = "rust"; };
-    as7760-rust = withRustSai as7760 { implementation = "rust"; };
-  };
+  ] ++ saiRust);
   img = ../packages/as7760-images;
   kernel = as7760.config.boot.kernelPackages.kernel;
   # By name, not position: the SDK kmods are in this list too (builtins.head
@@ -64,7 +58,7 @@ let
   # Installed on the SATA SSD (sd-image layout), booted by the factory U-Boot's sysboot.
   as5114 = mkHost "aarch64-linux" [ ./as5114/configuration.nix ];
 in {
-  nixosConfigurations = { inherit as7760 as7772 dmc12 as5114; as7760-netboot = as7760Netboot; dmc12-netboot = dmc12Netboot; } // rustSaiSystems;
+  nixosConfigurations = { inherit as7760 as7772 dmc12 as5114; as7760-netboot = as7760Netboot; dmc12-netboot = dmc12Netboot; };
   packages = {
     as5114-system = as5114.config.system.build.toplevel;
     as5114-sd-image = as5114.config.system.build.sdImage;

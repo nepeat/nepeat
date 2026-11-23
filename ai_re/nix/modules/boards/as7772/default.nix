@@ -13,25 +13,10 @@ let
         ${builtins.path { path = boards + "/as7772/as7772-delta.dtsi"; name = "as7772-delta.dtsi"; }} > $out
   '';
   # External PHY table (./ext-phy.nix), refused at build time if libsai's
-  # parser would refuse it at boot (a native build of the fake-only libsai
-  # provides the checker).
-  # With hardware.openbcm.rustPhySeq the parsers are the Rust ones, on the
-  # switch (saiRust) and here: a table is checked by the parser that will
-  # read it at boot.
-  # With hardware.openbcm.implementation = "rust" the checkers are the Rust
-  # library's own (its native build).
-  rustPhySeq = config.hardware.openbcm.rustPhySeq;
-  rustLib = config.hardware.openbcm.implementation == "rust";
-  saiNative = if rustLib then config.hardware.openbcm.nativePackage else pkgs.buildPackages.callPackage ../../../packages/sai-openbcm ({
-    sonic = import ../../../packages/sonic { pkgs = pkgs.buildPackages; };
-  } // lib.optionalAttrs (rustPhySeq != null) { rustPhySeq = pkgs.buildPackages.callPackage rustPhySeq { }; });
-  # With hardware.openbcm.rustMacsec the MACsec object model is the Rust one
-  # (independent of rustPhySeq; either or both select saiRust).
-  rustMacsec = config.hardware.openbcm.rustMacsec;
-  saiRust = pkgs.callPackage ../../../packages/sai-openbcm ({
-    inherit sonic; libsdk = openbcm.libsdk { };
-  } // lib.optionalAttrs (rustPhySeq != null) { rustPhySeq = pkgs.callPackage rustPhySeq { }; }
-    // lib.optionalAttrs (rustMacsec != null) { rustMacsec = pkgs.callPackage rustMacsec { saiSrc = sonic.sources.sairedis; }; });
+  # parser would refuse it at boot: the checker is the SAI package's own
+  # (hardware.openbcm.nativePackage: the same Rust parser, built for the
+  # build host without the SDK).
+  saiNative = config.hardware.openbcm.nativePackage;
   extPhyTable = pkgs.runCommand "as7772-ext-phy.tbl" {
     nativeBuildInputs = [ saiNative ];
     text = import ./ext-phy.nix { inherit lib; cages = config.services.sonic.cages; };
@@ -103,7 +88,7 @@ in {
       interrupted = "the PHYs may be half-programmed: systemctl restart sonic.target runs the bring-up again (it resets them first)";
     };
   };
-  # ASIC side of every front-panel port (sai-openbcm port quirks): the lanes
+  # ASIC side of every front-panel port (the SAI's port quirks, SAI_OPENBCM_PORT_*): the lanes
   # end at the PHY's system side, which is plain CAUI without autoneg; FEC is
   # done by the PHY on the cage side, so the SONiC FEC setting is kept but not
   # programmed into the ASIC; average IPG 16 bytes as the factory's bypass
@@ -198,12 +183,5 @@ in {
       policy.curve = { points = [ [ 65 53 ] [ 80 75 ] [ 90 100 ] ]; hysteresis = 3; };
     };
   };
-}) (lib.mkIf (!rustLib && (rustPhySeq != null || rustMacsec != null)) {
-  # syncd on the libsai whose table parsers and sequence executor are the
-  # Rust crate phy-seq (hardware.openbcm.rustPhySeq) and / or whose MACsec
-  # object model is the Rust crate sai-macsec (hardware.openbcm.rustMacsec);
-  # everything else of ../as7760's services.sonic.sai stays.
-  services.sonic.sai.package = lib.mkForce (sonic.sairedis-openbcm saiRust);
-  services.sonic.sai.libraryPath = lib.mkForce [ "${saiRust}/lib" ];
 }) ];
 }

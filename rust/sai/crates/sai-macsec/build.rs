@@ -1,5 +1,6 @@
 //! Prebuilds the C++ side of the differential test (`tests/differential.rs`) for runs on a
-//! machine without a compiler: `tests/cpp/driver.cpp` and the unmodified sai-openbcm sources
+//! machine without a compiler: `tests/cpp/driver.cpp` and the unmodified C++ frontend sources
+//! (frozen in `ai_re/nix/packages/sai-teralynx/frontend/src` since 2026-11-23)
 //! on their fake backend, as `$OUT_DIR/target-tests/sai-macsec-cpp-driver`, and its "chip" variant
 //! `sai-macsec-cpp-chip-driver` for sai-macsec-phy's `tests/e2e.rs` (the test bundle copies that
 //! directory; the tests find the files through `$SAI_RS_TEST_BIN`). Each also as `...-fixed`: on
@@ -10,7 +11,7 @@
 //! (then a missing input fails the build); never with `SAI_MACSEC_PREBUILD_DRIVER=0`. A native
 //! test run compiles the driver itself.
 //!
-//! Inputs: `SAI_OPENBCM_SRC` (or `MDIO_SCRIPT_C_DIR`, the same directory in the Nix build),
+//! Inputs: `SAI_OPENBCM_SRC` (the frozen frontend's `src` directory),
 //! `SAI_INC`, and the target's compilers: `SAI_MACSEC_CXX` / `SAI_MACSEC_CC`, else derived from
 //! `SAI_SYS_ABI_CC` (the C compiler sai-sys checks the ABI with: `...cc` and `...c++`), else for a
 //! native build `CXX` / `CC`.
@@ -24,7 +25,8 @@ mod listed_fixes;
 
 const DRIVER: &str = "sai-macsec-cpp-driver";
 const CHIP_DRIVER: &str = "sai-macsec-cpp-chip-driver";
-/// The library on its fake backend: the Makefile's CORE and `backend_none`.
+/// The library on its fake backend: the frontend's CORE (driver.cpp defines the missing
+/// `make_openbcm_backend`).
 const CPP: &[&str] = &[
     "sai_api",
     "sai_switch",
@@ -44,7 +46,6 @@ const CPP: &[&str] = &[
     "sai_extmacsec",
     "sai_macsec",
     "fake_backend",
-    "backend_none",
 ];
 
 fn var(name: &str) -> Option<String> {
@@ -66,12 +67,10 @@ struct Inputs {
 }
 
 fn inputs(native: bool) -> Result<Inputs, String> {
-    let src = [var("SAI_OPENBCM_SRC"), var("MDIO_SCRIPT_C_DIR")]
-        .into_iter()
-        .flatten()
+    let src = var("SAI_OPENBCM_SRC")
         .map(PathBuf::from)
-        .find(|d| d.join("sai_macsec.cpp").is_file())
-        .ok_or("no sai-openbcm sources (SAI_OPENBCM_SRC = its src directory)")?;
+        .filter(|d| d.join("sai_macsec.cpp").is_file())
+        .ok_or("no C++ frontend sources (SAI_OPENBCM_SRC = sai-teralynx's frontend/src)")?;
     let inc = var("SAI_INC").map(PathBuf::from).ok_or("SAI_INC is not set")?;
     let driver = Path::new(&required("CARGO_MANIFEST_DIR")?).join("tests/cpp/driver.cpp");
     if !driver.is_file() {
@@ -175,7 +174,7 @@ fn build(i: &Inputs, out: &Path) -> Result<PathBuf, String> {
     }
     let exe = bin.join(DRIVER);
     // the driver, and its "chip" variant for sai-macsec-phy's tests/e2e.rs (its own backend
-    // factory instead of backend_none, driver.cpp's SAI_MACSEC_DRIVER_CHIP); each on the
+    // factory, driver.cpp's SAI_MACSEC_DRIVER_CHIP); each on the
     // unmodified sai_macsec.cpp and, as `-fixed`, on the one with D9 / D10
     for (name, chip, fixed) in [
         (DRIVER.to_owned(), false, false),
@@ -197,9 +196,7 @@ fn build(i: &Inputs, out: &Path) -> Result<PathBuf, String> {
             } else {
                 unit
             };
-            if !(chip && unit == "backend_none") {
-                link.arg(objects.join(format!("{unit}.o")));
-            }
+            link.arg(objects.join(format!("{unit}.o")));
         }
         link.arg("-o").arg(bin.join(&name)).arg("-lpthread");
         run(link, "the C++ compiler on the driver")?;

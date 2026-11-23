@@ -1,7 +1,7 @@
-# sai-teralynx: libsai.so for the Teralynx 7 (CS8210-32X) = the sai-openbcm
-# SAI frontend, unmodified, + our IFCS backend (src/). See README.md.
-#   make SAI_INC=<dir with sai.h> FRONTEND=<sai-openbcm/src> IFCS_CTYPES=<ifcs_ctypes.py> \
-#        [FRONTEND_TESTS=<sai-openbcm/tests>]
+# sai-teralynx: libsai.so for the Teralynx 7 (CS8210-32X) = the C++ SAI frontend
+# (frozen in frontend/, README.md "Frozen frontend") + our IFCS backend (src/).
+#   make SAI_INC=<dir with sai.h> FRONTEND=frontend/src IFCS_CTYPES=<ifcs_ctypes.py> \
+#        [FRONTEND_TESTS=frontend/tests]
 # No link-time dependency on the vendor SDK: libifcs.so is dlopen'ed at init.
 # The IFCS declarations (build/gen/ifcs_api*.h) are generated from
 # IFCS_CTYPES (README.md "IFCS declarations"; default.nix fetches it).
@@ -19,25 +19,23 @@ CFLAGS ?= -O2 -g
 WARN = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers
 
 ifeq ($(FRONTEND),)
-$(error FRONTEND=<sai-openbcm src dir> is required)
+$(error FRONTEND=<frontend/src> is required)
 endif
 ifneq ($(wildcard src/ifcs_api.h src/ifcs_api_qos.h),)
 $(error src/ifcs_api*.h must not exist: they are generated into build/gen (README.md "IFCS declarations"))
 endif
 ifeq ($(wildcard $(FRONTEND)/sai_api.cpp),)
-$(error FRONTEND=$(FRONTEND) does not look like sai-openbcm/src (no sai_api.cpp))
+$(error FRONTEND=$(FRONTEND) does not look like frontend/src (no sai_api.cpp))
 endif
 
-# The frontend's core, listed explicitly (as sai-openbcm's own Makefile does).
-# A .cpp in FRONTEND that is in neither list stops the build, so a new
-# frontend file is noticed here instead of silently left out.
+# The frontend's core, listed explicitly. A .cpp in FRONTEND that is in neither
+# list stops the build, so a file added to the frozen copy is noticed here
+# instead of silently left out.
 CORE = sai_api.cpp sai_switch.cpp sai_port.cpp sai_l2.cpp sai_hostif.cpp sai_l3.cpp sai_lag.cpp \
        sai_temp.cpp sai_caps.cpp sai_diag.cpp sai_acl.cpp sai_qos.cpp sai_mirror.cpp sai_hash.cpp sai_extphy.cpp \
        sai_extmacsec.cpp sai_macsec.cpp fake_backend.cpp
-# sai_macsec_rust.cpp: the MACsec model in Rust behind sai-openbcm's RUST_MACSEC switch (replaces sai_macsec.cpp there)
 # recording_backend.cpp: test-only (the frontend tests' call log), built for build/test_sai below
-FRONTEND_NOT_USED = backend_none.cpp openbcm_backend.cpp ext_phy_check.cpp ext_macsec_check.cpp sai_macsec_rust.cpp \
-                    recording_backend.cpp
+FRONTEND_NOT_USED = recording_backend.cpp
 FE_UNKNOWN = $(filter-out $(CORE) $(FRONTEND_NOT_USED),$(notdir $(wildcard $(FRONTEND)/*.cpp)))
 ifneq ($(FE_UNKNOWN),)
 $(error FRONTEND has .cpp files this Makefile does not list: $(FE_UNKNOWN); add them to CORE or FRONTEND_NOT_USED)
@@ -118,7 +116,7 @@ build/test_ifcs: $(TEST_SRCS) tests/harness.h build/libsai.so.1.0.0
 # The shim (next to libsai, found by dladdr) is part of the test: t_learn.cpp tests its guard.
 TEST_BINS = build/test_ifcs build/mock/libifcs.so build/libsai-teralynx-shim.so
 ifneq ($(FRONTEND_TESTS),)
-# sai-openbcm's own unit test, unchanged, on this library's objects (frontend
+# The frontend's own unit test, unchanged, on this library's objects (frontend
 # + fake backend sanity; our backend is only constructed, never initialised):
 # test_sai.cpp sees the SAI headers and its test port header only, the port
 # (test_port_cpp.cpp, + the frontend's recording_backend.cpp) the frontend's

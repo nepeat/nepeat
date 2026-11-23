@@ -1,0 +1,16 @@
+2026-11-23T04:50:50-08:00 as7772 syncd[1995]: sai-openbcm ERROR api=43: port ce0: external MACsec sequence pn.egress.0 stopped: line 2588: P phy 0x0 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T04:50:50-08:00 as7772 syncd[1995]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002f5: -1
+2026-11-23T04:50:50-08:00 as7772 syncd[1995]: sai-openbcm ERROR api=43: port ce0: external MACsec sequence pn.ingress.0 stopped: line 11818: P phy 0x0 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T04:50:50-08:00 as7772 syncd[1995]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002f6: -1
+2026-11-23T04:50:51-08:00 as7772 syncd[1995]: sai-openbcm ERROR api=43: port ce0: external MACsec sequence pn.egress.0 stopped: line 2588: P phy 0x0 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T04:50:51-08:00 as7772 syncd[1995]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002f5: -1
+2026-11-23T04:50:51-08:00 as7772 syncd[1995]: sai-openbcm ERROR api=43: port ce0: external MACsec sequence pn.ingress.0 stopped: line 11818: P phy 0x0 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T04:50:51-08:00 as7772 syncd[1995]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002f6: -1
+2026-11-23T04:50:54-08:00 as7772 syncd[1995]: sai-openbcm ERROR api=43: port ce1: external MACsec sequence pn.ingress.0 stopped: line 11818: P phy 0x1 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T04:50:54-08:00 as7772 syncd[1995]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002f7: -1
+2026-11-23T04:50:54-08:00 as7772 syncd[1995]: sai-openbcm ERROR api=43: port ce1: external MACsec sequence pn.egress.0 stopped: line 2588: P phy 0x1 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T04:50:54-08:00 as7772 syncd[1995]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002f8: -1
+2026-11-23T04:50:55-08:00 as7772 syncd[1995]: sai-openbcm ERROR api=43: port ce30: external MACsec sequence pn.egress.0 stopped: line 2588: P phy 0x17e 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T04:50:55-08:00 as7772 syncd[1995]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002f9: -1
+2026-11-23T04:50:55-08:00 as7772 syncd[1995]: sai-openbcm ERROR api=43: port ce30: external MACsec sequence pn.ingress.0 stopped: line 11818: P phy 0x17e 1.8221 read 0x0000, expected 0x12e3 (mask 0xffff, 50 reads)
+2026-11-23T04:50:55-08:00 as7772 syncd[1995]: :- collectData: Failed to get attr of SAI_OBJECT_TYPE_MACSEC_SA 0x5c0000000002fa: -1

@@ -23,6 +23,7 @@ use crate::backend::{Backend, HwPort, Vid};
 use crate::dispatch::{Area, Cx};
 use crate::error::{AttrError, Error, Result};
 use crate::l2::{self, Stub};
+use crate::log;
 use crate::model::{Kept, Port, PortKind};
 use crate::oid::{LagId, LagMemberId, ObjectType, PortId, RawOid, TypedId};
 use crate::store::Store;
@@ -306,6 +307,7 @@ fn create_lag<B: Backend>(backend: &mut B, store: &mut Store, attrs: &[Attr]) ->
         // As the C++: the LAG exists whatever the binding answers.
         let _ = crate::acl::acl_bind_set(backend, store, id.raw(), true, ingress_acl);
     }
+    log::notice(sys::SAI_API_LAG, format_args!("LAG created (trunk {})", tid.0));
     Ok(id)
 }
 
@@ -394,12 +396,13 @@ fn create_member<B: Backend>(backend: &mut B, store: &mut Store, attrs: &[Attr])
         .map(|l| (l.tid, l.pvid))
         .map_err(|_| bad(lag_index))?;
     let port = PortId::try_from(port_raw).map_err(|_| bad(port_index))?;
-    let hw = match store.get::<Port>(port) {
+    let (hw, name) = match store.get::<Port>(port) {
         Ok(Port {
             kind: PortKind::Front { .. },
             hw,
+            name,
             ..
-        }) => *hw,
+        }) => (*hw, name.clone()),
         _ => return Err(bad(port_index)),
     };
     if port_lag(store, port).is_some() {
@@ -407,6 +410,10 @@ fn create_member<B: Backend>(backend: &mut B, store: &mut Store, attrs: &[Attr])
     }
     // A member carries no L2 / L3 state of its own.
     if l2::bridge_port_of(store, Attach::Port(port)).is_some() || crate::l3::has_port_rif(store, port.raw()) {
+        log::error(
+            sys::SAI_API_LAG,
+            format_args!("LAG member: port {name} still has a bridge port or router interface"),
+        );
         return Err(Error::ObjectInUse);
     }
 
@@ -435,6 +442,16 @@ fn create_member<B: Backend>(backend: &mut B, store: &mut Store, attrs: &[Attr])
     store.update::<Port, _>(port, |p| p.pvid = pvid)?;
     // ACLs bound to the LAG now cover this port.
     crate::acl::acl_reprogram(backend, store);
+    let on_off = |disabled: bool| if disabled { "off" } else { "on" };
+    log::notice(
+        sys::SAI_API_LAG,
+        format_args!(
+            "LAG trunk {}: member {name} (egress {}, ingress {})",
+            tid.0,
+            on_off(egress_disable),
+            on_off(ingress_disable)
+        ),
+    );
     Ok(id)
 }
 

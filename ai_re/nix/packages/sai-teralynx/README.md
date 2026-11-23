@@ -1,8 +1,9 @@
 # sai-teralynx
 
 `libsai.so` for the Teralynx 7 (Innovium/Marvell, PCI 1d98:1b58) of the
-Celestica CS8210-32X: the [sai-openbcm](../sai-openbcm/README.md) SAI frontend,
-**unmodified** (its `src/` is passed in as `FRONTEND`), plus our IFCS backend
+Celestica CS8210-32X: the C++ SAI frontend that sai-openbcm had, **frozen** in
+`frontend/` ([Frozen frontend](#frozen-frontend); `frontend/src` is passed in as
+`FRONTEND`), plus our IFCS backend
 in `src/` behind the frontend's backend interface (`backend.h`, the
 "openbcm" slot: `SAI_OPENBCM_BACKEND=openbcm`). The vendor SDK (IFCS 0.12.41,
 2020, arm64) is **dlopen'ed at run time** from the switch; nothing vendor is
@@ -244,8 +245,9 @@ I = inferred (API exists, form or semantics not seen in use).
   (round-robin, cached); remove_switch order; the SAMPLEPACKET trap's queue meter and egress sampling (`t_sflow.cpp`);
   the shim's learn-ring guard (`t_learn.cpp`: the mock replays libifcs' learn pass through its PLT with injected
   all-ones reads; the GOT redirect uses the build host's relocation types, so x86 runs it). 1047 checks (all areas, 2026-11-17).
-- sai-openbcm's `tests/test_sai.cpp`, unchanged, against this library's
-  objects (frontend + fake backend): `test_sai` 3012 + `test_units` 140 checks (2026-11-23).
+- The frontend's `tests/test_sai.cpp` (`frontend/tests`), unchanged, against this library's
+  objects (frontend + fake backend): `test_sai` 3012 + `test_units` 140 checks (2026-11-23, also
+  after the move into `frontend/`).
 - Built natively with nix (`callPackage ./sai-teralynx { inherit sonic; }`) and
   for aarch64 (static_asserts hold). `TEST_IFCS_DUMP=1` prints the IFCS calls.
 - On the chip: `oracle/scripts/traps-hw.json` (frames over the loop,
@@ -257,6 +259,30 @@ I = inferred (API exists, form or semantics not seen in use).
   `phasec-recreate.json` (two switches in one process), `sflow-rate.json` / `sflow-rate2.json` / `sflow-genl.json`
   (`tools/sflow_probe.c`: sampling statistics, psample delivery), sai_bench (qemu-ipd); results in
   [sai-features.md](../../../devices/cs8210-32x/sai-features.md).
+
+## Frozen frontend
+
+`frontend/` is the C++ frontend of the deleted sai-openbcm (the AS7760 / AS7772 run the Rust SAI
+since 2026-11-23, `rust/sai/README.md` gates G5 / G6), copied verbatim from
+`ai_re/nix/packages/sai-openbcm` at commit 50a6aa7 and **frozen here until the CS8210 is proven on
+the Rust SAI**: then this package's backend is ported (`sai-backend-teralynx`) and `frontend/` is
+deleted. Fix nothing here that is not a CS8210 bug; the Rust SAI is where the frontend evolves.
+
+- `frontend/src`: the files this build compiles (Makefile `CORE`: `sai_*.cpp` incl. the external
+  PHY / MACsec ones, `fake_backend.*`, `temp_files.*`, `libsai.map`), their headers
+  (`sai_internal.h`, `backend.h`, `ext_phy.h`, `ext_macsec.h`, a frozen copy of `sdk_glue.h` for
+  `backend.h`'s order enums), the test-only `recording_backend.*`, and `openbcm_diag.c` (the
+  `openbcm-diag` client this package installs). The `#ifdef OB_RUST_PHY_SEQ` / `OB_RUST_MACSEC`
+  blocks are dead (their Rust libraries are deleted) and stay as copied.
+- `frontend/tests`: `test_sai.cpp` + `test_*.inc`, `test_port.h`, `test_port_cpp.cpp`,
+  `test_tables.h`, `test_units.cpp` (run by this package's check), and `frontend_driver.cpp`,
+  `driver_names.awk`, `driver-scripts/`: the Rust SAI's live parity oracles
+  (`rust/sai/README.md` "Parity": `test_sai` through its test port, the op-script differential,
+  the MACsec differentials, the `openbcm-diag` client differential).
+- Proof of the move: `libsai.so.1.0.0`, `libsai-teralynx-shim.so` and `bin/openbcm-diag` are
+  byte-identical to the build from `../sai-openbcm/src` (store names kept:
+  `sai-openbcm-frontend-src` / `-tests`); `bin/sai-teralynx-smoke` differs only by its own output
+  path (its RPATH); test_ifcs 1047, test_sai 3012, test_units 140 before and after.
 
 ## Only the chip can tell
 

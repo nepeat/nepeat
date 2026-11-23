@@ -1,6 +1,6 @@
 # sai-teralynx: libsai.so (OCP SAI, sairedis' pin) for the Teralynx 7 of the
-# Celestica CS8210-32X. The SAI frontend is sai-openbcm's, unmodified; the
-# backend (src/) drives the vendor IFCS 0.12.41 SDK, which is dlopen'ed at
+# Celestica CS8210-32X. The SAI frontend is the C++ one sai-openbcm had, frozen
+# here in frontend/ (README.md "Frozen frontend"); the backend (src/) drives the vendor IFCS 0.12.41 SDK, which is dlopen'ed at
 # run time from the switch (SAI_TERALYNX_LIBIFCS): nothing vendor is linked.
 # Its IFCS declarations are generated at build time from a public ctypes file
 # (ifcsCtypes below; README.md "IFCS declarations"). See README.md.
@@ -22,8 +22,10 @@ let
     echo "5a4547fb452a2b4fe85c449ed7089033f81d133f07646168ce01eac2a2843069  $out" | sha256sum -c
   '';
   sai = sonic.sources.sairedis;   # SAI headers: the SAI submodule sairedis is pinned to
-  frontend = builtins.path { path = ../sai-openbcm/src; name = "sai-openbcm-frontend-src"; };
-  frontendTests = builtins.path { path = ../sai-openbcm/tests; name = "sai-openbcm-frontend-tests"; };
+  # The frozen C++ frontend (frontend/src) and its tests (frontend/tests), each its own store
+  # path: the store names are the ones they had as ../sai-openbcm/{src,tests}.
+  frontend = builtins.path { path = ./frontend/src; name = "sai-openbcm-frontend-src"; };
+  frontendTests = builtins.path { path = ./frontend/tests; name = "sai-openbcm-frontend-tests"; };
 in stdenv.mkDerivation {
   pname = "sai-teralynx";
   version = "0.1.0";
@@ -32,7 +34,7 @@ in stdenv.mkDerivation {
     name = "sai-teralynx-src";
     # Only what the library build reads: docs, the board configs and nix files do not rebuild it.
     filter = p: t: !(lib.hasSuffix ".md" p)
-      && !(builtins.elem (baseNameOf p) [ "default.nix" "build" "configs" "oracle" "__pycache__" ]);
+      && !(builtins.elem (baseNameOf p) [ "default.nix" "build" "configs" "oracle" "frontend" "__pycache__" ]);
   };
 
   enableParallelBuilding = true;

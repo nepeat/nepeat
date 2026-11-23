@@ -11,12 +11,12 @@
 #   lib/libsai.so         the cdylib of that same build; lib-release/libsai.so the one the
 #                         package ships (the C harness runs against both)
 #   bin/harness           crates/sai-ffi/tests/harness.c, built with the target's C compiler
-#   bin/mdio-driver       the C MDIO interpreter + differential driver (when the package has
-#                         the C sources: mdioScriptC)
 #   bin/...               the workspace's own binaries as the tests build them (the MDIO tool on
 #                         the Rust fake of the glue, the phy-seq tools) and C/C++ helpers crates prebuilt
-#                         in their build scripts (OUT_DIR/target-tests): the C tools the Rust
-#                         ones are compared with
+#                         in their build scripts (OUT_DIR/target-tests): the frozen C++ frontend's
+#                         drivers and C client the Rust ones are compared with live (with the
+#                         package's cppFrontendSrc); the comparisons with deleted C / C++ are
+#                         goldens compiled into the test executables
 #   sysroot/              the target's loader, libc, libgcc_s: the bundle runs on a machine
 #                         whose own glibc is another version or lives elsewhere
 #                         (run.sh probes each helper by starting it without arguments: a helper
@@ -26,14 +26,12 @@
 # directory under /tmp of the host, runs run.sh there and removes the directory.
 # Touches nothing else on the host: no chip, no SDK, no service (the virtual backend refuses
 # to start next to /dev/linux-*-bde unless told; run.sh tells it, see there).
-# macsecTable: optional, a board's external MACsec table (the AS7772's generated one): the
-# end-to-end MACsec comparison then also runs over it on the target.
-{ lib, stdenv, saiRs, buildPackages, macsecTable ? null }:
+# macsecTable, extPhyTable: optional, a board's external MACsec / PHY tables (the AS7772's
+# generated ones): the end-to-end MACsec comparison and phy-seq's board-table goldens then also
+# run over them on the target.
+{ lib, stdenv, saiRs, buildPackages, macsecTable ? null, extPhyTable ? null }:
 let
   cc = "${stdenv.cc}/bin/${stdenv.cc.targetPrefix}cc";
-  cxx = "${stdenv.cc}/bin/${stdenv.cc.targetPrefix}c++";
-  mdioC = saiRs.MDIO_SCRIPT_C_DIR or null;
-  cppSrc = saiRs.SAI_OPENBCM_SRC or null;
   triple = stdenv.hostPlatform.rust.rustcTarget;
   bundle = saiRs.overrideAttrs (old: {
     pname = "sai-rs-target-tests";
@@ -58,26 +56,8 @@ let
       cp target/${triple}/release/libsai.so $out/lib-release/libsai.so
       ${cc} -std=gnu11 -Wall -Wextra -Werror -O1 -g -I ${saiRs.saiHeaders} -I ${saiRs.saiHeaders}/../experimental \
         crates/sai-ffi/tests/harness.c -o $out/bin/harness -ldl -lpthread
-      ${lib.optionalString (mdioC != null) ''
-        ${cc} -O1 -Wall -I ${mdioC} -o $out/bin/mdio-driver \
-          crates/mdio-script/tests/differential_driver.c ${mdioC}/mdio_script.c
-      ''}
-      ${lib.optionalString (cppSrc != null) ''
-        # the C++ libsai with the Rust MACsec model inside, as a test driver (the "chip" variant
-        # of sai-macsec's driver.cpp; the same recipe as sai-macsec-capi.nix's check)
-        d=$TMPDIR/rs-driver; mkdir -p $d
-        for u in sai_api sai_switch sai_port sai_l2 sai_hostif sai_l3 sai_lag sai_temp sai_caps sai_diag sai_acl sai_qos \
-                 sai_mirror sai_hash sai_extphy sai_extmacsec sai_macsec_rust fake_backend; do
-          ${cxx} -std=c++17 -O1 -w -c -DOB_RUST_MACSEC -Icrates/sai-macsec-capi/include -I${saiRs.saiHeaders} -I${saiRs.saiHeaders}/../experimental \
-            -I${cppSrc} ${cppSrc}/$u.cpp -o $d/$u.o &
-        done
-        ${cc} -std=gnu11 -O1 -w -c -I${cppSrc} ${cppSrc}/temp_files.c -o $d/temp_files.o
-        wait
-        ${cxx} -std=c++17 -O1 -Wall -DSAI_MACSEC_DRIVER_CHIP -I${saiRs.saiHeaders} -I${saiRs.saiHeaders}/../experimental -I${cppSrc} \
-          crates/sai-macsec/tests/cpp/driver.cpp $d/*.o "$(find target -name libsai_macsec_capi.a | head -n 1)" -ldl -lpthread \
-          -o $out/bin/sai-macsec-rs-chip-driver
-      ''}
       ${lib.optionalString (macsecTable != null) "cp ${macsecTable} $out/ext-macsec.tbl"}
+      ${lib.optionalString (extPhyTable != null) "cp ${extPhyTable} $out/ext-phy.tbl"}
       # crates that prebuild C test helpers leave them in OUT_DIR/target-tests
       for extra in $dbg/build/*/out/target-tests; do
         if [ -d "$extra" ]; then cp -rn "$extra"/. $out/bin/; fi

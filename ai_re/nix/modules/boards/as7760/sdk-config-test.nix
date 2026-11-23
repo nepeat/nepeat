@@ -55,6 +55,9 @@ in pkgs.runCommand "as7760-sdk-config-tests" ({
     sysConfig = sys.config.system.build.sonic.sdkConfig;
     sysProfile = sys.config.system.build.sonic.saiProfile;
     sysInit = sys.config.services.sonic.sai.initConfigFile;
+    sysPortConfig = sys.config.system.build.sonic.portConfigIni;
+    sysShare = sys.config.system.build.sonic.shareSonic;
+    sysLed = sys.config.hardware.as7760.ledProgram;
   }) ''
   set -euo pipefail
   # Stability: change these only with a reviewed generator change.
@@ -115,6 +118,15 @@ ${lib.optionalString (system != null) ''
   [ "$sysInit" = "$sysConfig" ]
   grep -qx "SAI_INIT_CONFIG_FILE=$sysConfig" $sysProfile
   echo "wiring: $sysProfile -> $sysConfig"
+  # The SDK's inputs on this board, pinned when the SAI became the Rust one (2026-11-23, gates
+  # G5 / G6: identical store paths for the C++ system at 50a6aa7 and the Rust one): config.bcm
+  # (= labCfg above), sai.profile (store paths normalised), the LED / rc program, port_config.ini,
+  # the hwsku tree. Change a pin only with a reviewed change of what the SDK is given.
+  echo "bf42f5ae22f3a496bd6d21d61bccb211e1995491c16443fccddc010ae757f38d  -" > pin; sed 's|/nix/store/[a-z0-9]*-|/nix/store/HASH-|g' $sysProfile | sha256sum -c pin
+  echo "3f6fda1d66a1dcd1f3b80c02a8bfb731b31f947ba4e75cdb3c4f2d28bb0bc20c  $sysLed" | sha256sum -c
+  echo "2a631457bec9b293096acd45c7055c7897203cebd28c8048e9312c30f2c15609  $sysPortConfig" | sha256sum -c
+  echo "83978a9c6c8f055bdf062641ed98b3b78c16c4cd2effebffb7967f259f8762cf  -" > pin
+  (cd $sysShare && find -L . -type f | LC_ALL=C sort | xargs sha256sum) | sha256sum -c pin
 ''}
   echo "default $(sha256sum < $default | cut -c1-16) lab $(sha256sum < $labCfg | cut -c1-16): all checks pass" | tee $out
 ''

@@ -54,7 +54,7 @@ files (`git add -N` new ones; the AS7772 `deploy.sh` refuses otherwise);
 | platform | `platform-armada-7040` | Marvell Armada 7040 boards behind a fused vendor U-Boot: stock kernel, board DTS against the kernel's marvell dtsi, extlinux on FAT /boot for the factory `sysboot` |
 | function | `thermal-as7760-fan` | Accton fan-CPLD hwmon driver (C, or Rust with `hardware.as7760Fan.driver`), sensor labels, monitor service |
 | function | `switch-sonic` | SONiC control plane as NixOS services (`services.sonic`): redis, syncd, orchagent + managers, FRR (bgpd/staticd, FPM, bgpcfgd), crash recovery, Nix/CLI config ownership; [README](modules/switch/sonic/README.md) |
-| function | `switch-openbcm` | Broadcom SDK kmods at boot + /dev nodes, locked `bcm.user`, ASIC die temperature reader, MDIO scripts for PHYs the SDK cannot drive (`hardware.openbcm`, `.mdioScript`: [sai-openbcm README](packages/sai-openbcm/README.md#openbcm-mdio-script-phys-without-an-sdk-driver)) |
+| function | `switch-openbcm` | Broadcom SDK kmods at boot + /dev nodes, locked `bcm.user`, ASIC die temperature reader, MDIO scripts for PHYs the SDK cannot drive; the SAI package syncd links (rust/sai, `hardware.openbcm.package` / `.rustSai`) (`hardware.openbcm`, `.mdioScript`: [sai-openbcm README](packages/sai-openbcm/README.md#openbcm-mdio-script-phys-without-an-sdk-driver)) |
 | function | `monitoring-node-exporter` | Prometheus :9100, control-plane collector set, timer-driven textfile producers; [README](modules/monitoring/README.md) |
 | board | `board-as7760` (+ `-sd-install`, `-sd-persist`) | Accton AS7760-32X |
 | board | `board-as5114` | Edgecore AS5114-48X (Armada 7040 + A385/Aldrin2): mainline DTS, prestera FW, SPI env access; system `configs/as5114` (`as5114-sd-image`, `as5114-system`) |
@@ -93,7 +93,7 @@ tail of the build log in the failure.
 | --- | --- |
 | `just test-eval` | every target evaluates to a derivation + the coverage guards; builds nothing (about 1.5 min) |
 | `just test-uboot` | every `uboot-*` output (all boards, the qemu fixtures, `uboot-*-tests`) |
-| `just test-packages` | the other package outputs (kernels, drivers, SDK kmods, `*-test`) and what has no flake output: SONiC packages, sai-openbcm, libsdk, sai-teralynx, qemu-ipd, sonic_platform, `sdk-config-test` of each board |
+| `just test-packages` | the other package outputs (kernels, drivers, SDK kmods, `*-test`) and what has no flake output: SONiC packages, the Rust SAI (rust/sai, `-k sai`), libsdk, sai-teralynx, qemu-ipd, sonic_platform, `sdk-config-test` of each board |
 | `just test-systems` | NixOS toplevels and images from `path:./nix` (the working tree, untracked files included) |
 | `just test-deploy` | the root flake as a git flake, the form `deploy.sh` uses: tracked files only, fand/consoled from `rust/`. Fails for a file that is not `git add`ed yet |
 | `just test-vm` | NixOS VM tests of the SONiC stack (kvm) |

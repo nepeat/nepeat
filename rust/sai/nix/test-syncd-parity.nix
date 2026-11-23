@@ -1,19 +1,12 @@
-# Parity test (NixOS VM, no hardware): sai-openbcm's own smoke test, UNCHANGED
-# (ai_re/nix/packages/sai-openbcm/tests/sai_smoke.py, passed in as `smoke`), through
-# libsairedis -> redis -> syncd -> the Rust libsai on its virtual backend, then the same
-# ASIC_DB expectations as the C++ test (ai_re/nix/packages/sai-openbcm/test-syncd.nix).
-#
-# This file is a labelled copy of that test-syncd.nix, not an import of it: the original
-# takes `libsai` but asserts a line of the C++ library's log the Rust one does not write. The
-# profile is the C++ one (SAI_OPENBCM_BACKEND=fake, SAI_OPENBCM_LOG_STDERR=1: the Rust library
-# reads the C++ keys). The differences, all of them:
-#   - no "oper up" line (the Rust library does not log link changes; the notification itself
-#     is checked, as there)
-#   - the smoke run's exit status and the syncd / syslog tails are printed (diagnostics only)
-# With the parameter named in ../README.md ("Parity") added to the original, this file becomes
-# an import of it.
+# syncd parity test (NixOS VM, no hardware): the smoke test of the deleted C++ sai-openbcm's VM
+# test, UNCHANGED (./sai_smoke.py, its only copy since 2026-11-23, passed in as `smoke`), through
+# libsairedis -> redis -> syncd -> the Rust libsai on its virtual backend, then the C++ test's
+# ASIC_DB expectations. The profile is the C++ one (SAI_OPENBCM_BACKEND=fake,
+# SAI_OPENBCM_LOG_STDERR=1). The one difference from the C++ test (sai-openbcm/test-syncd.nix at
+# 50a6aa7): the smoke run's exit status and the syncd / syslog tails are printed (diagnostics only).
+# (Its "oper up" log line is checked again since the Rust library logs link changes with the C++ text.)
 #   import ./test-syncd-parity.nix { pkgs = p; sonic = <ai_re sonic set>; libsai = <./package.nix>;
-#                                    smoke = <ai_re>/nix/packages/sai-openbcm/tests/sai_smoke.py; }
+#                                    smoke = ./sai_smoke.py; }
 { pkgs
 , sonic
 , libsai
@@ -102,6 +95,7 @@ pkgs.testers.runNixOSTest {
 
     syncd_log = machine.succeed("cat /tmp/syncd.txt")
     assert "FAKE backend selected" in syncd_log, syncd_log
+    assert "oper up" in syncd_log, syncd_log
     machine.succeed("grep -q port_state_change /tmp/notifications.txt")   # what syncd published
     print(machine.succeed("head -20 /tmp/notifications.txt"))
     machine.succeed("systemctl stop syncd")

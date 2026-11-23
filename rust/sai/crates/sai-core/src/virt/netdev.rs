@@ -15,7 +15,6 @@
 use crate::backend::HwPort;
 use crate::error::{Error, Result};
 use std::collections::BTreeMap;
-use std::io::Write as _;
 use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use tap_netdev::{IfName, PacketSocket, Tap, Wire};
@@ -30,10 +29,10 @@ pub enum NetdevMode {
     Tap,
 }
 
-/// A line on stderr, where the rim's log goes too (the C++ logs these as errors / notices).
-pub(crate) fn note(message: core::fmt::Arguments<'_>) {
-    // A closed stderr must not take the SAI user down.
-    let _ = writeln!(std::io::stderr().lock(), "sai-rs virtual: {message}");
+/// A line of the library's log ([`crate::log`]), as the C++ fake logs its TAP lines: errors and
+/// notices of the host interface API.
+pub(crate) fn note(level: sai_sys::sai_log_level_t, message: core::fmt::Arguments<'_>) {
+    crate::log::emit(sai_sys::SAI_API_HOSTIF, level, message);
 }
 
 /// Parses `SAI_RS_VIRTUAL_WIRE`: `<netif>:<ifname>` items separated by commas, as the C++
@@ -84,7 +83,10 @@ impl Kernel {
         gate: &Arc<AtomicBool>,
     ) -> Result<Self> {
         let fail = |what: &str, e: &dyn core::fmt::Display| {
-            note(format_args!("TAP {name} (port {}): {what}: {e}", port.0));
+            note(
+                sai_sys::SAI_LOG_LEVEL_ERROR,
+                format_args!("fake: TAP {name}: {what}: {e} (port {})", port.0),
+            );
             Error::Failure
         };
         let if_name = IfName::new(name).map_err(|e| fail("name", &e))?;
@@ -95,7 +97,10 @@ impl Kernel {
                 let host_name = IfName::new(host).map_err(|e| fail("wire interface", &e))?;
                 let socket = PacketSocket::bind(host_name).map_err(|e| fail(&format!("wire interface {host}"), &e))?;
                 let wire = Wire::start(Arc::clone(&tap), socket, Arc::clone(gate)).map_err(|e| fail("wire", &e))?;
-                note(format_args!("TAP {name} wired to {host}"));
+                note(
+                    sai_sys::SAI_LOG_LEVEL_NOTICE,
+                    format_args!("fake: TAP {name} wired to {host}"),
+                );
                 Some(wire)
             }
         };
@@ -105,7 +110,10 @@ impl Kernel {
     /// The netdev's carrier.
     pub(crate) fn set_carrier(&self, up: bool) -> Result<()> {
         self.tap.set_carrier(up).map_err(|e| {
-            note(format_args!("TAP {} carrier: {e}", self.tap.name()));
+            note(
+                sai_sys::SAI_LOG_LEVEL_ERROR,
+                format_args!("fake: TAP {} carrier: {e}", self.tap.name()),
+            );
             Error::Failure
         })
     }

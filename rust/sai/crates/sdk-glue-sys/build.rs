@@ -141,23 +141,21 @@ fn command(words: &str) -> Command {
     c
 }
 
-/// Where sai-openbcm's sources may be, in order: `SDK_GLUE_INC` (must hold `sdk_glue.h` when set),
-/// `MDIO_SCRIPT_C_DIR`, `SAI_OPENBCM_SRC`, then the monorepo's copy next to this workspace
-/// (`ai_re/nix/packages/sai-openbcm/src`).
+/// Where the glue's header may be, in order: `SDK_GLUE_INC` (must hold `sdk_glue.h` when set),
+/// then the monorepo's copy next to this workspace (`ai_re/nix/packages/sai-openbcm/src`).
+/// (`MDIO_SCRIPT_C_DIR` / `SAI_OPENBCM_SRC` named it until the C/C++ beside it was deleted on
+/// 2026-11-23; `SAI_OPENBCM_SRC` now names the frozen C++ frontend, whose copy of the header is
+/// not the glue's.)
 fn candidate_dirs() -> Vec<(String, PathBuf)> {
     let mut dirs = Vec::new();
-    for v in ["SDK_GLUE_INC", "MDIO_SCRIPT_C_DIR", "SAI_OPENBCM_SRC"] {
-        println!("cargo:rerun-if-env-changed={v}");
-        if let Some(dir) = env::var_os(v).filter(|d| !d.is_empty()).map(PathBuf::from) {
-            if v == "SDK_GLUE_INC" {
-                assert!(
-                    dir.join("sdk_glue.h").is_file(),
-                    "sdk-glue-sys: no sdk_glue.h in SDK_GLUE_INC={}",
-                    dir.display()
-                );
-            }
-            dirs.push((v.to_owned(), dir));
-        }
+    println!("cargo:rerun-if-env-changed=SDK_GLUE_INC");
+    if let Some(dir) = env::var_os("SDK_GLUE_INC").filter(|d| !d.is_empty()).map(PathBuf::from) {
+        assert!(
+            dir.join("sdk_glue.h").is_file(),
+            "sdk-glue-sys: no sdk_glue.h in SDK_GLUE_INC={}",
+            dir.display()
+        );
+        dirs.push(("SDK_GLUE_INC".to_owned(), dir));
     }
     let manifest = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR"));
     dirs.push((

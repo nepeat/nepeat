@@ -1,0 +1,16 @@
+Running timer as unit: soak-rust.timer
+Will run service as unit: soak-rust.service
+NEXT                            LEFT LAST PASSED UNIT            ACTIVATES
+Mon 2026-11-23 05:35:00 PST 3min 40s -         - soak-rust.timer soak-rust.service
+
+1 timers listed.
+Pass --all to see loaded but inactive timers, too.
+== 2026-11-23T13:31:17Z sys=64296gcv boot=64296gcv up=260.28s load=1.17 0.67 0.29
+links: Ethernet0=up/up Ethernet4=up/up Ethernet120=up/up Ethernet124=up/up; oper-up total (APPL_DB): 4
+macsec: egress SAs 4, ingress SAs 4, ports 4
+port in-err/in-disc/out-err/out-disc: Ethernet0=0/0/0/0/ Ethernet4=0/0/0/0/ Ethernet120=0/0/0/0/ Ethernet124=0/0/0/0/
+procs: syncd(786) rss=138640k cpu=19s; orchagent(788) rss=58256k cpu=1s; wpa_supplicant(1105) rss=13236k cpu=0s; wpa_supplicant(1124) rss=13264k cpu=0s; wpa_supplicant(1158) rss=13300k cpu=0s; wpa_supplicant(1175) rss=13308k cpu=0s; 
+temps: asic=47.7 fand failsafe=False asic:47.7C/53% board:37.0C/60% cpu:43.0C/53% hwmon=37000 33500 29000 30000 25000 27000 31000 43000 
+failed units: 0 
+since -6min: journal err+ 32, syncd/orchagent err-lines 106, kernel warn+ 127, soc_knet_handle_rx 0, dup-MAC/SCI 0
+0

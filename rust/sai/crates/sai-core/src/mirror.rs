@@ -20,6 +20,7 @@ use crate::backend::types::{MacAddr, MirrorCfg, MirrorId as HwMirrorId, SampleId
 use crate::backend::{Backend, HwPort};
 use crate::dispatch::{Area, Cx};
 use crate::error::{Error, Result};
+use crate::log;
 use crate::model::Port;
 use crate::oid::{MirrorSessionId, ObjectType, PortId, RawOid, SamplepacketId, TypedId};
 use crate::qos::{
@@ -306,8 +307,20 @@ fn create_session<B: Backend>(backend: &mut B, store: &mut Store, attrs: &[Attr]
     } else {
         None
     };
+    let (erspan, monitor) = (args.cfg.erspan, args.cfg.monitor);
     let session = args.session(hw).ok_or(Error::Failure)?;
-    store.insert(session).map(TypedId::raw)
+    let id = store.insert(session).map(TypedId::raw)?;
+    log::info(
+        sys::SAI_API_MIRROR,
+        format_args!(
+            "mirror session 0x{:x} {} monitor {}, backend id {}",
+            id.0,
+            if erspan { "ERSPAN" } else { "SPAN" },
+            monitor.0,
+            hw.map_or(-1, |h| i64::from(h.0))
+        ),
+    );
+    Ok(id)
 }
 
 fn set_session<B: Backend>(backend: &mut B, store: &mut Store, id: MirrorSessionId, attr: &Attr) -> Result<()> {

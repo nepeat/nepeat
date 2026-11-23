@@ -172,9 +172,10 @@ impl Field for OpenbcmBackend {
             "ob_sdk_fp_group_create(unit_, q, priority, &gid)",
             self.switch()?.fp_group_create(&q, priority),
         )?;
-        log(&format!(
-            "field group {gid}: priority {priority}, qualifiers 0x{bits:x}"
-        ));
+        log::notice(
+            sys::SAI_API_ACL,
+            format_args!("field group {gid}: priority {priority}, qualifiers 0x{bits:x}"),
+        );
         Ok(FpGroupId(gid))
     }
 
@@ -212,17 +213,23 @@ impl Field for OpenbcmBackend {
                         }
                         Ok(entry) => {
                             clone = Some(copy);
-                            log(&format!(
-                                "policer {}: the SDK refused to share it; entry {} meters with copy {copy}",
-                                policer.0, entry.id
-                            ));
+                            log::warn(
+                                sys::SAI_API_POLICER,
+                                format_args!(
+                                    "policer {}: the SDK refused to share it; entry {} meters with copy {copy}",
+                                    policer.0, entry.id
+                                ),
+                            );
                         }
                     }
                 }
             }
         }
         let entry = result.map_err(|error| {
-            log(&format!("field entry in group {}: {error}", gid.0));
+            log::error(
+                sys::SAI_API_ACL,
+                format_args!("field entry in group {}: {error}", gid.0),
+            );
             status::sai_error(error)
         })?;
         up.entries.insert(

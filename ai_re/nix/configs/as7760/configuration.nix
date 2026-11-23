@@ -6,9 +6,9 @@
   imports = [ ../lab-access.nix ../../modules/profiles/appliance.nix ../../modules/boards/as7760 ];
   system.stateVersion = "26.11";
   # The Broadcom SDK is source-available, not free software.
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "openbcm-bcm-user" "openbcm-libsdk" "sai-openbcm" ];
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "openbcm-bcm-user" "openbcm-libsdk" ];
   networking.hostName = "as7760";
-  # SONiC switch stack (modules/boards/as7760 wires it to sai-openbcm); on at
+  # SONiC switch stack (modules/boards/as7760 wires it to the Rust SAI); on at
   # boot since 2026-11-15 (generated config.bcm, kernel with bridge/VLAN/team).
   services.sonic.enable = true;
   # Base MAC from the board's ONIE EEPROM (TlvInfo 0x24).

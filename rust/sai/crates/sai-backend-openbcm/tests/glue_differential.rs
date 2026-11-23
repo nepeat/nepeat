@@ -1,33 +1,34 @@
 //! The glue-call differential (gate G2): does the Rust stack tell the SDK what the C++ stack
-//! tells it? Every op script of the frontend differential (sai-openbcm's `tests/driver-scripts`
-//! and sai-driver's own, external PHY and `MACsec`) runs
+//! told it? Since the C++ is deleted, against GOLDEN files captured from it at commit 50a6aa7
+//! (2026-11-23; how: their headers):
 //!
-//! * through the Rust stack: sai-driver's [`Driver`] over sai-core on [`OpenbcmBackend`] over a
-//!   Rust fake chip ([`Chip`]) that records every glue call, callback and injection
-//!   (`sdk_glue::record`, the line format); and
-//! * through the C++ stack: sai-openbcm's `frontend_driver.cpp` and its library on the
-//!   UNMODIFIED `openbcm_backend.cpp`, over `tests/cpp/glue_stub.c`, a stub of all 75 functions
-//!   of `sdk_glue.h` that prints the same line for the same call and answers with the Rust run's
-//!   recording (replay: the C++ backend sees the answers the Rust backend saw; see the stub's
-//!   header), with `tests/cpp/test_port_glue.cpp` as its test port.
+//! * `tests/golden/glue-differential-inputs.txt`: the 12 op scripts (sai-openbcm's frontend
+//!   scripts 01-09, sai-driver's `10-ext-phy` / `11-macsec`, this crate's
+//!   `tests/glue-scripts/12-glue-extras.ops`) and the two table files of sai-openbcm's
+//!   `tests/test_tables.h` that 10 and 11 read, as the goldens were captured from them;
+//! * `tests/golden/glue-differential-cpp.txt`: per script, the output of sai-openbcm's
+//!   `frontend_driver.cpp` and C++ library on the UNMODIFIED `openbcm_backend.cpp` over a
+//!   recording stub of the 75 functions of `sdk_glue.h` that answered by replaying the Rust run's
+//!   recording (so: the C++ calls given the Rust fake's answers at capture time).
 //!
-//! Both print, per operation, the glue lines (`  glue ...`) between the op's echo and its status,
-//! then the status, values, backend call log (`be`) and notifications; the outputs are compared
-//! op block by op block (`sai_driver::compare`). Every differing block must be covered by an
-//! entry of `tests/glue-differential-allow.txt` (script, regex on the op, reason), and every entry
-//! must cover a block. Each script starts with `profile SAI_INIT_CONFIG_FILE=<scenario>` (both
-//! drivers): a fake-chip scenario with the script's port count, lanes and speed (the virtual
-//! backend's `SAI_OPENBCM_FAKE_*` keys, default 8 x 4 lanes x 100G), link following admin state, and
-//! the C++ fake's eight temperature monitors.
+//! Each script runs through the Rust stack: sai-driver's [`Driver`] over sai-core on
+//! [`OpenbcmBackend`] over a Rust fake chip ([`Chip`]) that records every glue call, callback
+//! and injection (`sdk_glue::record`, the line format). The output prints, per operation, the
+//! glue lines (`  glue ...`) between the op's echo and its status, then the status, values,
+//! backend call log (`be`) and notifications; it is compared with the golden C++ output op block
+//! by op block (`sai_driver::compare`), the scratch paths written `@RUN@` / `@TABLES@` as in the
+//! golden. Every differing block must be covered by an entry of `tests/glue-differential-allow.txt`
+//! (script, regex on the op, reason), and every entry must cover a block. Each script starts with
+//! `profile SAI_INIT_CONFIG_FILE=<scenario>`: a fake-chip scenario with the script's port count,
+//! lanes and speed (the virtual backend's `SAI_OPENBCM_FAKE_*` keys, default 8 x 4 lanes x 100G),
+//! link following admin state, and the C++ fake's eight temperature monitors.
 //!
-//! The C++ driver: `SAI_GLUE_DIFF_CPP` (prebuilt), else `$SAI_RS_TEST_BIN/sai-cpp-glue-driver` with
-//! the scripts and the allow-list in `$SAI_RS_TEST_BIN/sai-backend-openbcm/` (build.rs prebuilds
-//! it for a cross build or with `SAI_GLUE_DIFF_PREBUILD=1`), else built here from
-//! `SAI_OPENBCM_SRC` / `SAI_OPENBCM_TESTS` and `SAI_INC` with `$CXX` / `$CC` (cached by a hash of
-//! the inputs). Without the C++ sources the comparison is SKIPPED (stderr and
-//! `$SAI_RS_TEST_SUMMARY`). `SAI_GLUE_DIFF_ALLOW` names another allow-list;
-//! `SAI_GLUE_DIFF_ALLOW_UPDATE=1` rewrites it from today's differences and passes;
-//! `SAI_GLUE_DIFF_KEEP=<dir>` keeps both outputs per script there.
+//! The goldens, the allow-list and the scripts still in this tree are compiled in: the test needs
+//! no file and no compiler at run time (it runs on the switch). A script in this tree, or a moved
+//! copy of 01-09 found beside this checkout, that differs from the golden's copy fails the test
+//! ("script changed since the golden"). The goldens are never regenerated from the Rust output: a
+//! deliberate behaviour change edits the golden by hand or adds an allow-list entry, with a reason.
+//! `SAI_GLUE_DIFF_KEEP=<dir>` keeps the golden C++ and the Rust output per script there.
 #![allow(
     clippy::unwrap_used,
     clippy::expect_used,
@@ -40,27 +41,45 @@
     reason = "test code: a failed unwrap is a failed test"
 )]
 
-#[path = "../../sai-driver/src/cpp_build.rs"]
-mod cpp_build;
-#[path = "cpp/glue_build.rs"]
-mod glue_build;
-
 use sai_backend_openbcm::OpenbcmBackend;
 use sai_core::backend::HwPort;
 use sai_core::backend::types::{Dest, FdbChange, FdbEvent, MdioDev, PhyAddr, PortStat};
-use sai_driver::compare::{self, Diff};
+use sai_driver::compare::{self, Diff, Entry};
 use sai_driver::{Driver, Feature, Hooks, OnHardware, Options};
 use sdk_glue::rust_fake::Chip;
-use std::collections::BTreeMap;
-use std::collections::hash_map::DefaultHasher;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
-use std::hash::{Hash as _, Hasher as _};
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
-use glue_build::GLUE_DRIVER;
 /// The prefix of a glue line in both outputs.
 const GLUE: &str = "  glue ";
+
+/// The scripts and tables the C++ outputs were captured from (see its header).
+const INPUTS: &str = include_str!("golden/glue-differential-inputs.txt");
+/// The C++ stack's output per script, captured at 50a6aa7 (see its header).
+const CPP: &str = include_str!("golden/glue-differential-cpp.txt");
+/// The allow-list.
+const ALLOW: &str = include_str!("glue-differential-allow.txt");
+/// The scripts that stay in this tree, as they are now: each must equal the golden's copy.
+const IN_TREE: [(&str, &str); 3] = [
+    (
+        "10-ext-phy",
+        include_str!("../../sai-driver/tests/driver-scripts/10-ext-phy.ops"),
+    ),
+    (
+        "11-macsec",
+        include_str!("../../sai-driver/tests/driver-scripts/11-macsec.ops"),
+    ),
+    ("12-glue-extras", include_str!("glue-scripts/12-glue-extras.ops")),
+];
+/// Where scripts 01-09 live now (they moved with sai-openbcm's frontend tests), relative to this
+/// crate's directory in a checkout of the monorepo; compared with the golden when there.
+const MOVED: [&str; 1] = ["../../../../ai_re/nix/packages/sai-teralynx/frontend/tests/driver-scripts"];
+/// The table files of the golden inputs and the script token each replaces.
+const TABLES: [(&str, &str); 2] = [
+    ("ext-phy.tbl", "@EXT_PHY_TABLE@"),
+    ("ext-macsec.tbl", "@EXT_MACSEC_TABLE@"),
+];
 
 /// A line for whoever runs the suite: stderr, and `$SAI_RS_TEST_SUMMARY`.
 fn summary(line: &str) {
@@ -196,141 +215,6 @@ fn scenario(script: &str) -> String {
     )
 }
 
-struct Setup {
-    exe: PathBuf,
-    /// (stem, script text with its tokens replaced)
-    scripts: Vec<(String, String)>,
-    allow: PathBuf,
-}
-
-/// A hash of everything the C++ build reads.
-fn inputs_hash(s: &cpp_build::Sources, own: &Path, inc: &Path, cxx: &str, cc: &str) -> String {
-    let mut h = DefaultHasher::new();
-    (inc, cxx, cc).hash(&mut h);
-    for dir in [&s.src, &s.tests, &own.to_path_buf()] {
-        let mut files: Vec<PathBuf> = std::fs::read_dir(dir)
-            .unwrap()
-            .filter_map(Result::ok)
-            .map(|e| e.path())
-            .filter(|p| p.is_file())
-            .collect();
-        files.sort();
-        for f in files {
-            f.hash(&mut h);
-            std::fs::read(&f).unwrap_or_default().hash(&mut h);
-        }
-    }
-    format!("{:016x}", h.finish())
-}
-
-fn setup() -> Option<Setup> {
-    let manifest = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let own = manifest.join("tests/cpp");
-    let bin_data = var("SAI_RS_TEST_BIN").map(|b| Path::new(&b).join("sai-backend-openbcm"));
-    let sources = cpp_build::find_sources();
-    let scripts_dir = match (&sources, &bin_data) {
-        (Ok(s), _) => s.tests.join("driver-scripts"),
-        (Err(_), Some(d)) if d.join("driver-scripts").is_dir() => d.join("driver-scripts"),
-        (Err(why), _) => {
-            summary(&format!(
-                "sai-backend-openbcm glue differential: SKIPPED: no op scripts ({why}; no $SAI_RS_TEST_BIN/sai-backend-openbcm/driver-scripts)"
-            ));
-            return None;
-        }
-    };
-    let allow = var("SAI_GLUE_DIFF_ALLOW").map_or_else(
-        || match (&sources, &bin_data) {
-            (Err(_), Some(d)) if d.join("glue-differential-allow.txt").is_file() => {
-                d.join("glue-differential-allow.txt")
-            }
-            _ => manifest.join("tests/glue-differential-allow.txt"),
-        },
-        PathBuf::from,
-    );
-    let prebuilt = var("SAI_GLUE_DIFF_CPP").map(PathBuf::from).or_else(|| {
-        var("SAI_RS_TEST_BIN")
-            .map(|b| Path::new(&b).join(GLUE_DRIVER))
-            .filter(|p| p.is_file())
-    });
-    let cxx = var("CXX").unwrap_or_else(|| "c++".to_owned());
-    let exe = match (prebuilt, &sources) {
-        (Some(exe), _) => exe,
-        (None, Ok(s)) => {
-            let Some(inc) = var("SAI_INC").map(PathBuf::from) else {
-                summary(
-                    "sai-backend-openbcm glue differential: SKIPPED: the C++ sources are there but SAI_INC is not set",
-                );
-                return None;
-            };
-            let cc = var("CC").unwrap_or_else(|| "cc".to_owned());
-            let dir = scratch()
-                .join("sai-glue-cpp")
-                .join(inputs_hash(s, &own, &inc, &cxx, &cc));
-            let exe = dir.join(GLUE_DRIVER);
-            if !exe.is_file() {
-                let tc = cpp_build::Toolchain {
-                    cxx: &cxx,
-                    cc: &cc,
-                    static_runtime: false,
-                };
-                cpp_build::build_variant(s, &inc, &tc, &dir, &glue_build::variant(&own, &s.src))
-                    .unwrap_or_else(|e| panic!("building the C++ glue driver: {e}"));
-            }
-            exe
-        }
-        (None, Err(_)) => {
-            summary(
-                "sai-backend-openbcm glue differential: SKIPPED: scripts but no C++ glue driver (SAI_GLUE_DIFF_CPP, $SAI_RS_TEST_BIN)",
-            );
-            return None;
-        }
-    };
-    let mut scripts: Vec<(String, String)> = cpp_build::scripts(&scripts_dir)
-        .unwrap()
-        .into_iter()
-        .map(|p| {
-            (
-                p.file_stem().unwrap().to_string_lossy().into_owned(),
-                std::fs::read_to_string(&p).unwrap(),
-            )
-        })
-        .collect();
-    assert!(!scripts.is_empty(), "no *.ops in {}", scripts_dir.display());
-    // sai-driver's own scripts, on the tables of sai-openbcm's tests/test_tables.h
-    let theirs = manifest.join("../sai-driver/tests/driver-scripts");
-    match &sources {
-        Ok(s) => {
-            let (macsec, phy) = cpp_build::tables(&s.tests, &scratch().join("sai-glue-tables"), &cxx)
-                .unwrap_or_else(|e| panic!("the external tables: {e}"));
-            for p in cpp_build::scripts(&theirs).unwrap() {
-                let text = std::fs::read_to_string(&p)
-                    .unwrap()
-                    .replace("@EXT_PHY_TABLE@", phy.to_str().unwrap())
-                    .replace("@EXT_MACSEC_TABLE@", macsec.to_str().unwrap());
-                scripts.push((p.file_stem().unwrap().to_string_lossy().into_owned(), text));
-            }
-        }
-        Err(_) => summary(
-            "sai-backend-openbcm glue differential: sai-driver's own scripts SKIPPED (no sai-openbcm tests dir for the tables)",
-        ),
-    }
-    // this crate's glue-only script(s): calls the shared scripts do not make
-    let extras = manifest.join("tests/cpp/glue-scripts");
-    if extras.is_dir() {
-        for p in cpp_build::scripts(&extras).unwrap() {
-            scripts.push((
-                p.file_stem().unwrap().to_string_lossy().into_owned(),
-                std::fs::read_to_string(&p).unwrap(),
-            ));
-        }
-    } else {
-        summary(
-            "sai-backend-openbcm glue differential: its own glue-only scripts SKIPPED (no tests/cpp/glue-scripts here)",
-        );
-    }
-    Some(Setup { exe, scripts, allow })
-}
-
 fn options() -> Options {
     Options {
         on_hardware: if var("SAI_RS_VIRTUAL_ON_HARDWARE").as_deref() == Some("1") {
@@ -362,124 +246,141 @@ fn common(a: &[&str], b: &[&str]) -> usize {
     row[b.len()]
 }
 
-#[test]
-fn rust_and_cpp_backends_make_the_same_glue_calls_but_for_the_allow_list() {
-    let Some(setup) = setup() else { return };
-    let dir = scratch().join("sai-glue-runs");
-    std::fs::create_dir_all(&dir).unwrap();
-    let keep = var("SAI_GLUE_DIFF_KEEP").map(PathBuf::from);
-    let mut diffs: Vec<Diff> = Vec::new();
-    let mut per_script: BTreeMap<String, (usize, usize, usize, usize)> = BTreeMap::new(); // blocks, differing, glue rust, glue cpp
-    let (mut glue_total, mut glue_in_identical, mut glue_matched) = (0usize, 0usize, 0usize);
-    for (stem, text) in &setup.scripts {
-        let scen = dir.join(format!("{stem}.scenario"));
-        std::fs::write(&scen, scenario(text)).unwrap();
-        let script = format!("profile SAI_INIT_CONFIG_FILE={}\n{text}", scen.display());
-        let script_path = dir.join(format!("{stem}.ops"));
-        std::fs::write(&script_path, &script).unwrap();
-
-        // the Rust stack, recording
-        let chip = Chip::new();
-        chip.record(true);
-        let rust = Driver::with_hooks(options(), Box::new(GlueHooks { chip })).run_script(&script);
-        let replay = dir.join(format!("{stem}.replay"));
-        let mut record = glue_lines(&rust).join("\n");
-        record.push('\n');
-        std::fs::write(&replay, record).unwrap();
-
-        // the C++ stack, answered from that recording
-        let out = Command::new(&setup.exe)
-            .arg(&script_path)
-            .env("GLUE_STUB_REPLAY", &replay)
-            .current_dir(&dir)
-            .output()
-            .unwrap_or_else(|e| panic!("{}: {e}", setup.exe.display()));
-        assert!(
-            out.status.success(),
-            "C++ glue driver on {stem}: {}\n{}",
-            out.status,
-            String::from_utf8_lossy(&out.stderr)
-        );
-        let cpp = String::from_utf8(out.stdout).unwrap();
-        if let Some(k) = &keep {
-            std::fs::create_dir_all(k).unwrap();
-            std::fs::write(k.join(format!("{stem}.cpp.txt")), &cpp).unwrap();
-            std::fs::write(k.join(format!("{stem}.rust.txt")), &rust).unwrap();
+/// The sections of a golden: (head, text) per `@@@@ <head>` line, the text being every line
+/// up to the next such line, exactly; the `#` header before the first is skipped.
+fn sections(golden: &str) -> Vec<(&str, String)> {
+    let mut out: Vec<(&str, String)> = Vec::new();
+    for line in golden.split_inclusive('\n') {
+        if let Some(head) = line.strip_prefix("@@@@ ") {
+            out.push((head.trim_end(), String::new()));
+        } else if let Some((_, text)) = out.last_mut() {
+            text.push_str(line);
+        } else {
+            assert!(line.starts_with('#'), "golden header line without '#': {line}");
         }
-        let c = compare::compare(stem, &cpp, &rust).unwrap_or_else(|e| panic!("{e}"));
-        let differing: std::collections::BTreeSet<usize> = c.diffs.iter().map(|d| d.index).collect();
-        for (i, (rb, cb)) in compare::blocks(&rust)
-            .iter()
-            .zip(compare::blocks(&cpp).iter())
-            .enumerate()
-        {
-            let glue_of = |b: &compare::Block| -> Vec<String> {
-                b.lines.iter().filter(|l| l.starts_with(GLUE)).cloned().collect()
-            };
-            let (r, k) = (glue_of(rb), glue_of(cb));
-            glue_total += r.len();
-            if differing.contains(&i) {
-                let rr: Vec<&str> = r.iter().map(String::as_str).collect();
-                let kk: Vec<&str> = k.iter().map(String::as_str).collect();
-                glue_matched += common(&rr, &kk);
-            } else {
-                glue_in_identical += r.len();
-                glue_matched += r.len();
+    }
+    out
+}
+
+/// A golden script: its stem, the file it was captured from, its text.
+struct Script {
+    stem: String,
+    origin: String,
+    text: String,
+}
+
+/// The golden inputs: the table files by name and the scripts in order.
+fn inputs() -> (BTreeMap<String, String>, Vec<Script>) {
+    let (mut tables, mut scripts) = (BTreeMap::new(), Vec::new());
+    for (head, text) in sections(INPUTS) {
+        match head.split_once(' ') {
+            Some(("table", name)) => {
+                tables.insert(name.to_owned(), text);
+            }
+            Some(("script", rest)) => {
+                let (stem, origin) = rest.split_once(' ').unwrap_or((rest, ""));
+                scripts.push(Script {
+                    stem: stem.to_owned(),
+                    origin: origin.to_owned(),
+                    text,
+                });
+            }
+            _ => panic!("glue-differential-inputs.txt: unknown section {head}"),
+        }
+    }
+    (tables, scripts)
+}
+
+/// The golden C++ outputs by script stem, in order.
+fn cpp_outputs() -> Vec<(String, String)> {
+    sections(CPP)
+        .into_iter()
+        .map(|(head, text)| {
+            let stem = head
+                .strip_prefix("cpp ")
+                .unwrap_or_else(|| panic!("glue-differential-cpp.txt: unknown section {head}"));
+            (stem.to_owned(), text)
+        })
+        .collect()
+}
+
+/// Each golden script against its copy in this tree (compiled in) or beside it (the moved 01-09):
+/// the failures, and a line about what was compared.
+fn scripts_unchanged(scripts: &[Script]) -> (String, String) {
+    let mut failures = String::new();
+    let mut checked = Vec::new();
+    for (stem, now) in IN_TREE {
+        match scripts.iter().find(|s| s.stem == stem) {
+            Some(s) if s.text == now => checked.push(stem.to_owned()),
+            Some(s) => {
+                let _ = writeln!(
+                    failures,
+                    "script changed since the golden: {stem} (captured from {}); the golden C++ output is of the captured text",
+                    s.origin
+                );
+            }
+            None => {
+                let _ = writeln!(failures, "script {stem} of this tree is not in the golden inputs");
             }
         }
-        per_script.insert(
-            stem.clone(),
-            (c.blocks, c.diffs.len(), glue_lines(&rust).len(), glue_lines(&cpp).len()),
-        );
-        diffs.extend(c.diffs);
     }
-    let total: usize = per_script.values().map(|v| v.0).sum();
-    negative_control(&setup, &dir);
+    let manifest = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let mut moved_found = 0;
+    for rel in MOVED {
+        let dir = manifest.join(rel);
+        if !dir.is_dir() {
+            continue;
+        }
+        moved_found += 1;
+        for s in scripts
+            .iter()
+            .filter(|s| !IN_TREE.iter().any(|(stem, _)| *stem == s.stem))
+        {
+            let path = dir.join(format!("{}.ops", s.stem));
+            match std::fs::read_to_string(&path) {
+                Ok(now) if now == s.text => checked.push(format!("{}@{rel}", s.stem)),
+                Ok(_) => {
+                    let _ = writeln!(
+                        failures,
+                        "script changed since the golden: {} ({} differs from the copy captured from {})",
+                        s.stem,
+                        path.display(),
+                        s.origin
+                    );
+                }
+                Err(e) => {
+                    let _ = writeln!(
+                        failures,
+                        "script changed since the golden: {} ({}: {e}; captured from {})",
+                        s.stem,
+                        path.display(),
+                        s.origin
+                    );
+                }
+            }
+        }
+    }
+    let note = format!(
+        "{} script copies equal to the golden's{}",
+        checked.len(),
+        if moved_found == 0 {
+            " (the moved 01-09 not found beside this tree: not checked)"
+        } else {
+            ""
+        }
+    );
+    (failures, note)
+}
 
-    if var("SAI_GLUE_DIFF_ALLOW_UPDATE").as_deref() == Some("1") {
-        let old = std::fs::read_to_string(&setup.allow).unwrap_or_default();
-        let entries = compare::parse_allow(&old).unwrap_or_default();
-        std::fs::write(&setup.allow, compare::regenerate(&entries, &diffs)).unwrap();
-        summary(&format!(
-            "sai-backend-openbcm glue differential: allow-list REWRITTEN ({}): {total} ops, {} identical, {} entries",
-            setup.allow.display(),
-            total - diffs.len(),
-            diffs.len()
-        ));
-        return;
-    }
-    let text = std::fs::read_to_string(&setup.allow).unwrap_or_else(|e| {
-        panic!(
-            "the allow-list {} is not readable ({e}); SAI_GLUE_DIFF_ALLOW_UPDATE=1 writes one",
-            setup.allow.display()
-        )
-    });
-    let entries = compare::parse_allow(&text).unwrap_or_else(|e| panic!("{}: {e}", setup.allow.display()));
-    let verdict = compare::judge(&entries, &diffs);
-    summary(&format!(
-        "sai-backend-openbcm glue differential: {} scripts, {total} ops, {} identical, {} differ (allowed {}, NOT allowed {}), {} allow-list entries ({} stale); glue lines (Rust) {glue_total}: {glue_in_identical} in identical ops, {glue_matched} equal to a C++ line of the op (in order)",
-        setup.scripts.len(),
-        total - diffs.len(),
-        diffs.len(),
-        diffs.len() - verdict.uncovered().len(),
-        verdict.uncovered().len(),
-        entries.len(),
-        verdict.stale().len()
-    ));
-    for (script, (blocks, differing, glue_rust, glue_cpp)) in &per_script {
-        summary(&format!(
-            "  {script}: {blocks} ops, {} identical, {differing} differ; glue lines Rust {glue_rust}, C++ {glue_cpp}",
-            blocks - differing
-        ));
-    }
-    for (i, e) in entries.iter().enumerate() {
-        eprintln!(
-            "  entry line {}: {} block(s): {}",
-            e.line,
-            verdict.uses.get(i).copied().unwrap_or(0),
-            e.reason
-        );
-    }
+/// An output with the scratch directories written as in the golden.
+fn normalized(text: &str, runs: &Path, tables: &Path) -> String {
+    text.replace(&runs.display().to_string(), "@RUN@")
+        .replace(&tables.display().to_string(), "@TABLES@")
+}
+
+/// The differing blocks the allow-list does not cover, and the entries that cover none.
+fn judged(entries: &[Entry], diffs: &[Diff]) -> String {
+    let verdict = compare::judge(entries, diffs);
     let mut failures = String::new();
     for i in verdict.uncovered() {
         let d = &diffs[i];
@@ -503,44 +404,187 @@ fn rust_and_cpp_backends_make_the_same_glue_calls_but_for_the_allow_list() {
             e.reason
         );
     }
-    assert!(failures.is_empty(), "{failures}");
+    failures
 }
 
-/// The comparison can fail: the C++ lines are the C++ backend's arguments, not the recording
-/// played back. The first script's first recorded `vlan_create` / `port_enable_set` with its
-/// numbers changed in the replay: the C++ still prints the numbers it passed.
-fn negative_control(setup: &Setup, dir: &Path) {
-    let Some((stem, _)) = setup.scripts.iter().find(|(stem, _)| {
-        std::fs::read_to_string(dir.join(format!("{stem}.replay")))
-            .is_ok_and(|r| r.contains("port_enable_set(unit=0, port=1, enable=0)"))
-    }) else {
-        panic!("negative control: no recording with port_enable_set(unit=0, port=1, enable=0)");
-    };
-    let replay = std::fs::read_to_string(dir.join(format!("{stem}.replay"))).unwrap();
-    let changed = replay.replacen(
-        "port_enable_set(unit=0, port=1, enable=0)",
-        "port_enable_set(unit=0, port=1, enable=7)",
-        1,
+/// Glue lines of a Rust output: (all, in identical blocks, equal to a C++ glue line of their
+/// block in order); `differing`: the indices of the blocks that differ.
+fn glue_counts(cpp: &str, rust: &str, differing: &BTreeSet<usize>) -> (usize, usize, usize) {
+    let (mut total, mut in_identical, mut matched) = (0, 0, 0);
+    for (i, (rb, cb)) in compare::blocks(rust)
+        .iter()
+        .zip(compare::blocks(cpp).iter())
+        .enumerate()
+    {
+        let glue_of =
+            |b: &compare::Block| -> Vec<String> { b.lines.iter().filter(|l| l.starts_with(GLUE)).cloned().collect() };
+        let (r, k) = (glue_of(rb), glue_of(cb));
+        total += r.len();
+        if differing.contains(&i) {
+            let rr: Vec<&str> = r.iter().map(String::as_str).collect();
+            let kk: Vec<&str> = k.iter().map(String::as_str).collect();
+            matched += common(&rr, &kk);
+        } else {
+            in_identical += r.len();
+            matched += r.len();
+        }
+    }
+    (total, in_identical, matched)
+}
+
+#[test]
+fn rust_and_cpp_backends_make_the_same_glue_calls_but_for_the_allow_list() {
+    let (tables, scripts) = inputs();
+    let cpp_all = cpp_outputs();
+    assert_eq!(
+        scripts.len(),
+        12,
+        "the golden inputs have the 12 scripts of the capture"
     );
-    let path = dir.join(format!("{stem}.changed-replay"));
-    std::fs::write(&path, &changed).unwrap();
-    let out = Command::new(&setup.exe)
-        .arg(dir.join(format!("{stem}.ops")))
-        .env("GLUE_STUB_REPLAY", &path)
-        .current_dir(dir)
-        .output()
-        .unwrap();
-    let cpp = String::from_utf8(out.stdout).unwrap();
-    let first = cpp
-        .lines()
-        .find(|l| l.starts_with("  glue port_enable_set(unit=0, port=1,"))
-        .unwrap_or_default();
+    assert_eq!(
+        scripts.iter().map(|s| s.stem.as_str()).collect::<Vec<_>>(),
+        cpp_all.iter().map(|(s, _)| s.as_str()).collect::<Vec<_>>(),
+        "the golden inputs and outputs name the same scripts"
+    );
+    let (mut failures, checked) = scripts_unchanged(&scripts);
+
+    let runs = scratch().join("sai-glue-runs");
+    let table_dir = scratch().join("sai-glue-tables");
+    std::fs::create_dir_all(&runs).unwrap();
+    std::fs::create_dir_all(&table_dir).unwrap();
+    for (name, _) in TABLES {
+        let text = tables
+            .get(name)
+            .unwrap_or_else(|| panic!("no table {name} in the golden inputs"));
+        std::fs::write(table_dir.join(name), text).unwrap();
+    }
+    let keep = var("SAI_GLUE_DIFF_KEEP").map(PathBuf::from);
+    let mut diffs: Vec<Diff> = Vec::new();
+    let mut rust_outputs: Vec<(String, String)> = Vec::new();
+    let mut per_script: BTreeMap<String, (usize, usize, usize, usize)> = BTreeMap::new(); // blocks, differing, glue rust, glue cpp
+    let (mut glue_total, mut glue_in_identical, mut glue_matched) = (0usize, 0usize, 0usize);
+    for (s, (_, cpp)) in scripts.iter().zip(&cpp_all) {
+        let stem = &s.stem;
+        let mut text = s.text.clone();
+        for (name, token) in TABLES {
+            text = text.replace(token, table_dir.join(name).to_str().unwrap());
+        }
+        let scen = runs.join(format!("{stem}.scenario"));
+        std::fs::write(&scen, scenario(&text)).unwrap();
+        let script = format!("profile SAI_INIT_CONFIG_FILE={}\n{text}", scen.display());
+
+        // the Rust stack, recording
+        let chip = Chip::new();
+        chip.record(true);
+        let rust = Driver::with_hooks(options(), Box::new(GlueHooks { chip })).run_script(&script);
+        let rust = normalized(&rust, &runs, &table_dir);
+        if let Some(k) = &keep {
+            std::fs::create_dir_all(k).unwrap();
+            std::fs::write(k.join(format!("{stem}.cpp.txt")), cpp).unwrap();
+            std::fs::write(k.join(format!("{stem}.rust.txt")), &rust).unwrap();
+        }
+        let c = compare::compare(stem, cpp, &rust).unwrap_or_else(|e| panic!("{e}"));
+        let differing: BTreeSet<usize> = c.diffs.iter().map(|d| d.index).collect();
+        let (t, i, m) = glue_counts(cpp, &rust, &differing);
+        glue_total += t;
+        glue_in_identical += i;
+        glue_matched += m;
+        if m != t {
+            let _ = writeln!(
+                failures,
+                "{stem}: {} Rust glue line(s) equal no C++ line of their op (in order); SAI_GLUE_DIFF_KEEP=<dir> keeps both outputs",
+                t - m
+            );
+        }
+        per_script.insert(
+            stem.clone(),
+            (c.blocks, c.diffs.len(), glue_lines(&rust).len(), glue_lines(cpp).len()),
+        );
+        diffs.extend(c.diffs);
+        rust_outputs.push((stem.clone(), rust));
+    }
+    let total: usize = per_script.values().map(|v| v.0).sum();
+    let entries = compare::parse_allow(ALLOW).unwrap_or_else(|e| panic!("tests/glue-differential-allow.txt: {e}"));
+
+    let verdict = compare::judge(&entries, &diffs);
+    summary(&format!(
+        "sai-backend-openbcm glue differential (vs the C++ golden of 50a6aa7): {} scripts, {total} ops, {} identical, {} differ (allowed {}, NOT allowed {}), {} allow-list entries ({} stale); glue lines (Rust) {glue_total}: {glue_in_identical} in identical ops, {glue_matched} equal to a C++ line of the op (in order); {checked}",
+        scripts.len(),
+        total - diffs.len(),
+        diffs.len(),
+        diffs.len() - verdict.uncovered().len(),
+        verdict.uncovered().len(),
+        entries.len(),
+        verdict.stale().len()
+    ));
+    for (script, (blocks, differing, glue_rust, glue_cpp)) in &per_script {
+        summary(&format!(
+            "  {script}: {blocks} ops, {} identical, {differing} differ; glue lines Rust {glue_rust}, C++ {glue_cpp}",
+            blocks - differing
+        ));
+    }
+    for (i, e) in entries.iter().enumerate() {
+        eprintln!(
+            "  entry line {}: {} block(s): {}",
+            e.line,
+            verdict.uses.get(i).copied().unwrap_or(0),
+            e.reason
+        );
+    }
+    failures.push_str(&judged(&entries, &diffs));
+    assert!(failures.is_empty(), "{failures}");
+    negative_control(&entries, &cpp_all, &rust_outputs);
+}
+
+/// The comparison can fail. A Rust output with one glue line changed (`(perturbed)` appended):
+/// (1) in the first op of a script that no allow-list entry covers: a difference that is NOT
+/// ALLOWED; (2) in an op an entry covers (the `switch` ops): a Rust glue line that equals no C++
+/// line of its op.
+fn negative_control(entries: &[Entry], cpp_all: &[(String, String)], rust_outputs: &[(String, String)]) {
+    // the output with its first glue line in an op that `covered` says yes (or no) to changed
+    let perturb = |rust: &str, stem: &str, want_covered: bool| -> Option<String> {
+        let mut op_covered = None;
+        let mut done = false;
+        let mut out = String::new();
+        for line in rust.split_inclusive('\n') {
+            if let Some(op) = line.strip_prefix("> ") {
+                let op = op.trim_end();
+                op_covered = Some(entries.iter().any(|e| e.covers(stem, op)));
+            }
+            if !done && op_covered == Some(want_covered) && line.starts_with(GLUE) {
+                out.push_str(line.trim_end());
+                out.push_str(" (perturbed)\n");
+                done = true;
+            } else {
+                out.push_str(line);
+            }
+        }
+        done.then_some(out)
+    };
+    let ((stem, rust), (_, cpp)) = rust_outputs.iter().zip(cpp_all).next().expect("a script");
+    let changed = perturb(rust, stem, false).expect("negative control: a glue line in an op no entry covers");
+    let c = compare::compare(stem, cpp, &changed).unwrap_or_else(|e| panic!("{e}"));
+    let verdict = compare::judge(entries, &c.diffs);
     assert!(
-        first.contains("enable=0)") && !cpp.contains("enable=7"),
-        "negative control on {stem}: the C++ line is not the C++ call: {first}"
+        verdict
+            .uncovered()
+            .iter()
+            .any(|&i| c.diffs[i].rust.iter().any(|l| l.ends_with(" (perturbed)"))),
+        "negative control on {stem}: a changed Rust glue line in an op no entry covers is not reported"
+    );
+    let matched_of = |rust: &str| {
+        let c = compare::compare(stem, cpp, rust).unwrap_or_else(|e| panic!("{e}"));
+        let differing: BTreeSet<usize> = c.diffs.iter().map(|d| d.index).collect();
+        glue_counts(cpp, rust, &differing).2
+    };
+    let changed = perturb(rust, stem, true).expect("negative control: a glue line in an op an entry covers");
+    assert_eq!(
+        matched_of(&changed) + 1,
+        matched_of(rust),
+        "negative control on {stem}: a changed Rust glue line in an allowed op is not reported"
     );
     summary(&format!(
-        "sai-backend-openbcm glue differential: negative control ok ({stem}: a changed recording is not echoed)"
+        "sai-backend-openbcm glue differential: negative control ok ({stem}: a changed Rust glue line is NOT ALLOWED in an op no entry covers, and unmatched in an allowed one)"
     ));
 }
 

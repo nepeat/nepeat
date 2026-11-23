@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Low-cost soak monitor for the AS7772 (agent H3, 2026-11-23). Run every 5 min by the transient timer soak-rust.timer
+# (systemd-run --on-calendar; gone after a reboot). Appends one block per run to /root/soak-rust/soak-YYYYMMDD.txt (UTC).
+# Reads only: redis (CONFIG/STATE/COUNTERS_DB), /proc, /sys, /run, the journal. No MDIO, no diag-shell command.
+set -u
+export SONIC_CLI_IFACE_MODE=default
+O=/root/soak-rust; mkdir -p $O; f=$O/soak-$(date -u +%Y%m%d).txt
+st=$O/.last; last=$(cat $st 2>/dev/null || echo "-6min"); now=$(date -u '+%Y-%m-%d %H:%M:%S'); echo "$now UTC" > $st
+{
+echo "== $(date -u +%FT%TZ) sys=$(basename $(readlink /run/current-system) | cut -c1-8) boot=$(basename $(readlink /run/booted-system) | cut -c1-8) up=$(cut -d' ' -f1 /proc/uptime)s load=$(cut -d' ' -f1-3 /proc/loadavg)"
+ops=""; for p in Ethernet0 Ethernet4 Ethernet120 Ethernet124; do ops="$ops $p=$(sonic-db-cli STATE_DB hget "PORT_TABLE|$p" netdev_oper_status 2>/dev/null)/$(sonic-db-cli APPL_DB hget "PORT_TABLE:$p" oper_status 2>/dev/null)"; done
+echo "links:$ops; oper-up total (APPL_DB): $(for k in $(sonic-db-cli APPL_DB keys 'PORT_TABLE:Ethernet*'); do sonic-db-cli APPL_DB hget $k oper_status; done | grep -c '^up$')"
+echo "macsec: egress SAs $(sonic-db-cli STATE_DB keys 'MACSEC_EGRESS_SA_TABLE|*' | grep -c .), ingress SAs $(sonic-db-cli STATE_DB keys 'MACSEC_INGRESS_SA_TABLE|*' | grep -c .), ports $(sonic-db-cli STATE_DB keys 'MACSEC_PORT_TABLE|*' | grep -c .)"
+err=""; for p in Ethernet0 Ethernet4 Ethernet120 Ethernet124; do oid=$(sonic-db-cli COUNTERS_DB hget COUNTERS_PORT_NAME_MAP $p); err="$err $p=$(sonic-db-cli COUNTERS_DB hmget COUNTERS:$oid SAI_PORT_STAT_IF_IN_ERRORS SAI_PORT_STAT_IF_IN_DISCARDS SAI_PORT_STAT_IF_OUT_ERRORS SAI_PORT_STAT_IF_OUT_DISCARDS | tr '\n' '/')"; done
+echo "port in-err/in-disc/out-err/out-disc:$err"
+echo "procs: $(ps -o comm=,pid=,rss=,cputimes= -C syncd,orchagent,wpa_supplicant 2>/dev/null | awk '{printf "%s(%s) rss=%sk cpu=%ss; ", $1,$2,$3,$4}')"
+echo "temps: asic=$(cat /run/asic/temperature 2>/dev/null) $(python3 -c "
+import json; s=json.load(open('/run/fand/state.json'))
+print('fand failsafe=%s' % s['failsafe'], ' '.join('%s:%.1fC/%.0f%%' % (k, z['temperature'], z['duty']) for k, z in s['zones'].items()))" 2>&1) hwmon=$(cat /sys/class/hwmon/hwmon*/temp*_input 2>/dev/null | tr '\n' ' ')"
+echo "failed units: $(systemctl --failed --no-legend | wc -l) $(systemctl --failed --no-legend | awk '{print $2}' | tr '\n' ' ')"
+echo "since $last: journal err+ $(journalctl --since "$last" -p err --no-pager -q | wc -l), syncd/orchagent err-lines $(journalctl --since "$last" -u sonic-syncd -u sonic-orchagent --no-pager -q | grep -c -i -E ' err|error|fail'), kernel warn+ $(journalctl -k --since "$last" -p warning --no-pager -q | wc -l), soc_knet_handle_rx $(journalctl --since "$last" --no-pager -q | grep -c soc_knet_handle_rx), dup-MAC/SCI $(journalctl --since "$last" -t wpa_supplicant --no-pager -q | grep -c -E 'duplicate MAC|duplicated SCI')"
+} >> $f 2>&1

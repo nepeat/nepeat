@@ -1,5 +1,5 @@
 //! Differential test against the C client: the same command lines and environment for
-//! `openbcm-diag` built from sai-openbcm's `openbcm_diag.c` and for this crate's binary, against
+//! `openbcm-diag` built from `openbcm_diag.c` (frozen in sai-teralynx/frontend/src; live) and for this crate's binary, against
 //! a fake server that records what it receives; exit code, stdout, stderr and the bytes the
 //! server got must be equal.
 //!
@@ -148,7 +148,7 @@ fn run(exe: &Path, args: &[OsString], env: Option<&OsString>, fake: &Fake) -> Ru
 fn the_rust_client_behaves_like_openbcm_diag_c() {
     let Some((c, rust)) = tools() else {
         summary(
-            "openbcm-diag differential: the C client was not built (SAI_OPENBCM_SRC / MDIO_SCRIPT_C_DIR at build time, or SAI_RS_TEST_BIN): SKIPPED",
+            "openbcm-diag differential: the C client was not built (SAI_OPENBCM_SRC at build time, or SAI_RS_TEST_BIN): SKIPPED",
         );
         return;
     };

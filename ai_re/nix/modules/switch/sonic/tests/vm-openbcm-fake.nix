@@ -1,5 +1,5 @@
 # The same VM test as vm.nix (vm-test.py, SAI = "openbcm-fake"), with syncd on
-# sai-openbcm's FAKE backend instead of the virtual SAI: what orchagent and
+# our SAI's FAKE backend (the Rust libsai's virtual backend, SAI_OPENBCM_BACKEND=fake) instead of the virtual SAI: what orchagent and
 # the managers do against the thin SAI the AS7760 runs, without the ASIC.
 # The fake has the AS7760's 32 cages x 4 lanes (lanes 1..128, the same sets
 # as port-maps/accton-as7712-32x.nix), no breakout (the SDK takes that from
@@ -8,11 +8,13 @@
 # peer VM's NICs, so teamd's LACP and a ping reach the peer.
 #   nix build -L --impure --expr 'let f = builtins.getFlake "path:<ai_re>/nix";
 #     pkgs = import f.inputs.nixpkgs { system = "x86_64-linux"; };
-#     in import <ai_re>/nix/modules/switch/sonic/tests/vm-openbcm-fake.nix { inherit pkgs; }'
+#     in import <ai_re>/nix/modules/switch/sonic/tests/vm-openbcm-fake.nix { inherit pkgs;
+#       openbcm.rustSai = <monorepo>/rust/sai/nix; }'
 { pkgs
 , sonic ? import ../../../../packages/sonic { inherit pkgs; }
-  # hardware.openbcm settings choosing the SAI under test (modules/switch/openbcm.nix), e.g.
-  # { implementation = "rust"; rustSai = <monorepo>/rust/sai/nix; }; default: the C++ sai-openbcm.
+  # hardware.openbcm settings for the SAI under test (modules/switch/openbcm.nix):
+  # { rustSai = <monorepo>/rust/sai/nix; } (required unless libsai / sairedis are given: the SAI
+  # is the Rust one, outside this tree; the C++ sai-openbcm was deleted on 2026-11-23).
 , openbcm ? { }
   # libsai / sairedis given explicitly win over that (rust/sai/nix's wrappers pass them).
 , libsai ? null
@@ -21,7 +23,7 @@
 , sairedis ? null }:
 let sai = import ./openbcm-sai.nix { inherit sonic openbcm libsai sairedis; }; in
 pkgs.testers.runNixOSTest {
-  name = "sonic-control-plane-openbcm-fake" + sai.nameSuffix;
+  name = "sonic-control-plane-openbcm-fake";
   nodes.switch = { lib, pkgs, ... }: {
     imports = [ ./common.nix sai.module ];
     virtualisation.memorySize = 3072;

@@ -1,16 +1,30 @@
-//! Differential test against the C++ tools of sai-openbcm.
+//! Golden test of this crate's table tools (`phy_seq::cli`, run in process; the binaries
+//! `openbcm-ext-macsec-rs` / `openbcm-ext-phy-rs`) against what the C++ tools of sai-openbcm
+//! answered: `openbcm-ext-macsec` / `openbcm-ext-phy` (`src/ext_macsec_check.cpp` /
+//! `src/ext_phy_check.cpp` over `sai_extmacsec.cpp` / `sai_extphy.cpp`). Until that C++ was
+//! deleted this file ran both on the same inputs and compared them live; the files under
+//! `tests/golden/` are the C++ tools' outputs, captured at commit 50a6aa7 (2026-11-23), so a
+//! test fails whenever the Rust output changes. A deliberate change of behaviour edits the golden
+//! by hand, with a reason, like an allow-list entry; a golden is never regenerated from the Rust
+//! output.
 //!
-//! `PHY_SEQ_CXX_EXT_MACSEC` and `PHY_SEQ_CXX_EXT_PHY` name the built `openbcm-ext-macsec` and
-//! `openbcm-ext-phy` (or they are files of those names in `$SAI_RS_TEST_BIN`, the directory of
-//! prebuilt helpers on a machine without a compiler). Every table of a corpus, of
-//! `PHY_SEQ_TABLES` (a colon-separated list of table files, e.g. a board's real tables) and
-//! generated ones is given to the C++ tool and to this crate's (`phy_seq::cli`, in process):
-//! exit code, standard output and standard error of `--check` must be equal byte for byte, and
-//! for a table that parses, of `--render` of its sequences without parameters, with parameters,
-//! and with parameters and recorded reads. Without the variables the tests say so and pass.
+//! What is compared: exit code, standard output and standard error of `--check` and, for a
+//! table that parses, of `--render` of its sequences without parameters, with parameters, and
+//! with parameters and recorded reads.
+//! - Corpus (`golden/ext-*-corpus.txt`, in full): the hand-written tables below, usage errors
+//!   and files that cannot be opened.
+//! - Generated (`golden/ext-*-generated.txt`): tables from `common`'s generators with a fixed
+//!   proptest RNG seed; per case a 64-bit FNV-1a digest of the input and one of each
+//!   comparison. A different input digest means the generator changed, not the tool; a
+//!   different output digest prints the case.
+//! - Board tables (`golden/as7772-ext-*.txt`): the files in `PHY_SEQ_TABLES` (colon-separated,
+//!   e.g. the AS7772's tables that Nix generates). A file is compared when its length and FNV-1a
+//!   digest are the golden's (its sha256 is in the golden's header), otherwise it is SKIPPED
+//!   (stderr and `$SAI_RS_TEST_SUMMARY`); every listed table must still parse.
 //!
-//! Nothing is compiled here. Files are written under `$SAI_RS_TEST_TMPDIR` when set, else
-//! under cargo's directory for test files.
+//! Nothing is compiled or run but this crate. Inputs are written to a scratch directory (under
+//! `$SAI_RS_TEST_TMPDIR` when set, else cargo's directory for test files), which outputs show
+//! as `$D`.
 
 #![allow(
     clippy::unwrap_used,
@@ -21,58 +35,126 @@
 
 mod common;
 
-use std::ffi::OsString;
+use std::ffi::{OsStr, OsString};
 use std::fmt::Write as _;
+use std::os::unix::ffi::OsStrExt as _;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::sync::atomic::{AtomicU64, Ordering};
 
 use phy_seq::{ExtPhyTable, MacsecTable, ParamName};
 use proptest::prelude::*;
-use proptest::test_runner::TestCaseError;
+use proptest::strategy::ValueTree as _;
+use proptest::test_runner::{Config, RngAlgorithm, TestRng, TestRunner};
 
-thread_local! {
-    /// Comparisons made by this test (every test runs on its own thread).
-    static COMPARISONS: std::cell::Cell<u64> = const { std::cell::Cell::new(0) };
-}
-static FILE_NO: AtomicU64 = AtomicU64::new(0);
+const MACSEC_CORPUS_GOLDEN: &str = include_str!("golden/ext-macsec-corpus.txt");
+const EXTPHY_CORPUS_GOLDEN: &str = include_str!("golden/ext-phy-corpus.txt");
+const MACSEC_GENERATED_GOLDEN: &str = include_str!("golden/ext-macsec-generated.txt");
+const EXTPHY_GENERATED_GOLDEN: &str = include_str!("golden/ext-phy-generated.txt");
+const MACSEC_BOARD_GOLDEN: &str = include_str!("golden/as7772-ext-macsec.txt");
+const EXTPHY_BOARD_GOLDEN: &str = include_str!("golden/as7772-ext-phy.txt");
 
-/// A helper executable: from the variable, else by name from `$SAI_RS_TEST_BIN`.
-fn helper(var: &str, name: &str) -> Option<PathBuf> {
-    if let Some(path) = std::env::var_os(var) {
-        return Some(PathBuf::from(path));
+/// The generated cases: how many, and the seeds of the proptest RNG (`ChaCha`) that makes them.
+const MACSEC_CASES: usize = 4000;
+const EXTPHY_CASES: usize = 16000;
+const MACSEC_SEED: [u8; 32] = *b"phy-seq ext-macsec golden 50a6aa";
+const EXTPHY_SEED: [u8; 32] = *b"phy-seq ext-phy golden 50a6aa7..";
+
+/// A line for whoever runs the suite: on stderr, and appended to the file `$SAI_RS_TEST_SUMMARY`
+/// names (the target-test bundle collects these; captured stderr of a passing test is not shown).
+fn summary(line: &str) {
+    eprintln!("{line}");
+    if let Some(path) = std::env::var_os("SAI_RS_TEST_SUMMARY") {
+        use std::io::Write as _;
+        if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(path) {
+            let _ = writeln!(f, "{line}");
+        }
     }
+}
+
+/// 64-bit FNV-1a: identifies inputs and outputs in the goldens (not a security measure).
+fn fnv1a64(bytes: &[u8]) -> u64 {
+    bytes.iter().fold(0xcbf2_9ce4_8422_2325, |h, b| {
+        (h ^ u64::from(*b)).wrapping_mul(0x0100_0000_01b3)
+    })
+}
+
+/// Bytes as a quoted ASCII string: printable characters as they are, `\\`, `\"`, `\n`, `\r`,
+/// `\t`, the rest `\xNN`.
+fn esc(bytes: &[u8]) -> String {
+    let mut s = String::from("\"");
+    for &b in bytes {
+        match b {
+            b'\\' => s.push_str("\\\\"),
+            b'"' => s.push_str("\\\""),
+            b'\n' => s.push_str("\\n"),
+            b'\r' => s.push_str("\\r"),
+            b'\t' => s.push_str("\\t"),
+            0x20..=0x7e => s.push(char::from(b)),
+            _ => write!(s, "\\x{b:02x}").unwrap(),
+        }
+    }
+    s.push('"');
+    s
+}
+
+/// A prebuilt helper by name from `$SAI_RS_TEST_BIN` (the bundle on a machine without cargo).
+fn prebuilt(name: &str) -> Option<PathBuf> {
     let in_bin = PathBuf::from(std::env::var_os("SAI_RS_TEST_BIN")?).join(name);
     in_bin.is_file().then_some(in_bin)
 }
 
-fn cxx(var: &str, name: &str) -> Option<PathBuf> {
-    let found = helper(var, name);
-    if found.is_none() {
-        eprintln!(
-            "differential: {var} is not set (and no {name} in SAI_RS_TEST_BIN), the comparison with the C++ {name} is SKIPPED"
-        );
+/// A test's own directory for the files it gives the tools.
+struct Scratch {
+    dir: PathBuf,
+}
+
+impl Scratch {
+    fn new(test: &str) -> Self {
+        let base = std::env::var_os("SAI_RS_TEST_TMPDIR")
+            .map_or_else(|| PathBuf::from(env!("CARGO_TARGET_TMPDIR")), PathBuf::from);
+        let dir = base
+            .join(format!("phy-seq-differential-{}", std::process::id()))
+            .join(test);
+        std::fs::create_dir_all(&dir).unwrap();
+        Self { dir }
     }
-    found
+
+    fn put(&self, name: &str, content: &[u8]) -> PathBuf {
+        let path = self.dir.join(name);
+        std::fs::write(&path, content).unwrap();
+        path
+    }
+
+    /// `bytes` with this directory written `$D`, escaped.
+    fn norm(&self, bytes: &[u8]) -> String {
+        let dir = self.dir.as_os_str().as_bytes();
+        let mut out = Vec::with_capacity(bytes.len());
+        let mut rest = bytes;
+        while let Some((&b, tail)) = rest.split_first() {
+            if let Some(after) = rest.strip_prefix(dir) {
+                out.extend_from_slice(b"$D");
+                rest = after;
+            } else {
+                out.push(b);
+                rest = tail;
+            }
+        }
+        esc(&out)
+    }
 }
 
-fn scratch() -> PathBuf {
-    let base = std::env::var_os("SAI_RS_TEST_TMPDIR")
-        .map_or_else(|| PathBuf::from(env!("CARGO_TARGET_TMPDIR")), PathBuf::from);
-    let dir = base.join(format!("phy-seq-differential-{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    dir
+impl Drop for Scratch {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.dir);
+    }
 }
 
-fn put(content: &[u8]) -> PathBuf {
-    let path = scratch().join(format!("f{}", FILE_NO.fetch_add(1, Ordering::Relaxed)));
-    std::fs::write(&path, content).unwrap();
-    path
-}
-
+/// Exit code (`None`: killed by a signal), standard output, standard error.
 type Output = (Option<i32>, Vec<u8>, Vec<u8>);
+type Tool = fn(&[OsString], &mut dyn std::io::Write, &mut dyn std::io::Write) -> u8;
+type Runner<'a> = dyn FnMut(&[OsString]) -> Output + 'a;
 
-fn run_cxx(exe: &Path, args: &[OsString]) -> Output {
+fn run_exe(exe: &Path, args: &[OsString]) -> Output {
     let out = Command::new(exe)
         .args(args)
         .output()
@@ -80,41 +162,142 @@ fn run_cxx(exe: &Path, args: &[OsString]) -> Output {
     (out.status.code(), out.stdout, out.stderr)
 }
 
-fn run_rust(
-    tool: fn(&[OsString], &mut dyn std::io::Write, &mut dyn std::io::Write) -> u8,
-    args: &[OsString],
-) -> Output {
-    let mut full = vec![OsString::from("rs")];
-    full.extend_from_slice(args);
-    let (mut out, mut err) = (Vec::new(), Vec::new());
-    let code = tool(&full, &mut out, &mut err);
-    (Some(i32::from(code)), out, err)
-}
-
-fn show(o: &Output) -> String {
-    format!(
-        "exit {:?}\n--- stdout\n{}\n--- stderr\n{}",
-        o.0,
-        String::from_utf8_lossy(&o.1),
-        String::from_utf8_lossy(&o.2)
-    )
-}
-
-fn same(what: &str, cxx: &Output, rust: &Output) -> Result<(), String> {
-    COMPARISONS.set(COMPARISONS.get() + 1);
-    if cxx == rust {
-        Ok(())
-    } else {
-        Err(format!(
-            "{what}: the tools disagree\n=== C++: {}\n=== Rust: {}",
-            show(cxx),
-            show(rust)
-        ))
+/// One of the tools in process, as if run with `args`.
+fn in_process(tool: Tool) -> impl FnMut(&[OsString]) -> Output {
+    move |args| {
+        let mut full = vec![OsString::from("rs")];
+        full.extend_from_slice(args);
+        let (mut out, mut err) = (Vec::new(), Vec::new());
+        let code = tool(&full, &mut out, &mut err);
+        (Some(i32::from(code)), out, err)
     }
 }
 
-fn os(args: &[&std::ffi::OsStr]) -> Vec<OsString> {
+fn os(args: &[&OsStr]) -> Vec<OsString> {
     args.iter().map(|a| (*a).to_owned()).collect()
+}
+
+/// What a golden keeps of a run: all of it, the exit code (the usage text names the program,
+/// which differs), or a digest.
+#[derive(Clone, Copy)]
+enum Keep {
+    Full,
+    ExitCode,
+    Digest,
+}
+
+/// One entry of a transcript: a section line (`== what`, the input) or a run (`-- args`, then
+/// what was kept). `golden` is the text the golden holds, `shown` the whole run.
+struct Entry {
+    golden: String,
+    shown: String,
+    digest: Option<u64>,
+}
+
+/// The runs of a test in order, as text the goldens are compared with.
+#[derive(Default)]
+struct Transcript {
+    entries: Vec<Entry>,
+    runs: u64,
+}
+
+impl Transcript {
+    fn section(&mut self, what: &str) {
+        let line = format!("== {what}\n");
+        self.entries.push(Entry {
+            golden: line.clone(),
+            shown: line,
+            digest: None,
+        });
+    }
+
+    fn run(&mut self, sc: &Scratch, run: &mut Runner<'_>, args: &[OsString], keep: Keep) -> Output {
+        let o = run(args);
+        let label: Vec<String> = args.iter().map(|a| sc.norm(a.as_bytes())).collect();
+        let label = if label.is_empty() {
+            vec!["(no arguments)".to_owned()]
+        } else {
+            label
+        };
+        let exit = o.0.map_or_else(|| "signal".to_owned(), |c| c.to_string());
+        let shown = format!(
+            "-- {}\nexit {exit}\nout {}\nerr {}\n",
+            label.join(" "),
+            sc.norm(&o.1),
+            sc.norm(&o.2)
+        );
+        let digest = fnv1a64(shown.as_bytes());
+        let golden = match keep {
+            Keep::Full => shown.clone(),
+            Keep::ExitCode => format!("-- {}\nexit {exit}\n", label.join(" ")),
+            Keep::Digest => format!("-- {} = {digest:016x}\n", label.join(" ")),
+        };
+        self.entries.push(Entry {
+            golden,
+            shown,
+            digest: Some(digest),
+        });
+        self.runs += 1;
+        o
+    }
+
+    /// The case line of a generated golden: index, input digest, the digest of each run.
+    fn case_line(&self, i: usize, input: u64) -> String {
+        let mut line = format!("{i} {input:016x}");
+        for d in self.entries.iter().filter_map(|e| e.digest) {
+            write!(line, " {d:016x}").unwrap();
+        }
+        line
+    }
+}
+
+/// A golden's lines without its header (`#` lines).
+fn body(golden: &str) -> impl Iterator<Item = &str> {
+    golden.lines().filter(|l| !l.starts_with('#'))
+}
+
+/// Compares a transcript with a golden in the transcript format; the number of runs.
+fn check_transcript(name: &str, golden: &str, t: &Transcript) -> u64 {
+    let mut want: Vec<String> = Vec::new();
+    for line in body(golden) {
+        match want.last_mut() {
+            Some(entry) if !line.starts_with("== ") && !line.starts_with("-- ") => {
+                entry.push_str(line);
+                entry.push('\n');
+            }
+            _ => want.push(format!("{line}\n")),
+        }
+    }
+    let mut section = "(none)";
+    for (i, e) in t.entries.iter().enumerate() {
+        if e.golden.starts_with("== ") {
+            section = &e.golden;
+        }
+        let Some(w) = want.get(i) else {
+            panic!(
+                "{name}: the golden ends before entry {i}; this test now also gives\n{}",
+                e.shown
+            );
+        };
+        if *w != e.golden {
+            let why = if e.golden.starts_with("== ") || w.starts_with("== ") {
+                "the inputs differ from the golden's (this test's corpus or code changed, not the tool)"
+            } else {
+                "the Rust tool's output differs from the C++ tool's (the golden)"
+            };
+            panic!(
+                "{name}: entry {i}: {why}\nsection: {section}=== golden (C++ at 50a6aa7):\n{w}=== Rust now:\n{}",
+                e.shown
+            );
+        }
+    }
+    assert_eq!(
+        want.len(),
+        t.entries.len(),
+        "{name}: the golden has more entries than this test gives (next: {:?})",
+        want.get(t.entries.len())
+    );
+    t.runs
 }
 
 /// Parameter files: every parameter in full, with bytes that tell the parameters apart; and a
@@ -132,21 +315,25 @@ fn param_files() -> [Vec<u8>; 2] {
     [full.into_bytes(), short]
 }
 
-/// `--check` of one ext-macsec table, and `--render` of up to `max_seqs` of its sequences.
-fn compare_macsec(exe: &Path, text: &[u8], max_seqs: usize, seed: u64) -> Result<(), String> {
-    let file = put(text);
+/// `--check` of one ext-macsec table, and `--render` of up to `max_seqs` of its sequences
+/// (kept as `renders` says).
+fn macsec_runs(
+    sc: &Scratch,
+    t: &mut Transcript,
+    run: &mut Runner<'_>,
+    text: &[u8],
+    max_seqs: usize,
+    seed: u64,
+    renders: Keep,
+) {
+    let file = sc.put("table", text);
     let f = file.as_os_str();
-    let check = os(&["--check".as_ref(), f]);
-    same(
-        "--check",
-        &run_cxx(exe, &check),
-        &run_rust(phy_seq::cli::ext_macsec, &check),
-    )?;
+    t.run(sc, run, &os(&["--check".as_ref(), f]), Keep::Full);
     let Ok(table) = MacsecTable::parse(text) else {
-        let _ = std::fs::remove_file(&file);
-        return Ok(());
+        return;
     };
-    let [full, short] = param_files().map(|p| put(&p));
+    let [full, short] = param_files();
+    let (full, short) = (sc.put("params-full", &full), sc.put("params-short", &short));
     // recorded reads: a few that make comparisons pass now and then, written the ways strtoul reads
     let mut state = seed | 1;
     let mut next = || {
@@ -163,10 +350,10 @@ fn compare_macsec(exe: &Path, text: &[u8], max_seqs: usize, seed: u64) -> Result
             _ => format!("{:x}\n", next() & 0xffff),
         })
         .collect();
-    let reads = put(reads.as_bytes());
+    let reads = sc.put("reads", reads.as_bytes());
     for (name, _) in table.sequences().take(max_seqs) {
         let phy = format!("{:x}", next() & 0xffff);
-        let variants: [Vec<&std::ffi::OsStr>; 5] = [
+        let variants: [Vec<&OsStr>; 5] = [
             vec![],
             vec!["-".as_ref()],
             vec![full.as_os_str()],
@@ -176,29 +363,14 @@ fn compare_macsec(exe: &Path, text: &[u8], max_seqs: usize, seed: u64) -> Result
         for extra in variants {
             let mut args = os(&["--render".as_ref(), f, name.as_ref(), phy.as_ref()]);
             args.extend(extra.iter().map(|a| (*a).to_owned()));
-            same(
-                &format!("--render {name} {phy} (+{} files)", extra.len()),
-                &run_cxx(exe, &args),
-                &run_rust(phy_seq::cli::ext_macsec, &args),
-            )?;
+            t.run(sc, run, &args, renders);
         }
     }
-    for path in [file, full, short, reads] {
-        let _ = std::fs::remove_file(path);
-    }
-    Ok(())
 }
 
-fn compare_extphy(exe: &Path, text: &[u8]) -> Result<(), String> {
-    let file = put(text);
-    let check = os(&["--check".as_ref(), file.as_os_str()]);
-    let verdict = same(
-        "--check",
-        &run_cxx(exe, &check),
-        &run_rust(phy_seq::cli::ext_phy, &check),
-    );
-    let _ = std::fs::remove_file(&file);
-    verdict
+fn extphy_runs(sc: &Scratch, t: &mut Transcript, run: &mut Runner<'_>, text: &[u8]) {
+    let file = sc.put("table", text);
+    t.run(sc, run, &os(&["--check".as_ref(), file.as_os_str()]), Keep::Full);
 }
 
 const MACSEC_CORPUS: &[&[u8]] = &[
@@ -294,42 +466,25 @@ const EXTPHY_CORPUS: &[&[u8]] = &[
     b"ext-phy 1\nport 1\nlink\nC 1 1 1 1 1\nport 2\nlink\nR 1 1 1\n",
 ];
 
-fn board_tables() -> Vec<(PathBuf, Vec<u8>)> {
-    let Some(list) = std::env::var_os("PHY_SEQ_TABLES") else {
-        return Vec::new();
-    };
-    std::env::split_paths(&list)
-        .map(|path| {
-            let text = std::fs::read(&path).unwrap_or_else(|e| panic!("PHY_SEQ_TABLES: {}: {e}", path.display()));
-            (path, text)
-        })
-        .collect()
-}
-
-#[test]
-fn ext_macsec_corpus_and_board_tables() {
-    let Some(exe) = cxx("PHY_SEQ_CXX_EXT_MACSEC", "openbcm-ext-macsec") else {
-        return;
-    };
-    let before = COMPARISONS.get();
+/// The ext-macsec corpus, the test table of `common`, usage errors and unopenable files.
+fn macsec_corpus(sc: &Scratch, run: &mut Runner<'_>) -> Transcript {
+    let mut t = Transcript::default();
     for (i, text) in MACSEC_CORPUS.iter().enumerate() {
-        compare_macsec(&exe, text, usize::MAX, i as u64)
-            .unwrap_or_else(|e| panic!("corpus table {i} ({:?}): {e}", String::from_utf8_lossy(text)));
+        t.section(&format!("table {i} {}", esc(text)));
+        macsec_runs(sc, &mut t, run, text, usize::MAX, i as u64, Keep::Full);
     }
-    compare_macsec(&exe, common::ms_table(true, true).as_bytes(), usize::MAX, 99)
-        .unwrap_or_else(|e| panic!("the test table: {e}"));
-    let mut boards = 0;
-    for (path, text) in board_tables() {
-        if text.starts_with(b"ext-macsec") {
-            assert!(MacsecTable::parse(&text).is_ok(), "{}: refused", path.display());
-            compare_macsec(&exe, &text, usize::MAX, 7).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
-            boards += 1;
-        }
-    }
-    // usage and files that cannot be opened: the same exit codes (the usage text names the program)
-    let missing = scratch().join("no-such-file");
-    let table = put(b"ext-macsec 1\nseq s\nW p 1 1 key[0].00\n");
-    let cases: Vec<Vec<OsString>> = vec![
+    let ms = common::ms_table(true, true);
+    t.section(&format!("test table {}", esc(ms.as_bytes())));
+    macsec_runs(sc, &mut t, run, ms.as_bytes(), usize::MAX, 99, Keep::Full);
+    // usage: the exit code only (the usage text names the program)
+    let missing = sc.dir.join("no-such-file");
+    let table = sc.put("usage-table", b"ext-macsec 1\nseq s\nW p 1 1 key[0].00\n");
+    t.section(&format!(
+        "usage, {} = {}",
+        sc.norm(table.as_os_str().as_bytes()),
+        esc(b"ext-macsec 1\nseq s\nW p 1 1 key[0].00\n")
+    ));
+    let usage: Vec<Vec<OsString>> = vec![
         vec![],
         os(&["--check".as_ref()]),
         os(&["--frob".as_ref(), table.as_os_str()]),
@@ -344,17 +499,13 @@ fn ext_macsec_corpus_and_board_tables() {
             "-".as_ref(),
         ]),
     ];
-    for args in &cases {
-        assert_eq!(
-            run_cxx(&exe, args).0,
-            run_rust(phy_seq::cli::ext_macsec, args).0,
-            "{args:?}"
-        );
-        assert_eq!(run_rust(phy_seq::cli::ext_macsec, args).0, Some(2));
+    for args in &usage {
+        t.run(sc, run, args, Keep::ExitCode);
     }
-    let cases: Vec<Vec<OsString>> = vec![
+    t.section("files that cannot be opened, bad arguments");
+    let files: Vec<Vec<OsString>> = vec![
         os(&["--check".as_ref(), missing.as_os_str()]),
-        os(&["--check".as_ref(), scratch().as_os_str()]),
+        os(&["--check".as_ref(), sc.dir.as_os_str()]),
         os(&["--render".as_ref(), table.as_os_str(), "nope".as_ref(), "1".as_ref()]),
         os(&["--render".as_ref(), table.as_os_str(), "s".as_ref(), "1e0".as_ref()]),
         os(&[
@@ -381,116 +532,272 @@ fn ext_macsec_corpus_and_board_tables() {
             table.as_os_str(),
         ]),
     ];
-    for args in &cases {
-        same(
-            &format!("{args:?}"),
-            &run_cxx(&exe, args),
-            &run_rust(phy_seq::cli::ext_macsec, args),
-        )
-        .unwrap_or_else(|e| panic!("{e}"));
+    for args in &files {
+        t.run(sc, run, args, Keep::Full);
     }
-    let n = COMPARISONS.get() - before;
-    eprintln!(
-        "differential: ext-macsec corpus: {n} comparisons with the C++ tool, {boards} board table(s), no disagreement"
-    );
+    t
 }
 
-#[test]
-fn ext_phy_corpus_and_board_tables() {
-    let Some(exe) = cxx("PHY_SEQ_CXX_EXT_PHY", "openbcm-ext-phy") else {
-        return;
-    };
-    let before = COMPARISONS.get();
+/// The ext-phy corpus, usage errors and an unopenable file.
+fn extphy_corpus(sc: &Scratch, run: &mut Runner<'_>) -> Transcript {
+    let mut t = Transcript::default();
     for (i, text) in EXTPHY_CORPUS.iter().enumerate() {
-        compare_extphy(&exe, text)
-            .unwrap_or_else(|e| panic!("corpus table {i} ({:?}): {e}", String::from_utf8_lossy(text)));
+        t.section(&format!("table {i} {}", esc(text)));
+        extphy_runs(sc, &mut t, run, text);
     }
-    let mut boards = 0;
-    for (path, text) in board_tables() {
-        if text.starts_with(b"ext-phy") {
-            assert!(ExtPhyTable::parse(&text).is_ok(), "{}: refused", path.display());
-            compare_extphy(&exe, &text).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
-            boards += 1;
-        }
-    }
-    let missing = scratch().join("no-such-file");
+    let missing = sc.dir.join("no-such-file");
+    t.section("usage");
     for args in [
         vec![],
         os(&["--render".as_ref(), missing.as_os_str()]),
         os(&["--check".as_ref(), missing.as_os_str(), "x".as_ref()]),
     ] {
-        assert_eq!(
-            run_cxx(&exe, &args).0,
-            run_rust(phy_seq::cli::ext_phy, &args).0,
-            "{args:?}"
-        );
+        t.run(sc, run, &args, Keep::ExitCode);
     }
-    let args = os(&["--check".as_ref(), missing.as_os_str()]);
-    same(
-        "missing file",
-        &run_cxx(&exe, &args),
-        &run_rust(phy_seq::cli::ext_phy, &args),
-    )
-    .unwrap_or_else(|e| panic!("{e}"));
-    let n = COMPARISONS.get() - before;
-    eprintln!(
-        "differential: ext-phy corpus: {n} comparisons with the C++ tool, {boards} board table(s), no disagreement"
-    );
+    t.section("missing file");
+    t.run(sc, run, &os(&["--check".as_ref(), missing.as_os_str()]), Keep::Full);
+    t
 }
 
-fn cases() -> u32 {
-    std::env::var("PHY_SEQ_DIFF_CASES")
-        .ok()
-        .and_then(|v| v.parse().ok())
-        .unwrap_or(400)
+/// A board table's transcript: `--check` in full, the renders as digests.
+fn macsec_board(sc: &Scratch, run: &mut Runner<'_>, text: &[u8]) -> Transcript {
+    let mut t = Transcript::default();
+    t.section("board table");
+    macsec_runs(sc, &mut t, run, text, usize::MAX, 7, Keep::Digest);
+    t
+}
+
+fn extphy_board(sc: &Scratch, run: &mut Runner<'_>, text: &[u8]) -> Transcript {
+    let mut t = Transcript::default();
+    t.section("board table");
+    extphy_runs(sc, &mut t, run, text);
+    t
+}
+
+/// `n` values of `strategy` from the proptest RNG seeded with `seed` (no shrinking, no cases run).
+fn generated<S: Strategy>(strategy: &S, seed: &[u8; 32], n: usize) -> Vec<S::Value> {
+    let config = Config {
+        failure_persistence: None,
+        ..Config::default()
+    };
+    let mut runner = TestRunner::new_with_rng(config, TestRng::from_seed(RngAlgorithm::ChaCha, seed));
+    (0..n)
+        .map(|_| strategy.new_tree(&mut runner).unwrap().current())
+        .collect()
+}
+
+fn macsec_cases() -> Vec<(Vec<u8>, u64)> {
+    generated(&(common::macsec_text(), any::<u64>()), &MACSEC_SEED, MACSEC_CASES)
+}
+
+fn extphy_cases() -> Vec<Vec<u8>> {
+    generated(&common::extphy_text(), &EXTPHY_SEED, EXTPHY_CASES)
+}
+
+fn macsec_input_digest(text: &[u8], seed: u64) -> u64 {
+    let mut bytes = seed.to_le_bytes().to_vec();
+    bytes.extend_from_slice(text);
+    fnv1a64(&bytes)
+}
+
+/// Compares generated cases with a generated golden: `case(i)` gives the input digest, the
+/// input as text, and the transcript. Returns the number of runs.
+fn check_generated(
+    name: &str,
+    golden: &str,
+    n: usize,
+    mut case: impl FnMut(usize) -> (u64, String, Transcript),
+) -> u64 {
+    let mut lines = body(golden);
+    assert_eq!(
+        lines.next(),
+        Some(format!("cases {n}").as_str()),
+        "{name}: the golden's case count"
+    );
+    let (mut runs, mut drift, mut changed) = (0, 0, 0);
+    let mut first = Vec::new();
+    for i in 0..n {
+        let (input, shown_input, t) = case(i);
+        runs += t.runs;
+        let line = t.case_line(i, input);
+        let want = lines
+            .next()
+            .unwrap_or_else(|| panic!("{name}: the golden ends before case {i}"));
+        if want == line {
+            continue;
+        }
+        let mut want_words = want.split(' ').skip(1);
+        if want_words.next() != Some(format!("{input:016x}").as_str()) {
+            drift += 1;
+            if drift <= 3 {
+                first.push(format!(
+                    "case {i}: generator changed, golden inputs differ (input now {shown_input})"
+                ));
+            }
+            continue;
+        }
+        changed += 1;
+        if changed <= 3 {
+            let runs: Vec<&Entry> = t.entries.iter().filter(|e| e.digest.is_some()).collect();
+            let at = runs
+                .iter()
+                .zip(want_words.by_ref())
+                .position(|(e, w)| e.digest.map(|d| format!("{d:016x}")).as_deref() != Some(w))
+                .unwrap_or(runs.len());
+            let what = runs.get(at).map_or_else(
+                || "the golden has a different number of runs".to_owned(),
+                |e| format!("Rust now gives\n{}", e.shown),
+            );
+            first.push(format!(
+                "case {i}: run {at} differs from the C++ tool's output (the golden); input {shown_input}\n{what}"
+            ));
+        }
+    }
+    assert_eq!(lines.next(), None, "{name}: the golden has more than {n} cases");
+    assert!(
+        drift == 0 && changed == 0,
+        "{name}: {changed} of {n} cases differ from the C++ tool's outputs, {drift} more because the generator changed (inputs differ from the golden's):\n{}",
+        first.join("\n")
+    );
+    runs
+}
+
+fn board_tables() -> Option<Vec<(PathBuf, Vec<u8>)>> {
+    let list = std::env::var_os("PHY_SEQ_TABLES")?;
+    Some(
+        std::env::split_paths(&list)
+            .map(|path| {
+                let text = std::fs::read(&path).unwrap_or_else(|e| panic!("PHY_SEQ_TABLES: {}: {e}", path.display()));
+                (path, text)
+            })
+            .collect(),
+    )
+}
+
+/// The board tables of one kind in `PHY_SEQ_TABLES`: each must parse; the one the golden was
+/// captured from is compared with it, others are SKIPPED. Returns (runs, tables compared).
+fn check_boards(
+    kind: &str,
+    golden: &str,
+    parses: fn(&[u8]) -> bool,
+    transcript: fn(&Scratch, &mut Runner<'_>, &[u8]) -> Transcript,
+    run: &mut Runner<'_>,
+) -> (u64, u32) {
+    let Some(tables) = board_tables() else {
+        summary(&format!(
+            "phy-seq differential: PHY_SEQ_TABLES is not set, the {kind} board table golden is SKIPPED"
+        ));
+        return (0, 0);
+    };
+    let mut lines = body(golden);
+    let id = lines.next().unwrap();
+    let rest = lines.fold(String::new(), |mut rest, l| {
+        rest.push_str(l);
+        rest.push('\n');
+        rest
+    });
+    let (mut runs, mut boards) = (0, 0);
+    for (path, text) in tables.iter().filter(|(_, text)| text.starts_with(kind.as_bytes())) {
+        assert!(parses(text), "{}: refused", path.display());
+        let this = format!("table {} {:016x}", text.len(), fnv1a64(text));
+        if this != id {
+            summary(&format!(
+                "phy-seq differential: {} ({this}) is not the table of the {kind} board golden ({id}), its comparison is SKIPPED",
+                path.display()
+            ));
+            continue;
+        }
+        let sc = Scratch::new(&format!("{kind}-board"));
+        runs += check_transcript(&path.display().to_string(), &rest, &transcript(&sc, run, text));
+        boards += 1;
+    }
+    (runs, boards)
+}
+
+#[test]
+fn ext_macsec_corpus_and_board_tables() {
+    let mut rust = in_process(phy_seq::cli::ext_macsec);
+    let sc = Scratch::new("ext-macsec-corpus");
+    let t = macsec_corpus(&sc, &mut rust);
+    let mut n = check_transcript("ext-macsec corpus", MACSEC_CORPUS_GOLDEN, &t);
+    let (board_runs, boards) = check_boards(
+        "ext-macsec",
+        MACSEC_BOARD_GOLDEN,
+        |text| MacsecTable::parse(text).is_ok(),
+        macsec_board,
+        &mut rust,
+    );
+    n += board_runs;
+    summary(&format!(
+        "phy-seq differential: ext-macsec corpus: {n} runs equal to the C++ tool's golden (50a6aa7), {boards} board table(s)"
+    ));
+}
+
+#[test]
+fn ext_phy_corpus_and_board_tables() {
+    let mut rust = in_process(phy_seq::cli::ext_phy);
+    let sc = Scratch::new("ext-phy-corpus");
+    let mut n = check_transcript("ext-phy corpus", EXTPHY_CORPUS_GOLDEN, &extphy_corpus(&sc, &mut rust));
+    let (board_runs, boards) = check_boards(
+        "ext-phy",
+        EXTPHY_BOARD_GOLDEN,
+        |text| ExtPhyTable::parse(text).is_ok(),
+        extphy_board,
+        &mut rust,
+    );
+    n += board_runs;
+    summary(&format!(
+        "phy-seq differential: ext-phy corpus: {n} runs equal to the C++ tool's golden (50a6aa7), {boards} board table(s)"
+    ));
 }
 
 #[test]
 fn generated_ext_macsec_tables() {
-    let Some(exe) = cxx("PHY_SEQ_CXX_EXT_MACSEC", "openbcm-ext-macsec") else {
-        return;
-    };
-    let before = COMPARISONS.get();
-    let mut runner = proptest::test_runner::TestRunner::new(ProptestConfig {
-        cases: cases(),
-        failure_persistence: None,
-        ..ProptestConfig::default()
-    });
-    runner
-        .run(&(common::macsec_text(), any::<u64>()), |(text, seed)| {
-            compare_macsec(&exe, &text, 3, seed).map_err(TestCaseError::fail)
-        })
-        .unwrap_or_else(|e| panic!("{e}"));
-    let n = COMPARISONS.get() - before;
-    eprintln!("differential: generated ext-macsec tables: {n} comparisons with the C++ tool, no disagreement");
+    let mut rust = in_process(phy_seq::cli::ext_macsec);
+    let sc = Scratch::new("ext-macsec-generated");
+    let cases = macsec_cases();
+    let n = check_generated(
+        "generated ext-macsec tables",
+        MACSEC_GENERATED_GOLDEN,
+        cases.len(),
+        |i| {
+            let (text, seed) = &cases[i];
+            let mut t = Transcript::default();
+            macsec_runs(&sc, &mut t, &mut rust, text, 3, *seed, Keep::Full);
+            (
+                macsec_input_digest(text, *seed),
+                format!("{} seed {seed}", esc(text)),
+                t,
+            )
+        },
+    );
+    summary(&format!(
+        "phy-seq differential: generated ext-macsec tables: {MACSEC_CASES} cases, {n} runs equal to the C++ tool's golden (50a6aa7)"
+    ));
 }
 
 #[test]
 fn generated_ext_phy_tables() {
-    let Some(exe) = cxx("PHY_SEQ_CXX_EXT_PHY", "openbcm-ext-phy") else {
-        return;
-    };
-    let before = COMPARISONS.get();
-    let mut runner = proptest::test_runner::TestRunner::new(ProptestConfig {
-        cases: cases() * 4,
-        failure_persistence: None,
-        ..ProptestConfig::default()
+    let mut rust = in_process(phy_seq::cli::ext_phy);
+    let sc = Scratch::new("ext-phy-generated");
+    let cases = extphy_cases();
+    let n = check_generated("generated ext-phy tables", EXTPHY_GENERATED_GOLDEN, cases.len(), |i| {
+        let text = &cases[i];
+        let mut t = Transcript::default();
+        extphy_runs(&sc, &mut t, &mut rust, text);
+        (fnv1a64(text), esc(text), t)
     });
-    runner
-        .run(&common::extphy_text(), |text| {
-            compare_extphy(&exe, &text).map_err(TestCaseError::fail)
-        })
-        .unwrap_or_else(|e| panic!("{e}"));
-    let n = COMPARISONS.get() - before;
-    eprintln!("differential: generated ext-phy tables: {n} comparisons with the C++ tool, no disagreement");
+    summary(&format!(
+        "phy-seq differential: generated ext-phy tables: {EXTPHY_CASES} cases, {n} runs equal to the C++ tool's golden (50a6aa7)"
+    ));
 }
 
 /// The binaries themselves (not only the library functions behind them): arguments, streams and
 /// exit codes arrive. Needs no C++.
 #[test]
 fn the_rust_binaries_run() {
-    let find =
-        |name: &str, built: &str| helper("PHY_SEQ_NO_SUCH_VARIABLE", name).unwrap_or_else(|| PathBuf::from(built));
+    let sc = Scratch::new("binaries");
+    let find = |name: &str, built: &str| prebuilt(name).unwrap_or_else(|| PathBuf::from(built));
     let macsec = find("openbcm-ext-macsec-rs", env!("CARGO_BIN_EXE_openbcm-ext-macsec-rs"));
     let phy = find("openbcm-ext-phy-rs", env!("CARGO_BIN_EXE_openbcm-ext-phy-rs"));
     if !macsec.is_file() || !phy.is_file() {
@@ -501,9 +808,12 @@ fn the_rust_binaries_run() {
         );
         return;
     }
-    let table = put(b"ext-macsec 1\nport 1 1e0\nseq s\nW p 1 a000 key[1].key[0]\nE 5 1f 2 3 f\nD 9\n");
-    let params = put(b"key 1122\n");
-    let out = run_cxx(&macsec, &os(&["--check".as_ref(), table.as_os_str()]));
+    let table = sc.put(
+        "table",
+        b"ext-macsec 1\nport 1 1e0\nseq s\nW p 1 a000 key[1].key[0]\nE 5 1f 2 3 f\nD 9\n",
+    );
+    let params = sc.put("params", b"key 1122\n");
+    let out = run_exe(&macsec, &os(&["--check".as_ref(), table.as_os_str()]));
     assert_eq!(out.0, Some(0));
     assert_eq!(
         String::from_utf8_lossy(&out.1),
@@ -512,7 +822,7 @@ fn the_rust_binaries_run() {
             table.display()
         )
     );
-    let out = run_cxx(
+    let out = run_exe(
         &macsec,
         &os(&[
             "--render".as_ref(),
@@ -526,7 +836,7 @@ fn the_rust_binaries_run() {
         (out.0, String::from_utf8_lossy(&out.1).as_ref()),
         (Some(0), "W 1e0 1 a000 2211\nR 005 1f 0002 0003 000f\nD 9\n")
     );
-    let out = run_cxx(
+    let out = run_exe(
         &macsec,
         &os(&["--render".as_ref(), table.as_os_str(), "s".as_ref(), "1e0".as_ref()]),
     );
@@ -536,16 +846,19 @@ fn the_rust_binaries_run() {
         format!("{}: s: line 4: parameter key[1] is not available\n", table.display())
     );
     assert_eq!(out.1, Vec::<u8>::new());
-    let out = run_cxx(&macsec, &[]);
+    let out = run_exe(&macsec, &[]);
     assert_eq!(out.0, Some(2));
     assert!(String::from_utf8_lossy(&out.2).ends_with(" --check FILE | --render FILE SEQ PHY [PARAMS|- [READS]]\n"));
-    let out = run_cxx(
+    let out = run_exe(
         &macsec,
         &os(&["--render".as_ref(), table.as_os_str(), "s".as_ref(), "10000".as_ref()]),
     );
     assert_eq!(out.0, Some(2));
-    let phy_table = put(b"ext-phy 1\nport 1\nlink\nC 1 1 1 1 1\nadmin-up\nW 1 1 1 1\nW 1 1 1 2\n");
-    let out = run_cxx(&phy, &os(&["--check".as_ref(), phy_table.as_os_str()]));
+    let phy_table = sc.put(
+        "phy-table",
+        b"ext-phy 1\nport 1\nlink\nC 1 1 1 1 1\nadmin-up\nW 1 1 1 1\nW 1 1 1 2\n",
+    );
+    let out = run_exe(&phy, &os(&["--check".as_ref(), phy_table.as_os_str()]));
     assert_eq!(out.0, Some(0));
     assert_eq!(
         String::from_utf8_lossy(&out.1),
@@ -554,7 +867,7 @@ fn the_rust_binaries_run() {
             phy_table.display()
         )
     );
-    let out = run_cxx(&phy, &os(&["--check".as_ref(), table.as_os_str()]));
+    let out = run_exe(&phy, &os(&["--check".as_ref(), table.as_os_str()]));
     assert_eq!(out.0, Some(1));
     assert_eq!(
         String::from_utf8_lossy(&out.2),
@@ -563,5 +876,5 @@ fn the_rust_binaries_run() {
             table.display()
         )
     );
-    assert_eq!(run_cxx(&phy, &[]).0, Some(2));
+    assert_eq!(run_exe(&phy, &[]).0, Some(2));
 }

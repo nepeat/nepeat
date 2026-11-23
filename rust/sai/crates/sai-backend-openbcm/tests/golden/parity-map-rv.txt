@@ -1,0 +1,60 @@
+# Golden of tests/parity.rs: the C++ backend's error table (map_rv of sai-openbcm's
+# openbcm_backend.cpp) for every code of sdk_glue.h, and the profile keys that backend reads.
+# Captured 2026-11-23 from these files at commit 50a6aa7 (sha256):
+#   8fe2d240d08d64809baa6adb6bc97faeb00df76e0a748baa776a17338e46c7da  ai_re/nix/packages/sai-openbcm/src/openbcm_backend.cpp
+#   c29d10c3006a11c2ddccde46e37c62000e4f37991ad71369a3ecdedabd207457  ai_re/nix/packages/sai-openbcm/src/sdk_glue.h
+# Produced by: the code names and values are the OB_E_* defines of sdk_glue.h; each code's status is
+# map_rv's case for it, else its default (the parse of 50a6aa7's tests/parity.rs cpp_table); the keys
+# are the cfg.get("...") calls of openbcm_backend.cpp. Commit 50a6aa7's live parity.rs on the same
+# file (SAI_OPENBCM_SRC=<sai-openbcm>/src cargo test -p sai-backend-openbcm --test parity) reported
+# "19 comparisons with openbcm_backend.cpp map_rv, 0 listed differences" and found the three keys.
+# The C++ excerpts, verbatim (openbcm_backend.cpp:26-43, then the cfg.get lines with their numbers):
+#   static sai_status_t map_rv(int rv)
+#   {
+#       switch (rv) {
+#       case OB_E_NONE: return SAI_STATUS_SUCCESS;
+#       case OB_E_MEMORY: return SAI_STATUS_NO_MEMORY;
+#       case OB_E_UNIT: case OB_E_PARAM: case OB_E_CONFIG: return SAI_STATUS_INVALID_PARAMETER;
+#       case OB_E_EMPTY: case OB_E_NOT_FOUND: return SAI_STATUS_ITEM_NOT_FOUND;
+#       case OB_E_FULL: return SAI_STATUS_TABLE_FULL;
+#       case OB_E_EXISTS: return SAI_STATUS_ITEM_ALREADY_EXISTS;
+#       case OB_E_BUSY: return SAI_STATUS_OBJECT_IN_USE;
+#       case OB_E_BADID: return SAI_STATUS_INVALID_OBJECT_ID;
+#       case OB_E_RESOURCE: return SAI_STATUS_INSUFFICIENT_RESOURCES;
+#       case OB_E_UNAVAIL: return SAI_STATUS_NOT_SUPPORTED;
+#       case OB_E_INIT: return SAI_STATUS_UNINITIALIZED;
+#       case OB_E_PORT: return SAI_STATUS_INVALID_PORT_NUMBER;
+#       default: return SAI_STATUS_FAILURE;
+#       }
+#   }
+#   62:        std::string config = cfg.get("SAI_INIT_CONFIG_FILE");
+#   63:        std::string rc = cfg.get("SAI_OPENBCM_RC_FILE");
+#   64:        unit_ = std::atoi(cfg.get("SAI_OPENBCM_UNIT", "0").c_str());
+# NOT to be regenerated from the Rust output (the C++ is deleted after 50a6aa7). A deliberate
+# difference goes into DIFFERENCES of tests/parity.rs with its reason; this file stays the C++'s.
+# Format: "code <name> <value> <status>" per glue error code; "success <name> <value> <status>";
+# "default <status>" (map_rv's answer for any other code); "profile-key <key>".
+code OB_E_INTERNAL -1 SAI_STATUS_FAILURE
+code OB_E_MEMORY -2 SAI_STATUS_NO_MEMORY
+code OB_E_UNIT -3 SAI_STATUS_INVALID_PARAMETER
+code OB_E_PARAM -4 SAI_STATUS_INVALID_PARAMETER
+code OB_E_EMPTY -5 SAI_STATUS_ITEM_NOT_FOUND
+code OB_E_FULL -6 SAI_STATUS_TABLE_FULL
+code OB_E_NOT_FOUND -7 SAI_STATUS_ITEM_NOT_FOUND
+code OB_E_EXISTS -8 SAI_STATUS_ITEM_ALREADY_EXISTS
+code OB_E_TIMEOUT -9 SAI_STATUS_FAILURE
+code OB_E_BUSY -10 SAI_STATUS_OBJECT_IN_USE
+code OB_E_FAIL -11 SAI_STATUS_FAILURE
+code OB_E_DISABLED -12 SAI_STATUS_FAILURE
+code OB_E_BADID -13 SAI_STATUS_INVALID_OBJECT_ID
+code OB_E_RESOURCE -14 SAI_STATUS_INSUFFICIENT_RESOURCES
+code OB_E_CONFIG -15 SAI_STATUS_INVALID_PARAMETER
+code OB_E_UNAVAIL -16 SAI_STATUS_NOT_SUPPORTED
+code OB_E_INIT -17 SAI_STATUS_UNINITIALIZED
+code OB_E_PORT -18 SAI_STATUS_INVALID_PORT_NUMBER
+code OB_E_MDIO_CLOCK -100 SAI_STATUS_FAILURE
+success OB_E_NONE 0 SAI_STATUS_SUCCESS
+default SAI_STATUS_FAILURE
+profile-key SAI_INIT_CONFIG_FILE
+profile-key SAI_OPENBCM_RC_FILE
+profile-key SAI_OPENBCM_UNIT

@@ -1,5 +1,6 @@
-//! Builds the C client (sai-openbcm's `openbcm_diag.c`) as the reference for
-//! tests/differential.rs, from `SAI_OPENBCM_SRC` or `MDIO_SCRIPT_C_DIR` (sai-openbcm's src
+//! Builds the C client `openbcm_diag.c` (frozen since 2026-11-23 with the C++ frontend in
+//! `ai_re/nix/packages/sai-teralynx/frontend/src`; the CS8210 still ships it: a live comparison)
+//! as the reference for tests/differential.rs, from `SAI_OPENBCM_SRC` (that src
 //! directory), into `$OUT_DIR/target-tests/openbcm-diag-c`: tests never compile C when they run,
 //! so the test executable can be copied to a machine without a compiler together with that file
 //! (`SAI_RS_TEST_BIN`, README "Big-endian runs"). `OPENBCM_DIAG_C_PARITY=require` makes a
@@ -33,7 +34,7 @@ fn c_compiler() -> Option<String> {
 }
 
 fn reference_client() -> Result<PathBuf, String> {
-    let source = ["SAI_OPENBCM_SRC", "MDIO_SCRIPT_C_DIR"]
+    let source = ["SAI_OPENBCM_SRC"]
         .iter()
         .filter_map(|v| {
             println!("cargo:rerun-if-env-changed={v}");
@@ -41,7 +42,7 @@ fn reference_client() -> Result<PathBuf, String> {
         })
         .map(|d| PathBuf::from(d).join("openbcm_diag.c"))
         .find(|p| p.is_file())
-        .ok_or("no openbcm_diag.c in SAI_OPENBCM_SRC or MDIO_SCRIPT_C_DIR")?;
+        .ok_or("no openbcm_diag.c in SAI_OPENBCM_SRC")?;
     println!("cargo:rerun-if-changed={}", source.display());
     let cc = c_compiler().ok_or("no C compiler for the target (set SDK_GLUE_SYS_CC)")?;
     let dir = PathBuf::from(env::var_os("OUT_DIR").expect("OUT_DIR")).join("target-tests");

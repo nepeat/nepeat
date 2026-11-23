@@ -1,9 +1,10 @@
 # test-port: the C++ suite on the Rust libsai
 
-Runs the **unmodified** sai-openbcm suite (`ai_re/nix/packages/sai-openbcm/tests/test_sai.cpp` + its `.inc`
-files) against the Rust `libsai.so` and prints progress per section. The suite reaches a library only through
-the SAI C ABI and `tests/test_port.h`; `tests/test_port_rust.cpp` implements that header over the library's
-test-only function `sai_rs_test_query` (crate `sai-test-port`, `sai-ffi` feature `test-port`).
+Runs the **unmodified** suite of the C++ frontend (`test_sai.cpp` + its `.inc` files, frozen since 2026-11-23 in
+`ai_re/nix/packages/sai-teralynx/frontend/tests`, where the CS8210's libsai still runs it) against the Rust
+`libsai.so` and prints progress per section. The suite reaches a library only through the SAI C ABI and
+`test_port.h`; `test_port_rust.cpp` (here) implements that header over the library's test-only function
+`sai_rs_test_query` (crate `sai-test-port`, `sai-ffi` feature `test-port`).
 
     SAI_INC=<dir with sai.h> ./run.sh [--strict] [--no-cpp-ref]
 
@@ -13,11 +14,11 @@ test-port`, `SAI_OPENBCM_TESTS`, `CXX`, `CXXFLAGS`, `BUILD_DIR`, `SUMMARY`, `CPP
 the suite runs with `BUILD_DIR/run-<rust|cpp>` as its working directory. Exit 0 whatever the suite's result
 (progress view); `--strict`: 1 on any failure, crash or non-zero test exit; 2: the harness itself failed.
 
-Build: `test_sai.o` with the sai-openbcm Makefile's flags (`-std=c++17`, its `WARN`, `CXXFLAGS`, SAI include
+Build: `test_sai.o` with the C++ Makefile's flags (`-std=c++17`, its `WARN`, `CXXFLAGS`, SAI include
 dirs + `experimental`, `-Itests`) **plus `-fno-inline`** so every `test_*` function keeps a symbol; linked
 `-no-pie` with `test_port_rust.o` and the library (rpath). The C++ reference (`CPP_REF`, default: built from
-`SAI_OPENBCM_TESTS/..`) links the **same** `test_sai.o` with `test_port_cpp.o` and the C++ `libsai.a`, so the
-comparison columns line up section by section.
+`SAI_OPENBCM_TESTS/../src` on its fake backend) links the **same** `test_sai.o` with `test_port_cpp.o` and that
+C++ `libsai.a`, so the comparison columns line up section by section.
 
 ## Sections and counting
 
@@ -37,7 +38,7 @@ line ranges, from the source. Counts are **exclusive** (a nested section's check
   line range (FAILs from helper functions go to "outside test_* bodies"), checks per section are unknown, and
   the summary says so.
 
-## The test port's stated differences (top of `tests/test_port_rust.cpp`)
+## The test port's stated differences (top of `test_port_rust.cpp`)
 
 - Never aborts: an unanswered request prints `test_port_rust: <request>: <reason>` once and returns the absent
   answer; at exit `test_port_rust: summary <request> <calls>`. The summary table lists them. The C++ port

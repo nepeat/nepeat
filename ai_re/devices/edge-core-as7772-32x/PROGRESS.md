@@ -1,8 +1,7 @@
 # Edge-Core AS7772-32X
 
 ## Status
-- **Runs:** NixOS 26.11 on the M.2 SSD (Linux 7.3.4) from our U-Boot 2026.10 in boot NOR, **SONiC at boot**
-  ([sonic.md](sonic.md)); fand, node exporter :9100. Deploy: [deploy.sh](deploy.sh) (flake `#as7772`).
+- **Runs:** NixOS 26.11 on the M.2 SSD (Linux 7.3.4) from our U-Boot 2026.10 in boot NOR, **SONiC at boot on the Rust SAI** (`rust/sai`; [sonic.md](sonic.md)); fand, node exporter :9100. Deploy: [deploy.sh](deploy.sh) (flake `#as7772`).
 - **Reach:** `sudo ssh root@10.60.2.23`; console `sudo ssh -t console@10.60.2.10 as7760` (DMC-12 port 48, 115200
   8N1, label still `as7760`); power `lab-power 1 on|off`.
 - **Recovery:** [u-boot-port.md](u-boot-port.md). Any key stops autoboot; ONIE is still in NOR (`run
@@ -77,6 +76,24 @@
 - Transcripts live in [evidence/](evidence/); serial captures (`serial-*.txt`) are git-ignored.
 
 ## Log
+
+### 2026-11-23: the box runs SONiC on the Rust SAI; our C++ SAI for the Broadcom boards is deleted
+- **Running:** `as7772-rust` built from `50a6aa7`: syncd on the Rust `libsai.so` (`rust/sai`), Rust `openbcm-diag`,
+  `openbcm-asic-temp` and boot-time MDIO tool. Verified on the box (syncd maps the Rust library). The tree after
+  this entry (Rust the only implementation, C++ deleted) is **not deployed yet**.
+- **Proof on this box** ([evidence/rust-g2/README.md](evidence/rust-g2/README.md), `evidence/rust-g4-load/`): smoke with
+  SONiC stopped 23 PASS / 0 FAIL (the first run had 1 FAIL: the smoke's own temperature comparison raced a
+  moving sensor; fixed and re-run); Rust MDIO tool as the boot unit over 1 reboot + 2 cold boots, 32/32 PHYs;
+  MACsec up-check / traffic / rekey / wrong CAK / PN wrap; MACsec bring-up bus trace equal to the C++ (22,560
+  operations); stack restart, kill -9, reboot, cold boot.
+- **First load test through SONiC's own forwarding** (Rust SAI, MACsec on, [loadtest/sonic-ring.sh](loadtest/sonic-ring.sh)):
+  92.07 Gb/s per port per direction for 30 min, 0 frames lost, encrypted = accepted on every SC. **PHY FEC for that
+  run is not established**: `phystat.py` clashes with syncd's MACsec counter reads while SONiC runs with MACsec on.
+- **Repo:** `nix/packages/sai-openbcm` is now only `sdk_glue.c/.h`; about 8,500 lines of our C/C++ deleted, about
+  23,000 lines of frontend moved into `sai-teralynx/frontend` (the CS8210 still compiles it). Unsafe in `rust/sai`:
+  231 -> 143 (82 SAI C ABI, 52 SDK glue, 9 TAP).
+- **Open:** deploy the final tree + device scripts + reboot + cold boot; the Rust kernel + Rust fan driver trial;
+  the `phystat.py` clash; a benign-by-reading `soc_knet_handle_rx` message (not confirmed on the box).
 
 ### 2026-11-22/23 (7): MACsec loss fixed, MKA start-up fixed, Rust phase 2
 - **Encrypted-load loss, fixed:** with XPN the 32-bit PN field is 0 at every low-word wrap and the PHY's ingress

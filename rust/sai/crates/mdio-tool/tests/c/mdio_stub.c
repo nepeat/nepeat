@@ -1,12 +1,14 @@
 /* SPDX-License-Identifier: Apache-2.0
- * Test fixture of mdio-tool's differential (tests/differential.rs): the MDIO side of
- * sai-openbcm's sdk_glue.h (ob_sdk_init_mdio, ob_sdk_mdio_c45_read / _write, ob_sdk_temperatures,
- * ob_sdk_errmsg, and an ob_sdk_shutdown neither tool calls) over an in-memory register map, so the C openbcm-mdio-script can be built with
- * -DOB_HAVE_SDK without the SDK and compared with the Rust tool on sdk-glue's Rust fake. It is the
- * MDIO part of the former C fake of the glue (sdk-glue-sys/fake/fake_glue.c, deleted at G2) and
- * must answer as the Rust fake (sdk-glue/src/rust_fake.rs) does: same scenario directives, codes,
- * messages and trace lines; the differential is what holds them together. Built by
- * mdio-tool/build.rs, never part of a product.
+ * Test fixture of mdio-tool: the MDIO side of sai-openbcm's sdk_glue.h (ob_sdk_init_mdio,
+ * ob_sdk_mdio_c45_read / _write, ob_sdk_temperatures, ob_sdk_errmsg, and an ob_sdk_shutdown the
+ * tool does not call) over an in-memory register map. rust/sai/nix/mdio-tool.nix links the tool's
+ * tests against it in place of the real glue (--features sdk-real). Until 2026-11-23 the C
+ * openbcm-mdio-script was also built on it (-DOB_HAVE_SDK, by mdio-tool/build.rs) and compared
+ * with the Rust tool on sdk-glue's Rust fake; tests/differential.rs now compares with that C
+ * tool's golden (tests/golden/differential.txt, commit 50a6aa7). It is the MDIO part of the former
+ * C fake of the glue (sdk-glue-sys/fake/fake_glue.c, deleted at G2) and must answer as the Rust
+ * fake (sdk-glue/src/rust_fake.rs) does: same scenario directives, codes, messages and trace
+ * lines. Never part of a product.
  *
  * The scenario is the "config file" given to ob_sdk_init_mdio. One directive per line, '#'
  * comments, numbers hex unless marked decimal; an unknown line fails the init (OB_E_CONFIG):

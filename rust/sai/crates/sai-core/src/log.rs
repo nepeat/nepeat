@@ -1,6 +1,8 @@
 //! The library's log, as the C++ sai-openbcm writes it (`sai_api.cpp` `log_msg`): one line per
 //! message to syslog (`/dev/log`, facility user, the program's name as the tag) and, when
-//! `SAI_OPENBCM_LOG_STDERR=1` ([`configure_stderr`]), to stderr as well. Per-API levels
+//! `SAI_OPENBCM_LOG_STDERR=1` ([`configure_stderr`]), to stderr as well; errors go to stderr also
+//! without it unless stderr is the journal ([`on_stderr`]: a failure stays visible to whoever runs a
+//! program on this library by hand, as the Rust backend's stderr lines were). Per-API levels
 //! (`sai_log_set`, default WARN): a message below its API's level is not formatted.
 //!
 //! Line text: `sai-openbcm <LEVEL> api=<n>: <message>` (the C++ text, so log greps of the VM
@@ -9,7 +11,16 @@
 //! Differences from glibc `syslog(3)`: no timestamp in the datagram (journald and rsyslog stamp
 //! it on receipt; a local-time stamp would need the C library's time zone code), and the
 //! socket is reopened once when a send fails (glibc reconnects the same way).
+//!
+//! Every part of the library writes here: the areas, the virtual backend, the hardware backend
+//! (`sai-backend-openbcm`, which also passes on what `sdk-glue`'s callback trampolines report),
+//! the external-PHY runtime, the `MACsec` model and the diag socket (through their loggers).
+//! Nothing writes to stderr on its own.
+//!
+//! [`capture`]: a sink for tests: the lines written while a closure runs (those the levels let
+//! through, from any thread) are handed back instead of going to syslog / stderr.
 use sai_sys as sys;
+use std::cell::Cell;
 use std::io::Write as _;
 use std::os::unix::net::UnixDatagram;
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
@@ -26,6 +37,80 @@ const DEV_LOG: &str = "/dev/log";
 const FACILITY_USER: u32 = 1 << 3;
 /// The C++ message buffer (1024 bytes with the terminating NUL).
 const MESSAGE_MAX: usize = 1023;
+
+/// The lines of a running [`capture`] (`None`: none runs).
+static CAPTURED: Mutex<Option<Vec<Line>>> = Mutex::new(None);
+/// Held while a [`capture`] runs: one at a time in the process.
+static CAPTURE_TURN: Mutex<()> = Mutex::new(());
+
+thread_local! {
+    /// This thread runs a [`capture`] (a nested one adds to it).
+    static CAPTURING: Cell<bool> = const { Cell::new(false) };
+}
+
+/// One line as [`capture`] hands it back.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Line {
+    /// The API it was written for.
+    pub api: sys::sai_api_t,
+    /// Its level.
+    pub level: sys::sai_log_level_t,
+    /// The whole line ([`line`]: `sai-openbcm <LEVEL> api=<n>: <message>`).
+    pub text: String,
+}
+
+impl Line {
+    /// The message: the line without `sai-openbcm <LEVEL> api=<n>: `.
+    pub fn message(&self) -> &str {
+        self.text.split_once(": ").map_or(self.text.as_str(), |(_, m)| m)
+    }
+}
+
+/// Runs `f` and returns every line the process wrote to the log meanwhile, on any thread (lines
+/// below their API's level are not written, as always); those lines go nowhere else (not to
+/// syslog, not to stderr). For tests: captures take turns (a second one waits for the first), so
+/// the lines of a test whose every log-writing part runs inside its capture are its own. A
+/// capture inside a capture on the same thread adds to the outer one and returns no lines.
+pub fn capture<R>(f: impl FnOnce() -> R) -> (R, Vec<Line>) {
+    /// Ends the capture, also when `f` panics.
+    struct Running;
+    impl Drop for Running {
+        fn drop(&mut self) {
+            CAPTURED.lock().unwrap_or_else(PoisonError::into_inner).take();
+            CAPTURING.with(|c| c.set(false));
+        }
+    }
+    if CAPTURING.with(Cell::get) {
+        return (f(), Vec::new());
+    }
+    let _turn = CAPTURE_TURN.lock().unwrap_or_else(PoisonError::into_inner);
+    *CAPTURED.lock().unwrap_or_else(PoisonError::into_inner) = Some(Vec::new());
+    CAPTURING.with(|c| c.set(true));
+    let running = Running;
+    let result = f();
+    let lines = CAPTURED
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner)
+        .take()
+        .unwrap_or_default();
+    drop(running);
+    (result, lines)
+}
+
+/// Hands a line to the running capture; `false`: none runs.
+fn captured(api: sys::sai_api_t, level: sys::sai_log_level_t, text: &str) -> bool {
+    match CAPTURED.lock().unwrap_or_else(PoisonError::into_inner).as_mut() {
+        Some(lines) => {
+            lines.push(Line {
+                api,
+                level,
+                text: text.to_owned(),
+            });
+            true
+        }
+        None => false,
+    }
+}
 
 /// Sets the level of one API (`sai_log_set`); `false` when either number is out of range
 /// (`SAI_API_UNSPECIFIED..=SAI_API_MAX`, `DEBUG..=CRITICAL`).
@@ -124,14 +209,44 @@ fn syslog(severity: u32, line: &str) {
     }
 }
 
+/// Whether stderr is the journal (systemd's `JOURNAL_STREAM` names fd 2's device and inode):
+/// there an error line would be in the journal twice, once from syslog.
+fn stderr_is_journal() -> bool {
+    use std::os::fd::AsFd as _;
+    use std::os::unix::fs::MetadataExt as _;
+    static ANSWER: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ANSWER.get_or_init(|| {
+        let Some(stream) = std::env::var_os("JOURNAL_STREAM") else {
+            return false;
+        };
+        let Some((dev, ino)) = stream.to_str().and_then(|s| s.split_once(':')) else {
+            return false;
+        };
+        let fd2 = std::io::stderr().as_fd().try_clone_to_owned().ok();
+        let meta = fd2.map(std::fs::File::from).and_then(|f| f.metadata().ok());
+        meta.is_some_and(|m| dev.parse() == Ok(m.dev()) && ino.parse() == Ok(m.ino()))
+    })
+}
+
+/// Whether a line of `level` goes to stderr: every line with [`configure_stderr`]; errors (and
+/// critical ones) also without it, unless stderr is the journal (syncd under systemd: the line is
+/// there from syslog). So a failure is on the terminal of whoever runs a SAI program by hand (the
+/// smoke program, a CLI); the C++ wrote errors to syslog only.
+fn on_stderr(level: sys::sai_log_level_t) -> bool {
+    to_stderr() || (level >= sys::SAI_LOG_LEVEL_ERROR && !cfg!(miri) && !stderr_is_journal())
+}
+
 /// Writes one message when its level is enabled for its API.
 pub fn emit(api: sys::sai_api_t, level: sys::sai_log_level_t, message: core::fmt::Arguments<'_>) {
     if !enabled(api, level) {
         return;
     }
     let text = line(api, level, message);
+    if captured(api, level, &text) {
+        return;
+    }
     syslog(level_name(level).1, &text);
-    if to_stderr() {
+    if on_stderr(level) {
         // A closed stderr must not take the process down (eprintln! would panic).
         let _ = writeln!(std::io::stderr().lock(), "{text}");
     }

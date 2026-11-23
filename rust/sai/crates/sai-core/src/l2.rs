@@ -29,6 +29,7 @@ use crate::backend::{Backend, HwPort, Vid};
 use crate::dispatch::{Area, Cx};
 use crate::error::{AttrError, Error, Result};
 use crate::lag::{self, Attach};
+use crate::log;
 use crate::model::{Bridge, BridgePort, EntryKey, Kept, Switch, Vlan, VlanMember};
 use crate::oid::{BridgeId, BridgePortId, LagId, ObjectType, RawOid, StpId, SwitchId, TypedId, VlanId, VlanMemberId};
 use crate::sai::Notification;
@@ -492,7 +493,14 @@ impl Area for L2Area {
             ObjectType::VlanMember => create_vlan_member(cx.backend, cx.store, attrs).map(TypedId::raw),
             ObjectType::BridgePort => create_bridge_port(cx.backend, cx.store, attrs).map(TypedId::raw),
             // Only the default .1Q bridge (no .1D bridges) and the default STP instance exist.
-            ObjectType::Bridge | ObjectType::Stp => Err(Error::NotSupported),
+            ObjectType::Bridge => {
+                log::error(
+                    sys::SAI_API_BRIDGE,
+                    format_args!("only the default .1Q bridge exists (.1D bridges not supported)"),
+                );
+                Err(Error::NotSupported)
+            }
+            ObjectType::Stp => Err(Error::NotSupported),
             _ => Err(Error::InvalidObjectType),
         }
     }
@@ -592,7 +600,14 @@ fn create_vlan<B: Backend>(backend: &mut B, store: &mut Store, attrs: &[Attr]) -
         })
         .ok_or(Error::MandatoryAttributeMissing)?;
     let vid = Vid::new(raw).map_err(|_| Error::attr(AttrError::InvalidValue, index))?;
-    if vlan_of_vid(store, vid).is_some() || crate::l3::is_internal_vlan(store, vid) {
+    if vlan_of_vid(store, vid).is_some() {
+        return Err(Error::ItemAlreadyExists);
+    }
+    if crate::l3::is_internal_vlan(store, vid) {
+        log::error(
+            sys::SAI_API_VLAN,
+            format_args!("VLAN {} is in use as an internal router-interface VLAN", vid.get()),
+        );
         return Err(Error::ItemAlreadyExists);
     }
     let stp = default_stp(store);
@@ -609,6 +624,7 @@ fn create_vlan<B: Backend>(backend: &mut B, store: &mut Store, attrs: &[Attr]) -
     backend.vlan_create(vid)?;
     let id = VlanId::from_index(u64::from(vid.get()));
     store.insert_at(id, Vlan { vid, kept })?;
+    log::info(sys::SAI_API_VLAN, format_args!("VLAN {} created", vid.get()));
     Ok(id)
 }
 
@@ -794,6 +810,10 @@ fn create_bridge_port<B: Backend>(backend: &mut B, store: &mut Store, attrs: &[A
         match (attr.id, &attr.value) {
             (sys::SAI_BRIDGE_PORT_ATTR_TYPE, Value::Enum(t)) => {
                 if *t != sys::SAI_BRIDGE_PORT_TYPE_PORT.cast_signed() {
+                    log::error(
+                        sys::SAI_API_BRIDGE,
+                        format_args!("bridge port type {t} not supported (PORT only)"),
+                    );
                     return Err(Error::attr(AttrError::NotSupported, index));
                 }
                 typed = true;
@@ -815,7 +835,19 @@ fn create_bridge_port<B: Backend>(backend: &mut B, store: &mut Store, attrs: &[A
         return Err(Error::MandatoryAttributeMissing);
     }
     // The CPU port, a LAG member, nothing.
-    let attach = lag::attach_of(store, port).ok_or(Error::InvalidParameter)?;
+    let attach = lag::attach_of(store, port).ok_or_else(|| {
+        let member = crate::oid::PortId::try_from(port)
+            .ok()
+            .filter(|p| lag::port_lag(store, *p).is_some())
+            .and_then(|p| store.get::<crate::model::Port>(p).ok());
+        if let Some(p) = member {
+            log::error(
+                sys::SAI_API_BRIDGE,
+                format_args!("bridge port: port {} is a LAG member", p.name),
+            );
+        }
+        Error::InvalidParameter
+    })?;
     if bridge_port_of(store, attach).is_some() {
         return Err(Error::ItemAlreadyExists);
     }
@@ -1003,10 +1035,12 @@ fn create_fdb<B: Backend>(backend: &mut B, store: &mut Store, key: EntryKey, att
     }
     fdb_program(backend, store, vid, mac, &fdb)?;
     if existing.is_some() {
-        store.update_entry(&key, |stored| *stored = fdb.to_kept())
+        store.update_entry(&key, |stored| *stored = fdb.to_kept())?;
     } else {
-        store.insert_entry(key, fdb.to_kept())
+        store.insert_entry(key, fdb.to_kept())?;
     }
+    log::info(sys::SAI_API_FDB, format_args!("fdb {mac} vlan {} added", vid.get()));
+    Ok(())
 }
 
 fn remove_fdb<B: Backend>(backend: &mut B, store: &mut Store, key: &EntryKey) -> Result<()> {
@@ -1108,6 +1142,10 @@ fn flush<B: Backend>(backend: &mut B, store: &mut Store, attrs: &[Attr]) -> Resu
     for key in &matching {
         store.remove_entry(key)?;
     }
+    log::info(
+        sys::SAI_API_FDB,
+        format_args!("flush: {} entries removed", matching.len()),
+    );
     Ok(matching)
 }
 

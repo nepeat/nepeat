@@ -1,0 +1,555 @@
+# Golden of rust/sai/crates/openbcm-asic-temp/tests/differential.rs: the C tool openbcm-asic-temp's runs,
+# one record per case of CASES (in order): "case <i> <name>", args (Rust {:?}), ends (how the run ended),
+# inputs (64-bit FNV-1a of the scenario NUL, then each stale file path NUL content NUL), code, the
+# blocks stdout / stderr (lines prefixed by "|", "\ no newline at end" after a last line without one;
+# for "unwritable" the stderr lines deduplicated and sorted, joined without a final newline), per
+# watched file "during <path>" (before the signal) and "after <path>" (after the end) with the content
+# (the Prometheus read timestamp as T) or "...-absent <path>", "end".
+# Captured 2026-11-23 at commit 50a6aa7 from the C tool built from ai_re/nix/packages/sai-openbcm/src:
+#   asic_temp.c   sha256 c8bb9602f45cff1f3cdd843ecf82742c7a15131b252c5bae13324fae3a765758
+#   temp_files.c  sha256 fda712c52f7ecffafc8cb28acb4a5a97cfb571c78c8d6ab70a038a9488a24539
+#   temp_files.h  sha256 84e816f057395f87bae38e37f0c1f1b0cabac85f5b2c1a98beb9b771b7ee4dc1
+#   sdk_glue.h    sha256 c29d10c3006a11c2ddccde46e37c62000e4f37991ad71369a3ecdedabd207457
+#   on rust/sai/crates/openbcm-asic-temp/tests/c/stub_glue.c
+#     sha256 87960b7d1ce08a409a0f819c12ab612b396a483ec1a1d4d94d97c5b48c02b7d0 (deleted after the capture; in git at 50a6aa7)
+#   (gcc -std=gnu11 -O1 -g -Wall -Wextra, built by the crate's build.rs at that commit, x86_64).
+# Produced by a one-off capture addition to the test (removed afterwards) that ran the C tool and this
+# crate's binary on every case, required them equal (as the live differential did: 30 cases) and wrote
+# the C results: cargo test -p openbcm-asic-temp --test differential, nix develop of rust/sai/nix/package.nix.
+# NOT to be regenerated from the Rust output: a deliberate behaviour change edits the affected record
+# by hand, with a comment line before the record giving the reason (like an allow-list entry).
+
+case 0 usage-none
+args []
+ends Exits
+inputs af63bd4c8601b7df
+code 1
+stdout
+stderr
+|usage: openbcm-asic-temp [--unit N] (--once | --out FILE [--prom FILE] [--interval SECONDS] [--shutdown-at CELSIUS (0 = off, default 125)])
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 1 usage-help
+args ["--help"]
+ends Exits
+inputs af63bd4c8601b7df
+code 0
+stdout
+stderr
+|usage: openbcm-asic-temp [--unit N] (--once | --out FILE [--prom FILE] [--interval SECONDS] [--shutdown-at CELSIUS (0 = off, default 125)])
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 2 usage-invalid
+args ["-x"]
+ends Exits
+inputs af63bd4c8601b7df
+code 1
+stdout
+stderr
+|openbcm-asic-temp: invalid option -- 'x'
+|usage: openbcm-asic-temp [--unit N] (--once | --out FILE [--prom FILE] [--interval SECONDS] [--shutdown-at CELSIUS (0 = off, default 125)])
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 3 usage-ambiguous
+args ["--o", "f"]
+ends Exits
+inputs af63bd4c8601b7df
+code 1
+stdout
+stderr
+|openbcm-asic-temp: option '--o' is ambiguous; possibilities: '--out' '--once'
+|usage: openbcm-asic-temp [--unit N] (--once | --out FILE [--prom FILE] [--interval SECONDS] [--shutdown-at CELSIUS (0 = off, default 125)])
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 4 usage-missing
+args ["--once", "--unit"]
+ends Exits
+inputs af63bd4c8601b7df
+code 1
+stdout
+stderr
+|openbcm-asic-temp: option '--unit' requires an argument
+|usage: openbcm-asic-temp [--unit N] (--once | --out FILE [--prom FILE] [--interval SECONDS] [--shutdown-at CELSIUS (0 = off, default 125)])
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 5 usage-noarg
+args ["--once=1"]
+ends Exits
+inputs af63bd4c8601b7df
+code 1
+stdout
+stderr
+|openbcm-asic-temp: option '--once' doesn't allow an argument
+|usage: openbcm-asic-temp [--unit N] (--once | --out FILE [--prom FILE] [--interval SECONDS] [--shutdown-at CELSIUS (0 = off, default 125)])
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 6 usage-unknown
+args ["--bogus"]
+ends Exits
+inputs af63bd4c8601b7df
+code 1
+stdout
+stderr
+|openbcm-asic-temp: unrecognized option '--bogus'
+|usage: openbcm-asic-temp [--unit N] (--once | --out FILE [--prom FILE] [--interval SECONDS] [--shutdown-at CELSIUS (0 = off, default 125)])
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 7 usage-interval
+args ["--out", "asic/temperature", "-i", "0"]
+ends Exits
+inputs af63bd4c8601b7df
+code 1
+stdout
+stderr
+|usage: openbcm-asic-temp [--unit N] (--once | --out FILE [--prom FILE] [--interval SECONDS] [--shutdown-at CELSIUS (0 = off, default 125)])
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 8 usage-limit
+args ["--once", "-s", "151"]
+ends Exits
+inputs af63bd4c8601b7df
+code 1
+stdout
+stderr
+|usage: openbcm-asic-temp [--unit N] (--once | --out FILE [--prom FILE] [--interval SECONDS] [--shutdown-at CELSIUS (0 = off, default 125)])
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 9 usage-prom-only
+args ["--prom", "p"]
+ends Exits
+inputs af63bd4c8601b7df
+code 1
+stdout
+stderr
+|usage: openbcm-asic-temp [--unit N] (--once | --out FILE [--prom FILE] [--interval SECONDS] [--shutdown-at CELSIUS (0 = off, default 125)])
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 10 busy
+args ["--once"]
+ends Exits
+inputs b38e507812c92d94
+code 3
+stdout
+stderr
+|openbcm-asic-temp: another SDK process owns the switch (lock /run/openbcm-unit0.lock held; e.g. systemctl stop openbcm-asic-temp) (Operation still running)
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 11 unit
+args ["--once", "-u", "1"]
+ends Exits
+inputs 8f8bc6ffaa0ca801
+code 2
+stdout
+stderr
+|openbcm-asic-temp: no attached switch unit (soc_ndev 1) (Invalid unit)
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 12 init-unit
+args ["--once"]
+ends Exits
+inputs dd092d004cf94919
+code 2
+stdout
+stderr
+|openbcm-asic-temp: no attached switch unit (soc_ndev 1) (Invalid unit)
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 13 init-attach
+args ["--once"]
+ends Exits
+inputs 04a3d86b8bff1308
+code 2
+stdout
+stderr
+|openbcm-asic-temp: fake glue: unknown init failure 'attach' (Invalid configuration)
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 14 bad-scenario
+args ["--once"]
+ends Exits
+inputs 83298ea9efb0d0c7
+code 2
+stdout
+stderr
+|openbcm-asic-temp: fake glue: scenario:2: not a scenario line (Invalid configuration)
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 15 once
+args ["--once"]
+ends Exits
+inputs 3beecdaaff6d592e
+code 0
+stdout
+|monitor 0: current 41.3 C, peak 42.8 C
+|monitor 1: current 41.8 C, peak 43.3 C
+|monitor 2: current -5.5 C, peak -4.0 C
+|monitor 3: current 0.0 C, peak 1.5 C
+|monitor 4: current 0.7 C, peak 2.2 C
+|max 41.8 C, average 15.7 C
+stderr
+|openbcm-asic-temp: unit 0 attached FAKE56960_A0
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 16 once-ties
+args ["-1"]
+ends Exits
+inputs 65662af705b365e0
+code 0
+stdout
+|monitor 0: current 0.5 C, peak 2.0 C
+|monitor 1: current 0.0 C, peak 1.5 C
+|max 0.5 C, average 0.2 C
+stderr
+|openbcm-asic-temp: unit 0 attached FAKE56960_A0
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 17 once-unavail
+args ["--once", "--out", "asic/temperature"]
+ends Exits
+inputs 8b93e6f79d72d6d9
+code 4
+stdout
+stderr
+|openbcm-asic-temp: unit 0 attached FAKE56960_A0
+|openbcm-asic-temp: read failed: Feature unavailable (0 monitors)
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 18 once-implausible
+args ["--once"]
+ends Exits
+inputs 3db883c9a1e5db50
+code 4
+stdout
+stderr
+|openbcm-asic-temp: unit 0 attached FAKE56960_A0
+|openbcm-asic-temp: read failed: ok (1 monitors, implausible value)
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 19 run-term
+args ["--interval", "1", "--out", "asic/temperature", "--prom", "prom/asic.prom"]
+ends Signal("TERM")
+inputs b49d37fb0a573911
+code 0
+stdout
+stderr
+|openbcm-asic-temp: unit 0 attached FAKE56960_A0
+|openbcm-asic-temp: 3 monitors, max 41.8 C, average 25.9 C; every 1 s to asic/temperature; core PLL power-down at 125 C
+|openbcm-asic-temp: stopped
+during asic/temperature
+|41.8
+during-absent asic/temperature.tmp
+during prom/asic.prom
+|# HELP switch_asic_temperature_celsius ASIC die temperature monitor, current
+|# TYPE switch_asic_temperature_celsius gauge
+|switch_asic_temperature_celsius{unit="0",sensor="pvtmon0"} 41.3
+|switch_asic_temperature_celsius{unit="0",sensor="pvtmon1"} 41.8
+|switch_asic_temperature_celsius{unit="0",sensor="pvtmon2"} -5.5
+|# HELP switch_asic_temperature_peak_celsius ASIC die temperature monitor, highest since the previous read
+|# TYPE switch_asic_temperature_peak_celsius gauge
+|switch_asic_temperature_peak_celsius{unit="0",sensor="pvtmon0"} 42.8
+|switch_asic_temperature_peak_celsius{unit="0",sensor="pvtmon1"} 43.3
+|switch_asic_temperature_peak_celsius{unit="0",sensor="pvtmon2"} -4.0
+|# HELP switch_asic_temperature_max_celsius hottest current ASIC monitor (what fan control reads)
+|# TYPE switch_asic_temperature_max_celsius gauge
+|switch_asic_temperature_max_celsius{unit="0"} 41.8
+|# HELP switch_asic_temperature_read_timestamp_seconds time of the last good read
+|# TYPE switch_asic_temperature_read_timestamp_seconds gauge
+|switch_asic_temperature_read_timestamp_seconds{unit="0"} T
+during-absent prom/asic.prom.tmp
+during-absent a/b/t
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 20 run-int
+args ["--out", "asic/temperature", "-i", "3600"]
+ends Signal("INT")
+inputs 8f8bc6ffaa0ca801
+code 0
+stdout
+stderr
+|openbcm-asic-temp: unit 0 attached FAKE56960_A0
+|openbcm-asic-temp: 1 monitors, max 40.0 C, average 40.0 C; every 3600 s to asic/temperature; core PLL power-down at 125 C
+|openbcm-asic-temp: stopped
+during asic/temperature
+|40.0
+during-absent asic/temperature.tmp
+during-absent prom/asic.prom
+during-absent prom/asic.prom.tmp
+during-absent a/b/t
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 21 run-hup
+args ["-s", "0", "--out", "asic/temperature"]
+ends Signal("HUP")
+inputs 4b82c0c08bfed0bb
+code 0
+stdout
+stderr
+|openbcm-asic-temp: unit 0 attached FAKE56960_A0
+|openbcm-asic-temp: 1 monitors, max 149.0 C, average 149.0 C; every 5 s to asic/temperature; core PLL power-down at 0 C (off)
+|openbcm-asic-temp: stopped
+during asic/temperature
+|149.0
+during-absent asic/temperature.tmp
+during-absent prom/asic.prom
+during-absent prom/asic.prom.tmp
+during-absent a/b/t
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 22 fails
+args ["-i", "1", "--out", "asic/temperature", "--prom", "prom/asic.prom"]
+ends Exits
+inputs 7ee54b256bdf635e
+code 4
+stdout
+stderr
+|openbcm-asic-temp: unit 0 attached FAKE56960_A0
+|openbcm-asic-temp: read failed: Operation timed out (0 monitors)
+|openbcm-asic-temp: read failed: Operation timed out (0 monitors)
+|openbcm-asic-temp: read failed: Operation timed out (0 monitors)
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 23 fails-after-one
+args ["-i", "1", "--out", "asic/temperature"]
+ends Exits
+inputs 9061168f3438e2af
+code 4
+stdout
+stderr
+|openbcm-asic-temp: unit 0 attached FAKE56960_A0
+|openbcm-asic-temp: 1 monitors, max 40.0 C, average 40.0 C; every 1 s to asic/temperature; core PLL power-down at 125 C
+|openbcm-asic-temp: read failed: Operation timed out (0 monitors)
+|openbcm-asic-temp: read failed: Operation timed out (0 monitors)
+|openbcm-asic-temp: read failed: Operation timed out (0 monitors)
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 24 implausible
+args ["-i", "1", "--out", "asic/temperature"]
+ends Exits
+inputs 4240c8e0a8e2e099
+code 4
+stdout
+stderr
+|openbcm-asic-temp: unit 0 attached FAKE56960_A0
+|openbcm-asic-temp: read failed: ok (2 monitors, implausible value)
+|openbcm-asic-temp: read failed: ok (2 monitors, implausible value)
+|openbcm-asic-temp: read failed: ok (2 monitors, implausible value)
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 25 unavail
+args ["-i", "1", "--out", "asic/temperature"]
+ends Exits
+inputs af63bd4c8601b7df
+code 4
+stdout
+stderr
+|openbcm-asic-temp: unit 0 attached FAKE56960_A0
+|openbcm-asic-temp: read failed: Feature unavailable (0 monitors)
+|openbcm-asic-temp: read failed: Feature unavailable (0 monitors)
+|openbcm-asic-temp: read failed: Feature unavailable (0 monitors)
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 26 overtemp
+args ["-i", "1", "--out", "asic/temperature", "--prom", "prom/asic.prom"]
+ends Exits
+inputs 30b665b26af059a1
+code 5
+stdout
+stderr
+|openbcm-asic-temp: unit 0 attached FAKE56960_A0
+|openbcm-asic-temp: monitor 1 at 125.0 C, at or above the 125 C limit (core PLL power-down on the next such read)
+|openbcm-asic-temp: 2 monitors, max 125.0 C, average 82.5 C; every 1 s to asic/temperature; core PLL power-down at 125 C
+|openbcm-asic-temp: CRITICAL: monitor 1 at 125.0 C (limit 125 C, 2 reads in a row): powering down the switch core PLL as the SDK's over-temperature handler does; the switch ASIC needs a power cycle
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 27 overtemp-fail
+args ["-i", "1", "--out", "asic/temperature"]
+ends Exits
+inputs 149096e83e674848
+code 5
+stdout
+stderr
+|openbcm-asic-temp: unit 0 attached FAKE56960_A0
+|openbcm-asic-temp: monitor 0 at 130.0 C, at or above the 125 C limit (core PLL power-down on the next such read)
+|openbcm-asic-temp: 1 monitors, max 130.0 C, average 130.0 C; every 1 s to asic/temperature; core PLL power-down at 125 C
+|openbcm-asic-temp: CRITICAL: monitor 0 at 130.0 C (limit 125 C, 2 reads in a row): powering down the switch core PLL as the SDK's over-temperature handler does; the switch ASIC needs a power cycle
+|openbcm-asic-temp: CRITICAL: core PLL power-down failed: Feature unavailable
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 28 overtemp-at
+args ["-i", "1", "-s", "100", "--out", "asic/temperature"]
+ends Exits
+inputs 48776de3dee6040c
+code 5
+stdout
+stderr
+|openbcm-asic-temp: unit 0 attached FAKE56960_A0
+|openbcm-asic-temp: monitor 0 at 100.0 C, at or above the 100 C limit (core PLL power-down on the next such read)
+|openbcm-asic-temp: 1 monitors, max 100.0 C, average 100.0 C; every 1 s to asic/temperature; core PLL power-down at 100 C
+|openbcm-asic-temp: CRITICAL: monitor 0 at 100.0 C (limit 100 C, 2 reads in a row): powering down the switch core PLL as the SDK's over-temperature handler does; the switch ASIC needs a power cycle
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+
+case 29 unwritable
+args ["-i", "1", "--out", "a/b/t", "--prom", "plain/asic.prom", "--", "ignored"]
+ends Exits
+inputs bcaa6d7203069623
+code 0
+stdout
+stderr
+|openbcm-asic-temp: 1 monitors, max 40.0 C, average 40.0 C; every 1 s to a/b/t; core PLL power-down at 125 C
+|openbcm-asic-temp: cannot write a/b/t: Not a directory
+|openbcm-asic-temp: cannot write plain/asic.prom: Not a directory
+|openbcm-asic-temp: stopped
+|openbcm-asic-temp: unit 0 attached FAKE56960_A0
+\ no newline at end
+after-absent asic/temperature
+after-absent asic/temperature.tmp
+after-absent prom/asic.prom
+after-absent prom/asic.prom.tmp
+after-absent a/b/t
+end
+

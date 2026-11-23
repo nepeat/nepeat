@@ -1,6 +1,6 @@
 # Integration test (NixOS VM, no hardware): SONiC's syncd linked against the Rust libsai
 # (virtual backend), redis on the SONiC socket, sai_slice_smoke.py through libsairedis, then
-# what syncd discovered in ASIC_DB. Modelled on ai_re/nix/packages/sai-openbcm/test-syncd.nix.
+# what syncd discovered in ASIC_DB. Modelled on the deleted C++ sai-openbcm's test-syncd.nix (./test-syncd-parity.nix).
 # The caller passes the SONiC package set (this tree does not know where it lives):
 #   import ./test-syncd.nix { pkgs = p; sonic = <ai_re sonic set>; libsai = <./package.nix>; }
 # ai_re: target "vm-sai-rs-syncd" (just test-vm -k sai-rs). What it shows: ../README.md, "syncd".

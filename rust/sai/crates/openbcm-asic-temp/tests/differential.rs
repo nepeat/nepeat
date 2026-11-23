@@ -1,17 +1,24 @@
-//! The binary against the C tool: the unmodified `asic_temp.c` + `temp_files.c` on
-//! `tests/c/stub_glue.c` (built by `build.rs`, never at test time) and `openbcm-asic-temp` on
-//! `sdk-glue`'s Rust fake chip, the same scenario file and command line for both, each in its
-//! own directory with the same relative paths: exit code, stdout, stderr, the files while it runs
-//! (the Prometheus read timestamp masked) and after it ended must be equal. Runs that do not end
-//! by themselves get SIGTERM / SIGINT / SIGHUP (`kill`) once the first reading is on disk.
-//! Both sleep for real (1 s after the discarded read, then the interval): the cases run in
-//! parallel.
+//! The binary against the C tool's golden: the unmodified `asic_temp.c` + `temp_files.c` on the
+//! stub glue `tests/c/stub_glue.c` (a C model of the glue functions the tool calls, answering as
+//! `sdk-glue`'s Rust fake chip) and `openbcm-asic-temp` on that Rust fake chip, the same scenario
+//! file and command line, each in its own directory with the same relative paths: exit code,
+//! stdout, stderr, the files while it runs (the Prometheus read timestamp masked) and after it
+//! ended must be what the C tool gave. Runs that do not end by themselves get SIGTERM / SIGINT /
+//! SIGHUP (`kill`) once the first reading is on disk. The tool sleeps for real (1 s after the
+//! discarded read, then the interval): the cases run in parallel.
+//!
+//! Until 2026-11-23 `build.rs` built the C tool and this test ran it next to the binary (30
+//! cases, all equal). Its results, captured at commit 50a6aa7 (sha256 of the C files in the
+//! header; the stub glue was deleted afterwards and is in git there), are
+//! `golden/differential.txt`, one record per case with its arguments and a digest of its scenario
+//! and stale files, so an edited case shows as "golden inputs differ". The golden is not
+//! regenerated from this crate's output: a deliberate behaviour change edits the record by hand
+//! with a reason.
 //!
 //! Also the binary alone: the guard of the fake build, the real signals.
 //!
-//! Where the build tree is not (a copied test executable), `SAI_RS_TEST_BIN` names a directory
-//! with `openbcm-asic-temp-c` (from `$OUT_DIR/target-tests`) and `openbcm-asic-temp`. Without
-//! the C tool the comparison says so and passes.
+//! Where the build tree is not (a copied test executable), `SAI_RS_TEST_BIN` may name a directory
+//! with `openbcm-asic-temp`.
 #![allow(
     clippy::unwrap_used,
     clippy::panic,
@@ -41,16 +48,6 @@ fn rust_tool() -> PathBuf {
         .map(|d| PathBuf::from(d).join("openbcm-asic-temp"))
         .filter(|p| p.is_file())
         .unwrap_or_else(|| PathBuf::from(env!("CARGO_BIN_EXE_openbcm-asic-temp")))
-}
-
-fn c_tool() -> Option<PathBuf> {
-    let bundle = std::env::var_os("SAI_RS_TEST_BIN")
-        .map(|d| PathBuf::from(d).join("openbcm-asic-temp-c"))
-        .filter(|p| p.is_file());
-    let built = Some(env!("ASIC_TEMP_C_HELPERS"))
-        .filter(|d| !d.is_empty())
-        .map(|d| PathBuf::from(d).join("openbcm-asic-temp-c"));
-    bundle.or(built)
 }
 
 fn scratch(name: &str) -> PathBuf {
@@ -170,6 +167,101 @@ fn run(tool: &Path, dir: &Path, case: &Case) -> Seen {
         during,
         after: files(dir),
     }
+}
+
+const GOLDEN: &str = include_str!("golden/differential.txt");
+
+/// 64-bit FNV-1a.
+fn fnv1a64(bytes: &[u8]) -> u64 {
+    bytes.iter().fold(0xcbf2_9ce4_8422_2325, |h, &b| {
+        (h ^ u64::from(b)).wrapping_mul(0x0000_0100_0000_01b3)
+    })
+}
+
+/// The digest of a case's input files: the scenario, then each stale file (path NUL content NUL).
+fn inputs_digest(case: &Case) -> u64 {
+    let mut bytes = case.scenario.as_bytes().to_vec();
+    bytes.push(0);
+    for (path, text) in case.stale {
+        bytes.extend_from_slice(path.as_bytes());
+        bytes.push(0);
+        bytes.extend_from_slice(text.as_bytes());
+        bytes.push(0);
+    }
+    fnv1a64(&bytes)
+}
+
+/// What identifies a case in the golden.
+fn identity(i: usize, case: &Case) -> String {
+    format!(
+        "case {i} {}\nargs {:?}\nends {:?}\ninputs {:016x}",
+        case.name,
+        case.args,
+        case.end,
+        inputs_digest(case)
+    )
+}
+
+/// The lines of a `|`-prefixed block, up to the next line that is not one; a following
+/// `\ no newline at end` takes the last newline away.
+fn block<'a>(lines: &mut std::iter::Peekable<impl Iterator<Item = &'a str>>) -> String {
+    let mut text = String::new();
+    while let Some(l) = lines.next_if(|l| l.starts_with('|')) {
+        text.push_str(&l[1..]);
+        text.push('\n');
+    }
+    if lines.next_if(|l| *l == "\\ no newline at end").is_some() {
+        text.pop();
+    }
+    text
+}
+
+/// `golden/differential.txt`: per case `case <i> <name>`, `args` (Rust `{:?}`), `ends`, `inputs`
+/// (FNV-1a), `code`, the blocks `stdout` and `stderr`, per watched file `during <path>` /
+/// `after <path>` with its block or `during-absent` / `after-absent <path>`, `end`; `#` lines
+/// between records are comments. The identity of each record and what the C tool did.
+fn golden() -> Vec<(String, Seen)> {
+    let mut records = Vec::new();
+    let mut lines = GOLDEN.lines().peekable();
+    while let Some(line) = lines.next() {
+        if line.is_empty() || line.starts_with('#') {
+            continue;
+        }
+        assert!(line.starts_with("case "), "golden: expected a case line, not {line:?}");
+        let mut id = vec![line.to_owned()];
+        for key in ["args ", "ends ", "inputs "] {
+            let l = lines.next().unwrap_or_default();
+            assert!(l.starts_with(key), "golden {line}: expected {key}, not {l:?}");
+            id.push(l.to_owned());
+        }
+        let code = lines
+            .next()
+            .and_then(|l| l.strip_prefix("code "))
+            .unwrap_or_else(|| panic!("golden {line}: no code"));
+        let mut seen = Seen {
+            code: (code != "none").then(|| code.parse().unwrap()),
+            stdout: String::new(),
+            stderr: String::new(),
+            during: Vec::new(),
+            after: Vec::new(),
+        };
+        loop {
+            let l = lines.next().unwrap_or_else(|| panic!("golden {line}: no end"));
+            let (word, path) = l.split_once(' ').unwrap_or((l, ""));
+            match word {
+                "end" => break,
+                "stdout" => seen.stdout = block(&mut lines),
+                "stderr" => seen.stderr = block(&mut lines),
+                "during" => seen.during.push((path.to_owned(), Some(block(&mut lines)))),
+                "after" => seen.after.push((path.to_owned(), Some(block(&mut lines)))),
+                "during-absent" => seen.during.push((path.to_owned(), None)),
+                "after-absent" => seen.after.push((path.to_owned(), None)),
+                _ => panic!("golden {line}: unexpected {l:?}"),
+            }
+        }
+        records.push((id.join("\n"), seen));
+    }
+    records
 }
 
 const FILE: &str = "asic/temperature";
@@ -398,73 +490,75 @@ const CASES: &[Case] = &[
 
 #[test]
 fn the_rust_tool_behaves_like_asic_temp_c() {
-    let Some(c) = c_tool() else {
-        summary(
-            "openbcm-asic-temp differential: the C tool was not built (SAI_OPENBCM_SRC at build time, or SAI_RS_TEST_BIN): SKIPPED",
+    let golden = golden();
+    assert_eq!(
+        golden.len(),
+        CASES.len(),
+        "the golden has {} cases, the test {}: golden inputs differ (the cases were edited)",
+        golden.len(),
+        CASES.len()
+    );
+    for (i, (case, (id, _))) in CASES.iter().zip(&golden).enumerate() {
+        let this = identity(i, case);
+        assert!(
+            *id == this,
+            "golden case {i} was made for another case: golden inputs differ (the cases were edited)\n--- golden\n{id}\n--- this case\n{this}"
         );
-        return;
-    };
+    }
     let rust = rust_tool();
     let base = scratch("all");
     // "unwritable" would run for ever (no reading ever lands): it is stopped from here after 3 s
-    let results: Vec<(&Case, Seen, Seen)> = std::thread::scope(|s| {
+    let results: Vec<(&Case, Seen)> = std::thread::scope(|s| {
         let jobs: Vec<_> = CASES
             .iter()
             .map(|case| {
-                let (c, rust, base) = (&c, &rust, &base);
+                let (rust, base) = (&rust, &base);
                 s.spawn(move || {
-                    let one = |tool: &Path, which: &str| {
-                        let dir = base.join(format!("{}-{which}", case.name));
-                        std::fs::create_dir_all(&dir).unwrap();
-                        if case.name == "unwritable" {
-                            let child = spawn(tool, &dir, case);
-                            std::thread::sleep(Duration::from_secs(3));
-                            signal(&child, "TERM");
-                            let Output { status, stdout, stderr } = child.wait_with_output().unwrap();
-                            return Seen {
-                                code: status.code(),
-                                stdout: String::from_utf8(stdout).unwrap(),
-                                // the number of reads in 3 s may differ by one: compare the set
-                                stderr: {
-                                    let mut l: Vec<&str> = std::str::from_utf8(&stderr).unwrap().lines().collect();
-                                    l.dedup();
-                                    l.sort_unstable();
-                                    l.dedup();
-                                    l.join("\n")
-                                },
-                                during: Vec::new(),
-                                after: files(&dir),
-                            };
-                        }
-                        run(tool, &dir, case)
-                    };
-                    let (a, b) = std::thread::scope(|t| {
-                        let a = t.spawn(|| one(c, "c"));
-                        let b = t.spawn(|| one(rust, "rust"));
-                        (a.join().unwrap(), b.join().unwrap())
-                    });
-                    (case, a, b)
+                    let dir = base.join(format!("{}-rust", case.name));
+                    std::fs::create_dir_all(&dir).unwrap();
+                    if case.name == "unwritable" {
+                        let child = spawn(rust, &dir, case);
+                        std::thread::sleep(Duration::from_secs(3));
+                        signal(&child, "TERM");
+                        let Output { status, stdout, stderr } = child.wait_with_output().unwrap();
+                        let seen = Seen {
+                            code: status.code(),
+                            stdout: String::from_utf8(stdout).unwrap(),
+                            // the number of reads in 3 s varies: compare the set
+                            stderr: {
+                                let mut l: Vec<&str> = std::str::from_utf8(&stderr).unwrap().lines().collect();
+                                l.dedup();
+                                l.sort_unstable();
+                                l.dedup();
+                                l.join("\n")
+                            },
+                            during: Vec::new(),
+                            after: files(&dir),
+                        };
+                        return (case, seen);
+                    }
+                    (case, run(rust, &dir, case))
                 })
             })
             .collect();
         jobs.into_iter().map(|j| j.join().unwrap()).collect()
     });
     let mut differ = Vec::new();
-    for (case, c, rust) in &results {
+    for ((case, rust), (_, c)) in results.iter().zip(&golden) {
         if c != rust {
-            differ.push(format!("{}:\n  C:    {c:?}\n  Rust: {rust:?}", case.name));
+            differ.push(format!("{}:\n  C (golden): {c:?}\n  Rust:       {rust:?}", case.name));
         }
     }
     let _ = std::fs::remove_dir_all(&base);
     assert!(
         differ.is_empty(),
-        "{} of {} cases differ:\n{}",
+        "{} of {} cases differ from the C tool's golden:\n{}",
         differ.len(),
         results.len(),
         differ.join("\n")
     );
     // the cases are not vacuous: what C did, per kind
-    let by = |name: &str| &results.iter().find(|r| r.0.name == name).unwrap().1;
+    let by = |name: &str| &golden[CASES.iter().position(|c| c.name == name).unwrap()].1;
     assert_eq!(by("overtemp").code, Some(5));
     assert_eq!(by("fails").code, Some(4));
     assert_eq!(by("busy").code, Some(3));
@@ -477,7 +571,7 @@ fn the_rust_tool_behaves_like_asic_temp_c() {
     );
     assert!(by("run-term").stderr.ends_with("openbcm-asic-temp: stopped\n"));
     summary(&format!(
-        "openbcm-asic-temp differential: {} cases (C asic_temp.c on the stub glue vs Rust on the Rust fake): exit code, stdout, stderr, files equal",
+        "openbcm-asic-temp differential: {} cases (Rust on the Rust fake vs the golden of C asic_temp.c on the stub glue, commit 50a6aa7): exit code, stdout, stderr, files equal",
         results.len()
     ));
 }

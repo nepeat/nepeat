@@ -277,15 +277,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "phy-seq-capi"
-version = "0.1.0"
-dependencies = [
- "bindgen",
- "phy-seq",
- "proptest",
-]
-
-[[package]]
 name = "prettyplease"
 version = "0.2.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -474,19 +465,6 @@ dependencies = [
  "sai-core",
  "sai-sys",
  "zeroize",
-]
-
-[[package]]
-name = "sai-macsec-capi"
-version = "0.1.0"
-dependencies = [
- "bindgen",
- "phy-seq-capi",
- "sai-core",
- "sai-macsec",
- "sai-macsec-phy",
- "sai-meta",
- "sai-sys",
 ]
 
 [[package]]

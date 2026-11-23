@@ -1,0 +1,2633 @@
+# phy-seq golden: ext-macsec corpus (643 runs: the hand-written tables, common::ms_table, usage, unopenable files)
+# The answers of sai-openbcm's C++ tool openbcm-ext-macsec (the C++ engine, built by
+# ai_re/nix/packages/sai-openbcm as bin/openbcm-ext-macsec, 6fbkmj3x235wrwyzywh3wyckd9br2jka-sai-openbcm-fake-0.1.0),
+# captured 2026-11-23 from ai_re/nix/packages/sai-openbcm at commit 50a6aa7 (sources unmodified):
+#   src/ext_macsec_check.cpp  sha256 1929671798a5c9b18efdfe8ffa7de0d4476a28930c1e69f3b287e4bd76ad6081
+#   src/sai_extmacsec.cpp     sha256 45fce25b404ed3dd5fed0d2b2e6bbf14e7ec600dc1fecb63b6e301cf15dfff02
+#   src/ext_macsec.h          sha256 6aba76f928701eea496eaa52094275edb29266886b9468f284c4b16952c53150
+# Produced by a one-off capture test in crates/phy-seq/tests/differential.rs (the same transcript
+# code as the test, with the C++ tool as the runner instead of phy_seq::cli; removed afterwards):
+#   PHY_SEQ_CXX_EXT_MACSEC=.../bin/openbcm-ext-macsec PHY_SEQ_TABLES=<as7772 ext-macsec>:<as7772 ext-phy> \
+#     cargo test -p phy-seq --test differential -- --ignored capture_from_cxx
+# The live differential (C++ against Rust, random seeds) agreed on every comparison just before.
+# NOT to be regenerated from the Rust output. A deliberate change of behaviour edits the affected
+# lines by hand and adds a "# changed <date>: <reason>" line here, like an allow-list entry.
+# Format: "== <section: the input>", then per run "-- <args>" and "exit N", "out <stdout>",
+#   "err <stderr>" (or "exit N" only: usage errors, whose text names the program; or
+#   "-- <args> = <FNV-1a 64 of the full run text>"). Strings escaped (\\ \" \n \r \t \xNN); the
+#   scratch directory is written $D.
+== table 0 ""
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 1: empty table (first line must be 'ext-macsec 1')\n"
+== table 1 "\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 1: empty table (first line must be 'ext-macsec 1')\n"
+== table 2 "ext-phy 1\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 1: not an ext-macsec table (first line must be 'ext-macsec 1')\n"
+== table 3 "ext-macsec 2\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 1: not an ext-macsec table (first line must be 'ext-macsec 1')\n"
+== table 4 "ext-macsec 1"
+-- "--check" "$D/table"
+exit 0
+out "$D/table: 0 ports, 0 sequences, 0 operations, counters clear-on-read, ifg-bits 0\n"
+err ""
+== table 5 "ext-macsec 1\n"
+-- "--check" "$D/table"
+exit 0
+out "$D/table: 0 ports, 0 sequences, 0 operations, counters clear-on-read, ifg-bits 0\n"
+err ""
+== table 6 "\n# c\n\text-macsec\x0b1\x0c\r\ncounters absolute\r\nifg-bits 2040\r\nport 100000 ffff\r\nseq a\r\nD 100000\r\n"
+-- "--check" "$D/table"
+exit 0
+out "$D/table: 1 ports, 1 sequences, 1 operations, counters absolute, ifg-bits 2040\n"
+err ""
+-- "--render" "$D/table" "a" "51bd"
+exit 0
+out "D 100000\n"
+err ""
+-- "--render" "$D/table" "a" "51bd" "-"
+exit 0
+out "D 100000\n"
+err ""
+-- "--render" "$D/table" "a" "51bd" "$D/params-full"
+exit 0
+out "D 100000\n"
+err ""
+-- "--render" "$D/table" "a" "51bd" "$D/params-short"
+exit 0
+out "D 100000\n"
+err ""
+-- "--render" "$D/table" "a" "51bd" "$D/params-full" "$D/reads"
+exit 0
+out "D 100000\n"
+err ""
+== table 7 "ext-macsec 1\nW p 1 a000 6\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 2: operation outside a sequence\n"
+== table 8 "ext-macsec 1\nseq a\nW p 0 a000 6\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: dev 0 (clause 22) is not allowed\n"
+== table 9 "ext-macsec 1\nseq a\nW p 20 a000 6\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: dev / reg: hex, dev 1..1f, reg up to ffff\n"
+== table 10 "ext-macsec 1\nseq a\nW q 1 a000 6\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: phy: 'p' or hex\n"
+== table 11 "ext-macsec 1\nseq a\nW p 1 a000 10000\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: value: hhhh, $n[&mask][|bits] or <byte>.<byte> with bytes hh or <param>[<index>]\n"
+== table 12 "ext-macsec 1\nseq a\nW p 1 a000 key[32].00\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: value: hhhh, $n[&mask][|bits] or <byte>.<byte> with bytes hh or <param>[<index>]\n"
+== table 13 "ext-macsec 1\nseq a\nW p 1 a000 hkey[16].00\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: value: hhhh, $n[&mask][|bits] or <byte>.<byte> with bytes hh or <param>[<index>]\n"
+== table 14 "ext-macsec 1\nseq a\nW p 1 a000 secret[0].00\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: value: hhhh, $n[&mask][|bits] or <byte>.<byte> with bytes hh or <param>[<index>]\n"
+== table 15 "ext-macsec 1\nseq a\nW p 1 a000 0.key[0]\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: value: hhhh, $n[&mask][|bits] or <byte>.<byte> with bytes hh or <param>[<index>]\n"
+== table 16 "ext-macsec 1\nseq a\nW p 1 a000 $16\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: value: hhhh, $n[&mask][|bits] or <byte>.<byte> with bytes hh or <param>[<index>]\n"
+== table 17 "ext-macsec 1\nseq a\nW p 1 a000 $0\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: sequence a: $0 is written before an X reads it\n"
+== table 18 "ext-macsec 1\nseq a\nX p 1 a000 $16\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: X destination: $<n> (0..15) or <result>[<word 0..7>]\n"
+== table 19 "ext-macsec 1\nseq a\nX p 1 a000 pn[8]\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: X destination: $<n> (0..15) or <result>[<word 0..7>]\n"
+== table 20 "ext-macsec 1\nseq a\nX p 1 a000 pn\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: X destination: $<n> (0..15) or <result>[<word 0..7>]\n"
+== table 21 "ext-macsec 1\nseq a\nE p 1 a000 3 1\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: value has bits outside the mask: can never match\n"
+== table 22 "ext-macsec 1\nseq a\nP p 1 a000 1 1 0 0\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: P: tries 1..1000 and interval 0..100000 usec, decimal\n"
+== table 23 "ext-macsec 1\nseq a\nD 200000\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: D <usec, decimal, 0..100000>\n"
+== table 24 "ext-macsec 1\nseq a\nC p 1 a000 1 1\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: unknown keyword 'C'\n"
+== table 25 "ext-macsec 1\nseq a\nseq a\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: sequence a twice\n"
+== table 26 "ext-macsec 1\nseq A\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 2: seq <name> (a-z 0-9 . -)\n"
+== table 27 "ext-macsec 1\nport 1 10\nport 1 11\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: port 1 twice\n"
+== table 28 "ext-macsec 1\nport 1\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 2: port <first lane, decimal> <phy, hex>\n"
+== table 29 "ext-macsec 1\ncounters sometimes\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 2: counters clear-on-read | absolute\n"
+== table 30 "ext-macsec 1\nifg-bits 9999\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 2: ifg-bits <decimal, 0..2040>\n"
+== table 31 "ext-macsec 1\ncounters absolute\nseq a\nW 10 1 a000 $0|1\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 4: sequence a: $0 is written before an X reads it\n"
+== table 32 "ext-macsec 1\nport 007 0x1F\nport 7 2\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: port 7 twice\n"
+== table 33 "ext-macsec 1\nport 1\x00junk 10\nport 1 11\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: port 1 twice\n"
+== table 34 "ext-macsec 1\nport \x00 \x00\nseq s\nW \x00 1\x00 \x00 \x00\nW p 1 0 \x00\x00.1\x00\nX p 1 0 $\x00\nW p 1 1 $\x00&\x00|\x00\nD \x00\nP p 1 0 \x00 \x00 1\x00 \x00\n"
+-- "--check" "$D/table"
+exit 0
+out "$D/table: 1 ports, 1 sequences, 6 operations, counters clear-on-read, ifg-bits 0\n"
+err ""
+-- "--render" "$D/table" "s" "cc54"
+exit 0
+out "W 000 1 0000 0000\nW cc54 1 0000 0001\nR cc54 1 0000\nW cc54 1 0001 0000\nD 0\nR cc54 1 0000 0000 0000\n"
+err ""
+-- "--render" "$D/table" "s" "cc54" "-"
+exit 0
+out "W 000 1 0000 0000\nW cc54 1 0000 0001\nR cc54 1 0000\nW cc54 1 0001 0000\nD 0\nR cc54 1 0000 0000 0000\n"
+err ""
+-- "--render" "$D/table" "s" "cc54" "$D/params-full"
+exit 0
+out "W 000 1 0000 0000\nW cc54 1 0000 0001\nR cc54 1 0000\nW cc54 1 0001 0000\nD 0\nR cc54 1 0000 0000 0000\n"
+err ""
+-- "--render" "$D/table" "s" "cc54" "$D/params-short"
+exit 0
+out "W 000 1 0000 0000\nW cc54 1 0000 0001\nR cc54 1 0000\nW cc54 1 0001 0000\nD 0\nR cc54 1 0000 0000 0000\n"
+err ""
+-- "--render" "$D/table" "s" "cc54" "$D/params-full" "$D/reads"
+exit 0
+out "W 000 1 0000 0000\nW cc54 1 0000 0001\nR cc54 1 0000\nW cc54 1 0001 0000\nD 0\nR cc54 1 0000\n"
+err ""
+== table 35 "ext-macsec 1\nseq s\nW 0x10 0x1 0xa000 0xffff\nW p 0X1f 0XFFFF 0X0\nE p 1 0 0x1 0x1\nR 0x 1 0\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 6: phy: 'p' or hex\n"
+== table 36 "ext-macsec 1\nseq s\nR p 1 0x\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: dev / reg: hex, dev 1..1f, reg up to ffff\n"
+== table 37 "ext-macsec 1\nseq s\nD 0x10\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: D <usec, decimal, 0..100000>\n"
+== table 38 "ext-macsec 1\n\xff\xfe\x00 1\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 2: unknown keyword '\xff\xfe\n"
+== table 39 "ext-macsec 1\nseq s\nW p 1 0 00.0x\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: value: hhhh, $n[&mask][|bits] or <byte>.<byte> with bytes hh or <param>[<index>]\n"
+== table 40 "ext-macsec 1\nseq s\nW p 1 0 $0|1&2\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: value: hhhh, $n[&mask][|bits] or <byte>.<byte> with bytes hh or <param>[<index>]\n"
+== table 41 "ext-macsec 1\nseq s\nX p 1 0 $1\nW p 1 0 $1&&1\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 4: value: hhhh, $n[&mask][|bits] or <byte>.<byte> with bytes hh or <param>[<index>]\n"
+== table 42 "ext-macsec 1\nseq s\nX p 1 0 $1\nW p 1 0 $1.2\nW p 1 0 $1&ff|1|2\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 4: value: hhhh, $n[&mask][|bits] or <byte>.<byte> with bytes hh or <param>[<index>]\n"
+== table 43 "ext-macsec 1\nseq s\nX p 1 0 $01\nW p 1 0 $1\nW p 1 0 $001&0ff|0x1\n"
+-- "--check" "$D/table"
+exit 0
+out "$D/table: 0 ports, 1 sequences, 3 operations, counters clear-on-read, ifg-bits 0\n"
+err ""
+-- "--render" "$D/table" "s" "f54d"
+exit 0
+out "R f54d 1 0000\nW f54d 1 0000 0000\nW f54d 1 0000 0001\n"
+err ""
+-- "--render" "$D/table" "s" "f54d" "-"
+exit 0
+out "R f54d 1 0000\nW f54d 1 0000 0000\nW f54d 1 0000 0001\n"
+err ""
+-- "--render" "$D/table" "s" "f54d" "$D/params-full"
+exit 0
+out "R f54d 1 0000\nW f54d 1 0000 0000\nW f54d 1 0000 0001\n"
+err ""
+-- "--render" "$D/table" "s" "f54d" "$D/params-short"
+exit 0
+out "R f54d 1 0000\nW f54d 1 0000 0000\nW f54d 1 0000 0001\n"
+err ""
+-- "--render" "$D/table" "s" "f54d" "$D/params-full" "$D/reads"
+exit 0
+out "R f54d 1 0000\nW f54d 1 0000 0000\nW f54d 1 0000 0001\n"
+err ""
+== table 44 "ext-macsec 1\nseq s\nX p 1 0 a[0]]\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: X destination: $<n> (0..15) or <result>[<word 0..7>]\n"
+== table 45 "ext-macsec 1\nseq s\nX p 1 0 [0]\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 3: X destination: $<n> (0..15) or <result>[<word 0..7>]\n"
+== table 46 "ext-macsec 1\nseq s\nX p 1 0 a[07]\nX p 1 0 _[7]\nX p 1 0 $3[1]\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 5: X destination: $<n> (0..15) or <result>[<word 0..7>]\n"
+== table 47 "ext-macsec 1\nseq b\nW p 1 0 $1\nseq a\nX p 1 0 $2\nW p 1 0 $3|1\n"
+-- "--check" "$D/table"
+exit 1
+out ""
+err "$D/table: line 6: sequence a: $3 is written before an X reads it\n"
+== table 48 "ext-macsec 1\nseq s\nP p 1 8221 12e3 ffff 3 5\nE p 1 a100 2 f\nX p 1 1 r[2]\nX 5 1f ffff $15\nW 1e0 1 2 $15&ff00|1\nD 0\nP 2 1 3 0 0 2 0\n"
+-- "--check" "$D/table"
+exit 0
+out "$D/table: 0 ports, 1 sequences, 7 operations, counters clear-on-read, ifg-bits 0\n"
+err ""
+-- "--render" "$D/table" "s" "7787"
+exit 0
+out "R 7787 1 8221 12e3 ffff\nR 7787 1 a100 0002 000f\nR 7787 1 0001\nR 005 1f ffff\nW 1e0 1 0002 0001\nD 0\nR 002 1 0003 0000 0000\n"
+err ""
+-- "--render" "$D/table" "s" "7787" "-"
+exit 0
+out "R 7787 1 8221 12e3 ffff\nR 7787 1 a100 0002 000f\nR 7787 1 0001\nR 005 1f ffff\nW 1e0 1 0002 0001\nD 0\nR 002 1 0003 0000 0000\n"
+err ""
+-- "--render" "$D/table" "s" "7787" "$D/params-full"
+exit 0
+out "R 7787 1 8221 12e3 ffff\nR 7787 1 a100 0002 000f\nR 7787 1 0001\nR 005 1f ffff\nW 1e0 1 0002 0001\nD 0\nR 002 1 0003 0000 0000\n"
+err ""
+-- "--render" "$D/table" "s" "7787" "$D/params-short"
+exit 0
+out "R 7787 1 8221 12e3 ffff\nR 7787 1 a100 0002 000f\nR 7787 1 0001\nR 005 1f ffff\nW 1e0 1 0002 0001\nD 0\nR 002 1 0003 0000 0000\n"
+err ""
+-- "--render" "$D/table" "s" "7787" "$D/params-full" "$D/reads"
+exit 1
+out "R 7787 1 8221\nD 5\nR 7787 1 8221\nD 5\nR 7787 1 8221\n"
+err "$D/table: s: line 3: P phy 0x7787 1.8221 read 0xffff, expected 0x12e3 (mask 0xffff, 3 reads)\n"
+== table 49 "ext-macsec 1\nseq s\nW p 1 1 key[1].key[0]\nW p 1 2 key[31].key[30]\nW p 1 3 00.sci[7]\nW p 1 4 iv[11].window[3]\n"
+-- "--check" "$D/table"
+exit 0
+out "$D/table: 0 ports, 1 sequences, 4 operations, counters clear-on-read, ifg-bits 0\n"
+err ""
+-- "--render" "$D/table" "s" "7787"
+exit 1
+out ""
+err "$D/table: s: line 3: parameter key[1] is not available\n"
+-- "--render" "$D/table" "s" "7787" "-"
+exit 1
+out ""
+err "$D/table: s: line 3: parameter key[1] is not available\n"
+-- "--render" "$D/table" "s" "7787" "$D/params-full"
+exit 0
+out "W 7787 1 0001 1110\nW 7787 1 0002 2f2e\nW 7787 1 0003 0037\nW 7787 1 0004 6b83\n"
+err ""
+-- "--render" "$D/table" "s" "7787" "$D/params-short"
+exit 1
+out ""
+err "$D/table: s: line 4: parameter key[31] is not available\n"
+-- "--render" "$D/table" "s" "7787" "$D/params-full" "$D/reads"
+exit 0
+out "W 7787 1 0001 1110\nW 7787 1 0002 2f2e\nW 7787 1 0003 0037\nW 7787 1 0004 6b83\n"
+err ""
+== test table "ext-macsec 1\n# test table\ncounters clear-on-read\nifg-bits 384\nport 1 10\nport 5 11\nseq probe.egress\nX p 1 100 bypass[0]\nseq reset.egress\nW p 1 110 1\nseq enable.egress\nW p 1 100 0\nD 10\nseq disable.egress\nW p 1 100 1\nseq gate-open.egress\nW p 1 120 1\nseq gate-close.egress\nW p 1 120 0\nseq stats-flow.egress\nX p 1 4f0 control_pkts[0]\nX p 1 4f1 control_pkts[1]\nX p 1 4f2 x_unknown[0]\nseq sa-add.egress.0.gcm-aes-128\nW p 1 200 0\nW p 1 201 key[1].key[0]\nW p 1 202 key[15].key[14]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 0\nW p 1 207 window[1].window[0]\nP p 1 20f 1 1 3 0\nseq sa-add-first.egress.0.gcm-aes-128\nW p 1 200 100\nW p 1 201 key[1].key[0]\nW p 1 202 key[15].key[14]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 0\nW p 1 207 window[1].window[0]\nP p 1 20f 1 1 3 0\nseq sa-add.egress.0.gcm-aes-256\nW p 1 200 10\nW p 1 201 key[1].key[0]\nW p 1 202 key[31].key[30]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 0\nW p 1 207 window[1].window[0]\nP p 1 20f 1 1 3 0\nseq sa-add-first.egress.0.gcm-aes-256\nW p 1 200 110\nW p 1 201 key[1].key[0]\nW p 1 202 key[31].key[30]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 0\nW p 1 207 window[1].window[0]\nP p 1 20f 1 1 3 0\nseq sa-add.egress.0.gcm-aes-xpn-128\nW p 1 200 20\nW p 1 201 key[1].key[0]\nW p 1 202 key[15].key[14]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 pn[5].pn[4]\nW p 1 207 window[1].window[0]\nW p 1 208 iv[0].iv[3]\nW p 1 209 iv[4].iv[11]\nW p 1 20a ssci[0].salt[0]\nP p 1 20f 1 1 3 0\nseq sa-add-first.egress.0.gcm-aes-xpn-128\nW p 1 200 120\nW p 1 201 key[1].key[0]\nW p 1 202 key[15].key[14]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 pn[5].pn[4]\nW p 1 207 window[1].window[0]\nW p 1 208 iv[0].iv[3]\nW p 1 209 iv[4].iv[11]\nW p 1 20a ssci[0].salt[0]\nP p 1 20f 1 1 3 0\nseq sa-add.egress.0.gcm-aes-xpn-256\nW p 1 200 30\nW p 1 201 key[1].key[0]\nW p 1 202 key[31].key[30]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 pn[5].pn[4]\nW p 1 207 window[1].window[0]\nW p 1 208 iv[0].iv[3]\nW p 1 209 iv[4].iv[11]\nW p 1 20a ssci[0].salt[0]\nP p 1 20f 1 1 3 0\nseq sa-add-first.egress.0.gcm-aes-xpn-256\nW p 1 200 130\nW p 1 201 key[1].key[0]\nW p 1 202 key[31].key[30]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 pn[5].pn[4]\nW p 1 207 window[1].window[0]\nW p 1 208 iv[0].iv[3]\nW p 1 209 iv[4].iv[11]\nW p 1 20a ssci[0].salt[0]\nP p 1 20f 1 1 3 0\nseq sa-del.egress.0\nW p 1 300 1\nseq sa-del-last.egress.0\nW p 1 300 8001\nseq pn.egress.0\nX p 1 500 pn[0]\nX p 1 501 pn[1]\nX p 1 502 pn[2]\nX p 1 503 pn[3]\nseq stats-sa.egress.0\nX p 1 400 out_pkts_encrypted[0]\nX p 1 401 out_pkts_encrypted[1]\nseq sa-add.egress.1.gcm-aes-128\nW p 1 200 1\nW p 1 201 key[1].key[0]\nW p 1 202 key[15].key[14]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 0\nW p 1 207 window[1].window[0]\nP p 1 20f 1 1 3 0\nseq sa-add-first.egress.1.gcm-aes-128\nW p 1 200 101\nW p 1 201 key[1].key[0]\nW p 1 202 key[15].key[14]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 0\nW p 1 207 window[1].window[0]\nP p 1 20f 1 1 3 0\nseq sa-add.egress.1.gcm-aes-256\nW p 1 200 11\nW p 1 201 key[1].key[0]\nW p 1 202 key[31].key[30]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 0\nW p 1 207 window[1].window[0]\nP p 1 20f 1 1 3 0\nseq sa-add-first.egress.1.gcm-aes-256\nW p 1 200 111\nW p 1 201 key[1].key[0]\nW p 1 202 key[31].key[30]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 0\nW p 1 207 window[1].window[0]\nP p 1 20f 1 1 3 0\nseq sa-add.egress.1.gcm-aes-xpn-128\nW p 1 200 21\nW p 1 201 key[1].key[0]\nW p 1 202 key[15].key[14]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 pn[5].pn[4]\nW p 1 207 window[1].window[0]\nW p 1 208 iv[0].iv[3]\nW p 1 209 iv[4].iv[11]\nW p 1 20a ssci[0].salt[0]\nP p 1 20f 1 1 3 0\nseq sa-add-first.egress.1.gcm-aes-xpn-128\nW p 1 200 121\nW p 1 201 key[1].key[0]\nW p 1 202 key[15].key[14]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 pn[5].pn[4]\nW p 1 207 window[1].window[0]\nW p 1 208 iv[0].iv[3]\nW p 1 209 iv[4].iv[11]\nW p 1 20a ssci[0].salt[0]\nP p 1 20f 1 1 3 0\nseq sa-add.egress.1.gcm-aes-xpn-256\nW p 1 200 31\nW p 1 201 key[1].key[0]\nW p 1 202 key[31].key[30]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 pn[5].pn[4]\nW p 1 207 window[1].window[0]\nW p 1 208 iv[0].iv[3]\nW p 1 209 iv[4].iv[11]\nW p 1 20a ssci[0].salt[0]\nP p 1 20f 1 1 3 0\nseq sa-add-first.egress.1.gcm-aes-xpn-256\nW p 1 200 131\nW p 1 201 key[1].key[0]\nW p 1 202 key[31].key[30]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 pn[5].pn[4]\nW p 1 207 window[1].window[0]\nW p 1 208 iv[0].iv[3]\nW p 1 209 iv[4].iv[11]\nW p 1 20a ssci[0].salt[0]\nP p 1 20f 1 1 3 0\nseq sa-del.egress.1\nW p 1 301 1\nseq sa-del-last.egress.1\nW p 1 301 8001\nseq pn.egress.1\nX p 1 504 pn[0]\nX p 1 505 pn[1]\nX p 1 506 pn[2]\nX p 1 507 pn[3]\nseq stats-sa.egress.1\nX p 1 402 out_pkts_encrypted[0]\nX p 1 403 out_pkts_encrypted[1]\nseq sa-add.egress.2.gcm-aes-128\nW p 1 200 2\nW p 1 201 key[1].key[0]\nW p 1 202 key[15].key[14]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 0\nW p 1 207 window[1].window[0]\nP p 1 20f 1 1 3 0\nseq sa-add-first.egress.2.gcm-aes-128\nW p 1 200 102\nW p 1 201 key[1].key[0]\nW p 1 202 key[15].key[14]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 0\nW p 1 207 window[1].window[0]\nP p 1 20f 1 1 3 0\nseq sa-add.egress.2.gcm-aes-256\nW p 1 200 12\nW p 1 201 key[1].key[0]\nW p 1 202 key[31].key[30]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 0\nW p 1 207 window[1].window[0]\nP p 1 20f 1 1 3 0\nseq sa-add-first.egress.2.gcm-aes-256\nW p 1 200 112\nW p 1 201 key[1].key[0]\nW p 1 202 key[31].key[30]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 0\nW p 1 207 window[1].window[0]\nP p 1 20f 1 1 3 0\nseq sa-add.egress.2.gcm-aes-xpn-128\nW p 1 200 22\nW p 1 201 key[1].key[0]\nW p 1 202 key[15].key[14]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 pn[5].pn[4]\nW p 1 207 window[1].window[0]\nW p 1 208 iv[0].iv[3]\nW p 1 209 iv[4].iv[11]\nW p 1 20a ssci[0].salt[0]\nP p 1 20f 1 1 3 0\nseq sa-add-first.egress.2.gcm-aes-xpn-128\nW p 1 200 122\nW p 1 201 key[1].key[0]\nW p 1 202 key[15].key[14]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 pn[5].pn[4]\nW p 1 207 window[1].window[0]\nW p 1 208 iv[0].iv[3]\nW p 1 209 iv[4].iv[11]\nW p 1 20a ssci[0].salt[0]\nP p 1 20f 1 1 3 0\nseq sa-add.egress.2.gcm-aes-xpn-256\nW p 1 200 32\nW p 1 201 key[1].key[0]\nW p 1 202 key[31].key[30]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 pn[5].pn[4]\nW p 1 207 window[1].window[0]\nW p 1 208 iv[0].iv[3]\nW p 1 209 iv[4].iv[11]\nW p 1 20a ssci[0].salt[0]\nP p 1 20f 1 1 3 0\nseq sa-add-first.egress.2.gcm-aes-xpn-256\nW p 1 200 132\nW p 1 201 key[1].key[0]\nW p 1 202 key[31].key[30]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 pn[5].pn[4]\nW p 1 207 window[1].window[0]\nW p 1 208 iv[0].iv[3]\nW p 1 209 iv[4].iv[11]\nW p 1 20a ssci[0].salt[0]\nP p 1 20f 1 1 3 0\nseq sa-del.egress.2\nW p 1 302 1\nseq sa-del-last.egress.2\nW p 1 302 8001\nseq pn.egress.2\nX p 1 508 pn[0]\nX p 1 509 pn[1]\nX p 1 50a pn[2]\nX p 1 50b pn[3]\nseq stats-sa.egress.2\nX p 1 404 out_pkts_encrypted[0]\nX p 1 405 out_pkts_encrypted[1]\nseq sa-add.egress.3.gcm-aes-128\nW p 1 200 3\nW p 1 201 key[1].key[0]\nW p 1 202 key[15].key[14]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 0\nW p 1 207 window[1].window[0]\nP p 1 20f 1 1 3 0\nseq sa-add-first.egress.3.gcm-aes-128\nW p 1 200 103\nW p 1 201 key[1].key[0]\nW p 1 202 key[15].key[14]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 0\nW p 1 207 window[1].window[0]\nP p 1 20f 1 1 3 0\nseq sa-add.egress.3.gcm-aes-256\nW p 1 200 13\nW p 1 201 key[1].key[0]\nW p 1 202 key[31].key[30]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 0\nW p 1 207 window[1].window[0]\nP p 1 20f 1 1 3 0\nseq sa-add-first.egress.3.gcm-aes-256\nW p 1 200 113\nW p 1 201 key[1].key[0]\nW p 1 202 key[31].key[30]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 0\nW p 1 207 window[1].window[0]\nP p 1 20f 1 1 3 0\nseq sa-add.egress.3.gcm-aes-xpn-128\nW p 1 200 23\nW p 1 201 key[1].key[0]\nW p 1 202 key[15].key[14]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 pn[5].pn[4]\nW p 1 207 window[1].window[0]\nW p 1 208 iv[0].iv[3]\nW p 1 209 iv[4].iv[11]\nW p 1 20a ssci[0].salt[0]\nP p 1 20f 1 1 3 0\nseq sa-add-first.egress.3.gcm-aes-xpn-128\nW p 1 200 123\nW p 1 201 key[1].key[0]\nW p 1 202 key[15].key[14]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 pn[5].pn[4]\nW p 1 207 window[1].window[0]\nW p 1 208 iv[0].iv[3]\nW p 1 209 iv[4].iv[11]\nW p 1 20a ssci[0].salt[0]\nP p 1 20f 1 1 3 0\nseq sa-add.egress.3.gcm-aes-xpn-256\nW p 1 200 33\nW p 1 201 key[1].key[0]\nW p 1 202 key[31].key[30]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 pn[5].pn[4]\nW p 1 207 window[1].window[0]\nW p 1 208 iv[0].iv[3]\nW p 1 209 iv[4].iv[11]\nW p 1 20a ssci[0].salt[0]\nP p 1 20f 1 1 3 0\nseq sa-add-first.egress.3.gcm-aes-xpn-256\nW p 1 200 133\nW p 1 201 key[1].key[0]\nW p 1 202 key[31].key[30]\nW p 1 203 hkey[15].hkey[0]\nW p 1 204 sci[0].sci[7]\nW p 1 205 pn[1].pn[0]\nW p 1 206 pn[5].pn[4]\nW p 1 207 window[1].window[0]\nW p 1 208 iv[0].iv[3]\nW p 1 209 iv[4].iv[11]\nW p 1 20a ssci[0].salt[0]\nP p 1 20f 1 1 3 0\nseq sa-del.egress.3\nW p 1 303 1\nseq sa-del-last.egress.3\nW p 1 303 8001\nseq pn.egress.3\nX p 1 50c pn[0]\nX p 1 50d pn[1]\nX p 1 50e pn[2]\nX p 1 50f pn[3]\nseq stats-sa.egress.3\nX p 1 406 out_pkts_encrypted[0]\nX p 1 407 out_pkts_encrypted[1]\nseq probe.ingress\nX p 1 101 bypass[0]\nseq reset.ingress\nW p 1 111 1\nseq enable.ingress\nW p 1 101 0\nD 10\nseq disable.ingress\nW p 1 101 1\nseq gate-open.ingress\nW p 1 121 1\nseq gate-close.ingress\nW p 1 121 0\nseq stats-flow.ingress\nX p 1 4f0 control_pkts[0]\nX p 1 4f1 control_pkts[1]\nX p 1 4f2 x_unknown[0]\nseq sa-add.ingress.0.gcm-aes-128\nW p 1 210 0\nW p 1 211 key[1].key[0]\nW p 1 212 key[15].key[14]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 0\nW p 1 217 window[1].window[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|1\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.0.gcm-aes-128\nW p 1 210 100\nW p 1 211 key[1].key[0]\nW p 1 212 key[15].key[14]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 0\nW p 1 217 window[1].window[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|1\nP p 1 21f 1 1 3 0\nseq sa-add.ingress.0.gcm-aes-256\nW p 1 210 10\nW p 1 211 key[1].key[0]\nW p 1 212 key[31].key[30]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 0\nW p 1 217 window[1].window[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|1\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.0.gcm-aes-256\nW p 1 210 110\nW p 1 211 key[1].key[0]\nW p 1 212 key[31].key[30]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 0\nW p 1 217 window[1].window[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|1\nP p 1 21f 1 1 3 0\nseq sa-add.ingress.0.gcm-aes-xpn-128\nW p 1 210 20\nW p 1 211 key[1].key[0]\nW p 1 212 key[15].key[14]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 pn[5].pn[4]\nW p 1 217 window[1].window[0]\nW p 1 218 iv[0].iv[3]\nW p 1 219 iv[4].iv[11]\nW p 1 21a ssci[0].salt[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|1\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.0.gcm-aes-xpn-128\nW p 1 210 120\nW p 1 211 key[1].key[0]\nW p 1 212 key[15].key[14]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 pn[5].pn[4]\nW p 1 217 window[1].window[0]\nW p 1 218 iv[0].iv[3]\nW p 1 219 iv[4].iv[11]\nW p 1 21a ssci[0].salt[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|1\nP p 1 21f 1 1 3 0\nseq sa-add.ingress.0.gcm-aes-xpn-256\nW p 1 210 30\nW p 1 211 key[1].key[0]\nW p 1 212 key[31].key[30]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 pn[5].pn[4]\nW p 1 217 window[1].window[0]\nW p 1 218 iv[0].iv[3]\nW p 1 219 iv[4].iv[11]\nW p 1 21a ssci[0].salt[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|1\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.0.gcm-aes-xpn-256\nW p 1 210 130\nW p 1 211 key[1].key[0]\nW p 1 212 key[31].key[30]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 pn[5].pn[4]\nW p 1 217 window[1].window[0]\nW p 1 218 iv[0].iv[3]\nW p 1 219 iv[4].iv[11]\nW p 1 21a ssci[0].salt[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|1\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.0.gcm-aes-128.replay\nW p 1 210 f00\nW p 1 217 window[1].window[0]\nP p 1 21f 1 1 3 0\nseq sa-del.ingress.0\nW p 1 310 1\nseq sa-del-last.ingress.0\nW p 1 310 8001\nseq pn.ingress.0\nX p 1 510 pn[0]\nX p 1 511 pn[1]\nX p 1 512 pn[2]\nX p 1 513 pn[3]\nseq stats-sa.ingress.0\nX p 1 410 in_pkts_ok[0]\nX p 1 411 in_pkts_ok[1]\nseq sa-add.ingress.1.gcm-aes-128\nW p 1 210 1\nW p 1 211 key[1].key[0]\nW p 1 212 key[15].key[14]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 0\nW p 1 217 window[1].window[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|2\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.1.gcm-aes-128\nW p 1 210 101\nW p 1 211 key[1].key[0]\nW p 1 212 key[15].key[14]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 0\nW p 1 217 window[1].window[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|2\nP p 1 21f 1 1 3 0\nseq sa-add.ingress.1.gcm-aes-256\nW p 1 210 11\nW p 1 211 key[1].key[0]\nW p 1 212 key[31].key[30]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 0\nW p 1 217 window[1].window[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|2\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.1.gcm-aes-256\nW p 1 210 111\nW p 1 211 key[1].key[0]\nW p 1 212 key[31].key[30]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 0\nW p 1 217 window[1].window[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|2\nP p 1 21f 1 1 3 0\nseq sa-add.ingress.1.gcm-aes-xpn-128\nW p 1 210 21\nW p 1 211 key[1].key[0]\nW p 1 212 key[15].key[14]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 pn[5].pn[4]\nW p 1 217 window[1].window[0]\nW p 1 218 iv[0].iv[3]\nW p 1 219 iv[4].iv[11]\nW p 1 21a ssci[0].salt[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|2\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.1.gcm-aes-xpn-128\nW p 1 210 121\nW p 1 211 key[1].key[0]\nW p 1 212 key[15].key[14]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 pn[5].pn[4]\nW p 1 217 window[1].window[0]\nW p 1 218 iv[0].iv[3]\nW p 1 219 iv[4].iv[11]\nW p 1 21a ssci[0].salt[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|2\nP p 1 21f 1 1 3 0\nseq sa-add.ingress.1.gcm-aes-xpn-256\nW p 1 210 31\nW p 1 211 key[1].key[0]\nW p 1 212 key[31].key[30]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 pn[5].pn[4]\nW p 1 217 window[1].window[0]\nW p 1 218 iv[0].iv[3]\nW p 1 219 iv[4].iv[11]\nW p 1 21a ssci[0].salt[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|2\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.1.gcm-aes-xpn-256\nW p 1 210 131\nW p 1 211 key[1].key[0]\nW p 1 212 key[31].key[30]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 pn[5].pn[4]\nW p 1 217 window[1].window[0]\nW p 1 218 iv[0].iv[3]\nW p 1 219 iv[4].iv[11]\nW p 1 21a ssci[0].salt[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|2\nP p 1 21f 1 1 3 0\nseq sa-del.ingress.1\nW p 1 311 1\nseq sa-del-last.ingress.1\nW p 1 311 8001\nseq pn.ingress.1\nX p 1 514 pn[0]\nX p 1 515 pn[1]\nX p 1 516 pn[2]\nX p 1 517 pn[3]\nseq stats-sa.ingress.1\nX p 1 412 in_pkts_ok[0]\nX p 1 413 in_pkts_ok[1]\nseq sa-add.ingress.2.gcm-aes-128\nW p 1 210 2\nW p 1 211 key[1].key[0]\nW p 1 212 key[15].key[14]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 0\nW p 1 217 window[1].window[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|3\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.2.gcm-aes-128\nW p 1 210 102\nW p 1 211 key[1].key[0]\nW p 1 212 key[15].key[14]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 0\nW p 1 217 window[1].window[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|3\nP p 1 21f 1 1 3 0\nseq sa-add.ingress.2.gcm-aes-256\nW p 1 210 12\nW p 1 211 key[1].key[0]\nW p 1 212 key[31].key[30]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 0\nW p 1 217 window[1].window[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|3\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.2.gcm-aes-256\nW p 1 210 112\nW p 1 211 key[1].key[0]\nW p 1 212 key[31].key[30]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 0\nW p 1 217 window[1].window[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|3\nP p 1 21f 1 1 3 0\nseq sa-add.ingress.2.gcm-aes-xpn-128\nW p 1 210 22\nW p 1 211 key[1].key[0]\nW p 1 212 key[15].key[14]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 pn[5].pn[4]\nW p 1 217 window[1].window[0]\nW p 1 218 iv[0].iv[3]\nW p 1 219 iv[4].iv[11]\nW p 1 21a ssci[0].salt[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|3\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.2.gcm-aes-xpn-128\nW p 1 210 122\nW p 1 211 key[1].key[0]\nW p 1 212 key[15].key[14]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 pn[5].pn[4]\nW p 1 217 window[1].window[0]\nW p 1 218 iv[0].iv[3]\nW p 1 219 iv[4].iv[11]\nW p 1 21a ssci[0].salt[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|3\nP p 1 21f 1 1 3 0\nseq sa-add.ingress.2.gcm-aes-xpn-256\nW p 1 210 32\nW p 1 211 key[1].key[0]\nW p 1 212 key[31].key[30]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 pn[5].pn[4]\nW p 1 217 window[1].window[0]\nW p 1 218 iv[0].iv[3]\nW p 1 219 iv[4].iv[11]\nW p 1 21a ssci[0].salt[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|3\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.2.gcm-aes-xpn-256\nW p 1 210 132\nW p 1 211 key[1].key[0]\nW p 1 212 key[31].key[30]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 pn[5].pn[4]\nW p 1 217 window[1].window[0]\nW p 1 218 iv[0].iv[3]\nW p 1 219 iv[4].iv[11]\nW p 1 21a ssci[0].salt[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|3\nP p 1 21f 1 1 3 0\nseq sa-del.ingress.2\nW p 1 312 1\nseq sa-del-last.ingress.2\nW p 1 312 8001\nseq pn.ingress.2\nX p 1 518 pn[0]\nX p 1 519 pn[1]\nX p 1 51a pn[2]\nX p 1 51b pn[3]\nseq stats-sa.ingress.2\nX p 1 414 in_pkts_ok[0]\nX p 1 415 in_pkts_ok[1]\nseq sa-add.ingress.3.gcm-aes-128\nW p 1 210 3\nW p 1 211 key[1].key[0]\nW p 1 212 key[15].key[14]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 0\nW p 1 217 window[1].window[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|4\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.3.gcm-aes-128\nW p 1 210 103\nW p 1 211 key[1].key[0]\nW p 1 212 key[15].key[14]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 0\nW p 1 217 window[1].window[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|4\nP p 1 21f 1 1 3 0\nseq sa-add.ingress.3.gcm-aes-256\nW p 1 210 13\nW p 1 211 key[1].key[0]\nW p 1 212 key[31].key[30]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 0\nW p 1 217 window[1].window[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|4\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.3.gcm-aes-256\nW p 1 210 113\nW p 1 211 key[1].key[0]\nW p 1 212 key[31].key[30]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 0\nW p 1 217 window[1].window[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|4\nP p 1 21f 1 1 3 0\nseq sa-add.ingress.3.gcm-aes-xpn-128\nW p 1 210 23\nW p 1 211 key[1].key[0]\nW p 1 212 key[15].key[14]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 pn[5].pn[4]\nW p 1 217 window[1].window[0]\nW p 1 218 iv[0].iv[3]\nW p 1 219 iv[4].iv[11]\nW p 1 21a ssci[0].salt[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|4\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.3.gcm-aes-xpn-128\nW p 1 210 123\nW p 1 211 key[1].key[0]\nW p 1 212 key[15].key[14]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 pn[5].pn[4]\nW p 1 217 window[1].window[0]\nW p 1 218 iv[0].iv[3]\nW p 1 219 iv[4].iv[11]\nW p 1 21a ssci[0].salt[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|4\nP p 1 21f 1 1 3 0\nseq sa-add.ingress.3.gcm-aes-xpn-256\nW p 1 210 33\nW p 1 211 key[1].key[0]\nW p 1 212 key[31].key[30]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 pn[5].pn[4]\nW p 1 217 window[1].window[0]\nW p 1 218 iv[0].iv[3]\nW p 1 219 iv[4].iv[11]\nW p 1 21a ssci[0].salt[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|4\nP p 1 21f 1 1 3 0\nseq sa-add-first.ingress.3.gcm-aes-xpn-256\nW p 1 210 133\nW p 1 211 key[1].key[0]\nW p 1 212 key[31].key[30]\nW p 1 213 hkey[15].hkey[0]\nW p 1 214 sci[0].sci[7]\nW p 1 215 pn[1].pn[0]\nW p 1 216 pn[5].pn[4]\nW p 1 217 window[1].window[0]\nW p 1 218 iv[0].iv[3]\nW p 1 219 iv[4].iv[11]\nW p 1 21a ssci[0].salt[0]\nX p 1 310 $0\nW p 1 310 $0&ff00|4\nP p 1 21f 1 1 3 0\nseq sa-del.ingress.3\nW p 1 313 1\nseq sa-del-last.ingress.3\nW p 1 313 8001\nseq pn.ingress.3\nX p 1 51c pn[0]\nX p 1 51d pn[1]\nX p 1 51e pn[2]\nX p 1 51f pn[3]\nseq stats-sa.ingress.3\nX p 1 416 in_pkts_ok[0]\nX p 1 417 in_pkts_ok[1]\n"
+-- "--check" "$D/table"
+exit 0
+out "$D/table: 2 ports, 111 sequences, 823 operations, counters clear-on-read, ifg-bits 384\n"
+err ""
+-- "--render" "$D/table" "disable.egress" "e380"
+exit 0
+out "W e380 1 0100 0001\n"
+err ""
+-- "--render" "$D/table" "disable.egress" "e380" "-"
+exit 0
+out "W e380 1 0100 0001\n"
+err ""
+-- "--render" "$D/table" "disable.egress" "e380" "$D/params-full"
+exit 0
+out "W e380 1 0100 0001\n"
+err ""
+-- "--render" "$D/table" "disable.egress" "e380" "$D/params-short"
+exit 0
+out "W e380 1 0100 0001\n"
+err ""
+-- "--render" "$D/table" "disable.egress" "e380" "$D/params-full" "$D/reads"
+exit 0
+out "W e380 1 0100 0001\n"
+err ""
+-- "--render" "$D/table" "disable.ingress" "4c47"
+exit 0
+out "W 4c47 1 0101 0001\n"
+err ""
+-- "--render" "$D/table" "disable.ingress" "4c47" "-"
+exit 0
+out "W 4c47 1 0101 0001\n"
+err ""
+-- "--render" "$D/table" "disable.ingress" "4c47" "$D/params-full"
+exit 0
+out "W 4c47 1 0101 0001\n"
+err ""
+-- "--render" "$D/table" "disable.ingress" "4c47" "$D/params-short"
+exit 0
+out "W 4c47 1 0101 0001\n"
+err ""
+-- "--render" "$D/table" "disable.ingress" "4c47" "$D/params-full" "$D/reads"
+exit 0
+out "W 4c47 1 0101 0001\n"
+err ""
+-- "--render" "$D/table" "enable.egress" "251f"
+exit 0
+out "W 251f 1 0100 0000\nD 10\n"
+err ""
+-- "--render" "$D/table" "enable.egress" "251f" "-"
+exit 0
+out "W 251f 1 0100 0000\nD 10\n"
+err ""
+-- "--render" "$D/table" "enable.egress" "251f" "$D/params-full"
+exit 0
+out "W 251f 1 0100 0000\nD 10\n"
+err ""
+-- "--render" "$D/table" "enable.egress" "251f" "$D/params-short"
+exit 0
+out "W 251f 1 0100 0000\nD 10\n"
+err ""
+-- "--render" "$D/table" "enable.egress" "251f" "$D/params-full" "$D/reads"
+exit 0
+out "W 251f 1 0100 0000\nD 10\n"
+err ""
+-- "--render" "$D/table" "enable.ingress" "1295"
+exit 0
+out "W 1295 1 0101 0000\nD 10\n"
+err ""
+-- "--render" "$D/table" "enable.ingress" "1295" "-"
+exit 0
+out "W 1295 1 0101 0000\nD 10\n"
+err ""
+-- "--render" "$D/table" "enable.ingress" "1295" "$D/params-full"
+exit 0
+out "W 1295 1 0101 0000\nD 10\n"
+err ""
+-- "--render" "$D/table" "enable.ingress" "1295" "$D/params-short"
+exit 0
+out "W 1295 1 0101 0000\nD 10\n"
+err ""
+-- "--render" "$D/table" "enable.ingress" "1295" "$D/params-full" "$D/reads"
+exit 0
+out "W 1295 1 0101 0000\nD 10\n"
+err ""
+-- "--render" "$D/table" "gate-close.egress" "95f0"
+exit 0
+out "W 95f0 1 0120 0000\n"
+err ""
+-- "--render" "$D/table" "gate-close.egress" "95f0" "-"
+exit 0
+out "W 95f0 1 0120 0000\n"
+err ""
+-- "--render" "$D/table" "gate-close.egress" "95f0" "$D/params-full"
+exit 0
+out "W 95f0 1 0120 0000\n"
+err ""
+-- "--render" "$D/table" "gate-close.egress" "95f0" "$D/params-short"
+exit 0
+out "W 95f0 1 0120 0000\n"
+err ""
+-- "--render" "$D/table" "gate-close.egress" "95f0" "$D/params-full" "$D/reads"
+exit 0
+out "W 95f0 1 0120 0000\n"
+err ""
+-- "--render" "$D/table" "gate-close.ingress" "a2db"
+exit 0
+out "W a2db 1 0121 0000\n"
+err ""
+-- "--render" "$D/table" "gate-close.ingress" "a2db" "-"
+exit 0
+out "W a2db 1 0121 0000\n"
+err ""
+-- "--render" "$D/table" "gate-close.ingress" "a2db" "$D/params-full"
+exit 0
+out "W a2db 1 0121 0000\n"
+err ""
+-- "--render" "$D/table" "gate-close.ingress" "a2db" "$D/params-short"
+exit 0
+out "W a2db 1 0121 0000\n"
+err ""
+-- "--render" "$D/table" "gate-close.ingress" "a2db" "$D/params-full" "$D/reads"
+exit 0
+out "W a2db 1 0121 0000\n"
+err ""
+-- "--render" "$D/table" "gate-open.egress" "935e"
+exit 0
+out "W 935e 1 0120 0001\n"
+err ""
+-- "--render" "$D/table" "gate-open.egress" "935e" "-"
+exit 0
+out "W 935e 1 0120 0001\n"
+err ""
+-- "--render" "$D/table" "gate-open.egress" "935e" "$D/params-full"
+exit 0
+out "W 935e 1 0120 0001\n"
+err ""
+-- "--render" "$D/table" "gate-open.egress" "935e" "$D/params-short"
+exit 0
+out "W 935e 1 0120 0001\n"
+err ""
+-- "--render" "$D/table" "gate-open.egress" "935e" "$D/params-full" "$D/reads"
+exit 0
+out "W 935e 1 0120 0001\n"
+err ""
+-- "--render" "$D/table" "gate-open.ingress" "1df8"
+exit 0
+out "W 1df8 1 0121 0001\n"
+err ""
+-- "--render" "$D/table" "gate-open.ingress" "1df8" "-"
+exit 0
+out "W 1df8 1 0121 0001\n"
+err ""
+-- "--render" "$D/table" "gate-open.ingress" "1df8" "$D/params-full"
+exit 0
+out "W 1df8 1 0121 0001\n"
+err ""
+-- "--render" "$D/table" "gate-open.ingress" "1df8" "$D/params-short"
+exit 0
+out "W 1df8 1 0121 0001\n"
+err ""
+-- "--render" "$D/table" "gate-open.ingress" "1df8" "$D/params-full" "$D/reads"
+exit 0
+out "W 1df8 1 0121 0001\n"
+err ""
+-- "--render" "$D/table" "pn.egress.0" "27c3"
+exit 0
+out "R 27c3 1 0500\nR 27c3 1 0501\nR 27c3 1 0502\nR 27c3 1 0503\n"
+err ""
+-- "--render" "$D/table" "pn.egress.0" "27c3" "-"
+exit 0
+out "R 27c3 1 0500\nR 27c3 1 0501\nR 27c3 1 0502\nR 27c3 1 0503\n"
+err ""
+-- "--render" "$D/table" "pn.egress.0" "27c3" "$D/params-full"
+exit 0
+out "R 27c3 1 0500\nR 27c3 1 0501\nR 27c3 1 0502\nR 27c3 1 0503\n"
+err ""
+-- "--render" "$D/table" "pn.egress.0" "27c3" "$D/params-short"
+exit 0
+out "R 27c3 1 0500\nR 27c3 1 0501\nR 27c3 1 0502\nR 27c3 1 0503\n"
+err ""
+-- "--render" "$D/table" "pn.egress.0" "27c3" "$D/params-full" "$D/reads"
+exit 0
+out "R 27c3 1 0500\nR 27c3 1 0501\nR 27c3 1 0502\nR 27c3 1 0503\n"
+err ""
+-- "--render" "$D/table" "pn.egress.1" "4f4c"
+exit 0
+out "R 4f4c 1 0504\nR 4f4c 1 0505\nR 4f4c 1 0506\nR 4f4c 1 0507\n"
+err ""
+-- "--render" "$D/table" "pn.egress.1" "4f4c" "-"
+exit 0
+out "R 4f4c 1 0504\nR 4f4c 1 0505\nR 4f4c 1 0506\nR 4f4c 1 0507\n"
+err ""
+-- "--render" "$D/table" "pn.egress.1" "4f4c" "$D/params-full"
+exit 0
+out "R 4f4c 1 0504\nR 4f4c 1 0505\nR 4f4c 1 0506\nR 4f4c 1 0507\n"
+err ""
+-- "--render" "$D/table" "pn.egress.1" "4f4c" "$D/params-short"
+exit 0
+out "R 4f4c 1 0504\nR 4f4c 1 0505\nR 4f4c 1 0506\nR 4f4c 1 0507\n"
+err ""
+-- "--render" "$D/table" "pn.egress.1" "4f4c" "$D/params-full" "$D/reads"
+exit 0
+out "R 4f4c 1 0504\nR 4f4c 1 0505\nR 4f4c 1 0506\nR 4f4c 1 0507\n"
+err ""
+-- "--render" "$D/table" "pn.egress.2" "12d2"
+exit 0
+out "R 12d2 1 0508\nR 12d2 1 0509\nR 12d2 1 050a\nR 12d2 1 050b\n"
+err ""
+-- "--render" "$D/table" "pn.egress.2" "12d2" "-"
+exit 0
+out "R 12d2 1 0508\nR 12d2 1 0509\nR 12d2 1 050a\nR 12d2 1 050b\n"
+err ""
+-- "--render" "$D/table" "pn.egress.2" "12d2" "$D/params-full"
+exit 0
+out "R 12d2 1 0508\nR 12d2 1 0509\nR 12d2 1 050a\nR 12d2 1 050b\n"
+err ""
+-- "--render" "$D/table" "pn.egress.2" "12d2" "$D/params-short"
+exit 0
+out "R 12d2 1 0508\nR 12d2 1 0509\nR 12d2 1 050a\nR 12d2 1 050b\n"
+err ""
+-- "--render" "$D/table" "pn.egress.2" "12d2" "$D/params-full" "$D/reads"
+exit 0
+out "R 12d2 1 0508\nR 12d2 1 0509\nR 12d2 1 050a\nR 12d2 1 050b\n"
+err ""
+-- "--render" "$D/table" "pn.egress.3" "7077"
+exit 0
+out "R 7077 1 050c\nR 7077 1 050d\nR 7077 1 050e\nR 7077 1 050f\n"
+err ""
+-- "--render" "$D/table" "pn.egress.3" "7077" "-"
+exit 0
+out "R 7077 1 050c\nR 7077 1 050d\nR 7077 1 050e\nR 7077 1 050f\n"
+err ""
+-- "--render" "$D/table" "pn.egress.3" "7077" "$D/params-full"
+exit 0
+out "R 7077 1 050c\nR 7077 1 050d\nR 7077 1 050e\nR 7077 1 050f\n"
+err ""
+-- "--render" "$D/table" "pn.egress.3" "7077" "$D/params-short"
+exit 0
+out "R 7077 1 050c\nR 7077 1 050d\nR 7077 1 050e\nR 7077 1 050f\n"
+err ""
+-- "--render" "$D/table" "pn.egress.3" "7077" "$D/params-full" "$D/reads"
+exit 0
+out "R 7077 1 050c\nR 7077 1 050d\nR 7077 1 050e\nR 7077 1 050f\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.0" "7f57"
+exit 0
+out "R 7f57 1 0510\nR 7f57 1 0511\nR 7f57 1 0512\nR 7f57 1 0513\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.0" "7f57" "-"
+exit 0
+out "R 7f57 1 0510\nR 7f57 1 0511\nR 7f57 1 0512\nR 7f57 1 0513\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.0" "7f57" "$D/params-full"
+exit 0
+out "R 7f57 1 0510\nR 7f57 1 0511\nR 7f57 1 0512\nR 7f57 1 0513\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.0" "7f57" "$D/params-short"
+exit 0
+out "R 7f57 1 0510\nR 7f57 1 0511\nR 7f57 1 0512\nR 7f57 1 0513\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.0" "7f57" "$D/params-full" "$D/reads"
+exit 0
+out "R 7f57 1 0510\nR 7f57 1 0511\nR 7f57 1 0512\nR 7f57 1 0513\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.1" "ea69"
+exit 0
+out "R ea69 1 0514\nR ea69 1 0515\nR ea69 1 0516\nR ea69 1 0517\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.1" "ea69" "-"
+exit 0
+out "R ea69 1 0514\nR ea69 1 0515\nR ea69 1 0516\nR ea69 1 0517\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.1" "ea69" "$D/params-full"
+exit 0
+out "R ea69 1 0514\nR ea69 1 0515\nR ea69 1 0516\nR ea69 1 0517\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.1" "ea69" "$D/params-short"
+exit 0
+out "R ea69 1 0514\nR ea69 1 0515\nR ea69 1 0516\nR ea69 1 0517\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.1" "ea69" "$D/params-full" "$D/reads"
+exit 0
+out "R ea69 1 0514\nR ea69 1 0515\nR ea69 1 0516\nR ea69 1 0517\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.2" "63fd"
+exit 0
+out "R 63fd 1 0518\nR 63fd 1 0519\nR 63fd 1 051a\nR 63fd 1 051b\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.2" "63fd" "-"
+exit 0
+out "R 63fd 1 0518\nR 63fd 1 0519\nR 63fd 1 051a\nR 63fd 1 051b\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.2" "63fd" "$D/params-full"
+exit 0
+out "R 63fd 1 0518\nR 63fd 1 0519\nR 63fd 1 051a\nR 63fd 1 051b\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.2" "63fd" "$D/params-short"
+exit 0
+out "R 63fd 1 0518\nR 63fd 1 0519\nR 63fd 1 051a\nR 63fd 1 051b\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.2" "63fd" "$D/params-full" "$D/reads"
+exit 0
+out "R 63fd 1 0518\nR 63fd 1 0519\nR 63fd 1 051a\nR 63fd 1 051b\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.3" "387a"
+exit 0
+out "R 387a 1 051c\nR 387a 1 051d\nR 387a 1 051e\nR 387a 1 051f\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.3" "387a" "-"
+exit 0
+out "R 387a 1 051c\nR 387a 1 051d\nR 387a 1 051e\nR 387a 1 051f\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.3" "387a" "$D/params-full"
+exit 0
+out "R 387a 1 051c\nR 387a 1 051d\nR 387a 1 051e\nR 387a 1 051f\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.3" "387a" "$D/params-short"
+exit 0
+out "R 387a 1 051c\nR 387a 1 051d\nR 387a 1 051e\nR 387a 1 051f\n"
+err ""
+-- "--render" "$D/table" "pn.ingress.3" "387a" "$D/params-full" "$D/reads"
+exit 0
+out "R 387a 1 051c\nR 387a 1 051d\nR 387a 1 051e\nR 387a 1 051f\n"
+err ""
+-- "--render" "$D/table" "probe.egress" "b68a"
+exit 0
+out "R b68a 1 0100\n"
+err ""
+-- "--render" "$D/table" "probe.egress" "b68a" "-"
+exit 0
+out "R b68a 1 0100\n"
+err ""
+-- "--render" "$D/table" "probe.egress" "b68a" "$D/params-full"
+exit 0
+out "R b68a 1 0100\n"
+err ""
+-- "--render" "$D/table" "probe.egress" "b68a" "$D/params-short"
+exit 0
+out "R b68a 1 0100\n"
+err ""
+-- "--render" "$D/table" "probe.egress" "b68a" "$D/params-full" "$D/reads"
+exit 0
+out "R b68a 1 0100\n"
+err ""
+-- "--render" "$D/table" "probe.ingress" "167"
+exit 0
+out "R 167 1 0101\n"
+err ""
+-- "--render" "$D/table" "probe.ingress" "167" "-"
+exit 0
+out "R 167 1 0101\n"
+err ""
+-- "--render" "$D/table" "probe.ingress" "167" "$D/params-full"
+exit 0
+out "R 167 1 0101\n"
+err ""
+-- "--render" "$D/table" "probe.ingress" "167" "$D/params-short"
+exit 0
+out "R 167 1 0101\n"
+err ""
+-- "--render" "$D/table" "probe.ingress" "167" "$D/params-full" "$D/reads"
+exit 0
+out "R 167 1 0101\n"
+err ""
+-- "--render" "$D/table" "reset.egress" "c8a5"
+exit 0
+out "W c8a5 1 0110 0001\n"
+err ""
+-- "--render" "$D/table" "reset.egress" "c8a5" "-"
+exit 0
+out "W c8a5 1 0110 0001\n"
+err ""
+-- "--render" "$D/table" "reset.egress" "c8a5" "$D/params-full"
+exit 0
+out "W c8a5 1 0110 0001\n"
+err ""
+-- "--render" "$D/table" "reset.egress" "c8a5" "$D/params-short"
+exit 0
+out "W c8a5 1 0110 0001\n"
+err ""
+-- "--render" "$D/table" "reset.egress" "c8a5" "$D/params-full" "$D/reads"
+exit 0
+out "W c8a5 1 0110 0001\n"
+err ""
+-- "--render" "$D/table" "reset.ingress" "6274"
+exit 0
+out "W 6274 1 0111 0001\n"
+err ""
+-- "--render" "$D/table" "reset.ingress" "6274" "-"
+exit 0
+out "W 6274 1 0111 0001\n"
+err ""
+-- "--render" "$D/table" "reset.ingress" "6274" "$D/params-full"
+exit 0
+out "W 6274 1 0111 0001\n"
+err ""
+-- "--render" "$D/table" "reset.ingress" "6274" "$D/params-short"
+exit 0
+out "W 6274 1 0111 0001\n"
+err ""
+-- "--render" "$D/table" "reset.ingress" "6274" "$D/params-full" "$D/reads"
+exit 0
+out "W 6274 1 0111 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-128" "37b0"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.0.gcm-aes-128: line 36: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-128" "37b0" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.0.gcm-aes-128: line 36: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-128" "37b0" "$D/params-full"
+exit 0
+out "W 37b0 1 0200 0100\nW 37b0 1 0201 1110\nW 37b0 1 0202 1f1e\nW 37b0 1 0203 2f20\nW 37b0 1 0204 3037\nW 37b0 1 0205 7170\nW 37b0 1 0206 0000\nW 37b0 1 0207 8180\nR 37b0 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-128" "37b0" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.0.gcm-aes-128: line 37: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-128" "37b0" "$D/params-full" "$D/reads"
+exit 0
+out "W 37b0 1 0200 0100\nW 37b0 1 0201 1110\nW 37b0 1 0202 1f1e\nW 37b0 1 0203 2f20\nW 37b0 1 0204 3037\nW 37b0 1 0205 7170\nW 37b0 1 0206 0000\nW 37b0 1 0207 8180\nR 37b0 1 020f\nD 0\nR 37b0 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-256" "f7df"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.0.gcm-aes-256: line 56: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-256" "f7df" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.0.gcm-aes-256: line 56: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-256" "f7df" "$D/params-full"
+exit 0
+out "W f7df 1 0200 0110\nW f7df 1 0201 1110\nW f7df 1 0202 2f2e\nW f7df 1 0203 2f20\nW f7df 1 0204 3037\nW f7df 1 0205 7170\nW f7df 1 0206 0000\nW f7df 1 0207 8180\nR f7df 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-256" "f7df" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.0.gcm-aes-256: line 57: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-256" "f7df" "$D/params-full" "$D/reads"
+exit 0
+out "W f7df 1 0200 0110\nW f7df 1 0201 1110\nW f7df 1 0202 2f2e\nW f7df 1 0203 2f20\nW f7df 1 0204 3037\nW f7df 1 0205 7170\nW f7df 1 0206 0000\nW f7df 1 0207 8180\nR f7df 1 020f\nD 0\nR f7df 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-xpn-128" "71f0"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.0.gcm-aes-xpn-128: line 79: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-xpn-128" "71f0" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.0.gcm-aes-xpn-128: line 79: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-xpn-128" "71f0" "$D/params-full"
+exit 0
+out "W 71f0 1 0200 0120\nW 71f0 1 0201 1110\nW 71f0 1 0202 1f1e\nW 71f0 1 0203 2f20\nW 71f0 1 0204 3037\nW 71f0 1 0205 7170\nW 71f0 1 0206 7574\nW 71f0 1 0207 8180\nW 71f0 1 0208 6063\nW 71f0 1 0209 646b\nW 71f0 1 020a 5040\nR 71f0 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-xpn-128" "71f0" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.0.gcm-aes-xpn-128: line 80: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-xpn-128" "71f0" "$D/params-full" "$D/reads"
+exit 0
+out "W 71f0 1 0200 0120\nW 71f0 1 0201 1110\nW 71f0 1 0202 1f1e\nW 71f0 1 0203 2f20\nW 71f0 1 0204 3037\nW 71f0 1 0205 7170\nW 71f0 1 0206 7574\nW 71f0 1 0207 8180\nW 71f0 1 0208 6063\nW 71f0 1 0209 646b\nW 71f0 1 020a 5040\nR 71f0 1 020f\nD 0\nR 71f0 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-xpn-256" "ef13"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.0.gcm-aes-xpn-256: line 105: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-xpn-256" "ef13" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.0.gcm-aes-xpn-256: line 105: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-xpn-256" "ef13" "$D/params-full"
+exit 0
+out "W ef13 1 0200 0130\nW ef13 1 0201 1110\nW ef13 1 0202 2f2e\nW ef13 1 0203 2f20\nW ef13 1 0204 3037\nW ef13 1 0205 7170\nW ef13 1 0206 7574\nW ef13 1 0207 8180\nW ef13 1 0208 6063\nW ef13 1 0209 646b\nW ef13 1 020a 5040\nR ef13 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-xpn-256" "ef13" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.0.gcm-aes-xpn-256: line 106: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.0.gcm-aes-xpn-256" "ef13" "$D/params-full" "$D/reads"
+exit 0
+out "W ef13 1 0200 0130\nW ef13 1 0201 1110\nW ef13 1 0202 2f2e\nW ef13 1 0203 2f20\nW ef13 1 0204 3037\nW ef13 1 0205 7170\nW ef13 1 0206 7574\nW ef13 1 0207 8180\nW ef13 1 0208 6063\nW ef13 1 0209 646b\nW ef13 1 020a 5040\nR ef13 1 020f\nD 0\nR ef13 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-128" "160d"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.1.gcm-aes-128: line 140: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-128" "160d" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.1.gcm-aes-128: line 140: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-128" "160d" "$D/params-full"
+exit 0
+out "W 160d 1 0200 0101\nW 160d 1 0201 1110\nW 160d 1 0202 1f1e\nW 160d 1 0203 2f20\nW 160d 1 0204 3037\nW 160d 1 0205 7170\nW 160d 1 0206 0000\nW 160d 1 0207 8180\nR 160d 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-128" "160d" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.1.gcm-aes-128: line 141: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-128" "160d" "$D/params-full" "$D/reads"
+exit 0
+out "W 160d 1 0200 0101\nW 160d 1 0201 1110\nW 160d 1 0202 1f1e\nW 160d 1 0203 2f20\nW 160d 1 0204 3037\nW 160d 1 0205 7170\nW 160d 1 0206 0000\nW 160d 1 0207 8180\nR 160d 1 020f\nD 0\nR 160d 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-256" "1761"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.1.gcm-aes-256: line 160: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-256" "1761" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.1.gcm-aes-256: line 160: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-256" "1761" "$D/params-full"
+exit 0
+out "W 1761 1 0200 0111\nW 1761 1 0201 1110\nW 1761 1 0202 2f2e\nW 1761 1 0203 2f20\nW 1761 1 0204 3037\nW 1761 1 0205 7170\nW 1761 1 0206 0000\nW 1761 1 0207 8180\nR 1761 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-256" "1761" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.1.gcm-aes-256: line 161: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-256" "1761" "$D/params-full" "$D/reads"
+exit 0
+out "W 1761 1 0200 0111\nW 1761 1 0201 1110\nW 1761 1 0202 2f2e\nW 1761 1 0203 2f20\nW 1761 1 0204 3037\nW 1761 1 0205 7170\nW 1761 1 0206 0000\nW 1761 1 0207 8180\nR 1761 1 020f\nD 0\nR 1761 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-xpn-128" "e30f"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.1.gcm-aes-xpn-128: line 183: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-xpn-128" "e30f" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.1.gcm-aes-xpn-128: line 183: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-xpn-128" "e30f" "$D/params-full"
+exit 0
+out "W e30f 1 0200 0121\nW e30f 1 0201 1110\nW e30f 1 0202 1f1e\nW e30f 1 0203 2f20\nW e30f 1 0204 3037\nW e30f 1 0205 7170\nW e30f 1 0206 7574\nW e30f 1 0207 8180\nW e30f 1 0208 6063\nW e30f 1 0209 646b\nW e30f 1 020a 5040\nR e30f 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-xpn-128" "e30f" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.1.gcm-aes-xpn-128: line 184: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-xpn-128" "e30f" "$D/params-full" "$D/reads"
+exit 0
+out "W e30f 1 0200 0121\nW e30f 1 0201 1110\nW e30f 1 0202 1f1e\nW e30f 1 0203 2f20\nW e30f 1 0204 3037\nW e30f 1 0205 7170\nW e30f 1 0206 7574\nW e30f 1 0207 8180\nW e30f 1 0208 6063\nW e30f 1 0209 646b\nW e30f 1 020a 5040\nR e30f 1 020f\nD 0\nR e30f 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-xpn-256" "3109"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.1.gcm-aes-xpn-256: line 209: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-xpn-256" "3109" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.1.gcm-aes-xpn-256: line 209: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-xpn-256" "3109" "$D/params-full"
+exit 0
+out "W 3109 1 0200 0131\nW 3109 1 0201 1110\nW 3109 1 0202 2f2e\nW 3109 1 0203 2f20\nW 3109 1 0204 3037\nW 3109 1 0205 7170\nW 3109 1 0206 7574\nW 3109 1 0207 8180\nW 3109 1 0208 6063\nW 3109 1 0209 646b\nW 3109 1 020a 5040\nR 3109 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-xpn-256" "3109" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.1.gcm-aes-xpn-256: line 210: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.1.gcm-aes-xpn-256" "3109" "$D/params-full" "$D/reads"
+exit 0
+out "W 3109 1 0200 0131\nW 3109 1 0201 1110\nW 3109 1 0202 2f2e\nW 3109 1 0203 2f20\nW 3109 1 0204 3037\nW 3109 1 0205 7170\nW 3109 1 0206 7574\nW 3109 1 0207 8180\nW 3109 1 0208 6063\nW 3109 1 0209 646b\nW 3109 1 020a 5040\nR 3109 1 020f\nD 0\nR 3109 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-128" "3b2b"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.2.gcm-aes-128: line 244: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-128" "3b2b" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.2.gcm-aes-128: line 244: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-128" "3b2b" "$D/params-full"
+exit 0
+out "W 3b2b 1 0200 0102\nW 3b2b 1 0201 1110\nW 3b2b 1 0202 1f1e\nW 3b2b 1 0203 2f20\nW 3b2b 1 0204 3037\nW 3b2b 1 0205 7170\nW 3b2b 1 0206 0000\nW 3b2b 1 0207 8180\nR 3b2b 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-128" "3b2b" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.2.gcm-aes-128: line 245: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-128" "3b2b" "$D/params-full" "$D/reads"
+exit 0
+out "W 3b2b 1 0200 0102\nW 3b2b 1 0201 1110\nW 3b2b 1 0202 1f1e\nW 3b2b 1 0203 2f20\nW 3b2b 1 0204 3037\nW 3b2b 1 0205 7170\nW 3b2b 1 0206 0000\nW 3b2b 1 0207 8180\nR 3b2b 1 020f\nD 0\nR 3b2b 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-256" "759d"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.2.gcm-aes-256: line 264: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-256" "759d" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.2.gcm-aes-256: line 264: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-256" "759d" "$D/params-full"
+exit 0
+out "W 759d 1 0200 0112\nW 759d 1 0201 1110\nW 759d 1 0202 2f2e\nW 759d 1 0203 2f20\nW 759d 1 0204 3037\nW 759d 1 0205 7170\nW 759d 1 0206 0000\nW 759d 1 0207 8180\nR 759d 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-256" "759d" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.2.gcm-aes-256: line 265: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-256" "759d" "$D/params-full" "$D/reads"
+exit 0
+out "W 759d 1 0200 0112\nW 759d 1 0201 1110\nW 759d 1 0202 2f2e\nW 759d 1 0203 2f20\nW 759d 1 0204 3037\nW 759d 1 0205 7170\nW 759d 1 0206 0000\nW 759d 1 0207 8180\nR 759d 1 020f\nD 0\nR 759d 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-xpn-128" "2036"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.2.gcm-aes-xpn-128: line 287: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-xpn-128" "2036" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.2.gcm-aes-xpn-128: line 287: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-xpn-128" "2036" "$D/params-full"
+exit 0
+out "W 2036 1 0200 0122\nW 2036 1 0201 1110\nW 2036 1 0202 1f1e\nW 2036 1 0203 2f20\nW 2036 1 0204 3037\nW 2036 1 0205 7170\nW 2036 1 0206 7574\nW 2036 1 0207 8180\nW 2036 1 0208 6063\nW 2036 1 0209 646b\nW 2036 1 020a 5040\nR 2036 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-xpn-128" "2036" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.2.gcm-aes-xpn-128: line 288: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-xpn-128" "2036" "$D/params-full" "$D/reads"
+exit 0
+out "W 2036 1 0200 0122\nW 2036 1 0201 1110\nW 2036 1 0202 1f1e\nW 2036 1 0203 2f20\nW 2036 1 0204 3037\nW 2036 1 0205 7170\nW 2036 1 0206 7574\nW 2036 1 0207 8180\nW 2036 1 0208 6063\nW 2036 1 0209 646b\nW 2036 1 020a 5040\nR 2036 1 020f\nD 0\nR 2036 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-xpn-256" "4bf6"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.2.gcm-aes-xpn-256: line 313: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-xpn-256" "4bf6" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.2.gcm-aes-xpn-256: line 313: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-xpn-256" "4bf6" "$D/params-full"
+exit 0
+out "W 4bf6 1 0200 0132\nW 4bf6 1 0201 1110\nW 4bf6 1 0202 2f2e\nW 4bf6 1 0203 2f20\nW 4bf6 1 0204 3037\nW 4bf6 1 0205 7170\nW 4bf6 1 0206 7574\nW 4bf6 1 0207 8180\nW 4bf6 1 0208 6063\nW 4bf6 1 0209 646b\nW 4bf6 1 020a 5040\nR 4bf6 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-xpn-256" "4bf6" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.2.gcm-aes-xpn-256: line 314: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.2.gcm-aes-xpn-256" "4bf6" "$D/params-full" "$D/reads"
+exit 0
+out "W 4bf6 1 0200 0132\nW 4bf6 1 0201 1110\nW 4bf6 1 0202 2f2e\nW 4bf6 1 0203 2f20\nW 4bf6 1 0204 3037\nW 4bf6 1 0205 7170\nW 4bf6 1 0206 7574\nW 4bf6 1 0207 8180\nW 4bf6 1 0208 6063\nW 4bf6 1 0209 646b\nW 4bf6 1 020a 5040\nR 4bf6 1 020f\nD 0\nR 4bf6 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-128" "ce1"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.3.gcm-aes-128: line 348: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-128" "ce1" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.3.gcm-aes-128: line 348: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-128" "ce1" "$D/params-full"
+exit 0
+out "W ce1 1 0200 0103\nW ce1 1 0201 1110\nW ce1 1 0202 1f1e\nW ce1 1 0203 2f20\nW ce1 1 0204 3037\nW ce1 1 0205 7170\nW ce1 1 0206 0000\nW ce1 1 0207 8180\nR ce1 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-128" "ce1" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.3.gcm-aes-128: line 349: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-128" "ce1" "$D/params-full" "$D/reads"
+exit 0
+out "W ce1 1 0200 0103\nW ce1 1 0201 1110\nW ce1 1 0202 1f1e\nW ce1 1 0203 2f20\nW ce1 1 0204 3037\nW ce1 1 0205 7170\nW ce1 1 0206 0000\nW ce1 1 0207 8180\nR ce1 1 020f\nD 0\nR ce1 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-256" "e6b8"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.3.gcm-aes-256: line 368: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-256" "e6b8" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.3.gcm-aes-256: line 368: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-256" "e6b8" "$D/params-full"
+exit 0
+out "W e6b8 1 0200 0113\nW e6b8 1 0201 1110\nW e6b8 1 0202 2f2e\nW e6b8 1 0203 2f20\nW e6b8 1 0204 3037\nW e6b8 1 0205 7170\nW e6b8 1 0206 0000\nW e6b8 1 0207 8180\nR e6b8 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-256" "e6b8" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.3.gcm-aes-256: line 369: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-256" "e6b8" "$D/params-full" "$D/reads"
+exit 0
+out "W e6b8 1 0200 0113\nW e6b8 1 0201 1110\nW e6b8 1 0202 2f2e\nW e6b8 1 0203 2f20\nW e6b8 1 0204 3037\nW e6b8 1 0205 7170\nW e6b8 1 0206 0000\nW e6b8 1 0207 8180\nR e6b8 1 020f\nD 0\nR e6b8 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-xpn-128" "9575"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.3.gcm-aes-xpn-128: line 391: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-xpn-128" "9575" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.3.gcm-aes-xpn-128: line 391: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-xpn-128" "9575" "$D/params-full"
+exit 0
+out "W 9575 1 0200 0123\nW 9575 1 0201 1110\nW 9575 1 0202 1f1e\nW 9575 1 0203 2f20\nW 9575 1 0204 3037\nW 9575 1 0205 7170\nW 9575 1 0206 7574\nW 9575 1 0207 8180\nW 9575 1 0208 6063\nW 9575 1 0209 646b\nW 9575 1 020a 5040\nR 9575 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-xpn-128" "9575" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.3.gcm-aes-xpn-128: line 392: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-xpn-128" "9575" "$D/params-full" "$D/reads"
+exit 0
+out "W 9575 1 0200 0123\nW 9575 1 0201 1110\nW 9575 1 0202 1f1e\nW 9575 1 0203 2f20\nW 9575 1 0204 3037\nW 9575 1 0205 7170\nW 9575 1 0206 7574\nW 9575 1 0207 8180\nW 9575 1 0208 6063\nW 9575 1 0209 646b\nW 9575 1 020a 5040\nR 9575 1 020f\nD 0\nR 9575 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-xpn-256" "7b1f"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.3.gcm-aes-xpn-256: line 417: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-xpn-256" "7b1f" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.3.gcm-aes-xpn-256: line 417: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-xpn-256" "7b1f" "$D/params-full"
+exit 0
+out "W 7b1f 1 0200 0133\nW 7b1f 1 0201 1110\nW 7b1f 1 0202 2f2e\nW 7b1f 1 0203 2f20\nW 7b1f 1 0204 3037\nW 7b1f 1 0205 7170\nW 7b1f 1 0206 7574\nW 7b1f 1 0207 8180\nW 7b1f 1 0208 6063\nW 7b1f 1 0209 646b\nW 7b1f 1 020a 5040\nR 7b1f 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-xpn-256" "7b1f" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.egress.3.gcm-aes-xpn-256: line 418: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add-first.egress.3.gcm-aes-xpn-256" "7b1f" "$D/params-full" "$D/reads"
+exit 0
+out "W 7b1f 1 0200 0133\nW 7b1f 1 0201 1110\nW 7b1f 1 0202 2f2e\nW 7b1f 1 0203 2f20\nW 7b1f 1 0204 3037\nW 7b1f 1 0205 7170\nW 7b1f 1 0206 7574\nW 7b1f 1 0207 8180\nW 7b1f 1 0208 6063\nW 7b1f 1 0209 646b\nW 7b1f 1 020a 5040\nR 7b1f 1 020f\nD 0\nR 7b1f 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-128" "7429"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.0.gcm-aes-128: line 471: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-128" "7429" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.0.gcm-aes-128: line 471: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-128" "7429" "$D/params-full"
+exit 0
+out "W 7429 1 0210 0100\nW 7429 1 0211 1110\nW 7429 1 0212 1f1e\nW 7429 1 0213 2f20\nW 7429 1 0214 3037\nW 7429 1 0215 7170\nW 7429 1 0216 0000\nW 7429 1 0217 8180\nR 7429 1 0310\nW 7429 1 0310 0001\nR 7429 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-128" "7429" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.0.gcm-aes-128: line 472: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-128" "7429" "$D/params-full" "$D/reads"
+exit 0
+out "W 7429 1 0210 0100\nW 7429 1 0211 1110\nW 7429 1 0212 1f1e\nW 7429 1 0213 2f20\nW 7429 1 0214 3037\nW 7429 1 0215 7170\nW 7429 1 0216 0000\nW 7429 1 0217 8180\nR 7429 1 0310\nW 7429 1 0310 0001\nR 7429 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-128.replay" "8281"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.0.gcm-aes-128.replay: line 567: parameter window[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-128.replay" "8281" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.0.gcm-aes-128.replay: line 567: parameter window[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-128.replay" "8281" "$D/params-full"
+exit 0
+out "W 8281 1 0210 0f00\nW 8281 1 0217 8180\nR 8281 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-128.replay" "8281" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.0.gcm-aes-128.replay: line 567: parameter window[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-128.replay" "8281" "$D/params-full" "$D/reads"
+exit 0
+out "W 8281 1 0210 0f00\nW 8281 1 0217 8180\nR 8281 1 021f\nD 0\nR 8281 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-256" "d7c4"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.0.gcm-aes-256: line 495: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-256" "d7c4" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.0.gcm-aes-256: line 495: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-256" "d7c4" "$D/params-full"
+exit 0
+out "W d7c4 1 0210 0110\nW d7c4 1 0211 1110\nW d7c4 1 0212 2f2e\nW d7c4 1 0213 2f20\nW d7c4 1 0214 3037\nW d7c4 1 0215 7170\nW d7c4 1 0216 0000\nW d7c4 1 0217 8180\nR d7c4 1 0310\nW d7c4 1 0310 0001\nR d7c4 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-256" "d7c4" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.0.gcm-aes-256: line 496: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-256" "d7c4" "$D/params-full" "$D/reads"
+exit 0
+out "W d7c4 1 0210 0110\nW d7c4 1 0211 1110\nW d7c4 1 0212 2f2e\nW d7c4 1 0213 2f20\nW d7c4 1 0214 3037\nW d7c4 1 0215 7170\nW d7c4 1 0216 0000\nW d7c4 1 0217 8180\nR d7c4 1 0310\nW d7c4 1 0310 0001\nR d7c4 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-xpn-128" "b56b"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.0.gcm-aes-xpn-128: line 522: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-xpn-128" "b56b" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.0.gcm-aes-xpn-128: line 522: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-xpn-128" "b56b" "$D/params-full"
+exit 0
+out "W b56b 1 0210 0120\nW b56b 1 0211 1110\nW b56b 1 0212 1f1e\nW b56b 1 0213 2f20\nW b56b 1 0214 3037\nW b56b 1 0215 7170\nW b56b 1 0216 7574\nW b56b 1 0217 8180\nW b56b 1 0218 6063\nW b56b 1 0219 646b\nW b56b 1 021a 5040\nR b56b 1 0310\nW b56b 1 0310 0001\nR b56b 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-xpn-128" "b56b" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.0.gcm-aes-xpn-128: line 523: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-xpn-128" "b56b" "$D/params-full" "$D/reads"
+exit 0
+out "W b56b 1 0210 0120\nW b56b 1 0211 1110\nW b56b 1 0212 1f1e\nW b56b 1 0213 2f20\nW b56b 1 0214 3037\nW b56b 1 0215 7170\nW b56b 1 0216 7574\nW b56b 1 0217 8180\nW b56b 1 0218 6063\nW b56b 1 0219 646b\nW b56b 1 021a 5040\nR b56b 1 0310\nW b56b 1 0310 0001\nR b56b 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-xpn-256" "5cc1"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.0.gcm-aes-xpn-256: line 552: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-xpn-256" "5cc1" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.0.gcm-aes-xpn-256: line 552: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-xpn-256" "5cc1" "$D/params-full"
+exit 0
+out "W 5cc1 1 0210 0130\nW 5cc1 1 0211 1110\nW 5cc1 1 0212 2f2e\nW 5cc1 1 0213 2f20\nW 5cc1 1 0214 3037\nW 5cc1 1 0215 7170\nW 5cc1 1 0216 7574\nW 5cc1 1 0217 8180\nW 5cc1 1 0218 6063\nW 5cc1 1 0219 646b\nW 5cc1 1 021a 5040\nR 5cc1 1 0310\nW 5cc1 1 0310 0001\nR 5cc1 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-xpn-256" "5cc1" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.0.gcm-aes-xpn-256: line 553: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.0.gcm-aes-xpn-256" "5cc1" "$D/params-full" "$D/reads"
+exit 0
+out "W 5cc1 1 0210 0130\nW 5cc1 1 0211 1110\nW 5cc1 1 0212 2f2e\nW 5cc1 1 0213 2f20\nW 5cc1 1 0214 3037\nW 5cc1 1 0215 7170\nW 5cc1 1 0216 7574\nW 5cc1 1 0217 8180\nW 5cc1 1 0218 6063\nW 5cc1 1 0219 646b\nW 5cc1 1 021a 5040\nR 5cc1 1 0310\nW 5cc1 1 0310 0001\nR 5cc1 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-128" "de38"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.1.gcm-aes-128: line 595: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-128" "de38" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.1.gcm-aes-128: line 595: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-128" "de38" "$D/params-full"
+exit 0
+out "W de38 1 0210 0101\nW de38 1 0211 1110\nW de38 1 0212 1f1e\nW de38 1 0213 2f20\nW de38 1 0214 3037\nW de38 1 0215 7170\nW de38 1 0216 0000\nW de38 1 0217 8180\nR de38 1 0310\nW de38 1 0310 0002\nR de38 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-128" "de38" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.1.gcm-aes-128: line 596: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-128" "de38" "$D/params-full" "$D/reads"
+exit 0
+out "W de38 1 0210 0101\nW de38 1 0211 1110\nW de38 1 0212 1f1e\nW de38 1 0213 2f20\nW de38 1 0214 3037\nW de38 1 0215 7170\nW de38 1 0216 0000\nW de38 1 0217 8180\nR de38 1 0310\nW de38 1 0310 0002\nR de38 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-256" "4984"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.1.gcm-aes-256: line 619: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-256" "4984" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.1.gcm-aes-256: line 619: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-256" "4984" "$D/params-full"
+exit 0
+out "W 4984 1 0210 0111\nW 4984 1 0211 1110\nW 4984 1 0212 2f2e\nW 4984 1 0213 2f20\nW 4984 1 0214 3037\nW 4984 1 0215 7170\nW 4984 1 0216 0000\nW 4984 1 0217 8180\nR 4984 1 0310\nW 4984 1 0310 0002\nR 4984 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-256" "4984" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.1.gcm-aes-256: line 620: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-256" "4984" "$D/params-full" "$D/reads"
+exit 0
+out "W 4984 1 0210 0111\nW 4984 1 0211 1110\nW 4984 1 0212 2f2e\nW 4984 1 0213 2f20\nW 4984 1 0214 3037\nW 4984 1 0215 7170\nW 4984 1 0216 0000\nW 4984 1 0217 8180\nR 4984 1 0310\nW 4984 1 0310 0002\nR 4984 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-xpn-128" "7e17"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.1.gcm-aes-xpn-128: line 646: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-xpn-128" "7e17" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.1.gcm-aes-xpn-128: line 646: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-xpn-128" "7e17" "$D/params-full"
+exit 0
+out "W 7e17 1 0210 0121\nW 7e17 1 0211 1110\nW 7e17 1 0212 1f1e\nW 7e17 1 0213 2f20\nW 7e17 1 0214 3037\nW 7e17 1 0215 7170\nW 7e17 1 0216 7574\nW 7e17 1 0217 8180\nW 7e17 1 0218 6063\nW 7e17 1 0219 646b\nW 7e17 1 021a 5040\nR 7e17 1 0310\nW 7e17 1 0310 0002\nR 7e17 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-xpn-128" "7e17" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.1.gcm-aes-xpn-128: line 647: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-xpn-128" "7e17" "$D/params-full" "$D/reads"
+exit 0
+out "W 7e17 1 0210 0121\nW 7e17 1 0211 1110\nW 7e17 1 0212 1f1e\nW 7e17 1 0213 2f20\nW 7e17 1 0214 3037\nW 7e17 1 0215 7170\nW 7e17 1 0216 7574\nW 7e17 1 0217 8180\nW 7e17 1 0218 6063\nW 7e17 1 0219 646b\nW 7e17 1 021a 5040\nR 7e17 1 0310\nW 7e17 1 0310 0002\nR 7e17 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-xpn-256" "6d2b"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.1.gcm-aes-xpn-256: line 676: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-xpn-256" "6d2b" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.1.gcm-aes-xpn-256: line 676: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-xpn-256" "6d2b" "$D/params-full"
+exit 0
+out "W 6d2b 1 0210 0131\nW 6d2b 1 0211 1110\nW 6d2b 1 0212 2f2e\nW 6d2b 1 0213 2f20\nW 6d2b 1 0214 3037\nW 6d2b 1 0215 7170\nW 6d2b 1 0216 7574\nW 6d2b 1 0217 8180\nW 6d2b 1 0218 6063\nW 6d2b 1 0219 646b\nW 6d2b 1 021a 5040\nR 6d2b 1 0310\nW 6d2b 1 0310 0002\nR 6d2b 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-xpn-256" "6d2b" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.1.gcm-aes-xpn-256: line 677: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.1.gcm-aes-xpn-256" "6d2b" "$D/params-full" "$D/reads"
+exit 0
+out "W 6d2b 1 0210 0131\nW 6d2b 1 0211 1110\nW 6d2b 1 0212 2f2e\nW 6d2b 1 0213 2f20\nW 6d2b 1 0214 3037\nW 6d2b 1 0215 7170\nW 6d2b 1 0216 7574\nW 6d2b 1 0217 8180\nW 6d2b 1 0218 6063\nW 6d2b 1 0219 646b\nW 6d2b 1 021a 5040\nR 6d2b 1 0310\nW 6d2b 1 0310 0002\nR 6d2b 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-128" "4531"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.2.gcm-aes-128: line 715: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-128" "4531" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.2.gcm-aes-128: line 715: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-128" "4531" "$D/params-full"
+exit 0
+out "W 4531 1 0210 0102\nW 4531 1 0211 1110\nW 4531 1 0212 1f1e\nW 4531 1 0213 2f20\nW 4531 1 0214 3037\nW 4531 1 0215 7170\nW 4531 1 0216 0000\nW 4531 1 0217 8180\nR 4531 1 0310\nW 4531 1 0310 0003\nR 4531 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-128" "4531" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.2.gcm-aes-128: line 716: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-128" "4531" "$D/params-full" "$D/reads"
+exit 0
+out "W 4531 1 0210 0102\nW 4531 1 0211 1110\nW 4531 1 0212 1f1e\nW 4531 1 0213 2f20\nW 4531 1 0214 3037\nW 4531 1 0215 7170\nW 4531 1 0216 0000\nW 4531 1 0217 8180\nR 4531 1 0310\nW 4531 1 0310 0003\nR 4531 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-256" "1ffb"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.2.gcm-aes-256: line 739: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-256" "1ffb" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.2.gcm-aes-256: line 739: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-256" "1ffb" "$D/params-full"
+exit 0
+out "W 1ffb 1 0210 0112\nW 1ffb 1 0211 1110\nW 1ffb 1 0212 2f2e\nW 1ffb 1 0213 2f20\nW 1ffb 1 0214 3037\nW 1ffb 1 0215 7170\nW 1ffb 1 0216 0000\nW 1ffb 1 0217 8180\nR 1ffb 1 0310\nW 1ffb 1 0310 0003\nR 1ffb 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-256" "1ffb" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.2.gcm-aes-256: line 740: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-256" "1ffb" "$D/params-full" "$D/reads"
+exit 0
+out "W 1ffb 1 0210 0112\nW 1ffb 1 0211 1110\nW 1ffb 1 0212 2f2e\nW 1ffb 1 0213 2f20\nW 1ffb 1 0214 3037\nW 1ffb 1 0215 7170\nW 1ffb 1 0216 0000\nW 1ffb 1 0217 8180\nR 1ffb 1 0310\nW 1ffb 1 0310 0003\nR 1ffb 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-xpn-128" "9304"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.2.gcm-aes-xpn-128: line 766: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-xpn-128" "9304" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.2.gcm-aes-xpn-128: line 766: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-xpn-128" "9304" "$D/params-full"
+exit 0
+out "W 9304 1 0210 0122\nW 9304 1 0211 1110\nW 9304 1 0212 1f1e\nW 9304 1 0213 2f20\nW 9304 1 0214 3037\nW 9304 1 0215 7170\nW 9304 1 0216 7574\nW 9304 1 0217 8180\nW 9304 1 0218 6063\nW 9304 1 0219 646b\nW 9304 1 021a 5040\nR 9304 1 0310\nW 9304 1 0310 0003\nR 9304 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-xpn-128" "9304" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.2.gcm-aes-xpn-128: line 767: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-xpn-128" "9304" "$D/params-full" "$D/reads"
+exit 0
+out "W 9304 1 0210 0122\nW 9304 1 0211 1110\nW 9304 1 0212 1f1e\nW 9304 1 0213 2f20\nW 9304 1 0214 3037\nW 9304 1 0215 7170\nW 9304 1 0216 7574\nW 9304 1 0217 8180\nW 9304 1 0218 6063\nW 9304 1 0219 646b\nW 9304 1 021a 5040\nR 9304 1 0310\nW 9304 1 0310 0003\nR 9304 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-xpn-256" "e722"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.2.gcm-aes-xpn-256: line 796: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-xpn-256" "e722" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.2.gcm-aes-xpn-256: line 796: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-xpn-256" "e722" "$D/params-full"
+exit 0
+out "W e722 1 0210 0132\nW e722 1 0211 1110\nW e722 1 0212 2f2e\nW e722 1 0213 2f20\nW e722 1 0214 3037\nW e722 1 0215 7170\nW e722 1 0216 7574\nW e722 1 0217 8180\nW e722 1 0218 6063\nW e722 1 0219 646b\nW e722 1 021a 5040\nR e722 1 0310\nW e722 1 0310 0003\nR e722 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-xpn-256" "e722" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.2.gcm-aes-xpn-256: line 797: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.2.gcm-aes-xpn-256" "e722" "$D/params-full" "$D/reads"
+exit 0
+out "W e722 1 0210 0132\nW e722 1 0211 1110\nW e722 1 0212 2f2e\nW e722 1 0213 2f20\nW e722 1 0214 3037\nW e722 1 0215 7170\nW e722 1 0216 7574\nW e722 1 0217 8180\nW e722 1 0218 6063\nW e722 1 0219 646b\nW e722 1 021a 5040\nR e722 1 0310\nW e722 1 0310 0003\nR e722 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-128" "6c"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.3.gcm-aes-128: line 835: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-128" "6c" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.3.gcm-aes-128: line 835: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-128" "6c" "$D/params-full"
+exit 0
+out "W 06c 1 0210 0103\nW 06c 1 0211 1110\nW 06c 1 0212 1f1e\nW 06c 1 0213 2f20\nW 06c 1 0214 3037\nW 06c 1 0215 7170\nW 06c 1 0216 0000\nW 06c 1 0217 8180\nR 06c 1 0310\nW 06c 1 0310 0004\nR 06c 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-128" "6c" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.3.gcm-aes-128: line 836: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-128" "6c" "$D/params-full" "$D/reads"
+exit 0
+out "W 06c 1 0210 0103\nW 06c 1 0211 1110\nW 06c 1 0212 1f1e\nW 06c 1 0213 2f20\nW 06c 1 0214 3037\nW 06c 1 0215 7170\nW 06c 1 0216 0000\nW 06c 1 0217 8180\nR 06c 1 0310\nW 06c 1 0310 0004\nR 06c 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-256" "cf6c"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.3.gcm-aes-256: line 859: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-256" "cf6c" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.3.gcm-aes-256: line 859: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-256" "cf6c" "$D/params-full"
+exit 0
+out "W cf6c 1 0210 0113\nW cf6c 1 0211 1110\nW cf6c 1 0212 2f2e\nW cf6c 1 0213 2f20\nW cf6c 1 0214 3037\nW cf6c 1 0215 7170\nW cf6c 1 0216 0000\nW cf6c 1 0217 8180\nR cf6c 1 0310\nW cf6c 1 0310 0004\nR cf6c 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-256" "cf6c" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.3.gcm-aes-256: line 860: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-256" "cf6c" "$D/params-full" "$D/reads"
+exit 0
+out "W cf6c 1 0210 0113\nW cf6c 1 0211 1110\nW cf6c 1 0212 2f2e\nW cf6c 1 0213 2f20\nW cf6c 1 0214 3037\nW cf6c 1 0215 7170\nW cf6c 1 0216 0000\nW cf6c 1 0217 8180\nR cf6c 1 0310\nW cf6c 1 0310 0004\nR cf6c 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-xpn-128" "53f2"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.3.gcm-aes-xpn-128: line 886: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-xpn-128" "53f2" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.3.gcm-aes-xpn-128: line 886: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-xpn-128" "53f2" "$D/params-full"
+exit 0
+out "W 53f2 1 0210 0123\nW 53f2 1 0211 1110\nW 53f2 1 0212 1f1e\nW 53f2 1 0213 2f20\nW 53f2 1 0214 3037\nW 53f2 1 0215 7170\nW 53f2 1 0216 7574\nW 53f2 1 0217 8180\nW 53f2 1 0218 6063\nW 53f2 1 0219 646b\nW 53f2 1 021a 5040\nR 53f2 1 0310\nW 53f2 1 0310 0004\nR 53f2 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-xpn-128" "53f2" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.3.gcm-aes-xpn-128: line 887: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-xpn-128" "53f2" "$D/params-full" "$D/reads"
+exit 0
+out "W 53f2 1 0210 0123\nW 53f2 1 0211 1110\nW 53f2 1 0212 1f1e\nW 53f2 1 0213 2f20\nW 53f2 1 0214 3037\nW 53f2 1 0215 7170\nW 53f2 1 0216 7574\nW 53f2 1 0217 8180\nW 53f2 1 0218 6063\nW 53f2 1 0219 646b\nW 53f2 1 021a 5040\nR 53f2 1 0310\nW 53f2 1 0310 0004\nR 53f2 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-xpn-256" "35d5"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.3.gcm-aes-xpn-256: line 916: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-xpn-256" "35d5" "-"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.3.gcm-aes-xpn-256: line 916: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-xpn-256" "35d5" "$D/params-full"
+exit 0
+out "W 35d5 1 0210 0133\nW 35d5 1 0211 1110\nW 35d5 1 0212 2f2e\nW 35d5 1 0213 2f20\nW 35d5 1 0214 3037\nW 35d5 1 0215 7170\nW 35d5 1 0216 7574\nW 35d5 1 0217 8180\nW 35d5 1 0218 6063\nW 35d5 1 0219 646b\nW 35d5 1 021a 5040\nR 35d5 1 0310\nW 35d5 1 0310 0004\nR 35d5 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-xpn-256" "35d5" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add-first.ingress.3.gcm-aes-xpn-256: line 917: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add-first.ingress.3.gcm-aes-xpn-256" "35d5" "$D/params-full" "$D/reads"
+exit 0
+out "W 35d5 1 0210 0133\nW 35d5 1 0211 1110\nW 35d5 1 0212 2f2e\nW 35d5 1 0213 2f20\nW 35d5 1 0214 3037\nW 35d5 1 0215 7170\nW 35d5 1 0216 7574\nW 35d5 1 0217 8180\nW 35d5 1 0218 6063\nW 35d5 1 0219 646b\nW 35d5 1 021a 5040\nR 35d5 1 0310\nW 35d5 1 0310 0004\nR 35d5 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-128" "aafe"
+exit 1
+out ""
+err "$D/table: sa-add.egress.0.gcm-aes-128: line 26: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-128" "aafe" "-"
+exit 1
+out ""
+err "$D/table: sa-add.egress.0.gcm-aes-128: line 26: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-128" "aafe" "$D/params-full"
+exit 0
+out "W aafe 1 0200 0000\nW aafe 1 0201 1110\nW aafe 1 0202 1f1e\nW aafe 1 0203 2f20\nW aafe 1 0204 3037\nW aafe 1 0205 7170\nW aafe 1 0206 0000\nW aafe 1 0207 8180\nR aafe 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-128" "aafe" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.egress.0.gcm-aes-128: line 27: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-128" "aafe" "$D/params-full" "$D/reads"
+exit 0
+out "W aafe 1 0200 0000\nW aafe 1 0201 1110\nW aafe 1 0202 1f1e\nW aafe 1 0203 2f20\nW aafe 1 0204 3037\nW aafe 1 0205 7170\nW aafe 1 0206 0000\nW aafe 1 0207 8180\nR aafe 1 020f\nD 0\nR aafe 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-256" "aa2b"
+exit 1
+out ""
+err "$D/table: sa-add.egress.0.gcm-aes-256: line 46: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-256" "aa2b" "-"
+exit 1
+out ""
+err "$D/table: sa-add.egress.0.gcm-aes-256: line 46: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-256" "aa2b" "$D/params-full"
+exit 0
+out "W aa2b 1 0200 0010\nW aa2b 1 0201 1110\nW aa2b 1 0202 2f2e\nW aa2b 1 0203 2f20\nW aa2b 1 0204 3037\nW aa2b 1 0205 7170\nW aa2b 1 0206 0000\nW aa2b 1 0207 8180\nR aa2b 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-256" "aa2b" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.egress.0.gcm-aes-256: line 47: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-256" "aa2b" "$D/params-full" "$D/reads"
+exit 0
+out "W aa2b 1 0200 0010\nW aa2b 1 0201 1110\nW aa2b 1 0202 2f2e\nW aa2b 1 0203 2f20\nW aa2b 1 0204 3037\nW aa2b 1 0205 7170\nW aa2b 1 0206 0000\nW aa2b 1 0207 8180\nR aa2b 1 020f\nD 0\nR aa2b 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-xpn-128" "2fbf"
+exit 1
+out ""
+err "$D/table: sa-add.egress.0.gcm-aes-xpn-128: line 66: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-xpn-128" "2fbf" "-"
+exit 1
+out ""
+err "$D/table: sa-add.egress.0.gcm-aes-xpn-128: line 66: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-xpn-128" "2fbf" "$D/params-full"
+exit 0
+out "W 2fbf 1 0200 0020\nW 2fbf 1 0201 1110\nW 2fbf 1 0202 1f1e\nW 2fbf 1 0203 2f20\nW 2fbf 1 0204 3037\nW 2fbf 1 0205 7170\nW 2fbf 1 0206 7574\nW 2fbf 1 0207 8180\nW 2fbf 1 0208 6063\nW 2fbf 1 0209 646b\nW 2fbf 1 020a 5040\nR 2fbf 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-xpn-128" "2fbf" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.egress.0.gcm-aes-xpn-128: line 67: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-xpn-128" "2fbf" "$D/params-full" "$D/reads"
+exit 0
+out "W 2fbf 1 0200 0020\nW 2fbf 1 0201 1110\nW 2fbf 1 0202 1f1e\nW 2fbf 1 0203 2f20\nW 2fbf 1 0204 3037\nW 2fbf 1 0205 7170\nW 2fbf 1 0206 7574\nW 2fbf 1 0207 8180\nW 2fbf 1 0208 6063\nW 2fbf 1 0209 646b\nW 2fbf 1 020a 5040\nR 2fbf 1 020f\nD 0\nR 2fbf 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-xpn-256" "1420"
+exit 1
+out ""
+err "$D/table: sa-add.egress.0.gcm-aes-xpn-256: line 92: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-xpn-256" "1420" "-"
+exit 1
+out ""
+err "$D/table: sa-add.egress.0.gcm-aes-xpn-256: line 92: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-xpn-256" "1420" "$D/params-full"
+exit 0
+out "W 1420 1 0200 0030\nW 1420 1 0201 1110\nW 1420 1 0202 2f2e\nW 1420 1 0203 2f20\nW 1420 1 0204 3037\nW 1420 1 0205 7170\nW 1420 1 0206 7574\nW 1420 1 0207 8180\nW 1420 1 0208 6063\nW 1420 1 0209 646b\nW 1420 1 020a 5040\nR 1420 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-xpn-256" "1420" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.egress.0.gcm-aes-xpn-256: line 93: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.0.gcm-aes-xpn-256" "1420" "$D/params-full" "$D/reads"
+exit 0
+out "W 1420 1 0200 0030\nW 1420 1 0201 1110\nW 1420 1 0202 2f2e\nW 1420 1 0203 2f20\nW 1420 1 0204 3037\nW 1420 1 0205 7170\nW 1420 1 0206 7574\nW 1420 1 0207 8180\nW 1420 1 0208 6063\nW 1420 1 0209 646b\nW 1420 1 020a 5040\nR 1420 1 020f\nD 0\nR 1420 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-128" "4408"
+exit 1
+out ""
+err "$D/table: sa-add.egress.1.gcm-aes-128: line 130: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-128" "4408" "-"
+exit 1
+out ""
+err "$D/table: sa-add.egress.1.gcm-aes-128: line 130: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-128" "4408" "$D/params-full"
+exit 0
+out "W 4408 1 0200 0001\nW 4408 1 0201 1110\nW 4408 1 0202 1f1e\nW 4408 1 0203 2f20\nW 4408 1 0204 3037\nW 4408 1 0205 7170\nW 4408 1 0206 0000\nW 4408 1 0207 8180\nR 4408 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-128" "4408" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.egress.1.gcm-aes-128: line 131: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-128" "4408" "$D/params-full" "$D/reads"
+exit 0
+out "W 4408 1 0200 0001\nW 4408 1 0201 1110\nW 4408 1 0202 1f1e\nW 4408 1 0203 2f20\nW 4408 1 0204 3037\nW 4408 1 0205 7170\nW 4408 1 0206 0000\nW 4408 1 0207 8180\nR 4408 1 020f\nD 0\nR 4408 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-256" "e480"
+exit 1
+out ""
+err "$D/table: sa-add.egress.1.gcm-aes-256: line 150: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-256" "e480" "-"
+exit 1
+out ""
+err "$D/table: sa-add.egress.1.gcm-aes-256: line 150: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-256" "e480" "$D/params-full"
+exit 0
+out "W e480 1 0200 0011\nW e480 1 0201 1110\nW e480 1 0202 2f2e\nW e480 1 0203 2f20\nW e480 1 0204 3037\nW e480 1 0205 7170\nW e480 1 0206 0000\nW e480 1 0207 8180\nR e480 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-256" "e480" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.egress.1.gcm-aes-256: line 151: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-256" "e480" "$D/params-full" "$D/reads"
+exit 0
+out "W e480 1 0200 0011\nW e480 1 0201 1110\nW e480 1 0202 2f2e\nW e480 1 0203 2f20\nW e480 1 0204 3037\nW e480 1 0205 7170\nW e480 1 0206 0000\nW e480 1 0207 8180\nR e480 1 020f\nD 0\nR e480 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-xpn-128" "149"
+exit 1
+out ""
+err "$D/table: sa-add.egress.1.gcm-aes-xpn-128: line 170: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-xpn-128" "149" "-"
+exit 1
+out ""
+err "$D/table: sa-add.egress.1.gcm-aes-xpn-128: line 170: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-xpn-128" "149" "$D/params-full"
+exit 0
+out "W 149 1 0200 0021\nW 149 1 0201 1110\nW 149 1 0202 1f1e\nW 149 1 0203 2f20\nW 149 1 0204 3037\nW 149 1 0205 7170\nW 149 1 0206 7574\nW 149 1 0207 8180\nW 149 1 0208 6063\nW 149 1 0209 646b\nW 149 1 020a 5040\nR 149 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-xpn-128" "149" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.egress.1.gcm-aes-xpn-128: line 171: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-xpn-128" "149" "$D/params-full" "$D/reads"
+exit 0
+out "W 149 1 0200 0021\nW 149 1 0201 1110\nW 149 1 0202 1f1e\nW 149 1 0203 2f20\nW 149 1 0204 3037\nW 149 1 0205 7170\nW 149 1 0206 7574\nW 149 1 0207 8180\nW 149 1 0208 6063\nW 149 1 0209 646b\nW 149 1 020a 5040\nR 149 1 020f\nD 0\nR 149 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-xpn-256" "9f0b"
+exit 1
+out ""
+err "$D/table: sa-add.egress.1.gcm-aes-xpn-256: line 196: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-xpn-256" "9f0b" "-"
+exit 1
+out ""
+err "$D/table: sa-add.egress.1.gcm-aes-xpn-256: line 196: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-xpn-256" "9f0b" "$D/params-full"
+exit 0
+out "W 9f0b 1 0200 0031\nW 9f0b 1 0201 1110\nW 9f0b 1 0202 2f2e\nW 9f0b 1 0203 2f20\nW 9f0b 1 0204 3037\nW 9f0b 1 0205 7170\nW 9f0b 1 0206 7574\nW 9f0b 1 0207 8180\nW 9f0b 1 0208 6063\nW 9f0b 1 0209 646b\nW 9f0b 1 020a 5040\nR 9f0b 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-xpn-256" "9f0b" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.egress.1.gcm-aes-xpn-256: line 197: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.1.gcm-aes-xpn-256" "9f0b" "$D/params-full" "$D/reads"
+exit 0
+out "W 9f0b 1 0200 0031\nW 9f0b 1 0201 1110\nW 9f0b 1 0202 2f2e\nW 9f0b 1 0203 2f20\nW 9f0b 1 0204 3037\nW 9f0b 1 0205 7170\nW 9f0b 1 0206 7574\nW 9f0b 1 0207 8180\nW 9f0b 1 0208 6063\nW 9f0b 1 0209 646b\nW 9f0b 1 020a 5040\nR 9f0b 1 020f\nD 0\nR 9f0b 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-128" "b0f5"
+exit 1
+out ""
+err "$D/table: sa-add.egress.2.gcm-aes-128: line 234: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-128" "b0f5" "-"
+exit 1
+out ""
+err "$D/table: sa-add.egress.2.gcm-aes-128: line 234: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-128" "b0f5" "$D/params-full"
+exit 0
+out "W b0f5 1 0200 0002\nW b0f5 1 0201 1110\nW b0f5 1 0202 1f1e\nW b0f5 1 0203 2f20\nW b0f5 1 0204 3037\nW b0f5 1 0205 7170\nW b0f5 1 0206 0000\nW b0f5 1 0207 8180\nR b0f5 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-128" "b0f5" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.egress.2.gcm-aes-128: line 235: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-128" "b0f5" "$D/params-full" "$D/reads"
+exit 0
+out "W b0f5 1 0200 0002\nW b0f5 1 0201 1110\nW b0f5 1 0202 1f1e\nW b0f5 1 0203 2f20\nW b0f5 1 0204 3037\nW b0f5 1 0205 7170\nW b0f5 1 0206 0000\nW b0f5 1 0207 8180\nR b0f5 1 020f\nD 0\nR b0f5 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-256" "dcd4"
+exit 1
+out ""
+err "$D/table: sa-add.egress.2.gcm-aes-256: line 254: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-256" "dcd4" "-"
+exit 1
+out ""
+err "$D/table: sa-add.egress.2.gcm-aes-256: line 254: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-256" "dcd4" "$D/params-full"
+exit 0
+out "W dcd4 1 0200 0012\nW dcd4 1 0201 1110\nW dcd4 1 0202 2f2e\nW dcd4 1 0203 2f20\nW dcd4 1 0204 3037\nW dcd4 1 0205 7170\nW dcd4 1 0206 0000\nW dcd4 1 0207 8180\nR dcd4 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-256" "dcd4" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.egress.2.gcm-aes-256: line 255: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-256" "dcd4" "$D/params-full" "$D/reads"
+exit 0
+out "W dcd4 1 0200 0012\nW dcd4 1 0201 1110\nW dcd4 1 0202 2f2e\nW dcd4 1 0203 2f20\nW dcd4 1 0204 3037\nW dcd4 1 0205 7170\nW dcd4 1 0206 0000\nW dcd4 1 0207 8180\nR dcd4 1 020f\nD 0\nR dcd4 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-xpn-128" "7c6d"
+exit 1
+out ""
+err "$D/table: sa-add.egress.2.gcm-aes-xpn-128: line 274: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-xpn-128" "7c6d" "-"
+exit 1
+out ""
+err "$D/table: sa-add.egress.2.gcm-aes-xpn-128: line 274: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-xpn-128" "7c6d" "$D/params-full"
+exit 0
+out "W 7c6d 1 0200 0022\nW 7c6d 1 0201 1110\nW 7c6d 1 0202 1f1e\nW 7c6d 1 0203 2f20\nW 7c6d 1 0204 3037\nW 7c6d 1 0205 7170\nW 7c6d 1 0206 7574\nW 7c6d 1 0207 8180\nW 7c6d 1 0208 6063\nW 7c6d 1 0209 646b\nW 7c6d 1 020a 5040\nR 7c6d 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-xpn-128" "7c6d" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.egress.2.gcm-aes-xpn-128: line 275: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-xpn-128" "7c6d" "$D/params-full" "$D/reads"
+exit 0
+out "W 7c6d 1 0200 0022\nW 7c6d 1 0201 1110\nW 7c6d 1 0202 1f1e\nW 7c6d 1 0203 2f20\nW 7c6d 1 0204 3037\nW 7c6d 1 0205 7170\nW 7c6d 1 0206 7574\nW 7c6d 1 0207 8180\nW 7c6d 1 0208 6063\nW 7c6d 1 0209 646b\nW 7c6d 1 020a 5040\nR 7c6d 1 020f\nD 0\nR 7c6d 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-xpn-256" "1fd5"
+exit 1
+out ""
+err "$D/table: sa-add.egress.2.gcm-aes-xpn-256: line 300: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-xpn-256" "1fd5" "-"
+exit 1
+out ""
+err "$D/table: sa-add.egress.2.gcm-aes-xpn-256: line 300: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-xpn-256" "1fd5" "$D/params-full"
+exit 0
+out "W 1fd5 1 0200 0032\nW 1fd5 1 0201 1110\nW 1fd5 1 0202 2f2e\nW 1fd5 1 0203 2f20\nW 1fd5 1 0204 3037\nW 1fd5 1 0205 7170\nW 1fd5 1 0206 7574\nW 1fd5 1 0207 8180\nW 1fd5 1 0208 6063\nW 1fd5 1 0209 646b\nW 1fd5 1 020a 5040\nR 1fd5 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-xpn-256" "1fd5" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.egress.2.gcm-aes-xpn-256: line 301: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.2.gcm-aes-xpn-256" "1fd5" "$D/params-full" "$D/reads"
+exit 0
+out "W 1fd5 1 0200 0032\nW 1fd5 1 0201 1110\nW 1fd5 1 0202 2f2e\nW 1fd5 1 0203 2f20\nW 1fd5 1 0204 3037\nW 1fd5 1 0205 7170\nW 1fd5 1 0206 7574\nW 1fd5 1 0207 8180\nW 1fd5 1 0208 6063\nW 1fd5 1 0209 646b\nW 1fd5 1 020a 5040\nR 1fd5 1 020f\nD 0\nR 1fd5 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-128" "68aa"
+exit 1
+out ""
+err "$D/table: sa-add.egress.3.gcm-aes-128: line 338: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-128" "68aa" "-"
+exit 1
+out ""
+err "$D/table: sa-add.egress.3.gcm-aes-128: line 338: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-128" "68aa" "$D/params-full"
+exit 0
+out "W 68aa 1 0200 0003\nW 68aa 1 0201 1110\nW 68aa 1 0202 1f1e\nW 68aa 1 0203 2f20\nW 68aa 1 0204 3037\nW 68aa 1 0205 7170\nW 68aa 1 0206 0000\nW 68aa 1 0207 8180\nR 68aa 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-128" "68aa" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.egress.3.gcm-aes-128: line 339: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-128" "68aa" "$D/params-full" "$D/reads"
+exit 0
+out "W 68aa 1 0200 0003\nW 68aa 1 0201 1110\nW 68aa 1 0202 1f1e\nW 68aa 1 0203 2f20\nW 68aa 1 0204 3037\nW 68aa 1 0205 7170\nW 68aa 1 0206 0000\nW 68aa 1 0207 8180\nR 68aa 1 020f\nD 0\nR 68aa 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-256" "44fb"
+exit 1
+out ""
+err "$D/table: sa-add.egress.3.gcm-aes-256: line 358: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-256" "44fb" "-"
+exit 1
+out ""
+err "$D/table: sa-add.egress.3.gcm-aes-256: line 358: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-256" "44fb" "$D/params-full"
+exit 0
+out "W 44fb 1 0200 0013\nW 44fb 1 0201 1110\nW 44fb 1 0202 2f2e\nW 44fb 1 0203 2f20\nW 44fb 1 0204 3037\nW 44fb 1 0205 7170\nW 44fb 1 0206 0000\nW 44fb 1 0207 8180\nR 44fb 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-256" "44fb" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.egress.3.gcm-aes-256: line 359: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-256" "44fb" "$D/params-full" "$D/reads"
+exit 0
+out "W 44fb 1 0200 0013\nW 44fb 1 0201 1110\nW 44fb 1 0202 2f2e\nW 44fb 1 0203 2f20\nW 44fb 1 0204 3037\nW 44fb 1 0205 7170\nW 44fb 1 0206 0000\nW 44fb 1 0207 8180\nR 44fb 1 020f\nD 0\nR 44fb 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-xpn-128" "cb2"
+exit 1
+out ""
+err "$D/table: sa-add.egress.3.gcm-aes-xpn-128: line 378: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-xpn-128" "cb2" "-"
+exit 1
+out ""
+err "$D/table: sa-add.egress.3.gcm-aes-xpn-128: line 378: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-xpn-128" "cb2" "$D/params-full"
+exit 0
+out "W cb2 1 0200 0023\nW cb2 1 0201 1110\nW cb2 1 0202 1f1e\nW cb2 1 0203 2f20\nW cb2 1 0204 3037\nW cb2 1 0205 7170\nW cb2 1 0206 7574\nW cb2 1 0207 8180\nW cb2 1 0208 6063\nW cb2 1 0209 646b\nW cb2 1 020a 5040\nR cb2 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-xpn-128" "cb2" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.egress.3.gcm-aes-xpn-128: line 379: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-xpn-128" "cb2" "$D/params-full" "$D/reads"
+exit 0
+out "W cb2 1 0200 0023\nW cb2 1 0201 1110\nW cb2 1 0202 1f1e\nW cb2 1 0203 2f20\nW cb2 1 0204 3037\nW cb2 1 0205 7170\nW cb2 1 0206 7574\nW cb2 1 0207 8180\nW cb2 1 0208 6063\nW cb2 1 0209 646b\nW cb2 1 020a 5040\nR cb2 1 020f\nD 0\nR cb2 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-xpn-256" "d82b"
+exit 1
+out ""
+err "$D/table: sa-add.egress.3.gcm-aes-xpn-256: line 404: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-xpn-256" "d82b" "-"
+exit 1
+out ""
+err "$D/table: sa-add.egress.3.gcm-aes-xpn-256: line 404: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-xpn-256" "d82b" "$D/params-full"
+exit 0
+out "W d82b 1 0200 0033\nW d82b 1 0201 1110\nW d82b 1 0202 2f2e\nW d82b 1 0203 2f20\nW d82b 1 0204 3037\nW d82b 1 0205 7170\nW d82b 1 0206 7574\nW d82b 1 0207 8180\nW d82b 1 0208 6063\nW d82b 1 0209 646b\nW d82b 1 020a 5040\nR d82b 1 020f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-xpn-256" "d82b" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.egress.3.gcm-aes-xpn-256: line 405: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add.egress.3.gcm-aes-xpn-256" "d82b" "$D/params-full" "$D/reads"
+exit 0
+out "W d82b 1 0200 0033\nW d82b 1 0201 1110\nW d82b 1 0202 2f2e\nW d82b 1 0203 2f20\nW d82b 1 0204 3037\nW d82b 1 0205 7170\nW d82b 1 0206 7574\nW d82b 1 0207 8180\nW d82b 1 0208 6063\nW d82b 1 0209 646b\nW d82b 1 020a 5040\nR d82b 1 020f\nD 0\nR d82b 1 020f\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-128" "475b"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.0.gcm-aes-128: line 459: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-128" "475b" "-"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.0.gcm-aes-128: line 459: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-128" "475b" "$D/params-full"
+exit 0
+out "W 475b 1 0210 0000\nW 475b 1 0211 1110\nW 475b 1 0212 1f1e\nW 475b 1 0213 2f20\nW 475b 1 0214 3037\nW 475b 1 0215 7170\nW 475b 1 0216 0000\nW 475b 1 0217 8180\nR 475b 1 0310\nW 475b 1 0310 0001\nR 475b 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-128" "475b" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.0.gcm-aes-128: line 460: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-128" "475b" "$D/params-full" "$D/reads"
+exit 0
+out "W 475b 1 0210 0000\nW 475b 1 0211 1110\nW 475b 1 0212 1f1e\nW 475b 1 0213 2f20\nW 475b 1 0214 3037\nW 475b 1 0215 7170\nW 475b 1 0216 0000\nW 475b 1 0217 8180\nR 475b 1 0310\nW 475b 1 0310 0001\nR 475b 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-256" "4915"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.0.gcm-aes-256: line 483: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-256" "4915" "-"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.0.gcm-aes-256: line 483: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-256" "4915" "$D/params-full"
+exit 0
+out "W 4915 1 0210 0010\nW 4915 1 0211 1110\nW 4915 1 0212 2f2e\nW 4915 1 0213 2f20\nW 4915 1 0214 3037\nW 4915 1 0215 7170\nW 4915 1 0216 0000\nW 4915 1 0217 8180\nR 4915 1 0310\nW 4915 1 0310 0001\nR 4915 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-256" "4915" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.0.gcm-aes-256: line 484: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-256" "4915" "$D/params-full" "$D/reads"
+exit 0
+out "W 4915 1 0210 0010\nW 4915 1 0211 1110\nW 4915 1 0212 2f2e\nW 4915 1 0213 2f20\nW 4915 1 0214 3037\nW 4915 1 0215 7170\nW 4915 1 0216 0000\nW 4915 1 0217 8180\nR 4915 1 0310\nW 4915 1 0310 0001\nR 4915 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-xpn-128" "f2c7"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.0.gcm-aes-xpn-128: line 507: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-xpn-128" "f2c7" "-"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.0.gcm-aes-xpn-128: line 507: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-xpn-128" "f2c7" "$D/params-full"
+exit 0
+out "W f2c7 1 0210 0020\nW f2c7 1 0211 1110\nW f2c7 1 0212 1f1e\nW f2c7 1 0213 2f20\nW f2c7 1 0214 3037\nW f2c7 1 0215 7170\nW f2c7 1 0216 7574\nW f2c7 1 0217 8180\nW f2c7 1 0218 6063\nW f2c7 1 0219 646b\nW f2c7 1 021a 5040\nR f2c7 1 0310\nW f2c7 1 0310 0001\nR f2c7 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-xpn-128" "f2c7" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.0.gcm-aes-xpn-128: line 508: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-xpn-128" "f2c7" "$D/params-full" "$D/reads"
+exit 0
+out "W f2c7 1 0210 0020\nW f2c7 1 0211 1110\nW f2c7 1 0212 1f1e\nW f2c7 1 0213 2f20\nW f2c7 1 0214 3037\nW f2c7 1 0215 7170\nW f2c7 1 0216 7574\nW f2c7 1 0217 8180\nW f2c7 1 0218 6063\nW f2c7 1 0219 646b\nW f2c7 1 021a 5040\nR f2c7 1 0310\nW f2c7 1 0310 0001\nR f2c7 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-xpn-256" "e2e2"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.0.gcm-aes-xpn-256: line 537: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-xpn-256" "e2e2" "-"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.0.gcm-aes-xpn-256: line 537: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-xpn-256" "e2e2" "$D/params-full"
+exit 0
+out "W e2e2 1 0210 0030\nW e2e2 1 0211 1110\nW e2e2 1 0212 2f2e\nW e2e2 1 0213 2f20\nW e2e2 1 0214 3037\nW e2e2 1 0215 7170\nW e2e2 1 0216 7574\nW e2e2 1 0217 8180\nW e2e2 1 0218 6063\nW e2e2 1 0219 646b\nW e2e2 1 021a 5040\nR e2e2 1 0310\nW e2e2 1 0310 0001\nR e2e2 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-xpn-256" "e2e2" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.0.gcm-aes-xpn-256: line 538: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.0.gcm-aes-xpn-256" "e2e2" "$D/params-full" "$D/reads"
+exit 0
+out "W e2e2 1 0210 0030\nW e2e2 1 0211 1110\nW e2e2 1 0212 2f2e\nW e2e2 1 0213 2f20\nW e2e2 1 0214 3037\nW e2e2 1 0215 7170\nW e2e2 1 0216 7574\nW e2e2 1 0217 8180\nW e2e2 1 0218 6063\nW e2e2 1 0219 646b\nW e2e2 1 021a 5040\nR e2e2 1 0310\nW e2e2 1 0310 0001\nR e2e2 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-128" "ffa7"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.1.gcm-aes-128: line 583: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-128" "ffa7" "-"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.1.gcm-aes-128: line 583: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-128" "ffa7" "$D/params-full"
+exit 0
+out "W ffa7 1 0210 0001\nW ffa7 1 0211 1110\nW ffa7 1 0212 1f1e\nW ffa7 1 0213 2f20\nW ffa7 1 0214 3037\nW ffa7 1 0215 7170\nW ffa7 1 0216 0000\nW ffa7 1 0217 8180\nR ffa7 1 0310\nW ffa7 1 0310 0002\nR ffa7 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-128" "ffa7" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.1.gcm-aes-128: line 584: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-128" "ffa7" "$D/params-full" "$D/reads"
+exit 0
+out "W ffa7 1 0210 0001\nW ffa7 1 0211 1110\nW ffa7 1 0212 1f1e\nW ffa7 1 0213 2f20\nW ffa7 1 0214 3037\nW ffa7 1 0215 7170\nW ffa7 1 0216 0000\nW ffa7 1 0217 8180\nR ffa7 1 0310\nW ffa7 1 0310 0002\nR ffa7 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-256" "6398"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.1.gcm-aes-256: line 607: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-256" "6398" "-"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.1.gcm-aes-256: line 607: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-256" "6398" "$D/params-full"
+exit 0
+out "W 6398 1 0210 0011\nW 6398 1 0211 1110\nW 6398 1 0212 2f2e\nW 6398 1 0213 2f20\nW 6398 1 0214 3037\nW 6398 1 0215 7170\nW 6398 1 0216 0000\nW 6398 1 0217 8180\nR 6398 1 0310\nW 6398 1 0310 0002\nR 6398 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-256" "6398" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.1.gcm-aes-256: line 608: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-256" "6398" "$D/params-full" "$D/reads"
+exit 0
+out "W 6398 1 0210 0011\nW 6398 1 0211 1110\nW 6398 1 0212 2f2e\nW 6398 1 0213 2f20\nW 6398 1 0214 3037\nW 6398 1 0215 7170\nW 6398 1 0216 0000\nW 6398 1 0217 8180\nR 6398 1 0310\nW 6398 1 0310 0002\nR 6398 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-xpn-128" "6f5f"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.1.gcm-aes-xpn-128: line 631: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-xpn-128" "6f5f" "-"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.1.gcm-aes-xpn-128: line 631: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-xpn-128" "6f5f" "$D/params-full"
+exit 0
+out "W 6f5f 1 0210 0021\nW 6f5f 1 0211 1110\nW 6f5f 1 0212 1f1e\nW 6f5f 1 0213 2f20\nW 6f5f 1 0214 3037\nW 6f5f 1 0215 7170\nW 6f5f 1 0216 7574\nW 6f5f 1 0217 8180\nW 6f5f 1 0218 6063\nW 6f5f 1 0219 646b\nW 6f5f 1 021a 5040\nR 6f5f 1 0310\nW 6f5f 1 0310 0002\nR 6f5f 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-xpn-128" "6f5f" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.1.gcm-aes-xpn-128: line 632: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-xpn-128" "6f5f" "$D/params-full" "$D/reads"
+exit 0
+out "W 6f5f 1 0210 0021\nW 6f5f 1 0211 1110\nW 6f5f 1 0212 1f1e\nW 6f5f 1 0213 2f20\nW 6f5f 1 0214 3037\nW 6f5f 1 0215 7170\nW 6f5f 1 0216 7574\nW 6f5f 1 0217 8180\nW 6f5f 1 0218 6063\nW 6f5f 1 0219 646b\nW 6f5f 1 021a 5040\nR 6f5f 1 0310\nW 6f5f 1 0310 0002\nR 6f5f 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-xpn-256" "fa41"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.1.gcm-aes-xpn-256: line 661: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-xpn-256" "fa41" "-"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.1.gcm-aes-xpn-256: line 661: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-xpn-256" "fa41" "$D/params-full"
+exit 0
+out "W fa41 1 0210 0031\nW fa41 1 0211 1110\nW fa41 1 0212 2f2e\nW fa41 1 0213 2f20\nW fa41 1 0214 3037\nW fa41 1 0215 7170\nW fa41 1 0216 7574\nW fa41 1 0217 8180\nW fa41 1 0218 6063\nW fa41 1 0219 646b\nW fa41 1 021a 5040\nR fa41 1 0310\nW fa41 1 0310 0002\nR fa41 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-xpn-256" "fa41" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.1.gcm-aes-xpn-256: line 662: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.1.gcm-aes-xpn-256" "fa41" "$D/params-full" "$D/reads"
+exit 0
+out "W fa41 1 0210 0031\nW fa41 1 0211 1110\nW fa41 1 0212 2f2e\nW fa41 1 0213 2f20\nW fa41 1 0214 3037\nW fa41 1 0215 7170\nW fa41 1 0216 7574\nW fa41 1 0217 8180\nW fa41 1 0218 6063\nW fa41 1 0219 646b\nW fa41 1 021a 5040\nR fa41 1 0310\nW fa41 1 0310 0002\nR fa41 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-128" "f5f5"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.2.gcm-aes-128: line 703: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-128" "f5f5" "-"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.2.gcm-aes-128: line 703: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-128" "f5f5" "$D/params-full"
+exit 0
+out "W f5f5 1 0210 0002\nW f5f5 1 0211 1110\nW f5f5 1 0212 1f1e\nW f5f5 1 0213 2f20\nW f5f5 1 0214 3037\nW f5f5 1 0215 7170\nW f5f5 1 0216 0000\nW f5f5 1 0217 8180\nR f5f5 1 0310\nW f5f5 1 0310 0003\nR f5f5 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-128" "f5f5" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.2.gcm-aes-128: line 704: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-128" "f5f5" "$D/params-full" "$D/reads"
+exit 0
+out "W f5f5 1 0210 0002\nW f5f5 1 0211 1110\nW f5f5 1 0212 1f1e\nW f5f5 1 0213 2f20\nW f5f5 1 0214 3037\nW f5f5 1 0215 7170\nW f5f5 1 0216 0000\nW f5f5 1 0217 8180\nR f5f5 1 0310\nW f5f5 1 0310 0003\nR f5f5 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-256" "335e"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.2.gcm-aes-256: line 727: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-256" "335e" "-"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.2.gcm-aes-256: line 727: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-256" "335e" "$D/params-full"
+exit 0
+out "W 335e 1 0210 0012\nW 335e 1 0211 1110\nW 335e 1 0212 2f2e\nW 335e 1 0213 2f20\nW 335e 1 0214 3037\nW 335e 1 0215 7170\nW 335e 1 0216 0000\nW 335e 1 0217 8180\nR 335e 1 0310\nW 335e 1 0310 0003\nR 335e 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-256" "335e" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.2.gcm-aes-256: line 728: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-256" "335e" "$D/params-full" "$D/reads"
+exit 0
+out "W 335e 1 0210 0012\nW 335e 1 0211 1110\nW 335e 1 0212 2f2e\nW 335e 1 0213 2f20\nW 335e 1 0214 3037\nW 335e 1 0215 7170\nW 335e 1 0216 0000\nW 335e 1 0217 8180\nR 335e 1 0310\nW 335e 1 0310 0003\nR 335e 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-xpn-128" "66b8"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.2.gcm-aes-xpn-128: line 751: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-xpn-128" "66b8" "-"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.2.gcm-aes-xpn-128: line 751: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-xpn-128" "66b8" "$D/params-full"
+exit 0
+out "W 66b8 1 0210 0022\nW 66b8 1 0211 1110\nW 66b8 1 0212 1f1e\nW 66b8 1 0213 2f20\nW 66b8 1 0214 3037\nW 66b8 1 0215 7170\nW 66b8 1 0216 7574\nW 66b8 1 0217 8180\nW 66b8 1 0218 6063\nW 66b8 1 0219 646b\nW 66b8 1 021a 5040\nR 66b8 1 0310\nW 66b8 1 0310 0003\nR 66b8 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-xpn-128" "66b8" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.2.gcm-aes-xpn-128: line 752: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-xpn-128" "66b8" "$D/params-full" "$D/reads"
+exit 0
+out "W 66b8 1 0210 0022\nW 66b8 1 0211 1110\nW 66b8 1 0212 1f1e\nW 66b8 1 0213 2f20\nW 66b8 1 0214 3037\nW 66b8 1 0215 7170\nW 66b8 1 0216 7574\nW 66b8 1 0217 8180\nW 66b8 1 0218 6063\nW 66b8 1 0219 646b\nW 66b8 1 021a 5040\nR 66b8 1 0310\nW 66b8 1 0310 0003\nR 66b8 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-xpn-256" "ca75"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.2.gcm-aes-xpn-256: line 781: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-xpn-256" "ca75" "-"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.2.gcm-aes-xpn-256: line 781: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-xpn-256" "ca75" "$D/params-full"
+exit 0
+out "W ca75 1 0210 0032\nW ca75 1 0211 1110\nW ca75 1 0212 2f2e\nW ca75 1 0213 2f20\nW ca75 1 0214 3037\nW ca75 1 0215 7170\nW ca75 1 0216 7574\nW ca75 1 0217 8180\nW ca75 1 0218 6063\nW ca75 1 0219 646b\nW ca75 1 021a 5040\nR ca75 1 0310\nW ca75 1 0310 0003\nR ca75 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-xpn-256" "ca75" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.2.gcm-aes-xpn-256: line 782: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.2.gcm-aes-xpn-256" "ca75" "$D/params-full" "$D/reads"
+exit 0
+out "W ca75 1 0210 0032\nW ca75 1 0211 1110\nW ca75 1 0212 2f2e\nW ca75 1 0213 2f20\nW ca75 1 0214 3037\nW ca75 1 0215 7170\nW ca75 1 0216 7574\nW ca75 1 0217 8180\nW ca75 1 0218 6063\nW ca75 1 0219 646b\nW ca75 1 021a 5040\nR ca75 1 0310\nW ca75 1 0310 0003\nR ca75 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-128" "f6a1"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.3.gcm-aes-128: line 823: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-128" "f6a1" "-"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.3.gcm-aes-128: line 823: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-128" "f6a1" "$D/params-full"
+exit 0
+out "W f6a1 1 0210 0003\nW f6a1 1 0211 1110\nW f6a1 1 0212 1f1e\nW f6a1 1 0213 2f20\nW f6a1 1 0214 3037\nW f6a1 1 0215 7170\nW f6a1 1 0216 0000\nW f6a1 1 0217 8180\nR f6a1 1 0310\nW f6a1 1 0310 0004\nR f6a1 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-128" "f6a1" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.3.gcm-aes-128: line 824: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-128" "f6a1" "$D/params-full" "$D/reads"
+exit 0
+out "W f6a1 1 0210 0003\nW f6a1 1 0211 1110\nW f6a1 1 0212 1f1e\nW f6a1 1 0213 2f20\nW f6a1 1 0214 3037\nW f6a1 1 0215 7170\nW f6a1 1 0216 0000\nW f6a1 1 0217 8180\nR f6a1 1 0310\nW f6a1 1 0310 0004\nR f6a1 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-256" "3b0c"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.3.gcm-aes-256: line 847: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-256" "3b0c" "-"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.3.gcm-aes-256: line 847: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-256" "3b0c" "$D/params-full"
+exit 0
+out "W 3b0c 1 0210 0013\nW 3b0c 1 0211 1110\nW 3b0c 1 0212 2f2e\nW 3b0c 1 0213 2f20\nW 3b0c 1 0214 3037\nW 3b0c 1 0215 7170\nW 3b0c 1 0216 0000\nW 3b0c 1 0217 8180\nR 3b0c 1 0310\nW 3b0c 1 0310 0004\nR 3b0c 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-256" "3b0c" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.3.gcm-aes-256: line 848: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-256" "3b0c" "$D/params-full" "$D/reads"
+exit 0
+out "W 3b0c 1 0210 0013\nW 3b0c 1 0211 1110\nW 3b0c 1 0212 2f2e\nW 3b0c 1 0213 2f20\nW 3b0c 1 0214 3037\nW 3b0c 1 0215 7170\nW 3b0c 1 0216 0000\nW 3b0c 1 0217 8180\nR 3b0c 1 0310\nW 3b0c 1 0310 0004\nR 3b0c 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-xpn-128" "ca7a"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.3.gcm-aes-xpn-128: line 871: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-xpn-128" "ca7a" "-"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.3.gcm-aes-xpn-128: line 871: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-xpn-128" "ca7a" "$D/params-full"
+exit 0
+out "W ca7a 1 0210 0023\nW ca7a 1 0211 1110\nW ca7a 1 0212 1f1e\nW ca7a 1 0213 2f20\nW ca7a 1 0214 3037\nW ca7a 1 0215 7170\nW ca7a 1 0216 7574\nW ca7a 1 0217 8180\nW ca7a 1 0218 6063\nW ca7a 1 0219 646b\nW ca7a 1 021a 5040\nR ca7a 1 0310\nW ca7a 1 0310 0004\nR ca7a 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-xpn-128" "ca7a" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.3.gcm-aes-xpn-128: line 872: parameter key[15] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-xpn-128" "ca7a" "$D/params-full" "$D/reads"
+exit 0
+out "W ca7a 1 0210 0023\nW ca7a 1 0211 1110\nW ca7a 1 0212 1f1e\nW ca7a 1 0213 2f20\nW ca7a 1 0214 3037\nW ca7a 1 0215 7170\nW ca7a 1 0216 7574\nW ca7a 1 0217 8180\nW ca7a 1 0218 6063\nW ca7a 1 0219 646b\nW ca7a 1 021a 5040\nR ca7a 1 0310\nW ca7a 1 0310 0004\nR ca7a 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-xpn-256" "f6e"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.3.gcm-aes-xpn-256: line 901: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-xpn-256" "f6e" "-"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.3.gcm-aes-xpn-256: line 901: parameter key[1] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-xpn-256" "f6e" "$D/params-full"
+exit 0
+out "W f6e 1 0210 0033\nW f6e 1 0211 1110\nW f6e 1 0212 2f2e\nW f6e 1 0213 2f20\nW f6e 1 0214 3037\nW f6e 1 0215 7170\nW f6e 1 0216 7574\nW f6e 1 0217 8180\nW f6e 1 0218 6063\nW f6e 1 0219 646b\nW f6e 1 021a 5040\nR f6e 1 0310\nW f6e 1 0310 0004\nR f6e 1 021f 0001 0001\n"
+err ""
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-xpn-256" "f6e" "$D/params-short"
+exit 1
+out ""
+err "$D/table: sa-add.ingress.3.gcm-aes-xpn-256: line 902: parameter key[31] is not available\n"
+-- "--render" "$D/table" "sa-add.ingress.3.gcm-aes-xpn-256" "f6e" "$D/params-full" "$D/reads"
+exit 0
+out "W f6e 1 0210 0033\nW f6e 1 0211 1110\nW f6e 1 0212 2f2e\nW f6e 1 0213 2f20\nW f6e 1 0214 3037\nW f6e 1 0215 7170\nW f6e 1 0216 7574\nW f6e 1 0217 8180\nW f6e 1 0218 6063\nW f6e 1 0219 646b\nW f6e 1 021a 5040\nR f6e 1 0310\nW f6e 1 0310 0004\nR f6e 1 021f\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.0" "aaf0"
+exit 0
+out "W aaf0 1 0300 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.0" "aaf0" "-"
+exit 0
+out "W aaf0 1 0300 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.0" "aaf0" "$D/params-full"
+exit 0
+out "W aaf0 1 0300 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.0" "aaf0" "$D/params-short"
+exit 0
+out "W aaf0 1 0300 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.0" "aaf0" "$D/params-full" "$D/reads"
+exit 0
+out "W aaf0 1 0300 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.1" "d5a5"
+exit 0
+out "W d5a5 1 0301 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.1" "d5a5" "-"
+exit 0
+out "W d5a5 1 0301 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.1" "d5a5" "$D/params-full"
+exit 0
+out "W d5a5 1 0301 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.1" "d5a5" "$D/params-short"
+exit 0
+out "W d5a5 1 0301 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.1" "d5a5" "$D/params-full" "$D/reads"
+exit 0
+out "W d5a5 1 0301 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.2" "914e"
+exit 0
+out "W 914e 1 0302 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.2" "914e" "-"
+exit 0
+out "W 914e 1 0302 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.2" "914e" "$D/params-full"
+exit 0
+out "W 914e 1 0302 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.2" "914e" "$D/params-short"
+exit 0
+out "W 914e 1 0302 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.2" "914e" "$D/params-full" "$D/reads"
+exit 0
+out "W 914e 1 0302 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.3" "e5ec"
+exit 0
+out "W e5ec 1 0303 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.3" "e5ec" "-"
+exit 0
+out "W e5ec 1 0303 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.3" "e5ec" "$D/params-full"
+exit 0
+out "W e5ec 1 0303 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.3" "e5ec" "$D/params-short"
+exit 0
+out "W e5ec 1 0303 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.egress.3" "e5ec" "$D/params-full" "$D/reads"
+exit 0
+out "W e5ec 1 0303 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.0" "e527"
+exit 0
+out "W e527 1 0310 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.0" "e527" "-"
+exit 0
+out "W e527 1 0310 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.0" "e527" "$D/params-full"
+exit 0
+out "W e527 1 0310 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.0" "e527" "$D/params-short"
+exit 0
+out "W e527 1 0310 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.0" "e527" "$D/params-full" "$D/reads"
+exit 0
+out "W e527 1 0310 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.1" "cb2d"
+exit 0
+out "W cb2d 1 0311 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.1" "cb2d" "-"
+exit 0
+out "W cb2d 1 0311 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.1" "cb2d" "$D/params-full"
+exit 0
+out "W cb2d 1 0311 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.1" "cb2d" "$D/params-short"
+exit 0
+out "W cb2d 1 0311 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.1" "cb2d" "$D/params-full" "$D/reads"
+exit 0
+out "W cb2d 1 0311 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.2" "f9fb"
+exit 0
+out "W f9fb 1 0312 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.2" "f9fb" "-"
+exit 0
+out "W f9fb 1 0312 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.2" "f9fb" "$D/params-full"
+exit 0
+out "W f9fb 1 0312 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.2" "f9fb" "$D/params-short"
+exit 0
+out "W f9fb 1 0312 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.2" "f9fb" "$D/params-full" "$D/reads"
+exit 0
+out "W f9fb 1 0312 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.3" "42c8"
+exit 0
+out "W 42c8 1 0313 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.3" "42c8" "-"
+exit 0
+out "W 42c8 1 0313 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.3" "42c8" "$D/params-full"
+exit 0
+out "W 42c8 1 0313 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.3" "42c8" "$D/params-short"
+exit 0
+out "W 42c8 1 0313 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del-last.ingress.3" "42c8" "$D/params-full" "$D/reads"
+exit 0
+out "W 42c8 1 0313 8001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.0" "844d"
+exit 0
+out "W 844d 1 0300 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.0" "844d" "-"
+exit 0
+out "W 844d 1 0300 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.0" "844d" "$D/params-full"
+exit 0
+out "W 844d 1 0300 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.0" "844d" "$D/params-short"
+exit 0
+out "W 844d 1 0300 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.0" "844d" "$D/params-full" "$D/reads"
+exit 0
+out "W 844d 1 0300 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.1" "fc05"
+exit 0
+out "W fc05 1 0301 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.1" "fc05" "-"
+exit 0
+out "W fc05 1 0301 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.1" "fc05" "$D/params-full"
+exit 0
+out "W fc05 1 0301 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.1" "fc05" "$D/params-short"
+exit 0
+out "W fc05 1 0301 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.1" "fc05" "$D/params-full" "$D/reads"
+exit 0
+out "W fc05 1 0301 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.2" "ccbd"
+exit 0
+out "W ccbd 1 0302 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.2" "ccbd" "-"
+exit 0
+out "W ccbd 1 0302 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.2" "ccbd" "$D/params-full"
+exit 0
+out "W ccbd 1 0302 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.2" "ccbd" "$D/params-short"
+exit 0
+out "W ccbd 1 0302 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.2" "ccbd" "$D/params-full" "$D/reads"
+exit 0
+out "W ccbd 1 0302 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.3" "c64"
+exit 0
+out "W c64 1 0303 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.3" "c64" "-"
+exit 0
+out "W c64 1 0303 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.3" "c64" "$D/params-full"
+exit 0
+out "W c64 1 0303 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.3" "c64" "$D/params-short"
+exit 0
+out "W c64 1 0303 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.egress.3" "c64" "$D/params-full" "$D/reads"
+exit 0
+out "W c64 1 0303 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.0" "cd7c"
+exit 0
+out "W cd7c 1 0310 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.0" "cd7c" "-"
+exit 0
+out "W cd7c 1 0310 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.0" "cd7c" "$D/params-full"
+exit 0
+out "W cd7c 1 0310 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.0" "cd7c" "$D/params-short"
+exit 0
+out "W cd7c 1 0310 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.0" "cd7c" "$D/params-full" "$D/reads"
+exit 0
+out "W cd7c 1 0310 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.1" "65e6"
+exit 0
+out "W 65e6 1 0311 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.1" "65e6" "-"
+exit 0
+out "W 65e6 1 0311 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.1" "65e6" "$D/params-full"
+exit 0
+out "W 65e6 1 0311 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.1" "65e6" "$D/params-short"
+exit 0
+out "W 65e6 1 0311 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.1" "65e6" "$D/params-full" "$D/reads"
+exit 0
+out "W 65e6 1 0311 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.2" "c4ad"
+exit 0
+out "W c4ad 1 0312 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.2" "c4ad" "-"
+exit 0
+out "W c4ad 1 0312 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.2" "c4ad" "$D/params-full"
+exit 0
+out "W c4ad 1 0312 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.2" "c4ad" "$D/params-short"
+exit 0
+out "W c4ad 1 0312 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.2" "c4ad" "$D/params-full" "$D/reads"
+exit 0
+out "W c4ad 1 0312 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.3" "7a64"
+exit 0
+out "W 7a64 1 0313 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.3" "7a64" "-"
+exit 0
+out "W 7a64 1 0313 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.3" "7a64" "$D/params-full"
+exit 0
+out "W 7a64 1 0313 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.3" "7a64" "$D/params-short"
+exit 0
+out "W 7a64 1 0313 0001\n"
+err ""
+-- "--render" "$D/table" "sa-del.ingress.3" "7a64" "$D/params-full" "$D/reads"
+exit 0
+out "W 7a64 1 0313 0001\n"
+err ""
+-- "--render" "$D/table" "stats-flow.egress" "9190"
+exit 0
+out "R 9190 1 04f0\nR 9190 1 04f1\nR 9190 1 04f2\n"
+err ""
+-- "--render" "$D/table" "stats-flow.egress" "9190" "-"
+exit 0
+out "R 9190 1 04f0\nR 9190 1 04f1\nR 9190 1 04f2\n"
+err ""
+-- "--render" "$D/table" "stats-flow.egress" "9190" "$D/params-full"
+exit 0
+out "R 9190 1 04f0\nR 9190 1 04f1\nR 9190 1 04f2\n"
+err ""
+-- "--render" "$D/table" "stats-flow.egress" "9190" "$D/params-short"
+exit 0
+out "R 9190 1 04f0\nR 9190 1 04f1\nR 9190 1 04f2\n"
+err ""
+-- "--render" "$D/table" "stats-flow.egress" "9190" "$D/params-full" "$D/reads"
+exit 0
+out "R 9190 1 04f0\nR 9190 1 04f1\nR 9190 1 04f2\n"
+err ""
+-- "--render" "$D/table" "stats-flow.ingress" "f8b3"
+exit 0
+out "R f8b3 1 04f0\nR f8b3 1 04f1\nR f8b3 1 04f2\n"
+err ""
+-- "--render" "$D/table" "stats-flow.ingress" "f8b3" "-"
+exit 0
+out "R f8b3 1 04f0\nR f8b3 1 04f1\nR f8b3 1 04f2\n"
+err ""
+-- "--render" "$D/table" "stats-flow.ingress" "f8b3" "$D/params-full"
+exit 0
+out "R f8b3 1 04f0\nR f8b3 1 04f1\nR f8b3 1 04f2\n"
+err ""
+-- "--render" "$D/table" "stats-flow.ingress" "f8b3" "$D/params-short"
+exit 0
+out "R f8b3 1 04f0\nR f8b3 1 04f1\nR f8b3 1 04f2\n"
+err ""
+-- "--render" "$D/table" "stats-flow.ingress" "f8b3" "$D/params-full" "$D/reads"
+exit 0
+out "R f8b3 1 04f0\nR f8b3 1 04f1\nR f8b3 1 04f2\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.0" "ef82"
+exit 0
+out "R ef82 1 0400\nR ef82 1 0401\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.0" "ef82" "-"
+exit 0
+out "R ef82 1 0400\nR ef82 1 0401\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.0" "ef82" "$D/params-full"
+exit 0
+out "R ef82 1 0400\nR ef82 1 0401\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.0" "ef82" "$D/params-short"
+exit 0
+out "R ef82 1 0400\nR ef82 1 0401\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.0" "ef82" "$D/params-full" "$D/reads"
+exit 0
+out "R ef82 1 0400\nR ef82 1 0401\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.1" "4add"
+exit 0
+out "R 4add 1 0402\nR 4add 1 0403\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.1" "4add" "-"
+exit 0
+out "R 4add 1 0402\nR 4add 1 0403\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.1" "4add" "$D/params-full"
+exit 0
+out "R 4add 1 0402\nR 4add 1 0403\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.1" "4add" "$D/params-short"
+exit 0
+out "R 4add 1 0402\nR 4add 1 0403\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.1" "4add" "$D/params-full" "$D/reads"
+exit 0
+out "R 4add 1 0402\nR 4add 1 0403\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.2" "2308"
+exit 0
+out "R 2308 1 0404\nR 2308 1 0405\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.2" "2308" "-"
+exit 0
+out "R 2308 1 0404\nR 2308 1 0405\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.2" "2308" "$D/params-full"
+exit 0
+out "R 2308 1 0404\nR 2308 1 0405\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.2" "2308" "$D/params-short"
+exit 0
+out "R 2308 1 0404\nR 2308 1 0405\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.2" "2308" "$D/params-full" "$D/reads"
+exit 0
+out "R 2308 1 0404\nR 2308 1 0405\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.3" "f4e"
+exit 0
+out "R f4e 1 0406\nR f4e 1 0407\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.3" "f4e" "-"
+exit 0
+out "R f4e 1 0406\nR f4e 1 0407\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.3" "f4e" "$D/params-full"
+exit 0
+out "R f4e 1 0406\nR f4e 1 0407\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.3" "f4e" "$D/params-short"
+exit 0
+out "R f4e 1 0406\nR f4e 1 0407\n"
+err ""
+-- "--render" "$D/table" "stats-sa.egress.3" "f4e" "$D/params-full" "$D/reads"
+exit 0
+out "R f4e 1 0406\nR f4e 1 0407\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.0" "42d0"
+exit 0
+out "R 42d0 1 0410\nR 42d0 1 0411\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.0" "42d0" "-"
+exit 0
+out "R 42d0 1 0410\nR 42d0 1 0411\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.0" "42d0" "$D/params-full"
+exit 0
+out "R 42d0 1 0410\nR 42d0 1 0411\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.0" "42d0" "$D/params-short"
+exit 0
+out "R 42d0 1 0410\nR 42d0 1 0411\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.0" "42d0" "$D/params-full" "$D/reads"
+exit 0
+out "R 42d0 1 0410\nR 42d0 1 0411\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.1" "5655"
+exit 0
+out "R 5655 1 0412\nR 5655 1 0413\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.1" "5655" "-"
+exit 0
+out "R 5655 1 0412\nR 5655 1 0413\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.1" "5655" "$D/params-full"
+exit 0
+out "R 5655 1 0412\nR 5655 1 0413\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.1" "5655" "$D/params-short"
+exit 0
+out "R 5655 1 0412\nR 5655 1 0413\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.1" "5655" "$D/params-full" "$D/reads"
+exit 0
+out "R 5655 1 0412\nR 5655 1 0413\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.2" "5b9"
+exit 0
+out "R 5b9 1 0414\nR 5b9 1 0415\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.2" "5b9" "-"
+exit 0
+out "R 5b9 1 0414\nR 5b9 1 0415\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.2" "5b9" "$D/params-full"
+exit 0
+out "R 5b9 1 0414\nR 5b9 1 0415\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.2" "5b9" "$D/params-short"
+exit 0
+out "R 5b9 1 0414\nR 5b9 1 0415\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.2" "5b9" "$D/params-full" "$D/reads"
+exit 0
+out "R 5b9 1 0414\nR 5b9 1 0415\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.3" "e5f2"
+exit 0
+out "R e5f2 1 0416\nR e5f2 1 0417\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.3" "e5f2" "-"
+exit 0
+out "R e5f2 1 0416\nR e5f2 1 0417\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.3" "e5f2" "$D/params-full"
+exit 0
+out "R e5f2 1 0416\nR e5f2 1 0417\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.3" "e5f2" "$D/params-short"
+exit 0
+out "R e5f2 1 0416\nR e5f2 1 0417\n"
+err ""
+-- "--render" "$D/table" "stats-sa.ingress.3" "e5f2" "$D/params-full" "$D/reads"
+exit 0
+out "R e5f2 1 0416\nR e5f2 1 0417\n"
+err ""
+== usage, "$D/usage-table" = "ext-macsec 1\nseq s\nW p 1 1 key[0].00\n"
+-- (no arguments)
+exit 2
+-- "--check"
+exit 2
+-- "--frob" "$D/usage-table"
+exit 2
+-- "--render" "$D/usage-table" "s"
+exit 2
+-- "--render" "$D/usage-table" "s" "1" "-" "-" "-"
+exit 2
+== files that cannot be opened, bad arguments
+-- "--check" "$D/no-such-file"
+exit 1
+out ""
+err "$D/no-such-file: cannot open\n"
+-- "--check" "$D"
+exit 1
+out ""
+err "$D: line 1: empty table (first line must be 'ext-macsec 1')\n"
+-- "--render" "$D/usage-table" "nope" "1"
+exit 1
+out ""
+err "$D/usage-table: no sequence nope\n"
+-- "--render" "$D/usage-table" "s" "1e0"
+exit 1
+out ""
+err "$D/usage-table: s: line 3: parameter key[0] is not available\n"
+-- "--render" "$D/usage-table" "s" "1e0" "$D/no-such-file"
+exit 1
+out ""
+err "$D/no-such-file: cannot open\n"
+-- "--render" "$D/usage-table" "s" "1e0" "-" "$D/no-such-file"
+exit 1
+out ""
+err "$D/no-such-file: cannot open\n"
+-- "--render" "$D/usage-table" "s" "0x1E0" "$D/usage-table" "$D/usage-table"
+exit 1
+out ""
+err "$D/usage-table: s: line 3: parameter key[0] is not available\n"

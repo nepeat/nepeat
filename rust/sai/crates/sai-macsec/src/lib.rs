@@ -1,7 +1,7 @@
 //! The SAI MACsec object model for a MACsec engine in an external PHY that is driven by
 //! named board sequences: a port of `sai_macsec.cpp` of the C++ sai-openbcm
-//! (`ai_re/nix/packages/sai-openbcm/src`; line numbers below are that file's unless another
-//! file is named). No chip knowledge, no bus access, no `unsafe`.
+//! (since 2026-11-23 frozen, verbatim, in `ai_re/nix/packages/sai-teralynx/frontend/src`; line
+//! numbers below are that file's unless another file is named). No chip knowledge, no bus access, no `unsafe`.
 //!
 //! # What it is
 //!
@@ -88,9 +88,10 @@
 //!   the runner call.
 //! - **D5** The switch's ports are given once, at [`Macsec::attach`]; the C++ looks ports up
 //!   in the live port table at every call. Ports created later (breakout) are unknown here.
-//!   Inside the C++ library (sai-macsec-capi) this difference is gone: the table is attached
-//!   with [`Macsec::attach_chip`] before the SAI ports exist, and the library hands its live
-//!   port table over with [`Macsec::set_switch_ports`] whenever it changed.
+//!   A library can close this difference (the C++ one did through sai-macsec-capi, deleted
+//!   2026-11-23): the table is attached with [`Macsec::attach_chip`] before the SAI ports
+//!   exist, and the library hands its live port table over with [`Macsec::set_switch_ports`]
+//!   whenever it changed.
 //! - **D6** Not ported, because it is not the model's: reading and parsing the table file
 //!   (`ext_macsec_load`: "cannot open" = FAILURE, a parse error = INVALID_PARAMETER, both
 //!   refuse to create the switch), the spin-wait `wait_us`, the sequence lock, the root-only
@@ -98,7 +99,7 @@
 //!   `kScStubs` table (:711) and `MsFlow::hw` (:54, never written) are dropped.
 //! - **D7** Object ids come from the model's own counter (never reused). In the library the
 //!   ACL table / entry ids must come from the allocator the other ACL objects use:
-//!   [`Options::alloc`] (sai-macsec-capi passes the C++ `ctx().alloc`).
+//!   [`Options::alloc`] (the deleted sai-macsec-capi passed the C++ `ctx().alloc`).
 //! - **D8** List attributes come back as `Vec`s; SAI's buffer convention is the rim's.
 //! - **D9** (Q7 fixed, owner's decision 2026-11-23) When the flow a port's data goes to
 //!   changes, the SAs of every other SC are taken out of that PHY (`reconcile`: the gate closes
@@ -195,7 +196,7 @@
 //! `MacsecAuthKey` carrying this crate's [`Secret`], the port and ACL hooks, the inter-frame gap);
 //! `sai-macsec-phy`'s `native` module implements it over this crate and `phy-seq`; `sai-ffi`
 //! decodes the MACSEC API (the keys straight from the union into a [`Secret`]) and registers the
-//! loader. `sai-macsec-capi` stays for the C++ library until it goes.
+//! loader. (`sai-macsec-capi`, the C interface for the C++ library, was deleted with it on 2026-11-23.)
 #![forbid(unsafe_code)]
 #![allow(
     clippy::doc_markdown,

@@ -20,6 +20,7 @@ use crate::backend::types::{FloodKind, StormKind};
 use crate::backend::{Backend, Vid};
 use crate::dispatch::{Area, Cx};
 use crate::error::{Error, Result};
+use crate::log;
 use crate::model::{Port, Switch};
 use crate::oid::{ObjectType, PortId, RawOid, SwitchId};
 use crate::qos::{backend_attr_error, invalid, keep_on_port, kept_oid, not_supported};
@@ -43,6 +44,10 @@ impl Area for HashArea {
     /// The hash objects are the switch's `LAG_HASH` / `ECMP_HASH`.
     fn create<B: Backend>(cx: Cx<'_, B>, object_type: ObjectType, attrs: &[Attr]) -> Result<RawOid> {
         let _ = (cx, object_type, attrs);
+        log::warn(
+            sys::SAI_API_HASH,
+            format_args!("hash objects are the switch's LAG_HASH / ECMP_HASH; create refused"),
+        );
         Err(Error::NotSupported)
     }
 
@@ -137,7 +142,16 @@ fn fields_of(store: &Store, lag: bool) -> Vec<i32> {
 /// Programs a hash; the backend's `NOT_SUPPORTED` means "kept, not programmed" (C++ `apply_hash`).
 fn apply_hash<B: Backend>(backend: &mut B, lag: bool, fields: &[i32], seed: u32) -> Result<()> {
     match backend.hash_set(lag, fields, seed) {
-        Err(Error::NotSupported) => Ok(()),
+        Err(Error::NotSupported) => {
+            log::info(
+                sys::SAI_API_HASH,
+                format_args!(
+                    "{} hash kept, not programmed (backend has no hash control)",
+                    if lag { "LAG" } else { "ECMP" }
+                ),
+            );
+            Ok(())
+        }
         other => other,
     }
 }

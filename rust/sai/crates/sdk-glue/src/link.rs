@@ -17,7 +17,9 @@
 //!   LAG destination as `OB_LAG_DEST_BIT | tid`, vid 1..4094, flags 0 / 1, the MAC pointer not
 //!   null), takes a clone of the closure's `Arc`, releases the table, and calls the closure under
 //!   `catch_unwind`: a panic never unwinds into the SDK; it is counted ([`CallbackStats`]) and,
-//!   for the gate, answered "down".
+//!   for the gate, answered "down". A refused call and a panic are also reported to the
+//!   switch's reporter, if it has one ([`Switch::set_callback_reporter`], [`CallbackIssue`]):
+//!   how the caller logs them; this crate writes nothing itself.
 //!
 //! So a late or stray call (after unregistering, from an earlier registration, with any `ctx`
 //! or argument) finds no entry, no closure, or is refused, and does nothing. No lifetime
@@ -90,6 +92,75 @@ pub struct CallbackStats {
     pub rejected: u64,
 }
 
+/// Which trampoline a [`CallbackIssue`] is about.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Callback {
+    /// `ob_link_cb_t`
+    Link,
+    /// `ob_l2_cb_t`
+    L2,
+    /// `ob_gate_cb_t`
+    Gate,
+}
+
+impl Callback {
+    const fn name(self) -> &'static str {
+        match self {
+            Self::Link => "link",
+            Self::L2 => "L2",
+            Self::Gate => "link gate",
+        }
+    }
+}
+
+/// A callback call that went wrong, as the switch's reporter is told
+/// ([`Switch::set_callback_reporter`]); also counted in [`CallbackStats`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CallbackIssue {
+    /// The closure panicked: a link or L2 event is lost, a gate answered "down".
+    Panicked {
+        /// Which callback.
+        callback: Callback,
+        /// The port the SDK named (for L2: the glue's destination, a port or `OB_LAG_DEST_BIT | tid`).
+        port: i32,
+    },
+    /// Arguments out of range: refused before any closure ran.
+    Rejected {
+        /// Which callback.
+        callback: Callback,
+        /// The port the SDK named.
+        port: i32,
+    },
+}
+
+impl CallbackIssue {
+    /// Which callback it is about.
+    pub const fn callback(self) -> Callback {
+        match self {
+            Self::Panicked { callback, .. } | Self::Rejected { callback, .. } => callback,
+        }
+    }
+}
+
+impl core::fmt::Display for CallbackIssue {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match *self {
+            Self::Panicked {
+                callback: Callback::Gate,
+                port,
+            } => write!(f, "link gate of port {port} panicked: answered down"),
+            Self::Panicked { callback, port } => {
+                write!(f, "{} callback of port {port} panicked: event lost", callback.name())
+            }
+            Self::Rejected { callback, port } => write!(
+                f,
+                "{} callback of port {port}: arguments out of range, refused",
+                callback.name()
+            ),
+        }
+    }
+}
+
 #[derive(Debug, Default)]
 struct Counters {
     link_panics: AtomicU64,
@@ -107,6 +178,7 @@ impl Counters {
 type LinkFn = dyn Fn(i32, bool) + Send + Sync;
 type L2Fn = dyn Fn(L2Event) + Send + Sync;
 type GateFn = dyn Fn() -> Gate + Send + Sync;
+type ReportFn = dyn Fn(CallbackIssue) + Send + Sync;
 
 #[derive(Default)]
 struct Entry {
@@ -114,6 +186,37 @@ struct Entry {
     l2: Option<Arc<L2Fn>>,
     gates: BTreeMap<c_int, Arc<GateFn>>,
     counters: Arc<Counters>,
+    report: Option<Arc<ReportFn>>,
+}
+
+/// What a trampoline needs besides its closure: the counters and the reporter.
+struct Sinks {
+    counters: Arc<Counters>,
+    report: Option<Arc<ReportFn>>,
+}
+
+impl Sinks {
+    /// Counts `issue` and tells the reporter (a reporter that panics is ignored).
+    fn note(&self, issue: CallbackIssue) {
+        let counter = match issue {
+            CallbackIssue::Rejected { .. } => &self.counters.rejected,
+            CallbackIssue::Panicked {
+                callback: Callback::Link,
+                ..
+            } => &self.counters.link_panics,
+            CallbackIssue::Panicked {
+                callback: Callback::L2, ..
+            } => &self.counters.l2_panics,
+            CallbackIssue::Panicked {
+                callback: Callback::Gate,
+                ..
+            } => &self.counters.gate_panics,
+        };
+        Counters::bump(counter);
+        if let Some(report) = &self.report {
+            let _ = catch_unwind(AssertUnwindSafe(|| report(issue)));
+        }
+    }
 }
 
 /// Every registration of this process, by key. No `static mut`: a const-initialised mutex.
@@ -127,27 +230,32 @@ fn registry() -> MutexGuard<'static, BTreeMap<usize, Entry>> {
     REGISTRY.lock().unwrap_or_else(PoisonError::into_inner)
 }
 
-/// A closure of the entry `key` (cloned) and its counters, with the table released again.
-fn lookup<T>(key: usize, pick: impl FnOnce(&Entry) -> Option<T>) -> Option<(T, Arc<Counters>)> {
+/// A closure of the entry `key` (cloned) and its counters and reporter, with the table released
+/// again.
+fn lookup<T>(key: usize, pick: impl FnOnce(&Entry) -> Option<T>) -> Option<(T, Sinks)> {
     let table = registry();
     let entry = table.get(&key)?;
-    let counters = Arc::clone(&entry.counters);
-    pick(entry).map(|t| (t, counters))
+    let sinks = Sinks {
+        counters: Arc::clone(&entry.counters),
+        report: entry.report.clone(),
+    };
+    pick(entry).map(|t| (t, sinks))
 }
 
 /// `ob_link_cb_t`. Safe to call with any arguments from any thread; never unwinds.
 pub(crate) extern "C" fn on_link(ctx: *mut c_void, port: c_int, up: c_int) {
     let key = ctx.addr();
     let _ = catch_unwind(AssertUnwindSafe(|| {
-        let Some((handler, counters)) = lookup(key, |e| e.link.clone()) else {
+        let Some((handler, sinks)) = lookup(key, |e| e.link.clone()) else {
             return;
         };
+        let callback = Callback::Link;
         if port < 0 || !(up == 0 || up == 1) {
-            Counters::bump(&counters.rejected);
+            sinks.note(CallbackIssue::Rejected { callback, port });
             return;
         }
         if catch_unwind(AssertUnwindSafe(|| handler(port, up == 1))).is_err() {
-            Counters::bump(&counters.link_panics);
+            sinks.note(CallbackIssue::Panicked { callback, port });
         }
     }));
 }
@@ -186,15 +294,16 @@ pub(crate) unsafe extern "C" fn on_l2(ctx: *mut c_void, mac: *const u8, vid: c_i
         Some(unsafe { mac.cast::<[u8; 6]>().read_unaligned() })
     };
     let _ = catch_unwind(AssertUnwindSafe(|| {
-        let Some((handler, counters)) = lookup(key, |e| e.l2.clone()) else {
+        let Some((handler, sinks)) = lookup(key, |e| e.l2.clone()) else {
             return;
         };
+        let callback = Callback::L2;
         let Some(event) = bytes.and_then(|mac| l2_event(mac, vid, port, learned)) else {
-            Counters::bump(&counters.rejected);
+            sinks.note(CallbackIssue::Rejected { callback, port });
             return;
         };
         if catch_unwind(AssertUnwindSafe(|| handler(event))).is_err() {
-            Counters::bump(&counters.l2_panics);
+            sinks.note(CallbackIssue::Panicked { callback, port });
         }
     }));
 }
@@ -205,13 +314,16 @@ pub(crate) unsafe extern "C" fn on_l2(ctx: *mut c_void, mac: *const u8, vid: c_i
 pub(crate) extern "C" fn on_gate(ctx: *mut c_void, port: c_int) -> c_int {
     let key = ctx.addr();
     catch_unwind(AssertUnwindSafe(|| {
-        let Some((gate, counters)) = lookup(key, |e| e.gates.get(&port).cloned()) else {
+        let Some((gate, sinks)) = lookup(key, |e| e.gates.get(&port).cloned()) else {
             return Gate::NoOpinion.raw();
         };
         if let Ok(answer) = catch_unwind(AssertUnwindSafe(|| gate())) {
             answer.raw()
         } else {
-            Counters::bump(&counters.gate_panics);
+            sinks.note(CallbackIssue::Panicked {
+                callback: Callback::Gate,
+                port,
+            });
             Gate::Down.raw()
         }
     }))
@@ -358,6 +470,17 @@ impl Switch {
         let old = registry().get_mut(&key).and_then(|e| e.gates.remove(&port));
         drop(old);
         Ok(())
+    }
+
+    /// Sets the reporter of this switch's callbacks: called with every [`CallbackIssue`] (a
+    /// refused call, a closure that panicked), on the SDK thread of the call, after it was
+    /// counted. Quick and non-blocking, as the closures (a log line). Replaces an earlier one; no
+    /// glue call. A reporter that panics is ignored.
+    pub fn set_callback_reporter(&mut self, report: impl Fn(CallbackIssue) + Send + Sync + 'static) {
+        let old = registry()
+            .get_mut(&self.cb.key)
+            .and_then(|e| e.report.replace(Arc::new(report)));
+        drop(old);
     }
 
     /// The ports with a link gate.

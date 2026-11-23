@@ -9,7 +9,7 @@ libs="$here/sysroot"
 tmp="$here/tmp"
 mkdir -p "$tmp"
 
-# Executables the tests start themselves (C harness, C MDIO driver, other prebuilt helpers
+# Executables the tests start themselves (C harness, other prebuilt helpers
 # in bin/) go through the same loader, under their own name in $SAI_RS_TEST_BIN.
 for helper in "$here"/bin/*; do
     [ -f "$helper" ] || continue
@@ -30,12 +30,15 @@ export SAI_RS_TEST_BIN="$tmp"
 export SAI_RS_TEST_TMPDIR="$tmp"
 export SAI_FFI_HARNESS="$tmp/harness"
 export SAI_FFI_LIBSAI="$here/lib/libsai.so"
-if [ -x "$tmp/mdio-driver" ]; then
-    export MDIO_SCRIPT_C_DRIVER="$tmp/mdio-driver"
-fi
 if [ -f "$here/ext-macsec.tbl" ]; then   # a board's MACsec table for the end-to-end comparison
     export SAI_MACSEC_E2E_TABLE="$here/ext-macsec.tbl"
 fi
+# the board tables phy-seq's goldens know (others are SKIPPED by the test)
+tables=
+for t in "$here/ext-macsec.tbl" "$here/ext-phy.tbl"; do
+    [ -f "$t" ] && tables="${tables:+$tables:}$t"
+done
+[ -n "$tables" ] && export PHY_SEQ_TABLES="$tables"
 # The tests use the virtual backend only. On a switch the SDK's kernel modules are loaded
 # and the virtual backend refuses to start next to them unless this is set; it opens no
 # device either way.

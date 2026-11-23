@@ -9,6 +9,7 @@ use sai_core::backend::types::{
 };
 use sai_core::backend::{Base, Hostif, HwPort, L2, L3, Lag, Mdio, PortOps, Shell, Temp, Vid};
 use sai_core::error::{Error, Result};
+use sai_sys as sys;
 use std::ffi::CString;
 use std::io::Write as _;
 use std::net::IpAddr;
@@ -363,7 +364,10 @@ impl Hostif for OpenbcmBackend {
         // fprintf, fclose). No glue call; works without an initialised chip, as the C++.
         let path = self.knet_link();
         let Ok(mut file) = std::fs::File::create(path) else {
-            log(&format!("cannot open {} (is linux-bcm-knet loaded?)", path.display()));
+            log::error(
+                sys::SAI_API_HOSTIF,
+                format_args!("cannot open {} (is linux-bcm-knet loaded?)", path.display()),
+            );
             return Err(Error::Failure);
         };
         let line = format!("{ifname}={}\n", if up { "up" } else { "down" });
@@ -423,7 +427,10 @@ impl L3 for OpenbcmBackend {
             "ob_sdk_l3_station_add(unit_, mac, &id)",
             self.switch()?.l3_station_add(mac.0),
         )?;
-        log(&format!("my-station {id}: {mac} (IPv4, IPv6, ARP)"));
+        log::notice(
+            sys::SAI_API_ROUTER_INTERFACE,
+            format_args!("my-station {id}: {mac} (IPv4, IPv6, ARP)"),
+        );
         Ok(StationId(id))
     }
 

@@ -35,6 +35,7 @@ use crate::backend::types::{
 use crate::backend::{Backend, HwPort};
 use crate::dispatch::{Area, Cx};
 use crate::error::{AttrError, Error, Result};
+use crate::log;
 use crate::model::{Bag, Kept, Port, PortKind, Switch};
 use crate::oid::{
     BufferPoolId, BufferProfileId, ObjectType, PortId, QosMapId, RawOid, SchedulerId, SwitchId, TypedId, WredId,
@@ -271,6 +272,13 @@ impl Area for QosArea {
             ObjectType::BufferPool => create_buffer_pool(cx.store, attrs),
             ObjectType::BufferProfile => create_buffer_profile(cx.store, attrs),
             // Fixed: one group per queue; queues and priority groups come with the port.
+            ObjectType::SchedulerGroup => {
+                log::warn(
+                    sys::SAI_API_SCHEDULER_GROUP,
+                    format_args!("scheduler groups are fixed (one per queue); create refused"),
+                );
+                Err(Error::NotSupported)
+            }
             _ => Err(Error::NotSupported),
         }
     }
@@ -566,7 +574,17 @@ fn create_qos_map<B: Backend>(backend: &mut B, store: &mut Store, attrs: &[Attr]
     } else {
         None
     };
-    store.insert(QosMap { kind, list, hw }).map(TypedId::raw)
+    let entries = list.len();
+    let id = store.insert(QosMap { kind, list, hw }).map(TypedId::raw)?;
+    log::info(
+        sys::SAI_API_QOS_MAP,
+        format_args!(
+            "qos map 0x{:x} type {sai_type}, {entries} entries, backend id {}",
+            id.0,
+            hw.map_or(-1, |h| i64::from(h.0))
+        ),
+    );
+    Ok(id)
 }
 
 fn set_qos_map<B: Backend>(backend: &mut B, store: &mut Store, id: QosMapId, attr: &Attr) -> Result<()> {
