@@ -1,0 +1,165 @@
+# AS7772, system j7y63gfr...: macsec-clear-window-test.sh, three runs (ping cage 1 -> 2 every 50 ms and every frame the CPU receives on the two ports, across a restart).
+== 2026-11-22T18:16:20-08:00 j7y63gfr529f... ; command: systemctl restart sonic.target
+PASS: MKA up on 4 ports without intervention, the slowest 16.9 s after the start of sonic-syncd (limit 90 s)
+  +0.055 s  unit    Stopping SONiC macsecmgrd                            engines on: 4 of 4, SAs 4  -> macsec+sa
+  +1.247 s  engine  ce0 egress off                                       engines on: 3 of 4, SAs 0  -> mixed
+  +1.286 s  engine  ce0 ingress off                                      engines on: 2 of 4, SAs 0  -> mixed
+  +2.127 s  engine  ce1 egress off                                       engines on: 1 of 4, SAs 0  -> mixed
+  +2.171 s  engine  ce1 ingress off                                      engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +2.261 s  unit    Stopped SONiC macsecmgrd                             engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +2.274 s  unit    Stopping SONiC orchagent...                          engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +3.134 s  unit    Stopped SONiC orchagent.                             engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +3.148 s  unit    Stopping SONiC syncd                                 engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +3.286 s  unit    Stopped SONiC syncd                                  engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +3.295 s  unit    Starting SONiC syncd                                 engines on: 0 of 4, SAs 0  -> bypass, stack starting
+  +3.561 s  unit    Started SONiC syncd                                  engines on: 0 of 4, SAs 0  -> bypass, stack starting
+  +3.578 s  unit    Started SONiC orchagent.                             engines on: 0 of 4, SAs 0  -> bypass, stack starting
+  +3.647 s  unit    Started SONiC macsecmgrd                             engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +13.762 s  oper    UP to host interface Ethernet0                       engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +13.774 s  oper    UP to host interface Ethernet4                       engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +14.684 s  mgr     enableMACsec: The MACsec profile 'lab-test' on the p engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +14.791 s  engine  ce0 egress on                                        engines on: 1 of 4, SAs 0  -> mixed
+ +14.895 s  engine  ce0 ingress on                                       engines on: 2 of 4, SAs 0  -> mixed
+ +15.060 s  engine  ce0 egress off                                       engines on: 1 of 4, SAs 0  -> mixed
+ +15.098 s  engine  ce0 ingress off                                      engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +15.451 s  engine  ce0 egress on                                        engines on: 1 of 4, SAs 0  -> mixed
+ +15.555 s  engine  ce0 ingress on                                       engines on: 2 of 4, SAs 0  -> mixed
+ +15.707 s  mgr     enableMACsec: The MACsec profile 'lab-test' on the p engines on: 2 of 4, SAs 0  -> mixed
+ +16.227 s  engine  ce1 egress on                                        engines on: 3 of 4, SAs 0  -> mixed
+ +16.331 s  engine  ce1 ingress on                                       engines on: 4 of 4, SAs 0  -> macsec,gate
+ +16.502 s  engine  ce1 egress off                                       engines on: 3 of 4, SAs 0  -> mixed
+ +16.538 s  engine  ce1 ingress off                                      engines on: 2 of 4, SAs 0  -> mixed
+ +16.871 s  engine  ce1 egress on                                        engines on: 3 of 4, SAs 0  -> mixed
+ +16.975 s  engine  ce1 ingress on                                       engines on: 4 of 4, SAs 0  -> macsec,gate
+ +20.191 s  sa      Ethernet0:1cea0b382bd50001:0                         engines on: 4 of 4, SAs 1  -> macsec,gate
+ +20.211 s  sa      Ethernet0:1cea0b382bd60001:0                         engines on: 4 of 4, SAs 2  -> macsec,gate
+ +20.220 s  sa      Ethernet4:1cea0b382bd50001:0                         engines on: 4 of 4, SAs 3  -> macsec,gate
+ +20.231 s  sa      Ethernet4:1cea0b382bd60001:0                         engines on: 4 of 4, SAs 4  -> macsec+sa
+== ping replies by the state of the link at the time (20 pings per second; 336 replies, 242 'no answer yet')
+  macsec+sa                  241 replies  (first -3.02 s, last +30.28 s)
+  bypass, stack stopping      20 replies  (first +2.19 s, last +3.25 s)
+  bypass, stack starting      75 replies  (first +3.30 s, last +7.45 s)
+  mixed                        0 replies
+  macsec,gate                  0 replies
+== frames the CPU received on Ethernet0 / Ethernet4 by the state of the link (EtherType: count)
+  macsec+sa                EAPOL   18, other   499 {'0800': 478, '0806': 8, '88cc': 13}  (-2.91 .. +30.28 s)
+  bypass, stack stopping   EAPOL    0, other    44 {'0800': 40, '88cc': 4}  (+2.19 .. +3.25 s)
+  bypass, stack starting   EAPOL    0, other    49 {'0800': 35, '86dd': 8, '88cc': 6}  (+3.30 .. +15.38 s)
+  mixed                    EAPOL    1, other     0 {}  (+16.16 .. +16.16 s)
+  macsec,gate              EAPOL    3, other     0 {}  (+18.17 .. +20.17 s)
+== IN CLEAR (both PHYs in bypass), stack stopping: 20 ping replies, 44 other frames received
+== IN CLEAR (both PHYs in bypass), stack starting: 75 ping replies, 49 other frames received
+== with an engine on and no SA (the gate: must be 0): 0 replies or data frames
+rc=0
+
+== 2026-11-22T18:17:15-08:00 j7y63gfr529f... ; command: systemctl restart sonic.target
+PASS: MKA up on 4 ports without intervention, the slowest 16.9 s after the start of sonic-syncd (limit 90 s)
+  +0.054 s  unit    Stopping SONiC macsecmgrd                            engines on: 4 of 4, SAs 4  -> macsec+sa
+  +1.235 s  engine  ce0 egress off                                       engines on: 3 of 4, SAs 0  -> mixed
+  +1.295 s  engine  ce0 ingress off                                      engines on: 2 of 4, SAs 0  -> mixed
+  +2.123 s  engine  ce1 egress off                                       engines on: 1 of 4, SAs 0  -> mixed
+  +2.165 s  engine  ce1 ingress off                                      engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +2.228 s  unit    Stopped SONiC macsecmgrd                             engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +2.243 s  unit    Stopping SONiC orchagent...                          engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +3.046 s  unit    Stopped SONiC orchagent.                             engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +3.059 s  unit    Stopping SONiC syncd                                 engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +3.190 s  unit    Stopped SONiC syncd                                  engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +3.199 s  unit    Starting SONiC syncd                                 engines on: 0 of 4, SAs 0  -> bypass, stack starting
+  +3.468 s  unit    Started SONiC syncd                                  engines on: 0 of 4, SAs 0  -> bypass, stack starting
+  +3.504 s  unit    Started SONiC orchagent.                             engines on: 0 of 4, SAs 0  -> bypass, stack starting
+  +3.560 s  unit    Started SONiC macsecmgrd                             engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +13.206 s  oper    UP to host interface Ethernet4                       engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +13.448 s  oper    UP to host interface Ethernet0                       engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +13.683 s  mgr     enableMACsec: The MKA session of the port 'Ethernet1 engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +13.686 s  mgr     enableMACsec: The MKA session of the port 'Ethernet4 engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +15.055 s  mgr     enableMACsec: The MACsec profile 'lab-test' on the p engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +15.156 s  engine  ce0 egress on                                        engines on: 1 of 4, SAs 0  -> mixed
+ +15.259 s  engine  ce0 ingress on                                       engines on: 2 of 4, SAs 0  -> mixed
+ +15.362 s  engine  ce0 egress off                                       engines on: 1 of 4, SAs 0  -> mixed
+ +15.398 s  engine  ce0 ingress off                                      engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +15.716 s  mgr     enableMACsec: The MACsec profile 'lab-test' on the p engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +15.739 s  engine  ce0 egress on                                        engines on: 1 of 4, SAs 0  -> mixed
+ +15.848 s  engine  ce0 ingress on                                       engines on: 2 of 4, SAs 0  -> mixed
+ +16.047 s  engine  ce1 egress on                                        engines on: 3 of 4, SAs 0  -> mixed
+ +16.155 s  engine  ce1 ingress on                                       engines on: 4 of 4, SAs 0  -> macsec,gate
+ +16.466 s  engine  ce1 egress off                                       engines on: 3 of 4, SAs 0  -> mixed
+ +16.502 s  engine  ce1 ingress off                                      engines on: 2 of 4, SAs 0  -> mixed
+ +16.627 s  engine  ce1 egress on                                        engines on: 3 of 4, SAs 0  -> mixed
+ +16.735 s  engine  ce1 ingress on                                       engines on: 4 of 4, SAs 0  -> macsec,gate
+ +20.062 s  sa      Ethernet0:1cea0b382bd50001:0                         engines on: 4 of 4, SAs 1  -> macsec,gate
+ +20.070 s  sa      Ethernet0:1cea0b382bd60001:0                         engines on: 4 of 4, SAs 2  -> macsec,gate
+ +20.085 s  sa      Ethernet4:1cea0b382bd60001:0                         engines on: 4 of 4, SAs 3  -> macsec,gate
+ +20.093 s  sa      Ethernet4:1cea0b382bd50001:0                         engines on: 4 of 4, SAs 4  -> macsec+sa
+== ping replies by the state of the link at the time (20 pings per second; 344 replies, 239 'no answer yet')
+  macsec+sa                  248 replies  (first -3.02 s, last +30.54 s)
+  bypass, stack stopping      19 replies  (first +2.19 s, last +3.19 s)
+  bypass, stack starting      77 replies  (first +3.25 s, last +7.49 s)
+  mixed                        0 replies
+  macsec,gate                  0 replies
+== frames the CPU received on Ethernet0 / Ethernet4 by the state of the link (EtherType: count)
+  macsec+sa                EAPOL   17, other   509 {'0800': 492, '0806': 4, '88cc': 13}  (-2.91 .. +30.54 s)
+  bypass, stack stopping   EAPOL    0, other    44 {'0800': 38, '0806': 2, '88cc': 4}  (+2.19 .. +3.19 s)
+  bypass, stack starting   EAPOL    0, other    63 {'0800': 40, '0806': 1, '86dd': 16, '88cc': 6}  (+3.25 .. +15.56 s)
+  mixed                    EAPOL    1, other     1 {'86dd': 1}  (+1.79 .. +15.18 s)
+  macsec,gate              EAPOL    4, other     0 {}  (+17.26 .. +20.05 s)
+== IN CLEAR (both PHYs in bypass), stack stopping: 19 ping replies, 44 other frames received
+== IN CLEAR (both PHYs in bypass), stack starting: 77 ping replies, 63 other frames received
+== with an engine on and no SA (the gate: must be 0): 1 replies or data frames
+   +15.178 s frame 86dd received on Ethernet0, engines on: ['ce0 egress']; +22 ms from the nearest engine change
+   (syncd logs an engine change when its register sequence is done, 36-110 ms after it began: a frame that close to a change is not placed reliably)
+rc=0
+
+== 2026-11-22T18:18:10-08:00 j7y63gfr529f... ; command: systemctl restart sonic-syncd
+PASS: MKA up on 4 ports without intervention, the slowest 16.1 s after the start of sonic-syncd (limit 90 s)
+  +0.045 s  unit    Stopping SONiC macsecmgrd                            engines on: 4 of 4, SAs 4  -> macsec+sa
+  +1.182 s  engine  ce0 egress off                                       engines on: 3 of 4, SAs 0  -> mixed
+  +1.218 s  engine  ce0 ingress off                                      engines on: 2 of 4, SAs 0  -> mixed
+  +1.738 s  engine  ce1 egress off                                       engines on: 1 of 4, SAs 0  -> mixed
+  +1.774 s  engine  ce1 ingress off                                      engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +1.808 s  unit    Stopped SONiC macsecmgrd                             engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +2.089 s  unit    Stopping SONiC orchagent...                          engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +2.772 s  unit    Stopped SONiC orchagent.                             engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +2.783 s  unit    Stopping SONiC syncd                                 engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +2.895 s  unit    Stopped SONiC syncd                                  engines on: 0 of 4, SAs 0  -> bypass, stack stopping
+  +2.903 s  unit    Starting SONiC syncd                                 engines on: 0 of 4, SAs 0  -> bypass, stack starting
+  +3.135 s  unit    Started SONiC syncd                                  engines on: 0 of 4, SAs 0  -> bypass, stack starting
+  +3.171 s  unit    Started SONiC orchagent.                             engines on: 0 of 4, SAs 0  -> bypass, stack starting
+  +3.208 s  unit    Started SONiC macsecmgrd                             engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +12.688 s  oper    UP to host interface Ethernet0                       engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +12.698 s  oper    UP to host interface Ethernet4                       engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +13.080 s  mgr     enableMACsec: The MACsec profile 'lab-test' on the p engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +13.199 s  engine  ce0 egress on                                        engines on: 1 of 4, SAs 0  -> mixed
+ +13.303 s  engine  ce0 ingress on                                       engines on: 2 of 4, SAs 0  -> mixed
+ +13.407 s  engine  ce0 egress off                                       engines on: 1 of 4, SAs 0  -> mixed
+ +13.437 s  mgr     enableMACsec: The MKA session of the port 'Ethernet1 engines on: 1 of 4, SAs 0  -> mixed
+ +13.438 s  mgr     enableMACsec: The MKA session of the port 'Ethernet4 engines on: 1 of 4, SAs 0  -> mixed
+ +13.442 s  engine  ce0 ingress off                                      engines on: 0 of 4, SAs 0  -> bypass, stack starting
+ +13.780 s  engine  ce0 egress on                                        engines on: 1 of 4, SAs 0  -> mixed
+ +13.883 s  engine  ce0 ingress on                                       engines on: 2 of 4, SAs 0  -> mixed
+ +15.113 s  mgr     enableMACsec: The MACsec profile 'lab-test' on the p engines on: 2 of 4, SAs 0  -> mixed
+ +15.219 s  engine  ce1 egress on                                        engines on: 3 of 4, SAs 0  -> mixed
+ +15.328 s  engine  ce1 ingress on                                       engines on: 4 of 4, SAs 0  -> macsec,gate
+ +15.630 s  engine  ce1 egress off                                       engines on: 3 of 4, SAs 0  -> mixed
+ +15.666 s  engine  ce1 ingress off                                      engines on: 2 of 4, SAs 0  -> mixed
+ +15.787 s  engine  ce1 egress on                                        engines on: 3 of 4, SAs 0  -> mixed
+ +15.896 s  engine  ce1 ingress on                                       engines on: 4 of 4, SAs 0  -> macsec,gate
+ +18.885 s  sa      Ethernet0:1cea0b382bd50001:0                         engines on: 4 of 4, SAs 1  -> macsec,gate
+ +18.892 s  sa      Ethernet0:1cea0b382bd60001:0                         engines on: 4 of 4, SAs 2  -> macsec,gate
+ +18.899 s  sa      Ethernet4:1cea0b382bd50001:0                         engines on: 4 of 4, SAs 3  -> macsec,gate
+ +18.958 s  sa      Ethernet4:1cea0b382bd60001:0                         engines on: 4 of 4, SAs 4  -> macsec+sa
+== ping replies by the state of the link at the time (20 pings per second; 322 replies, 233 'no answer yet')
+  macsec+sa                  228 replies  (first -3.02 s, last +29.00 s)
+  bypass, stack stopping      20 replies  (first +1.81 s, last +2.87 s)
+  bypass, stack starting      74 replies  (first +2.93 s, last +7.02 s)
+  mixed                        0 replies
+  macsec,gate                  0 replies
+== frames the CPU received on Ethernet0 / Ethernet4 by the state of the link (EtherType: count)
+  macsec+sa                EAPOL   17, other   471 {'0800': 452, '0806': 6, '88cc': 13}  (-2.91 .. +29.00 s)
+  bypass, stack stopping   EAPOL    0, other    40 {'0800': 40}  (+1.81 .. +2.87 s)
+  bypass, stack starting   EAPOL    0, other    36 {'0800': 28, '0806': 2, '86dd': 6}  (+2.93 .. +13.45 s)
+  mixed                    EAPOL    1, other     0 {}  (+14.86 .. +14.86 s)
+  macsec,gate              EAPOL    4, other     0 {}  (+16.22 .. +18.87 s)
+== IN CLEAR (both PHYs in bypass), stack stopping: 20 ping replies, 40 other frames received
+== IN CLEAR (both PHYs in bypass), stack starting: 74 ping replies, 36 other frames received
+== with an engine on and no SA (the gate: must be 0): 0 replies or data frames
+rc=0

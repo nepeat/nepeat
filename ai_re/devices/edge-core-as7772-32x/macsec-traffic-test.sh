@@ -4,6 +4,7 @@
 #   bash -l macsec-traffic-test.sh [count]
 # Both ends of each link are this switch: the far ends (cages 2, 32) sit in VRFs and get their own MAC address
 # (the KaY cannot elect a key server between two ends with one MAC: "duplicate MAC detected"). Runtime config only.
+# MKA has to be up by itself: nothing is restarted here, and the test fails when a port has no SA after 60 s.
 # "show macsec" prints SAKs: everything shown here is filtered (no sak / auth_key / salt lines).
 set -u
 n=${1:-1000}
@@ -24,22 +25,24 @@ ip -4 addr show Ethernet0 | grep -q 10.0.1.0 || config interface ip add Ethernet
 ip -4 addr show Ethernet4 | grep -q 10.0.1.1 || config interface ip add Ethernet2/1 10.0.1.1/31
 ip -4 addr show Ethernet120 | grep -q 10.0.31.0 || config interface ip add Ethernet31/1 10.0.31.0/31
 ip -4 addr show Ethernet124 | grep -q 10.0.31.1 || config interface ip add Ethernet32/1 10.0.31.1/31
-# far ends: the board's 2nd and 3rd MAC (base + 1, + 2)
-restart=0
+# far ends: the board's 2nd and 3rd MAC (base + 1, + 2). The NixOS configuration sets them; if one is missing it is
+# written here and macsecmgrd starts that port's MKA session again by itself when intfmgrd has set the address.
 for pm in Ethernet4=1c:ea:0b:38:2b:d6 Ethernet124=1c:ea:0b:38:2b:d7; do
   p=${pm%%=*}; m=${pm#*=}
-  [ "$(sonic-db-cli CONFIG_DB hget "INTERFACE|$p" mac_addr)" = "$m" ] || { sonic-db-cli CONFIG_DB hset "INTERFACE|$p" mac_addr "$m" >/dev/null; restart=1; }
+  [ "$(sonic-db-cli CONFIG_DB hget "INTERFACE|$p" mac_addr)" = "$m" ] || { sonic-db-cli CONFIG_DB hset "INTERFACE|$p" mac_addr "$m" >/dev/null; echo "far-end MAC address of $p was not in CONFIG_DB: set"; }
 done
-if [ $restart = 1 ]; then sleep 3; echo "far-end MAC addresses set: restarting macsecmgrd (wpa_supplicant reads the MAC when it starts)"; systemctl restart sonic-macsecmgrd; fi
-# wait for MKA: every port has an egress SA installed. After a stack start macsecmgrd can be ahead of intfmgrd
-# setting the far ends' MAC (this loop-back topology only): its wpa_supplicants then run with one MAC at both
-# ends and never elect a key server; restart it once.
+# MKA must be up BY ITSELF: this test restarts nothing. It waits 60 s for an egress SA on every port and fails
+# without one (macsec-up-check.sh says why and how long the start took).
 mka() { for i in $(seq $1); do [ "$(D extmacsec | grep -c ' open ')" = 8 ] && return 0; sleep 1; done; return 1; }
 t_mka=$(date +%s)
-if ! mka 25; then
-  journalctl -u sonic-macsecmgrd --since -30s --no-pager | grep -q 'duplicate MAC' && echo "MKA not up after 25 s: 'duplicate MAC detected' (wpa_supplicant started before the far ends had their MAC): restarting macsecmgrd"
-  systemctl restart sonic-macsecmgrd; mka 60
+if ! mka 60; then
+  echo "FAIL: MKA is not up on all four ports after 60 s and this test does not restart anything"
+  D extmacsec
+  journalctl -t wpa_supplicant --since -90s --no-pager | grep KaY | grep -v -i -E 'sak|key=|cak' | cut -c1-160 | tail -6
+  exit 1
 fi
+starts=$(journalctl -b -o short-monotonic --no-pager -u sonic-macsecmgrd | sed -E 's/^\[ *([0-9.]+)\].*(--- Starting macsecmgrd ---).*/\1 \2/' | awk -v t="$(systemctl show -P InactiveExitTimestampMonotonic sonic-syncd)" '/Starting macsecmgrd/ && $1 >= t / 1e6' | wc -l)
+[ "$starts" -le 1 ] || echo "NOTE: macsecmgrd was started $starts times since the stack start: this run does not show that MKA came up by itself"
 echo "== MACsec up on all four ports $(( $(date +%s) - t_mka )) s after the check began"; D extmacsec
 show interfaces status 2>&1 | grep -E 'Interface|---| up '
 macsec --mka 2>&1 | head -40

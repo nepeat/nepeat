@@ -65,11 +65,8 @@ the board table, proven by test. Hub: [macsec.md](macsec.md#under-sonic); load m
 - The fix was exercised on cages 1, 2, 31, 32 with XPN-256 only. The 0x7f write for the 32-bit suites is the value all
   earlier tests ran with, but that sequence was not run on the switch. Break-out channels 1-3 (0x5040..) are not written.
 - Read back after the last stack start: 0x44005000 = 0xe588003f on the four PHYs; an idle PHY (0x02) keeps 0x7f.
-- No cold boot was done with the new system (the write is in the SA sequence, so it follows every MKA; a stack
-  restart and a syncd-only restart were done).
-- **MKA after a stack restart needed a macsecmgrd restart both times today** (deploy's syncd restart 15:29; `sonic.target`
-  start 16:26): "duplicated SCI" / "duplicate MAC detected", both ends with SCI ...d5 0001, i.e. wpa_supplicant started
-  before the far ends had their MAC. The wait added for this (macsec.md) did not cover these two starts.
-  `macsec-traffic-test.sh` restarts macsecmgrd itself, which hides it. Not touched (not this task's files).
+- Cold boots with the table: done since (3, with the start-up fix; macsec.md).
+- MKA after a stack restart needed a macsecmgrd restart both times that day: found and fixed since
+  ([macsec.md](macsec.md#start-up-mka-comes-up-by-itself)); the wrap test was run again on the fixed system, 0 lost.
 - A PN threshold / rekey before 2^32 is not needed for this and would not have helped: the frame is dropped by a
   tag check, not by SA state.

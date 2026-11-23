@@ -12,7 +12,7 @@ Tool: `evora-rehost/macsec.py` (+ `lmi.py`, `macsec_test.py`, `macsec-live.sh`).
 -> APPL_DB -> orchagent's MACsecOrch -> SAI MACsec objects -> sai-openbcm runs **register sequences from board data**
 (`nix/modules/boards/as7772/ext-macsec.nix`) on the port's PHY. No vendor code, no emulator and no re-host on the switch.
 - **State now:** MACsec (GCM-AES-XPN-256, MKA, lab test key) is **on at boot on cages 1, 2, 31, 32**; the other 28 engines
-  are in bypass. System `wchbsjy4l9al...`. Config: `nix/configs/as7772/configuration.nix` (`services.sonic.macsec`).
+  are in bypass. System `j7y63gfr529f...`. Config: `nix/configs/as7772/configuration.nix` (`services.sonic.macsec`).
 - **Look:** `show macsec [--mka] [Ethernet1/1]` (**prints SAKs**: never paste it unfiltered; the test scripts drop the
   `sak`, `auth_key`, `salt` lines), `sonic-clear macsec`, `openbcm-diag extmacsec` (what each PHY holds: engine, gate, SA per
   AN, the transmitting AN, sequences run / failed).
@@ -22,7 +22,75 @@ Tool: `evora-rehost/macsec.py` (+ `lmi.py`, `macsec_test.py`, `macsec-live.sh`).
   not written and the ports run in clear** (the unit fails and says so). The key is then in redis (CONFIG_DB; SAKs in
   APPL_DB and ASIC_DB), as on any SONiC. A new SSD needs the file again.
 - **Both ends are this switch:** the far ends (cages 2, 32) get the board's 2nd / 3rd MAC (`INTERFACE mac_addr`), or the
-  KaY cannot elect a key server ("duplicate MAC detected"). macsecmgrd waits for those addresses before it starts.
+  KaY cannot elect a key server ("duplicate MAC detected"). macsecmgrd starts a port's MKA session when the netdev has
+  that address and starts it again when the address changes: [Start-up](#start-up-mka-comes-up-by-itself).
+- **Is it up, by itself?** `macsec-up-check.sh` (on the switch, changes nothing): every port with a profile has SAs made
+  since the last stack start, with the SCI of the address the netdev has, and macsecmgrd was started once; prints the
+  time each port took.
+
+### Start-up: MKA comes up by itself
+2026-11-22. **It did not after a stack restart; it does now** (cold boot, reboot, `sonic.target` restart, syncd-only
+restart, macsecmgrd restart, port flaps: every run, 15-17 s after syncd starts). Evidence:
+[evidence/macsec-startup-20261122.txt](evidence/macsec-startup-20261122.txt) (a277b075f0ea).
+- **Cause.** wpa_supplicant reads the port's MAC once, when the MKA session starts (SCI, key server election).
+  macsecmgrd started a session as soon as the port was ready; intfmgrd puts an `INTERFACE mac_addr` on the netdev
+  later (1.3 s later in the journal of the failing starts). The remedy of that morning, a unit-level wait before
+  macsecmgrd (`ExecStartPre`: every such netdev has its address), **only worked when no netdev existed yet**: at a
+  stack restart the previous syncd's netdevs are still there, with the right address, for about 5 s into the new
+  start; the wait passed at once, the new syncd replaced the netdevs (switch MAC again), and the far ends' sessions
+  started with the switch MAC: both ends ...d5, "duplicate MAC detected" / "duplicated SCI" for good. So the earlier
+  unattended cold boot with MACsec up was **not luck**: cold boot and reboot were a different path that the wait
+  covered (baseline: 1 cold + 1 reboot ok, 4 of 4 stack / syncd restarts not ok, the same every time: not a race).
+- **Fix, where the session is started** (generic; a port without `mac_addr`, the normal two-switch case, starts at
+  once as before): swss patch `nix/packages/sonic/swss/patches/0003-macsecmgrd-mka-session-follows-port-address.patch`.
+  macsecmgrd starts a port's session only when the netdev exists and has the port's CONFIG_DB `mac_addr` (if one is
+  set); it remembers the address and, checking at least once a second, stops and restarts **that port's** session when
+  the netdev's address is no longer that one (`ip link set address`, a `mac_addr` set at run time, a replaced
+  netdev). The unit-level wait is gone. Seen on every boot now: "The MKA session of the port 'Ethernet4' waits for the
+  netdev to have its CONFIG_DB mac_addr (it has '1c:ea:0b:38:2b:d5')".
+- **Second defect, found on the way: stopping macsecmgrd could take 15 s to over a minute** (restart 1-2 s after a
+  start: 15 s, 2 of 5; one of about 70 s in the series). systemd signalled macsecmgrd and its wpa_supplicants together,
+  and macsecmgrd's own orderly stop (`wpa_cli interface_remove`) then waited for supplicants that were exiting.
+  `KillMode=mixed` on the unit: 8 restarts 0.5-6 s after a start took 1.5-2.6 s, no time-out.
+- **Time to secure** (final system, from the start of syncd to the slowest port's SAs; all ok): cold boot 14.6-16.1 s
+  (3; that is about 133 s after the kernel starts, PHY bring-up included), reboot 16.1-16.8 s (4), `sonic.target`
+  restart 15.4-16.7 s (5), syncd-only restart 15.7-17.5 s (3), macsecmgrd restart 5.9-6.5 s (3), a port shut 12 s and
+  started again 8.9-10.8 s (4, either end; the other link keeps its SAs). Inside a start: link up about +10 s, MKA
+  sessions +10-12 s, SAs +15-17 s.
+- **What passes in clear** ([evidence/macsec-clear-window-20261122.txt](evidence/macsec-clear-window-20261122.txt),
+  8335d32da377: `macsec-clear-window-test.sh`, a ping every 50 ms cage 1 -> 2 and every frame the CPU receives on the
+  two ports, across 2 x `sonic.target` restart + 1 x syncd restart; three earlier runs, not kept, gave the same picture):
+  - **Stopping:** macsecmgrd stops first, its wpa_supplicants remove their MACsec ports, the engines go to bypass
+    while the ports still forward: **the ping passes in clear from about +2 s to +7 s (94-96 replies of 20 per
+    second)**, through the stop and on into the new start until the new syncd takes the ASIC.
+  - **Starting:** between the new link up (+12.7-13.8 s) and the engines on (near end about +1 s later, far end +2-3 s:
+    it waits for its address, and wpa_supplicant makes each MACsec port twice, with 0.35 s of bypass in between)
+    **frames cross in clear**: 6-16 IPv6 neighbour discovery / MLD, up to 6 LLDP, 1-2 ARP per run. The ping has no
+    address yet at that point, so it shows nothing there.
+  - **The gate holds:** with the engines on and no SA, **0 ping replies and 0 data frames** in 6 runs; EAPOL passes
+    (one frame 22 ms from an engine change is on the bypass side of it: syncd logs a change when its sequence is done).
+  - Not measured: what the ASIC forwards between front ports (only CPU frames are seen); inferred to pass in clear
+    for the whole time the engines are off, +2 s to +14-16 s, as far as the ports forward. **Here both ends go to
+    bypass together, so clear frames are also accepted; a peer that requires MACsec would drop them, but this switch
+    would still send them in clear.** Not closed: it is upstream SONiC's order (port up before the MACsec port
+    exists; MACsec port removed when macsecmgrd stops). Closing it needs a decision: ports with a profile held closed
+    by the SAI until the MACsec port exists, and the engines left on when the stack stops.
+- **Regression tests:** swss unit tests (in the patch: the session waits for the address, restarts on a change, leaves
+  other ports alone); VM test `nix/modules/switch/sonic/tests/vm-macsec.nix` (two ports of one virtual switch cabled
+  to each other, one with `mac_addr`: MKA up by itself at boot and after a syncd restart, sessions follow address
+  changes; fails on the tree before the fix: [evidence/macsec-vm-test-20261122.txt](evidence/macsec-vm-test-20261122.txt),
+  5a0dabe40854). `macsec-traffic-test.sh` restarts nothing any more and fails when MKA is not up.
+- **After the fix, on the final system:** unattended cold boot, then the traffic test: 6,400 pings 0 lost, encrypted =
+  accepted, 0 failed units ([evidence](evidence/macsec-s3-traffic-coldboot-unattended-20261122.txt), 6efde1b43c97);
+  rekey 20 s for 336 s (about 14 SAK changes per port), 168,000 pings 0 lost ([evidence](evidence/macsec-s3-rekey-after-startup-fix-20261122.txt),
+  db4fc9af7d87); wrong CAK: no SAs, 0 of 100 pings, the other link unaffected, back with the right key
+  ([evidence](evidence/macsec-s3-wrongcak-after-startup-fix-20261122.txt), 5869d41a902d); XPN wrap test: 0 of 600 lost
+  across each wrap, the table still has the 32 SecTAG writes ([evidence](evidence/macsec-loss-wrap-after-startup-fix-20261122.txt),
+  665b04957e44); traffic test at the end 6,400 pings 0 lost ([evidence](evidence/macsec-s3-traffic-after-startup-fix-20261122.txt),
+  01bc2c420958).
+- Not verified: MKA start-up against another switch (the address logic is not exercised there: no `mac_addr`); a
+  `mac_addr` change at run time on the switch itself (VM only); the stop-time fix beyond 8 restarts. macsecmgrd still
+  exits with status 255 on every stop (upstream returns -1 after SIGTERM): the unit shows "failed" until its next start.
 
 ### How it is built
 | layer | what | where |
@@ -61,14 +129,14 @@ Tool: `evora-rehost/macsec.py` (+ `lmi.py`, `macsec_test.py`, `macsec-live.sh`).
 | S3 MKA on both links, `macsec-traffic-test.sh` | 6,400 pings (64 / 1400 / 8000 B, both directions, both links) 0 lost; per SC frames encrypted = frames accepted by the peer; every ingress error counter 0 | macsec-s3-traffic (de6a24bbf435) |
 | rekey: `rekey_period` 20 s, 421 s of pings (100,000 each way on cages 1-2, 10,000 on 31-32) | **17 SAK changes per port, AN 0-3 round and round, 0 pings lost**; new ingress SA on both ends, egress 4 s later, old SAs removed 2 s after that | macsec-s3-rekey (40c87a2fa046) |
 | wrong CAK (same CKN) on cage 2 | "Computed ICV is not equal to Received ICV", no SAs, both gates closed, 0 of 100 pings; cages 31-32 unaffected; right CAK back: up in 7 s | macsec-s3-wrongcak (aa20bd488b10) |
-| `systemctl restart sonic.target` | 8 engines found on, reset; MACsec up again, 6,400 pings 0 lost (the run needed a macsecmgrd restart: the far-end MAC was set after wpa_supplicant started; since fixed by the wait, re-proved by the boots below) | macsec-s3-traffic-stack-restart (8be8bab047e7) |
+| `systemctl restart sonic.target` | 8 engines found on, reset; MACsec up again, 6,400 pings 0 lost (the run needed a macsecmgrd restart: the far-end MAC was set after wpa_supplicant started; the wait added then covered boots only, the real fix is in [Start-up](#start-up-mka-comes-up-by-itself)) | macsec-s3-traffic-stack-restart (8be8bab047e7) |
 | reboot | 6,400 pings 0 lost | macsec-s3-traffic-reboot (e44aad0de76c) |
 | cold power cycle, final system, unattended | PHY bring-up 99.0 s, **MACsec up on all four ports before anything was run**, 0 failed units; 6,400 pings 0 lost | macsec-s3-traffic-coldboot (e65517d1ba33) |
 | S4 load: the ring of [load-test.md](load-test.md) with the PHYs left in MACsec by SONiC (syncd killed, plain SDK, IPG 48), 9 min 20 s | each port **17.75 Mpps, 92.05 Gb/s of frames** per direction (IPG 16 in bypass: 18.59 Mpps, 96.4 Gb/s: MACsec costs 4.5 % with this frame mix); every PHY adds **32.0 B per frame** on the line and removes it again; 9.9 x 10^9 frames per port per direction; RS-FEC 0 / 0, no FCS or error counter anywhere; ASIC 45.7-48.6 C, fans on their curve. **4 of the 740 frames of each ring were lost** (2 per cable direction): one frame per SA at each wrap of the packet number's low 32 bits, **found and fixed**, next row | macsec-load (d34e1092d1a6), -phystat, -samples |
 | S4 after the fix ([macsec-loss.md](macsec-loss.md)): the ingress engine's "PN field is not 0" SecTAG check is switched off for XPN SAs by the table | wrap test (first PN 2^32 - 256): 1 frame lost per SA before (`in_pkts_bad_tag`), 0 after; ring 34 min 40 s without any PHY access + 13 min 39 s with PHY reads every 30 s: **2.06 x 10^11 encrypted frames, 44 low-word wraps, 0 lost**, every hop equal to the frame | macsec-loss-wrap-before-fix (068be0a9d340), -after-fix (c71d4970c207), macsec-loss-soak (d9ee0a0a1938) |
 | SONiC back after the load | 8 engines reset at the syncd start, MKA up, 6,400 pings 0 lost | macsec-s3-traffic-after-load (71d4559a5e12) |
-Scripts (run on the switch): `macsec-static-test.sh`, `macsec-appdb-test.sh`, `macsec-traffic-test.sh`, `macsec-rekey-test.sh`,
-`macsec-wrongcak-test.sh`, `macsec-wrap-test.sh`; parameter files: `evora-rehost/macsec-params.py`, `macsec-appdb.py`. Unit tests: sai-openbcm
+Scripts (run on the switch): `macsec-up-check.sh`, `macsec-static-test.sh`, `macsec-appdb-test.sh`, `macsec-traffic-test.sh`,
+`macsec-clear-window-test.sh`, `macsec-rekey-test.sh`, `macsec-wrongcak-test.sh`, `macsec-wrap-test.sh`; parameter files: `evora-rehost/macsec-params.py`, `macsec-appdb.py`. Unit tests: sai-openbcm
 `tests/test_macsec.inc` (fake bus: parser, golden rendering, the object model in MACsecOrch's order, key bytes on the bus
 and nowhere in the log).
 
@@ -77,9 +145,6 @@ and nowhere in the log).
   refuses PN field 0, which XPN reaches every 2^32 frames; `phystat.py` reads were not the cause). Left open there: the
   32-bit suites' variant of the write and `macsec.py`-made SAs were not run. MACsec SA counters were not read under
   load (SONiC was down); the load did not go through SONiC's forwarding.
-- **MKA did not come up by itself after two stack starts on 2026-11-22 afternoon** (a syncd-only restart by a deploy, a
-  `sonic.target` start after the load test): "duplicated SCI" until macsecmgrd was restarted. The wait for the far
-  ends' MAC (stack-restart row above) does not cover every start; `macsec-traffic-test.sh` restarts macsecmgrd itself.
 - Sequences for an SC's **first SA with AN > 0** and its **last SA with AN < 3** are compositions of recorded pieces, not
   recordings (the library cannot be made to allocate those slots first). Both happened on the switch (rekeys, re-MKA
   with AN 1 first) with traffic passing.
@@ -89,12 +154,11 @@ and nowhere in the log).
   recorded and compared, **not exercised with traffic**. Cipher suites other than XPN-256: recorded and compared; XPN-256
   and GCM-AES-128 / XPN (macsec.md live test) seen with traffic, **128-bit and non-XPN not under SONiC**.
 - An egress SA that is removed stays in the PHY's record memory until its slot is reused or the engine is reset.
-- Between link up and macsecmgrd creating the MACsec port a port is in bypass: frames pass in clear for the first seconds
-  of a stack start (the same on any SONiC). MKA to another vendor's switch: never tried (both ends are this code).
+- A port with a profile passes frames in clear around every stack stop and start (measured:
+  [Start-up](#start-up-mka-comes-up-by-itself)). MKA to another vendor's switch: never tried (both ends are this code).
 - `show macsec` prints SAKs (upstream behaviour). One SAK was shown on the operator's terminal during bring-up; that
   session ended with the next restart.
-- No VM test of the SONiC services (the fake backend's ports carry no frames between each other); the unit tests and the
-  switch are the proof.
+- The VM test covers start-up and MKA on the virtual SAI only; the PHY sequences are proven by the unit tests and the switch.
 
 ## Result
 - **Live:** frames between two PHYs are encrypted (+32 B on the wire, clear frames refused, wrong key = `in_pkts_not_valid`

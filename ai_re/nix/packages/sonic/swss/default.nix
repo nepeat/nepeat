@@ -36,6 +36,9 @@ stdenv.mkDerivation {
     ./patches/0001-orchagent-sai-attr-value-width.patch
     # Test-only: fpmsyncd test helpers (stack overflow, little-endian assumptions).
     ./patches/0002-tests-fpmsyncd-buffers-and-byte-order.patch
+    # macsecmgrd: an MKA session starts with the address the port keeps
+    # (CONFIG_DB INTERFACE mac_addr) and restarts when the address changes.
+    ./patches/0003-macsecmgrd-mka-session-follows-port-address.patch
   ];
 
   nativeBuildInputs = [ autoreconfHook autoconf-archive pkg-config ]

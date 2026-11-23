@@ -1,0 +1,491 @@
+From: ai_re sonic-nixos <noreply@localhost>
+Subject: [PATCH] macsecmgrd: start an MKA session with the address the port will keep, and start it again when the address changes
+
+wpa_supplicant reads the port's MAC address once, when the MKA session
+starts. The KaY builds its SCI from it and uses it in the key server
+election for as long as the session lives; nothing tells it about a later
+change (the macsec_sonic driver has no address-change event).
+
+macsecmgrd started the session as soon as STATE_DB PORT_TABLE said the port
+was ready. A CONFIG_DB INTERFACE mac_addr is put on the netdev by intfmgrd
+some time after that (found on an Edge-Core AS7772: 1.3 s later on the new
+netdev of a stack restart), so the session ran with the switch address for
+good while the port sent from the configured one. With both ends of a
+cable on one switch (the reason for a per-port address in a lab) the two
+KaYs then had the same address: "Cannot elect key server between me and
+peer, duplicate MAC detected" / "duplicated SCI detected", and no SAs until
+macsecmgrd was restarted by hand. With a peer on another switch the session
+came up, with an SCI that is not the port's address.
+
+- enableMACsec: besides the port being ready, the netdev must exist and,
+  when CONFIG_DB INTERFACE|<port> has a mac_addr, have that address;
+  otherwise the task is retried like any other condition (one NOTICE per
+  wait). A port without a configured address starts at once, as before.
+- The session remembers the address it was started with.
+  followPortAddresses(), called from the main loop (at least once per
+  SELECT_TIMEOUT), stops the session of a port whose netdev address is no
+  longer that one and queues the port's CONFIG_DB entry again, so the same
+  conditions and retries apply to the new session. Other ports are not
+  touched.
+- startWPASupplicant / stopWPASupplicant are virtual so that the unit tests
+  can count them; tests in tests/mock_tests/macsecmgrd.
+---
+diff -ruN a/cfgmgr/macsecmgr.cpp b/cfgmgr/macsecmgr.cpp
+--- a/cfgmgr/macsecmgr.cpp
++++ b/cfgmgr/macsecmgr.cpp
+@@ -5,6 +5,8 @@
+ #include <swss/stringutility.h>
+ #include <swss/redisutility.h>
+ #include <boost/algorithm/string/predicate.hpp>
++#include <boost/algorithm/string/case_conv.hpp>
++#include <fstream>
+ 
+ #include <signal.h>
+ #include <unistd.h>
+@@ -29,6 +31,7 @@
+ #define WPA_CLI_CMD        "/sbin/wpa_cli"
+ #define WPA_CONF           "/etc/wpa_supplicant.conf"
+ #define SOCK_DIR           "/var/run/"
++#define SYS_NET_DIR        "/sys/class/net/"
+ // How long enableMACsec waits for orchagent to consume the DEL of a stale
+ // MACSEC_PORT_TABLE entry before giving up and retrying the task later.
+ #define CLEAR_STALE_TIMEOUT_MS  10000
+@@ -279,6 +282,9 @@
+     const vector<std::string> &tables) :
+         Orch(cfgDb, tables),
+         m_statePortTable(stateDb, STATE_PORT_TABLE_NAME),
++        m_cfgIntfTable(cfgDb, CFG_INTF_TABLE_NAME),
++        m_cfgPortTable(cfgDb, CFG_PORT_TABLE_NAME),
++        m_sysNetDir(SYS_NET_DIR),
+         m_clearStaleTimeoutMs(CLEAR_STALE_TIMEOUT_MS),
+         m_sockDir(SOCK_DIR),
+         m_stopStaleTimeoutMs(STOP_STALE_TIMEOUT_MS)
+@@ -568,6 +574,22 @@
+         return task_need_retry;
+     }
+ 
++    // wpa_supplicant takes the port's MAC address when the session starts
++    // and keeps it. Do not start while the port is about to get another one.
++    std::string address;
++    if (!isPortAddressReady(port_name, address))
++    {
++        if (m_addressWaiting.insert(port_name).second)
++        {
++            SWSS_LOG_NOTICE(
++                "The MKA session of the port '%s' waits for the netdev to have its CONFIG_DB mac_addr (it has '%s')",
++                port_name.c_str(),
++                address.c_str());
++        }
++        return task_need_retry;
++    }
++    m_addressWaiting.erase(port_name);
++
+     // Create MKA Session object
+     auto port = m_macsec_ports.emplace(
+         std::piecewise_construct,
+@@ -576,6 +598,7 @@
+     auto & session = port.first->second;
+     session.profile_name = profile_name;
+     session.sock = m_sockDir + port_name;
++    session.address = address;
+     session.wpa_supplicant_pid = startWPASupplicant(session.sock);
+     if (session.wpa_supplicant_pid < 0)
+     {
+@@ -602,9 +625,10 @@
+             port_name.c_str());
+         return disableMACsec(port_name, port_attr);
+     }
+-    SWSS_LOG_NOTICE("The MACsec profile '%s' on the port '%s' loading success",
++    SWSS_LOG_NOTICE("The MACsec profile '%s' on the port '%s' loading success (address %s)",
+         profile_name.c_str(),
+-        port_name.c_str());
++        port_name.c_str(),
++        address.c_str());
+     return task_success;
+ }
+ 
+@@ -615,6 +639,7 @@
+     SWSS_LOG_ENTER();
+ 
+     auto itr = m_macsec_ports.find(port_name);
++    m_addressWaiting.erase(port_name);
+     if (itr == m_macsec_ports.end())
+     {
+         SWSS_LOG_NOTICE("The MACsec was not enabled on the port '%s'",
+@@ -795,6 +820,87 @@
+     return false;
+ }
+ 
++// The MAC address the port's netdev has now (lower case); empty when there is
++// no such netdev.
++std::string MACsecMgr::getPortAddress(const std::string & port_name) const
++{
++    std::ifstream file(m_sysNetDir + port_name + "/address");
++    std::string address;
++    file >> address;
++    boost::algorithm::to_lower(address);
++    return address;
++}
++
++// wpa_supplicant reads the port's MAC address once, when the MKA session
++// starts: the KaY's SCI and its part in the key server election are built from
++// it for as long as the session lives. A port's CONFIG_DB INTERFACE mac_addr
++// is put on the netdev by intfmgrd some time after the port is ready (and
++// again on the new netdev after a syncd restart). A session started in between
++// would run with an address the port is about to lose, and the peer would see
++// SCIs that match no frame the port sends afterwards. So: the netdev exists
++// and, when an address is configured for the port, it has that address.
++bool MACsecMgr::isPortAddressReady(const std::string & port_name, std::string & address)
++{
++    SWSS_LOG_ENTER();
++
++    address = getPortAddress(port_name);
++    if (address.empty())
++    {
++        return false;
++    }
++    std::string configured;
++    if (m_cfgIntfTable.hget(port_name, "mac_addr", configured) && !configured.empty())
++    {
++        boost::algorithm::to_lower(configured);
++        return configured == address;
++    }
++    return true;
++}
++
++// The address of a netdev can change under a running session (a mac_addr set
++// or changed at run time, "ip link set address"). The session then has to be
++// started again: stop it and queue the port's CONFIG_DB entry as if it had
++// just been written, so that the usual conditions (port ready, address as
++// configured) and the usual retries apply.
++void MACsecMgr::followPortAddresses()
++{
++    SWSS_LOG_ENTER();
++
++    std::vector<std::pair<std::string, std::string>> changed;
++    for (const auto & port : m_macsec_ports)
++    {
++        const std::string address = getPortAddress(port.first);
++        if (address != port.second.address)
++        {
++            changed.emplace_back(port.first, address);
++        }
++    }
++    if (changed.empty())
++    {
++        return;
++    }
++    auto consumer = dynamic_cast<Consumer *>(getExecutor(CFG_PORT_TABLE_NAME));
++    for (const auto & port : changed)
++    {
++        const std::string & port_name = port.first;
++        SWSS_LOG_NOTICE(
++            "The address of the port '%s' changed from '%s' to '%s': its MKA session is started again",
++            port_name.c_str(),
++            m_macsec_ports[port_name].address.c_str(),
++            port.second.c_str());
++        disableMACsec(port_name, TaskArgs());
++        std::vector<FieldValueTuple> port_attr;
++        if (consumer != nullptr && m_cfgPortTable.get(port_name, port_attr))
++        {
++            consumer->addToSync(KeyOpFieldsValuesTuple(port_name, SET_COMMAND, port_attr));
++        }
++    }
++    if (consumer != nullptr)
++    {
++        doTask(*consumer);
++    }
++}
++
+ pid_t MACsecMgr::startWPASupplicant(const std::string & sock) const
+ {
+     SWSS_LOG_ENTER();
+diff -ruN a/cfgmgr/macsecmgrd.cpp b/cfgmgr/macsecmgrd.cpp
+--- a/cfgmgr/macsecmgrd.cpp
++++ b/cfgmgr/macsecmgrd.cpp
+@@ -100,6 +100,9 @@
+                 }
+             }
+ 
++            /* A port whose MAC address changed gets a new MKA session */
++            macsecmgr.followPortAddresses();
++
+             Selectable *sel;
+             int ret;
+ 
+diff -ruN a/cfgmgr/macsecmgr.h b/cfgmgr/macsecmgr.h
+--- a/cfgmgr/macsecmgr.h
++++ b/cfgmgr/macsecmgr.h
+@@ -8,6 +8,7 @@
+ 
+ #include <cinttypes>
+ #include <map>
++#include <set>
+ #include <memory>
+ #include <vector>
+ #include <sstream>
+@@ -60,6 +61,9 @@
+         std::string sock;
+         // wpa_supplicant process id
+         pid_t       wpa_supplicant_pid;
++        // MAC address of the port's netdev when the session was started:
++        // the KaY keeps it (SCI, key server election) until it exits
++        std::string address;
+     };
+ 
+ private:
+@@ -73,6 +77,13 @@
+ 
+ 
+     Table m_statePortTable;
++    // CONFIG_DB INTERFACE (mac_addr of a port) and PORT (to queue a port again)
++    Table m_cfgIntfTable;
++    Table m_cfgPortTable;
++    // Where the kernel shows a netdev's address: <dir><port>/address
++    std::string m_sysNetDir;
++    // Ports whose MKA session waits for the netdev to get its configured address
++    std::set<std::string> m_addressWaiting;
+ 
+     // APPL_DB MACsec tables, written by wpa_supplicant's macsec_sonic driver
+     // and consumed by orchagent. macsecmgrd only touches them to remove what
+@@ -95,8 +106,17 @@
+     bool clearStaleMACsecState(const std::string & port_name);
+     void stopStaleWPASupplicant(const std::string & port_name);
+     virtual bool terminateWPASupplicant(const std::string & sock) const;
+-    pid_t startWPASupplicant(const std::string & sock) const;
+-    bool stopWPASupplicant(pid_t pid) const;
++    virtual pid_t startWPASupplicant(const std::string & sock) const;
++    virtual bool stopWPASupplicant(pid_t pid) const;
++    std::string getPortAddress(const std::string & port_name) const;
++    bool isPortAddressReady(const std::string & port_name, std::string & address);
++
++public:
++    // Restart the MKA session of every port whose netdev address is no longer
++    // the one its session was started with. Called from the main loop.
++    void followPortAddresses();
++
++private:
+     bool configureMACsec(const std::string & port_name, const MKASession & session, const MACsecProfile & profile) const;
+     bool unconfigureMACsec(const std::string & port_name, const MKASession & session) const;
+ };
+diff -ruN a/tests/mock_tests/macsecmgrd/macsecmgr_ut.cpp b/tests/mock_tests/macsecmgrd/macsecmgr_ut.cpp
+--- a/tests/mock_tests/macsecmgrd/macsecmgr_ut.cpp
++++ b/tests/mock_tests/macsecmgrd/macsecmgr_ut.cpp
+@@ -14,6 +14,9 @@
+ 
+ extern int mockCmdReturn;
+ extern std::vector<std::string> mockCallArgs;
++extern std::string mockCmdStdcout;
++
++#include <sys/stat.h>
+ 
+ namespace macsecmgr_ut
+ {
+@@ -342,4 +345,207 @@
+ 
+         EXPECT_FALSE(m_mgr->terminateWPASupplicant("/var/run/Ethernet1"));
+     }
++
++    // An MKA session keeps the MAC address its port had when it started. These
++    // tests give the manager a directory that stands in for /sys/class/net and
++    // a supplicant that is only counted.
++    class MACsecMgrCountingSupplicant : public MACsecMgr
++    {
++    public:
++        using MACsecMgr::MACsecMgr;
++        mutable std::vector<std::string> started;
++        mutable std::vector<pid_t> stopped;
++
++        pid_t startWPASupplicant(const std::string &sock) const override
++        {
++            started.push_back(sock);
++            return -1;      // "cannot start": enableMACsec asks for a retry, nothing is forked
++        }
++        bool stopWPASupplicant(pid_t pid) const override
++        {
++            stopped.push_back(pid);
++            return true;
++        }
++        Consumer *portConsumer()
++        {
++            return dynamic_cast<Consumer *>(getExecutor(CFG_PORT_TABLE_NAME));
++        }
++    };
++
++    class MACsecMgrAddressTest : public MACsecMgrTest
++    {
++    protected:
++        std::unique_ptr<MACsecMgrCountingSupplicant> m_fake;
++        std::string m_dir;
++
++        void SetUp() override
++        {
++            MACsecMgrTest::SetUp();
++            char tmpl[] = "/tmp/macsecmgr_ut_XXXXXX";
++            m_dir = std::string(mkdtemp(tmpl)) + "/";
++            std::vector<std::string> tables = { CFG_MACSEC_PROFILE_TABLE_NAME, CFG_PORT_TABLE_NAME };
++            m_fake.reset(new MACsecMgrCountingSupplicant(m_config_db.get(), m_app_db.get(), m_state_db.get(), tables));
++            m_fake->m_clearStaleTimeoutMs = 300;
++            m_fake->m_stopStaleTimeoutMs = 300;
++            m_fake->m_sockDir = m_dir;
++            m_fake->m_sysNetDir = m_dir + "net/";
++            mkdir(m_fake->m_sysNetDir.c_str(), 0700);
++            m_fake->m_profiles["profile"];
++            Table(m_state_db.get(), STATE_PORT_TABLE_NAME).set("Ethernet1",
++                { { "state", "ok" }, { "netdev_oper_status", "up" } });
++            Table(m_config_db.get(), CFG_PORT_TABLE_NAME).set("Ethernet1", { { "macsec", "profile" } });
++            mockCmdStdcout = "OK";
++            mockCmdReturn = 0;
++        }
++
++        void TearDown() override
++        {
++            // the destructor stops what is left with the real stopWPASupplicant
++            m_fake->m_macsec_ports.clear();
++            m_fake.reset();
++            netdev("Ethernet1", "");
++            rmdir((m_dir + "net").c_str());
++            rmdir(m_dir.c_str());
++            mockCmdStdcout = "";
++            mockCallArgs.clear();
++            MACsecMgrTest::TearDown();
++        }
++
++        // The netdev of a port with this address; "" removes the netdev.
++        void netdev(const std::string &port, const std::string &address)
++        {
++            const std::string dir = m_dir + "net/" + port;
++            if (address.empty())
++            {
++                unlink((dir + "/address").c_str());
++                rmdir(dir.c_str());
++                return;
++            }
++            mkdir(dir.c_str(), 0700);
++            std::ofstream(dir + "/address") << address << "\n";
++        }
++
++        void configured(const std::string &port, const std::string &address)
++        {
++            Table(m_config_db.get(), CFG_INTF_TABLE_NAME).set(port, { { "mac_addr", address } });
++        }
++
++        // A session as enableMACsec leaves it, without a process.
++        void session(const std::string &port, const std::string &address)
++        {
++            auto &s = m_fake->m_macsec_ports[port];
++            s.profile_name = "profile";
++            s.sock = m_dir + port;
++            s.wpa_supplicant_pid = 4242;
++            s.address = address;
++        }
++
++        size_t queued(const std::string &port)
++        {
++            return m_fake->portConsumer()->m_toSync.count(port);
++        }
++    };
++
++    TEST_F(MACsecMgrAddressTest, enable_noNetdevNoSession)
++    {
++        EXPECT_EQ(m_fake->enableMACsec("Ethernet1", { { "macsec", "profile" } }), task_need_retry);
++        EXPECT_TRUE(m_fake->started.empty());
++    }
++
++    TEST_F(MACsecMgrAddressTest, enable_noConfiguredAddressStartsWithTheNetdevAddress)
++    {
++        netdev("Ethernet1", "1c:ea:0b:38:2b:d5");
++        std::string address;
++        EXPECT_TRUE(m_fake->isPortAddressReady("Ethernet1", address));
++        EXPECT_EQ(address, "1c:ea:0b:38:2b:d5");
++
++        m_fake->enableMACsec("Ethernet1", { { "macsec", "profile" } });
++        EXPECT_EQ(m_fake->started.size(), 1u);
++    }
++
++    TEST_F(MACsecMgrAddressTest, enable_waitsUntilTheNetdevHasTheConfiguredAddress)
++    {
++        // What a stack start looks like: the netdev is created with the switch
++        // address, the port becomes ready, intfmgrd sets mac_addr later.
++        netdev("Ethernet1", "1c:ea:0b:38:2b:d5");
++        configured("Ethernet1", "1C:EA:0B:38:2B:D6");
++
++        EXPECT_EQ(m_fake->enableMACsec("Ethernet1", { { "macsec", "profile" } }), task_need_retry);
++        EXPECT_EQ(m_fake->enableMACsec("Ethernet1", { { "macsec", "profile" } }), task_need_retry);
++        EXPECT_TRUE(m_fake->started.empty());
++        EXPECT_EQ(m_fake->m_addressWaiting.count("Ethernet1"), 1u);
++
++        netdev("Ethernet1", "1c:ea:0b:38:2b:d6");
++        m_fake->enableMACsec("Ethernet1", { { "macsec", "profile" } });
++        EXPECT_EQ(m_fake->started.size(), 1u);
++        EXPECT_EQ(m_fake->m_addressWaiting.count("Ethernet1"), 0u);
++    }
++
++    TEST_F(MACsecMgrAddressTest, follow_sameAddressLeavesTheSessionAlone)
++    {
++        netdev("Ethernet1", "1c:ea:0b:38:2b:d6");
++        session("Ethernet1", "1c:ea:0b:38:2b:d6");
++
++        m_fake->followPortAddresses();
++
++        EXPECT_TRUE(m_fake->stopped.empty());
++        EXPECT_TRUE(m_fake->started.empty());
++        EXPECT_EQ(m_fake->m_macsec_ports.count("Ethernet1"), 1u);
++    }
++
++    TEST_F(MACsecMgrAddressTest, follow_changedAddressStopsTheSessionAndStartsItAgain)
++    {
++        netdev("Ethernet1", "1c:ea:0b:38:2b:d6");
++        netdev("Ethernet2", "1c:ea:0b:38:2b:d5");
++        session("Ethernet1", "1c:ea:0b:38:2b:d5");
++        session("Ethernet2", "1c:ea:0b:38:2b:d5");
++
++        m_fake->followPortAddresses();
++
++        // the old session of Ethernet1 is stopped through its own supplicant, a new one is tried at once
++        ASSERT_EQ(m_fake->stopped.size(), 1u);
++        EXPECT_EQ(m_fake->stopped[0], 4242);
++        ASSERT_EQ(m_fake->started.size(), 1u);
++        EXPECT_EQ(m_fake->started[0], m_dir + "Ethernet1");
++        // (the counting supplicant "cannot start": the port stays queued for a retry)
++        EXPECT_EQ(queued("Ethernet1"), 1u);
++        // the other port is not touched
++        EXPECT_EQ(m_fake->m_macsec_ports.count("Ethernet2"), 1u);
++        EXPECT_EQ(queued("Ethernet2"), 0u);
++        m_fake->m_macsec_ports.clear();
++        netdev("Ethernet2", "");
++    }
++
++    TEST_F(MACsecMgrAddressTest, follow_changedAwayFromTheConfiguredAddressWaits)
++    {
++        // The netdev was replaced (syncd restart) and has the switch address
++        // again: the session stops and no new one starts until mac_addr is back.
++        configured("Ethernet1", "1c:ea:0b:38:2b:d6");
++        netdev("Ethernet1", "1c:ea:0b:38:2b:d5");
++        session("Ethernet1", "1c:ea:0b:38:2b:d6");
++
++        m_fake->followPortAddresses();
++
++        EXPECT_EQ(m_fake->stopped.size(), 1u);
++        EXPECT_TRUE(m_fake->started.empty());
++        EXPECT_EQ(m_fake->m_macsec_ports.count("Ethernet1"), 0u);
++        EXPECT_EQ(queued("Ethernet1"), 1u);
++
++        netdev("Ethernet1", "1c:ea:0b:38:2b:d6");
++        m_fake->doTask(*m_fake->portConsumer());
++        EXPECT_EQ(m_fake->started.size(), 1u);
++    }
++
++    TEST_F(MACsecMgrAddressTest, follow_portWithoutMACsecConfigIsNotQueued)
++    {
++        Table(m_config_db.get(), CFG_PORT_TABLE_NAME).del("Ethernet1");
++        netdev("Ethernet1", "1c:ea:0b:38:2b:d6");
++        session("Ethernet1", "1c:ea:0b:38:2b:d5");
++
++        m_fake->followPortAddresses();
++
++        EXPECT_EQ(m_fake->stopped.size(), 1u);
++        EXPECT_TRUE(m_fake->started.empty());
++        EXPECT_EQ(queued("Ethernet1"), 0u);
++    }
+ }

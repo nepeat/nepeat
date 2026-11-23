@@ -135,6 +135,7 @@ nix build -L --impure --expr 'let f = builtins.getFlake "path:'$PWD'/nix"; pkgs 
 # same with tests/vm.nix: two VMs (switch 3 GB + LACP peer 1 GB), ~8 min
 # tests/vm-openbcm-fake.nix: vm.nix's checks on sai-openbcm's fake backend (args: sai-openbcm README)
 # tests/vm-openbcm-fake-l3.nix: one VM on sai-openbcm's fake: VRF, ECMP group, flex counters, CLI lists
+# tests/vm-macsec.nix: MACsec start-up on the virtual SAI (MKA between two ports of the switch, sessions follow the port address)
 # tests/vm-openbcm-fake-acl.nix: CoPP policers + an L3 ACL through orchagent on the fake
 # tests/vm-frr.nix: switch 3 GB + peer 1 GB (FRR): eBGP over a PortChannel, routes to APPL/ASIC_DB,
 #   static routes, config interface ip remove, crash recovery, config reload w/o saved file, ~25 min
@@ -271,11 +272,20 @@ services.sonic.macsec = {
 - Options per profile: `cipherSuite` (XPN-256 default: a 32-bit PN lasts 29 s at 100G), `priority`, `policy`,
   `rekeyPeriod`, `replayProtect` / `replayWindow`.
 - macsecmgrd's compiled-in `/sbin/wpa_supplicant`, `/sbin/wpa_cli`, `/etc/wpa_supplicant.conf` are bound into its mount
-  namespace (swss is not rebuilt for it). It starts after every `INTERFACE mac_addr` is on its netdev (wpa_supplicant
-  keeps the MAC it starts with).
+  namespace. Stop is `KillMode=mixed`: macsecmgrd ends its sessions itself (its `wpa_cli` calls need the supplicants
+  alive; with everything signalled at once a stop took 15 s and more).
+- **An MKA session runs with the address its port has.** wpa_supplicant takes the netdev's MAC once, at start (SCI, key
+  server election). macsecmgrd (swss patch 0003) starts a port's session only when the netdev has the port's
+  `INTERFACE mac_addr`, if one is set (intfmgrd applies it after the port is ready), and starts it again within a second
+  when the address changes (`ip link set address`, a `mac_addr` change); other ports are not touched. No unit-level
+  wait: at a stack restart the old syncd's netdevs still exist, with the right address, until the new syncd replaces them.
 - `show macsec` / `sonic-clear macsec`: docker-macsec's CLI plug-ins through wrappers in front of sonic-utilities'
   commands. **`show macsec` prints SAKs.** `FEATURE|macsec` is seeded enabled (coppmgrd's EAPOL trap).
-- Not here: a VM test (needs a SAI whose ports pass frames to each other and implement MACsec), fallback CAK, FIPS POST.
+- VM test: [tests/vm-macsec.nix](tests/vm-macsec.nix) (virtual SAI, two ports of one switch on one segment, one with a
+  `mac_addr`): MKA up by itself at boot and after a syncd restart, sessions follow address changes. swss unit tests:
+  `tests/mock_tests/macsecmgrd` (in the patch).
+- Not here: fallback CAK, FIPS POST. Between a port coming up and its MKA session creating the MACsec port the port
+  passes frames in clear (upstream SONiC behaviour; measured on the AS7772, its `macsec.md`).
 
 ## not here (yet)
 

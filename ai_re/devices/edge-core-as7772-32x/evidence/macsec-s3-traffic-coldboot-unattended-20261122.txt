@@ -1,0 +1,181 @@
+# AS7772, system j7y63gfr..., third cold boot of the start-up series; nothing was run on the switch before this.
+# 1. macsec-up-check.sh  2. macsec-traffic-test.sh (the version that restarts nothing)
+== 2026-11-22T18:09:17-08:00 j7y63gfr529f... up 158.01 s; the start of sonic-syncd: 117.939 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +9.0 s, secured +14.6 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.1 s, secured +14.6 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +9.4 s, secured +14.1 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.7 s, secured +14.2 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 14.6 s after the start of sonic-syncd (limit 90 s)
+rc=0
+ 18:09:19 up 2 min,  3 users,  load average: 1.22, 0.57, 0.22
+failed units: 0
+Nov 22 18:08:46 as7772 macsecmgrd[981]: :- enableMACsec: The MACsec profile 'lab-test' on the port 'Ethernet0' loading success (address 1c:ea:0b:38:2b:d5)
+Nov 22 18:08:46 as7772 macsecmgrd[981]: :- enableMACsec: The MACsec profile 'lab-test' on the port 'Ethernet120' loading success (address 1c:ea:0b:38:2b:d5)
+Nov 22 18:08:46 as7772 macsecmgrd[981]: :- enableMACsec: The MKA session of the port 'Ethernet124' waits for the netdev to have its CONFIG_DB mac_addr (it has '1c:ea:0b:38:2b:d5')
+Nov 22 18:08:46 as7772 macsecmgrd[981]: :- enableMACsec: The MKA session of the port 'Ethernet4' waits for the netdev to have its CONFIG_DB mac_addr (it has '1c:ea:0b:38:2b:d5')
+Nov 22 18:08:48 as7772 macsecmgrd[981]: :- enableMACsec: The MACsec profile 'lab-test' on the port 'Ethernet124' loading success (address 1c:ea:0b:38:2b:d7)
+Nov 22 18:08:48 as7772 macsecmgrd[981]: :- enableMACsec: The MACsec profile 'lab-test' on the port 'Ethernet4' loading success (address 1c:ea:0b:38:2b:d6)
+== 2026-11-22T18:09:19-08:00 /nix/store/j7y63gfr529famc0jp99qadb2fn975c1-nixos-system-as7772-26.11.20261111.d4f25a3
+== uptime:  18:09:19 up 2 min,  3 users,  load average: 1.22, 0.57, 0.22
+active active active active active 
+== failed units: 0
+Interface Ethernet4 IP disabled and address(es) removed due to binding VRF Vrf-a.
+Interface Ethernet124 IP disabled and address(es) removed due to binding VRF Vrf-b.
+far-end MAC address of Ethernet4 was not in CONFIG_DB: set
+far-end MAC address of Ethernet124 was not in CONFIG_DB: set
+== MACsec up on all four ports 0 s after the check began
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+port      phy  dir     engine gate   AN0 AN1 AN2 AN3 tx   runs fails  max_us last failure
+ce30      17e  egress  on     open   sa  -   -   -   0      78     0   81953 
+ce30      17e  ingress on     open   sa  -   -   -          78     0   88918 
+ce31      17f  egress  on     open   sa  -   -   -   0      77     0   78652 
+ce31      17f  ingress on     open   sa  -   -   -          77     0   89746 
+ce0         0  egress  on     open   sa  -   -   -   0      78     0   80725 
+ce0         0  ingress on     open   sa  -   -   -          78     0   89537 
+ce1         1  egress  on     open   sa  -   -   -   0      77     0   82812 
+ce1         1  ingress on     open   sa  -   -   -          77     0   89849 
+engines in bypass: 56 of 64
+  Interface            Lanes    Speed    MTU    FEC         Alias    Vlan    Oper    Admin             Type    Asym PFC
+-----------  ---------------  -------  -----  -----  ------------  ------  ------  -------  ---------------  ----------
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later         N/A
+Ethernet120       9,10,11,12     100G   9100    N/A  Ethernet31/1  routed      up       up  QSFP28 or later         N/A
+Ethernet124      13,14,15,16     100G   9100    N/A  Ethernet32/1  routed      up       up  QSFP28 or later         N/A
+== ping cage 1 -> 2 (1000 x 64 B, then 1000 x 1400 B, then 200 x 8000 B)
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.105/0.111/0.242/0.009 ms
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.135/0.144/0.273/0.008 ms
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.279/0.288/0.431/0.016 ms
+== ping cage 2 -> 1 (Vrf-a)
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.101/0.113/0.235/0.011 ms
+== ping cage 31 -> 32
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.100/0.131/0.262/0.031 ms
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.131/0.140/0.264/0.010 ms
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.276/0.285/0.413/0.015 ms
+== ping cage 32 -> 31 (Vrf-b)
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.101/0.107/0.251/0.008 ms
+== MACsec counters (show macsec, since sonic-clear macsec; flex counters poll every 10 s)
+MACsec port(Ethernet0)
+	MACsec Egress SC (1cea0b382bd50001)
+	encoding_an  0
+		MACsec Egress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN         3225
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED    3210882
+		SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED  3224
+	MACsec Ingress SC (1cea0b382bd60001)
+		MACsec Ingress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN           3240
+		SAI_MACSEC_SA_STAT_IN_PKTS_INVALID       0
+		SAI_MACSEC_SA_STAT_IN_PKTS_LATE          0
+		SAI_MACSEC_SA_STAT_IN_PKTS_NOT_VALID     0
+		SAI_MACSEC_SA_STAT_IN_PKTS_OK            3238
+		SAI_MACSEC_SA_STAT_IN_PKTS_UNCHECKED     0
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED      3212521
+MACsec port(Ethernet4)
+	MACsec Egress SC (1cea0b382bd60001)
+	encoding_an  0
+		MACsec Egress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN         3239
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED    3212521
+		SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED  3238
+	MACsec Ingress SC (1cea0b382bd50001)
+		MACsec Ingress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN           3226
+		SAI_MACSEC_SA_STAT_IN_PKTS_INVALID       0
+		SAI_MACSEC_SA_STAT_IN_PKTS_LATE          0
+		SAI_MACSEC_SA_STAT_IN_PKTS_NOT_VALID     0
+		SAI_MACSEC_SA_STAT_IN_PKTS_OK            3224
+		SAI_MACSEC_SA_STAT_IN_PKTS_UNCHECKED     0
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED      3210882
+MACsec port(Ethernet120)
+	MACsec Egress SC (1cea0b382bd50001)
+	encoding_an  0
+		MACsec Egress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN         3223
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED    3210812
+		SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED  3222
+	MACsec Ingress SC (1cea0b382bd70001)
+		MACsec Ingress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN           3238
+		SAI_MACSEC_SA_STAT_IN_PKTS_INVALID       0
+		SAI_MACSEC_SA_STAT_IN_PKTS_LATE          0
+		SAI_MACSEC_SA_STAT_IN_PKTS_NOT_VALID     0
+		SAI_MACSEC_SA_STAT_IN_PKTS_OK            3236
+		SAI_MACSEC_SA_STAT_IN_PKTS_UNCHECKED     0
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED      3212449
+MACsec port(Ethernet124)
+	MACsec Egress SC (1cea0b382bd70001)
+	encoding_an  0
+		MACsec Egress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN         3237
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED    3212449
+		SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED  3236
+	MACsec Ingress SC (1cea0b382bd50001)
+		MACsec Ingress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN           3224
+		SAI_MACSEC_SA_STAT_IN_PKTS_INVALID       0
+		SAI_MACSEC_SA_STAT_IN_PKTS_LATE          0
+		SAI_MACSEC_SA_STAT_IN_PKTS_NOT_VALID     0
+		SAI_MACSEC_SA_STAT_IN_PKTS_OK            3222
+		SAI_MACSEC_SA_STAT_IN_PKTS_UNCHECKED     0
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED      3210812
+== per link: frames encrypted by the sender = frames accepted by the receiver?
+SC 1cea0b382bd50001: encrypted 6446, accepted by the peer 6446: equal
+SC 1cea0b382bd60001: encrypted 3238, accepted by the peer 3238: equal
+SC 1cea0b382bd70001: encrypted 3236, accepted by the peer 3236: equal
+ingress error counters, all SAs: 0
+== SONiC counters
+Last cached time was 2026-11-22T18:10:20.538876
+       IFACE    STATE    RX_OK    RX_BPS    RX_UTIL    RX_ERR    RX_DRP    RX_OVR    TX_OK    TX_BPS    TX_UTIL    TX_ERR    TX_DRP    TX_OVR
+------------  -------  -------  --------  ---------  --------  --------  --------  -------  --------  ---------  --------  --------  --------
+ Ethernet1/1        U    3,219       N/A        N/A         0         0       N/A    3,220       N/A        N/A         0         0       N/A
+ Ethernet2/1        U    3,220       N/A        N/A         0         0       N/A    3,219       N/A        N/A         0         0       N/A
+Ethernet31/1        U    3,218       N/A        N/A         0         0       N/A    3,218       N/A        N/A         0         0       N/A
+Ethernet32/1        U    3,218       N/A        N/A         0         0       N/A    3,218       N/A        N/A         0         0       N/A
+== ASIC counters (frames, bytes, errors)
+RPKT.ce0		    :		      3,221		 +3,221
+RBYT.ce0		    :		  3,262,555	     +3,262,555
+TPKT.ce0		    :		      3,221		 +3,221 	      1/s
+TBYT.ce0		    :		  3,262,555	     +3,262,555 	    157/s
+RPKT.ce1		    :		      3,221		 +3,221 	      1/s
+RBYT.ce1		    :		  3,262,555	     +3,262,555 	    157/s
+TPKT.ce1		    :		      3,221		 +3,221
+TBYT.ce1		    :		  3,262,555	     +3,262,555
+RPKT.ce30		    :		      3,219		 +3,219
+RBYT.ce30		    :		  3,262,430	     +3,262,430
+TPKT.ce30		    :		      3,219		 +3,219 	      1/s
+TBYT.ce30		    :		  3,262,430	     +3,262,430 	    157/s
+RPKT.ce31		    :		      3,219		 +3,219 	      1/s
+RBYT.ce31		    :		  3,262,430	     +3,262,430 	    157/s
+TPKT.ce31		    :		      3,219		 +3,219
+TBYT.ce31		    :		  3,262,430	     +3,262,430
+== ASIC port state
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9162    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9162    No      
+      ce30(  9)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9162    No      
+      ce31( 13)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9162    No      
+ce0 AVERAGE_IPG=0x30  ce1 AVERAGE_IPG=0x30  ce30 AVERAGE_IPG=0x30  ce31 AVERAGE_IPG=0x30  ce2 AVERAGE_IPG=0x10  
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce0         49   50 up    up    no     0x0003      252        0    1     0     186     197     334     2    0        7369
+ce1         53   54 up    up    no     0x0003      252        0    1     0     185     199     348     2    0        6862
+== temperature / fans
+asic 47.2 C; fand failsafe: "failsafe": false
+== lldp
+Capability codes: (R) Router, (B) Bridge, (O) Other
+   LocalPort    RemoteDevice    RemotePortID    Capability    RemotePortDescr
+------------  --------------  --------------  ------------  -----------------
+ Ethernet1/1    as7772          Ethernet2/1     BR            Ethernet4
+ Ethernet2/1    as7772          Ethernet1/1     BR            Ethernet0
+Ethernet31/1  as7772          Ethernet32/1    BR            Ethernet124
+Ethernet32/1  as7772          Ethernet31/1    BR            Ethernet120
+--------------------------------------
+rc=0

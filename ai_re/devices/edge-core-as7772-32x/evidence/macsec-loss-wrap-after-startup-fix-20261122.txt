@@ -1,0 +1,97 @@
+# AS7772, system j7y63gfr... (HEAD a6e7c5a + the start-up fix): macsec-wrap-test.sh DIR one w1 w2 (parameter files with test keys: dumps/x/taskU, removed from the switch afterwards)
+== 2026-11-22T18:27:10-08:00 /nix/store/j7y63gfr529famc0jp99qadb2fn975c1-nixos-system-as7772-26.11.20261111.d4f25a3
+table /nix/store/x3xj6468yyzc1707i98ibiiybdxj9d18-as7772-ext-macsec.tbl: 32 writes of the ingress SecTAG-check register 0x5000 in it (0 = the table before the fix)
+== 0. SONiC MACsec off on cages 1, 2 (CONFIG_DB PORT.macsec removed)
+SONiC MACsec engines on ce0 / ce1: 0 (0 = both ports left to this test)
+20 packets transmitted, 20 received, 0% packet loss, time 304ms
+== 1. engines on, gap 48 bytes
+== set one: first packet number (8 bytes, low first) a2b 0100000000000000, b2a 0100000000000000
+-- packet numbers before
+ce0 pn.egress.0    extmacsec: ce0 pn.egress.0: ok, 1254 us   pn 1 
+ce1 pn.ingress.0   extmacsec: ce1 pn.ingress.0: ok, 1257 us   pn 1 
+ce1 pn.egress.0    extmacsec: ce1 pn.egress.0: ok, 1257 us   pn 1 
+ce0 pn.ingress.0   extmacsec: ce0 pn.ingress.0: ok, 1266 us   pn 1 
++ ping -c 600 -i 0.01 10.0.1.1 (cage 1 -> 2; replies come back 2 -> 1)
+600 packets transmitted, 600 received, 0% packet loss, time 9597ms;
+-- packet numbers after
+ce0 pn.egress.0    extmacsec: ce0 pn.egress.0: ok, 1258 us   pn 601 
+ce1 pn.ingress.0   extmacsec: ce1 pn.ingress.0: ok, 1290 us   pn 602 
+ce1 pn.egress.0    extmacsec: ce1 pn.egress.0: ok, 1266 us   pn 601 
+ce0 pn.ingress.0   extmacsec: ce0 pn.ingress.0: ok, 1227 us   pn 602 
+-- SecY counters, non-zero (cleared before the egress SAs were made)
+ce0 stats-sa.egress.0      octets_encrypted=51600 out_pkts_encrypted=600 
+ce1 stats-flow.ingress     octets_controlled=58800 octets_uncontrolled=78000 ucast_pkts_controlled=600 ucast_pkts_uncontrolled=600 
+ce1 stats-sa.ingress.0     in_pkts_ok=600 octets_encrypted=51600 
+ce0 stats-flow.egress      octets_controlled=58800 out_octets_common=78000 ucast_pkts_controlled=600 
+ce1 stats-sa.egress.0      octets_encrypted=51600 out_pkts_encrypted=600 
+ce0 stats-flow.ingress     octets_controlled=58800 octets_uncontrolled=78000 ucast_pkts_controlled=600 ucast_pkts_uncontrolled=600 
+ce0 stats-sa.ingress.0     in_pkts_ok=600 octets_encrypted=51600 
+ce1 stats-flow.egress      octets_controlled=58800 out_octets_common=78000 ucast_pkts_controlled=600 
+-- ASIC
+RPKT.ce0=600 TPKT.ce0=600 
+RPKT.ce1=600 TPKT.ce1=600 
+== set w1: first packet number (8 bytes, low first) a2b 00ffffff00000000, b2a 00ffffff00000000
+-- packet numbers before
+ce0 pn.egress.0    extmacsec: ce0 pn.egress.0: ok, 1254 us   pn 4294967040 
+ce1 pn.ingress.0   extmacsec: ce1 pn.ingress.0: ok, 1244 us   pn 4294967040 
+ce1 pn.egress.0    extmacsec: ce1 pn.egress.0: ok, 1252 us   pn 4294967040 
+ce0 pn.ingress.0   extmacsec: ce0 pn.ingress.0: ok, 1253 us   pn 4294967040 
++ ping -c 600 -i 0.01 10.0.1.1 (cage 1 -> 2; replies come back 2 -> 1)
+600 packets transmitted, 600 received, 0% packet loss, time 9617ms;
+-- packet numbers after
+ce0 pn.egress.0    extmacsec: ce0 pn.egress.0: ok, 1253 us   pn 4294967640 
+ce1 pn.ingress.0   extmacsec: ce1 pn.ingress.0: ok, 1251 us   pn 4294967641 
+ce1 pn.egress.0    extmacsec: ce1 pn.egress.0: ok, 1249 us   pn 4294967640 
+ce0 pn.ingress.0   extmacsec: ce0 pn.ingress.0: ok, 1247 us   pn 4294967641 
+-- SecY counters, non-zero (cleared before the egress SAs were made)
+ce0 stats-sa.egress.0      octets_encrypted=51600 out_pkts_encrypted=600 
+ce1 stats-flow.ingress     octets_controlled=58800 octets_uncontrolled=78000 ucast_pkts_controlled=600 ucast_pkts_uncontrolled=600 
+ce1 stats-sa.ingress.0     in_pkts_ok=600 octets_encrypted=51600 
+ce0 stats-flow.egress      octets_controlled=58800 out_octets_common=78000 ucast_pkts_controlled=600 
+ce1 stats-sa.egress.0      octets_encrypted=51600 out_pkts_encrypted=600 
+ce0 stats-flow.ingress     octets_controlled=58800 octets_uncontrolled=78000 ucast_pkts_controlled=600 ucast_pkts_uncontrolled=600 
+ce0 stats-sa.ingress.0     in_pkts_ok=600 octets_encrypted=51600 
+ce1 stats-flow.egress      octets_controlled=58800 out_octets_common=78000 ucast_pkts_controlled=600 
+-- ASIC
+RPKT.ce0=600 TPKT.ce0=600 
+RPKT.ce1=600 TPKT.ce1=600 
+== set w2: first packet number (8 bytes, low first) a2b 00ffffff01000000, b2a 00ffffff01000000
+-- packet numbers before
+ce0 pn.egress.0    extmacsec: ce0 pn.egress.0: ok, 1256 us   pn 8589934336 
+ce1 pn.ingress.0   extmacsec: ce1 pn.ingress.0: ok, 1242 us   pn 8589934336 
+ce1 pn.egress.0    extmacsec: ce1 pn.egress.0: ok, 1253 us   pn 8589934336 
+ce0 pn.ingress.0   extmacsec: ce0 pn.ingress.0: ok, 1247 us   pn 8589934336 
++ ping -c 600 -i 0.01 10.0.1.1 (cage 1 -> 2; replies come back 2 -> 1)
+600 packets transmitted, 600 received, 0% packet loss, time 9589ms;
+-- packet numbers after
+ce0 pn.egress.0    extmacsec: ce0 pn.egress.0: ok, 1256 us   pn 8589934938 
+ce1 pn.ingress.0   extmacsec: ce1 pn.ingress.0: ok, 1257 us   pn 8589934939 
+ce1 pn.egress.0    extmacsec: ce1 pn.egress.0: ok, 1257 us   pn 8589934938 
+ce0 pn.ingress.0   extmacsec: ce0 pn.ingress.0: ok, 1258 us   pn 8589934939 
+-- SecY counters, non-zero (cleared before the egress SAs were made)
+ce0 stats-sa.egress.0      octets_encrypted=51871 out_pkts_encrypted=602 
+ce1 stats-flow.ingress     multicast_pkts_controlled=1 multicast_pkts_uncontrolled=1 octets_controlled=59095 octets_uncontrolled=78359 ucast_pkts_controlled=601 ucast_pkts_uncontrolled=601 
+ce1 stats-sa.ingress.0     in_pkts_ok=602 octets_encrypted=51871 
+ce0 stats-flow.egress      multicast_pkts_controlled=1 octets_controlled=59095 out_octets_common=78359 ucast_pkts_controlled=601 
+ce1 stats-sa.egress.0      octets_encrypted=51871 out_pkts_encrypted=602 
+ce0 stats-flow.ingress     multicast_pkts_controlled=1 multicast_pkts_uncontrolled=1 octets_controlled=59095 octets_uncontrolled=78359 ucast_pkts_controlled=601 ucast_pkts_uncontrolled=601 
+ce0 stats-sa.ingress.0     in_pkts_ok=602 octets_encrypted=51871 
+ce1 stats-flow.egress      multicast_pkts_controlled=1 octets_controlled=59095 out_octets_common=78359 ucast_pkts_controlled=601 
+-- ASIC
+RPKT.ce0=602 TPKT.ce0=602 
+RPKT.ce1=602 TPKT.ce1=602 
+== back to bypass, SONiC's MACsec back on the two ports
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+port      phy  dir     engine gate   AN0 AN1 AN2 AN3 tx   runs fails  max_us last failure
+ce30      17e  egress  on     open   sa  -   -   -   0     700     0   80877 
+ce30      17e  ingress on     open   sa  -   -   -         761     0   89833 
+ce31      17f  egress  on     open   sa  -   -   -   0     726     0   81671 
+ce31      17f  ingress on     open   sa  -   -   -         802     0   89774 
+ce0         0  egress  on     open   sa  -   -   -   0     674     0   81385 
+ce0         0  ingress on     open   sa  -   -   -         735     0   89805 
+ce1         1  egress  on     open   sa  -   -   -   0     706     0   81770 
+ce1         1  ingress on     open   sa  -   -   -         781     0   89891 
+100 packets transmitted, 100 received, 0% packet loss, time 1582ms
+== failed units: 0
+rc=0
+coldboot2-traffic.txt macsec-appdb-test.sh macsec-clear-window-test.sh macsec-rekey-test.sh macsec-static-test.sh macsec-traffic-test.sh macsec-up-check.sh macsec-wrap-test.sh macsec-wrongcak-test.sh platform.txt reboot1-traffic.txt traffic-coldboot1.txt traffic-stack-restart.txt

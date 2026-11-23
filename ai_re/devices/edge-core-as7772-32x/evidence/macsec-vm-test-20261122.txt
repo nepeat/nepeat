@@ -1,0 +1,81 @@
+# VM test nix/modules/switch/sonic/tests/vm-macsec.nix (virtual SAI, x86_64, kvm), 2026-11-22.
+# 1. tree = HEAD a6e7c5a + the fix: every check passes.
+PASS Ethernet16: every MKA session since then started with 52:54:00:aa:bb:01
+PASS Ethernet16: netdev has 52:54:00:aa:bb:01
+PASS Ethernet16: wpa_supplicant runs with 52:54:00:aa:bb:01
+PASS Ethernet20: every MKA session since then started with 52:54:00:aa:bb:02
+PASS Ethernet20: netdev has 52:54:00:aa:bb:02
+PASS Ethernet20: wpa_supplicant runs with 52:54:00:aa:bb:02
+INFO sessions that waited for their address at boot: ["macsecmgrd[1047]: :- enableMACsec: The MKA session of the port 'Ethernet20' waits for the netdev to have its CONFIG_DB mac_addr (it has '52:54:00:aa:bb:01')"]
+PASS boot: MKA up on both ports (SAs with the SCIs of the addresses the ports have)
+INFO boot: SAs 6 s after the check began
+PASS no 'duplicate MAC' / 'duplicated SCI' from the KaYs
+PASS no wpa_supplicant unit-level wait is left (ExecStartPre)
+PASS Ethernet16: every MKA session since then started with 52:54:00:aa:bb:01
+PASS Ethernet16: netdev has 52:54:00:aa:bb:01
+PASS Ethernet16: wpa_supplicant runs with 52:54:00:aa:bb:01
+PASS Ethernet20: every MKA session since then started with 52:54:00:aa:bb:02
+PASS Ethernet20: netdev has 52:54:00:aa:bb:02
+PASS Ethernet20: wpa_supplicant runs with 52:54:00:aa:bb:02
+PASS syncd restart: MKA up on both ports (SAs with the SCIs of the addresses the ports have)
+INFO syncd restart: SAs 6 s after the check began
+PASS no 'duplicate MAC' / 'duplicated SCI' from the KaYs
+PASS macsecmgrd was started once by the restart
+PASS Ethernet16: every MKA session since then started with 52:54:00:aa:bb:07
+PASS Ethernet16: netdev has 52:54:00:aa:bb:07
+PASS Ethernet16: wpa_supplicant runs with 52:54:00:aa:bb:07
+PASS address changed: MKA up on both ports (SAs with the SCIs of the addresses the ports have)
+INFO address changed: SAs 1 s after the check began
+PASS the change is logged
+PASS Ethernet20: no new session
+PASS Ethernet20: same wpa_supplicant process
+PASS Ethernet20: every MKA session since then started with 52:54:00:aa:bb:09
+PASS Ethernet20: netdev has 52:54:00:aa:bb:09
+PASS Ethernet20: wpa_supplicant runs with 52:54:00:aa:bb:09
+PASS mac_addr changed: MKA up on both ports (SAs with the SCIs of the addresses the ports have)
+INFO mac_addr changed: SAs 1 s after the check began
+PASS no 'duplicate MAC' / 'duplicated SCI' from the KaYs
+PASS Ethernet16: same wpa_supplicant process
+PASS units active, not restarted by systemd
+INFO STATE_DB MACsec objects: MACSEC_EGRESS_SA_TABLE|Ethernet16|525400aabb070001|0 MACSEC_EGRESS_SA_TABLE|Ethernet20|525400aabb090001|0 MACSEC_EGRESS_SC_TABLE|Ethernet16|525400aabb070001 MACSEC_EGRESS_SC_TABLE|Ethernet20|525400aabb090001 MACSEC_INGRESS_SA_TABLE|Ethernet16|525400aabb090001|0 MACSEC_INGRESS_SA_TABLE|Ethernet20|525400aabb070001|0 MACSEC_INGRESS_SC_TABLE|Ethernet16|525400aabb090001 MA
+INFO wpa_supplicant:      10 KaY: No CA has a live peer; tearing down the controlled port
+INFO orchagent on MACsec:       6 :- createMACsecPort: MACsec port Ethernet20 is created.
+# 2. control: tree = HEAD a6e7c5a + the two test files only (no swss patch, the unit-level wait still there): the test fails.
+#    (The "every MKA session ... started with" checks read a log line only the patched macsecmgrd writes; the checks that
+#    do not depend on it fail too: duplicated SCI after the syncd restart, wpa_supplicant keeps the old address.)
+FAIL both sessions started (timed out) ::
+FAIL Ethernet16: every MKA session since then started with 52:54:00:aa:bb:01 :: []
+PASS Ethernet16: netdev has 52:54:00:aa:bb:01
+PASS Ethernet16: wpa_supplicant runs with 52:54:00:aa:bb:01
+FAIL Ethernet20: every MKA session since then started with 52:54:00:aa:bb:02 :: []
+PASS Ethernet20: netdev has 52:54:00:aa:bb:02
+PASS Ethernet20: wpa_supplicant runs with 52:54:00:aa:bb:02
+PASS boot: MKA up on both ports (SAs with the SCIs of the addresses the ports have)
+FAIL no 'duplicate MAC' / 'duplicated SCI' from the KaYs :: ['[   87.867409] switch wpa_supplicant[2093]: KaY: duplicated SCI detected - maybe active attacker or peer selected new MI - ignore MKPDU', '[   89.883575] switch wpa_supplicant[2093]: KaY: duplicated SCI detected - maybe active attacker or peer selected new MI - ignore
+FAIL no wpa_supplicant unit-level wait is left (ExecStartPre) ::
+FAIL both sessions started again (timed out) ::
+FAIL Ethernet16: every MKA session since then started with 52:54:00:aa:bb:01 :: []
+PASS Ethernet16: netdev has 52:54:00:aa:bb:01
+PASS Ethernet16: wpa_supplicant runs with 52:54:00:aa:bb:01
+FAIL Ethernet20: every MKA session since then started with 52:54:00:aa:bb:02 :: []
+PASS Ethernet20: netdev has 52:54:00:aa:bb:02
+PASS Ethernet20: wpa_supplicant runs with 52:54:00:aa:bb:02
+PASS syncd restart: MKA up on both ports (SAs with the SCIs of the addresses the ports have)
+FAIL no 'duplicate MAC' / 'duplicated SCI' from the KaYs :: ['[  288.712410] switch wpa_supplicant[5563]: KaY: duplicated SCI detected - maybe active attacker or peer selected new MI - ignore MKPDU', '[  288.805690] switch wpa_supplicant[5563]: KaY: duplicated SCI detected - maybe active attacker or peer selected new MI - ignore
+PASS macsecmgrd was started once by the restart
+FAIL new session on Ethernet16 (timed out) ::
+FAIL Ethernet16: every MKA session since then started with 52:54:00:aa:bb:07 :: []
+PASS Ethernet16: netdev has 52:54:00:aa:bb:07
+FAIL Ethernet16: wpa_supplicant runs with 52:54:00:aa:bb:07 :: ('5563', '52:54:00:aa:bb:01')
+FAIL address changed: MKA up on both ports (SAs with the SCIs of the addresses the ports have) (timed out) ::
+FAIL the change is logged :: [(470.639394, 'wpa_supplicant[5583]: (sonic_operators) : int sonic_db_manager::get_counter(const std::string&, const std::string&, const std::string&, uint64_t*) Cannot get the key Ethernet20:525400aabb020001:3 field SAI_MACSEC_SA_ATTR_CURRENT_XPN from the table COUNTERS'), (470.672109, 'wpa_supplica
+PASS Ethernet20: no new session
+PASS Ethernet20: same wpa_supplicant process
+FAIL new session on Ethernet20 (timed out) ::
+FAIL Ethernet20: every MKA session since then started with 52:54:00:aa:bb:09 :: []
+PASS Ethernet20: netdev has 52:54:00:aa:bb:09
+FAIL Ethernet20: wpa_supplicant runs with 52:54:00:aa:bb:09 :: ('5583', '52:54:00:aa:bb:02')
+FAIL mac_addr changed: MKA up on both ports (SAs with the SCIs of the addresses the ports have) (timed out) ::
+FAIL no 'duplicate MAC' / 'duplicated SCI' from the KaYs :: ['[  714.408140] switch wpa_supplicant[5563]: KaY: duplicated SCI detected - maybe active attacker or peer selected new MI - ignore MKPDU', '[  714.408171] switch wpa_supplicant[5563]: KaY: duplicated SCI detected - maybe active attacker or peer selected new MI - ignore
+PASS Ethernet16: same wpa_supplicant process
+PASS units active, not restarted by systemd

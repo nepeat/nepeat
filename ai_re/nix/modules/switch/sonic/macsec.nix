@@ -65,22 +65,6 @@ let
     fi
     exec ${spy.utilities}/bin/${name} "$@"
   '');
-  waitMac = pkgs.writeShellScript "sonic-macsec-wait-mac" ''
-    export PATH=${lib.makeBinPath [ cfg.packages.swss-common pkgs.coreutils pkgs.gnugrep ]}:$PATH
-    for i in $(seq 60); do
-      pending=
-      for key in $(sonic-db-cli CONFIG_DB keys 'INTERFACE|*' | grep -v '|.*|'); do
-        mac=$(sonic-db-cli CONFIG_DB hget "$key" mac_addr)
-        [ -n "$mac" ] || continue
-        dev=''${key#INTERFACE|}
-        [ "$(cat /sys/class/net/$dev/address 2>/dev/null)" = "$mac" ] || pending="$pending $dev"
-      done
-      [ -z "$pending" ] && exit 0
-      sleep 1
-    done
-    echo "interfaces without their CONFIG_DB mac_addr after 60 s:$pending (MKA will use the address they have)" >&2
-    exit 0
-  '';
   unitBase = {
     partOf = [ "sonic.target" ];
     unitConfig = { StartLimitIntervalSec = 300; StartLimitBurst = 10; };
@@ -165,11 +149,16 @@ in {
         after = [ "sonic-orchagent.service" "sonic-config-loader.service" "sonic-macsec-config.service" ];
         requires = [ "sonic-config-loader.service" ];
         serviceConfig = {
-          # wpa_supplicant takes the port's MAC address when it starts and keeps it (the SCI is built from it).
-          # intfmgrd sets a CONFIG_DB INTERFACE mac_addr some seconds into a stack start: wait until every such
-          # interface has its address (60 s at most), or the MKA session runs with the switch MAC.
-          ExecStartPre = "${waitMac}";
+          # No waiting for addresses here: macsecmgrd itself starts a port's MKA session only when the netdev
+          # has the port's CONFIG_DB INTERFACE mac_addr (if one is set) and starts it again when the address
+          # changes (packages/sonic/swss/patches/0003). A unit-level wait cannot do that: at a stack restart
+          # the previous syncd's netdevs still exist, with the right address, until the new syncd replaces them.
           ExecStart = "${cfg.packages.swss}/bin/macsecmgrd";
+          # Stop: SIGTERM to macsecmgrd only. It ends each MKA session itself (wpa_cli interface_remove, then
+          # SIGINT to that wpa_supplicant and wait), which needs the supplicants alive. With the default
+          # (everything in the unit signalled at once) its wpa_cli calls ran into supplicants that were already
+          # exiting and timed out: a stop of 15 s to more than a minute. What is left afterwards is killed.
+          KillMode = "mixed";
           Restart = "always";
           RestartSec = 3;
           # macsecmgrd runs /sbin/wpa_supplicant and /sbin/wpa_cli with

@@ -1,0 +1,541 @@
+# AS7772-32X: does MKA come up by itself? Start-path series, 2026-11-22 (switch clock; UTC-8).
+# Each run: the action, then macsec-up-check.sh on the switch (limit 90 s). ok = every port with a MACsec profile has an
+# egress and an ingress SA made since the start, the egress SCI is the netdev's address, and macsecmgrd was started at
+# most once since the start. Times: seconds from the start of sonic-syncd (cold, reboot, stack, syncd), of
+# sonic-macsecmgrd (macsecmgrd) or from "config interface startup" after 12 s shut (flaps), to the slowest port's SAs.
+#   cold = clean poweroff, lab-power 1 off, 12 s, on; reboot = systemctl reboot; stack = systemctl restart sonic.target;
+#   syncd = systemctl restart sonic-syncd (what a deploy does); macsecmgrd = systemctl restart sonic-macsecmgrd;
+#   flap-near / flap-far = config interface shutdown + startup of Ethernet0 / Ethernet4 (the two ends of one DAC).
+# Systems: baseline = wchbsjy4l9al... (HEAD a6e7c5a as deployed before); fixed = mnpg57cjw9b3... (HEAD + swss patch 0003,
+# no unit-level wait); final = j7y63gfr529f... (fixed + KillMode=mixed on the macsecmgrd unit; what the switch runs now).
+#
+# path        | baseline ok, time    | fixed ok, time       | final ok, time
+cold        | 1/1, 17.1-17.1 s     | -                    | 3/3, 14.6-16.1 s
+reboot      | 1/1, 17.2-17.2 s     | 3/3, 15.2-18.0 s     | 4/4, 16.1-16.8 s
+stack       | 0/2                  | 5/5, 16.2-17.5 s     | 5/5, 15.4-16.7 s
+syncd       | 0/2                  | 3/3, 15.9-17.3 s     | 3/3, 15.7-17.5 s
+macsecmgrd  | -                    | 2/3, 5.7-6.1 s       | 3/3, 5.9-6.5 s
+flap-near   | 0/1                  | 2/2, 10.5-10.7 s     | 2/2, 8.9-10.5 s
+flap-far    | 0/1                  | 2/2, 9.4-9.8 s       | 2/2, 8.9-10.8 s
+#
+# Notes
+# - baseline flaps: the link's two ports were secured again 7.6-9.9 s after startup in both runs; they count as not ok
+#   only because the check of that moment also wanted new SAs on the two ports the flap did not touch (since corrected:
+#   with -s @time a port may keep its SAs). An earlier baseline series (2 x macsecmgrd ok 6.1 / 6.7 s, 3 x stack and
+#   1 x syncd not ok) lost its output to a logging bug of the runner and is not counted; the deploy of "fixed" (a syncd
+#   restart by nixos-rebuild switch) was ok in 16.5 s and is not in the table either.
+# - fixed, macsecmgrd 2/3: the one not ok was a restart that took about 70 s (stop of the old instance: wpa_cli
+#   time-outs), so the check ran against the previous start. Reproduced below (restart 1-2 s after a start: 15 s),
+#   gone with KillMode=mixed (8 restarts 0.5-6 s after a start: 1.5-2.6 s, no time-out).
+# - final: one more reboot at the very end (ok, 16.5 s) is the state the switch was left in.
+# Raw outputs: dumps/x/taskV/runs-{baseline,fixed,final}.txt. No key material in any of it.
+
+################ baseline (wchbsjy4l9al)
+##### earlier baseline runs whose output was not saved (a logging bug of the runner): [{"tag":"baseline:macsecmgrd","kind":"macsecmgrd","ok":true,"t":6.1,"when":"2026-11-23T00:40:48.964Z"},{"tag":"baseline:macsecmgrd","kind":"macsecmgrd","ok":true,"t":6.7,"whe
+##### flap-near baseline:flap-near 2026-11-23T00:57:32.654Z ok=false
+== 2026-11-22T16:56:02-08:00 wchbsjy4l9al... up 8473.35 s; the given moment: 8468.47 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: NOT SECURED; MKA session started +26.1 s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI -
+Ethernet4: NOT SECURED; MKA session started +27.2 s, secured +- s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI -
+Ethernet120: NOT SECURED; MKA session started +26.5 s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI -
+Ethernet124: NOT SECURED; MKA session started +26.8 s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI -
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 24
+FAIL: MKA is not up by itself on every port within 90 s of the given moment
+8554.035071 wpa_supplicant[191034]: KaY: duplicated SCI detected - maybe active attacker or peer selected new MI - ignore MKPDU
+8554.510142 wpa_supplicant[191034]: KaY: No CA has a live peer; tearing down the controlled port
+8555.528352 wpa_supplicant[191174]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+8555.616137 wpa_supplicant[191112]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+8556.044947 wpa_supplicant[191034]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+8556.519543 wpa_supplicant[191230]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+##### syncd baseline:syncd 2026-11-23T00:57:47.880Z ok=false
+== 2026-11-22T16:56:15-08:00 wchbsjy4l9al... up 8486.06 s; the start of sonic-syncd: 8483.947 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: NOT SECURED; MKA session started +10.6 s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI -
+Ethernet4: NOT SECURED; MKA session started +11.7 s, secured +- s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI -
+Ethernet120: NOT SECURED; MKA session started +11.0 s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI -
+Ethernet124: NOT SECURED; MKA session started +11.4 s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI -
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 22
+FAIL: MKA is not up by itself on every port within 90 s of the start of sonic-syncd
+8555.528352 wpa_supplicant[191174]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+8555.616137 wpa_supplicant[191112]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+8556.044947 wpa_supplicant[191034]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+8556.519543 wpa_supplicant[191230]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+8574.077431 wpa_supplicant[191230]: KaY: No CA has a live peer; tearing down the controlled port
+8576.559565 wpa_supplicant[191034]: KaY: No CA has a live peer; tearing down the controlled port
+##### flap-far baseline:flap-far 2026-11-23T00:57:50.882Z ok=false
+##### stack baseline:stack 2026-11-23T00:57:51.120Z ok=false
+##### stack baseline:stack 2026-11-23T00:57:51.338Z ok=false
+##### syncd baseline:syncd 2026-11-23T00:57:51.563Z ok=false
+##### syncd baseline:syncd 2026-11-23T00:57:51.765Z ok=false
+##### reboot baseline:reboot (the reboot the first runner issued; system wchbsjy4l9al) 2026-11-23T01:06:52.141Z ok=true
+Ethernet0: secured; MKA session started +11.0 s, secured +17.1 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.0 s, secured +17.2 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +11.4 s, secured +15.9 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +11.7 s, secured +15.9 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 17.2 s after the start of sonic-syncd (limit 90 s)
+##### flap-near baseline:flap-near 2026-11-23T01:08:40.738Z ok=false
+== 2026-11-22T17:07:13-08:00 wchbsjy4l9al... up 548.37 s; the given moment: 543.59 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +- s, secured +7.6 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +- s, secured +9.9 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: NOT SECURED since the start (its SAs are older); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: NOT SECURED since the start (its SAs are older); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 0; MKA sessions started since: 0; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+FAIL: MKA is not up by itself on every port within 90 s of the given moment
+##### flap-far baseline:flap-far 2026-11-23T01:10:28.624Z ok=false
+== 2026-11-22T17:09:01-08:00 wchbsjy4l9al... up 656.52 s; the given moment: 651.75 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +- s, secured +7.7 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +- s, secured +9.9 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: NOT SECURED since the start (its SAs are older); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: NOT SECURED since the start (its SAs are older); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 0; MKA sessions started since: 0; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+FAIL: MKA is not up by itself on every port within 90 s of the given moment
+##### stack baseline:stack 2026-11-23T01:12:03.537Z ok=false
+== 2026-11-22T17:10:41-08:00 wchbsjy4l9al... up 755.85 s; the start of sonic-syncd: 746.409 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: NOT SECURED; MKA session started +10.5 s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI -
+Ethernet4: NOT SECURED; MKA session started +11.5 s, secured +- s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI -
+Ethernet120: NOT SECURED; MKA session started +10.8 s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI -
+Ethernet124: NOT SECURED; MKA session started +11.2 s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI -
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 20
+FAIL: MKA is not up by itself on every port within 90 s of the start of sonic-syncd
+813.325500 wpa_supplicant[18938]: KaY: No CA has a live peer; tearing down the controlled port
+813.993329 wpa_supplicant[18870]: KaY: No CA has a live peer; tearing down the controlled port
+814.581482 wpa_supplicant[18938]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+814.988976 wpa_supplicant[18870]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+815.335023 wpa_supplicant[18963]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+816.003197 wpa_supplicant[19001]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+##### stack baseline:stack 2026-11-23T01:13:38.944Z ok=false
+== 2026-11-22T17:12:16-08:00 wchbsjy4l9al... up 851.03 s; the start of sonic-syncd: 841.699 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: NOT SECURED; MKA session started +10.5 s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI -
+Ethernet4: NOT SECURED; MKA session started +11.6 s, secured +- s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI -
+Ethernet120: NOT SECURED; MKA session started +10.9 s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI -
+Ethernet124: NOT SECURED; MKA session started +11.2 s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI -
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 21
+FAIL: MKA is not up by itself on every port within 90 s of the start of sonic-syncd
+911.076131 wpa_supplicant[24989]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+911.905758 wpa_supplicant[25078]: KaY: No CA has a live peer; tearing down the controlled port
+911.906080 wpa_supplicant[24924]: KaY: duplicated SCI detected - maybe active attacker or peer selected new MI - ignore MKPDU
+911.917118 wpa_supplicant[24924]: KaY: No CA has a live peer; tearing down the controlled port
+913.915066 wpa_supplicant[24924]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+913.928085 wpa_supplicant[25078]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+##### syncd baseline:syncd 2026-11-23T01:15:14.437Z ok=false
+== 2026-11-22T17:13:43-08:00 wchbsjy4l9al... up 938.57 s; the start of sonic-syncd: 936.941 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: NOT SECURED; MKA session started +10.3 s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI -
+Ethernet4: NOT SECURED; MKA session started +11.4 s, secured +- s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI -
+Ethernet120: NOT SECURED; MKA session started +10.7 s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI -
+Ethernet124: NOT SECURED; MKA session started +11.0 s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI -
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 20
+FAIL: MKA is not up by itself on every port within 90 s of the start of sonic-syncd
+1005.290818 wpa_supplicant[31462]: KaY: No CA has a live peer; tearing down the controlled port
+1005.291176 wpa_supplicant[31441]: KaY: duplicated SCI detected - maybe active attacker or peer selected new MI - ignore MKPDU
+1005.553552 wpa_supplicant[31441]: KaY: No CA has a live peer; tearing down the controlled port
+1006.360123 wpa_supplicant[31510]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+1007.300677 wpa_supplicant[31441]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+1007.562936 wpa_supplicant[31462]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+##### syncd baseline:syncd 2026-11-23T01:16:49.648Z ok=false
+== 2026-11-22T17:15:18-08:00 wchbsjy4l9al... up 1033.47 s; the start of sonic-syncd: 1031.861 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: NOT SECURED; MKA session started +12.4 s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI -
+Ethernet4: NOT SECURED; MKA session started +11.1 s, secured +- s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI -
+Ethernet120: NOT SECURED; MKA session started +10.3 s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI -
+Ethernet124: NOT SECURED; MKA session started +10.7 s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI -
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 20
+FAIL: MKA is not up by itself on every port within 90 s of the start of sonic-syncd
+1098.469455 wpa_supplicant[37802]: KaY: No CA has a live peer; tearing down the controlled port
+1099.274168 wpa_supplicant[37898]: KaY: No CA has a live peer; tearing down the controlled port
+1099.282685 wpa_supplicant[37802]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+1099.932511 wpa_supplicant[37898]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+1100.480705 wpa_supplicant[37879]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+1101.284691 wpa_supplicant[38026]: KaY: Cannot elect key server between me and peer, duplicate MAC detected
+##### cold baseline:cold 2026-11-23T01:20:01.578Z ok=true
+Ethernet0: secured; MKA session started +11.0 s, secured +16.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.0 s, secured +16.4 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +11.4 s, secured +17.1 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +11.7 s, secured +17.1 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 17.1 s after the start of sonic-syncd (limit 90 s)
+rc=0failed units: 0
+
+################ fixed (mnpg57cjw9b3)
+##### deploy (nixos-rebuild switch: syncd restarted by the activation) 2026-11-23T01:21:03.288Z
+== 2026-11-22T17:20:53-08:00 mnpg57cjw9b3... up 187.40 s; the start of sonic-syncd: 178.245 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +10.2 s, secured +16.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.3 s, secured +16.5 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.6 s, secured +16.5 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.9 s, secured +16.5 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 16.5 s after the start of sonic-syncd (limit 90 s)
+##### stack fixed:stack 2026-11-23T01:21:45.042Z ok=true
+== 2026-11-22T17:21:34-08:00 mnpg57cjw9b3... up 228.62 s; the start of sonic-syncd: 219.099 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +10.4 s, secured +17.2 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.4 s, secured +17.3 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.7 s, secured +16.5 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +12.1 s, secured +16.6 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 17.3 s after the start of sonic-syncd (limit 90 s)
+##### stack fixed:stack 2026-11-23T01:22:07.022Z ok=true
+== 2026-11-22T17:21:57-08:00 mnpg57cjw9b3... up 251.29 s; the start of sonic-syncd: 242.060 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +10.4 s, secured +15.7 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.4 s, secured +15.8 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.7 s, secured +16.1 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +12.1 s, secured +16.2 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 16.2 s after the start of sonic-syncd (limit 90 s)
+##### stack fixed:stack 2026-11-23T01:22:29.597Z ok=true
+== 2026-11-22T17:22:19-08:00 mnpg57cjw9b3... up 273.36 s; the start of sonic-syncd: 264.073 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +10.4 s, secured +15.7 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.4 s, secured +15.7 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.8 s, secured +16.9 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +12.1 s, secured +16.9 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 16.9 s after the start of sonic-syncd (limit 90 s)
+##### stack fixed:stack 2026-11-23T01:22:53.942Z ok=true
+== 2026-11-22T17:22:42-08:00 mnpg57cjw9b3... up 296.29 s; the start of sonic-syncd: 286.939 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +10.4 s, secured +16.7 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.4 s, secured +16.7 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.8 s, secured +16.1 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +12.1 s, secured +16.1 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 16.7 s after the start of sonic-syncd (limit 90 s)
+##### stack fixed:stack 2026-11-23T01:23:18.598Z ok=true
+== 2026-11-22T17:23:06-08:00 mnpg57cjw9b3... up 320.54 s; the start of sonic-syncd: 311.077 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +11.4 s, secured +17.5 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.4 s, secured +17.5 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +11.7 s, secured +16.6 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +12.0 s, secured +16.6 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 17.5 s after the start of sonic-syncd (limit 90 s)
+##### syncd fixed:syncd 2026-11-23T01:23:42.911Z ok=true
+== 2026-11-22T17:23:23-08:00 mnpg57cjw9b3... up 337.52 s; the start of sonic-syncd: 335.917 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +11.1 s, secured +15.9 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.2 s, secured +15.9 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +11.5 s, secured +15.6 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +11.8 s, secured +15.6 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 15.9 s after the start of sonic-syncd (limit 90 s)
+##### syncd fixed:syncd 2026-11-23T01:24:08.877Z ok=true
+== 2026-11-22T17:23:47-08:00 mnpg57cjw9b3... up 361.54 s; the start of sonic-syncd: 359.921 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +11.2 s, secured +17.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.2 s, secured +17.3 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +11.5 s, secured +17.0 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +11.9 s, secured +17.1 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 17.3 s after the start of sonic-syncd (limit 90 s)
+##### syncd fixed:syncd 2026-11-23T01:24:33.661Z ok=true
+== 2026-11-22T17:24:13-08:00 mnpg57cjw9b3... up 387.56 s; the start of sonic-syncd: 385.949 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +11.5 s, secured +16.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.2 s, secured +16.3 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.2 s, secured +15.1 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +11.9 s, secured +15.2 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 16.3 s after the start of sonic-syncd (limit 90 s)
+##### macsecmgrd fixed:macsecmgrd 2026-11-23T01:24:47.213Z ok=true
+== 2026-11-22T17:24:36-08:00 mnpg57cjw9b3... up 410.21 s; the start of sonic-macsecmgrd: 409.157 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +0.5 s, secured +6.1 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +1.5 s, secured +6.1 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +0.8 s, secured +5.9 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +1.2 s, secured +6.0 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 6.1 s after the start of sonic-macsecmgrd (limit 90 s)
+##### macsecmgrd fixed:macsecmgrd 2026-11-23T01:25:59.569Z ok=false
+== 2026-11-22T17:24:49-08:00 mnpg57cjw9b3... up 423.74 s; the start of sonic-macsecmgrd: 409.157 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +74.8 s, secured +6.1 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +75.8 s, secured +6.1 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +75.2 s, secured +5.9 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +75.5 s, secured +6.0 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 2; MKA sessions started since: 8; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+macsecmgrd was started 2 times since the start of sonic-macsecmgrd: not by itself
+FAIL: MKA is not up by itself on every port within 90 s of the start of sonic-macsecmgrd
+421.672095 wpa_supplicant[17998]: KaY: No CA has a live peer; tearing down the controlled port
+421.672096 wpa_supplicant[18084]: KaY: No CA has a live peer; tearing down the controlled port
+421.672102 wpa_supplicant[17961]: KaY: No CA has a live peer; tearing down the controlled port
+421.672102 wpa_supplicant[18031]: KaY: No CA has a live peer; tearing down the controlled port
+##### macsecmgrd fixed:macsecmgrd 2026-11-23T01:26:11.544Z ok=true
+== 2026-11-22T17:26:02-08:00 mnpg57cjw9b3... up 496.10 s; the start of sonic-macsecmgrd: 495.050 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +0.5 s, secured +5.5 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +1.6 s, secured +5.6 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +0.8 s, secured +5.7 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +1.2 s, secured +5.7 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 5.7 s after the start of sonic-macsecmgrd (limit 90 s)
+##### flap-near fixed:flap-near 2026-11-23T01:26:44.650Z ok=true
+== 2026-11-22T17:26:32-08:00 mnpg57cjw9b3... up 526.89 s; the given moment: 522.13 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +- s, secured +8.5 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +- s, secured +10.7 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 0; MKA sessions started since: 0; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 10.7 s after the given moment (limit 90 s)
+##### flap-far fixed:flap-far 2026-11-23T01:27:16.034Z ok=true
+== 2026-11-22T17:27:05-08:00 mnpg57cjw9b3... up 559.91 s; the given moment: 555.12 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +- s, secured +7.6 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +- s, secured +9.8 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 0; MKA sessions started since: 0; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 9.8 s after the given moment (limit 90 s)
+##### flap-near fixed:flap-near 2026-11-23T01:27:49.133Z ok=true
+== 2026-11-22T17:27:37-08:00 mnpg57cjw9b3... up 591.28 s; the given moment: 586.50 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +- s, secured +8.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +- s, secured +10.5 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 0; MKA sessions started since: 0; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 10.5 s after the given moment (limit 90 s)
+##### flap-far fixed:flap-far 2026-11-23T01:28:20.601Z ok=true
+== 2026-11-22T17:28:10-08:00 mnpg57cjw9b3... up 624.40 s; the given moment: 619.63 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +- s, secured +7.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +- s, secured +9.4 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 0; MKA sessions started since: 0; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 9.4 s after the given moment (limit 90 s)
+##### reboot fixed:reboot 2026-11-23T01:30:52.652Z ok=true
+== 2026-11-22T17:30:37-08:00 mnpg57cjw9b3... up 119.59 s; the start of sonic-syncd: 117.212 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +10.0 s, secured +15.1 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.1 s, secured +15.2 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.4 s, secured +14.7 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.7 s, secured +14.7 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 15.2 s after the start of sonic-syncd (limit 90 s)
+rc=0failed units: 0
+##### reboot fixed:reboot 2026-11-23T01:33:24.364Z ok=true
+== 2026-11-22T17:33:13-08:00 mnpg57cjw9b3... up 124.20 s; the start of sonic-syncd: 117.405 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +10.0 s, secured +15.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.1 s, secured +15.3 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.4 s, secured +15.6 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.7 s, secured +15.7 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 15.7 s after the start of sonic-syncd (limit 90 s)
+rc=0failed units: 0
+##### reboot fixed:reboot 2026-11-23T01:35:59.733Z ok=true
+== 2026-11-22T17:35:46-08:00 mnpg57cjw9b3... up 125.26 s; the start of sonic-syncd: 118.474 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +11.1 s, secured +17.9 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +13.2 s, secured +18.0 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +11.5 s, secured +15.9 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +12.9 s, secured +15.9 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 18.0 s after the start of sonic-syncd (limit 90 s)
+rc=0failed units: 0
+##### macsecmgrd restart x6 with the duration of the restart (system mnpg57cj, KillMode control-group)
+restart took 1.1 s
+restart took 1.1 s
+restart took 1.1 s
+restart took 1.1 s
+restart took 1.1 s
+restart took 1.1 s
+##### macsecmgrd restarted N s after its start (mid-MKA), duration of the restart; system mnpg57cj (KillMode control-group)
+restart 2 s after a start: took 15.2 s; 2 wpa_cli time-outs
+restart 3 s after a start: took 1.1 s; 0 wpa_cli time-outs
+restart 4 s after a start: took 0.1 s; 0 wpa_cli time-outs
+restart 5 s after a start: took 0.1 s; 0 wpa_cli time-outs
+restart 5.5 s after a start: took 0.1 s; 0 wpa_cli time-outs
+restart 6 s after a start: took 0.1 s; 0 wpa_cli time-outs
+restart 6.5 s after a start: took 0.1 s; 0 wpa_cli time-outs
+restart 7 s after a start: took 0.1 s; 0 wpa_cli time-outs
+restart 8 s after a start: took 0.1 s; 0 wpa_cli time-outs
+restart 4.5 s after a start: took 0.1 s; 0 wpa_cli time-outs
+restart 5.2 s after a start: took 0.0 s; 0 wpa_cli time-outs
+restart 5.8 s after a start: took 0.1 s; 0 wpa_cli time-outs
+restart 6.2 s after a start: took 0.0 s; 0 wpa_cli time-outs
+FAIL: MKA is not up by itself on every port within 60 s of the start of sonic-macsecmgrd
+##### macsecmgrd restarted N s after its start (mid-MKA), duration of the restart; system mnpg57cj (KillMode control-group), second try within the start limit
+restart 1 s after a start: took 15.1 s; 2 wpa_cli time-outs
+restart 2 s after a start: took 1.1 s; 0 wpa_cli time-outs
+restart 2.5 s after a start: took 1.1 s; 0 wpa_cli time-outs
+restart 6 s after a start: took 1.1 s; 0 wpa_cli time-outs
+PASS: MKA up on 4 ports without intervention, the slowest 6.6 s after the start of sonic-macsecmgrd (limit 60 s)
+##### deploy of the final system (unit change only: macsecmgrd restarted by the activation) 2026-11-23T01:41:42.491Z
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 5.9 s after the start of sonic-macsecmgrd (limit 60 s)
+##### macsecmgrd restarted N s after its start, duration of the restart; system j7y63gfr (KillMode mixed)
+restart 1 s after a start: took 1.5 s; 0 wpa_cli time-outs
+restart 1 s after a start: took 1.5 s; 0 wpa_cli time-outs
+restart 2 s after a start: took 1.7 s; 0 wpa_cli time-outs
+restart 6 s after a start: took 1.8 s; 0 wpa_cli time-outs
+PASS: MKA up on 4 ports without intervention, the slowest 6.1 s after the start of sonic-macsecmgrd (limit 60 s)
+##### the same again; system j7y63gfr (KillMode mixed)
+restart 0.5 s after a start: took 2.6 s; 0 wpa_cli time-outs
+restart 1 s after a start: took 1.5 s; 0 wpa_cli time-outs
+restart 1.5 s after a start: took 1.8 s; 0 wpa_cli time-outs
+restart 3 s after a start: took 1.7 s; 0 wpa_cli time-outs
+PASS: MKA up on 4 ports without intervention, the slowest 5.4 s after the start of sonic-macsecmgrd (limit 60 s)
+
+################ final (j7y63gfr529f)
+##### reboot final:reboot 2026-11-23T01:51:05.988Z ok=true
+== 2026-11-22T17:50:50-08:00 j7y63gfr529f... up 119.17 s; the start of sonic-syncd: 117.043 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +10.0 s, secured +15.4 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.1 s, secured +15.5 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.4 s, secured +16.0 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.8 s, secured +16.1 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 16.1 s after the start of sonic-syncd (limit 90 s)
+rc=0failed units: 0
+##### reboot final:reboot 2026-11-23T01:53:39.495Z ok=true
+== 2026-11-22T17:53:24-08:00 j7y63gfr529f... up 121.91 s; the start of sonic-syncd: 117.328 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +11.2 s, secured +16.6 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.5 s, secured +16.6 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +11.7 s, secured +16.7 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +12.1 s, secured +16.8 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 16.8 s after the start of sonic-syncd (limit 90 s)
+rc=0failed units: 0
+##### reboot final:reboot 2026-11-23T01:56:12.502Z ok=true
+== 2026-11-22T17:55:57-08:00 j7y63gfr529f... up 120.49 s; the start of sonic-syncd: 117.219 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +10.0 s, secured +16.1 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.1 s, secured +16.2 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.4 s, secured +15.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.7 s, secured +15.4 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 16.2 s after the start of sonic-syncd (limit 90 s)
+rc=0failed units: 0
+##### stack final:stack 2026-11-23T01:56:33.741Z ok=true
+== 2026-11-22T17:56:24-08:00 j7y63gfr529f... up 147.77 s; the start of sonic-syncd: 138.522 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +10.4 s, secured +15.9 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.4 s, secured +15.9 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.7 s, secured +15.8 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +12.1 s, secured +15.8 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 15.9 s after the start of sonic-syncd (limit 90 s)
+##### stack final:stack 2026-11-23T01:56:56.179Z ok=true
+== 2026-11-22T17:56:46-08:00 j7y63gfr529f... up 169.83 s; the start of sonic-syncd: 160.506 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +11.4 s, secured +15.8 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.4 s, secured +15.8 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +11.8 s, secured +16.6 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +12.1 s, secured +16.6 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 16.6 s after the start of sonic-syncd (limit 90 s)
+##### stack final:stack 2026-11-23T01:57:19.968Z ok=true
+== 2026-11-22T17:57:09-08:00 j7y63gfr529f... up 192.07 s; the start of sonic-syncd: 182.803 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +10.5 s, secured +16.6 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.5 s, secured +16.7 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.8 s, secured +15.8 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +12.2 s, secured +15.9 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 16.7 s after the start of sonic-syncd (limit 90 s)
+##### stack final:stack 2026-11-23T01:57:41.315Z ok=true
+== 2026-11-22T17:57:32-08:00 j7y63gfr529f... up 215.08 s; the start of sonic-syncd: 205.999 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +10.3 s, secured +15.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.3 s, secured +15.3 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.7 s, secured +15.4 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +12.0 s, secured +15.4 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 15.4 s after the start of sonic-syncd (limit 90 s)
+##### stack final:stack 2026-11-23T01:58:04.892Z ok=true
+== 2026-11-22T17:57:54-08:00 j7y63gfr529f... up 237.20 s; the start of sonic-syncd: 227.773 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +10.5 s, secured +16.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.6 s, secured +16.4 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.9 s, secured +16.0 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +12.2 s, secured +16.0 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 16.4 s after the start of sonic-syncd (limit 90 s)
+##### syncd final:syncd 2026-11-23T01:58:30.447Z ok=true
+== 2026-11-22T17:58:09-08:00 j7y63gfr529f... up 252.85 s; the start of sonic-syncd: 251.237 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +11.2 s, secured +17.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.2 s, secured +17.3 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +11.5 s, secured +16.9 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +11.9 s, secured +17.0 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 17.3 s after the start of sonic-syncd (limit 90 s)
+##### syncd final:syncd 2026-11-23T01:58:52.633Z ok=true
+== 2026-11-22T17:58:34-08:00 j7y63gfr529f... up 277.74 s; the start of sonic-syncd: 276.149 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +11.6 s, secured +15.5 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.3 s, secured +15.5 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.3 s, secured +15.7 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +12.0 s, secured +15.7 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 15.7 s after the start of sonic-syncd (limit 90 s)
+##### syncd final:syncd 2026-11-23T01:59:19.079Z ok=true
+== 2026-11-22T17:58:57-08:00 j7y63gfr529f... up 300.75 s; the start of sonic-syncd: 299.140 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +11.2 s, secured +17.4 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +12.2 s, secured +17.5 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +11.5 s, secured +16.6 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +11.9 s, secured +16.6 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 17.5 s after the start of sonic-syncd (limit 90 s)
+##### cold final:cold 2026-11-23T02:02:34.830Z ok=true
+Ethernet0: secured; MKA session started +10.0 s, secured +15.0 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.1 s, secured +15.0 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.4 s, secured +16.0 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.8 s, secured +16.1 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 16.1 s after the start of sonic-syncd (limit 90 s)
+rc=0failed units: 0
+##### cold final:cold 2026-11-23T02:05:43.944Z ok=true
+Ethernet0: secured; MKA session started +10.0 s, secured +15.7 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.1 s, secured +15.8 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.4 s, secured +15.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.7 s, secured +15.4 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 15.8 s after the start of sonic-syncd (limit 90 s)
+rc=0failed units: 0
+##### cold final:cold 2026-11-23T02:08:54.437Z ok=true
+Ethernet0: secured; MKA session started +9.0 s, secured +14.6 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.1 s, secured +14.6 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +9.4 s, secured +14.1 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.7 s, secured +14.2 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 14.6 s after the start of sonic-syncd (limit 90 s)
+rc=0failed units: 0
+##### macsecmgrd final:macsecmgrd 2026-11-23T02:28:19.924Z ok=true
+== 2026-11-22T18:28:09-08:00 j7y63gfr529f... up 1289.76 s; the start of sonic-macsecmgrd: 1288.701 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +0.4 s, secured +6.4 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +1.5 s, secured +6.4 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +0.8 s, secured +6.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +1.1 s, secured +6.3 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 6.4 s after the start of sonic-macsecmgrd (limit 90 s)
+##### macsecmgrd final:macsecmgrd 2026-11-23T02:28:33.037Z ok=true
+== 2026-11-22T18:28:23-08:00 j7y63gfr529f... up 1303.61 s; the start of sonic-macsecmgrd: 1302.549 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +0.5 s, secured +5.6 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +1.5 s, secured +5.6 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +0.8 s, secured +5.8 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +1.2 s, secured +5.9 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 5.9 s after the start of sonic-macsecmgrd (limit 90 s)
+##### macsecmgrd final:macsecmgrd 2026-11-23T02:28:46.137Z ok=true
+== 2026-11-22T18:28:36-08:00 j7y63gfr529f... up 1316.70 s; the start of sonic-macsecmgrd: 1315.642 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +0.4 s, secured +5.7 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +1.5 s, secured +5.8 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +0.8 s, secured +6.4 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +1.1 s, secured +6.5 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 6.5 s after the start of sonic-macsecmgrd (limit 90 s)
+##### flap-near final:flap-near 2026-11-23T02:29:17.770Z ok=true
+== 2026-11-22T18:29:07-08:00 j7y63gfr529f... up 1347.85 s; the given moment: 1343.09 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +- s, secured +8.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +- s, secured +10.5 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 0; MKA sessions started since: 0; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 10.5 s after the given moment (limit 90 s)
+##### flap-far final:flap-far 2026-11-23T02:29:47.788Z ok=true
+== 2026-11-22T18:29:39-08:00 j7y63gfr529f... up 1379.60 s; the given moment: 1374.82 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +- s, secured +6.7 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +- s, secured +8.9 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 0; MKA sessions started since: 0; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 8.9 s after the given moment (limit 90 s)
+##### flap-near final:flap-near 2026-11-23T02:30:19.999Z ok=true
+== 2026-11-22T18:30:09-08:00 j7y63gfr529f... up 1409.58 s; the given moment: 1404.81 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +- s, secured +6.8 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +- s, secured +8.9 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 0; MKA sessions started since: 0; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 8.9 s after the given moment (limit 90 s)
+##### flap-far final:flap-far 2026-11-23T02:30:54.174Z ok=true
+== 2026-11-22T18:30:41-08:00 j7y63gfr529f... up 1441.79 s; the given moment: 1437.03 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +- s, secured +8.6 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +- s, secured +10.8 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured (SAs from before the moment: its MKA session went on); MKA session started +- s, secured +- s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 0; MKA sessions started since: 0; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 10.8 s after the given moment (limit 90 s)
+##### reboot final:reboot 2026-11-23T02:34:34.304Z ok=true
+== 2026-11-22T18:34:16-08:00 j7y63gfr529f... up 118.48 s; the start of sonic-syncd: 116.724 s; limit 90 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +10.0 s, secured +16.4 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.1 s, secured +16.5 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.4 s, secured +15.8 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.8 s, secured +15.8 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 16.5 s after the start of sonic-syncd (limit 90 s)
+rc=0failed units: 0

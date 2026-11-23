@@ -25,7 +25,8 @@ declared up: cages 1 <-> 2 and 31 <-> 32 (100G DACs); every other port is admin 
   programs, loaded by syncd at SDK init (`hardware.as7760.ledProgram`, [leds.md](leds.md)).
 - Link state and admin down go through the PHYs: [Link state follows the cable](#link-state-follows-the-cable).
 - **MACsec** (MKA, GCM-AES-XPN-256, lab test key) is on at boot on the four cabled ports; the far ends carry their own
-  MAC address for it: [macsec.md](macsec.md#under-sonic). Traffic test with it: `macsec-traffic-test.sh`.
+  MAC address for it: [macsec.md](macsec.md#under-sonic). MKA comes up by itself 15-17 s after syncd starts on every
+  start path (`macsec-up-check.sh` asserts it); traffic test with it: `macsec-traffic-test.sh` (restarts nothing).
 - The script file is **private** (it contains the vendor firmware words): not in git, not in the Nix store.
 
 ## Make and install the PHY script (workstation, from `ai_re/`)
