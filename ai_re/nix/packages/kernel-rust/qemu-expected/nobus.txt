@@ -1,0 +1,2 @@
+no i2c-9, falling back
+reboot: Restarting system

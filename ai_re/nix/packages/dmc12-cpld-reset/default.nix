@@ -4,7 +4,7 @@
 stdenv.mkDerivation {
   pname = "dmc12-cpld-reset";
   inherit (kernel) version;
-  src = builtins.path { path = ./.; name = "dmc12-cpld-reset-src"; filter = p: _: !(lib.hasSuffix ".nix" p); };
+  src = builtins.path { path = ./.; name = "dmc12-cpld-reset-src"; filter = p: t: !(lib.hasSuffix ".nix" p) && !(t == "directory" && baseNameOf p == "rust"); };
   __structuredAttrs = true;
   strictDeps = true;
   hardeningDisable = [ "all" ];

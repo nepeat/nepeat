@@ -1,0 +1,5 @@
+board reset via CPLD
+smbus_write: i2c-0 a=068 f=0000 c=29 BYTE_DATA l=1 [01]
+smbus_write: i2c-0 a=068 f=0000 c=28 BYTE_DATA l=1 [01]
+CPLD did not reset the board, falling back
+reboot: Restarting system

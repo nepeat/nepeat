@@ -1,0 +1,4 @@
+# One module from the Rust crate (main.rs + its `mod` files) and a C file that
+# only holds compile-time checks of reboot.rs's hand-written declarations.
+obj-m := dmc12_cpld_reset.o
+dmc12_cpld_reset-y := main.o abi_check.o

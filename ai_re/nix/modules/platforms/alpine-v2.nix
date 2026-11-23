@@ -7,6 +7,7 @@ let
     inherit pkgs lib;
     boardConfig = cfg.kernelConfig;
     variant = cfg.kernelVariant;
+    rust = cfg.kernelRust;
   };
 in
 {
@@ -25,6 +26,11 @@ in
       # trimmed booted on DMC-12 u01 (2026-11-15); lean is the next run's.
       default = "lean";
       description = "packages/linux-alpine variant: trimmed (nixpkgs minus foreign SoCs), lean (+ per-family cuts), minimal (allnoconfig + explicit).";
+    };
+    kernelRust = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "CONFIG_RUST in the minimal kernel, to load modules written in Rust (trimmed and lean have it from nixpkgs). Another kernel derivation; packages/kernel-rust/README.md.";
     };
     kernelConfig = lib.mkOption {
       type = lib.types.attrsOf lib.types.anything;

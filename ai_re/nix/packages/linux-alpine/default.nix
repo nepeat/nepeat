@@ -23,7 +23,11 @@
 #   (al_eth/cpld-reset modules build); ARM_PMUV3, fuse, dm_mod are left out.
 #   Image 11.1 MiB vs 45.7, 20 modules vs 1506, system -70 MiB (diff-closures).
 # Board-only drivers go in `boardConfig` (both variants).
-{ pkgs, lib, boardConfig ? { }, variant ? "trimmed" }:
+# Rust (CONFIG_RUST, needed to load modules written in Rust): trimmed and lean
+# have it already (nixpkgs turns it on for aarch64 from 6.12); minimal gets it
+# with `rust = true` (opt-in: the default derivation is unchanged). Check with
+# `kernel.withRust`. See ../kernel-rust/README.md.
+{ pkgs, lib, boardConfig ? { }, variant ? "trimmed", rust ? false }:
 let
   minimalKernel = pkgs.linux_latest.override {
     defconfig = "allnoconfig";
@@ -260,6 +264,7 @@ let
       USB_RTL8152 = module;
       USB_NET_AX88179_178A = module;
     }
+    // lib.optionalAttrs rust { RUST = yes; }
     // boardConfig;
   };
   # Foreign SoC families nixpkgs turns on for aarch64 (7.3.4 config, 2026-11-15);

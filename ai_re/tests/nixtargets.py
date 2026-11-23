@@ -180,6 +180,13 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     "sai-openbcm-fake-rust-both": ("packages", "saiFakeRustBoth", 0),
     "as7760-sai-openbcm-rust-both": ("packages", "ppcSaiRustBoth", 0),
     "as7772-system-rust-both": ("systems", "as7772RustBoth.config.system.build.toplevel", 0),
+    # Rust in the kernel (arm64): the DMC-12 kernel recipe with CONFIG_RUST (+ QEMU virt bits),
+    # dmc12-cpld-reset in C and in Rust against it (the Rust build runs its logic's unit tests),
+    # and both run in QEMU: Rust sample module loads, same SMBus writes and fallbacks, 4 scenarios.
+    "kernel-rust": ("packages", 'import (src + "/packages/kernel-rust") { pkgs = p; }', 1),
+    # al_eth pieces in Rust, host-tested: the board-parameter registers against 400k vectors
+    # from the C HAL functions themselves; no_std, unsafe forbidden.
+    "al-eth-rs": ("packages", 'p.callPackage (src + "/packages/al-eth/rust.nix") { }', 0),
     # Teralynx 7 libsai (CS8210), native build with its checkPhase.
     "sai-teralynx": ("packages", 'p.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }', 0),
     # qemu-user for Marvell's amd64 SAI on the CS8210 + its offline tests
@@ -286,14 +293,15 @@ PACKAGE_DIRS: dict[str, list[tuple]] = {
     "uboot": [("target", r"^path:uboot-")],
     # scripts, no derivation of their own; the stage3app builds run them
     "alboot": [("target", r"^path:uboot-dmc12-stage3app$"), ("target", r"^path:uboot-cs8210-stage3app$")],
-    "al-eth": [("closure", _DMC12, r"-al_eth-")],
+    "al-eth": [("closure", _DMC12, r"-al_eth-"), ("target", r"^extra:al-eth-rs$")],
     "linux-alpine": [("target", r"^git:packages\.x86_64-linux\.dmc12-kernel$")],
     "linux-qoriq-t2080": [("target", r"^path:as7760-kernel$"), ("target", r"^path:as7760-kernel-image$")],
     "as7760-fan": [("target", r"^path:as7760-fan-driver$"), ("closure", _AS7760, r"-as7760-fan-")],
     "as7760-images": [("target", r"^path:as7760-(boot-files|netboot|sd-image-ram|ram-probe|size-check)$")],
     "as7760-metrics": [("target", r"^path:as7760-metrics-test$"), ("closure", _AS7760, r"-as7760-metrics")],
     "as7760-qsfp": [("closure", _AS7760, r"-as7760-qsfp")],
-    "dmc12-cpld-reset": [("closure", _DMC12, r"-dmc12-cpld-reset-")],
+    "dmc12-cpld-reset": [("closure", _DMC12, r"-dmc12-cpld-reset-"), ("target", r"^extra:kernel-rust\.dmc12-cpld-reset-rs$")],
+    "kernel-rust": [("target", r"^extra:kernel-rust\.dmc12-cpld-reset-qemu-test$")],
     "dmc12-firmware": [("target", r"^git:packages\.aarch64-linux\.dmc12-firmware$"), ("closure", _DMC12, r"-dmc12-firmware")],
     "dmc12-images": [("target", r"^git:packages\.x86_64-linux\.dmc12-netboot$")],
     "dmc12-metrics": [("target", r"^path:dmc12-metrics-test$"), ("closure", _DMC12, r"-dmc12-metrics")],
