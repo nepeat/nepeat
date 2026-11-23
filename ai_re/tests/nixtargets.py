@@ -184,6 +184,11 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     # dmc12-cpld-reset in C and in Rust against it (the Rust build runs its logic's unit tests),
     # and both run in QEMU: Rust sample module loads, same SMBus writes and fallbacks, 4 scenarios.
     "kernel-rust": ("packages", 'import (src + "/packages/kernel-rust") { pkgs = p; }', 1),
+    # Rust in the kernel on 64-bit big-endian powerpc (kernel-rust-ppc64be): the patch series
+    # on the T2080 recipe (e6500, the hardware candidate) and a POWER8 pseries guest, the
+    # ABI conformance module, the bindgen-vs-GCC layout check, the Rust as7760-fan; QEMU:
+    # ABI module + samples + fan parity on e6500, KUnit doctests, the same on pseries.
+    "kernel-rust-ppc64be": ("packages", 'import (src + "/packages/kernel-rust-ppc64be/tests.nix") { pkgs = p; inherit ppc; }', 1),
     # al_eth pieces in Rust, host-tested: the board-parameter registers against 400k vectors
     # from the C HAL functions themselves; no_std, unsafe forbidden.
     "al-eth-rs": ("packages", 'p.callPackage (src + "/packages/al-eth/rust.nix") { }', 0),
@@ -295,8 +300,12 @@ PACKAGE_DIRS: dict[str, list[tuple]] = {
     "alboot": [("target", r"^path:uboot-dmc12-stage3app$"), ("target", r"^path:uboot-cs8210-stage3app$")],
     "al-eth": [("closure", _DMC12, r"-al_eth-"), ("target", r"^extra:al-eth-rs$")],
     "linux-alpine": [("target", r"^git:packages\.x86_64-linux\.dmc12-kernel$")],
-    "linux-qoriq-t2080": [("target", r"^path:as7760-kernel$"), ("target", r"^path:as7760-kernel-image$")],
-    "as7760-fan": [("target", r"^path:as7760-fan-driver$"), ("closure", _AS7760, r"-as7760-fan-")],
+    "linux-qoriq-t2080": [("target", r"^path:as7760-kernel$"), ("target", r"^path:as7760-kernel-image$"),
+                          ("target", r"^extra:kernel-rust-ppc64be\.e6500$")],
+    "as7760-fan": [("target", r"^path:as7760-fan-driver$"), ("closure", _AS7760, r"-as7760-fan-"),
+                   ("target", r"^extra:kernel-rust-ppc64be\.as7760-fan-rs$"), ("target", r"^extra:kernel-rust-ppc64be\.qemu-e6500$")],
+    "kernel-rust-ppc64be": [("target", r"^extra:kernel-rust-ppc64be\.qemu-e6500$"), ("target", r"^extra:kernel-rust-ppc64be\.qemu-pseries$"),
+                            ("target", r"^extra:kernel-rust-ppc64be\.layout-e6500$")],
     "as7760-images": [("target", r"^path:as7760-(boot-files|netboot|sd-image-ram|ram-probe|size-check)$")],
     "as7760-metrics": [("target", r"^path:as7760-metrics-test$"), ("closure", _AS7760, r"-as7760-metrics")],
     "as7760-qsfp": [("closure", _AS7760, r"-as7760-qsfp")],
@@ -330,6 +339,7 @@ TEST_FILES: dict[str, str] = {
     "packages/as7760-metrics/test.nix": "output:as7760-metrics-test",
     "packages/dmc12-metrics/test.nix": "output:dmc12-metrics-test",
     "packages/qemu-ipd/tests/default.nix": "extra:qemu-ipd",
+    "packages/kernel-rust-ppc64be/tests.nix": "extra:kernel-rust-ppc64be",
     "modules/switch/sonic/tests/common.nix": "none:shared switch config of the VM tests, not a test",
     "modules/switch/sonic/tests/peer.nix": "none:peer node of the VM tests, not a test",
 }

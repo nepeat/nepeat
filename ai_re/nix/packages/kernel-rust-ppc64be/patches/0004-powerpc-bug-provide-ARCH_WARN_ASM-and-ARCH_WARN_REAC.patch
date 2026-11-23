@@ -1,0 +1,79 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Owner Placeholder <owner@example.invalid>
+Date: Sun, 22 Nov 2026 20:22:34 -0800
+Subject: [PATCH] powerpc/bug: provide ARCH_WARN_ASM and ARCH_WARN_REACHABLE
+ for Rust
+
+With CONFIG_BUG=y, rust/kernel/bug.rs implements warn_on!() on every
+architecture except UML, LoongArch and ARM by emitting the
+architecture's WARN() sequence from Rust inline asm, built from
+ARCH_WARN_ASM() and ARCH_WARN_REACHABLE (generated_arch_warn_asm.rs.S,
+generated_arch_reachable_asm.rs.S). powerpc defines neither, so the
+kernel crate fails to build on powerpc whenever CONFIG_BUG is enabled:
+
+  error: no rules expected `ARCH_WARN_ASM`
+   --> rust/kernel/generated_arch_warn_asm.rs:1:28
+
+Split the bug table entry out of _EMIT_BUG_ENTRY into
+__BUG_ENTRY_ASM(file, line, flags, size), so that C (with %0..%3) and
+Rust (with its asm operands) emit the same entry, and define
+ARCH_WARN_ASM() as the trap of __WARN_FLAGS() ("twi 31, 0, 0") followed
+by that entry. powerpc needs no reachability annotation, so
+ARCH_WARN_REACHABLE is empty.
+
+_EMIT_BUG_ENTRY expands to the same string as before, so C code
+generation does not change.
+
+Signed-off-by: OWNER NAME <owner@example.invalid>
+---
+ arch/powerpc/include/asm/bug.h | 27 ++++++++++++++++++---------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
+
+diff --git a/arch/powerpc/include/asm/bug.h b/arch/powerpc/include/asm/bug.h
+index 0db48977c..06ea5e126 100644
+--- a/arch/powerpc/include/asm/bug.h
++++ b/arch/powerpc/include/asm/bug.h
+@@ -32,25 +32,34 @@
+ #endif /* verbose */
+ 
+ #else /* !__ASSEMBLER__ */
+-/* _EMIT_BUG_ENTRY expects args %0,%1,%2,%3 to be FILE, LINE, flags and
+-   sizeof(struct bug_entry), respectively */
++/* __BUG_ENTRY_ASM emits the bug table entry for the trap at label 1b */
+ #ifdef CONFIG_DEBUG_BUGVERBOSE
+-#define _EMIT_BUG_ENTRY				\
++#define __BUG_ENTRY_ASM(file, line, flags, size)	\
+ 	".section __bug_table,\"aw\"\n"		\
+ 	"2:	.4byte 1b - .\n"		\
+-	"	.4byte %0 - .\n"		\
+-	"	.short %1, %2\n"		\
+-	".org 2b+%3\n"				\
++	"	.4byte " file " - .\n"		\
++	"	.short " line ", " flags "\n"	\
++	".org 2b+" size "\n"			\
+ 	".previous\n"
+ #else
+-#define _EMIT_BUG_ENTRY				\
++#define __BUG_ENTRY_ASM(file, line, flags, size)	\
+ 	".section __bug_table,\"aw\"\n"		\
+ 	"2:	.4byte 1b - .\n"		\
+-	"	.short %2\n"			\
+-	".org 2b+%3\n"				\
++	"	.short " flags "\n"		\
++	".org 2b+" size "\n"			\
+ 	".previous\n"
+ #endif
+ 
++/* _EMIT_BUG_ENTRY expects args %0,%1,%2,%3 to be FILE, LINE, flags and
++   sizeof(struct bug_entry), respectively */
++#define _EMIT_BUG_ENTRY	__BUG_ENTRY_ASM("%0", "%1", "%2", "%3")
++
++/* For Rust's warn_on!() (rust/kernel/bug.rs): the same entry as __WARN_FLAGS */
++#define ARCH_WARN_ASM(file, line, flags, size)		\
++	"1:	twi 31, 0, 0\n"				\
++	__BUG_ENTRY_ASM(file, line, flags, size)
++#define ARCH_WARN_REACHABLE
++
+ #define BUG_ENTRY(cond_str, insn, flags, ...)		\
+ 	__asm__ __volatile__(				\
+ 		"1:	" insn "\n"			\

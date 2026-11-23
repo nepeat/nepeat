@@ -1,0 +1,63 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Owner Placeholder <owner@example.invalid>
+Date: Sun, 22 Nov 2026 20:17:48 -0800
+Subject: [PATCH] rust: bindgen: support big-endian 64-bit PowerPC
+
+The bindgen target for CONFIG_PPC64 is hard-coded to
+powerpc64le-linux-gnu. On a big-endian kernel libclang then parses the
+headers as little endian, and every endian-dependent layout in the
+generated bindings (bit-fields, __BIG_ENDIAN_BITFIELD/__LITTLE_ENDIAN
+unions, sizes of padding derived from them) would silently differ from
+what the C compiler built. Select powerpc64-linux-gnu when
+CONFIG_CPU_BIG_ENDIAN is set.
+
+The -mcpu=$(CONFIG_TARGET_CPU) that the big-endian configurations pass
+to GCC names CPUs that libclang does not know, e.g. e6500 (QorIQ
+T-series), so bindgen fails with "unknown target CPU". Replace it with
+the CPU that rustc is given (-Ctarget-cpu=, set by arch/powerpc), so the
+headers are parsed for the same CPU the Rust code is compiled for, or
+with none when rustc gets none. -mcall-aixdesc, which ELFv1 builds pass
+to GCC, is GCC-only as well.
+
+Little-endian ppc64 and ppc32 are unchanged.
+
+Signed-off-by: OWNER NAME <owner@example.invalid>
+---
+ rust/Makefile | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/rust/Makefile b/rust/Makefile
+index da1a7409d..683bf624e 100644
+--- a/rust/Makefile
++++ b/rust/Makefile
+@@ -470,8 +470,12 @@ BINDGEN_TARGET_s390	:= s390x-linux-gnu
+ BINDGEN_TARGET_i386	:= i386-linux-gnu
+ 
+ ifdef CONFIG_PPC64
++ifdef CONFIG_CPU_LITTLE_ENDIAN
+ BINDGEN_TARGET_powerpc	:= powerpc64le-linux-gnu
+ else
++BINDGEN_TARGET_powerpc	:= powerpc64-linux-gnu
++endif
++else
+ BINDGEN_TARGET_powerpc	:= powerpc-linux-gnu
+ endif
+ 
+@@ -483,6 +487,17 @@ BINDGEN_TARGET		:= $(BINDGEN_TARGET_$(SRCARCH))
+ # some configurations, with new GCC versions, etc.
+ bindgen_extra_c_flags = -w --target=$(BINDGEN_TARGET)
+ 
++# Big-endian ppc64: GCC's -mcpu=$(CONFIG_TARGET_CPU) names CPUs libclang does
++# not know (e6500, cell). Give libclang the CPU rustc is given instead
++# (arch/powerpc/Makefile), or none, as rustc gets none. -mcall-aixdesc
++# (ELFv1) is GCC-only.
++ifdef CONFIG_PPC64
++ifdef CONFIG_CPU_BIG_ENDIAN
++bindgen_skip_c_flags += -mcpu=% -mcall-aixdesc
++bindgen_extra_c_flags += $(patsubst -Ctarget-cpu=%,-mcpu=%,$(filter -Ctarget-cpu=%,$(KBUILD_RUSTFLAGS)))
++endif
++endif
++
+ # Auto variable zero-initialization requires an additional special option with
+ # clang that is going to be removed sometime in the future (likely in
+ # clang-18), so make sure to pass this option only if clang supports it

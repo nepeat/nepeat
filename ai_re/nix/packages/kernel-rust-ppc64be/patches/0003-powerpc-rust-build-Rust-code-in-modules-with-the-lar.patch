@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Owner Placeholder <owner@example.invalid>
+Date: Sun, 22 Nov 2026 20:17:58 -0800
+Subject: [PATCH] powerpc/rust: build Rust code in modules with the large code
+ model
+
+C code in modules is built with -mcmodel=large: with the medium model
+the compiler forms the address of data that it may assume to be within
+2 GB of the TOC with a TOC-relative addis/addi pair, and in a module
+that assumption does not hold. The per-cpu section is moved into the
+kernel's per-cpu area (0xc...), far from the module's TOC, and since
+module text, data and rodata are separate vmalloc allocations nothing
+keeps the rest within 2 GB either. module_64.c does not range-check
+R_PPC64_TOC16_HA and R_PPC64_TOC16_LO, so such an access is silently
+relocated to the wrong address instead of failing the load.
+
+rustc is not given a code model on powerpc, so Rust code in modules is
+built with LLVM's default for ppc64, which is medium. Pass
+-Ccode-model=large for modules, as for C. Built-in Rust code keeps the
+default, like built-in C code.
+
+Signed-off-by: OWNER NAME <owner@example.invalid>
+---
+ arch/powerpc/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
+index 9385db478..733e4f872 100644
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -123,6 +123,8 @@ ifndef CONFIG_PPC_KERNEL_PCREL
+ 	# kernel percpu data space (starting with 0xc...). We need a full
+ 	# 64bit relocation for this to work, hence -mcmodel=large.
+ 	KBUILD_CFLAGS_MODULE += -mcmodel=large
++	# The same holds for Rust code in modules.
++	KBUILD_RUSTFLAGS_MODULE += -Ccode-model=large
+ endif
+ endif
+ 

@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: GPL-2.0
+# Built, never loaded: layout_check.py compares the two objects' tables.
+obj-m := layout_probe.o
+layout_probe-y := layout_rs.o layout_c.o layout_mod.o
+ccflags-y += -I$(src)/inc/a/b -Wno-missing-prototypes

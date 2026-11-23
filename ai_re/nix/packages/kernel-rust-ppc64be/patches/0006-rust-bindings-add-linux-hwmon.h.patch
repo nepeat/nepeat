@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Owner Placeholder <owner@example.invalid>
+Date: Sun, 22 Nov 2026 20:18:48 -0800
+Subject: [PATCH] rust: bindings: add linux/hwmon.h
+
+Make the hwmon registration API (devm_hwmon_device_register_with_info()
+and struct hwmon_chip_info, hwmon_ops, hwmon_channel_info and the sensor
+and attribute enums) visible to Rust, so that a hwmon driver written in
+Rust can use the bindgen-generated types instead of declaring them by
+hand. No abstraction is added: a driver still wraps these calls itself.
+
+Signed-off-by: OWNER NAME <owner@example.invalid>
+---
+ rust/bindings/bindings_helper.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/rust/bindings/bindings_helper.h b/rust/bindings/bindings_helper.h
+index c706dda5b..1fc7a86ee 100644
+--- a/rust/bindings/bindings_helper.h
++++ b/rust/bindings/bindings_helper.h
+@@ -62,6 +62,7 @@
+ #include <linux/firmware.h>
+ #include <linux/fwctl.h>
+ #include <linux/fs.h>
++#include <linux/hwmon.h>
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+ #include <linux/io-pgtable.h>

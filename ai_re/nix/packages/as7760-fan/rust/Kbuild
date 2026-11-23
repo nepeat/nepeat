@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: GPL-2.0-only
+# The AS7760 fan CPLD hwmon driver in Rust: same module, driver and hwmon name
+# (as7760_fan) and the same sysfs attributes as ../src/as7760_fan.c.
+obj-m := as7760_fan.o
+as7760_fan-y := main.o shim.o

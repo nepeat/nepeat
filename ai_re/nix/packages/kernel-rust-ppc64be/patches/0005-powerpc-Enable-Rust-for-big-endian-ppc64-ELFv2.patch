@@ -1,0 +1,112 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Owner Placeholder <owner@example.invalid>
+Date: Sun, 22 Nov 2026 20:18:27 -0800
+Subject: [PATCH] powerpc: Enable Rust for big-endian ppc64 (ELFv2)
+
+Rust is enabled for ppc32 and for little-endian ppc64. Big-endian
+64-bit kernels (Book3S: pseries, powernv, PowerMac G5; Book3E: QorIQ
+P5/T-series with e5500/e6500 cores) still run on supported hardware,
+and the same toolchain support now exists for them:
+
+ - rustc has a built-in powerpc64-unknown-linux-gnuelfv2 target. Its
+   target specification is that of powerpc64le-unknown-linux-gnu with
+   the endianness flipped: ELFv2 ABI ("llvm-abiname": "elfv2"), data
+   layout E-m:e-Fn32-i64:64-i128:128-n32:64-S128 (i128 is 16-byte
+   aligned, as __int128 for GCC), 64-bit atomics. rustc's
+   powerpc64-unknown-linux-gnu is the ELFv1 ABI and is not used.
+ - bindgen parses the headers as big endian (previous patches).
+
+Select HAVE_RUST for big-endian ppc64 when the kernel itself uses the
+ELFv2 ABI, i.e. CONFIG_PPC64_BIG_ENDIAN_ELF_ABI_V2 (the default where the
+compiler supports it, and the only choice with LLD). ELFv1 kernels need
+a different target and function descriptors and are left for a separate
+change. CONFIG_PPC_KERNEL_PCREL is excluded: the Rust code would have to
+be built PC-relative too, which nothing here does.
+
+The flags mirror the little-endian ones and the C flags of these
+configurations:
+
+ - -Ctarget-feature=-mma,-vsx,-hard-float,-altivec as for little endian:
+   no FP/vector registers in kernel code (-msoft-float -mno-altivec
+   -mno-vsx), which also makes floating point arguments, if any were
+   ever passed, use GPRs as with GCC's -msoft-float.
+ - -Ctarget-cpu= from the selected CPU type, the counterpart of
+   -mcpu=$(CONFIG_TARGET_CPU) for C. LLVM uses its own names (pwr8,
+   e5500, ...). It has no e6500 model; its e5500 model enables nothing
+   (64-bit integer, isel, mfocrf, mftb) that the e6500 lacks. POWER10 is
+   capped at pwr9, because LLVM's pwr10 enables prefixed instructions and
+   PC-relative addressing, which the kernel only uses with
+   CONFIG_PPC_KERNEL_PREFIXED / CONFIG_PPC_KERNEL_PCREL. There is no
+   Cell model; rustc's default generic ppc64 is used, as with
+   CONFIG_TOOLCHAIN_DEFAULT_CPU.
+
+Little-endian ppc64 and ppc32 are unchanged.
+
+Signed-off-by: OWNER NAME <owner@example.invalid>
+---
+ Documentation/rust/arch-support.rst |  3 +++
+ arch/powerpc/Kconfig                |  1 +
+ arch/powerpc/Makefile               | 22 ++++++++++++++++++++++
+ 3 files changed, 26 insertions(+)
+
+diff --git a/Documentation/rust/arch-support.rst b/Documentation/rust/arch-support.rst
+index 4f980815e..01fa448ff 100644
+--- a/Documentation/rust/arch-support.rst
++++ b/Documentation/rust/arch-support.rst
+@@ -18,6 +18,9 @@ Architecture   Level of support  Constraints
+ ``arm``        Maintained        ARMv7 Little Endian only.
+ ``arm64``      Maintained        Little Endian only.
+ ``loongarch``  Maintained        \-
++``powerpc``    Maintained        32-bit, 64-bit little endian, and 64-bit big
++                                 endian with the ELFv2 ABI and without
++                                 ``CONFIG_PPC_KERNEL_PCREL``.
+ ``riscv``      Maintained        ``riscv64`` and LLVM/Clang only.
+ ``s390``       Maintained        ``CONFIG_EXPOLINE`` must be disabled.
+ ``um``         Maintained        \-
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 2580e27e4..a769144c7 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -287,6 +287,7 @@ config PPC
+ 	select HAVE_RSEQ
+ 	select HAVE_RUST			if PPC32
+ 	select HAVE_RUST			if PPC64 && CPU_LITTLE_ENDIAN
++	select HAVE_RUST			if PPC64 && CPU_BIG_ENDIAN && PPC64_ELF_ABI_V2 && !PPC_KERNEL_PCREL
+ 	select HAVE_SAMPLE_FTRACE_DIRECT	if HAVE_DYNAMIC_FTRACE_WITH_DIRECT_CALLS
+ 	select HAVE_SAMPLE_FTRACE_DIRECT_MULTI	if HAVE_DYNAMIC_FTRACE_WITH_DIRECT_CALLS
+ 	select HAVE_SETUP_PER_CPU_AREA		if PPC64
+diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
+index 733e4f872..935c3f3b6 100644
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -62,8 +62,30 @@ KBUILD_LDFLAGS_MODULE += $(objtree)/arch/powerpc/lib/crtsavres.o
+ endif
+ 
+ ifdef CONFIG_PPC64
++ifdef CONFIG_CPU_LITTLE_ENDIAN
+ KBUILD_RUSTFLAGS	+= --target=powerpc64le-unknown-linux-gnu
++else
++# The big-endian twin of powerpc64le-unknown-linux-gnu: ELFv2, same data layout.
++# (rustc's powerpc64-unknown-linux-gnu is ELFv1.)
++KBUILD_RUSTFLAGS	+= --target=powerpc64-unknown-linux-gnuelfv2
++endif
+ KBUILD_RUSTFLAGS	+= -Ctarget-feature=-mma,-vsx,-hard-float,-altivec
++ifdef CONFIG_CPU_BIG_ENDIAN
++# rustc takes LLVM's CPU names: the counterpart of -mcpu=$(CONFIG_TARGET_CPU).
++# LLVM has no e6500; its e5500 enables only instructions the e6500 has too.
++# POWER10 is capped at POWER9: LLVM's pwr10 turns on prefixed instructions
++# and PC-relative addressing. No Cell model: rustc's default (generic ppc64).
++rust-cpu-$(CONFIG_POWERPC64_CPU)	:= pwr4
++rust-cpu-$(CONFIG_PPC_970_CPU)		:= 970
++rust-cpu-$(CONFIG_POWER6_CPU)		:= pwr6
++rust-cpu-$(CONFIG_POWER7_CPU)		:= pwr7
++rust-cpu-$(CONFIG_POWER8_CPU)		:= pwr8
++rust-cpu-$(CONFIG_POWER9_CPU)		:= pwr9
++rust-cpu-$(CONFIG_POWER10_CPU)		:= pwr9
++rust-cpu-$(CONFIG_E5500_CPU)		:= e5500
++rust-cpu-$(CONFIG_E6500_CPU)		:= e5500
++KBUILD_RUSTFLAGS	+= $(if $(rust-cpu-y),-Ctarget-cpu=$(rust-cpu-y))
++endif
+ else
+ KBUILD_RUSTFLAGS	+= --target=powerpc-unknown-linux-gnu
+ endif

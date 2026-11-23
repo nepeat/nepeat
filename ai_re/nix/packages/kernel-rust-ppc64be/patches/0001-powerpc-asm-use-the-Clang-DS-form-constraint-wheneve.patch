@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Owner Placeholder <owner@example.invalid>
+Date: Sun, 22 Nov 2026 20:17:13 -0800
+Subject: [PATCH] powerpc/asm: use the Clang DS-form constraint whenever Clang
+ parses the headers
+
+DS_FORM_CONSTRAINT picks "Z<>" for Clang builds and "YZ<>" otherwise,
+keyed on CONFIG_CC_IS_CLANG. With CONFIG_RUST=y in a GCC build, bindgen
+parses the same headers with libclang: CONFIG_CC_IS_CLANG is unset, the
+inline asm in asm/atomic.h (arch_atomic64_read/set) and asm/uaccess.h
+gets "YZ<>", and libclang rejects the unknown "Y" constraint, which
+fails the bindings for every 64-bit configuration built with GCC.
+
+Key the choice on __clang__ instead, which is defined both for Clang
+builds and whenever libclang parses the headers. Code generation is
+unchanged: GCC still sees "YZ<>", and bindgen never emits code for inline
+asm.
+
+Signed-off-by: OWNER NAME <owner@example.invalid>
+---
+ arch/powerpc/include/asm/asm-compat.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/arch/powerpc/include/asm/asm-compat.h b/arch/powerpc/include/asm/asm-compat.h
+index f48e64490..3080b4c9d 100644
+--- a/arch/powerpc/include/asm/asm-compat.h
++++ b/arch/powerpc/include/asm/asm-compat.h
+@@ -37,7 +37,12 @@
+ #define STDX_BE	stringify_in_c(stdbrx)
+ #endif
+ 
+-#ifdef CONFIG_CC_IS_CLANG
++/*
++ * Clang has no "Y" constraint. Besides Clang builds, this also covers
++ * bindgen, which parses the headers of a GCC build with libclang and
++ * rejects "YZ<>" in the inline asm of atomic.h and uaccess.h.
++ */
++#ifdef __clang__
+ #define DS_FORM_CONSTRAINT "Z<>"
+ #else
+ #define DS_FORM_CONSTRAINT "YZ<>"

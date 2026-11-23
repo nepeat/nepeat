@@ -1,15 +1,21 @@
 # Minimal built-in kernel for NXP QorIQ T2080 (e6500, Book E, big endian)
 # boards: allnoconfig + exactly what the platform needs. Board deltas go in
 # boardPatches (./boards/<board>/), not in this file.
-{ pkgs, lib, boardPatches ? [ ] }:
-pkgs.linux_latest.override {
+# rust: CONFIG_RUST through the shared ppc64 big-endian series
+# (../kernel-rust-ppc64be); opt-in, a separate derivation, never a board's
+# default. extraConfig: more structuredExtraConfig (tests, QEMU platform).
+{ pkgs, lib, boardPatches ? [ ], rust ? false, extraConfig ? { } }:
+let
+  rustPpc64be = import ../kernel-rust-ppc64be { inherit lib; };
+in
+(if rust then rustPpc64be.keepBindings else lib.id) (pkgs.linux_latest.override {
   defconfig = "allnoconfig";
   enableCommonConfig = false;
   autoModules = false;
   preferBuiltin = true;
   ignoreConfigErrors = false;
   buildDTBs = false;
-  kernelPatches = boardPatches;
+  kernelPatches = boardPatches ++ lib.optionals rust rustPpc64be.kernelPatches;
   features = { efiBootStub = false; ia32Emulation = false; };
   structuredExtraConfig = with lib.kernel; {
     # T2080/e6500: 4 cores, two threads each, 16 GiB physical RAM.
@@ -233,5 +239,5 @@ pkgs.linux_latest.override {
     # Keep symbols for diagnosis; omit bulky DWARF/BTF, LTO and Rust.
     DEBUG_INFO_NONE = yes;
     CC_OPTIMIZE_FOR_SIZE = yes;
-  };
-}
+  } // lib.optionalAttrs rust rustPpc64be.config // extraConfig;
+})
