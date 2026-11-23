@@ -3,7 +3,7 @@
 //! injected from any thread. No C, no hardware: a program built with only this fake calls no
 //! foreign function (Miri runs it), and any number of [`Chip`]s can be used in parallel.
 //!
-//! It replaces `sdk-glue-sys/fake/fake_glue.c` and reads the same scenario files, with the same
+//! It replaced `sdk-glue-sys/fake/fake_glue.c` (deleted) and reads the same scenario files, with the same
 //! answers, messages and trace lines for the functions the C fake has; everything else of
 //! `sdk_glue.h` is modelled here too (ports in full, L2 table, trunks, L3 tables, field groups /
 //! entries / counters, policers, KNET netifs / filters, traps, shell, table usage, chip limits,
@@ -42,19 +42,11 @@
 //! every front-panel port untagged; MDIO allowed. After [`crate::Attached::attach_on`] (scenario
 //! from [`Chip::load`]): temperatures only.
 //!
-//! # What must change before `fake_glue.c` can go
+//! # The C fake
 //!
-//! * `sai-backend-openbcm`: dev-dependency `sdk-glue = { features = ["rust-fake"] }` instead of
-//!   `["fake"]` and its feature `fake` to `["sdk-glue/rust-fake"]`; its tests use
-//!   `sdk_glue::fake::*` unchanged (in a build without C glue that is [`process`]). With
-//!   `sai-ffi`'s `openbcm-fake` the smoke program then drives the Rust fake.
-//! * `mdio-tool`: feature `sdk-fake` to `["sdk", "sdk-glue/rust-fake"]` (the tool's tests use
-//!   [`crate::Sdk::init_mdio`] and get the process's fake); its `build.rs` compiles the C tool with
-//!   `fake_glue.c` for the differential test: that comparison then needs the C tool on the Rust
-//!   fake (an `extern "C"` shim of [`Chip`], which would be new unsafe code) or is dropped (the
-//!   C tool goes at G3 anyway).
-//! * then `sdk-glue-sys`'s feature `fake`, its `FAKE_HOOKS_RS` and stubs, this crate's C-fake
-//!   module and dev-dependency go, and the C file with them.
+//! `fake_glue.c` and `sdk-glue-sys`'s feature `fake` are gone (G2): every user runs on this fake.
+//! Its MDIO side lives on as a C test fixture, `mdio-tool/tests/c/mdio_stub.c`, which the C MDIO
+//! tool is linked with for mdio-tool's differential; that test holds the two to the same answers.
 
 #![allow(
     clippy::trivially_copy_pass_by_ref,
@@ -677,6 +669,8 @@ struct Inner {
     /// Held while a callback runs and by register / unregister, as the SDK's link scan does:
     /// after an unregister returns, no call of this chip is in progress.
     cb: Mutex<()>,
+    /// The call log while recording ([`Chip::record`]).
+    record: Mutex<Option<crate::record::Recorder>>,
 }
 
 /// The process's fake: what the plain bring-ups use in a build with only this fake.
@@ -703,6 +697,79 @@ impl Chip {
 
     pub(crate) fn open_flag(&self) -> &AtomicBool {
         &self.inner.open
+    }
+
+    fn recorder(&self) -> MutexGuard<'_, Option<crate::record::Recorder>> {
+        self.inner.record.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    /// Starts (`true`, with an empty log) or stops recording every glue call made on this chip,
+    /// every callback it fires and every [`Chip::inject`]ion, one canonical line each (the format:
+    /// [`crate::record`]; what sai-backend-openbcm's glue differential compares with the C++ backend
+    /// over a recording stub of `sdk_glue.h`).
+    pub fn record(&self, on: bool) {
+        *self.recorder() = on.then(crate::record::Recorder::default);
+    }
+
+    /// The lines recorded since the last call (or since recording started), in order; empty when
+    /// not recording.
+    pub fn take_record(&self) -> Vec<String> {
+        self.recorder()
+            .as_mut()
+            .map(crate::record::Recorder::take)
+            .unwrap_or_default()
+    }
+
+    /// Runs a test injection (`f`: calls of this chip's hooks, a cable event, ...) as one recorded
+    /// step: while recording, `line` (e.g. `inject link(port=1, up=0)`) is logged after what
+    /// happened inside, like a call.
+    pub fn inject<T>(&self, line: &str, f: impl FnOnce() -> T) -> T {
+        let Some(scope) = self.rec_enter() else {
+            return f();
+        };
+        let out = f();
+        self.rec_exit(scope, line);
+        out
+    }
+
+    /// A recorded step starts (`None`: not recording).
+    pub(crate) fn rec_enter(&self) -> Option<crate::record::Scope> {
+        self.recorder().as_mut().map(crate::record::Recorder::enter)
+    }
+
+    /// The step of `scope` ended: its line.
+    pub(crate) fn rec_exit(&self, scope: crate::record::Scope, line: &str) {
+        if let Some(r) = self.recorder().as_mut() {
+            r.exit(scope, line);
+        }
+    }
+
+    /// A callback into the glue's caller, recorded as `line` (with ` -> <answer>` when `answer`
+    /// gives one).
+    fn callback<T>(&self, line: &str, call: impl FnOnce() -> T, answer: impl FnOnce(&T) -> Option<String>) -> T {
+        let Some(scope) = self.rec_enter() else {
+            return call();
+        };
+        let out = call();
+        let text = answer(&out).map_or_else(|| line.to_owned(), |a| format!("{line} -> {a}"));
+        self.rec_exit(scope, &text);
+        out
+    }
+
+    fn fire_link(&self, key: usize, port: c_int, up: c_int) {
+        self.callback(
+            &format!("cb link(port={port}, up={up})"),
+            || raw::link(key, port, up),
+            |()| None,
+        );
+    }
+
+    fn fire_gate(&self, key: usize, port: c_int) -> c_int {
+        self.callback(
+            &format!("cb gate(port={port})"),
+            || raw::gate(key, port),
+            |a| Some(a.to_string()),
+        )
     }
 
     /// The scenario [`crate::Attached::attach_on`] uses (attach takes no config file). `Err(line)`
@@ -1092,16 +1159,36 @@ impl Chip {
         NONE
     }
 
+    /// The diag shell with its output to `fd`: `phy raw c45 <phy> <dev> <reg>` (hex words) reads
+    /// the register as an MDIO read does and prints it as the SDK shell does (`\t0x<reg>:
+    /// 0x<value>`, what `mdio_report.c` and the smoke program parse); `fake linkscan` runs one
+    /// pass of [`Chip::linkscan`] (the fake has no link scan thread: the smoke program's
+    /// `--poke-diag`); anything else prints `fake: <cmd>`, as the virtual backend.
     pub(crate) fn shell_to(&self, unit: c_int, cmd: &CStr, fd: BorrowedFd<'_>) -> c_int {
         let rv = self.shell(unit, cmd);
         if rv != NONE {
             return rv;
         }
-        // As the virtual backend: the command's "output".
+        let text = cmd.to_string_lossy();
+        let words: Vec<&str> = text.split_whitespace().collect();
+        let answer = match words.as_slice() {
+            ["phy", "raw", "c45", phy, dev, reg] => match (hex(phy), hex(dev), hex(reg)) {
+                (Some(phy), Some(dev), Some(reg)) => {
+                    let mut val: c_uint = 0;
+                    match self.mdio_read(unit, phy, dev, reg, &mut val) {
+                        NONE => format!("\t0x{reg:x}: 0x{val:04x}"),
+                        rv => format!("fake: {text}: error {rv}"),
+                    }
+                }
+                _ => format!("fake: {text}"),
+            },
+            ["fake", "linkscan"] => format!("fake: linkscan: {} link changes", self.linkscan()),
+            _ => format!("fake: {text}"),
+        };
         let written = fd
             .try_clone_to_owned()
             .map(File::from)
-            .and_then(|mut f| writeln!(f, "fake: {}", cmd.to_string_lossy()));
+            .and_then(|mut f| writeln!(f, "{answer}"));
         if written.is_ok() { NONE } else { E_INTERNAL }
     }
 
@@ -1236,7 +1323,7 @@ impl Chip {
             }
             key
         };
-        raw::link(key, port, c_int::from(up));
+        self.fire_link(key, port, c_int::from(up));
         true
     }
 
@@ -2298,7 +2385,7 @@ impl Chip {
                 if !self.state().gates.contains(&port) {
                     continue;
                 }
-                raw::gate(key, port)
+                self.fire_gate(key, port)
             };
             let asic = self
                 .state()
@@ -2325,7 +2412,7 @@ impl Chip {
             }
             s.gate_key
         };
-        Some(raw::gate(key, port))
+        Some(self.fire_gate(key, port))
     }
 
     /// An L2 event from the SDK's L2X thread, with the glue's raw arguments (any value: the
@@ -2340,7 +2427,12 @@ impl Chip {
             }
             s.cb_key
         };
-        raw::l2(key, mac.as_ref(), vid, port, learned);
+        let shown = mac.as_ref().map_or_else(|| "null".to_owned(), crate::record::mac);
+        self.callback(
+            &format!("cb l2(mac={shown}, vid={vid}, port={port}, learned={learned})"),
+            || raw::l2(key, mac.as_ref(), vid, port, learned),
+            |()| None,
+        );
         true
     }
 
@@ -2505,6 +2597,12 @@ impl Chip {
     /// The diag shell commands run, in order.
     pub fn shell_log(&self) -> Vec<String> {
         self.state().shell_log.clone()
+    }
+
+    /// Sets a PHY register as a scenario's `reg` line does (what the next read returns, unless a
+    /// `const`, `after` or `hang` line says otherwise). False when the register file is full.
+    pub fn set_mdio_reg(&self, phy: u32, dev: u32, reg: u32, val: u32) -> bool {
+        self.state().set_reg(Reg { phy, dev, reg }, val)
     }
 
     /// A PHY register as the fake holds it (`None`: never written nor scripted).

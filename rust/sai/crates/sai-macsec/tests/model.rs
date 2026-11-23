@@ -697,6 +697,42 @@ fn d9_a_flow_switch_takes_the_old_scs_sas_out() {
     w.m.check_invariants().unwrap();
 }
 
+/// D9 in two steps (found by the differential, 2026-11-23): the entry is disabled (no flow: the
+/// SA stays and the gate closes, as in the C++), then another entry of the same table sends the
+/// port's data to a flow without an SC. That is a flow switch too: the old SC's SA comes out and
+/// the gate stays closed. (The C++ opens the gate on that SA, Q7: data of the new flow would be
+/// accepted through an SC no enabled entry selects.) `tests/differential.rs` shows the C++ side.
+#[test]
+fn d9_a_flow_switch_through_a_disabled_entry() {
+    let mut w = good();
+    let b = bound(&mut w, 0, ING, AES128, None);
+    let a0 = sa(&mut w, ING, b.sc, 0).unwrap();
+    assert!(w.m.engine_state(w.key(0), Dir::Ingress).unwrap().gate);
+    w.phy.names_take();
+    w.m.set_acl_entry(
+        &mut w.phy,
+        b.entry,
+        &boolean(sys::SAI_ACL_ENTRY_ATTR_ADMIN_STATE, false),
+    )
+    .unwrap();
+    assert_eq!(w.phy.names_take(), ["gate-close.ingress"]);
+    assert_eq!(w.m.sa_installed(a0), Some(true)); // no flow: kept, as the C++
+    let flow2 =
+        w.m.create_flow(&[en(sys::SAI_MACSEC_FLOW_ATTR_MACSEC_DIRECTION, ING)])
+            .unwrap();
+    flow_entry(&mut w, b.table, flow2);
+    assert_eq!(w.phy.names_take(), ["sa-del-last.ingress.0"]);
+    let state = w.m.engine_state(w.key(0), Dir::Ingress).unwrap();
+    assert_eq!((state.sa[0], state.gate), (None, false));
+    assert_eq!(w.m.sa_installed(a0), Some(false));
+    // the first entry back on: its flow is bound again, but a0 lost its key when it was
+    // installed (as Q3), so nothing goes in and the gate stays closed
+    w.m.set_acl_entry(&mut w.phy, b.entry, &boolean(sys::SAI_ACL_ENTRY_ATTR_ADMIN_STATE, true))
+        .unwrap();
+    assert!(!w.m.engine_state(w.key(0), Dir::Ingress).unwrap().gate);
+    w.m.check_invariants().unwrap();
+}
+
 /// D1, without the C++ (tests/differential.rs shows the C++ side of it).
 #[test]
 fn d1_an_sa_is_removed_from_the_port_that_holds_it() {

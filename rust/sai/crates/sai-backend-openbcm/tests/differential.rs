@@ -5,12 +5,13 @@
 
 mod common;
 
-use common::{profile, serial};
+use common::own_profile;
 use proptest::prelude::*;
 use sai_backend_openbcm::OpenbcmBackend;
 use sai_core::Error;
 use sai_core::backend::{Backend, BackendEvent, EventSink, HwPort, Profile, Vid};
 use sai_core::virt::VirtualBackend;
+use sdk_glue::rust_fake::Chip;
 use std::collections::BTreeSet;
 
 const PORTS: u16 = 4;
@@ -58,13 +59,20 @@ fn apply(backend: &mut dyn Backend, op: Op) -> Result<(), Error> {
 ///   virtual chip says "not found" (the core never asks: it checks its store first);
 /// - the SDK refuses to destroy its default VLAN (BADID), the virtual chip destroys it;
 /// - an unknown port in a VLAN that does not exist: the virtual chip looks at the port
-///   first (invalid parameter), the SDK at the VLAN (not found).
+///   first (invalid parameter), the SDK at the VLAN (not found);
+/// - an unknown port otherwise: the virtual chip says invalid parameter (as the C++ fake), the
+///   SDK `OB_E_PORT`, which the C++ backend (and this one) map to invalid port number.
 fn expected(op: Op, virt: Result<(), Error>, vlans: &BTreeSet<u16>) -> Result<(), Error> {
+    let port = match op {
+        Op::Admin(p, _) | Op::Speed(p, _) | Op::Add(_, p, _) | Op::Remove(_, p) => p,
+        Op::Create(_) | Op::Destroy(_) => 0,
+    };
     match op {
         Op::Remove(v, p) if vlans.contains(&v) && p <= PORTS && virt == Err(Error::ItemNotFound) => Ok(()),
-        Op::Remove(v, p) if vlans.contains(&v) && p > PORTS => Err(Error::InvalidParameter),
+        Op::Remove(v, p) if vlans.contains(&v) && p > PORTS => Err(Error::InvalidPortNumber),
         Op::Destroy(1) => Err(Error::InvalidObjectId),
         Op::Add(v, p, _) if !vlans.contains(&v) && p > PORTS => Err(Error::ItemNotFound),
+        _ if port > PORTS && virt == Err(Error::InvalidParameter) => Err(Error::InvalidPortNumber),
         _ => virt,
     }
 }
@@ -86,7 +94,6 @@ fn state(backend: &dyn Backend) -> Vec<String> {
 }
 
 fn run(ops: &[Op]) -> Result<(), TestCaseError> {
-    let _g = serial();
     let mut virt = VirtualBackend::new();
     let (sink, virt_events) = EventSink::channel();
     let virt_profile = Profile::from_pairs([
@@ -94,17 +101,18 @@ fn run(ops: &[Op]) -> Result<(), TestCaseError> {
         ("SAI_RS_VIRTUAL_ON_HARDWARE", "1".to_owned()),
     ]);
     virt.init(&virt_profile, sink).unwrap();
-    // the core's first step on any backend; this backend does it during init
-    for p in 1..=PORTS {
-        virt.port_admin_set(HwPort(p), false).unwrap();
-    }
-    let mut real = OpenbcmBackend::new();
+    let mut real = OpenbcmBackend::on_chip(Chip::new());
     let (sink, real_events) = EventSink::channel();
     real.init(
-        &profile("diff.cfg", &format!("ports {PORTS} 4 100000\nlink admin\n"), &[]),
+        &own_profile(&format!("ports {PORTS} 4 100000\nlink admin\n"), &[]),
         sink,
     )
     .unwrap();
+    // the core's first step on any backend (switch creation disables every front-panel port)
+    for p in 1..=PORTS {
+        virt.port_admin_set(HwPort(p), false).unwrap();
+        real.port_admin_set(HwPort(p), false).unwrap();
+    }
     prop_assert_eq!(real.ports(), virt.ports());
     prop_assert_eq!(real.cpu_port(), virt.cpu_port());
     prop_assert_eq!(state(&real), state(&virt));

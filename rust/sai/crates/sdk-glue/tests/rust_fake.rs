@@ -1,7 +1,6 @@
 //! Every wrapper of this crate against the pure-Rust fake ([`sdk_glue::rust_fake`]): success,
 //! scripted faults of every operation, argument checks, the callback trampolines and the type
-//! state. No C runs here (the real-glue module is tested against the C fake in `fake.rs` /
-//! `switch.rs`): this file is what Miri runs. Each test has its own chip, so they run in parallel.
+//! state. No C runs here: this file is what Miri runs. Each test has its own chip, so they run in parallel.
 #![allow(
     clippy::unwrap_used,
     clippy::panic,
@@ -879,10 +878,10 @@ fn dropping_the_switch_unregisters_and_shuts_down_in_order() {
     assert_eq!(Arc::strong_count(&owned), 1, "the closure goes with the switch");
     assert!(!chip.bcm_layer_up() && !chip.link_callback_registered());
     assert_eq!((chip.shutdown_calls(), chip.register_calls()), (1, 1));
-    assert_eq!(chip.unregister_calls(), 2); // the switch's, then the one inside the shutdown
+    assert_eq!(chip.unregister_calls(), 1); // the one inside the shutdown (the C++ backend's order)
     assert_eq!(
         std::fs::read_to_string(&trace).unwrap(),
-        "init-all unit 0 rc -\nregister unit 0\ngate 2 on\ngate 2 off\nunregister unit 0\nunregister unit 0\nshutdown unit 0\n"
+        "init-all unit 0 rc -\nregister unit 0\ngate 2 on\ngate 2 off\nunregister unit 0\nshutdown unit 0\n"
     );
     // and again on the same chip
     let sw = switch(&chip, "ports 1 4 100000\n");
@@ -1080,15 +1079,5 @@ fn the_message_table_and_codes() {
     ] {
         let e = Error::from_raw(raw).unwrap();
         assert_eq!((e.code(), sdk_glue::error::sdk_text(raw)), (c, text));
-    }
-}
-
-/// The table the Rust side uses where no C glue answers equals the C fake's (the SDK's).
-#[test]
-#[cfg_attr(miri, ignore = "calls the C fake")]
-fn the_message_table_is_the_c_glues() {
-    for raw in (-20..=0).chain([-100, -57, 3]) {
-        let e = Error::from_raw(raw).map_or_else(|| "Ok".to_owned(), Error::message);
-        assert_eq!(e, sdk_glue::error::sdk_text(raw.min(0)), "{raw}");
     }
 }

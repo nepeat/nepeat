@@ -1,8 +1,7 @@
 //! Safe access to the Broadcom SDK through sai-openbcm's C glue (`sdk_glue.h`, declared by
 //! `sdk-glue-sys`), and a pure-Rust fake of that glue for tests. This crate is the only caller of
 //! the glue's functions and holds all the `unsafe` of that side: in [`real`]-module calls (one block
-//! per C call, each with its `SAFETY` comment), the two callback trampolines' pointer reads and
-//! the C fake's test hooks.
+//! per C call, each with its `SAFETY` comment) and the two callback trampolines' pointer reads.
 //!
 //! # Shape
 //!
@@ -21,7 +20,8 @@
 //! * One internal interface, two implementations ([`glue`]): the real glue ([`real`], FFI) and
 //!   [`rust_fake`] (feature `rust-fake`: ports, VLANs, L2 table, trunks, L3 tables, field groups /
 //!   entries / counters, policers, netifs, MDIO registers, temperatures, shell log, scripted faults
-//!   per function, callback injection). `fake` (only when the C fake is linked): its test hooks.
+//!   per function, callback injection); `fake`: the process's Rust fake (in a build without the
+//!   real glue).
 //!
 //! # What the glue requires, and who guarantees it
 //!
@@ -91,20 +91,17 @@
 //!
 //! # Linking and the fakes
 //!
-//! Features `real` and `fake` choose the C glue (see `sdk-glue-sys`); with either, the
-//! bring-ups without a chip argument ([`Switch::init`], ...) use it. Feature `rust-fake` adds
-//! [`rust_fake`]: [`rust_fake::Chip`] instances, used through [`Switch::init_on`] & co., any number
-//! per process and in parallel; and, in a build that links no C glue, the process's own fake,
-//! which the plain bring-ups then use, with the hooks of the C fake under the same names
-//! ([`fake`] is then [`rust_fake::process`]). Such a build calls no C at all (Miri runs it). The tests
-//! of this crate run the [`real`] module against the C fake and every wrapper against the Rust one.
-//! The C fake (`sdk-glue-sys/fake/fake_glue.c`) goes once its users have moved (see
-//! [`rust_fake`]).
+//! Feature `real` links the C glue (see `sdk-glue-sys`); the bring-ups without a chip argument
+//! ([`Switch::init`], ...) then use it. Feature `rust-fake` adds [`rust_fake`]: [`rust_fake::Chip`]
+//! instances, used through [`Switch::init_on`] & co., any number per process and in parallel; and,
+//! in a build without the real glue, the process's own fake, which the plain bring-ups then use,
+//! with its test hooks in [`fake`] (= [`rust_fake::process`]). Such a build calls no C at all (Miri
+//! runs it). There is no C fake any more (`fake_glue.c` was deleted at G2): the tests of this crate
+//! run every wrapper against the Rust fake, and the [`real`] module (the FFI calls) is compiled
+//! only with the real glue (ppc64), where nothing offline executes it.
 
 pub mod attach;
 pub mod error;
-#[cfg(ob_glue_fake)]
-pub mod fake;
 pub mod field;
 mod glue;
 pub mod l2;
@@ -117,6 +114,8 @@ pub mod policer;
 pub mod port;
 #[cfg(not(ob_glue_rust_only))]
 mod real;
+#[cfg(feature = "rust-fake")]
+pub mod record;
 #[cfg(feature = "rust-fake")]
 pub mod rust_fake;
 pub mod shell;
@@ -145,12 +144,12 @@ pub use temp::{TempReader, Temperatures};
 pub use trap::TrapKind;
 pub use unit::{InitError, Sdk};
 
-/// Which glue this build links: `real`, `fake` (the C fake) or `none`, and `rust-fake` in a build
-/// that links none and has the Rust fake (what the plain bring-ups then use).
+/// Which glue this build links: `real` or `none`, and `rust-fake` in a build that links none and
+/// has the Rust fake (what the plain bring-ups then use).
 #[cfg(not(ob_glue_rust_only))]
 pub const LINKED: &str = sdk_glue_sys::LINKED;
-/// Which glue this build links: `real`, `fake` (the C fake) or `none`, and `rust-fake` in a build
-/// that links none and has the Rust fake (what the plain bring-ups then use).
+/// Which glue this build links: `real` or `none`, and `rust-fake` in a build that links none and
+/// has the Rust fake (what the plain bring-ups then use).
 #[cfg(ob_glue_rust_only)]
 pub const LINKED: &str = "rust-fake";
 /// What the build did to check the declarations against `sdk_glue.h`.

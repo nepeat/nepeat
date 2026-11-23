@@ -1,0 +1,122 @@
+# G2/G4 trace comparison (agent H2, 2026-11-23T11:32:34.113Z), method of evidence/rust-g0/trace-compare.txt, script trace-compare.py (below).
+# table sha256 1ef74ead... (same as G0). d-trace-cxx-g2 = C++ libsai 7gqia5n3 on system 2kk34h17; d-trace-rust-g4(-2) = Rust libsai j0jjhc94 on system zvih1crw.
+# run 1 of the Rust dump started from AN 1 on cages 1-2 (left by the wrong-CAK test): its teardown deletes AN 1 (expected, as G0's cxx1 with AN 2). Run 2 starts from AN 0.
+
+trace-cxx-2.txt vs d-trace-cxx-g2.txt: event runs 80 / 80, event bus operations 22560 / 22560, periodic runs 160 / 157
+  per-PHY event differences 0, periodic variant differences 0; failed runs 0 / 0
+  phy 0x0 event sequence (b): gate-close.egress sa-del-last.egress.0 gate-close.ingress sa-del-last.ingress.0 disable.egress disable.ingress reset.egress enable.egress reset.ingress enable.ingress disable.egress disable.ingress reset.egress enable.egress reset.ingress enable.ingress sa-add-first.egress.0.gcm-aes-xpn-256 gate-open.egress sa-add-first.ingress.0.gcm-aes-xpn-256 gate-open.ingress
+d-trace-cxx-g2.txt vs d-trace-rust-g4.txt: event runs 80 / 80, event bus operations 22560 / 22560, periodic runs 157 / 168
+  phy 0x0 differs
+     1 ('sa-del-last.egress.0', '9e6ca898eab6', 16, '0') | ('sa-del-last.egress.1', '2b2e28d5d047', 16, '0')
+     3 ('sa-del-last.ingress.0', '6b88c26c369d', 48, '0') | ('sa-del-last.ingress.1', '2405df826561', 48, '0')
+  phy 0x1 differs
+     1 ('sa-del-last.egress.0', 'f60a88c297a4', 16, '0') | ('sa-del-last.egress.1', '1670cbf7b31c', 16, '0')
+     3 ('sa-del-last.ingress.0', '63c64978f93f', 48, '0') | ('sa-del-last.ingress.1', '7ada0130a783', 48, '0')
+  per-PHY event differences 2, periodic variant differences 8; failed runs 0 / 0
+   periodic ('0x0', 'pn.egress.1') [] ['0415030eb1b7']
+   periodic ('0x0', 'pn.ingress.1') [] ['a56a8e239a20']
+   periodic ('0x0', 'stats-sa.egress.1') [] ['8abfa6f1fd31']
+   periodic ('0x0', 'stats-sa.ingress.1') [] ['cc76cef9dfd7']
+   periodic ('0x1', 'pn.egress.1') [] ['511461aae7bf']
+   periodic ('0x1', 'pn.ingress.1') [] ['095e0d1bb2f9']
+   periodic ('0x1', 'stats-sa.egress.1') [] ['45d808ded4c4']
+   periodic ('0x1', 'stats-sa.ingress.1') [] ['a94b979aa070']
+  phy 0x0 event sequence (b): gate-close.egress sa-del-last.egress.1 gate-close.ingress sa-del-last.ingress.1 disable.egress disable.ingress reset.egress enable.egress reset.ingress enable.ingress disable.egress disable.ingress reset.egress enable.egress reset.ingress enable.ingress sa-add-first.egress.0.gcm-aes-xpn-256 gate-open.egress sa-add-first.ingress.0.gcm-aes-xpn-256 gate-open.ingress
+trace-cxx-2.txt vs d-trace-rust-g4.txt: event runs 80 / 80, event bus operations 22560 / 22560, periodic runs 160 / 168
+  phy 0x0 differs
+     1 ('sa-del-last.egress.0', '9e6ca898eab6', 16, '0') | ('sa-del-last.egress.1', '2b2e28d5d047', 16, '0')
+     3 ('sa-del-last.ingress.0', '6b88c26c369d', 48, '0') | ('sa-del-last.ingress.1', '2405df826561', 48, '0')
+  phy 0x1 differs
+     1 ('sa-del-last.egress.0', 'f60a88c297a4', 16, '0') | ('sa-del-last.egress.1', '1670cbf7b31c', 16, '0')
+     3 ('sa-del-last.ingress.0', '63c64978f93f', 48, '0') | ('sa-del-last.ingress.1', '7ada0130a783', 48, '0')
+  per-PHY event differences 2, periodic variant differences 8; failed runs 0 / 0
+   periodic ('0x0', 'pn.egress.1') [] ['0415030eb1b7']
+   periodic ('0x0', 'pn.ingress.1') [] ['a56a8e239a20']
+   periodic ('0x0', 'stats-sa.egress.1') [] ['8abfa6f1fd31']
+   periodic ('0x0', 'stats-sa.ingress.1') [] ['cc76cef9dfd7']
+   periodic ('0x1', 'pn.egress.1') [] ['511461aae7bf']
+   periodic ('0x1', 'pn.ingress.1') [] ['095e0d1bb2f9']
+   periodic ('0x1', 'stats-sa.egress.1') [] ['45d808ded4c4']
+   periodic ('0x1', 'stats-sa.ingress.1') [] ['a94b979aa070']
+  phy 0x0 event sequence (b): gate-close.egress sa-del-last.egress.1 gate-close.ingress sa-del-last.ingress.1 disable.egress disable.ingress reset.egress enable.egress reset.ingress enable.ingress disable.egress disable.ingress reset.egress enable.egress reset.ingress enable.ingress sa-add-first.egress.0.gcm-aes-xpn-256 gate-open.egress sa-add-first.ingress.0.gcm-aes-xpn-256 gate-open.ingress
+trace-rustB-1.txt vs d-trace-rust-g4.txt: event runs 80 / 80, event bus operations 22560 / 22560, periodic runs 152 / 168
+  phy 0x0 differs
+     1 ('sa-del-last.egress.0', '9e6ca898eab6', 16, '0') | ('sa-del-last.egress.1', '2b2e28d5d047', 16, '0')
+     3 ('sa-del-last.ingress.0', '6b88c26c369d', 48, '0') | ('sa-del-last.ingress.1', '2405df826561', 48, '0')
+  phy 0x1 differs
+     1 ('sa-del-last.egress.0', 'f60a88c297a4', 16, '0') | ('sa-del-last.egress.1', '1670cbf7b31c', 16, '0')
+     3 ('sa-del-last.ingress.0', '63c64978f93f', 48, '0') | ('sa-del-last.ingress.1', '7ada0130a783', 48, '0')
+  per-PHY event differences 2, periodic variant differences 8; failed runs 0 / 0
+   periodic ('0x0', 'pn.egress.1') [] ['0415030eb1b7']
+   periodic ('0x0', 'pn.ingress.1') [] ['a56a8e239a20']
+   periodic ('0x0', 'stats-sa.egress.1') [] ['8abfa6f1fd31']
+   periodic ('0x0', 'stats-sa.ingress.1') [] ['cc76cef9dfd7']
+   periodic ('0x1', 'pn.egress.1') [] ['511461aae7bf']
+   periodic ('0x1', 'pn.ingress.1') [] ['095e0d1bb2f9']
+   periodic ('0x1', 'stats-sa.egress.1') [] ['45d808ded4c4']
+   periodic ('0x1', 'stats-sa.ingress.1') [] ['a94b979aa070']
+  phy 0x0 event sequence (b): gate-close.egress sa-del-last.egress.1 gate-close.ingress sa-del-last.ingress.1 disable.egress disable.ingress reset.egress enable.egress reset.ingress enable.ingress disable.egress disable.ingress reset.egress enable.egress reset.ingress enable.ingress sa-add-first.egress.0.gcm-aes-xpn-256 gate-open.egress sa-add-first.ingress.0.gcm-aes-xpn-256 gate-open.ingress
+d-trace-cxx-g2.txt vs d-trace-rust-g4-2.txt: event runs 80 / 80, event bus operations 22560 / 22560, periodic runs 157 / 146
+  per-PHY event differences 0, periodic variant differences 0; failed runs 0 / 0
+  phy 0x0 event sequence (b): gate-close.egress sa-del-last.egress.0 gate-close.ingress sa-del-last.ingress.0 disable.egress disable.ingress reset.egress enable.egress reset.ingress enable.ingress disable.egress disable.ingress reset.egress enable.egress reset.ingress enable.ingress sa-add-first.egress.0.gcm-aes-xpn-256 gate-open.egress sa-add-first.ingress.0.gcm-aes-xpn-256 gate-open.ingress
+trace-cxx-2.txt vs d-trace-rust-g4-2.txt: event runs 80 / 80, event bus operations 22560 / 22560, periodic runs 160 / 146
+  per-PHY event differences 0, periodic variant differences 0; failed runs 0 / 0
+  phy 0x0 event sequence (b): gate-close.egress sa-del-last.egress.0 gate-close.ingress sa-del-last.ingress.0 disable.egress disable.ingress reset.egress enable.egress reset.ingress enable.ingress disable.egress disable.ingress reset.egress enable.egress reset.ingress enable.ingress sa-add-first.egress.0.gcm-aes-xpn-256 gate-open.egress sa-add-first.ingress.0.gcm-aes-xpn-256 gate-open.ingress
+trace-rustB-1.txt vs d-trace-rust-g4-2.txt: event runs 80 / 80, event bus operations 22560 / 22560, periodic runs 152 / 146
+  per-PHY event differences 0, periodic variant differences 0; failed runs 0 / 0
+  phy 0x0 event sequence (b): gate-close.egress sa-del-last.egress.0 gate-close.ingress sa-del-last.ingress.0 disable.egress disable.ingress reset.egress enable.egress reset.ingress enable.ingress disable.egress disable.ingress reset.egress enable.egress reset.ingress enable.ingress sa-add-first.egress.0.gcm-aes-xpn-256 gate-open.egress sa-add-first.ingress.0.gcm-aes-xpn-256 gate-open.ingress
+d-trace-rust-g4.txt vs d-trace-rust-g4-2.txt: event runs 80 / 80, event bus operations 22560 / 22560, periodic runs 168 / 146
+  phy 0x0 differs
+
+# trace-compare.py
+import sys, re, hashlib
+tbl=sys.argv[1]
+seqs=[]
+for i,l in enumerate(open(tbl),1):
+    if l.startswith('seq '): seqs.append((i,l.split()[1]))
+def name(L):
+    n=None
+    for i,s in seqs:
+        if i<=L: n=s
+        else: break
+    return n
+def parse(f):
+    runs=[];cur=None
+    for l in open(f):
+        l=l.rstrip('\n')
+        m=re.match(r'# run (\d+): phy (0x[0-9a-f]+), (\d+) operations from line (\d+)',l)
+        if m:
+            cur={'phy':m.group(2),'name':name(int(m.group(4))),'ops':[]}; continue
+        if cur is None: continue
+        if l.startswith('= '):
+            cur['st']=l[2:]; runs.append(cur); cur=None; continue
+        cur['ops'].append(l)
+    return runs
+def periodic(n): return n.startswith('pn.') or n.startswith('stats-')
+def summ(runs):
+    ev={};per={};np=0;nops=0
+    for r in runs:
+        h=hashlib.sha1('\n'.join(r['ops']).encode()).hexdigest()[:12]
+        if periodic(r['name']):
+            per.setdefault((r['phy'],r['name']),set()).add(h); np+=1
+        else:
+            ev.setdefault(r['phy'],[]).append((r['name'],h,len(r['ops']),r['st'])); nops+=len([o for o in r['ops'] if o[:1] in 'RWD'])
+    return ev,per,np,nops
+a=parse(sys.argv[2]); b=parse(sys.argv[3])
+ea,pa,npa,oa=summ(a); eb,pb,npb,ob=summ(b)
+print(f"{sys.argv[2].split('/')[-1]} vs {sys.argv[3].split('/')[-1]}: event runs {sum(map(len,ea.values()))} / {sum(map(len,eb.values()))}, event bus operations {oa} / {ob}, periodic runs {npa} / {npb}")
+d=0
+for p in sorted(set(ea)|set(eb)):
+    if ea.get(p)!=eb.get(p):
+        d+=1; print('  phy',p,'differs'); 
+        A=ea.get(p,[]);B=eb.get(p,[])
+        for i in range(max(len(A),len(B))):
+            x=A[i] if i<len(A) else None; y=B[i] if i<len(B) else None
+            if x!=y: print('    ',i,x,'|',y)
+pd=sum(1 for k in set(pa)|set(pb) if pa.get(k)!=pb.get(k))
+print(f"  per-PHY event differences {d}, periodic variant differences {pd}; failed runs {sum(1 for r in a if r['st']!='0')} / {sum(1 for r in b if r['st']!='0')}")
+if pd:
+    for k in sorted(set(pa)|set(pb)):
+        if pa.get(k)!=pb.get(k): print('   periodic',k,sorted(pa.get(k,[])),sorted(pb.get(k,[])))
+seqlist=lambda e: [x[0] for x in e.get('0x0',[])]
+print('  phy 0x0 event sequence (b):', ' '.join(seqlist(eb)))

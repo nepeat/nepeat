@@ -254,6 +254,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "openbcm-asic-temp"
+version = "0.1.0"
+dependencies = [
+ "openbcm-asic-temp",
+ "sai-core",
+ "sdk-glue",
+ "signal-hook",
+]
+
+[[package]]
 name = "openbcm-diag"
 version = "0.1.0"
 
@@ -390,7 +400,9 @@ name = "sai-backend-openbcm"
 version = "0.1.0"
 dependencies = [
  "proptest",
+ "sai-backend-openbcm",
  "sai-core",
+ "sai-driver",
  "sai-sys",
  "sdk-glue",
 ]

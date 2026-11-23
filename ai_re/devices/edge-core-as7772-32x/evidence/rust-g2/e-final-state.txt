@@ -1,0 +1,12 @@
+== 2026-11-23T11:55:21+00:00
+current /nix/store/zvih1crw43xfr1nvs33gqmr9l7dj6nm2-nixos-system-as7772-26.11.20261111.d4f25a3
+booted  /nix/store/zvih1crw43xfr1nvs33gqmr9l7dj6nm2-nixos-system-as7772-26.11.20261111.d4f25a3
+profile /nix/store/zvih1crw43xfr1nvs33gqmr9l7dj6nm2-nixos-system-as7772-26.11.20261111.d4f25a3
+syncd libsai: /nix/store/j0jjhc94igfzmnpvvrqr2fr5nz9jpqsa-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+mdio unit tool: ExecStart="/nix/store/j0jjhc94igfzmnpvvrqr2fr5nz9jpqsa-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/bin/openbcm-mdio-script"
+asic-temp: ExecStart=/nix/store/j0jjhc94igfzmnpvvrqr2fr5nz9jpqsa-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/bin/openbcm-asic-temp
+openbcm-diag: /nix/store/j0jjhc94igfzmnpvvrqr2fr5nz9jpqsa-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/bin/openbcm-diag
+markers: 
+failed units: 0
+asic temp 47.2, fand "failsafe": false
+4

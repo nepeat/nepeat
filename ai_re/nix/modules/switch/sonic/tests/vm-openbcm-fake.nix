@@ -11,14 +11,19 @@
 #     in import <ai_re>/nix/modules/switch/sonic/tests/vm-openbcm-fake.nix { inherit pkgs; }'
 { pkgs
 , sonic ? import ../../../../packages/sonic { inherit pkgs; }
-, libsai ? pkgs.callPackage ../../../../packages/sai-openbcm { inherit sonic; }
+  # hardware.openbcm settings choosing the SAI under test (modules/switch/openbcm.nix), e.g.
+  # { implementation = "rust"; rustSai = <monorepo>/rust/sai/nix; }; default: the C++ sai-openbcm.
+, openbcm ? { }
+  # libsai / sairedis given explicitly win over that (rust/sai/nix's wrappers pass them).
+, libsai ? null
   # syncd built against libsai (default); an older build also works while
   # iterating on libsai alone (libraryPath puts this libsai first).
-, sairedis ? sonic.sairedis-openbcm libsai }:
+, sairedis ? null }:
+let sai = import ./openbcm-sai.nix { inherit sonic openbcm libsai sairedis; }; in
 pkgs.testers.runNixOSTest {
-  name = "sonic-control-plane-openbcm-fake";
+  name = "sonic-control-plane-openbcm-fake" + sai.nameSuffix;
   nodes.switch = { lib, pkgs, ... }: {
-    imports = [ ./common.nix ];
+    imports = [ ./common.nix sai.module ];
     virtualisation.memorySize = 3072;
     virtualisation.cores = 2;
     virtualisation.vlans = [ 1 2 ];
@@ -33,8 +38,6 @@ pkgs.testers.runNixOSTest {
       breakout = lib.mkForce { };          # the fake (like the SDK) has no SAI breakout
       sai = {
         kind = "vendor";
-        package = sairedis;
-        libraryPath = [ "${libsai}/lib" ];
         vs.interfaces = lib.mkForce { };
         profile = {
           SAI_OPENBCM_BACKEND = "fake";

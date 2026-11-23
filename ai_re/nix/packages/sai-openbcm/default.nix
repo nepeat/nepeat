@@ -45,7 +45,7 @@ in stdenv.mkDerivation {
 
   postInstall = ''
     mkdir -p $out/include/sai-openbcm $out/share/sai-openbcm
-    cp src/backend.h $out/include/sai-openbcm/
+    cp src/backend.h src/sdk_glue.h $out/include/sai-openbcm/   # backend.h includes sdk_glue.h
     echo ${if libsdk == null then "fake" else "fake openbcm"} > $out/share/sai-openbcm/backends
   '' + lib.optionalString (rustPhySeq != null) ''
     echo rust > $out/share/sai-openbcm/phy-seq-engine

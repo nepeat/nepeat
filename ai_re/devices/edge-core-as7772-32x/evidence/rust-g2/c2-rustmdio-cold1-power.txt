@@ -1,0 +1,28 @@
+no ping after 5 s
+off: direnv: loading ~/nepeat/ai_re/.envrc
+direnv: using flake
+direnv: nix-direnv: Using cached dev shell
+ai_re devshell — hardware RE
+serial: tmux new-session -d -s serial 'tio /dev/<port> -b 115200'
+ports : ls /dev/tty.* (macOS) | ls /dev/ttyUSB* /dev/ttyACM* (linux)
+direnv: loading ~/nepeat/ai_re/.envrc.local
+plug 1 (switch.server_room_lab_plug): off @2026-11-23T10:56:58.000Z
+on: direnv: loading ~/nepeat/ai_re/.envrc
+direnv: using flake
+direnv: nix-direnv: Using cached dev shell
+ai_re devshell — hardware RE
+serial: tmux new-session -d -s serial 'tio /dev/<port> -b 115200'
+ports : ls /dev/tty.* (macOS) | ls /dev/ttyUSB* /dev/ttyACM* (linux)
+direnv: loading ~/nepeat/ai_re/.envrc.local
+plug 1 (switch.server_room_lab_plug): on @2026-11-23T10:57:18.615Z
+30s: ssh: connect to host 10.60.2.23 port 22: Connection timed out
+43s: ssh: connect to host 10.60.2.23 port 22: No route to host
+56s: ssh: connect to host 10.60.2.23 port 22: No route to host
+67s: 55.87 372.80 | openbcm-mdio-script: running: 442503 of 1058160 operations done |   run started 2026-11-23 10:57:45 +0000, pid 496 | activating | inactive | starting
+77s: 66.20 448.41 | openbcm-mdio-script: running: 565235 of 1058160 operations done |   run started 2026-11-23 10:57:45 +0000, pid 496 | activating | inactive | starting
+87s: 76.55 522.56 | openbcm-mdio-script: running: 688940 of 1058160 operations done |   run started 2026-11-23 10:57:45 +0000, pid 496 | activating | inactive | starting
+98s: 86.89 597.70 | openbcm-mdio-script: running: 823889 of 1058160 operations done |   run started 2026-11-23 10:57:45 +0000, pid 496 | activating | inactive | starting
+108s: 97.23 672.98 | openbcm-mdio-script: running: 916799 of 1058160 operations done |   run started 2026-11-23 10:57:45 +0000, pid 496 | activating | inactive | starting
+118s: 107.56 745.29 | openbcm-mdio-script: running: 972538 of 1058160 operations done |   run started 2026-11-23 10:57:45 +0000, pid 496 | activating | inactive | starting
+129s: 117.93 815.39 | openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 97.7 s |   run started 2026-11-23 10:57:45 +0000, took 101.3 s | active | active | starting
+139s: 128.27 870.20 | openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 97.7 s |   run started 2026-11-23 10:57:45 +0000, took 101.3 s | active | active | running

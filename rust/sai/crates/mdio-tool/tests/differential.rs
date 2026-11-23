@@ -1,7 +1,9 @@
 //! Differential test against the C tool: the same command line, scripts, names and (fake) chip
 //! for `openbcm-mdio-script` built from sai-openbcm's C sources and for this crate's binary;
 //! exit code, stdout, stderr, `status.json`, `status.txt` and the chip's access trace must be
-//! the same bytes once run times, the pid and the directory are masked.
+//! the same bytes once run times, the pid and the directory are masked. The chip: for the C tool
+//! `tests/c/mdio_stub.c` (the MDIO side of the glue in C), for the Rust tool sdk-glue's Rust fake;
+//! both read the same scenario, so this also holds the stub and the Rust fake to each other.
 //!
 //! The C tool is built by `build.rs` when `MDIO_SCRIPT_C_DIR` is set at build time (never at
 //! test time). Where the build tree is not (a copied test executable), `SAI_RS_TEST_BIN` names

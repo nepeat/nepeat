@@ -109,7 +109,7 @@ impl Error {
 
     /// The glue's text for the code (`ob_sdk_errmsg`: the SDK's `bcm_errmsg`). Needs no
     /// initialised SDK. In a build that links no C glue (only the Rust fake), and under Miri,
-    /// the same texts from [`sdk_text`] (the SDK's table, as `fake_glue.c` copies it).
+    /// the same texts from [`sdk_text`] (a copy of the SDK's table).
     pub fn message(self) -> String {
         #[cfg(any(not(ob_glue_linked), miri))]
         {
@@ -147,8 +147,9 @@ impl fmt::Display for Error {
 impl std::error::Error for Error {}
 
 /// The SDK's message for a code (`_shr_errmsg`; the Rust fake's `ob_sdk_errmsg`), and the
-/// glue's own for `OB_E_MDIO_CLOCK`. Compared with the linked glue's `ob_sdk_errmsg` by this
-/// crate's tests.
+/// glue's own for `OB_E_MDIO_CLOCK`. Never compared with the real glue's `ob_sdk_errmsg` offline;
+/// mdio-tool's differential compares the texts the tool prints with the C tool's (on a C stub
+/// holding the same table).
 pub fn sdk_text(rv: i32) -> &'static str {
     const TEXT: [&str; 20] = [
         "Ok",

@@ -1,5 +1,7 @@
-//! The safe wrappers against the fake glue (sdk-glue-sys/fake/fake_glue.c): every unsafe block
-//! of this crate runs here, on any host.
+//! The MDIO bring-up and its wrappers through the plain bring-up (`Sdk::init_mdio`), i.e. on the
+//! process's Rust fake (`sdk_glue::fake` = `rust_fake::process` in a build without the real glue):
+//! the path the MDIO tool's tests take. Once the C fake's tests; the per-chip versions are in
+//! `rust_fake.rs`.
 #![allow(
     clippy::unwrap_used,
     clippy::panic,

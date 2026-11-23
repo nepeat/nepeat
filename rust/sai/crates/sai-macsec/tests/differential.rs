@@ -5,14 +5,23 @@
 //! (reads included, with the value read) must be the same text. The C++ side is
 //! `tests/cpp/driver.cpp`, built from the unmodified C++ sources.
 //!
-//! - `$SAI_RS_TEST_BIN/sai-macsec-cpp-driver`: a driver built beforehand (a machine without a
-//!   compiler); else
+//! - `$SAI_RS_TEST_BIN/sai-macsec-cpp-driver` and `...-fixed`: drivers built beforehand (a
+//!   machine without a compiler; `build.rs`); else
 //! - `SAI_OPENBCM_SRC` (or `MDIO_SCRIPT_C_DIR`, the same directory in the Nix build) = sai-openbcm's
 //!   `src` directory and `SAI_INC` = SAI's `inc`: the driver is compiled here (`$CXX`, `$CC`);
 //! - neither: the comparison is SKIPPED, said on stderr, and the tests pass.
 //!
 //! Scripts are generated so that a flow never moves between ports: there the port differs on
 //! purpose (crate documentation, D1; `tests/model.rs` pins the Rust behaviour).
+//!
+//! D9 and D10 (the owner's fixes of the C++): the Rust output must equal, to the end of every
+//! script, that of a second driver built from the C++ with exactly those two edits
+//! (`tests/cpp/listed_fixes.rs`, also `$SAI_RS_TEST_BIN/sai-macsec-cpp-driver-fixed`); where
+//! that one differs from the unmodified C++, the script reached D9 / D10. No other difference
+//! passes, and neither does a Rust that lacks D9 / D10 where the fixed C++ has them.
+//!
+//! The random scripts are deterministic per seed (`tests/common/seeded.rs`): `SAI_MACSEC_SEED`
+//! (default random, printed), `SAI_MACSEC_DIFF_CASES` (default 300).
 
 #![allow(
     clippy::doc_markdown,
@@ -32,6 +41,10 @@
 )]
 
 mod common;
+#[path = "cpp/listed_fixes.rs"]
+mod listed_fixes;
+#[path = "common/seeded.rs"]
+mod seeded;
 
 use common::{BusOp, World, action_oid, action_s32, boolean, en, ether_type, ms_table, oid, u8v, u32v, u64v};
 use proptest::prelude::*;
@@ -47,6 +60,8 @@ use std::sync::OnceLock;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 const DRIVER_NAME: &str = "sai-macsec-cpp-driver";
+/// The same driver on `sai_macsec.cpp` with D9 and D10 (`tests/cpp/listed_fixes.rs`).
+const FIXED_NAME: &str = "sai-macsec-cpp-driver-fixed";
 
 /// A line for whoever runs the suite: on stderr, and appended to the file `$SAI_RS_TEST_SUMMARY`
 /// names (the target-test bundle collects these; captured stderr of a passing test is not shown).
@@ -90,6 +105,8 @@ const CPP: &[&str] = &[
 
 struct Driver {
     exe: PathBuf,
+    /// The C++ with the owner's fixes (D9, D10).
+    fixed: PathBuf,
     dir: PathBuf,
 }
 
@@ -107,9 +124,9 @@ fn driver() -> Option<&'static Driver> {
     static DRIVER: OnceLock<Option<Result<Driver, String>>> = OnceLock::new();
     let built = DRIVER.get_or_init(|| {
         if let Some(bin) = std::env::var_os("SAI_RS_TEST_BIN") {
-            let exe = Path::new(&bin).join(DRIVER_NAME);
-            if exe.is_file() {
-                return Some(scratch_dir().map(|dir| Driver { exe, dir }));
+            let (exe, fixed) = (Path::new(&bin).join(DRIVER_NAME), Path::new(&bin).join(FIXED_NAME));
+            if exe.is_file() && fixed.is_file() {
+                return Some(scratch_dir().map(|dir| Driver { exe, fixed, dir }));
             }
         }
         let src = ["SAI_OPENBCM_SRC", "MDIO_SCRIPT_C_DIR"]
@@ -123,7 +140,7 @@ fn driver() -> Option<&'static Driver> {
             (Some(src), Some(inc)) if driver_src.is_file() => Some(build(&src, &inc, &driver_src)),
             _ => {
                 summary!(
-                    "differential: no $SAI_RS_TEST_BIN/{DRIVER_NAME}, and SAI_OPENBCM_SRC (sai-openbcm/src) + SAI_INC \
+                    "differential: no $SAI_RS_TEST_BIN/{DRIVER_NAME} + {FIXED_NAME}, and SAI_OPENBCM_SRC (sai-openbcm/src) + SAI_INC \
                      + tests/cpp/driver.cpp are not all there: the comparison with the C++ sai_macsec.cpp is SKIPPED"
                 );
                 None
@@ -162,6 +179,17 @@ fn build(src: &Path, inc: &Path, driver_src: &Path) -> Result<Driver, String> {
                 .map_err(|e| format!("cannot run the C++ compiler {}: {e}", cxx.display()))?,
         ));
     }
+    // the owner's fixes: an edited copy of sai_macsec.cpp next to the objects
+    let fixed_src = listed_fixes::write_fixed(src, &dir)?;
+    let mut c = Command::new(&cxx);
+    c.args(["-std=c++17", "-O1", "-w", "-c"]);
+    includes(&mut c);
+    c.arg(&fixed_src).arg("-o").arg(dir.join("sai_macsec_fixed.o"));
+    jobs.push((
+        "sai_macsec_fixed".to_owned(),
+        c.spawn()
+            .map_err(|e| format!("cannot run the C++ compiler {}: {e}", cxx.display()))?,
+    ));
     let mut c = Command::new(&cc);
     c.args(["-std=gnu11", "-O1", "-w", "-c", "-I"]).arg(src);
     c.arg(src.join("temp_files.c")).arg("-o").arg(dir.join("temp_files.o"));
@@ -176,31 +204,43 @@ fn build(src: &Path, inc: &Path, driver_src: &Path) -> Result<Driver, String> {
             return Err(format!("{unit} does not compile"));
         }
     }
-    let exe = dir.join(DRIVER_NAME);
-    let mut link = Command::new(&cxx);
-    link.args(["-std=c++17", "-O1", "-Wall"]);
-    includes(&mut link);
-    link.arg(driver_src);
-    for unit in CPP.iter().chain(&["temp_files"]) {
-        link.arg(dir.join(format!("{unit}.o")));
+    let (exe, fixed) = (dir.join(DRIVER_NAME), dir.join(FIXED_NAME));
+    for (bin, macsec) in [(&exe, "sai_macsec"), (&fixed, "sai_macsec_fixed")] {
+        let mut link = Command::new(&cxx);
+        link.args(["-std=c++17", "-O1", "-Wall"]);
+        includes(&mut link);
+        link.arg(driver_src);
+        for unit in CPP.iter().chain(&["temp_files"]) {
+            let unit = if *unit == "sai_macsec" { macsec } else { unit };
+            link.arg(dir.join(format!("{unit}.o")));
+        }
+        let out = link
+            .arg("-o")
+            .arg(bin)
+            .arg("-lpthread")
+            .output()
+            .map_err(|e| e.to_string())?;
+        if !out.status.success() {
+            return Err(format!(
+                "the C++ driver does not compile:\n{}",
+                String::from_utf8_lossy(&out.stderr)
+            ));
+        }
     }
-    let out = link
-        .arg("-o")
-        .arg(&exe)
-        .arg("-lpthread")
-        .output()
-        .map_err(|e| e.to_string())?;
-    if !out.status.success() {
-        return Err(format!(
-            "the C++ driver does not compile:\n{}",
-            String::from_utf8_lossy(&out.stderr)
-        ));
-    }
-    Ok(Driver { exe, dir })
+    Ok(Driver { exe, fixed, dir })
 }
 
 impl Driver {
     fn cpp_output(&self, table: &str, script: &str) -> String {
+        self.output(&self.exe, table, script)
+    }
+
+    /// The C++ with the owner's fixes (D9, D10).
+    fn fixed_output(&self, table: &str, script: &str) -> String {
+        self.output(&self.fixed, table, script)
+    }
+
+    fn output(&self, exe: &Path, table: &str, script: &str) -> String {
         static N: AtomicU64 = AtomicU64::new(0);
         let n = N.fetch_add(1, Ordering::Relaxed);
         let (t, s) = (
@@ -209,7 +249,7 @@ impl Driver {
         );
         std::fs::write(&t, table).unwrap();
         std::fs::write(&s, script).unwrap();
-        let out = Command::new(&self.exe).arg(&t).arg(&s).output().unwrap();
+        let out = Command::new(exe).arg(&t).arg(&s).output().unwrap();
         let _ = (std::fs::remove_file(&t), std::fs::remove_file(&s));
         assert!(
             out.status.success(),
@@ -600,107 +640,104 @@ fn normalise(text: &str) -> String {
 
 /// Output lines of the C++ driver held against the Rust model's so far (one per operation).
 static COMPARISONS: AtomicU64 = AtomicU64::new(0);
-/// Scripts that reached D9 / D10 (the comparison stops there).
+/// Scripts whose C++ with the owner's fixes differs from the unmodified C++ (and the Rust equals
+/// the fixed one), by the first operation where the two C++ differ: a cipher change (D10) or any
+/// other (D9: the flow operations, `reconcile`).
 static D9_SEEN: AtomicU64 = AtomicU64::new(0);
 static D10_SEEN: AtomicU64 = AtomicU64::new(0);
 
 /// A difference the crate documents as a fix of the C++.
+#[derive(Debug, PartialEq, Eq)]
 enum Listed {
-    /// Q7 fixed: a flow switch takes the old SC's SAs out (`sa-del` writes the C++ does not make).
+    /// Q7 fixed: a flow switch takes the old SC's SAs out.
     D9,
-    /// Q10 fixed: no cipher suite change under waiting SAs (`OBJECT_IN_USE` where the C++ says 0).
+    /// Q10 fixed: no cipher suite change under waiting SAs.
     D10,
 }
 
-/// Whether the first differing output line of an operation is D9 or D10: the same operation,
-/// and only the documented change.
-fn listed_difference(cpp: &str, rust: &str) -> Option<Listed> {
-    let (c_op, c_rest) = cpp.split_once(" => ")?;
-    let (r_op, r_rest) = rust.split_once(" => ")?;
-    if c_op != r_op {
+/// The first output line where `a` and `b` differ (0-based), if they do.
+fn first_difference(a: &str, b: &str) -> Option<usize> {
+    if a == b {
         return None;
     }
-    let op = c_op.split_whitespace().next()?;
-    // OBJECT_IN_USE
-    let in_use = sai_core::Error::ObjectInUse.status().to_string();
-    if op == "scset" && c_op.contains(" cipher ") && c_rest == "0" && r_rest == in_use {
-        return Some(Listed::D10);
-    }
-    // a flow changes where the port's data goes: Rust's bus operations add an SA removal the
-    // C++'s do not have: the C++'s operations in order, and in between only what `reconcile` runs
-    // (`sa-del[-last]` writes `W <phy>.1.3<dir><an>=`, the gate's `W <phy>.1.12<dir>=`, and the
-    // fault table's checks of those sequences, `R <phy>.1.1f2=` / `.1f3=`, where one may fail)
-    let flow_ops = ["eflow", "eadmin", "entry", "bind", "rm"];
-    let reconcile = |w: &str| {
-        let Some((reg, _)) = w.get(1..).and_then(|t| t.split_once('=')) else {
-            return false;
-        };
-        let Some((_, reg)) = reg.split_once(".1.") else {
-            return false;
-        };
-        (w.starts_with('W') && (reg.starts_with('3') || reg.starts_with("12")))
-            || (w.starts_with('R') && (reg == "1f2" || reg == "1f3"))
-    };
-    let (mut c_words, mut r_words) = (c_rest.split_whitespace(), r_rest.split_whitespace());
-    if !flow_ops.contains(&op) || c_words.next() != r_words.next() {
-        return None;
-    }
-    // the C++'s bus operations must be a subsequence of Rust's; what is left, D9's
-    let mut extra = 0;
-    let mut want = c_words.next();
-    for w in r_words {
-        if Some(w) == want {
-            want = c_words.next();
-        } else if reconcile(w) {
-            extra += 1;
-        } else {
-            return None;
-        }
-    }
-    (want.is_none() && extra > 0).then_some(Listed::D9)
+    Some(
+        a.lines()
+            .zip(b.lines())
+            .position(|(x, y)| x != y)
+            .unwrap_or_else(|| a.lines().count().min(b.lines().count())),
+    )
 }
 
-fn compare(driver: &Driver, table: &str, script: &str) -> Result<(), String> {
-    let (cpp, rust) = (
+/// Which listed fix the C++ with the fixes reaches first (its first line that differs from the
+/// unmodified C++), or `None` when the two C++ agree.
+fn listed_at(cpp: &str, fixed: &str) -> Option<(usize, Listed)> {
+    let at = first_difference(cpp, fixed)?;
+    let line = fixed.lines().nth(at).unwrap_or_default();
+    let which = if line.starts_with("scset ") && line.contains(" cipher ") {
+        Listed::D10
+    } else {
+        Listed::D9
+    };
+    Some((at, which))
+}
+
+/// The Rust model against the C++ (the owner's rule: every behaviour but D1, D9 and D10 is the
+/// C++'s; scripts never move a flow, so D1 is not reached): the Rust output must equal, to the end
+/// of the script, that of the C++ with exactly the D9 / D10 edits. Where that one differs from the
+/// unmodified C++, the script reached a listed fix (returned). So a Rust output that differs from
+/// the C++ in any other way fails, and so does one that equals the unmodified C++ where the fixed
+/// C++ does not (the Rust would lack D9 / D10 there).
+fn compare_listed(driver: &Driver, table: &str, script: &str) -> Result<Option<Listed>, String> {
+    let (cpp, fixed, rust) = (
         normalise(&driver.cpp_output(table, script)),
+        normalise(&driver.fixed_output(table, script)),
         normalise(&rust_output(table, script)),
     );
-    if cpp == rust {
+    classify(&cpp, &fixed, &rust).map_err(|why| format!("{why}\n--- script\n{script}"))
+}
+
+/// `compare_listed` on the normalised outputs of the C++, the C++ with D9 / D10, the Rust.
+fn classify(cpp: &str, fixed: &str, rust: &str) -> Result<Option<Listed>, String> {
+    let Some(at) = first_difference(fixed, rust) else {
         COMPARISONS.fetch_add(
-            cpp.lines().filter(|l| l.contains(" => ")).count() as u64,
+            rust.lines().filter(|l| l.contains(" => ")).count() as u64,
             Ordering::Relaxed,
         );
-        return Ok(());
-    }
-    let at = cpp.lines().zip(rust.lines()).position(|(a, b)| a != b).unwrap_or(0);
-    // The two fixes the owner chose (crate documentation, D9 / D10): where a script reaches one,
-    // the outputs agree up to that operation and differ from there on, exactly so.
-    if let (Some(c), Some(r)) = (cpp.lines().nth(at), rust.lines().nth(at)) {
-        if let Some(which) = listed_difference(c, r) {
-            COMPARISONS.fetch_add(
-                cpp.lines().take(at).filter(|l| l.contains(" => ")).count() as u64,
-                Ordering::Relaxed,
-            );
-            match which {
-                Listed::D9 => D9_SEEN.fetch_add(1, Ordering::Relaxed),
-                Listed::D10 => D10_SEEN.fetch_add(1, Ordering::Relaxed),
-            };
-            return Ok(());
-        }
-    }
-    let show = |text: &str| {
+        let listed = listed_at(cpp, fixed).map(|(_, which)| which);
+        match listed {
+            Some(Listed::D9) => D9_SEEN.fetch_add(1, Ordering::Relaxed),
+            Some(Listed::D10) => D10_SEEN.fetch_add(1, Ordering::Relaxed),
+            None => 0,
+        };
+        return Ok(listed);
+    };
+    let show = |text: &str, at: usize| {
         text.lines()
             .skip(at.saturating_sub(6))
             .take(9)
             .collect::<Vec<_>>()
             .join("\n")
     };
+    let plain = match first_difference(cpp, rust) {
+        None => "it equals the unmodified C++: D9 / D10 missing in the Rust".to_owned(),
+        Some(c) => format!("from the unmodified C++ at line {}", c + 1),
+    };
+    let fixes = listed_at(cpp, fixed).map_or_else(
+        || "the two C++ agree".to_owned(),
+        |(l, which)| format!("the two C++ first differ at line {} ({which:?})", l + 1),
+    );
     Err(format!(
-        "first difference at output line {}\n--- C++\n{}\n--- Rust\n{}\n--- script\n{script}",
+        "not a listed difference: the Rust differs from the C++ with D9 / D10 at output line {}, {plain}; {fixes}\n\
+         --- C++ with D9 / D10\n{}\n--- Rust\n{}\n--- unmodified C++\n{}",
         at + 1,
-        show(&cpp),
-        show(&rust)
+        show(fixed, at),
+        show(rust, at),
+        show(cpp, at),
     ))
+}
+
+fn compare(driver: &Driver, table: &str, script: &str) -> Result<(), String> {
+    compare_listed(driver, table, script).map(|_| ())
 }
 
 // ------------------------------------------------------------------ tables and scripts
@@ -875,15 +912,6 @@ fn script() -> impl Strategy<Value = String> {
         })
 }
 
-fn config(cases: u32) -> ProptestConfig {
-    // No regression files: the source tree is read-only in the nix build.
-    ProptestConfig {
-        cases,
-        failure_persistence: None,
-        ..ProptestConfig::default()
-    }
-}
-
 // ------------------------------------------------------------------ tests
 
 /// The Rust side alone, always: the interpreter of this file runs the backbone and the
@@ -1054,11 +1082,10 @@ status
         "{}",
         line(&rust, "sa a2")
     );
-    assert!(matches!(
-        listed_difference(&line(&cpp, "eflow"), &line(&rust, "eflow")),
-        Some(Listed::D9)
-    ));
-    compare(driver, &table, &script).unwrap();
+    // the C++ with the owner's fixes does what the Rust does, line for line
+    let fixed = driver.fixed_output(&table, &script);
+    assert_eq!(line(&fixed, "eflow e0 f2"), line(&rust, "eflow e0 f2"));
+    assert_eq!(compare_listed(driver, &table, &script).unwrap(), Some(Listed::D9));
     summary!("differential: D9 shown against the C++ (flow switch: the old SC's SA taken out)");
 }
 
@@ -1100,11 +1127,11 @@ status
         "{}",
         line(&rust, "eadmin")
     );
-    assert!(matches!(
-        listed_difference(&line(&cpp, "scset"), &line(&rust, "scset")),
-        Some(Listed::D10)
-    ));
-    compare(driver, &table, &script).unwrap();
+    assert_eq!(
+        line(&driver.fixed_output(&table, &script), "scset"),
+        line(&rust, "scset")
+    );
+    assert_eq!(compare_listed(driver, &table, &script).unwrap(), Some(Listed::D10));
     summary!("differential: D10 shown against the C++ (cipher change under a waiting SA refused)");
 }
 
@@ -1143,32 +1170,62 @@ fn an_unknown_lane_agrees_with_the_cpp() {
     compare(driver, "ext-macsec 1\nport 3 10\n", "status\n").unwrap_or_else(|why| panic!("{why}"));
 }
 
-proptest! {
-    #![proptest_config(config(std::env::var("SAI_MACSEC_DIFF_CASES").ok().and_then(|v| v.parse().ok()).unwrap_or(300)))]
+/// Random scripts, every table variant: `SAI_MACSEC_DIFF_CASES` seeds (default 300; the soak:
+/// 50000) from `SAI_MACSEC_SEED` (default: a random one, printed), each its own script
+/// (`tests/common/seeded.rs`). Every seed runs; the failing ones are reported with their
+/// minimal case and how to replay them.
+#[test]
+fn random_scripts_agree_with_the_cpp() {
+    let Some(driver) = driver() else { return };
+    let strategy = (script(), (any::<bool>(), any::<bool>(), any::<bool>()));
+    let run = seeded::run(
+        seeded::first_seed(),
+        seeded::cases("SAI_MACSEC_DIFF_CASES", 300),
+        &strategy,
+        |(script, (gates, probe, absolute))| {
+            compare(driver, &fault_table(gates, probe, absolute), &script).map_err(TestCaseError::fail)
+        },
+    );
+    summary!(
+        "differential: random scripts, {}: {} failing; D9 reached {}, D10 {} (equal to the C++ with those fixes); {} operations compared",
+        run.seeds(),
+        run.failed.len(),
+        D9_SEEN.load(Ordering::Relaxed),
+        D10_SEEN.load(Ordering::Relaxed),
+        COMPARISONS.load(Ordering::Relaxed)
+    );
+    run.assert_ok("random_scripts_agree_with_the_cpp", "SAI_MACSEC_DIFF_CASES");
+}
 
-    #[test]
-    fn random_scripts_agree_with_the_cpp(
-        script in script(),
-        (gates, probe, absolute) in (any::<bool>(), any::<bool>(), any::<bool>()),
-    ) {
-        let Some(driver) = driver() else { return Ok(()) };
-        compare(driver, &fault_table(gates, probe, absolute), &script).map_err(TestCaseError::fail)?;
-        let (d9, d10) = (D9_SEEN.load(Ordering::Relaxed), D10_SEEN.load(Ordering::Relaxed));
-        if d9 + d10 > 0 && (d9 + d10) % 25 == 0 {
-            summary!("differential: random scripts so far reaching D9 {d9}, D10 {d10} (compared up to there)");
-        }
-    }
+/// The same scripts on the Rust model alone (this runs where the C++ is not around): no panic,
+/// the invariants hold after every line.
+#[test]
+fn random_scripts_keep_the_invariants() {
+    let strategy = (script(), (any::<bool>(), any::<bool>(), any::<bool>()));
+    let run = seeded::run(
+        seeded::first_seed(),
+        seeded::cases("SAI_MACSEC_DIFF_CASES", 300),
+        &strategy,
+        |(script, (gates, probe, absolute))| {
+            let out = rust_output(&fault_table(gates, probe, absolute), &script);
+            prop_assert!(out.starts_with("attach => 0"));
+            Ok(())
+        },
+    );
+    run.assert_ok("random_scripts_keep_the_invariants", "SAI_MACSEC_DIFF_CASES");
+}
 
-    /// The same scripts on the Rust model alone (this runs where the C++ is not around):
-    /// no panic, the invariants hold after every line.
-    #[test]
-    fn random_scripts_keep_the_invariants(
-        script in script(),
-        (gates, probe, absolute) in (any::<bool>(), any::<bool>(), any::<bool>()),
-    ) {
-        let out = rust_output(&fault_table(gates, probe, absolute), &script);
-        prop_assert!(out.starts_with("attach => 0"));
-    }
+/// The seeds are what they say: one seed, one script, whatever ran before.
+#[test]
+fn a_seed_replays_its_script() {
+    let strategy = (script(), (any::<bool>(), any::<bool>(), any::<bool>()));
+    let (a, b, other) = (
+        seeded::value(&strategy, 7),
+        seeded::value(&strategy, 7),
+        seeded::value(&strategy, 8),
+    );
+    assert_eq!(a, b);
+    assert_ne!(a, other);
 }
 
 /// Found by `random_scripts_agree_with_the_cpp` (2026-11-23): a D9 flow switch whose SA removal
@@ -1180,4 +1237,64 @@ fn a_d9_flow_switch_whose_sa_removal_fails_at_once() {
     let before = D9_SEEN.load(Ordering::Relaxed);
     compare(driver, &fault_table(false, false, false), "reg 10 20f 1\nreg 10 21f 1\nreg 11 20f 1\nreg 11 21f 1\nmacsec m0 0\nmacsec m1 1\nmport p1 0 1\nflow f1 0\ntable t1 0\nbind 1 0 t1\nentry e1 t1 1 - 1 0\nsc c1 0 f1 0 0 1234 1\nsa a1 0 c1 0 7 1\neflow e1 f1\nsa a5 0 c1 1 1 5\nrm entry e1\nflow f3 0\nentry e3 t1 1 - 0 0\nreg 11 1f2 1\nsapn a1\nsastat a5\nflowstat f1\nstatus\nrm sa a1\nsa a9 0 c1 2 100000002 9\nactive c1\nmport p0 0 0\nflow f0 0\ntable t0 0\nbind 0 0 t0\nentry e0 t0 1 - 1 0\neflow e3 f3\nsc c0 0 f0 0 0 1234 0\nsa a0 0 c0 0 7 0\neflow e0 f0\nsa a4 0 c0 1 1 4\nsapn a0\nsastat a4\nflowstat f0\nstatus\nrm sa a0\nsa a8 0 c0 2 100000002 8\nactive c0\n").unwrap();
     assert!(D9_SEEN.load(Ordering::Relaxed) > before, "the script reaches D9");
+}
+
+/// Found by `random_scripts_agree_with_the_cpp` (G2 tier run, 2026-11-23; proptest's minimal
+/// case, table `fault_table(true, false, false)`). Port 1 ingress: SA a3 of SC c3 (flow f3) is
+/// installed through entry e3, e3 is disabled (no bound flow: the gate closes, a3 stays, as in
+/// the C++), then a second entry e1 of the same table sends the port's data to flow f5, which
+/// has no SC. The C++ (`reconcile`, :287-312) installs nothing for f5 and opens the gate
+/// because a3 is still installed (:311 counts every installed SA): the port accepts data
+/// through an SC no enabled entry selects (Q7). The Rust model takes a3 out (D9: the bound flow
+/// is another flow than a3's SC's) and the gate stays closed. D9 as listed, not a model defect:
+/// the C++ with the D9 edit does the same, to the end of the script.
+#[test]
+fn d9_another_entry_takes_over_after_the_entry_was_disabled() {
+    let Some(driver) = driver() else { return };
+    let table = fault_table(true, false, false);
+    let script = "reg 10 20f 1\nreg 10 21f 1\nreg 11 20f 1\nreg 11 21f 1\nmacsec m0 0\nmacsec m1 1\nflow f5 1\ntable t0 0\n\
+                  mport p3 1 1\nflow f3 1\ntable t3 1\nbind 1 1 t3\nentry e3 t3 1 - 1 0\nsc c3 1 f3 0 0 1234 3\n\
+                  sa a3 1 c3 0 7 3\neflow e3 f3\neadmin e3 0\nsa a7 1 c3 1 1 7\nentry e1 t3 1 f5 0 0\nsapn a3\nsastat a7\n\
+                  flowstat f3\nstatus\nrm sa a3\nsa a11 1 c3 2 100000002 11\nactive c3\n";
+    let (cpp, rust) = (driver.cpp_output(&table, script), rust_output(&table, script));
+    let line = |text: &str, start: &str| text.lines().find(|l| l.starts_with(start)).unwrap().to_owned();
+    assert_eq!(line(&cpp, "eadmin e3 0"), "eadmin e3 0 => 0 R11.1.1f3=0 W11.1.121=0");
+    assert_eq!(line(&rust, "eadmin e3 0"), line(&cpp, "eadmin e3 0"));
+    // the C++ opens the gate on the old SC's SA; the Rust takes that SA out (the last: sa-del-last)
+    assert_eq!(
+        line(&cpp, "entry e1"),
+        "entry e1 t3 1 f5 0 0 => 0 R11.1.1f3=0 W11.1.121=1"
+    );
+    assert_eq!(
+        line(&rust, "entry e1"),
+        "entry e1 t3 1 f5 0 0 => 0 R11.1.1f2=0 W11.1.310=8001"
+    );
+    assert_eq!(compare_listed(driver, &table, script).unwrap(), Some(Listed::D9));
+}
+
+/// The classifier is not a blanket skip: the Rust output of the D9 script above with one
+/// association number changed after the D9 operation is neither the C++ nor the C++ with the
+/// fixes, and is refused; so is a difference at a line before it.
+#[test]
+fn a_difference_beside_a_listed_one_is_refused() {
+    let Some(driver) = driver() else { return };
+    let table = fault_table(true, false, false);
+    let script = "reg 10 20f 1\nreg 10 21f 1\nreg 11 20f 1\nreg 11 21f 1\nmacsec m0 0\nmacsec m1 1\nflow f5 1\nmport p3 1 1\n\
+                  flow f3 1\ntable t3 1\nbind 1 1 t3\nentry e3 t3 1 - 1 0\nsc c3 1 f3 0 0 1234 3\nsa a3 1 c3 0 7 3\n\
+                  eflow e3 f3\neadmin e3 0\nsa a7 1 c3 1 1 7\nentry e1 t3 1 f5 0 0\nstatus\nrm entry e1\neadmin e3 1\nstatus\n";
+    let (cpp, fixed, rust) = (
+        normalise(&driver.cpp_output(&table, script)),
+        normalise(&driver.fixed_output(&table, script)),
+        normalise(&rust_output(&table, script)),
+    );
+    assert_eq!(classify(&cpp, &fixed, &rust), Ok(Some(Listed::D9)));
+    // after the D9 operation: a7 installed on another AN (one bus word changed)
+    let after = rust.replacen("W11.1.210=101", "W11.1.210=102", 1);
+    assert_ne!(after, rust, "{rust}");
+    assert!(classify(&cpp, &fixed, &after).is_err());
+    // before it: the gate of eflow e3 f3
+    let before = rust.replacen("W11.1.121=1", "W11.1.121=0", 1);
+    assert!(classify(&cpp, &fixed, &before).is_err());
+    // and the Rust without D9 there (the unmodified C++'s output) is refused as well
+    assert!(classify(&cpp, &fixed, &cpp).is_err());
 }

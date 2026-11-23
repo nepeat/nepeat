@@ -1,0 +1,118 @@
+Nov 23 02:45:21.100715 as7772 systemd[1]: Started Session c73 of User root.
+Nov 23 02:45:23.563153 as7772 systemd[1]: Started [systemd-run] /nix/store/znsv39c8h5n87a3mqxn31an8y4g50np1-sonic-syncd-restart-on-stop.
+Nov 23 02:45:23.648481 as7772 znsv39c8h5n87a3mqxn31an8y4g50np1-sonic-syncd-restart-on-stop[6498]: syncd stopped: starting openbcm-asic-temp.service
+Nov 23 02:45:23.671664 as7772 systemd[1]: Starting Switch ASIC die temperature reader (Broadcom SDK, attach only)...
+Nov 23 02:45:23.680123 as7772 systemd[1]: run-p6447-i21008.service: Deactivated successfully.
+Nov 23 02:45:23.681056 as7772 systemd[1]: run-p6447-i21008.timer: Deactivated successfully.
+Nov 23 02:45:23.750203 as7772 systemd[1]: Started Switch ASIC die temperature reader (Broadcom SDK, attach only).
+Nov 23 02:45:24.187362 as7772 openbcm-asic-temp[6502]: Broadcom Command Monitor: Copyright (c) 1998-2026 Broadcom
+Nov 23 02:45:24.187362 as7772 openbcm-asic-temp[6502]: Release: sdk-6.5.27 built 20261115 (Sun Nov 15 08:57:46 2026)
+Nov 23 02:45:24.187362 as7772 openbcm-asic-temp[6502]: From nixbld@localhost:/build/openbcm-sdk-6.5.27-patched
+Nov 23 02:45:24.187362 as7772 openbcm-asic-temp[6502]: Platform: PPC64BE
+Nov 23 02:45:24.188460 as7772 openbcm-asic-temp[6502]: OS: Unix (Posix)
+Nov 23 02:45:24.237232 as7772 openbcm-asic-temp[6502]: linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+Nov 23 02:45:24.237445 as7772 openbcm-asic-temp[6502]: DMA pool size: 16777216 bytes.
+Nov 23 02:45:24.576373 as7772 openbcm-asic-temp[6502]: BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+Nov 23 02:45:24.629238 as7772 openbcm-asic-temp[6502]: SOC unit 0 attached to PCI device BCM56930_B1
+Nov 23 02:45:24.631338 as7772 openbcm-asic-temp[6502]: Boot flags: initialization scripts NOT loaded
+Nov 23 02:45:24.631423 as7772 openbcm-asic-temp[6502]: openbcm-asic-temp: unit 0 attached BCM56930_B1
+Nov 23 02:45:25.632699 as7772 openbcm-asic-temp[6502]: openbcm-asic-temp: 8 monitors, max 46.7 C, average 44.7 C; every 5 s to /run/asic/temperature; core PLL power-down at 125 C
+Nov 23 02:45:26.158600 as7772 openbcm-asic-temp[6502]: openbcm-asic-temp: stopped
+Nov 23 02:45:26.159277 as7772 systemd[1]: Stopping Switch ASIC die temperature reader (Broadcom SDK, attach only)...
+Nov 23 02:45:26.182796 as7772 systemd[1]: openbcm-asic-temp.service: Deactivated successfully.
+Nov 23 02:45:26.183803 as7772 systemd[1]: Stopped Switch ASIC die temperature reader (Broadcom SDK, attach only).
+Nov 23 02:45:26.184935 as7772 systemd[1]: openbcm-asic-temp.service: Consumed 1.029s CPU time over 2.511s wall clock time, 32.1M memory peak.
+Nov 23 02:45:26.464453 as7772 fand[436]: sensor asic: no reading (/run/asic/temperature: no such file), holding 45.7 C for up to 45s
+Nov 23 02:45:29.096729 as7772 systemd-networkd[494]: Ethernet120: Link DOWN
+Nov 23 02:45:29.096759 as7772 systemd-networkd[494]: Ethernet120: Lost carrier
+Nov 23 02:45:29.144628 as7772 systemd-networkd[494]: Ethernet124: Link DOWN
+Nov 23 02:45:29.144655 as7772 systemd-networkd[494]: Ethernet124: Lost carrier
+Nov 23 02:45:29.396557 as7772 systemd-networkd[494]: Ethernet0: Link DOWN
+Nov 23 02:45:29.396583 as7772 systemd-networkd[494]: Ethernet0: Lost carrier
+Nov 23 02:45:29.424650 as7772 systemd-networkd[494]: Ethernet4: Link DOWN
+Nov 23 02:45:29.424676 as7772 systemd-networkd[494]: Ethernet4: Lost carrier
+Nov 23 02:45:30.464395 as7772 fand[436]: sensor asic: reading back after 6s, 45.7 C
+Nov 23 02:45:30.999645 as7772 systemd-networkd[494]: sai-smoke0: Link UP
+Nov 23 02:45:31.000117 as7772 systemd-networkd[494]: sai-smoke0: Gained carrier
+Nov 23 02:45:31.000650 as7772 systemd-networkd[494]: sai-smoke0: Lost carrier
+Nov 23 02:45:31.001157 as7772 systemd-networkd[494]: sai-smoke0: Gained carrier
+Nov 23 02:45:31.010697 as7772 (udev-worker)[6541]: Network interface NamePolicy= disabled on kernel command line.
+Nov 23 02:45:31.109909 as7772 systemd-networkd[494]: sai-smoke0: Link DOWN
+Nov 23 02:45:31.109941 as7772 systemd-networkd[494]: sai-smoke0: Lost carrier
+Nov 23 02:45:31.354924 as7772 systemd[1]: g2-smoke1.service: Deactivated successfully.
+Nov 23 02:45:31.356045 as7772 systemd[1]: Finished [systemd-run] /run/current-system/sw/bin/bash /root/g2/smoke.sh b1-smoke-noextphy.txt --no-ext-phy.
+Nov 23 02:45:31.356985 as7772 systemd[1]: g2-smoke1.service: Consumed 3.884s CPU time over 20.513s wall clock time, 67.9M memory peak.
+Nov 23 02:45:31.408658 as7772 systemd[1]: Started Session c74 of User root.
+Nov 23 02:45:32.464347 as7772 fand[436]: sensor asic: no reading (/run/asic/temperature: no such file), holding 45.7 C for up to 45s
+Nov 23 02:45:43.732688 as7772 systemd[1]: Started Session c75 of User root.
+Nov 23 02:45:43.789387 as7772 systemd[1]: Starting Switch ASIC die temperature reader (Broadcom SDK, attach only)...
+Nov 23 02:45:44.307344 as7772 openbcm-asic-temp[6583]: Broadcom Command Monitor: Copyright (c) 1998-2026 Broadcom
+Nov 23 02:45:44.307344 as7772 openbcm-asic-temp[6583]: Release: sdk-6.5.27 built 20261115 (Sun Nov 15 08:57:46 2026)
+Nov 23 02:45:44.307344 as7772 openbcm-asic-temp[6583]: From nixbld@localhost:/build/openbcm-sdk-6.5.27-patched
+Nov 23 02:45:44.308375 as7772 openbcm-asic-temp[6583]: Platform: PPC64BE
+Nov 23 02:45:44.308375 as7772 openbcm-asic-temp[6583]: OS: Unix (Posix)
+Nov 23 02:45:44.356528 as7772 openbcm-asic-temp[6583]: linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+Nov 23 02:45:44.356730 as7772 openbcm-asic-temp[6583]: DMA pool size: 16777216 bytes.
+Nov 23 02:45:44.565285 as7772 systemd[1]: Starting Prometheus textfile producer as7760...
+Nov 23 02:45:44.570775 as7772 systemd[1]: Starting Prometheus textfile producer sonic...
+Nov 23 02:45:44.676482 as7772 openbcm-asic-temp[6583]: BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+Nov 23 02:45:44.731231 as7772 openbcm-asic-temp[6583]: SOC unit 0 attached to PCI device BCM56930_B1
+Nov 23 02:45:44.733743 as7772 openbcm-asic-temp[6583]: Boot flags: initialization scripts NOT loaded
+Nov 23 02:45:44.733936 as7772 openbcm-asic-temp[6583]: openbcm-asic-temp: unit 0 attached BCM56930_B1
+Nov 23 02:45:45.248531 as7772 systemd[1]: prometheus-textfile-sonic.service: Deactivated successfully.
+Nov 23 02:45:45.249536 as7772 systemd[1]: Finished Prometheus textfile producer sonic.
+Nov 23 02:45:45.736722 as7772 openbcm-asic-temp[6583]: openbcm-asic-temp: 8 monitors, max 46.2 C, average 44.1 C; every 5 s to /run/asic/temperature; core PLL power-down at 125 C
+Nov 23 02:45:45.920601 as7772 systemd[1]: Started Switch ASIC die temperature reader (Broadcom SDK, attach only).
+Nov 23 02:45:46.096351 as7772 systemd[1]: prometheus-textfile-as7760.service: Deactivated successfully.
+Nov 23 02:45:46.097437 as7772 systemd[1]: Finished Prometheus textfile producer as7760.
+Nov 23 02:45:46.098443 as7772 systemd[1]: prometheus-textfile-as7760.service: Consumed 1.422s CPU time over 1.531s wall clock time, 12.2M memory peak.
+Nov 23 02:45:46.192730 as7772 systemd[1]: Started Session c76 of User root.
+Nov 23 02:45:46.464409 as7772 fand[436]: sensor asic: reading back after 16s, 46.2 C
+Nov 23 02:45:58.514895 as7772 systemd[1]: Starting Remove stale Prometheus textfile collector files...
+Nov 23 02:45:58.593300 as7772 systemd[1]: prometheus-textfile-cleanup.service: Deactivated successfully.
+Nov 23 02:45:58.594322 as7772 systemd[1]: Finished Remove stale Prometheus textfile collector files.
+Nov 23 02:46:15.061570 as7772 systemd[1]: Starting Prometheus textfile producer as7760...
+Nov 23 02:46:15.066560 as7772 systemd[1]: Starting Prometheus textfile producer sonic...
+Nov 23 02:46:15.092846 as7772 systemd[1]: Started Session c77 of User root.
+Nov 23 02:46:15.153803 as7772 systemd[1]: Starting [systemd-run] /run/current-system/sw/bin/bash /root/g2/smoke.sh b2-smoke-extphy.txt...
+Nov 23 02:46:15.750199 as7772 systemd[1]: prometheus-textfile-sonic.service: Deactivated successfully.
+Nov 23 02:46:15.751241 as7772 systemd[1]: Finished Prometheus textfile producer sonic.
+Nov 23 02:46:16.592832 as7772 systemd[1]: prometheus-textfile-as7760.service: Deactivated successfully.
+Nov 23 02:46:16.593997 as7772 systemd[1]: Finished Prometheus textfile producer as7760.
+Nov 23 02:46:16.595089 as7772 systemd[1]: prometheus-textfile-as7760.service: Consumed 1.417s CPU time over 1.531s wall clock time, 11.8M memory peak.
+Nov 23 02:46:25.396674 as7772 systemd[1]: Started Session c78 of User root.
+Nov 23 02:46:30.298531 as7772 openbcm-asic-temp[6583]: openbcm-asic-temp: stopped
+Nov 23 02:46:30.299290 as7772 systemd[1]: Stopping Switch ASIC die temperature reader (Broadcom SDK, attach only)...
+Nov 23 02:46:30.322421 as7772 systemd[1]: openbcm-asic-temp.service: Deactivated successfully.
+Nov 23 02:46:30.323425 as7772 systemd[1]: Stopped Switch ASIC die temperature reader (Broadcom SDK, attach only).
+Nov 23 02:46:30.324437 as7772 systemd[1]: openbcm-asic-temp.service: Consumed 1.054s CPU time over 46.533s wall clock time, 33.8M memory peak.
+Nov 23 02:46:30.464478 as7772 fand[436]: sensor asic: no reading (/run/asic/temperature: no such file), holding 47.2 C for up to 45s
+Nov 23 02:46:34.464381 as7772 fand[436]: sensor asic: reading back after 6s, 46.7 C
+Nov 23 02:46:34.982658 as7772 systemd-networkd[494]: sai-smoke0: Link UP
+Nov 23 02:46:34.983151 as7772 systemd-networkd[494]: sai-smoke0: Gained carrier
+Nov 23 02:46:34.983660 as7772 systemd-networkd[494]: sai-smoke0: Lost carrier
+Nov 23 02:46:34.984139 as7772 systemd-networkd[494]: sai-smoke0: Gained carrier
+Nov 23 02:46:35.070458 as7772 (udev-worker)[6762]: Network interface NamePolicy= disabled on kernel command line.
+Nov 23 02:46:35.073772 as7772 systemd-networkd[494]: sai-smoke0: Link DOWN
+Nov 23 02:46:35.073801 as7772 systemd-networkd[494]: sai-smoke0: Lost carrier
+Nov 23 02:46:35.354284 as7772 systemd[1]: g2-smoke2.service: Deactivated successfully.
+Nov 23 02:46:35.355375 as7772 systemd[1]: Finished [systemd-run] /run/current-system/sw/bin/bash /root/g2/smoke.sh b2-smoke-extphy.txt.
+Nov 23 02:46:35.356184 as7772 systemd[1]: g2-smoke2.service: Consumed 4.168s CPU time over 20.200s wall clock time, 68.8M memory peak.
+Nov 23 02:46:35.712720 as7772 systemd[1]: Started Session c79 of User root.
+Nov 23 02:46:36.028675 as7772 systemd[1]: Started Session c80 of User root.
+Nov 23 02:46:36.085043 as7772 systemd[1]: Starting Switch ASIC die temperature reader (Broadcom SDK, attach only)...
+Nov 23 02:46:36.464369 as7772 fand[436]: sensor asic: no reading (/run/asic/temperature: no such file), holding 46.7 C for up to 45s
+Nov 23 02:46:36.587396 as7772 openbcm-asic-temp[6797]: Broadcom Command Monitor: Copyright (c) 1998-2026 Broadcom
+Nov 23 02:46:36.587396 as7772 openbcm-asic-temp[6797]: Release: sdk-6.5.27 built 20261115 (Sun Nov 15 08:57:46 2026)
+Nov 23 02:46:36.587396 as7772 openbcm-asic-temp[6797]: From nixbld@localhost:/build/openbcm-sdk-6.5.27-patched
+Nov 23 02:46:36.587396 as7772 openbcm-asic-temp[6797]: Platform: PPC64BE
+Nov 23 02:46:36.588506 as7772 openbcm-asic-temp[6797]: OS: Unix (Posix)
+Nov 23 02:46:36.636750 as7772 openbcm-asic-temp[6797]: linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+Nov 23 02:46:36.636961 as7772 openbcm-asic-temp[6797]: DMA pool size: 16777216 bytes.
+Nov 23 02:46:36.976394 as7772 openbcm-asic-temp[6797]: BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+Nov 23 02:46:37.028885 as7772 openbcm-asic-temp[6797]: SOC unit 0 attached to PCI device BCM56930_B1
+Nov 23 02:46:37.031022 as7772 openbcm-asic-temp[6797]: Boot flags: initialization scripts NOT loaded
+Nov 23 02:46:37.031111 as7772 openbcm-asic-temp[6797]: openbcm-asic-temp: unit 0 attached BCM56930_B1
+Nov 23 02:46:38.032697 as7772 openbcm-asic-temp[6797]: openbcm-asic-temp: 8 monitors, max 46.7 C, average 44.3 C; every 5 s to /run/asic/temperature; core PLL power-down at 125 C
+Nov 23 02:46:38.204589 as7772 systemd[1]: Started Switch ASIC die temperature reader (Broadcom SDK, attach only).
+Nov 23 02:46:38.464358 as7772 fand[436]: sensor asic: reading back after 4s, 46.7 C

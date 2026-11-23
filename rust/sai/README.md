@@ -22,6 +22,13 @@ Status, stated plainly:
   C++ suite `test_sai.cpp` runs unmodified on this library: 3014 of 3014 checks pass; the op-script
   differential against the C++ frontend: 455 of 455 operations identical (11 scripts, MACsec and
   external PHY included), allow-list empty ([Parity](#parity)).
+- **Hardware backend (G2 offline part, 2026-11-23, x86_64; the smoke on the AS7772 is not run):**
+  `sai-backend-openbcm` implements every operation `openbcm_backend.cpp` implements, over `sdk-glue`.
+  The glue-call differential (the C++ frontend on the unmodified `openbcm_backend.cpp` over a recording
+  stub of `sdk_glue.h` vs the Rust frontend on this backend over the Rust fake glue, 12 scripts): 469 of
+  482 operations identical, every one of the 1008 Rust glue calls equal to a C++ call of the same
+  operation in order; the 13 others differ only by the C++ frontend's second `ob_sdk_cpu_port` query
+  (allow-list: one justified entry). The C fake `fake_glue.c` is gone. Nothing of it has run on a chip.
 - Everything else ran on x86_64 (cargo, Nix checks), in NixOS VMs ([Parity](#parity)) and
   partly on ppc64 under qemu-user.
 
@@ -34,15 +41,17 @@ Status, stated plainly:
 | SAI frontend | `sai_*.cpp` | `sai-ffi` (rim) + `sai-core` (+ `sai-meta`, `sai-sys`): switch, port, L2, LAG, hostif, L3, ACL / policer / CoPP, QoS, mirror / samplepacket, hash, MACsec objects, capabilities, dump, log, temperatures; refusals answered as each `sai_*.cpp` | `test_sai` 3014 / 3014 through the test port; differential 455 / 455 ops; C harness 374 checks; SONiC VM tests ([Parity](#parity)); x86 | no | the `libsai.so` syncd links (`nix/package.nix`); no NixOS option |
 | ... not in the C++ either | | bulk operations, warm boot, STP ports, tunnels, packet I/O through the SAI | | | |
 | virtual backend + netdevs | `fake_backend.cpp` | `sai-core::virt` + `tap-netdev`: the fake's models (QoS, mirror, L2 extras behind its toggles), numbering and answers under the C++ keys | the suites above; `vm-sai-rs-privileged` | never (refuses next to a chip) | `SAI_OPENBCM_BACKEND=fake` (or `SAI_RS_BACKEND=virtual`) |
-| hardware backend | `openbcm_backend.cpp` | `sai-backend-openbcm` over `sdk-glue` / `sdk-glue-sys`: ports, VLANs, link events, board quirks; the other 50 required typed operations answer `NotSupported` (`src/g2.rs`, gate G2) | fake glue: its tests, smoke (x86, qemu-ppc64); real glue: links against libsdk, never executed | no | cargo feature `openbcm-real` / `-fake` (`nix/libsai-openbcm.nix`) + `SAI_OPENBCM_BACKEND=openbcm` |
-| SDK glue | `sdk_glue.c` | stays C; bound by `sdk-glue-sys`, wrapped by `sdk-glue` | declarations checked against `sdk_glue.h` by the C compiler (x86, ppc64) | the C file, inside the C++ library; the Rust bindings no | features `real` / `fake` |
+| hardware backend | `openbcm_backend.cpp` | `sai-backend-openbcm` over `sdk-glue` / `sdk-glue-sys`: every operation of `openbcm_backend.cpp` (ports, VLAN, LAG, L2 + events, KNET + carrier, traps, L3 incl. CPU / drop egress, ECMP, field + policer-clone fallback, counters, temperatures, shell, MDIO, link gates); what it lacks stays `NotSupported` | glue-call differential 469 / 482 ops (1 justified entry); its tests on the Rust fake; smoke (x86); real glue: cross-built, links libsdk, never executed | no | cargo feature `openbcm-real` / `-fake` (`nix/libsai-openbcm.nix`, `nix/sai-openbcm-rs.nix`) + `SAI_OPENBCM_BACKEND=openbcm` |
+| SDK glue | `sdk_glue.c` | stays C; bound by `sdk-glue-sys` (also the order enums, now in `sdk_glue.h`), wrapped by `sdk-glue`; in-memory twin `sdk_glue::rust_fake` | declarations checked against `sdk_glue.h` by the C compiler (x86, ppc64); the wrappers' calls in the glue-call differential | the C file, inside the C++ library; the Rust bindings no | feature `real`; `rust-fake` for tests |
 | MDIO script interpreter | `mdio_script.c` | `mdio-script` | differential, 7253 comparisons; bundle | no | inside `mdio-tool` |
-| MDIO report + boot-time tool | `mdio_report.c`, `mdio_script_main.c` (`openbcm-mdio-script`) | `mdio-report`, `mdio-tool` (`openbcm-mdio-script-rs`) | 159 differential runs vs the C tool; `vm-mdio-units-rs`; bundle (fake chip) | no (ppc64 real-glue binary built, not run) | a package only (`nix/mdio-tool.nix`); no NixOS option |
+| MDIO report + boot-time tool | `mdio_report.c`, `mdio_script_main.c` (`openbcm-mdio-script`) | `mdio-report`, `mdio-tool` (`openbcm-mdio-script-rs`) | 159 differential runs vs the C tool (on the C stub `tests/c/mdio_stub.c` vs the Rust fake); the same tests again through `sdk-glue`'s FFI module on that stub; `vm-mdio-units-rs`; bundle (fake chip) | no (ppc64 real-glue binary built, not run) | `nix/mdio-tool.nix`; `bin/openbcm-mdio-script` of `nix/sai-openbcm-rs.nix` |
 | external PHY / MACsec table parser + executor | `sai_extphy.cpp`, `sai_extmacsec.cpp` | `phy-seq` (+ `phy-seq-capi` for the C++) | ~43,600 table comparisons; `test_sai` unchanged; seqcheck on five recordings; bundle | no | in `libsai.so` always; C++: `make RUST_PHY_SEQ`, nix `rustPhySeq`, `hardware.openbcm.rustPhySeq` |
 | external PHY runtime (link gate, debounce, counters, locks) | `sai_extphy.cpp` | `sai-extphy` + `sai-core::extphy` | `test_sai` `test_ext_phy` (118 checks); differential `10-ext-phy` | no | `SAI_OPENBCM_EXT_PHY_FILE` |
 | MACsec object model | `sai_macsec.cpp` | `sai-macsec` + `sai-macsec-phy`, natively behind `sai-core::macsec`; for the C++ libsai also `sai-macsec-capi` (`sai_macsec_rust.cpp`) | `test_sai` `test_macsec` (175 checks); differential `11-macsec` (93 ops); differential + e2e vs the C++; bundle | no (G0: inside the C++ libsai) | `SAI_OPENBCM_EXT_MACSEC_FILE`; C++: `make RUST_MACSEC`, nix `rustMacsec`, `hardware.openbcm.rustMacsec` |
 | diag socket | `sai_diag.cpp`, `openbcm_diag.c` | `sai-diag` (server, under the SAI lock) + `openbcm-diag` (client) | `test_sai` `test_diag`; client differential vs the C tool | no | `SAI_OPENBCM_DIAG_SOCKET` |
 | temperatures (SAI attributes, publisher) | `sai_temp.cpp`, `temp_files.c` | `sai-core::temp` (publisher thread, files); `sdk-glue::temp` | `test_sai` `test_temperature` | no | `SAI_OPENBCM_TEMP_FILE`, `_PROM`, `_INTERVAL` |
+| attach-only temperature reader | `asic_temp.c` (`openbcm-asic-temp`) | `openbcm-asic-temp` over `sdk_glue::Attached` + `sai-core::temp`'s writer | 30 differential cases vs the C tool (on a C stub vs the Rust fake: exit code, output, files); golden tests | no (ppc64 binary built, not run) | `bin/openbcm-asic-temp` of `nix/sai-openbcm-rs.nix` (with libsdk) |
+| the package | `ai_re/nix/packages/sai-openbcm` | `nix/sai-openbcm-rs.nix`: the same `lib/`, `bin/openbcm-*` and `share/sai-openbcm/*` names, all Rust ([Drop-in package](#drop-in-package)) | builds native (virtual backend + Rust fake glue) and ppc64 (libsdk); link checks | no | the package a NixOS module installs |
 
 ## Plan: replacing the C++ (accepted 2026-11-23)
 
@@ -72,9 +81,9 @@ AS7772 with the device's test scripts and bus-trace comparison.
 | G0 | hardware baseline with the phase-2 code: bundle, MDIO tool verify-only, MACsec on the C++ library with the Rust engine + model | done 2026-11-23 on the AS7772: bundle 55/55 suites (291 tests, harness 371); Rust MDIO tool `--verify-only` output equal to the C tool (32/32 PHYs, 160 reads); MACsec bring-up bus traces equal between C++, Rust engine, Rust engine + model (80 sequence runs / 22,560 bus operations per PHY); traffic, rekey, wrong CAK, reboot, cold boot, `kill -9` syncd pass on the Rust engine + model; box back on the C++ library. Evidence: `ai_re/devices/edge-core-as7772-32x/evidence/rust-g0/README.md` |
 | G1a | trait split, area skeletons, test port in the C++ tests, recording backends, frontend driver | done 2026-11-23: `test_sai` 3014 + `test_units` 140 (was 3154), default `libsai.so` byte-identical; 121 backend ops typed (`sai-core::backend`), dispatch table, `Recording`, virt at fake parity; 314 Rust tests; unsafe unchanged (194) |
 | G1 | frontend complete on the virtual backend (test port suite, differential, all fake VM tests incl. ACL + MACsec) | green 2026-11-23 (x86_64): `test_sai` 3014 / 3014 on the Rust library (strict, also `nix/parity-harness.nix`); differential 455 / 455 ops, allow-list empty; `cargo test --workspace` 525 / 0; fmt, clippy `-D warnings`; Miri on the rim's lib and C-free tests; the SONiC VM tests incl. ACL pass. no fake-backend MACsec VM test exists (`vm-macsec.nix` runs SONiC's own virtual SAI, not libsai) |
-| G2 | hardware backend covers `openbcm_backend.cpp`; smoke on the AS7772 with SONiC stopped | |
-| G3 | no C++ shims: Rust MDIO tool as the boot unit, ext-PHY runtime + MACsec native in `libsai.so` | |
-| G4 | syncd on the Rust library on the AS7772 (opt-in): full feature set, device scripts, reboot, cold boot, rollback | |
+| G2 | hardware backend covers `openbcm_backend.cpp`; smoke on the AS7772 with SONiC stopped | offline part green 2026-11-23 (x86_64): every `openbcm_backend.cpp` operation ported, status table equal to `map_rv` (19 codes, no difference); glue-call differential 469 / 482 ops identical, 1008 / 1008 Rust glue calls matched in order, allow-list 1 entry (the C++ frontend's second `ob_sdk_cpu_port`); `fake_glue.c` deleted (consumers on the Rust fake; the MDIO tool's 159 differential runs on a C stub); order enums in `sdk_glue.h` (`test_sai` 3014, `test_units` 140, `libsai.so` loaded sections byte-identical); `openbcm-asic-temp` in Rust (30 differential cases); smoke program extended to the G2 gate (23 steps, passes on the Rust fake); drop-in `nix/sai-openbcm-rs.nix` (native + ppc64); `cargo test --workspace` 560 / 0. **Open: the smoke on the AS7772** (`--no-ext-phy` first, then with the PHYs)  **On the AS7772 2026-11-23:** smoke with SONiC stopped, without and with the PHY tables: 21 PASS, 1 SKIP, 1 FAIL in both runs; the FAIL was the smoke's own temperature check (it compared two separate reads of a moving monitor; fixed to allow one degree, not re-run). Evidence: `ai_re/devices/edge-core-as7772-32x/evidence/rust-g2/README.md`. |
+| G3 | no C++ shims: Rust MDIO tool as the boot unit, ext-PHY runtime + MACsec native in `libsai.so` | on the AS7772 2026-11-23: the Rust MDIO tool did the boot-time PHY bring-up on one reboot and two cold boots (32/32 PHYs, 0 values differed, 100.5-101.3 s); ext-PHY runtime + MACsec native: see G4. The C tools and the capi crates are not deleted yet |
+| G4 | syncd on the Rust library on the AS7772 (opt-in): full feature set, device scripts, reboot, cold boot, rollback | first session passed 2026-11-23 (`as7772-rust`): 32 ports + KNET netdevs, LLDP, temperatures, link gate, MACsec up-check / traffic / rekey / wrong CAK / PN wrap, MACsec bring-up bus trace equal to the C++ (80 runs / 22,560 operations), stack restart, `kill -9`, reboot, cold boot, rollback and forward. Not run: `loadtest/ring.sh`, a soak. The box was left on the Rust library |
 | G5 | Rust the default on the AS7772 as soon as G4 passes | |
 | G6 | delete the sai-openbcm C++ except `sdk_glue.c`; the frozen C++ frontend moves into sai-teralynx | |
 
@@ -119,6 +128,7 @@ header; `ai_re/tests/nixtargets.py` wires them up ([Build and test](#build-and-t
 
  openbcm-mdio-script-rs: mdio-tool -- mdio-report -- mdio-script;  feature sdk: -- sdk-glue
  openbcm-diag: the diag socket client (openbcm_diag.c);  sai-driver: op-script driver (differential)
+ openbcm-asic-temp: attach-only temperature reader (asic_temp.c) -- sdk-glue (Attached) + sai-core::temp
 ```
 
 Each crate's `src/lib.rs` documents it in detail; this section says what it is for.
@@ -266,23 +276,101 @@ target: `ioctl_numbers_are_the_architectures`; TUNSETIFF = 0x800454ca on ppc64, 
 
 ### Hardware backend: sai-backend-openbcm, sdk-glue, sdk-glue-sys
 
-- `sdk-glue-sys`: declarations of `sdk_glue.h` (26 functions, one struct), generated from a
-  table and checked against the header by the target's C compiler. `sdk_glue.c` stays C (the
-  only file with SDK headers). Feature `real` links it with libsdk (`SDK_GLUE_LINK`), `fake`
-  links `fake/fake_glue.c` (in-memory registers, scripted faults); one per linked program.
+- `sdk-glue-sys`: bindgen over `sdk_glue.h` (75 functions, five structs, three callback types, the
+  `OB_*` constants), checked against the header by the target's C compiler (246 declarations);
+  26 `safe fn` by the owner's rule. The order contracts of the glue's int arguments (`PortStat`,
+  `TrapKind`, `Fec`, `Loopback`, `Learn`) are C enums of `sdk_glue.h` since G2 (`ob_port_stat_t`,
+  ...; `backend.h`'s enum classes `static_assert` against them, `sdk_glue.c` checks its counter
+  and trap tables against the `_COUNT`s), generated into `sdk_glue_sys::order`. `sdk_glue.c`
+  stays C. Feature `real` links it with libsdk (`SDK_GLUE_LINK`); nothing else is linked (the C
+  fake `fake_glue.c` and the feature `fake` are gone).
 - `sdk-glue`: the only caller. The glue's rules (no MDIO before misc init, one bring-up per
-  process, BCM calls only after "init all") are types (`Sdk`, `Switch`): table in its `lib.rs`.
-- `sai-backend-openbcm`: `Backend` for the slice: bring-up (**resets the chip**), ports,
-  VLANs, link events, board quirks; every other required typed operation answers `NotSupported`
-  explicitly (`src/g2.rs`, each marked `G2`). Differences from `openbcm_backend.cpp`: `OB_E_MEMORY` /
-  `OB_E_PORT` give `INSUFFICIENT_RESOURCES` / `INVALID_PARAMETER` (no Rust variants;
-  `tests/parity.rs`); `SAI_OPENBCM_UNIT` / `_IFG` parsed strictly; a port that cannot be
-  disabled or enumerated fails the bring-up; stderr, not syslog. Not done: L2 callback, L3
-  special egress, temperatures, diag socket, ext-PHY admin sequences, MACsec reset, KNET.
-- `nix/libsai-openbcm.nix`: the library with this backend plus `sai-openbcm-smoke`
-  (`crates/sai-backend-openbcm/smoke/sai_smoke.c`: switch, ports, a VLAN, teardown; refuses
-  without `--sonic-is-stopped`). Real glue (ppc64): `-z defs`, soname `libsai.so.1`, the same
-  17 exports as the virtual build; never executed.
+  process, BCM calls only after "init all") are types (`Attached`, `Sdk`, `Switch`): table in its
+  `lib.rs`. Cloneable `MdioBus` / `TempReader` handles, callback trampolines over a keyed
+  registry (no memory handed to C). `rust_fake` (feature `rust-fake`) is the in-memory chip every
+  test uses, with a call recorder (`record.rs`: one canonical line per glue call, arguments and
+  results, the callbacks it fires).
+- `sai-backend-openbcm`: every operation `openbcm_backend.cpp` implements, with the same glue
+  calls in the same order and arguments: init (config checks, `ob_sdk_init` = "init all", the
+  LED rc via `rcload`, stale KNET clean-up, RX, linkscan inside the glue; one
+  `ob_sdk_register_callbacks` for link + L2; the CPU and drop egress objects created and cached;
+  `ob_sdk_chip_limits` logged), ports (queried live, as the C++), VLAN, trunks, L2 + learn / age
+  events onto the `EventSink`, KNET netifs / filters, the carrier through `/proc/bcm/knet/link`,
+  `trap_set`, L3 (refusing to destroy the cached egress objects, the route drop flag), ECMP, field
+  groups / entries / counters with the C++ policer-clone fallback and bookkeeping, policers, port
+  counters, table usage, chip limits, temperatures + `temperature_reader`, shell (+ to an fd),
+  clause-45 MDIO + `mdio_bus`, per-port link gates. Ports are disabled and the board quirks applied
+  by the core (`sai-core::switch`), as the C++ frontend does; the backend no longer does either.
+  Status table: exactly `map_rv` (`tests/parity.rs` reads it from the C++ source: 19 codes, no
+  difference). What `openbcm_backend.cpp` does not implement (QoS, mirror, sampling, genetlink,
+  hash, storm / flood, `trap_program`, the L3 / FP extras, counters by id, PFC) answers
+  `NotSupported` as there. **Differences from the C++** (the crate's `lib.rs` lists them all): a
+  failed init after `ob_sdk_init` calls `ob_sdk_shutdown` (C++: leaves the SDK up); a link gate
+  still registered at shutdown is removed before `ob_sdk_shutdown`; before init / after shutdown
+  every operation is `UNINITIALIZED` without a glue call (C++: calls the glue, which answers
+  `OB_E_INIT`), and the field / policer / egress state goes with the shutdown; a second init while
+  up is refused; `sdk-glue` refuses before the glue what C would truncate or cast (numbers above
+  `i32::MAX`, netif names over 15 bytes, shell commands over 1023, NUL bytes, ECMP groups of 0 or
+  more than 256, trunks over 64) and drops L2 events with arguments out of range;
+  `SAI_OPENBCM_UNIT` parsed strictly; stderr, not syslog, and `OB_E_UNAVAIL` not logged.
+- Glue-call differential (`tests/glue_differential.rs`, the C++ side in `tests/cpp/`): the 9 op
+  scripts of sai-openbcm, sai-driver's two (external PHY, MACsec) and `tests/cpp/glue-scripts/`
+  (board quirks, counter clear, a neighbour MAC change) run (1) through sai-driver's `Driver` on
+  this backend over a recording Rust fake, and (2) through the C++ `frontend_driver.cpp` and the
+  library's sources with the **unmodified** `openbcm_backend.cpp` (renamed factories by `-D`, no
+  C++ file changed) over `tests/cpp/glue_stub.c`, all 75 functions, which prints the same line per
+  call and answers by replaying the Rust run's recording (callbacks and injections included;
+  `tests/cpp/test_port_glue.cpp` is the test port for the real backend). The blocks are compared
+  as sai-driver's; allow-list `tests/glue-differential-allow.txt`. 2026-11-23: 12 scripts, 482 ops,
+  469 identical; the 13 others (one per `switch`) differ only by the C++ frontend's second
+  `ob_sdk_cpu_port` (`sai_switch.cpp:240` / `:243`, a constant query); every one of the 1008 Rust
+  glue lines equals a C++ line of its op in order; a negative control proves the stub does not echo
+  the recording. What it proves: given the same SDK answers, both stacks make the same calls with
+  the same arguments. What it does not: the C++ on answers of its own; never exercised: `attach`,
+  `th_overtemp_shutdown`, `init_mdio`, `shell`, `shell_to`, `errmsg`, `hw_info`,
+  `port_stat_clear`, `knet_cleanup` (66 of 75 functions are). In the Nix check `sai-rs-parity`.
+- `real.rs` (the FFI calls): run off-target only for MDIO, temperatures and `errmsg` (mdio-tool's
+  tests again with `--features sdk-real` against `tests/c/mdio_stub.c`, `nix/mdio-tool.nix`);
+  the other ~45 blocks are compiled and linked for ppc64 only (they ran against `fake_glue.c` before
+  G2). Linking the glue stub in place of `sdk_glue.c` would run them all (not done).
+- The smoke program (`smoke/sai_smoke.c`, `bin/sai-openbcm-smoke`): the G2 hardware gate, the SAI
+  C API only. Refuses without `--sonic-is-stopped` (it resets the chip) or while the SDK lock is
+  held; `--dry` lists the 23 steps: load, profile (served through the SAI service table;
+  `--no-ext-phy` drops the ext-PHY / MACsec tables), create-switch, ports (count, lanes, speed),
+  admin-up of the `--cabled` lanes, oper-up through the ext-PHY gate, VLAN, FDB, LAG, hostif,
+  hostif-netdev (`/sys/class/net`, carrier following oper status; `--no-kernel` = SKIP, only for
+  the fake), L3 (RIF, neighbour, next hop, route), ACL (table, entry, counter read), policer, port
+  counters, temperatures, a diag command through the socket, one read-only MDIO read through the
+  socket (`phy raw c45 <phy> 0x1 <reg>`; the program itself never writes MDIO), teardown,
+  admin-down, remove-switch, `--recreate` (a second "init all" in one process, default off,
+  untested on hardware), uninitialize. PASS / FAIL / SKIP per step, exit 1 on any FAIL. On the Rust
+  fake (`tests/smoke.rs`, x86 only: the ppc64 bundle has no `openbcm-fake` library, so there only
+  the refusal / `--dry` test runs): the full run, `--recreate`, an ext-PHY run on a test table
+  (only that table's writes on the bus, ordered around port enable), `--no-ext-phy` (no bus access
+  but the smoke's read), failure paths. Commands for the AS7772 and what only hardware can show:
+  [Hardware runbooks](#hardware-runbooks).
+- `openbcm-asic-temp` (crate of that name): `asic_temp.c` in Rust, same command line, messages,
+  exit codes (4 after 3 bad reads, 5 after the core-PLL power-down at >= 125 C on 2 reads), files
+  (`sai-core::temp`'s writer). Differential: the C tool (unmodified `asic_temp.c` + `temp_files.c`
+  on `tests/c/stub_glue.c`) vs the Rust binary on the Rust fake, 30 cases equal (exit code, stdout,
+  stderr, files). Differences: a failure to install a signal handler is said; SIGPIPE ignored;
+  `POSIXLY_CORRECT` ignored.
+- `nix/libsai-openbcm.nix`: the library with this backend plus the smoke program. Real glue
+  (ppc64): `-z defs`, soname `libsai.so.1`, the same 17 exports as the virtual build; never executed.
+
+### Drop-in package
+
+`nix/sai-openbcm-rs.nix`: `{ saiSrc, saiOpenbcmSrc, libsdk ? null, saiRs ? <package.nix> }`, the
+outputs of `ai_re/nix/packages/sai-openbcm` under the same names, all Rust: `lib/libsai.so`
+(`.so.1`, `.so.1.0.0`; ppc64 with libsdk: `openbcm-real`, NEEDED libsdk, `-z defs`, 17 exports;
+native: virtual backend + `openbcm-fake`), `bin/openbcm-diag`, `bin/openbcm-mdio-script`
+(`sdk-real` with libsdk), `bin/openbcm-ext-phy`, `bin/openbcm-ext-macsec` (phy-seq's checkers: the
+AS7772 tables check byte-identically to the C++ tools), `bin/openbcm-asic-temp` (with libsdk),
+`bin/sai-openbcm-smoke`, `share/sai-openbcm/backends` (`fake openbcm` / `fake`),
+`share/sai-openbcm/phy-seq-engine` and `macsec-model` (`rust`). Not installed: `include/sai-openbcm`
+(nothing reads it). passthru: `libsdk`, `saiHeaders`, `implementation = "rust"`, `tools`,
+`parts`. pname `sai-openbcm-rs` with libsdk (unfree), `sai-openbcm-rs-fake` without. Targets:
+`sai-openbcm-rs`, `as7760-sai-openbcm-rs` (`ai_re/tests/nixtargets.py`).
 
 ### mdio-script
 
@@ -304,6 +392,14 @@ for tests, refused without `MDIO_TOOL_FAKE_SDK=1`). Differences from C (UTC in
 `mdio-tool/src/lib.rs`, `mdio-report/src/lib.rs`. Not done: like the C tool, it calls no
 `ob_sdk_shutdown` after `init_mdio`.
 
+The differential against the C tool (`tests/differential.rs`, 159 runs: 40 through a diag socket, 44
+on a fake chip, 75 command lines) builds the C tool against `tests/c/mdio_stub.c` (the MDIO side of
+the deleted `fake_glue.c`: init_mdio, MDIO, temperatures, errmsg, reading the same scenario directives
+as the Rust fake) and compares it with the Rust tool on the Rust fake: exit code, stdout, stderr,
+status files, bus trace. `nix/mdio-tool.nix` runs the tool's tests a second time with
+`--features sdk-real` linked against that stub, which executes `sdk-glue`'s FFI module for MDIO and
+temperatures.
+
 ### phy-seq, phy-seq-capi
 
 `phy-seq`: the external PHY tables (`ext-phy 1`, `ext-macsec 1`): parser, typed
@@ -318,7 +414,7 @@ debounce, counters, locks) is C++.
 
 - `sai-macsec`: the object model of `sai_macsec.cpp` (MACSEC, MACSEC_PORT, FLOW, SC, SA, the
   MACsec-stage ACL glue) over a `SeqRunner` trait. Its `lib.rs` lists the intentional
-  differences **D1-D8** and the questionable C++ behaviours kept, **Q1-Q19**.
+  differences **D1-D10** and the questionable C++ behaviours kept, **Q1-Q19**.
 - `sai-macsec-phy`: `SeqRunner` over `phy-seq`; with the above, the whole Rust path from a
   SAI object to MDIO words (`tests/e2e.rs` holds it to the C++ path access by access).
 - `sai-macsec-capi`: `sai_macsec_rs.h` + `libsai_macsec_capi.a` (18 exports, ABI 1) behind
@@ -330,7 +426,11 @@ debounce, counters, locks) is C++.
   entry points. Three C++ behaviours are fixed in Rust (owner's decision 2026-11-23, each with a
   test): **D1** (an SA of a flow that moved stays in the first PHY), **D9 = Q7** (a flow switch
   leaves the old SC's SAs installed), **D10 = Q10** (a cipher change under waiting SAs installs
-  the first 16 key bytes); every other Q item keeps the C++ behaviour.
+  the first 16 key bytes); every other Q item keeps the C++ behaviour. The differentials hold the
+  Rust to the C++ with exactly the D9 / D10 edits (`sai-macsec/tests/cpp/listed_fixes.rs`; prebuilt
+  as `sai-macsec-cpp[-chip]-driver-fixed` for the bundle): equal to it on every script, so no other
+  difference passes and neither does a missing D9 / D10. Random scripts are deterministic per seed
+  (`SAI_MACSEC_SEED`, default random and printed; `SAI_MACSEC_DIFF_CASES`, `SAI_MACSEC_E2E_CASES`).
 
 ### sai-extphy, sai-diag, openbcm-diag
 
@@ -456,10 +556,12 @@ call is observed by a shared suite or the op scripts, this library gives the sam
   comparisons with the C++ tools, no disagreement. The C++ `test_sai` (3154 checks then) passes
   on the Rust engine, the Rust model and both; the trace test 29 / 0.
 - **sai-macsec** against the unmodified `sai_macsec.cpp` on the fake backend: 16 backbone +
-  272 failure-injection + 300 random scripts per run, a 20,000-script soak: no disagreement
-  but D1 / D9 / D10. **End to end** at MDIO level on the current AS7772 table (sha256 1ef74ead...):
-  4 backbones + 48 random scripts, and the C++ library with the Rust model against the C++ one
-  through the SAI API: equal. On the AS7772: the status block.
+  272 failure-injection + 300 random scripts per run; soak (2026-11-23) 50,000 seeds (0..50000):
+  equal to the C++ with the D9 / D10 edits on every script (255 reach D9, 472 D10), 3.67M
+  operations. **End to end** at MDIO level: per run 4 backbones + 64 synthetic + 48 AS7772 random
+  scripts (current table, sha256 1ef74ead...), and the C++ library with the Rust model against
+  the C++ one through the SAI API (both tables); soak: 50,000 synthetic, 9,600 AS7772 and 9,600
+  x 2 library scripts: no other difference. On the AS7772: the status block.
 - **seqcheck** on the five real recordings with the new table (`0x5000` ingress write): C++
   tool, `openbcm-ext-macsec-rs`, the C++ library on the Rust engine and the build with both
   agree (s1-s3: 40 sequences / 4602 operations; s4-s5: 4 / 1952).
@@ -481,20 +583,25 @@ checks ranges; its build prints the count).
 |---|---|---|---|---|---|
 | `sai-ffi` | (workspace lints) | 82: generic 25, convert 20, tables 12, global 10, ptr 6, state 4, notify 4, diag 1; + test_port 3 (feature `test-port` only) | 83 / 273 | 17 `sai_*` (+ `sai_rs_test_query` with `test-port`) | the SAI C ABI; `convert` / `tables` blocks sit in macros |
 | `sai-macsec-capi` | deny; allowed in ptr, attr, state, api | 60: attr 28 (union reads), api 20, ptr 6, state 6 | 0 / 35 | 18 | `sai_macsec_rs.h`, C++ callbacks |
-| `sdk-glue` | none | 54: real 48, error 2, fake 2, link 2 (being reworked by the G2 backend work, not counted as G1's) | 0 / 1 | | one block per glue call |
+| `sdk-glue` | none | 52: real 48, error 2, link 2 | 0 / 0 | | one block per glue call (`real`), `ob_sdk_errmsg`'s pointer, the L2 callback's MAC read |
 | `phy-seq-capi` | deny; allowed in ptr, api | 28: api 24, ptr 4 | 10 / 26 | 7 | `phy_seq.h` |
 | `tap-netdev` | deny; allowed in sys | 9 | | | ioctls (TUNSETIFF, TUNSETCARRIER, SIOCSIFHWADDR), if_nametoindex, socket, bind, setsockopt, poll |
 | `sai-sys` (forbid), `sdk-glue-sys` (none) | | 0 | | generated `unsafe extern "C"` blocks; 26 `safe fn` (sdk-glue-sys) | declarations only |
-| the other 14 | forbid | 0 | | | |
+| the other 15 | forbid | 0 | | | |
 
-Total 233 blocks in five crates (+3 behind `test-port`); 194 on 2026-11-22. The delta: `sai-ffi` +14
+Total 231 blocks in five crates (+3 behind `test-port`), 2026-11-23 after G2: `sdk-glue` -2 (its
+C-fake hook module `fake.rs` deleted with `fake_glue.c`; its `tests/` -1: `before_init.rs`, which
+called the C glue directly); the G2 backend, the call recorder, `openbcm-asic-temp` and the smoke
+program added none (`sai-backend-openbcm` and `openbcm-asic-temp` forbid it). 233 at G1, 194 on
+2026-11-22. The delta: `sai-ffi` +14
 (68 then): `convert` +7 (ACL field / action data, the three `MACsec` key members), `notify` +2
 (the FDB event callback: the stored address as its function type, the call), `state` +2 (the
 profile callbacks, split per call), `generic` +1 (`MACsec` decode), `global` +1
 (`sai_dbg_generate_dump`'s path), `diag` +1 (`getsockopt(SO_PEERCRED)`: std's
 `UnixStream::peer_cred` is unstable, `rustix` / `nix` are not dependencies); the `MACsec` API's
 own 19 blocks (`sai-ffi/src/macsec.rs`) are gone: it uses the generic entry points, and only the
-three key reads remain. `sdk-glue` +25 is the G2 rework in progress.
+three key reads remain. `sdk-glue` +25 (29 then) was the rework of its wrappers for G2 (all 75 glue
+functions, the trampolines).
 
 ### Miri
 
@@ -534,6 +641,14 @@ In the C++, not fixed there (file:line of `ai_re/nix/packages/sai-openbcm/src`):
   `where_a_flow_moved_the_cpp_leaves_the_key_in_the_phy`). **Q7** (a flow switch leaves the old
   SC's SAs installed) and **Q10** (a cipher change under waiting SAs installs the first 16 key
   bytes) are fixed as D9 / D10; Q1-Q19 with line numbers: `crates/sai-macsec/src/lib.rs`.
+  Q7 also in two steps (found by the random differential, 2026-11-23): after `eadmin e3 0` the
+  SA stays (both), then `entry e1 t3 1 f5 0 0` gives the port a flow without an SC; the C++ opens
+  the gate on the old SC's SA (`R 1f3`, `W 121=1`: data of f5 through c3), the Rust takes it out
+  (`R 1f2`, `W 310=8001`) and keeps the gate closed. That is D9 (its rule is on the state: a bound
+  flow, an installed SA of another flow's SC); the old classifier only took extra writes. Tests:
+  `d9_another_entry_takes_over_after_the_entry_was_disabled` (differential, e2e),
+  `d9_a_flow_switch_through_a_disabled_entry` (model). SONiC never reaches D9 (one flow per port
+  and direction, `SCI_IN_INGRESS_MACSEC_ACL` false).
 - Null method-table entries syncd may call unchecked: the bulk functions (`create_vlan_members`,
   `create_route_entries`, `create_lag_members`, ...), `switch_mdio_read`, `recv_hostif_packet`,
   and the user-defined trap's set / get / remove (`sai_hostif.cpp:518-539`). Rust: a function that
@@ -567,20 +682,25 @@ model refused them (now a placeholder, never read); the workspace build gave the
 ## Not done
 
 - No Rust SAI frontend or backend on the ASIC; no boot-time PHY bring-up by the Rust MDIO tool.
-- Hardware backend (gate G2): ports, VLANs, link events, board quirks; the other 50 required
-  typed operations answer `NotSupported` (`sai-backend-openbcm/src/g2.rs`), the optional ones by
-  default (MDIO, QoS, mirror, sampling, hash, storm control, KNET, field processor, L3, ...).
+- Gate G2 on hardware: the smoke on the AS7772 ([Hardware runbooks](#hardware-runbooks)). Offline
+  only, so far: everything of the hardware backend, `openbcm-asic-temp`, the drop-in package; the
+  real-glue builds are cross-built and link-checked, never executed.
+- `sdk-glue`'s FFI module `real.rs` runs off-target only for MDIO / temperatures / `errmsg`
+  (through the MDIO stub); the switch calls ran against `fake_glue.c` until G2 and now only on a chip.
+  The glue-call differential gives the C++ the Rust fake's answers (replay): it shows equal calls for
+  equal answers, not the C++ on answers of its own; 9 of the 75 glue functions are not reached by
+  its scripts.
+- The hardware backend has what `openbcm_backend.cpp` has and no more: no QoS, mirror, sampling,
+  hash, storm control, egress ACL, warm boot on the chip (`NotSupported`, as the C++).
 - Frontend: one switch, no breakout; 42 attributes of the headers have a member the rim does not
   decode (answered "not supported"); the capability table is gated by `Backend::programs`. Not
   ported because the C++ has none: bulk, warm boot, STP ports, tunnels, packet I/O.
 - No MACsec VM test on a libsai: `vm-macsec.nix` runs SONiC's own virtual SAI; the MACsec path of
   this library is covered by `test_sai`, the differential and the model's tests.
-- The openbcm backend applies the board quirks in its own bring-up too (first slice); the core
-  applies them as the C++ frontend does, so the chip gets them twice (G2 drops the backend's).
 - No fuzz target.
-- Deploy path: the root git flake with the Rust options is unbuilt; the new files are
-  untracked, so a git flake does not see them (`ai_re/tools/nix-untracked.sh`). Only `path:`
-  builds of `as7772-system-rust-phy-seq` / `-both` exist.
+- Deploy path: the root git flake with the Rust options is unbuilt here; a git flake sees new files
+  only once they are added (the G2 files are, with intent-to-add: `git add -N`;
+  `ai_re/tools/nix-untracked.sh`). Only `path:` builds of `as7772-system-rust-phy-seq` / `-both` exist.
 
 ## Hardware runbooks
 
@@ -591,6 +711,30 @@ reset at syncd start, ext-PHY sequences, rekeys (covered by the rekey test). **N
 the Rust MDIO tool as the boot unit, and the openbcm smoke of the Rust `libsai.so`
 (`sai-openbcm-smoke --sonic-is-stopped ...`, SONiC stopped; it resets the chip): no Rust SAI frontend or
 backend has driven the ASIC.
+
+The G2 smoke on the AS7772 (for the hardware agent; root, from the ppc64 build of
+`nix/sai-openbcm-rs.nix` with libsdk as `$S`). Stop the stack first: syncd's stop hook restarts
+`openbcm-asic-temp` about 10 s after syncd stops, and the program refuses while anything holds the SDK
+lock. The profile's temperature publisher writes `/run/asic/temperature` during the run and removes it at
+`remove_switch` (fand goes to full speed after its grace period until SONiC is back).
+
+```sh
+systemctl stop sonic.target; sleep 15; systemctl stop openbcm-asic-temp
+P=$(systemctl cat sonic-syncd | grep -o '/nix/store/[^ ]*-sai\.profile' | head -n1)
+# run 1: the PHYs left alone (no ext-PHY / MACsec table served)
+$S/bin/sai-openbcm-smoke --sonic-is-stopped --libsai $S/lib/libsai.so --profile $P \
+  --cabled 49,53,9,13 --lag-port 57 --no-ext-phy --mdio-phy 0x0 --mdio-reg 0x8b00 --mdio-expect 0x2391 \
+  --log-stderr 2>&1 | tee g2-smoke-noextphy.txt
+# run 2: the same without --no-ext-phy (the board's tables: real admin sequences on the PHYs)
+# optional run 3: --recreate (a second "init all" in one process, never tried on hardware)
+systemctl start sonic.target
+```
+
+Lanes 49, 53, 9, 13 are cages 1, 2, 31, 32 (the cabled DAC pairs), 57 cage 3 (not cabled). `0x2391` for
+1.8b00 of PHY 0x0 is read from `sonic.md` ("ID 2391/80a0"), not from the box. Never pass `--poke-diag`
+on hardware (the fake's link-scan pass). Only hardware shows: the KNET netdev and its carrier, link
+through the PHYs with and without the tables, the SDK's own diag output, the BCM56960 accepting the
+ACL / policer / L3 objects, plausible temperatures, a second "init all" in one process.
 
 ## Build and test
 
@@ -617,10 +761,9 @@ nix develop --impure --expr "$E" -c cargo clippy --workspace --all-targets -- -D
 nix develop --impure --expr "$E" -c cargo fmt --all --check
 ```
 
-`sdk-glue-sys`'s `real` and `fake` exclude each other in one link: a crate built with `real`
-(`mdio-tool --features sdk-real`, `sai-ffi --features openbcm-real`) cannot be tested in the
-same cargo invocation as dev-dependencies that enable `fake`; `nix/mdio-tool.nix` and
-`nix/libsai-openbcm.nix` build them alone. Outside Nix: `SAI_INC=<SAI/inc> cargo test
+`sdk-glue-sys` links C only with `real` (`SDK_GLUE_LINK`: `sdk_glue.c` + libsdk, or a test stub in
+its place); tests use `sdk-glue`'s Rust fake. A build with both `real` and `rust-fake` gives the
+plain bring-ups the real glue (how `nix/mdio-tool.nix` runs the tool's tests on the MDIO stub). Outside Nix: `SAI_INC=<SAI/inc> cargo test
 --workspace` with libclang and a C compiler (`LIBCLANG_PATH`, `CC`); differentials skip
 without `MDIO_SCRIPT_C_DIR` / `SAI_OPENBCM_SRC`.
 
@@ -631,6 +774,11 @@ The parity harnesses by hand (from `rust/sai`, in that environment; the C++ sour
 SAI_INC=... bash tests/test-port/run.sh --strict     # test_sai on this library + the C++ reference
 SAI_OPENBCM_SRC=../../ai_re/nix/packages/sai-openbcm/src SAI_OPENBCM_TESTS=../../ai_re/nix/packages/sai-openbcm/tests \
   cargo test -p sai-driver --test differential -- --nocapture
+# the same variables: the glue-call differential (G2)
+cargo test -p sai-backend-openbcm --test glue_differential -- --nocapture
+# the smoke program on the Rust fake glue
+cargo build -p sai-ffi --features openbcm-fake && \
+  SAI_SMOKE_LIBSAI=$PWD/target/debug/libsai.so cargo test -p sai-backend-openbcm --test smoke
 bash tests/unsafe-count.sh                           # the unsafe inventory ([Unsafe](#unsafe))
 ```
 

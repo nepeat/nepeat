@@ -15,8 +15,9 @@ path = "src/main.rs"
 sdk = ["dep:sdk-glue"]
 # The real glue + libsdk (ppc64 only; SDK_GLUE_LINK, see sdk-glue-sys).
 sdk-real = ["sdk", "sdk-glue/real"]
-# The fake glue, for tests. A binary built so refuses --config unless MDIO_TOOL_FAKE_SDK=1.
-sdk-fake = ["sdk", "sdk-glue/fake"]
+# The glue on sdk-glue's pure-Rust fake (the process's chip), for tests. A binary built so refuses
+# --config unless MDIO_TOOL_FAKE_SDK=1.
+sdk-fake = ["sdk", "sdk-glue/rust-fake"]
 
 [dependencies]
 mdio-script.workspace = true
@@ -25,7 +26,7 @@ sdk-glue = { workspace = true, optional = true }
 signal-hook.workspace = true
 
 [dev-dependencies]
-# tests build the tool with the SDK backend on the fake glue
+# tests build the tool with the SDK backend on the Rust fake of the glue
 mdio-tool = { path = ".", features = ["sdk-fake"] }
 
 [lints]

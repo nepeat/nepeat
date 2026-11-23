@@ -1,0 +1,19 @@
+2026-11-23T11:55:43+00:00
+active
+2026-11-23T03:55:57-08:00 as7772 openbcm-asic-temp[10434]: OS: Unix (Posix)
+2026-11-23T03:55:57-08:00 as7772 openbcm-asic-temp[10434]: linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+2026-11-23T03:55:57-08:00 as7772 openbcm-asic-temp[10434]: DMA pool size: 16777216 bytes.
+2026-11-23T03:55:57-08:00 as7772 openbcm-asic-temp[10434]: BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+2026-11-23T03:55:57-08:00 as7772 openbcm-asic-temp[10434]: SOC unit 0 attached to PCI device BCM56930_B1
+2026-11-23T03:55:57-08:00 as7772 openbcm-asic-temp[10434]: Boot flags: initialization scripts NOT loaded
+2026-11-23T03:55:57-08:00 as7772 openbcm-asic-temp[10434]: openbcm-asic-temp: unit 0 attached BCM56930_B1
+2026-11-23T03:55:58-08:00 as7772 openbcm-asic-temp[10434]: openbcm-asic-temp: 8 monitors, max 47.7 C, average 45.7 C; every 5 s to /run/asic/temperature; core PLL power-down at 125 C
+47.2
+
+# HELP switch_asic_temperature_celsius ASIC die temperature monitor, current
+# TYPE switch_asic_temperature_celsius gauge
+switch_asic_temperature_celsius{unit="0",sensor="pvtmon0"} 45.2
+switch_asic_temperature_celsius{unit="0",sensor="pvtmon1"} 46.2
+"failsafe": false
+ls: cannot access '/boot/firmware/*': No such file or directory
+/boot/firmware:

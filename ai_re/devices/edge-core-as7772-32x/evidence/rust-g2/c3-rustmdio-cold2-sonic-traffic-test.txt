@@ -1,0 +1,82 @@
+== 2026-11-23T03:06:38-08:00 /nix/store/2kk34h17krxi21j7pn2yzsanpxmphjw4-nixos-system-as7772-26.11.20261111.d4f25a3
+== uptime:  03:06:38 up 2 min,  3 users,  load average: 0.83, 0.38, 0.14
+active active active active 
+openbcm-mdio-script: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: done in 98.0 s: 1058160 of 1058160 operations, 553600 writes, 426312 reads (307099 polls, 15152 re-reads), 0 expected values differed
+== failed units: 0
+  Interface            Lanes    Speed    MTU    FEC         Alias    Vlan    Oper    Admin             Type    Asym PFC
+-----------  ---------------  -------  -----  -----  ------------  ------  ------  -------  ---------------  ----------
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later         N/A
+Ethernet120       9,10,11,12     100G   9100    N/A  Ethernet31/1  routed      up       up  QSFP28 or later         N/A
+Ethernet124      13,14,15,16     100G   9100    N/A  Ethernet32/1  routed      up       up  QSFP28 or later         N/A
+Interface Ethernet4 IP disabled and address(es) removed due to binding VRF Vrf-a.
+Interface Ethernet124 IP disabled and address(es) removed due to binding VRF Vrf-b.
+== ping cage 1 -> 2 (1000 x 64 B, then 1000 x 1400 B, then 200 x 8000 B)
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.104/0.110/0.231/0.006 ms
+1000 packets transmitted, 1000 received, 0% packet loss, time 1999ms
+rtt min/avg/max/mdev = 0.134/0.142/0.267/0.008 ms
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.280/0.289/0.416/0.017 ms
+== ping cage 2 -> 1 (Vrf-a)
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.098/0.112/0.240/0.007 ms
+== ping cage 31 -> 32
+1000 packets transmitted, 1000 received, 0% packet loss, time 1999ms
+rtt min/avg/max/mdev = 0.103/0.110/0.248/0.008 ms
+1000 packets transmitted, 1000 received, 0% packet loss, time 1999ms
+rtt min/avg/max/mdev = 0.134/0.166/0.504/0.036 ms
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.276/0.304/0.452/0.044 ms
+== ping cage 32 -> 31 (Vrf-b)
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.098/0.108/0.232/0.008 ms
+== SONiC counters
+Last cached time was 2026-11-23T03:07:32.034286
+       IFACE    STATE    RX_OK    RX_BPS    RX_UTIL    RX_ERR    RX_DRP    RX_OVR    TX_OK    TX_BPS    TX_UTIL    TX_ERR    TX_DRP    TX_OVR
+------------  -------  -------  --------  ---------  --------  --------  --------  -------  --------  ---------  --------  --------  --------
+ Ethernet1/1        U    3,218       N/A        N/A         0         0       N/A    3,217       N/A        N/A         0         0       N/A
+ Ethernet2/1        U    3,217       N/A        N/A         0         0       N/A    3,218       N/A        N/A         0         0       N/A
+Ethernet31/1        U    3,216       N/A        N/A         0         0       N/A    3,217       N/A        N/A         0         0       N/A
+Ethernet32/1        U    3,217       N/A        N/A         0         0       N/A    3,216       N/A        N/A         0         0       N/A
+== ASIC counters (frames, bytes, errors)
+RPKT.ce0		    :		      3,219		 +3,219 	      1/s
+RBYT.ce0		    :		  3,262,325	     +3,262,325 	    157/s
+TPKT.ce0		    :		      3,219		 +3,219
+TBYT.ce0		    :		  3,262,325	     +3,262,325
+RPKT.ce1		    :		      3,219		 +3,219
+RBYT.ce1		    :		  3,262,325	     +3,262,325
+TPKT.ce1		    :		      3,219		 +3,219 	      1/s
+TBYT.ce1		    :		  3,262,325	     +3,262,325 	    157/s
+RPKT.ce30		    :		      3,218		 +3,218
+RBYT.ce30		    :		  3,262,162	     +3,262,162
+TPKT.ce30		    :		      3,219		 +3,219
+TBYT.ce30		    :		  3,262,328	     +3,262,328
+RPKT.ce31		    :		      3,219		 +3,219
+RBYT.ce31		    :		  3,262,328	     +3,262,328
+TPKT.ce31		    :		      3,218		 +3,218
+TBYT.ce31		    :		  3,262,162	     +3,262,162
+== ASIC port state
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9162    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9162    No      
+      ce30(  9)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9162    No      
+      ce31( 13)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9162    No      
+AVERAGE_IPG=0x30
+AVERAGE_IPG=0x30
+Interface                = 0x19
+CL74                     = False
+CL91                     = False
+== temperature / fans
+asic 47.7 C; fand failsafe: "failsafe": false
+== lldp
+Capability codes: (R) Router, (B) Bridge, (O) Other
+   LocalPort    RemoteDevice    RemotePortID    Capability    RemotePortDescr
+------------  --------------  --------------  ------------  -----------------
+ Ethernet1/1    as7772          Ethernet2/1     BR            Ethernet4
+ Ethernet2/1    as7772          Ethernet1/1     BR            Ethernet0
+Ethernet31/1  as7772          Ethernet32/1    BR            Ethernet124
+Ethernet32/1  as7772          Ethernet31/1    BR            Ethernet120
+--------------------------------------
+Total entries displayed:  4
+rc=0

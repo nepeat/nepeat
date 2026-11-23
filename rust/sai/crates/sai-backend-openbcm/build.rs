@@ -10,6 +10,26 @@ use std::env;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+// The C++ driver of tests/glue_differential.rs, prebuilt for a target without a compiler
+// (README "Big-endian runs") or with SAI_GLUE_DIFF_PREBUILD=1: glue_prebuild() below.
+// (both files allow dead code themselves: the build script uses a part)
+#[path = "../sai-driver/src/cpp_build.rs"]
+mod cpp_build;
+#[path = "tests/cpp/glue_build.rs"]
+mod glue_build;
+
+/// Prebuilds the glue differential's C++ driver into `OUT_DIR/target-tests` (its scripts and
+/// allow-list into `target-tests/sai-backend-openbcm/`) for a cross build or
+/// `SAI_GLUE_DIFF_PREBUILD=1`; a native test run builds it itself.
+fn glue_prebuild(out: &Path) {
+    let own = Path::new(&env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR")).join("tests/cpp");
+    match cpp_build::prebuild_variant(out, &glue_build::PREBUILD, |s| glue_build::variant(&own, &s.src)) {
+        Ok(note) if note.is_empty() => {}
+        Ok(note) => println!("cargo:warning=glue differential C++ driver {note}"),
+        Err(why) => panic!("sai-backend-openbcm build.rs: SAI_GLUE_DIFF_PREBUILD is set, but: {why}"),
+    }
+}
+
 fn env_any(names: &[String]) -> Option<String> {
     names.iter().find_map(|v| {
         println!("cargo:rerun-if-env-changed={v}");
@@ -35,6 +55,7 @@ fn main() {
     println!("cargo:rerun-if-changed=smoke/sai_smoke.c");
     println!("cargo:rerun-if-env-changed=SAI_INC");
     let out = PathBuf::from(env::var_os("OUT_DIR").expect("OUT_DIR"));
+    glue_prebuild(&out);
     let target = env::var("TARGET").expect("TARGET");
     let host = env::var("HOST").expect("HOST");
     let source = Path::new(&env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR")).join("smoke/sai_smoke.c");

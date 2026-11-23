@@ -162,6 +162,8 @@ impl Ctx<'_, '_> {
         if let Some(class) = class {
             self.board_hint(class);
         }
+        // The duration first: the summary quotes it (as the C tool, mdio_script_main.c finish()).
+        self.st.seconds = self.t0.elapsed().as_secs_f64();
         self.st.summarize();
         self.status_flush();
         let mut line = if state == State::Ok {

@@ -59,19 +59,9 @@ fn status(name: &str) -> sys::sai_status_t {
     }
 }
 
-/// The two codes the Rust error type cannot express: (code, what the C++ returns, what we return).
-const DIFFERENCES: [(&str, &str, &str); 2] = [
-    (
-        "OB_E_MEMORY",
-        "SAI_STATUS_NO_MEMORY",
-        "SAI_STATUS_INSUFFICIENT_RESOURCES",
-    ),
-    (
-        "OB_E_PORT",
-        "SAI_STATUS_INVALID_PORT_NUMBER",
-        "SAI_STATUS_INVALID_PARAMETER",
-    ),
-];
+/// Codes this backend maps differently from the C++: (code, what the C++ returns, what we
+/// return). None.
+const DIFFERENCES: [(&str, &str, &str); 0] = [];
 
 fn source() -> Option<String> {
     ["SAI_OPENBCM_SRC", "MDIO_SCRIPT_C_DIR"]

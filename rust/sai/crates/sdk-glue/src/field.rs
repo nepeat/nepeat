@@ -133,7 +133,8 @@ pub enum IpType {
 }
 
 impl IpType {
-    const fn raw(self) -> u32 {
+    /// The glue's number (`OB_FP_*`).
+    pub const fn raw(self) -> u32 {
         match self {
             Self::Ip => sys::OB_FP_IP,
             Self::NonIp => sys::OB_FP_NON_IP,
@@ -210,6 +211,152 @@ pub struct FpRule {
     pub red_drop: bool,
     /// See `green_drop`.
     pub cpu_copy_only: bool,
+}
+
+/// A rule field for field as the glue's `ob_fp_rule_t` takes it (`ports` / `nports` as the
+/// vector): for a caller that builds the struct itself, as the C++ backend's `to_c` does (fields
+/// of absent qualifiers, the IP type as an `OB_FP_*` number or -1, `dst_egress` set without its
+/// qualifier). The glue reads only what `present` names; nothing here is checked before the call.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[allow(clippy::struct_excessive_bools, reason = "the glue's flags")]
+pub struct FpRuleRaw {
+    /// `OB_FPQ_*` bits of the qualifiers present.
+    pub present: u32,
+    /// Ethertype and mask.
+    pub ether: u16,
+    /// See `ether`.
+    pub ether_mask: u16,
+    /// `OB_FP_*` ([`IpType::raw`]), or anything else.
+    pub ip_type: i32,
+    /// IP protocol and mask.
+    pub proto: u8,
+    /// See `proto`.
+    pub proto_mask: u8,
+    /// Source address (IPv4 in the first 4 bytes) and mask, network order.
+    pub src: [u8; 16],
+    /// See `src`.
+    pub src_mask: [u8; 16],
+    /// Destination address and mask.
+    pub dst: [u8; 16],
+    /// See `dst`.
+    pub dst_mask: [u8; 16],
+    /// L4 source port and mask.
+    pub l4_src: u16,
+    /// See `l4_src`.
+    pub l4_src_mask: u16,
+    /// L4 destination port and mask.
+    pub l4_dst: u16,
+    /// See `l4_dst`.
+    pub l4_dst_mask: u16,
+    /// TCP flags and mask.
+    pub tcp: u8,
+    /// See `tcp`.
+    pub tcp_mask: u8,
+    /// ICMP type << 8 | code, and mask.
+    pub icmp: u16,
+    /// See `icmp`.
+    pub icmp_mask: u16,
+    /// TOS byte and mask.
+    pub tos: u8,
+    /// See `tos`.
+    pub tos_mask: u8,
+    /// Destination MAC and mask.
+    pub dmac: [u8; 6],
+    /// See `dmac`.
+    pub dmac_mask: [u8; 6],
+    /// Source MAC and mask.
+    pub smac: [u8; 6],
+    /// See `smac`.
+    pub smac_mask: [u8; 6],
+    /// Outer VLAN id and mask.
+    pub vlan: u16,
+    /// See `vlan`.
+    pub vlan_mask: u16,
+    /// TTL and mask.
+    pub ttl: u8,
+    /// See `ttl`.
+    pub ttl_mask: u8,
+    /// The L3 egress object of `OB_FPQ_DSTEGRESS`.
+    pub dst_egress: i32,
+    /// In-ports (`OB_FPQ_INPORTS`).
+    pub ports: Vec<i32>,
+    /// Priority within the group.
+    pub priority: i32,
+    /// Drop.
+    pub drop: bool,
+    /// Cancel a drop of a lower-priority rule.
+    pub drop_cancel: bool,
+    /// Copy to the CPU.
+    pub copy_cpu: bool,
+    /// A packet + byte counter.
+    pub counter: bool,
+    /// The policer, -1 none.
+    pub policer: i32,
+    /// Policer colours, as [`FpRule::green_drop`].
+    pub green_drop: bool,
+    /// See `green_drop`.
+    pub yellow_drop: bool,
+    /// See `green_drop`.
+    pub red_drop: bool,
+    /// See `green_drop`.
+    pub cpu_copy_only: bool,
+}
+
+impl FpRuleRaw {
+    /// The glue's struct, its `ports` pointing into this rule. `OB_E_PARAM`: more ports than an
+    /// `int` counts.
+    pub(crate) fn raw(&self) -> Result<RawRule<'_>, Error> {
+        let ports: &[c_int] = &self.ports;
+        let raw = sys::ob_fp_rule_t {
+            present: self.present,
+            ether: self.ether,
+            ether_mask: self.ether_mask,
+            ip_type: self.ip_type,
+            proto: self.proto,
+            proto_mask: self.proto_mask,
+            src: self.src,
+            src_mask: self.src_mask,
+            dst: self.dst,
+            dst_mask: self.dst_mask,
+            l4_src: self.l4_src,
+            l4_src_mask: self.l4_src_mask,
+            l4_dst: self.l4_dst,
+            l4_dst_mask: self.l4_dst_mask,
+            tcp: self.tcp,
+            tcp_mask: self.tcp_mask,
+            icmp: self.icmp,
+            icmp_mask: self.icmp_mask,
+            tos: self.tos,
+            tos_mask: self.tos_mask,
+            dmac: self.dmac,
+            dmac_mask: self.dmac_mask,
+            smac: self.smac,
+            smac_mask: self.smac_mask,
+            vlan: self.vlan,
+            vlan_mask: self.vlan_mask,
+            ttl: self.ttl,
+            ttl_mask: self.ttl_mask,
+            dst_egress: self.dst_egress,
+            // Into the borrowed vector; only the glue reads through it, during the call.
+            ports: ports.as_ptr(),
+            nports: c_int::try_from(ports.len()).map_err(|_| Error::PARAM)?,
+            priority: self.priority,
+            drop: bool_int(self.drop),
+            drop_cancel: bool_int(self.drop_cancel),
+            copy_cpu: bool_int(self.copy_cpu),
+            counter: bool_int(self.counter),
+            policer: self.policer,
+            green_drop: bool_int(self.green_drop),
+            yellow_drop: bool_int(self.yellow_drop),
+            red_drop: bool_int(self.red_drop),
+            cpu_copy_only: bool_int(self.cpu_copy_only),
+        };
+        Ok(RawRule {
+            raw,
+            ports,
+            _borrow: PhantomData,
+        })
+    }
 }
 
 /// An installed entry: its id and its counter's.
@@ -390,6 +537,21 @@ impl Switch {
 
     /// Creates and installs an entry of group `gid` (on a failure the glue undoes it all).
     pub fn fp_entry_create(&mut self, gid: u32, rule: &FpRule) -> Result<FpEntry, Error> {
+        let g = c_value(gid)?;
+        let raw = rule.raw()?;
+        let (mut eid, mut stat): (c_int, c_int) = (-1, -1);
+        check(
+            self.glue()
+                .fp_entry_create(self.raw_unit(), g, &raw, &mut eid, &mut stat),
+        )?;
+        Ok(FpEntry {
+            id: count(eid)?,
+            stat: if stat < 0 { None } else { Some(count(stat)?) },
+        })
+    }
+
+    /// [`Switch::fp_entry_create`] with the glue's struct as the caller built it ([`FpRuleRaw`]).
+    pub fn fp_entry_create_raw(&mut self, gid: u32, rule: &FpRuleRaw) -> Result<FpEntry, Error> {
         let g = c_value(gid)?;
         let raw = rule.raw()?;
         let (mut eid, mut stat): (c_int, c_int) = (-1, -1);

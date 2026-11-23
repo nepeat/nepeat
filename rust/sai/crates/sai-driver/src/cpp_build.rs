@@ -67,6 +67,40 @@ pub(crate) fn find_sources() -> Result<Sources, String> {
     Ok(Sources { src, tests })
 }
 
+/// The tables of sai-openbcm's `tests/test_tables.h` as files in `dir`, for sai-driver's own
+/// scripts: the external `MACsec` table (`ms_table()`) and the external PHY table (`kExtPhyGood`,
+/// without its hold-off so nothing depends on the clock), printed by a three-line C++ program
+/// built with `cxx`. Returns (`MACsec` table, PHY table).
+pub(crate) fn tables(tests: &Path, dir: &Path, cxx: &str) -> Result<(PathBuf, PathBuf), String> {
+    fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+    let printer = dir.join("print-tables.cpp");
+    fs::write(
+        &printer,
+        "#include \"test_tables.h\"\n#include <fstream>\nint main(int, char** argv) {\n    std::ofstream(argv[1]) << ms_table();\n    std::ofstream(argv[2]) << kExtPhyGood;\n}\n",
+    )
+    .map_err(|e| e.to_string())?;
+    let exe = dir.join("print-tables");
+    let mut words = cxx.split_whitespace();
+    let mut c = Command::new(words.next().unwrap_or("c++"));
+    c.args(words)
+        .arg("-std=c++17")
+        .arg("-I")
+        .arg(tests)
+        .arg(&printer)
+        .arg("-o")
+        .arg(&exe);
+    run(c, &format!("{cxx} on {}", printer.display()))?;
+    let (macsec, ext_phy) = (dir.join("ext-macsec.tbl"), dir.join("ext-phy.tbl"));
+    let mut p = Command::new(&exe);
+    p.arg(&macsec).arg(&ext_phy);
+    run(p, "the table printer")?;
+    let phy = fs::read_to_string(&ext_phy)
+        .map_err(|e| e.to_string())?
+        .replace("holdoff-ms 50\n", "holdoff-ms 0\n");
+    fs::write(&ext_phy, phy).map_err(|e| e.to_string())?;
+    Ok((macsec, ext_phy))
+}
+
 /// The op scripts (`driver-scripts/*.ops`), sorted.
 pub(crate) fn scripts(dir: &Path) -> Result<Vec<PathBuf>, String> {
     let mut v: Vec<PathBuf> = fs::read_dir(dir)
@@ -98,8 +132,49 @@ pub(crate) struct Toolchain<'a> {
     pub(crate) static_runtime: bool,
 }
 
+/// What differs between builds of `frontend_driver.cpp`: [`Variant::frontend`] is the op-script
+/// differential's (the library on its fake backend, `tests/test_port_cpp.cpp`); sai-backend-openbcm's
+/// glue differential builds another (`tests/cpp/glue_build.rs` there).
+pub(crate) struct Variant {
+    /// The file name of the program.
+    pub(crate) exe: String,
+    /// `-D` options for `frontend_driver.cpp`.
+    pub(crate) driver_defines: Vec<String>,
+    /// More C++ units: (object name, source, `-D` options).
+    pub(crate) cpp: Vec<(String, PathBuf, Vec<String>)>,
+    /// More C units: (object name, source).
+    pub(crate) c: Vec<(String, PathBuf)>,
+    /// Link `tests/test_port_cpp.cpp` (the test port over the fake backend).
+    pub(crate) test_port_cpp: bool,
+}
+
+impl Variant {
+    /// The op-script differential's driver.
+    pub(crate) fn frontend() -> Self {
+        Self {
+            exe: DRIVER.to_owned(),
+            driver_defines: Vec::new(),
+            cpp: Vec::new(),
+            c: Vec::new(),
+            test_port_cpp: true,
+        }
+    }
+}
+
 /// Builds the driver into `dir`; returns its path.
 pub(crate) fn build(s: &Sources, inc: &Path, tc: &Toolchain<'_>, dir: &Path) -> Result<PathBuf, String> {
+    build_variant(s, inc, tc, dir, &Variant::frontend())
+}
+
+/// Builds a variant of the driver into `dir`; returns its path.
+#[allow(clippy::too_many_lines, reason = "one build recipe")]
+pub(crate) fn build_variant(
+    s: &Sources,
+    inc: &Path,
+    tc: &Toolchain<'_>,
+    dir: &Path,
+    v: &Variant,
+) -> Result<PathBuf, String> {
     fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
     // driver_names.inc: the awk over sai*.h, sorted as the shell's glob
     let mut headers: Vec<PathBuf> = fs::read_dir(inc)
@@ -138,23 +213,37 @@ pub(crate) fn build(s: &Sources, inc: &Path, tc: &Toolchain<'_>, dir: &Path) -> 
             .arg(dir);
     };
     let mut jobs = Vec::new();
+    let mut objects: Vec<String> = Vec::new();
     let units = CPP
         .iter()
-        .map(|u| (*u, s.src.join(format!("{u}.cpp"))))
-        .chain([("test_port_cpp", s.tests.join("test_port_cpp.cpp"))]);
-    for (unit, path) in units {
+        .map(|u| ((*u).to_owned(), s.src.join(format!("{u}.cpp")), Vec::new()))
+        .chain(v.test_port_cpp.then(|| {
+            (
+                "test_port_cpp".to_owned(),
+                s.tests.join("test_port_cpp.cpp"),
+                Vec::new(),
+            )
+        }))
+        .chain(v.cpp.iter().cloned());
+    for (unit, path, defines) in units {
         let mut c = Command::new(tc.cxx);
-        c.args(["-std=c++17", "-O1", "-w", "-c"]);
+        c.args(["-std=c++17", "-O1", "-w", "-c"]).args(&defines);
         includes(&mut c);
         c.arg(path).arg("-o").arg(dir.join(format!("{unit}.o")));
-        jobs.push((unit, c.spawn().map_err(|e| format!("cannot run {}: {e}", tc.cxx))?));
+        jobs.push((
+            unit.clone(),
+            c.spawn().map_err(|e| format!("cannot run {}: {e}", tc.cxx))?,
+        ));
+        objects.push(unit);
     }
-    let mut c = Command::new(tc.cc);
-    c.args(["-std=gnu11", "-O1", "-w", "-c", "-I"]).arg(&s.src);
-    c.arg(s.src.join("temp_files.c"))
-        .arg("-o")
-        .arg(dir.join("temp_files.o"));
-    run(c, "the C compiler on temp_files.c")?;
+    let c_units = std::iter::once(("temp_files".to_owned(), s.src.join("temp_files.c"))).chain(v.c.iter().cloned());
+    for (unit, path) in c_units {
+        let mut c = Command::new(tc.cc);
+        c.args(["-std=gnu11", "-O1", "-w", "-c", "-I"]).arg(&s.src);
+        c.arg(&path).arg("-o").arg(dir.join(format!("{unit}.o")));
+        run(c, &format!("the C compiler on {}", path.display()))?;
+        objects.push(unit);
+    }
     for (unit, job) in jobs {
         let done = job.wait_with_output().map_err(|e| format!("{unit}: {e}"))?;
         if !done.status.success() {
@@ -164,15 +253,15 @@ pub(crate) fn build(s: &Sources, inc: &Path, tc: &Toolchain<'_>, dir: &Path) -> 
             ));
         }
     }
-    let exe = dir.join(DRIVER);
+    let exe = dir.join(&v.exe);
     let mut link = Command::new(tc.cxx);
-    link.args(["-std=c++17", "-O1", "-w"]);
+    link.args(["-std=c++17", "-O1", "-w"]).args(&v.driver_defines);
     if tc.static_runtime {
         link.args(["-static-libstdc++", "-static-libgcc"]);
     }
     includes(&mut link);
     link.arg(s.tests.join("frontend_driver.cpp"));
-    for unit in CPP.iter().chain(&["test_port_cpp", "temp_files"]) {
+    for unit in &objects {
         link.arg(dir.join(format!("{unit}.o")));
     }
     link.arg("-o").arg(&exe).arg("-lpthread");
@@ -183,8 +272,36 @@ pub(crate) fn build(s: &Sources, inc: &Path, tc: &Toolchain<'_>, dir: &Path) -> 
 /// The build script's part: the prebuilt driver, scripts and allow-list in
 /// `$OUT_DIR/target-tests` for a cross build or `SAI_DRIVER_PREBUILD=1`. Returns a note.
 pub(crate) fn prebuild(out: &Path) -> Result<String, String> {
+    prebuild_variant(
+        out,
+        &Prebuild {
+            switch: "SAI_DRIVER_PREBUILD",
+            data: "sai-driver",
+            allow: "differential-allow.txt",
+        },
+        |_| Variant::frontend(),
+    )
+}
+
+/// What a prebuild is called and where its data go.
+pub(crate) struct Prebuild<'a> {
+    /// The environment variable that forces (`1`) or forbids (`0`) it; unset: cross builds only.
+    pub(crate) switch: &'a str,
+    /// The directory under `target-tests` for the scripts and the allow-list.
+    pub(crate) data: &'a str,
+    /// The allow-list's file name in the crate's `tests`, copied beside the scripts.
+    pub(crate) allow: &'a str,
+}
+
+/// [`prebuild`] of any variant: the driver built for the target into `$OUT_DIR/target-tests`, with
+/// sai-openbcm's op scripts and the crate's allow-list in `target-tests/<data>/`. Returns a note.
+pub(crate) fn prebuild_variant(
+    out: &Path,
+    p: &Prebuild<'_>,
+    variant: impl FnOnce(&Sources) -> Variant,
+) -> Result<String, String> {
     for v in [
-        "SAI_DRIVER_PREBUILD",
+        p.switch,
         "SAI_OPENBCM_TESTS",
         "SAI_OPENBCM_SRC",
         "SAI_INC",
@@ -198,8 +315,8 @@ pub(crate) fn prebuild(out: &Path) -> Result<String, String> {
     }
     let target = var("TARGET").ok_or("TARGET is not set")?;
     let native = var("HOST").is_some_and(|h| h == target);
-    let must = match var("SAI_DRIVER_PREBUILD").as_deref() {
-        Some("0") => return Ok("not prebuilt (SAI_DRIVER_PREBUILD=0)".to_owned()),
+    let must = match var(p.switch).as_deref() {
+        Some("0") => return Ok(format!("not prebuilt ({}=0)", p.switch)),
         Some(_) => true,
         None if native => return Ok(String::new()), // a native test run compiles it itself
         None => false,
@@ -229,28 +346,35 @@ pub(crate) fn prebuild(out: &Path) -> Result<String, String> {
     };
     println!("cargo:rerun-if-changed={}", s.src.display());
     println!("cargo:rerun-if-changed={}", s.tests.display());
+    let v = variant(&s);
+    for (_, path, _) in &v.cpp {
+        println!("cargo:rerun-if-changed={}", path.display());
+    }
+    for (_, path) in &v.c {
+        println!("cargo:rerun-if-changed={}", path.display());
+    }
     let bin = out.join("target-tests");
     let tc = Toolchain {
         cxx: &cxx,
         cc: &cc,
         static_runtime: true,
     };
-    let objects = out.join("cpp-frontend-driver");
-    let exe = build(&s, &inc, &tc, &objects)?;
-    let data = bin.join("sai-driver");
+    let objects = out.join(format!("cpp-{}", v.exe));
+    let exe = build_variant(&s, &inc, &tc, &objects, &v)?;
+    let data = bin.join(p.data);
     let scripts_out = data.join("driver-scripts");
     fs::create_dir_all(&scripts_out).map_err(|e| e.to_string())?;
-    fs::copy(&exe, bin.join(DRIVER)).map_err(|e| e.to_string())?;
+    fs::copy(&exe, bin.join(&v.exe)).map_err(|e| e.to_string())?;
     for script in scripts(&s.tests.join("driver-scripts"))? {
         if let Some(name) = script.file_name() {
             fs::copy(&script, scripts_out.join(name)).map_err(|e| e.to_string())?;
         }
     }
     let manifest = var("CARGO_MANIFEST_DIR").ok_or("CARGO_MANIFEST_DIR is not set")?;
-    let allow = Path::new(&manifest).join("tests/differential-allow.txt");
+    let allow = Path::new(&manifest).join("tests").join(p.allow);
     println!("cargo:rerun-if-changed={}", allow.display());
     if allow.is_file() {
-        fs::copy(&allow, data.join("differential-allow.txt")).map_err(|e| e.to_string())?;
+        fs::copy(&allow, data.join(p.allow)).map_err(|e| e.to_string())?;
     }
-    Ok(format!("prebuilt for the target: {}", bin.join(DRIVER).display()))
+    Ok(format!("prebuilt for the target: {}", bin.join(&v.exe).display()))
 }

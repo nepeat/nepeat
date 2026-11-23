@@ -55,9 +55,13 @@ let
       SDK_GLUE_RPATH = "${libsdk}/lib";
     };
 
-    # The SDK glue is C, compiled with exactly the SDK's own defines (as sai-openbcm's Makefile
-    # does), then handed to sdk-glue-sys as an archive together with libsdk.
-    preBuild = lib.optionalString withSdk ''
+    # bindgenHook hands libclang nixpkgs' spelling of the big-endian ppc64 ELFv2 target, which clang
+    # refuses; the triple the way clang spells it (as package.nix does). Then the SDK glue: C,
+    # compiled with exactly the SDK's own defines (as sai-openbcm's Makefile does), handed to
+    # sdk-glue-sys as an archive together with libsdk.
+    preBuild = lib.optionalString (lib.hasSuffix "gnuabielfv2" stdenv.hostPlatform.config) ''
+      export BINDGEN_EXTRA_CLANG_ARGS="${"$"}{BINDGEN_EXTRA_CLANG_ARGS/--target=${stdenv.hostPlatform.config}/--target=${lib.removeSuffix "abielfv2" stdenv.hostPlatform.config} -mabi=elfv2}"
+    '' + lib.optionalString withSdk ''
       mkdir -p $NIX_BUILD_TOP/sdk-glue
       ${stdenv.cc.targetPrefix}cc -std=gnu11 -fPIC -Wall -Wno-unused-function -O2 -g \
         $(cat ${libsdk}/share/openbcm/cflags) \
@@ -69,10 +73,22 @@ let
     '';
 
     cargoBuildFlags = [ "-p" "mdio-tool" ] ++ lib.optionals withSdk [ "--features" "sdk-real" ];
-    # Tests link the fake glue (dev-dependencies), which excludes the real one: native,
-    # SDK-less builds only. The SDK-linked build is tested as that same code on the fake.
+    # Tests run on sdk-glue's Rust fake of the glue (dev-dependencies), which the plain bring-ups
+    # use only where the real glue is not linked: native, SDK-less builds only.
     doCheck = native && !withSdk;
     cargoTestFlags = lib.concatMap (c: [ "-p" c ]) crates;
+    # Then mdio-tool's tests once more with the real-glue module (sdk-glue's FFI calls, feature
+    # sdk-real), linked with the C stub of the glue's MDIO side (crates/mdio-tool/tests/c/
+    # mdio_stub.c, also what the C tool runs on in the differential) instead of sdk_glue.c +
+    # libsdk: what executes sdk-glue's init_mdio / MDIO / temperature / errmsg FFI off the switch.
+    postCheck = lib.optionalString (saiOpenbcmSrc != null) ''
+      mkdir -p $NIX_BUILD_TOP/stub-glue
+      ${stdenv.cc.targetPrefix}cc -std=gnu11 -O1 -g -fPIC -Wall -Wextra -Werror -I${saiOpenbcmSrc} \
+        -c crates/mdio-tool/tests/c/mdio_stub.c -o $NIX_BUILD_TOP/stub-glue/mdio_stub.o
+      ${stdenv.cc.targetPrefix}ar rcs $NIX_BUILD_TOP/stub-glue/libob_sdk_glue.a $NIX_BUILD_TOP/stub-glue/mdio_stub.o
+      SDK_GLUE_LINK=$NIX_BUILD_TOP/stub-glue/libob_sdk_glue.a \
+        cargo test --release -j $NIX_BUILD_CORES -p mdio-tool --features sdk-real
+    '';
 
     passthru.asOpenbcmMdioScript = runCommand "openbcm-mdio-script-from-rust" { } ''
       mkdir -p $out/bin

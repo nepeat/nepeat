@@ -1,0 +1,37 @@
+[package]
+name = "openbcm-asic-temp"
+description = "openbcm-asic-temp in Rust: read the switch ASIC's die temperature monitors (SDK attach only) for fan control and monitoring; core-PLL power-down on over-temperature (port of sai-openbcm's asic_temp.c)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "openbcm-asic-temp"
+path = "src/main.rs"
+# without a glue there is nothing to attach to: the binary needs one of the two below
+required-features = ["sdk"]
+
+[features]
+# The SDK side (src/glue.rs over sdk-glue): code only; which glue is linked is one of the next two.
+sdk = ["dep:sdk-glue"]
+# The real glue + libsdk (ppc64 only; SDK_GLUE_LINK, see sdk-glue-sys).
+sdk-real = ["sdk", "sdk-glue/real"]
+# sdk-glue's Rust fake chip, for tests. A binary built so attaches only to the scenario file named
+# by OPENBCM_ASIC_TEMP_FAKE_SCENARIO (refused without it).
+sdk-fake = ["sdk", "sdk-glue/rust-fake"]
+
+[dependencies]
+# the temperature files (temp_files.c's port: sai_core::temp), the one writer libsai also uses
+sai-core.workspace = true
+sdk-glue = { workspace = true, optional = true }
+# SIGTERM / SIGINT / SIGHUP set a flag and wake the sleep (safe API; std has no signal handling)
+signal-hook.workspace = true
+
+[dev-dependencies]
+# tests build the tool on the Rust fake chip
+openbcm-asic-temp = { path = ".", features = ["sdk-fake"] }
+sdk-glue = { workspace = true, features = ["rust-fake"] }
+
+[lints]
+workspace = true

@@ -1,0 +1,41 @@
+== 2026-11-23T10:29:14+00:00 /nix/store/z7jccivx51iml5sqri0qanipv46gs1ll-nixos-system-as7772-26.11.20261111.d4f25a3 booted /nix/store/z7jccivx51iml5sqri0qanipv46gs1ll-nixos-system-as7772-26.11.20261111.d4f25a3 boot 81de67bb-27b6-4302-85cf-8e72cbd3f33c
+     32 :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port NxN (status=-N)
+      2 :- trapGroupUpdatePolicer: Creating policer for existing Trap group: N (name:queueN_groupN).
+      1 :- VxlanTunnelOrch: Unable to get supported tunnel peer modes. Defaulting to PNP
+      1 :- trapGroupUpdatePolicer: Creating policer for existing Trap group: N (name:default).
+      1 :- trapGroupUpdatePolicer: Creating policer for existing Trap group: Ne (name:queueN_groupN).
+      1 :- trapGroupUpdatePolicer: Creating policer for existing Trap group: Nb (name:queueN_groupN).
+      1 :- trapGroupUpdatePolicer: Creating policer for existing Trap group: Na (name:queueN_groupN).
+      1 :- saiGetVxlanDefaultRouterMacAddress: failed to obtain SAI_SWITCH_ATTR_VXLAN_DEFAULT_ROUTER_MAC, setting to N:N:N:N:N:N
+      1 :- queryTrimTcAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_TC_VALUE) SET is not implemented in SAI
+      1 :- queryTrimSizeAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_SIZE) SET is not implemented in SAI
+      1 :- queryTrimQueueModeAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_QUEUE_RESOLUTION_MODE) SET is not implemented in SAI
+      1 :- queryTrimQueueIndexAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_QUEUE_INDEX) SET is not implemented in SAI
+      1 :- queryTrimDscpModeAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_DSCP_RESOLUTION_MODE) SET is not implemented in SAI
+      1 :- queryTrimDscpAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_DSCP_VALUE) SET is not implemented in SAI
+      1 :- querySwitchMirrorOnDropCapability: Could not query TAM Event type capability -N
+      1 :- querySwitchLagHashAttrCapabilities: Attribute(SAI_SWITCH_ATTR_LAG_HASH) GET is not implemented in SAI
+      1 :- querySwitchLagHashAlgorithmEnumCapabilities: Failed to get attribute(SAI_SWITCH_ATTR_LAG_DEFAULT_HASH_ALGORITHM) enum value capabilities
+      1 :- querySwitchLagHashAlgorithmAttrCapabilities: Attribute(SAI_SWITCH_ATTR_LAG_DEFAULT_HASH_ALGORITHM) SET is not implemented in SAI
+      1 :- querySwitchHashDefaults: Failed to get switch LAG hash OID
+      1 :- querySwitchHashDefaults: Failed to get switch ECMP hash OID
+      1 :- querySwitchEcmpHashAttrCapabilities: Attribute(SAI_SWITCH_ATTR_ECMP_HASH) GET is not implemented in SAI
+      1 :- querySwitchEcmpHashAlgorithmEnumCapabilities: Failed to get attribute(SAI_SWITCH_ATTR_ECMP_DEFAULT_HASH_ALGORITHM) enum value capabilities
+      1 :- querySwitchEcmpHashAlgorithmAttrCapabilities: Attribute(SAI_SWITCH_ATTR_ECMP_DEFAULT_HASH_ALGORITHM) SET is not implemented in SAI
+      1 :- queryPortAttrCapabilities: Attribute(SAI_PORT_ATTR_PRIORITY_FLOW_CONTROL_TX) SET is not implemented in SAI
+      1 :- queryPortAttrCapabilities: Attribute(SAI_PORT_ATTR_PRIORITY_FLOW_CONTROL_RX) SET is not implemented in SAI
+      1 :- queryHashNativeHashFieldListEnumCapabilities: Failed to get attribute(SAI_HASH_ATTR_NATIVE_HASH_FIELD_LIST) enum value capabilities
+      1 :- queryHashNativeHashFieldListAttrCapabilities: Attribute(SAI_HASH_ATTR_NATIVE_HASH_FIELD_LIST) SET is not implemented in SAI
+      1 :- PortsOrch: Hostif queue attribute not supported
+      1 :- NhgMapOrch: Switch does not support NHG maps
+      1 :- isAclSetDoNotLearnSupported: MAC_MOVE_GUARD: cannot query SAI_SWITCH_ATTR_ACL_STAGE_PRE_INGRESS capabilities (rv:-N); assuming SAI_ACL_ACTION_TYPE_SET_DO_NOT_LEARN is unsupported and soft-disabling DISABLE_LEARN_ON_MAC_WITH_ACL
+      1 :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_LAG_HASH: SAI_STATUS_ATTR_NOT_SUPPORTED_N
+      1 :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_ECMP_HASH: SAI_STATUS_ATTR_NOT_SUPPORTED_N
+      1 :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_OVERRIDE_VIRTUAL_ROUTER_ID: SAI_STATUS_ATTR_NOT_SUPPORTED_N
+      1 :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_CPU_INGRESS_BUFFER_POOL: SAI_STATUS_ATTR_NOT_SUPPORTED_N
+      1 :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_CPU_EGRESS_BUFFER_POOL: SAI_STATUS_ATTR_NOT_SUPPORTED_N
+      1 :- discover: skipping since it causes crash: SAI_STP_ATTR_BRIDGE_ID
+== syncd lines with param/range words:
+== libsai
+/nix/store/7gqia5n34mlsvfkwppld4l0mnl2in13s-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+/nix/store/jax87yda3cxdrwvvlz7w3jpibziyfsf8-sonic-sairedis-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c

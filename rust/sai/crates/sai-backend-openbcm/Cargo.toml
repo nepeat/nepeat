@@ -8,21 +8,26 @@ rust-version.workspace = true
 build = "build.rs"
 
 [features]
-# Which glue is linked (sdk-glue-sys): the real one (sdk_glue.c + libsdk, big-endian ppc64,
-# SDK_GLUE_LINK) or the in-memory fake. Exactly one in anything that is linked; the tests
-# of this crate use the fake through the dev-dependency below.
+# Which glue is linked: the real one (sdk_glue.c + libsdk, big-endian ppc64, SDK_GLUE_LINK,
+# through sdk-glue-sys) or sdk-glue's pure-Rust fake (no C at all; also gives
+# OpenbcmBackend::on_chip for fake chips of the caller's own). Exactly one in anything that is
+# linked; the tests of this crate use the Rust fake through the dev-dependencies below.
 real = ["sdk-glue/real"]
-fake = ["sdk-glue/fake"]
+fake = ["sdk-glue/rust-fake"]
 
 [dependencies]
 sai-core.workspace = true
 sdk-glue.workspace = true
+# SAI_ACL_IP_TYPE_* (the field rule's IP type, mapped as the C++ to_c does)
+sai-sys.workspace = true
 
 [dev-dependencies]
-sdk-glue = { workspace = true, features = ["fake"] }
-# status codes by name, for the comparison with the C++ backend's table
-sai-sys.workspace = true
+sdk-glue = { workspace = true, features = ["rust-fake"] }
+# this crate's own tests: OpenbcmBackend::on_chip (feature fake)
+sai-backend-openbcm = { path = ".", features = ["fake"] }
 proptest.workspace = true
+# tests/glue_differential.rs: the op-script driver (its Hooks over a fake chip) and its comparison
+sai-driver = { path = "../sai-driver" }
 
 [lints]
 workspace = true

@@ -4,6 +4,9 @@
 # control and monitoring use. Chip support is whatever Make.local selects in
 # packages/openbcm (Tomahawk on the AS7760). Needs the SDK packages allowed as
 # unfree: openbcm-bcm-user, openbcm-libsdk, sai-openbcm.
+# Which SAI the units and syncd run: hardware.openbcm.implementation (the C++
+# packages/sai-openbcm, or the Rust drop-in from the monorepo's rust/sai) and,
+# for the boot-time PHY bring-up alone, hardware.openbcm.mdioTool.
 { config, lib, pkgs, utils, ... }:
 let
   cfg = config.hardware.openbcm;
@@ -13,6 +16,31 @@ let
   sonic = import ../../packages/sonic { inherit pkgs; };
   kmods = openbcm.kmodsFor config.boot.kernelPackages.kernel;
   sai = cfg.package;
+  # The Rust SAI lives in the monorepo's rust/sai, outside this tree: its nix
+  # directory is given by hardware.openbcm.rustSai (a git flake over the
+  # repository, or an --impure evaluation of the working tree, can name it).
+  rustFile = name:
+    if cfg.rustSai == null
+    then throw "hardware.openbcm: implementation or mdioTool \"rust\" needs hardware.openbcm.rustSai (the monorepo's rust/sai/nix)"
+    else cfg.rustSai + "/${name}";
+  saiSrcDir = ../../packages/sai-openbcm/src;
+  # The C++ library and its tools (also the C MDIO tool beside the Rust library).
+  libsdk = if cfg.sdk then openbcm.libsdk { } else null;
+  cppPackage = pkgs.callPackage ../../packages/sai-openbcm { inherit sonic libsdk; };
+  # The Rust drop-in: the same outputs as cppPackage (lib/libsai.so, bin/openbcm-*).
+  rustPackageFor = p: libsdk: p.callPackage (rustFile "sai-openbcm-rs.nix") {
+    saiSrc = sonic.sources.sairedis; inherit libsdk; saiOpenbcmSrc = saiSrcDir;
+  };
+  # The Rust boot-time MDIO tool alone, under the C tool's name.
+  rustMdioTool = (pkgs.callPackage (rustFile "mdio-tool.nix") {
+    inherit libsdk; saiOpenbcmSrc = saiSrcDir;
+  }).asOpenbcmMdioScript;
+  # The tools the units, phy-status and bcm.user expect of the package (the
+  # Rust one is checked at build time: see system.checks below).
+  packageTools = [ "openbcm-mdio-script" "openbcm-diag" "openbcm-ext-phy" "openbcm-ext-macsec" ]
+    ++ lib.optional cfg.sdk "openbcm-asic-temp";
+  mdioTool = ms.package;
+  mdioApart = mdioTool.outPath != sai.outPath;
   bcmUser = openbcm.bcm-user { };
   lock = "/run/openbcm-unit0.lock";
   # Same lock as sdk_glue.c, held for the life of the shell.
@@ -40,7 +68,7 @@ let
     # phy-status --json     the last run, machine readable (${msJson})
     # phy-status --live     read the PHYs with the SDK itself when syncd is not running
     PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.gnused config.systemd.package ]}:$PATH
-    tool=${sai}/bin/openbcm-mdio-script
+    tool=${mdioTool}/bin/openbcm-mdio-script
     sock=${lib.escapeShellArg (if ms.diagSocket == null then "" else ms.diagSocket)}
     case "''${1:-}" in
       --json) exec cat ${msJson} ;;
@@ -78,11 +106,62 @@ let
 in {
   options.hardware.openbcm = {
     enable = lib.mkEnableOption "the Broadcom OpenBCM SDK kernel modules (BDE, KNET) and tools";
+    # Which SAI library and tool set the switch runs: the C++ sai-openbcm or
+    # the Rust one (rust/sai, a drop-in with the same file names and the same
+    # SAI_OPENBCM_* profile keys). Boards wire syncd to hardware.openbcm.package
+    # (boards/as7760), so this one option moves libsai, syncd, openbcm-diag,
+    # openbcm-asic-temp, the table checkers and phy-status together.
+    implementation = lib.mkOption {
+      type = lib.types.enum [ "cpp" "rust" ];
+      default = "cpp";
+      description = ''
+        cpp: packages/sai-openbcm (C++). rust: the monorepo's rust/sai/nix/sai-openbcm-rs.nix
+        (needs hardware.openbcm.rustSai). rustPhySeq / rustMacsec only apply to cpp.
+      '';
+    };
+    # Only the boot-time PHY bring-up (openbcm-mdio-script.service, phy-status):
+    # the Rust tool can be proven as the boot unit on the C++ library first.
+    mdioTool = lib.mkOption {
+      type = lib.types.enum [ "c" "rust" ];
+      default = if cfg.implementation == "rust" then "rust" else "c";
+      defaultText = lib.literalExpression ''"rust" with implementation = "rust", else "c"'';
+      description = ''
+        c: openbcm-mdio-script of the C++ package. rust: the Rust tool (rust/sai crate mdio-tool,
+        rust/sai/nix/mdio-tool.nix; the Rust package's own with implementation = "rust"). Needs
+        hardware.openbcm.rustSai.
+      '';
+    };
+    rustSai = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+      example = lib.literalExpression "../../../rust/sai/nix";
+      description = ''
+        The monorepo's rust/sai/nix directory (sai-openbcm-rs.nix, mdio-tool.nix), for
+        implementation / mdioTool "rust". It lies outside ai_re/nix: the root git flake
+        (nix/configs/default.nix with the rust modules) and --impure evaluations can name it,
+        path:./nix cannot.
+      '';
+    };
+    sdk = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Build the package on the Broadcom SDK (packages/openbcm libsdk); false: without it, fake / virtual backend only (the VM tests).";
+    };
     package = lib.mkOption {
       type = lib.types.package;
-      default = pkgs.callPackage ../../packages/sai-openbcm { inherit sonic; libsdk = openbcm.libsdk { }; };
-      defaultText = lib.literalExpression "sai-openbcm built on the SDK";
-      description = "The sai-openbcm build whose tools the units here run (the VM test of the unit wiring puts stand-ins in).";
+      default = if cfg.implementation == "rust" then rustPackageFor pkgs libsdk else cppPackage;
+      defaultText = lib.literalExpression ''sai-openbcm (C++) or rust/sai's drop-in, by implementation, on libsdk'';
+      description = "The sai-openbcm build whose library syncd links and whose tools the units here run (the VM test of the unit wiring puts stand-ins in).";
+    };
+    # A native build of the same implementation, for build-time checks of the
+    # board's tables (boards/as7772: openbcm-ext-phy / openbcm-ext-macsec --check).
+    nativePackage = lib.mkOption {
+      type = lib.types.package;
+      internal = true;
+      readOnly = true;
+      default = if cfg.implementation == "rust" then rustPackageFor pkgs.buildPackages null
+        else pkgs.buildPackages.callPackage ../../packages/sai-openbcm { sonic = import ../../packages/sonic { pkgs = pkgs.buildPackages; }; };
+      description = "The selected implementation built for the build host without the SDK (its table checkers).";
     };
     # Which implementation of the external PHY / MACsec table parsers and of
     # their sequence executor libsai is built with (packages/sai-openbcm,
@@ -126,6 +205,13 @@ in {
     # uses the SDK. Format and tool: packages/sai-openbcm (mdio_script.h).
     mdioScript = {
       enable = lib.mkEnableOption "running MDIO scripts for external PHYs at boot (openbcm-mdio-script.service)";
+      package = lib.mkOption {
+        type = lib.types.package;
+        default = if cfg.mdioTool == (if cfg.implementation == "rust" then "rust" else "c") then cfg.package
+          else if cfg.mdioTool == "rust" then rustMdioTool else cppPackage;
+        defaultText = lib.literalExpression "by hardware.openbcm.mdioTool: hardware.openbcm.package, or the other implementation's tool";
+        description = "The package whose bin/openbcm-mdio-script the unit and phy-status run (the units VM test puts a stand-in in).";
+      };
       files = lib.mkOption {
         type = lib.types.listOf (lib.types.strMatching "/.*");
         example = [ "/var/lib/evora-phy/init.mdio" ];
@@ -201,11 +287,17 @@ in {
     };
   };
 
-  config = lib.mkIf cfg.enable {
+  config = lib.mkIf cfg.enable (lib.mkMerge [ {
+    assertions = [ {
+      assertion = cfg.implementation == "cpp" || (cfg.rustPhySeq == null && cfg.rustMacsec == null);
+      message = "hardware.openbcm.rustPhySeq / rustMacsec pick parts of the C++ library; with implementation = \"rust\" the Rust library has both natively: unset them";
+    } ];
     boot.extraModulePackages = [ kmods ];
     boot.kernelModules = [ "linux-kernel-bde" "linux-user-bde" "linux-bcm-knet" ];
     boot.extraModprobeConfig = "options linux_kernel_bde ${cfg.kernelBdeOptions}";
-    environment.systemPackages = lib.optional ((sai.libsdk or null) != null) bcmUserLocked ++ [ sai ] ++ lib.optional ms.enable phyStatus;
+    environment.systemPackages = lib.optional ((sai.libsdk or null) != null) bcmUserLocked ++ [ sai ] ++ lib.optional ms.enable phyStatus
+      # the boot unit's tool first on PATH when it is not the package's own
+      ++ lib.optional (ms.enable && mdioApart) (lib.hiPrio mdioTool);
 
     # The modules register fixed majors but create no device nodes.
     systemd.services.openbcm-devices = {
@@ -252,7 +344,7 @@ in {
         NotifyAccess = "main";
         # The reader may hold the SDK (after an earlier failure): this unit takes over.
         ExecStartPre = lib.optional cfg.temperature.enable "${config.systemd.package}/bin/systemctl stop openbcm-asic-temp.service";
-        ExecStart = utils.escapeSystemdExecArgs ([ "${sai}/bin/openbcm-mdio-script" "--config" "${ms.sdkConfig}" "--status-file" msJson ]
+        ExecStart = utils.escapeSystemdExecArgs ([ "${mdioTool}/bin/openbcm-mdio-script" "--config" "${ms.sdkConfig}" "--status-file" msJson ]
           ++ msNameArgs
           ++ lib.concatLists (lib.mapAttrsToList (c: t: [ "--hint" "${c}=${t}" ]) ms.hints)
           ++ lib.optionals cfg.temperature.enable ([ "--temp-out" cfg.temperature.file "--temp-interval" (toString cfg.temperature.interval) ]
@@ -320,5 +412,19 @@ in {
         PrivateTmp = true;
       };
     };
-  };
+  } (lib.mkIf (cfg.implementation == "rust" || cfg.mdioTool == "rust") {
+    # The Rust builds that link the Broadcom SDK carry its licence (unfree), as
+    # sai-openbcm does, under their own names; a config that runs the SDK
+    # already accepts that licence for sai-openbcm (configs/as77*).
+    nixpkgs.config = lib.mkIf cfg.sdk { allowUnfreePackages = [ "sai-openbcm-rs" "sai-rs-libsai-openbcm" "openbcm-mdio-script-rs" ]; };
+  }) (lib.mkIf (cfg.implementation == "rust" || (ms.enable && mdioApart)) {
+    # The Rust package must carry every tool the units and scripts here name
+    # (the C++ one does by construction): a missing one fails the system build.
+    system.checks = [ (pkgs.runCommand "openbcm-tools-present" { } ''
+      for t in ${lib.concatMapStringsSep " " (t: "${sai}/bin/${t}") packageTools} ${lib.optionalString ms.enable "${mdioTool}/bin/openbcm-mdio-script"} ${sai}/lib/libsai.so; do
+        [ -e "$t" ] || { echo "hardware.openbcm (${cfg.implementation}): $t is missing" >&2; exit 1; }
+      done
+      touch $out
+    '') ];
+  }) ]);
 }

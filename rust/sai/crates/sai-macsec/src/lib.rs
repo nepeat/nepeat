@@ -105,7 +105,16 @@
 //!   before the last, then `sa-del[-last]`); the new flow's SAs then install as the first of
 //!   their SC. The old SAs become "waiting" without their key (wiped at install, as Q3), so
 //!   they cannot come back. A flow that goes away (the entry disabled) still leaves its SAs in,
-//!   as the C++ (the gate closes). Test: `d9_a_flow_switch_takes_the_old_scs_sas_out`.
+//!   as the C++ (the gate closes). The rule is on the state, not on the step: whenever the port
+//!   has a bound flow, installed SAs of an SC on another flow come out. So the switch may come
+//!   in two steps (an entry disabled, then another entry, or the same one with another flow,
+//!   gives the port a flow): there the C++ opens the gate on the old SC's SA for a flow it does
+//!   not belong to (:311). Tests: `d9_a_flow_switch_takes_the_old_scs_sas_out`,
+//!   `d9_a_flow_switch_through_a_disabled_entry`; against the C++: `tests/differential.rs`, which
+//!   holds the model to the C++ with exactly this edit and D10's (`tests/cpp/listed_fixes.rs`).
+//!   SONiC does not reach D9: with `SCI_IN_INGRESS_MACSEC_ACL` false (:457) MACsecOrch gives
+//!   every SC of a port and direction the port's one flow, and removes an SC's SAs before its
+//!   ACL entry.
 //! - **D10** (Q10 fixed, the same decision) The cipher suite of an SC cannot change while it has
 //!   SAs waiting for their flow either: `OBJECT_IN_USE`, as for installed ones. Test:
 //!   `d10_no_cipher_suite_change_under_waiting_sas`.
@@ -140,7 +149,8 @@
 //! - **Q6** A `probe` that fails at attach is skipped (:1395): that engine is neither reset
 //!   nor disabled, whatever a previous process left in it.
 //! - **Q7** (fixed in this port: D9) When the flow an entry sends data to changes (or another
-//!   entry of the table takes over), the SAs of the previous flow's SC stay in the PHY. The gate condition
+//!   entry of the table takes over, at once or after a time without a flow), the SAs of the
+//!   previous flow's SC stay in the PHY. The gate condition
 //!   (:311) counts every installed SA, so the gate stays open for the new flow with the old
 //!   SC's SA; an SA of the new SC on an AN the old one holds is INSUFFICIENT_RESOURCES
 //!   (:302).

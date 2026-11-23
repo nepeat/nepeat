@@ -1,0 +1,21 @@
+== 2026-11-23T11:41:22+00:00 /nix/store/zvih1crw43xfr1nvs33gqmr9l7dj6nm2-nixos-system-as7772-26.11.20261111.d4f25a3 booted /nix/store/zvih1crw43xfr1nvs33gqmr9l7dj6nm2-nixos-system-as7772-26.11.20261111.d4f25a3
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 97.7 s
+  run started 2026-11-23 11:39:29 +0000, took 101.9 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 99.4 s (553600 writes, 427669 reads, 16509 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 44.7 C, 0 failed, longest read 0.15 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+name    phy    id      id2     fw      cksum   sides   state
+ExecStart="/nix/store/j0jjhc94igfzmnpvvrqr2fr5nz9jpqsa-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/bin/openbcm-mdio-script"
+syncd libsai: /nix/store/j0jjhc94igfzmnpvvrqr2fr5nz9jpqsa-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+failed units: 0
+syncd restarts: 0
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later         N/A
+Ethernet120       9,10,11,12     100G   9100    N/A  Ethernet31/1  routed      up       up  QSFP28 or later         N/A
+Ethernet124      13,14,15,16     100G   9100    N/A  Ethernet32/1  routed      up       up  QSFP28 or later         N/A
+KNET netdevs: 32
+46.2
+
+"failsafe": false
+32 of 32 PHYs as the script expects

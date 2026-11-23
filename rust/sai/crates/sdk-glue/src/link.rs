@@ -262,6 +262,18 @@ impl Switch {
         self.apply_callbacks(link, Some(Arc::new(handler)))
     }
 
+    /// Registers `link` for link changes and `l2` for L2 learn / age events together, with one
+    /// `ob_sdk_register_callbacks` (what the C++ backend's init does): each as
+    /// [`Switch::set_link_callback`] / [`Switch::set_l2_callback`] say. Replaces earlier handlers.
+    /// On an error nothing is registered and both are dropped.
+    pub fn set_callbacks(
+        &mut self,
+        link: impl Fn(i32, bool) + Send + Sync + 'static,
+        l2: impl Fn(L2Event) + Send + Sync + 'static,
+    ) -> Result<(), Error> {
+        self.apply_callbacks(Some(Arc::new(link)), Some(Arc::new(l2)))
+    }
+
     /// Unregisters the link handler (an L2 handler is registered again alone). No effect
     /// without one.
     pub fn clear_link_callback(&mut self) {
@@ -336,15 +348,12 @@ impl Switch {
         Ok(())
     }
 
-    /// Removes `port`'s link gate (the SDK reads the ASIC's link again). No effect without one.
+    /// Removes `port`'s link gate (the SDK reads the ASIC's link again). The glue is asked also
+    /// for a port without a gate, as the C++ backend asks it (it answers success there: the
+    /// SDK's `NOT_FOUND` is mapped to it); an error leaves a registered gate in place.
     pub fn clear_port_gate(&mut self, port: i32) -> Result<(), Error> {
         let (unit, key) = (self.raw_unit(), self.cb.key);
-        let rv = if self.cb.gated.contains(&port) {
-            self.glue().linkscan_port_gate(unit, port, false, key)
-        } else {
-            0
-        };
-        check(rv)?;
+        check(self.glue().linkscan_port_gate(unit, port, false, key))?;
         self.cb.gated.remove(&port);
         let old = registry().get_mut(&key).and_then(|e| e.gates.remove(&port));
         drop(old);
@@ -374,10 +383,11 @@ impl Switch {
             // Best effort: the SDK's NOT_FOUND is success; nothing else can be done here.
             let _ = self.glue().linkscan_port_gate(unit, port, false, key);
         }
-        if self.cb.registered {
-            self.glue().unregister_callbacks(unit);
-            self.cb.registered = false;
-        }
+        // No ob_sdk_unregister_callbacks here: the owner's drop calls ob_sdk_shutdown next (a
+        // Switch is always the BCM layer), which unregisters the link and L2 callbacks inside the
+        // glue, as the C++ backend's shutdown relies on. A callback the SDK makes in between finds
+        // no entry below ([I3]) and does nothing.
+        self.cb.registered = false;
         let entry = registry().remove(&key);
         drop(entry);
     }

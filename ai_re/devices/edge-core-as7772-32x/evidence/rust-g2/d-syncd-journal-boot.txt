@@ -1,0 +1,960 @@
+Nov 23 03:06:20.175149 as7772 systemd[1]: Starting SONiC syncd (SAI: vendor)...
+Nov 23 03:06:20.402777 as7772 kdgi83pcl346p3346dw5a887l4jpl0dw-sonic-syncd-pre[887]: flushed APPL/ASIC/COUNTERS/FLEX_COUNTER/APPL_STATE DBs and stale STATE_DB tables
+Nov 23 03:06:20.405634 as7772 systemd[1]: Started SONiC syncd (SAI: vendor).
+Nov 23 03:06:20.905633 as7772 syncd[898]: :> syncd_main: enter
+Nov 23 03:06:20.919995 as7772 syncd[898]: :- initialize: initializeing metadata log function
+Nov 23 03:06:20.924886 as7772 syncd[898]: :- Syncd: sairedis git revision 0000000, SAI git revision: 0000000
+Nov 23 03:06:20.924929 as7772 syncd[898]: :- threadFunction: starting timer watchdog thread
+Nov 23 03:06:20.925592 as7772 syncd[898]: :- Syncd: command line:  EnableDiagShell=NO EnableTempView=YES DisableExitSleep=NO EnableUnittests=NO EnableConsistencyCheck=NO EnableSyncMode=NO EnableAsyncRec=NO RedisCommunicationMode=redis_sync EnableSaiBulkSuport=NO StartType=cold ProfileMapFile=/nix/store/rskkval9bwc8vz262b1r91229vyvnhhi-sai.profile GlobalContext=0 ContextConfig= BreakConfig= WatchdogWarnTimeSpan=30000000 WatchdogInitTimeSpan=30000000 SupportingBulkCounters= EnablePerPortCounterDiscovery=NO EnableAttrVersionCheck=NO
+Nov 23 03:06:20.925612 as7772 syncd[898]: :- loadFromFile: no context config specified, will load default context config
+Nov 23 03:06:20.925676 as7772 syncd[898]: :- insert: added switch: idx 0, hwinfo ''
+Nov 23 03:06:20.933404 as7772 syncd[898]: :- RedisSelectableChannel: opened redis channel
+Nov 23 03:06:20.940638 as7772 syncd[898]: :- isVeryFirstRun: First Run: True
+Nov 23 03:06:20.941140 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_LOG_STDERR: NULL
+Nov 23 03:06:20.949911 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_ARS: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.949962 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_ARS_PROFILE: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.949982 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_BFD: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.949999 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_BMTOR: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950017 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_COUNTER: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950034 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_ACL: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950051 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_APPLIANCE: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950070 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_DIRECTION_LOOKUP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950084 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_ENI: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950099 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_FLOW: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950116 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_HA: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950132 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_INBOUND_ROUTING: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950151 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_METER: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950168 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_OUTBOUND_CA_TO_PA: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950185 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_OUTBOUND_PORT_MAP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950202 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_OUTBOUND_ROUTING: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950220 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_PA_VALIDATION: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950238 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_TRUSTED_VNI: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950257 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_TUNNEL: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950272 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_VIP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950288 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_VNET: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950304 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DEBUG_COUNTER: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950320 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DTEL: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950335 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_FW: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950351 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_GENERIC_PROGRAMMABLE: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950367 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_ICMP_ECHO: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950381 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_IPMC: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950398 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_IPMC_GROUP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950413 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_IPSEC: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950429 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_ISOLATION_GROUP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950443 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_L2MC: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950460 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_L2MC_GROUP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950476 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_MCAST_FDB: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950493 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_MPLS: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950508 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_MY_MAC: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950617 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_NAT: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950633 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_OCS: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950648 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_OTN_ATTENUATOR: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950664 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_OTN_OA: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950678 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_PERFMON: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950694 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_POE: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950709 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_PON: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950724 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_PREFIX_COMPRESSION: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950737 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_PTP_PDELAY: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950753 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_RPF_GROUP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950788 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_SRV6: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950804 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_SYNCE: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950818 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_SYSTEM_PORT: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950831 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_TAM: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950846 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_TUNNEL: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950864 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_TWAMP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950879 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_UDF: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950895 as7772 syncd[898]: :- sai_metadata_apis_query: :- failed to query api SAI_API_VIRTUAL_CHANNEL: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:06:20.950912 as7772 syncd[898]: :- apiInitialize: sai_api_query failed for 53 apis
+Nov 23 03:06:20.950926 as7772 syncd[898]: :- apiInitialize: SAI API vendor version: 11902
+Nov 23 03:06:20.950940 as7772 syncd[898]: :- apiInitialize: SAI API min version: 10900
+Nov 23 03:06:20.950954 as7772 syncd[898]: :- apiInitialize: SAI API headers version: 11902
+Nov 23 03:06:20.950989 as7772 syncd[898]: :- profileGetValue: SAI_STATS_EXT_SWITCH_SUPPORTED: NULL
+Nov 23 03:06:20.953709 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_SWITCH
+Nov 23 03:06:20.956323 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_PORT
+Nov 23 03:06:20.958830 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_FDB
+Nov 23 03:06:20.962936 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_VLAN
+Nov 23 03:06:20.964719 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_VIRTUAL_ROUTER
+Nov 23 03:06:20.966761 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_ROUTE
+Nov 23 03:06:20.969942 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_NEXT_HOP
+Nov 23 03:06:20.972984 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_NEXT_HOP_GROUP
+Nov 23 03:06:20.973350 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_NEXT_HOP_GROUP
+Nov 23 03:06:20.976483 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_ROUTER_INTERFACE
+Nov 23 03:06:20.979652 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_NEIGHBOR
+Nov 23 03:06:20.982224 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_ACL
+Nov 23 03:06:20.984142 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_HOSTIF
+Nov 23 03:06:20.986392 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_MIRROR
+Nov 23 03:06:20.988523 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_SAMPLEPACKET
+Nov 23 03:06:20.990859 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_STP
+Nov 23 03:06:20.993265 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_LAG
+Nov 23 03:06:20.998271 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_POLICER
+Nov 23 03:06:21.000563 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_WRED
+Nov 23 03:06:21.003947 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_QOS_MAP
+Nov 23 03:06:21.008490 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_QUEUE
+Nov 23 03:06:21.008929 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_QUEUE
+Nov 23 03:06:21.011543 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_SCHEDULER
+Nov 23 03:06:21.014642 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_SCHEDULER_GROUP
+Nov 23 03:06:21.017425 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_BUFFER
+Nov 23 03:06:21.020329 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_HASH
+Nov 23 03:06:21.039204 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_BRIDGE
+Nov 23 03:06:21.056283 as7772 syncd[898]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_MACSEC
+Nov 23 03:06:21.117245 as7772 syncd[898]: :- Syncd: libsai api version: 11902
+Nov 23 03:06:21.117470 as7772 syncd[898]: :- startDampingTimerThread: Started damping timer thread for proactive max_suppress_time enforcement
+Nov 23 03:06:21.117483 as7772 syncd[898]: :- Syncd: syncd started
+Nov 23 03:06:21.117505 as7772 syncd[898]: :- dampingTimerThreadFunc: Damping timer thread started
+Nov 23 03:06:21.118327 as7772 syncd[898]: :- onSyncdStart: performing hard reinit since COLD start was performed
+Nov 23 03:06:21.118697 as7772 syncd[898]: :- readAsicState: loaded 0 switches
+Nov 23 03:06:21.118721 as7772 syncd[898]: :- readAsicState: read asic state took 0.000365 sec
+Nov 23 03:06:21.118884 as7772 syncd[898]: :- onSyncdStart: hard reinit succeeded
+Nov 23 03:06:21.118900 as7772 syncd[898]: :- onSyncdStart: on syncd start took 0.000579 sec
+Nov 23 03:06:21.119071 as7772 syncd[898]: :- run: syncd listening for events
+Nov 23 03:06:21.119872 as7772 syncd[898]: :- run: starting main loop
+Nov 23 03:06:21.120403 as7772 syncd[898]: :- processNotifySyncd: very first run is TRUE, op = INIT_VIEW
+Nov 23 03:06:21.120418 as7772 syncd[898]: :- clearTempView: clearing current TEMP VIEW
+Nov 23 03:06:21.120522 as7772 syncd[898]: :- clearTempView: clear temp view took 0.000082 sec
+Nov 23 03:06:21.137864 as7772 syncd[898]: :- processOidCreate: creating switch number 1
+Nov 23 03:06:21.140518 as7772 syncd[898]: :- profileGetValue: SAI_INIT_CONFIG_FILE: /nix/store/h1lk5i6n06k8mh2v2bmsy4va497gbyi4-as7772-32x-config.bcm
+Nov 23 03:06:21.140542 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_BACKEND: openbcm
+Nov 23 03:06:21.140556 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_RC_FILE: /nix/store/1zwzi6a6jbdbi1jc4advzsxmc5s7bsk2-as7772-32x-led_proc_init.soc
+Nov 23 03:06:21.140571 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_UNIT: NULL
+Nov 23 03:06:21.140586 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_KNET: NULL
+Nov 23 03:06:21.140599 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_FAKE_PORTS: NULL
+Nov 23 03:06:21.140613 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_FAKE_LANES: NULL
+Nov 23 03:06:21.140626 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_FAKE_SPEED: NULL
+Nov 23 03:06:21.140639 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_FAKE_LINK: NULL
+Nov 23 03:06:21.140654 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_FAKE_ON_HARDWARE: NULL
+Nov 23 03:06:21.140669 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_RIF_VLAN_BASE: NULL
+Nov 23 03:06:21.140683 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_TEMP_FILE: /run/asic/temperature
+Nov 23 03:06:21.140698 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_TEMP_PROM: /run/prometheus-textfile/asic.prom
+Nov 23 03:06:21.140712 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_TEMP_INTERVAL: NULL
+Nov 23 03:06:21.140726 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_PORT_INTERFACE: caui
+Nov 23 03:06:21.140741 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_PORT_FEC: none
+Nov 23 03:06:21.140755 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_PORT_AUTONEG: off
+Nov 23 03:06:21.140769 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_PORT_IFG: 128
+Nov 23 03:06:21.140801 as7772 syncd[898]: sai-openbcm NOTICE api=1: port quirks: interface caui, ASIC FEC fixed none, autoneg fixed off, IFG 128 bits
+Nov 23 03:06:21.263505 as7772 syncd[898]: sai-openbcm NOTICE api=1: initializing backend openbcm
+Nov 23 03:06:21.263544 as7772 syncd[898]: sai-openbcm NOTICE api=1: SDK init: unit 0, config /nix/store/h1lk5i6n06k8mh2v2bmsy4va497gbyi4-as7772-32x-config.bcm, rc /nix/store/1zwzi6a6jbdbi1jc4advzsxmc5s7bsk2-as7772-32x-led_proc_init.soc
+Nov 23 03:06:21.620676 as7772 syncd[898]: Broadcom Command Monitor: Copyright (c) 1998-2026 Broadcom
+Nov 23 03:06:21.620676 as7772 syncd[898]: Release: sdk-6.5.27 built 20261115 (Sun Nov 15 08:57:46 2026)
+Nov 23 03:06:21.620676 as7772 syncd[898]: From nixbld@localhost:/build/openbcm-sdk-6.5.27-patched
+Nov 23 03:06:21.620676 as7772 syncd[898]: Platform: PPC64BE
+Nov 23 03:06:21.620676 as7772 syncd[898]: OS: Unix (Posix)
+Nov 23 03:06:21.926619 as7772 syncd[898]: :- threadFunction: time span 792 ms for 'create:SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000'
+Nov 23 03:06:22.010803 as7772 syncd[898]: linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+Nov 23 03:06:22.010803 as7772 syncd[898]: DMA pool size: 16777216 bytes.
+Nov 23 03:06:22.010803 as7772 syncd[898]: BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+Nov 23 03:06:22.072072 as7772 syncd[898]: SOC unit 0 attached to PCI device BCM56930_B1
+Nov 23 03:06:22.074256 as7772 syncd[898]: Boot flags: initialization scripts NOT loaded
+Nov 23 03:06:22.930644 as7772 syncd[898]: :- threadFunction: time span 1796 ms for 'create:SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000'
+Nov 23 03:06:23.934623 as7772 syncd[898]: :- threadFunction: time span 2800 ms for 'create:SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000'
+Nov 23 03:06:24.030651 as7772 syncd[898]: sai-openbcm NOTICE api=1: SDK init: ok: stale KNET netifs 0 filters 0 destroyed; IPv4/IPv6 L3 on 34 ports
+Nov 23 03:06:24.033336 as7772 syncd[898]: sai-openbcm NOTICE api=1: SDK tables: host 40960, route 8192, egress 32768, L2 40960; buffer 16777280 B; ECMP 2048 groups x 1024 paths, 16384 member entries; VRF ids up to 2047
+Nov 23 03:06:24.045906 as7772 syncd[898]: sai-openbcm NOTICE api=1: external PHY table: 32 ports (32 with a line-side link poll), poll 500 ms, up after 2 good polls, hold-off 3000 ms
+Nov 23 03:06:24.092930 as7772 syncd[898]: sai-openbcm NOTICE api=1: external MACsec table: 32 ports, 126 sequences, counters clear on read, inter-frame gap 384 bit times with MACsec on
+Nov 23 03:06:24.730330 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket /run/sai-openbcm/diag.sock: SDK diag shell commands (root, one per connection)
+Nov 23 03:06:24.730353 as7772 syncd[898]: sai-openbcm NOTICE api=1: switch created: 32 front-panel ports, backend openbcm
+Nov 23 03:06:24.731767 as7772 syncd[898]: sai-openbcm NOTICE api=1: ASIC temperature: 8 monitors, max 45.7 C; every 5 s to /run/asic/temperature and /run/prometheus-textfile/asic.prom
+Nov 23 03:06:24.732161 as7772 syncd[898]: :- SaiDiscovery: check attr version DISABLED, libsai api version: 11902
+Nov 23 03:06:24.755785 as7772 syncd[898]: :- discover: skipping since it causes crash: SAI_STP_ATTR_BRIDGE_ID
+Nov 23 03:06:24.756391 as7772 syncd[898]: :- discover: discover took 0.024195 sec
+Nov 23 03:06:24.756431 as7772 syncd[898]: :- discover: discovered objects count: 615
+Nov 23 03:06:24.756739 as7772 syncd[898]: :- discover: SAI_OBJECT_TYPE_PORT: 33
+Nov 23 03:06:24.756756 as7772 syncd[898]: :- discover: SAI_OBJECT_TYPE_VIRTUAL_ROUTER: 1
+Nov 23 03:06:24.756769 as7772 syncd[898]: :- discover: SAI_OBJECT_TYPE_STP: 1
+Nov 23 03:06:24.756782 as7772 syncd[898]: :- discover: SAI_OBJECT_TYPE_HOSTIF_TRAP_GROUP: 1
+Nov 23 03:06:24.756795 as7772 syncd[898]: :- discover: SAI_OBJECT_TYPE_QUEUE: 256
+Nov 23 03:06:24.756808 as7772 syncd[898]: :- discover: SAI_OBJECT_TYPE_INGRESS_PRIORITY_GROUP: 256
+Nov 23 03:06:24.756821 as7772 syncd[898]: :- discover: SAI_OBJECT_TYPE_SWITCH: 1
+Nov 23 03:06:24.756834 as7772 syncd[898]: :- discover: SAI_OBJECT_TYPE_VLAN: 1
+Nov 23 03:06:24.756847 as7772 syncd[898]: :- discover: SAI_OBJECT_TYPE_VLAN_MEMBER: 32
+Nov 23 03:06:24.756860 as7772 syncd[898]: :- discover: SAI_OBJECT_TYPE_BRIDGE: 1
+Nov 23 03:06:24.756873 as7772 syncd[898]: :- discover: SAI_OBJECT_TYPE_BRIDGE_PORT: 32
+Nov 23 03:06:24.759292 as7772 syncd[898]: :- helperSaveDiscoveredObjectsToRedis: objects in ASIC state table present: 0
+Nov 23 03:06:24.759309 as7772 syncd[898]: :- helperSaveDiscoveredObjectsToRedis: putting ALL discovered objects to redis
+Nov 23 03:06:24.938586 as7772 syncd[898]: :- threadFunction: time span 3804 ms for 'create:SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000'
+Nov 23 03:06:25.167531 as7772 syncd[898]: :- helperSaveDiscoveredObjectsToRedis: save discovered objects to redis took 0.408451 sec
+Nov 23 03:06:25.167896 as7772 syncd[898]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x100000000000000 to Asic View and COLDVIDS
+Nov 23 03:06:25.168327 as7772 syncd[898]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x2600000000000001 to Asic View and COLDVIDS
+Nov 23 03:06:25.168738 as7772 syncd[898]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x1000000000000001 to Asic View and COLDVIDS
+Nov 23 03:06:25.169193 as7772 syncd[898]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x300000000000001 to Asic View and COLDVIDS
+Nov 23 03:06:25.169323 as7772 syncd[898]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_OVERRIDE_VIRTUAL_ROUTER_ID: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 23 03:06:25.169627 as7772 syncd[898]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x3900000000000001 to Asic View and COLDVIDS
+Nov 23 03:06:25.170039 as7772 syncd[898]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x1100000000000001 to Asic View and COLDVIDS
+Nov 23 03:06:25.170164 as7772 syncd[898]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_ECMP_HASH: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 23 03:06:25.170183 as7772 syncd[898]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_LAG_HASH: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 23 03:06:25.170219 as7772 syncd[898]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_CPU_INGRESS_BUFFER_POOL: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 23 03:06:25.170235 as7772 syncd[898]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_CPU_EGRESS_BUFFER_POOL: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 23 03:06:25.232363 as7772 syncd[898]: :- helperLoadColdVids: read 615 COLD VIDS
+Nov 23 03:06:25.232399 as7772 syncd[898]: :- saiGetVxlanDefaultRouterMacAddress: failed to obtain SAI_SWITCH_ATTR_VXLAN_DEFAULT_ROUTER_MAC, setting to 00:00:00:00:00:00
+Nov 23 03:06:25.232426 as7772 syncd[898]: :- SaiSwitch: constructor took 0.500905 sec
+Nov 23 03:06:25.242476 as7772 syncd[898]: sai-openbcm NOTICE api=9: rif type 2 vid 0 intf -1 vrf 0
+Nov 23 03:06:25.255425 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC SWITCH_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.311820 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC PORT_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.313080 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC PORT_PHY_ATTR: COUNTERS_DB connection established
+Nov 23 03:06:25.314396 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC PORT_PHY_SERDES_ATTR: COUNTERS_DB connection established
+Nov 23 03:06:25.315832 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC PORT_BUFFER_DROP_STAT: COUNTERS_DB connection established
+Nov 23 03:06:25.317180 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC QUEUE_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.318761 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC QUEUE_WATERMARK_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.319948 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC PG_WATERMARK_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.321077 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC PG_DROP_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.322140 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC WRED_ECN_PORT_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.323319 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC WRED_ECN_QUEUE_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.362384 as7772 syncd[898]: :- addPlugins: Queue Counter counters plugin 3a6159b8386c08e7285e34a85f4d2c68ad0f1168 registered
+Nov 23 03:06:25.363626 as7772 syncd[898]: :- addPlugins: Priority Group Counter counters plugin bcf34ae9158bb04b86095f829f890234e38613ff registered
+Nov 23 03:06:25.364867 as7772 syncd[898]: :- addPlugins: Port Counter counters plugin c08c663e2038cc7adcfe422cfddccb4330d9da6c registered
+Nov 23 03:06:25.364882 as7772 syncd[898]: :- addPlugins: Port Counter counters plugin 567234fa6d7e30a131a3a2d4d60d3b1b923a42c2 registered
+Nov 23 03:06:25.636112 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC ROUTE_FLOW_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.665750 as7772 syncd[898]: :- addPlugins: Rif Counter counters plugin 03380075809fb1143905cc18158a8bf46fa54920 registered
+Nov 23 03:06:25.666440 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC RIF_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.680083 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC SRV6_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.703017 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC HOSTIF_TRAP_FLOW_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.704208 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC COPP_STATS_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.710566 as7772 syncd[898]: sai-openbcm NOTICE api=12: trap type 24577 kept but not programmed (no SDK control for it)
+Nov 23 03:06:25.710588 as7772 syncd[898]: sai-openbcm NOTICE api=12: CoPP: 0 field entries, 0 policers (field group -1)
+Nov 23 03:06:25.720383 as7772 syncd[898]: :- addPlugins: Tunnel Counter counters plugin 5f7d853dc44d586514ba71cc8439ef1dcf4eda53 registered
+Nov 23 03:06:25.721122 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC TUNNEL_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.744710 as7772 syncd[898]: :- addPlugins: Buffer Pool Counter counters plugin 78f7658e05f9659b8ecaf00eb0214957a509e246 registered
+Nov 23 03:06:25.745457 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC BUFFER_POOL_WATERMARK_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.763957 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC DEBUG_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.768861 as7772 syncd[898]: :- addPlugins: Port Counter counters plugin a231314a35f419bcb5f24da711a96fa578aac9c5 registered
+Nov 23 03:06:25.769981 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC DEBUG_MONITOR_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.793196 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC COUNTERS_MACSEC_SA_ATTR: COUNTERS_DB connection established
+Nov 23 03:06:25.794624 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC COUNTERS_MACSEC_SA: COUNTERS_DB connection established
+Nov 23 03:06:25.795927 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC COUNTERS_MACSEC_FLOW: COUNTERS_DB connection established
+Nov 23 03:06:25.820921 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC ACL_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:06:25.936997 as7772 syncd[898]: :- addPlugins: Queue Counter counters plugin 0d40803ca702c0e2d51502c78220f6e667d10e20 registered
+Nov 23 03:06:25.937015 as7772 syncd[898]: :- addPlugins: Queue Counter counters plugin fb3b7a44d7053e8b4c9b8f95d6bf40c587ef9c70 registered
+Nov 23 03:06:25.937651 as7772 syncd[898]: :- flexCounterThreadRunFunction: FC PFC_WD: COUNTERS_DB connection established
+Nov 23 03:06:25.987492 as7772 syncd[898]: :- processNotifySyncd: very first run is TRUE, op = APPLY_VIEW
+Nov 23 03:06:25.987506 as7772 syncd[898]: :- processNotifySyncd: setting very first run to FALSE, op = APPLY_VIEW
+Nov 23 03:06:26.028406 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet112 on ce28 (netif 1, filter 2)
+Nov 23 03:06:26.263788 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet116 on ce29 (netif 2, filter 3)
+Nov 23 03:06:26.296271 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet120 on ce30 (netif 3, filter 4)
+Nov 23 03:06:26.326875 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet124 on ce31 (netif 4, filter 5)
+Nov 23 03:06:26.360393 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet80 on ce20 (netif 5, filter 6)
+Nov 23 03:06:26.399584 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet84 on ce21 (netif 6, filter 7)
+Nov 23 03:06:26.430050 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet88 on ce22 (netif 7, filter 8)
+Nov 23 03:06:26.462551 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet92 on ce23 (netif 8, filter 9)
+Nov 23 03:06:26.498049 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet32 on ce8 (netif 9, filter 10)
+Nov 23 03:06:26.533707 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet36 on ce9 (netif 10, filter 11)
+Nov 23 03:06:26.566419 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet40 on ce10 (netif 11, filter 12)
+Nov 23 03:06:26.599777 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet44 on ce11 (netif 12, filter 13)
+Nov 23 03:06:26.634582 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet0 on ce0 (netif 13, filter 14)
+Nov 23 03:06:26.666691 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet4 on ce1 (netif 14, filter 15)
+Nov 23 03:06:26.699879 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet8 on ce2 (netif 15, filter 16)
+Nov 23 03:06:26.732163 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet12 on ce3 (netif 16, filter 17)
+Nov 23 03:06:26.773553 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet16 on ce4 (netif 17, filter 18)
+Nov 23 03:06:26.806916 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet20 on ce5 (netif 18, filter 19)
+Nov 23 03:06:26.847286 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet24 on ce6 (netif 19, filter 20)
+Nov 23 03:06:26.896562 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet28 on ce7 (netif 20, filter 21)
+Nov 23 03:06:26.942690 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet48 on ce12 (netif 21, filter 22)
+Nov 23 03:06:26.946777 as7772 syncd[898]: :- threadFunction: time span 4 ms for 'create:SAI_OBJECT_TYPE_HOSTIF:oid:0xd00000000027e'
+Nov 23 03:06:26.986079 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet52 on ce13 (netif 22, filter 23)
+Nov 23 03:06:27.026603 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet56 on ce14 (netif 23, filter 24)
+Nov 23 03:06:27.061924 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet60 on ce15 (netif 24, filter 25)
+Nov 23 03:06:27.104242 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet64 on ce16 (netif 25, filter 26)
+Nov 23 03:06:27.152528 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet68 on ce17 (netif 26, filter 27)
+Nov 23 03:06:27.209039 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet72 on ce18 (netif 27, filter 28)
+Nov 23 03:06:27.300303 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet76 on ce19 (netif 28, filter 29)
+Nov 23 03:06:27.378445 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet96 on ce24 (netif 29, filter 30)
+Nov 23 03:06:27.431353 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet100 on ce25 (netif 30, filter 31)
+Nov 23 03:06:27.470843 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet104 on ce26 (netif 31, filter 32)
+Nov 23 03:06:27.534571 as7772 syncd[898]: sai-openbcm NOTICE api=12: hostif Ethernet108 on ce27 (netif 32, filter 33)
+Nov 23 03:06:27.575336 as7772 syncd[898]: sai-openbcm NOTICE api=2: port ce0 admin up
+Nov 23 03:06:27.609817 as7772 syncd[898]: sai-openbcm NOTICE api=2: port ce30 admin up
+Nov 23 03:06:27.624742 as7772 syncd[898]: sai-openbcm NOTICE api=2: port ce31 admin up
+Nov 23 03:06:27.653144 as7772 syncd[898]: sai-openbcm NOTICE api=2: port ce1 admin up
+Nov 23 03:06:27.730590 as7772 syncd[898]: sai-openbcm NOTICE api=17: policer 1: sr_tcm packets cir 600 cbs 600 pir 0 pbs 0
+Nov 23 03:06:27.742834 as7772 syncd[898]: sai-openbcm NOTICE api=17: policer 2: sr_tcm packets cir 6000 cbs 6000 pir 0 pbs 0
+Nov 23 03:06:27.752153 as7772 syncd[898]: sai-openbcm NOTICE api=12: trap type 16384 kept but not programmed (no SDK control for it)
+Nov 23 03:06:27.758680 as7772 syncd[898]: sai-openbcm NOTICE api=11: field group 1: priority 1000, qualifiers 0x22b0e
+Nov 23 03:06:27.763772 as7772 syncd[898]: sai-openbcm NOTICE api=12: CoPP: 1 field entries, 1 policers (field group 1)
+Nov 23 03:06:27.770509 as7772 syncd[898]: sai-openbcm NOTICE api=17: policer 3: sr_tcm packets cir 200 cbs 200 pir 0 pbs 0
+Nov 23 03:06:27.779773 as7772 syncd[898]: sai-openbcm NOTICE api=17: policer 4: sr_tcm packets cir 100 cbs 100 pir 0 pbs 0
+Nov 23 03:06:27.788653 as7772 syncd[898]: sai-openbcm NOTICE api=12: CoPP: 2 field entries, 2 policers (field group 1)
+Nov 23 03:06:27.792711 as7772 syncd[898]: sai-openbcm NOTICE api=12: trap type 11 kept but not programmed (no SDK control for it)
+Nov 23 03:06:27.803541 as7772 syncd[898]: sai-openbcm NOTICE api=17: policer 5: sr_tcm packets cir 6000 cbs 6000 pir 0 pbs 0
+Nov 23 03:06:27.810888 as7772 syncd[898]: sai-openbcm NOTICE api=12: trap type 16387 kept but not programmed (no SDK control for it)
+Nov 23 03:06:27.813731 as7772 syncd[898]: sai-openbcm NOTICE api=12: CoPP: 4 field entries, 3 policers (field group 1)
+Nov 23 03:06:27.816900 as7772 syncd[898]: sai-openbcm NOTICE api=12: trap type 16388 kept but not programmed (no SDK control for it)
+Nov 23 03:06:27.818146 as7772 syncd[898]: sai-openbcm NOTICE api=12: CoPP: 6 field entries, 3 policers (field group 1)
+Nov 23 03:06:27.820845 as7772 syncd[898]: sai-openbcm NOTICE api=12: trap type 2 kept but not programmed (no SDK control for it)
+Nov 23 03:06:27.822695 as7772 syncd[898]: sai-openbcm NOTICE api=12: CoPP: 7 field entries, 3 policers (field group 1)
+Nov 23 03:06:27.829248 as7772 syncd[898]: sai-openbcm NOTICE api=12: CoPP: 8 field entries, 3 policers (field group 1)
+Nov 23 03:06:27.840917 as7772 syncd[898]: sai-openbcm NOTICE api=17: policer 6: sr_tcm packets cir 600 cbs 600 pir 0 pbs 0
+Nov 23 03:06:27.854396 as7772 syncd[898]: sai-openbcm NOTICE api=12: CoPP: 9 field entries, 4 policers (field group 1)
+Nov 23 03:06:27.863071 as7772 syncd[898]: sai-openbcm NOTICE api=12: CoPP: 10 field entries, 4 policers (field group 1)
+Nov 23 03:06:27.878313 as7772 syncd[898]: sai-openbcm NOTICE api=12: CoPP: 15 field entries, 4 policers (field group 1)
+Nov 23 03:06:28.307173 as7772 syncd[898]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 23 03:06:28.309032 as7772 syncd[898]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 23 03:06:28.311424 as7772 syncd[898]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 23 03:06:28.313115 as7772 syncd[898]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 23 03:06:28.569845 as7772 syncd[898]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper up
+Nov 23 03:06:28.574567 as7772 syncd[898]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper up
+Nov 23 03:06:28.587033 as7772 syncd[898]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+Nov 23 03:06:28.587124 as7772 syncd[898]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+Nov 23 03:06:29.272299 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: MACsec egress on (external PHY 0x0)
+Nov 23 03:06:29.382139 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress on (external PHY 0x0)
+Nov 23 03:06:29.499598 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: MACsec egress off
+Nov 23 03:06:29.535485 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress off
+Nov 23 03:06:29.644520 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: MACsec egress on (external PHY 0x17e)
+Nov 23 03:06:29.748175 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: MACsec ingress on (external PHY 0x17e)
+Nov 23 03:06:29.868185 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: MACsec egress on (external PHY 0x0)
+Nov 23 03:06:29.958598 as7772 syncd[898]: :- threadFunction: time span 88 ms for 'create:SAI_OBJECT_TYPE_MACSEC_PORT:oid:0x590000000002b4'
+Nov 23 03:06:29.977384 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress on (external PHY 0x0)
+Nov 23 03:06:30.051517 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: MACsec egress off
+Nov 23 03:06:30.087522 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: MACsec ingress off
+Nov 23 03:06:30.200364 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: MACsec egress on (external PHY 0x17e)
+Nov 23 03:06:30.309449 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: MACsec ingress on (external PHY 0x17e)
+Nov 23 03:06:30.351910 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_RIF_VLAN_BASE: NULL
+Nov 23 03:06:30.354257 as7772 syncd[898]: sai-openbcm NOTICE api=9: my-station 1: 1c:ea:0b:38:2b:d5 (IPv4, IPv6, ARP)
+Nov 23 03:06:30.354822 as7772 syncd[898]: sai-openbcm NOTICE api=9: rif type 0 vid 4094 intf 0 vrf 0
+Nov 23 03:06:30.357824 as7772 syncd[898]: sai-openbcm NOTICE api=9: my-station 2: 1c:ea:0b:38:2b:d7 (IPv4, IPv6, ARP)
+Nov 23 03:06:30.362594 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_RIF_VLAN_BASE: NULL
+Nov 23 03:06:30.364918 as7772 syncd[898]: sai-openbcm NOTICE api=9: rif type 0 vid 4093 intf 1 vrf 0
+Nov 23 03:06:30.367818 as7772 syncd[898]: sai-openbcm NOTICE api=9: my-station 3: 1c:ea:0b:38:2b:d6 (IPv4, IPv6, ARP)
+Nov 23 03:06:30.916217 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: MACsec egress on (external PHY 0x17f)
+Nov 23 03:06:30.962635 as7772 syncd[898]: :- threadFunction: time span 43 ms for 'create:SAI_OBJECT_TYPE_MACSEC_PORT:oid:0x590000000002ca'
+Nov 23 03:06:31.020230 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: MACsec ingress on (external PHY 0x17f)
+Nov 23 03:06:31.143714 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: MACsec egress off
+Nov 23 03:06:31.179524 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: MACsec ingress off
+Nov 23 03:06:31.276150 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: MACsec egress on (external PHY 0x1)
+Nov 23 03:06:31.388455 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: MACsec ingress on (external PHY 0x1)
+Nov 23 03:06:31.504162 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: MACsec egress on (external PHY 0x17f)
+Nov 23 03:06:31.608152 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: MACsec ingress on (external PHY 0x17f)
+Nov 23 03:06:31.679484 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: MACsec egress off
+Nov 23 03:06:31.715483 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: MACsec ingress off
+Nov 23 03:06:31.824162 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: MACsec egress on (external PHY 0x1)
+Nov 23 03:06:31.932508 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: MACsec ingress on (external PHY 0x1)
+Nov 23 03:06:32.196929 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x0 0x1 0x8b00
+Nov 23 03:06:32.196950 as7772 syncd[898]: sai-openbcm NOTICE api=1: external PHY link polls paused: raw MDIO on the diag socket (resume 3000 ms after the last one)
+Nov 23 03:06:32.198159 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x0 0x1 0x8b01
+Nov 23 03:06:32.198320 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x0 0x1 0x8215
+Nov 23 03:06:32.198481 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x0 0x1 0x8245
+Nov 23 03:06:32.198649 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x0 0x1 0x8251
+Nov 23 03:06:32.198816 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x1 0x1 0x8b00
+Nov 23 03:06:32.199005 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x1 0x1 0x8b01
+Nov 23 03:06:32.199165 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x1 0x1 0x8215
+Nov 23 03:06:32.199325 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x1 0x1 0x8245
+Nov 23 03:06:32.199484 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x1 0x1 0x8251
+Nov 23 03:06:32.199647 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x2 0x1 0x8b00
+Nov 23 03:06:32.199808 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x2 0x1 0x8b01
+Nov 23 03:06:32.199968 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x2 0x1 0x8215
+Nov 23 03:06:32.200130 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x2 0x1 0x8245
+Nov 23 03:06:32.200289 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x2 0x1 0x8251
+Nov 23 03:06:32.200452 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x3 0x1 0x8b00
+Nov 23 03:06:32.200613 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x3 0x1 0x8b01
+Nov 23 03:06:32.200773 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x3 0x1 0x8215
+Nov 23 03:06:32.200934 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x3 0x1 0x8245
+Nov 23 03:06:32.201099 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x3 0x1 0x8251
+Nov 23 03:06:32.201262 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x24 0x1 0x8b00
+Nov 23 03:06:32.201425 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x24 0x1 0x8b01
+Nov 23 03:06:32.201585 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x24 0x1 0x8215
+Nov 23 03:06:32.201748 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x24 0x1 0x8245
+Nov 23 03:06:32.201909 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x24 0x1 0x8251
+Nov 23 03:06:32.202075 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x25 0x1 0x8b00
+Nov 23 03:06:32.202241 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x25 0x1 0x8b01
+Nov 23 03:06:32.202404 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x25 0x1 0x8215
+Nov 23 03:06:32.202579 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x25 0x1 0x8245
+Nov 23 03:06:32.202744 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x25 0x1 0x8251
+Nov 23 03:06:32.202907 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x26 0x1 0x8b00
+Nov 23 03:06:32.203068 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x26 0x1 0x8b01
+Nov 23 03:06:32.203232 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x26 0x1 0x8215
+Nov 23 03:06:32.203393 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x26 0x1 0x8245
+Nov 23 03:06:32.203553 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x26 0x1 0x8251
+Nov 23 03:06:32.203726 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x27 0x1 0x8b00
+Nov 23 03:06:32.203886 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x27 0x1 0x8b01
+Nov 23 03:06:32.204048 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x27 0x1 0x8215
+Nov 23 03:06:32.204209 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x27 0x1 0x8245
+Nov 23 03:06:32.204368 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x27 0x1 0x8251
+Nov 23 03:06:32.204529 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x48 0x1 0x8b00
+Nov 23 03:06:32.204702 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x48 0x1 0x8b01
+Nov 23 03:06:32.204865 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x48 0x1 0x8215
+Nov 23 03:06:32.205025 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x48 0x1 0x8245
+Nov 23 03:06:32.205185 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x48 0x1 0x8251
+Nov 23 03:06:32.205347 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x49 0x1 0x8b00
+Nov 23 03:06:32.205509 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x49 0x1 0x8b01
+Nov 23 03:06:32.205670 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x49 0x1 0x8215
+Nov 23 03:06:32.205830 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x49 0x1 0x8245
+Nov 23 03:06:32.205990 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x49 0x1 0x8251
+Nov 23 03:06:32.206151 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x4a 0x1 0x8b00
+Nov 23 03:06:32.206312 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x4a 0x1 0x8b01
+Nov 23 03:06:32.206472 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x4a 0x1 0x8215
+Nov 23 03:06:32.206639 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x4a 0x1 0x8245
+Nov 23 03:06:32.206799 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x4a 0x1 0x8251
+Nov 23 03:06:32.206960 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x4b 0x1 0x8b00
+Nov 23 03:06:32.207120 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x4b 0x1 0x8b01
+Nov 23 03:06:32.207279 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x4b 0x1 0x8215
+Nov 23 03:06:32.207441 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x4b 0x1 0x8245
+Nov 23 03:06:32.207602 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x4b 0x1 0x8251
+Nov 23 03:06:32.207762 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6c 0x1 0x8b00
+Nov 23 03:06:32.207923 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6c 0x1 0x8b01
+Nov 23 03:06:32.208081 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6c 0x1 0x8215
+Nov 23 03:06:32.208250 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6c 0x1 0x8245
+Nov 23 03:06:32.208410 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6c 0x1 0x8251
+Nov 23 03:06:32.208571 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6d 0x1 0x8b00
+Nov 23 03:06:32.208732 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6d 0x1 0x8b01
+Nov 23 03:06:32.208890 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6d 0x1 0x8215
+Nov 23 03:06:32.209053 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6d 0x1 0x8245
+Nov 23 03:06:32.209214 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6d 0x1 0x8251
+Nov 23 03:06:32.209375 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6e 0x1 0x8b00
+Nov 23 03:06:32.209536 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6e 0x1 0x8b01
+Nov 23 03:06:32.209694 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6e 0x1 0x8215
+Nov 23 03:06:32.209854 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6e 0x1 0x8245
+Nov 23 03:06:32.210014 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6e 0x1 0x8251
+Nov 23 03:06:32.210175 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6f 0x1 0x8b00
+Nov 23 03:06:32.210336 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6f 0x1 0x8b01
+Nov 23 03:06:32.210494 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6f 0x1 0x8215
+Nov 23 03:06:32.210665 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6f 0x1 0x8245
+Nov 23 03:06:32.210825 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x6f 0x1 0x8251
+Nov 23 03:06:32.210988 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x110 0x1 0x8b00
+Nov 23 03:06:32.211149 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x110 0x1 0x8b01
+Nov 23 03:06:32.211307 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x110 0x1 0x8215
+Nov 23 03:06:32.211467 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x110 0x1 0x8245
+Nov 23 03:06:32.211628 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x110 0x1 0x8251
+Nov 23 03:06:32.211791 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x111 0x1 0x8b00
+Nov 23 03:06:32.211952 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x111 0x1 0x8b01
+Nov 23 03:06:32.212111 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x111 0x1 0x8215
+Nov 23 03:06:32.212271 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x111 0x1 0x8245
+Nov 23 03:06:32.212431 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x111 0x1 0x8251
+Nov 23 03:06:32.212593 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x112 0x1 0x8b00
+Nov 23 03:06:32.212762 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x112 0x1 0x8b01
+Nov 23 03:06:32.212921 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x112 0x1 0x8215
+Nov 23 03:06:32.213081 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x112 0x1 0x8245
+Nov 23 03:06:32.213241 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x112 0x1 0x8251
+Nov 23 03:06:32.213403 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x113 0x1 0x8b00
+Nov 23 03:06:32.213564 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x113 0x1 0x8b01
+Nov 23 03:06:32.213734 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x113 0x1 0x8215
+Nov 23 03:06:32.213894 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x113 0x1 0x8245
+Nov 23 03:06:32.214053 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x113 0x1 0x8251
+Nov 23 03:06:32.214216 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x134 0x1 0x8b00
+Nov 23 03:06:32.214376 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x134 0x1 0x8b01
+Nov 23 03:06:32.214550 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x134 0x1 0x8215
+Nov 23 03:06:32.214712 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x134 0x1 0x8245
+Nov 23 03:06:32.214871 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x134 0x1 0x8251
+Nov 23 03:06:32.215036 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x135 0x1 0x8b00
+Nov 23 03:06:32.215197 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x135 0x1 0x8b01
+Nov 23 03:06:32.215356 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x135 0x1 0x8215
+Nov 23 03:06:32.215516 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x135 0x1 0x8245
+Nov 23 03:06:32.215674 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x135 0x1 0x8251
+Nov 23 03:06:32.215838 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x136 0x1 0x8b00
+Nov 23 03:06:32.215998 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x136 0x1 0x8b01
+Nov 23 03:06:32.216158 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x136 0x1 0x8215
+Nov 23 03:06:32.216318 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x136 0x1 0x8245
+Nov 23 03:06:32.216478 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x136 0x1 0x8251
+Nov 23 03:06:32.216643 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x137 0x1 0x8b00
+Nov 23 03:06:32.216803 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x137 0x1 0x8b01
+Nov 23 03:06:32.216963 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x137 0x1 0x8215
+Nov 23 03:06:32.217124 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x137 0x1 0x8245
+Nov 23 03:06:32.217281 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x137 0x1 0x8251
+Nov 23 03:06:32.217443 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x158 0x1 0x8b00
+Nov 23 03:06:32.217604 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x158 0x1 0x8b01
+Nov 23 03:06:32.217764 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x158 0x1 0x8215
+Nov 23 03:06:32.217926 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x158 0x1 0x8245
+Nov 23 03:06:32.218083 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x158 0x1 0x8251
+Nov 23 03:06:32.218244 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x159 0x1 0x8b00
+Nov 23 03:06:32.218405 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x159 0x1 0x8b01
+Nov 23 03:06:32.218577 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x159 0x1 0x8215
+Nov 23 03:06:32.218744 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x159 0x1 0x8245
+Nov 23 03:06:32.218901 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x159 0x1 0x8251
+Nov 23 03:06:32.219064 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x15a 0x1 0x8b00
+Nov 23 03:06:32.219224 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x15a 0x1 0x8b01
+Nov 23 03:06:32.219385 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x15a 0x1 0x8215
+Nov 23 03:06:32.219546 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x15a 0x1 0x8245
+Nov 23 03:06:32.219703 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x15a 0x1 0x8251
+Nov 23 03:06:32.219865 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x15b 0x1 0x8b00
+Nov 23 03:06:32.220026 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x15b 0x1 0x8b01
+Nov 23 03:06:32.220185 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x15b 0x1 0x8215
+Nov 23 03:06:32.220344 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x15b 0x1 0x8245
+Nov 23 03:06:32.220502 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x15b 0x1 0x8251
+Nov 23 03:06:32.220665 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17c 0x1 0x8b00
+Nov 23 03:06:32.220825 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17c 0x1 0x8b01
+Nov 23 03:06:32.220986 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17c 0x1 0x8215
+Nov 23 03:06:32.221145 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17c 0x1 0x8245
+Nov 23 03:06:32.221304 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17c 0x1 0x8251
+Nov 23 03:06:32.221466 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17d 0x1 0x8b00
+Nov 23 03:06:32.221624 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17d 0x1 0x8b01
+Nov 23 03:06:32.221784 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17d 0x1 0x8215
+Nov 23 03:06:32.221943 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17d 0x1 0x8245
+Nov 23 03:06:32.222103 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17d 0x1 0x8251
+Nov 23 03:06:32.222265 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17e 0x1 0x8b00
+Nov 23 03:06:32.222432 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17e 0x1 0x8b01
+Nov 23 03:06:32.222632 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17e 0x1 0x8215
+Nov 23 03:06:32.222800 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17e 0x1 0x8245
+Nov 23 03:06:32.222966 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17e 0x1 0x8251
+Nov 23 03:06:32.223135 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17f 0x1 0x8b00
+Nov 23 03:06:32.223298 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17f 0x1 0x8b01
+Nov 23 03:06:32.223458 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17f 0x1 0x8215
+Nov 23 03:06:32.223619 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17f 0x1 0x8245
+Nov 23 03:06:32.223780 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy raw c45 0x17f 0x1 0x8251
+Nov 23 03:06:34.162617 as7772 syncd[898]: :- collectDataBulk: Bulk get not available for SAI_OBJECT_TYPE_MACSEC_SA, using per object get
+Nov 23 03:06:34.208481 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:06:34.212910 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: egress data frames go through the secure channel
+Nov 23 03:06:34.236079 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:06:34.240500 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: ingress data frames go through the secure channel
+Nov 23 03:06:35.242089 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:06:35.246552 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: egress data frames go through the secure channel
+Nov 23 03:06:35.270581 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:06:35.275017 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: ingress data frames go through the secure channel
+Nov 23 03:06:35.921304 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:06:35.925739 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: egress data frames go through the secure channel
+Nov 23 03:06:35.949511 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:06:35.953931 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: ingress data frames go through the secure channel
+Nov 23 03:06:36.233264 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:06:36.237682 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: egress data frames go through the secure channel
+Nov 23 03:06:36.261076 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:06:36.265499 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: ingress data frames go through the secure channel
+Nov 23 03:06:47.630427 as7772 syncd[898]: sai-openbcm NOTICE api=5: virtual router: SDK VRF 1
+Nov 23 03:06:51.698617 as7772 syncd[898]: sai-openbcm NOTICE api=5: virtual router: SDK VRF 2
+Nov 23 03:06:57.827302 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_RIF_VLAN_BASE: NULL
+Nov 23 03:06:57.829656 as7772 syncd[898]: sai-openbcm NOTICE api=9: rif type 0 vid 4093 intf 1 vrf 1
+Nov 23 03:07:01.924365 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_RIF_VLAN_BASE: NULL
+Nov 23 03:07:01.926691 as7772 syncd[898]: sai-openbcm NOTICE api=9: rif type 0 vid 4094 intf 0 vrf 2
+Nov 23 03:07:07.973953 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_RIF_VLAN_BASE: NULL
+Nov 23 03:07:07.976107 as7772 syncd[898]: sai-openbcm NOTICE api=9: rif type 0 vid 4092 intf 2 vrf 0
+Nov 23 03:07:16.242268 as7772 syncd[898]: :- profileGetValue: SAI_OPENBCM_RIF_VLAN_BASE: NULL
+Nov 23 03:07:16.244443 as7772 syncd[898]: sai-openbcm NOTICE api=9: rif type 0 vid 4091 intf 3 vrf 0
+Nov 23 03:07:29.776378 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: clear c
+Nov 23 03:08:03.722669 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: show c ce0
+Nov 23 03:08:03.735672 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: show c ce1
+Nov 23 03:08:03.747329 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: show c ce30
+Nov 23 03:08:03.758872 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: show c ce31
+Nov 23 03:08:03.770721 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: ps ce0,ce1,ce30,ce31
+Nov 23 03:08:03.784917 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: g CLMAC_TX_CTRL.ce0
+Nov 23 03:08:03.795399 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: g CLMAC_TX_CTRL.ce30
+Nov 23 03:08:03.806706 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: phy control ce0
+Nov 23 03:08:12.895006 as7772 syncd[898]: sai-openbcm NOTICE api=9: my-station 2: 1c:ea:0b:38:2b:d6 (IPv4, IPv6, ARP)
+Nov 23 03:08:12.948849 as7772 syncd[898]: sai-openbcm NOTICE api=9: my-station 3: 1c:ea:0b:38:2b:d7 (IPv4, IPv6, ARP)
+Nov 23 03:08:34.671220 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: clear c
+Nov 23 03:09:11.089378 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: show c ce0
+Nov 23 03:09:11.101343 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: show c ce1
+Nov 23 03:09:11.112927 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: show c ce30
+Nov 23 03:09:11.124532 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: show c ce31
+Nov 23 03:09:11.136359 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: ps ce0,ce1,ce30,ce31
+Nov 23 03:09:11.151192 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: g CLMAC_TX_CTRL.ce0
+Nov 23 03:09:11.163984 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: g CLMAC_TX_CTRL.ce1
+Nov 23 03:09:11.177332 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: g CLMAC_TX_CTRL.ce30
+Nov 23 03:09:11.190573 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: g CLMAC_TX_CTRL.ce31
+Nov 23 03:09:11.203693 as7772 syncd[898]: sai-openbcm NOTICE api=1: diag socket: g CLMAC_TX_CTRL.ce2
+Nov 23 03:09:56.970406 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: egress data frames are dropped
+Nov 23 03:09:56.971590 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: egress SA AN 0 removed
+Nov 23 03:09:56.987615 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: ingress data frames are dropped
+Nov 23 03:09:56.991083 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: ingress SA AN 0 removed
+Nov 23 03:09:57.051565 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: MACsec egress off
+Nov 23 03:09:57.087476 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress off
+Nov 23 03:09:57.152845 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: egress data frames are dropped
+Nov 23 03:09:57.154018 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: egress SA AN 0 removed
+Nov 23 03:09:57.165889 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: ingress data frames are dropped
+Nov 23 03:09:57.169346 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: ingress SA AN 0 removed
+Nov 23 03:09:57.227562 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: MACsec egress off
+Nov 23 03:09:57.263505 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: MACsec ingress off
+Nov 23 03:09:57.333617 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: egress data frames are dropped
+Nov 23 03:09:57.334848 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: egress SA AN 0 removed
+Nov 23 03:09:57.346581 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: ingress data frames are dropped
+Nov 23 03:09:57.350035 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: ingress SA AN 0 removed
+Nov 23 03:09:57.407554 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: MACsec egress off
+Nov 23 03:09:57.448622 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: MACsec ingress off
+Nov 23 03:09:57.529149 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: egress data frames are dropped
+Nov 23 03:09:57.530322 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: egress SA AN 0 removed
+Nov 23 03:09:57.542812 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: ingress data frames are dropped
+Nov 23 03:09:57.546267 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: ingress SA AN 0 removed
+Nov 23 03:09:57.603574 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: MACsec egress off
+Nov 23 03:09:57.639543 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: MACsec ingress off
+Nov 23 03:09:58.228406 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: MACsec egress on (external PHY 0x0)
+Nov 23 03:09:58.332327 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress on (external PHY 0x0)
+Nov 23 03:09:58.435667 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: MACsec egress off
+Nov 23 03:09:58.471721 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress off
+Nov 23 03:09:58.580247 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: MACsec egress on (external PHY 0x17e)
+Nov 23 03:09:58.684328 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: MACsec ingress on (external PHY 0x17e)
+Nov 23 03:09:58.790617 as7772 syncd[898]: :- threadFunction: time span 79 ms for 'create:SAI_OBJECT_TYPE_MACSEC_PORT:oid:0x5900000000031f'
+Nov 23 03:09:58.808695 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: MACsec egress on (external PHY 0x0)
+Nov 23 03:09:58.916310 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress on (external PHY 0x0)
+Nov 23 03:09:58.999700 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: MACsec egress off
+Nov 23 03:09:59.035687 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: MACsec ingress off
+Nov 23 03:09:59.137453 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: MACsec egress on (external PHY 0x17f)
+Nov 23 03:09:59.244191 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: MACsec ingress on (external PHY 0x17f)
+Nov 23 03:09:59.368209 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: MACsec egress on (external PHY 0x17e)
+Nov 23 03:09:59.476398 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: MACsec ingress on (external PHY 0x17e)
+Nov 23 03:09:59.592191 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: MACsec egress on (external PHY 0x1)
+Nov 23 03:09:59.696216 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: MACsec ingress on (external PHY 0x1)
+Nov 23 03:09:59.775555 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: MACsec egress off
+Nov 23 03:09:59.794561 as7772 syncd[898]: :- threadFunction: time span 17 ms for 'remove:SAI_OBJECT_TYPE_MACSEC_PORT:oid:0x59000000000328'
+Nov 23 03:09:59.811694 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: MACsec ingress off
+Nov 23 03:09:59.867608 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: MACsec egress off
+Nov 23 03:09:59.903633 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: MACsec ingress off
+Nov 23 03:10:00.004386 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: MACsec egress on (external PHY 0x17f)
+Nov 23 03:10:00.112249 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: MACsec ingress on (external PHY 0x17f)
+Nov 23 03:10:00.228202 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: MACsec egress on (external PHY 0x1)
+Nov 23 03:10:00.337546 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: MACsec ingress on (external PHY 0x1)
+Nov 23 03:10:02.683746 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:10:02.688317 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: egress data frames go through the secure channel
+Nov 23 03:10:02.712373 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:10:02.716912 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: ingress data frames go through the secure channel
+Nov 23 03:10:03.717622 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:10:03.722169 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: egress data frames go through the secure channel
+Nov 23 03:10:03.746338 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:10:03.750883 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: ingress data frames go through the secure channel
+Nov 23 03:10:04.145654 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:10:04.150191 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: egress data frames go through the secure channel
+Nov 23 03:10:04.174147 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:10:04.178700 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: ingress data frames go through the secure channel
+Nov 23 03:10:04.665796 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:10:04.670387 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: egress data frames go through the secure channel
+Nov 23 03:10:04.694671 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:10:04.699217 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: ingress data frames go through the secure channel
+Nov 23 03:17:02.278887 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: egress data frames are dropped
+Nov 23 03:17:02.280041 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: egress SA AN 0 removed
+Nov 23 03:17:02.291642 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: ingress data frames are dropped
+Nov 23 03:17:02.295019 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: ingress SA AN 0 removed
+Nov 23 03:17:02.355696 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: MACsec egress off
+Nov 23 03:17:02.391656 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress off
+Nov 23 03:17:02.478572 as7772 syncd[898]: :- threadFunction: time span 2 ms for 'remove:SAI_OBJECT_TYPE_MACSEC_SA:oid:0x5c00000000035d'
+Nov 23 03:17:02.480152 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: egress data frames are dropped
+Nov 23 03:17:02.481300 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: egress SA AN 0 removed
+Nov 23 03:17:02.493199 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: ingress data frames are dropped
+Nov 23 03:17:02.496567 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: ingress SA AN 0 removed
+Nov 23 03:17:02.551441 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: MACsec egress off
+Nov 23 03:17:02.587387 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce30: MACsec ingress off
+Nov 23 03:17:02.657182 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: egress data frames are dropped
+Nov 23 03:17:02.658333 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: egress SA AN 0 removed
+Nov 23 03:17:02.669439 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: ingress data frames are dropped
+Nov 23 03:17:02.672815 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: ingress SA AN 0 removed
+Nov 23 03:17:02.734758 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: MACsec egress off
+Nov 23 03:17:02.775618 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce31: MACsec ingress off
+Nov 23 03:17:02.832790 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: egress data frames are dropped
+Nov 23 03:17:02.833935 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: egress SA AN 0 removed
+Nov 23 03:17:02.844685 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: ingress data frames are dropped
+Nov 23 03:17:02.848053 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: ingress SA AN 0 removed
+Nov 23 03:17:02.907436 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: MACsec egress off
+Nov 23 03:17:02.943358 as7772 syncd[898]: sai-openbcm NOTICE api=43: port ce1: MACsec ingress off
+Nov 23 03:17:04.027689 as7772 systemd[1]: Stopping SONiC syncd (SAI: vendor)...
+Nov 23 03:17:04.140769 as7772 systemd[1]: sonic-syncd.service: Deactivated successfully.
+Nov 23 03:17:04.141525 as7772 systemd[1]: Stopped SONiC syncd (SAI: vendor).
+Nov 23 03:17:04.142023 as7772 systemd[1]: sonic-syncd.service: Consumed 1min 4.193s CPU time over 10min 43.965s wall clock time, 102.8M memory peak, 45B incoming IP traffic, 63B outgoing IP traffic.
+Nov 23 03:17:07.796328 as7772 systemd[1]: Starting SONiC syncd (SAI: vendor)...
+Nov 23 03:17:08.024071 as7772 kdgi83pcl346p3346dw5a887l4jpl0dw-sonic-syncd-pre[4141]: flushed APPL/ASIC/COUNTERS/FLEX_COUNTER/APPL_STATE DBs and stale STATE_DB tables
+Nov 23 03:17:08.028388 as7772 systemd[1]: Started SONiC syncd (SAI: vendor).
+Nov 23 03:17:08.483776 as7772 syncd[4155]: :> syncd_main: enter
+Nov 23 03:17:08.489947 as7772 syncd[4155]: :- initialize: initializeing metadata log function
+Nov 23 03:17:08.490331 as7772 syncd[4155]: :- Syncd: sairedis git revision 0000000, SAI git revision: 0000000
+Nov 23 03:17:08.490392 as7772 syncd[4155]: :- threadFunction: starting timer watchdog thread
+Nov 23 03:17:08.490539 as7772 syncd[4155]: :- Syncd: command line:  EnableDiagShell=NO EnableTempView=YES DisableExitSleep=NO EnableUnittests=NO EnableConsistencyCheck=NO EnableSyncMode=NO EnableAsyncRec=NO RedisCommunicationMode=redis_sync EnableSaiBulkSuport=NO StartType=cold ProfileMapFile=/nix/store/7gyaf3vcz029zs6wjdvqbx38fi898p8f-sai.profile GlobalContext=0 ContextConfig= BreakConfig= WatchdogWarnTimeSpan=30000000 WatchdogInitTimeSpan=30000000 SupportingBulkCounters= EnablePerPortCounterDiscovery=NO EnableAttrVersionCheck=NO
+Nov 23 03:17:08.490557 as7772 syncd[4155]: :- loadFromFile: no context config specified, will load default context config
+Nov 23 03:17:08.490610 as7772 syncd[4155]: :- insert: added switch: idx 0, hwinfo ''
+Nov 23 03:17:08.495430 as7772 syncd[4155]: :- RedisSelectableChannel: opened redis channel
+Nov 23 03:17:08.502110 as7772 syncd[4155]: :- isVeryFirstRun: First Run: True
+Nov 23 03:17:08.502472 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_LOG_STDERR: NULL
+Nov 23 03:17:08.503082 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_ARS: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503106 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_ARS_PROFILE: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503120 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_BFD: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503135 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_BMTOR: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503151 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_COUNTER: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503167 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_ACL: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503181 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_APPLIANCE: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503195 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_DIRECTION_LOOKUP: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503209 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_ENI: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503225 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_FLOW: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503241 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_HA: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503256 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_INBOUND_ROUTING: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503271 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_METER: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503285 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_OUTBOUND_CA_TO_PA: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503300 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_OUTBOUND_PORT_MAP: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503314 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_OUTBOUND_ROUTING: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503329 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_PA_VALIDATION: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503343 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_TRUSTED_VNI: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503358 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_TUNNEL: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503373 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_VIP: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503387 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_VNET: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503402 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DEBUG_COUNTER: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503417 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DTEL: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503432 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_FW: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503447 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_GENERIC_PROGRAMMABLE: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503462 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_ICMP_ECHO: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503477 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_IPMC: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503492 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_IPMC_GROUP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503506 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_IPSEC: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503520 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_ISOLATION_GROUP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503535 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_L2MC: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503550 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_L2MC_GROUP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503565 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_MCAST_FDB: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503580 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_MPLS: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503595 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_MY_MAC: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503610 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_NAT: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503625 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_OCS: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503638 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_OTN_ATTENUATOR: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503657 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_OTN_OA: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503674 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_PERFMON: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503690 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_POE: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503705 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_PON: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503719 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_PREFIX_COMPRESSION: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503734 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_PTP_PDELAY: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503749 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_RPF_GROUP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503763 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_SRV6: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503780 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_SYNCE: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503795 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_SYSTEM_PORT: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503810 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_TAM: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503824 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_TUNNEL: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503838 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_TWAMP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503854 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_UDF: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503868 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_VIRTUAL_CHANNEL: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503882 as7772 syncd[4155]: :- apiInitialize: sai_api_query failed for 53 apis
+Nov 23 03:17:08.503896 as7772 syncd[4155]: :- apiInitialize: SAI API vendor version: 11902
+Nov 23 03:17:08.503909 as7772 syncd[4155]: :- apiInitialize: SAI API min version: 10900
+Nov 23 03:17:08.503922 as7772 syncd[4155]: :- apiInitialize: SAI API headers version: 11902
+Nov 23 03:17:08.503943 as7772 syncd[4155]: :- profileGetValue: SAI_STATS_EXT_SWITCH_SUPPORTED: NULL
+Nov 23 03:17:08.508620 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_SWITCH
+Nov 23 03:17:08.511296 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_PORT
+Nov 23 03:17:08.513574 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_FDB
+Nov 23 03:17:08.515834 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_VLAN
+Nov 23 03:17:08.518317 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_VIRTUAL_ROUTER
+Nov 23 03:17:08.520543 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_ROUTE
+Nov 23 03:17:08.522445 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_NEXT_HOP
+Nov 23 03:17:08.523023 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_NEXT_HOP
+Nov 23 03:17:08.524616 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_NEXT_HOP_GROUP
+Nov 23 03:17:08.525812 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_ROUTER_INTERFACE
+Nov 23 03:17:08.527194 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_NEIGHBOR
+Nov 23 03:17:08.529879 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_ACL
+Nov 23 03:17:08.531508 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_HOSTIF
+Nov 23 03:17:08.532662 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_MIRROR
+Nov 23 03:17:08.533509 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_SAMPLEPACKET
+Nov 23 03:17:08.534388 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_STP
+Nov 23 03:17:08.535882 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_LAG
+Nov 23 03:17:08.537357 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_POLICER
+Nov 23 03:17:08.538644 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_WRED
+Nov 23 03:17:08.542984 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_QOS_MAP
+Nov 23 03:17:08.544242 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_QUEUE
+Nov 23 03:17:08.545367 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_SCHEDULER
+Nov 23 03:17:08.546240 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_SCHEDULER_GROUP
+Nov 23 03:17:08.547453 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_BUFFER
+Nov 23 03:17:08.548675 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_HASH
+Nov 23 03:17:08.558694 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_BRIDGE
+Nov 23 03:17:08.569001 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_MACSEC
+Nov 23 03:17:08.602291 as7772 syncd[4155]: :- Syncd: libsai api version: 11902
+Nov 23 03:17:08.602455 as7772 syncd[4155]: :- startDampingTimerThread: Started damping timer thread for proactive max_suppress_time enforcement
+Nov 23 03:17:08.602469 as7772 syncd[4155]: :- Syncd: syncd started
+Nov 23 03:17:08.602488 as7772 syncd[4155]: :- dampingTimerThreadFunc: Damping timer thread started
+Nov 23 03:17:08.606449 as7772 syncd[4155]: :- onSyncdStart: performing hard reinit since COLD start was performed
+Nov 23 03:17:08.608394 as7772 syncd[4155]: :- readAsicState: loaded 0 switches
+Nov 23 03:17:08.608441 as7772 syncd[4155]: :- readAsicState: read asic state took 0.001944 sec
+Nov 23 03:17:08.608688 as7772 syncd[4155]: :- onSyncdStart: hard reinit succeeded
+Nov 23 03:17:08.608712 as7772 syncd[4155]: :- onSyncdStart: on syncd start took 0.002290 sec
+Nov 23 03:17:08.608898 as7772 syncd[4155]: :- run: syncd listening for events
+Nov 23 03:17:08.608983 as7772 syncd[4155]: :- run: starting main loop
+Nov 23 03:17:08.611323 as7772 syncd[4155]: :- processNotifySyncd: very first run is TRUE, op = INIT_VIEW
+Nov 23 03:17:08.611352 as7772 syncd[4155]: :- clearTempView: clearing current TEMP VIEW
+Nov 23 03:17:08.611972 as7772 syncd[4155]: :- clearTempView: clear temp view took 0.000569 sec
+Nov 23 03:17:08.625359 as7772 syncd[4155]: :- processOidCreate: creating switch number 1
+Nov 23 03:17:08.625952 as7772 syncd[4155]: :- profileGetValue: SAI_INIT_CONFIG_FILE: /nix/store/h1lk5i6n06k8mh2v2bmsy4va497gbyi4-as7772-32x-config.bcm
+Nov 23 03:17:08.626057 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_BACKEND: openbcm
+Nov 23 03:17:08.626075 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_RC_FILE: /nix/store/1zwzi6a6jbdbi1jc4advzsxmc5s7bsk2-as7772-32x-led_proc_init.soc
+Nov 23 03:17:08.626095 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_UNIT: NULL
+Nov 23 03:17:08.626112 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_KNET: NULL
+Nov 23 03:17:08.626128 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_PORTS: NULL
+Nov 23 03:17:08.626146 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_LANES: NULL
+Nov 23 03:17:08.626163 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_SPEED: NULL
+Nov 23 03:17:08.626179 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_LINK: NULL
+Nov 23 03:17:08.626196 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_ON_HARDWARE: NULL
+Nov 23 03:17:08.626212 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_RIF_VLAN_BASE: NULL
+Nov 23 03:17:08.626230 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_TEMP_FILE: /run/asic/temperature
+Nov 23 03:17:08.626250 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_TEMP_PROM: /run/prometheus-textfile/asic.prom
+Nov 23 03:17:08.626267 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_TEMP_INTERVAL: NULL
+Nov 23 03:17:08.626283 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_PORT_INTERFACE: caui
+Nov 23 03:17:08.626302 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_PORT_FEC: none
+Nov 23 03:17:08.626320 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_PORT_AUTONEG: off
+Nov 23 03:17:08.626337 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_PORT_IFG: 128
+Nov 23 03:17:08.626354 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_DIAG_SOCKET: /run/sai-openbcm/diag.sock
+Nov 23 03:17:08.626371 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_EXT_PHY_FILE: /nix/store/msp5a1z3ylnapgpy2351yq5sc2lihh20-as7772-ext-phy.tbl
+Nov 23 03:17:08.626389 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_EXT_MACSEC_FILE: /nix/store/p43shbmlmhhz75p4di6xdcm5spyw3sx3-as7772-ext-macsec.tbl
+Nov 23 03:17:08.626407 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_LOG_STDERR: NULL
+Nov 23 03:17:08.626423 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_NETDEV: NULL
+Nov 23 03:17:08.626438 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_WIRE: NULL
+Nov 23 03:17:08.626453 as7772 syncd[4155]: :- profileGetValue: SAI_RS_BACKEND: NULL
+Nov 23 03:17:08.626468 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_DIAG_SOCKET: /run/sai-openbcm/diag.sock
+Nov 23 03:17:08.626487 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_EXT_PHY_FILE: /nix/store/msp5a1z3ylnapgpy2351yq5sc2lihh20-as7772-ext-phy.tbl
+Nov 23 03:17:08.626505 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_EXT_MACSEC_FILE: /nix/store/p43shbmlmhhz75p4di6xdcm5spyw3sx3-as7772-ext-macsec.tbl
+Nov 23 03:17:08.626560 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_MACSEC_HOLD_CLOSED: NULL
+Nov 23 03:17:08.626577 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_MACSEC_ENGINES_ON_AT_STOP: NULL
+Nov 23 03:17:08.626592 as7772 syncd[4155]: :- profileGetValue: SAI_RS_VIRTUAL_PORTS: NULL
+Nov 23 03:17:08.626608 as7772 syncd[4155]: :- profileGetValue: SAI_RS_VIRTUAL_LANES: NULL
+Nov 23 03:17:08.626625 as7772 syncd[4155]: :- profileGetValue: SAI_RS_VIRTUAL_SPEED: NULL
+Nov 23 03:17:08.626641 as7772 syncd[4155]: :- profileGetValue: SAI_RS_VIRTUAL_LINK: NULL
+Nov 23 03:17:08.626656 as7772 syncd[4155]: :- profileGetValue: SAI_RS_VIRTUAL_ON_HARDWARE: NULL
+Nov 23 03:17:08.626672 as7772 syncd[4155]: :- profileGetValue: SAI_RS_VIRTUAL_NETDEV: NULL
+Nov 23 03:17:08.626687 as7772 syncd[4155]: :- profileGetValue: SAI_RS_VIRTUAL_WIRE: NULL
+Nov 23 03:17:08.626704 as7772 syncd[4155]: :- profileGetValue: SAI_RS_VIRTUAL_COMPAT: NULL
+Nov 23 03:17:08.626719 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_PORTS: NULL
+Nov 23 03:17:08.626735 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_LANES: NULL
+Nov 23 03:17:08.626750 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_SPEED: NULL
+Nov 23 03:17:08.626766 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_LINK: NULL
+Nov 23 03:17:08.626783 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_ON_HARDWARE: NULL
+Nov 23 03:17:08.626799 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_NETDEV: NULL
+Nov 23 03:17:08.626814 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_WIRE: NULL
+Nov 23 03:17:08.626830 as7772 syncd[4155]: :- profileGetValue: SAI_INIT_CONFIG_FILE: /nix/store/h1lk5i6n06k8mh2v2bmsy4va497gbyi4-as7772-32x-config.bcm
+Nov 23 03:17:08.626849 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_RC_FILE: /nix/store/1zwzi6a6jbdbi1jc4advzsxmc5s7bsk2-as7772-32x-led_proc_init.soc
+Nov 23 03:17:08.626867 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_UNIT: NULL
+Nov 23 03:17:08.627296 as7772 syncd[4155]: sai-openbcm NOTICE api=1: port quirks: interface caui, ASIC FEC fixed none, autoneg fixed off, IFG 128 bits
+Nov 23 03:17:08.691284 as7772 syncd[4155]: sai-openbcm NOTICE api=1: port quirks: interface caui, ASIC FEC fixed none, autoneg fixed off, IFG 128 bits
+Nov 23 03:17:08.750259 as7772 syncd[4155]: sai-openbcm NOTICE api=1: initializing backend openbcm
+Nov 23 03:17:08.750598 as7772 syncd[4155]: sai-rs openbcm: SDK init: unit 0, config /nix/store/h1lk5i6n06k8mh2v2bmsy4va497gbyi4-as7772-32x-config.bcm, rc /nix/store/1zwzi6a6jbdbi1jc4advzsxmc5s7bsk2-as7772-32x-led_proc_init.soc
+Nov 23 03:17:09.110713 as7772 syncd[4155]: Broadcom Command Monitor: Copyright (c) 1998-2026 Broadcom
+Nov 23 03:17:09.110713 as7772 syncd[4155]: Release: sdk-6.5.27 built 20261115 (Sun Nov 15 08:57:46 2026)
+Nov 23 03:17:09.110713 as7772 syncd[4155]: From nixbld@localhost:/build/openbcm-sdk-6.5.27-patched
+Nov 23 03:17:09.110713 as7772 syncd[4155]: Platform: PPC64BE
+Nov 23 03:17:09.110713 as7772 syncd[4155]: OS: Unix (Posix)
+Nov 23 03:17:09.490612 as7772 syncd[4155]: :- threadFunction: time span 865 ms for 'create:SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000'
+Nov 23 03:17:09.500808 as7772 syncd[4155]: linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+Nov 23 03:17:09.500808 as7772 syncd[4155]: DMA pool size: 16777216 bytes.
+Nov 23 03:17:09.500808 as7772 syncd[4155]: BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+Nov 23 03:17:09.562061 as7772 syncd[4155]: SOC unit 0 attached to PCI device BCM56930_B1
+Nov 23 03:17:09.564303 as7772 syncd[4155]: Boot flags: initialization scripts NOT loaded
+Nov 23 03:17:09.914380 as7772 syncd[4155]: [SOC KNET RX]soc_knet_handle_rx: unhandled (type=3, opcode=31)
+Nov 23 03:17:10.494628 as7772 syncd[4155]: :- threadFunction: time span 1869 ms for 'create:SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000'
+Nov 23 03:17:11.498590 as7772 syncd[4155]: :- threadFunction: time span 2873 ms for 'create:SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000'
+Nov 23 03:17:12.425117 as7772 syncd[4155]: sai-rs openbcm: SDK init: ok: stale KNET netifs 32 filters 0 destroyed; IPv4/IPv6 L3 on 34 ports
+Nov 23 03:17:12.426032 as7772 syncd[4155]: sai-rs openbcm: SDK tables: host 40960, route 8192, egress 32768, L2 40960; buffer 16777280 B; ECMP 2048 groups x 1024 paths, 16384 member entries; VRF ids up to 2047
+Nov 23 03:17:12.439268 as7772 syncd[4155]: sai-openbcm NOTICE api=1: external PHY table: 32 ports (32 with a line-side link poll), poll 500 ms, up after 2 good polls, hold-off 3000 ms
+Nov 23 03:17:12.489297 as7772 syncd[4155]: sai-openbcm NOTICE api=1: external MACsec table: 32 ports, 126 sequences, counters clear on read, inter-frame gap 384 bit times with MACsec on
+Nov 23 03:17:12.502610 as7772 syncd[4155]: :- threadFunction: time span 3877 ms for 'create:SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000'
+Nov 23 03:17:13.122591 as7772 syncd[4155]: sai-openbcm NOTICE api=1: switch created: 32 front-panel ports, backend openbcm
+Nov 23 03:17:13.122948 as7772 syncd[4155]: sai-openbcm NOTICE api=1: diag socket /run/sai-openbcm/diag.sock: SDK diag shell commands (root, one per connection)
+Nov 23 03:17:13.123014 as7772 syncd[4155]: sai-openbcm NOTICE api=1: ASIC temperature: 8 monitors, max 46.2 C; every 5 s to /run/asic/temperature and /run/prometheus-textfile/asic.prom
+Nov 23 03:17:13.124056 as7772 syncd[4155]: :- SaiDiscovery: check attr version DISABLED, libsai api version: 11902
+Nov 23 03:17:13.160029 as7772 syncd[4155]: :- discover: skipping since it causes crash: SAI_STP_ATTR_BRIDGE_ID
+Nov 23 03:17:13.160732 as7772 syncd[4155]: :- discover: discover took 0.036647 sec
+Nov 23 03:17:13.160746 as7772 syncd[4155]: :- discover: discovered objects count: 615
+Nov 23 03:17:13.161061 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_PORT: 33
+Nov 23 03:17:13.161076 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_VIRTUAL_ROUTER: 1
+Nov 23 03:17:13.161089 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_STP: 1
+Nov 23 03:17:13.161102 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_HOSTIF_TRAP_GROUP: 1
+Nov 23 03:17:13.161115 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_QUEUE: 256
+Nov 23 03:17:13.161128 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_INGRESS_PRIORITY_GROUP: 256
+Nov 23 03:17:13.161141 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_SWITCH: 1
+Nov 23 03:17:13.161155 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_VLAN: 1
+Nov 23 03:17:13.161167 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_VLAN_MEMBER: 32
+Nov 23 03:17:13.161181 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_BRIDGE: 1
+Nov 23 03:17:13.161193 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_BRIDGE_PORT: 32
+Nov 23 03:17:13.163187 as7772 syncd[4155]: :- helperSaveDiscoveredObjectsToRedis: objects in ASIC state table present: 0
+Nov 23 03:17:13.163201 as7772 syncd[4155]: :- helperSaveDiscoveredObjectsToRedis: putting ALL discovered objects to redis
+Nov 23 03:17:13.506567 as7772 syncd[4155]: :- threadFunction: time span 4881 ms for 'create:SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000'
+Nov 23 03:17:13.567870 as7772 syncd[4155]: :- helperSaveDiscoveredObjectsToRedis: save discovered objects to redis took 0.404823 sec
+Nov 23 03:17:13.568268 as7772 syncd[4155]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x100000000000000 to Asic View and COLDVIDS
+Nov 23 03:17:13.568738 as7772 syncd[4155]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x2600000000000001 to Asic View and COLDVIDS
+Nov 23 03:17:13.569192 as7772 syncd[4155]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x1000000000000001 to Asic View and COLDVIDS
+Nov 23 03:17:13.569648 as7772 syncd[4155]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x300000000000001 to Asic View and COLDVIDS
+Nov 23 03:17:13.569791 as7772 syncd[4155]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_OVERRIDE_VIRTUAL_ROUTER_ID: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 23 03:17:13.570130 as7772 syncd[4155]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x3900000000000001 to Asic View and COLDVIDS
+Nov 23 03:17:13.570601 as7772 syncd[4155]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x1100000000000001 to Asic View and COLDVIDS
+Nov 23 03:17:13.570741 as7772 syncd[4155]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_ECMP_HASH: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 23 03:17:13.570761 as7772 syncd[4155]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_LAG_HASH: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 23 03:17:13.570799 as7772 syncd[4155]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_CPU_INGRESS_BUFFER_POOL: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 23 03:17:13.570817 as7772 syncd[4155]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_CPU_EGRESS_BUFFER_POOL: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 23 03:17:13.641184 as7772 syncd[4155]: :- helperLoadColdVids: read 615 COLD VIDS
+Nov 23 03:17:13.641247 as7772 syncd[4155]: :- saiGetVxlanDefaultRouterMacAddress: failed to obtain SAI_SWITCH_ATTR_VXLAN_DEFAULT_ROUTER_MAC, setting to 00:00:00:00:00:00
+Nov 23 03:17:13.641273 as7772 syncd[4155]: :- SaiSwitch: constructor took 0.517345 sec
+Nov 23 03:17:13.656579 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC SWITCH_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:13.704160 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC PORT_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:13.705473 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC PORT_PHY_ATTR: COUNTERS_DB connection established
+Nov 23 03:17:13.706817 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC PORT_PHY_SERDES_ATTR: COUNTERS_DB connection established
+Nov 23 03:17:13.708045 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC PORT_BUFFER_DROP_STAT: COUNTERS_DB connection established
+Nov 23 03:17:13.709157 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC QUEUE_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:13.710255 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC QUEUE_WATERMARK_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:13.711857 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC PG_WATERMARK_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:13.713104 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC PG_DROP_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:13.714280 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC WRED_ECN_PORT_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:13.715568 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC WRED_ECN_QUEUE_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:13.727578 as7772 syncd[4155]: :- addPlugins: Queue Counter counters plugin 3a6159b8386c08e7285e34a85f4d2c68ad0f1168 registered
+Nov 23 03:17:13.729633 as7772 syncd[4155]: :- addPlugins: Priority Group Counter counters plugin bcf34ae9158bb04b86095f829f890234e38613ff registered
+Nov 23 03:17:13.730678 as7772 syncd[4155]: :- addPlugins: Port Counter counters plugin c08c663e2038cc7adcfe422cfddccb4330d9da6c registered
+Nov 23 03:17:13.730692 as7772 syncd[4155]: :- addPlugins: Port Counter counters plugin 567234fa6d7e30a131a3a2d4d60d3b1b923a42c2 registered
+Nov 23 03:17:14.025449 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC ROUTE_FLOW_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.055166 as7772 syncd[4155]: :- addPlugins: Rif Counter counters plugin 03380075809fb1143905cc18158a8bf46fa54920 registered
+Nov 23 03:17:14.056138 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC RIF_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.070545 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC SRV6_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.093430 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC HOSTIF_TRAP_FLOW_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.094662 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC COPP_STATS_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.101451 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 0 field entries, 0 policers (field group -1)
+Nov 23 03:17:14.110439 as7772 syncd[4155]: :- addPlugins: Tunnel Counter counters plugin 5f7d853dc44d586514ba71cc8439ef1dcf4eda53 registered
+Nov 23 03:17:14.111613 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC TUNNEL_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.141131 as7772 syncd[4155]: :- addPlugins: Buffer Pool Counter counters plugin 78f7658e05f9659b8ecaf00eb0214957a509e246 registered
+Nov 23 03:17:14.142067 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC BUFFER_POOL_WATERMARK_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.160567 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC DEBUG_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.166533 as7772 syncd[4155]: :- addPlugins: Port Counter counters plugin a231314a35f419bcb5f24da711a96fa578aac9c5 registered
+Nov 23 03:17:14.167350 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC DEBUG_MONITOR_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.193926 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC COUNTERS_MACSEC_SA_ATTR: COUNTERS_DB connection established
+Nov 23 03:17:14.196175 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC COUNTERS_MACSEC_SA: COUNTERS_DB connection established
+Nov 23 03:17:14.197968 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC COUNTERS_MACSEC_FLOW: COUNTERS_DB connection established
+Nov 23 03:17:14.210467 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC ACL_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.343916 as7772 syncd[4155]: :- addPlugins: Queue Counter counters plugin 0d40803ca702c0e2d51502c78220f6e667d10e20 registered
+Nov 23 03:17:14.343936 as7772 syncd[4155]: :- addPlugins: Queue Counter counters plugin fb3b7a44d7053e8b4c9b8f95d6bf40c587ef9c70 registered
+Nov 23 03:17:14.344977 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC PFC_WD: COUNTERS_DB connection established
+Nov 23 03:17:14.381702 as7772 syncd[4155]: :- processNotifySyncd: very first run is TRUE, op = APPLY_VIEW
+Nov 23 03:17:14.381716 as7772 syncd[4155]: :- processNotifySyncd: setting very first run to FALSE, op = APPLY_VIEW
+Nov 23 03:17:16.158410 as7772 syncd[4155]: sai-openbcm NOTICE api=2: port ce0 admin up
+Nov 23 03:17:16.195498 as7772 syncd[4155]: sai-openbcm NOTICE api=2: port ce30 admin up
+Nov 23 03:17:16.207725 as7772 syncd[4155]: sai-openbcm NOTICE api=2: port ce31 admin up
+Nov 23 03:17:16.237114 as7772 syncd[4155]: sai-openbcm NOTICE api=2: port ce1 admin up
+Nov 23 03:17:16.315484 as7772 syncd[4155]: sai-openbcm NOTICE api=17: policer 1: sr_tcm packets cir 600 cbs 600 pir 0 pbs 0
+Nov 23 03:17:16.323283 as7772 syncd[4155]: sai-openbcm NOTICE api=17: policer 2: sr_tcm packets cir 6000 cbs 6000 pir 0 pbs 0
+Nov 23 03:17:16.330722 as7772 syncd[4155]: sai-rs openbcm: field group 1: priority 1000, qualifiers 0x22b0e
+Nov 23 03:17:16.331451 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 1 field entries, 1 policers (field group 1)
+Nov 23 03:17:16.336290 as7772 syncd[4155]: sai-openbcm NOTICE api=17: policer 3: sr_tcm packets cir 200 cbs 200 pir 0 pbs 0
+Nov 23 03:17:16.345178 as7772 syncd[4155]: sai-openbcm NOTICE api=17: policer 4: sr_tcm packets cir 100 cbs 100 pir 0 pbs 0
+Nov 23 03:17:16.352232 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 2 field entries, 2 policers (field group 1)
+Nov 23 03:17:16.359912 as7772 syncd[4155]: sai-openbcm NOTICE api=17: policer 5: sr_tcm packets cir 6000 cbs 6000 pir 0 pbs 0
+Nov 23 03:17:16.365630 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 4 field entries, 3 policers (field group 1)
+Nov 23 03:17:16.370484 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 6 field entries, 3 policers (field group 1)
+Nov 23 03:17:16.375253 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 7 field entries, 3 policers (field group 1)
+Nov 23 03:17:16.380901 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 8 field entries, 3 policers (field group 1)
+Nov 23 03:17:16.386266 as7772 syncd[4155]: sai-openbcm NOTICE api=17: policer 6: sr_tcm packets cir 600 cbs 600 pir 0 pbs 0
+Nov 23 03:17:16.395838 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 9 field entries, 4 policers (field group 1)
+Nov 23 03:17:16.402961 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 10 field entries, 4 policers (field group 1)
+Nov 23 03:17:16.416820 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 15 field entries, 4 policers (field group 1)
+Nov 23 03:17:16.959037 as7772 syncd[4155]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 23 03:17:16.961501 as7772 syncd[4155]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 23 03:17:17.215027 as7772 syncd[4155]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 23 03:17:17.221454 as7772 syncd[4155]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 23 03:17:18.060960 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: MACsec egress on (external PHY 0x0)
+Nov 23 03:17:18.164234 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress on (external PHY 0x0)
+Nov 23 03:17:18.279666 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: MACsec egress off
+Nov 23 03:17:18.320976 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress off
+Nov 23 03:17:18.424161 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: MACsec egress on (external PHY 0x17e)
+Nov 23 03:17:18.526566 as7772 syncd[4155]: :- threadFunction: time span 100 ms for 'create:SAI_OBJECT_TYPE_MACSEC_PORT:oid:0x590000000002ae'
+Nov 23 03:17:18.528118 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: MACsec ingress on (external PHY 0x17e)
+Nov 23 03:17:18.652819 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: MACsec egress on (external PHY 0x0)
+Nov 23 03:17:18.756774 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress on (external PHY 0x0)
+Nov 23 03:17:18.827525 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: MACsec egress off
+Nov 23 03:17:18.863506 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: MACsec ingress off
+Nov 23 03:17:18.885776 as7772 syncd[4155]: sai-rs openbcm: my-station 1: 1c:ea:0b:38:2b:d5 (IPv4, IPv6, ARP)
+Nov 23 03:17:18.999308 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: MACsec egress on (external PHY 0x17e)
+Nov 23 03:17:19.104172 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: MACsec ingress on (external PHY 0x17e)
+Nov 23 03:17:19.148761 as7772 syncd[4155]: sai-rs openbcm: my-station 2: 1c:ea:0b:38:2b:d7 (IPv4, IPv6, ARP)
+Nov 23 03:17:19.155847 as7772 syncd[4155]: sai-rs openbcm: my-station 3: 1c:ea:0b:38:2b:d6 (IPv4, IPv6, ARP)
+Nov 23 03:17:19.708172 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: MACsec egress on (external PHY 0x17f)
+Nov 23 03:17:19.818343 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: MACsec ingress on (external PHY 0x17f)
+Nov 23 03:17:19.927564 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: MACsec egress off
+Nov 23 03:17:19.963544 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: MACsec ingress off
+Nov 23 03:17:20.060170 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: MACsec egress on (external PHY 0x1)
+Nov 23 03:17:20.168690 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: MACsec ingress on (external PHY 0x1)
+Nov 23 03:17:20.284153 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: MACsec egress on (external PHY 0x17f)
+Nov 23 03:17:20.388177 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: MACsec ingress on (external PHY 0x17f)
+Nov 23 03:17:20.463518 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: MACsec egress off
+Nov 23 03:17:20.499454 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: MACsec ingress off
+Nov 23 03:17:20.534569 as7772 syncd[4155]: :- threadFunction: time span 0 ms for 'create:SAI_OBJECT_TYPE_MACSEC_PORT:oid:0x590000000002e7'
+Nov 23 03:17:20.624165 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: MACsec egress on (external PHY 0x1)
+Nov 23 03:17:20.732801 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: MACsec ingress on (external PHY 0x1)
+Nov 23 03:17:24.079196 as7772 syncd[4155]: :- collectDataBulk: Bulk get not available for SAI_OBJECT_TYPE_MACSEC_SA, using per object get
+Nov 23 03:17:24.111379 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:17:24.115821 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: egress data frames go through the secure channel
+Nov 23 03:17:24.139346 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:17:24.143796 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: ingress data frames go through the secure channel
+Nov 23 03:17:24.247324 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:17:24.251762 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: egress data frames go through the secure channel
+Nov 23 03:17:24.275015 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:17:24.279453 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: ingress data frames go through the secure channel
+Nov 23 03:17:25.153540 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:17:25.158015 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: egress data frames go through the secure channel
+Nov 23 03:17:25.182297 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:17:25.186777 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: ingress data frames go through the secure channel
+Nov 23 03:17:25.203187 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:17:25.207655 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: egress data frames go through the secure channel
+Nov 23 03:17:25.231557 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:17:25.236016 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: ingress data frames go through the secure channel

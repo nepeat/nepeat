@@ -1,0 +1,103 @@
+== 2026-11-23T11:00:02+00:00 /nix/store/2kk34h17krxi21j7pn2yzsanpxmphjw4-nixos-system-as7772-26.11.20261111.d4f25a3 booted /nix/store/2kk34h17krxi21j7pn2yzsanpxmphjw4-nixos-system-as7772-26.11.20261111.d4f25a3
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 97.7 s
+  run started 2026-11-23 10:57:45 +0000, took 101.3 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 98.8 s (553600 writes, 426985 reads, 15825 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 44.7 C, 0 failed, longest read 0.13 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+name    phy    id      id2     fw      cksum   sides   state
+cage1   0x000  2391    80a0    d00b    600d    000d    ok
+cage2   0x001  2391    80a0    d00b    600d    000d    ok
+cage3   0x002  2391    80a0    d00b    600d    000d    ok
+cage4   0x003  2391    80a0    d00b    600d    000d    ok
+cage5   0x024  2391    80a0    d00b    600d    000d    ok
+cage6   0x025  2391    80a0    d00b    600d    000d    ok
+cage7   0x026  2391    80a0    d00b    600d    000d    ok
+cage8   0x027  2391    80a0    d00b    600d    000d    ok
+cage9   0x048  2391    80a0    d00b    600d    000d    ok
+cage10  0x049  2391    80a0    d00b    600d    000d    ok
+cage11  0x04a  2391    80a0    d00b    600d    000d    ok
+cage12  0x04b  2391    80a0    d00b    600d    000d    ok
+cage13  0x06c  2391    80a0    d00b    600d    000d    ok
+cage14  0x06d  2391    80a0    d00b    600d    000d    ok
+cage15  0x06e  2391    80a0    d00b    600d    000d    ok
+cage16  0x06f  2391    80a0    d00b    600d    000d    ok
+cage17  0x110  2391    80a0    d00b    600d    000d    ok
+cage18  0x111  2391    80a0    d00b    600d    000d    ok
+cage19  0x112  2391    80a0    d00b    600d    000d    ok
+cage20  0x113  2391    80a0    d00b    600d    000d    ok
+cage21  0x134  2391    80a0    d00b    600d    000d    ok
+cage22  0x135  2391    80a0    d00b    600d    000d    ok
+cage23  0x136  2391    80a0    d00b    600d    000d    ok
+cage24  0x137  2391    80a0    d00b    600d    000d    ok
+cage25  0x158  2391    80a0    d00b    600d    000d    ok
+cage26  0x159  2391    80a0    d00b    600d    000d    ok
+cage27  0x15a  2391    80a0    d00b    600d    000d    ok
+cage28  0x15b  2391    80a0    d00b    600d    000d    ok
+cage29  0x17c  2391    80a0    d00b    600d    000d    ok
+cage30  0x17d  2391    80a0    d00b    600d    000d    ok
+cage31  0x17e  2391    80a0    d00b    600d    000d    ok
+cage32  0x17f  2391    80a0    d00b    600d    000d    ok
+
+● openbcm-mdio-script.service - External PHY bring-up over the switch chip's MDIO bus
+     Loaded: loaded (/etc/systemd/system/openbcm-mdio-script.service; enabled; preset: ignored)
+     Active: active (exited) since Mon 2026-11-23 02:59:26 PST; 36s ago
+ Invocation: db38644899c146a4bb76d9150d46476b
+    Process: 483 ExecStartPre=/nix/store/as9g06634ppd90adwxlkal2x039bi62q-systemd-powerpc64-unknown-linux-gnuabielfv2-262/bin/systemctl stop openbcm-asic-temp.service (code=exited, status=0/SUCCESS)
+    Process: 496 ExecStart=/nix/store/jj1lmkqghiwm43vjbbd10mnga2avabzy-openbcm-mdio-script-from-rust/bin/openbcm-mdio-script --config /nix/store/h1lk5i6n06k8mh2v2bmsy4va497gbyi4-as7772-32x-config.bcm --status-file /run/openbcm-mdio-script/status.json --names /nix/store/hwda1m535dq64i2xx8grkkrciqczz6j7-openbcm-mdio-names --hint interrupted=the PHYs may be half-programmed: systemctl restart sonic.target runs the bring-up again (it resets them first) --hint phy-not-answering=an Evora PHY that reads one constant is hung until a COLD power cycle (lab plug 1, or pull the cord); a reboot or a re-run does not help. It boots by itself afterwards --hint script-malformed=the PHY script is truncated or damaged: install it again (evora-rehost/install-script.sh checks its sha256), then: systemctl restart sonic.target --hint script-missing=the PHY script is private and installed by hand: on the workstation run devices/edge-core-as7772-32x/evora-rehost/install-script.sh, then here: systemctl restart sonic.target --hint sdk-busy=systemctl stop sonic.target openbcm-asic-temp (and any bcm.user), then: systemctl restart sonic.target --hint sequence-diverged=run it again: systemctl restart sonic.target (about 100 s). If it stops at the same line twice, cold power cycle; phy-status --live shows every PHY --hint verify-mismatch=run it again: systemctl restart sonic.target (about 100 s); a PHY that still differs after a cold power cycle is a hardware or script problem --temp-out /run/asic/temperature --temp-interval 5 --temp-prom /run/prometheus-textfile/asic.prom /var/lib/evora-phy/evora-100g-bypass.mdio (code=exited, status=0/SUCCESS)
+   Main PID: 496 (code=exited, status=0/SUCCESS)
+     Status: "ok: 32 PHYs verified after 1058160 operations in 97.7 s"
+         IP: 0B in, 0B out
+   Mem peak: 151.6M
+        CPU: 1min 9.160s
+
+
+openbcm-mdio-script: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: done in 98.8 s: 1058160 of 1058160 operations, 553600 writes, 426985 reads (307099 polls, 15825 re-reads), 0 expected values differed
+== phy-status
+cage25  0x158  2391    80a0    d00b    600d    000d    ok
+cage26  0x159  2391    80a0    d00b    600d    000d    ok
+cage27  0x15a  2391    80a0    d00b    600d    000d    ok
+cage28  0x15b  2391    80a0    d00b    600d    000d    ok
+cage29  0x17c  2391    80a0    d00b    600d    000d    ok
+cage30  0x17d  2391    80a0    d00b    600d    000d    ok
+cage31  0x17e  2391    80a0    d00b    600d    000d    ok
+cage32  0x17f  2391    80a0    d00b    600d    000d    ok
+
+== the PHYs now (read only) ==
+through syncd (/run/sai-openbcm/diag.sock)
+name    phy    id      id2     fw      cksum   sides   state
+cage1   0x000  2391    80a0    d00b    600d    000d    ok
+cage2   0x001  2391    80a0    d00b    600d    000d    ok
+cage3   0x002  2391    80a0    d00b    600d    000d    ok
+cage4   0x003  2391    80a0    d00b    600d    000d    ok
+cage5   0x024  2391    80a0    d00b    600d    000d    ok
+cage6   0x025  2391    80a0    d00b    600d    000d    ok
+cage7   0x026  2391    80a0    d00b    600d    000d    ok
+cage8   0x027  2391    80a0    d00b    600d    000d    ok
+cage9   0x048  2391    80a0    d00b    600d    000d    ok
+cage10  0x049  2391    80a0    d00b    600d    000d    ok
+cage11  0x04a  2391    80a0    d00b    600d    000d    ok
+cage12  0x04b  2391    80a0    d00b    600d    000d    ok
+cage13  0x06c  2391    80a0    d00b    600d    000d    ok
+cage14  0x06d  2391    80a0    d00b    600d    000d    ok
+cage15  0x06e  2391    80a0    d00b    600d    000d    ok
+cage16  0x06f  2391    80a0    d00b    600d    000d    ok
+cage17  0x110  2391    80a0    d00b    600d    000d    ok
+cage18  0x111  2391    80a0    d00b    600d    000d    ok
+cage19  0x112  2391    80a0    d00b    600d    000d    ok
+cage20  0x113  2391    80a0    d00b    600d    000d    ok
+cage21  0x134  2391    80a0    d00b    600d    000d    ok
+cage22  0x135  2391    80a0    d00b    600d    000d    ok
+cage23  0x136  2391    80a0    d00b    600d    000d    ok
+cage24  0x137  2391    80a0    d00b    600d    000d    ok
+cage25  0x158  2391    80a0    d00b    600d    000d    ok
+cage26  0x159  2391    80a0    d00b    600d    000d    ok
+cage27  0x15a  2391    80a0    d00b    600d    000d    ok
+cage28  0x15b  2391    80a0    d00b    600d    000d    ok
+cage29  0x17c  2391    80a0    d00b    600d    000d    ok
+cage30  0x17d  2391    80a0    d00b    600d    000d    ok
+cage31  0x17e  2391    80a0    d00b    600d    000d    ok
+cage32  0x17f  2391    80a0    d00b    600d    000d    ok
+32 of 32 PHYs as the script expects
+failed units: 0

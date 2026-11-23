@@ -15,14 +15,18 @@
 #     in import <ai_re>/nix/packages/sai-openbcm/test-mdio-units.nix { pkgs = p; }'
 { pkgs
 , sonic ? import ../sonic { inherit pkgs; }
-, libsai ? pkgs.callPackage ./. { inherit sonic; } }:
+, libsai ? pkgs.callPackage ./. { inherit sonic; }
+  # hardware.openbcm settings for the tool under test, e.g. { mdioTool = "rust"; rustSai =
+  # <monorepo>/rust/sai/nix; }: the stand-in then wraps the tool the module picks (default:
+  # libsai's C tool).
+, openbcm ? { } }:
 let
   lock = "/run/openbcm-unit0.lock";
   path = pkgs.lib.makeBinPath [ pkgs.coreutils pkgs.util-linux ];
   # bin/openbcm-mdio-script: the real tool, except for the simulated success.
-  mdioScript = pkgs.writeShellScript "openbcm-mdio-script" ''
+  mdioScript = real: pkgs.writeShellScript "openbcm-mdio-script" ''
     PATH=${path}
-    real=${libsai}/bin/openbcm-mdio-script
+    real=${real}/bin/openbcm-mdio-script
     [ -e /var/lib/phy/sdk-works ] || exec $real "$@"
     case " $* " in *" --verify-only "*) exec $real "$@" ;; esac
     for a in "$@"; do script=$a; done
@@ -48,9 +52,9 @@ let
     trap 'rm -f "$out"; exit 0' TERM INT
     while :; do echo 41.0 > "$out.tmp"; mv "$out.tmp" "$out"; sleep 1 & wait $!; done
   '';
-  tools = pkgs.runCommand "sai-openbcm-vm-standins" { } ''
+  tools = real: pkgs.runCommand "sai-openbcm-vm-standins" { } ''
     mkdir -p $out/bin
-    ln -s ${mdioScript} $out/bin/openbcm-mdio-script
+    ln -s ${mdioScript real} $out/bin/openbcm-mdio-script
     ln -s ${asicTemp} $out/bin/openbcm-asic-temp
   '';
   syncd = pkgs.writeShellScript "standin-syncd" ''
@@ -64,15 +68,21 @@ let
   '';
 in
 pkgs.testers.runNixOSTest {
-  name = "openbcm-mdio-script-units";
-  nodes.machine = { lib, pkgs, ... }: {
+  name = "openbcm-mdio-script-units" + pkgs.lib.optionalString ((openbcm.mdioTool or "c") != "c") "-${openbcm.mdioTool}";
+  nodes.machine = { lib, pkgs, options, ... }: let
+    # c: libsai's tool (the module's default would be these stand-ins themselves);
+    # rust: the one hardware.openbcm.mdioTool selects.
+    standins = tools (if (openbcm.mdioTool or "c") == "c" then libsai else options.hardware.openbcm.mdioScript.package.default);
+  in {
     imports = [ ../../modules/switch/openbcm.nix ];
-    hardware.openbcm = {
+    hardware.openbcm = openbcm // {
       enable = true;
-      package = tools;
+      sdk = false;   # no SDK in the VM
+      package = standins;
       temperature = { enable = true; interval = 1; };
       mdioScript = {
         enable = true;
+        package = standins;
         files = [ "/var/lib/phy/init.mdio" ];
         sdkConfig = pkgs.writeText "config.bcm" "";
         requiredBy = [ "stack.target" "stack-syncd.service" ];

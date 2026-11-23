@@ -1,0 +1,19 @@
+# Glue differential only (tests/glue_differential.rs): glue calls the shared scripts do not make.
+# The board quirks of the profile (interface type, FEC, autoneg, inter-frame gap: applied at
+# switch creation and again after a speed change), a counter clear, a neighbor's MAC change
+# (an egress update).
+profile SAI_OPENBCM_PORT_INTERFACE=caui
+profile SAI_OPENBCM_PORT_FEC=rs
+profile SAI_OPENBCM_PORT_AUTONEG=off
+profile SAI_OPENBCM_PORT_IFG=96
+switch
+stats port port0 IF_IN_OCTETS IF_OUT_UCAST_PKTS
+clear port port0 IF_IN_OCTETS
+set port port0 SPEED=40000
+get port port0 SPEED
+create router_interface rif1 VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=port1 SRC_MAC_ADDRESS=02:00:00:00:00:01
+create neighbor_entry 10.0.0.2@rif1 DST_MAC_ADDRESS=02:00:00:00:00:02
+set neighbor_entry 10.0.0.2@rif1 DST_MAC_ADDRESS=02:00:00:00:00:03
+remove neighbor_entry 10.0.0.2@rif1
+remove router_interface rif1
+remove_switch

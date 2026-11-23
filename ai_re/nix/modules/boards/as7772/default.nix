@@ -18,8 +18,11 @@ let
   # With hardware.openbcm.rustPhySeq the parsers are the Rust ones, on the
   # switch (saiRust) and here: a table is checked by the parser that will
   # read it at boot.
+  # With hardware.openbcm.implementation = "rust" the checkers are the Rust
+  # library's own (its native build).
   rustPhySeq = config.hardware.openbcm.rustPhySeq;
-  saiNative = pkgs.buildPackages.callPackage ../../../packages/sai-openbcm ({
+  rustLib = config.hardware.openbcm.implementation == "rust";
+  saiNative = if rustLib then config.hardware.openbcm.nativePackage else pkgs.buildPackages.callPackage ../../../packages/sai-openbcm ({
     sonic = import ../../../packages/sonic { pkgs = pkgs.buildPackages; };
   } // lib.optionalAttrs (rustPhySeq != null) { rustPhySeq = pkgs.buildPackages.callPackage rustPhySeq { }; });
   # With hardware.openbcm.rustMacsec the MACsec object model is the Rust one
@@ -195,7 +198,7 @@ in {
       policy.curve = { points = [ [ 65 53 ] [ 80 75 ] [ 90 100 ] ]; hysteresis = 3; };
     };
   };
-}) (lib.mkIf (rustPhySeq != null || rustMacsec != null) {
+}) (lib.mkIf (!rustLib && (rustPhySeq != null || rustMacsec != null)) {
   # syncd on the libsai whose table parsers and sequence executor are the
   # Rust crate phy-seq (hardware.openbcm.rustPhySeq) and / or whose MACsec
   # object model is the Rust crate sai-macsec (hardware.openbcm.rustMacsec);

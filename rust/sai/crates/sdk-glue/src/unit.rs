@@ -20,8 +20,11 @@ use crate::glue::Glue;
 #[cfg(not(ob_glue_rust_only))]
 pub(crate) static REAL_OPEN: AtomicBool = AtomicBool::new(false);
 
-/// Size of the message buffer handed to the glue (the C tool's `err[600]`).
-const MESSAGE_LEN: usize = 600;
+/// Size of the message buffer handed to `ob_sdk_init_mdio` (the C MDIO tool's `err[600]`).
+const MDIO_MESSAGE_LEN: usize = 600;
+/// Size of the message buffer handed to `ob_sdk_init` and `ob_sdk_attach` (the C++ backend's and
+/// `asic_temp.c`'s `err[256]`): the glue is told the same capacity as by the C callers.
+const MESSAGE_LEN: usize = 256;
 
 /// How the real glue's SDK was first booted in this process: it boots once, and later
 /// bring-ups reuse that boot whatever they pass (`sdk_glue.c` `sdk_boot`).
@@ -221,7 +224,14 @@ pub(crate) fn bring_up(
             });
         }
     }
-    let mut message = [0u8; MESSAGE_LEN];
+    let mut message = vec![
+        0u8;
+        if layer == Layer::Mdio {
+            MDIO_MESSAGE_LEN
+        } else {
+            MESSAGE_LEN
+        }
+    ];
     // [I1]: the claim is held and no handle of this glue exists, so no other call runs.
     let rv = call(&glue, &mut message);
     let text = message_text(&message);

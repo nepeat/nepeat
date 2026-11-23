@@ -6,7 +6,7 @@
 #       libsdk = ppcOpenbcm.libsdk { };
 #       glueSrc = <ai_re/nix/packages/sai-openbcm/src>;      # sdk_glue.c, sdk_glue.h
 #     }
-#   fake glue (any platform; the same code path over the in-memory fake, no chip):
+#   fake glue (any platform; the same code path over sdk-glue's Rust fake of the glue, no C, no chip):
 #     pkgs.callPackage ./libsai-openbcm.nix { saiRs = <./package.nix>; }
 #     its check phase runs the smoke program against the library it built.
 #

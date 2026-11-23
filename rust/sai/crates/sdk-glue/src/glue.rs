@@ -15,7 +15,8 @@ use crate::real;
 /// Which glue a handle drives.
 #[derive(Clone, Debug)]
 pub(crate) enum Glue {
-    /// `sdk_glue.c` (or the C fake) through `sdk-glue-sys`: whatever this program links.
+    /// `sdk_glue.c` through `sdk-glue-sys` (feature `real`; in tests also a C stub linked in its
+    /// place through `SDK_GLUE_LINK`): whatever this program links.
     #[cfg(not(ob_glue_rust_only))]
     Real,
     /// The Rust fake ([`crate::rust_fake`]).
@@ -32,8 +33,9 @@ macro_rules! ops {
                     match self {
                         #[cfg(not(ob_glue_rust_only))]
                         Self::Real => real::$name($($arg),*),
+                        // through the call log (crate::record), which calls the chip
                         #[cfg(feature = "rust-fake")]
-                        Self::Fake(chip) => chip.$name($($arg),*),
+                        Self::Fake(chip) => crate::record::$name(chip, $($arg),*),
                     }
                 }
             )*
@@ -167,7 +169,8 @@ impl Glue {
         }
     }
 
-    /// Whether this is the real glue linked with `sdk_glue.c` (not the C fake, not the Rust fake):
+    /// Whether this is the C glue linked through `sdk-glue-sys` (`sdk_glue.c`, or a C stub in its place;
+    /// not the Rust fake):
     /// only then do the process-boot rules of the real glue apply (`crate::unit`).
     pub(crate) fn is_real_sdk(&self) -> bool {
         match self {

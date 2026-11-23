@@ -89,6 +89,7 @@ let
   qemuIpd = import (src + "/packages/qemu-ipd") { pkgs = pu; };
   uboots = import (src + "/packages/uboot") { pkgs = p; };
   vmTest = name: import (src + "/modules/switch/sonic/tests/" + name) { pkgs = p; };
+  vmTestWith = name: args: import (src + "/modules/switch/sonic/tests/" + name) ({ pkgs = p; } // args);
   # a board's sonic_platform package on the build host (its fake-board unit tests: .tests.unit)
   platformPkg = board: p.callPackage (src + "/modules/boards/" + board + "/sonic-platform-package.nix") { inherit sonic; };
   # The Rust SAI (rust/sai of the monorepo: its own cargo workspace, outside path:./nix, so it
@@ -126,6 +127,10 @@ let
   saiFakeRustBoth = p.callPackage (src + "/packages/sai-openbcm") { inherit sonic; rustPhySeq = physeq p { }; rustMacsec = macsecCapi p { }; };
   ppcSaiRustBoth = ppc.callPackage (src + "/packages/sai-openbcm") { sonic = ppcSonic; libsdk = ppcOpenbcm.libsdk { }; rustPhySeq = physeq ppc { }; rustMacsec = macsecCapi ppc { }; };
   as7772RustBoth = sys.as7772.extendModules { modules = [ { hardware.openbcm.rustPhySeq = saiRsDir + "/phy-seq.nix"; hardware.openbcm.rustMacsec = saiRsDir + "/sai-macsec-capi.nix"; } ]; };
+  # the Rust SAI selected per board through hardware.openbcm (modules/switch/openbcm.nix): the
+  # boot-time MDIO tool alone (mdioTool), or the whole library and tool set (implementation)
+  rustSai = o: o // { rustSai = saiRsDir; };
+  withRustSai = s: o: (s.extendModules { modules = [ { hardware.openbcm = rustSai o; } ]; }).config.system.build.toplevel;
   # attribute paths of the derivations in v, at most depth levels down. A value
   # that throws is kept as a path, so its evaluation test fails and names it.
   collect = depth: prefix: v:
@@ -166,6 +171,11 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     # with -z defs, soname, exports = the virtual build's; nothing executed).
     "sai-rs-openbcm-fake": ("packages", "saiRsOpenbcm p { }", 0),
     "as7760-sai-rs-openbcm": ("packages", 'saiRsOpenbcm ppc { libsdk = ppcOpenbcm.libsdk { }; glueSrc = src + "/packages/sai-openbcm/src"; }', 0),
+    # the Rust drop-in for the sai-openbcm package (rust/sai/nix/sai-openbcm-rs.nix: lib/libsai.so,
+    # bin/openbcm-*, share/sai-openbcm/*): native on the virtual backend + in-memory glue, ppc64 on libsdk
+    # with the SDK tools (openbcm-asic-temp, openbcm-mdio-script) in the library's cargo build
+    "sai-openbcm-rs": ("packages", 'p.callPackage (saiRsDir + "/sai-openbcm-rs.nix") { saiSrc = sonic.sources.sairedis; saiOpenbcmSrc = src + "/packages/sai-openbcm/src"; saiRs = saiRs p; }', 0),
+    "as7760-sai-openbcm-rs": ("packages", 'ppc.callPackage (saiRsDir + "/sai-openbcm-rs.nix") { saiSrc = ppcSonic.sources.sairedis; libsdk = ppcOpenbcm.libsdk { }; saiOpenbcmSrc = src + "/packages/sai-openbcm/src"; saiRs = saiRs ppc; }', 0),
     # test_sai.cpp (unmodified, through the test port) and the op-script differential against the C++ frontend_driver.
     "sai-rs-parity": ("packages", 'p.callPackage (saiRsDir + "/parity-harness.nix") { saiSrc = sonic.sources.sairedis; saiOpenbcm = src + "/packages/sai-openbcm"; }', 0),
     # phy-seq: the sequence engine with its tests, compared with the C++ tools over the AS7772's
@@ -247,6 +257,17 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     "vm-sai-rs-privileged": ("vm", 'import (saiRsDir + "/test-privileged.nix") { pkgs = p; saiRs = saiRs p; }', 0),
     # syncd linked against the Rust libsai (virtual backend), its first slice through libsairedis.
     "vm-sai-rs-syncd": ("vm", 'import (saiRsDir + "/test-syncd.nix") { pkgs = p; inherit sonic; libsai = saiRs p; }', 0),
+    # the AS7772 / AS7760 systems on the Rust SAI (hardware.openbcm; the root flake's
+    # nixosConfigurations as7772-rust-mdio, as7772-rust, as7760-rust are the same)
+    "as7772-system-rust-mdio": ("systems", 'withRustSai sys.as7772 { mdioTool = "rust"; }', 0),
+    "as7772-system-rust": ("systems", 'withRustSai sys.as7772 { implementation = "rust"; }', 0),
+    "as7760-system-rust": ("systems", 'withRustSai sys.as7760 { implementation = "rust"; }', 0),
+    # the fake-backend SONiC VM tests and the MDIO units test, unchanged, on the Rust SAI through
+    # the same option (each test's `openbcm` argument)
+    "vm-sonic-openbcm-fake-rust": ("vm", 'vmTestWith "vm-openbcm-fake.nix" { openbcm = rustSai { implementation = "rust"; }; }', 0),
+    "vm-sonic-openbcm-fake-l3-rust": ("vm", 'vmTestWith "vm-openbcm-fake-l3.nix" { openbcm = rustSai { implementation = "rust"; }; }', 0),
+    "vm-sonic-openbcm-fake-acl-rust": ("vm", 'vmTestWith "vm-openbcm-fake-acl.nix" { openbcm = rustSai { implementation = "rust"; }; }', 0),
+    "vm-openbcm-mdio-units-rust": ("vm", 'import (src + "/packages/sai-openbcm/test-mdio-units.nix") { pkgs = p; openbcm = rustSai { mdioTool = "rust"; }; }', 0),
 }
 
 # Discovered ids (regex, full match) that are not targets at all.
@@ -269,6 +290,9 @@ SKIP: dict[str, str] = {
 # build test is skipped. This is a list of open bugs and known limits, not a
 # place to hide a new failure.
 KNOWN_BROKEN: dict[str, str] = {
+    r"system:(as7772-rust(-mdio)?|as7760-rust)":
+        "limit of path:./nix: the Rust SAI systems read rust/sai/nix, outside it (configs/default.nix); built as "
+        "git:nixosConfigurations.* and extra:*-system-rust*",
     r"(path:dmc12-(?!metrics-test).*|system:dmc12(-netboot)?)":
         "limit of path:./nix: the DMC-12 config needs services.consoled from rust/, which only the root git flake "
         "passes (nix/README.md, 'fand and path:./nix'); built as git:...dmc12*",
@@ -358,6 +382,7 @@ TEST_FILES: dict[str, str] = {
     "packages/kernel-rust-ppc64be/tests.nix": "extra:kernel-rust-ppc64be",
     "modules/switch/sonic/tests/common.nix": "none:shared switch config of the VM tests, not a test",
     "modules/switch/sonic/tests/peer.nix": "none:peer node of the VM tests, not a test",
+    "modules/switch/sonic/tests/openbcm-sai.nix": "none:the fake-backend VM tests' SAI selection (hardware.openbcm), not a test",
 }
 TEST_FILE_GLOBS = ["**/*test*.nix", "**/tests.nix", "**/tests/*.nix"]
 

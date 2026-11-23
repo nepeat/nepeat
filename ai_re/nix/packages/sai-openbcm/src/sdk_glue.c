@@ -827,12 +827,13 @@ int ob_sdk_port_learn_set(int unit, int port, int mode)
 
 int ob_sdk_port_stat_get(int unit, int port, int which, uint64_t* v)
 {
-    /* Order of ob::PortStat. */
+    /* Indexed by OB_PORTSTAT_* (sdk_glue.h). */
     static const bcm_stat_val_t map[] = {
         snmpIfHCInOctets, snmpIfHCInUcastPkts, snmpIfInNUcastPkts, snmpIfInDiscards, snmpIfInErrors,
         snmpIfInUnknownProtos, snmpIfHCInBroadcastPkts, snmpIfHCInMulticastPkts, snmpIfHCOutOctets,
         snmpIfHCOutUcastPkts, snmpIfOutNUcastPkts, snmpIfOutDiscards, snmpIfOutErrors, snmpIfHCOutBroadcastPckts,
         snmpIfHCOutMulticastPkts};
+    _Static_assert(sizeof(map) / sizeof(map[0]) == OB_PORTSTAT_COUNT, "one SDK counter per OB_PORTSTAT_*");
     uint64 val = 0;
     int rv;
     if (which < 0 || which >= (int)(sizeof(map) / sizeof(map[0]))) return BCM_E_PARAM;
@@ -1071,12 +1072,13 @@ int ob_sdk_trap_set(int unit, int kind, int to_cpu)
 {
     static const uint8_t lldp[6] = {0x01, 0x80, 0xc2, 0x00, 0x00, 0x0e};
     static const uint8_t lacp[6] = {0x01, 0x80, 0xc2, 0x00, 0x00, 0x02};   /* slow protocols */
-    if (kind == 7) return l2cache_trap(unit, 0, lldp, to_cpu);           /* ob::TrapKind::Lldp */
-    if (kind == 8) return l2cache_trap(unit, 1, lacp, to_cpu);           /* ob::TrapKind::Lacp */
-    /* Order of ob::TrapKind. -1: no switch control on this SDK path. */
+    if (kind == OB_TRAP_LLDP) return l2cache_trap(unit, 0, lldp, to_cpu);
+    if (kind == OB_TRAP_LACP) return l2cache_trap(unit, 1, lacp, to_cpu);
+    /* Indexed by OB_TRAP_* (sdk_glue.h). -1: no switch control on this SDK path. */
     static const int ctl[] = {
         bcmSwitchArpRequestToCpu, bcmSwitchArpReplyToCpu, bcmSwitchDhcpPktToCpu, -1, bcmSwitchIgmpPktToCpu,
         bcmSwitchMldPktToCpu, bcmSwitchNdPktToCpu, -1, -1, -1, -1};
+    _Static_assert(sizeof(ctl) / sizeof(ctl[0]) == OB_TRAP_COUNT, "one switch control (or -1) per OB_TRAP_*");
     if (kind < 0 || kind >= (int)(sizeof(ctl) / sizeof(ctl[0])) || ctl[kind] < 0) return BCM_E_UNAVAIL;
     return bcm_switch_control_set(unit, (bcm_switch_control_t)ctl[kind], to_cpu ? 1 : 0);
 }

@@ -1,0 +1,98 @@
+lines: C++ session 632 , Rust session 328
+== only in the C++ session (normalised):
+  1 syncd[P]: :- Syncd: command line:  EnableDiagShell=NO EnableTempView=YES DisableExitSleep=NO EnableUnittests=NO EnableConsistencyCheck=NO EnableSyncMode=NO EnableAsyncRec=NO RedisCommunicationMode=redis_sync EnableSaiBulkSuport=NO StartType=cold ProfileMapFile=/nix/store/rskkvalNbwcNvzNbNrNvyvnhhi-sai.profile GlobalContext=N ContextConfig= BreakConfig= WatchdogWarnTimeSpan=N WatchdogInitTimeSpan=N SupportingBulkCounters= EnablePerPortCounterDiscovery=NO EnableAttrVersionCheck=NO
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_BMTOR: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_ACL: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_APPLIANCE: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_DIRECTION_LOOKUP: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_ENI: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_FLOW: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_HA: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_INBOUND_ROUTING: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_METER: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_OUTBOUND_CA_TO_PA: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_OUTBOUND_PORT_MAP: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_OUTBOUND_ROUTING: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_PA_VALIDATION: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_TRUSTED_VNI: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_TUNNEL: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_VIP: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_VNET: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_OCS: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_OTN_ATTENUATOR: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_OTN_OA: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_PON: SAI_STATUS_NOT_IMPLEMENTED (-N)
+  1 syncd[P]: :- threadFunction: time span N ms for 'create:SAI_OBJECT_TYPE_HOSTIF:oid:NxN'
+  1 syncd[P]: :- threadFunction: time span N ms for 'remove:SAI_OBJECT_TYPE_MACSEC_PORT:oid:NxN'
+  1 syncd[P]: :- threadFunction: time span N ms for 'remove:SAI_OBJECT_TYPE_MACSEC_SA:oid:NxN'
+  1 syncd[P]: sai-openbcm NOTICE api=N: SDK init: ok: stale KNET netifs N filters N destroyed; IPvN/IPvN LN on N ports
+  1 syncd[P]: sai-openbcm NOTICE api=N: SDK init: unit N, config /nix/store/hNlkNiNnNkNmhNvNbmsyNvaNgbyiN-asN-Nx-config.bcm, rc /nix/store/NzwziNaNjbdbiNjcNadvzsxmcNsNbskN-asN-Nx-led_proc_init.soc
+  1 syncd[P]: sai-openbcm NOTICE api=N: SDK tables: host N, route N, egress N, LN N; buffer N B; ECMP N groups x N paths, N member entries; VRF ids up to N
+  2 syncd[P]: sai-openbcm NOTICE api=N: diag socket: clear c
+  7 syncd[P]: sai-openbcm NOTICE api=N: diag socket: g CLMAC_TX_CTRL.ceN
+  1 syncd[P]: sai-openbcm NOTICE api=N: diag socket: phy control ceN
+  160 syncd[P]: sai-openbcm NOTICE api=N: diag socket: phy raw cN NxN NxN NxN
+  2 syncd[P]: sai-openbcm NOTICE api=N: diag socket: ps ceN,ceN,ceN,ceN
+  8 syncd[P]: sai-openbcm NOTICE api=N: diag socket: show c ceN
+  1 syncd[P]: sai-openbcm NOTICE api=N: external PHY link polls paused: raw MDIO on the diag socket (resume N ms after the last one)
+  1 syncd[P]: sai-openbcm NOTICE api=N: field group N: priority N, qualifiers NxN
+  32 syncd[P]: sai-openbcm NOTICE api=N: hostif EthernetN on ceN (netif N, filter N)
+  5 syncd[P]: sai-openbcm NOTICE api=N: my-station N: Nc:ea:Nb:N:Nb:dN (IPvN, IPvN, ARP)
+  4 syncd[P]: sai-openbcm NOTICE api=N: port ceN (hw N) oper up
+  8 syncd[P]: sai-openbcm NOTICE api=N: port ceN: egress SA AN N removed
+  8 syncd[P]: sai-openbcm NOTICE api=N: port ceN: egress data frames are dropped
+  8 syncd[P]: sai-openbcm NOTICE api=N: port ceN: ingress SA AN N removed
+  8 syncd[P]: sai-openbcm NOTICE api=N: port ceN: ingress data frames are dropped
+  1 syncd[P]: sai-openbcm NOTICE api=N: rif type N vid N intf -N vrf N
+  6 syncd[P]: sai-openbcm NOTICE api=N: rif type N vid N intf N vrf N
+  6 syncd[P]: sai-openbcm NOTICE api=N: trap type N kept but not programmed (no SDK control for it)
+  2 syncd[P]: sai-openbcm NOTICE api=N: virtual router: SDK VRF N
+  1 systemd[P]: Stopped SONiC syncd (SAI: vendor).
+  1 systemd[P]: Stopping SONiC syncd (SAI: vendor)...
+  1 systemd[P]: sonic-syncd.service: Consumed Nmin N.Ns CPU time over Nmin N.Ns wall clock time, N.NM memory peak, NB incoming IP traffic, NB outgoing IP traffic.
+  1 systemd[P]: sonic-syncd.service: Deactivated successfully.
+== only in the Rust session (normalised):
+  1 syncd[P]: :- Syncd: command line:  EnableDiagShell=NO EnableTempView=YES DisableExitSleep=NO EnableUnittests=NO EnableConsistencyCheck=NO EnableSyncMode=NO EnableAsyncRec=NO RedisCommunicationMode=redis_sync EnableSaiBulkSuport=NO StartType=cold ProfileMapFile=/nix/store/NgyafNvczNzsNwjdvqbxNfiNpNf-sai.profile GlobalContext=N ContextConfig= BreakConfig= WatchdogWarnTimeSpan=N WatchdogInitTimeSpan=N SupportingBulkCounters= EnablePerPortCounterDiscovery=NO EnableAttrVersionCheck=NO
+  2 syncd[P]: :- profileGetValue: SAI_OPENBCM_DIAG_SOCKET: /run/sai-openbcm/diag.sock
+  2 syncd[P]: :- profileGetValue: SAI_OPENBCM_EXT_MACSEC_FILE: /nix/store/pNshbmlmhhzNpNdiNxdcmNspywNsxN-asN-ext-macsec.tbl
+  2 syncd[P]: :- profileGetValue: SAI_OPENBCM_EXT_PHY_FILE: /nix/store/mspNaNzNylnapgpyNyqNscNlihhN-asN-ext-phy.tbl
+  2 syncd[P]: :- profileGetValue: SAI_OPENBCM_FAKE_NETDEV: NULL
+  2 syncd[P]: :- profileGetValue: SAI_OPENBCM_FAKE_WIRE: NULL
+  1 syncd[P]: :- profileGetValue: SAI_OPENBCM_MACSEC_ENGINES_ON_AT_STOP: NULL
+  1 syncd[P]: :- profileGetValue: SAI_OPENBCM_MACSEC_HOLD_CLOSED: NULL
+  1 syncd[P]: :- profileGetValue: SAI_RS_BACKEND: NULL
+  1 syncd[P]: :- profileGetValue: SAI_RS_VIRTUAL_COMPAT: NULL
+  1 syncd[P]: :- profileGetValue: SAI_RS_VIRTUAL_LANES: NULL
+  1 syncd[P]: :- profileGetValue: SAI_RS_VIRTUAL_LINK: NULL
+  1 syncd[P]: :- profileGetValue: SAI_RS_VIRTUAL_NETDEV: NULL
+  1 syncd[P]: :- profileGetValue: SAI_RS_VIRTUAL_ON_HARDWARE: NULL
+  1 syncd[P]: :- profileGetValue: SAI_RS_VIRTUAL_PORTS: NULL
+  1 syncd[P]: :- profileGetValue: SAI_RS_VIRTUAL_SPEED: NULL
+  1 syncd[P]: :- profileGetValue: SAI_RS_VIRTUAL_WIRE: NULL
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_BMTOR: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_ACL: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_APPLIANCE: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_DIRECTION_LOOKUP: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_ENI: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_FLOW: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_HA: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_INBOUND_ROUTING: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_METER: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_OUTBOUND_CA_TO_PA: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_OUTBOUND_PORT_MAP: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_OUTBOUND_ROUTING: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_PA_VALIDATION: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_TRUSTED_VNI: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_TUNNEL: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_VIP: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_VNET: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_OCS: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_OTN_ATTENUATOR: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_OTN_OA: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: :- sai_metadata_apis_query: :- failed to query api SAI_API_PON: SAI_STATUS_INVALID_PARAMETER (-N)
+  1 syncd[P]: [SOC KNET RX]soc_knet_handle_rx: unhandled (type=N, opcode=N)
+  1 syncd[P]: sai-rs openbcm: SDK init: ok: stale KNET netifs N filters N destroyed; IPvN/IPvN LN on N ports
+  1 syncd[P]: sai-rs openbcm: SDK init: unit N, config /nix/store/hNlkNiNnNkNmhNvNbmsyNvaNgbyiN-asN-Nx-config.bcm, rc /nix/store/NzwziNaNjbdbiNjcNadvzsxmcNsNbskN-asN-Nx-led_proc_init.soc
+  1 syncd[P]: sai-rs openbcm: SDK tables: host N, route N, egress N, LN N; buffer N B; ECMP N groups x N paths, N member entries; VRF ids up to N
+  1 syncd[P]: sai-rs openbcm: field group N: priority N, qualifiers NxN
+  3 syncd[P]: sai-rs openbcm: my-station N: Nc:ea:Nb:N:Nb:dN (IPvN, IPvN, ARP)

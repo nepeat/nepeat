@@ -1,0 +1,50 @@
+== 2026-11-23T11:46:22+00:00 /nix/store/zvih1crw43xfr1nvs33gqmr9l7dj6nm2-nixos-system-as7772-26.11.20261111.d4f25a3, boot 8ac718c8-8ed7-4365-9d25-d964ea464bd5, cold boot of 11:39Z
+== priority<=err, SONiC units, this boot:
+2026-11-23T03:41:16-08:00 as7772 orchagent[901]: :- queryHashNativeHashFieldListEnumCapabilities: Failed to get attribute(SAI_HASH_ATTR_NATIVE_HASH_FIELD_LIST) enum value capabilities
+2026-11-23T03:41:16-08:00 as7772 orchagent[901]: :- querySwitchEcmpHashAlgorithmEnumCapabilities: Failed to get attribute(SAI_SWITCH_ATTR_ECMP_DEFAULT_HASH_ALGORITHM) enum value capabilities
+2026-11-23T03:41:16-08:00 as7772 orchagent[901]: :- querySwitchLagHashAlgorithmEnumCapabilities: Failed to get attribute(SAI_SWITCH_ATTR_LAG_DEFAULT_HASH_ALGORITHM) enum value capabilities
+2026-11-23T03:41:18-08:00 as7772 mgmtd[1066]: [VDWX6-W8CNF][EC 100663304] vty_open_config: can't open configuration file [/etc/frr//mgmtd.conf]
+2026-11-23T03:41:18-08:00 as7772 mgmtd[1066]: [SHWNK-NWT5S][EC 100663304] No such command on config line 7: zebra nexthop kernel enable
+2026-11-23T03:41:18-08:00 as7772 mgmtd[1066]: [SHWNK-NWT5S][EC 100663304] No such command on config line 10: no fpm use-next-hop-groups
+2026-11-23T03:41:18-08:00 as7772 mgmtd[1066]: [SHWNK-NWT5S][EC 100663304] No such command on config line 12: fpm address 127.0.0.1
+2026-11-23T03:41:18-08:00 as7772 mgmtd[1066]: [SHWNK-NWT5S][EC 100663304] No such command on config line 13: zebra nexthop-group keep 1
+2026-11-23T03:41:33-08:00 as7772 zebra[1087]: [SAPXX-HP5B5][EC 4043309108] Extended Error: failed to retrieve link settings
+2026-11-23T03:41:33-08:00 as7772 zebra[1087]: [WVJCK-PPMGD][EC 4043309093] generic-netlink-cmd (NS 0) error: Operation not supported, type=RTM_NEWADDR(20), seq=378, pid=1087
+2026-11-23T03:41:33-08:00 as7772 zebra[1087]: [SAPXX-HP5B5][EC 4043309108] Extended Error: failed to retrieve link settings
+2026-11-23T03:41:33-08:00 as7772 zebra[1087]: [WVJCK-PPMGD][EC 4043309093] generic-netlink-cmd (NS 0) error: Operation not supported, type=RTM_NEWADDR(20), seq=380, pid=1087
+2026-11-23T03:41:41-08:00 as7772 zebra[1087]: [SAPXX-HP5B5][EC 4043309108] Extended Error: failed to retrieve link settings
+2026-11-23T03:41:41-08:00 as7772 zebra[1087]: [WVJCK-PPMGD][EC 4043309093] generic-netlink-cmd (NS 0) error: Operation not supported, type=RTM_NEWADDR(20), seq=391, pid=1087
+2026-11-23T03:41:41-08:00 as7772 zebra[1087]: [SAPXX-HP5B5][EC 4043309108] Extended Error: failed to retrieve link settings
+2026-11-23T03:41:41-08:00 as7772 zebra[1087]: [WVJCK-PPMGD][EC 4043309093] generic-netlink-cmd (NS 0) error: Operation not supported, type=RTM_NEWADDR(20), seq=392, pid=1087
+2026-11-23T03:41:41-08:00 as7772 zebra[1087]: [SAPXX-HP5B5][EC 4043309108] Extended Error: failed to retrieve link settings
+2026-11-23T03:41:41-08:00 as7772 zebra[1087]: [WVJCK-PPMGD][EC 4043309093] generic-netlink-cmd (NS 0) error: Operation not supported, type=RTM_NEWADDR(20), seq=401, pid=1087
+2026-11-23T03:41:45-08:00 as7772 zebra[1087]: [SAPXX-HP5B5][EC 4043309108] Extended Error: failed to retrieve link settings
+2026-11-23T03:41:45-08:00 as7772 zebra[1087]: [WVJCK-PPMGD][EC 4043309093] generic-netlink-cmd (NS 0) error: Operation not supported, type=RTM_NEWADDR(20), seq=411, pid=1087
+2026-11-23T03:41:45-08:00 as7772 zebra[1087]: [SAPXX-HP5B5][EC 4043309108] Extended Error: failed to retrieve link settings
+2026-11-23T03:41:45-08:00 as7772 zebra[1087]: [WVJCK-PPMGD][EC 4043309093] generic-netlink-cmd (NS 0) error: Operation not supported, type=RTM_NEWADDR(20), seq=412, pid=1087
+2026-11-23T03:41:45-08:00 as7772 zebra[1087]: [SAPXX-HP5B5][EC 4043309108] Extended Error: failed to retrieve link settings
+2026-11-23T03:41:45-08:00 as7772 zebra[1087]: [WVJCK-PPMGD][EC 4043309093] generic-netlink-cmd (NS 0) error: Operation not supported, type=RTM_NEWADDR(20), seq=421, pid=1087
+== SAI status failures (orchagent/syncd), this boot:
+      2 :- apiInitialize: init client/server sai: SAI_STATUS_SUCCESS
+== ATTR_NOT_SUPPORTED / NOT_IMPLEMENTED answers, distinct:
+      1 :- queryTrimTcAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_TC_VALUE) SET is not implemented in SAI
+      1 :- queryTrimSizeAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_SIZE) SET is not implemented in SAI
+      1 :- queryTrimQueueModeEnumCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_QUEUE_RESOLUTION_MODE) enum value capabilities are not available: unexpected status(SAI_STATUS_NOT_SUPPORTED)
+      1 :- queryTrimQueueModeAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_QUEUE_RESOLUTION_MODE) SET is not implemented in SAI
+      1 :- queryTrimQueueIndexAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_QUEUE_INDEX) SET is not implemented in SAI
+      1 :- queryTrimDscpModeEnumCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_DSCP_RESOLUTION_MODE) enum value capabilities are not available: unexpected status(SAI_STATUS_NOT_SUPPORTED)
+      1 :- queryTrimDscpModeAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_DSCP_RESOLUTION_MODE) SET is not implemented in SAI
+      1 :- queryTrimDscpAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_DSCP_VALUE) SET is not implemented in SAI
+      1 :- querySwitchLagHashAttrCapabilities: Attribute(SAI_SWITCH_ATTR_LAG_HASH) GET is not implemented in SAI
+      1 :- querySwitchLagHashAlgorithmAttrCapabilities: Attribute(SAI_SWITCH_ATTR_LAG_DEFAULT_HASH_ALGORITHM) SET is not implemented in SAI
+      1 :- querySwitchEcmpHashAttrCapabilities: Attribute(SAI_SWITCH_ATTR_ECMP_HASH) GET is not implemented in SAI
+      1 :- querySwitchEcmpHashAlgorithmAttrCapabilities: Attribute(SAI_SWITCH_ATTR_ECMP_DEFAULT_HASH_ALGORITHM) SET is not implemented in SAI
+      1 :- queryPortAttrCapabilities: Attribute(SAI_PORT_ATTR_PRIORITY_FLOW_CONTROL_TX) SET is not implemented in SAI
+      1 :- queryPortAttrCapabilities: Attribute(SAI_PORT_ATTR_PRIORITY_FLOW_CONTROL_RX) SET is not implemented in SAI
+      1 :- queryHashNativeHashFieldListAttrCapabilities: Attribute(SAI_HASH_ATTR_NATIVE_HASH_FIELD_LIST) SET is not implemented in SAI
+      1 :- offload_supported: BFD offload type not implemented
+      1 :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_LAG_HASH: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+      1 :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_ECMP_HASH: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+      1 :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_OVERRIDE_VIRTUAL_ROUTER_ID: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+      1 :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_CPU_INGRESS_BUFFER_POOL: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+      1 :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_CPU_EGRESS_BUFFER_POOL: SAI_STATUS_ATTR_NOT_SUPPORTED_0

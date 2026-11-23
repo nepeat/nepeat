@@ -49,9 +49,12 @@
 //! driver does not know yet (FDB events, once the core has them) prints as `notify <Debug form>`
 //! instead of breaking the build, and the differential shows it.
 //!
-//! Injections (`inject link|fdb|stat`, `mdio`, `feature`, `linkscan`) go to the virtual backend
-//! (`sai.backend_mut().inner_mut()`); like the C++ test-port hooks they are not logged as calls,
-//! but the events they raise are. Differences from the C++ hooks: `inject link` on a LAG and on an
+//! Injections (`inject link|fdb|stat`, `mdio`, `feature`, `linkscan`) go to the driver's
+//! [`Hooks`]: by default [`Virtual`], the virtual backend's own hooks; like the C++ test-port hooks
+//! they are not logged as calls, but the events they raise are. [`Driver::with_hooks`] runs the
+//! scripts on another backend with its hooks, which may also print lines per operation between
+//! the echo and the status (sai-backend-openbcm's glue differential: the hardware backend on a
+//! recording fake chip, its glue calls). Differences from the C++ hooks: `inject link` on a LAG and on an
 //! unknown port do nothing (the C++ fake ignores them too); `inject stat` of a counter the virtual
 //! backend lacks, an MDIO device outside 1..=31 and an FDB VLAN outside 1..=4094 are parse errors
 //! (the C++ test port aborts or passes them on); `dest_of` knows ports and LAGs only (the C++
@@ -69,4 +72,4 @@ pub mod text;
 pub mod types;
 pub mod values;
 
-pub use driver::{Driver, LogMode, OnHardware, Options};
+pub use driver::{Driver, Feature, Hooks, LogMode, OnHardware, Options, Virtual};

@@ -1,0 +1,23 @@
+C++ syncd since Mon 2026-11-23 03:51:15 PST
+      1 :- queryTrimTcAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_TC_VALUE) SET is not implemented in SAI
+      1 :- queryTrimSizeAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_SIZE) SET is not implemented in SAI
+      1 :- queryTrimQueueModeEnumCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_QUEUE_RESOLUTION_MODE) enum value capabilities are not available: unexpected status(SAI_STATUS_NOT_SUPPORTED)
+      1 :- queryTrimQueueModeAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_QUEUE_RESOLUTION_MODE) SET is not implemented in SAI
+      1 :- queryTrimQueueIndexAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_QUEUE_INDEX) SET is not implemented in SAI
+      1 :- queryTrimDscpModeEnumCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_DSCP_RESOLUTION_MODE) enum value capabilities are not available: unexpected status(SAI_STATUS_NOT_SUPPORTED)
+      1 :- queryTrimDscpModeAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_DSCP_RESOLUTION_MODE) SET is not implemented in SAI
+      1 :- queryTrimDscpAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_DSCP_VALUE) SET is not implemented in SAI
+      1 :- querySwitchLagHashAttrCapabilities: Attribute(SAI_SWITCH_ATTR_LAG_HASH) GET is not implemented in SAI
+      1 :- querySwitchLagHashAlgorithmAttrCapabilities: Attribute(SAI_SWITCH_ATTR_LAG_DEFAULT_HASH_ALGORITHM) SET is not implemented in SAI
+      1 :- querySwitchEcmpHashAttrCapabilities: Attribute(SAI_SWITCH_ATTR_ECMP_HASH) GET is not implemented in SAI
+      1 :- querySwitchEcmpHashAlgorithmAttrCapabilities: Attribute(SAI_SWITCH_ATTR_ECMP_DEFAULT_HASH_ALGORITHM) SET is not implemented in SAI
+      1 :- queryPortAttrCapabilities: Attribute(SAI_PORT_ATTR_PRIORITY_FLOW_CONTROL_TX) SET is not implemented in SAI
+      1 :- queryPortAttrCapabilities: Attribute(SAI_PORT_ATTR_PRIORITY_FLOW_CONTROL_RX) SET is not implemented in SAI
+      1 :- queryHashNativeHashFieldListAttrCapabilities: Attribute(SAI_HASH_ATTR_NATIVE_HASH_FIELD_LIST) SET is not implemented in SAI
+      1 :- offload_supported: BFD offload type not implemented
+      1 :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_LAG_HASH: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+      1 :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_ECMP_HASH: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+      1 :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_OVERRIDE_VIRTUAL_ROUTER_ID: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+      1 :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_CPU_INGRESS_BUFFER_POOL: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+      1 :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_CPU_EGRESS_BUFFER_POOL: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+== diff vs the Rust cold boot (d10):

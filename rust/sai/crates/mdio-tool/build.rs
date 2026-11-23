@@ -1,8 +1,9 @@
 //! Builds the C tool as a reference for tests/differential.rs when its sources are around
 //! (`MDIO_SCRIPT_C_DIR`: sai-openbcm's src directory): once as it is built without the SDK and
-//! once with `-DOB_HAVE_SDK` on the fake glue of sdk-glue-sys, the glue the Rust tool's tests
-//! link. Tests never compile C when they run, so the test executables can be copied to a
-//! machine without a compiler together with `$OUT_DIR/target-tests/*` (`SAI_RS_TEST_BIN`).
+//! once with `-DOB_HAVE_SDK` on `tests/c/mdio_stub.c`, the MDIO side of the glue answering as
+//! sdk-glue's Rust fake, on which the Rust tool's tests run. Tests never compile C when they run,
+//! so the test executables can be copied to a machine without a compiler together with
+//! `$OUT_DIR/target-tests/*` (`SAI_RS_TEST_BIN`).
 //! Also: `SDK_GLUE_RPATH` adds a run path to the binary (the real glue's libsdk).
 // A build script reports a failure by panicking with a message.
 #![allow(clippy::expect_used, clippy::panic)]
@@ -32,7 +33,7 @@ fn c_compiler() -> Option<String> {
     .or_else(|| (host == target).then(|| env_any(&["CC".into()]).unwrap_or_else(|| "cc".into())))
 }
 
-fn compile(cc: &str, c_dir: &Path, out: &Path, sdk: bool, shim: &Path) -> Result<(), String> {
+fn compile(cc: &str, c_dir: &Path, out: &Path, sdk: bool) -> Result<(), String> {
     let mut words = cc.split_whitespace();
     let mut c = Command::new(words.next().ok_or("no compiler")?);
     c.args(words).args(["-std=gnu11", "-O1", "-g", "-I"]).arg(c_dir);
@@ -40,14 +41,10 @@ fn compile(cc: &str, c_dir: &Path, out: &Path, sdk: bool, shim: &Path) -> Result
         c.arg(c_dir.join(file));
     }
     if sdk {
-        let fake = Path::new(&env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR"))
-            .join("../sdk-glue-sys/fake/fake_glue.c");
-        println!("cargo:rerun-if-changed={}", fake.display());
-        c.arg("-DOB_HAVE_SDK")
-            .arg("-I")
-            .arg(shim)
-            .arg(c_dir.join("temp_files.c"))
-            .arg(fake);
+        let stub =
+            Path::new(&env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR")).join("tests/c/mdio_stub.c");
+        println!("cargo:rerun-if-changed={}", stub.display());
+        c.arg("-DOB_HAVE_SDK").arg(c_dir.join("temp_files.c")).arg(stub);
     }
     c.arg("-o").arg(out).arg("-lpthread");
     let o = c.output().map_err(|e| format!("cannot run {cc}: {e}"))?;
@@ -77,14 +74,10 @@ fn reference_tools() -> Result<PathBuf, String> {
     let cc = c_compiler().ok_or("no C compiler for the target (set SDK_GLUE_SYS_CC)")?;
     let out = PathBuf::from(env::var_os("OUT_DIR").expect("OUT_DIR"));
     let dir = out.join("target-tests");
-    let shim = out.join("shim");
     std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
-    std::fs::create_dir_all(&shim).map_err(|e| e.to_string())?;
-    // fake_glue.c includes the declarations sdk-glue-sys generates; next to the C tool the
-    // real header (a superset) takes their place, which also checks the fake against it.
-    std::fs::write(shim.join("ob_sdk_glue_decls.h"), "#include \"sdk_glue.h\"\n").map_err(|e| e.to_string())?;
-    compile(&cc, &c_dir, &dir.join("openbcm-mdio-script-c"), false, &shim)?;
-    compile(&cc, &c_dir, &dir.join("openbcm-mdio-script-c-fake"), true, &shim)?;
+    // the stub includes sdk_glue.h from MDIO_SCRIPT_C_DIR: the C compiler checks it against it
+    compile(&cc, &c_dir, &dir.join("openbcm-mdio-script-c"), false)?;
+    compile(&cc, &c_dir, &dir.join("openbcm-mdio-script-c-fake"), true)?;
     Ok(dir)
 }
 

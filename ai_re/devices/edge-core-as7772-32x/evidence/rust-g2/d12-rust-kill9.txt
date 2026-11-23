@@ -1,0 +1,5 @@
+2026-11-23T11:48:35+00:00
+kill -9 syncd 3763
+:- profileGetValue: SAI_OPENBCM_MACSEC_ENGINES_ON_AT_STOP: NULL
+sai-openbcm NOTICE api=1: external MACsec table: 8 engines were left on by a previous process: reset and back in bypass
+active

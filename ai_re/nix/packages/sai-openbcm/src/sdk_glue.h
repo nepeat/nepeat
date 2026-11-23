@@ -128,23 +128,44 @@ int ob_sdk_chip_limits(int unit, ob_chip_limits_t* l);
 int ob_sdk_cpu_port(int unit);
 int ob_sdk_ports(int unit, ob_port_info_t* out, int max);   /* >= 0: count */
 
+/* The ints whose values are an order the glue hard-codes for its callers: the mode of
+ * ob_sdk_port_fec_set / _loopback_set / _learn_set, the counter of ob_sdk_port_stat_get
+ * (sdk_glue.c: its counter table), the kind of ob_sdk_trap_set (sdk_glue.c: LLDP / LACP and its
+ * switch-control table). The arguments stay int; backend.h checks ob::Fec, ob::Loopback,
+ * ob::Learn, ob::PortStat and ob::TrapKind against these value by value, and the Rust bindings
+ * (sdk-glue-sys) are generated from them. */
+typedef enum { OB_FEC_NONE, OB_FEC_RS, OB_FEC_FC, OB_FEC_COUNT } ob_fec_t;
+typedef enum { OB_LOOPBACK_NONE, OB_LOOPBACK_MAC, OB_LOOPBACK_PHY, OB_LOOPBACK_COUNT } ob_loopback_t;
+typedef enum { OB_LEARN_HW, OB_LEARN_DISABLE, OB_LEARN_DROP, OB_LEARN_CPU, OB_LEARN_COUNT } ob_learn_t;
+typedef enum {
+    OB_PORTSTAT_IN_OCTETS, OB_PORTSTAT_IN_UCAST_PKTS, OB_PORTSTAT_IN_NON_UCAST_PKTS, OB_PORTSTAT_IN_DISCARDS,
+    OB_PORTSTAT_IN_ERRORS, OB_PORTSTAT_IN_UNKNOWN_PROTOS, OB_PORTSTAT_IN_BROADCAST_PKTS,
+    OB_PORTSTAT_IN_MULTICAST_PKTS, OB_PORTSTAT_OUT_OCTETS, OB_PORTSTAT_OUT_UCAST_PKTS,
+    OB_PORTSTAT_OUT_NON_UCAST_PKTS, OB_PORTSTAT_OUT_DISCARDS, OB_PORTSTAT_OUT_ERRORS,
+    OB_PORTSTAT_OUT_BROADCAST_PKTS, OB_PORTSTAT_OUT_MULTICAST_PKTS, OB_PORTSTAT_COUNT
+} ob_port_stat_t;
+typedef enum {
+    OB_TRAP_ARP_REQUEST, OB_TRAP_ARP_RESPONSE, OB_TRAP_DHCP, OB_TRAP_DHCPV6, OB_TRAP_IGMP, OB_TRAP_MLD, OB_TRAP_ND,
+    OB_TRAP_LLDP, OB_TRAP_LACP, OB_TRAP_STP, OB_TRAP_OTHER, OB_TRAP_COUNT
+} ob_trap_kind_t;
+
 int ob_sdk_port_enable_set(int unit, int port, int enable);
 int ob_sdk_port_link_get(int unit, int port, int* up);
 int ob_sdk_port_speed_set(int unit, int port, int mbps);
 int ob_sdk_port_speed_get(int unit, int port, int* mbps);
 int ob_sdk_port_speeds(int unit, int port, uint32_t* out, int max);   /* >= 0: count */
 int ob_sdk_port_frame_max_set(int unit, int port, int bytes);
-int ob_sdk_port_fec_set(int unit, int port, int mode);           /* 0 none, 1 RS, 2 FC */
+int ob_sdk_port_fec_set(int unit, int port, int mode);           /* mode: OB_FEC_* */
 int ob_sdk_port_autoneg_set(int unit, int port, int on);
 int ob_sdk_port_autoneg_get(int unit, int port, int* on);
 /* Board quirks: interface type by name (backend.h port_interface_names) and
  * the average inter-frame gap in bit times at the port's current speed. */
 int ob_sdk_port_interface_set(int unit, int port, const char* name);
 int ob_sdk_port_ifg_set(int unit, int port, int bits);
-int ob_sdk_port_loopback_set(int unit, int port, int mode);      /* 0 none, 1 MAC, 2 PHY */
+int ob_sdk_port_loopback_set(int unit, int port, int mode);      /* mode: OB_LOOPBACK_* */
 int ob_sdk_port_pvid_set(int unit, int port, int vid);
-int ob_sdk_port_learn_set(int unit, int port, int mode);         /* 0 hw, 1 off, 2 drop, 3 cpu */
-int ob_sdk_port_stat_get(int unit, int port, int which, uint64_t* v);   /* which: ob::PortStat */
+int ob_sdk_port_learn_set(int unit, int port, int mode);         /* mode: OB_LEARN_* */
+int ob_sdk_port_stat_get(int unit, int port, int which, uint64_t* v);   /* which: OB_PORTSTAT_* */
 int ob_sdk_port_stat_clear(int unit, int port);
 
 int ob_sdk_vlan_create(int unit, int vid);
@@ -164,7 +185,7 @@ int ob_sdk_netif_create(int unit, const char* name, int port, int vid, const uin
 int ob_sdk_netif_destroy(int unit, int netif_id, int filter_id);
 int ob_sdk_netif_filter_set(int unit, int netif_id, int port, int keep_tag, int* filter_id);
 
-int ob_sdk_trap_set(int unit, int kind, int to_cpu);              /* kind: ob::TrapKind */
+int ob_sdk_trap_set(int unit, int kind, int to_cpu);              /* kind: OB_TRAP_* */
 
 /* Trunks (SAI LAG). Members: ports[i] with flags[i] (1 egress disable,
  * 2 ingress disable); n == 0 empties the trunk. */

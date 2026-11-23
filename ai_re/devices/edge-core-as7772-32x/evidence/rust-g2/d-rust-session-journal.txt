@@ -1,0 +1,1562 @@
+Nov 23 03:17:08.024071 as7772 kdgi83pcl346p3346dw5a887l4jpl0dw-sonic-syncd-pre[4141]: flushed APPL/ASIC/COUNTERS/FLEX_COUNTER/APPL_STATE DBs and stale STATE_DB tables
+Nov 23 03:17:08.028388 as7772 systemd[1]: Started SONiC syncd (SAI: vendor).
+Nov 23 03:17:08.036687 as7772 systemd[1]: Started SONiC portsyncd (CONFIG_DB PORT -> APPL_DB, netdev state).
+Nov 23 03:17:08.043418 as7772 systemd[1]: Started SONiC orchagent.
+Nov 23 03:17:08.107791 as7772 systemd[1]: Started SONiC macsecmgrd (CONFIG_DB MACSEC_PROFILE / PORT.macsec -> wpa_supplicant per port).
+Nov 23 03:17:08.111932 as7772 portsyncd[4156]: Listen to link messages...
+Nov 23 03:17:08.112098 as7772 portsyncd[4156]: :- handlePortConfigFromConfigDB: Getting port configuration from ConfigDB...
+Nov 23 03:17:08.243054 as7772 orchagent[4157]: :- main: --- Starting Orchestration Agent ---
+Nov 23 03:17:08.252886 as7772 orchagent[4157]: :- apiInitialize: acting as a sairedis SERVER
+Nov 23 03:17:08.253116 as7772 orchagent[4157]: :- loadFromFile: no context config specified, will load default context config
+Nov 23 03:17:08.253177 as7772 orchagent[4157]: :- insert: added switch: idx 0, hwinfo ''
+Nov 23 03:17:08.253232 as7772 orchagent[4157]: :- RedisRemoteSaiInterface: sairedis git revision 0000000, SAI git revision: 0000000
+Nov 23 03:17:08.283823 as7772 orchagent[4157]: :- setStatsLabel: NotificationConsumer[libsairedis:RedisChannel:NOTIFICATIONS]: stats label set (channel=NOTIFICATIONS)
+Nov 23 03:17:08.283853 as7772 orchagent[4157]: :- RedisChannel: creating notification thread
+Nov 23 03:17:08.286185 as7772 orchagent[4157]: :- clear_local_state: clearing local state
+Nov 23 03:17:08.286366 as7772 orchagent[4157]: :- logDashPolicy: DASH meta-cache policy: mode=EXISTENCE_REFCOUNT, object_types=[ SAI_OBJECT_TYPE_OUTBOUND_CA_TO_PA_ENTRY SAI_OBJECT_TYPE_OUTBOUND_ROUTING_ENTRY SAI_OBJECT_TYPE_INBOUND_ROUTING_ENTRY SAI_OBJECT_TYPE_PA_VALIDATION_ENTRY ]
+Nov 23 03:17:08.286421 as7772 orchagent[4157]: :- apiInitialize: init client/server sai: SAI_STATUS_SUCCESS
+Nov 23 03:17:08.286443 as7772 orchagent[4157]: :- loadFromFile: no server config specified, will load default
+Nov 23 03:17:08.286531 as7772 orchagent[4157]: :- ZeroMQSelectableChannel: binding on ipc:///tmp/saiServer
+Nov 23 03:17:08.286546 as7772 orchagent[4157]: :- ZeroMQSelectableChannel: using default zmq response buffer size of 4194304 bytes
+Nov 23 03:17:08.297737 as7772 orchagent[4157]: :- apiInitialize: starting server thread
+Nov 23 03:17:08.297879 as7772 orchagent[4157]: :- zmqPollThread: begin
+Nov 23 03:17:08.297893 as7772 orchagent[4157]: :- apiInitialize: init client/server sai: SAI_STATUS_SUCCESS
+Nov 23 03:17:08.298176 as7772 orchagent[4157]: :- set: unlocking api mutex for communication mode
+Nov 23 03:17:08.298217 as7772 orchagent[4157]: :- ~RedisChannel: join ntf thread begin
+Nov 23 03:17:08.298756 as7772 orchagent[4157]: :- serverThreadFunction: begin
+Nov 23 03:17:08.299057 as7772 orchagent[4157]: :- ~RedisChannel: join ntf thread end
+Nov 23 03:17:08.299526 as7772 orchagent[4157]: :- setRedisExtensionAttribute: enabling redis sync mode
+Nov 23 03:17:08.322231 as7772 orchagent[4157]: :- setStatsLabel: NotificationConsumer[libsairedis:RedisChannel:NOTIFICATIONS]: stats label set (channel=NOTIFICATIONS)
+Nov 23 03:17:08.322259 as7772 orchagent[4157]: :- RedisChannel: creating notification thread
+Nov 23 03:17:08.322544 as7772 orchagent[4157]: :- setRecordingFilename: setting recording filename : sairedis.rec
+Nov 23 03:17:08.322566 as7772 orchagent[4157]: :- stopRecording: stopped recording
+Nov 23 03:17:08.322596 as7772 orchagent[4157]: :- stopRecording: closed recording file: sairedis.rec
+Nov 23 03:17:08.322801 as7772 orchagent[4157]: :- startRecording: started recording: sairedis.rec
+Nov 23 03:17:08.322834 as7772 orchagent[4157]: :- notifySyncd: sending syncd: INIT_VIEW
+Nov 23 03:17:08.336983 as7772 macsecmgrd[4164]: :- main: --- Starting macsecmgrd ---
+Nov 23 03:17:08.475621 as7772 macsecmgrd[4164]: :- main: starting main loop
+Nov 23 03:17:08.478028 as7772 macsecmgrd[4164]: :- main: FIPS MACSec POST ready: state disabled
+Nov 23 03:17:08.478312 as7772 macsecmgrd[4164]: :- loadProfile: The MACsec profile 'lab-test' is loaded
+Nov 23 03:17:08.480639 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet100'
+Nov 23 03:17:08.483776 as7772 syncd[4155]: :> syncd_main: enter
+Nov 23 03:17:08.485300 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet104'
+Nov 23 03:17:08.489056 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet108'
+Nov 23 03:17:08.489947 as7772 syncd[4155]: :- initialize: initializeing metadata log function
+Nov 23 03:17:08.490331 as7772 syncd[4155]: :- Syncd: sairedis git revision 0000000, SAI git revision: 0000000
+Nov 23 03:17:08.490392 as7772 syncd[4155]: :- threadFunction: starting timer watchdog thread
+Nov 23 03:17:08.490539 as7772 syncd[4155]: :- Syncd: command line:  EnableDiagShell=NO EnableTempView=YES DisableExitSleep=NO EnableUnittests=NO EnableConsistencyCheck=NO EnableSyncMode=NO EnableAsyncRec=NO RedisCommunicationMode=redis_sync EnableSaiBulkSuport=NO StartType=cold ProfileMapFile=/nix/store/7gyaf3vcz029zs6wjdvqbx38fi898p8f-sai.profile GlobalContext=0 ContextConfig= BreakConfig= WatchdogWarnTimeSpan=30000000 WatchdogInitTimeSpan=30000000 SupportingBulkCounters= EnablePerPortCounterDiscovery=NO EnableAttrVersionCheck=NO
+Nov 23 03:17:08.490557 as7772 syncd[4155]: :- loadFromFile: no context config specified, will load default context config
+Nov 23 03:17:08.490610 as7772 syncd[4155]: :- insert: added switch: idx 0, hwinfo ''
+Nov 23 03:17:08.493520 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet112'
+Nov 23 03:17:08.495430 as7772 syncd[4155]: :- RedisSelectableChannel: opened redis channel
+Nov 23 03:17:08.495657 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet116'
+Nov 23 03:17:08.497919 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet12'
+Nov 23 03:17:08.500238 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet16'
+Nov 23 03:17:08.502110 as7772 syncd[4155]: :- isVeryFirstRun: First Run: True
+Nov 23 03:17:08.502260 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet20'
+Nov 23 03:17:08.502472 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_LOG_STDERR: NULL
+Nov 23 03:17:08.503082 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_ARS: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503106 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_ARS_PROFILE: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503120 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_BFD: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503135 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_BMTOR: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503151 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_COUNTER: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503167 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_ACL: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503181 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_APPLIANCE: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503195 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_DIRECTION_LOOKUP: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503209 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_ENI: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503225 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_FLOW: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503241 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_HA: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503256 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_INBOUND_ROUTING: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503271 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_METER: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503285 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_OUTBOUND_CA_TO_PA: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503300 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_OUTBOUND_PORT_MAP: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503314 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_OUTBOUND_ROUTING: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503329 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_PA_VALIDATION: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503343 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_TRUSTED_VNI: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503358 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_TUNNEL: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503373 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_VIP: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503387 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DASH_VNET: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503402 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DEBUG_COUNTER: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503417 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_DTEL: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503432 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_FW: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503447 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_GENERIC_PROGRAMMABLE: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503462 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_ICMP_ECHO: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503477 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_IPMC: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503492 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_IPMC_GROUP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503506 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_IPSEC: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503520 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_ISOLATION_GROUP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503535 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_L2MC: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503550 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_L2MC_GROUP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503565 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_MCAST_FDB: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503580 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_MPLS: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503595 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_MY_MAC: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503610 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_NAT: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503625 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_OCS: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503638 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_OTN_ATTENUATOR: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503657 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_OTN_OA: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503674 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_PERFMON: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503690 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_POE: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503705 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_PON: SAI_STATUS_INVALID_PARAMETER (-5)
+Nov 23 03:17:08.503719 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_PREFIX_COMPRESSION: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503734 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_PTP_PDELAY: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503749 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_RPF_GROUP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503763 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_SRV6: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503780 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_SYNCE: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503795 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_SYSTEM_PORT: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503810 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_TAM: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503824 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_TUNNEL: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503838 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_TWAMP: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503854 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_UDF: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503868 as7772 syncd[4155]: :- sai_metadata_apis_query: :- failed to query api SAI_API_VIRTUAL_CHANNEL: SAI_STATUS_NOT_IMPLEMENTED (-15)
+Nov 23 03:17:08.503882 as7772 syncd[4155]: :- apiInitialize: sai_api_query failed for 53 apis
+Nov 23 03:17:08.503896 as7772 syncd[4155]: :- apiInitialize: SAI API vendor version: 11902
+Nov 23 03:17:08.503909 as7772 syncd[4155]: :- apiInitialize: SAI API min version: 10900
+Nov 23 03:17:08.503922 as7772 syncd[4155]: :- apiInitialize: SAI API headers version: 11902
+Nov 23 03:17:08.503943 as7772 syncd[4155]: :- profileGetValue: SAI_STATS_EXT_SWITCH_SUPPORTED: NULL
+Nov 23 03:17:08.508474 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet24'
+Nov 23 03:17:08.508620 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_SWITCH
+Nov 23 03:17:08.511296 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_PORT
+Nov 23 03:17:08.513186 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet28'
+Nov 23 03:17:08.513574 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_FDB
+Nov 23 03:17:08.515834 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_VLAN
+Nov 23 03:17:08.517262 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet32'
+Nov 23 03:17:08.518317 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_VIRTUAL_ROUTER
+Nov 23 03:17:08.520173 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet36'
+Nov 23 03:17:08.520543 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_ROUTE
+Nov 23 03:17:08.522299 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet40'
+Nov 23 03:17:08.522445 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_NEXT_HOP
+Nov 23 03:17:08.523023 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_NEXT_HOP
+Nov 23 03:17:08.524616 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_NEXT_HOP_GROUP
+Nov 23 03:17:08.525812 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_ROUTER_INTERFACE
+Nov 23 03:17:08.525887 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet44'
+Nov 23 03:17:08.527194 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_NEIGHBOR
+Nov 23 03:17:08.529879 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_ACL
+Nov 23 03:17:08.530579 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet48'
+Nov 23 03:17:08.531508 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_HOSTIF
+Nov 23 03:17:08.532662 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_MIRROR
+Nov 23 03:17:08.533073 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet52'
+Nov 23 03:17:08.533509 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_SAMPLEPACKET
+Nov 23 03:17:08.534388 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_STP
+Nov 23 03:17:08.534399 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet56'
+Nov 23 03:17:08.535882 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_LAG
+Nov 23 03:17:08.537323 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet60'
+Nov 23 03:17:08.537357 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_POLICER
+Nov 23 03:17:08.538644 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_WRED
+Nov 23 03:17:08.542444 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet64'
+Nov 23 03:17:08.542984 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_QOS_MAP
+Nov 23 03:17:08.544242 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_QUEUE
+Nov 23 03:17:08.545101 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet68'
+Nov 23 03:17:08.545367 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_SCHEDULER
+Nov 23 03:17:08.546240 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_SCHEDULER_GROUP
+Nov 23 03:17:08.547094 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet72'
+Nov 23 03:17:08.547453 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_BUFFER
+Nov 23 03:17:08.548675 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_HASH
+Nov 23 03:17:08.549084 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet76'
+Nov 23 03:17:08.551007 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet8'
+Nov 23 03:17:08.554145 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet80'
+Nov 23 03:17:08.555819 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet84'
+Nov 23 03:17:08.557466 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet88'
+Nov 23 03:17:08.558694 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_BRIDGE
+Nov 23 03:17:08.559389 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet92'
+Nov 23 03:17:08.561051 as7772 macsecmgrd[4164]: :- disableMACsec: The MACsec was not enabled on the port 'Ethernet96'
+Nov 23 03:17:08.569001 as7772 syncd[4155]: :- saiLoglevelNotify: Setting SAI loglevel SAI_LOG_LEVEL_NOTICE on SAI_API_MACSEC
+Nov 23 03:17:08.602291 as7772 syncd[4155]: :- Syncd: libsai api version: 11902
+Nov 23 03:17:08.602455 as7772 syncd[4155]: :- startDampingTimerThread: Started damping timer thread for proactive max_suppress_time enforcement
+Nov 23 03:17:08.602469 as7772 syncd[4155]: :- Syncd: syncd started
+Nov 23 03:17:08.602488 as7772 syncd[4155]: :- dampingTimerThreadFunc: Damping timer thread started
+Nov 23 03:17:08.606449 as7772 syncd[4155]: :- onSyncdStart: performing hard reinit since COLD start was performed
+Nov 23 03:17:08.608394 as7772 syncd[4155]: :- readAsicState: loaded 0 switches
+Nov 23 03:17:08.608441 as7772 syncd[4155]: :- readAsicState: read asic state took 0.001944 sec
+Nov 23 03:17:08.608688 as7772 syncd[4155]: :- onSyncdStart: hard reinit succeeded
+Nov 23 03:17:08.608712 as7772 syncd[4155]: :- onSyncdStart: on syncd start took 0.002290 sec
+Nov 23 03:17:08.608898 as7772 syncd[4155]: :- run: syncd listening for events
+Nov 23 03:17:08.608983 as7772 syncd[4155]: :- run: starting main loop
+Nov 23 03:17:08.611323 as7772 syncd[4155]: :- processNotifySyncd: very first run is TRUE, op = INIT_VIEW
+Nov 23 03:17:08.611352 as7772 syncd[4155]: :- clearTempView: clearing current TEMP VIEW
+Nov 23 03:17:08.611972 as7772 syncd[4155]: :- clearTempView: clear temp view took 0.000569 sec
+Nov 23 03:17:08.615567 as7772 orchagent[4157]: :- sai_redis_notify_syncd: switched ASIC to INIT VIEW
+Nov 23 03:17:08.615583 as7772 orchagent[4157]: :- sai_redis_notify_syncd: clearing current local state since init view is called on initialized switch
+Nov 23 03:17:08.615596 as7772 orchagent[4157]: :- clear_local_state: clearing local state
+Nov 23 03:17:08.615621 as7772 orchagent[4157]: :- meta_init_db: begin
+Nov 23 03:17:08.615643 as7772 orchagent[4157]: :- meta_init_db: end
+Nov 23 03:17:08.615673 as7772 orchagent[4157]: :- initSaiRedis: Notify syncd INIT_VIEW
+Nov 23 03:17:08.615830 as7772 orchagent[4157]: :- startRec: SwSS Recorder: Recording started at /var/log/swss/swss.rec
+Nov 23 03:17:08.615943 as7772 orchagent[4157]: :- startRec: Retry Recorder: Recording started at /var/log/swss/retry.rec
+Nov 23 03:17:08.622871 as7772 orchagent[4157]: :- main: The ZMQ channel on the northbound side of orchagent has been disabled.
+Nov 23 03:17:08.623427 as7772 orchagent[4157]: :- create: request switch create with context 0
+Nov 23 03:17:08.623702 as7772 orchagent[4157]: :- allocateNewSwitchObjectId: created SWITCH VID oid:0x21000000000000 for hwinfo: ''
+Nov 23 03:17:08.625359 as7772 syncd[4155]: :- processOidCreate: creating switch number 1
+Nov 23 03:17:08.625952 as7772 syncd[4155]: :- profileGetValue: SAI_INIT_CONFIG_FILE: /nix/store/h1lk5i6n06k8mh2v2bmsy4va497gbyi4-as7772-32x-config.bcm
+Nov 23 03:17:08.626057 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_BACKEND: openbcm
+Nov 23 03:17:08.626075 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_RC_FILE: /nix/store/1zwzi6a6jbdbi1jc4advzsxmc5s7bsk2-as7772-32x-led_proc_init.soc
+Nov 23 03:17:08.626095 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_UNIT: NULL
+Nov 23 03:17:08.626112 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_KNET: NULL
+Nov 23 03:17:08.626128 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_PORTS: NULL
+Nov 23 03:17:08.626146 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_LANES: NULL
+Nov 23 03:17:08.626163 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_SPEED: NULL
+Nov 23 03:17:08.626179 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_LINK: NULL
+Nov 23 03:17:08.626196 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_ON_HARDWARE: NULL
+Nov 23 03:17:08.626212 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_RIF_VLAN_BASE: NULL
+Nov 23 03:17:08.626230 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_TEMP_FILE: /run/asic/temperature
+Nov 23 03:17:08.626250 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_TEMP_PROM: /run/prometheus-textfile/asic.prom
+Nov 23 03:17:08.626267 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_TEMP_INTERVAL: NULL
+Nov 23 03:17:08.626283 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_PORT_INTERFACE: caui
+Nov 23 03:17:08.626302 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_PORT_FEC: none
+Nov 23 03:17:08.626320 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_PORT_AUTONEG: off
+Nov 23 03:17:08.626337 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_PORT_IFG: 128
+Nov 23 03:17:08.626354 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_DIAG_SOCKET: /run/sai-openbcm/diag.sock
+Nov 23 03:17:08.626371 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_EXT_PHY_FILE: /nix/store/msp5a1z3ylnapgpy2351yq5sc2lihh20-as7772-ext-phy.tbl
+Nov 23 03:17:08.626389 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_EXT_MACSEC_FILE: /nix/store/p43shbmlmhhz75p4di6xdcm5spyw3sx3-as7772-ext-macsec.tbl
+Nov 23 03:17:08.626407 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_LOG_STDERR: NULL
+Nov 23 03:17:08.626423 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_NETDEV: NULL
+Nov 23 03:17:08.626438 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_WIRE: NULL
+Nov 23 03:17:08.626453 as7772 syncd[4155]: :- profileGetValue: SAI_RS_BACKEND: NULL
+Nov 23 03:17:08.626468 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_DIAG_SOCKET: /run/sai-openbcm/diag.sock
+Nov 23 03:17:08.626487 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_EXT_PHY_FILE: /nix/store/msp5a1z3ylnapgpy2351yq5sc2lihh20-as7772-ext-phy.tbl
+Nov 23 03:17:08.626505 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_EXT_MACSEC_FILE: /nix/store/p43shbmlmhhz75p4di6xdcm5spyw3sx3-as7772-ext-macsec.tbl
+Nov 23 03:17:08.626560 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_MACSEC_HOLD_CLOSED: NULL
+Nov 23 03:17:08.626577 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_MACSEC_ENGINES_ON_AT_STOP: NULL
+Nov 23 03:17:08.626592 as7772 syncd[4155]: :- profileGetValue: SAI_RS_VIRTUAL_PORTS: NULL
+Nov 23 03:17:08.626608 as7772 syncd[4155]: :- profileGetValue: SAI_RS_VIRTUAL_LANES: NULL
+Nov 23 03:17:08.626625 as7772 syncd[4155]: :- profileGetValue: SAI_RS_VIRTUAL_SPEED: NULL
+Nov 23 03:17:08.626641 as7772 syncd[4155]: :- profileGetValue: SAI_RS_VIRTUAL_LINK: NULL
+Nov 23 03:17:08.626656 as7772 syncd[4155]: :- profileGetValue: SAI_RS_VIRTUAL_ON_HARDWARE: NULL
+Nov 23 03:17:08.626672 as7772 syncd[4155]: :- profileGetValue: SAI_RS_VIRTUAL_NETDEV: NULL
+Nov 23 03:17:08.626687 as7772 syncd[4155]: :- profileGetValue: SAI_RS_VIRTUAL_WIRE: NULL
+Nov 23 03:17:08.626704 as7772 syncd[4155]: :- profileGetValue: SAI_RS_VIRTUAL_COMPAT: NULL
+Nov 23 03:17:08.626719 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_PORTS: NULL
+Nov 23 03:17:08.626735 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_LANES: NULL
+Nov 23 03:17:08.626750 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_SPEED: NULL
+Nov 23 03:17:08.626766 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_LINK: NULL
+Nov 23 03:17:08.626783 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_ON_HARDWARE: NULL
+Nov 23 03:17:08.626799 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_NETDEV: NULL
+Nov 23 03:17:08.626814 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_FAKE_WIRE: NULL
+Nov 23 03:17:08.626830 as7772 syncd[4155]: :- profileGetValue: SAI_INIT_CONFIG_FILE: /nix/store/h1lk5i6n06k8mh2v2bmsy4va497gbyi4-as7772-32x-config.bcm
+Nov 23 03:17:08.626849 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_RC_FILE: /nix/store/1zwzi6a6jbdbi1jc4advzsxmc5s7bsk2-as7772-32x-led_proc_init.soc
+Nov 23 03:17:08.626867 as7772 syncd[4155]: :- profileGetValue: SAI_OPENBCM_UNIT: NULL
+Nov 23 03:17:08.627296 as7772 syncd[4155]: sai-openbcm NOTICE api=1: port quirks: interface caui, ASIC FEC fixed none, autoneg fixed off, IFG 128 bits
+Nov 23 03:17:08.691284 as7772 syncd[4155]: sai-openbcm NOTICE api=1: port quirks: interface caui, ASIC FEC fixed none, autoneg fixed off, IFG 128 bits
+Nov 23 03:17:08.750259 as7772 syncd[4155]: sai-openbcm NOTICE api=1: initializing backend openbcm
+Nov 23 03:17:08.750598 as7772 syncd[4155]: sai-rs openbcm: SDK init: unit 0, config /nix/store/h1lk5i6n06k8mh2v2bmsy4va497gbyi4-as7772-32x-config.bcm, rc /nix/store/1zwzi6a6jbdbi1jc4advzsxmc5s7bsk2-as7772-32x-led_proc_init.soc
+Nov 23 03:17:08.950849 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet120 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:8 master:0 flags:4098
+Nov 23 03:17:08.950914 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet124 admin:0 oper:0 addr:1c:ea:0b:38:2b:d7 ifindex:9 master:39 flags:4098
+Nov 23 03:17:08.950960 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet4 admin:1 oper:1 addr:1c:ea:0b:38:2b:d6 ifindex:19 master:0 flags:69699
+Nov 23 03:17:08.951005 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet4 admin:0 oper:0 addr:1c:ea:0b:38:2b:d6 ifindex:19 master:0 flags:4098
+Nov 23 03:17:08.951052 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet4 admin:1 oper:1 addr:1c:ea:0b:38:2b:d6 ifindex:19 master:0 flags:69699
+Nov 23 03:17:08.951368 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet0 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:18 master:0 flags:4098
+Nov 23 03:17:08.951414 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet124 admin:0 oper:0 addr:1c:ea:0b:38:2b:d7 ifindex:9 master:0 flags:4098
+Nov 23 03:17:08.951518 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet4 admin:0 oper:0 addr:1c:ea:0b:38:2b:d6 ifindex:19 master:0 flags:4098
+Nov 23 03:17:08.952543 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet112 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:6 master:0 flags:4098
+Nov 23 03:17:08.952581 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet116 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:7 master:0 flags:4098
+Nov 23 03:17:08.952615 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet120 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:8 master:0 flags:4098
+Nov 23 03:17:08.952649 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet124 admin:0 oper:0 addr:1c:ea:0b:38:2b:d7 ifindex:9 master:0 flags:4098
+Nov 23 03:17:08.952683 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet80 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:10 master:0 flags:4098
+Nov 23 03:17:08.952717 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet84 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:11 master:0 flags:4098
+Nov 23 03:17:08.952750 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet88 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:12 master:0 flags:4098
+Nov 23 03:17:08.952785 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet92 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:13 master:0 flags:4098
+Nov 23 03:17:08.952819 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet32 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:14 master:0 flags:4098
+Nov 23 03:17:08.952880 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet36 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:15 master:0 flags:4098
+Nov 23 03:17:08.952913 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet40 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:16 master:0 flags:4098
+Nov 23 03:17:08.952947 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet44 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:17 master:0 flags:4098
+Nov 23 03:17:08.952982 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet0 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:18 master:0 flags:4098
+Nov 23 03:17:08.953016 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet4 admin:0 oper:0 addr:1c:ea:0b:38:2b:d6 ifindex:19 master:0 flags:4098
+Nov 23 03:17:08.953050 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet8 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:20 master:0 flags:4098
+Nov 23 03:17:08.953083 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet12 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:21 master:0 flags:4098
+Nov 23 03:17:08.953117 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet16 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:22 master:0 flags:4098
+Nov 23 03:17:08.953150 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet20 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:23 master:0 flags:4098
+Nov 23 03:17:08.953185 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet24 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:24 master:0 flags:4098
+Nov 23 03:17:08.953220 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet28 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:25 master:0 flags:4098
+Nov 23 03:17:08.953277 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet48 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:26 master:0 flags:4098
+Nov 23 03:17:08.953311 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet52 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:27 master:0 flags:4098
+Nov 23 03:17:08.953344 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet56 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:28 master:0 flags:4098
+Nov 23 03:17:08.953379 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet60 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:29 master:0 flags:4098
+Nov 23 03:17:08.953413 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet64 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:30 master:0 flags:4098
+Nov 23 03:17:08.953448 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet68 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:31 master:0 flags:4098
+Nov 23 03:17:08.953481 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet72 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:32 master:0 flags:4098
+Nov 23 03:17:08.953515 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet76 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:33 master:0 flags:4098
+Nov 23 03:17:08.953549 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet96 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:34 master:0 flags:4098
+Nov 23 03:17:08.953583 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet100 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:35 master:0 flags:4098
+Nov 23 03:17:08.953617 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet104 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:36 master:0 flags:4098
+Nov 23 03:17:08.953666 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet108 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:37 master:0 flags:4098
+Nov 23 03:17:08.953772 as7772 portsyncd[4156]: :- readData: netlink reports an error=-33 on reading a netlink socket
+Nov 23 03:17:09.110713 as7772 syncd[4155]: Broadcom Command Monitor: Copyright (c) 1998-2026 Broadcom
+Nov 23 03:17:09.110713 as7772 syncd[4155]: Release: sdk-6.5.27 built 20261115 (Sun Nov 15 08:57:46 2026)
+Nov 23 03:17:09.110713 as7772 syncd[4155]: From nixbld@localhost:/build/openbcm-sdk-6.5.27-patched
+Nov 23 03:17:09.110713 as7772 syncd[4155]: Platform: PPC64BE
+Nov 23 03:17:09.110713 as7772 syncd[4155]: OS: Unix (Posix)
+Nov 23 03:17:09.490612 as7772 syncd[4155]: :- threadFunction: time span 865 ms for 'create:SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000'
+Nov 23 03:17:09.500808 as7772 syncd[4155]: linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+Nov 23 03:17:09.500808 as7772 syncd[4155]: DMA pool size: 16777216 bytes.
+Nov 23 03:17:09.500808 as7772 syncd[4155]: BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+Nov 23 03:17:09.562061 as7772 syncd[4155]: SOC unit 0 attached to PCI device BCM56930_B1
+Nov 23 03:17:09.564303 as7772 syncd[4155]: Boot flags: initialization scripts NOT loaded
+Nov 23 03:17:09.914380 as7772 syncd[4155]: [SOC KNET RX]soc_knet_handle_rx: unhandled (type=3, opcode=31)
+Nov 23 03:17:10.494628 as7772 syncd[4155]: :- threadFunction: time span 1869 ms for 'create:SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000'
+Nov 23 03:17:11.405037 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet112 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:6 master:0 flags:4098
+Nov 23 03:17:11.447103 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet116 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:7 master:0 flags:4098
+Nov 23 03:17:11.463260 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet120 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:8 master:0 flags:4098
+Nov 23 03:17:11.491166 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet124 admin:0 oper:0 addr:1c:ea:0b:38:2b:d7 ifindex:9 master:0 flags:4098
+Nov 23 03:17:11.498590 as7772 syncd[4155]: :- threadFunction: time span 2873 ms for 'create:SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000'
+Nov 23 03:17:11.515214 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet80 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:10 master:0 flags:4098
+Nov 23 03:17:11.563264 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet84 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:11 master:0 flags:4098
+Nov 23 03:17:11.603097 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet88 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:12 master:0 flags:4098
+Nov 23 03:17:11.627157 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet92 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:13 master:0 flags:4098
+Nov 23 03:17:11.647210 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet32 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:14 master:0 flags:4098
+Nov 23 03:17:11.699200 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet36 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:15 master:0 flags:4098
+Nov 23 03:17:11.723175 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet40 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:16 master:0 flags:4098
+Nov 23 03:17:11.751230 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet44 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:17 master:0 flags:4098
+Nov 23 03:17:11.791090 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet0 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:18 master:0 flags:4098
+Nov 23 03:17:11.831146 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet4 admin:0 oper:0 addr:1c:ea:0b:38:2b:d6 ifindex:19 master:0 flags:4098
+Nov 23 03:17:11.863170 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet8 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:20 master:0 flags:4098
+Nov 23 03:17:11.903101 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet12 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:21 master:0 flags:4098
+Nov 23 03:17:11.927142 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet16 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:22 master:0 flags:4098
+Nov 23 03:17:11.971092 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet20 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:23 master:0 flags:4098
+Nov 23 03:17:12.003074 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet24 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:24 master:0 flags:4098
+Nov 23 03:17:12.031282 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet28 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:25 master:0 flags:4098
+Nov 23 03:17:12.059114 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet48 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:26 master:0 flags:4098
+Nov 23 03:17:12.099055 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet52 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:27 master:0 flags:4098
+Nov 23 03:17:12.131111 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet56 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:28 master:0 flags:4098
+Nov 23 03:17:12.155168 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet60 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:29 master:0 flags:4098
+Nov 23 03:17:12.191106 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet64 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:30 master:0 flags:4098
+Nov 23 03:17:12.223184 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet68 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:31 master:0 flags:4098
+Nov 23 03:17:12.247089 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet72 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:32 master:0 flags:4098
+Nov 23 03:17:12.275061 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet76 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:33 master:0 flags:4098
+Nov 23 03:17:12.295190 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet96 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:34 master:0 flags:4098
+Nov 23 03:17:12.327029 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet100 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:35 master:0 flags:4098
+Nov 23 03:17:12.363091 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet104 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:36 master:0 flags:4098
+Nov 23 03:17:12.399107 as7772 portsyncd[4156]: :- onMsg: nlmsg type:17 key:Ethernet108 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:37 master:0 flags:4098
+Nov 23 03:17:12.425117 as7772 syncd[4155]: sai-rs openbcm: SDK init: ok: stale KNET netifs 32 filters 0 destroyed; IPv4/IPv6 L3 on 34 ports
+Nov 23 03:17:12.426032 as7772 syncd[4155]: sai-rs openbcm: SDK tables: host 40960, route 8192, egress 32768, L2 40960; buffer 16777280 B; ECMP 2048 groups x 1024 paths, 16384 member entries; VRF ids up to 2047
+Nov 23 03:17:12.439268 as7772 syncd[4155]: sai-openbcm NOTICE api=1: external PHY table: 32 ports (32 with a line-side link poll), poll 500 ms, up after 2 good polls, hold-off 3000 ms
+Nov 23 03:17:12.489297 as7772 syncd[4155]: sai-openbcm NOTICE api=1: external MACsec table: 32 ports, 126 sequences, counters clear on read, inter-frame gap 384 bit times with MACsec on
+Nov 23 03:17:12.502610 as7772 syncd[4155]: :- threadFunction: time span 3877 ms for 'create:SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000'
+Nov 23 03:17:13.122591 as7772 syncd[4155]: sai-openbcm NOTICE api=1: switch created: 32 front-panel ports, backend openbcm
+Nov 23 03:17:13.122948 as7772 syncd[4155]: sai-openbcm NOTICE api=1: diag socket /run/sai-openbcm/diag.sock: SDK diag shell commands (root, one per connection)
+Nov 23 03:17:13.123014 as7772 syncd[4155]: sai-openbcm NOTICE api=1: ASIC temperature: 8 monitors, max 46.2 C; every 5 s to /run/asic/temperature and /run/prometheus-textfile/asic.prom
+Nov 23 03:17:13.124056 as7772 syncd[4155]: :- SaiDiscovery: check attr version DISABLED, libsai api version: 11902
+Nov 23 03:17:13.160029 as7772 syncd[4155]: :- discover: skipping since it causes crash: SAI_STP_ATTR_BRIDGE_ID
+Nov 23 03:17:13.160732 as7772 syncd[4155]: :- discover: discover took 0.036647 sec
+Nov 23 03:17:13.160746 as7772 syncd[4155]: :- discover: discovered objects count: 615
+Nov 23 03:17:13.161061 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_PORT: 33
+Nov 23 03:17:13.161076 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_VIRTUAL_ROUTER: 1
+Nov 23 03:17:13.161089 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_STP: 1
+Nov 23 03:17:13.161102 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_HOSTIF_TRAP_GROUP: 1
+Nov 23 03:17:13.161115 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_QUEUE: 256
+Nov 23 03:17:13.161128 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_INGRESS_PRIORITY_GROUP: 256
+Nov 23 03:17:13.161141 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_SWITCH: 1
+Nov 23 03:17:13.161155 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_VLAN: 1
+Nov 23 03:17:13.161167 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_VLAN_MEMBER: 32
+Nov 23 03:17:13.161181 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_BRIDGE: 1
+Nov 23 03:17:13.161193 as7772 syncd[4155]: :- discover: SAI_OBJECT_TYPE_BRIDGE_PORT: 32
+Nov 23 03:17:13.163187 as7772 syncd[4155]: :- helperSaveDiscoveredObjectsToRedis: objects in ASIC state table present: 0
+Nov 23 03:17:13.163201 as7772 syncd[4155]: :- helperSaveDiscoveredObjectsToRedis: putting ALL discovered objects to redis
+Nov 23 03:17:13.506567 as7772 syncd[4155]: :- threadFunction: time span 4881 ms for 'create:SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000'
+Nov 23 03:17:13.567870 as7772 syncd[4155]: :- helperSaveDiscoveredObjectsToRedis: save discovered objects to redis took 0.404823 sec
+Nov 23 03:17:13.568268 as7772 syncd[4155]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x100000000000000 to Asic View and COLDVIDS
+Nov 23 03:17:13.568738 as7772 syncd[4155]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x2600000000000001 to Asic View and COLDVIDS
+Nov 23 03:17:13.569192 as7772 syncd[4155]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x1000000000000001 to Asic View and COLDVIDS
+Nov 23 03:17:13.569648 as7772 syncd[4155]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x300000000000001 to Asic View and COLDVIDS
+Nov 23 03:17:13.569791 as7772 syncd[4155]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_OVERRIDE_VIRTUAL_ROUTER_ID: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 23 03:17:13.570130 as7772 syncd[4155]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x3900000000000001 to Asic View and COLDVIDS
+Nov 23 03:17:13.570601 as7772 syncd[4155]: :- redisSaveInternalOids: put switch internal discovered rid oid:0x1100000000000001 to Asic View and COLDVIDS
+Nov 23 03:17:13.570741 as7772 syncd[4155]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_ECMP_HASH: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 23 03:17:13.570761 as7772 syncd[4155]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_LAG_HASH: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 23 03:17:13.570799 as7772 syncd[4155]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_CPU_INGRESS_BUFFER_POOL: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 23 03:17:13.570817 as7772 syncd[4155]: :- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_CPU_EGRESS_BUFFER_POOL: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+Nov 23 03:17:13.641184 as7772 syncd[4155]: :- helperLoadColdVids: read 615 COLD VIDS
+Nov 23 03:17:13.641247 as7772 syncd[4155]: :- saiGetVxlanDefaultRouterMacAddress: failed to obtain SAI_SWITCH_ATTR_VXLAN_DEFAULT_ROUTER_MAC, setting to 00:00:00:00:00:00
+Nov 23 03:17:13.641273 as7772 syncd[4155]: :- SaiSwitch: constructor took 0.517345 sec
+Nov 23 03:17:13.642036 as7772 orchagent[4157]: :- Switch: created switch with hwinfo = ''
+Nov 23 03:17:13.642158 as7772 orchagent[4157]: :- main: Create a switch, id:9288674231451648
+Nov 23 03:17:13.643952 as7772 orchagent[4157]: :- main: Get switch virtual router ID 3000000000022
+Nov 23 03:17:13.644875 as7772 orchagent[4157]: :- main: Failed to get the SNAT available entry count, rv:-327680
+Nov 23 03:17:13.646304 as7772 orchagent[4157]: :- main: Created underlay router interface ID 6000000000267
+Nov 23 03:17:13.650346 as7772 orchagent[4157]: :- NotificationConsumerStatsOrch: NotificationConsumerStatsOrch: publishing to COUNTERS_DB:NOTIFICATION_CONSUMER_STATS every 10s
+Nov 23 03:17:13.656579 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC SWITCH_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:13.657587 as7772 orchagent[4157]: :- queryHashNativeHashFieldListEnumCapabilities: Failed to get attribute(SAI_HASH_ATTR_NATIVE_HASH_FIELD_LIST) enum value capabilities
+Nov 23 03:17:13.658646 as7772 orchagent[4157]: :- queryHashNativeHashFieldListAttrCapabilities: Attribute(SAI_HASH_ATTR_NATIVE_HASH_FIELD_LIST) SET is not implemented in SAI
+Nov 23 03:17:13.659667 as7772 orchagent[4157]: :- querySwitchEcmpHashAttrCapabilities: Attribute(SAI_SWITCH_ATTR_ECMP_HASH) GET is not implemented in SAI
+Nov 23 03:17:13.660572 as7772 orchagent[4157]: :- querySwitchLagHashAttrCapabilities: Attribute(SAI_SWITCH_ATTR_LAG_HASH) GET is not implemented in SAI
+Nov 23 03:17:13.661446 as7772 orchagent[4157]: :- querySwitchEcmpHashAlgorithmEnumCapabilities: Failed to get attribute(SAI_SWITCH_ATTR_ECMP_DEFAULT_HASH_ALGORITHM) enum value capabilities
+Nov 23 03:17:13.662319 as7772 orchagent[4157]: :- querySwitchEcmpHashAlgorithmAttrCapabilities: Attribute(SAI_SWITCH_ATTR_ECMP_DEFAULT_HASH_ALGORITHM) SET is not implemented in SAI
+Nov 23 03:17:13.663196 as7772 orchagent[4157]: :- querySwitchLagHashAlgorithmEnumCapabilities: Failed to get attribute(SAI_SWITCH_ATTR_LAG_DEFAULT_HASH_ALGORITHM) enum value capabilities
+Nov 23 03:17:13.664097 as7772 orchagent[4157]: :- querySwitchLagHashAlgorithmAttrCapabilities: Attribute(SAI_SWITCH_ATTR_LAG_DEFAULT_HASH_ALGORITHM) SET is not implemented in SAI
+Nov 23 03:17:13.664233 as7772 orchagent[4157]: :- writeHashCapabilitiesToDb: Wrote hash capabilities to State DB: SWITCH_CAPABILITY|switch key
+Nov 23 03:17:13.664379 as7772 orchagent[4157]: :- writeSwitchCapabilitiesToDb: Wrote switch capabilities to State DB: SWITCH_CAPABILITY|switch key
+Nov 23 03:17:13.665267 as7772 orchagent[4157]: :- queryTrimSizeAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_SIZE) SET is not implemented in SAI
+Nov 23 03:17:13.666590 as7772 orchagent[4157]: :- queryTrimDscpModeEnumCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_DSCP_RESOLUTION_MODE) enum value capabilities are not available: unexpected status(SAI_STATUS_NOT_SUPPORTED)
+Nov 23 03:17:13.667491 as7772 orchagent[4157]: :- queryTrimDscpModeAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_DSCP_RESOLUTION_MODE) SET is not implemented in SAI
+Nov 23 03:17:13.668379 as7772 orchagent[4157]: :- queryTrimDscpAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_DSCP_VALUE) SET is not implemented in SAI
+Nov 23 03:17:13.669228 as7772 orchagent[4157]: :- queryTrimTcAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_TC_VALUE) SET is not implemented in SAI
+Nov 23 03:17:13.670062 as7772 orchagent[4157]: :- queryTrimQueueModeEnumCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_QUEUE_RESOLUTION_MODE) enum value capabilities are not available: unexpected status(SAI_STATUS_NOT_SUPPORTED)
+Nov 23 03:17:13.671046 as7772 orchagent[4157]: :- queryTrimQueueModeAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_QUEUE_RESOLUTION_MODE) SET is not implemented in SAI
+Nov 23 03:17:13.671921 as7772 orchagent[4157]: :- queryTrimQueueIndexAttrCapabilities: Attribute(SAI_SWITCH_ATTR_PACKET_TRIM_QUEUE_INDEX) SET is not implemented in SAI
+Nov 23 03:17:13.676007 as7772 orchagent[4157]: :- writeCapabilitiesToDb: Wrote switch trimming capabilities to State DB: SWITCH_CAPABILITY|switch key
+Nov 23 03:17:13.677239 as7772 orchagent[4157]: :- initAsicSdkHealthEventNotification: ASIC/SDK health event is not supported
+Nov 23 03:17:13.685498 as7772 orchagent[4157]: :- querySwitchTpidCapability: port TPID capability 0
+Nov 23 03:17:13.686378 as7772 orchagent[4157]: :- querySwitchTpidCapability: LAG TPID capability 0
+Nov 23 03:17:13.687394 as7772 orchagent[4157]: :- querySwitchPortEgressSampleCapability: port egress Sample capability 0
+Nov 23 03:17:13.688347 as7772 orchagent[4157]: :- querySwitchMirrorOnDropCapability: Could not query TAM Event type capability -2
+Nov 23 03:17:13.689316 as7772 orchagent[4157]: :- querySwitchPortMirrorCapability: port ingress mirror capability 0
+Nov 23 03:17:13.690187 as7772 orchagent[4157]: :- querySwitchPortMirrorCapability: port egress mirror capability 0
+Nov 23 03:17:13.691251 as7772 orchagent[4157]: :- querySwitchSamplePacketCapability: port ingress sample mirror capability 0
+Nov 23 03:17:13.692509 as7772 orchagent[4157]: :- querySwitchSamplePacketCapability: port egress sample mirror capability 0
+Nov 23 03:17:13.693376 as7772 orchagent[4157]: :- querySwitchSamplePacketCapability: samplepacket truncation capability 0
+Nov 23 03:17:13.694370 as7772 orchagent[4157]: :- querySwitchHashDefaults: Failed to get switch ECMP hash OID
+Nov 23 03:17:13.695263 as7772 orchagent[4157]: :- querySwitchHashDefaults: Failed to get switch LAG hash OID
+Nov 23 03:17:13.696260 as7772 orchagent[4157]: :- setSwitchIcmpOffloadCapability: Icmp Echo Offload not supported
+Nov 23 03:17:13.704160 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC PORT_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:13.705473 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC PORT_PHY_ATTR: COUNTERS_DB connection established
+Nov 23 03:17:13.706817 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC PORT_PHY_SERDES_ATTR: COUNTERS_DB connection established
+Nov 23 03:17:13.708045 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC PORT_BUFFER_DROP_STAT: COUNTERS_DB connection established
+Nov 23 03:17:13.709157 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC QUEUE_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:13.710255 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC QUEUE_WATERMARK_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:13.711857 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC PG_WATERMARK_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:13.713104 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC PG_DROP_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:13.714280 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC WRED_ECN_PORT_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:13.715568 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC WRED_ECN_QUEUE_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:13.717542 as7772 orchagent[4157]: :- queryPortAttrCapabilities: Attribute(SAI_PORT_ATTR_PRIORITY_FLOW_CONTROL_TX) SET is not implemented in SAI
+Nov 23 03:17:13.718413 as7772 orchagent[4157]: :- queryPortAttrCapabilities: Attribute(SAI_PORT_ATTR_PRIORITY_FLOW_CONTROL_RX) SET is not implemented in SAI
+Nov 23 03:17:13.727578 as7772 syncd[4155]: :- addPlugins: Queue Counter counters plugin 3a6159b8386c08e7285e34a85f4d2c68ad0f1168 registered
+Nov 23 03:17:13.729633 as7772 syncd[4155]: :- addPlugins: Priority Group Counter counters plugin bcf34ae9158bb04b86095f829f890234e38613ff registered
+Nov 23 03:17:13.730678 as7772 syncd[4155]: :- addPlugins: Port Counter counters plugin c08c663e2038cc7adcfe422cfddccb4330d9da6c registered
+Nov 23 03:17:13.730692 as7772 syncd[4155]: :- addPlugins: Port Counter counters plugin 567234fa6d7e30a131a3a2d4d60d3b1b923a42c2 registered
+Nov 23 03:17:13.733231 as7772 orchagent[4157]: :- initializeCpuPort: Get CPU port pid:1000000000001
+Nov 23 03:17:13.734691 as7772 orchagent[4157]: :- initializePorts: Get 32 ports
+Nov 23 03:17:13.737298 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000002 lanes:1 2 3 4
+Nov 23 03:17:13.738271 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000003 lanes:5 6 7 8
+Nov 23 03:17:13.739359 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000004 lanes:9 10 11 12
+Nov 23 03:17:13.740311 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000005 lanes:13 14 15 16
+Nov 23 03:17:13.741276 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000006 lanes:17 18 19 20
+Nov 23 03:17:13.742231 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000007 lanes:21 22 23 24
+Nov 23 03:17:13.743267 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000008 lanes:25 26 27 28
+Nov 23 03:17:13.744213 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000009 lanes:29 30 31 32
+Nov 23 03:17:13.745151 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:100000000000a lanes:33 34 35 36
+Nov 23 03:17:13.746111 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:100000000000b lanes:37 38 39 40
+Nov 23 03:17:13.747654 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:100000000000c lanes:41 42 43 44
+Nov 23 03:17:13.748760 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:100000000000d lanes:45 46 47 48
+Nov 23 03:17:13.749817 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:100000000000e lanes:49 50 51 52
+Nov 23 03:17:13.750965 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:100000000000f lanes:53 54 55 56
+Nov 23 03:17:13.752071 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000010 lanes:57 58 59 60
+Nov 23 03:17:13.753074 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000011 lanes:61 62 63 64
+Nov 23 03:17:13.754054 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000012 lanes:65 66 67 68
+Nov 23 03:17:13.755103 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000013 lanes:69 70 71 72
+Nov 23 03:17:13.756261 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000014 lanes:73 74 75 76
+Nov 23 03:17:13.757254 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000015 lanes:77 78 79 80
+Nov 23 03:17:13.758341 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000016 lanes:81 82 83 84
+Nov 23 03:17:13.759407 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000017 lanes:85 86 87 88
+Nov 23 03:17:13.760390 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000018 lanes:89 90 91 92
+Nov 23 03:17:13.761857 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000019 lanes:93 94 95 96
+Nov 23 03:17:13.762882 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:100000000001a lanes:97 98 99 100
+Nov 23 03:17:13.763893 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:100000000001b lanes:101 102 103 104
+Nov 23 03:17:13.764873 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:100000000001c lanes:105 106 107 108
+Nov 23 03:17:13.765876 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:100000000001d lanes:109 110 111 112
+Nov 23 03:17:13.766939 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:100000000001e lanes:113 114 115 116
+Nov 23 03:17:13.767933 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:100000000001f lanes:117 118 119 120
+Nov 23 03:17:13.768887 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000020 lanes:121 122 123 124
+Nov 23 03:17:13.769849 as7772 orchagent[4157]: :- initializePorts: Get port with lanes pid:1000000000021 lanes:125 126 127 128
+Nov 23 03:17:13.770868 as7772 orchagent[4157]: :- PortsOrch: This device does not support unknown unicast flood control types
+Nov 23 03:17:13.771762 as7772 orchagent[4157]: :- PortsOrch: This device does not support broadcast flood control types
+Nov 23 03:17:13.772688 as7772 orchagent[4157]: :- PortsOrch: Hostif queue attribute not supported
+Nov 23 03:17:13.825074 as7772 orchagent[4157]: :- removeDefaultVlanMembers: Remove 32 VLAN members from default VLAN
+Nov 23 03:17:13.990900 as7772 orchagent[4157]: :- removeDefaultBridgePorts: Remove bridge ports from default 1Q bridge
+Nov 23 03:17:13.992875 as7772 orchagent[4157]: :- setOpAllowList: NotificationConsumer[NOTIFICATIONS]: op allowlist set to 1 entries
+Nov 23 03:17:13.992893 as7772 orchagent[4157]: :- setStatsLabel: NotificationConsumer[PortsOrch:port_state_change]: stats label set (channel=NOTIFICATIONS)
+Nov 23 03:17:13.992909 as7772 orchagent[4157]: :- registerConsumer: NotificationConsumerStatsOrch: registered PortsOrch:port_state_change (channel=NOTIFICATIONS)
+Nov 23 03:17:13.995943 as7772 orchagent[4157]: :- queryPortPhyAttrCapabilities: PORT_PHY_ATTR: Attribute SAI_PORT_ATTR_RX_SIGNAL_DETECT is NOT supported (status=0, get_implemented=0)
+Nov 23 03:17:13.996993 as7772 orchagent[4157]: :- queryPortPhyAttrCapabilities: PORT_PHY_ATTR: Attribute SAI_PORT_ATTR_FEC_ALIGNMENT_LOCK is NOT supported (status=0, get_implemented=0)
+Nov 23 03:17:13.998022 as7772 orchagent[4157]: :- queryPortPhyAttrCapabilities: PORT_PHY_ATTR: Attribute SAI_PORT_ATTR_RX_SNR is NOT supported (status=0, get_implemented=0)
+Nov 23 03:17:13.999088 as7772 orchagent[4157]: :- queryPortPhySerdesAttrCapabilities: PORT_PHY_SERDES_ATTR: Attribute SAI_PORT_SERDES_ATTR_RX_VGA is NOT supported (status=0, get_implemented=0)
+Nov 23 03:17:14.000115 as7772 orchagent[4157]: :- queryPortPhySerdesAttrCapabilities: PORT_PHY_SERDES_ATTR: Attribute SAI_PORT_SERDES_ATTR_TX_FIR_TAPS_LIST is NOT supported (status=0, get_implemented=0)
+Nov 23 03:17:14.002073 as7772 orchagent[4157]: :- initCounterCapabilities: Queue stat capability get failed: WRED queue stats can not be enabled, rv:-2
+Nov 23 03:17:14.011261 as7772 orchagent[4157]: :- setOpAllowList: NotificationConsumer[FLUSHFDBREQUEST]: op allowlist set to 4 entries
+Nov 23 03:17:14.011314 as7772 orchagent[4157]: :- setStatsLabel: NotificationConsumer[FdbOrch:flush]: stats label set (channel=FLUSHFDBREQUEST)
+Nov 23 03:17:14.011331 as7772 orchagent[4157]: :- registerConsumer: NotificationConsumerStatsOrch: registered FdbOrch:flush (channel=FLUSHFDBREQUEST)
+Nov 23 03:17:14.011795 as7772 orchagent[4157]: :- setOpAllowList: NotificationConsumer[NOTIFICATIONS]: op allowlist set to 1 entries
+Nov 23 03:17:14.011810 as7772 orchagent[4157]: :- setStatsLabel: NotificationConsumer[FdbOrch:fdb_event]: stats label set (channel=NOTIFICATIONS)
+Nov 23 03:17:14.011822 as7772 orchagent[4157]: :- registerConsumer: NotificationConsumerStatsOrch: registered FdbOrch:fdb_event (channel=NOTIFICATIONS)
+Nov 23 03:17:14.014363 as7772 orchagent[4157]: :- isAclSetDoNotLearnSupported: MAC_MOVE_GUARD: cannot query SAI_SWITCH_ATTR_ACL_STAGE_PRE_INGRESS capabilities (rv:-327680); assuming SAI_ACL_ACTION_TYPE_SET_DO_NOT_LEARN is unsupported and soft-disabling DISABLE_LEARN_ON_MAC_WITH_ACL
+Nov 23 03:17:14.015156 as7772 orchagent[4157]: :- MacMoveGuard: MacMoveGuard initialized
+Nov 23 03:17:14.017487 as7772 orchagent[4157]: :- offload_supported: BFD offload type not implemented
+Nov 23 03:17:14.019507 as7772 orchagent[4157]: :- setOpAllowList: NotificationConsumer[NOTIFICATIONS]: op allowlist set to 1 entries
+Nov 23 03:17:14.019527 as7772 orchagent[4157]: :- setStatsLabel: NotificationConsumer[BfdOrch:bfd_session_state_change]: stats label set (channel=NOTIFICATIONS)
+Nov 23 03:17:14.019540 as7772 orchagent[4157]: :- registerConsumer: NotificationConsumerStatsOrch: registered BfdOrch:bfd_session_state_change (channel=NOTIFICATIONS)
+Nov 23 03:17:14.019916 as7772 orchagent[4157]: :- BfdOrch: Switch type is: switch
+Nov 23 03:17:14.021811 as7772 orchagent[4157]: :- IcmpOrch: ICMP offload not supported
+Nov 23 03:17:14.025449 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC ROUTE_FLOW_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.026455 as7772 orchagent[4157]: :- initRouteFlowCounterCapability: Route flow counter is not supported on this platform
+Nov 23 03:17:14.031893 as7772 orchagent[4157]: :- StpOrch: StpOrch initialization failure
+Nov 23 03:17:14.055166 as7772 syncd[4155]: :- addPlugins: Rif Counter counters plugin 03380075809fb1143905cc18158a8bf46fa54920 registered
+Nov 23 03:17:14.056138 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC RIF_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.061160 as7772 orchagent[4157]: :- get_route_perf_zmq_enabled: swss_zmq status not found, default disabled.
+Nov 23 03:17:14.061177 as7772 orchagent[4157]: :- createProducerStateTable: Create ProducerStateTable : ROUTE_TABLE
+Nov 23 03:17:14.070545 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC SRV6_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.072227 as7772 orchagent[4157]: :- get_route_perf_zmq_enabled: swss_zmq status not found, default disabled.
+Nov 23 03:17:14.077749 as7772 orchagent[4157]: :- RouteOrch: Maximum number of ECMP groups supported is 2048
+Nov 23 03:17:14.079852 as7772 orchagent[4157]: :- RouteOrch: Switch Type: switch, Max ECMP Group Size supported: 16384
+Nov 23 03:17:14.082355 as7772 orchagent[4157]: :- RouteOrch: Create IPv4 default route with packet action drop
+Nov 23 03:17:14.083940 as7772 orchagent[4157]: :- RouteOrch: Create IPv6 default route with packet action drop
+Nov 23 03:17:14.085321 as7772 orchagent[4157]: :- addLinkLocalRouteToMe: Created link local ipv6 route  fe80::1eea:bff:fe38:2bd5/128 to cpu
+Nov 23 03:17:14.085339 as7772 orchagent[4157]: :- RouteOrch: Created link local ipv6 route fe80::1eea:bff:fe38:2bd5/128 to cpu
+Nov 23 03:17:14.086582 as7772 orchagent[4157]: :- addLinkLocalRouteToMe: Created link local ipv6 route  fe80::/10 to cpu
+Nov 23 03:17:14.086602 as7772 orchagent[4157]: :- RouteOrch: Created link local ipv6 route fe80::/10 to cpu
+Nov 23 03:17:14.093430 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC HOSTIF_TRAP_FLOW_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.094662 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC COPP_STATS_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.096108 as7772 orchagent[4157]: :- publishTrapIdsCapability: SAI capability query for SAI_HOSTIF_TRAP_ATTR_TRAP_TYPE is failed, falling back to default supported trap IDs
+Nov 23 03:17:14.096124 as7772 orchagent[4157]: :- publishTrapIdsCapability: Number of supported trap IDs: 43
+Nov 23 03:17:14.096233 as7772 orchagent[4157]: :- publishTrapIdsCapability: Publishing supported trap IDs to STATE_DB
+Nov 23 03:17:14.097453 as7772 orchagent[4157]: :- isPolicerStatSupported: sai_query_stats_capability(POLICER) returned -2; treating policer stats as unsupported
+Nov 23 03:17:14.097604 as7772 orchagent[4157]: :- publishPolicerStatsCapability: Published COPP_POLICER_STATS_CAPABLE = false
+Nov 23 03:17:14.099336 as7772 orchagent[4157]: :- initDefaultHostIntfTable: Create default host interface table
+Nov 23 03:17:14.101451 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 0 field entries, 0 policers (field group -1)
+Nov 23 03:17:14.108146 as7772 orchagent[4157]: :- VxlanTunnelOrch: Unable to get supported tunnel peer modes. Defaulting to P2P
+Nov 23 03:17:14.110439 as7772 syncd[4155]: :- addPlugins: Tunnel Counter counters plugin 5f7d853dc44d586514ba71cc8439ef1dcf4eda53 registered
+Nov 23 03:17:14.111613 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC TUNNEL_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.141131 as7772 syncd[4155]: :- addPlugins: Buffer Pool Counter counters plugin 78f7658e05f9659b8ecaf00eb0214957a509e246 registered
+Nov 23 03:17:14.142067 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC BUFFER_POOL_WATERMARK_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.144619 as7772 orchagent[4157]: :- initBufferConstants: Got maximum memory size 4000, exposing to BUFFER_MAX_PARAM_TABLE|global
+Nov 23 03:17:14.160567 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC DEBUG_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.162248 as7772 orchagent[4157]: :- getSupportedDropReasons: This device does not support querying drop reasons
+Nov 23 03:17:14.163830 as7772 orchagent[4157]: :- getSupportedDropReasons: This device does not support querying drop reasons
+Nov 23 03:17:14.165060 as7772 orchagent[4157]: :- getSupportedCounterTypes: This device does not support querying drop counters
+Nov 23 03:17:14.166533 as7772 syncd[4155]: :- addPlugins: Port Counter counters plugin a231314a35f419bcb5f24da711a96fa578aac9c5 registered
+Nov 23 03:17:14.167350 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC DEBUG_MONITOR_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.177323 as7772 orchagent[4157]: :- NatOrch: Failed to get the SNAT available entry count, rv:-327680
+Nov 23 03:17:14.177769 as7772 orchagent[4157]: :- NatOrch: DNAT nexthop tracking is enabled
+Nov 23 03:17:14.181236 as7772 orchagent[4157]: :- isNoHostRouteSupported: SAI_NEIGHBOR_ENTRY_ATTR_NO_HOST_ROUTE is supported
+Nov 23 03:17:14.181253 as7772 orchagent[4157]: :- MuxOrch: MuxOrch: prefix_nbrs_supported_ = true
+Nov 23 03:17:14.193926 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC COUNTERS_MACSEC_SA_ATTR: COUNTERS_DB connection established
+Nov 23 03:17:14.196175 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC COUNTERS_MACSEC_SA: COUNTERS_DB connection established
+Nov 23 03:17:14.197968 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC COUNTERS_MACSEC_FLOW: COUNTERS_DB connection established
+Nov 23 03:17:14.202246 as7772 orchagent[4157]: :- NhgMapOrch: Switch does not support NHG maps
+Nov 23 03:17:14.210467 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC ACL_STAT_COUNTER: COUNTERS_DB connection established
+Nov 23 03:17:14.210752 as7772 orchagent[4157]: :- init: broadcom switch capability:
+Nov 23 03:17:14.210768 as7772 orchagent[4157]: :- init:     TABLE_TYPE_MIRROR: yes
+Nov 23 03:17:14.210781 as7772 orchagent[4157]: :- init:     TABLE_TYPE_MIRRORV6: yes
+Nov 23 03:17:14.210794 as7772 orchagent[4157]: :- init:     TABLE_TYPE_L3V4V6: Ingress [no], Egress [no]
+Nov 23 03:17:14.212244 as7772 orchagent[4157]: :- init: ACL_USER_META_DATA_RANGE capability 0
+Nov 23 03:17:14.213514 as7772 orchagent[4157]: :- init: ACL_ENTRY_ATTR_FIELD_ACL_USER_META capability 0
+Nov 23 03:17:14.214816 as7772 orchagent[4157]: :- init: ACL_ENTRY_ATTR_ACTION_SET_ACL_META_DATA capability 0
+Nov 23 03:17:14.216769 as7772 orchagent[4157]: :- init: Get ACL entry priority values, min: 0, max: 2147483647
+Nov 23 03:17:14.277209 as7772 orchagent[4157]: :- withMatch: Skipping ACL table match field SAI_ACL_TABLE_ATTR_FIELD_OUT_PORTS: not supported by the platform
+Nov 23 03:17:14.279748 as7772 orchagent[4157]: :- withMatch: Skipping ACL table match field SAI_ACL_TABLE_ATTR_FIELD_TC: not supported by the platform
+Nov 23 03:17:14.280721 as7772 orchagent[4157]: :- withMatch: Skipping ACL table match field SAI_ACL_TABLE_ATTR_FIELD_TC: not supported by the platform
+Nov 23 03:17:14.331405 as7772 orchagent[4157]: :- parsePbhAsicVendor: Parsed PBH ASIC vendor: generic
+Nov 23 03:17:14.331430 as7772 orchagent[4157]: :- initPbhVendorCapabilities: Initialized PBH capabilities: generic platform
+Nov 23 03:17:14.331681 as7772 orchagent[4157]: :- writePbhEntityCapabilitiesToDb<PbhTableCapabilities>: Wrote PBH table capabilities to State DB: PBH_CAPABILITIES|table key
+Nov 23 03:17:14.331897 as7772 orchagent[4157]: :- writePbhEntityCapabilitiesToDb<PbhRuleCapabilities>: Wrote PBH rule capabilities to State DB: PBH_CAPABILITIES|rule key
+Nov 23 03:17:14.332046 as7772 orchagent[4157]: :- writePbhEntityCapabilitiesToDb<PbhHashCapabilities>: Wrote PBH hash capabilities to State DB: PBH_CAPABILITIES|hash key
+Nov 23 03:17:14.332199 as7772 orchagent[4157]: :- writePbhEntityCapabilitiesToDb<PbhHashFieldCapabilities>: Wrote PBH hash field capabilities to State DB: PBH_CAPABILITIES|hash-field key
+Nov 23 03:17:14.332213 as7772 orchagent[4157]: :- writePbhVendorCapabilitiesToDb: Wrote PBH capabilities to State DB: PBH_CAPABILITIES table
+Nov 23 03:17:14.336576 as7772 orchagent[4157]: :- init: Starting acl handler for pfc watchdog
+Nov 23 03:17:14.343916 as7772 syncd[4155]: :- addPlugins: Queue Counter counters plugin 0d40803ca702c0e2d51502c78220f6e667d10e20 registered
+Nov 23 03:17:14.343936 as7772 syncd[4155]: :- addPlugins: Queue Counter counters plugin fb3b7a44d7053e8b4c9b8f95d6bf40c587ef9c70 registered
+Nov 23 03:17:14.344977 as7772 syncd[4155]: :- flexCounterThreadRunFunction: FC PFC_WD: COUNTERS_DB connection established
+Nov 23 03:17:14.368660 as7772 orchagent[4157]: :- mqPollThread: mqPollThread begin
+Nov 23 03:17:14.368684 as7772 orchagent[4157]: :- mqPollThread: bind to zmq endpoint: ipc:///zmq_swss/p4orch_zmq_swss_ep
+Nov 23 03:17:14.380017 as7772 orchagent[4157]: :- TwampOrch: Twamp session resource availability is not supported. Skipping ...
+Nov 23 03:17:14.381104 as7772 orchagent[4157]: :- isSupportedHFTel: Streaming stats not supported, HFTel disabled
+Nov 23 03:17:14.381120 as7772 orchagent[4157]: :- init: High Frequency Telemetry is not supported on this platform
+Nov 23 03:17:14.381157 as7772 orchagent[4157]: :- syncd_apply_view: Notify syncd APPLY_VIEW
+Nov 23 03:17:14.381180 as7772 orchagent[4157]: :- notifySyncd: sending syncd: APPLY_VIEW
+Nov 23 03:17:14.381702 as7772 syncd[4155]: :- processNotifySyncd: very first run is TRUE, op = APPLY_VIEW
+Nov 23 03:17:14.381716 as7772 syncd[4155]: :- processNotifySyncd: setting very first run to FALSE, op = APPLY_VIEW
+Nov 23 03:17:14.382284 as7772 orchagent[4157]: :- sai_redis_notify_syncd: switched ASIC to APPLY VIEW
+Nov 23 03:17:14.413120 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.002992 sec
+Nov 23 03:17:14.416014 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.002866 sec
+Nov 23 03:17:14.417232 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.001195 sec
+Nov 23 03:17:14.418825 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.001565 sec
+Nov 23 03:17:14.422597 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet112 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:44 master:0 flags:4098
+Nov 23 03:17:14.423538 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet112(ok:down) to state db
+Nov 23 03:17:14.424805 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet112 with oper status down
+Nov 23 03:17:14.531233 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet112 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:44 master:0 flags:4098
+Nov 23 03:17:14.532185 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet112(ok:down) to state db
+Nov 23 03:17:14.626846 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet112","status":"down","timestamp":"2026-11-23T03:17:14.626665Z"}}
+Nov 23 03:17:14.629050 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000002 (status=-327680)
+Nov 23 03:17:14.630345 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet112 rv:-327680, ignored
+Nov 23 03:17:14.635574 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet112
+Nov 23 03:17:14.635602 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.225482 sec
+Nov 23 03:17:14.646053 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.003865 sec
+Nov 23 03:17:14.652169 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.006072 sec
+Nov 23 03:17:14.654170 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.001952 sec
+Nov 23 03:17:14.656702 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.002491 sec
+Nov 23 03:17:14.659574 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet116 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:45 master:0 flags:4098
+Nov 23 03:17:14.660968 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet116(ok:down) to state db
+Nov 23 03:17:14.661865 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet116 with oper status down
+Nov 23 03:17:14.662034 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet116","status":"down","timestamp":"2026-11-23T03:17:14.661921Z"}}
+Nov 23 03:17:14.664320 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000003 (status=-327680)
+Nov 23 03:17:14.665762 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet116 rv:-327680, ignored
+Nov 23 03:17:14.670238 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet116
+Nov 23 03:17:14.670271 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.028089 sec
+Nov 23 03:17:14.681910 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.003556 sec
+Nov 23 03:17:14.687132 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.005175 sec
+Nov 23 03:17:14.689183 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.002008 sec
+Nov 23 03:17:14.691240 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.002019 sec
+Nov 23 03:17:14.694957 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet120 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:46 master:0 flags:4098
+Nov 23 03:17:14.697072 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet120(ok:down) to state db
+Nov 23 03:17:14.697608 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet120 with oper status down
+Nov 23 03:17:14.697912 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet120","status":"down","timestamp":"2026-11-23T03:17:14.697650Z"}}
+Nov 23 03:17:14.702035 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000004 (status=-327680)
+Nov 23 03:17:14.704195 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet120 rv:-327680, ignored
+Nov 23 03:17:14.709739 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet120
+Nov 23 03:17:14.709764 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.031424 sec
+Nov 23 03:17:14.719408 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.003919 sec
+Nov 23 03:17:14.725290 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.005837 sec
+Nov 23 03:17:14.727410 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.002067 sec
+Nov 23 03:17:14.730990 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.003527 sec
+Nov 23 03:17:14.735060 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet124 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:47 master:0 flags:4098
+Nov 23 03:17:14.737020 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet124(ok:down) to state db
+Nov 23 03:17:14.739661 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet124 with oper status down
+Nov 23 03:17:14.739888 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet124","status":"down","timestamp":"2026-11-23T03:17:14.739743Z"}}
+Nov 23 03:17:14.743436 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000005 (status=-327680)
+Nov 23 03:17:14.746410 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet124 rv:-327680, ignored
+Nov 23 03:17:14.753341 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet124
+Nov 23 03:17:14.753368 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.037898 sec
+Nov 23 03:17:14.772671 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.008140 sec
+Nov 23 03:17:14.780710 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.007967 sec
+Nov 23 03:17:14.784962 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.004189 sec
+Nov 23 03:17:14.789744 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.004717 sec
+Nov 23 03:17:14.796802 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet80 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:48 master:0 flags:4098
+Nov 23 03:17:14.799699 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet80(ok:down) to state db
+Nov 23 03:17:14.802725 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet80 with oper status down
+Nov 23 03:17:14.802947 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet80","status":"down","timestamp":"2026-11-23T03:17:14.802800Z"}}
+Nov 23 03:17:14.809257 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000006 (status=-327680)
+Nov 23 03:17:14.814772 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet80 rv:-327680, ignored
+Nov 23 03:17:14.824504 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet80
+Nov 23 03:17:14.824555 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.060034 sec
+Nov 23 03:17:14.866291 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.015757 sec
+Nov 23 03:17:14.874108 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.007768 sec
+Nov 23 03:17:14.877485 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.003314 sec
+Nov 23 03:17:14.881353 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.003804 sec
+Nov 23 03:17:14.895167 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet84 with oper status down
+Nov 23 03:17:14.895324 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet84","status":"down","timestamp":"2026-11-23T03:17:14.895209Z"}}
+Nov 23 03:17:14.896243 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet84 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:49 master:0 flags:4098
+Nov 23 03:17:14.900686 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet84(ok:down) to state db
+Nov 23 03:17:14.902366 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000007 (status=-327680)
+Nov 23 03:17:14.906358 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet84 rv:-327680, ignored
+Nov 23 03:17:14.922406 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet84
+Nov 23 03:17:14.922454 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.071930 sec
+Nov 23 03:17:14.941883 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.006492 sec
+Nov 23 03:17:14.951067 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.009140 sec
+Nov 23 03:17:14.958857 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.007714 sec
+Nov 23 03:17:14.961798 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.002886 sec
+Nov 23 03:17:14.966144 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet88 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:50 master:0 flags:4098
+Nov 23 03:17:14.968933 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet88(ok:down) to state db
+Nov 23 03:17:14.971155 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet88 with oper status down
+Nov 23 03:17:14.971341 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet88","status":"down","timestamp":"2026-11-23T03:17:14.971207Z"}}
+Nov 23 03:17:14.974289 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000008 (status=-327680)
+Nov 23 03:17:14.976250 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet88 rv:-327680, ignored
+Nov 23 03:17:14.982362 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet88
+Nov 23 03:17:14.982409 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.047041 sec
+Nov 23 03:17:14.992983 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.002975 sec
+Nov 23 03:17:14.996349 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.003317 sec
+Nov 23 03:17:14.998122 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.001729 sec
+Nov 23 03:17:14.999916 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.001757 sec
+Nov 23 03:17:15.003008 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet92 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:51 master:0 flags:4098
+Nov 23 03:17:15.004137 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet92(ok:down) to state db
+Nov 23 03:17:15.006565 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet92 with oper status down
+Nov 23 03:17:15.006728 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet92","status":"down","timestamp":"2026-11-23T03:17:15.6613Z"}}
+Nov 23 03:17:15.009070 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000009 (status=-327680)
+Nov 23 03:17:15.011567 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet92 rv:-327680, ignored
+Nov 23 03:17:15.017495 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet92
+Nov 23 03:17:15.017526 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.027525 sec
+Nov 23 03:17:15.029050 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.004098 sec
+Nov 23 03:17:15.037703 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.008595 sec
+Nov 23 03:17:15.040204 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.002454 sec
+Nov 23 03:17:15.041982 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.001737 sec
+Nov 23 03:17:15.045141 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet32 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:52 master:0 flags:4098
+Nov 23 03:17:15.047415 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet32(ok:down) to state db
+Nov 23 03:17:15.051454 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet32 with oper status down
+Nov 23 03:17:15.051626 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet32","status":"down","timestamp":"2026-11-23T03:17:15.51493Z"}}
+Nov 23 03:17:15.054880 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x100000000000a (status=-327680)
+Nov 23 03:17:15.058411 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet32 rv:-327680, ignored
+Nov 23 03:17:15.064113 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet32
+Nov 23 03:17:15.064149 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.039220 sec
+Nov 23 03:17:15.078798 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.006790 sec
+Nov 23 03:17:15.085973 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.007135 sec
+Nov 23 03:17:15.087926 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.001911 sec
+Nov 23 03:17:15.090568 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.002562 sec
+Nov 23 03:17:15.094611 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet36 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:53 master:0 flags:4098
+Nov 23 03:17:15.099107 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet36(ok:down) to state db
+Nov 23 03:17:15.099597 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet36 with oper status down
+Nov 23 03:17:15.099783 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet36","status":"down","timestamp":"2026-11-23T03:17:15.99635Z"}}
+Nov 23 03:17:15.105363 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x100000000000b (status=-327680)
+Nov 23 03:17:15.109519 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet36 rv:-327680, ignored
+Nov 23 03:17:15.115854 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet36
+Nov 23 03:17:15.115890 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.043896 sec
+Nov 23 03:17:15.127798 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.004650 sec
+Nov 23 03:17:15.131623 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.003785 sec
+Nov 23 03:17:15.133201 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.001553 sec
+Nov 23 03:17:15.134377 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.001153 sec
+Nov 23 03:17:15.137138 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet40 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:54 master:0 flags:4098
+Nov 23 03:17:15.138127 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet40(ok:down) to state db
+Nov 23 03:17:15.140027 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet40 with oper status down
+Nov 23 03:17:15.140183 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet40","status":"down","timestamp":"2026-11-23T03:17:15.140058Z"}}
+Nov 23 03:17:15.143867 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x100000000000c (status=-327680)
+Nov 23 03:17:15.145749 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet40 rv:-327680, ignored
+Nov 23 03:17:15.150750 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet40
+Nov 23 03:17:15.150796 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.027658 sec
+Nov 23 03:17:15.164532 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.004409 sec
+Nov 23 03:17:15.170365 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.005792 sec
+Nov 23 03:17:15.171855 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.001456 sec
+Nov 23 03:17:15.173243 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.001359 sec
+Nov 23 03:17:15.175923 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet44 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:55 master:0 flags:4098
+Nov 23 03:17:15.176850 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet44(ok:down) to state db
+Nov 23 03:17:15.179691 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet44 with oper status down
+Nov 23 03:17:15.179850 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet44","status":"down","timestamp":"2026-11-23T03:17:15.179726Z"}}
+Nov 23 03:17:15.181892 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x100000000000d (status=-327680)
+Nov 23 03:17:15.183281 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet44 rv:-327680, ignored
+Nov 23 03:17:15.187011 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet44
+Nov 23 03:17:15.187041 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.026939 sec
+Nov 23 03:17:15.196542 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.004088 sec
+Nov 23 03:17:15.200245 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.003660 sec
+Nov 23 03:17:15.202368 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.002081 sec
+Nov 23 03:17:15.204822 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.002413 sec
+Nov 23 03:17:15.208126 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet0 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:56 master:0 flags:4098
+Nov 23 03:17:15.209134 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet0(ok:down) to state db
+Nov 23 03:17:15.211387 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet0 with oper status down
+Nov 23 03:17:15.211549 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet0","status":"down","timestamp":"2026-11-23T03:17:15.211421Z"}}
+Nov 23 03:17:15.215039 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x100000000000e (status=-327680)
+Nov 23 03:17:15.216752 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet0 rv:-327680, ignored
+Nov 23 03:17:15.221907 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet0
+Nov 23 03:17:15.221938 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.029498 sec
+Nov 23 03:17:15.232621 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.003981 sec
+Nov 23 03:17:15.237863 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.005190 sec
+Nov 23 03:17:15.240673 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.002749 sec
+Nov 23 03:17:15.243125 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.002402 sec
+Nov 23 03:17:15.246581 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet4 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:57 master:0 flags:4098
+Nov 23 03:17:15.247903 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet4(ok:down) to state db
+Nov 23 03:17:15.250233 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet4 with oper status down
+Nov 23 03:17:15.250451 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet4","status":"down","timestamp":"2026-11-23T03:17:15.250303Z"}}
+Nov 23 03:17:15.253899 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x100000000000f (status=-327680)
+Nov 23 03:17:15.256161 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet4 rv:-327680, ignored
+Nov 23 03:17:15.264079 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet4
+Nov 23 03:17:15.264113 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.035481 sec
+Nov 23 03:17:15.275943 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.004233 sec
+Nov 23 03:17:15.281178 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.005180 sec
+Nov 23 03:17:15.282727 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.001514 sec
+Nov 23 03:17:15.284232 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.001474 sec
+Nov 23 03:17:15.286993 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet8 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:58 master:0 flags:4098
+Nov 23 03:17:15.288235 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet8(ok:down) to state db
+Nov 23 03:17:15.291333 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet8 with oper status down
+Nov 23 03:17:15.291516 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet8","status":"down","timestamp":"2026-11-23T03:17:15.291385Z"}}
+Nov 23 03:17:15.295041 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000010 (status=-327680)
+Nov 23 03:17:15.297801 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet8 rv:-327680, ignored
+Nov 23 03:17:15.305390 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet8
+Nov 23 03:17:15.305429 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.033727 sec
+Nov 23 03:17:15.326824 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.012076 sec
+Nov 23 03:17:15.333797 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.006909 sec
+Nov 23 03:17:15.335636 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.001800 sec
+Nov 23 03:17:15.337427 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.001751 sec
+Nov 23 03:17:15.340701 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet12 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:59 master:0 flags:4098
+Nov 23 03:17:15.341919 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet12(ok:down) to state db
+Nov 23 03:17:15.343602 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet12 with oper status down
+Nov 23 03:17:15.343783 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet12","status":"down","timestamp":"2026-11-23T03:17:15.343651Z"}}
+Nov 23 03:17:15.346607 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000011 (status=-327680)
+Nov 23 03:17:15.348293 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet12 rv:-327680, ignored
+Nov 23 03:17:15.362833 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet12
+Nov 23 03:17:15.362893 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.048153 sec
+Nov 23 03:17:15.383900 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.004899 sec
+Nov 23 03:17:15.388915 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.004962 sec
+Nov 23 03:17:15.391090 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.002132 sec
+Nov 23 03:17:15.393421 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.002289 sec
+Nov 23 03:17:15.397061 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet16 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:60 master:0 flags:4098
+Nov 23 03:17:15.398499 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet16(ok:down) to state db
+Nov 23 03:17:15.400131 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet16 with oper status down
+Nov 23 03:17:15.401002 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet16","status":"down","timestamp":"2026-11-23T03:17:15.400641Z"}}
+Nov 23 03:17:15.406069 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000012 (status=-327680)
+Nov 23 03:17:15.408535 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet16 rv:-327680, ignored
+Nov 23 03:17:15.417007 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet16
+Nov 23 03:17:15.417051 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.038060 sec
+Nov 23 03:17:15.435681 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.008831 sec
+Nov 23 03:17:15.442402 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.006660 sec
+Nov 23 03:17:15.445640 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.003186 sec
+Nov 23 03:17:15.448907 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.003222 sec
+Nov 23 03:17:15.454263 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet20 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:61 master:0 flags:4098
+Nov 23 03:17:15.457346 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet20(ok:down) to state db
+Nov 23 03:17:15.458752 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet20 with oper status down
+Nov 23 03:17:15.458918 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet20","status":"down","timestamp":"2026-11-23T03:17:15.458794Z"}}
+Nov 23 03:17:15.465115 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000013 (status=-327680)
+Nov 23 03:17:15.468967 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet20 rv:-327680, ignored
+Nov 23 03:17:15.475599 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet20
+Nov 23 03:17:15.475632 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.048804 sec
+Nov 23 03:17:15.490754 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.007592 sec
+Nov 23 03:17:15.496993 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.006177 sec
+Nov 23 03:17:15.500037 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.002995 sec
+Nov 23 03:17:15.502693 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.002608 sec
+Nov 23 03:17:15.506256 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet24 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:62 master:0 flags:4098
+Nov 23 03:17:15.508132 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet24(ok:down) to state db
+Nov 23 03:17:15.510671 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet24 with oper status down
+Nov 23 03:17:15.510859 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet24","status":"down","timestamp":"2026-11-23T03:17:15.510711Z"}}
+Nov 23 03:17:15.514913 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000014 (status=-327680)
+Nov 23 03:17:15.517192 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet24 rv:-327680, ignored
+Nov 23 03:17:15.524642 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet24
+Nov 23 03:17:15.524680 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.041537 sec
+Nov 23 03:17:15.536896 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.004812 sec
+Nov 23 03:17:15.544263 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.007304 sec
+Nov 23 03:17:15.546034 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.001724 sec
+Nov 23 03:17:15.547958 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.001886 sec
+Nov 23 03:17:15.551048 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet28 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:63 master:0 flags:4098
+Nov 23 03:17:15.554007 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet28(ok:down) to state db
+Nov 23 03:17:15.557293 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet28 with oper status down
+Nov 23 03:17:15.557492 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet28","status":"down","timestamp":"2026-11-23T03:17:15.557342Z"}}
+Nov 23 03:17:15.561740 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000015 (status=-327680)
+Nov 23 03:17:15.566697 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet28 rv:-327680, ignored
+Nov 23 03:17:15.576273 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet28
+Nov 23 03:17:15.576321 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.044253 sec
+Nov 23 03:17:15.581474 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet0 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:56 master:0 flags:4098
+Nov 23 03:17:15.584862 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet0(ok:down) to state db
+Nov 23 03:17:15.603810 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.006858 sec
+Nov 23 03:17:15.609101 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet0 admin:1 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:56 master:0 flags:4099
+Nov 23 03:17:15.610441 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.006576 sec
+Nov 23 03:17:15.611809 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet0(ok:down) to state db
+Nov 23 03:17:15.614097 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.003606 sec
+Nov 23 03:17:15.617185 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.003035 sec
+Nov 23 03:17:15.621912 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet48 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:64 master:0 flags:4098
+Nov 23 03:17:15.623666 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet48(ok:down) to state db
+Nov 23 03:17:15.626860 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet48 with oper status down
+Nov 23 03:17:15.627015 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet48","status":"down","timestamp":"2026-11-23T03:17:15.626893Z"}}
+Nov 23 03:17:15.630231 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000016 (status=-327680)
+Nov 23 03:17:15.633531 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet48 rv:-327680, ignored
+Nov 23 03:17:15.641463 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet116 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:45 master:0 flags:4098
+Nov 23 03:17:15.643392 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet116(ok:down) to state db
+Nov 23 03:17:15.643928 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet48
+Nov 23 03:17:15.643965 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.047034 sec
+Nov 23 03:17:15.661932 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.007051 sec
+Nov 23 03:17:15.668995 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.007004 sec
+Nov 23 03:17:15.671760 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.002704 sec
+Nov 23 03:17:15.674463 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.002642 sec
+Nov 23 03:17:15.680235 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet52 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:65 master:0 flags:4098
+Nov 23 03:17:15.682881 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet52(ok:down) to state db
+Nov 23 03:17:15.686952 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet52 with oper status down
+Nov 23 03:17:15.687127 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet52","status":"down","timestamp":"2026-11-23T03:17:15.686995Z"}}
+Nov 23 03:17:15.692043 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000017 (status=-327680)
+Nov 23 03:17:15.694328 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet52 rv:-327680, ignored
+Nov 23 03:17:15.698740 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet12 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:59 master:0 flags:4098
+Nov 23 03:17:15.700018 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet12(ok:down) to state db
+Nov 23 03:17:15.701938 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet52
+Nov 23 03:17:15.702156 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.047285 sec
+Nov 23 03:17:15.718709 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.008396 sec
+Nov 23 03:17:15.723846 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.005084 sec
+Nov 23 03:17:15.725719 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.001826 sec
+Nov 23 03:17:15.727952 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.002187 sec
+Nov 23 03:17:15.731385 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet56 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:66 master:0 flags:4098
+Nov 23 03:17:15.733392 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet56(ok:down) to state db
+Nov 23 03:17:15.735048 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet56 with oper status down
+Nov 23 03:17:15.735211 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet56","status":"down","timestamp":"2026-11-23T03:17:15.735086Z"}}
+Nov 23 03:17:15.738083 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000018 (status=-327680)
+Nov 23 03:17:15.740432 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet56 rv:-327680, ignored
+Nov 23 03:17:15.746158 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet120 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:46 master:0 flags:4098
+Nov 23 03:17:15.747696 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet120(ok:down) to state db
+Nov 23 03:17:15.749151 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet56
+Nov 23 03:17:15.749181 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.038883 sec
+Nov 23 03:17:15.760609 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.004066 sec
+Nov 23 03:17:15.769065 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.008400 sec
+Nov 23 03:17:15.769066 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet120 admin:1 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:46 master:0 flags:4099
+Nov 23 03:17:15.770911 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet120(ok:down) to state db
+Nov 23 03:17:15.772015 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.002905 sec
+Nov 23 03:17:15.774058 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.002001 sec
+Nov 23 03:17:15.777617 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet60 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:67 master:0 flags:4098
+Nov 23 03:17:15.779558 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet60(ok:down) to state db
+Nov 23 03:17:15.781063 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet60 with oper status down
+Nov 23 03:17:15.781217 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet60","status":"down","timestamp":"2026-11-23T03:17:15.781109Z"}}
+Nov 23 03:17:15.784297 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000019 (status=-327680)
+Nov 23 03:17:15.786483 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet60 rv:-327680, ignored
+Nov 23 03:17:15.791946 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet60
+Nov 23 03:17:15.791991 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.035465 sec
+Nov 23 03:17:15.793326 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet124 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:47 master:0 flags:4098
+Nov 23 03:17:15.794866 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet124(ok:down) to state db
+Nov 23 03:17:15.804275 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.003997 sec
+Nov 23 03:17:15.809657 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.005332 sec
+Nov 23 03:17:15.812254 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.002548 sec
+Nov 23 03:17:15.815180 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet124 admin:1 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:47 master:0 flags:4099
+Nov 23 03:17:15.816109 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.003780 sec
+Nov 23 03:17:15.816746 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet124(ok:down) to state db
+Nov 23 03:17:15.823038 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet64 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:68 master:0 flags:4098
+Nov 23 03:17:15.824611 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet64(ok:down) to state db
+Nov 23 03:17:15.825876 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet64 with oper status down
+Nov 23 03:17:15.826038 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet64","status":"down","timestamp":"2026-11-23T03:17:15.825921Z"}}
+Nov 23 03:17:15.829949 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x100000000001a (status=-327680)
+Nov 23 03:17:15.831709 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet64 rv:-327680, ignored
+Nov 23 03:17:15.837578 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet64
+Nov 23 03:17:15.837609 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.037346 sec
+Nov 23 03:17:15.841483 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet16 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:60 master:0 flags:4098
+Nov 23 03:17:15.843261 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet16(ok:down) to state db
+Nov 23 03:17:15.850092 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.003383 sec
+Nov 23 03:17:15.855797 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.005650 sec
+Nov 23 03:17:15.857623 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.001783 sec
+Nov 23 03:17:15.859778 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.002114 sec
+Nov 23 03:17:15.862586 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet68 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:69 master:0 flags:4098
+Nov 23 03:17:15.863866 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet68(ok:down) to state db
+Nov 23 03:17:15.867073 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet68 with oper status down
+Nov 23 03:17:15.867224 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet68","status":"down","timestamp":"2026-11-23T03:17:15.867107Z"}}
+Nov 23 03:17:15.871343 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x100000000001b (status=-327680)
+Nov 23 03:17:15.874079 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet68 rv:-327680, ignored
+Nov 23 03:17:15.880247 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet68
+Nov 23 03:17:15.880284 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.033584 sec
+Nov 23 03:17:15.886992 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet20 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:61 master:0 flags:4098
+Nov 23 03:17:15.888481 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet20(ok:down) to state db
+Nov 23 03:17:15.896941 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.009481 sec
+Nov 23 03:17:15.903738 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.006747 sec
+Nov 23 03:17:15.905391 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.001614 sec
+Nov 23 03:17:15.907198 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.001768 sec
+Nov 23 03:17:15.910291 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet72 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:70 master:0 flags:4098
+Nov 23 03:17:15.912423 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet72(ok:down) to state db
+Nov 23 03:17:15.913825 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet72 with oper status down
+Nov 23 03:17:15.913990 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet72","status":"down","timestamp":"2026-11-23T03:17:15.913876Z"}}
+Nov 23 03:17:15.918455 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x100000000001c (status=-327680)
+Nov 23 03:17:15.920548 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet72 rv:-327680, ignored
+Nov 23 03:17:15.925935 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet72
+Nov 23 03:17:15.926000 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.038549 sec
+Nov 23 03:17:15.935842 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet24 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:62 master:0 flags:4098
+Nov 23 03:17:15.938986 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet24(ok:down) to state db
+Nov 23 03:17:15.943789 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.007667 sec
+Nov 23 03:17:15.950854 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.007007 sec
+Nov 23 03:17:15.952486 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.001598 sec
+Nov 23 03:17:15.954262 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.001741 sec
+Nov 23 03:17:15.957690 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet76 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:71 master:0 flags:4098
+Nov 23 03:17:15.958838 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet76(ok:down) to state db
+Nov 23 03:17:15.960786 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet76 with oper status down
+Nov 23 03:17:15.960962 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet76","status":"down","timestamp":"2026-11-23T03:17:15.960833Z"}}
+Nov 23 03:17:15.963867 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x100000000001d (status=-327680)
+Nov 23 03:17:15.965828 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet76 rv:-327680, ignored
+Nov 23 03:17:15.972796 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet76
+Nov 23 03:17:15.972831 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.036731 sec
+Nov 23 03:17:15.981721 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet28 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:63 master:0 flags:4098
+Nov 23 03:17:15.983319 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet28(ok:down) to state db
+Nov 23 03:17:15.986477 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.005619 sec
+Nov 23 03:17:15.993524 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.006998 sec
+Nov 23 03:17:15.995203 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.001640 sec
+Nov 23 03:17:15.996973 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.001732 sec
+Nov 23 03:17:15.999840 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet96 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:72 master:0 flags:4098
+Nov 23 03:17:16.002592 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet96(ok:down) to state db
+Nov 23 03:17:16.003458 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet96 with oper status down
+Nov 23 03:17:16.003630 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet96","status":"down","timestamp":"2026-11-23T03:17:16.3500Z"}}
+Nov 23 03:17:16.007253 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x100000000001e (status=-327680)
+Nov 23 03:17:16.009378 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet96 rv:-327680, ignored
+Nov 23 03:17:16.015514 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet96
+Nov 23 03:17:16.015553 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.034723 sec
+Nov 23 03:17:16.026347 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet32 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:52 master:0 flags:4098
+Nov 23 03:17:16.026445 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.004568 sec
+Nov 23 03:17:16.027701 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet32(ok:down) to state db
+Nov 23 03:17:16.033116 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.006628 sec
+Nov 23 03:17:16.034899 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.001743 sec
+Nov 23 03:17:16.036844 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.001911 sec
+Nov 23 03:17:16.040087 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet100 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:73 master:0 flags:4098
+Nov 23 03:17:16.041537 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet100(ok:down) to state db
+Nov 23 03:17:16.044853 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet100 with oper status down
+Nov 23 03:17:16.045093 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet100","status":"down","timestamp":"2026-11-23T03:17:16.44964Z"}}
+Nov 23 03:17:16.047623 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x100000000001f (status=-327680)
+Nov 23 03:17:16.050211 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet100 rv:-327680, ignored
+Nov 23 03:17:16.055704 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet100
+Nov 23 03:17:16.055736 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.033877 sec
+Nov 23 03:17:16.066664 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.004686 sec
+Nov 23 03:17:16.070547 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet36 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:53 master:0 flags:4098
+Nov 23 03:17:16.073245 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet36(ok:down) to state db
+Nov 23 03:17:16.074789 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.008080 sec
+Nov 23 03:17:16.076691 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.001867 sec
+Nov 23 03:17:16.078642 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.001912 sec
+Nov 23 03:17:16.082100 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet104 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:74 master:0 flags:4098
+Nov 23 03:17:16.085062 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet104(ok:down) to state db
+Nov 23 03:17:16.085862 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet104 with oper status down
+Nov 23 03:17:16.086015 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet104","status":"down","timestamp":"2026-11-23T03:17:16.85911Z"}}
+Nov 23 03:17:16.089069 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000020 (status=-327680)
+Nov 23 03:17:16.091327 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet104 rv:-327680, ignored
+Nov 23 03:17:16.097248 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet104
+Nov 23 03:17:16.097281 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.035321 sec
+Nov 23 03:17:16.108699 as7772 orchagent[4157]: :- initializePriorityGroupsBulk: initializePriorityGroupsBulk took 0.004525 sec
+Nov 23 03:17:16.115381 as7772 orchagent[4157]: :- initializeQueuesBulk: initializeQueuesBulk took 0.006633 sec
+Nov 23 03:17:16.115792 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet4 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:57 master:0 flags:4098
+Nov 23 03:17:16.117256 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet4(ok:down) to state db
+Nov 23 03:17:16.122888 as7772 orchagent[4157]: :- initializeSchedulerGroupsBulk: initializeSchedulerGroupsBulk took 0.007464 sec
+Nov 23 03:17:16.124766 as7772 orchagent[4157]: :- initializePortMtuBulk: initializePortMtuBulk took 0.001837 sec
+Nov 23 03:17:16.127545 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet108 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:75 master:0 flags:4098
+Nov 23 03:17:16.128656 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet108(ok:down) to state db
+Nov 23 03:17:16.129506 as7772 portsyncd[4156]: :- main: PortInitDone
+Nov 23 03:17:16.130325 as7772 orchagent[4157]: :- addHostIntfs: Create host interface for port Ethernet108 with oper status down
+Nov 23 03:17:16.130478 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet108","status":"down","timestamp":"2026-11-23T03:17:16.130367Z"}}
+Nov 23 03:17:16.135445 as7772 orchagent[4157]: :- getPortSerdesIdFromPortId: Failed to get port serdes ID for port 0x1000000000021 (status=-327680)
+Nov 23 03:17:16.137665 as7772 orchagent[4157]: :- initializePortBufferMaximumParameters: Unable to get the maximum headroom for port Ethernet108 rv:-327680, ignored
+Nov 23 03:17:16.138719 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet4 admin:1 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:57 master:0 flags:4099
+Nov 23 03:17:16.141768 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet4(ok:down) to state db
+Nov 23 03:17:16.145053 as7772 orchagent[4157]: :- initPortsBulk: Initialized port Ethernet108
+Nov 23 03:17:16.145089 as7772 orchagent[4157]: :- initPortsBulk: initPortsBulk took 0.040928 sec
+Nov 23 03:17:16.147630 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet0
+Nov 23 03:17:16.147673 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet0 MTU to 9100
+Nov 23 03:17:16.149269 as7772 orchagent[4157]: :- setPortFec: Set port Ethernet0 FEC mode 1
+Nov 23 03:17:16.149309 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet0 FEC mode to rs
+Nov 23 03:17:16.149677 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet0, port_id = 0x100000000000e
+Nov 23 03:17:16.150012 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet0
+Nov 23 03:17:16.158410 as7772 syncd[4155]: sai-openbcm NOTICE api=2: port ce0 admin up
+Nov 23 03:17:16.160489 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = true, alias = Ethernet0, port_id = 0x100000000000e
+Nov 23 03:17:16.161014 as7772 orchagent[4157]: :- setPortAdminStatus: Set admin status UP host_tx_ready to true for port Ethernet0
+Nov 23 03:17:16.161056 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet0 admin status to up
+Nov 23 03:17:16.163203 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet40 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:54 master:0 flags:4098
+Nov 23 03:17:16.165269 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet100
+Nov 23 03:17:16.165292 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet100 MTU to 9100
+Nov 23 03:17:16.165508 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet40(ok:down) to state db
+Nov 23 03:17:16.166087 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet100, port_id = 0x100000000001f
+Nov 23 03:17:16.166422 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet100
+Nov 23 03:17:16.168543 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet104
+Nov 23 03:17:16.168565 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet104 MTU to 9100
+Nov 23 03:17:16.168805 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet104, port_id = 0x1000000000020
+Nov 23 03:17:16.169109 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet104
+Nov 23 03:17:16.171699 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet108
+Nov 23 03:17:16.171721 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet108 MTU to 9100
+Nov 23 03:17:16.173109 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet108, port_id = 0x1000000000021
+Nov 23 03:17:16.173430 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet108
+Nov 23 03:17:16.175830 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet112
+Nov 23 03:17:16.175852 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet112 MTU to 9100
+Nov 23 03:17:16.176091 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet112, port_id = 0x1000000000002
+Nov 23 03:17:16.176357 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet112
+Nov 23 03:17:16.178576 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet116
+Nov 23 03:17:16.178600 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet116 MTU to 9100
+Nov 23 03:17:16.178883 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet116, port_id = 0x1000000000003
+Nov 23 03:17:16.179164 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet116
+Nov 23 03:17:16.181088 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet12
+Nov 23 03:17:16.181108 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet12 MTU to 9100
+Nov 23 03:17:16.181363 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet12, port_id = 0x1000000000011
+Nov 23 03:17:16.181638 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet12
+Nov 23 03:17:16.183667 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet120
+Nov 23 03:17:16.183687 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet120 MTU to 9100
+Nov 23 03:17:16.183952 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet120, port_id = 0x1000000000004
+Nov 23 03:17:16.184323 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet120
+Nov 23 03:17:16.195498 as7772 syncd[4155]: sai-openbcm NOTICE api=2: port ce30 admin up
+Nov 23 03:17:16.196541 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = true, alias = Ethernet120, port_id = 0x1000000000004
+Nov 23 03:17:16.196877 as7772 orchagent[4157]: :- setPortAdminStatus: Set admin status UP host_tx_ready to true for port Ethernet120
+Nov 23 03:17:16.196912 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet120 admin status to up
+Nov 23 03:17:16.199173 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet124
+Nov 23 03:17:16.199191 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet124 MTU to 9100
+Nov 23 03:17:16.199499 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet124, port_id = 0x1000000000005
+Nov 23 03:17:16.199768 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet124
+Nov 23 03:17:16.203896 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet44 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:55 master:0 flags:4098
+Nov 23 03:17:16.205095 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet44(ok:down) to state db
+Nov 23 03:17:16.207725 as7772 syncd[4155]: sai-openbcm NOTICE api=2: port ce31 admin up
+Nov 23 03:17:16.208882 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = true, alias = Ethernet124, port_id = 0x1000000000005
+Nov 23 03:17:16.209210 as7772 orchagent[4157]: :- setPortAdminStatus: Set admin status UP host_tx_ready to true for port Ethernet124
+Nov 23 03:17:16.209249 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet124 admin status to up
+Nov 23 03:17:16.211326 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet16
+Nov 23 03:17:16.211349 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet16 MTU to 9100
+Nov 23 03:17:16.211608 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet16, port_id = 0x1000000000012
+Nov 23 03:17:16.211894 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet16
+Nov 23 03:17:16.213618 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet20
+Nov 23 03:17:16.213637 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet20 MTU to 9100
+Nov 23 03:17:16.213939 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet20, port_id = 0x1000000000013
+Nov 23 03:17:16.214175 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet20
+Nov 23 03:17:16.216094 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet24
+Nov 23 03:17:16.216113 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet24 MTU to 9100
+Nov 23 03:17:16.216369 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet24, port_id = 0x1000000000014
+Nov 23 03:17:16.216634 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet24
+Nov 23 03:17:16.218621 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet28
+Nov 23 03:17:16.218638 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet28 MTU to 9100
+Nov 23 03:17:16.218984 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet28, port_id = 0x1000000000015
+Nov 23 03:17:16.219263 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet28
+Nov 23 03:17:16.221779 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet32
+Nov 23 03:17:16.221797 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet32 MTU to 9100
+Nov 23 03:17:16.222049 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet32, port_id = 0x100000000000a
+Nov 23 03:17:16.222402 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet32
+Nov 23 03:17:16.224497 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet36
+Nov 23 03:17:16.224516 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet36 MTU to 9100
+Nov 23 03:17:16.224758 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet36, port_id = 0x100000000000b
+Nov 23 03:17:16.225060 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet36
+Nov 23 03:17:16.227401 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet4
+Nov 23 03:17:16.227418 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet4 MTU to 9100
+Nov 23 03:17:16.229208 as7772 orchagent[4157]: :- setPortFec: Set port Ethernet4 FEC mode 1
+Nov 23 03:17:16.229241 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet4 FEC mode to rs
+Nov 23 03:17:16.229504 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet4, port_id = 0x100000000000f
+Nov 23 03:17:16.229835 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet4
+Nov 23 03:17:16.237114 as7772 syncd[4155]: sai-openbcm NOTICE api=2: port ce1 admin up
+Nov 23 03:17:16.238503 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = true, alias = Ethernet4, port_id = 0x100000000000f
+Nov 23 03:17:16.238955 as7772 orchagent[4157]: :- setPortAdminStatus: Set admin status UP host_tx_ready to true for port Ethernet4
+Nov 23 03:17:16.239064 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet4 admin status to up
+Nov 23 03:17:16.240976 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet40
+Nov 23 03:17:16.240995 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet40 MTU to 9100
+Nov 23 03:17:16.241223 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet40, port_id = 0x100000000000c
+Nov 23 03:17:16.241520 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet40
+Nov 23 03:17:16.243485 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet44
+Nov 23 03:17:16.243506 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet44 MTU to 9100
+Nov 23 03:17:16.243756 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet44, port_id = 0x100000000000d
+Nov 23 03:17:16.244063 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet44
+Nov 23 03:17:16.244892 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet48 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:64 master:0 flags:4098
+Nov 23 03:17:16.245984 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet48(ok:down) to state db
+Nov 23 03:17:16.246423 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet48
+Nov 23 03:17:16.246442 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet48 MTU to 9100
+Nov 23 03:17:16.246947 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet48, port_id = 0x1000000000016
+Nov 23 03:17:16.247267 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet48
+Nov 23 03:17:16.249189 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet52
+Nov 23 03:17:16.249208 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet52 MTU to 9100
+Nov 23 03:17:16.249442 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet52, port_id = 0x1000000000017
+Nov 23 03:17:16.249711 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet52
+Nov 23 03:17:16.251698 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet56
+Nov 23 03:17:16.251720 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet56 MTU to 9100
+Nov 23 03:17:16.252025 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet56, port_id = 0x1000000000018
+Nov 23 03:17:16.252282 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet56
+Nov 23 03:17:16.254001 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet60
+Nov 23 03:17:16.254019 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet60 MTU to 9100
+Nov 23 03:17:16.254239 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet60, port_id = 0x1000000000019
+Nov 23 03:17:16.254504 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet60
+Nov 23 03:17:16.256710 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet64
+Nov 23 03:17:16.256727 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet64 MTU to 9100
+Nov 23 03:17:16.256968 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet64, port_id = 0x100000000001a
+Nov 23 03:17:16.257264 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet64
+Nov 23 03:17:16.260389 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet68
+Nov 23 03:17:16.260404 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet68 MTU to 9100
+Nov 23 03:17:16.260769 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet68, port_id = 0x100000000001b
+Nov 23 03:17:16.261164 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet68
+Nov 23 03:17:16.263404 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet72
+Nov 23 03:17:16.263424 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet72 MTU to 9100
+Nov 23 03:17:16.263681 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet72, port_id = 0x100000000001c
+Nov 23 03:17:16.263932 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet72
+Nov 23 03:17:16.265989 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet76
+Nov 23 03:17:16.266008 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet76 MTU to 9100
+Nov 23 03:17:16.266247 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet76, port_id = 0x100000000001d
+Nov 23 03:17:16.266656 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet76
+Nov 23 03:17:16.268862 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet8
+Nov 23 03:17:16.268882 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet8 MTU to 9100
+Nov 23 03:17:16.269211 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet8, port_id = 0x1000000000010
+Nov 23 03:17:16.269543 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet8
+Nov 23 03:17:16.271668 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet80
+Nov 23 03:17:16.271688 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet80 MTU to 9100
+Nov 23 03:17:16.271956 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet80, port_id = 0x1000000000006
+Nov 23 03:17:16.272273 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet80
+Nov 23 03:17:16.275482 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet84
+Nov 23 03:17:16.275502 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet84 MTU to 9100
+Nov 23 03:17:16.275755 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet84, port_id = 0x1000000000007
+Nov 23 03:17:16.276064 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet84
+Nov 23 03:17:16.277888 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet88
+Nov 23 03:17:16.277908 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet88 MTU to 9100
+Nov 23 03:17:16.278160 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet88, port_id = 0x1000000000008
+Nov 23 03:17:16.278547 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet88
+Nov 23 03:17:16.280708 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet92
+Nov 23 03:17:16.280730 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet92 MTU to 9100
+Nov 23 03:17:16.280996 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet92, port_id = 0x1000000000009
+Nov 23 03:17:16.281339 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet92
+Nov 23 03:17:16.283341 as7772 orchagent[4157]: :- setRouterIntfsMtu: Update MTU to 9100 for all router interfaces mapped to port: Ethernet96
+Nov 23 03:17:16.283363 as7772 orchagent[4157]: :- doPortTask: Set port Ethernet96 MTU to 9100
+Nov 23 03:17:16.283613 as7772 orchagent[4157]: :- setHostTxReady: Setting host_tx_ready status = false, alias = Ethernet96, port_id = 0x100000000001e
+Nov 23 03:17:16.284001 as7772 orchagent[4157]: :- initHostTxReadyState: initialize host_tx_ready as false for port Ethernet96
+Nov 23 03:17:16.286050 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet52 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:65 master:0 flags:4098
+Nov 23 03:17:16.287350 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet52(ok:down) to state db
+Nov 23 03:17:16.291155 as7772 orchagent[4157]: :- addLinkLocalRouteToMe: Created link local ipv6 route  fe80::/10 to cpu
+Nov 23 03:17:16.291183 as7772 orchagent[4157]: :- addOperation: Created link local ipv6 route fe80::/10 to cpu in VRF Vrf-a
+Nov 23 03:17:16.291356 as7772 orchagent[4157]: :- addOperation: VRF 'Vrf-a' was added
+Nov 23 03:17:16.295719 as7772 orchagent[4157]: :- addLinkLocalRouteToMe: Created link local ipv6 route  fe80::/10 to cpu
+Nov 23 03:17:16.295740 as7772 orchagent[4157]: :- addOperation: Created link local ipv6 route fe80::/10 to cpu in VRF Vrf-b
+Nov 23 03:17:16.295905 as7772 orchagent[4157]: :- addOperation: VRF 'Vrf-b' was added
+Nov 23 03:17:16.313696 as7772 orchagent[4157]: :- processCoppRule: Set trap group default to host interface
+Nov 23 03:17:16.313720 as7772 orchagent[4157]: :- trapGroupUpdatePolicer: Creating policer for existing Trap group: 11000000000024 (name:default).
+Nov 23 03:17:16.315484 as7772 syncd[4155]: sai-openbcm NOTICE api=17: policer 1: sr_tcm packets cir 600 cbs 600 pir 0 pbs 0
+Nov 23 03:17:16.316675 as7772 orchagent[4157]: :- createPolicer: Create policer for trap group default
+Nov 23 03:17:16.318585 as7772 orchagent[4157]: :- createPolicer: Bind policer to trap group default:
+Nov 23 03:17:16.321721 as7772 orchagent[4157]: :- processCoppRule: Create host interface trap group queue1_group1
+Nov 23 03:17:16.321749 as7772 orchagent[4157]: :- trapGroupUpdatePolicer: Creating policer for existing Trap group: 1100000000028d (name:queue1_group1).
+Nov 23 03:17:16.323283 as7772 syncd[4155]: sai-openbcm NOTICE api=17: policer 2: sr_tcm packets cir 6000 cbs 6000 pir 0 pbs 0
+Nov 23 03:17:16.324674 as7772 orchagent[4157]: :- createPolicer: Create policer for trap group queue1_group1
+Nov 23 03:17:16.326825 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet56 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:66 master:0 flags:4098
+Nov 23 03:17:16.327304 as7772 orchagent[4157]: :- createPolicer: Bind policer to trap group queue1_group1:
+Nov 23 03:17:16.328126 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet56(ok:down) to state db
+Nov 23 03:17:16.330722 as7772 syncd[4155]: sai-rs openbcm: field group 1: priority 1000, qualifiers 0x22b0e
+Nov 23 03:17:16.331451 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 1 field entries, 1 policers (field group 1)
+Nov 23 03:17:16.333069 as7772 orchagent[4157]: :- getTrapIdList: Ignoring the trap_id: neighbor_miss, since not supported by vendor SAI
+Nov 23 03:17:16.335096 as7772 orchagent[4157]: :- processCoppRule: Create host interface trap group queue1_group3
+Nov 23 03:17:16.335123 as7772 orchagent[4157]: :- trapGroupUpdatePolicer: Creating policer for existing Trap group: 11000000000290 (name:queue1_group3).
+Nov 23 03:17:16.336290 as7772 syncd[4155]: sai-openbcm NOTICE api=17: policer 3: sr_tcm packets cir 200 cbs 200 pir 0 pbs 0
+Nov 23 03:17:16.337427 as7772 orchagent[4157]: :- createPolicer: Create policer for trap group queue1_group3
+Nov 23 03:17:16.339745 as7772 orchagent[4157]: :- createPolicer: Bind policer to trap group queue1_group3:
+Nov 23 03:17:16.343619 as7772 orchagent[4157]: :- processCoppRule: Create host interface trap group queue3_group1
+Nov 23 03:17:16.343656 as7772 orchagent[4157]: :- trapGroupUpdatePolicer: Creating policer for existing Trap group: 11000000000292 (name:queue3_group1).
+Nov 23 03:17:16.345178 as7772 syncd[4155]: sai-openbcm NOTICE api=17: policer 4: sr_tcm packets cir 100 cbs 100 pir 0 pbs 0
+Nov 23 03:17:16.346807 as7772 orchagent[4157]: :- createPolicer: Create policer for trap group queue3_group1
+Nov 23 03:17:16.349045 as7772 orchagent[4157]: :- createPolicer: Bind policer to trap group queue3_group1:
+Nov 23 03:17:16.352232 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 2 field entries, 2 policers (field group 1)
+Nov 23 03:17:16.358746 as7772 orchagent[4157]: :- processCoppRule: Create host interface trap group queue4_group1
+Nov 23 03:17:16.358775 as7772 orchagent[4157]: :- trapGroupUpdatePolicer: Creating policer for existing Trap group: 11000000000296 (name:queue4_group1).
+Nov 23 03:17:16.359912 as7772 syncd[4155]: sai-openbcm NOTICE api=17: policer 5: sr_tcm packets cir 6000 cbs 6000 pir 0 pbs 0
+Nov 23 03:17:16.361024 as7772 orchagent[4157]: :- createPolicer: Create policer for trap group queue4_group1
+Nov 23 03:17:16.363192 as7772 orchagent[4157]: :- createPolicer: Bind policer to trap group queue4_group1:
+Nov 23 03:17:16.365630 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 4 field entries, 3 policers (field group 1)
+Nov 23 03:17:16.367309 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet60 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:67 master:0 flags:4098
+Nov 23 03:17:16.368184 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet60(ok:down) to state db
+Nov 23 03:17:16.370484 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 6 field entries, 3 policers (field group 1)
+Nov 23 03:17:16.375253 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 7 field entries, 3 policers (field group 1)
+Nov 23 03:17:16.380901 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 8 field entries, 3 policers (field group 1)
+Nov 23 03:17:16.385159 as7772 orchagent[4157]: :- processCoppRule: Create host interface trap group queue4_group2
+Nov 23 03:17:16.385185 as7772 orchagent[4157]: :- trapGroupUpdatePolicer: Creating policer for existing Trap group: 1100000000029c (name:queue4_group2).
+Nov 23 03:17:16.386266 as7772 syncd[4155]: sai-openbcm NOTICE api=17: policer 6: sr_tcm packets cir 600 cbs 600 pir 0 pbs 0
+Nov 23 03:17:16.387359 as7772 orchagent[4157]: :- createPolicer: Create policer for trap group queue4_group2
+Nov 23 03:17:16.389168 as7772 orchagent[4157]: :- createPolicer: Bind policer to trap group queue4_group2:
+Nov 23 03:17:16.395838 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 9 field entries, 4 policers (field group 1)
+Nov 23 03:17:16.402961 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 10 field entries, 4 policers (field group 1)
+Nov 23 03:17:16.408625 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet64 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:68 master:0 flags:4098
+Nov 23 03:17:16.410112 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet64(ok:down) to state db
+Nov 23 03:17:16.416820 as7772 syncd[4155]: sai-openbcm NOTICE api=12: CoPP: 15 field entries, 4 policers (field group 1)
+Nov 23 03:17:16.449247 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet68 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:69 master:0 flags:4098
+Nov 23 03:17:16.450272 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet68(ok:down) to state db
+Nov 23 03:17:16.486197 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet72 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:70 master:0 flags:4098
+Nov 23 03:17:16.487277 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet72(ok:down) to state db
+Nov 23 03:17:16.522450 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet76 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:71 master:0 flags:4098
+Nov 23 03:17:16.523323 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet76(ok:down) to state db
+Nov 23 03:17:16.557982 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet8 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:58 master:0 flags:4098
+Nov 23 03:17:16.558767 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet8(ok:down) to state db
+Nov 23 03:17:16.594348 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet80 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:48 master:0 flags:4098
+Nov 23 03:17:16.595515 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet80(ok:down) to state db
+Nov 23 03:17:16.636527 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet84 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:49 master:0 flags:4098
+Nov 23 03:17:16.637703 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet84(ok:down) to state db
+Nov 23 03:17:16.676089 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet88 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:50 master:0 flags:4098
+Nov 23 03:17:16.677019 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet88(ok:down) to state db
+Nov 23 03:17:16.712612 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet92 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:51 master:0 flags:4098
+Nov 23 03:17:16.713499 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet92(ok:down) to state db
+Nov 23 03:17:16.749077 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet96 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:72 master:0 flags:4098
+Nov 23 03:17:16.749937 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet96(ok:down) to state db
+Nov 23 03:17:16.959037 as7772 syncd[4155]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 23 03:17:16.961501 as7772 syncd[4155]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 23 03:17:17.215027 as7772 syncd[4155]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 23 03:17:17.220416 as7772 orchagent[4157]: :- handleNotification: Get port state change notification id:1000000000005 status:1 oper_error_status:0x0
+Nov 23 03:17:17.220461 as7772 orchagent[4157]: :- updatePortOperStatus: Port Ethernet124 oper state set from down to up
+Nov 23 03:17:17.221454 as7772 syncd[4155]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+Nov 23 03:17:17.223143 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet124 admin:1 oper:1 addr:1c:ea:0b:38:2b:d5 ifindex:47 master:0 flags:69699
+Nov 23 03:17:17.224469 as7772 orchagent[4157]: :- setHostIntfsOperStatus: Set operation status UP to host interface Ethernet124
+Nov 23 03:17:17.224635 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet124","status":"up","timestamp":"2026-11-23T03:17:17.224510Z"}}
+Nov 23 03:17:17.225100 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet124(ok:up) to state db
+Nov 23 03:17:17.231316 as7772 orchagent[4157]: :- handleNotification: Ethernet124 oper speed is 100000
+Nov 23 03:17:17.232362 as7772 orchagent[4157]: :- handleNotification: Get port state change notification id:100000000000f status:1 oper_error_status:0x0
+Nov 23 03:17:17.232402 as7772 orchagent[4157]: :- updatePortOperStatus: Port Ethernet4 oper state set from down to up
+Nov 23 03:17:17.234387 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet4 admin:1 oper:1 addr:1c:ea:0b:38:2b:d5 ifindex:57 master:0 flags:69699
+Nov 23 03:17:17.235370 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet4(ok:up) to state db
+Nov 23 03:17:17.236231 as7772 orchagent[4157]: :- setHostIntfsOperStatus: Set operation status UP to host interface Ethernet4
+Nov 23 03:17:17.236457 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet4","status":"up","timestamp":"2026-11-23T03:17:17.236345Z"}}
+Nov 23 03:17:17.239951 as7772 orchagent[4157]: :- handleNotification: Ethernet4 oper speed is 100000
+Nov 23 03:17:17.486702 as7772 orchagent[4157]: :- handleNotification: Get port state change notification id:1000000000004 status:1 oper_error_status:0x0
+Nov 23 03:17:17.486755 as7772 orchagent[4157]: :- updatePortOperStatus: Port Ethernet120 oper state set from down to up
+Nov 23 03:17:17.489557 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet120 admin:1 oper:1 addr:1c:ea:0b:38:2b:d5 ifindex:46 master:0 flags:69699
+Nov 23 03:17:17.491254 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet120(ok:up) to state db
+Nov 23 03:17:17.492123 as7772 orchagent[4157]: :- setHostIntfsOperStatus: Set operation status UP to host interface Ethernet120
+Nov 23 03:17:17.492424 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet120","status":"up","timestamp":"2026-11-23T03:17:17.492170Z"}}
+Nov 23 03:17:17.497577 as7772 orchagent[4157]: :- handleNotification: Ethernet120 oper speed is 100000
+Nov 23 03:17:17.498669 as7772 orchagent[4157]: :- handleNotification: Get port state change notification id:100000000000e status:1 oper_error_status:0x0
+Nov 23 03:17:17.498707 as7772 orchagent[4157]: :- updatePortOperStatus: Port Ethernet0 oper state set from down to up
+Nov 23 03:17:17.501220 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet0 admin:1 oper:1 addr:1c:ea:0b:38:2b:d5 ifindex:56 master:0 flags:69699
+Nov 23 03:17:17.502006 as7772 orchagent[4157]: :- setHostIntfsOperStatus: Set operation status UP to host interface Ethernet0
+Nov 23 03:17:17.502434 as7772 orchagent[4157]: :- publish: EVENT_PUBLISHED: {"sonic-events-swss:if-state":{"ifname":"Ethernet0","status":"up","timestamp":"2026-11-23T03:17:17.502306Z"}}
+Nov 23 03:17:17.502783 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet0(ok:up) to state db
+Nov 23 03:17:17.505169 as7772 orchagent[4157]: :- handleNotification: Ethernet0 oper speed is 100000
+Nov 23 03:17:17.614776 as7772 macsecmgrd[4707]: Failed to connect to wpa_supplicant global interface: /var/run/Ethernet0  error: No such file or directory
+Nov 23 03:17:17.622049 as7772 wpa_supplicant[4706]: Successfully initialized wpa_supplicant
+Nov 23 03:17:17.787578 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet100 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:73 master:0 flags:4098
+Nov 23 03:17:17.788800 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet100(ok:down) to state db
+Nov 23 03:17:17.825612 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet104 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:74 master:0 flags:4098
+Nov 23 03:17:17.826506 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet104(ok:down) to state db
+Nov 23 03:17:17.863304 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet108 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:75 master:0 flags:4098
+Nov 23 03:17:17.864616 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet108(ok:down) to state db
+Nov 23 03:17:17.951463 as7772 macsecmgrd[4164]: :- enableMACsec: The MACsec profile 'lab-test' on the port 'Ethernet0' loading success (address 1c:ea:0b:38:2b:d5)
+Nov 23 03:17:17.969341 as7772 macsecmgrd[4731]: Failed to connect to wpa_supplicant global interface: /var/run/Ethernet120  error: No such file or directory
+Nov 23 03:17:17.977126 as7772 wpa_supplicant[4730]: Successfully initialized wpa_supplicant
+Nov 23 03:17:18.060960 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: MACsec egress on (external PHY 0x0)
+Nov 23 03:17:18.164234 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress on (external PHY 0x0)
+Nov 23 03:17:18.192150 as7772 orchagent[4157]: :- createMACsecPort: MACsec port Ethernet0 is created.
+Nov 23 03:17:18.279666 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: MACsec egress off
+Nov 23 03:17:18.288428 as7772 macsecmgrd[4164]: :- enableMACsec: The MACsec profile 'lab-test' on the port 'Ethernet120' loading success (address 1c:ea:0b:38:2b:d5)
+Nov 23 03:17:18.290767 as7772 macsecmgrd[4164]: :- enableMACsec: The MKA session of the port 'Ethernet124' waits for the netdev to have its CONFIG_DB mac_addr (it has '1c:ea:0b:38:2b:d5')
+Nov 23 03:17:18.292145 as7772 macsecmgrd[4164]: :- enableMACsec: The MKA session of the port 'Ethernet4' waits for the netdev to have its CONFIG_DB mac_addr (it has '1c:ea:0b:38:2b:d5')
+Nov 23 03:17:18.320976 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress off
+Nov 23 03:17:18.424161 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: MACsec egress on (external PHY 0x17e)
+Nov 23 03:17:18.526566 as7772 syncd[4155]: :- threadFunction: time span 100 ms for 'create:SAI_OBJECT_TYPE_MACSEC_PORT:oid:0x590000000002ae'
+Nov 23 03:17:18.528118 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: MACsec ingress on (external PHY 0x17e)
+Nov 23 03:17:18.555798 as7772 orchagent[4157]: :- createMACsecPort: MACsec port Ethernet120 is created.
+Nov 23 03:17:18.652819 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: MACsec egress on (external PHY 0x0)
+Nov 23 03:17:18.756774 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress on (external PHY 0x0)
+Nov 23 03:17:18.779989 as7772 orchagent[4157]: :- createMACsecPort: MACsec port Ethernet0 is created.
+Nov 23 03:17:18.827525 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: MACsec egress off
+Nov 23 03:17:18.863506 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: MACsec ingress off
+Nov 23 03:17:18.870553 as7772 orchagent[4157]: :- createMACsecSC: MACsec SC Ethernet0:1cea0b382bd50001 is created.
+Nov 23 03:17:18.877758 as7772 wpa_supplicant[4706]: Ethernet0: Associated with 01:80:c2:00:00:03
+Nov 23 03:17:18.877815 as7772 wpa_supplicant[4706]: Ethernet0: CTRL-EVENT-CONNECTED - Connection to 01:80:c2:00:00:03 completed [id=0 id_str=]
+Nov 23 03:17:18.877837 as7772 wpa_supplicant[4706]: Ethernet0: CTRL-EVENT-SUBNET-STATUS-UPDATE status=0
+Nov 23 03:17:18.885776 as7772 syncd[4155]: sai-rs openbcm: my-station 1: 1c:ea:0b:38:2b:d5 (IPv4, IPv6, ARP)
+Nov 23 03:17:18.887610 as7772 orchagent[4157]: :- addRouterIntfs: Create router interface Ethernet0 MTU 9100
+Nov 23 03:17:18.968054 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet124 admin:1 oper:1 addr:1c:ea:0b:38:2b:d5 ifindex:47 master:42 flags:69699
+Nov 23 03:17:18.969181 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet124(ok:up) to state db
+Nov 23 03:17:18.969311 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet124 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:47 master:42 flags:4098
+Nov 23 03:17:18.970759 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet124(ok:down) to state db
+Nov 23 03:17:18.970901 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet124 admin:1 oper:1 addr:1c:ea:0b:38:2b:d5 ifindex:47 master:42 flags:69699
+Nov 23 03:17:18.972066 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet124(ok:up) to state db
+Nov 23 03:17:18.988487 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet124 admin:1 oper:1 addr:1c:ea:0b:38:2b:d7 ifindex:47 master:42 flags:69699
+Nov 23 03:17:18.989570 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet124(ok:up) to state db
+Nov 23 03:17:18.999308 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: MACsec egress on (external PHY 0x17e)
+Nov 23 03:17:19.039999 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet4 admin:1 oper:1 addr:1c:ea:0b:38:2b:d5 ifindex:57 master:41 flags:69699
+Nov 23 03:17:19.041168 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet4(ok:up) to state db
+Nov 23 03:17:19.041283 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet4 admin:0 oper:0 addr:1c:ea:0b:38:2b:d5 ifindex:57 master:41 flags:4098
+Nov 23 03:17:19.042981 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet4(ok:down) to state db
+Nov 23 03:17:19.043093 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet4 admin:1 oper:1 addr:1c:ea:0b:38:2b:d5 ifindex:57 master:41 flags:69699
+Nov 23 03:17:19.044470 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet4(ok:up) to state db
+Nov 23 03:17:19.061086 as7772 portsyncd[4156]: :- onMsg: nlmsg type:16 key:Ethernet4 admin:1 oper:1 addr:1c:ea:0b:38:2b:d6 ifindex:57 master:41 flags:69699
+Nov 23 03:17:19.063346 as7772 portsyncd[4156]: :- onMsg: Publish Ethernet4(ok:up) to state db
+Nov 23 03:17:19.104172 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: MACsec ingress on (external PHY 0x17e)
+Nov 23 03:17:19.126838 as7772 orchagent[4157]: :- createMACsecPort: MACsec port Ethernet120 is created.
+Nov 23 03:17:19.138298 as7772 orchagent[4157]: :- addIp2MeRoute: Create IP2me route ip:10.0.1.0
+Nov 23 03:17:19.142682 as7772 orchagent[4157]: :- addRouterIntfs: Create router interface Ethernet120 MTU 9100
+Nov 23 03:17:19.144206 as7772 orchagent[4157]: :- addIp2MeRoute: Create IP2me route ip:10.0.31.0
+Nov 23 03:17:19.147793 as7772 orchagent[4157]: :- addRouterIntfs: Create router interface Ethernet124 MTU 9100
+Nov 23 03:17:19.148761 as7772 syncd[4155]: sai-rs openbcm: my-station 2: 1c:ea:0b:38:2b:d7 (IPv4, IPv6, ARP)
+Nov 23 03:17:19.149886 as7772 orchagent[4157]: :- doTask: Set router interface mac 1c:ea:0b:38:2b:d7 for port Ethernet124 success
+Nov 23 03:17:19.151243 as7772 orchagent[4157]: :- addIp2MeRoute: Create IP2me route ip:10.0.31.1
+Nov 23 03:17:19.154892 as7772 orchagent[4157]: :- addRouterIntfs: Create router interface Ethernet4 MTU 9100
+Nov 23 03:17:19.155847 as7772 syncd[4155]: sai-rs openbcm: my-station 3: 1c:ea:0b:38:2b:d6 (IPv4, IPv6, ARP)
+Nov 23 03:17:19.156833 as7772 orchagent[4157]: :- doTask: Set router interface mac 1c:ea:0b:38:2b:d6 for port Ethernet4 success
+Nov 23 03:17:19.158603 as7772 orchagent[4157]: :- addIp2MeRoute: Create IP2me route ip:10.0.1.1
+Nov 23 03:17:19.175045 as7772 orchagent[4157]: :- createMACsecSC: MACsec SC Ethernet120:1cea0b382bd50001 is created.
+Nov 23 03:17:19.179869 as7772 wpa_supplicant[4730]: Ethernet120: Associated with 01:80:c2:00:00:03
+Nov 23 03:17:19.179917 as7772 wpa_supplicant[4730]: Ethernet120: CTRL-EVENT-CONNECTED - Connection to 01:80:c2:00:00:03 completed [id=0 id_str=]
+Nov 23 03:17:19.179937 as7772 wpa_supplicant[4730]: Ethernet120: CTRL-EVENT-SUBNET-STATUS-UPDATE status=0
+Nov 23 03:17:19.309897 as7772 macsecmgrd[4763]: Failed to connect to wpa_supplicant global interface: /var/run/Ethernet124  error: No such file or directory
+Nov 23 03:17:19.316244 as7772 wpa_supplicant[4762]: Successfully initialized wpa_supplicant
+Nov 23 03:17:19.613274 as7772 macsecmgrd[4164]: :- enableMACsec: The MACsec profile 'lab-test' on the port 'Ethernet124' loading success (address 1c:ea:0b:38:2b:d7)
+Nov 23 03:17:19.629985 as7772 macsecmgrd[4779]: Failed to connect to wpa_supplicant global interface: /var/run/Ethernet4  error: No such file or directory
+Nov 23 03:17:19.636573 as7772 wpa_supplicant[4778]: Successfully initialized wpa_supplicant
+Nov 23 03:17:19.708172 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: MACsec egress on (external PHY 0x17f)
+Nov 23 03:17:19.818343 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: MACsec ingress on (external PHY 0x17f)
+Nov 23 03:17:19.844995 as7772 orchagent[4157]: :- createMACsecPort: MACsec port Ethernet124 is created.
+Nov 23 03:17:19.927564 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: MACsec egress off
+Nov 23 03:17:19.951907 as7772 macsecmgrd[4164]: :- enableMACsec: The MACsec profile 'lab-test' on the port 'Ethernet4' loading success (address 1c:ea:0b:38:2b:d6)
+Nov 23 03:17:19.963544 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: MACsec ingress off
+Nov 23 03:17:20.060170 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: MACsec egress on (external PHY 0x1)
+Nov 23 03:17:20.168690 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: MACsec ingress on (external PHY 0x1)
+Nov 23 03:17:20.191501 as7772 orchagent[4157]: :- createMACsecPort: MACsec port Ethernet4 is created.
+Nov 23 03:17:20.284153 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: MACsec egress on (external PHY 0x17f)
+Nov 23 03:17:20.388177 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: MACsec ingress on (external PHY 0x17f)
+Nov 23 03:17:20.413754 as7772 orchagent[4157]: :- createMACsecPort: MACsec port Ethernet124 is created.
+Nov 23 03:17:20.463518 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: MACsec egress off
+Nov 23 03:17:20.499454 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: MACsec ingress off
+Nov 23 03:17:20.511798 as7772 orchagent[4157]: :- createMACsecSC: MACsec SC Ethernet124:1cea0b382bd70001 is created.
+Nov 23 03:17:20.517606 as7772 wpa_supplicant[4762]: Ethernet124: Associated with 01:80:c2:00:00:03
+Nov 23 03:17:20.517649 as7772 wpa_supplicant[4762]: Ethernet124: CTRL-EVENT-CONNECTED - Connection to 01:80:c2:00:00:03 completed [id=0 id_str=]
+Nov 23 03:17:20.517667 as7772 wpa_supplicant[4762]: Ethernet124: CTRL-EVENT-SUBNET-STATUS-UPDATE status=0
+Nov 23 03:17:20.534569 as7772 syncd[4155]: :- threadFunction: time span 0 ms for 'create:SAI_OBJECT_TYPE_MACSEC_PORT:oid:0x590000000002e7'
+Nov 23 03:17:20.624165 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: MACsec egress on (external PHY 0x1)
+Nov 23 03:17:20.732801 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: MACsec ingress on (external PHY 0x1)
+Nov 23 03:17:20.755204 as7772 orchagent[4157]: :- createMACsecPort: MACsec port Ethernet4 is created.
+Nov 23 03:17:20.794815 as7772 orchagent[4157]: :- createMACsecSC: MACsec SC Ethernet4:1cea0b382bd60001 is created.
+Nov 23 03:17:20.799525 as7772 wpa_supplicant[4778]: Ethernet4: Associated with 01:80:c2:00:00:03
+Nov 23 03:17:20.799569 as7772 wpa_supplicant[4778]: Ethernet4: CTRL-EVENT-CONNECTED - Connection to 01:80:c2:00:00:03 completed [id=0 id_str=]
+Nov 23 03:17:20.799588 as7772 wpa_supplicant[4778]: Ethernet4: CTRL-EVENT-SUBNET-STATUS-UPDATE status=0
+Nov 23 03:17:22.069029 as7772 orchagent[4157]: :- createMACsecSC: MACsec SC Ethernet124:1cea0b382bd50001 is created.
+Nov 23 03:17:22.069456 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE not set
+Nov 23 03:17:22.204930 as7772 orchagent[4157]: :- createMACsecSC: MACsec SC Ethernet4:1cea0b382bd50001 is created.
+Nov 23 03:17:22.205388 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE not set
+Nov 23 03:17:22.869226 as7772 orchagent[4157]: :- createMACsecSC: MACsec SC Ethernet120:1cea0b382bd70001 is created.
+Nov 23 03:17:22.869678 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE not set
+Nov 23 03:17:23.650682 as7772 orchagent[4157]: <!--XSUPERVISOR:BEGIN-->heartbeat<!--XSUPERVISOR:END-->
+Nov 23 03:17:24.067133 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE not set
+Nov 23 03:17:24.079196 as7772 syncd[4155]: :- collectDataBulk: Bulk get not available for SAI_OBJECT_TYPE_MACSEC_SA, using per object get
+Nov 23 03:17:24.083359 as7772 orchagent[4157]: :- createMACsecSA: MACsec SA Ethernet120:1cea0b382bd50001:0 is created.
+Nov 23 03:17:24.090708 as7772 orchagent[4157]: :- createMACsecSA: MACsec SA Ethernet120:1cea0b382bd70001:0 is created.
+Nov 23 03:17:24.097942 as7772 orchagent[4157]: :- createMACsecSA: MACsec SA Ethernet124:1cea0b382bd50001:0 is created.
+Nov 23 03:17:24.111379 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:17:24.115821 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: egress data frames go through the secure channel
+Nov 23 03:17:24.139346 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:17:24.143796 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce30: ingress data frames go through the secure channel
+Nov 23 03:17:24.155052 as7772 orchagent[4157]: :- createMACsecSC: MACsec SC Ethernet0:1cea0b382bd60001 is created.
+Nov 23 03:17:24.155469 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE not set
+Nov 23 03:17:24.163046 as7772 orchagent[4157]: :- createMACsecSA: MACsec SA Ethernet124:1cea0b382bd70001:0 is created.
+Nov 23 03:17:24.203125 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE not set
+Nov 23 03:17:24.218381 as7772 orchagent[4157]: :- createMACsecSA: MACsec SA Ethernet0:1cea0b382bd50001:0 is created.
+Nov 23 03:17:24.225860 as7772 orchagent[4157]: :- createMACsecSA: MACsec SA Ethernet0:1cea0b382bd60001:0 is created.
+Nov 23 03:17:24.233816 as7772 orchagent[4157]: :- createMACsecSA: MACsec SA Ethernet4:1cea0b382bd50001:0 is created.
+Nov 23 03:17:24.247324 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:17:24.251762 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: egress data frames go through the secure channel
+Nov 23 03:17:24.275015 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:17:24.279453 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce0: ingress data frames go through the secure channel
+Nov 23 03:17:24.292942 as7772 orchagent[4157]: :- createMACsecSA: MACsec SA Ethernet4:1cea0b382bd60001:0 is created.
+Nov 23 03:17:25.140357 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:25.146701 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:25.148715 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:25.153540 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:17:25.158015 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: egress data frames go through the secure channel
+Nov 23 03:17:25.172699 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:25.178338 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:25.182297 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:17:25.186777 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce31: ingress data frames go through the secure channel
+Nov 23 03:17:25.203187 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:17:25.207655 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: egress data frames go through the secure channel
+Nov 23 03:17:25.231557 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+Nov 23 03:17:25.236016 as7772 syncd[4155]: sai-openbcm NOTICE api=43: port ce1: ingress data frames go through the secure channel
+Nov 23 03:17:26.072589 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:26.136969 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:26.208564 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:27.152345 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:28.076364 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:28.140521 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:28.212303 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:29.156336 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:30.080398 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:30.144924 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:30.216292 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:31.160848 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:32.084401 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:32.148308 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:32.221118 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:33.164383 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:34.089284 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:34.152258 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:34.224293 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:34.346660 as7772 orchagent[4157]: <!--XSUPERVISOR:BEGIN-->heartbeat<!--XSUPERVISOR:END-->
+Nov 23 03:17:35.168368 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:36.092329 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:36.156284 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:36.228231 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:37.172370 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:38.096362 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:38.160428 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:38.232284 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:39.176489 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:40.100408 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:40.164261 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:40.236499 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:41.180315 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:42.104434 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:42.168216 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:42.240288 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:43.184420 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:44.108388 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:44.172528 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:44.244264 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:44.378669 as7772 orchagent[4157]: <!--XSUPERVISOR:BEGIN-->heartbeat<!--XSUPERVISOR:END-->
+Nov 23 03:17:45.188438 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:46.112397 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:46.176412 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:46.248207 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:47.192458 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:48.116935 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:48.180500 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:48.252246 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:49.196387 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:50.120405 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:50.184456 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:50.256319 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:51.200369 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:52.124416 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:52.188248 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:52.260275 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:53.205594 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:54.128469 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:54.192376 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:54.264283 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:54.378697 as7772 orchagent[4157]: <!--XSUPERVISOR:BEGIN-->heartbeat<!--XSUPERVISOR:END-->
+Nov 23 03:17:55.209073 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:56.132572 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:56.196433 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:56.268405 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:57.212532 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:58.136423 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:58.200462 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:58.272156 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:17:59.216505 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:00.140456 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:00.204388 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:00.276244 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:01.220709 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:02.144844 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:02.208617 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:02.280594 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:03.224710 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:04.148588 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:04.213420 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:04.284732 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:04.378825 as7772 orchagent[4157]: <!--XSUPERVISOR:BEGIN-->heartbeat<!--XSUPERVISOR:END-->
+Nov 23 03:18:05.228373 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:06.152663 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:06.216658 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:06.288657 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:07.232761 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:08.156665 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:08.220754 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:08.292699 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:09.236629 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:10.160476 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:10.224728 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:10.296645 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:11.240451 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:12.164357 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:12.228421 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:12.300203 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:13.244523 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:14.168432 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:14.232268 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:14.304327 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:15.248365 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:15.346604 as7772 orchagent[4157]: <!--XSUPERVISOR:BEGIN-->heartbeat<!--XSUPERVISOR:END-->
+Nov 23 03:18:16.172441 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:16.236926 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:16.308233 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:17.252443 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:18.176467 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:18.240326 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:18.313007 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:19.256416 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:20.181630 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:20.244328 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:20.316194 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:21.260478 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:22.184411 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:22.248372 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:22.320493 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:23.264419 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:24.188433 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:24.252700 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:24.324346 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:25.269040 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:25.346614 as7772 orchagent[4157]: <!--XSUPERVISOR:BEGIN-->heartbeat<!--XSUPERVISOR:END-->
+Nov 23 03:18:26.192922 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:26.256836 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:26.329300 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:27.272484 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:28.196409 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:28.260286 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:28.332343 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:29.276434 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:30.200562 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:30.264402 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:30.336168 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:31.280444 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:32.204425 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:32.268459 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:32.340262 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:33.284398 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:34.208448 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:34.272406 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:34.344259 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:35.288391 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:36.212428 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:36.276354 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:36.346651 as7772 orchagent[4157]: <!--XSUPERVISOR:BEGIN-->heartbeat<!--XSUPERVISOR:END-->
+Nov 23 03:18:36.348341 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:37.292475 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:38.216575 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:38.280401 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:38.352373 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:39.296471 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:40.221129 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:40.284443 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:40.356234 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:41.300532 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:42.224606 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:42.288445 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:42.360900 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:43.304403 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:44.228429 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:44.292390 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:44.364121 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:45.309023 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:46.232446 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:46.296424 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:46.368283 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:47.312765 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:47.346596 as7772 orchagent[4157]: <!--XSUPERVISOR:BEGIN-->heartbeat<!--XSUPERVISOR:END-->
+Nov 23 03:18:48.236413 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:48.300370 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:48.372448 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:49.316470 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:50.240479 as7772 wpa_supplicant[4762]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:50.304388 as7772 wpa_supplicant[4706]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:50.376278 as7772 wpa_supplicant[4778]: KaY: Update watchdog timer, SAK-USE set
+Nov 23 03:18:51.320435 as7772 wpa_supplicant[4730]: KaY: Update watchdog timer, SAK-USE set

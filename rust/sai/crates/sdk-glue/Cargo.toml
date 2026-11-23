@@ -7,22 +7,21 @@ license.workspace = true
 rust-version.workspace = true
 
 [features]
-# Which C glue is linked (sdk-glue-sys): the real one (ppc64 only, needs SDK_GLUE_LINK) or the
-# C fake for tests. With neither (and no rust-fake), a program that uses this crate does not link.
+# The real glue (sdk-glue-sys): sdk_glue.c + libsdk, ppc64 only, needs SDK_GLUE_LINK. Without it
+# and without rust-fake, a program that uses this crate does not link.
 real = ["sdk-glue-sys/real"]
-fake = ["sdk-glue-sys/fake"]
-# The pure-Rust fake (module rust_fake). Alone, with no C glue linked, it is also what the plain
-# bring-ups use: no C at all in the program (Miri runs it).
+# The pure-Rust fake (module rust_fake). Without the real glue it is also what the plain
+# bring-ups use (sdk_glue::fake is then rust_fake::process): no C at all in the program (Miri
+# runs it). The tests' glue.
 rust-fake = ["dep:signal-hook"]
 
 [dependencies]
 sdk-glue-sys.workspace = true
-# rust-fake only: the scenario's "sigterm <n>" (raise SIGTERM, as fake_glue.c does), safe API
+# rust-fake only: the scenario's "sigterm <n>" (raise SIGTERM, as the C fake did), safe API
 signal-hook = { workspace = true, optional = true }
 
 [dev-dependencies]
-# this crate's own tests: the real-glue module against the C fake, everything against the Rust fake
-sdk-glue-sys = { workspace = true, features = ["fake"] }
+# this crate's own tests: everything against the Rust fake (the process's and per-test chips)
 sdk-glue = { path = ".", features = ["rust-fake"] }
 
 [lints]

@@ -18,6 +18,7 @@
 extern "C" {
 #include <sai.h>
 }
+#include "sdk_glue.h"   // the glue's order enums, checked against ob::Fec etc. below
 
 #include <cstdint>
 #include <functional>
@@ -70,6 +71,50 @@ enum class PortStat {
 
 // Host-interface trap kinds the backend may know how to steer to the CPU.
 enum class TrapKind { ArpRequest, ArpResponse, Dhcp, Dhcpv6, Igmp, Mld, Nd, Lldp, Lacp, Stp, Other };
+
+// The ints of the SDK glue are these enums' values (sdk_glue.h names them for the C glue and the
+// Rust bindings): value by value.
+static_assert((int)Fec::None == OB_FEC_NONE, "Fec");
+static_assert((int)Fec::Rs == OB_FEC_RS, "Fec");
+static_assert((int)Fec::Fc == OB_FEC_FC, "Fec");
+static_assert((int)Fec::Fc + 1 == OB_FEC_COUNT, "Fec");
+static_assert((int)Loopback::None == OB_LOOPBACK_NONE, "Loopback");
+static_assert((int)Loopback::Mac == OB_LOOPBACK_MAC, "Loopback");
+static_assert((int)Loopback::Phy == OB_LOOPBACK_PHY, "Loopback");
+static_assert((int)Loopback::Phy + 1 == OB_LOOPBACK_COUNT, "Loopback");
+static_assert((int)Learn::Hw == OB_LEARN_HW, "Learn");
+static_assert((int)Learn::Disable == OB_LEARN_DISABLE, "Learn");
+static_assert((int)Learn::Drop == OB_LEARN_DROP, "Learn");
+static_assert((int)Learn::Cpu == OB_LEARN_CPU, "Learn");
+static_assert((int)Learn::Cpu + 1 == OB_LEARN_COUNT, "Learn");
+static_assert((int)PortStat::InOctets == OB_PORTSTAT_IN_OCTETS, "PortStat");
+static_assert((int)PortStat::InUcastPkts == OB_PORTSTAT_IN_UCAST_PKTS, "PortStat");
+static_assert((int)PortStat::InNonUcastPkts == OB_PORTSTAT_IN_NON_UCAST_PKTS, "PortStat");
+static_assert((int)PortStat::InDiscards == OB_PORTSTAT_IN_DISCARDS, "PortStat");
+static_assert((int)PortStat::InErrors == OB_PORTSTAT_IN_ERRORS, "PortStat");
+static_assert((int)PortStat::InUnknownProtos == OB_PORTSTAT_IN_UNKNOWN_PROTOS, "PortStat");
+static_assert((int)PortStat::InBroadcastPkts == OB_PORTSTAT_IN_BROADCAST_PKTS, "PortStat");
+static_assert((int)PortStat::InMulticastPkts == OB_PORTSTAT_IN_MULTICAST_PKTS, "PortStat");
+static_assert((int)PortStat::OutOctets == OB_PORTSTAT_OUT_OCTETS, "PortStat");
+static_assert((int)PortStat::OutUcastPkts == OB_PORTSTAT_OUT_UCAST_PKTS, "PortStat");
+static_assert((int)PortStat::OutNonUcastPkts == OB_PORTSTAT_OUT_NON_UCAST_PKTS, "PortStat");
+static_assert((int)PortStat::OutDiscards == OB_PORTSTAT_OUT_DISCARDS, "PortStat");
+static_assert((int)PortStat::OutErrors == OB_PORTSTAT_OUT_ERRORS, "PortStat");
+static_assert((int)PortStat::OutBroadcastPkts == OB_PORTSTAT_OUT_BROADCAST_PKTS, "PortStat");
+static_assert((int)PortStat::OutMulticastPkts == OB_PORTSTAT_OUT_MULTICAST_PKTS, "PortStat");
+static_assert((int)PortStat::Count == OB_PORTSTAT_COUNT, "PortStat");
+static_assert((int)TrapKind::ArpRequest == OB_TRAP_ARP_REQUEST, "TrapKind");
+static_assert((int)TrapKind::ArpResponse == OB_TRAP_ARP_RESPONSE, "TrapKind");
+static_assert((int)TrapKind::Dhcp == OB_TRAP_DHCP, "TrapKind");
+static_assert((int)TrapKind::Dhcpv6 == OB_TRAP_DHCPV6, "TrapKind");
+static_assert((int)TrapKind::Igmp == OB_TRAP_IGMP, "TrapKind");
+static_assert((int)TrapKind::Mld == OB_TRAP_MLD, "TrapKind");
+static_assert((int)TrapKind::Nd == OB_TRAP_ND, "TrapKind");
+static_assert((int)TrapKind::Lldp == OB_TRAP_LLDP, "TrapKind");
+static_assert((int)TrapKind::Lacp == OB_TRAP_LACP, "TrapKind");
+static_assert((int)TrapKind::Stp == OB_TRAP_STP, "TrapKind");
+static_assert((int)TrapKind::Other == OB_TRAP_OTHER, "TrapKind");
+static_assert((int)TrapKind::Other + 1 == OB_TRAP_COUNT, "TrapKind");
 
 constexpr int LAG_DEST_BIT = 0x40000000;   // = OB_LAG_DEST_BIT (sdk_glue.h)
 inline int lag_dest(int tid) { return LAG_DEST_BIT | tid; }

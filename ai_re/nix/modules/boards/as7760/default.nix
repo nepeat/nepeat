@@ -9,7 +9,8 @@
 let
   sonic = import ../../../packages/sonic { inherit pkgs; };
   openbcm = import ../../../packages/openbcm { inherit pkgs; };
-  sai = pkgs.callPackage ../../../packages/sai-openbcm { inherit sonic; libsdk = openbcm.libsdk { }; };
+  # libsai and its tools: the C++ sai-openbcm or the Rust one (hardware.openbcm.implementation).
+  sai = config.hardware.openbcm.package;
 in {
   # The Linux device tree source the boot files are built from. Derivative
   # boards (boards/as7772) point it at their own tree.

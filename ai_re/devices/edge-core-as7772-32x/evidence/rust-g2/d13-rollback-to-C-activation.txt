@@ -1,0 +1,14 @@
+2026-11-23T11:51:23.710Z switch to /nix/store/z7jccivx51iml5sqri0qanipv46gs1ll-nixos-system-as7772-26.11.20261111.d4f25a3
+Checking switch inhibitors... done
+as7760: boot files for /nix/store/z7jccivx51iml5sqri0qanipv46gs1ll-nixos-system-as7772-26.11.20261111.d4f25a3 installed on /boot/firmware (boot.scr + extlinux)
+stopping the following units: sonic-syncd.service
+NOT restarting the following changed units: openbcm-mdio-script.service
+activating the configuration...
+setting up /etc...
+reloading user units for root...
+restarting the following user units: nixos-activation.service
+restarting sysinit-reactivation.target
+reloading the following units: dbus-broker.service
+starting the following units: sonic-syncd.service
+the following new units were started: run-p6860-i13049.timer, sysinit-reactivation.target, systemd-tmpfiles-resetup.service
+/nix/store/z7jccivx51iml5sqri0qanipv46gs1ll-nixos-system-as7772-26.11.20261111.d4f25a3

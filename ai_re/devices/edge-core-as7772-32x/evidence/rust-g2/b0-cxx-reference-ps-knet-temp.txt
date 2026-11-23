@@ -1,0 +1,85 @@
+2026-11-23T10:37:35+00:00
+                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9162    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9162    No      
+       ce2( 58)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce3( 62)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce4( 68)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce5( 72)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce6( 76)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce7( 80)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce8( 34)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce9( 38)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce10( 42)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce11( 46)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce12( 84)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce13( 88)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce14( 92)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce15( 96)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce16(102)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce17(106)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce18(110)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce19(114)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce20( 17)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce21( 21)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce22( 25)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce23( 29)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce24(118)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce25(122)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce26(126)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce27(130)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce28(  1)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce29(  5)  !ena   4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce30(  9)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9162    No      
+      ce31( 13)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9162    No      
+       xe0( 66)  down   1    1G  FD   SW  Yes  Forward  TX RX   None   FA     KX  9412    No      
+       xe1(100)  down   1     -       SW  Yes  Forward  TX RX   None   FA  SGMII  9412    No      
+
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce0         49   50 up    up    no     0x0003     2234        0    1     0     200     194     349     2    0        7184
+ce1         53   54 up    up    no     0x0003     2234        0    1     0     196     195     369     2    0        7206
+ce2         57   58 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5156
+ce3         61   62 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5184
+ce4         65   68 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5285
+ce5         69   72 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5154
+
+bcm0 Bridge dummy eth0 Ethernet0 Ethernet100 Ethernet104 Ethernet108 Ethernet112 Ethernet116 Ethernet12 Ethernet120 Ethernet124 Ethernet16 Ethernet20 Ethernet24 Ethernet28 Ethernet32 Ethernet36 Ethernet4 Ethernet40 Ethernet44 Ethernet48 Ethernet52 Ethernet56 Ethernet60 Ethernet64 Ethernet68 Ethernet72 Ethernet76 Ethernet8 Ethernet80 Ethernet84 Ethernet88 Ethernet92 Ethernet96 lo Vrf-a Vrf-b 
+Software link status:
+  Ethernet112    down
+  Ethernet116    down
+  Ethernet120    up
+  Ethernet124    up
+  Ethernet80     down
+  Ethernet84     down
+  Ethernet88     down
+  Ethernet92     down
+  Ethernet32     down
+  Ethernet36     down
+  Ethernet40     down
+  Ethernet44     down
+  Ethernet0      up
+  Ethernet4      up
+  Ethernet8      down
+  Ethernet12     down
+  Ethernet16     down
+  Ethernet20     down
+  Ethernet24     down
+
+temperature monitor 0: current= 44.7, peak= 47.2
+temperature monitor 1: current= 45.2, peak= 47.7
+temperature monitor 2: current= 44.7, peak= 47.2
+temperature monitor 3: current= 45.7, peak= 47.2
+temperature monitor 4: current= 45.7, peak= 47.7
+temperature monitor 5: current= 47.7, peak= 49.6
+temperature monitor 6: current= 45.2, peak= 47.7
+temperature monitor 7: current= 43.3, peak= 46.2
+average current temperature is  45.2
+maximum peak temperature is 49.6
+46.7
+
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later         N/A
+Ethernet120       9,10,11,12     100G   9100    N/A  Ethernet31/1  routed      up       up  QSFP28 or later         N/A
+Ethernet124      13,14,15,16     100G   9100    N/A  Ethernet32/1  routed      up       up  QSFP28 or later         N/A

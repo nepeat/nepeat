@@ -1,106 +1,200 @@
-//! The port settings of the profile: the accepted values are exactly the C++ ones.
-#![allow(clippy::unwrap_used, clippy::panic, reason = "test code")]
+//! The board quirks and the port disabling are the SAI layer's now (sai-core `switch::build_objects`,
+//! as the C++ `switch_build_objects`): through the core on this backend each front-panel port is
+//! disabled and gets each quirk exactly once, in the C++ order; a bad quirk value refuses the
+//! switch before the chip is touched. And the slice of the SAI API through the core on this
+//! backend (ports, VLAN 1, admin state, link events, a VLAN, switch removal).
+#![allow(clippy::unwrap_used, clippy::panic, clippy::indexing_slicing, reason = "test code")]
 
-use proptest::prelude::*;
-use sai_backend_openbcm::quirks::{AUTONEG_KEY, FEC_KEY, IFG_KEY, INTERFACE_KEY, PortQuirks};
+mod common;
+
+use common::{own_profile, read, trace};
+use sai_backend_openbcm::OpenbcmBackend;
 use sai_core::Error;
-use sai_core::backend::Profile;
-use sdk_glue::Fec;
+use sai_core::backend::{Backend, BackendEvent, HwPort, Vid};
+use sai_core::sai::Sai;
+use sai_core::value::{Attr, Value};
+use sai_sys as sys;
+use sdk_glue::rust_fake::Chip;
+use std::sync::mpsc::TryRecvError;
 
-fn parse(pairs: &[(&str, &str)]) -> Result<PortQuirks, Error> {
-    PortQuirks::parse(&Profile::from_pairs(pairs.iter().copied()))
+fn init() -> [Attr; 1] {
+    [Attr::new(sys::SAI_SWITCH_ATTR_INIT_SWITCH, Value::Bool(true))]
 }
 
+const QUIRKS: [(&str, &str); 4] = [
+    ("SAI_OPENBCM_PORT_INTERFACE", "caui"),
+    ("SAI_OPENBCM_PORT_AUTONEG", "off"),
+    ("SAI_OPENBCM_PORT_FEC", "none"),
+    ("SAI_OPENBCM_PORT_IFG", "128"),
+];
+
 #[test]
-fn the_as7772_profile() {
-    let q = parse(&[
-        (INTERFACE_KEY, "caui"),
-        (AUTONEG_KEY, "off"),
-        (FEC_KEY, "none"),
-        (IFG_KEY, "128"),
-    ])
+fn the_core_disables_every_port_and_applies_each_quirk_once() {
+    let chip = Chip::new();
+    let (t, path) = trace();
+    let mut sai = Sai::new(OpenbcmBackend::on_chip(chip.clone()));
+    sai.create_switch(
+        &init(),
+        &own_profile(&format!("ports 2 4 100000\nport 66 129 1 10000 xe0\n{t}"), &QUIRKS),
+    )
     .unwrap();
-    assert_eq!(q.interface.as_deref(), Some(c"caui"));
-    assert_eq!((q.autoneg, q.fec, q.ifg), (Some(false), Some(Fec::None), Some(128)));
-    assert!(!q.is_empty());
-    assert_eq!(
-        q.to_string(),
-        "interface caui, ASIC FEC fixed none, autoneg fixed off, IFG 128 bits"
-    );
-}
-
-#[test]
-fn absent_and_empty_values_fix_nothing() {
-    assert!(parse(&[]).unwrap().is_empty());
-    let q = parse(&[(INTERFACE_KEY, ""), (AUTONEG_KEY, ""), (FEC_KEY, ""), (IFG_KEY, "")]).unwrap();
-    assert!(q.is_empty());
-    assert_eq!(
-        q.to_string(),
-        "interface (SDK), ASIC FEC (SDK), autoneg (SDK), IFG (SDK)"
-    );
-}
-
-#[test]
-fn every_allowed_value() {
-    for name in sdk_glue::port::INTERFACE_NAMES {
+    let text = read(&path);
+    for port in [1, 2, 66] {
+        assert_eq!(chip.port_enabled(port), Some(false));
+        assert_eq!(chip.port_settings(port), Some((0, 0, 128, true)));
+        // disable, then autoneg, interface, FEC, inter-frame gap: once each
+        let lines: Vec<&str> = text
+            .lines()
+            .filter(|l| l.starts_with(&format!("port {port} ")))
+            .collect();
         assert_eq!(
-            parse(&[(INTERFACE_KEY, name)])
-                .unwrap()
-                .interface
-                .unwrap()
-                .to_str()
-                .unwrap(),
-            name
+            lines,
+            [
+                format!("port {port} enable 0"),
+                format!("port {port} autoneg 0"),
+                format!("port {port} interface caui"),
+                format!("port {port} fec 0"),
+                format!("port {port} ifg 128"),
+            ],
+            "port {port}: {text}"
         );
     }
-    assert_eq!(parse(&[(FEC_KEY, "rs")]).unwrap().fec, Some(Fec::Rs));
-    assert_eq!(parse(&[(FEC_KEY, "fc")]).unwrap().fec, Some(Fec::Fc));
-    assert_eq!(parse(&[(AUTONEG_KEY, "on")]).unwrap().autoneg, Some(true));
-    assert_eq!(parse(&[(IFG_KEY, "64")]).unwrap().ifg, Some(64));
-    assert_eq!(parse(&[(IFG_KEY, "504")]).unwrap().ifg, Some(504));
-    for (key, value) in [
-        (INTERFACE_KEY, "Caui"),
-        (INTERFACE_KEY, "caui "),
-        (FEC_KEY, "RS"),
-        (FEC_KEY, "off"),
-        (AUTONEG_KEY, "true"),
-        (IFG_KEY, "63"),
-        (IFG_KEY, "65"),
-        (IFG_KEY, "505"),
-        (IFG_KEY, "0x80"),
-        (IFG_KEY, "+128"),
-        (IFG_KEY, " 128"),
-        (IFG_KEY, "128\0"),
-        (IFG_KEY, "99999999999999999999"),
-    ] {
-        assert_eq!(parse(&[(key, value)]), Err(Error::InvalidParameter), "{key}={value:?}");
+    // without quirks the ports are only disabled
+    let chip = Chip::new();
+    let (t, path) = trace();
+    let mut sai = Sai::new(OpenbcmBackend::on_chip(chip.clone()));
+    sai.create_switch(
+        &init(),
+        &own_profile(&format!("ports 2 4 100000\n{t}"), &[("SAI_OPENBCM_PORT_FEC", "")]),
+    )
+    .unwrap();
+    for port in [1, 2] {
+        assert_eq!(chip.port_settings(port), Some((-1, -1, -1, false)));
+        assert_eq!(chip.port_enabled(port), Some(false));
     }
+    assert_eq!(read(&path).lines().filter(|l| l.starts_with("port ")).count(), 2);
 }
 
-proptest! {
-    /// Any four strings: never a panic, and accepted exactly when each one is empty or one of
-    /// the listed values.
-    #[test]
-    fn accepts_exactly_the_listed_values(interface in ".{0,12}", fec in ".{0,6}", autoneg in ".{0,6}", ifg in "[0-9 +x-]{0,6}") {
-        let result = parse(&[(INTERFACE_KEY, &interface), (FEC_KEY, &fec), (AUTONEG_KEY, &autoneg), (IFG_KEY, &ifg)]);
-        let ifg_ok = ifg.is_empty()
-            || (ifg.bytes().all(|b| b.is_ascii_digit()) && ifg.parse::<u32>().is_ok_and(|n| (64..=504).contains(&n) && n % 8 == 0));
-        let ok = (interface.is_empty() || sdk_glue::port::INTERFACE_NAMES.contains(&interface.as_str()))
-            && ["", "none", "rs", "fc"].contains(&fec.as_str())
-            && ["", "off", "on"].contains(&autoneg.as_str())
-            && ifg_ok;
-        prop_assert_eq!(result.is_ok(), ok);
-        if let Ok(q) = result {
-            prop_assert_eq!(q.ifg, ifg.parse::<u32>().ok());
-            prop_assert_eq!(q.is_empty(), interface.is_empty() && fec.is_empty() && autoneg.is_empty() && ifg.is_empty());
-        }
+#[test]
+fn a_bad_quirk_refuses_the_switch_before_the_chip_and_a_refused_one_tears_down() {
+    for (key, value) in [
+        ("SAI_OPENBCM_PORT_FEC", "on"),
+        ("SAI_OPENBCM_PORT_INTERFACE", "Caui"),
+        ("SAI_OPENBCM_PORT_IFG", "65"),
+        ("SAI_OPENBCM_PORT_AUTONEG", "true"),
+    ] {
+        let chip = Chip::new();
+        let mut sai = Sai::new(OpenbcmBackend::on_chip(chip.clone()));
+        assert_eq!(
+            sai.create_switch(&init(), &own_profile("ports 2 4 100000\n", &[(key, value)])),
+            Err(Error::InvalidParameter),
+            "{key}={value}"
+        );
+        assert!(!chip.bcm_layer_up());
+        assert_eq!(chip.register_calls(), 0, "{key}={value}: the chip was touched");
     }
+    // the chip refuses a quirk: the switch is not created, the chip is shut down again
+    let chip = Chip::new();
+    let mut sai = Sai::new(OpenbcmBackend::on_chip(chip.clone()));
+    assert_eq!(
+        sai.create_switch(&init(), &own_profile("ports 2 4 100000\nfail ifg 2 -11\n", &QUIRKS)),
+        Err(Error::Failure)
+    );
+    assert!(!chip.bcm_layer_up());
+    assert!(!chip.link_callback_registered());
+}
 
-    /// Every multiple of 8 in range is accepted, nothing else.
-    #[test]
-    fn ifg_range(n in 0u32..1000) {
-        let text = n.to_string();
-        let result = parse(&[(IFG_KEY, &text)]);
-        prop_assert_eq!(result.is_ok(), (64..=504).contains(&n) && n % 8 == 0);
+#[test]
+fn the_slice_through_the_core_on_this_backend() {
+    let chip = Chip::new();
+    let mut sai = Sai::new(OpenbcmBackend::on_chip(chip.clone()));
+    let prof = own_profile("ports 4 4 100000\nlink admin\n", &[("SAI_OPENBCM_PORT_AUTONEG", "off")]);
+    let switch = sai.create_switch(&init(), &prof).unwrap();
+    let switch = sai_core::oid::TypedId::raw(switch);
+    let events = sai.take_events().unwrap();
+    let get = |sai: &Sai<OpenbcmBackend>, ty, oid, attr| sai.get(ty, oid, &[attr]).map(|mut v| v.remove(0));
+    assert_eq!(
+        get(
+            &sai,
+            sys::SAI_OBJECT_TYPE_SWITCH,
+            switch,
+            sys::SAI_SWITCH_ATTR_PORT_NUMBER
+        ),
+        Ok(Value::U32(4))
+    );
+    let Value::OidList(ports) = get(
+        &sai,
+        sys::SAI_OBJECT_TYPE_SWITCH,
+        switch,
+        sys::SAI_SWITCH_ATTR_PORT_LIST,
+    )
+    .unwrap() else {
+        panic!("not a list")
+    };
+    assert_eq!(ports.len(), 4);
+    for port in 1..=4 {
+        assert_eq!(chip.port_enabled(port), Some(false));
     }
+    assert_eq!(
+        get(
+            &sai,
+            sys::SAI_OBJECT_TYPE_PORT,
+            ports[1],
+            sys::SAI_PORT_ATTR_HW_LANE_LIST
+        ),
+        Ok(Value::U32List(vec![5, 6, 7, 8]))
+    );
+    // the chip's default VLAN became VLAN 1 with four members
+    let Value::Oid(vlan1) = get(
+        &sai,
+        sys::SAI_OBJECT_TYPE_SWITCH,
+        switch,
+        sys::SAI_SWITCH_ATTR_DEFAULT_VLAN_ID,
+    )
+    .unwrap() else {
+        panic!("not an id")
+    };
+    let Value::OidList(members) = get(&sai, sys::SAI_OBJECT_TYPE_VLAN, vlan1, sys::SAI_VLAN_ATTR_MEMBER_LIST).unwrap()
+    else {
+        panic!("not a list")
+    };
+    assert_eq!(members.len(), 4);
+    // admin up reaches the chip; the link event comes back and becomes a notification
+    let admin_up = Attr::new(sys::SAI_PORT_ATTR_ADMIN_STATE, Value::Bool(true));
+    sai.set(sys::SAI_OBJECT_TYPE_PORT, ports[1], &admin_up).unwrap();
+    assert_eq!(chip.port_enabled(2), Some(true));
+    let event = events.try_recv().unwrap();
+    assert_eq!(
+        event,
+        BackendEvent::Link {
+            hw: HwPort(2),
+            up: true
+        }
+    );
+    assert_eq!(sai.handle_event(event).len(), 1);
+    // a VLAN on the chip
+    let vlan = sai
+        .create(
+            sys::SAI_OBJECT_TYPE_VLAN,
+            switch,
+            &[Attr::new(sys::SAI_VLAN_ATTR_VLAN_ID, Value::U16(100))],
+        )
+        .unwrap();
+    assert_eq!(chip.vlan(100), Some(vec![]));
+    sai.remove(sys::SAI_OBJECT_TYPE_VLAN, vlan).unwrap();
+    assert_eq!(chip.vlan(100), None);
+    assert_eq!(
+        sai.backend().vlan_members(Vid::new(100).unwrap()),
+        Err(Error::ItemNotFound)
+    );
+    // removing the switch shuts the chip down
+    sai.remove(sys::SAI_OBJECT_TYPE_SWITCH, switch).unwrap();
+    assert!(!chip.bcm_layer_up());
+    assert!(!chip.link_callback_registered());
+    assert_eq!(events.try_recv(), Err(TryRecvError::Disconnected));
+    // VLAN 1's members are taken only when the chip answers (C++ switch_build_objects)
+    let prof = own_profile("ports 4 4 100000\nfail vlan-members 1 -11\n", &[]);
+    let switch = sai_core::oid::TypedId::raw(sai.create_switch(&init(), &prof).unwrap());
+    sai.remove(sys::SAI_OBJECT_TYPE_SWITCH, switch).unwrap();
+    assert!(!chip.bcm_layer_up());
 }

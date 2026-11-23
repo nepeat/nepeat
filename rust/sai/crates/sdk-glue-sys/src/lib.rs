@@ -19,11 +19,12 @@
 //!
 //! The ints whose meaning is an order the glue hard-codes for its callers (`which` of
 //! `ob_sdk_port_stat_get`, `kind` of `ob_sdk_trap_set`, the `mode` of FEC / loopback / learning)
-//! are documented in the header as `ob::PortStat`, `ob::TrapKind`, ...: [`order`] is generated
-//! from those `enum class` declarations in `backend.h` (next to the header), and the build
-//! compares the counter and trap tables of `sdk_glue.c` with them (lengths, and LLDP / LACP by
-//! index) when `sdk_glue.c` is there ([`ORDER_CHECK`]). When backend.h goes (G6), these enums must
-//! move into `sdk_glue.h` first.
+//! are the C enums of the header (`ob_port_stat_t` / `OB_PORTSTAT_*`, `ob_trap_kind_t` /
+//! `OB_TRAP_*`, `ob_fec_t`, `ob_loopback_t`, `ob_learn_t`; the C++ `ob::PortStat` etc. of
+//! backend.h are checked against them by static assertions there): [`order`] is generated from
+//! bindgen's view of them (values 0, 1, ... in order, `*_COUNT` last), and the build compares the
+//! counter and trap tables of `sdk_glue.c` with them (lengths, and the LLDP / LACP kinds it takes
+//! by name) when `sdk_glue.c` is there ([`ORDER_CHECK`]).
 //!
 //! # Safe declarations: the owner's rule
 //!
@@ -58,11 +59,9 @@
 //! # Linking
 //!
 //! Nothing is linked by default. Feature `real` links the glue and libsdk (`SDK_GLUE_LINK`:
-//! whitespace-separated `<path>/lib<name>.a`, `-L<dir>`, `-l<name>`); feature `fake` compiles and
-//! links `fake/fake_glue.c` (an in-memory register map driven by the "config file" it is given;
-//! format at its top) and, generated from the declarations, a stub returning `OB_E_UNAVAIL` for
-//! every function the C fake does not implement. The C fake is being replaced by the pure-Rust
-//! fake of `sdk-glue` (feature `rust-fake` there) and goes once its users have moved.
+//! whitespace-separated `<path>/lib<name>.a`, `-L<dir>`, `-l<name>`). There is no C fake: tests run
+//! on the pure-Rust fake of `sdk-glue` (feature `rust-fake` there), which calls nothing of this
+//! crate but its constants and types.
 #![no_std]
 #![allow(
     missing_docs,
@@ -84,8 +83,8 @@ pub const HEADER_CHECK: &str = env!("SDK_GLUE_SYS_CHECK_RESULT");
 /// safe, and whether rule (b) was checked in `sdk_glue.c`.
 pub const SAFE_RULE: &str = env!("SDK_GLUE_SYS_RULE");
 
-/// What the build compared between [`order`] (backend.h) and the tables of `sdk_glue.c`.
+/// What the build compared between [`order`] (sdk_glue.h) and the tables of `sdk_glue.c`.
 pub const ORDER_CHECK: &str = env!("SDK_GLUE_SYS_ORDERS");
 
-/// Which glue this build links: `real`, `fake` or `none`.
+/// Which glue this build links: `real` or `none`.
 pub const LINKED: &str = env!("SDK_GLUE_SYS_LINKED");

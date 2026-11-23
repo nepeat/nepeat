@@ -11,12 +11,19 @@
 //! Tables: a synthetic one made here (always), and the board's real one when
 //! `SAI_MACSEC_E2E_TABLE` names it (the AS7772 table as generated for the system,
 //! `sys.as7772.config.services.sonic.sai.profile.SAI_OPENBCM_EXT_MACSEC_FILE`; read where it is,
-//! never copied). The C++ side: `$SAI_RS_TEST_BIN/sai-macsec-cpp-chip-driver` (prebuilt by sai-macsec's
-//! build.rs for a cross build), else compiled
-//! here from `SAI_OPENBCM_SRC` (sai-openbcm's `src`) and `SAI_INC`; neither: SKIPPED (said on stderr).
+//! never copied). The C++ side: `$SAI_RS_TEST_BIN/sai-macsec-cpp-chip-driver` and `...-fixed`
+//! (prebuilt by sai-macsec's build.rs for a cross build), else compiled here from
+//! `SAI_OPENBCM_SRC` (sai-openbcm's `src`) and `SAI_INC`; neither: SKIPPED (said on stderr).
 //!
 //! Scripts never move a flow between ports (variables of one parity only meet the port of that
-//! parity): there the two differ on purpose (sai-macsec's D1).
+//! parity): there the two differ on purpose (sai-macsec's D1). For sai-macsec's D9 and D10 (the
+//! owner's fixes of the C++) the Rust output must equal, to the end of every script, that of the
+//! same driver on the C++ with exactly those edits (`sai-macsec/tests/cpp/listed_fixes.rs`): the
+//! scripts where that one differs from the unmodified C++ are the ones that reach D9 / D10.
+//!
+//! Random scripts are deterministic per seed (sai-macsec's `tests/common/seeded.rs`):
+//! `SAI_MACSEC_SEED` (default random, printed in the summary line and on failure),
+//! `SAI_MACSEC_E2E_CASES` (per random test; defaults 32 to 64).
 
 #![allow(
     clippy::doc_markdown,
@@ -44,6 +51,10 @@ use sai_macsec::{
 };
 use sai_macsec_phy::{BusStatus, IfgSink, PhySeqRunner, model_table};
 use sai_sys as sys;
+#[path = "../../sai-macsec/tests/cpp/listed_fixes.rs"]
+mod listed_fixes;
+#[path = "../../sai-macsec/tests/common/seeded.rs"]
+mod seeded;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
@@ -53,6 +64,8 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 /// sai-macsec's driver.cpp built with -DSAI_MACSEC_DRIVER_CHIP (read-only overlay registers).
 const DRIVER_NAME: &str = "sai-macsec-cpp-chip-driver";
+/// The same on `sai_macsec.cpp` with sai-macsec's D9 and D10.
+const FIXED_NAME: &str = "sai-macsec-cpp-chip-driver-fixed";
 
 /// A line for whoever runs the suite: on stderr, and appended to the file `$SAI_RS_TEST_SUMMARY`
 /// names (the target-test bundle collects these; captured stderr of a passing test is not shown).
@@ -95,6 +108,8 @@ const CPP: &[&str] = &[
 
 struct Driver {
     exe: PathBuf,
+    /// The C++ with the owner's fixes (sai-macsec's D9, D10); the C++ drivers have one.
+    fixed: Option<PathBuf>,
     dir: PathBuf,
 }
 
@@ -110,9 +125,13 @@ fn driver() -> Option<&'static Driver> {
     static DRIVER: OnceLock<Option<Result<Driver, String>>> = OnceLock::new();
     let built = DRIVER.get_or_init(|| {
         if let Some(bin) = std::env::var_os("SAI_RS_TEST_BIN") {
-            let exe = Path::new(&bin).join(DRIVER_NAME);
-            if exe.is_file() {
-                return Some(scratch_dir().map(|dir| Driver { exe, dir }));
+            let (exe, fixed) = (Path::new(&bin).join(DRIVER_NAME), Path::new(&bin).join(FIXED_NAME));
+            if exe.is_file() && fixed.is_file() {
+                return Some(scratch_dir().map(|dir| Driver {
+                    exe,
+                    fixed: Some(fixed),
+                    dir,
+                }));
             }
         }
         let src = ["SAI_OPENBCM_SRC", "MDIO_SCRIPT_C_DIR"]
@@ -126,7 +145,7 @@ fn driver() -> Option<&'static Driver> {
             (Some(src), Some(inc)) if driver_src.is_file() => Some(build(&src, &inc, &driver_src)),
             _ => {
                 summary(&format!(
-                    "e2e: no $SAI_RS_TEST_BIN/{DRIVER_NAME}, and SAI_OPENBCM_SRC + SAI_INC + sai-macsec's driver.cpp are not all \
+                    "e2e: no $SAI_RS_TEST_BIN/{DRIVER_NAME} + {FIXED_NAME}, and SAI_OPENBCM_SRC + SAI_INC + sai-macsec's driver.cpp are not all \
                      there: the end-to-end comparison with the C++ is SKIPPED"
                 ));
                 None
@@ -161,6 +180,16 @@ fn build(src: &Path, inc: &Path, driver_src: &Path) -> Result<Driver, String> {
             c.spawn().map_err(|e| format!("{}: {e}", cxx.display()))?,
         ));
     }
+    // sai-macsec's D9 / D10: an edited copy of sai_macsec.cpp next to the objects
+    let fixed_src = listed_fixes::write_fixed(src, &dir)?;
+    let mut c = Command::new(&cxx);
+    c.args(["-std=c++17", "-O1", "-w", "-c"]);
+    includes(&mut c);
+    c.arg(&fixed_src).arg("-o").arg(dir.join("sai_macsec_fixed.o"));
+    jobs.push((
+        "sai_macsec_fixed".to_owned(),
+        c.spawn().map_err(|e| format!("{}: {e}", cxx.display()))?,
+    ));
     let mut c = Command::new(&cc);
     c.args(["-std=gnu11", "-O1", "-w", "-c", "-I"]).arg(src);
     c.arg(src.join("temp_files.c")).arg("-o").arg(dir.join("temp_files.o"));
@@ -178,27 +207,34 @@ fn build(src: &Path, inc: &Path, driver_src: &Path) -> Result<Driver, String> {
             return Err(format!("{unit} does not compile"));
         }
     }
-    let exe = dir.join(DRIVER_NAME);
-    let mut link = Command::new(&cxx);
-    link.args(["-std=c++17", "-O1", "-Wall", "-DSAI_MACSEC_DRIVER_CHIP"]);
-    includes(&mut link);
-    link.arg(driver_src);
-    for unit in CPP.iter().chain(&["temp_files"]) {
-        link.arg(dir.join(format!("{unit}.o")));
+    let (exe, fixed) = (dir.join(DRIVER_NAME), dir.join(FIXED_NAME));
+    for (bin, macsec) in [(&exe, "sai_macsec"), (&fixed, "sai_macsec_fixed")] {
+        let mut link = Command::new(&cxx);
+        link.args(["-std=c++17", "-O1", "-Wall", "-DSAI_MACSEC_DRIVER_CHIP"]);
+        includes(&mut link);
+        link.arg(driver_src);
+        for unit in CPP.iter().chain(&["temp_files"]) {
+            let unit = if *unit == "sai_macsec" { macsec } else { unit };
+            link.arg(dir.join(format!("{unit}.o")));
+        }
+        let out = link
+            .arg("-o")
+            .arg(bin)
+            .arg("-lpthread")
+            .output()
+            .map_err(|e| e.to_string())?;
+        if !out.status.success() {
+            return Err(format!(
+                "the C++ driver does not compile:\n{}",
+                String::from_utf8_lossy(&out.stderr)
+            ));
+        }
     }
-    let out = link
-        .arg("-o")
-        .arg(&exe)
-        .arg("-lpthread")
-        .output()
-        .map_err(|e| e.to_string())?;
-    if !out.status.success() {
-        return Err(format!(
-            "the C++ driver does not compile:\n{}",
-            String::from_utf8_lossy(&out.stderr)
-        ));
-    }
-    Ok(Driver { exe, dir })
+    Ok(Driver {
+        exe,
+        fixed: Some(fixed),
+        dir,
+    })
 }
 
 /// A second C++ driver (SAI_MACSEC_E2E_RUST_DRIVER, else `$SAI_RS_TEST_BIN/sai-macsec-rs-chip-driver`):
@@ -213,15 +249,25 @@ fn rust_model_driver() -> Option<Driver> {
         .map(PathBuf::from)
         .or(in_bin)?;
     let dir = scratch_dir().ok()?;
-    Some(Driver { exe, dir })
+    Some(Driver { exe, fixed: None, dir })
 }
 
 impl Driver {
     fn output(&self, table: &Path, script: &str) -> String {
+        self.run(&self.exe, table, script)
+    }
+
+    /// The C++ with sai-macsec's D9 / D10.
+    fn fixed_output(&self, table: &Path, script: &str) -> String {
+        let fixed = self.fixed.as_ref().expect("a C++ driver has its fixed variant");
+        self.run(fixed, table, script)
+    }
+
+    fn run(&self, exe: &Path, table: &Path, script: &str) -> String {
         static N: AtomicU64 = AtomicU64::new(0);
         let s = self.dir.join(format!("script-{}", N.fetch_add(1, Ordering::Relaxed)));
         std::fs::write(&s, script).unwrap();
-        let out = Command::new(&self.exe)
+        let out = Command::new(exe)
             .arg(table)
             .arg(&s)
             .env("SAI_MACSEC_DRIVER_PORTS", PORTS.to_string())
@@ -756,78 +802,76 @@ fn normalise(text: &str) -> String {
 
 static COMPARED: AtomicU64 = AtomicU64::new(0);
 static EVENTS: AtomicU64 = AtomicU64::new(0);
-/// Scripts that reached sai-macsec's D9 or D10 (compared up to there).
+/// Scripts that reached sai-macsec's D9 or D10 (equal to the C++ with those fixes).
 static LISTED: AtomicU64 = AtomicU64::new(0);
 
-/// Whether the first differing line is sai-macsec's D9 (a flow switch: the Rust model takes the
-/// old SC's SAs out, so it makes more writes with the same status) or D10 (a cipher suite change
-/// under a waiting SA: `OBJECT_IN_USE` where the C++ says 0).
-fn listed_difference(cpp: &str, rust: &str) -> bool {
-    let (Some((c_op, c_rest)), Some((r_op, r_rest))) = (cpp.split_once(" => "), rust.split_once(" => ")) else {
-        return false;
+fn first_difference(a: &str, b: &str) -> Option<usize> {
+    if a == b {
+        return None;
+    }
+    Some(
+        a.lines()
+            .zip(b.lines())
+            .position(|(x, y)| x != y)
+            .unwrap_or_else(|| a.lines().count().min(b.lines().count())),
+    )
+}
+
+fn counted(text: &str) {
+    COMPARED.fetch_add(
+        text.lines().filter(|l| l.contains(" => ")).count() as u64,
+        Ordering::Relaxed,
+    );
+    EVENTS.fetch_add(
+        text.matches(" R").count() as u64 + text.matches(" W").count() as u64,
+        Ordering::Relaxed,
+    );
+}
+
+/// `other` (normalised) against the C++ (`cpp`'s two drivers), the owner's rule: `other` must
+/// equal, to the end of the script, the C++ with exactly sai-macsec's D9 / D10 edits; where that
+/// one differs from the unmodified C++ the script reached a listed fix (counted). Any other
+/// difference fails, and so does an `other` equal to the unmodified C++ where the fixed C++ is
+/// not (D9 / D10 missing). `what`: the name of `other` in the message.
+fn held_to_the_cpp(cpp: &Driver, table: &Path, script: &str, other: &str, what: &str) -> Result<(), String> {
+    let plain = normalise(&cpp.output(table, script));
+    let fixed = normalise(&cpp.fixed_output(table, script));
+    let Some(at) = first_difference(&fixed, other) else {
+        counted(&fixed);
+        if fixed != plain {
+            LISTED.fetch_add(1, Ordering::Relaxed);
+        }
+        return Ok(());
     };
-    if c_op != r_op {
-        return false;
-    }
-    let op = c_op.split_whitespace().next().unwrap_or_default();
-    if op == "scset" && c_op.contains(" cipher ") && c_rest == "0" {
-        return r_rest == sai_core::Error::ObjectInUse.status().to_string();
-    }
-    let writes = |text: &str| text.split_whitespace().filter(|w| w.starts_with('W')).count();
-    ["eflow", "eadmin", "entry", "bind", "rm"].contains(&op)
-        && c_rest.split_whitespace().next() == r_rest.split_whitespace().next()
-        && writes(r_rest) > writes(c_rest)
+    let show = |text: &str, at: usize| -> String {
+        text.lines()
+            .skip(at.saturating_sub(3))
+            .take(5)
+            .map(|l| format!("{}\n", l.get(..3000).unwrap_or(l)))
+            .collect()
+    };
+    let against_plain = match first_difference(&plain, other) {
+        None => "it equals the unmodified C++: D9 / D10 missing".to_owned(),
+        Some(p) => format!("from the unmodified C++ at line {}", p + 1),
+    };
+    let fixes = first_difference(&plain, &fixed).map_or_else(
+        || "the two C++ agree".to_owned(),
+        |l| format!("the two C++ first differ at line {}", l + 1),
+    );
+    Err(format!(
+        "not a listed difference: {what} differs from the C++ with D9 / D10 at output line {}, {against_plain}; {fixes}\n\
+         --- C++ with D9 / D10\n{}--- {what}\n{}--- unmodified C++\n{}--- script\n{script}",
+        at + 1,
+        show(&fixed, at),
+        show(other, at),
+        show(&plain, at),
+    ))
 }
 
 fn compare(driver: &Driver, table: &Path, script: &str) -> Result<(), String> {
     let text = std::fs::read(table).unwrap();
-    let (cpp, rust) = (
-        normalise(&driver.output(table, script)),
-        normalise(&rust_output(&text, script)),
-    );
-    if cpp == rust {
-        COMPARED.fetch_add(
-            cpp.lines().filter(|l| l.contains(" => ")).count() as u64,
-            Ordering::Relaxed,
-        );
-        EVENTS.fetch_add(
-            cpp.matches(" R").count() as u64 + cpp.matches(" W").count() as u64,
-            Ordering::Relaxed,
-        );
-        return Ok(());
-    }
-    let at = cpp.lines().zip(rust.lines()).position(|(a, b)| a != b).unwrap_or(0);
-    // sai-macsec's D9 / D10 (Q7, Q10 fixed): the outputs agree up to the operation that reaches
-    // one, and differ from there on
-    if let (Some(c), Some(r)) = (cpp.lines().nth(at), rust.lines().nth(at)) {
-        if listed_difference(c, r) {
-            COMPARED.fetch_add(
-                cpp.lines().take(at).filter(|l| l.contains(" => ")).count() as u64,
-                Ordering::Relaxed,
-            );
-            LISTED.fetch_add(1, Ordering::Relaxed);
-            return Ok(());
-        }
-    }
-    let show = |text: &str| -> String {
-        text.lines()
-            .skip(at.saturating_sub(3))
-            .take(5)
-            .map(|l| {
-                if l.len() > 3000 {
-                    format!("{}...\n", &l[..3000])
-                } else {
-                    format!("{l}\n")
-                }
-            })
-            .collect()
-    };
-    Err(format!(
-        "first difference at output line {}\n--- C++\n{}--- Rust\n{}--- script\n{script}",
-        at + 1,
-        show(&cpp),
-        show(&rust)
-    ))
+    let rust = normalise(&rust_output(&text, script));
+    held_to_the_cpp(driver, table, script, &rust, "Rust")
 }
 
 // ------------------------------------------------------------------ tables and scripts
@@ -1162,11 +1206,8 @@ fn script(board: &Board, max_random: usize) -> impl Strategy<Value = String> {
         })
 }
 
-fn cases(default: u32) -> u32 {
-    std::env::var("SAI_MACSEC_E2E_CASES")
-        .ok()
-        .and_then(|v| v.parse().ok())
-        .unwrap_or(default)
+fn cases(default: u64) -> u64 {
+    seeded::cases("SAI_MACSEC_E2E_CASES", default)
 }
 
 fn backbones(board: &Board) -> Vec<String> {
@@ -1194,55 +1235,30 @@ fn synthetic_path(driver: &Driver) -> PathBuf {
 
 fn report(what: &str) {
     summary(&format!(
-        "e2e: {what}; so far in this run {} operations and {} bus accesses agree with the C++ (comparisons)",
+        "e2e: {what}; so far in this run {} operations and {} bus accesses agree with the C++ (comparisons), \
+         {} scripts reached D9 / D10 (equal to the C++ with them)",
         COMPARED.load(Ordering::Relaxed),
-        EVENTS.load(Ordering::Relaxed)
+        EVENTS.load(Ordering::Relaxed),
+        LISTED.load(Ordering::Relaxed)
     ));
 }
 
-fn run_random(driver: &Driver, table: &Path, board: &Board, n: u32, max_random: usize) {
-    let config = ProptestConfig {
-        cases: n,
-        failure_persistence: None,
-        ..ProptestConfig::default()
-    };
-    proptest!(config, |(s in script(board, max_random))| {
-        compare(driver, table, &s).map_err(TestCaseError::fail)?;
+/// `n` random scripts (deterministic per seed: sai-macsec's `tests/common/seeded.rs`), each
+/// held to the C++; every seed runs, the failing ones are reported. Returns the seeds' text.
+fn run_random(driver: &Driver, table: &Path, board: &Board, n: u64, max_random: usize, what: &str) -> String {
+    let run = seeded::run(seeded::first_seed(), n, &script(board, max_random), |s| {
+        compare(driver, table, &s).map_err(TestCaseError::fail)
     });
+    run.assert_ok(what, "SAI_MACSEC_E2E_CASES");
+    run.seeds()
 }
 
 // ------------------------------------------------------------------ tests
 
 fn compare_drivers(cpp: &Driver, rs: &Driver, table: &Path, script: &str) -> Result<(), String> {
-    let (a, b) = (
-        normalise(&cpp.output(table, script)),
-        normalise(&rs.output(table, script)),
-    );
-    if a == b {
-        COMPARED.fetch_add(
-            a.lines().filter(|l| l.contains(" => ")).count() as u64,
-            Ordering::Relaxed,
-        );
-        EVENTS.fetch_add(
-            a.matches(" R").count() as u64 + a.matches(" W").count() as u64,
-            Ordering::Relaxed,
-        );
-        return Ok(());
-    }
-    let at = a.lines().zip(b.lines()).position(|(x, y)| x != y).unwrap_or(0);
-    let show = |t: &str| -> String {
-        t.lines()
-            .skip(at.saturating_sub(3))
-            .take(5)
-            .map(|l| format!("{}\n", l.get(..3000).unwrap_or(l)))
-            .collect()
-    };
-    Err(format!(
-        "first difference at output line {}\n--- C++\n{}--- C++ with the Rust model\n{}--- script\n{script}",
-        at + 1,
-        show(&a),
-        show(&b)
-    ))
+    // the C++ library with the Rust model has sai-macsec's D9 / D10 too (the model is the same)
+    let b = normalise(&rs.output(table, script));
+    held_to_the_cpp(cpp, table, script, &b, "C++ with the Rust model")
 }
 
 /// The C++ library with the Rust model inside, against the C++ one, through the SAI API: the
@@ -1262,6 +1278,7 @@ fn the_library_with_the_rust_model_agrees_with_the_cpp() {
         tables.push((t, as7772_board(&text)));
     }
     let n = cases(32);
+    let mut seeds = Vec::new();
     for (table, board) in &tables {
         let text = std::fs::read_to_string(table).unwrap();
         let scripts = if board.phys[0] == "17c" {
@@ -1272,18 +1289,19 @@ fn the_library_with_the_rust_model_agrees_with_the_cpp() {
         for s in scripts {
             compare_drivers(cpp, &rs, table, &s).unwrap_or_else(|why| panic!("{why}"));
         }
-        let config = ProptestConfig {
-            cases: n,
-            failure_persistence: None,
-            ..ProptestConfig::default()
-        };
-        proptest!(config, |(s in script(board, 60))| {
-            compare_drivers(cpp, &rs, table, &s).map_err(TestCaseError::fail)?;
+        let run = seeded::run(seeded::first_seed(), n, &script(board, 60), |s| {
+            compare_drivers(cpp, &rs, table, &s).map_err(TestCaseError::fail)
         });
+        seeds.push(run.seeds());
+        run.assert_ok(
+            "the_library_with_the_rust_model_agrees_with_the_cpp",
+            "SAI_MACSEC_E2E_CASES",
+        );
     }
     report(&format!(
-        "the C++ library with the Rust model, {} tables x (4 backbones + {n} random scripts)",
-        tables.len()
+        "the C++ library with the Rust model, {} tables x (4 backbones + {n} random scripts; {})",
+        tables.len(),
+        seeds.join(", ")
     ));
 }
 
@@ -1319,8 +1337,15 @@ fn synthetic_random_scripts_agree_with_the_cpp() {
     let Some(driver) = driver() else { return };
     let (table, board) = (synthetic_path(driver), synthetic_board());
     let n = cases(64);
-    run_random(driver, &table, &board, n, 80);
-    report(&format!("synthetic table, {n} random scripts"));
+    let seeds = run_random(
+        driver,
+        &table,
+        &board,
+        n,
+        80,
+        "synthetic_random_scripts_agree_with_the_cpp",
+    );
+    report(&format!("synthetic table, {n} random scripts ({seeds})"));
 }
 
 /// The comparison is not vacuous: one key byte of difference is seen.
@@ -1370,6 +1395,37 @@ fn as7772_random_scripts_agree_with_the_cpp() {
     let Some(driver) = driver() else { return };
     let board = as7772_board(&std::fs::read_to_string(&table).unwrap());
     let n = cases(48);
-    run_random(driver, &table, &board, n, 60);
-    report(&format!("AS7772 table, {n} random scripts"));
+    let seeds = run_random(
+        driver,
+        &table,
+        &board,
+        n,
+        60,
+        "as7772_random_scripts_agree_with_the_cpp",
+    );
+    report(&format!("AS7772 table, {n} random scripts ({seeds})"));
+}
+
+/// sai-macsec's `d9_another_entry_takes_over_after_the_entry_was_disabled` at MDIO level: after
+/// `eadmin e3 0`, a second entry sends port 1's ingress data to a flow without an SC. The C++
+/// opens the gate on the old SC's SA (Q7), the Rust takes that SA out (D9) and leaves the gate
+/// closed; the C++ with D9 does the same as the Rust, to the end of the script.
+#[test]
+fn d9_another_entry_takes_over_after_the_entry_was_disabled() {
+    let Some(driver) = driver() else { return };
+    let table = synthetic_path(driver);
+    let script = format!(
+        "{}flow f5 1\nmport p3 1 1\nflow f3 1\ntable t3 1\nbind 1 1 t3\nentry e3 t3 1 - 1 0\nsc c3 1 f3 0 0 1234 3\n\
+         sa a3 1 c3 0 7 3\neflow e3 f3\neadmin e3 0\nsa a7 1 c3 1 1 7\nentry e1 t3 1 f5 0 0\nsapn a3\nstatus\n\
+         rm sa a3\nsa a11 1 c3 2 100000002 11\nactive c3\nstatus\n",
+        synthetic_board().head
+    );
+    let cpp = driver.output(&table, &script);
+    let rust = rust_output(&std::fs::read(&table).unwrap(), &script);
+    let line = |text: &str| text.lines().find(|l| l.starts_with("entry e1")).unwrap().to_owned();
+    assert_eq!(line(&cpp), "entry e1 t3 1 f5 0 0 => 0 R11.1.1f3=0 W11.1.121=1");
+    assert_eq!(line(&rust), "entry e1 t3 1 f5 0 0 => 0 W11.1.310=8001");
+    let before = LISTED.load(Ordering::Relaxed);
+    compare(driver, &table, &script).unwrap_or_else(|why| panic!("{why}"));
+    assert!(LISTED.load(Ordering::Relaxed) > before, "a listed difference");
 }

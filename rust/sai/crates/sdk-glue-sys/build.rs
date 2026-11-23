@@ -1,6 +1,6 @@
 //! Generates the declarations of `sdk_glue.h` with bindgen, checks them against the target's C
-//! compiler, applies the rule for `safe fn` declarations (src/lib.rs), and links the real or the
-//! fake glue when a feature asks. See src/lib.rs.
+//! compiler, applies the rule for `safe fn` declarations (src/lib.rs), and links the real glue
+//! when the feature `real` asks. See src/lib.rs.
 // A build script reports a failure by panicking with a message.
 #![allow(clippy::expect_used, clippy::panic, clippy::too_many_lines)]
 
@@ -84,28 +84,35 @@ const SCALAR_UNSAFE: &[(&str, &str)] = &[
     ),
 ];
 
-/// Order contracts the glue hard-codes for its callers (int arguments `sdk_glue.h` documents as
-/// `ob::PortStat` etc.): `enum class` declarations of backend.h, read from the header's text.
-const ORDER_ENUMS: &[(&str, &str)] = &[
+/// Order contracts the glue hard-codes for its callers: the C enums of `sdk_glue.h` whose values
+/// its int arguments take (Rust name, C typedef, C prefix, what it is).
+const ORDER_ENUMS: &[(&str, &str, &str, &str)] = &[
     (
         "PortStat",
+        "ob_port_stat_t",
+        "OB_PORTSTAT_",
         "the `which` of `ob_sdk_port_stat_get` (sdk_glue.c: its counter table)",
     ),
     (
         "TrapKind",
-        "the `kind` of `ob_sdk_trap_set` (sdk_glue.c: LLDP / LACP by index, the switch-control table)",
+        "ob_trap_kind_t",
+        "OB_TRAP_",
+        "the `kind` of `ob_sdk_trap_set` (sdk_glue.c: LLDP / LACP by name, the switch-control table)",
     ),
-    ("Fec", "the `mode` of `ob_sdk_port_fec_set`"),
-    ("Loopback", "the `mode` of `ob_sdk_port_loopback_set`"),
-    ("Learn", "the `mode` of `ob_sdk_port_learn_set`"),
+    ("Fec", "ob_fec_t", "OB_FEC_", "the `mode` of `ob_sdk_port_fec_set`"),
+    (
+        "Loopback",
+        "ob_loopback_t",
+        "OB_LOOPBACK_",
+        "the `mode` of `ob_sdk_port_loopback_set`",
+    ),
+    (
+        "Learn",
+        "ob_learn_t",
+        "OB_LEARN_",
+        "the `mode` of `ob_sdk_port_learn_set`",
+    ),
 ];
-
-/// Test hooks of `fake/fake_glue.c` (not in `sdk_glue.h)`: declared only when the fake is linked.
-const FAKE_HOOKS_RS: &str = r#"unsafe extern "C" {
-    pub fn ob_fake_link_event(port: ::core::ffi::c_int, up: ::core::ffi::c_int) -> ::core::ffi::c_int;
-    pub fn ob_fake_query(what: ::core::ffi::c_int, arg: ::core::ffi::c_int) -> ::core::ffi::c_int;
-}
-"#;
 
 fn env_any(names: &[String]) -> Option<String> {
     names.iter().find_map(|v| {
@@ -125,25 +132,6 @@ fn c_compiler(target: &str, host: &str) -> Option<String> {
         "TARGET_CC".into(),
     ])
     .or_else(|| (host == target).then(|| env_any(&["CC".into()]).unwrap_or_else(|| "cc".into())))
-}
-
-fn archiver(target: &str, host: &str, cc: &str) -> String {
-    let under = target.replace('-', "_");
-    env_any(&[
-        "SDK_GLUE_SYS_AR".into(),
-        format!("AR_{under}"),
-        format!("AR_{}", under.to_uppercase()),
-        "TARGET_AR".into(),
-    ])
-    .or_else(|| (host == target).then(|| env_any(&["AR".into()])).flatten())
-    .unwrap_or_else(|| {
-        // <prefix>gcc / <prefix>cc -> <prefix>ar
-        let program = cc.split_whitespace().next().unwrap_or("cc");
-        match program.strip_suffix("gcc").or_else(|| program.strip_suffix("cc")) {
-            Some(prefix) if host != target || !prefix.is_empty() => format!("{prefix}ar"),
-            _ => "ar".into(),
-        }
-    })
 }
 
 fn command(words: &str) -> Command {
@@ -288,8 +276,8 @@ fn is_scalar(rust: &str) -> bool {
     )
 }
 
-/// The C spelling of a Rust type of the declarations (for the redeclaration check and the
-/// fake's stubs). An unknown spelling stops the build: extend the table.
+/// The C spelling of a Rust type of the declarations (for the redeclaration check). An unknown
+/// spelling stops the build: extend the table.
 fn c_type(rust: &str) -> String {
     let t = rust.replace("::core::ffi::", "").replace(' ', "");
     if let Some(inner) = t.strip_prefix("*const") {
@@ -312,19 +300,9 @@ fn c_type(rust: &str) -> String {
     }
 }
 
-/// The C declaration of a generated function.
-fn c_decl(f: &Func, with_names: bool) -> String {
-    let args: Vec<String> = f
-        .args
-        .iter()
-        .map(|(n, t)| {
-            if with_names {
-                format!("{} {n}", c_type(t))
-            } else {
-                c_type(t)
-            }
-        })
-        .collect();
+/// The C declaration of a generated function (argument types only).
+fn c_decl(f: &Func) -> String {
+    let args: Vec<String> = f.args.iter().map(|(_, t)| c_type(t)).collect();
     let ret = if f.ret.is_empty() {
         "void".to_owned()
     } else {
@@ -411,25 +389,36 @@ fn checked_first(src: &str, name: &str) -> Result<Vec<usize>, String> {
         .collect())
 }
 
-/// The enumerators of `enum class NAME` in a C++ header, in order.
-fn cxx_enum(text: &str, name: &str) -> Option<Vec<String>> {
-    let clean = strip_c_comments(text);
-    let start = clean.find(&format!("enum class {name} "))?;
-    let (_, body) = clean[start..].split_once('{')?;
-    let (body, _) = body.split_once('}')?;
-    let names: Vec<String> = body
-        .split(',')
-        .map(str::trim)
-        .filter(|s| !s.is_empty())
-        .map(|s| {
-            assert!(
-                !s.contains('='),
-                "sdk-glue-sys: backend.h's enum class {name} sets a value ({s}): the generator expects the implicit order"
-            );
-            s.to_owned()
+/// The constants of the C enum typedef `ty` in bindgen's output, in order: (name, value).
+fn c_enum(bindings: &str, ty: &str) -> Vec<(String, i64)> {
+    let flat: String = bindings.chars().filter(|c| !c.is_whitespace()).collect();
+    flat.split("pubconst")
+        .skip(1)
+        .filter_map(|part| {
+            let (name, rest) = part.split_once(':')?;
+            let (t, rest) = rest.split_once('=')?;
+            let (value, _) = rest.split_once(';')?;
+            (t == ty).then(|| (name.to_owned(), value.parse().ok()))
         })
-        .collect();
-    (!names.is_empty()).then_some(names)
+        .map(|(name, value)| {
+            (
+                name,
+                value.unwrap_or_else(|| panic!("sdk-glue-sys: a constant of {ty} has no integer value")),
+            )
+        })
+        .collect()
+}
+
+/// `OB_PORTSTAT_IN_NON_UCAST_PKTS` with its prefix gone, as a Rust name: `InNonUcastPkts`.
+fn camel(rest: &str) -> String {
+    rest.split('_')
+        .map(|w| {
+            let mut c = w.chars();
+            c.next().map_or_else(String::new, |f| {
+                f.to_ascii_uppercase().to_string() + &c.as_str().to_ascii_lowercase()
+            })
+        })
+        .collect()
 }
 
 /// Entries of the C array initialiser `array` in the body of `func`.
@@ -440,23 +429,42 @@ fn c_table_len(glue_c: &str, func: &str, array: &str) -> Option<usize> {
     Some(table.split(',').filter(|s| !s.trim().is_empty()).count())
 }
 
-/// Rust code of the order enums, and notes on what was compared with `sdk_glue.c`.
-fn order_enums(backend_h: &str, glue_c: Option<&str>) -> (String, Vec<String>) {
+/// Rust code of the order enums (from `sdk_glue.h`'s C enums in bindgen's output), and notes on
+/// what was compared with `sdk_glue.c`.
+fn order_enums(bindings: &str, glue_c: Option<&str>) -> (String, Vec<String>) {
     let mut code = String::from(
-        "/// The order contracts of the glue's int arguments, generated from backend.h (see the crate docs).\npub mod order {\n",
+        "/// The order contracts of the glue's int arguments, generated from sdk_glue.h's C enums (see the crate docs).\npub mod order {\n",
     );
     let mut parsed = BTreeMap::new();
-    for (name, what) in ORDER_ENUMS {
-        let mut names =
-            cxx_enum(backend_h, name).unwrap_or_else(|| panic!("sdk-glue-sys: backend.h has no 'enum class {name}'"));
-        if names.last().is_some_and(|n| n == "Count") {
-            names.pop();
+    for (name, ty, prefix, what) in ORDER_ENUMS {
+        let mut consts = c_enum(bindings, ty);
+        let count = consts
+            .pop()
+            .filter(|(c, _)| *c == format!("{prefix}COUNT"))
+            .unwrap_or_else(|| panic!("sdk-glue-sys: sdk_glue.h's {ty} does not end with {prefix}COUNT"));
+        assert!(!consts.is_empty(), "sdk-glue-sys: sdk_glue.h has no constants of {ty}");
+        let mut names = Vec::new();
+        for (i, (c, value)) in consts.iter().enumerate() {
+            let rest = c
+                .strip_prefix(prefix)
+                .unwrap_or_else(|| panic!("sdk-glue-sys: {c} of {ty} does not start with {prefix}"));
+            assert_eq!(
+                usize::try_from(*value).ok(),
+                Some(i),
+                "sdk-glue-sys: {c} = {value}: the values of {ty} must be 0, 1, ... in order"
+            );
+            names.push((camel(rest), c.clone()));
         }
-        writeln!(code, "    /// `ob::{name}` (backend.h): {what}.").expect("write");
+        assert_eq!(
+            usize::try_from(count.1).ok(),
+            Some(names.len()),
+            "sdk-glue-sys: {prefix}COUNT is not the number of {ty}'s values"
+        );
+        writeln!(code, "    /// `{ty}` (sdk_glue.h): {what}.").expect("write");
         code.push_str("    #[repr(i32)]\n    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]\n");
         writeln!(code, "    pub enum {name} {{").expect("write");
-        for (i, n) in names.iter().enumerate() {
-            writeln!(code, "        /// `ob::{name}::{n}`: {i}.\n        {n} = {i},").expect("write");
+        for (i, (n, c)) in names.iter().enumerate() {
+            writeln!(code, "        /// `{c}`: {i}.\n        {n} = {i},").expect("write");
         }
         code.push_str("    }\n");
         writeln!(code, "    impl {name} {{").expect("write");
@@ -466,7 +474,7 @@ fn order_enums(backend_h: &str, glue_c: Option<&str>) -> (String, Vec<String>) {
             names.len(),
             names
                 .iter()
-                .map(|n| format!("Self::{n}"))
+                .map(|(n, _)| format!("Self::{n}"))
                 .collect::<Vec<_>>()
                 .join(", ")
         )
@@ -475,7 +483,7 @@ fn order_enums(backend_h: &str, glue_c: Option<&str>) -> (String, Vec<String>) {
             "        /// The int the glue takes.\n        pub const fn raw(self) -> ::core::ffi::c_int {\n            self as ::core::ffi::c_int\n        }\n",
         );
         code.push_str("        /// The value of an int of the glue; `None` out of range.\n        pub const fn from_raw(raw: ::core::ffi::c_int) -> ::core::option::Option<Self> {\n            match raw {\n");
-        for (i, n) in names.iter().enumerate() {
+        for (i, (n, _)) in names.iter().enumerate() {
             writeln!(code, "                {i} => ::core::option::Option::Some(Self::{n}),").expect("write");
         }
         code.push_str("                _ => ::core::option::Option::None,\n            }\n        }\n    }\n");
@@ -487,42 +495,44 @@ fn order_enums(backend_h: &str, glue_c: Option<&str>) -> (String, Vec<String>) {
         notes.push("sdk_glue.c not found: its tables were not compared".to_owned());
         return (code, notes);
     };
-    // The tables of sdk_glue.c these orders index, as far as its text shows them.
+    // The tables of sdk_glue.c these orders index, as far as its text shows them (its
+    // _Static_asserts check the same lengths in C).
     let stats = parsed.get("PortStat").map(Vec::len);
     assert_eq!(
         c_table_len(c, "ob_sdk_port_stat_get", "map"),
         stats,
-        "sdk-glue-sys: sdk_glue.c's port counter table and backend.h's PortStat differ in length"
+        "sdk-glue-sys: sdk_glue.c's port counter table and sdk_glue.h's ob_port_stat_t differ in length"
     );
     let kinds = parsed.get("TrapKind").cloned().unwrap_or_default();
     assert_eq!(
         c_table_len(c, "ob_sdk_trap_set", "ctl"),
         Some(kinds.len()),
-        "sdk-glue-sys: sdk_glue.c's trap control table and backend.h's TrapKind differ in length"
+        "sdk-glue-sys: sdk_glue.c's trap control table and sdk_glue.h's ob_trap_kind_t differ in length"
     );
     notes.push(format!(
         "PortStat ({}) and TrapKind ({}) as long as sdk_glue.c's tables",
         stats.unwrap_or(0),
         kinds.len()
     ));
+    let mut by_name = 0;
     for (_, line) in c_body(c, "ob_sdk_trap_set").unwrap_or_default() {
-        let index = line
-            .split_once("kind == ")
-            .and_then(|(_, r)| r.split_once(')'))
-            .map(|(k, _)| k.trim().to_owned());
-        let named = line
-            .split_once("ob::TrapKind::")
-            .map(|(_, r)| r.trim().trim_end_matches("*/").trim().to_owned());
-        if let (Some(index), Some(named)) = (index, named) {
-            let k: usize = index.parse().expect("a trap kind index");
-            assert_eq!(
-                kinds.get(k),
-                Some(&named),
-                "sdk-glue-sys: sdk_glue.c takes trap kind {k} as ob::TrapKind::{named}; backend.h disagrees"
-            );
-            notes.push(format!("TrapKind::{named} = {k} as in sdk_glue.c"));
-        }
+        let Some((_, rest)) = line.split_once("kind == ") else {
+            continue;
+        };
+        let named: String = rest
+            .chars()
+            .take_while(|ch| ch.is_ascii_alphanumeric() || *ch == '_')
+            .collect();
+        let Some((i, (n, _))) = kinds.iter().enumerate().find(|(_, (_, c))| *c == named) else {
+            panic!("sdk-glue-sys: sdk_glue.c's ob_sdk_trap_set compares kind with '{named}', not an OB_TRAP_* name");
+        };
+        notes.push(format!("TrapKind::{n} = {i} ({named}) as in sdk_glue.c"));
+        by_name += 1;
     }
+    assert!(
+        by_name >= 2,
+        "sdk-glue-sys: sdk_glue.c's ob_sdk_trap_set no longer takes LLDP / LACP by OB_TRAP_* name (build.rs reads it)"
+    );
     (code, notes)
 }
 
@@ -592,7 +602,7 @@ fn c_check(bindings: &str, funcs: &[Func]) -> (String, usize) {
         }
     }
     for f in funcs {
-        writeln!(c, "{};", c_decl(f, false)).expect("write");
+        writeln!(c, "{};", c_decl(f)).expect("write");
     }
     (c, n + funcs.len())
 }
@@ -638,84 +648,6 @@ fn run_c_check(out: &Path, cc: Option<&str>, target: &str, inc: &Path, c: &str, 
             format!("skipped: {cc} did not run ({e})")
         }
     }
-}
-
-/// A definition for every declared function `fake_glue.c` does not define: it returns
-/// `OB_E_UNAVAIL` (a void one does nothing), so a program on the C fake links whatever it names.
-fn fake_stubs(funcs: &[Func], fake_c: &str) -> String {
-    let mut s = String::from(
-        "/* Generated by sdk-glue-sys/build.rs: the glue functions fake_glue.c does not define. */\n#include \"sdk_glue.h\"\n",
-    );
-    for f in funcs {
-        if c_body(fake_c, &f.name).is_some() {
-            continue;
-        }
-        writeln!(s, "{}\n{{", c_decl(f, true)).expect("write");
-        for (n, _) in &f.args {
-            writeln!(s, "    (void){n};").expect("write");
-        }
-        if f.ret.contains('*') {
-            s.push_str("    return 0;\n");
-        } else if !f.ret.is_empty() {
-            s.push_str("    return OB_E_UNAVAIL;\n");
-        }
-        s.push_str("}\n");
-    }
-    s
-}
-
-fn link_fake(out: &Path, cc: Option<&str>, target: &str, host: &str, inc: &Path, funcs: &[Func]) {
-    let cc = cc.unwrap_or_else(|| {
-        panic!("sdk-glue-sys: feature 'fake' needs a C compiler for {target} (set SDK_GLUE_SYS_CC)")
-    });
-    let src = Path::new(&env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR")).join("fake/fake_glue.c");
-    println!("cargo:rerun-if-changed={}", src.display());
-    let fake_c = fs::read_to_string(&src).expect("read fake_glue.c");
-    let stubs = out.join("fake_stubs.c");
-    fs::write(&stubs, fake_stubs(funcs, &fake_c)).expect("write fake_stubs.c");
-    let run = |mut c: Command, what: &str| {
-        let o = c
-            .output()
-            .unwrap_or_else(|e| panic!("sdk-glue-sys: cannot run {what}: {e}"));
-        assert!(
-            o.status.success(),
-            "sdk-glue-sys: {what} failed:\n{}",
-            String::from_utf8_lossy(&o.stderr)
-        );
-    };
-    let mut objs = Vec::new();
-    for (file, obj) in [(src.as_path(), "fake_glue.o"), (stubs.as_path(), "fake_stubs.o")] {
-        let obj = out.join(obj);
-        let mut compile = command(cc);
-        compile
-            .args([
-                "-std=gnu11",
-                "-O1",
-                "-g",
-                "-fPIC",
-                "-Wall",
-                "-Wextra",
-                "-Wno-array-parameter",
-                "-I",
-            ])
-            .arg(out.join("include"))
-            .arg("-I")
-            .arg(inc)
-            .arg("-c")
-            .arg(file)
-            .arg("-o")
-            .arg(&obj);
-        run(compile, cc);
-        objs.push(obj);
-    }
-    let ar = archiver(target, host, cc);
-    let lib = out.join("libob_fake_glue.a");
-    let _ = fs::remove_file(&lib);
-    let mut archive = command(&ar);
-    archive.arg("rcs").arg(&lib).args(&objs);
-    run(archive, &ar);
-    println!("cargo:rustc-link-search=native={}", out.display());
-    println!("cargo:rustc-link-lib=static=ob_fake_glue");
 }
 
 /// `SDK_GLUE_LINK`: `<dir>/lib<name>.a` (static), `-L<dir>`, `-l<name>` (dynamic), in link order.
@@ -864,12 +796,6 @@ fn main() {
         )
     });
     let inc = header.parent().expect("a directory").to_path_buf();
-    let backend_h = find("backend.h", Some(&inc), &dirs).unwrap_or_else(|| {
-        panic!(
-            "sdk-glue-sys: no backend.h (the glue's order contracts) next to {} or in SAI_OPENBCM_SRC",
-            header.display()
-        )
-    });
     let glue_c = find("sdk_glue.c", Some(&inc), &dirs).map(|p| fs::read_to_string(p).expect("read sdk_glue.c"));
     assert!(
         glue_c.is_some() || !required,
@@ -902,8 +828,7 @@ fn main() {
         funcs.len()
     );
     let (table, summary) = apply_rule(&mut bindings, &funcs, glue_c.as_deref());
-    let backend_text = fs::read_to_string(&backend_h).expect("read backend.h");
-    let (orders, notes) = order_enums(&backend_text, glue_c.as_deref());
+    let (orders, notes) = order_enums(&bindings, glue_c.as_deref());
 
     let (c, n) = c_check(&bindings, &funcs);
     let cc = c_compiler(&target, &host);
@@ -913,9 +838,6 @@ fn main() {
         String::from("// Generated by build.rs: bindgen over sdk_glue.h, then the safe-fn rule (src/lib.rs).\n");
     rs.push_str(&bindings);
     rs.push_str(&orders);
-    if env::var_os("CARGO_FEATURE_FAKE").is_some() {
-        rs.push_str(FAKE_HOOKS_RS);
-    }
     fs::write(out.join("bindings.rs"), rs).expect("write bindings.rs");
     fs::write(
         out.join("declarations.md"),
@@ -924,9 +846,6 @@ fn main() {
         ),
     )
     .expect("write declarations.md");
-    fs::create_dir_all(out.join("include")).expect("mkdir include");
-    // What fake_glue.c includes: the header itself (mdio-tool's build writes the same shim).
-    fs::write(out.join("include/ob_sdk_glue_decls.h"), "#include \"sdk_glue.h\"\n").expect("write the C declarations");
 
     println!("cargo:rustc-env=SDK_GLUE_SYS_CHECK_RESULT={result}");
     println!("cargo:rustc-env=SDK_GLUE_SYS_RULE={summary}");
@@ -935,26 +854,12 @@ fn main() {
     println!("cargo:warning=sdk_glue.h check: {result}; {summary}");
 
     let real = env::var_os("CARGO_FEATURE_REAL").is_some();
-    let fake = env::var_os("CARGO_FEATURE_FAKE").is_some();
-    assert!(
-        !(real && fake),
-        "sdk-glue-sys: features 'real' and 'fake' both define the glue's functions: enable one \
-         (the fake comes in through dev-dependencies: build the real tool without tests, e.g. cargo build -p mdio-tool --features sdk-real)"
-    );
     if real {
         link_real();
-    } else if fake {
-        link_fake(&out, cc.as_deref(), &target, &host, &inc, &funcs);
     }
-    let linked = if real {
-        "real"
-    } else if fake {
-        "fake"
-    } else {
-        "none"
-    };
+    let linked = if real { "real" } else { "none" };
     println!("cargo:rustc-env=SDK_GLUE_SYS_LINKED={linked}");
-    // For the build scripts of direct dependents (DEP_OB_SDK_GLUE_LINKED): sdk-glue compiles
-    // its test-hook module only when the fake is what is linked.
+    // For the build scripts of direct dependents (DEP_OB_SDK_GLUE_LINKED): sdk-glue compiles its
+    // FFI module only where something may provide the functions.
     println!("cargo:linked={linked}");
 }

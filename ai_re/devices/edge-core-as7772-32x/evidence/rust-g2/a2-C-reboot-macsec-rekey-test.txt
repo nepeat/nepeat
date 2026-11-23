@@ -1,0 +1,300 @@
+== 2026-11-23T02:21:42-08:00 profile lab-test: rekey_period 20 s, 100 s of pings (1 ms apart, both directions, cage 1 <-> 2)
+MKA up after 7 s
+-- cage 1 -> 2
+100000 packets transmitted, 100000 received, 0% packet loss, time 420953ms
+rtt min/avg/max/mdev = 0.101/4.105/32.868/4.995 ms, pipe 4
+-- cage 2 -> 1
+100000 packets transmitted, 100000 received, 0% packet loss, time 421443ms
+rtt min/avg/max/mdev = 0.100/4.121/34.814/5.004 ms, pipe 4
+-- cage 31 -> 32 (10 ms apart)
+10000 packets transmitted, 10000 received, 0% packet loss, time 118368ms
+rtt min/avg/max/mdev = 0.105/5.162/30.041/4.434 ms, pipe 3
+-- SA changes in the PHYs (syncd)
+02:22:12.812865 port ce30: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:22:12.856441 port ce31: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:22:13.190910 port ce0: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:22:13.231803 port ce1: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:22:16.888371 port ce30: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:22:17.264770 port ce0: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:22:17.931181 port ce1: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:22:17.979726 port ce31: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:22:19.061091 port ce30: egress SA AN 0 removed
+02:22:19.068028 port ce30: ingress SA AN 0 removed
+02:22:19.106733 port ce0: egress SA AN 0 removed
+02:22:19.112564 port ce0: ingress SA AN 0 removed
+02:22:22.054394 port ce31: egress SA AN 0 removed
+02:22:22.060248 port ce31: ingress SA AN 0 removed
+02:22:22.106935 port ce1: egress SA AN 0 removed
+02:22:22.113213 port ce1: ingress SA AN 0 removed
+02:22:36.942455 port ce30: ingress SA AN 2 installed (gcm-aes-xpn-256)
+02:22:36.997179 port ce31: ingress SA AN 2 installed (gcm-aes-xpn-256)
+02:22:37.313210 port ce0: ingress SA AN 2 installed (gcm-aes-xpn-256)
+02:22:37.355672 port ce1: ingress SA AN 2 installed (gcm-aes-xpn-256)
+02:22:41.015802 port ce30: egress SA AN 2 installed (gcm-aes-xpn-256)
+02:22:41.388496 port ce0: egress SA AN 2 installed (gcm-aes-xpn-256)
+02:22:42.055465 port ce1: egress SA AN 2 installed (gcm-aes-xpn-256)
+02:22:42.099120 port ce31: egress SA AN 2 installed (gcm-aes-xpn-256)
+02:22:43.027169 port ce0: egress SA AN 1 removed
+02:22:43.032915 port ce0: ingress SA AN 1 removed
+02:22:43.082911 port ce30: egress SA AN 1 removed
+02:22:43.088594 port ce30: ingress SA AN 1 removed
+02:22:46.023860 port ce1: egress SA AN 1 removed
+02:22:46.031558 port ce1: ingress SA AN 1 removed
+02:22:46.066922 port ce31: egress SA AN 1 removed
+02:22:46.073223 port ce31: ingress SA AN 1 removed
+02:22:59.063326 port ce30: ingress SA AN 3 installed (gcm-aes-xpn-256)
+02:22:59.103837 port ce31: ingress SA AN 3 installed (gcm-aes-xpn-256)
+02:23:01.438325 port ce0: ingress SA AN 3 installed (gcm-aes-xpn-256)
+02:23:01.480151 port ce1: ingress SA AN 3 installed (gcm-aes-xpn-256)
+02:23:03.136182 port ce30: egress SA AN 3 installed (gcm-aes-xpn-256)
+02:23:04.114920 port ce31: egress SA AN 3 installed (gcm-aes-xpn-256)
+02:23:05.186713 port ce30: egress SA AN 2 removed
+02:23:05.193179 port ce30: ingress SA AN 2 removed
+02:23:05.512081 port ce0: egress SA AN 3 installed (gcm-aes-xpn-256)
+02:23:06.176291 port ce1: egress SA AN 3 installed (gcm-aes-xpn-256)
+02:23:07.147574 port ce0: egress SA AN 2 removed
+02:23:07.153226 port ce0: ingress SA AN 2 removed
+02:23:08.185941 port ce31: egress SA AN 2 removed
+02:23:08.192319 port ce31: ingress SA AN 2 removed
+02:23:10.141649 port ce1: egress SA AN 2 removed
+02:23:10.147276 port ce1: ingress SA AN 2 removed
+02:23:23.185285 port ce30: ingress SA AN 0 installed (gcm-aes-xpn-256)
+02:23:23.228051 port ce31: ingress SA AN 0 installed (gcm-aes-xpn-256)
+02:23:25.561770 port ce0: ingress SA AN 0 installed (gcm-aes-xpn-256)
+02:23:25.603761 port ce1: ingress SA AN 0 installed (gcm-aes-xpn-256)
+02:23:27.259681 port ce30: egress SA AN 0 installed (gcm-aes-xpn-256)
+02:23:28.235027 port ce31: egress SA AN 0 installed (gcm-aes-xpn-256)
+02:23:29.201321 port ce30: egress SA AN 3 removed
+02:23:29.207095 port ce30: ingress SA AN 3 removed
+02:23:29.638228 port ce0: egress SA AN 0 installed (gcm-aes-xpn-256)
+02:23:30.204015 port ce1: egress SA AN 0 installed (gcm-aes-xpn-256)
+02:23:31.287174 port ce0: egress SA AN 3 removed
+02:23:31.292886 port ce0: ingress SA AN 3 removed
+02:23:32.202813 port ce31: egress SA AN 3 removed
+02:23:32.208771 port ce31: ingress SA AN 3 removed
+02:23:34.281721 port ce1: egress SA AN 3 removed
+02:23:34.288272 port ce1: ingress SA AN 3 removed
+02:23:47.313429 port ce30: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:23:47.356688 port ce31: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:23:49.688816 port ce0: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:23:49.733100 port ce1: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:23:51.384083 port ce30: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:23:52.359370 port ce31: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:23:53.331883 port ce30: egress SA AN 0 removed
+02:23:53.337754 port ce30: ingress SA AN 0 removed
+02:23:53.759841 port ce0: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:23:54.327111 port ce1: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:23:55.307007 port ce0: egress SA AN 0 removed
+02:23:55.313168 port ce0: ingress SA AN 0 removed
+02:23:56.329905 port ce31: egress SA AN 0 removed
+02:23:56.336092 port ce31: ingress SA AN 0 removed
+02:23:58.295898 port ce1: egress SA AN 0 removed
+02:23:58.301833 port ce1: ingress SA AN 0 removed
+02:24:11.436827 port ce30: ingress SA AN 2 installed (gcm-aes-xpn-256)
+02:24:11.478570 port ce31: ingress SA AN 2 installed (gcm-aes-xpn-256)
+02:24:13.810612 port ce0: ingress SA AN 2 installed (gcm-aes-xpn-256)
+02:24:13.851580 port ce1: ingress SA AN 2 installed (gcm-aes-xpn-256)
+02:24:15.508751 port ce30: egress SA AN 2 installed (gcm-aes-xpn-256)
+02:24:16.383456 port ce31: egress SA AN 2 installed (gcm-aes-xpn-256)
+02:24:17.456301 port ce30: egress SA AN 1 removed
+02:24:17.464741 port ce30: ingress SA AN 1 removed
+02:24:17.884347 port ce0: egress SA AN 2 installed (gcm-aes-xpn-256)
+02:24:18.447040 port ce1: egress SA AN 2 installed (gcm-aes-xpn-256)
+02:24:19.415392 port ce0: egress SA AN 1 removed
+02:24:19.421366 port ce0: ingress SA AN 1 removed
+02:24:20.454043 port ce31: egress SA AN 1 removed
+02:24:20.459845 port ce31: ingress SA AN 1 removed
+02:24:22.413641 port ce1: egress SA AN 1 removed
+02:24:22.419261 port ce1: ingress SA AN 1 removed
+02:24:35.556566 port ce30: ingress SA AN 3 installed (gcm-aes-xpn-256)
+02:24:35.600041 port ce31: ingress SA AN 3 installed (gcm-aes-xpn-256)
+02:24:37.935463 port ce0: ingress SA AN 3 installed (gcm-aes-xpn-256)
+02:24:37.975390 port ce1: ingress SA AN 3 installed (gcm-aes-xpn-256)
+02:24:39.632054 port ce30: egress SA AN 3 installed (gcm-aes-xpn-256)
+02:24:40.514980 port ce31: egress SA AN 3 installed (gcm-aes-xpn-256)
+02:24:41.490454 port ce30: egress SA AN 2 removed
+02:24:41.497091 port ce30: ingress SA AN 2 removed
+02:24:42.008384 port ce0: egress SA AN 3 installed (gcm-aes-xpn-256)
+02:24:42.571086 port ce1: egress SA AN 3 installed (gcm-aes-xpn-256)
+02:24:43.543174 port ce0: egress SA AN 2 removed
+02:24:43.548979 port ce0: ingress SA AN 2 removed
+02:24:44.481678 port ce31: egress SA AN 2 removed
+02:24:44.487993 port ce31: ingress SA AN 2 removed
+02:24:46.537970 port ce1: egress SA AN 2 removed
+02:24:46.543642 port ce1: ingress SA AN 2 removed
+02:24:59.717368 port ce30: ingress SA AN 0 installed (gcm-aes-xpn-256)
+02:24:59.759728 port ce31: ingress SA AN 0 installed (gcm-aes-xpn-256)
+02:25:00.053137 port ce0: ingress SA AN 0 installed (gcm-aes-xpn-256)
+02:25:00.095763 port ce1: ingress SA AN 0 installed (gcm-aes-xpn-256)
+02:25:03.792532 port ce30: egress SA AN 0 installed (gcm-aes-xpn-256)
+02:25:04.127719 port ce0: egress SA AN 0 installed (gcm-aes-xpn-256)
+02:25:04.583162 port ce1: egress SA AN 0 installed (gcm-aes-xpn-256)
+02:25:04.667269 port ce31: egress SA AN 0 installed (gcm-aes-xpn-256)
+02:25:05.634570 port ce30: egress SA AN 3 removed
+02:25:05.640186 port ce30: ingress SA AN 3 removed
+02:25:05.655298 port ce0: egress SA AN 3 removed
+02:25:05.660883 port ce0: ingress SA AN 3 removed
+02:25:08.633725 port ce31: egress SA AN 3 removed
+02:25:08.640258 port ce31: ingress SA AN 3 removed
+02:25:08.653782 port ce1: egress SA AN 3 removed
+02:25:08.659294 port ce1: ingress SA AN 3 removed
+02:25:23.840796 port ce30: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:25:23.883652 port ce31: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:25:24.178486 port ce0: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:25:24.220007 port ce1: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:25:27.915903 port ce30: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:25:28.251617 port ce0: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:25:28.691464 port ce31: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:25:28.723866 port ce1: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:25:29.691366 port ce0: egress SA AN 0 removed
+02:25:29.697505 port ce0: ingress SA AN 0 removed
+02:25:29.763288 port ce30: egress SA AN 0 removed
+02:25:29.768998 port ce30: ingress SA AN 0 removed
+02:25:32.685992 port ce1: egress SA AN 0 removed
+02:25:32.692742 port ce1: ingress SA AN 0 removed
+02:25:32.761990 port ce31: egress SA AN 0 removed
+02:25:32.767642 port ce31: ingress SA AN 0 removed
+02:25:47.964951 port ce30: ingress SA AN 2 installed (gcm-aes-xpn-256)
+02:25:48.008854 port ce31: ingress SA AN 2 installed (gcm-aes-xpn-256)
+02:25:48.302084 port ce0: ingress SA AN 2 installed (gcm-aes-xpn-256)
+02:25:48.344820 port ce1: ingress SA AN 2 installed (gcm-aes-xpn-256)
+02:25:52.040904 port ce30: egress SA AN 2 installed (gcm-aes-xpn-256)
+02:25:52.375723 port ce0: egress SA AN 2 installed (gcm-aes-xpn-256)
+02:25:52.815944 port ce31: egress SA AN 2 installed (gcm-aes-xpn-256)
+02:25:52.847318 port ce1: egress SA AN 2 installed (gcm-aes-xpn-256)
+02:25:53.790587 port ce30: egress SA AN 1 removed
+02:25:53.798127 port ce30: ingress SA AN 1 removed
+02:25:53.818635 port ce0: egress SA AN 1 removed
+02:25:53.824271 port ce0: ingress SA AN 1 removed
+02:25:56.783328 port ce31: egress SA AN 1 removed
+02:25:56.789184 port ce31: ingress SA AN 1 removed
+02:25:56.813934 port ce1: egress SA AN 1 removed
+02:25:56.819634 port ce1: ingress SA AN 1 removed
+02:26:10.084769 port ce30: ingress SA AN 3 installed (gcm-aes-xpn-256)
+02:26:10.128456 port ce31: ingress SA AN 3 installed (gcm-aes-xpn-256)
+02:26:12.425845 port ce0: ingress SA AN 3 installed (gcm-aes-xpn-256)
+02:26:12.468530 port ce1: ingress SA AN 3 installed (gcm-aes-xpn-256)
+02:26:14.160162 port ce30: egress SA AN 3 installed (gcm-aes-xpn-256)
+02:26:14.938987 port ce31: egress SA AN 3 installed (gcm-aes-xpn-256)
+02:26:15.911437 port ce30: egress SA AN 2 removed
+02:26:15.917410 port ce30: ingress SA AN 2 removed
+02:26:16.499940 port ce0: egress SA AN 3 installed (gcm-aes-xpn-256)
+02:26:16.956136 port ce1: egress SA AN 3 installed (gcm-aes-xpn-256)
+02:26:17.927082 port ce0: egress SA AN 2 removed
+02:26:17.932930 port ce0: ingress SA AN 2 removed
+02:26:19.056942 port ce31: egress SA AN 2 removed
+02:26:19.067874 port ce31: ingress SA AN 2 removed
+02:26:20.922314 port ce1: egress SA AN 2 removed
+02:26:20.929805 port ce1: ingress SA AN 2 removed
+02:26:34.212611 port ce30: ingress SA AN 0 installed (gcm-aes-xpn-256)
+02:26:34.255755 port ce31: ingress SA AN 0 installed (gcm-aes-xpn-256)
+02:26:36.548636 port ce0: ingress SA AN 0 installed (gcm-aes-xpn-256)
+02:26:36.593351 port ce1: ingress SA AN 0 installed (gcm-aes-xpn-256)
+02:26:38.284758 port ce30: egress SA AN 0 installed (gcm-aes-xpn-256)
+02:26:39.168460 port ce31: egress SA AN 0 installed (gcm-aes-xpn-256)
+02:26:40.038569 port ce30: egress SA AN 3 removed
+02:26:40.044382 port ce30: ingress SA AN 3 removed
+02:26:40.625176 port ce0: egress SA AN 0 installed (gcm-aes-xpn-256)
+02:26:40.987869 port ce1: egress SA AN 0 installed (gcm-aes-xpn-256)
+02:26:41.951103 port ce0: egress SA AN 3 removed
+02:26:41.956840 port ce0: ingress SA AN 3 removed
+02:26:43.034301 port ce31: egress SA AN 3 removed
+02:26:43.040007 port ce31: ingress SA AN 3 removed
+02:26:44.950742 port ce1: egress SA AN 3 removed
+02:26:44.957287 port ce1: ingress SA AN 3 removed
+02:26:58.334502 port ce30: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:26:58.375607 port ce31: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:27:00.674088 port ce0: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:27:00.715993 port ce1: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:27:02.407725 port ce30: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:27:03.075819 port ce31: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:27:04.046660 port ce30: egress SA AN 0 removed
+02:27:04.052382 port ce30: ingress SA AN 0 removed
+02:27:04.747982 port ce0: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:27:05.107305 port ce1: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:27:06.079995 port ce0: egress SA AN 0 removed
+02:27:06.086338 port ce0: ingress SA AN 0 removed
+02:27:07.045735 port ce31: egress SA AN 0 removed
+02:27:07.051445 port ce31: ingress SA AN 0 removed
+02:27:09.074283 port ce1: egress SA AN 0 removed
+02:27:09.080140 port ce1: ingress SA AN 0 removed
+02:27:22.457270 port ce30: ingress SA AN 2 installed (gcm-aes-xpn-256)
+02:27:22.499675 port ce31: ingress SA AN 2 installed (gcm-aes-xpn-256)
+02:27:24.797377 port ce0: ingress SA AN 2 installed (gcm-aes-xpn-256)
+02:27:24.839715 port ce1: ingress SA AN 2 installed (gcm-aes-xpn-256)
+02:27:26.532272 port ce30: egress SA AN 2 installed (gcm-aes-xpn-256)
+02:27:27.204001 port ce31: egress SA AN 2 installed (gcm-aes-xpn-256)
+02:27:28.179095 port ce30: egress SA AN 1 removed
+02:27:28.185004 port ce30: ingress SA AN 1 removed
+02:27:28.872345 port ce0: egress SA AN 2 installed (gcm-aes-xpn-256)
+02:27:29.228016 port ce1: egress SA AN 2 installed (gcm-aes-xpn-256)
+02:27:30.202990 port ce0: egress SA AN 1 removed
+02:27:30.209224 port ce0: ingress SA AN 1 removed
+02:27:31.170001 port ce31: egress SA AN 1 removed
+02:27:31.175708 port ce31: ingress SA AN 1 removed
+02:27:33.199459 port ce1: egress SA AN 1 removed
+02:27:33.205784 port ce1: ingress SA AN 1 removed
+02:27:46.581656 port ce30: ingress SA AN 3 installed (gcm-aes-xpn-256)
+02:27:46.623585 port ce31: ingress SA AN 3 installed (gcm-aes-xpn-256)
+02:27:48.931361 port ce0: ingress SA AN 3 installed (gcm-aes-xpn-256)
+02:27:49.112510 port ce1: ingress SA AN 3 installed (gcm-aes-xpn-256)
+02:27:50.656687 port ce30: egress SA AN 3 installed (gcm-aes-xpn-256)
+02:27:51.326978 port ce31: egress SA AN 3 installed (gcm-aes-xpn-256)
+02:27:52.300574 port ce30: egress SA AN 2 removed
+02:27:52.309215 port ce30: ingress SA AN 2 removed
+02:27:52.995966 port ce0: egress SA AN 3 installed (gcm-aes-xpn-256)
+02:27:53.312259 port ce1: egress SA AN 3 installed (gcm-aes-xpn-256)
+02:27:54.288066 port ce0: egress SA AN 2 removed
+02:27:54.293972 port ce0: ingress SA AN 2 removed
+02:27:55.293704 port ce31: egress SA AN 2 removed
+02:27:55.299434 port ce31: ingress SA AN 2 removed
+02:27:57.278001 port ce1: egress SA AN 2 removed
+02:27:57.283659 port ce1: ingress SA AN 2 removed
+02:28:10.705061 port ce30: ingress SA AN 0 installed (gcm-aes-xpn-256)
+02:28:10.747510 port ce31: ingress SA AN 0 installed (gcm-aes-xpn-256)
+02:28:11.043662 port ce0: ingress SA AN 0 installed (gcm-aes-xpn-256)
+02:28:11.083390 port ce1: ingress SA AN 0 installed (gcm-aes-xpn-256)
+02:28:14.781225 port ce30: egress SA AN 0 installed (gcm-aes-xpn-256)
+02:28:15.115468 port ce0: egress SA AN 0 installed (gcm-aes-xpn-256)
+02:28:15.347213 port ce31: egress SA AN 0 installed (gcm-aes-xpn-256)
+02:28:15.379483 port ce1: egress SA AN 0 installed (gcm-aes-xpn-256)
+02:28:16.350798 port ce0: egress SA AN 3 removed
+02:28:16.356478 port ce0: ingress SA AN 3 removed
+02:28:16.419200 port ce30: egress SA AN 3 removed
+02:28:16.425061 port ce30: ingress SA AN 3 removed
+02:28:19.345647 port ce1: egress SA AN 3 removed
+02:28:19.352245 port ce1: ingress SA AN 3 removed
+02:28:19.418821 port ce31: egress SA AN 3 removed
+02:28:19.424577 port ce31: ingress SA AN 3 removed
+02:28:34.828790 port ce30: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:28:34.872484 port ce31: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:28:35.164798 port ce0: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:28:35.207827 port ce1: ingress SA AN 1 installed (gcm-aes-xpn-256)
+02:28:38.903476 port ce30: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:28:39.240327 port ce0: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:28:39.466692 port ce31: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:28:39.499714 port ce1: egress SA AN 1 installed (gcm-aes-xpn-256)
+02:28:40.438705 port ce30: egress SA AN 0 removed
+02:28:40.444961 port ce30: ingress SA AN 0 removed
+02:28:40.470731 port ce0: egress SA AN 0 removed
+02:28:40.476386 port ce0: ingress SA AN 0 removed
+02:28:43.435010 port ce31: egress SA AN 0 removed
+02:28:43.441077 port ce31: ingress SA AN 0 removed
+02:28:43.465684 port ce1: egress SA AN 0 removed
+02:28:43.471778 port ce1: ingress SA AN 0 removed
+-- rekeys per port: 68 egress SA installs on 4 ports
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+port      phy  dir     engine gate   AN0 AN1 AN2 AN3 tx   runs fails  max_us last failure
+ce30      17e  egress  on     open   -   sa  -   -   1     781     0   82665 
+ce30      17e  ingress on     open   -   sa  -   -         856     0   89753 
+ce31      17f  egress  on     open   -   sa  -   -   1     815     0   81288 
+ce31      17f  ingress on     open   -   sa  -   -         908     0   91317 
+ce0         0  egress  on     open   -   sa  -   -   1     779     0   82666 
+ce0         0  ingress on     open   -   sa  -   -         853     0   92173 
+ce1         1  egress  on     open   -   sa  -   -   1     814     0   81713 
+ce1         1  ingress on     open   -   sa  -   -         907     0   89802 
+engines in bypass: 56 of 64
+== restore: the declared profile, macsecmgrd restarted
+
+MKA up after 8 s; failed units: 0
+rc=0

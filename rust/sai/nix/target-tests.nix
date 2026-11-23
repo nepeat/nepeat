@@ -14,7 +14,7 @@
 #   bin/mdio-driver       the C MDIO interpreter + differential driver (when the package has
 #                         the C sources: mdioScriptC)
 #   bin/...               the workspace's own binaries as the tests build them (the MDIO tool on
-#                         the fake glue, the phy-seq tools) and C/C++ helpers crates prebuilt
+#                         the Rust fake of the glue, the phy-seq tools) and C/C++ helpers crates prebuilt
 #                         in their build scripts (OUT_DIR/target-tests): the C tools the Rust
 #                         ones are compared with
 #   sysroot/              the target's loader, libc, libgcc_s: the bundle runs on a machine

@@ -1,5 +1,7 @@
-//! The full bring-up, ports, VLANs and the link callback against the fake glue: every unsafe
-//! block of those modules runs here, on any host (and on big-endian ppc64 from the bundle).
+//! The full bring-up, ports, VLANs and the link callback through the plain bring-up
+//! (`Switch::init`), i.e. on the process's Rust fake with its hooks (`sdk_glue::fake`), on any host
+//! (and on big-endian ppc64 from the bundle). Once the C fake's tests; the per-chip versions are in
+//! `rust_fake.rs`.
 #![allow(
     clippy::unwrap_used,
     clippy::panic,
@@ -339,8 +341,8 @@ fn dropping_the_switch_unregisters_first_and_drops_the_closure() {
     assert!(!fake::link_event(1, true));
     assert_eq!(
         std::fs::read_to_string(&trace).unwrap(),
-        // the handle's own unregister, then ob_sdk_shutdown (which unregisters again, as in C)
-        "init-all unit 0 rc -\nregister unit 0\nunregister unit 0\nunregister unit 0\nshutdown unit 0\n"
+        // ob_sdk_shutdown alone, which unregisters inside the glue (as the C++ backend's shutdown)
+        "init-all unit 0 rc -\nregister unit 0\nunregister unit 0\nshutdown unit 0\n"
     );
 }
 

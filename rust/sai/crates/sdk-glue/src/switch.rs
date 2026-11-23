@@ -84,6 +84,11 @@ pub(crate) fn count(value: c_int) -> Result<u32, Error> {
     u32::try_from(value).map_err(|_| Error::INTERNAL)
 }
 
+/// A size of the glue where a negative one means "unknown": 0.
+fn clamp(value: c_int) -> u32 {
+    u32::try_from(value).unwrap_or(0)
+}
+
 impl Switch {
     /// Brings the whole switch up (`ob_sdk_init`): SDK boot and attach, "init all" with the SDK
     /// config file `config`, then the diag-shell script `rc` if one is given, stale KNET interfaces
@@ -176,14 +181,15 @@ impl Switch {
             buffer_bytes: l.buffer_bytes,
             acl_prio_min: l.acl_prio_min,
             acl_prio_max: l.acl_prio_max,
-            max_host: count(l.max_host)?,
-            max_route: count(l.max_route)?,
-            max_nexthop: count(l.max_nexthop)?,
-            max_l2: count(l.max_l2)?,
-            ecmp_groups: count(l.ecmp_groups)?,
-            ecmp_paths: count(l.ecmp_paths)?,
-            ecmp_members: count(l.ecmp_members)?,
-            vrf_max: count(l.vrf_max)?,
+            // A negative size (the SDK's "unknown") is 0, as the C++ backend clamps them.
+            max_host: clamp(l.max_host),
+            max_route: clamp(l.max_route),
+            max_nexthop: clamp(l.max_nexthop),
+            max_l2: clamp(l.max_l2),
+            ecmp_groups: clamp(l.ecmp_groups),
+            ecmp_paths: clamp(l.ecmp_paths),
+            ecmp_members: clamp(l.ecmp_members),
+            vrf_max: clamp(l.vrf_max),
         })
     }
 

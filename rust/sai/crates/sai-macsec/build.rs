@@ -2,7 +2,9 @@
 //! machine without a compiler: `tests/cpp/driver.cpp` and the unmodified sai-openbcm sources
 //! on their fake backend, as `$OUT_DIR/target-tests/sai-macsec-cpp-driver`, and its "chip" variant
 //! `sai-macsec-cpp-chip-driver` for sai-macsec-phy's `tests/e2e.rs` (the test bundle copies that
-//! directory; the tests find the files through `$SAI_RS_TEST_BIN`).
+//! directory; the tests find the files through `$SAI_RS_TEST_BIN`). Each also as `...-fixed`: on
+//! `sai_macsec.cpp` with the owner's fixes D9 / D10 (`tests/cpp/listed_fixes.rs`), the reference
+//! the tests hold the Rust model to.
 //!
 //! Only when it is needed: a cross build (`TARGET != HOST`), or `SAI_MACSEC_PREBUILD_DRIVER=1`
 //! (then a missing input fails the build); never with `SAI_MACSEC_PREBUILD_DRIVER=0`. A native
@@ -16,6 +18,9 @@ use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+
+#[path = "tests/cpp/listed_fixes.rs"]
+mod listed_fixes;
 
 const DRIVER: &str = "sai-macsec-cpp-driver";
 const CHIP_DRIVER: &str = "sai-macsec-cpp-chip-driver";
@@ -73,6 +78,7 @@ fn inputs(native: bool) -> Result<Inputs, String> {
         return Err(format!("{} is not in this source tree", driver.display()));
     }
     println!("cargo:rerun-if-changed={}", driver.display());
+    println!("cargo:rerun-if-changed=tests/cpp/listed_fixes.rs");
     println!("cargo:rerun-if-changed={}", src.display());
     let abi_cc = var("SAI_SYS_ABI_CC");
     let cxx = var("SAI_MACSEC_CXX")
@@ -142,6 +148,16 @@ fn build(i: &Inputs, out: &Path) -> Result<PathBuf, String> {
             .arg(objects.join(format!("{unit}.o")));
         jobs.push((*unit, c.spawn().map_err(|e| format!("cannot run {}: {e}", i.cxx))?));
     }
+    // the owner's fixes (D9, D10): an edited copy of sai_macsec.cpp next to the objects
+    let fixed_src = listed_fixes::write_fixed(&i.src, &objects)?;
+    let mut c = Command::new(&i.cxx);
+    c.args(["-std=c++17", "-O1", "-w", "-c"]);
+    includes(&mut c);
+    c.arg(&fixed_src).arg("-o").arg(objects.join("sai_macsec_fixed.o"));
+    jobs.push((
+        "sai_macsec_fixed",
+        c.spawn().map_err(|e| format!("cannot run {}: {e}", i.cxx))?,
+    ));
     let mut c = Command::new(&i.cc);
     c.args(["-std=gnu11", "-O1", "-w", "-c", "-I"]).arg(&i.src);
     c.arg(i.src.join("temp_files.c"))
@@ -159,8 +175,14 @@ fn build(i: &Inputs, out: &Path) -> Result<PathBuf, String> {
     }
     let exe = bin.join(DRIVER);
     // the driver, and its "chip" variant for sai-macsec-phy's tests/e2e.rs (its own backend
-    // factory instead of backend_none, driver.cpp's SAI_MACSEC_DRIVER_CHIP)
-    for (name, chip) in [(DRIVER, false), (CHIP_DRIVER, true)] {
+    // factory instead of backend_none, driver.cpp's SAI_MACSEC_DRIVER_CHIP); each on the
+    // unmodified sai_macsec.cpp and, as `-fixed`, on the one with D9 / D10
+    for (name, chip, fixed) in [
+        (DRIVER.to_owned(), false, false),
+        (CHIP_DRIVER.to_owned(), true, false),
+        (format!("{DRIVER}-fixed"), false, true),
+        (format!("{CHIP_DRIVER}-fixed"), true, true),
+    ] {
         let mut link = Command::new(&i.cxx);
         // the C++ runtime inside: the machine it runs on need not have a libstdc++
         link.args(["-std=c++17", "-O1", "-Wall", "-static-libstdc++", "-static-libgcc"]);
@@ -170,11 +192,16 @@ fn build(i: &Inputs, out: &Path) -> Result<PathBuf, String> {
         includes(&mut link);
         link.arg(&i.driver);
         for unit in CPP.iter().chain(&["temp_files"]) {
-            if !(chip && *unit == "backend_none") {
+            let unit = if fixed && *unit == "sai_macsec" {
+                "sai_macsec_fixed"
+            } else {
+                unit
+            };
+            if !(chip && unit == "backend_none") {
                 link.arg(objects.join(format!("{unit}.o")));
             }
         }
-        link.arg("-o").arg(bin.join(name)).arg("-lpthread");
+        link.arg("-o").arg(bin.join(&name)).arg("-lpthread");
         run(link, "the C++ compiler on the driver")?;
     }
     Ok(exe)

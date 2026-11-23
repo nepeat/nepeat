@@ -25,6 +25,18 @@ let
   as7772 = mkHost as7760Platform [
     ./as7772/configuration.nix ../modules/boards/as7760/sd-install.nix ../modules/boards/as7772/ssd-image.nix
   ];
+  # The Rust SAI (rust/sai/README.md gates G3/G4) on these two, opt-in. rust/sai is outside
+  # path:./nix: they evaluate in the root flake only. Deploy: DEPLOY_ATTR=<name> deploy.sh.
+  #   *-rust-mdio: the C++ libsai, the Rust boot-time MDIO tool (hardware.openbcm.mdioTool)
+  #   *-rust:      the Rust libsai and tools (hardware.openbcm.implementation), its MDIO tool too
+  withRustSai = system: openbcm: system.extendModules {
+    modules = [ { hardware.openbcm = openbcm // { rustSai = ../../../rust/sai/nix; }; } ];
+  };
+  rustSaiSystems = {
+    as7772-rust-mdio = withRustSai as7772 { mdioTool = "rust"; };
+    as7772-rust = withRustSai as7772 { implementation = "rust"; };
+    as7760-rust = withRustSai as7760 { implementation = "rust"; };
+  };
   img = ../packages/as7760-images;
   kernel = as7760.config.boot.kernelPackages.kernel;
   # By name, not position: the SDK kmods are in this list too (builtins.head
@@ -52,7 +64,7 @@ let
   # Installed on the SATA SSD (sd-image layout), booted by the factory U-Boot's sysboot.
   as5114 = mkHost "aarch64-linux" [ ./as5114/configuration.nix ];
 in {
-  nixosConfigurations = { inherit as7760 as7772 dmc12 as5114; as7760-netboot = as7760Netboot; dmc12-netboot = dmc12Netboot; };
+  nixosConfigurations = { inherit as7760 as7772 dmc12 as5114; as7760-netboot = as7760Netboot; dmc12-netboot = dmc12Netboot; } // rustSaiSystems;
   packages = {
     as5114-system = as5114.config.system.build.toplevel;
     as5114-sd-image = as5114.config.system.build.sdImage;

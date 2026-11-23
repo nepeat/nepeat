@@ -6,7 +6,7 @@ use crate::values::{Kind, LIST_CAPACITY, Names, is_list, kind_of, list_count, va
 use sai_core::Error;
 use sai_core::backend::log::status_name;
 use sai_core::backend::types::{Dest, FdbChange, FdbEvent, MacAddr, MdioDev, PhyAddr, PortStat};
-use sai_core::backend::{BackendEvent, CallLog, Mode, Profile, Recording, Vid};
+use sai_core::backend::{Backend, BackendEvent, CallLog, HwPort, Mode, Profile, Recording, Vid};
 use sai_core::error::AttrError;
 use sai_core::macsec::MacsecObject;
 use sai_core::model::{EntryKey, Lag, Port};
@@ -21,8 +21,115 @@ use std::fmt::Write as _;
 use std::sync::PoisonError;
 use std::sync::mpsc::Receiver;
 
-/// The core the driver runs (the rim's `Sai<Box<dyn Backend>>` with the virtual backend chosen).
-type Core = Sai<Recording<VirtualBackend>>;
+/// The core the driver runs (the rim's `Sai<Box<dyn Backend>>` with the backend chosen): by
+/// default the virtual one.
+type Core<B> = Sai<Recording<B>>;
+
+/// What a driver runs on besides the core: where the backend of each switch comes from, and what
+/// the script's test hooks (`inject`, `mdio`, `feature`, `linkscan`) do to it. [`Virtual`] is the
+/// default (the virtual backend, as the C++ driver's fake); another backend comes with its own
+/// (sai-backend-openbcm's glue differential: the hardware backend over the Rust fake chip, the
+/// hooks on that chip). Like the C++ test-port hooks, the hooks are not backend calls: the
+/// `be` lines show only what they cause.
+pub trait Hooks<B> {
+    /// The backend of a new switch, for the profile's `SAI_OPENBCM_BACKEND` (`None` when this
+    /// driver has no such backend: the switch create fails with `FAILURE`).
+    fn backend(&mut self, selected: &str) -> Option<B>;
+    /// A backend that is never initialised: the core's before the first switch.
+    fn idle(&mut self) -> B;
+    /// `inject link <port|lag> up|down`: the destination's link changes.
+    fn link(&mut self, be: &mut B, dest: Dest, up: bool);
+    /// `linkscan`: one link scan pass.
+    fn linkscan(&mut self, be: &mut B);
+    /// `inject fdb ...`: hardware learned or aged an entry.
+    fn fdb(&mut self, be: &mut B, event: FdbEvent);
+    /// `inject stat <port> <STAT> <value>`: the value the backend reports for a counter.
+    fn stat(&mut self, be: &mut B, hw: HwPort, stat: PortStat, value: u64);
+    /// `mdio <phy> <dev> <reg> <value>`: a register of the backend's MDIO bus.
+    fn mdio(&mut self, be: &mut B, phy: PhyAddr, dev: MdioDev, reg: u16, val: u16);
+    /// `feature qos|mirror|l2 on|off`: an optional group of the backend.
+    fn feature(&mut self, be: &mut B, feature: Feature, on: bool);
+    /// Lines to print for the operation just run, after its echo line and before its status
+    /// (each indented by two blanks); by default none.
+    fn lines(&mut self) -> Vec<String> {
+        Vec::new()
+    }
+}
+
+/// The groups `feature` switches.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Feature {
+    /// `qos`.
+    Qos,
+    /// `mirror`.
+    Mirror,
+    /// `l2` (hash, storm control, flood control).
+    L2,
+}
+
+impl Feature {
+    /// The script's word.
+    pub const fn word(self) -> &'static str {
+        match self {
+            Self::Qos => "qos",
+            Self::Mirror => "mirror",
+            Self::L2 => "l2",
+        }
+    }
+}
+
+/// The default hooks: the virtual backend, numbering ports and answering like the C++ fake
+/// (`VirtualBackend::cpp_by_default`), for `openbcm` (the C++ driver's recorder over its fake),
+/// `fake` and `virtual`.
+#[derive(Clone, Copy, Debug, Default)]
+pub struct Virtual;
+
+impl Hooks<VirtualBackend> for Virtual {
+    fn backend(&mut self, selected: &str) -> Option<VirtualBackend> {
+        matches!(selected, "openbcm" | "fake" | "virtual").then(VirtualBackend::cpp_by_default)
+    }
+
+    fn idle(&mut self) -> VirtualBackend {
+        VirtualBackend::new()
+    }
+
+    fn link(&mut self, be: &mut VirtualBackend, dest: Dest, up: bool) {
+        // A LAG's destination is no port: the C++ fake finds no port of that number and
+        // ignores it; so does this (an unknown port too: inject_link's error).
+        if let Dest::Port(hw) = dest {
+            let _ = be.inject_link(hw, up);
+        }
+    }
+
+    fn linkscan(&mut self, be: &mut VirtualBackend) {
+        be.linkscan();
+    }
+
+    fn fdb(&mut self, be: &mut VirtualBackend, event: FdbEvent) {
+        be.inject_fdb(event);
+    }
+
+    fn stat(&mut self, be: &mut VirtualBackend, hw: HwPort, stat: PortStat, value: u64) {
+        be.set_stat(hw, stat, value);
+    }
+
+    fn mdio(&mut self, be: &mut VirtualBackend, phy: PhyAddr, dev: MdioDev, reg: u16, val: u16) {
+        let mdio = be.mdio();
+        mdio.lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .regs
+            .insert((phy, dev, reg), val);
+    }
+
+    fn feature(&mut self, be: &mut VirtualBackend, feature: Feature, on: bool) {
+        let toggles = be.toggles_mut();
+        match feature {
+            Feature::Qos => toggles.qos_on = on,
+            Feature::Mirror => toggles.mirror_on = on,
+            Feature::L2 => toggles.l2x_on = on,
+        }
+    }
+}
 
 /// The profile key the C++ driver's backend factory reads (`SAI_OPENBCM_BACKEND`).
 const BACKEND_KEY: &str = sai_core::keys::BACKEND;
@@ -92,24 +199,43 @@ enum Call {
     Set,
 }
 
-/// The script runner.
-#[derive(Debug)]
-pub struct Driver {
+/// The script runner, on the virtual backend unless made with [`Driver::with_hooks`].
+pub struct Driver<B: Backend = VirtualBackend> {
     mode: Mode,
     profile: BTreeMap<String, String>,
-    sai: Core,
+    sai: Core<B>,
     log: CallLog,
     initialized: bool,
     switch: RawOid,
     events: Option<Receiver<BackendEvent>>,
     names: Names,
+    hooks: Box<dyn Hooks<B>>,
 }
 
-impl Driver {
+impl<B: Backend> std::fmt::Debug for Driver<B> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Driver")
+            .field("mode", &self.mode)
+            .field("profile", &self.profile)
+            .field("initialized", &self.initialized)
+            .field("switch", &self.switch)
+            .field("names", &self.names)
+            .finish_non_exhaustive()
+    }
+}
+
+impl Driver<VirtualBackend> {
     /// A driver with the C++ driver's profile defaults (`SAI_OPENBCM_BACKEND=openbcm`: the C++
     /// driver's recorder over its fake, here the recorder over the virtual chip, which numbers
     /// ports and answers like the C++ fake: [`VirtualBackend::cpp_by_default`]).
     pub fn new(options: Options) -> Self {
+        Self::with_hooks(options, Box::new(Virtual))
+    }
+}
+
+impl<B: Backend> Driver<B> {
+    /// A driver whose switches run on the backends `hooks` makes, with the same profile defaults.
+    pub fn with_hooks(options: Options, mut hooks: Box<dyn Hooks<B>>) -> Self {
         let mut profile: BTreeMap<String, String> = [
             (BACKEND_KEY, "openbcm"),
             ("SAI_OPENBCM_FAKE_PORTS", "8"),
@@ -129,7 +255,7 @@ impl Driver {
         // the MACsec model the rim links (sai-ffi state.rs)
         sai_core::macsec::register_loader(&sai_macsec_phy::native::LOADER);
         // the rim's API before a switch: a core over a backend that was never initialised
-        let backend = Recording::new(VirtualBackend::new(), mode);
+        let backend = Recording::new(hooks.idle(), mode);
         let log = backend.log();
         Self {
             mode,
@@ -140,6 +266,7 @@ impl Driver {
             switch: RawOid::NULL,
             events: None,
             names: Names::default(),
+            hooks,
         }
     }
 
@@ -159,6 +286,9 @@ impl Driver {
         let out = match self.run(&w) {
             Ok(out) => out,
             Err(ParseError(why)) => {
+                for l in self.hooks.lines() {
+                    let _ = writeln!(text, "  {l}");
+                }
                 let _ = writeln!(text, "= PARSE_ERROR {why}");
                 let _ = self.log.take();
                 return Some(text);
@@ -173,6 +303,11 @@ impl Driver {
                     notes.extend(self.sai.handle_event(event));
                 }
             }
+        }
+        // what the hooks show for the operation (e.g. the SDK glue calls), between the echo and
+        // the status: where the C++ driver's glue stub prints them as they happen
+        for l in self.hooks.lines() {
+            let _ = writeln!(text, "  {l}");
         }
         let _ = writeln!(text, "= {}", out.status);
         for l in &out.lines {
@@ -261,7 +396,7 @@ impl Driver {
             "mdio" => self.mdio_op(w),
             "feature" => self.feature_op(w),
             "linkscan" => {
-                self.sai.backend_mut().inner_mut().linkscan();
+                self.hooks.linkscan(self.sai.backend_mut().inner_mut());
                 Ok(Out::success())
             }
             op => fail(format!("unknown operation '{op}'")),
@@ -350,31 +485,26 @@ impl Driver {
             .and_then(MdioDev::new)
             .ok_or_else(|| ParseError(format!("bad MDIO device '{}'", word(2))))?;
         let (phy, reg, val) = (low32(phy), low16(reg), low16(val));
-        let mdio = self.sai.backend_mut().inner_mut().mdio();
-        mdio.lock()
-            .unwrap_or_else(PoisonError::into_inner)
-            .regs
-            .insert((PhyAddr(phy), dev, reg), val);
+        self.hooks
+            .mdio(self.sai.backend_mut().inner_mut(), PhyAddr(phy), dev, reg, val);
         Ok(Out::success())
     }
 
     fn feature_op(&mut self, w: &[String]) -> Parsed<Out> {
         let word = |i: usize| w.get(i).map_or("", String::as_str);
         need(w, 3)?;
-        if !matches!(word(1), "qos" | "mirror" | "l2") {
-            return fail("feature qos | mirror | l2");
-        }
+        let feature = match word(1) {
+            "qos" => Feature::Qos,
+            "mirror" => Feature::Mirror,
+            "l2" => Feature::L2,
+            _ => return fail("feature qos | mirror | l2"),
+        };
         let on = match word(2) {
             "on" => true,
             "off" => false,
             _ => return fail("expected on / off"),
         };
-        let toggles = self.sai.backend_mut().inner_mut().toggles_mut();
-        match word(1) {
-            "qos" => toggles.qos_on = on,
-            "mirror" => toggles.mirror_on = on,
-            _ => toggles.l2x_on = on,
-        }
+        self.hooks.feature(self.sai.backend_mut().inner_mut(), feature, on);
         Ok(Out::success())
     }
 
@@ -429,14 +559,14 @@ impl Driver {
                 .collect::<Vec<_>>(),
         );
         // the C++ driver's factory: openbcm is the recorder over the fake (the in-memory chip
-        // here too); anything else the library would have to have
-        if !matches!(profile.get(BACKEND_KEY), Some("openbcm" | "fake" | "virtual")) {
-            return Err(Error::Failure);
-        }
+        // here too, with the default hooks); anything else the library would have to have
         if self.sai.switch_id().is_some() {
             return Err(Error::ItemAlreadyExists);
         }
-        let backend = Recording::new(VirtualBackend::cpp_by_default(), self.mode);
+        let Some(inner) = self.hooks.backend(profile.get(BACKEND_KEY).unwrap_or_default()) else {
+            return Err(Error::Failure);
+        };
+        let backend = Recording::new(inner, self.mode);
         self.log = backend.log();
         self.sai = Sai::new(backend);
         let id = self.sai.create_switch(&attrs, &profile)?;
@@ -450,7 +580,7 @@ impl Driver {
     fn bind_switch_names(&mut self) {
         let sw = self.switch;
         self.names.bind("switch", sw);
-        let get1 = |sai: &Core, ot, oid, attr| match sai.get(ot, oid, &[attr]).as_deref() {
+        let get1 = |sai: &Core<B>, ot, oid, attr| match sai.get(ot, oid, &[attr]).as_deref() {
             Ok([v]) => Some(v.clone()),
             _ => None,
         };
@@ -598,11 +728,8 @@ impl Driver {
                     "down" => false,
                     _ => return fail("expected up / down"),
                 };
-                // A LAG's destination is no port: the C++ fake finds no port of that number and
-                // ignores it; so does this (an unknown port too: inject_link's error).
-                if let Dest::Port(hw) = self.dest_of(word(2))? {
-                    let _ = self.sai.backend_mut().inner_mut().inject_link(hw, up);
-                }
+                let dest = self.dest_of(word(2))?;
+                self.hooks.link(self.sai.backend_mut().inner_mut(), dest, up);
             }
             "fdb" => {
                 need(w, 6)?;
@@ -615,12 +742,15 @@ impl Driver {
                 let vid =
                     Vid::new(low16(num(word(4))?)).map_err(|_| ParseError(format!("bad VLAN id '{}'", word(4))))?;
                 let hw_port = self.dest_of(word(5))?;
-                self.sai.backend_mut().inner_mut().inject_fdb(FdbEvent {
-                    change,
-                    mac: MacAddr(mac),
-                    vid,
-                    hw_port,
-                });
+                self.hooks.fdb(
+                    self.sai.backend_mut().inner_mut(),
+                    FdbEvent {
+                        change,
+                        mac: MacAddr(mac),
+                        vid,
+                        hw_port,
+                    },
+                );
             }
             "stat" => {
                 need(w, 5)?;
@@ -633,7 +763,7 @@ impl Driver {
                     .ok_or_else(|| ParseError(format!("the virtual backend has no counter {}", word(3))))?;
                 #[allow(clippy::cast_sign_loss, reason = "the C driver's (uint64_t)num()")]
                 let value = num(word(4))? as u64;
-                self.sai.backend_mut().inner_mut().set_stat(hw, stat, value);
+                self.hooks.stat(self.sai.backend_mut().inner_mut(), hw, stat, value);
             }
             _ => return fail("inject link | fdb | stat"),
         }

@@ -1,0 +1,12 @@
+reboot 2026-11-23T11:32:52.418Z
+30s: ssh: connect to host 10.60.2.23 port 22: Connection timed out
+45s: ssh: connect to host 10.60.2.23 port 22: Connection timed out
+58s: ssh: connect to host 10.60.2.23 port 22: No route to host
+69s: 52.54 348.72 | openbcm-mdio-script: running: 389344 of 1058160 operations done |   run started 2026-11-23 11:33:23 +0000, pid 502 | activating | inactive | starting
+79s: 62.88 424.59 | openbcm-mdio-script: running: 565240 of 1058160 operations done |   run started 2026-11-23 11:33:23 +0000, pid 502 | activating | inactive | starting
+89s: 73.24 500.13 | openbcm-mdio-script: running: 688959 of 1058160 operations done |   run started 2026-11-23 11:33:23 +0000, pid 502 | activating | inactive | starting
+100s: 83.58 573.28 | openbcm-mdio-script: running: 823922 of 1058160 operations done |   run started 2026-11-23 11:33:23 +0000, pid 502 | activating | inactive | starting
+110s: 93.92 649.30 | openbcm-mdio-script: running: 916941 of 1058160 operations done |   run started 2026-11-23 11:33:23 +0000, pid 502 | activating | inactive | starting
+120s: 104.27 724.05 | openbcm-mdio-script: running: 973737 of 1058160 operations done |   run started 2026-11-23 11:33:23 +0000, pid 502 | activating | inactive | starting
+131s: 114.62 796.65 | openbcm-mdio-script: running: 1030222 of 1058160 operations done |   run started 2026-11-23 11:33:23 +0000, pid 502 | activating | inactive | starting
+141s: 124.97 849.05 | openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 97.8 s |   run started 2026-11-23 11:33:23 +0000, took 101.1 s | active | active | running

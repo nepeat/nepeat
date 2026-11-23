@@ -1,0 +1,19 @@
+== 2026-11-23T10:50:25.340Z six consecutive 'show temp' through syncd (C++), monitors 1, 5 and the average: shows the jitter between two reads
+temperature monitor 1: current= 44.7, peak= 47.2
+temperature monitor 5: current= 46.7, peak= 49.1
+average current temperature is  44.9
+temperature monitor 1: current= 44.7, peak= 46.7
+temperature monitor 5: current= 47.2, peak= 48.1
+average current temperature is  45.0
+temperature monitor 1: current= 44.7, peak= 46.7
+temperature monitor 5: current= 46.2, peak= 48.1
+average current temperature is  44.9
+temperature monitor 1: current= 45.2, peak= 46.7
+temperature monitor 5: current= 46.7, peak= 48.6
+average current temperature is  45.0
+temperature monitor 1: current= 45.2, peak= 47.2
+temperature monitor 5: current= 46.2, peak= 48.1
+average current temperature is  45.0
+temperature monitor 1: current= 44.3, peak= 46.7
+temperature monitor 5: current= 46.7, peak= 48.6
+average current temperature is  44.6
