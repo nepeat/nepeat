@@ -84,8 +84,55 @@ pub enum ValueType {
     AclResourceList,
     /// `timespec`
     Timespec,
+    /// `aclfield` (`sai_acl_field_data_t`): an ACL entry's match field, its data and mask in
+    /// the members the kind names.
+    AclField(AclKind),
+    /// `aclaction` (`sai_acl_action_data_t`): an ACL entry's action, its parameter in the
+    /// member the kind names.
+    AclAction(AclKind),
+    /// `macsecsak` (`sai_macsec_sak_t`, 32 bytes of key material; write-only)
+    MacsecSak,
+    /// `macsecsalt` (`sai_macsec_salt_t`, 12 bytes; write-only)
+    MacsecSalt,
+    /// `macsecauthkey` (`sai_macsec_auth_key_t`, 16 bytes; write-only)
+    MacsecAuthKey,
     /// Any other member: not decoded by this implementation yet.
     Other,
+}
+
+/// The member of an ACL field's data / mask unions or an ACL action's parameter union that
+/// an attribute uses (the second word of its `@type`). Fields have no `IpAddress`, actions
+/// no `U64` / `U8List`: the scanner marks such a pair `Other`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum AclKind {
+    /// `booldata` (no mask)
+    Bool,
+    /// `u8`
+    U8,
+    /// `u16`
+    U16,
+    /// `u32`
+    U32,
+    /// `s32`
+    I32,
+    /// `s32` holding an enumerator of the type named by [`AttrMeta::type_name`]'s second word
+    Enum,
+    /// `u64` (fields only)
+    U64,
+    /// `mac`
+    Mac,
+    /// `ip4`
+    Ip4,
+    /// `ip6`
+    Ip6,
+    /// `oid` (no mask)
+    Oid,
+    /// `objlist` (no mask)
+    OidList,
+    /// `u8list` (fields only; the mask is a list too)
+    U8List,
+    /// `ipaddr` (actions only)
+    IpAddress,
 }
 
 /// Create / set / read rules of an attribute (the header's `@flags`).
@@ -194,7 +241,7 @@ pub struct AttrMeta {
     clippy::unreadable_literal
 )]
 mod generated {
-    use super::{AttrMeta, DefaultValue, Flags, ValueType, sys};
+    use super::{AclKind, AttrMeta, DefaultValue, Flags, ValueType, sys};
     include!(concat!(env!("OUT_DIR"), "/meta.rs"));
 }
 pub use generated::{OBJECT_TYPES, UNMAPPED_ATTR_ENUMS, attributes, stat_ids};
@@ -304,6 +351,43 @@ mod tests {
         assert!(port.contains(&sys::SAI_PORT_STAT_IF_IN_OCTETS.cast_signed()));
         assert!(stat_ids(sys::SAI_OBJECT_TYPE_QUEUE).contains(&sys::SAI_QUEUE_STAT_PACKETS.cast_signed()));
         assert_eq!(stat_ids(sys::SAI_OBJECT_TYPE_VLAN_MEMBER), [0i32; 0]);
+    }
+
+    #[test]
+    fn acl_fields_and_actions_name_their_member() {
+        let attr = |id| attribute(sys::SAI_OBJECT_TYPE_ACL_ENTRY, id).unwrap();
+        let dst = attr(sys::SAI_ACL_ENTRY_ATTR_FIELD_DST_IP);
+        assert_eq!(
+            (dst.value_type, dst.type_name),
+            (ValueType::AclField(AclKind::Ip4), "sai_acl_field_data_t sai_ip4_t")
+        );
+        let ports = attr(sys::SAI_ACL_ENTRY_ATTR_FIELD_IN_PORTS);
+        assert_eq!(ports.value_type, ValueType::AclField(AclKind::OidList));
+        assert!(ports.allowed_objects.contains(&sys::SAI_OBJECT_TYPE_PORT));
+        let ip_type = attr(sys::SAI_ACL_ENTRY_ATTR_FIELD_ACL_IP_TYPE);
+        assert_eq!(ip_type.value_type, ValueType::AclField(AclKind::Enum));
+        assert!(
+            ip_type
+                .enum_values
+                .contains(&sys::SAI_ACL_IP_TYPE_ARP_REQUEST.cast_signed())
+        );
+        let action = attr(sys::SAI_ACL_ENTRY_ATTR_ACTION_PACKET_ACTION);
+        assert_eq!(action.value_type, ValueType::AclAction(AclKind::Enum));
+        assert!(action.enum_values.contains(&sys::SAI_PACKET_ACTION_DROP.cast_signed()));
+        let counter = attr(sys::SAI_ACL_ENTRY_ATTR_ACTION_COUNTER);
+        assert_eq!(counter.value_type, ValueType::AclAction(AclKind::Oid));
+        assert_eq!(counter.allowed_objects, [sys::SAI_OBJECT_TYPE_ACL_COUNTER]);
+        assert_eq!(
+            attr(sys::SAI_ACL_ENTRY_ATTR_ACTION_MIRROR_INGRESS).value_type,
+            ValueType::AclAction(AclKind::OidList)
+        );
+        // Every ACL field and action of the headers is decoded.
+        let undecoded: Vec<&str> = attributes(sys::SAI_OBJECT_TYPE_ACL_ENTRY)
+            .iter()
+            .filter(|a| a.value_type == ValueType::Other)
+            .map(|a| a.name)
+            .collect();
+        assert!(undecoded.is_empty(), "{undecoded:?}");
     }
 
     #[test]

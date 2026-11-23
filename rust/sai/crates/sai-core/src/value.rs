@@ -1,6 +1,7 @@
 //! Attribute values as Rust data: what the rim decodes a `sai_attribute_value_t` into and
 //! encodes it from, by the attribute's [`sai_meta::ValueType`].
 use crate::oid::RawOid;
+pub use sai_meta::AclKind;
 use sai_meta::ValueType;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
@@ -77,6 +78,157 @@ pub struct AclResource {
     pub bind_point: i32,
     /// free entries
     pub avail_num: u32,
+}
+
+/// Data and mask of an ACL match field (addresses in network order, as SAI carries them).
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct FieldMatch<T> {
+    /// What the packet's field must equal under the mask.
+    pub data: T,
+    /// The bits that are compared.
+    pub mask: T,
+}
+
+/// The data of an enabled ACL match field, by the member of `sai_acl_field_data_t` the
+/// attribute uses ([`AclKind`]). Object ids and booleans have no mask.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum AclFieldData {
+    /// `booldata`
+    Bool(bool),
+    /// `u8`
+    U8(FieldMatch<u8>),
+    /// `u16`
+    U16(FieldMatch<u16>),
+    /// `u32`
+    U32(FieldMatch<u32>),
+    /// `s32`
+    I32(FieldMatch<i32>),
+    /// `s32` holding an enumerator (the data; the mask is a plain `s32`)
+    Enum(FieldMatch<i32>),
+    /// `u64`
+    U64(FieldMatch<u64>),
+    /// `mac`
+    Mac(FieldMatch<[u8; 6]>),
+    /// `ip4`
+    Ip4(FieldMatch<Ipv4Addr>),
+    /// `ip6`
+    Ip6(FieldMatch<Ipv6Addr>),
+    /// `oid`
+    Oid(RawOid),
+    /// `objlist`
+    OidList(Vec<RawOid>),
+    /// `u8list` (data and mask lists)
+    U8List(FieldMatch<Vec<u8>>),
+}
+
+impl AclFieldData {
+    /// The union member it travels in.
+    pub const fn kind(&self) -> AclKind {
+        match self {
+            Self::Bool(_) => AclKind::Bool,
+            Self::U8(_) => AclKind::U8,
+            Self::U16(_) => AclKind::U16,
+            Self::U32(_) => AclKind::U32,
+            Self::I32(_) => AclKind::I32,
+            Self::Enum(_) => AclKind::Enum,
+            Self::U64(_) => AclKind::U64,
+            Self::Mac(_) => AclKind::Mac,
+            Self::Ip4(_) => AclKind::Ip4,
+            Self::Ip6(_) => AclKind::Ip6,
+            Self::Oid(_) => AclKind::Oid,
+            Self::OidList(_) => AclKind::OidList,
+            Self::U8List(_) => AclKind::U8List,
+        }
+    }
+}
+
+/// The parameter of an enabled ACL action, by the member of `sai_acl_action_parameter_t`
+/// the attribute uses ([`AclKind`]).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum AclParam {
+    /// `booldata`
+    Bool(bool),
+    /// `u8`
+    U8(u8),
+    /// `u16`
+    U16(u16),
+    /// `u32`
+    U32(u32),
+    /// `s32`
+    I32(i32),
+    /// `s32` holding an enumerator
+    Enum(i32),
+    /// `mac`
+    Mac([u8; 6]),
+    /// `ip4`
+    Ip4(Ipv4Addr),
+    /// `ip6`
+    Ip6(Ipv6Addr),
+    /// `oid`
+    Oid(RawOid),
+    /// `objlist`
+    OidList(Vec<RawOid>),
+    /// `ipaddr`
+    IpAddress(IpAddr),
+}
+
+impl AclParam {
+    /// The union member it travels in.
+    pub const fn kind(&self) -> AclKind {
+        match self {
+            Self::Bool(_) => AclKind::Bool,
+            Self::U8(_) => AclKind::U8,
+            Self::U16(_) => AclKind::U16,
+            Self::U32(_) => AclKind::U32,
+            Self::I32(_) => AclKind::I32,
+            Self::Enum(_) => AclKind::Enum,
+            Self::Mac(_) => AclKind::Mac,
+            Self::Ip4(_) => AclKind::Ip4,
+            Self::Ip6(_) => AclKind::Ip6,
+            Self::Oid(_) => AclKind::Oid,
+            Self::OidList(_) => AclKind::OidList,
+            Self::IpAddress(_) => AclKind::IpAddress,
+        }
+    }
+}
+
+/// An ACL entry's match field (`sai_acl_field_data_t`). A disabled field carries nothing but
+/// its kind: SAI leaves data and mask undefined then, so they are never read.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum AclField {
+    /// `enable = false`
+    Disabled(AclKind),
+    /// `enable = true` with data and mask
+    Enabled(AclFieldData),
+}
+
+impl AclField {
+    /// The union member the field's data travels in.
+    pub const fn kind(&self) -> AclKind {
+        match self {
+            Self::Disabled(kind) => *kind,
+            Self::Enabled(data) => data.kind(),
+        }
+    }
+}
+
+/// An ACL entry's action (`sai_acl_action_data_t`). A disabled action carries only its kind.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum AclAction {
+    /// `enable = false`
+    Disabled(AclKind),
+    /// `enable = true` with its parameter
+    Enabled(AclParam),
+}
+
+impl AclAction {
+    /// The union member the action's parameter travels in.
+    pub const fn kind(&self) -> AclKind {
+        match self {
+            Self::Disabled(kind) => *kind,
+            Self::Enabled(param) => param.kind(),
+        }
+    }
 }
 
 /// An opaque C pointer value (a notification callback). The core stores and returns it and
@@ -201,6 +353,17 @@ pub enum Value {
         /// nanoseconds
         nanos: u32,
     },
+    /// `aclfield`
+    AclField(AclField),
+    /// `aclaction`
+    AclAction(AclAction),
+    /// `macsecsak` (`MACSEC_SA_ATTR_SAK`): 32 bytes, a 128-bit SAK in the last 16. Key
+    /// material ([`crate::macsec::Secret`]: wiped on drop, no `Debug` of the bytes).
+    MacsecSak(crate::macsec::Secret<32>),
+    /// `macsecsalt` (`MACSEC_SA_ATTR_SALT`), key material.
+    MacsecSalt(crate::macsec::Secret<12>),
+    /// `macsecauthkey` (`MACSEC_SA_ATTR_AUTH_KEY`), key material.
+    MacsecAuthKey(crate::macsec::Secret<16>),
 }
 
 impl Value {
@@ -241,6 +404,12 @@ impl Value {
             Self::AclCapability { .. } => ValueType::AclCapability,
             Self::AclResourceList(_) => ValueType::AclResourceList,
             Self::Timespec { .. } => ValueType::Timespec,
+            Self::AclField(field) => ValueType::AclField(field.kind()),
+            Self::AclAction(action) => ValueType::AclAction(action.kind()),
+            // decoded by attribute id at the rim (sai-meta does not decode these members)
+            Self::MacsecSak(_) => ValueType::MacsecSak,
+            Self::MacsecSalt(_) => ValueType::MacsecSalt,
+            Self::MacsecAuthKey(_) => ValueType::MacsecAuthKey,
         }
     }
 
@@ -249,7 +418,17 @@ impl Value {
     pub fn object_ids(&self) -> Vec<RawOid> {
         match self {
             Self::Oid(oid) if !oid.is_null() => vec![*oid],
-            Self::OidList(list) => list.iter().copied().filter(|oid| !oid.is_null()).collect(),
+            Self::OidList(list)
+            | Self::AclField(AclField::Enabled(AclFieldData::OidList(list)))
+            | Self::AclAction(AclAction::Enabled(AclParam::OidList(list))) => {
+                list.iter().copied().filter(|oid| !oid.is_null()).collect()
+            }
+            Self::AclField(AclField::Enabled(AclFieldData::Oid(oid)))
+            | Self::AclAction(AclAction::Enabled(AclParam::Oid(oid)))
+                if !oid.is_null() =>
+            {
+                vec![*oid]
+            }
             _ => Vec::new(),
         }
     }
@@ -301,4 +480,6 @@ from_value! {
     [u8; 6]: Mac;
     RawOid: Oid;
     Pointer: Pointer;
+    AclField: AclField;
+    AclAction: AclAction;
 }

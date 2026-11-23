@@ -33,7 +33,7 @@ rustPlatform.buildRustPackage {
       (ws + "/Cargo.lock")
       (ws + "/clippy.toml")
       (ws + "/rustfmt.toml")
-      (lib.fileset.fileFilter (f: f.hasExt "rs" || f.hasExt "c" || f.hasExt "cpp" || f.hasExt "h" || f.hasExt "mdio" || f.name == "Cargo.toml") (ws + "/crates"))
+      (lib.fileset.fileFilter (f: f.hasExt "rs" || f.hasExt "c" || f.hasExt "cpp" || f.hasExt "h" || f.hasExt "mdio" || f.hasExt "txt" || f.hasExt "ops" || f.name == "Cargo.toml") (ws + "/crates"))
     ];
   };
   cargoLock.lockFile = ws + "/Cargo.lock";
@@ -56,7 +56,11 @@ rustPlatform.buildRustPackage {
     export BINDGEN_EXTRA_CLANG_ARGS="${"$"}{BINDGEN_EXTRA_CLANG_ARGS/--target=${stdenv.hostPlatform.config}/--target=${lib.removeSuffix "abielfv2" stdenv.hostPlatform.config} -mabi=elfv2}"
   '';
 
-  cargoBuildFlags = [ "--workspace" ];
+  # The installed libsai.so must not carry the test port: sai-test-port turns on sai-core's
+  # `testing` feature, and one cargo invocation unifies features across the members it builds,
+  # so it stays out of the build (its tests still run: cargoTestFlags). cargoInstallHook copies
+  # what this build phase produced (${releaseDir}-tmp), not what the check phase rebuilds.
+  cargoBuildFlags = [ "--workspace" "--exclude" "sai-test-port" ];
   cargoTestFlags = [ "--workspace" ];
   doCheck = stdenv.buildPlatform.canExecute stdenv.hostPlatform;
   preCheck = ''

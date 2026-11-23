@@ -24,34 +24,32 @@
 //! `1 + i * lanes`); every port supports 10/25/40/50/100G and an unknown speed is
 //! `InvalidParameter` (C++ and `cpp`: by lane count, `NotSupported`); VLAN 1 can be destroyed and
 //! removing a non-member is `ItemNotFound` (C++ and `cpp`: `ObjectInUse`, success); an unknown
-//! port is `InvalidParameter` everywhere (C++: `INVALID_PORT_NUMBER`, which
-//! [`crate::Error`] does not have); the CPU port is not listed as a VLAN member (the C++ keeps
-//! it as an internal tagged member); a bad `LINK` value is refused (C++: anything but `none`
+//! port is `InvalidParameter` everywhere but in the L3 egress operations (C++:
+//! `INVALID_PORT_NUMBER`, as there); a bad `LINK` value is refused (C++: anything but `none`
 //! is `admin`); id counters keep counting across re-init (as the C++) but the shared CPU / drop
 //! egress objects are made again (the C++ keeps a stale id).
 use crate::backend::types::{Dest, FdbChange, FdbEvent, FpEntryId, GateVerdict, LinkGate, Loopback, PortStat};
 use crate::backend::{
-    Backend, BackendEvent, Capacities, EventSink, HostifNetdev, HwPort, LEGACY_CPP_OPS, PortInfo, Profile, StatsObject,
-    Vid, ops,
+    Backend, BackendEvent, Capacities, EventSink, HwPort, LEGACY_CPP_OPS, PortInfo, Profile, StatsObject, Vid, ops,
 };
 use crate::error::{Error, Result};
-use crate::model::EntryKey;
-use crate::oid::RawOid;
-use crate::value::{Attr, Value};
 use sai_sys as sys;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 use std::path::Path;
 use std::sync::atomic::Ordering;
 use std::sync::{Arc, Mutex, PoisonError};
 
 mod netdev;
 mod state;
+#[cfg(feature = "testing")]
+mod testing;
 mod typed;
 pub use netdev::{NetdevMode, parse_wire};
 pub use state::{
     EgressKind, FpEntry, FpGroup, FpModel, Genl, HwQ, Intf, KnetNetif, KnetNetifs, L2Entry, L2Table, L2xModel, L3Model,
     Lags, MdioModel, MdioOp, MirrorModel, QosModel, Toggles, Traps, VirtPort,
 };
+pub use typed::ShellMdio;
 
 /// The operations [`VirtualBackend::fail_next`] can make fail (the first slice's; every other
 /// operation by name with [`VirtualBackend::fail_nth`]).
@@ -71,18 +69,6 @@ pub enum Op {
     VlanPortAdd,
     /// [`Backend::vlan_port_remove`]
     VlanPortRemove,
-    /// [`Backend::object_create`]
-    ObjectCreate,
-    /// [`Backend::object_set`]
-    ObjectSet,
-    /// [`Backend::object_remove`]
-    ObjectRemove,
-    /// [`Backend::entry_create`]
-    EntryCreate,
-    /// [`Backend::entry_set`]
-    EntrySet,
-    /// [`Backend::entry_remove`]
-    EntryRemove,
 }
 
 impl Op {
@@ -96,26 +82,12 @@ impl Op {
             Self::VlanDestroy => "vlan_destroy",
             Self::VlanPortAdd => "vlan_port_add",
             Self::VlanPortRemove => "vlan_port_remove",
-            Self::ObjectCreate => "object_create",
-            Self::ObjectSet => "object_set",
-            Self::ObjectRemove => "object_remove",
-            Self::EntryCreate => "entry_create",
-            Self::EntrySet => "entry_set",
-            Self::EntryRemove => "entry_remove",
         }
     }
 }
 
 /// The generic methods of [`Backend`] that can be made to fail by name.
-const GENERIC_OPS: [&str; 7] = [
-    "object_create",
-    "object_set",
-    "object_remove",
-    "entry_create",
-    "entry_set",
-    "entry_remove",
-    "stats_get",
-];
+const GENERIC_OPS: [&str; 1] = ["stats_get"];
 
 /// Armed failures.
 #[derive(Debug, Default)]
@@ -126,6 +98,81 @@ struct Faults {
     nth: BTreeMap<&'static str, (u32, Error)>,
 }
 
+/// Fails a call of `op` if a fault for it is due ([`VirtualBackend::fail_next`] /
+/// [`VirtualBackend::fail_nth`]).
+fn check_faults(faults: &Mutex<Faults>, op: &'static str) -> Result<()> {
+    let mut faults = faults.lock().unwrap_or_else(PoisonError::into_inner);
+    if let Some((failing, error)) = faults.next {
+        if failing == op {
+            faults.next = None;
+            return Err(error);
+        }
+    }
+    match faults.nth.get_mut(op) {
+        Some((0, error)) => {
+            let error = *error;
+            faults.nth.remove(op);
+            Err(error)
+        }
+        Some((left, _)) => {
+            *left -= 1;
+            Ok(())
+        }
+        None => Ok(()),
+    }
+}
+
+/// The chip's MDIO master as a handle ([`Backend::mdio_bus`], [`VirtualBackend::bus`]): the
+/// register file (a PHY in `dead` fails, an unset register reads 0, every access is logged)
+/// and the chip's fault injection, each behind its own lock (the C++ fake's `mdio_mu`).
+#[derive(Clone, Debug)]
+pub(crate) struct VirtBus {
+    mdio: Arc<Mutex<MdioModel>>,
+    faults: Arc<Mutex<Faults>>,
+}
+
+impl crate::backend::types::MdioAccess for VirtBus {
+    fn read(&self, phy: crate::backend::types::PhyAddr, dev: crate::backend::types::MdioDev, reg: u16) -> Result<u16> {
+        check_faults(&self.faults, "mdio_c45_read")?;
+        let mut mdio = self.mdio.lock().unwrap_or_else(PoisonError::into_inner);
+        if mdio.dead.contains(&phy) {
+            return Err(Error::Failure);
+        }
+        let val = mdio.regs.get(&(phy, dev, reg)).copied().unwrap_or(0);
+        mdio.log.push(MdioOp {
+            write: false,
+            phy,
+            dev,
+            reg,
+            val,
+        });
+        Ok(val)
+    }
+
+    fn write(
+        &self,
+        phy: crate::backend::types::PhyAddr,
+        dev: crate::backend::types::MdioDev,
+        reg: u16,
+        val: u16,
+    ) -> Result<()> {
+        check_faults(&self.faults, "mdio_c45_write")?;
+        let mut mdio = self.mdio.lock().unwrap_or_else(PoisonError::into_inner);
+        if mdio.dead.contains(&phy) {
+            return Err(Error::Failure);
+        }
+        mdio.regs.insert((phy, dev, reg), val);
+        mdio.log.push(MdioOp {
+            write: true,
+            phy,
+            dev,
+            reg,
+            val,
+        });
+        Ok(())
+    }
+}
+
 /// How much of the C++ fake's numbering and answers the chip takes on (`SAI_RS_VIRTUAL_COMPAT`).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum Compat {
@@ -134,31 +181,6 @@ pub enum Compat {
     Rust,
     /// The C++ fake's port numbers, speeds and status codes where they differ.
     Cpp,
-}
-
-/// A host interface of type NETDEV as the chip has it (the C++ fake's `Netif`; the generic
-/// path, [`Backend::hostif_create`]).
-#[derive(Debug)]
-pub struct Netif {
-    /// Its name.
-    pub name: String,
-    /// Its port.
-    pub port: HwPort,
-    /// The carrier: the host interface's `OPER_STATUS`.
-    pub carrier: bool,
-    kernel: Option<netdev::Kernel>,
-}
-
-impl Netif {
-    /// Whether it is a kernel netdev (mode `tap`) or only a model entry.
-    pub fn has_kernel_netdev(&self) -> bool {
-        self.kernel.is_some()
-    }
-
-    /// Whether its wire carries frames (a thread runs).
-    pub fn wired(&self) -> bool {
-        self.kernel.as_ref().is_some_and(netdev::Kernel::wired)
-    }
 }
 
 /// The profile keys this backend reads (the rim asks the SAI user for exactly these).
@@ -315,24 +337,20 @@ pub struct VirtualBackend {
     events: Option<EventSink>,
     link_follows_admin: bool,
     compat: Compat,
-    faults: Mutex<Faults>,
-    /// The attribute-bag objects the chip was told about, with their type.
-    objects: BTreeMap<RawOid, sys::sai_object_type_t>,
-    /// The entries the chip was told about.
-    entries: BTreeSet<EntryKey>,
+    faults: Arc<Mutex<Faults>>,
     /// Counters a test set; the others read zero.
     counters: BTreeMap<(StatsObject, sys::sai_stat_id_t), u64>,
     /// `SAI_RS_VIRTUAL_NETDEV`.
     netdev_mode: NetdevMode,
     /// `SAI_RS_VIRTUAL_WIRE`: netif name -> host interface.
     wire: BTreeMap<String, String>,
-    /// The host interfaces of type NETDEV, by object id (the generic path).
-    netifs: BTreeMap<RawOid, Netif>,
     gates: Gates,
     mdio: Arc<Mutex<MdioModel>>,
     shell_log: Vec<String>,
-    temps: Vec<i32>,
-    temp_fail: bool,
+    /// [`VirtualBackend::set_shell_mdio`].
+    shell_mdio: ShellMdio,
+    /// The temperature monitors, shared with [`Backend::temperature_reader`]'s closure.
+    temps: Arc<Mutex<state::TempModel>>,
     lags: Lags,
     l2: L2Table,
     age_seconds: u32,
@@ -345,12 +363,25 @@ pub struct VirtualBackend {
     l2x: L2xModel,
     toggles: Toggles,
     next: NextIds,
+    /// The numbering a profile without `COMPAT` (and not naming `SAI_OPENBCM_BACKEND=fake`) gets.
+    default_compat: Compat,
 }
 
 impl VirtualBackend {
     /// A chip that is not initialised yet.
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// A chip that numbers and answers like the C++ fake unless its profile says otherwise: the
+    /// differential driver's, whose profile is the C++ driver's (`SAI_OPENBCM_BACKEND=openbcm`
+    /// there selects the C++ recorder over the fake, here the recorder over this chip).
+    #[must_use]
+    pub fn cpp_by_default() -> Self {
+        Self {
+            default_compat: Compat::Cpp,
+            ..Self::default()
+        }
     }
 
     fn faults(&self) -> std::sync::MutexGuard<'_, Faults> {
@@ -379,26 +410,22 @@ impl VirtualBackend {
         Ok(())
     }
 
+    /// Disarms every failure [`VirtualBackend::fail_next`] / [`VirtualBackend::fail_nth`] armed.
+    pub fn clear_faults(&mut self) {
+        *self.faults() = Faults::default();
+    }
+
     /// Fails this call if a fault for `op` is due.
     fn check(&self, op: &'static str) -> Result<()> {
-        let mut faults = self.faults();
-        if let Some((failing, error)) = faults.next {
-            if failing == op {
-                faults.next = None;
-                return Err(error);
-            }
-        }
-        match faults.nth.get_mut(op) {
-            Some((0, error)) => {
-                let error = *error;
-                faults.nth.remove(op);
-                Err(error)
-            }
-            Some((left, _)) => {
-                *left -= 1;
-                Ok(())
-            }
-            None => Ok(()),
+        check_faults(&self.faults, op)
+    }
+
+    /// The MDIO master as a handle of its own: the same registers, log, dead PHYs and fault
+    /// injection as [`crate::backend::Mdio`] (the ext-PHY gates use it from the link scan).
+    pub(crate) fn bus(&self) -> VirtBus {
+        VirtBus {
+            mdio: Arc::clone(&self.mdio),
+            faults: Arc::clone(&self.faults),
         }
     }
 
@@ -461,12 +488,16 @@ impl VirtualBackend {
 
     /// The temperature monitors' current values, tenths of a degree C (C++ `temps`).
     pub fn set_temps(&mut self, temps: Vec<i32>) {
-        self.temps = temps;
+        self.temp_model().temps = temps;
     }
 
     /// Temperature reads fail (C++ `temp_fail`: the sensor is gone).
     pub fn set_temp_fail(&mut self, fail: bool) {
-        self.temp_fail = fail;
+        self.temp_model().fail = fail;
+    }
+
+    fn temp_model(&self) -> std::sync::MutexGuard<'_, state::TempModel> {
+        self.temps.lock().unwrap_or_else(PoisonError::into_inner)
     }
 
     /// The optional models (C++ `qos_on`, `mirror_on`, `l2x_on`), to change before or after init.
@@ -488,6 +519,11 @@ impl VirtualBackend {
     /// The diag shell commands run so far (C++ `shell_log`).
     pub fn shell_log(&self) -> &[String] {
         &self.shell_log
+    }
+
+    /// How the diag shell answers `phy raw c45` reads (tests; kept across `init`).
+    pub fn set_shell_mdio(&mut self, mode: ShellMdio) {
+        self.shell_mdio = mode;
     }
 
     /// A port's state. For tests.
@@ -555,11 +591,6 @@ impl VirtualBackend {
         self.compat
     }
 
-    /// The host interfaces of type NETDEV the chip has, by object id. For tests.
-    pub fn netifs(&self) -> &BTreeMap<RawOid, Netif> {
-        &self.netifs
-    }
-
     /// The netdev mode the profile chose.
     pub fn netdev_mode(&self) -> NetdevMode {
         self.netdev_mode
@@ -570,20 +601,10 @@ impl VirtualBackend {
         self.ports.get(&hw).map(|p| p.up.load(Ordering::Acquire))
     }
 
-    /// The VLANs the chip has, with members and tagging (true = untagged). For tests.
+    /// The VLANs the chip has, with members and tagging (true = untagged), the CPU port (hw 0)
+    /// included. For tests.
     pub fn vlans(&self) -> &BTreeMap<Vid, BTreeMap<HwPort, bool>> {
         &self.vlans
-    }
-
-    /// The attribute-bag objects the chip has (created through [`Backend::object_create`]),
-    /// with their type. For tests.
-    pub fn objects(&self) -> &BTreeMap<RawOid, sys::sai_object_type_t> {
-        &self.objects
-    }
-
-    /// The entries the chip has. For tests.
-    pub fn entries(&self) -> &BTreeSet<EntryKey> {
-        &self.entries
     }
 
     /// Sets a counter as traffic would. For tests.
@@ -649,18 +670,14 @@ impl VirtualBackend {
     /// Forgets everything the chip holds (not the id counters, not the toggles).
     fn clear(&mut self) {
         // The netdevs first: their wire threads stop before anything else goes.
-        self.netifs.clear();
         self.knet.clear();
         self.ports.clear();
         self.vlans.clear();
-        self.objects.clear();
-        self.entries.clear();
         self.counters.clear();
         self.gates.0.clear();
         *self.mdio.lock().unwrap_or_else(PoisonError::into_inner) = MdioModel::default();
         self.shell_log.clear();
-        self.temps.clear();
-        self.temp_fail = false;
+        *self.temp_model() = state::TempModel::default();
         self.lags.clear();
         self.l2.clear();
         self.age_seconds = 300;
@@ -689,7 +706,14 @@ impl VirtualBackend {
             Some(_) => return Err(Error::InvalidParameter),
         };
         self.compat = match get(profile, "COMPAT") {
-            None | Some("rust") => Compat::Rust,
+            // Chosen by the C++ name (SAI_OPENBCM_BACKEND=fake): the C++ fake's numbering.
+            None if profile.get(crate::keys::BACKEND) == Some("fake")
+                && profile.get(crate::keys::RS_BACKEND).is_none() =>
+            {
+                Compat::Cpp
+            }
+            None => self.default_compat,
+            Some("rust") => Compat::Rust,
             Some("cpp") => Compat::Cpp,
             Some(_) => return Err(Error::InvalidParameter),
         };
@@ -737,6 +761,20 @@ impl Backend for VirtualBackend {
         "virtual"
     }
 
+    #[cfg(feature = "testing")]
+    fn as_virtual(&self) -> Option<&VirtualBackend> {
+        Some(self)
+    }
+
+    #[cfg(feature = "testing")]
+    fn as_virtual_mut(&mut self) -> Option<&mut VirtualBackend> {
+        Some(self)
+    }
+
+    fn mdio_bus(&self) -> Option<crate::backend::types::MdioBus> {
+        Some(Arc::new(self.bus()))
+    }
+
     fn init(&mut self, profile: &Profile, events: EventSink) -> Result<()> {
         self.check("init")?;
         let (count, lanes, speed) = self.read_profile(profile)?;
@@ -756,11 +794,13 @@ impl Backend for VirtualBackend {
                 VirtPort::new((first_lane..first_lane + lanes).collect(), speed, name),
             );
         }
-        // The chip's default VLAN: every front-panel port, untagged.
-        self.vlans
-            .insert(Vid::DEFAULT, self.ports.keys().map(|hw| (*hw, true)).collect());
+        // The chip's default VLAN: every front-panel port untagged, and the CPU port tagged (the
+        // SDK's default membership; `vlan_members` leaves the CPU port out, as the C++ fake).
+        let mut default_members: BTreeMap<HwPort, bool> = self.ports.keys().map(|hw| (*hw, true)).collect();
+        default_members.insert(self.cpu_port(), false);
+        self.vlans.insert(Vid::DEFAULT, default_members);
         // Eight monitors, 40.0 C up in steps of 1.5 C (the C++ fake's).
-        self.temps = (0..8).map(|i| 400 + 15 * i).collect();
+        self.temp_model().temps = (0..8).map(|i| 400 + 15 * i).collect();
         self.events = Some(events);
         Ok(())
     }
@@ -778,6 +818,8 @@ impl Backend for VirtualBackend {
                 hw: *hw,
                 lanes: p.lanes.clone(),
                 speed: p.speed,
+                name: p.name.clone(),
+                autoneg: p.autoneg,
             })
             .collect()
     }
@@ -827,7 +869,9 @@ impl Backend for VirtualBackend {
         if self.vlans.contains_key(&vid) {
             return Err(Error::ItemAlreadyExists);
         }
-        self.vlans.insert(vid, BTreeMap::new());
+        // A new VLAN has the CPU port as a tagged member (the SDK's `bcm_vlan_create`; C++ fake
+        // `vlans[vid][0] = false`), so floods reach the host interfaces.
+        self.vlans.insert(vid, BTreeMap::from([(self.cpu_port(), false)]));
         Ok(())
     }
 
@@ -868,9 +912,15 @@ impl Backend for VirtualBackend {
 
     fn vlan_members(&self, vid: Vid) -> Result<Vec<(HwPort, bool)>> {
         self.check("vlan_members")?;
+        let cpu = self.cpu_port();
         self.vlans
             .get(&vid)
-            .map(|m| m.iter().map(|(hw, untagged)| (*hw, *untagged)).collect())
+            .map(|m| {
+                m.iter()
+                    .filter(|(hw, _)| **hw != cpu)
+                    .map(|(hw, untagged)| (*hw, *untagged))
+                    .collect()
+            })
             .ok_or(Error::ItemNotFound)
     }
 
@@ -882,108 +932,20 @@ impl Backend for VirtualBackend {
         PRIORITY_GROUPS_PER_PORT
     }
 
+    /// Reads the shared monitors (no fault injection: the faults sit behind `&self`).
+    fn temperature_reader(&self) -> Option<crate::temp::TempReader> {
+        let temps = Arc::clone(&self.temps);
+        Some(Arc::new(move || {
+            temps.lock().unwrap_or_else(PoisonError::into_inner).read()
+        }))
+    }
+
     fn limits(&self) -> Result<Capacities> {
         Ok(LIMITS)
     }
 
     fn programs(&self, _object_type: sys::sai_object_type_t) -> bool {
         true
-    }
-
-    // Attribute-bag objects: this chip keeps whatever the SAI layer accepted. It records
-    // which objects it has, so that the tests can compare model and chip.
-    fn object_create(&mut self, object_type: sys::sai_object_type_t, id: RawOid, _attrs: &[Attr]) -> Result<()> {
-        self.check("object_create")?;
-        if self.objects.insert(id, object_type).is_some() {
-            return Err(Error::ItemAlreadyExists);
-        }
-        Ok(())
-    }
-
-    fn hostif_create(&mut self, id: RawOid, netdev: &HostifNetdev<'_>, _attrs: &[Attr]) -> Result<()> {
-        self.check("object_create")?;
-        let gate = Arc::clone(&self.port(netdev.port)?.up);
-        if self.objects.contains_key(&id) || self.netdev_name_taken(netdev.name) {
-            return Err(Error::ItemAlreadyExists);
-        }
-        let kernel = self.open_kernel(netdev.name, netdev.port, netdev.mac, &gate, netdev.oper_up)?;
-        self.netifs.insert(
-            id,
-            Netif {
-                name: netdev.name.to_owned(),
-                port: netdev.port,
-                carrier: netdev.oper_up,
-                kernel,
-            },
-        );
-        self.objects.insert(id, sys::SAI_OBJECT_TYPE_HOSTIF);
-        Ok(())
-    }
-
-    fn object_set(&mut self, object_type: sys::sai_object_type_t, id: RawOid, attr: &Attr) -> Result<()> {
-        self.check("object_set")?;
-        // A netdev's carrier is its host interface's oper status (C++: netif_carrier_set).
-        if let (sys::SAI_HOSTIF_ATTR_OPER_STATUS, Value::Bool(up), Some(netif)) =
-            (attr.id, &attr.value, self.netifs.get_mut(&id))
-        {
-            if let Some(kernel) = &netif.kernel {
-                kernel.set_carrier(*up)?;
-            }
-            netif.carrier = *up;
-        }
-        // Ports and the objects that come with the switch are not created through
-        // object_create; everything else must be known.
-        let builtin = matches!(
-            object_type,
-            sys::SAI_OBJECT_TYPE_PORT
-                | sys::SAI_OBJECT_TYPE_QUEUE
-                | sys::SAI_OBJECT_TYPE_INGRESS_PRIORITY_GROUP
-                | sys::SAI_OBJECT_TYPE_SCHEDULER_GROUP
-                | sys::SAI_OBJECT_TYPE_STP
-                | sys::SAI_OBJECT_TYPE_HASH
-                | sys::SAI_OBJECT_TYPE_VIRTUAL_ROUTER
-                | sys::SAI_OBJECT_TYPE_HOSTIF_TRAP_GROUP
-        );
-        if builtin || self.objects.contains_key(&id) {
-            Ok(())
-        } else {
-            Err(Error::ItemNotFound)
-        }
-    }
-
-    fn object_remove(&mut self, _object_type: sys::sai_object_type_t, id: RawOid) -> Result<()> {
-        self.check("object_remove")?;
-        self.objects.remove(&id).ok_or(Error::ItemNotFound)?;
-        // Its netdev, if it is a host interface: the wire stops, the TAP goes.
-        self.netifs.remove(&id);
-        Ok(())
-    }
-
-    fn entry_create(&mut self, key: &EntryKey, _attrs: &[Attr]) -> Result<()> {
-        self.check("entry_create")?;
-        if self.entries.insert(*key) {
-            Ok(())
-        } else {
-            Err(Error::ItemAlreadyExists)
-        }
-    }
-
-    fn entry_set(&mut self, key: &EntryKey, _attr: &Attr) -> Result<()> {
-        self.check("entry_set")?;
-        if self.entries.contains(key) {
-            Ok(())
-        } else {
-            Err(Error::ItemNotFound)
-        }
-    }
-
-    fn entry_remove(&mut self, key: &EntryKey) -> Result<()> {
-        self.check("entry_remove")?;
-        if self.entries.remove(key) {
-            Ok(())
-        } else {
-            Err(Error::ItemNotFound)
-        }
     }
 
     fn stats_supported(&self, object_type: sys::sai_object_type_t) -> Result<Vec<sys::sai_stat_id_t>> {
@@ -1024,9 +986,9 @@ impl Backend for VirtualBackend {
 }
 
 impl VirtualBackend {
-    /// Whether a netdev of this name exists (either path).
+    /// Whether a netdev of this name exists.
     fn netdev_name_taken(&self, name: &str) -> bool {
-        self.netifs.values().any(|n| n.name == name) || self.knet.values().any(|n| n.name == name)
+        self.knet.values().any(|n| n.name == name)
     }
 
     /// The kernel side of a netdev in mode `tap`, carrier as given (a carrier failure is only

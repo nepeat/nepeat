@@ -17,6 +17,8 @@ rust-version = "1.87"
 sai-sys = { path = "crates/sai-sys" }
 sai-meta = { path = "crates/sai-meta" }
 sai-core = { path = "crates/sai-core" }
+# the diag socket (sai_diag.cpp): server for the libraries, under the SAI lock
+sai-diag = { path = "crates/sai-diag" }
 # the virtual backend's kernel netdevs (TAP + AF_PACKET wire); libc for their ioctl numbers,
 # struct layouts and syscall declarations (per architecture)
 tap-netdev = { path = "crates/tap-netdev" }
@@ -38,11 +40,15 @@ sai-macsec = { path = "crates/sai-macsec" }
 # sai-macsec's SeqRunner over phy-seq, and the C interface of the model for the C++ libsai
 sai-macsec-phy = { path = "crates/sai-macsec-phy" }
 phy-seq-capi = { path = "crates/phy-seq-capi" }
+# the external-PHY runtime (link gate, debounce, hold-off, admin sequences) over phy-seq
+sai-extphy = { path = "crates/sai-extphy" }
 aes = { version = "0.9", default-features = false, features = ["zeroize"] }
 # build-time only: C headers -> Rust declarations (needs libclang at build, nothing at run time)
 bindgen = { version = "0.72", default-features = false, features = ["prettyplease"] }
 # tests only: property tests (object lifecycle, MDIO script parser)
 proptest = { version = "1", default-features = false, features = ["std"] }
+# sai-driver: the differential's allow-list patterns (already in the lock file through bindgen)
+regex = { version = "1", default-features = false, features = ["std"] }
 
 [workspace.lints.rust]
 unsafe_op_in_unsafe_fn = "deny"

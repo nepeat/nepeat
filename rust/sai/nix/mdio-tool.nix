@@ -39,6 +39,8 @@ let
       ];
     };
     cargoLock.lockFile = ws + "/Cargo.lock";
+    # sdk-glue-sys's build script runs bindgen (libclang)
+    nativeBuildInputs = [ rustPlatform.bindgenHook ];
 
     env = lib.optionalAttrs (saiOpenbcmSrc != null) {
       # the declarations of sdk-glue-sys must agree with this header, or the build fails

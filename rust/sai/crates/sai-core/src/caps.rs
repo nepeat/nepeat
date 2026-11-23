@@ -1,16 +1,25 @@
-//! What the capability queries answer (`sai_query_attribute_capability`,
-//! `sai_query_attribute_enum_values_capability`): the tables of the C++ sai-openbcm
-//! (`sai_caps.cpp`, `sai_api.cpp`), cut to the object types this library implements. An
-//! attribute that is kept without effect is not advertised, as in the C++.
+//! What the capability queries answer, as the C++ sai-openbcm answers them (`sai_caps.cpp`,
+//! `sai_api.cpp`): the same table, the same enum lists, the same counter lists. The C++ answers
+//! the first two from fixed tables whatever the backend (and before a switch exists); so does
+//! this module.
 //!
-//! `tests/slice.rs` checks every get-capable row of the default objects against a live switch.
+//! - [`attribute`]: `sai_query_attribute_capability` from [`ATTRS`], the C++ `attr_caps()` row
+//!   for row (218 rows: 170 single rows and 24 ACL match fields twice); "stubbed" attributes
+//!   (stored, not programmed) are not advertised. An attribute not in the table is all false.
+//! - [`enum_values`]: `sai_query_attribute_enum_values_capability`, 9 attributes; others
+//!   `NOT_SUPPORTED`.
+//! - [`stats_capability`]: `sai_query_stats_capability`: ports and router interfaces by probing
+//!   the counter ids 0..0x200 (`READ`), queues and priority groups from the `QoS` area
+//!   (`READ` + `READ_AND_CLEAR`), `MACsec` SA / flow from the `MACsec` area; other types
+//!   `NOT_SUPPORTED`.
 //!
-//! The table says what the SAI layer can do; [`attribute_for`] and [`enum_values_for`] cut it
-//! to what the backend can do: object types whose objects only the backend can program
-//! ([`Backend::programs`]) are not advertised for a backend that refuses them.
+//! `tests/switch_port.rs` checks every get-capable row of the switch / port / LAG / VR / next-hop
+//! group objects against a live switch (the C++ `test_capabilities`).
 use crate::backend::Backend;
 use crate::error::{Error, Result};
 use crate::oid::{EntryType, ObjectType};
+use crate::store::Store;
+use crate::{l3, macsec, port, qos};
 use sai_sys as sys;
 
 /// Whether an attribute can be used in create, set and get.
@@ -24,1062 +33,1547 @@ pub struct AttrCapability {
     pub get: bool,
 }
 
-type Row = (sys::sai_object_type_t, sys::sai_attr_id_t, bool, bool, bool);
+/// One row: object type, attribute, what it can do.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct AttrCap {
+    /// The object type.
+    pub object_type: sys::sai_object_type_t,
+    /// The attribute.
+    pub attr: sys::sai_attr_id_t,
+    /// Create / set / get.
+    pub capability: AttrCapability,
+}
 
-/// Object type, attribute, create, set, get.
-static ATTRS: [Row; 140] = [
-    (
+const fn row(
+    object_type: sys::sai_object_type_t,
+    attr: sys::sai_attr_id_t,
+    create: bool,
+    set: bool,
+    get: bool,
+) -> AttrCap {
+    AttrCap {
+        object_type,
+        attr,
+        capability: AttrCapability { create, set, get },
+    }
+}
+
+/// The C++ `attr_caps()` table, in its order.
+pub static ATTRS: [AttrCap; 218] = [
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_INIT_SWITCH,
         true,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_TYPE,
         true,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_SRC_MAC_ADDRESS,
         true,
         true,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_PORT_NUMBER,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_PORT_LIST,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_CPU_PORT,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_DEFAULT_VIRTUAL_ROUTER_ID,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_DEFAULT_VLAN_ID,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_DEFAULT_1Q_BRIDGE_ID,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_DEFAULT_STP_INST_ID,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_DEFAULT_TRAP_GROUP,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_PORT_MAX_MTU,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_OPER_STATUS,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_MAX_NUMBER_OF_SUPPORTED_PORTS,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_QOS_MAX_NUMBER_OF_TRAFFIC_CLASSES,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_NUMBER_OF_QUEUES,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_NUMBER_OF_UNICAST_QUEUES,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_NUMBER_OF_MULTICAST_QUEUES,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_FDB_AGING_TIME,
         true,
         true,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_PORT_STATE_CHANGE_NOTIFY,
         true,
         true,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_FDB_EVENT_NOTIFY,
         true,
         true,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_SHUTDOWN_REQUEST_NOTIFY,
         true,
         true,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_SWITCH_STATE_CHANGE_NOTIFY,
         true,
         true,
         true,
     ),
-    (
+    row(
+        sys::SAI_OBJECT_TYPE_SWITCH,
+        sys::SAI_SWITCH_ATTR_MAX_NUMBER_OF_TEMP_SENSORS,
+        false,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_SWITCH,
+        sys::SAI_SWITCH_ATTR_TEMP_LIST,
+        false,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_SWITCH,
+        sys::SAI_SWITCH_ATTR_MAX_TEMP,
+        false,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_SWITCH,
+        sys::SAI_SWITCH_ATTR_AVERAGE_TEMP,
+        false,
+        false,
+        true,
+    ),
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_ACL_ENTRY_MINIMUM_PRIORITY,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_ACL_ENTRY_MAXIMUM_PRIORITY,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_MAX_ACL_ACTION_COUNT,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_ACL_STAGE_INGRESS,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_ACL_STAGE_EGRESS,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_NUMBER_OF_ECMP_GROUPS,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_ECMP_MEMBERS,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_MAX_ECMP_MEMBER_COUNT,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_TOTAL_BUFFER_SIZE,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_AVAILABLE_IPV4_ROUTE_ENTRY,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_AVAILABLE_IPV6_ROUTE_ENTRY,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_AVAILABLE_IPV4_NEXTHOP_ENTRY,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_AVAILABLE_IPV6_NEXTHOP_ENTRY,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_AVAILABLE_IPV4_NEIGHBOR_ENTRY,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_AVAILABLE_IPV6_NEIGHBOR_ENTRY,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_AVAILABLE_NEXT_HOP_GROUP_ENTRY,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_AVAILABLE_NEXT_HOP_GROUP_MEMBER_ENTRY,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_SWITCH,
         sys::SAI_SWITCH_ATTR_AVAILABLE_FDB_ENTRY,
         false,
         false,
         true,
     ),
-    (sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_TYPE, false, false, true),
-    (
+    row(sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_TYPE, false, false, true),
+    row(
         sys::SAI_OBJECT_TYPE_PORT,
         sys::SAI_PORT_ATTR_HW_LANE_LIST,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_PORT,
         sys::SAI_PORT_ATTR_ADMIN_STATE,
         false,
         true,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_PORT,
         sys::SAI_PORT_ATTR_OPER_STATUS,
         false,
         false,
         true,
     ),
-    (sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_SPEED, false, true, true),
-    (
+    row(sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_SPEED, false, true, true),
+    row(
         sys::SAI_OBJECT_TYPE_PORT,
         sys::SAI_PORT_ATTR_OPER_SPEED,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_PORT,
         sys::SAI_PORT_ATTR_SUPPORTED_SPEED,
         false,
         false,
         true,
     ),
-    (sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_MTU, false, true, true),
-    (
+    row(sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_MTU, false, true, true),
+    row(
         sys::SAI_OBJECT_TYPE_PORT,
         sys::SAI_PORT_ATTR_FEC_MODE,
         false,
         true,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_PORT,
         sys::SAI_PORT_ATTR_SUPPORTED_FEC_MODE,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_PORT,
         sys::SAI_PORT_ATTR_AUTO_NEG_MODE,
         false,
         true,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_PORT,
         sys::SAI_PORT_ATTR_SUPPORTED_AUTO_NEG_MODE,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_PORT,
         sys::SAI_PORT_ATTR_PORT_VLAN_ID,
         false,
         true,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_PORT,
         sys::SAI_PORT_ATTR_LOOPBACK_MODE,
         false,
         true,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_PORT,
         sys::SAI_PORT_ATTR_QOS_NUMBER_OF_QUEUES,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_PORT,
         sys::SAI_PORT_ATTR_QOS_QUEUE_LIST,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_PORT,
         sys::SAI_PORT_ATTR_NUMBER_OF_INGRESS_PRIORITY_GROUPS,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_PORT,
         sys::SAI_PORT_ATTR_INGRESS_PRIORITY_GROUP_LIST,
         false,
         false,
         true,
     ),
-    (sys::SAI_OBJECT_TYPE_VLAN, sys::SAI_VLAN_ATTR_VLAN_ID, true, false, true),
-    (
-        sys::SAI_OBJECT_TYPE_VLAN,
-        sys::SAI_VLAN_ATTR_MEMBER_LIST,
-        false,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_VLAN_MEMBER,
-        sys::SAI_VLAN_MEMBER_ATTR_VLAN_ID,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_VLAN_MEMBER,
-        sys::SAI_VLAN_MEMBER_ATTR_BRIDGE_PORT_ID,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_VLAN_MEMBER,
-        sys::SAI_VLAN_MEMBER_ATTR_VLAN_TAGGING_MODE,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_BRIDGE,
-        sys::SAI_BRIDGE_ATTR_TYPE,
-        false,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_BRIDGE,
-        sys::SAI_BRIDGE_ATTR_PORT_LIST,
-        false,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_BRIDGE_PORT,
-        sys::SAI_BRIDGE_PORT_ATTR_TYPE,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_BRIDGE_PORT,
-        sys::SAI_BRIDGE_PORT_ATTR_PORT_ID,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_BRIDGE_PORT,
-        sys::SAI_BRIDGE_PORT_ATTR_BRIDGE_ID,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_BRIDGE_PORT,
-        sys::SAI_BRIDGE_PORT_ATTR_FDB_LEARNING_MODE,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_FDB_ENTRY,
-        sys::SAI_FDB_ENTRY_ATTR_TYPE,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_FDB_ENTRY,
-        sys::SAI_FDB_ENTRY_ATTR_BRIDGE_PORT_ID,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_FDB_ENTRY,
-        sys::SAI_FDB_ENTRY_ATTR_PACKET_ACTION,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_STP,
-        sys::SAI_STP_ATTR_VLAN_LIST,
-        false,
-        false,
-        true,
-    ),
-    (sys::SAI_OBJECT_TYPE_QUEUE, sys::SAI_QUEUE_ATTR_TYPE, false, false, true),
-    (
-        sys::SAI_OBJECT_TYPE_QUEUE,
-        sys::SAI_QUEUE_ATTR_SCHEDULER_PROFILE_ID,
-        false,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_QUEUE,
-        sys::SAI_QUEUE_ATTR_WRED_PROFILE_ID,
-        false,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_QUEUE,
-        sys::SAI_QUEUE_ATTR_BUFFER_PROFILE_ID,
-        false,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_SWITCH,
-        sys::SAI_SWITCH_ATTR_QOS_DSCP_TO_TC_MAP,
-        false,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_SWITCH,
-        sys::SAI_SWITCH_ATTR_QOS_DOT1P_TO_TC_MAP,
-        false,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_SWITCH,
-        sys::SAI_SWITCH_ATTR_QOS_TC_TO_QUEUE_MAP,
-        false,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_PORT,
-        sys::SAI_PORT_ATTR_QOS_DSCP_TO_TC_MAP,
-        false,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_PORT,
-        sys::SAI_PORT_ATTR_QOS_DOT1P_TO_TC_MAP,
-        false,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_PORT,
-        sys::SAI_PORT_ATTR_QOS_TC_TO_QUEUE_MAP,
-        false,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_PORT,
-        sys::SAI_PORT_ATTR_QOS_TC_TO_PRIORITY_GROUP_MAP,
-        false,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_PORT,
-        sys::SAI_PORT_ATTR_QOS_PFC_PRIORITY_TO_QUEUE_MAP,
-        false,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_PORT,
-        sys::SAI_PORT_ATTR_QOS_PFC_PRIORITY_TO_PRIORITY_GROUP_MAP,
-        false,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_PORT,
-        sys::SAI_PORT_ATTR_QOS_DEFAULT_TC,
-        false,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_PORT,
-        sys::SAI_PORT_ATTR_PRIORITY_FLOW_CONTROL,
-        false,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_PORT,
-        sys::SAI_PORT_ATTR_PRIORITY_FLOW_CONTROL_MODE,
-        false,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_PORT,
-        sys::SAI_PORT_ATTR_QOS_SCHEDULER_PROFILE_ID,
-        false,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_QUEUE,
-        sys::SAI_QUEUE_ATTR_INDEX,
-        false,
-        false,
-        true,
-    ),
-    (sys::SAI_OBJECT_TYPE_QUEUE, sys::SAI_QUEUE_ATTR_PORT, false, false, true),
-    (
-        sys::SAI_OBJECT_TYPE_HOSTIF,
-        sys::SAI_HOSTIF_ATTR_TYPE,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_HOSTIF,
-        sys::SAI_HOSTIF_ATTR_OBJ_ID,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_HOSTIF,
-        sys::SAI_HOSTIF_ATTR_NAME,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_HOSTIF,
-        sys::SAI_HOSTIF_ATTR_OPER_STATUS,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_HOSTIF,
-        sys::SAI_HOSTIF_ATTR_VLAN_TAG,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_HOSTIF_TRAP,
-        sys::SAI_HOSTIF_TRAP_ATTR_TRAP_TYPE,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_HOSTIF_TRAP,
-        sys::SAI_HOSTIF_TRAP_ATTR_PACKET_ACTION,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_HOSTIF_TRAP_GROUP,
-        sys::SAI_HOSTIF_TRAP_GROUP_ATTR_QUEUE,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_HOSTIF_TRAP_GROUP,
-        sys::SAI_HOSTIF_TRAP_GROUP_ATTR_POLICER,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_POLICER,
-        sys::SAI_POLICER_ATTR_METER_TYPE,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_POLICER,
-        sys::SAI_POLICER_ATTR_MODE,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_POLICER,
-        sys::SAI_POLICER_ATTR_COLOR_SOURCE,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_POLICER,
-        sys::SAI_POLICER_ATTR_CBS,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_POLICER,
-        sys::SAI_POLICER_ATTR_CIR,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_POLICER,
-        sys::SAI_POLICER_ATTR_PBS,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_POLICER,
-        sys::SAI_POLICER_ATTR_PIR,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_POLICER,
-        sys::SAI_POLICER_ATTR_GREEN_PACKET_ACTION,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_POLICER,
-        sys::SAI_POLICER_ATTR_YELLOW_PACKET_ACTION,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_POLICER,
-        sys::SAI_POLICER_ATTR_RED_PACKET_ACTION,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_VIRTUAL_ROUTER,
-        sys::SAI_VIRTUAL_ROUTER_ATTR_ADMIN_V4_STATE,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_VIRTUAL_ROUTER,
-        sys::SAI_VIRTUAL_ROUTER_ATTR_ADMIN_V6_STATE,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_VIRTUAL_ROUTER,
-        sys::SAI_VIRTUAL_ROUTER_ATTR_SRC_MAC_ADDRESS,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE,
-        sys::SAI_ROUTER_INTERFACE_ATTR_VIRTUAL_ROUTER_ID,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE,
-        sys::SAI_ROUTER_INTERFACE_ATTR_TYPE,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE,
-        sys::SAI_ROUTER_INTERFACE_ATTR_PORT_ID,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE,
-        sys::SAI_ROUTER_INTERFACE_ATTR_VLAN_ID,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE,
-        sys::SAI_ROUTER_INTERFACE_ATTR_SRC_MAC_ADDRESS,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE,
-        sys::SAI_ROUTER_INTERFACE_ATTR_MTU,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_NEIGHBOR_ENTRY,
-        sys::SAI_NEIGHBOR_ENTRY_ATTR_DST_MAC_ADDRESS,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_NEIGHBOR_ENTRY,
-        sys::SAI_NEIGHBOR_ENTRY_ATTR_NO_HOST_ROUTE,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_NEXT_HOP,
-        sys::SAI_NEXT_HOP_ATTR_TYPE,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_NEXT_HOP,
-        sys::SAI_NEXT_HOP_ATTR_IP,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_NEXT_HOP,
-        sys::SAI_NEXT_HOP_ATTR_ROUTER_INTERFACE_ID,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_ROUTE_ENTRY,
-        sys::SAI_ROUTE_ENTRY_ATTR_PACKET_ACTION,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_ROUTE_ENTRY,
-        sys::SAI_ROUTE_ENTRY_ATTR_NEXT_HOP_ID,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_NEXT_HOP_GROUP,
-        sys::SAI_NEXT_HOP_GROUP_ATTR_TYPE,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_NEXT_HOP_GROUP,
-        sys::SAI_NEXT_HOP_GROUP_ATTR_NEXT_HOP_COUNT,
-        false,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_NEXT_HOP_GROUP,
-        sys::SAI_NEXT_HOP_GROUP_ATTR_NEXT_HOP_MEMBER_LIST,
-        false,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_NEXT_HOP_GROUP_MEMBER,
-        sys::SAI_NEXT_HOP_GROUP_MEMBER_ATTR_NEXT_HOP_GROUP_ID,
-        true,
-        false,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_NEXT_HOP_GROUP_MEMBER,
-        sys::SAI_NEXT_HOP_GROUP_MEMBER_ATTR_NEXT_HOP_ID,
-        true,
-        true,
-        true,
-    ),
-    (
-        sys::SAI_OBJECT_TYPE_NEXT_HOP_GROUP_MEMBER,
-        sys::SAI_NEXT_HOP_GROUP_MEMBER_ATTR_WEIGHT,
-        true,
-        true,
-        true,
-    ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_LAG,
         sys::SAI_LAG_ATTR_PORT_LIST,
         false,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_LAG,
         sys::SAI_LAG_ATTR_PORT_VLAN_ID,
         true,
         true,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_LAG_MEMBER,
         sys::SAI_LAG_MEMBER_ATTR_LAG_ID,
         true,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_LAG_MEMBER,
         sys::SAI_LAG_MEMBER_ATTR_PORT_ID,
         true,
         false,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_LAG_MEMBER,
         sys::SAI_LAG_MEMBER_ATTR_EGRESS_DISABLE,
         true,
         true,
         true,
     ),
-    (
+    row(
         sys::SAI_OBJECT_TYPE_LAG_MEMBER,
         sys::SAI_LAG_MEMBER_ATTR_INGRESS_DISABLE,
         true,
         true,
         true,
     ),
+    row(sys::SAI_OBJECT_TYPE_VLAN, sys::SAI_VLAN_ATTR_VLAN_ID, true, false, true),
+    row(
+        sys::SAI_OBJECT_TYPE_VLAN,
+        sys::SAI_VLAN_ATTR_MEMBER_LIST,
+        false,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_VLAN_MEMBER,
+        sys::SAI_VLAN_MEMBER_ATTR_VLAN_ID,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_VLAN_MEMBER,
+        sys::SAI_VLAN_MEMBER_ATTR_BRIDGE_PORT_ID,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_VLAN_MEMBER,
+        sys::SAI_VLAN_MEMBER_ATTR_VLAN_TAGGING_MODE,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_BRIDGE,
+        sys::SAI_BRIDGE_ATTR_TYPE,
+        false,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_BRIDGE,
+        sys::SAI_BRIDGE_ATTR_PORT_LIST,
+        false,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_BRIDGE_PORT,
+        sys::SAI_BRIDGE_PORT_ATTR_TYPE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_BRIDGE_PORT,
+        sys::SAI_BRIDGE_PORT_ATTR_PORT_ID,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_BRIDGE_PORT,
+        sys::SAI_BRIDGE_PORT_ATTR_BRIDGE_ID,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_BRIDGE_PORT,
+        sys::SAI_BRIDGE_PORT_ATTR_FDB_LEARNING_MODE,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_FDB_ENTRY,
+        sys::SAI_FDB_ENTRY_ATTR_TYPE,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_FDB_ENTRY,
+        sys::SAI_FDB_ENTRY_ATTR_BRIDGE_PORT_ID,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_FDB_ENTRY,
+        sys::SAI_FDB_ENTRY_ATTR_PACKET_ACTION,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_STP,
+        sys::SAI_STP_ATTR_VLAN_LIST,
+        false,
+        false,
+        true,
+    ),
+    row(sys::SAI_OBJECT_TYPE_QUEUE, sys::SAI_QUEUE_ATTR_TYPE, false, false, true),
+    row(
+        sys::SAI_OBJECT_TYPE_QUEUE,
+        sys::SAI_QUEUE_ATTR_SCHEDULER_PROFILE_ID,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_QUEUE,
+        sys::SAI_QUEUE_ATTR_WRED_PROFILE_ID,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_QUEUE,
+        sys::SAI_QUEUE_ATTR_BUFFER_PROFILE_ID,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_SWITCH,
+        sys::SAI_SWITCH_ATTR_QOS_DSCP_TO_TC_MAP,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_SWITCH,
+        sys::SAI_SWITCH_ATTR_QOS_DOT1P_TO_TC_MAP,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_SWITCH,
+        sys::SAI_SWITCH_ATTR_QOS_TC_TO_QUEUE_MAP,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_PORT,
+        sys::SAI_PORT_ATTR_QOS_DSCP_TO_TC_MAP,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_PORT,
+        sys::SAI_PORT_ATTR_QOS_DOT1P_TO_TC_MAP,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_PORT,
+        sys::SAI_PORT_ATTR_QOS_TC_TO_QUEUE_MAP,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_PORT,
+        sys::SAI_PORT_ATTR_QOS_TC_TO_PRIORITY_GROUP_MAP,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_PORT,
+        sys::SAI_PORT_ATTR_QOS_PFC_PRIORITY_TO_QUEUE_MAP,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_PORT,
+        sys::SAI_PORT_ATTR_QOS_PFC_PRIORITY_TO_PRIORITY_GROUP_MAP,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_PORT,
+        sys::SAI_PORT_ATTR_QOS_DEFAULT_TC,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_PORT,
+        sys::SAI_PORT_ATTR_PRIORITY_FLOW_CONTROL,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_PORT,
+        sys::SAI_PORT_ATTR_PRIORITY_FLOW_CONTROL_MODE,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_PORT,
+        sys::SAI_PORT_ATTR_QOS_SCHEDULER_PROFILE_ID,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_QUEUE,
+        sys::SAI_QUEUE_ATTR_INDEX,
+        false,
+        false,
+        true,
+    ),
+    row(sys::SAI_OBJECT_TYPE_QUEUE, sys::SAI_QUEUE_ATTR_PORT, false, false, true),
+    row(
+        sys::SAI_OBJECT_TYPE_HOSTIF,
+        sys::SAI_HOSTIF_ATTR_TYPE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_HOSTIF,
+        sys::SAI_HOSTIF_ATTR_OBJ_ID,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_HOSTIF,
+        sys::SAI_HOSTIF_ATTR_NAME,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_HOSTIF,
+        sys::SAI_HOSTIF_ATTR_OPER_STATUS,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_HOSTIF,
+        sys::SAI_HOSTIF_ATTR_VLAN_TAG,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_HOSTIF_TRAP,
+        sys::SAI_HOSTIF_TRAP_ATTR_TRAP_TYPE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_HOSTIF_TRAP,
+        sys::SAI_HOSTIF_TRAP_ATTR_PACKET_ACTION,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_HOSTIF_TRAP_GROUP,
+        sys::SAI_HOSTIF_TRAP_GROUP_ATTR_QUEUE,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_HOSTIF_TRAP_GROUP,
+        sys::SAI_HOSTIF_TRAP_GROUP_ATTR_POLICER,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_PORT,
+        sys::SAI_PORT_ATTR_INGRESS_ACL,
+        false,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_LAG,
+        sys::SAI_LAG_ATTR_INGRESS_ACL,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_POLICER,
+        sys::SAI_POLICER_ATTR_METER_TYPE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_POLICER,
+        sys::SAI_POLICER_ATTR_MODE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_POLICER,
+        sys::SAI_POLICER_ATTR_COLOR_SOURCE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_POLICER,
+        sys::SAI_POLICER_ATTR_CBS,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_POLICER,
+        sys::SAI_POLICER_ATTR_CIR,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_POLICER,
+        sys::SAI_POLICER_ATTR_PBS,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_POLICER,
+        sys::SAI_POLICER_ATTR_PIR,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_POLICER,
+        sys::SAI_POLICER_ATTR_GREEN_PACKET_ACTION,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_POLICER,
+        sys::SAI_POLICER_ATTR_YELLOW_PACKET_ACTION,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_POLICER,
+        sys::SAI_POLICER_ATTR_RED_PACKET_ACTION,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_ACL_STAGE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_ACL_BIND_POINT_TYPE_LIST,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_ACL_ACTION_TYPE_LIST,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_SIZE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_ENTRY_LIST,
+        false,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_SRC_IP,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_SRC_IP,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_DST_IP,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_DST_IP,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_SRC_IPV6,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_SRC_IPV6,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_DST_IPV6,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_DST_IPV6,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_L4_SRC_PORT,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_L4_SRC_PORT,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_L4_DST_PORT,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_L4_DST_PORT,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_IP_PROTOCOL,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_IP_PROTOCOL,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_IPV6_NEXT_HEADER,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_IPV6_NEXT_HEADER,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_ETHER_TYPE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_ETHER_TYPE,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_TCP_FLAGS,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_TCP_FLAGS,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_ICMP_TYPE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_ICMP_TYPE,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_ICMP_CODE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_ICMP_CODE,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_ICMPV6_TYPE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_ICMPV6_TYPE,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_ICMPV6_CODE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_ICMPV6_CODE,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_DSCP,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_DSCP,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_ECN,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_ECN,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_TOS,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_TOS,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_ACL_IP_TYPE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_ACL_IP_TYPE,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_SRC_MAC,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_SRC_MAC,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_DST_MAC,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_DST_MAC,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_OUTER_VLAN_ID,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_OUTER_VLAN_ID,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_TTL,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_TTL,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_IN_PORTS,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_IN_PORTS,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_IN_PORT,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_FIELD_IN_PORT,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE,
+        sys::SAI_ACL_TABLE_ATTR_FIELD_ACL_RANGE_TYPE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_TABLE_ID,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_PRIORITY,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_ADMIN_STATE,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_ACTION_PACKET_ACTION,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_ACTION_COUNTER,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_ENTRY,
+        sys::SAI_ACL_ENTRY_ATTR_ACTION_SET_POLICER,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_COUNTER,
+        sys::SAI_ACL_COUNTER_ATTR_TABLE_ID,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_COUNTER,
+        sys::SAI_ACL_COUNTER_ATTR_ENABLE_PACKET_COUNT,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_COUNTER,
+        sys::SAI_ACL_COUNTER_ATTR_ENABLE_BYTE_COUNT,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_COUNTER,
+        sys::SAI_ACL_COUNTER_ATTR_PACKETS,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_COUNTER,
+        sys::SAI_ACL_COUNTER_ATTR_BYTES,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE_GROUP,
+        sys::SAI_ACL_TABLE_GROUP_ATTR_ACL_STAGE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE_GROUP,
+        sys::SAI_ACL_TABLE_GROUP_ATTR_ACL_BIND_POINT_TYPE_LIST,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE_GROUP,
+        sys::SAI_ACL_TABLE_GROUP_ATTR_TYPE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE_GROUP,
+        sys::SAI_ACL_TABLE_GROUP_ATTR_MEMBER_LIST,
+        false,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE_GROUP_MEMBER,
+        sys::SAI_ACL_TABLE_GROUP_MEMBER_ATTR_ACL_TABLE_GROUP_ID,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE_GROUP_MEMBER,
+        sys::SAI_ACL_TABLE_GROUP_MEMBER_ATTR_ACL_TABLE_ID,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ACL_TABLE_GROUP_MEMBER,
+        sys::SAI_ACL_TABLE_GROUP_MEMBER_ATTR_PRIORITY,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_VIRTUAL_ROUTER,
+        sys::SAI_VIRTUAL_ROUTER_ATTR_ADMIN_V4_STATE,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_VIRTUAL_ROUTER,
+        sys::SAI_VIRTUAL_ROUTER_ATTR_ADMIN_V6_STATE,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_VIRTUAL_ROUTER,
+        sys::SAI_VIRTUAL_ROUTER_ATTR_SRC_MAC_ADDRESS,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE,
+        sys::SAI_ROUTER_INTERFACE_ATTR_VIRTUAL_ROUTER_ID,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE,
+        sys::SAI_ROUTER_INTERFACE_ATTR_TYPE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE,
+        sys::SAI_ROUTER_INTERFACE_ATTR_PORT_ID,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE,
+        sys::SAI_ROUTER_INTERFACE_ATTR_VLAN_ID,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE,
+        sys::SAI_ROUTER_INTERFACE_ATTR_SRC_MAC_ADDRESS,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE,
+        sys::SAI_ROUTER_INTERFACE_ATTR_MTU,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_NEIGHBOR_ENTRY,
+        sys::SAI_NEIGHBOR_ENTRY_ATTR_DST_MAC_ADDRESS,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_NEIGHBOR_ENTRY,
+        sys::SAI_NEIGHBOR_ENTRY_ATTR_NO_HOST_ROUTE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_NEXT_HOP,
+        sys::SAI_NEXT_HOP_ATTR_TYPE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_NEXT_HOP,
+        sys::SAI_NEXT_HOP_ATTR_IP,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_NEXT_HOP,
+        sys::SAI_NEXT_HOP_ATTR_ROUTER_INTERFACE_ID,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ROUTE_ENTRY,
+        sys::SAI_ROUTE_ENTRY_ATTR_PACKET_ACTION,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_ROUTE_ENTRY,
+        sys::SAI_ROUTE_ENTRY_ATTR_NEXT_HOP_ID,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_NEXT_HOP_GROUP,
+        sys::SAI_NEXT_HOP_GROUP_ATTR_TYPE,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_NEXT_HOP_GROUP,
+        sys::SAI_NEXT_HOP_GROUP_ATTR_NEXT_HOP_COUNT,
+        false,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_NEXT_HOP_GROUP,
+        sys::SAI_NEXT_HOP_GROUP_ATTR_NEXT_HOP_MEMBER_LIST,
+        false,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_NEXT_HOP_GROUP_MEMBER,
+        sys::SAI_NEXT_HOP_GROUP_MEMBER_ATTR_NEXT_HOP_GROUP_ID,
+        true,
+        false,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_NEXT_HOP_GROUP_MEMBER,
+        sys::SAI_NEXT_HOP_GROUP_MEMBER_ATTR_NEXT_HOP_ID,
+        true,
+        true,
+        true,
+    ),
+    row(
+        sys::SAI_OBJECT_TYPE_NEXT_HOP_GROUP_MEMBER,
+        sys::SAI_NEXT_HOP_GROUP_MEMBER_ATTR_WEIGHT,
+        true,
+        true,
+        true,
+    ),
 ];
-
-/// Object types the SAI layer implements with its own operations on the backend (ports,
-/// VLANs, bridging): their rows do not depend on [`Backend::programs`], except the port
-/// attributes that go to [`Backend::object_set`].
-fn own(object_type: sys::sai_object_type_t) -> bool {
-    matches!(
-        ObjectType::from_sai(object_type),
-        Some(
-            ObjectType::Switch
-                | ObjectType::Port
-                | ObjectType::Vlan
-                | ObjectType::VlanMember
-                | ObjectType::Bridge
-                | ObjectType::BridgePort
-        )
-    )
-}
-
-/// Object types of which the switch has objects from the start (`crate::sai`'s
-/// `build_switch`): readable whatever the backend programs.
-fn built_in(object_type: sys::sai_object_type_t) -> bool {
-    matches!(
-        ObjectType::from_sai(object_type),
-        Some(
-            ObjectType::VirtualRouter
-                | ObjectType::Stp
-                | ObjectType::HostifTrapGroup
-                | ObjectType::Hash
-                | ObjectType::Queue
-                | ObjectType::IngressPriorityGroup
-                | ObjectType::SchedulerGroup
-        )
-    )
-}
-
-/// Whether an attribute's create / set needs [`Backend::programs`] for its object type.
-fn needs_backend(object_type: sys::sai_object_type_t, attr: sys::sai_attr_id_t) -> bool {
-    !own(object_type) || (object_type == sys::SAI_OBJECT_TYPE_PORT && crate::sai::port_attr_programmed(attr))
-}
-
-/// [`attribute`] for a library over `backend`: an object type the backend does not program is
-/// neither creatable nor settable, and readable only if the switch comes with such objects
-/// (ports keep these attributes, so they stay readable).
-pub fn attribute_for<B: Backend + ?Sized>(
-    backend: &B,
-    object_type: sys::sai_object_type_t,
-    attr: sys::sai_attr_id_t,
-) -> AttrCapability {
-    let capability = attribute(object_type, attr);
-    if !needs_backend(object_type, attr) || backend.programs(object_type) {
-        return capability;
-    }
-    AttrCapability {
-        create: false,
-        set: false,
-        get: capability.get && (built_in(object_type) || object_type == sys::SAI_OBJECT_TYPE_PORT),
-    }
-}
-
-/// [`enum_values`] for a library over `backend`: `NotSupported` where the backend does not
-/// program the object type.
-pub fn enum_values_for<B: Backend + ?Sized>(
-    backend: &B,
-    object_type: sys::sai_object_type_t,
-    attr: sys::sai_attr_id_t,
-) -> Result<Vec<i32>> {
-    if needs_backend(object_type, attr) && !backend.programs(object_type) {
-        return Err(Error::NotSupported);
-    }
-    enum_values(object_type, attr)
-}
 
 /// Whether this library implements the object type at all.
 pub fn implemented(object_type: sys::sai_object_type_t) -> bool {
     ObjectType::from_sai(object_type).is_some() || EntryType::from_sai(object_type).is_some()
 }
 
-/// `sai_query_attribute_capability`: all false for an attribute that is not in the table
-/// (the C++ answers the same way, with success).
+/// `sai_query_attribute_capability`: the first row of the pair; all false for an attribute that
+/// is not in the table (the C++ answers the same way, with success).
 pub fn attribute(object_type: sys::sai_object_type_t, attr: sys::sai_attr_id_t) -> AttrCapability {
     ATTRS
         .iter()
-        .find(|row| row.0 == object_type && row.1 == attr)
-        .map_or_else(AttrCapability::default, |row| AttrCapability {
-            create: row.2,
-            set: row.3,
-            get: row.4,
-        })
+        .find(|row| row.object_type == object_type && row.attr == attr)
+        .map(|row| row.capability)
+        .unwrap_or_default()
 }
 
-/// Every row of the table (for tests).
+/// Every row of the table (the test port's `attr_caps`).
 pub fn attributes() -> impl Iterator<Item = (sys::sai_object_type_t, sys::sai_attr_id_t, AttrCapability)> {
-    ATTRS.iter().map(|row| {
-        (
-            row.0,
-            row.1,
-            AttrCapability {
-                create: row.2,
-                set: row.3,
-                get: row.4,
-            },
-        )
-    })
+    ATTRS.iter().map(|row| (row.object_type, row.attr, row.capability))
 }
 
-/// `sai_query_attribute_enum_values_capability`: the enumerators of an attribute that are
-/// implemented; `NotSupported` for attributes the table does not list.
+/// `sai_query_attribute_enum_values_capability` (C++ `sai_api.cpp`): the enumerators this
+/// library implements for 9 attributes; `NotSupported` for every other.
 pub fn enum_values(object_type: sys::sai_object_type_t, attr: sys::sai_attr_id_t) -> Result<Vec<i32>> {
     let values: &[u32] = match (object_type, attr) {
         (sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_FEC_MODE) => &[
@@ -1098,6 +1592,16 @@ pub fn enum_values(object_type: sys::sai_object_type_t, attr: sys::sai_attr_id_t
             sys::SAI_ROUTER_INTERFACE_TYPE_VLAN,
             sys::SAI_ROUTER_INTERFACE_TYPE_LOOPBACK,
         ],
+        (sys::SAI_OBJECT_TYPE_ACL_TABLE_GROUP, sys::SAI_ACL_TABLE_GROUP_ATTR_TYPE) => {
+            &[sys::SAI_ACL_TABLE_GROUP_TYPE_PARALLEL]
+        }
+        (sys::SAI_OBJECT_TYPE_ACL_ENTRY, sys::SAI_ACL_ENTRY_ATTR_ACTION_PACKET_ACTION) => &[
+            sys::SAI_PACKET_ACTION_DROP,
+            sys::SAI_PACKET_ACTION_FORWARD,
+            sys::SAI_PACKET_ACTION_COPY,
+            sys::SAI_PACKET_ACTION_TRAP,
+        ],
+        (sys::SAI_OBJECT_TYPE_ACL_TABLE, sys::SAI_ACL_TABLE_ATTR_ACL_STAGE) => &[sys::SAI_ACL_STAGE_INGRESS],
         (sys::SAI_OBJECT_TYPE_POLICER, sys::SAI_POLICER_ATTR_MODE) => {
             &[sys::SAI_POLICER_MODE_SR_TCM, sys::SAI_POLICER_MODE_TR_TCM]
         }
@@ -1109,22 +1613,74 @@ pub fn enum_values(object_type: sys::sai_object_type_t, attr: sys::sai_attr_id_t
     Ok(values.iter().map(|v| v.cast_signed()).collect())
 }
 
+/// One answer of `sai_query_stats_capability`: a counter and its modes
+/// (`SAI_STATS_MODE_READ` / `READ_AND_CLEAR` bits).
+pub type StatCap = (sys::sai_stat_id_t, sys::sai_stats_mode_t);
+
+/// `sai_query_stats_capability` (C++ `sai_api.cpp`). `backend` / `store`: the switch's, when
+/// there is one (the C++ answers ports without a backend too: the 15 `IF_*` counters).
+pub fn stats_capability<B: Backend>(
+    backend: Option<&B>,
+    store: Option<&Store>,
+    object_type: sys::sai_object_type_t,
+) -> Result<Vec<StatCap>> {
+    let read = |ids: Vec<sys::sai_stat_id_t>| ids.into_iter().map(|id| (id, sys::SAI_STATS_MODE_READ)).collect();
+    match object_type {
+        sys::SAI_OBJECT_TYPE_QUEUE | sys::SAI_OBJECT_TYPE_INGRESS_PRIORITY_GROUP => {
+            let ids = backend
+                .and_then(|b| qos::stats_capability(b, store, object_type))
+                .unwrap_or(Err(Error::NotSupported))?;
+            Ok(ids
+                .into_iter()
+                .map(|id| (id, sys::SAI_STATS_MODE_READ | sys::SAI_STATS_MODE_READ_AND_CLEAR))
+                .collect())
+        }
+        sys::SAI_OBJECT_TYPE_MACSEC_SA | sys::SAI_OBJECT_TYPE_MACSEC_FLOW => {
+            macsec::macsec_stats_capability(store, object_type)
+        }
+        sys::SAI_OBJECT_TYPE_PORT => Ok(read(port::stats_capability(backend))),
+        sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE => {
+            Ok(read(backend.map(|b| l3::rif_stat_capability(b)).unwrap_or_default()))
+        }
+        _ => Err(Error::NotSupported),
+    }
+}
+
+/// [`stats_capability`] before a switch exists.
+pub fn stats_capability_static(object_type: sys::sai_object_type_t) -> Result<Vec<StatCap>> {
+    stats_capability::<crate::virt::VirtualBackend>(None, None, object_type)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn rows_name_attributes_the_headers_have_and_follow_their_flags() {
+    fn rows_name_attributes_the_headers_have() {
         for (object_type, attr, cap) in attributes() {
             let meta = sai_meta::attribute(object_type, attr).unwrap();
-            assert!(implemented(object_type), "{}", meta.name);
             // Nothing is advertised that SAI itself forbids.
             assert!(!cap.create || meta.flags.creatable(), "create {}", meta.name);
             assert!(!cap.set || meta.flags.settable(), "set {}", meta.name);
             assert!(cap.get, "{}", meta.name);
         }
+        assert_eq!(ATTRS.len(), 218);
         assert_eq!(
-            attribute(sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_SPEED),
+            ATTRS
+                .iter()
+                .filter(|r| r.object_type == sys::SAI_OBJECT_TYPE_SWITCH)
+                .count(),
+            48
+        );
+        assert_eq!(
+            ATTRS
+                .iter()
+                .filter(|r| r.object_type == sys::SAI_OBJECT_TYPE_PORT)
+                .count(),
+            29
+        );
+        assert_eq!(
+            attribute(sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_ADMIN_STATE),
             AttrCapability {
                 create: false,
                 set: true,
@@ -1136,10 +1692,13 @@ mod tests {
             attribute(sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_MEDIA_TYPE),
             AttrCapability::default()
         );
-        // an object type this library does not have
         assert_eq!(
-            attribute(sys::SAI_OBJECT_TYPE_ACL_TABLE, sys::SAI_ACL_TABLE_ATTR_ACL_STAGE),
+            attribute(sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_PRBS_CONFIG),
             AttrCapability::default()
+        );
+        assert_eq!(
+            enum_values(sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_FEC_MODE).map(|v| v.len()),
+            Ok(3)
         );
         assert_eq!(
             enum_values(sys::SAI_OBJECT_TYPE_HOSTIF, sys::SAI_HOSTIF_ATTR_TYPE),
@@ -1147,6 +1706,13 @@ mod tests {
         );
         assert_eq!(
             enum_values(sys::SAI_OBJECT_TYPE_PORT, sys::SAI_PORT_ATTR_SPEED),
+            Err(Error::NotSupported)
+        );
+        let ports = stats_capability_static(sys::SAI_OBJECT_TYPE_PORT).unwrap();
+        assert_eq!(ports.len(), 15);
+        assert!(ports.iter().all(|(_, mode)| *mode == sys::SAI_STATS_MODE_READ));
+        assert_eq!(
+            stats_capability_static(sys::SAI_OBJECT_TYPE_VLAN),
             Err(Error::NotSupported)
         );
     }

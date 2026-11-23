@@ -22,6 +22,7 @@
 
 mod backends;
 mod convert;
+mod diag;
 mod generic;
 pub mod global;
 mod guard;
@@ -30,6 +31,8 @@ mod notify;
 mod ptr;
 mod state;
 mod tables;
+#[cfg(feature = "test-port")]
+pub mod test_port;
 
 /// A SAI status code.
 type Status = sai_sys::sai_status_t;

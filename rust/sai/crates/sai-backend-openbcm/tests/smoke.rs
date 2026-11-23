@@ -86,7 +86,7 @@ fn the_smoke_program_passes_on_the_fake_glue_and_cleans_up_after_a_failure() {
         "smoke.profile",
         &format!(
             "# as SONiC writes it\nSAI_INIT_CONFIG_FILE={}\nSAI_OPENBCM_PORT_INTERFACE=caui\nSAI_OPENBCM_PORT_AUTONEG=off\n\
-             SAI_OPENBCM_PORT_FEC=none\nSAI_OPENBCM_PORT_IFG=128\nSAI_OPENBCM_EXT_PHY_FILE=/ignored/by/this/library\n",
+             SAI_OPENBCM_PORT_FEC=none\nSAI_OPENBCM_PORT_IFG=128\n",
             config.display()
         ),
     );
@@ -121,11 +121,14 @@ fn the_smoke_program_passes_on_the_fake_glue_and_cleans_up_after_a_failure() {
     assert!(all.contains("ADMIN port 30 up: oper UP"), "{all}");
     assert!(all.contains("VLAN 100 created with port 30 untagged"), "{all}");
     assert!(all.contains("OPER port 31: down"), "{all}");
-    // what reached the chip, in order (after the backend's own bring-up; of the core's
-    // "disable every port" pass only port 31's line is kept): the port up and down again, the VLAN and its member
-    // created and removed, and the shutdown at the end
+    // what reached the chip, in order, after the core's creation pass (each port disabled, its
+    // quirks applied): port 31 up and down again, the VLAN and its member created and removed,
+    // and the shutdown at the end
+    // (the board quirks reach every port twice: in the backend's own bring-up, a first-slice
+    // leftover, and from the core's creation pass as the C++ frontend applies them; G2 drops the
+    // backend's: openbcm_backend.cpp has none)
     let chip = std::fs::read_to_string(&trace).unwrap();
-    let after_init = chip.split("port 32 ifg 128\n").nth(1).unwrap();
+    let after_init = chip.rsplit("port 32 ifg 128\n").next().unwrap();
     let tail: Vec<&str> = after_init
         .lines()
         .filter(|l| !l.contains("enable 0") || l.starts_with("port 31 "))
@@ -133,7 +136,6 @@ fn the_smoke_program_passes_on_the_fake_glue_and_cleans_up_after_a_failure() {
     assert_eq!(
         tail,
         [
-            "port 31 enable 0",
             "port 31 enable 1",
             "port 31 enable 0",
             "vlan 100 create",

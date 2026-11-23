@@ -1,0 +1,17 @@
+[package]
+name = "openbcm-diag"
+description = "openbcm-diag in Rust: run one SDK diag-shell command inside syncd through the SAI library's diag socket (port of sai-openbcm's openbcm_diag.c)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+build = "build.rs"
+
+[[bin]]
+name = "openbcm-diag-rs"
+path = "src/main.rs"
+
+[dependencies]
+
+[lints]
+workspace = true

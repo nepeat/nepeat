@@ -361,10 +361,10 @@ fn hostif_traps_mdio_shell_temperatures() {
         Err(Error::ItemAlreadyExists)
     );
     chip.netif_carrier_set("Ethernet0", true).unwrap();
-    let filter = chip.netif_set_keep_tag(made.netif_id, HwPort(1), true).unwrap();
+    let filter = chip.netif_set_keep_tag(made.netif_id, HwPort(1), true, None).unwrap();
     assert_eq!(filter.0, 3);
     assert_eq!(
-        chip.netif_set_keep_tag(made.netif_id, HwPort(2), true),
+        chip.netif_set_keep_tag(made.netif_id, HwPort(2), true, None),
         Err(Error::ItemNotFound),
         "wrong port"
     );
@@ -463,9 +463,13 @@ fn the_call_log_of_switch_creation_and_a_port() {
         log.take(),
         [
             r#"init(profile={SAI_RS_VIRTUAL_PORTS="2"}) -> SUCCESS"#,
-            "ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000},{hw=2,lanes=[5,6,7,8],speed=100000}]",
+            // the external PHY attach asks for the ports too, table or not (as the C++)
+            r#"ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=2,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false}]"#,
+            r#"ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=2,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false}]"#,
             "port_admin_set(hw=1, up=false) -> SUCCESS",
+            "port_link_get(hw=1) -> SUCCESS up=false",
             "port_admin_set(hw=2, up=false) -> SUCCESS",
+            "port_link_get(hw=2) -> SUCCESS up=false",
             "vlan_members(vid=1) -> SUCCESS out=[(1,true),(2,true)]",
         ]
     );
@@ -495,7 +499,8 @@ fn the_call_log_of_switch_creation_and_a_port() {
             "event link(hw=1, up=true)",
             "port_admin_set(hw=1, up=true) -> SUCCESS",
             "port_link_get(hw=1) -> SUCCESS up=true",
-            "port_supported_speeds(hw=1) -> SUCCESS out=[10000,25000,40000,50000,100000]",
+            // the speed goes to the chip, which refuses it (C++ port_set_one)
+            "port_speed_set(hw=1, mbps=12345) -> INVALID_PARAMETER",
         ]
     );
     sai.remove(SWITCH, switch).unwrap();

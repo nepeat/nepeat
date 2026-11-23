@@ -10,52 +10,12 @@
 //! [`Secret::from_slice`]) is the caller's to wipe.
 use std::collections::BTreeMap;
 use std::fmt;
-use zeroize::{Zeroize, Zeroizing};
+use zeroize::Zeroizing;
 
-/// `N` secret bytes.
-pub struct Secret<const N: usize>(Box<[u8; N]>);
-
-impl<const N: usize> Secret<N> {
-    /// Copies `bytes` (exactly `N` of them) into a new secret.
-    pub fn from_slice(bytes: &[u8]) -> Option<Self> {
-        if bytes.len() != N {
-            return None;
-        }
-        let mut owned = Box::new([0u8; N]);
-        owned.copy_from_slice(bytes);
-        Some(Self(owned))
-    }
-
-    /// The bytes. Named to be easy to find in a review: every use is a place key bytes flow to.
-    pub fn expose(&self) -> &[u8; N] {
-        &self.0
-    }
-}
-
-impl<const N: usize> Clone for Secret<N> {
-    fn clone(&self) -> Self {
-        Self(self.0.clone())
-    }
-}
-
-impl<const N: usize> Secret<N> {
-    /// Overwrites the bytes with zeros (what dropping does).
-    fn wipe(&mut self) {
-        self.0.zeroize();
-    }
-}
-
-impl<const N: usize> Drop for Secret<N> {
-    fn drop(&mut self) {
-        self.wipe();
-    }
-}
-
-impl<const N: usize> fmt::Debug for Secret<N> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Secret<{N}>(redacted)")
-    }
-}
+/// `N` secret bytes: the core's type (`sai_core::macsec::Secret`), so a key decoded by the rim
+/// reaches this model without a copy. Wiped on drop, `Debug` shows the size only, equality is
+/// constant-time.
+pub use sai_core::macsec::Secret;
 
 /// Names of the parameters a sequence can use (`ext_macsec.h`), bytes index 0 first.
 pub mod param {

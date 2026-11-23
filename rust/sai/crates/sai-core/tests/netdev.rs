@@ -16,7 +16,7 @@ use sai_core::backend::{Backend, EventSink, HwPort, Profile};
 use sai_core::oid::RawOid;
 use sai_core::sai::Sai;
 use sai_core::value::{Attr, Value};
-use sai_core::virt::{NetdevMode, VirtualBackend};
+use sai_core::virt::{KnetNetif, NetdevMode, VirtualBackend};
 use sai_sys as sys;
 
 fn hostif(name: &str, port: RawOid) -> Vec<Attr> {
@@ -39,6 +39,12 @@ fn ports(sai: &Sai<VirtualBackend>, switch: RawOid) -> Vec<RawOid> {
     oid_list(get1(sai, SWITCH, switch, sys::SAI_SWITCH_ATTR_PORT_LIST).unwrap())
 }
 
+/// The chip's netif of a host interface.
+fn netif_of(sai: &Sai<VirtualBackend>, hostif: RawOid) -> Option<&KnetNetif> {
+    let id = sai_core::hostif::hostif_backend_id(sai.store()?, hostif)?;
+    sai.backend().knet_netifs().get(&sai_core::backend::types::NetifId(id))
+}
+
 #[test]
 fn a_netdev_host_interface_is_a_netif_of_the_chip_whose_carrier_is_its_oper_status() {
     let (mut sai, switch) = switch(4);
@@ -52,17 +58,12 @@ fn a_netdev_host_interface_is_a_netif_of_the_chip_whose_carrier_is_its_oper_stat
     attrs.push(oper(true));
     let e0 = sai.create(HOSTIF, switch, &attrs).unwrap();
     let e4 = sai.create(HOSTIF, switch, &hostif("Ethernet4", ports[1])).unwrap();
-    let netif = |sai: &Sai<VirtualBackend>, id| {
-        sai.backend()
-            .netifs()
-            .get(&id)
-            .map(|n| (n.name.clone(), n.port, n.carrier))
-    };
+    let netif = |sai: &Sai<VirtualBackend>, id| netif_of(sai, id).map(|n| (n.name.clone(), n.hw, n.carrier));
     assert_eq!(netif(&sai, e0), Some(("Ethernet0".into(), HwPort(1), true)));
     assert_eq!(netif(&sai, e4), Some(("Ethernet4".into(), HwPort(2), false)));
     assert!(
         sai.backend()
-            .netifs()
+            .knet_netifs()
             .values()
             .all(|n| !n.has_kernel_netdev() && !n.wired())
     );
@@ -78,10 +79,11 @@ fn a_netdev_host_interface_is_a_netif_of_the_chip_whose_carrier_is_its_oper_stat
 
     sai.remove(HOSTIF, e0).unwrap();
     assert_eq!(netif(&sai, e0), None);
+    assert_eq!(sai.backend().knet_netifs().len(), 1);
     model_and_chip_agree(&sai).unwrap();
     // the switch going takes the rest
     sai.remove(SWITCH, switch).unwrap();
-    assert!(sai.backend().netifs().is_empty());
+    assert!(sai.backend().knet_netifs().is_empty());
 }
 
 #[test]
@@ -121,7 +123,7 @@ fn netdev_host_interfaces_follow_the_cpp_rules() {
         Err(Error::ItemAlreadyExists)
     );
     assert_eq!(sai.store().unwrap().len(), after_one);
-    assert_eq!(sai.backend().netifs().len(), 1);
+    assert_eq!(sai.backend().knet_netifs().len(), 1);
     model_and_chip_agree(&sai).unwrap();
 }
 
@@ -130,25 +132,26 @@ fn a_failed_backend_call_leaves_no_netif() {
     let (mut sai, switch) = switch(2);
     let ports = ports(&sai, switch);
     sai.backend_mut()
-        .fail_next(sai_core::virt::Op::ObjectCreate, Error::InsufficientResources);
+        .fail_nth("netif_create", 1, Error::InsufficientResources)
+        .unwrap();
     assert_eq!(
         sai.create(HOSTIF, switch, &hostif("Ethernet0", ports[0])),
         Err(Error::InsufficientResources)
     );
-    assert!(sai.backend().netifs().is_empty());
+    assert!(sai.backend().knet_netifs().is_empty());
     let e0 = sai.create(HOSTIF, switch, &hostif("Ethernet0", ports[0])).unwrap();
     sai.backend_mut()
-        .fail_next(sai_core::virt::Op::ObjectSet, Error::Failure);
+        .fail_nth("netif_carrier_set", 1, Error::Failure)
+        .unwrap();
     assert_eq!(sai.set(HOSTIF, e0, &oper(true)), Err(Error::Failure));
-    assert_eq!(sai.backend().netifs().get(&e0).map(|n| n.carrier), Some(false));
+    assert_eq!(netif_of(&sai, e0).map(|n| n.carrier), Some(false));
     assert_eq!(
         get1(&sai, HOSTIF, e0, sys::SAI_HOSTIF_ATTR_OPER_STATUS),
         Ok(Value::Bool(false))
     );
-    sai.backend_mut()
-        .fail_next(sai_core::virt::Op::ObjectRemove, Error::Failure);
+    sai.backend_mut().fail_nth("netif_destroy", 1, Error::Failure).unwrap();
     assert_eq!(sai.remove(HOSTIF, e0), Err(Error::Failure));
-    assert_eq!(sai.backend().netifs().len(), 1);
+    assert_eq!(sai.backend().knet_netifs().len(), 1);
     model_and_chip_agree(&sai).unwrap();
 }
 
@@ -286,12 +289,12 @@ fn with_netdev_tap_each_host_interface_is_a_kernel_netdev() {
     assert_eq!(sai.store().unwrap().len(), before);
 
     let e1 = sai.create(HOSTIF, switch, &hostif("sairs-e1", ports[1])).unwrap();
-    let netif = sai.backend().netifs().get(&e1).unwrap();
+    let netif = netif_of(&sai, e1).unwrap();
     assert!(
         netif.has_kernel_netdev() && netif.wired(),
         "sairs-e1 is wired to sairs-host"
     );
-    assert!(!sai.backend().netifs().get(&e0).unwrap().wired());
+    assert!(!netif_of(&sai, e0).unwrap().wired());
 
     sai.remove(HOSTIF, e0).unwrap();
     assert!(

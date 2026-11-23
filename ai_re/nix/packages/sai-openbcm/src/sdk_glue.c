@@ -83,6 +83,19 @@ static unsigned char g_trunk_used[OB_MAX_TRUNKS];   /* trunks we created (global
 static int is_lag(int dest) { return dest >= 0 && (dest & OB_LAG_DEST_BIT); }
 static int lag_tid(int dest) { return dest & ~OB_LAG_DEST_BIT; }
 
+/* Argument checks. sdk-glue-sys (Rust) may declare a function whose arguments and result are
+ * all scalars `safe` only if the function starts with these: every out-of-range value is
+ * refused here, before any SDK call (the SDK's own checks are not relied on). Valid arguments
+ * pass unchanged. g_bcm_unit / g_mdio_unit: the unit "init all" (ob_sdk_init) / misc init
+ * (ob_sdk_init_mdio or ob_sdk_init) succeeded on in this process. */
+static int g_bcm_unit = -1, g_mdio_unit = -1;
+#define OB_UNIT_ATTACHED(u) (sdk_booted && (u) >= 0 && (u) < soc_ndev && SOC_UNIT_VALID(u) && soc_attached(u))
+#define OB_CHECK_UNIT(u) do { if (!OB_UNIT_ATTACHED(u)) return BCM_E_UNIT; } while (0)
+#define OB_CHECK_BCM(u) do { OB_CHECK_UNIT(u); if (!sdk_inited || (u) != g_bcm_unit) return BCM_E_INIT; } while (0)
+#define OB_CHECK_PORT(u, p) do { OB_CHECK_BCM(u); if (!SOC_PORT_VALID(u, p)) return BCM_E_PORT; } while (0)
+#define OB_CHECK_VID(v) do { if ((v) < 1 || (v) > 4094) return BCM_E_PARAM; } while (0)
+#define OB_CHECK_PARAM(c) do { if (!(c)) return BCM_E_PARAM; } while (0)
+
 static soc_knet_vectors_t knet_vect = {
     {bcm_knet_kcom_open, bcm_knet_kcom_close, bcm_knet_kcom_msg_send, bcm_knet_kcom_msg_recv},
     bde_irq_mask_set,
@@ -280,7 +293,7 @@ int ob_sdk_th_overtemp_shutdown(int unit)
 #ifdef BCM_TOMAHAWK_SUPPORT
     uint32 rval = 0;
     int rv, rv2;
-    if (!sdk_booted || unit < 0 || unit >= soc_ndev || !soc_attached(unit)) return BCM_E_UNIT;
+    OB_CHECK_UNIT(unit);
     if (sdk_inited) return BCM_E_BUSY;
     if (!SOC_IS_TOMAHAWK(unit) || SOC_IS_TOMAHAWK2(unit)) return BCM_E_UNAVAIL;
     /* As soc_tomahawk_temperature_intr: the write is attempted even when
@@ -389,6 +402,7 @@ int ob_sdk_init(int unit, const char* config_file, const char* rc_file, char* er
     g_l2c_index[0] = g_l2c_index[1] = -1;   /* "init all" rebuilt the L2 user table */
     memset(g_trunk_used, 0, sizeof(g_trunk_used));
     sdk_inited = 1;
+    g_bcm_unit = g_mdio_unit = unit;
     if (err && errlen > 0)
         snprintf(err, errlen, "ok: stale KNET netifs %d filters %d destroyed; IPv4/IPv6 L3 on %d ports", nn, nf, l3_ports);
     return BCM_E_NONE;
@@ -397,6 +411,14 @@ int ob_sdk_init(int unit, const char* config_file, const char* rc_file, char* er
 /* See sdk_glue.h. The diag shell's own "init soc" / "init misc", the path
  * every MDIO bring-up on the AS7772 used (bcm.user). */
 static int mdio_ready;
+/* MDIO access: after a bring-up that ran misc init, on that unit; the SDK's address word
+ * (bus bits 9, 8, 6, 5, internal bus bit 7, broadcast bit 10, address 4:0), no bus map. */
+#define OB_CHECK_MDIO(u, phy) do { \
+        if (!mdio_ready && !sdk_inited) return BCM_E_INIT; \
+        OB_CHECK_UNIT(u); \
+        if ((u) != g_mdio_unit) return BCM_E_UNIT; \
+        if ((phy) > 0x7ffu) return BCM_E_PARAM; \
+    } while (0)
 int ob_sdk_init_mdio(int unit, const char* config_file, char* err, int errlen)
 {
     char cmd[32];
@@ -446,6 +468,7 @@ int ob_sdk_init_mdio(int unit, const char* config_file, char* err, int errlen)
         }
     }
     mdio_ready = 1;
+    g_mdio_unit = unit;
     if (err && errlen > 0)
         snprintf(err, errlen, "%s: init soc + init misc done; external MDIO rate register 0x%08x, hold delay %d%s",
                  soc_dev_name(unit), (unsigned)rate, have, want >= 0 ? " (as configured)" : " (SDK default)");
@@ -456,7 +479,7 @@ int ob_sdk_mdio_c45_read(int unit, unsigned phy, unsigned dev, unsigned reg, uns
 {
     uint16 d = 0;
     int rv;
-    if (!mdio_ready && !sdk_inited) return BCM_E_INIT;
+    OB_CHECK_MDIO(unit, phy);
     if (dev < 1 || dev > 31 || reg > 0xffff) return BCM_E_PARAM;
     rv = soc_miimc45_read(unit, phy, (uint8)dev, (uint16)reg, &d);
     *val = d;
@@ -465,7 +488,7 @@ int ob_sdk_mdio_c45_read(int unit, unsigned phy, unsigned dev, unsigned reg, uns
 
 int ob_sdk_mdio_c45_write(int unit, unsigned phy, unsigned dev, unsigned reg, unsigned val)
 {
-    if (!mdio_ready && !sdk_inited) return BCM_E_INIT;
+    OB_CHECK_MDIO(unit, phy);
     if (dev < 1 || dev > 31 || reg > 0xffff || val > 0xffff) return BCM_E_PARAM;
     return soc_miimc45_write(unit, phy, (uint8)dev, (uint16)reg, (uint16)val);
 }
@@ -642,7 +665,11 @@ int ob_sdk_chip_limits(int unit, ob_chip_limits_t* l)
     return BCM_E_NONE;
 }
 
-int ob_sdk_cpu_port(int unit) { return CMIC_PORT(unit); }
+int ob_sdk_cpu_port(int unit)
+{
+    OB_CHECK_UNIT(unit);
+    return CMIC_PORT(unit);
+}
 
 int ob_sdk_ports(int unit, ob_port_info_t* out, int max)
 {
@@ -670,7 +697,11 @@ int ob_sdk_ports(int unit, ob_port_info_t* out, int max)
     return n;
 }
 
-int ob_sdk_port_enable_set(int unit, int port, int enable) { return bcm_port_enable_set(unit, port, enable); }
+int ob_sdk_port_enable_set(int unit, int port, int enable)
+{
+    OB_CHECK_PORT(unit, port);
+    return bcm_port_enable_set(unit, port, enable);
+}
 
 int ob_sdk_port_link_get(int unit, int port, int* up)
 {
@@ -679,7 +710,12 @@ int ob_sdk_port_link_get(int unit, int port, int* up)
     return rv;
 }
 
-int ob_sdk_port_speed_set(int unit, int port, int mbps) { return bcm_port_speed_set(unit, port, mbps); }
+int ob_sdk_port_speed_set(int unit, int port, int mbps)
+{
+    OB_CHECK_PORT(unit, port);
+    OB_CHECK_PARAM(mbps >= 0);
+    return bcm_port_speed_set(unit, port, mbps);
+}
 int ob_sdk_port_speed_get(int unit, int port, int* mbps) { return bcm_port_speed_get(unit, port, mbps); }
 
 int ob_sdk_port_speeds(int unit, int port, uint32_t* out, int max)
@@ -698,11 +734,18 @@ int ob_sdk_port_speeds(int unit, int port, uint32_t* out, int max)
     return n;
 }
 
-int ob_sdk_port_frame_max_set(int unit, int port, int bytes) { return bcm_port_frame_max_set(unit, port, bytes); }
+int ob_sdk_port_frame_max_set(int unit, int port, int bytes)
+{
+    OB_CHECK_PORT(unit, port);
+    OB_CHECK_PARAM(bytes > 0);
+    return bcm_port_frame_max_set(unit, port, bytes);
+}
 
 int ob_sdk_port_fec_set(int unit, int port, int mode)
 {
     int speed = 0, rv, rv2;
+    OB_CHECK_PORT(unit, port);
+    OB_CHECK_PARAM(mode >= 0 && mode <= 2);
     bcm_port_speed_get(unit, port, &speed);
     if (mode == 0) {
         rv = bcm_port_phy_control_set(unit, port, BCM_PORT_PHY_CONTROL_FORWARD_ERROR_CORRECTION_CL91, 0);
@@ -722,7 +765,11 @@ int ob_sdk_port_fec_set(int unit, int port, int mode)
     return BCM_E_PARAM;
 }
 
-int ob_sdk_port_autoneg_set(int unit, int port, int on) { return bcm_port_autoneg_set(unit, port, on); }
+int ob_sdk_port_autoneg_set(int unit, int port, int on)
+{
+    OB_CHECK_PORT(unit, port);
+    return bcm_port_autoneg_set(unit, port, on);
+}
 int ob_sdk_port_autoneg_get(int unit, int port, int* on) { return bcm_port_autoneg_get(unit, port, on); }
 
 int ob_sdk_port_interface_set(int unit, int port, const char* name)
@@ -740,22 +787,35 @@ int ob_sdk_port_interface_set(int unit, int port, const char* name)
 
 int ob_sdk_port_ifg_set(int unit, int port, int bits)
 {
-    int speed = 0, rv = bcm_port_speed_get(unit, port, &speed);
+    int speed = 0, rv;
+    OB_CHECK_PORT(unit, port);
+    OB_CHECK_PARAM(bits >= 0);
+    rv = bcm_port_speed_get(unit, port, &speed);
     if (rv < 0) return rv;
     return bcm_port_ifg_set(unit, port, speed, BCM_PORT_DUPLEX_FULL, bits);
 }
 
 int ob_sdk_port_loopback_set(int unit, int port, int mode)
 {
-    int lb = mode == 1 ? BCM_PORT_LOOPBACK_MAC : mode == 2 ? BCM_PORT_LOOPBACK_PHY : BCM_PORT_LOOPBACK_NONE;
+    int lb;
+    OB_CHECK_PORT(unit, port);
+    OB_CHECK_PARAM(mode >= 0 && mode <= 2);
+    lb = mode == 1 ? BCM_PORT_LOOPBACK_MAC : mode == 2 ? BCM_PORT_LOOPBACK_PHY : BCM_PORT_LOOPBACK_NONE;
     return bcm_port_loopback_set(unit, port, lb);
 }
 
-int ob_sdk_port_pvid_set(int unit, int port, int vid) { return bcm_port_untagged_vlan_set(unit, port, (bcm_vlan_t)vid); }
+int ob_sdk_port_pvid_set(int unit, int port, int vid)
+{
+    OB_CHECK_PORT(unit, port);
+    OB_CHECK_VID(vid);
+    return bcm_port_untagged_vlan_set(unit, port, (bcm_vlan_t)vid);
+}
 
 int ob_sdk_port_learn_set(int unit, int port, int mode)
 {
     uint32 f;
+    OB_CHECK_PORT(unit, port);
+    OB_CHECK_PARAM(mode >= 0 && mode <= 3);
     switch (mode) {
     case 1: f = BCM_PORT_LEARN_FWD; break;
     case 2: f = 0; break;
@@ -781,7 +841,11 @@ int ob_sdk_port_stat_get(int unit, int port, int which, uint64_t* v)
     return rv;
 }
 
-int ob_sdk_port_stat_clear(int unit, int port) { return bcm_stat_clear(unit, port); }
+int ob_sdk_port_stat_clear(int unit, int port)
+{
+    OB_CHECK_PORT(unit, port);
+    return bcm_stat_clear(unit, port);
+}
 
 static void cpu_pbmp(int unit, bcm_pbmp_t* pbm)
 {
@@ -792,7 +856,10 @@ static void cpu_pbmp(int unit, bcm_pbmp_t* pbm)
 int ob_sdk_vlan_create(int unit, int vid)
 {
     bcm_pbmp_t pbm, ubm;
-    int rv = bcm_vlan_create(unit, (bcm_vlan_t)vid);
+    int rv;
+    OB_CHECK_BCM(unit);
+    OB_CHECK_VID(vid);
+    rv = bcm_vlan_create(unit, (bcm_vlan_t)vid);
     if (rv < 0) return rv;
     cpu_pbmp(unit, &pbm);
     BCM_PBMP_CLEAR(ubm);
@@ -801,11 +868,18 @@ int ob_sdk_vlan_create(int unit, int vid)
     return rv;
 }
 
-int ob_sdk_vlan_destroy(int unit, int vid) { return bcm_vlan_destroy(unit, (bcm_vlan_t)vid); }
+int ob_sdk_vlan_destroy(int unit, int vid)
+{
+    OB_CHECK_BCM(unit);
+    OB_CHECK_VID(vid);
+    return bcm_vlan_destroy(unit, (bcm_vlan_t)vid);
+}
 
 int ob_sdk_vlan_port_add(int unit, int vid, int port, int untagged)
 {
     bcm_pbmp_t pbm, ubm;
+    OB_CHECK_PORT(unit, port);
+    OB_CHECK_VID(vid);
     BCM_PBMP_CLEAR(pbm);
     BCM_PBMP_CLEAR(ubm);
     BCM_PBMP_PORT_ADD(pbm, port);
@@ -817,6 +891,8 @@ int ob_sdk_vlan_port_add(int unit, int vid, int port, int untagged)
 int ob_sdk_vlan_port_remove(int unit, int vid, int port)
 {
     bcm_pbmp_t pbm;
+    OB_CHECK_PORT(unit, port);
+    OB_CHECK_VID(vid);
     BCM_PBMP_CLEAR(pbm);
     BCM_PBMP_PORT_ADD(pbm, port);
     return bcm_vlan_port_remove(unit, (bcm_vlan_t)vid, pbm);
@@ -901,7 +977,12 @@ int ob_sdk_l2_flush(int unit, int port, int vid, int statics, int dynamics)
     return BCM_E_NONE;
 }
 
-int ob_sdk_l2_age_set(int unit, int seconds) { return bcm_l2_age_timer_set(unit, seconds); }
+int ob_sdk_l2_age_set(int unit, int seconds)
+{
+    OB_CHECK_BCM(unit);
+    OB_CHECK_PARAM(seconds >= 0);
+    return bcm_l2_age_timer_set(unit, seconds);
+}
 
 static int filter_create(int unit, const char* name, int netif_id, int port, int keep_tag, int* filter_id)
 {
@@ -947,6 +1028,8 @@ int ob_sdk_netif_create(int unit, const char* name, int port, int vid, const uin
 int ob_sdk_netif_destroy(int unit, int netif_id, int filter_id)
 {
     int rv = BCM_E_NONE;
+    OB_CHECK_BCM(unit);
+    OB_CHECK_PARAM(netif_id >= -1 && filter_id >= -1);
     if (filter_id >= 0) bcm_knet_filter_destroy(unit, filter_id);
     if (netif_id >= 0) rv = bcm_knet_netif_destroy(unit, netif_id);
     return rv;
@@ -1091,6 +1174,8 @@ int ob_sdk_l3_intf_update(int unit, int intf_id, const uint8_t mac[6], int vid, 
 int ob_sdk_l3_intf_destroy(int unit, int intf_id)
 {
     bcm_l3_intf_t i;
+    OB_CHECK_BCM(unit);
+    OB_CHECK_PARAM(intf_id >= 0);
     bcm_l3_intf_t_init(&i);
     i.l3a_intf_id = intf_id;
     return bcm_l3_intf_delete(unit, &i);
@@ -1109,7 +1194,12 @@ int ob_sdk_l3_station_add(int unit, const uint8_t mac[6], int* station_id)
     return bcm_l2_station_add(unit, station_id, &s);
 }
 
-int ob_sdk_l3_station_delete(int unit, int station_id) { return bcm_l2_station_delete(unit, station_id); }
+int ob_sdk_l3_station_delete(int unit, int station_id)
+{
+    OB_CHECK_BCM(unit);
+    OB_CHECK_PARAM(station_id >= 0);
+    return bcm_l2_station_delete(unit, station_id);
+}
 
 static void egress_fill(int unit, bcm_l3_egress_t* e, int intf, const uint8_t mac[6], int port, int vid)
 {
@@ -1160,7 +1250,12 @@ int ob_sdk_l3_egress_special(int unit, int drop, int* egress_id)
     return BCM_E_NONE;
 }
 
-int ob_sdk_l3_egress_destroy(int unit, int egress_id) { return bcm_l3_egress_destroy(unit, egress_id); }
+int ob_sdk_l3_egress_destroy(int unit, int egress_id)
+{
+    OB_CHECK_BCM(unit);
+    OB_CHECK_PARAM(egress_id >= 0);
+    return bcm_l3_egress_destroy(unit, egress_id);
+}
 
 static bcm_ip_t ip4_host(const uint8_t* a)
 {
@@ -1243,6 +1338,8 @@ int ob_sdk_l3_ecmp_set(int unit, int* ecmp_id, int replace, const int* egress, i
 int ob_sdk_l3_ecmp_destroy(int unit, int ecmp_id)
 {
     bcm_l3_egress_ecmp_t e;
+    OB_CHECK_BCM(unit);
+    OB_CHECK_PARAM(ecmp_id >= 0);
     bcm_l3_egress_ecmp_t_init(&e);
     e.ecmp_intf = (bcm_if_t)ecmp_id;
     return bcm_l3_egress_ecmp_destroy(unit, &e);
@@ -1273,7 +1370,12 @@ int ob_sdk_fp_group_create(int unit, uint32_t q, int priority, int* gid)
     return BCM_E_NONE;
 }
 
-int ob_sdk_fp_group_destroy(int unit, int gid) { return bcm_field_group_destroy(unit, (bcm_field_group_t)gid); }
+int ob_sdk_fp_group_destroy(int unit, int gid)
+{
+    OB_CHECK_BCM(unit);
+    OB_CHECK_PARAM(gid >= 0);
+    return bcm_field_group_destroy(unit, (bcm_field_group_t)gid);
+}
 
 static bcm_ip_t ip4_be(const uint8_t* a)
 {
@@ -1387,6 +1489,8 @@ int ob_sdk_fp_entry_destroy(int unit, int eid, int stat_id)
 {
     bcm_field_entry_t e = (bcm_field_entry_t)eid;
     int rv;
+    OB_CHECK_BCM(unit);
+    OB_CHECK_PARAM(eid >= 0 && stat_id >= -1);
     bcm_field_entry_remove(unit, e);   /* out of the TCAM first */
     bcm_field_entry_policer_detach_all(unit, e);
     if (stat_id >= 0) bcm_field_entry_stat_detach(unit, e, stat_id);
@@ -1457,4 +1561,9 @@ int ob_sdk_policer_set(int unit, int pid, const ob_policer_cfg_t* c)
     return bcm_policer_set(unit, (bcm_policer_t)pid, &pc);
 }
 
-int ob_sdk_policer_destroy(int unit, int pid) { return bcm_policer_destroy(unit, (bcm_policer_t)pid); }
+int ob_sdk_policer_destroy(int unit, int pid)
+{
+    OB_CHECK_BCM(unit);
+    OB_CHECK_PARAM(pid >= 0);
+    return bcm_policer_destroy(unit, (bcm_policer_t)pid);
+}

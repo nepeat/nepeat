@@ -274,7 +274,8 @@ minus_one!(
     super::types::PolicerId,
     super::types::QosMapId,
     super::types::WredId,
-    super::types::SampleId
+    super::types::SampleId,
+    super::types::FilterId
 );
 
 /// A link gate argument: `set` / `empty`.
@@ -349,10 +350,9 @@ macro_rules! fields {
 }
 
 impl LogValue for PortInfo {
-    /// `{hw=..,lanes=..,speed=..}`. The C++ also prints `name` and `autoneg`, which
-    /// [`PortInfo`] does not have yet: a known difference of the `ports()` line.
+    /// `{hw=..,lanes=..,speed=..,name="..",autoneg=..}`.
     fn log(&self, out: &mut String) {
-        fields!(out, self; "hw" = self.hw, "lanes" = self.lanes, "speed" = self.speed);
+        fields!(out, self; "hw" = self.hw, "lanes" = self.lanes, "speed" = self.speed, "name" = self.name, "autoneg" = self.autoneg);
     }
 }
 

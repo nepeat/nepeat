@@ -1,129 +1,405 @@
-//! The link callback: the SDK tells the process that a port's link went up or down.
+//! The SDK's callbacks: link changes, L2 learn / age events, and the per-port link gate.
 //!
 //! # How it is made safe
 //!
-//! The glue takes a C function pointer and a `void* ctx` it hands back on every call
-//! (`ob_sdk_register_callbacks`), and calls it on SDK threads (the link scan thread; also the
-//! thread of a port call that changes the link). The usual binding gives the SDK a pointer to
-//! a boxed closure as `ctx`, and is then sound only if that box outlives the last call: a
-//! property of the SDK's unregister ("no call is in progress when it returns") that cannot
-//! be checked from here.
+//! The glue takes C function pointers and a `void* ctx` it hands back on every call
+//! (`ob_sdk_register_callbacks` for link + L2, `ob_sdk_linkscan_port_gate` for the gate), and calls
+//! them on SDK threads (link scan, L2X; also the thread of a port call that changes the link).
+//! The glue keeps **one** context for link and L2 and **one** gate function and context for
+//! all ports, in process globals (`g_cb_ctx`, `g_gate_cb` / `g_gate_ctx`); the C++ backend
+//! passes `this` and looks the port up in a map under `gate_mu_`. Here no memory is handed over:
 //!
-//! This module hands over **no memory at all**:
+//! * the closures live in one process-wide table behind a mutex ([`REGISTRY`]), one entry per
+//!   [`Switch`], keyed by a number that is never reused; ports map to their gate in the entry;
+//! * `ctx` is that key as an address-sized number, compared, never dereferenced;
+//! * the C callbacks are this crate's `extern "C"` trampolines ([`on_link`], [`on_l2`],
+//!   [`on_gate`]): each looks its entry up, **checks its arguments** (port non-negative, a
+//!   LAG destination as `OB_LAG_DEST_BIT | tid`, vid 1..4094, flags 0 / 1, the MAC pointer not
+//!   null), takes a clone of the closure's `Arc`, releases the table, and calls the closure under
+//!   `catch_unwind`: a panic never unwinds into the SDK; it is counted ([`CallbackStats`]) and,
+//!   for the gate, answered "down".
 //!
-//! * the closure lives in a process-wide slot behind a mutex (there is one SDK unit per
-//!   process, [`crate::Sdk`]);
-//! * `ctx` is not a pointer to anything: it carries the registration's generation number as
-//!   an address, and is compared, never dereferenced;
-//! * the C callback is a safe `extern "C"` function that locks the slot, checks the
-//!   generation and calls the closure; a panic of the closure is caught there and does not
-//!   cross into C.
+//! So a late or stray call (after unregistering, from an earlier registration, with any `ctx`
+//! or argument) finds no entry, no closure, or is refused, and does nothing. No lifetime
+//! depends on the SDK's behaviour: the closures are `Send + Sync + 'static` and kept alive by
+//! their `Arc` until the last call that cloned it returns. The switch still unregisters (gates
+//! first, then link + L2) before it shuts the BCM layer down, so the SDK stops calling.
 //!
-//! So a late or stray call from the SDK (after unregistering, from an earlier registration,
-//! with any `ctx`) finds an empty slot or another generation and does nothing. No lifetime
-//! depends on the SDK's behaviour. The handle still unregisters before it shuts the BCM layer
-//! down ([`Switch`]'s `Drop`), so the SDK stops calling, and the closure is dropped there.
+//! # For the closures
 //!
-//! What the two `unsafe` calls need is stated at each: plain integers, a function pointer
-//! with the signature of `ob_link_cb_t` that stays valid for the life of the process (a
-//! function of this crate), and a `ctx` the glue only stores and passes back.
-//!
-//! # For the closure
-//!
-//! It runs on an SDK thread with the slot locked: it must be quick and must not block (send
-//! on a channel, set a flag). It cannot call the switch: it has no [`Switch`]. Calls are
-//! serialised. MAC learning events (`ob_l2_cb_t`) are not bound: the glue is given no L2
-//! callback.
+//! They run on SDK threads: quick, no blocking (send on a channel, set a flag). They cannot
+//! call the switch: they have no [`Switch`]. Calls are not serialised by this crate (the table is
+//! not held during a call): after a `clear_*` returns, a call already running on another thread
+//! may still finish; none starts. The gate runs inside the SDK's link scan pass, which waits
+//! for it; its MDIO goes through a [`crate::MdioBus`].
 
+use std::collections::{BTreeMap, BTreeSet};
 use std::ffi::{c_int, c_void};
-use std::panic::catch_unwind;
-use std::sync::{Mutex, MutexGuard, PoisonError};
-
-use sdk_glue_sys as sys;
+use std::panic::{AssertUnwindSafe, catch_unwind};
+use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use crate::error::{Error, check};
+use crate::l2::Dest;
 use crate::switch::Switch;
 
-type Handler = Box<dyn Fn(i32, bool) + Send + Sync>;
-
-struct Slot {
-    /// Counts registrations; the value the current one passed to the glue as `ctx`.
-    generation: usize,
-    handler: Option<Handler>,
+/// What a link gate says about its port on one link scan pass.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Gate {
+    /// The port is down whatever the ASIC says (the glue's 0).
+    Down,
+    /// The port is up (the glue's 1).
+    Up,
+    /// No opinion: the SDK reads the ASIC's link as usual (the glue's -1).
+    NoOpinion,
 }
 
-static SLOT: Mutex<Slot> = Mutex::new(Slot {
-    generation: 0,
-    handler: None,
-});
-
-/// The slot, also after a closure panicked while it was locked (the slot holds no invariant a
-/// panic could break: a number and an optional closure).
-fn slot() -> MutexGuard<'static, Slot> {
-    SLOT.lock().unwrap_or_else(PoisonError::into_inner)
-}
-
-/// `ob_link_cb_t`. Safe to call with any arguments from any thread.
-extern "C" fn on_link(ctx: *mut c_void, port: c_int, up: c_int) {
-    let generation = ctx.addr();
-    // A panic must not unwind into the SDK's thread: it ends here, the event is lost.
-    let _ = catch_unwind(|| {
-        let slot = slot();
-        if slot.generation == generation {
-            if let Some(handler) = &slot.handler {
-                handler(port, up != 0);
-            }
+impl Gate {
+    const fn raw(self) -> c_int {
+        match self {
+            Self::Down => 0,
+            Self::Up => 1,
+            Self::NoOpinion => -1,
         }
-    });
+    }
+}
+
+/// An L2 learn / age event (`ob_l2_cb_t`): static entries are not reported (the glue skips them).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct L2Event {
+    /// The MAC address.
+    pub mac: [u8; 6],
+    /// The VLAN, 1..=4094.
+    pub vid: u16,
+    /// Where it was learned: a port, or a LAG (SDK trunk).
+    pub dest: Dest,
+    /// Learned (add, learn, move), else aged / deleted by hardware.
+    pub learned: bool,
+}
+
+/// Callback calls this switch's trampolines handled abnormally.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct CallbackStats {
+    /// Link closures that panicked (the event is lost).
+    pub link_panics: u64,
+    /// L2 closures that panicked.
+    pub l2_panics: u64,
+    /// Gate closures that panicked (answered "down").
+    pub gate_panics: u64,
+    /// Calls with arguments out of range, refused before any closure ran.
+    pub rejected: u64,
+}
+
+#[derive(Debug, Default)]
+struct Counters {
+    link_panics: AtomicU64,
+    l2_panics: AtomicU64,
+    gate_panics: AtomicU64,
+    rejected: AtomicU64,
+}
+
+impl Counters {
+    fn bump(counter: &AtomicU64) {
+        counter.fetch_add(1, Ordering::Relaxed);
+    }
+}
+
+type LinkFn = dyn Fn(i32, bool) + Send + Sync;
+type L2Fn = dyn Fn(L2Event) + Send + Sync;
+type GateFn = dyn Fn() -> Gate + Send + Sync;
+
+#[derive(Default)]
+struct Entry {
+    link: Option<Arc<LinkFn>>,
+    l2: Option<Arc<L2Fn>>,
+    gates: BTreeMap<c_int, Arc<GateFn>>,
+    counters: Arc<Counters>,
+}
+
+/// Every registration of this process, by key. No `static mut`: a const-initialised mutex.
+static REGISTRY: Mutex<BTreeMap<usize, Entry>> = Mutex::new(BTreeMap::new());
+/// The next key; 0 is never one.
+static NEXT_KEY: AtomicUsize = AtomicUsize::new(1);
+
+/// The table, also after a panic while it was held (it holds no invariant a panic could
+/// break; closures never run under it).
+fn registry() -> MutexGuard<'static, BTreeMap<usize, Entry>> {
+    REGISTRY.lock().unwrap_or_else(PoisonError::into_inner)
+}
+
+/// A closure of the entry `key` (cloned) and its counters, with the table released again.
+fn lookup<T>(key: usize, pick: impl FnOnce(&Entry) -> Option<T>) -> Option<(T, Arc<Counters>)> {
+    let table = registry();
+    let entry = table.get(&key)?;
+    let counters = Arc::clone(&entry.counters);
+    pick(entry).map(|t| (t, counters))
+}
+
+/// `ob_link_cb_t`. Safe to call with any arguments from any thread; never unwinds.
+pub(crate) extern "C" fn on_link(ctx: *mut c_void, port: c_int, up: c_int) {
+    let key = ctx.addr();
+    let _ = catch_unwind(AssertUnwindSafe(|| {
+        let Some((handler, counters)) = lookup(key, |e| e.link.clone()) else {
+            return;
+        };
+        if port < 0 || !(up == 0 || up == 1) {
+            Counters::bump(&counters.rejected);
+            return;
+        }
+        if catch_unwind(AssertUnwindSafe(|| handler(port, up == 1))).is_err() {
+            Counters::bump(&counters.link_panics);
+        }
+    }));
+}
+
+/// The L2 event of the glue's raw arguments, `None` when one is out of range.
+fn l2_event(mac: [u8; 6], vid: c_int, port: c_int, learned: c_int) -> Option<L2Event> {
+    let vid = u16::try_from(vid).ok().filter(|v| (1..=4094).contains(v))?;
+    let dest = Dest::from_raw(port)?;
+    let learned = match learned {
+        0 => false,
+        1 => true,
+        _ => return None,
+    };
+    Some(L2Event {
+        mac,
+        vid,
+        dest,
+        learned,
+    })
+}
+
+/// `ob_l2_cb_t`. Never unwinds.
+///
+/// # Safety
+///
+/// `mac` is null or points to 6 bytes readable for the duration of the call (the glue passes
+/// the `bcm_mac_t` of the SDK's `bcm_l2_addr_t` it was called with). Any other argument may have
+/// any value.
+pub(crate) unsafe extern "C" fn on_l2(ctx: *mut c_void, mac: *const u8, vid: c_int, port: c_int, learned: c_int) {
+    let key = ctx.addr();
+    let bytes = if mac.is_null() {
+        None
+    } else {
+        // SAFETY: not null, and by this function's contract 6 readable bytes; read as an
+        // unaligned array (u8 has no alignment anyway), copied out before anything else runs.
+        Some(unsafe { mac.cast::<[u8; 6]>().read_unaligned() })
+    };
+    let _ = catch_unwind(AssertUnwindSafe(|| {
+        let Some((handler, counters)) = lookup(key, |e| e.l2.clone()) else {
+            return;
+        };
+        let Some(event) = bytes.and_then(|mac| l2_event(mac, vid, port, learned)) else {
+            Counters::bump(&counters.rejected);
+            return;
+        };
+        if catch_unwind(AssertUnwindSafe(|| handler(event))).is_err() {
+            Counters::bump(&counters.l2_panics);
+        }
+    }));
+}
+
+/// `ob_gate_cb_t`: the port's gate, -1 (no opinion) without one. A gate that panics answers
+/// "down" (0): the port stays out of forwarding until the gate answers again. Safe to call
+/// with any arguments from any thread; never unwinds.
+pub(crate) extern "C" fn on_gate(ctx: *mut c_void, port: c_int) -> c_int {
+    let key = ctx.addr();
+    catch_unwind(AssertUnwindSafe(|| {
+        let Some((gate, counters)) = lookup(key, |e| e.gates.get(&port).cloned()) else {
+            return Gate::NoOpinion.raw();
+        };
+        if let Ok(answer) = catch_unwind(AssertUnwindSafe(|| gate())) {
+            answer.raw()
+        } else {
+            Counters::bump(&counters.gate_panics);
+            Gate::Down.raw()
+        }
+    }))
+    .unwrap_or(Gate::Down.raw())
+}
+
+/// A switch's registrations: its key in [`REGISTRY`] and what the glue was told.
+#[derive(Debug)]
+pub(crate) struct Callbacks {
+    key: usize,
+    /// Link / L2 pointers are stored in the glue (also after a refused registration).
+    registered: bool,
+    /// Ports with a gate registered in the glue.
+    gated: BTreeSet<c_int>,
+    counters: Arc<Counters>,
+}
+
+impl Callbacks {
+    pub(crate) fn new() -> Self {
+        let key = NEXT_KEY.fetch_add(1, Ordering::Relaxed);
+        let entry = Entry::default();
+        let counters = Arc::clone(&entry.counters);
+        registry().insert(key, entry);
+        Self {
+            key,
+            registered: false,
+            gated: BTreeSet::new(),
+            counters,
+        }
+    }
 }
 
 impl Switch {
-    /// Registers `handler` for link changes: called with the SDK's logical port number and
-    /// the new state (true = up), on an SDK thread (see the module documentation for what it
-    /// may do). Replaces an earlier handler. On an error nothing is registered and `handler`
-    /// is dropped.
+    /// Registers `handler` for link changes: called with the SDK's logical port number and the
+    /// new state (true = up), on an SDK thread (see the module documentation for what it may
+    /// do). Replaces an earlier link handler; an L2 handler stays. On an error nothing is
+    /// registered (no link, no L2 handler) and `handler` is dropped.
     pub fn set_link_callback(&mut self, handler: impl Fn(i32, bool) + Send + Sync + 'static) -> Result<(), Error> {
-        self.clear_link_callback();
-        let generation = {
-            let mut slot = slot();
-            slot.generation = slot.generation.wrapping_add(1);
-            slot.handler = Some(Box::new(handler));
-            slot.generation
-        };
-        let callback: unsafe extern "C" fn(*mut c_void, c_int, c_int) = on_link;
-        // Not a pointer to memory: the generation, for on_link to compare.
-        let ctx: *mut c_void = std::ptr::without_provenance_mut(generation);
-        // SAFETY: self exists, so ob_sdk_init succeeded on this unit (the BCM layer the glue
-        // registers with is up), and &mut self keeps other calls of this handle out. callback
-        // has the signature of ob_link_cb_t and is a function of this crate: valid for the
-        // life of the process, callable from any thread with any arguments (it is a safe
-        // function). No L2 callback is given (NULL: the glue checks it before every call).
-        // ctx is only stored by the glue and passed back to callback, which never
-        // dereferences it.
-        let rv = unsafe { sys::ob_sdk_register_callbacks(self.raw_unit(), Some(callback), None, ctx) };
-        // The glue stores the pointers before it asks the SDK, and leaves them stored when the
+        let l2 = lookup(self.cb.key, |e| e.l2.clone()).map(|(h, _)| h);
+        self.apply_callbacks(Some(Arc::new(handler)), l2)
+    }
+
+    /// Registers `handler` for L2 learn / age events ([`L2Event`]), on an SDK thread (the L2X
+    /// thread). Replaces an earlier L2 handler; a link handler stays. On an error nothing is
+    /// registered.
+    pub fn set_l2_callback(&mut self, handler: impl Fn(L2Event) + Send + Sync + 'static) -> Result<(), Error> {
+        let link = lookup(self.cb.key, |e| e.link.clone()).map(|(h, _)| h);
+        self.apply_callbacks(link, Some(Arc::new(handler)))
+    }
+
+    /// Unregisters the link handler (an L2 handler is registered again alone). No effect
+    /// without one.
+    pub fn clear_link_callback(&mut self) {
+        if !self.cb.registered {
+            return;
+        }
+        let l2 = lookup(self.cb.key, |e| e.l2.clone()).map(|(h, _)| h);
+        if self.apply_callbacks(None, l2).is_err() {
+            // a refused re-registration has cleared both: nothing is registered
+        }
+    }
+
+    /// Unregisters the link and the L2 handler and drops them. No effect without either.
+    pub fn clear_callbacks(&mut self) {
+        let _ = self.apply_callbacks(None, None);
+    }
+
+    /// The glue holds one registration of both pointers: unregister, store, register again.
+    fn apply_callbacks(&mut self, link: Option<Arc<LinkFn>>, l2: Option<Arc<L2Fn>>) -> Result<(), Error> {
+        let (unit, key) = (self.raw_unit(), self.cb.key);
+        if self.cb.registered {
+            // [I2]: &mut self.
+            self.glue().unregister_callbacks(unit);
+            self.cb.registered = false;
+        }
+        let (want_link, want_l2) = (link.is_some(), l2.is_some());
+        let old = registry()
+            .get_mut(&key)
+            .map(|e| (std::mem::replace(&mut e.link, link), std::mem::replace(&mut e.l2, l2)));
+        // The old closures go with the table released: a closure's Drop may do anything.
+        drop(old);
+        if !want_link && !want_l2 {
+            return Ok(());
+        }
+        let rv = self.glue().register_callbacks(unit, want_link, want_l2, key);
+        // The glue stores the pointers before it asks the SDK and leaves them stored when the
         // SDK refuses: from here on it is "registered" until unregistered, also on failure.
-        self.link_registered = true;
+        self.cb.registered = true;
         if let Err(error) = check(rv) {
-            self.clear_link_callback();
+            self.glue().unregister_callbacks(unit);
+            self.cb.registered = false;
+            let old = registry().get_mut(&key).map(|e| (e.link.take(), e.l2.take()));
+            drop(old);
             return Err(error);
         }
         Ok(())
     }
 
-    /// Unregisters the link callback and drops the handler. No effect without one.
-    pub fn clear_link_callback(&mut self) {
-        if !self.link_registered {
-            return;
+    /// Registers a link gate for `port` (`ob_sdk_linkscan_port_gate`): the SDK's link scan asks it
+    /// on every pass, before it reads the ASIC's link; [`Gate::Down`] takes the port down through
+    /// the SDK's own path (MAC off, out of the forwarding bitmap, LED, link callback). Software
+    /// link scan only: [`crate::Code::Config`] for a port in another mode (the gate would never
+    /// be asked). Replaces the port's earlier gate. On an error the port has no gate.
+    pub fn set_port_gate(&mut self, port: i32, gate: impl Fn() -> Gate + Send + Sync + 'static) -> Result<(), Error> {
+        if port < 0 {
+            return Err(Error::PORT);
         }
-        // SAFETY: self exists, so the BCM layer of this unit is up; the function takes the
-        // unit number only and removes the glue's own handlers from the SDK.
-        unsafe { sys::ob_sdk_unregister_callbacks(self.raw_unit()) };
-        self.link_registered = false;
-        // After the SDK was told: a call that is in progress on another thread holds the slot
-        // and finishes first; one that starts later finds it empty.
-        let handler = slot().handler.take();
-        // Dropped with the slot unlocked: a handler's own Drop may do anything.
-        drop(handler);
+        let (unit, key) = (self.raw_unit(), self.cb.key);
+        let old = registry()
+            .get_mut(&key)
+            .and_then(|e| e.gates.insert(port, Arc::new(gate)));
+        drop(old);
+        // [I2], [I3]: &mut self; the glue keeps one gate pointer and context for all ports, which
+        // are this crate's trampoline and this switch's key every time.
+        let rv = self.glue().linkscan_port_gate(unit, port, true, key);
+        if let Err(error) = check(rv) {
+            let old = registry().get_mut(&key).and_then(|e| e.gates.remove(&port));
+            drop(old);
+            return Err(error);
+        }
+        self.cb.gated.insert(port);
+        Ok(())
+    }
+
+    /// Removes `port`'s link gate (the SDK reads the ASIC's link again). No effect without one.
+    pub fn clear_port_gate(&mut self, port: i32) -> Result<(), Error> {
+        let (unit, key) = (self.raw_unit(), self.cb.key);
+        let rv = if self.cb.gated.contains(&port) {
+            self.glue().linkscan_port_gate(unit, port, false, key)
+        } else {
+            0
+        };
+        check(rv)?;
+        self.cb.gated.remove(&port);
+        let old = registry().get_mut(&key).and_then(|e| e.gates.remove(&port));
+        drop(old);
+        Ok(())
+    }
+
+    /// The ports with a link gate.
+    pub fn gated_ports(&self) -> Vec<i32> {
+        self.cb.gated.iter().copied().collect()
+    }
+
+    /// How many callback calls of this switch went wrong ([`CallbackStats`]).
+    pub fn callback_stats(&self) -> CallbackStats {
+        let c = &self.cb.counters;
+        CallbackStats {
+            link_panics: c.link_panics.load(Ordering::Relaxed),
+            l2_panics: c.l2_panics.load(Ordering::Relaxed),
+            gate_panics: c.gate_panics.load(Ordering::Relaxed),
+            rejected: c.rejected.load(Ordering::Relaxed),
+        }
+    }
+
+    /// Everything this switch registered, undone (its `Drop`, before the BCM layer goes).
+    pub(crate) fn unregister_all(&mut self) {
+        let (unit, key) = (self.raw_unit(), self.cb.key);
+        for port in std::mem::take(&mut self.cb.gated) {
+            // Best effort: the SDK's NOT_FOUND is success; nothing else can be done here.
+            let _ = self.glue().linkscan_port_gate(unit, port, false, key);
+        }
+        if self.cb.registered {
+            self.glue().unregister_callbacks(unit);
+            self.cb.registered = false;
+        }
+        let entry = registry().remove(&key);
+        drop(entry);
+    }
+}
+
+#[cfg(feature = "rust-fake")]
+pub(crate) mod raw {
+    //! The trampolines as the Rust fake (and its tests) call them.
+    use super::{c_int, c_void};
+
+    pub(crate) fn link(key: usize, port: c_int, up: c_int) {
+        super::on_link(std::ptr::without_provenance_mut::<c_void>(key), port, up);
+    }
+
+    pub(crate) fn l2(key: usize, mac: Option<&[u8; 6]>, vid: c_int, port: c_int, learned: c_int) {
+        let ptr = mac.map_or(std::ptr::null(), |m| m.as_ptr());
+        // SAFETY: ptr is null or points to the 6 bytes of a borrowed array, alive across the call:
+        // on_l2's contract.
+        unsafe { super::on_l2(std::ptr::without_provenance_mut::<c_void>(key), ptr, vid, port, learned) };
+    }
+
+    pub(crate) fn gate(key: usize, port: c_int) -> c_int {
+        super::on_gate(std::ptr::without_provenance_mut::<c_void>(key), port)
     }
 }

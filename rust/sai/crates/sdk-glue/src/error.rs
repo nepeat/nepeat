@@ -1,6 +1,8 @@
 //! The glue's return codes (`OB_E_*`: the SDK's `BCM_E_*` plus one of the glue's own).
 
-use std::ffi::{CStr, c_int};
+#[cfg(all(ob_glue_linked, not(miri)))]
+use std::ffi::CStr;
+use std::ffi::c_int;
 use std::fmt;
 
 use sdk_glue_sys as sys;
@@ -62,6 +64,12 @@ impl Error {
     pub(crate) const INTERNAL: Self = Self {
         raw: sys::OB_E_INTERNAL,
     };
+    /// `OB_E_PARAM`: an argument this crate refuses before calling the glue.
+    pub(crate) const PARAM: Self = Self { raw: sys::OB_E_PARAM };
+    /// `OB_E_INIT`: a handle whose owner is gone.
+    pub(crate) const INIT: Self = Self { raw: sys::OB_E_INIT };
+    /// `OB_E_PORT`: a port number outside the glue's `int`.
+    pub(crate) const PORT: Self = Self { raw: sys::OB_E_PORT };
 
     /// `None` for a code that is not an error (0 and above).
     pub const fn from_raw(rv: i32) -> Option<Self> {
@@ -100,8 +108,21 @@ impl Error {
     }
 
     /// The glue's text for the code (`ob_sdk_errmsg`: the SDK's `bcm_errmsg`). Needs no
-    /// initialised SDK.
+    /// initialised SDK. In a build that links no C glue (only the Rust fake), and under Miri,
+    /// the same texts from [`sdk_text`] (the SDK's table, as `fake_glue.c` copies it).
     pub fn message(self) -> String {
+        #[cfg(any(not(ob_glue_linked), miri))]
+        {
+            sdk_text(self.raw).to_owned()
+        }
+        #[cfg(all(ob_glue_linked, not(miri)))]
+        {
+            self.glue_message()
+        }
+    }
+
+    #[cfg(all(ob_glue_linked, not(miri)))]
+    fn glue_message(self) -> String {
         // SAFETY: ob_sdk_errmsg takes any int, reads no state and needs no initialised SDK: it
         // returns the address of a string literal (sdk_glue.c: one literal of its own, or
         // bcm_errmsg, which indexes the SDK's constant message table with a clamped index).
@@ -124,6 +145,43 @@ impl fmt::Display for Error {
 }
 
 impl std::error::Error for Error {}
+
+/// The SDK's message for a code (`_shr_errmsg`; the Rust fake's `ob_sdk_errmsg`), and the
+/// glue's own for `OB_E_MDIO_CLOCK`. Compared with the linked glue's `ob_sdk_errmsg` by this
+/// crate's tests.
+pub fn sdk_text(rv: i32) -> &'static str {
+    const TEXT: [&str; 20] = [
+        "Ok",
+        "Internal error",
+        "Out of memory",
+        "Invalid unit",
+        "Invalid parameter",
+        "Table empty",
+        "Table full",
+        "Entry not found",
+        "Entry exists",
+        "Operation timed out",
+        "Operation still running",
+        "Operation failed",
+        "Operation disabled",
+        "Invalid identifier",
+        "No resources for operation",
+        "Invalid configuration",
+        "Feature unavailable",
+        "Feature not initialized",
+        "Invalid port",
+        "Unknown error",
+    ];
+    if rv == sys::OB_E_MDIO_CLOCK {
+        return "MDIO clock setup not as configured";
+    }
+    let index = if rv <= 0 && rv > -19 {
+        usize::try_from(-rv).unwrap_or(19)
+    } else {
+        19
+    };
+    TEXT.get(index).copied().unwrap_or("Unknown error")
+}
 
 /// `Ok(rv)` for a non-negative return code.
 pub(crate) fn check(rv: c_int) -> Result<c_int, Error> {

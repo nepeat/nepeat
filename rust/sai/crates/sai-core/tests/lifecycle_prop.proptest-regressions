@@ -1,0 +1,9 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 84a2dc47ee6610cc2871e42e5a0d6428215c305287751e36fdd50d88cc15179d # shrinks to steps = [CreateInterface { router: 0, port: 0 }]
+cc 3cd1ddff7a08b282c1cb998a2e895187b92ba145ea8ab75449e165553cfb5f1b # shrinks to steps = [CreateInterface { router: 0, port: 7564001168534463791 }, CreateRouter, CreateInterface { router: 0, port: 9425066892615648908 }, FailNext(3129507999840417855), CreateInterface { router: 0, port: 3168848122895946621 }, CreateNextHop { interface: 3258348512070055007, ip: 0 }, RemoveBag { object_type: 11028075298695837817, id: 6400918453940121437 }]
+cc d30b16ad679558278be31250285129c8bb6ecc62bb217d0303d83036f5b497e3 # shrinks to steps = [FailNext(13922239552605330356), FailNext(9992780257370732595), CreateInterface { router: 0, port: 0 }]

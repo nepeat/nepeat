@@ -2,33 +2,71 @@
 use crate::Status;
 use crate::guard::{guard, guard_value};
 use crate::{log, ptr, state, tables};
-use core::ffi::{c_char, c_void};
+use core::ffi::{CStr, c_char, c_void};
 use sai_core::caps;
 use sai_core::error::Error;
 use sai_core::oid::RawOid;
 use sai_sys as sys;
+use std::ffi::OsStr;
+use std::os::unix::ffi::OsStrExt as _;
+use std::path::Path;
 
 const GLOBAL: sys::sai_api_t = sys::SAI_API_UNSPECIFIED;
 
 /// First stage of bring-up: remembers the SAI user's service method table. No hardware is
-/// touched before a switch is created.
+/// touched before a switch is created. The C++ order: a second call `SAI_STATUS_FAILURE`;
+/// `flags` other than 0, no table or no `profile_get_value` `SAI_STATUS_INVALID_PARAMETER`.
+/// `SAI_OPENBCM_LOG_STDERR=1` in the profile sends the log lines to stderr too.
 ///
 /// # Safety
 /// `services` is null or points to a service method table whose function pointers are null
 /// or stay callable, from any thread, with the signatures of the SAI headers until
-/// `sai_api_uninitialize` returns; `profile_get_value` returns null or a NUL-terminated string
-/// valid at least until the next call of a table function.
+/// `sai_api_uninitialize` returns; `profile_get_value` returns null or a NUL-terminated
+/// string, and `profile_get_next_value` keeps the contract of `state::Services::new`; every
+/// string stays valid at least until the next call of a table function.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn sai_api_initialize(flags: u64, services: *const sys::sai_service_method_table_t) -> Status {
     guard(GLOBAL, || {
+        if state::with_api(|_| Ok(())).is_ok() {
+            log::emit(
+                GLOBAL,
+                sys::SAI_LOG_LEVEL_ERROR,
+                format_args!("sai_api_initialize: already initialized"),
+            );
+            return Err(sys::SAI_STATUS_FAILURE);
+        }
         if flags != 0 {
             return Err(sys::SAI_STATUS_INVALID_PARAMETER);
         }
         // SAFETY: this function's contract.
-        let table = unsafe { ptr::in_ref(services) }?;
+        let table = unsafe { ptr::in_ref(services) }
+            .ok()
+            .filter(|table| table.profile_get_value.is_some());
+        let Some(table) = table else {
+            log::emit(
+                GLOBAL,
+                sys::SAI_LOG_LEVEL_ERROR,
+                format_args!("sai_api_initialize: no service method table / profile_get_value"),
+            );
+            return Err(sys::SAI_STATUS_INVALID_PARAMETER);
+        };
         // SAFETY: this function's contract is `Services::new`'s.
         let services = unsafe { state::Services::new(table) };
-        state::initialize(services)
+        // A profile callback: outside the lock.
+        let to_stderr = services.value(0, sai_core::keys::LOG_STDERR);
+        sai_core::log::configure_stderr(to_stderr.as_deref() == Some("1"));
+        state::initialize(services)?;
+        log::emit(
+            GLOBAL,
+            sys::SAI_LOG_LEVEL_NOTICE,
+            format_args!(
+                "sai-openbcm initialized (SAI headers {}.{}.{})",
+                sys::SAI_MAJOR,
+                sys::SAI_MINOR,
+                sys::SAI_REVISION
+            ),
+        );
+        Ok(())
     })
 }
 
@@ -62,7 +100,8 @@ pub unsafe extern "C" fn sai_api_query(api: sys::sai_api_t, api_method_table: *m
     })
 }
 
-/// Sets the log level of one API.
+/// Sets the log level of one API: `SAI_STATUS_INVALID_PARAMETER` for an API outside
+/// `SAI_API_UNSPECIFIED..=SAI_API_MAX` or a level outside `DEBUG..=CRITICAL`.
 #[unsafe(no_mangle)]
 pub extern "C" fn sai_log_set(api: sys::sai_api_t, log_level: sys::sai_log_level_t) -> Status {
     guard(GLOBAL, || {
@@ -101,8 +140,9 @@ pub unsafe extern "C" fn sai_query_api_version(version: *mut sys::sai_api_versio
 }
 
 /// Which of create, set and get an attribute is implemented for (the table of
-/// `sai_core::caps`, the C++ sai-openbcm's). An attribute that is not in the table is
-/// answered with all three false, and success.
+/// `sai_core::caps`, the C++ sai-openbcm's), as the C++ answers: from the table alone, without
+/// the lock and before initialisation too. An attribute that is not in the table is answered
+/// with all three false, and success.
 ///
 /// # Safety
 /// `attr_capability` is null or valid for a write of a `sai_attr_capability_t`.
@@ -116,9 +156,7 @@ pub unsafe extern "C" fn sai_query_attribute_capability(
     guard(GLOBAL, || {
         // SAFETY: this function's contract.
         let out = unsafe { ptr::out(attr_capability) }?;
-        // Cut to what the backend programs; before sai_api_initialize, the table itself.
-        let capability = state::with_api(|api| Ok(api.sai.attribute_capability(object_type, attr_id)))
-            .unwrap_or_else(|_| caps::attribute(object_type, attr_id));
+        let capability = caps::attribute(object_type, attr_id);
         out.write(sys::sai_attr_capability_t {
             create_implemented: capability.create,
             set_implemented: capability.set,
@@ -128,8 +166,9 @@ pub unsafe extern "C" fn sai_query_attribute_capability(
     })
 }
 
-/// The enumerators of an attribute that are implemented, with SAI's list convention (count
-/// in: capacity; out: needed). `SAI_STATUS_NOT_SUPPORTED` for attributes without a list.
+/// The enumerators of an attribute that are implemented (the C++ list, without the lock and
+/// before initialisation too), with SAI's list convention (count in: capacity; out: needed).
+/// `SAI_STATUS_NOT_SUPPORTED` for attributes without a list.
 ///
 /// # Safety
 /// `enum_values_capability` is null or points to a list whose count is the capacity of the
@@ -147,18 +186,16 @@ pub unsafe extern "C" fn sai_query_attribute_enum_values_capability(
         let list = unsafe { ptr::inout_slice(enum_values_capability, 1) }?
             .first_mut()
             .ok_or(sys::SAI_STATUS_INVALID_PARAMETER)?;
-        let values = state::with_api(|api| {
-            api.sai
-                .enum_values_capability(object_type, attr_id)
-                .map_err(Error::status)
-        })?;
+        let values = caps::enum_values(object_type, attr_id).map_err(Error::status)?;
         // SAFETY: this function's contract is `write_list`'s for the list's count and buffer.
         unsafe { ptr::write_list(&mut list.count, list.list, &values) }
     })
 }
 
-/// The counters the chip has for objects of a type, each readable and clearable, with SAI's
-/// list convention.
+/// The counters the chip has for objects of a type, with the modes each can be read in
+/// (`READ` for ports, router interfaces and `MACsec` objects, also `READ_AND_CLEAR` for queues
+/// and priority groups, as the C++), with SAI's list convention. Without a switch (or before
+/// initialisation) the C++ answers that need no backend.
 ///
 /// # Safety
 /// `stats_capability` is null or points to a list whose count is the capacity of the buffer
@@ -175,16 +212,53 @@ pub unsafe extern "C" fn sai_query_stats_capability(
         let list = unsafe { ptr::inout_slice(stats_capability, 1) }?
             .first_mut()
             .ok_or(sys::SAI_STATUS_INVALID_PARAMETER)?;
-        let counters = state::with_api(|api| api.sai.stats_capability(object_type).map_err(Error::status))?;
-        let items: Vec<sys::sai_stat_capability_t> = counters
+        // With a switch, the core over its backend; without one, the C++ answers that need no
+        // backend (`caps::stats_capability_static`); queues and priority groups before
+        // initialisation `UNINITIALIZED` (the C++ `guarded`).
+        let with_switch = state::with_api(|api| {
+            let has_switch = api.sai.switch_id().is_some();
+            Ok(has_switch.then(|| api.sai.stats_capability(object_type)))
+        });
+        let answer = match with_switch {
+            Ok(Some(answer)) => answer,
+            Ok(None) => caps::stats_capability_static(object_type),
+            Err(sys::SAI_STATUS_UNINITIALIZED)
+                if object_type != sys::SAI_OBJECT_TYPE_QUEUE
+                    && object_type != sys::SAI_OBJECT_TYPE_INGRESS_PRIORITY_GROUP =>
+            {
+                caps::stats_capability_static(object_type)
+            }
+            Err(status) => return Err(status),
+        };
+        let items: Vec<sys::sai_stat_capability_t> = answer
+            .map_err(Error::status)?
             .into_iter()
-            .map(|stat_enum| sys::sai_stat_capability_t {
-                stat_enum,
-                stat_modes: sys::SAI_STATS_MODE_READ | sys::SAI_STATS_MODE_READ_AND_CLEAR,
-            })
+            .map(|(stat_enum, stat_modes)| sys::sai_stat_capability_t { stat_enum, stat_modes })
             .collect();
         // SAFETY: this function's contract is `write_list`'s for the list's count and buffer.
         unsafe { ptr::write_list(&mut list.count, list.list, &items) }
+    })
+}
+
+/// Writes a text summary of the switch to a file ([`sai_core::dump`], the C++ text line for
+/// line): `SAI_STATUS_INVALID_PARAMETER` for a null name, `SAI_STATUS_UNINITIALIZED` before
+/// `sai_api_initialize`, `SAI_STATUS_FAILURE` when the file cannot be written. Works without a
+/// switch. The text is made under the lock, the file written after it.
+///
+/// # Safety
+/// `dump_file_name` is null or a NUL-terminated string, unwritten during the call.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sai_dbg_generate_dump(dump_file_name: *const c_char) -> Status {
+    guard(GLOBAL, || {
+        if dump_file_name.is_null() {
+            return Err(sys::SAI_STATUS_INVALID_PARAMETER);
+        }
+        // SAFETY: non-null (checked), NUL-terminated and unwritten during the call (this
+        // function's contract); borrowed only for this call.
+        let name = unsafe { CStr::from_ptr(dump_file_name) };
+        let path = Path::new(OsStr::from_bytes(name.to_bytes()));
+        let text = state::with_api(|api| Ok(api.sai.dump_text()))?;
+        std::fs::write(path, text).map_err(|_| sys::SAI_STATUS_FAILURE)
     })
 }
 
@@ -204,8 +278,6 @@ macro_rules! fixed_status {
 }
 
 fixed_status! { SAI_STATUS_NOT_IMPLEMENTED:
-    /// `sai_dbg_generate_dump`
-    fn sai_dbg_generate_dump(dump_file_name: *const c_char);
     /// `sai_bulk_get_attribute`
     fn sai_bulk_get_attribute(
         switch_id: sys::sai_object_id_t, object_type: sys::sai_object_type_t, object_count: u32, object_key: *const sys::sai_object_key_t,

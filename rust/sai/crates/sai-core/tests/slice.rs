@@ -69,9 +69,10 @@ fn switch_creation_is_a_second_stage_with_its_own_rules() {
         Attr::new(sys::SAI_SWITCH_ATTR_SRC_MAC_ADDRESS, Value::Mac([2; 6])),
         Attr::new(sys::SAI_SWITCH_ATTR_INIT_SWITCH, Value::Bool(false)),
     ];
+    // C++: INIT_SWITCH=false is NOT_SUPPORTED, not indexed
     assert_eq!(
         sai.create_switch(&attach, &Profile::default()),
-        Err(Error::attr(AttrError::NotSupported, 1))
+        Err(Error::NotSupported)
     );
     // an attribute this library does nothing with is refused by index, not dropped
     let extra = [
@@ -92,7 +93,7 @@ fn switch_creation_is_a_second_stage_with_its_own_rules() {
     ];
     assert_eq!(
         sai.create_switch(&phy, &Profile::default()),
-        Err(Error::attr(AttrError::Invalid, 1))
+        Err(Error::attr(AttrError::InvalidValue, 1)) // C++ attr_invalid
     );
     // a profile typo is an error, not the default
     let typo = Profile::from_pairs([("SAI_RS_VIRTUAL_PORTS", "3x")]);
@@ -110,7 +111,7 @@ fn switch_creation_is_a_second_stage_with_its_own_rules() {
     let id = sai.create_switch(&attrs, &Profile::default()).unwrap().raw();
     assert_eq!(
         sai.create_switch(&attrs, &Profile::default()),
-        Err(Error::ItemAlreadyExists)
+        Err(Error::InsufficientResources) // C++: "only one switch is supported"
     );
     assert_eq!(
         sai.switch_callback(sys::SAI_SWITCH_ATTR_PORT_STATE_CHANGE_NOTIFY),
@@ -155,7 +156,7 @@ fn switch_creation_is_a_second_stage_with_its_own_rules() {
     );
     assert_eq!(
         sai.get(SWITCH, id, &[sys::SAI_SWITCH_ATTR_PORT_NUMBER, 0x0fff_fff0]),
-        Err(Error::attr(AttrError::Unknown, 1))
+        Err(Error::attr(AttrError::NotSupported, 1)) // C++ get_one's default
     );
     model_and_chip_agree(&sai).unwrap();
 
@@ -175,7 +176,7 @@ fn switch_creation_is_a_second_stage_with_its_own_rules() {
             id,
             &Attr::new(sys::SAI_SWITCH_ATTR_INIT_SWITCH, Value::Bool(true))
         ),
-        Err(Error::attr(AttrError::Invalid, 0))
+        Err(Error::attr(AttrError::NotSupported, 0)) // C++ set_switch_attribute's default
     );
 
     sai.remove(SWITCH, id).unwrap();
@@ -220,7 +221,7 @@ fn ports_come_from_the_chip_disabled() {
     );
     assert_eq!(
         get1(&sai, PORT, cpu, sys::SAI_PORT_ATTR_HW_LANE_LIST),
-        Err(Error::attr(AttrError::NotSupported, 0))
+        Ok(Value::U32List(Vec::new()))
     );
     assert_eq!(
         sai.set(
@@ -352,7 +353,7 @@ fn vlans_and_members() {
         vlan(&mut sai, RawOid(switch.0 | 1 << 48), 101),
         Err(Error::InvalidObjectId)
     ); // not this switch
-    assert_eq!(vlan(&mut sai, v100, 101), Err(Error::InvalidObjectType)); // not a switch at all
+    assert_eq!(vlan(&mut sai, v100, 101), Err(Error::InvalidObjectId)); // not a switch at all
 
     let m0 = member(&mut sai, switch, v100, bps[0], sys::SAI_VLAN_TAGGING_MODE_TAGGED).unwrap();
     let m1 = member(&mut sai, switch, v100, bps[1], sys::SAI_VLAN_TAGGING_MODE_UNTAGGED).unwrap();
@@ -379,6 +380,7 @@ fn vlans_and_members() {
         member(&mut sai, switch, v100, v100, 0),
         Err(Error::attr(AttrError::InvalidValue, 1))
     );
+    // (a VLAN that names nothing is INVALID_PARAMETER, as in the C++)
     assert_eq!(
         member(
             &mut sai,
@@ -387,7 +389,7 @@ fn vlans_and_members() {
             bps[2],
             0
         ),
-        Err(Error::attr(AttrError::InvalidValue, 0))
+        Err(Error::InvalidParameter)
     );
     assert_eq!(
         oid_list(get1(&sai, VLAN, v100, sys::SAI_VLAN_ATTR_MEMBER_LIST).unwrap()),
@@ -398,7 +400,7 @@ fn vlans_and_members() {
             .iter()
             .map(|(hw, untagged)| (hw.0, *untagged))
             .collect::<Vec<_>>(),
-        [(1, false), (2, true)]
+        [(0, false), (1, false), (2, true)] // the CPU port, tagged, as the SDK makes a VLAN
     );
     model_and_chip_agree(&sai).unwrap();
 
@@ -433,15 +435,15 @@ fn vlans_and_members() {
             m0,
             &Attr::new(sys::SAI_VLAN_MEMBER_ATTR_VLAN_ID, Value::Oid(default_vlan))
         ),
-        Err(Error::attr(AttrError::Invalid, 0))
+        Err(Error::attr(AttrError::InvalidValue, 0)) // C++: all but the tagging mode
     );
     model_and_chip_agree(&sai).unwrap();
 
-    // lifecycle: referenced objects stay, wrong types and stale ids are told apart
+    // lifecycle: referenced objects stay; a wrong type is no such object, as a stale id (C++)
     assert_eq!(sai.remove(VLAN, v100), Err(Error::ObjectInUse));
     assert_eq!(sai.remove(BRIDGE_PORT, bps[0]), Err(Error::ObjectInUse));
-    assert_eq!(sai.remove(VLAN, m0), Err(Error::InvalidObjectType));
-    assert_eq!(sai.remove(VLAN_MEMBER, v100), Err(Error::InvalidObjectType));
+    assert_eq!(sai.remove(VLAN, m0), Err(Error::InvalidObjectId));
+    assert_eq!(sai.remove(VLAN_MEMBER, v100), Err(Error::InvalidObjectId));
     assert_eq!(sai.remove(VLAN, RawOid::NULL), Err(Error::InvalidObjectId));
     sai.remove(VLAN_MEMBER, m0).unwrap();
     assert_eq!(sai.remove(VLAN_MEMBER, m0), Err(Error::InvalidObjectId));
@@ -455,9 +457,9 @@ fn vlans_and_members() {
         get1(&sai, VLAN, v100, sys::SAI_VLAN_ATTR_VLAN_ID),
         Err(Error::InvalidObjectId)
     );
-    // the same VID again is a new object under a new id
+    // the same VID again: a VLAN's id is its VID (the C++ layout), so the same id
     let again = vlan(&mut sai, switch, 100).unwrap();
-    assert_ne!(again, v100);
+    assert_eq!(again, v100);
 
     // what orchagent does first: remove the default members, then the default bridge ports
     for m in default_members {
@@ -467,7 +469,11 @@ fn vlans_and_members() {
         sai.remove(BRIDGE_PORT, *bp).unwrap();
     }
     assert_eq!(bridge_ports(&sai, switch), []);
-    assert!(sai.backend().vlans()[&Vid::DEFAULT].is_empty());
+    // only the CPU port is left in VLAN 1 (tagged, the SDK's)
+    assert_eq!(
+        sai.backend().vlans()[&Vid::DEFAULT].iter().collect::<Vec<_>>(),
+        [(&HwPort(0), &false)]
+    );
     model_and_chip_agree(&sai).unwrap();
 
     // and bridge ports are created again as ports join VLANs
@@ -491,9 +497,10 @@ fn vlans_and_members() {
     let Value::Oid(cpu) = get1(&sai, SWITCH, switch, sys::SAI_SWITCH_ATTR_CPU_PORT).unwrap() else {
         panic!()
     };
+    // (the CPU port cannot carry one: INVALID_PARAMETER, as in the C++)
     assert_eq!(
         sai.create(BRIDGE_PORT, switch, &bp_attrs(cpu)),
-        Err(Error::attr(AttrError::InvalidValue, 1))
+        Err(Error::InvalidParameter)
     );
     let sub_port = [Attr::new(
         sys::SAI_BRIDGE_PORT_ATTR_TYPE,
@@ -585,9 +592,10 @@ fn a_failing_backend_leaves_model_and_chip_as_they_were() {
     sai.backend_mut().fail_next(Op::Init, Error::Failure);
     assert_eq!(sai.create_switch(&init_attrs(), &profile(4)), Err(Error::Failure));
     assert!(sai.store().is_none());
+    // a port that cannot be disabled is logged and the switch is created; the model says admin
+    // down although the chip port stays as the SDK left it (C++ switch_build_objects)
     sai.backend_mut().fail_next(Op::PortAdminSet, Error::Failure);
-    assert_eq!(sai.create_switch(&init_attrs(), &profile(4)), Err(Error::Failure));
-    assert!(sai.store().is_none() && sai.backend().vlans().is_empty() && sai.backend().port_admin(HwPort(1)).is_none());
     sai.create_switch(&init_attrs(), &profile(4)).unwrap();
-    model_and_chip_agree(&sai).unwrap();
+    assert_eq!(sai.backend().port_admin(HwPort(1)), Some(true));
+    assert!(model_and_chip_agree(&sai).is_err());
 }

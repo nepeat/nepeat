@@ -91,6 +91,11 @@ pub struct Options {
     pub log: Option<Logger>,
     /// Where object ids come from; `None`: the model's own counter.
     pub alloc: Option<IdAlloc>,
+    /// `SAI_OPENBCM_MACSEC_ENGINES_ON_AT_STOP` (designed for the owner's decision on the
+    /// clear-traffic window; off = the C++): removing a MACSEC_PORT leaves its engine on (no
+    /// `disable`; the gate closed, data dropped), and the start-up clean-up resets an engine a
+    /// previous process left on without putting it into bypass.
+    pub engines_on_at_stop: bool,
 }
 
 /// What the PHY of one port holds, one direction (`Hw`).
@@ -246,6 +251,8 @@ pub struct Macsec {
     pub(crate) alloc: Alloc,
     ext_alloc: Option<IdAlloc>,
     pub(crate) order: u64,
+    /// [`Options::engines_on_at_stop`].
+    pub(crate) engines_on: bool,
 }
 
 impl fmt::Debug for Macsec {
@@ -284,6 +291,7 @@ impl Macsec {
             alloc: Alloc::default(),
             ext_alloc: options.alloc,
             order: 0,
+            engines_on: options.engines_on_at_stop,
         }
     }
 
@@ -393,7 +401,9 @@ impl Macsec {
                 }
                 left += 1;
                 let _ = m.run(runner, key, dir, &seq::reset(dir), &Params::new(), true);
-                let _ = m.run(runner, key, dir, &seq::disable(dir), &Params::new(), false);
+                if !m.engines_on {
+                    let _ = m.run(runner, key, dir, &seq::disable(dir), &Params::new(), false);
+                }
             }
         }
         if left > 0 {
@@ -424,8 +434,14 @@ impl Macsec {
         let log = self.log.take();
         let alloc = self.ext_alloc.take();
         let auth_key = self.auth_key;
+        let engines_on_at_stop = self.engines_on;
         // dropping the SAs wipes their parameters
-        *self = Self::without_table(Options { auth_key, log, alloc });
+        *self = Self::without_table(Options {
+            auth_key,
+            log,
+            alloc,
+            engines_on_at_stop,
+        });
     }
 
     /// Whether a table is attached (`ext_macsec_active`).
@@ -692,6 +708,32 @@ impl Macsec {
         }
         let (port_id, port_name) = (port.port, port.name.clone());
         let flow = port_id.and_then(|p| self.bound_flow(p, dir));
+        // D9 (Q7 fixed): the port's data now goes to another flow: the SAs of every other SC
+        // come out of the PHY (the gate closes before the last), so no old key keeps the gate
+        // open and no old SA holds an AN the new SC needs. Without a flow (the entry disabled)
+        // they stay, as in the C++.
+        if let Some(flow) = flow {
+            let stale: Vec<SaId> = self
+                .sas
+                .iter()
+                .filter(|(id, sa)| {
+                    sa.dir == dir && sa.installed && self.engine(hw, dir).and_then(|e| e.slot(sa.an)) == Some(**id)
+                })
+                .filter(|(_, sa)| self.scs.get(&sa.sc).is_some_and(|sc| sc.flow != flow))
+                .map(|(id, _)| *id)
+                .collect();
+            for id in stale {
+                let an = self.sas.get(&id).map(|sa| sa.an.get()).unwrap_or_default();
+                self.log(
+                    Level::Notice,
+                    format_args!(
+                        "port {port_name}: {} SA AN {an} of another flow's SC taken out",
+                        dir.name()
+                    ),
+                );
+                let _ = self.sa_uninstall(runner, hw, id);
+            }
+        }
         let mut pending: Vec<(u64, SaId)> = flow.map_or_else(Vec::new, |flow| {
             self.sas
                 .iter()
@@ -767,6 +809,12 @@ impl Macsec {
                 CounterMode::Absolute => value,
             };
         }
+    }
+
+    /// Whether the port has a MACSEC_PORT object of either direction (the library's hold of
+    /// `SAI_OPENBCM_MACSEC_HOLD_CLOSED`).
+    pub fn has_macsec_port(&self, hw: PortKey) -> bool {
+        self.mports.values().any(|m| m.hw == hw)
     }
 
     /// Average inter-frame gap (bit times) the port needs while it has a MACSEC_PORT

@@ -5,9 +5,13 @@ use crate::Status;
 use crate::ptr;
 use core::ffi::c_char;
 use sai_core::error::{AttrError, Error};
+use sai_core::macsec::Secret;
 use sai_core::model::EntryKey;
 use sai_core::oid::RawOid;
-use sai_core::value::{AclResource, IpPrefix, Pointer, QosMapEntry, QosParams, Value};
+use sai_core::value::{
+    AclAction, AclField, AclFieldData, AclKind, AclParam, AclResource, FieldMatch, IpPrefix, Pointer, QosMapEntry,
+    QosParams, Value,
+};
 use sai_meta::ValueType;
 use sai_sys as sys;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
@@ -184,8 +188,8 @@ impl EntryStruct for sys::sai_route_entry_t {
 
 /// Copies a list member of an input value into a `Vec`.
 macro_rules! list_in {
-    ($value:ident . $field:ident) => {{
-        let list = member!($value.$field);
+    ($value:ident . $($field:ident).+) => {{
+        let list = member!($value.$($field).+);
         // SAFETY: the contract of `decode`: a list member's pointer names `count` initialised
         // elements unless the count is zero, which is `in_slice`'s contract.
         unsafe { ptr::in_slice(list.list.cast_const(), list.count) }
@@ -196,14 +200,181 @@ macro_rules! list_in {
 
 /// Writes a result list into the buffer a list member of an output value names.
 macro_rules! list_out {
-    ($slot:ident . $field:ident, $items:expr) => {{
-        let mut list = member!($slot.$field);
+    ($slot:ident . $($field:ident).+, $items:expr) => {{
+        let mut list = member!($slot.$($field).+);
         // SAFETY: the contract of `encode`: the caller set the member's count to the capacity of
         // the buffer its pointer names (or to zero), which is `write_list`'s contract.
         let outcome = unsafe { ptr::write_list(&mut list.count, list.list, $items) };
-        $slot.$field = list;
+        $slot.$($field).+ = list;
         outcome
     }};
+}
+
+/// Reads a C `bool` field of a struct inside the union (an ACL field's or action's `enable`)
+/// as the byte it is: a C caller may store any non-zero value, which is not a Rust `bool`.
+macro_rules! flag {
+    ($value:ident . $($field:ident).+) => {
+        // SAFETY: the contract of `decode`: the C caller initialised the member this field is
+        // part of, so the byte is initialised; it is read as a `u8`, for which every bit
+        // pattern is a value.
+        unsafe { (&raw const $value.$($field).+).cast::<u8>().read() } != 0
+    };
+}
+
+/// Decodes an ACL entry field (`aclfield`) or action (`aclaction`) by the kind of its data.
+/// Data, mask and parameter are read only when the field or action is enabled (SAI leaves
+/// them undefined otherwise).
+///
+/// # Safety
+/// As [`decode`]: the caller initialised `aclfield` (for `field`) or `aclaction`: its
+/// `enable` byte and, when that is set, the data / mask / parameter members `kind` names,
+/// lists with their elements.
+unsafe fn acl_decode(field: bool, kind: AclKind, value: &sys::sai_attribute_value_t) -> Result<Value, Error> {
+    const fn m<T>(data: T, mask: T) -> FieldMatch<T> {
+        FieldMatch { data, mask }
+    }
+    let not_supported = Error::attr(AttrError::NotSupported, 0);
+    // A member the union does not have (the metadata scanner never names one).
+    let exists = if field {
+        kind != AclKind::IpAddress
+    } else {
+        !matches!(kind, AclKind::U64 | AclKind::U8List)
+    };
+    if !exists {
+        return Err(not_supported);
+    }
+    if field {
+        if !flag!(value.aclfield.enable) {
+            return Ok(Value::AclField(AclField::Disabled(kind)));
+        }
+        let data = match kind {
+            AclKind::Bool => AclFieldData::Bool(member!(value.aclfield.data.u8_) != 0),
+            AclKind::U8 => AclFieldData::U8(m(member!(value.aclfield.data.u8_), member!(value.aclfield.mask.u8_))),
+            AclKind::U16 => AclFieldData::U16(m(member!(value.aclfield.data.u16_), member!(value.aclfield.mask.u16_))),
+            AclKind::U32 => AclFieldData::U32(m(member!(value.aclfield.data.u32_), member!(value.aclfield.mask.u32_))),
+            AclKind::I32 => AclFieldData::I32(m(member!(value.aclfield.data.s32), member!(value.aclfield.mask.s32))),
+            AclKind::Enum => AclFieldData::Enum(m(member!(value.aclfield.data.s32), member!(value.aclfield.mask.s32))),
+            AclKind::U64 => AclFieldData::U64(m(member!(value.aclfield.data.u64_), member!(value.aclfield.mask.u64_))),
+            AclKind::Mac => AclFieldData::Mac(m(member!(value.aclfield.data.mac), member!(value.aclfield.mask.mac))),
+            AclKind::Ip4 => AclFieldData::Ip4(m(
+                ip4_from(member!(value.aclfield.data.ip4)),
+                ip4_from(member!(value.aclfield.mask.ip4)),
+            )),
+            AclKind::Ip6 => AclFieldData::Ip6(m(
+                Ipv6Addr::from(member!(value.aclfield.data.ip6)),
+                Ipv6Addr::from(member!(value.aclfield.mask.ip6)),
+            )),
+            AclKind::Oid => AclFieldData::Oid(RawOid(member!(value.aclfield.data.oid))),
+            AclKind::OidList => {
+                AclFieldData::OidList(list_in!(value.aclfield.data.objlist).into_iter().map(RawOid).collect())
+            }
+            AclKind::U8List => AclFieldData::U8List(m(
+                list_in!(value.aclfield.data.u8list),
+                list_in!(value.aclfield.mask.u8list),
+            )),
+            AclKind::IpAddress => return Err(not_supported),
+        };
+        return Ok(Value::AclField(AclField::Enabled(data)));
+    }
+    if !flag!(value.aclaction.enable) {
+        return Ok(Value::AclAction(AclAction::Disabled(kind)));
+    }
+    let param = match kind {
+        AclKind::Bool => AclParam::Bool(member!(value.aclaction.parameter.u8_) != 0),
+        AclKind::U8 => AclParam::U8(member!(value.aclaction.parameter.u8_)),
+        AclKind::U16 => AclParam::U16(member!(value.aclaction.parameter.u16_)),
+        AclKind::U32 => AclParam::U32(member!(value.aclaction.parameter.u32_)),
+        AclKind::I32 => AclParam::I32(member!(value.aclaction.parameter.s32)),
+        AclKind::Enum => AclParam::Enum(member!(value.aclaction.parameter.s32)),
+        AclKind::Mac => AclParam::Mac(member!(value.aclaction.parameter.mac)),
+        AclKind::Ip4 => AclParam::Ip4(ip4_from(member!(value.aclaction.parameter.ip4))),
+        AclKind::Ip6 => AclParam::Ip6(Ipv6Addr::from(member!(value.aclaction.parameter.ip6))),
+        AclKind::Oid => AclParam::Oid(RawOid(member!(value.aclaction.parameter.oid))),
+        AclKind::OidList => AclParam::OidList(
+            list_in!(value.aclaction.parameter.objlist)
+                .into_iter()
+                .map(RawOid)
+                .collect(),
+        ),
+        AclKind::IpAddress => AclParam::IpAddress(match member!(value.aclaction.parameter.ipaddr.addr_family) {
+            sys::SAI_IP_ADDR_FAMILY_IPV4 => IpAddr::V4(ip4_from(member!(value.aclaction.parameter.ipaddr.addr.ip4))),
+            sys::SAI_IP_ADDR_FAMILY_IPV6 => {
+                IpAddr::V6(Ipv6Addr::from(member!(value.aclaction.parameter.ipaddr.addr.ip6)))
+            }
+            _ => return Err(BAD_VALUE),
+        }),
+        AclKind::U64 | AclKind::U8List => return Err(not_supported),
+    };
+    Ok(Value::AclAction(AclAction::Enabled(param)))
+}
+
+/// Encodes an ACL entry field or action into the slot of a get, as the C++ library does: a
+/// disabled one writes `enable = false` and nothing else; an enabled one writes `enable`, the
+/// data and mask members (or the parameter) and fills a list into the caller's buffer.
+///
+/// # Safety
+/// As [`encode`]: for a list (`OidList`, `U8List`) the caller initialised the list member
+/// that carries it (for `U8List` the data's and the mask's): count = capacity of the buffer
+/// its pointer names, or zero.
+unsafe fn acl_encode(result: &Value, slot: &mut sys::sai_attribute_value_t) -> Result<(), Status> {
+    match result {
+        Value::AclField(AclField::Disabled(_)) => slot.aclfield.enable = false,
+        Value::AclField(AclField::Enabled(data)) => {
+            slot.aclfield.enable = true;
+            match data {
+                AclFieldData::Bool(v) => slot.aclfield.data.booldata = *v,
+                AclFieldData::U8(v) => (slot.aclfield.data.u8_, slot.aclfield.mask.u8_) = (v.data, v.mask),
+                AclFieldData::U16(v) => (slot.aclfield.data.u16_, slot.aclfield.mask.u16_) = (v.data, v.mask),
+                AclFieldData::U32(v) => (slot.aclfield.data.u32_, slot.aclfield.mask.u32_) = (v.data, v.mask),
+                AclFieldData::I32(v) | AclFieldData::Enum(v) => {
+                    (slot.aclfield.data.s32, slot.aclfield.mask.s32) = (v.data, v.mask);
+                }
+                AclFieldData::U64(v) => (slot.aclfield.data.u64_, slot.aclfield.mask.u64_) = (v.data, v.mask),
+                AclFieldData::Mac(v) => (slot.aclfield.data.mac, slot.aclfield.mask.mac) = (v.data, v.mask),
+                AclFieldData::Ip4(v) => {
+                    (slot.aclfield.data.ip4, slot.aclfield.mask.ip4) = (ip4_to(v.data), ip4_to(v.mask));
+                }
+                AclFieldData::Ip6(v) => {
+                    (slot.aclfield.data.ip6, slot.aclfield.mask.ip6) = (v.data.octets(), v.mask.octets());
+                }
+                AclFieldData::Oid(v) => slot.aclfield.data.oid = v.0,
+                AclFieldData::OidList(items) => {
+                    let raw: Vec<sys::sai_object_id_t> = items.iter().map(|oid| oid.0).collect();
+                    return list_out!(slot.aclfield.data.objlist, &raw);
+                }
+                AclFieldData::U8List(v) => {
+                    let data = list_out!(slot.aclfield.data.u8list, &v.data);
+                    let mask = list_out!(slot.aclfield.mask.u8list, &v.mask);
+                    return data.and(mask);
+                }
+            }
+        }
+        Value::AclAction(AclAction::Disabled(_)) => slot.aclaction.enable = false,
+        Value::AclAction(AclAction::Enabled(param)) => {
+            slot.aclaction.enable = true;
+            match param {
+                AclParam::Bool(v) => slot.aclaction.parameter.booldata = *v,
+                AclParam::U8(v) => slot.aclaction.parameter.u8_ = *v,
+                AclParam::U16(v) => slot.aclaction.parameter.u16_ = *v,
+                AclParam::U32(v) => slot.aclaction.parameter.u32_ = *v,
+                AclParam::I32(v) | AclParam::Enum(v) => slot.aclaction.parameter.s32 = *v,
+                AclParam::Mac(v) => slot.aclaction.parameter.mac = *v,
+                AclParam::Ip4(v) => slot.aclaction.parameter.ip4 = ip4_to(*v),
+                AclParam::Ip6(v) => slot.aclaction.parameter.ip6 = v.octets(),
+                AclParam::Oid(v) => slot.aclaction.parameter.oid = v.0,
+                AclParam::OidList(items) => {
+                    let raw: Vec<sys::sai_object_id_t> = items.iter().map(|oid| oid.0).collect();
+                    return list_out!(slot.aclaction.parameter.objlist, &raw);
+                }
+                AclParam::IpAddress(ip) => {
+                    let (addr_family, addr) = ip_to(*ip);
+                    slot.aclaction.parameter.ipaddr = sys::sai_ip_address_t { addr_family, addr };
+                }
+            }
+        }
+        _ => return Err(sys::SAI_STATUS_FAILURE),
+    }
+    Ok(())
 }
 
 /// Decodes an attribute value the C caller passed in (create, set).
@@ -214,6 +385,7 @@ macro_rules! list_out {
 /// The caller of the SAI function initialised the member of `value` that `value_type` names;
 /// when that member is a list, its pointer names `count` initialised elements that are not
 /// written to during the call, or its count is zero.
+#[allow(clippy::too_many_lines, reason = "one arm per member of the union")]
 pub(crate) unsafe fn decode(value_type: ValueType, value: &sys::sai_attribute_value_t) -> Result<Value, Error> {
     Ok(match value_type {
         // Read as a byte: a C caller may store any non-zero value, which is not a Rust bool.
@@ -315,9 +487,47 @@ pub(crate) unsafe fn decode(value_type: ValueType, value: &sys::sai_attribute_va
                 nanos: time.tv_nsec,
             }
         }
+        ValueType::AclField(kind) | ValueType::AclAction(kind) => {
+            // SAFETY: the contract of `decode`: the caller initialised `aclfield` / `aclaction`
+            // for this attribute (the member the metadata names), which is `acl_decode`'s.
+            return unsafe { acl_decode(matches!(value_type, ValueType::AclField(_)), kind, value) };
+        }
+        ValueType::MacsecSak | ValueType::MacsecSalt | ValueType::MacsecAuthKey => {
+            // SAFETY: the contract of `decode` is `decode_secret`'s.
+            return unsafe { decode_secret(value_type, value) };
+        }
         // `aclcapability` is a result only (every attribute of the type is read-only), and
         // its first field is a C `bool`, which must not be read as a Rust one from a caller.
         ValueType::AclCapability | ValueType::Other => return Err(Error::attr(AttrError::NotSupported, 0)),
+    })
+}
+
+/// `MACsec` key material: copied once from the caller's member into a [`Secret`] (heap, wiped on
+/// drop), through a reference, never a temporary array. A byte array has no invalid values; the
+/// arrays have the size the `Secret` takes (`sai.h`'s `sai_macsec_*_t`).
+///
+/// # Safety
+/// The caller of the SAI function initialised the member `value_type` names (`macsecsak`,
+/// `macsecsalt` or `macsecauthkey`).
+unsafe fn decode_secret(value_type: ValueType, value: &sys::sai_attribute_value_t) -> Result<Value, Error> {
+    let bad = || Error::attr(AttrError::InvalidValue, 0);
+    Ok(match value_type {
+        ValueType::MacsecSak => {
+            // SAFETY: this function's contract: `macsecsak` is initialised.
+            let bytes = unsafe { &value.macsecsak };
+            Value::MacsecSak(Secret::from_slice(bytes).ok_or_else(bad)?)
+        }
+        ValueType::MacsecSalt => {
+            // SAFETY: this function's contract: `macsecsalt` is initialised.
+            let bytes = unsafe { &value.macsecsalt };
+            Value::MacsecSalt(Secret::from_slice(bytes).ok_or_else(bad)?)
+        }
+        ValueType::MacsecAuthKey => {
+            // SAFETY: this function's contract: `macsecauthkey` is initialised.
+            let bytes = unsafe { &value.macsecauthkey };
+            Value::MacsecAuthKey(Secret::from_slice(bytes).ok_or_else(bad)?)
+        }
+        _ => return Err(Error::Failure),
     })
 }
 
@@ -428,6 +638,10 @@ pub(crate) unsafe fn encode(result: &Value, slot: &mut sys::sai_attribute_value_
                 tv_nsec: *nanos,
             };
         }
+        // SAFETY: the contract of `encode` is `acl_encode`'s.
+        Value::AclField(_) | Value::AclAction(_) => return unsafe { acl_encode(result, slot) },
+        // MACsec key material is write-only: never handed back (the model answers none)
+        Value::MacsecSak(_) | Value::MacsecSalt(_) | Value::MacsecAuthKey(_) => return Err(sys::SAI_STATUS_FAILURE),
     }
     Ok(())
 }
@@ -521,7 +735,7 @@ mod tests {
             dei: n % 2,
             vc: 8 + n,
         };
-        vec![
+        let mut cases = vec![
             ("bool", ValueType::Bool, Value::Bool(true)),
             ("u8", ValueType::U8, Value::U8(0x5c)),
             ("s8", ValueType::I8, Value::I8(-3)),
@@ -634,7 +848,79 @@ mod tests {
                     match_type: sys::SAI_ACL_TABLE_SUPPORTED_MATCH_TYPE_EXACT.cast_signed(),
                 },
             ),
-        ]
+        ];
+        // ACL fields and actions: one case per member an attribute of the headers uses.
+        let oids = vec![
+            RawOid(0x2100_0000_0000_0010),
+            RawOid(0x20),
+            RawOid(0x0102_0304_0506_0708),
+        ];
+        let field = |name, data: AclFieldData| {
+            (
+                name,
+                ValueType::AclField(data.kind()),
+                Value::AclField(AclField::Enabled(data)),
+            )
+        };
+        let action = |name, param: AclParam| {
+            (
+                name,
+                ValueType::AclAction(param.kind()),
+                Value::AclAction(AclAction::Enabled(param)),
+            )
+        };
+        cases.extend([
+            (
+                "aclfield_off",
+                ValueType::AclField(AclKind::Ip4),
+                Value::AclField(AclField::Disabled(AclKind::Ip4)),
+            ),
+            field("aclfield_bool", AclFieldData::Bool(true)),
+            field("aclfield_u8", AclFieldData::U8(fm(0x5c, 0xf0))),
+            field("aclfield_u16", AclFieldData::U16(fm(0x0806, 0xffff))),
+            field("aclfield_u32", AclFieldData::U32(fm(0x0102_0304, 0xffff_0000))),
+            field(
+                "aclfield_u64",
+                AclFieldData::U64(fm(0x0102_0304_0506_0708, 0xffff_ffff_0000_0000)),
+            ),
+            field("aclfield_enum", AclFieldData::Enum(fm(3, -1))),
+            field(
+                "aclfield_mac",
+                AclFieldData::Mac(fm([0x02, 0x11, 0x22, 0x33, 0x44, 0x55], [0xff, 0xff, 0xff, 0, 0, 0])),
+            ),
+            field(
+                "aclfield_ip4",
+                AclFieldData::Ip4(fm(Ipv4Addr::new(10, 1, 2, 3), Ipv4Addr::new(255, 255, 0, 0))),
+            ),
+            field("aclfield_ip6", AclFieldData::Ip6(fm(ip6, mask6))),
+            field("aclfield_oid", AclFieldData::Oid(RawOid(0x2100_0000_0000_0042))),
+            field("aclfield_objlist", AclFieldData::OidList(oids.clone())),
+            field(
+                "aclfield_u8list",
+                AclFieldData::U8List(fm(vec![1, 2, 3], vec![0xff, 0xf0, 0x0f])),
+            ),
+            (
+                "aclaction_off",
+                ValueType::AclAction(AclKind::Enum),
+                Value::AclAction(AclAction::Disabled(AclKind::Enum)),
+            ),
+            action("aclaction_bool", AclParam::Bool(true)),
+            action("aclaction_u8", AclParam::U8(0x5c)),
+            action("aclaction_u16", AclParam::U16(0x1234)),
+            action("aclaction_u32", AclParam::U32(0x0102_0304)),
+            action("aclaction_s32", AclParam::I32(-7)),
+            action(
+                "aclaction_enum",
+                AclParam::Enum(sys::SAI_PACKET_ACTION_DROP.cast_signed()),
+            ),
+            action("aclaction_mac", AclParam::Mac([0x02, 0x11, 0x22, 0x33, 0x44, 0x55])),
+            action("aclaction_ip4", AclParam::Ip4(Ipv4Addr::new(10, 1, 2, 3))),
+            action("aclaction_ip6", AclParam::Ip6(ip6)),
+            action("aclaction_oid", AclParam::Oid(RawOid(0x2100_0000_0000_0042))),
+            action("aclaction_objlist", AclParam::OidList(oids)),
+            action("aclaction_ipaddr6", AclParam::IpAddress(IpAddr::V6(ip6))),
+        ]);
+        cases
     }
 
     /// The prebuilt C helper: from `$SAI_RS_TEST_BIN` (a test bundle on a target), else where
@@ -686,10 +972,17 @@ mod tests {
         unsafe { core::slice::from_raw_parts(core::ptr::from_ref(slot).cast::<u8>(), VALUE_SIZE) }.to_vec()
     }
 
+    /// An ACL field's data and mask.
+    const fn fm<T>(data: T, mask: T) -> FieldMatch<T> {
+        FieldMatch { data, mask }
+    }
+
     /// The bytes one list element takes in the caller's buffer.
     fn element_size(value: &Value) -> (usize, usize) {
         match value {
-            Value::OidList(v) => (v.len(), 8),
+            Value::OidList(v)
+            | Value::AclField(AclField::Enabled(AclFieldData::OidList(v)))
+            | Value::AclAction(AclAction::Enabled(AclParam::OidList(v))) => (v.len(), 8),
             Value::U8List(v) => (v.len(), 1),
             Value::I8List(v) => (v.len(), 1),
             Value::U16List(v) | Value::VlanList(v) => (v.len(), 2),
@@ -700,6 +993,8 @@ mod tests {
             Value::AclResourceList(v) => (v.len(), size_of::<sys::sai_acl_resource_t>()),
             Value::QosMapList(v) => (v.len(), size_of::<sys::sai_qos_map_t>()),
             Value::AclCapability { actions, .. } => (actions.len(), 4),
+            // the data list at the buffer's start, the mask list 16 bytes in (union_check.c)
+            Value::AclField(AclField::Enabled(AclFieldData::U8List(m))) => (16 + m.mask.len(), 1),
             _ => (0, 0),
         }
     }
@@ -1042,6 +1337,68 @@ mod tests {
             panic!("not a route key");
         };
         assert_eq!((vr, prefix.addr().is_ipv6()), (RawOid(3), true));
+    }
+
+    #[test]
+    fn acl_enable_is_read_as_a_byte_and_disabled_data_is_never_read() {
+        // enable = 2 (any non-zero C bool), data / mask of the attribute's member
+        let mut slot = zeroed();
+        slot.aclfield = sys::sai_acl_field_data_t {
+            enable: false,
+            mask: sys::sai_acl_field_data_mask_t { u16_: 0xffff },
+            data: sys::sai_acl_field_data_data_t { u16_: 0x0806 },
+        };
+        // SAFETY: the first byte of aclfield is its enable flag (offset 0, checked by bindgen).
+        unsafe { (&raw mut slot.aclfield.enable).cast::<u8>().write(2) };
+        // SAFETY: aclfield with its u16 members was written above.
+        assert_eq!(
+            unsafe { decode(ValueType::AclField(AclKind::U16), &slot) },
+            Ok(Value::AclField(AclField::Enabled(AclFieldData::U16(FieldMatch {
+                data: 0x0806,
+                mask: 0xffff
+            }))))
+        );
+        // disabled: a list's null pointer with a count is not looked at
+        slot.aclfield = sys::sai_acl_field_data_t {
+            enable: false,
+            mask: sys::sai_acl_field_data_mask_t { u64_: 0 },
+            data: sys::sai_acl_field_data_data_t {
+                objlist: sys::sai_object_list_t {
+                    count: 5,
+                    list: core::ptr::null_mut(),
+                },
+            },
+        };
+        // SAFETY: enable is initialised; nothing else is read when it is false.
+        assert_eq!(
+            unsafe { decode(ValueType::AclField(AclKind::OidList), &slot) },
+            Ok(Value::AclField(AclField::Disabled(AclKind::OidList)))
+        );
+        // enabled with that list: the attribute's fault, not a read through null
+        // SAFETY: as above; the null list is refused before anything is read.
+        unsafe { (&raw mut slot.aclfield.enable).cast::<u8>().write(1) };
+        assert_eq!(
+            unsafe { decode(ValueType::AclField(AclKind::OidList), &slot) },
+            Err(Error::attr(AttrError::InvalidValue, 0))
+        );
+        // a get of an unset field writes enable = false and leaves the caller's list alone
+        let mut ids = [7u64; 2];
+        slot.aclfield.data.objlist = sys::sai_object_list_t {
+            count: 2,
+            list: ids.as_mut_ptr(),
+        };
+        // SAFETY: not a list result.
+        unsafe { encode(&Value::AclField(AclField::Disabled(AclKind::OidList)), &mut slot) }.unwrap();
+        // SAFETY: aclfield was written above.
+        let enable = unsafe { (&raw const slot.aclfield.enable).cast::<u8>().read() };
+        let count = member!(slot.aclfield.data.objlist).count;
+        assert_eq!((enable, count, ids), (0, 2, [7, 7]));
+        // a member the union does not have
+        // SAFETY: nothing is read for an unsupported pair.
+        assert_eq!(
+            unsafe { decode(ValueType::AclAction(AclKind::U64), &slot) },
+            Err(Error::attr(AttrError::NotSupported, 0))
+        );
     }
 
     #[test]

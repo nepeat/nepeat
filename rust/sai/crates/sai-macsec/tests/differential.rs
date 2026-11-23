@@ -600,6 +600,65 @@ fn normalise(text: &str) -> String {
 
 /// Output lines of the C++ driver held against the Rust model's so far (one per operation).
 static COMPARISONS: AtomicU64 = AtomicU64::new(0);
+/// Scripts that reached D9 / D10 (the comparison stops there).
+static D9_SEEN: AtomicU64 = AtomicU64::new(0);
+static D10_SEEN: AtomicU64 = AtomicU64::new(0);
+
+/// A difference the crate documents as a fix of the C++.
+enum Listed {
+    /// Q7 fixed: a flow switch takes the old SC's SAs out (`sa-del` writes the C++ does not make).
+    D9,
+    /// Q10 fixed: no cipher suite change under waiting SAs (`OBJECT_IN_USE` where the C++ says 0).
+    D10,
+}
+
+/// Whether the first differing output line of an operation is D9 or D10: the same operation,
+/// and only the documented change.
+fn listed_difference(cpp: &str, rust: &str) -> Option<Listed> {
+    let (c_op, c_rest) = cpp.split_once(" => ")?;
+    let (r_op, r_rest) = rust.split_once(" => ")?;
+    if c_op != r_op {
+        return None;
+    }
+    let op = c_op.split_whitespace().next()?;
+    // OBJECT_IN_USE
+    let in_use = sai_core::Error::ObjectInUse.status().to_string();
+    if op == "scset" && c_op.contains(" cipher ") && c_rest == "0" && r_rest == in_use {
+        return Some(Listed::D10);
+    }
+    // a flow changes where the port's data goes: Rust's bus operations add an SA removal the
+    // C++'s do not have: the C++'s operations in order, and in between only what `reconcile` runs
+    // (`sa-del[-last]` writes `W <phy>.1.3<dir><an>=`, the gate's `W <phy>.1.12<dir>=`, and the
+    // fault table's checks of those sequences, `R <phy>.1.1f2=` / `.1f3=`, where one may fail)
+    let flow_ops = ["eflow", "eadmin", "entry", "bind", "rm"];
+    let reconcile = |w: &str| {
+        let Some((reg, _)) = w.get(1..).and_then(|t| t.split_once('=')) else {
+            return false;
+        };
+        let Some((_, reg)) = reg.split_once(".1.") else {
+            return false;
+        };
+        (w.starts_with('W') && (reg.starts_with('3') || reg.starts_with("12")))
+            || (w.starts_with('R') && (reg == "1f2" || reg == "1f3"))
+    };
+    let (mut c_words, mut r_words) = (c_rest.split_whitespace(), r_rest.split_whitespace());
+    if !flow_ops.contains(&op) || c_words.next() != r_words.next() {
+        return None;
+    }
+    // the C++'s bus operations must be a subsequence of Rust's; what is left, D9's
+    let mut extra = 0;
+    let mut want = c_words.next();
+    for w in r_words {
+        if Some(w) == want {
+            want = c_words.next();
+        } else if reconcile(w) {
+            extra += 1;
+        } else {
+            return None;
+        }
+    }
+    (want.is_none() && extra > 0).then_some(Listed::D9)
+}
 
 fn compare(driver: &Driver, table: &str, script: &str) -> Result<(), String> {
     let (cpp, rust) = (
@@ -614,6 +673,21 @@ fn compare(driver: &Driver, table: &str, script: &str) -> Result<(), String> {
         return Ok(());
     }
     let at = cpp.lines().zip(rust.lines()).position(|(a, b)| a != b).unwrap_or(0);
+    // The two fixes the owner chose (crate documentation, D9 / D10): where a script reaches one,
+    // the outputs agree up to that operation and differ from there on, exactly so.
+    if let (Some(c), Some(r)) = (cpp.lines().nth(at), rust.lines().nth(at)) {
+        if let Some(which) = listed_difference(c, r) {
+            COMPARISONS.fetch_add(
+                cpp.lines().take(at).filter(|l| l.contains(" => ")).count() as u64,
+                Ordering::Relaxed,
+            );
+            match which {
+                Listed::D9 => D9_SEEN.fetch_add(1, Ordering::Relaxed),
+                Listed::D10 => D10_SEEN.fetch_add(1, Ordering::Relaxed),
+            };
+            return Ok(());
+        }
+    }
     let show = |text: &str| {
         text.lines()
             .skip(at.saturating_sub(6))
@@ -930,6 +1004,110 @@ fn the_comparison_notices_a_difference() {
     compare(driver, &table, &other).unwrap();
 }
 
+/// D9 of the crate documentation (Q7 fixed), against the real C++: the entry sends the port's
+/// data to another flow while the first flow's SC has an SA in the PHY. The C++ leaves it in (and
+/// the gate open); the Rust model closes the gate and removes it, then the new SC's SA goes in
+/// on the same AN as the first of its SC. Up to that operation the two agree.
+#[test]
+fn d9_a_flow_switch_against_the_cpp() {
+    let Some(driver) = driver() else { return };
+    let table = fault_table(true, true, false);
+    let script = format!(
+        "{HEAD}mport p0 0 0
+flow f0 0
+flow f2 0
+table t0 0
+bind 0 0 t0
+entry e0 t0 1 f0 1 0
+         sc c0 0 f0 0 0 0 0
+sc c2 0 f2 0 0 0 2
+sa a0 0 c0 0 1 0
+eflow e0 f2
+sa a2 0 c2 0 1 2
+status
+"
+    );
+    let (cpp, rust) = (driver.cpp_output(&table, &script), rust_output(&table, &script));
+    let line = |text: &str, start: &str| text.lines().find(|l| l.starts_with(start)).unwrap().to_owned();
+    let until = |text: &str| {
+        text.lines()
+            .take_while(|l| !l.starts_with("eflow"))
+            .collect::<Vec<_>>()
+            .join(
+                "
+",
+            )
+    };
+    assert_eq!(until(&cpp), until(&rust));
+    assert_eq!(line(&cpp, "eflow e0 f2"), "eflow e0 f2 => 0");
+    assert_eq!(
+        line(&rust, "eflow e0 f2"),
+        "eflow e0 f2 => 0 R10.1.1f3=0 W10.1.120=0 R10.1.1f2=0 W10.1.300=8001"
+    );
+    // C++: AN 0 is the old SC's: INSUFFICIENT_RESOURCES; Rust: installed as the SC's first
+    assert!(line(&cpp, "sa a2").starts_with(&format!(
+        "sa a2 0 c2 0 1 2 => {}",
+        sai_core::Error::InsufficientResources.status()
+    )));
+    assert!(
+        line(&rust, "sa a2").contains("W10.1.200=100"),
+        "{}",
+        line(&rust, "sa a2")
+    );
+    assert!(matches!(
+        listed_difference(&line(&cpp, "eflow"), &line(&rust, "eflow")),
+        Some(Listed::D9)
+    ));
+    compare(driver, &table, &script).unwrap();
+    summary!("differential: D9 shown against the C++ (flow switch: the old SC's SA taken out)");
+}
+
+/// D10 (Q10 fixed), against the real C++: an SC's cipher suite changes while an SA waits for its
+/// flow. The C++ takes the change (and would install key bytes cut for the other suite); the
+/// Rust model refuses it with OBJECT_IN_USE and later installs the SA with its own suite.
+#[test]
+fn d10_cipher_change_under_waiting_sas_against_the_cpp() {
+    let Some(driver) = driver() else { return };
+    let table = fault_table(true, true, false);
+    let script = format!(
+        "{HEAD}mport p0 0 0
+flow f0 0
+table t0 0
+bind 0 0 t0
+entry e0 t0 0 f0 1 0
+sc c0 0 f0 1 0 0 0
+         sa a0 0 c0 0 1 0
+scset c0 cipher 0
+eadmin e0 1
+status
+"
+    );
+    let (cpp, rust) = (driver.cpp_output(&table, &script), rust_output(&table, &script));
+    let line = |text: &str, start: &str| text.lines().find(|l| l.starts_with(start)).unwrap().to_owned();
+    assert_eq!(line(&cpp, "scset"), "scset c0 cipher 0 => 0");
+    assert_eq!(
+        line(&rust, "scset"),
+        format!("scset c0 cipher 0 => {}", sai_core::Error::ObjectInUse.status())
+    );
+    // the C++ then installs the 256-bit SA as gcm-aes-128 (marker 100: cipher 0), Rust as gcm-aes-256 (110)
+    assert!(
+        line(&cpp, "eadmin").contains("W10.1.200=100"),
+        "{}",
+        line(&cpp, "eadmin")
+    );
+    assert!(
+        line(&rust, "eadmin").contains("W10.1.200=110"),
+        "{}",
+        line(&rust, "eadmin")
+    );
+    assert!(matches!(
+        listed_difference(&line(&cpp, "scset"), &line(&rust, "scset")),
+        Some(Listed::D10)
+    ));
+    compare(driver, &table, &script).unwrap();
+    summary!("differential: D10 shown against the C++ (cipher change under a waiting SA refused)");
+}
+
 /// D1 of the crate documentation, shown against the real C++: once a flow moved to another
 /// port, the C++ looks for an SA on "the port an SA of its SC was last installed on". Removing
 /// the SA that is still in the first port's PHY then runs nothing and reports success: the key
@@ -975,6 +1153,10 @@ proptest! {
     ) {
         let Some(driver) = driver() else { return Ok(()) };
         compare(driver, &fault_table(gates, probe, absolute), &script).map_err(TestCaseError::fail)?;
+        let (d9, d10) = (D9_SEEN.load(Ordering::Relaxed), D10_SEEN.load(Ordering::Relaxed));
+        if d9 + d10 > 0 && (d9 + d10) % 25 == 0 {
+            summary!("differential: random scripts so far reaching D9 {d9}, D10 {d10} (compared up to there)");
+        }
     }
 
     /// The same scripts on the Rust model alone (this runs where the C++ is not around):
@@ -987,4 +1169,15 @@ proptest! {
         let out = rust_output(&fault_table(gates, probe, absolute), &script);
         prop_assert!(out.starts_with("attach => 0"));
     }
+}
+
+/// Found by `random_scripts_agree_with_the_cpp` (2026-11-23): a D9 flow switch whose SA removal
+/// fails at its first step (the fault table's check of `sa-del`, register 1f2 set to 1): Rust's
+/// only extra bus operation is that failing read, which is D9 too.
+#[test]
+fn a_d9_flow_switch_whose_sa_removal_fails_at_once() {
+    let Some(driver) = driver() else { return };
+    let before = D9_SEEN.load(Ordering::Relaxed);
+    compare(driver, &fault_table(false, false, false), "reg 10 20f 1\nreg 10 21f 1\nreg 11 20f 1\nreg 11 21f 1\nmacsec m0 0\nmacsec m1 1\nmport p1 0 1\nflow f1 0\ntable t1 0\nbind 1 0 t1\nentry e1 t1 1 - 1 0\nsc c1 0 f1 0 0 1234 1\nsa a1 0 c1 0 7 1\neflow e1 f1\nsa a5 0 c1 1 1 5\nrm entry e1\nflow f3 0\nentry e3 t1 1 - 0 0\nreg 11 1f2 1\nsapn a1\nsastat a5\nflowstat f1\nstatus\nrm sa a1\nsa a9 0 c1 2 100000002 9\nactive c1\nmport p0 0 0\nflow f0 0\ntable t0 0\nbind 0 0 t0\nentry e0 t0 1 - 1 0\neflow e3 f3\nsc c0 0 f0 0 0 1234 0\nsa a0 0 c0 0 7 0\neflow e0 f0\nsa a4 0 c0 1 1 4\nsapn a0\nsastat a4\nflowstat f0\nstatus\nrm sa a0\nsa a8 0 c0 2 100000002 8\nactive c0\n").unwrap();
+    assert!(D9_SEEN.load(Ordering::Relaxed) > before, "the script reaches D9");
 }

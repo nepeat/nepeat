@@ -65,6 +65,108 @@ fn wait_for_event(expected: (sai_object_id_t, sai_port_oper_status_t)) {
     }
 }
 
+/// ACL tables, entries (fields and actions in `aclfield` / `aclaction`), counters and binding,
+/// through the ACL method table as `AclOrch` calls it.
+fn acl_through_the_c_abi(switch: sai_object_id_t, ports: &[sai_object_id_t; 4]) {
+    let acl: &sai_acl_api_t = unsafe { table(SAI_API_ACL) };
+    let port_api: &sai_port_api_t = unsafe { table(SAI_API_PORT) };
+    let mut binds = [SAI_ACL_BIND_POINT_TYPE_PORT.cast_signed()];
+    let mut t = attr(SAI_ACL_TABLE_ATTR_ACL_STAGE);
+    t.value.s32 = SAI_ACL_STAGE_INGRESS.cast_signed();
+    let mut b = attr(SAI_ACL_TABLE_ATTR_ACL_BIND_POINT_TYPE_LIST);
+    b.value.s32list = sai_s32_list_t {
+        count: 1,
+        list: binds.as_mut_ptr(),
+    };
+    let mut f = attr(SAI_ACL_TABLE_ATTR_FIELD_DST_IP);
+    f.value.booldata = true;
+    let mut table_id = 0;
+    let tattrs = [t, b, f];
+    assert_eq!(
+        unsafe { acl.create_acl_table.unwrap()(&raw mut table_id, switch, 3, tattrs.as_ptr()) },
+        SAI_STATUS_SUCCESS
+    );
+    // an entry: the table, DST_IP 10.0.0.1/32 (enable stored as 2: any non-zero C bool), DROP
+    let mut e0 = attr(SAI_ACL_ENTRY_ATTR_TABLE_ID);
+    e0.value.oid = table_id;
+    let mut e1 = garbage(SAI_ACL_ENTRY_ATTR_FIELD_DST_IP);
+    e1.value.aclfield.data.ip4 = u32::from_ne_bytes([10, 0, 0, 1]);
+    e1.value.aclfield.mask.ip4 = u32::MAX;
+    unsafe { (&raw mut e1.value.aclfield.enable).cast::<u8>().write(2) };
+    let mut e2 = garbage(SAI_ACL_ENTRY_ATTR_ACTION_PACKET_ACTION);
+    e2.value.aclaction.enable = true;
+    e2.value.aclaction.parameter.s32 = SAI_PACKET_ACTION_DROP.cast_signed();
+    // a disabled field whose data is garbage, a null list included: never read
+    let mut e3 = garbage(SAI_ACL_ENTRY_ATTR_FIELD_IN_PORTS);
+    e3.value.aclfield.enable = false;
+    e3.value.aclfield.data.objlist = sai_object_list_t {
+        count: 9,
+        list: ptr::null_mut(),
+    };
+    let eattrs = [e0, e1, e2, e3];
+    let mut entry = 0;
+    assert_eq!(
+        unsafe { acl.create_acl_entry.unwrap()(&raw mut entry, switch, 4, eattrs.as_ptr()) },
+        SAI_STATUS_SUCCESS
+    );
+    assert_eq!(unsafe { sai_object_type_query(entry) }, SAI_OBJECT_TYPE_ACL_ENTRY);
+    let mut got = [
+        garbage(SAI_ACL_ENTRY_ATTR_FIELD_DST_IP),
+        garbage(SAI_ACL_ENTRY_ATTR_ACTION_PACKET_ACTION),
+        garbage(SAI_ACL_ENTRY_ATTR_FIELD_SRC_IP),
+    ];
+    assert_eq!(
+        unsafe { acl.get_acl_entry_attribute.unwrap()(entry, 3, got.as_mut_ptr()) },
+        SAI_STATUS_SUCCESS
+    );
+    unsafe {
+        assert!(got[0].value.aclfield.enable);
+        assert_eq!(got[0].value.aclfield.data.ip4.to_ne_bytes(), [10, 0, 0, 1]);
+        assert_eq!(got[0].value.aclfield.mask.ip4, u32::MAX);
+        assert!(got[1].value.aclaction.enable);
+        assert_eq!(
+            got[1].value.aclaction.parameter.s32,
+            SAI_PACKET_ACTION_DROP.cast_signed()
+        );
+        assert!(!got[2].value.aclfield.enable);
+    }
+    // bound to a port: installed; a get of the counterless entry's in-ports answers disabled
+    let mut bind = attr(SAI_PORT_ATTR_INGRESS_ACL);
+    bind.value.oid = table_id;
+    assert_eq!(
+        unsafe { port_api.set_port_attribute.unwrap()(ports[1], &raw const bind) },
+        SAI_STATUS_SUCCESS
+    );
+    let mut q = garbage(SAI_PORT_ATTR_INGRESS_ACL);
+    assert_eq!(
+        unsafe { port_api.get_port_attribute.unwrap()(ports[1], 1, &raw mut q) },
+        SAI_STATUS_SUCCESS
+    );
+    assert_eq!(unsafe { q.value.oid }, table_id);
+    assert_eq!(
+        unsafe { acl.remove_acl_table.unwrap()(table_id) },
+        SAI_STATUS_OBJECT_IN_USE
+    );
+    bind.value.oid = 0;
+    assert_eq!(
+        unsafe { port_api.set_port_attribute.unwrap()(ports[1], &raw const bind) },
+        SAI_STATUS_SUCCESS
+    );
+    assert_eq!(unsafe { acl.remove_acl_entry.unwrap()(entry) }, SAI_STATUS_SUCCESS);
+    assert_eq!(unsafe { acl.remove_acl_table.unwrap()(table_id) }, SAI_STATUS_SUCCESS);
+    // chain groups: not objects here (C++: create NOT_SUPPORTED, the rest INVALID_OBJECT_ID)
+    let mut chain = 0x55;
+    assert_eq!(
+        unsafe { acl.create_acl_table_chain_group.unwrap()(&raw mut chain, switch, 0, ptr::null()) },
+        SAI_STATUS_NOT_SUPPORTED
+    );
+    assert_eq!(chain, 0x55);
+    assert_eq!(
+        unsafe { acl.remove_acl_table_chain_group.unwrap()(1) },
+        SAI_STATUS_INVALID_OBJECT_ID
+    );
+}
+
 unsafe fn table<T>(api: sai_api_t) -> &'static T {
     let mut p: *mut c_void = ptr::null_mut();
     assert_eq!(unsafe { sai_api_query(api, &raw mut p) }, SAI_STATUS_SUCCESS);
@@ -213,7 +315,7 @@ fn objects_entries_and_counters(switch: sai_object_id_t, ports: &[sai_object_id_
     route.switch_id = ports[0];
     assert_eq!(
         unsafe { get_route(&raw const route, 1, &raw mut a) },
-        SAI_STATUS_INVALID_OBJECT_TYPE
+        SAI_STATUS_INVALID_OBJECT_ID
     );
     route.switch_id = switch;
     let remove_route = route_api.remove_route_entry.unwrap();
@@ -298,13 +400,16 @@ fn objects_entries_and_counters(switch: sai_object_id_t, ports: &[sai_object_id_
                 counters.as_mut_ptr(),
             )
         },
-        SAI_STATUS_SUCCESS
+        SAI_STATUS_NOT_SUPPORTED // C++: no per-counter clear in the SDK API
     );
     assert_eq!(
         unsafe { get_stats_ext(ports[0], 2, ids.as_ptr(), 77, counters.as_mut_ptr()) },
-        SAI_STATUS_INVALID_PARAMETER
+        SAI_STATUS_NOT_SUPPORTED // C++ get_port_stats_ext: any mode but READ
     );
-    assert_eq!(unsafe { clear_stats(ports[0], 2, ids.as_ptr()) }, SAI_STATUS_SUCCESS);
+    assert_eq!(
+        unsafe { clear_stats(ports[0], 2, ids.as_ptr()) },
+        SAI_STATUS_NOT_SUPPORTED
+    );
     let jabbers = [SAI_PORT_STAT_ETHER_STATS_JABBERS];
     counters = [7; 2];
     assert_eq!(
@@ -567,7 +672,7 @@ fn the_slice_through_the_c_abi() {
     let unknown = [init[0], attr(0x0fff_fff0)];
     assert_eq!(
         unsafe { create_switch(&raw mut switch, 2, unknown.as_ptr()) },
-        SAI_STATUS_UNKNOWN_ATTRIBUTE_0 - 1
+        SAI_STATUS_ATTR_NOT_SUPPORTED_0 - 1 // C++ create_switch
     );
     // the virtual backend must be asked for
     OFFER_VIRTUAL.store(false, Ordering::SeqCst);
@@ -586,7 +691,7 @@ fn the_slice_through_the_c_abi() {
     assert_eq!(unsafe { sai_object_type_query(0) }, SAI_OBJECT_TYPE_NULL);
     assert_eq!(
         unsafe { create_switch(&raw mut oid, 2, init.as_ptr()) },
-        SAI_STATUS_ITEM_ALREADY_EXISTS
+        SAI_STATUS_INSUFFICIENT_RESOURCES // C++: "only one switch is supported"
     );
 
     // scalar get; a get with no attributes; null list with a count
@@ -654,7 +759,7 @@ fn the_slice_through_the_c_abi() {
     // a switch function given a port
     assert_eq!(
         unsafe { get_switch(ports[0], 1, &raw mut a) },
-        SAI_STATUS_INVALID_OBJECT_TYPE
+        SAI_STATUS_INVALID_OBJECT_ID // C++: the switch code looks the id up as a switch
     );
 
     // ports: lanes, admin state with its notification
@@ -682,7 +787,7 @@ fn the_slice_through_the_c_abi() {
     let lanes_ro = attr(SAI_PORT_ATTR_HW_LANE_LIST);
     assert_eq!(
         unsafe { set_port(ports[1], &raw const lanes_ro) },
-        SAI_STATUS_INVALID_ATTRIBUTE_0
+        SAI_STATUS_ATTR_NOT_SUPPORTED_0 // C++ port_set_one's default
     );
 
     // VLAN and member
@@ -738,17 +843,18 @@ fn the_slice_through_the_c_abi() {
     assert_eq!((unsafe { a.value.objlist.count }, members[0]), (1, member));
     // lifecycle errors
     assert_eq!(unsafe { remove_vlan(vlan) }, SAI_STATUS_OBJECT_IN_USE);
-    assert_eq!(unsafe { remove_vlan(member) }, SAI_STATUS_INVALID_OBJECT_TYPE);
+    assert_eq!(unsafe { remove_vlan(member) }, SAI_STATUS_INVALID_OBJECT_ID); // C++: no such VLAN
     assert_eq!(unsafe { remove_vlan(0) }, SAI_STATUS_INVALID_OBJECT_ID);
     assert_eq!(unsafe { remove_member(member) }, SAI_STATUS_SUCCESS);
     assert_eq!(unsafe { remove_member(member) }, SAI_STATUS_INVALID_OBJECT_ID);
     assert_eq!(unsafe { remove_vlan(vlan) }, SAI_STATUS_SUCCESS);
 
     objects_entries_and_counters(switch, &ports);
+    acl_through_the_c_abi(switch, &ports);
 
     // --- teardown: remove, then everything answers "uninitialized"; the API can start over
     let remove_switch = switch_api.remove_switch.unwrap();
-    assert_eq!(unsafe { remove_switch(vlan) }, SAI_STATUS_INVALID_OBJECT_TYPE);
+    assert_eq!(unsafe { remove_switch(vlan) }, SAI_STATUS_INVALID_OBJECT_ID); // C++
     assert_eq!(unsafe { remove_switch(switch) }, SAI_STATUS_SUCCESS);
     let mut a = attr(SAI_SWITCH_ATTR_PORT_NUMBER);
     assert_eq!(unsafe { get_switch(switch, 1, &raw mut a) }, SAI_STATUS_UNINITIALIZED);

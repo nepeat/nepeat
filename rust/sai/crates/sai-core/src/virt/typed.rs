@@ -1,6 +1,5 @@
 //! The typed operations of the virtual chip ([`crate::backend::ops`]), as `fake_backend.cpp`
 //! has them: the same checks, the same answers (with the differences listed in [`super`]).
-use super::state::MdioOp;
 use super::{EgressKind, FpEntry, FpGroup, Genl, Intf, KnetNetif, L2Entry, VirtualBackend, take};
 use crate::backend::ops::{
     Base, Field, Hash, Hostif, L2, L3, Lag, Mdio, Mirror, Policer, PortOps, Qos, Sample, Shell, Storm, Temp,
@@ -9,8 +8,8 @@ use crate::backend::types::{
     AsicTemps, BufferCfg, ChipLimits, Dest, EcmpId, EgressId, Fec, FilterId, FloodKind, FpCounter, FpEntryId,
     FpGroupId, FpQual, FpRule, GenlId, IntfId, IpPrefix, LagMember, Learn, LinkGate, Loopback, MacAddr, MdioDev,
     MirrorCfg, MirrorId, NetifCreated, NetifId, PhyAddr, PolicerCfg, PolicerId, PortInterface, PortStat, QosMapEntry,
-    QosMapId, QosMapKind, RouteTarget, SampleId, SchedCfg, StationId, StormKind, TableUsage, TrapKind, TrunkId, Vrf,
-    WredCfg, WredId,
+    QosMapId, QosMapKind, RouteTarget, SampleId, SchedCfg, StationId, StormKind, TableUsage, TrapKind, TrapSpec,
+    TrunkId, Vrf, WredCfg, WredId,
 };
 use crate::backend::{HwPort, StatsObject, Vid};
 use crate::error::{Error, Result};
@@ -18,7 +17,7 @@ use sai_sys as sys;
 use std::io::Write as _;
 use std::net::IpAddr;
 use std::os::fd::BorrowedFd;
-use std::sync::{Arc, PoisonError};
+use std::sync::Arc;
 
 // The C++ fake's capacities (fake_backend.cpp).
 const V4_ROUTES: u32 = 16384;
@@ -142,6 +141,42 @@ impl Base for VirtualBackend {
     }
 }
 
+/// How the virtual diag shell answers `phy raw c45 PHY DEV REG` (a read through the SDK's MDIO
+/// master on the real chip): the C++ fake's echo, or the SDK's answer from the MDIO model, which
+/// lets the MDIO tool's `--verify-only --diag-socket` run against the virtual chip.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum ShellMdio {
+    /// `fake: <cmd>` for every command, as the C++ fake (the default).
+    #[default]
+    Echo,
+    /// Reads answered `\t0x<reg>: 0x<value>\n` (the value through [`Mdio::mdio_c45_read`]: logged,
+    /// a dead PHY fails the command); anything else echoed.
+    Answer,
+}
+
+/// `phy raw c45 PHY DEV REG` (numbers `0x` hex or decimal, words in any case), as a read.
+fn phy_raw_c45_read(cmd: &str) -> Option<(PhyAddr, MdioDev, u16)> {
+    fn number(word: &str) -> Option<u32> {
+        match word.strip_prefix("0x").or_else(|| word.strip_prefix("0X")) {
+            Some(hex) => u32::from_str_radix(hex, 16).ok(),
+            None => word.parse().ok(),
+        }
+    }
+    let words: Vec<&str> = cmd.split_ascii_whitespace().collect();
+    let [phy_word, raw, c45, phy, dev, reg] = words.as_slice() else {
+        return None;
+    };
+    let keywords = [(phy_word, "phy"), (raw, "raw"), (c45, "c45")];
+    if !keywords
+        .iter()
+        .all(|(word, keyword)| word.eq_ignore_ascii_case(keyword))
+    {
+        return None;
+    }
+    let dev = MdioDev::new(u8::try_from(number(dev)?).ok()?)?;
+    Some((PhyAddr(number(phy)?), dev, u16::try_from(number(reg)?).ok()?))
+}
+
 impl Shell for VirtualBackend {
     fn run_shell(&mut self, cmd: &str) -> Result<()> {
         self.check("run_shell")?;
@@ -149,13 +184,20 @@ impl Shell for VirtualBackend {
         Ok(())
     }
 
-    /// Logs the command and writes `fake: <cmd>\n` to `fd`.
+    /// Logs the command and writes `fake: <cmd>\n` to `fd`; with [`ShellMdio::Answer`], a
+    /// `phy raw c45 PHY DEV REG` read gets the SDK shell's answer from the MDIO model instead.
     fn run_shell_to(&mut self, cmd: &str, fd: BorrowedFd<'_>) -> Result<()> {
         self.check("run_shell_to")?;
         self.shell_log.push(cmd.to_owned());
+        let answer = match (self.shell_mdio, phy_raw_c45_read(cmd)) {
+            (ShellMdio::Answer, Some((phy, dev, reg))) => {
+                let val = self.mdio_c45_read(phy, dev, reg)?;
+                format!("\t0x{reg:04x}: 0x{val:04x}\n")
+            }
+            _ => format!("fake: {cmd}\n"),
+        };
         let mut out = std::fs::File::from(fd.try_clone_to_owned().map_err(|_| Error::Failure)?);
-        out.write_all(format!("fake: {cmd}\n").as_bytes())
-            .map_err(|_| Error::Failure)
+        out.write_all(answer.as_bytes()).map_err(|_| Error::Failure)
     }
 }
 
@@ -163,49 +205,18 @@ impl Temp for VirtualBackend {
     /// The monitors' values; the peak is 0.5 C above.
     fn asic_temperatures(&self) -> Result<AsicTemps> {
         self.check("asic_temperatures")?;
-        if self.temp_fail {
-            return Err(Error::Failure);
-        }
-        Ok(AsicTemps {
-            cur: self.temps.clone(),
-            peak: self.temps.iter().map(|t| t + 5).collect(),
-        })
+        self.temp_model().read()
     }
 }
 
 impl Mdio for VirtualBackend {
+    // One implementation for the backend and its handle ([`VirtualBackend::bus`]).
     fn mdio_c45_read(&self, phy: PhyAddr, dev: MdioDev, reg: u16) -> Result<u16> {
-        self.check("mdio_c45_read")?;
-        let mut mdio = self.mdio.lock().unwrap_or_else(PoisonError::into_inner);
-        if mdio.dead.contains(&phy) {
-            return Err(Error::Failure);
-        }
-        let val = mdio.regs.get(&(phy, dev, reg)).copied().unwrap_or(0);
-        mdio.log.push(MdioOp {
-            write: false,
-            phy,
-            dev,
-            reg,
-            val,
-        });
-        Ok(val)
+        crate::backend::types::MdioAccess::read(&self.bus(), phy, dev, reg)
     }
 
     fn mdio_c45_write(&self, phy: PhyAddr, dev: MdioDev, reg: u16, val: u16) -> Result<()> {
-        self.check("mdio_c45_write")?;
-        let mut mdio = self.mdio.lock().unwrap_or_else(PoisonError::into_inner);
-        if mdio.dead.contains(&phy) {
-            return Err(Error::Failure);
-        }
-        mdio.regs.insert((phy, dev, reg), val);
-        mdio.log.push(MdioOp {
-            write: true,
-            phy,
-            dev,
-            reg,
-            val,
-        });
-        Ok(())
+        crate::backend::types::MdioAccess::write(&self.bus(), phy, dev, reg, val)
     }
 }
 
@@ -453,8 +464,16 @@ impl Hostif for VirtualBackend {
         Ok(())
     }
 
-    fn netif_set_keep_tag(&mut self, netif_id: NetifId, hw: HwPort, keep_tag: bool) -> Result<FilterId> {
+    /// A new filter id; the old one goes with it (the C++ fake ignores `filter_id` too).
+    fn netif_set_keep_tag(
+        &mut self,
+        netif_id: NetifId,
+        hw: HwPort,
+        keep_tag: bool,
+        filter_id: Option<FilterId>,
+    ) -> Result<FilterId> {
         self.check("netif_set_keep_tag")?;
+        let _ = filter_id;
         if self.knet.get(&netif_id).is_none_or(|n| n.hw != hw) {
             return Err(Error::ItemNotFound);
         }
@@ -473,6 +492,14 @@ impl Hostif for VirtualBackend {
         }
         self.traps.insert(kind, to_cpu);
         Ok(())
+    }
+
+    /// The C++ fake has none (the `ob::Backend` default, `NotSupported`): the SAI layer takes
+    /// the `trap_set` + `CoPP` path. Fault injection applies (another error is final there).
+    fn trap_program(&mut self, t: &TrapSpec, remove: bool) -> Result<()> {
+        self.check("trap_program")?;
+        let _ = (t, remove);
+        Err(Error::NotSupported)
     }
 
     /// Only with the mirror model (`mirror_on`).
@@ -560,8 +587,11 @@ impl L3 for VirtualBackend {
 
     fn l3_egress_create(&mut self, intf_id: IntfId, dmac: MacAddr, hw: Dest, vid: Vid) -> Result<EgressId> {
         self.check("l3_egress_create")?;
-        if !self.l3.intfs.contains_key(&intf_id) || !self.dest_ok(hw) {
+        if !self.l3.intfs.contains_key(&intf_id) {
             return Err(Error::InvalidParameter);
+        }
+        if !self.dest_ok(hw) {
+            return Err(Error::InvalidPortNumber);
         }
         let id = EgressId(take(&mut self.next.egress));
         self.l3.egress.insert(
@@ -588,8 +618,11 @@ impl L3 for VirtualBackend {
         if !self.forwarding(egress_id) {
             return Err(Error::ItemNotFound);
         }
-        if !self.l3.intfs.contains_key(&intf_id) || !self.dest_ok(hw) {
+        if !self.l3.intfs.contains_key(&intf_id) {
             return Err(Error::InvalidParameter);
+        }
+        if !self.dest_ok(hw) {
+            return Err(Error::InvalidPortNumber);
         }
         self.l3.egress.insert(
             egress_id,
@@ -713,6 +746,20 @@ impl L3 for VirtualBackend {
     }
 }
 
+/// Test hooks of the L3 tables (the test port's `backend_host_insert` / `backend_host_erase`).
+impl VirtualBackend {
+    /// Puts a host entry into the table directly (as if the SDK had one the SAI layer does not
+    /// know; an IPv6 host counts two in `table_usage`).
+    pub fn host_insert(&mut self, vrf: Vrf, ip: IpAddr, egress: EgressId) {
+        self.l3.hosts.insert((vrf, ip), egress);
+    }
+
+    /// Takes a host entry out of the table directly.
+    pub fn host_erase(&mut self, vrf: Vrf, ip: IpAddr) {
+        self.l3.hosts.remove(&(vrf, ip));
+    }
+}
+
 impl Field for VirtualBackend {
     /// Twelve groups (Tomahawk IFP slices).
     fn fp_group_create(&mut self, qset: &[FpQual], priority: i32) -> Result<FpGroupId> {
@@ -749,7 +796,7 @@ impl Field for VirtualBackend {
         }
         let ports = r.m.in_ports.as_deref().unwrap_or(&[]);
         if ports.iter().any(|p| !self.ports.contains_key(p)) {
-            return Err(Error::InvalidParameter);
+            return Err(Error::InvalidPortNumber);
         }
         if r.m.in_ports.as_ref().is_some_and(Vec::is_empty) {
             return Err(Error::InvalidParameter);
@@ -1120,8 +1167,7 @@ impl Storm for VirtualBackend {
     }
 }
 
-// The C++ fake leaves these at the ob::Backend defaults (NotSupported / false): trap_program,
-// pool_stats_get, l3_intf_stat_supported, l3_intf_stats, l3_intf_admin_set, l3_egress_glean,
+// The C++ fake leaves these at the ob::Backend defaults (NotSupported / false): pool_stats_get, l3_intf_stat_supported, l3_intf_stats, l3_intf_admin_set, l3_egress_glean,
 // port_stat_by_id, port_stats_by_id, fp_supported, fp_group_create_ex, fp_entry_update,
 // fp_entry_enable, fp_group_free; so does this chip. Their area agents add a model when a test
 // needs one (the Teralynx mock is their only oracle today).

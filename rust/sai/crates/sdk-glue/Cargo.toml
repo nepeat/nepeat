@@ -1,23 +1,29 @@
 [package]
 name = "sdk-glue"
-description = "Safe wrappers over sai-openbcm's SDK glue (sdk-glue-sys): the only crate that calls it, and the only unsafe code on that side"
+description = "Safe wrappers over sai-openbcm's SDK glue (sdk-glue-sys): the only crate that calls it, and the only unsafe code on that side; a pure-Rust fake of the glue"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
 
 [features]
-# Which glue is linked (sdk-glue-sys): the real one (ppc64 only, needs SDK_GLUE_LINK) or the
-# fake for tests. With neither, a program that uses this crate does not link.
+# Which C glue is linked (sdk-glue-sys): the real one (ppc64 only, needs SDK_GLUE_LINK) or the
+# C fake for tests. With neither (and no rust-fake), a program that uses this crate does not link.
 real = ["sdk-glue-sys/real"]
 fake = ["sdk-glue-sys/fake"]
+# The pure-Rust fake (module rust_fake). Alone, with no C glue linked, it is also what the plain
+# bring-ups use: no C at all in the program (Miri runs it).
+rust-fake = ["dep:signal-hook"]
 
 [dependencies]
 sdk-glue-sys.workspace = true
+# rust-fake only: the scenario's "sigterm <n>" (raise SIGTERM, as fake_glue.c does), safe API
+signal-hook = { workspace = true, optional = true }
 
 [dev-dependencies]
-# this crate's own tests run against the fake glue
+# this crate's own tests: the real-glue module against the C fake, everything against the Rust fake
 sdk-glue-sys = { workspace = true, features = ["fake"] }
+sdk-glue = { path = ".", features = ["rust-fake"] }
 
 [lints]
 workspace = true

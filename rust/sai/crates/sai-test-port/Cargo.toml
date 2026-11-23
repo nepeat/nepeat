@@ -1,0 +1,14 @@
+[package]
+name = "sai-test-port"
+description = "The Rust libsai's test port: answers sai_rs_test_query (the C++ suite's tests/test_port.h over the Rust library and its virtual backend)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+sai-sys.workspace = true
+sai-core = { workspace = true, features = ["testing"] }
+
+[lints]
+workspace = true

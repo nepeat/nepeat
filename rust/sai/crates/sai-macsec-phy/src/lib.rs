@@ -45,6 +45,8 @@
 use std::collections::BTreeMap;
 use std::fmt;
 
+pub mod native;
+
 use phy_seq::{Bus, Dest, ExecError, ExecErrorKind, MacsecTable, OpKind, ParamName};
 use sai_core::Error;
 use sai_macsec::{CounterMode, EngineAddr, PortKey, Results, SeqError, SeqRunner, SwitchPort, Table};

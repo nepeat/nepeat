@@ -79,17 +79,23 @@ fn init_brings_the_chip_up_disables_ports_and_applies_the_board_settings() {
             PortInfo {
                 hw: HwPort(1),
                 lanes: vec![1, 2, 3, 4],
-                speed: 100_000
+                speed: 100_000,
+                name: "ce0".into(),
+                autoneg: false,
             },
             PortInfo {
                 hw: HwPort(2),
                 lanes: vec![5, 6, 7, 8],
-                speed: 100_000
+                speed: 100_000,
+                name: "ce1".into(),
+                autoneg: false,
             },
             PortInfo {
                 hw: HwPort(66),
                 lanes: vec![129],
-                speed: 10_000
+                speed: 10_000,
+                name: "xe0".into(),
+                autoneg: false,
             },
         ]
     );
@@ -507,9 +513,11 @@ fn the_slice_through_the_core_on_this_backend() {
     assert!(!fake::link_callback_registered());
     assert_eq!(events.try_recv(), Err(mpsc::TryRecvError::Disconnected));
 
-    // a switch creation that fails in the core's own build step leaves the chip down again
+    // VLAN 1's members are taken only when the chip answers (C++ switch_build_objects): a
+    // refused read leaves VLAN 1 without members, the switch is created
     let prof = profile("core2.cfg", "ports 4 4 100000\nfail vlan-members 1 -11\n", &[]);
-    assert_eq!(sai.create_switch(&init, &prof), Err(Error::Failure));
+    let switch = sai.create_switch(&init, &prof).unwrap().raw();
+    sai.remove(sys::SAI_OBJECT_TYPE_SWITCH, switch).unwrap();
     assert!(!fake::bcm_layer_up());
     assert!(!fake::link_callback_registered());
 }

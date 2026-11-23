@@ -4,7 +4,7 @@ use crate::hkey::{AuthKeyPolicy, auth_key_matches};
 use crate::ids::{An, Cipher, Dir, FlowId, MacsecId, MacsecPortId, SaId, ScId, en};
 use crate::model::{Level, Macsec, MsFlow, MsPort, MsSa, MsSc};
 use crate::runner::{SeqRunner, seq};
-use crate::secret::{Params, Secret, param};
+use crate::secret::{Params, Results, Secret, param};
 use crate::stats::{self, CounterMode, Counters};
 use crate::value::{Attr, Value, find, invalid, not_supported, sci_from_attr, sci_to_attr};
 use sai_core::oid::{PortId, RawOid, TypedId};
@@ -329,7 +329,13 @@ impl Macsec {
         for sa in installed {
             let _ = self.sa_uninstall(runner, hw, sa);
         }
-        let outcome = self.run(runner, hw, dir, &seq::disable(dir), &Params::new(), false);
+        // SAI_OPENBCM_MACSEC_ENGINES_ON_AT_STOP (off by default): the engine stays on with its
+        // gate closed (the SAs above closed it), so data frames are dropped, not sent in clear
+        let outcome = if self.engines_on {
+            Ok(Results::new())
+        } else {
+            self.run(runner, hw, dir, &seq::disable(dir), &Params::new(), false)
+        };
         if let Some(engine) = self.engine_mut(hw, dir) {
             engine.clear();
         }
@@ -341,7 +347,9 @@ impl Macsec {
             format_args!(
                 "port {name}: MACsec {} off{}",
                 dir.name(),
-                if outcome.is_ok() {
+                if self.engines_on {
+                    " (engine left on: data frames dropped)"
+                } else if outcome.is_ok() {
                     ""
                 } else {
                     " (the disable sequence FAILED)"
@@ -610,11 +618,14 @@ impl Macsec {
             return fixed;
         }
         let has_sa = self.sas.values().any(|sa| sa.sc == id && sa.installed);
+        // D10 (Q10 fixed): a waiting SA keeps the key bytes, salt and PN cut for the suite it
+        // was created under; the suite cannot change under it either.
+        let has_waiting = self.sas.values().any(|sa| sa.sc == id && !sa.installed);
         let sc = self.scs.get_mut(&id).ok_or(Error::InvalidObjectId)?;
         match attr.id {
             sys::SAI_MACSEC_SC_ATTR_MACSEC_CIPHER_SUITE => {
                 let cipher = Cipher::from_sai(attr.en(0)?).ok_or(invalid(0))?;
-                if has_sa && cipher != sc.cipher {
+                if (has_sa || has_waiting) && cipher != sc.cipher {
                     return Err(Error::ObjectInUse);
                 }
                 sc.cipher = cipher;

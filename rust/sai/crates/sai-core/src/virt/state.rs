@@ -139,6 +139,11 @@ impl KnetNetif {
     pub fn has_kernel_netdev(&self) -> bool {
         self.kernel.is_some()
     }
+
+    /// Whether its wire carries frames (a thread runs; mode `tap` with `WIRE`).
+    pub fn wired(&self) -> bool {
+        self.kernel.as_ref().is_some_and(super::netdev::Kernel::wired)
+    }
 }
 
 /// What an egress object is.
@@ -319,3 +324,26 @@ pub type Traps = BTreeMap<TrapKind, bool>;
 
 /// The KNET netifs (C++ `netifs`).
 pub type KnetNetifs = BTreeMap<NetifId, KnetNetif>;
+
+/// The temperature monitors (C++ `temps`, `temp_fail`), shared with the reader the backend
+/// hands the publisher thread.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub(crate) struct TempModel {
+    /// Current values, tenths of a degree C.
+    pub(crate) temps: Vec<i32>,
+    /// Reads fail (the sensor is gone).
+    pub(crate) fail: bool,
+}
+
+impl TempModel {
+    /// One read (C++ `asic_temperatures`): the values, each peak 0.5 C above.
+    pub(crate) fn read(&self) -> crate::error::Result<crate::backend::types::AsicTemps> {
+        if self.fail {
+            return Err(crate::error::Error::Failure);
+        }
+        Ok(crate::backend::types::AsicTemps {
+            cur: self.temps.clone(),
+            peak: self.temps.iter().map(|t| t + 5).collect(),
+        })
+    }
+}

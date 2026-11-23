@@ -50,7 +50,8 @@ impl RawOid {
             return Self::NULL;
         }
         let switch_index = (self.0 >> SWITCH_SHIFT) & 0xff;
-        Self((u64::from(sys::SAI_OBJECT_TYPE_SWITCH) << TYPE_SHIFT) | (switch_index << SWITCH_SHIFT))
+        // The switch object's own index is 1 (the C++ make_oid(SWITCH, 1, switch)).
+        Self((u64::from(sys::SAI_OBJECT_TYPE_SWITCH) << TYPE_SHIFT) | (switch_index << SWITCH_SHIFT) | 1)
     }
 }
 
@@ -199,6 +200,18 @@ object_types! {
     Scheduler = SAI_OBJECT_TYPE_SCHEDULER, SchedulerId;
     /// A policer.
     Policer = SAI_OBJECT_TYPE_POLICER, PolicerId;
+    /// An ACL table (an SDK field group).
+    AclTable = SAI_OBJECT_TYPE_ACL_TABLE, AclTableId;
+    /// An ACL entry (an SDK field entry while its table is bound).
+    AclEntry = SAI_OBJECT_TYPE_ACL_ENTRY, AclEntryId;
+    /// An ACL counter (the counter of one entry).
+    AclCounter = SAI_OBJECT_TYPE_ACL_COUNTER, AclCounterId;
+    /// An L4 port range for ACL entries.
+    AclRange = SAI_OBJECT_TYPE_ACL_RANGE, AclRangeId;
+    /// A group of ACL tables looked up in parallel.
+    AclTableGroup = SAI_OBJECT_TYPE_ACL_TABLE_GROUP, AclTableGroupId;
+    /// A table's membership of a table group.
+    AclTableGroupMember = SAI_OBJECT_TYPE_ACL_TABLE_GROUP_MEMBER, AclTableGroupMemberId;
     /// A buffer pool.
     BufferPool = SAI_OBJECT_TYPE_BUFFER_POOL, BufferPoolId;
     /// A buffer profile.
@@ -209,6 +222,10 @@ object_types! {
     Wred = SAI_OBJECT_TYPE_WRED, WredId;
     /// A hash object (the switch's LAG and ECMP hash).
     Hash = SAI_OBJECT_TYPE_HASH, HashId;
+    /// A mirror session (SPAN, ERSPAN).
+    MirrorSession = SAI_OBJECT_TYPE_MIRROR_SESSION, MirrorSessionId;
+    /// A packet sampler (sFlow).
+    Samplepacket = SAI_OBJECT_TYPE_SAMPLEPACKET, SamplepacketId;
     /// A link aggregation group (a `PortChannel`).
     Lag = SAI_OBJECT_TYPE_LAG, LagId;
     /// A port's membership of a LAG.
@@ -299,6 +316,6 @@ mod tests {
             PortId::try_from(RawOid(port.raw().0 | 1 << 48)),
             Err(Error::InvalidObjectId)
         );
-        assert_eq!(port.raw().switch_id(), SwitchId::from_index(0).raw());
+        assert_eq!(port.raw().switch_id(), SwitchId::from_index(1).raw());
     }
 }

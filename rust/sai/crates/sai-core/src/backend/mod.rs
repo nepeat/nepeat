@@ -4,8 +4,9 @@
 //! Implementations: [`crate::virt`] (in memory), `sai-backend-openbcm` (the SDK glue).
 //!
 //! - [`Backend`]: the supertrait. It still carries the first slice's 15 operations (`name`,
-//!   `init`, ports, VLANs) and 14 generic methods (`object_create`, `entry_*`, `stats_*`, ...)
-//!   that serve the attribute bags until each area is typed; those go area by area.
+//!   `init`, ports, VLANs), the capability and sizing queries (`programs`, `limits`,
+//!   `port_queues`, ...) and the generic counter methods (`stats_*`, for the counters of objects
+//!   no typed operation reads).
 //! - [`ops`]: the typed operations, one sub-trait per group of `backend.h` ([`ops::Base`],
 //!   [`ops::Shell`], [`ops::Temp`], [`ops::Mdio`], [`ops::PortOps`], [`ops::Lag`], [`ops::L2`],
 //!   [`ops::Hostif`], [`ops::L3`], [`ops::Field`], [`ops::Policer`], [`ops::Qos`], [`ops::Mirror`],
@@ -19,9 +20,7 @@
 //! A per-port [`types::LinkGate`] is the one callback into SAI-side code that a backend makes
 //! synchronously; its rules are on the type.
 use crate::error::{Error, Result};
-use crate::model::EntryKey;
 use crate::oid::RawOid;
-use crate::value::Attr;
 use sai_sys as sys;
 use std::collections::BTreeMap;
 use std::sync::{Arc, mpsc};
@@ -114,6 +113,10 @@ pub struct PortInfo {
     pub lanes: Vec<u32>,
     /// Speed in Mb/s after init.
     pub speed: u32,
+    /// The SDK's name (`ce0`).
+    pub name: String,
+    /// Autonegotiation as the SDK left it after init.
+    pub autoneg: bool,
 }
 
 /// Values of the SAI profile (`sai.profile`), read by the rim through the service method
@@ -229,21 +232,6 @@ pub enum BackendEvent {
     Fdb(types::FdbEvent),
 }
 
-/// A host interface of type NETDEV on a front-panel port, as the SAI layer resolved it for
-/// [`Backend::hostif_create`]: the netdev a KNET-style chip makes for it.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct HostifNetdev<'a> {
-    /// `SAI_HOSTIF_ATTR_NAME`: 1..=15 bytes (checked by the SAI layer).
-    pub name: &'a str,
-    /// The port `SAI_HOSTIF_ATTR_OBJ_ID` names.
-    pub port: HwPort,
-    /// The switch's source MAC address (`SAI_SWITCH_ATTR_SRC_MAC_ADDRESS`), which the C++
-    /// library gives every port netdev.
-    pub mac: [u8; 6],
-    /// `SAI_HOSTIF_ATTR_OPER_STATUS` at creation (default false): the netdev's carrier.
-    pub oper_up: bool,
-}
-
 /// An observer of every event a sink is sent ([`EventSink::tapped`]).
 pub type EventTap = Arc<dyn Fn(&BackendEvent) + Send + Sync>;
 
@@ -345,29 +333,11 @@ impl<B: Backend + ?Sized> Backend for Box<B> {
     fn limits(&self) -> Result<Capacities> {
         (**self).limits()
     }
+    fn temperature_reader(&self) -> Option<crate::temp::TempReader> {
+        (**self).temperature_reader()
+    }
     fn programs(&self, object_type: sys::sai_object_type_t) -> bool {
         (**self).programs(object_type)
-    }
-    fn object_create(&mut self, object_type: sys::sai_object_type_t, id: RawOid, attrs: &[Attr]) -> Result<()> {
-        (**self).object_create(object_type, id, attrs)
-    }
-    fn hostif_create(&mut self, id: RawOid, netdev: &HostifNetdev<'_>, attrs: &[Attr]) -> Result<()> {
-        (**self).hostif_create(id, netdev, attrs)
-    }
-    fn object_set(&mut self, object_type: sys::sai_object_type_t, id: RawOid, attr: &Attr) -> Result<()> {
-        (**self).object_set(object_type, id, attr)
-    }
-    fn object_remove(&mut self, object_type: sys::sai_object_type_t, id: RawOid) -> Result<()> {
-        (**self).object_remove(object_type, id)
-    }
-    fn entry_create(&mut self, key: &EntryKey, attrs: &[Attr]) -> Result<()> {
-        (**self).entry_create(key, attrs)
-    }
-    fn entry_set(&mut self, key: &EntryKey, attr: &Attr) -> Result<()> {
-        (**self).entry_set(key, attr)
-    }
-    fn entry_remove(&mut self, key: &EntryKey) -> Result<()> {
-        (**self).entry_remove(key)
     }
     fn stats_supported(&self, object_type: sys::sai_object_type_t) -> Result<Vec<sys::sai_stat_id_t>> {
         (**self).stats_supported(object_type)
@@ -378,10 +348,21 @@ impl<B: Backend + ?Sized> Backend for Box<B> {
     fn stats_clear(&mut self, object: StatsObject, counters: &[sys::sai_stat_id_t]) -> Result<()> {
         (**self).stats_clear(object, counters)
     }
+    #[cfg(feature = "testing")]
+    fn as_virtual(&self) -> Option<&crate::virt::VirtualBackend> {
+        (**self).as_virtual()
+    }
+    #[cfg(feature = "testing")]
+    fn as_virtual_mut(&mut self) -> Option<&mut crate::virt::VirtualBackend> {
+        (**self).as_virtual_mut()
+    }
+    fn mdio_bus(&self) -> Option<types::MdioBus> {
+        (**self).mdio_bus()
+    }
 }
 
 /// Everything the SAI layer needs from a chip: the typed sub-traits ([`ops`]) and, for now,
-/// the first slice's operations and the generic methods below.
+/// the first slice's operations and the queries below.
 ///
 /// A backend that has none of a group's operations yet implements the sub-trait with its
 /// default bodies (`impl L3 for MyBackend {}`, or [`crate::typed_defaults!`] for several), which
@@ -454,48 +435,19 @@ pub trait Backend:
     fn limits(&self) -> Result<Capacities> {
         Err(Error::NotSupported)
     }
+    /// A temperature read the publisher thread calls without the SAI lock
+    /// ([`crate::temp::Publisher`]): [`Temp::asic_temperatures`] on state shared with the
+    /// backend. Default: none (no publisher runs).
+    fn temperature_reader(&self) -> Option<crate::temp::TempReader> {
+        None
+    }
 
-    /// Whether [`Backend::object_create`], [`Backend::object_set`] and
-    /// [`Backend::object_remove`] (or the entry operations, for an entry type) can succeed for
-    /// objects of `object_type`; for `SAI_OBJECT_TYPE_PORT`: whether the port attributes
-    /// without an operation of their own can be set. The capability queries advertise only
-    /// what this answers yes to ([`crate::caps`]). Default: no (the defaults below refuse).
+    /// Whether objects of `object_type` are programmed by this backend (for
+    /// `SAI_OBJECT_TYPE_PORT`: whether the port attributes without an operation of their own can
+    /// be set). The capability queries advertise only what this answers yes to ([`crate::caps`]).
+    /// Default: no.
     fn programs(&self, _object_type: sys::sai_object_type_t) -> bool {
         false
-    }
-
-    /// An object whose whole state is its attributes is about to be created with the id
-    /// `id` ([`crate::bag`]): program it, or refuse. Also called for attributes of ports
-    /// that have no operation of their own above (`object_set` with a port id).
-    fn object_create(&mut self, _object_type: sys::sai_object_type_t, _id: RawOid, _attrs: &[Attr]) -> Result<()> {
-        Err(Error::NotSupported)
-    }
-    /// A host interface of type NETDEV is about to be created: make its netdev, or refuse.
-    /// Called instead of [`Backend::object_create`] for these (its later attribute changes and
-    /// its removal come through [`Backend::object_set`] and [`Backend::object_remove`] as for
-    /// any bag object). Default: [`Backend::object_create`], no netdev.
-    fn hostif_create(&mut self, id: RawOid, _netdev: &HostifNetdev<'_>, attrs: &[Attr]) -> Result<()> {
-        self.object_create(sys::SAI_OBJECT_TYPE_HOSTIF, id, attrs)
-    }
-    /// One attribute of such an object is about to change.
-    fn object_set(&mut self, _object_type: sys::sai_object_type_t, _id: RawOid, _attr: &Attr) -> Result<()> {
-        Err(Error::NotSupported)
-    }
-    /// Such an object is about to be removed.
-    fn object_remove(&mut self, _object_type: sys::sai_object_type_t, _id: RawOid) -> Result<()> {
-        Err(Error::NotSupported)
-    }
-    /// An FDB, neighbor or route entry is about to be created.
-    fn entry_create(&mut self, _key: &EntryKey, _attrs: &[Attr]) -> Result<()> {
-        Err(Error::NotSupported)
-    }
-    /// One attribute of an entry is about to change.
-    fn entry_set(&mut self, _key: &EntryKey, _attr: &Attr) -> Result<()> {
-        Err(Error::NotSupported)
-    }
-    /// An entry is about to be removed.
-    fn entry_remove(&mut self, _key: &EntryKey) -> Result<()> {
-        Err(Error::NotSupported)
     }
 
     /// The counters the chip has for objects of a type.
@@ -509,6 +461,80 @@ pub trait Backend:
     /// Zeroes counters.
     fn stats_clear(&mut self, _object: StatsObject, _counters: &[sys::sai_stat_id_t]) -> Result<()> {
         Err(Error::NotSupported)
+    }
+
+    /// The virtual chip, when this backend is one or wraps one (the test port,
+    /// [`crate::testing`]). Default: none.
+    #[cfg(feature = "testing")]
+    fn as_virtual(&self) -> Option<&crate::virt::VirtualBackend> {
+        None
+    }
+    /// The same, to change (the test port's hooks).
+    #[cfg(feature = "testing")]
+    fn as_virtual_mut(&mut self) -> Option<&mut crate::virt::VirtualBackend> {
+        None
+    }
+
+    /// The MDIO master as a handle the ext-PHY runtime keeps ([`types::MdioAccess`]: its link
+    /// gates run on the backend's link scan thread). Not a C++ operation and not logged itself;
+    /// the accesses through the handle are logged as `mdio_c45_read` / `mdio_c45_write` by the
+    /// recording decorator. Default: none (the backend has no MDIO for an external PHY table).
+    fn mdio_bus(&self) -> Option<types::MdioBus> {
+        None
+    }
+}
+
+/// A chip that has the first slice's operations of `B` ([`LEGACY_CPP_OPS`]) and none of the
+/// typed ones: every typed operation answers what its default answers, or the C++'s
+/// `NotSupported` for a required one (tests of what the SAI layer does without a feature).
+#[derive(Debug)]
+pub struct Refusing<B>(pub B);
+
+impl<B: Backend> Backend for Refusing<B> {
+    fn name(&self) -> &'static str {
+        "refusing"
+    }
+    fn init(&mut self, profile: &Profile, events: EventSink) -> Result<()> {
+        self.0.init(profile, events)
+    }
+    fn shutdown(&mut self) {
+        self.0.shutdown();
+    }
+    fn ports(&self) -> Vec<PortInfo> {
+        self.0.ports()
+    }
+    fn cpu_port(&self) -> HwPort {
+        self.0.cpu_port()
+    }
+    fn port_admin_set(&mut self, hw: HwPort, up: bool) -> Result<()> {
+        self.0.port_admin_set(hw, up)
+    }
+    fn port_link_get(&self, hw: HwPort) -> Result<bool> {
+        self.0.port_link_get(hw)
+    }
+    fn port_speed_set(&mut self, hw: HwPort, mbps: u32) -> Result<()> {
+        self.0.port_speed_set(hw, mbps)
+    }
+    fn port_speed_get(&self, hw: HwPort) -> Result<u32> {
+        self.0.port_speed_get(hw)
+    }
+    fn port_supported_speeds(&self, hw: HwPort) -> Result<Vec<u32>> {
+        self.0.port_supported_speeds(hw)
+    }
+    fn vlan_create(&mut self, vid: Vid) -> Result<()> {
+        self.0.vlan_create(vid)
+    }
+    fn vlan_destroy(&mut self, vid: Vid) -> Result<()> {
+        self.0.vlan_destroy(vid)
+    }
+    fn vlan_port_add(&mut self, vid: Vid, hw: HwPort, untagged: bool) -> Result<()> {
+        self.0.vlan_port_add(vid, hw, untagged)
+    }
+    fn vlan_port_remove(&mut self, vid: Vid, hw: HwPort) -> Result<()> {
+        self.0.vlan_port_remove(vid, hw)
+    }
+    fn vlan_members(&self, vid: Vid) -> Result<Vec<(HwPort, bool)>> {
+        self.0.vlan_members(vid)
     }
 }
 

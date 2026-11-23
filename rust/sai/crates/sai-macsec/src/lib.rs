@@ -100,6 +100,19 @@
 //!   ACL table / entry ids must come from the allocator the other ACL objects use:
 //!   [`Options::alloc`] (sai-macsec-capi passes the C++ `ctx().alloc`).
 //! - **D8** List attributes come back as `Vec`s; SAI's buffer convention is the rim's.
+//! - **D9** (Q7 fixed, owner's decision 2026-11-23) When the flow a port's data goes to
+//!   changes, the SAs of every other SC are taken out of that PHY (`reconcile`: the gate closes
+//!   before the last, then `sa-del[-last]`); the new flow's SAs then install as the first of
+//!   their SC. The old SAs become "waiting" without their key (wiped at install, as Q3), so
+//!   they cannot come back. A flow that goes away (the entry disabled) still leaves its SAs in,
+//!   as the C++ (the gate closes). Test: `d9_a_flow_switch_takes_the_old_scs_sas_out`.
+//! - **D10** (Q10 fixed, the same decision) The cipher suite of an SC cannot change while it has
+//!   SAs waiting for their flow either: `OBJECT_IN_USE`, as for installed ones. Test:
+//!   `d10_no_cipher_suite_change_under_waiting_sas`.
+//! - [`Options::engines_on_at_stop`] (profile key `SAI_OPENBCM_MACSEC_ENGINES_ON_AT_STOP`,
+//!   designed, **off**: the owner decides on the clear-traffic window): removing a MACSEC_PORT
+//!   skips `disable` (the engine stays on with its gate closed: data dropped, not sent in
+//!   clear), and the start-up clean-up skips it after `reset`. Off, the model is the C++.
 //!
 //! # Behaviour of the C++ that is questionable or under-specified
 //!
@@ -126,8 +139,8 @@
 //!   comment ("never transmit with, or accept through, what is about to go", :264).
 //! - **Q6** A `probe` that fails at attach is skipped (:1395): that engine is neither reset
 //!   nor disabled, whatever a previous process left in it.
-//! - **Q7** When the flow an entry sends data to changes (or another entry of the table
-//!   takes over), the SAs of the previous flow's SC stay in the PHY. The gate condition
+//! - **Q7** (fixed in this port: D9) When the flow an entry sends data to changes (or another
+//!   entry of the table takes over), the SAs of the previous flow's SC stay in the PHY. The gate condition
 //!   (:311) counts every installed SA, so the gate stays open for the new flow with the old
 //!   SC's SA; an SA of the new SC on an AN the old one holds is INSUFFICIENT_RESOURCES
 //!   (:302).
@@ -135,7 +148,7 @@
 //!   whoever's SA that is; `sc.hw` is never cleared (:241).
 //! - **Q9** `CONFIGURED_EGRESS_XPN` reads the live packet number like `CURRENT_XPN`
 //!   (:1019-1021), not what was configured.
-//! - **Q10** The SC's cipher suite may change while SAs wait (only installed SAs fix it,
+//! - **Q10** (fixed in this port: D10) The SC's cipher suite may change while SAs wait (only installed SAs fix it,
 //!   :801), but a waiting SA keeps the key bytes cut for the suite it was created under
 //!   (:917-919): 128 to 256 makes it uninstallable; 256 to 128 installs the *first* 16 bytes
 //!   where SAI puts a 128-bit SAK in the last 16; non-XPN to XPN lacks salt / SSCI; XPN to
@@ -165,26 +178,14 @@
 //! - **Q19** Attribute lists with the same attribute twice: MACSEC / MACSEC_PORT / FLOW take
 //!   the first (`find_attr`), SC and SA the last (their loops). Kept.
 //!
-//! # What `sai-core` and the rim need before `libsai.so` can serve these objects
+//! # How `libsai.so` serves these objects
 //!
-//! - `sai_meta::ValueType` / `sai_core::value::Value`: `MacsecSak` (`macsecsak`, 32 bytes),
-//!   `MacsecSalt` (`macsecsalt`, 12), `MacsecAuthKey` (`macsecauthkey`, 16), carried in
-//!   [`Secret`] (so `Value`'s derived `Debug` cannot print them; `Value` derives `PartialEq`,
-//!   which `Secret` does not offer on purpose: compare outside, or leave these variants
-//!   unequal); `AclField` (`aclfield`: enable + data / mask of `mac`, `u16`, `u64` for
-//!   DST_MAC, ETHER_TYPE, MACSEC_SCI) and `AclAction` (`aclaction`: enable + `s32` or `oid`).
-//!   `u8`, `u32`, `u64`, `bool`, enum, `oid`, `objlist`, `s32list` exist already.
-//! - `sai-ffi/convert.rs`: decode / encode of those members. The key arrays must be copied
-//!   straight into a `Secret` ([`Secret::from_slice`] on the union member's bytes), never
-//!   through a temporary array or a `Vec`. The SCI stays `Value::U64` (its type in the
-//!   header); nothing to do in the rim.
-//! - `sai-core`'s `ObjectType`: MACSEC, MACSEC_PORT, MACSEC_FLOW, MACSEC_SC, MACSEC_SA (the
-//!   ids of [`ids`] have its layout), stats entry points for FLOW and SA, the port
-//!   attributes INGRESS_MACSEC_ACL / EGRESS_MACSEC_ACL / MACSEC_PORT_LIST forwarded to
-//!   [`Macsec::set_port_acl`] / [`Macsec::port_acl`] / [`Macsec::port_macsec_ports`], ACL
-//!   table creates with a MACsec stage routed here ([`Macsec::is_macsec_stage`]), the port
-//!   code asking [`Macsec::port_ifg`] whenever it re-applies a port's settings, and
-//!   `sai_query_stats_capability` to [`Macsec::stats_capability`].
+//! Natively, no C ABI in between: `sai_core::macsec` is the core's seam (the `MacsecModel` /
+//! `MacsecLoader` traits, the secret value types `Value::MacsecSak` / `MacsecSalt` /
+//! `MacsecAuthKey` carrying this crate's [`Secret`], the port and ACL hooks, the inter-frame gap);
+//! `sai-macsec-phy`'s `native` module implements it over this crate and `phy-seq`; `sai-ffi`
+//! decodes the MACSEC API (the keys straight from the union into a [`Secret`]) and registers the
+//! loader. `sai-macsec-capi` stays for the C++ library until it goes.
 #![forbid(unsafe_code)]
 #![allow(
     clippy::doc_markdown,

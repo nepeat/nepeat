@@ -10,11 +10,9 @@
 //! `stats_*`, `programs`, `limits`, `port_queues`, ...), which have no C++ counterpart and go
 //! away area by area.
 use super::log;
-use super::{Backend, Capacities, EventSink, HostifNetdev, HwPort, PortInfo, Profile, StatsObject, Vid};
+use super::types::{MdioAccess, MdioBus, MdioDev, PhyAddr};
+use super::{Backend, Capacities, EventSink, HwPort, PortInfo, Profile, StatsObject, Vid};
 use crate::error::Result;
-use crate::model::EntryKey;
-use crate::oid::RawOid;
-use crate::value::Attr;
 use sai_sys as sys;
 use std::sync::{Arc, Mutex, PoisonError};
 
@@ -178,6 +176,19 @@ impl<B: Backend> Backend for Recording<B> {
         record!(self, vlan_members, status(out), [vid])
     }
 
+    /// The backend's reader, each read logged as the `asic_temperatures` call it is.
+    fn temperature_reader(&self) -> Option<crate::temp::TempReader> {
+        let read = self.inner.temperature_reader()?;
+        let lines = self.log.clone();
+        Some(Arc::new(move || {
+            let result = read();
+            lines.push(log::call_line("asic_temperatures", "", &result, |v, s| {
+                log::LogOut::log_out(v, &["cur", "peak"], s);
+            }));
+            result
+        }))
+    }
+
     // ---- the generic methods: forwarded, not logged (no C++ counterpart)
 
     fn port_queues(&self) -> u8 {
@@ -192,27 +203,6 @@ impl<B: Backend> Backend for Recording<B> {
     fn programs(&self, object_type: sys::sai_object_type_t) -> bool {
         self.inner.programs(object_type)
     }
-    fn object_create(&mut self, object_type: sys::sai_object_type_t, id: RawOid, attrs: &[Attr]) -> Result<()> {
-        self.inner.object_create(object_type, id, attrs)
-    }
-    fn hostif_create(&mut self, id: RawOid, netdev: &HostifNetdev<'_>, attrs: &[Attr]) -> Result<()> {
-        self.inner.hostif_create(id, netdev, attrs)
-    }
-    fn object_set(&mut self, object_type: sys::sai_object_type_t, id: RawOid, attr: &Attr) -> Result<()> {
-        self.inner.object_set(object_type, id, attr)
-    }
-    fn object_remove(&mut self, object_type: sys::sai_object_type_t, id: RawOid) -> Result<()> {
-        self.inner.object_remove(object_type, id)
-    }
-    fn entry_create(&mut self, key: &EntryKey, attrs: &[Attr]) -> Result<()> {
-        self.inner.entry_create(key, attrs)
-    }
-    fn entry_set(&mut self, key: &EntryKey, attr: &Attr) -> Result<()> {
-        self.inner.entry_set(key, attr)
-    }
-    fn entry_remove(&mut self, key: &EntryKey) -> Result<()> {
-        self.inner.entry_remove(key)
-    }
     fn stats_supported(&self, object_type: sys::sai_object_type_t) -> Result<Vec<sys::sai_stat_id_t>> {
         self.inner.stats_supported(object_type)
     }
@@ -221,5 +211,56 @@ impl<B: Backend> Backend for Recording<B> {
     }
     fn stats_clear(&mut self, object: StatsObject, counters: &[sys::sai_stat_id_t]) -> Result<()> {
         self.inner.stats_clear(object, counters)
+    }
+    #[cfg(feature = "testing")]
+    fn as_virtual(&self) -> Option<&crate::virt::VirtualBackend> {
+        self.inner.as_virtual()
+    }
+    #[cfg(feature = "testing")]
+    fn as_virtual_mut(&mut self) -> Option<&mut crate::virt::VirtualBackend> {
+        self.inner.as_virtual_mut()
+    }
+
+    /// The backend's handle, logged into this decorator's log (the C++ gate calls the
+    /// recording backend itself).
+    fn mdio_bus(&self) -> Option<MdioBus> {
+        let inner = self.inner.mdio_bus()?;
+        Some(Arc::new(RecordedBus {
+            inner,
+            log: self.log.clone(),
+        }))
+    }
+}
+
+/// An MDIO handle whose accesses are logged as the backend operations they stand for.
+#[derive(Debug)]
+struct RecordedBus {
+    inner: MdioBus,
+    log: CallLog,
+}
+
+impl MdioAccess for RecordedBus {
+    fn read(&self, phy: PhyAddr, dev: MdioDev, reg: u16) -> Result<u16> {
+        let mut args = String::new();
+        log::arg(&mut args, "phy", &phy);
+        log::arg(&mut args, "dev", &dev);
+        log::arg(&mut args, "reg", &reg);
+        let result = self.inner.read(phy, dev, reg);
+        self.log.push(log::call_line("mdio_c45_read", &args, &result, |v, s| {
+            log::LogOut::log_out(&log::One(v), &["val"], s);
+        }));
+        result
+    }
+
+    fn write(&self, phy: PhyAddr, dev: MdioDev, reg: u16, val: u16) -> Result<()> {
+        let mut args = String::new();
+        log::arg(&mut args, "phy", &phy);
+        log::arg(&mut args, "dev", &dev);
+        log::arg(&mut args, "reg", &reg);
+        log::arg(&mut args, "val", &val);
+        let result = self.inner.write(phy, dev, reg, val);
+        self.log
+            .push(log::call_line("mdio_c45_write", &args, &result, log::no_outs));
+        result
     }
 }

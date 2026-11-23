@@ -179,6 +179,22 @@ pub enum GateVerdict {
 /// bus handle). It should return quickly: the whole link scan waits for it.
 pub type LinkGate = Arc<dyn Fn() -> GateVerdict + Send + Sync>;
 
+/// The switch chip's clause-45 MDIO master as a handle of its own: what a [`LinkGate`] uses
+/// (it runs on the backend's link scan thread, where the backend itself cannot be borrowed),
+/// and the ext-PHY admin sequences. Same accesses, same answers and the same faults as
+/// [`super::ops::Mdio`]; the bus master's own lock is inside. Not a C++ operation: the C++ gate
+/// calls `be.mdio_c45_read` on the backend from the link scan thread
+/// ([`super::Backend::mdio_bus`]).
+pub trait MdioAccess: Send + Sync + core::fmt::Debug {
+    /// Reads a register (`mdio_c45_read`).
+    fn read(&self, phy: PhyAddr, dev: MdioDev, reg: u16) -> crate::error::Result<u16>;
+    /// Writes a register (`mdio_c45_write`).
+    fn write(&self, phy: PhyAddr, dev: MdioDev, reg: u16, val: u16) -> crate::error::Result<()>;
+}
+
+/// A cloneable [`MdioAccess`] handle.
+pub type MdioBus = Arc<dyn MdioAccess>;
+
 /// FEC mode (`ob::Fec`).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Fec {

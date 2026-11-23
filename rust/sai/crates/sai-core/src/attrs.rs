@@ -50,6 +50,16 @@ pub fn default_value(meta: &AttrMeta) -> Option<Value> {
     })
 }
 
+/// Object-id attributes whose header has no `@allownull` but whose `@default` names a switch
+/// object, and which the C++ answers for a null id with that default (`sai_hostif.cpp:344` /
+/// `:396`: a trap with a null `TRAP_GROUP` is in the default trap group).
+fn null_is_default(meta: &AttrMeta) -> bool {
+    matches!(
+        (meta.object_type, meta.id),
+        (sys::SAI_OBJECT_TYPE_HOSTIF_TRAP, sys::SAI_HOSTIF_TRAP_ATTR_TRAP_GROUP)
+    )
+}
+
 /// Checks one attribute's value against its metadata.
 fn check_value(meta: &AttrMeta, value: &Value, index: usize) -> Result<()> {
     let bad = Error::attr(AttrError::InvalidValue, index);
@@ -58,7 +68,11 @@ fn check_value(meta: &AttrMeta, value: &Value, index: usize) -> Result<()> {
     }
     let check_oid = |oid: RawOid| {
         if oid.is_null() {
-            return if meta.allow_null { Ok(()) } else { Err(bad) };
+            return if meta.allow_null || null_is_default(meta) {
+                Ok(())
+            } else {
+                Err(bad)
+            };
         }
         if meta.allowed_objects.contains(&oid.sai_object_type()) {
             Ok(())
@@ -106,10 +120,10 @@ impl<'a> CreateArgs<'a> {
     /// Checks a create call's attribute list.
     pub fn check(object_type: sys::sai_object_type_t, attrs: &'a [Attr]) -> Result<Self> {
         for (index, attr) in attrs.iter().enumerate() {
-            let meta = meta(object_type, attr.id, index)?;
-            if !meta.flags.creatable() {
-                return Err(Error::attr(AttrError::Invalid, index));
-            }
+            // not an attribute of the type, or read-only: the C++ answer (as the rim's)
+            let Some(meta) = sai_meta::attribute(object_type, attr.id).filter(|m| m.flags.creatable()) else {
+                return Err(crate::dispatch::refused_create(object_type, attr.id, index));
+            };
             check_value(meta, &attr.value, index)?;
             if attrs.iter().take(index).any(|earlier| earlier.id == attr.id) {
                 return Err(Error::InvalidParameter);
@@ -204,13 +218,13 @@ mod tests {
             vlan(&[Attr::new(sys::SAI_VLAN_ATTR_VLAN_ID, Value::U32(5))]),
             Err(Error::attr(AttrError::InvalidValue, 0))
         );
-        // read-only on create
+        // read-only on create: the C++ create_vlan's answer (stub_set, ATTR_NOT_SUPPORTED_1)
         assert_eq!(
             vlan(&[
                 Attr::new(sys::SAI_VLAN_ATTR_VLAN_ID, Value::U16(5)),
                 Attr::new(sys::SAI_VLAN_ATTR_MEMBER_LIST, Value::OidList(vec![]))
             ]),
-            Err(Error::attr(AttrError::Invalid, 1))
+            Err(Error::attr(AttrError::NotSupported, 1))
         );
         // not an attribute at all
         assert_eq!(
@@ -218,7 +232,7 @@ mod tests {
                 Attr::new(sys::SAI_VLAN_ATTR_VLAN_ID, Value::U16(5)),
                 Attr::new(0x0fff_ffff, Value::Bool(true))
             ]),
-            Err(Error::attr(AttrError::Unknown, 1))
+            Err(Error::attr(AttrError::NotSupported, 1))
         );
         // twice
         let id = Attr::new(sys::SAI_VLAN_ATTR_VLAN_ID, Value::U16(5));

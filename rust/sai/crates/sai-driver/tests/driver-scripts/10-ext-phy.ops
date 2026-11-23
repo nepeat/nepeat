@@ -1,0 +1,38 @@
+# The external-PHY runtime (link gate, admin sequences) through the SAI API, on the table
+# the differential writes (@EXT_PHY_TABLE@: kExtPhyGood of sai-openbcm's tests/test_tables.h
+# without its hold-off, so nothing depends on the clock), after tests/test_extphy.inc.
+profile SAI_OPENBCM_FAKE_PORTS=4
+profile SAI_OPENBCM_FAKE_LANES=4
+profile SAI_OPENBCM_FAKE_SPEED=100000
+profile SAI_OPENBCM_EXT_PHY_FILE=@EXT_PHY_TABLE@
+switch
+# a port the table does not list: link follows the ASIC
+set port port2 ADMIN_STATE=true
+linkscan
+get port port2 OPER_STATUS
+# port 0, line side down: admin up runs admin-up, the port stays down
+mdio 10 1 a101 0
+set port port0 ADMIN_STATE=true
+linkscan
+get port port0 OPER_STATUS
+# line side up: two polls up (up-polls 2) before the port comes up
+mdio 10 1 a101 3
+linkscan
+linkscan
+get port port0 OPER_STATUS
+linkscan
+get port port0 OPER_STATUS
+# line side down again: the port goes down at once
+mdio 10 1 a101 0
+linkscan
+get port port0 OPER_STATUS
+set port port0 ADMIN_STATE=false
+linkscan
+set port port1 ADMIN_STATE=true
+mdio 11 1 a101 3
+linkscan
+linkscan
+linkscan
+get port port1 OPER_STATUS
+set port port1 ADMIN_STATE=false
+remove_switch

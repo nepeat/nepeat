@@ -4,10 +4,11 @@
 //! `backend-op-map.md`.
 //!
 //! - **Defaults.** A default body answers `NotSupported` (or `false` for a probe) where the C++
-//!   has one, and where the C++ operation is pure virtual but no Rust backend has it yet; the
-//!   latter are marked `G1: required once <area> is ported` in the source and lose their
-//!   default when their area does. A backend that lacks a feature says so: the SAI layer keeps
-//!   the object and programs nothing, as with the C++.
+//!   has one (an optional feature: a backend that lacks it says so, the SAI layer keeps the
+//!   object and programs nothing, as with the C++). The operations the frontend calls that are
+//!   pure virtual in the C++ are `required`: no default, so every backend says what it does
+//!   (`sai-backend-openbcm` answers the ones it has not ported with an explicit `NotSupported`
+//!   marked `G2`, `src/g2.rs`). The body written after a `required` one is the test recorder's.
 //! - **Capability probes** as in the C++: [`Qos::qos_supported`], [`Mirror::mirror_supported`],
 //!   [`Hash::hash_supported`], [`Field::fp_supported`], [`PortOps::port_stat_by_id`],
 //!   [`L3::l3_intf_stat_supported`].
@@ -49,22 +50,37 @@ macro_rules! backend_ops {
         fn $op:ident(&mut $slf:ident $(, $a:ident: $t:ty)* $(,)?) -> $ret:ty, $kind:ident($($outs:tt)*) $body:block
         $($rest:tt)*
     ) => {
-        backend_ops!(@munch [$($tm)*] $tr [$($done)* {[$(#[$m])*] [mut] $slf $op [$($a: $t),*] $ret, $kind($($outs)*) $body}] $($rest)*);
+        backend_ops!(@munch [$($tm)*] $tr [$($done)* {[$(#[$m])*] [mut] $slf $op [$($a: $t),*] $ret, $kind($($outs)*) $body $body}] $($rest)*);
     };
     (@munch [$($tm:tt)*] $tr:ident [$($done:tt)*]
         $(#[$m:meta])*
         fn $op:ident(& $slf:ident $(, $a:ident: $t:ty)* $(,)?) -> $ret:ty, $kind:ident($($outs:tt)*) $body:block
         $($rest:tt)*
     ) => {
-        backend_ops!(@munch [$($tm)*] $tr [$($done)* {[$(#[$m])*] [] $slf $op [$($a: $t),*] $ret, $kind($($outs)*) $body}] $($rest)*);
+        backend_ops!(@munch [$($tm)*] $tr [$($done)* {[$(#[$m])*] [] $slf $op [$($a: $t),*] $ret, $kind($($outs)*) $body $body}] $($rest)*);
     };
-    (@munch [$($tm:tt)*] $tr:ident [$({[$($m:tt)*] [$($mu:tt)?] $slf:ident $op:ident [$($a:ident: $t:ty),*] $ret:ty, $kind:ident($($outs:tt)*) $body:block})*]) => {
+    // `required`: no default in the trait (the body is the test recorder's answer only)
+    (@munch [$($tm:tt)*] $tr:ident [$($done:tt)*]
+        $(#[$m:meta])*
+        required fn $op:ident(&mut $slf:ident $(, $a:ident: $t:ty)* $(,)?) -> $ret:ty, $kind:ident($($outs:tt)*) $body:block
+        $($rest:tt)*
+    ) => {
+        backend_ops!(@munch [$($tm)*] $tr [$($done)* {[$(#[$m])*] [mut] $slf $op [$($a: $t),*] $ret, $kind($($outs)*) ; $body}] $($rest)*);
+    };
+    (@munch [$($tm:tt)*] $tr:ident [$($done:tt)*]
+        $(#[$m:meta])*
+        required fn $op:ident(& $slf:ident $(, $a:ident: $t:ty)* $(,)?) -> $ret:ty, $kind:ident($($outs:tt)*) $body:block
+        $($rest:tt)*
+    ) => {
+        backend_ops!(@munch [$($tm)*] $tr [$($done)* {[$(#[$m])*] [] $slf $op [$($a: $t),*] $ret, $kind($($outs)*) ; $body}] $($rest)*);
+    };
+    (@munch [$($tm:tt)*] $tr:ident [$({[$($m:tt)*] [$($mu:tt)?] $slf:ident $op:ident [$($a:ident: $t:ty),*] $ret:ty, $kind:ident($($outs:tt)*) $tail:tt $body:block})*]) => {
         $($tm)*
         pub trait $tr {
             $(
                 $($m)*
                 #[allow(unused_variables, reason = "a default body may ignore its arguments")]
-                fn $op(& $($mu)? $slf $(, $a: $t)*) -> $ret $body
+                fn $op(& $($mu)? $slf $(, $a: $t)*) -> $ret $tail
             )*
         }
 
@@ -81,6 +97,13 @@ macro_rules! backend_ops {
                 fn $op(& $($mu)? $slf $(, $a: $t)*) -> $ret {
                     record!($slf, $op, $kind($($outs)*), [$($a),*])
                 }
+            )*
+        }
+
+        impl<B: super::Backend> $tr for super::Refusing<B> {
+            $(
+                #[allow(unused_variables, reason = "the refusal ignores its arguments")]
+                fn $op(& $($mu)? $slf $(, $a: $t)*) -> $ret $body
             )*
         }
 
@@ -213,22 +236,21 @@ backend_ops! {
     /// `cpu_port` and `ports` are still in [`super::Backend`]).
     pub trait Base {
         /// Whether this is the in-memory model (C++ `is_fake`; `sai_switch.cpp` refuses the fake
-        /// next to a real chip). G1: required once the switch area is ported.
-        fn is_fake(&self) -> bool, query() {
+        /// next to a real chip). Required (the switch area uses it).
+        required fn is_fake(&self) -> bool, query() {
             false
         }
-        /// A description of the chip for logs and `SWITCH_HARDWARE_INFO`. G1: required once the
-        /// switch area is ported.
+        /// A description of the chip for logs (the frontend does not ask for it yet).
         fn hardware_info(&self) -> String, query() {
             String::new()
         }
-        /// Free entries in the forwarding tables (the switch's `AVAILABLE_*` attributes). G1:
-        /// required once the switch area is ported (it replaces [`super::Backend::limits`]).
-        fn table_usage(&self) -> Result<TableUsage>, status(u) {
+        /// Free entries in the forwarding tables (the switch's `AVAILABLE_*` attributes). Required
+        /// (the switch area uses it) (it replaced [`super::Backend::limits`]).
+        required fn table_usage(&self) -> Result<TableUsage>, status(u) {
             Err(Error::NotSupported)
         }
-        /// Fixed properties of the chip. G1: required once the switch area is ported.
-        fn chip_limits(&self) -> Result<ChipLimits>, query_status(l) {
+        /// Fixed properties of the chip. Required (the switch area uses it).
+        required fn chip_limits(&self) -> Result<ChipLimits>, query_status(l) {
             Err(Error::NotSupported)
         }
     }
@@ -237,15 +259,15 @@ backend_ops! {
 backend_ops! {
     /// The SDK's diagnostic shell (the diag socket's `shell` commands, `sai_diag.cpp`).
     pub trait Shell {
-        /// Runs a diag shell command; its output goes wherever the SDK prints. G1: required once
-        /// the diag area is ported.
+        /// Runs a diag shell command; its output goes wherever the SDK prints (the diag
+        /// socket uses [`Shell::run_shell_to`]).
         fn run_shell(&mut self, cmd: &str) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
         /// The same with the output written to `fd` (a diag socket connection). The SDK prints
-        /// to the process's stdout: a backend redirects it for the call (the C glue does). G1:
-        /// required once the diag area is ported.
-        fn run_shell_to(&mut self, cmd: &str, fd: BorrowedFd<'_>) -> Result<()>, status() {
+        /// to the process's stdout: a backend redirects it for the call (the C glue does). Required
+        /// (the diag area uses it).
+        required fn run_shell_to(&mut self, cmd: &str, fd: BorrowedFd<'_>) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
     }
@@ -257,9 +279,9 @@ backend_ops! {
         /// The ASIC's die temperature monitors, tenths of a degree C: current, and the peak since
         /// the previous read. The C++ publisher calls it without the SAI lock (the backend is
         /// thread-safe for it); here it takes `&self`, and a publisher thread needs a handle
-        /// the backend hands out (open for the temperature area). G1: required once the
-        /// temperature area is ported.
-        fn asic_temperatures(&self) -> Result<AsicTemps>, outs(cur, peak) {
+        /// the backend hands out (open for the temperature area). Required (the
+        /// temperature area uses it).
+        required fn asic_temperatures(&self) -> Result<AsicTemps>, outs(cur, peak) {
             Err(Error::NotSupported)
         }
     }
@@ -288,17 +310,17 @@ backend_ops! {
         fn port_link_gate(&mut self, hw: HwPort, gate: Option<LinkGate>) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// The largest frame, bytes (the SAI layer passes MTU + 8). G1: required once the port
-        /// area is ported.
-        fn port_frame_max_set(&mut self, hw: HwPort, bytes: u32) -> Result<()>, status() {
+        /// The largest frame, bytes (the SAI layer passes MTU + 8). Required (the port area
+        /// uses it).
+        required fn port_frame_max_set(&mut self, hw: HwPort, bytes: u32) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// FEC. G1: required once the port area is ported.
-        fn port_fec_set(&mut self, hw: HwPort, fec: Fec) -> Result<()>, status() {
+        /// FEC. Required (the port area uses it).
+        required fn port_fec_set(&mut self, hw: HwPort, fec: Fec) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// Autonegotiation. G1: required once the port area is ported.
-        fn port_autoneg_set(&mut self, hw: HwPort, on: bool) -> Result<()>, status() {
+        /// Autonegotiation. Required (the port area uses it).
+        required fn port_autoneg_set(&mut self, hw: HwPort, on: bool) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
         /// Board quirk: the interface type (`SAI_OPENBCM_PORT_INTERFACE`).
@@ -310,25 +332,25 @@ backend_ops! {
         fn port_ifg_set(&mut self, hw: HwPort, bits: u32) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// Loopback. G1: required once the port area is ported.
-        fn port_loopback_set(&mut self, hw: HwPort, lb: Loopback) -> Result<()>, status() {
+        /// Loopback. Required (the port area uses it).
+        required fn port_loopback_set(&mut self, hw: HwPort, lb: Loopback) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// The port VLAN id. G1: required once the L2 area is ported.
-        fn port_pvid_set(&mut self, hw: HwPort, vid: Vid) -> Result<()>, status() {
+        /// The port VLAN id. Required (the L2 area uses it).
+        required fn port_pvid_set(&mut self, hw: HwPort, vid: Vid) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// Address learning. G1: required once the L2 area is ported.
-        fn port_learn_set(&mut self, hw: HwPort, mode: Learn) -> Result<()>, status() {
+        /// Address learning. Required (the L2 area uses it).
+        required fn port_learn_set(&mut self, hw: HwPort, mode: Learn) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// One port counter. G1: required once the port area is ported (it replaces
+        /// One port counter. Required (the port area uses it) (it replaced
         /// [`super::Backend::stats_get`] for ports).
-        fn port_stat_get(&self, hw: HwPort, stat: PortStat) -> Result<u64>, status(v) {
+        required fn port_stat_get(&self, hw: HwPort, stat: PortStat) -> Result<u64>, status(v) {
             Err(Error::NotSupported)
         }
-        /// Zeroes every counter of the port. G1: required once the port area is ported.
-        fn port_stat_clear(&mut self, hw: HwPort) -> Result<()>, status() {
+        /// Zeroes every counter of the port. Required (the port area uses it).
+        required fn port_stat_clear(&mut self, hw: HwPort) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
         /// Probe: whether counter `id` (`SAI_PORT_STAT_*`) comes from
@@ -355,16 +377,16 @@ backend_ops! {
     /// LAGs as SDK trunks (`sai_lag.cpp`). The SAI layer applies VLAN membership, PVID and
     /// learning to every member port itself.
     pub trait Lag {
-        /// A trunk without members. G1: required once the LAG area is ported.
-        fn lag_create(&mut self) -> Result<TrunkId>, status(tid) {
+        /// A trunk without members. Required (the LAG area uses it).
+        required fn lag_create(&mut self) -> Result<TrunkId>, status(tid) {
             Err(Error::NotSupported)
         }
-        /// Destroys a trunk. G1: required once the LAG area is ported.
-        fn lag_destroy(&mut self, tid: TrunkId) -> Result<()>, status() {
+        /// Destroys a trunk. Required (the LAG area uses it).
+        required fn lag_destroy(&mut self, tid: TrunkId) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// Replaces the whole member list. G1: required once the LAG area is ported.
-        fn lag_set_members(&mut self, tid: TrunkId, members: &[LagMember]) -> Result<()>, status() {
+        /// Replaces the whole member list. Required (the LAG area uses it).
+        required fn lag_set_members(&mut self, tid: TrunkId, members: &[LagMember]) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
     }
@@ -374,21 +396,21 @@ backend_ops! {
     /// The L2 table (`sai_l2.cpp`: FDB entries, flush, aging). Learned and aged addresses come
     /// back as [`super::BackendEvent::Fdb`].
     pub trait L2 {
-        /// Adds or replaces an entry. G1: required once the L2 area is ported.
-        fn l2_add(&mut self, mac: MacAddr, vid: Vid, hw: Dest, is_static: bool, discard: bool) -> Result<()>, status() {
+        /// Adds or replaces an entry. Required (the L2 area uses it).
+        required fn l2_add(&mut self, mac: MacAddr, vid: Vid, hw: Dest, is_static: bool, discard: bool) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// Deletes an entry. G1: required once the L2 area is ported.
-        fn l2_delete(&mut self, mac: MacAddr, vid: Vid) -> Result<()>, status() {
+        /// Deletes an entry. Required (the L2 area uses it).
+        required fn l2_delete(&mut self, mac: MacAddr, vid: Vid) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
         /// Deletes the entries of a destination and / or VLAN (`None`: any), static and / or
-        /// dynamic ones. G1: required once the L2 area is ported.
-        fn l2_flush(&mut self, hw: Option<Dest>, vid: Option<Vid>, statics: bool, dynamics: bool) -> Result<()>, status() {
+        /// dynamic ones. Required (the L2 area uses it).
+        required fn l2_flush(&mut self, hw: Option<Dest>, vid: Option<Vid>, statics: bool, dynamics: bool) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// The aging time in seconds. G1: required once the L2 area is ported.
-        fn l2_age_set(&mut self, seconds: u32) -> Result<()>, status() {
+        /// The aging time in seconds. Required (the L2 area uses it).
+        required fn l2_age_set(&mut self, seconds: u32) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
     }
@@ -398,28 +420,29 @@ backend_ops! {
     /// Host interfaces: KNET netdevs, traps, generic netlink (`sai_hostif.cpp`).
     pub trait Hostif {
         /// One Linux netdev for a port (TX straight to the port, RX through a filter on the
-        /// ingress port). G1: required once the hostif area is ported (it replaces
-        /// [`super::Backend::hostif_create`]).
-        fn netif_create(&mut self, ifname: &str, hw: HwPort, vid: Vid, mac: MacAddr, keep_tag: bool) -> Result<NetifCreated>, outs(netif_id, filter_id) {
+        /// ingress port). Required (the hostif area uses it).
+        required fn netif_create(&mut self, ifname: &str, hw: HwPort, vid: Vid, mac: MacAddr, keep_tag: bool) -> Result<NetifCreated>, outs(netif_id, filter_id) {
             Err(Error::NotSupported)
         }
-        /// Removes a netdev and its filter. G1: required once the hostif area is ported.
-        fn netif_destroy(&mut self, netif_id: NetifId, filter_id: FilterId) -> Result<()>, status() {
+        /// Removes a netdev and its filter. Required (the hostif area uses it).
+        required fn netif_destroy(&mut self, netif_id: NetifId, filter_id: FilterId) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// The netdev's carrier (the host interface's `OPER_STATUS`). G1: required once the
-        /// hostif area is ported.
-        fn netif_carrier_set(&mut self, ifname: &str, up: bool) -> Result<()>, status() {
+        /// The netdev's carrier (the host interface's `OPER_STATUS`). Required (the
+        /// hostif area uses it).
+        required fn netif_carrier_set(&mut self, ifname: &str, up: bool) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// Re-creates the RX filter with / without VLAN tag stripping (the netdev stays). G1:
-        /// required once the hostif area is ported.
-        fn netif_set_keep_tag(&mut self, netif_id: NetifId, hw: HwPort, keep_tag: bool) -> Result<FilterId>, status(filter_id) {
+        /// Re-creates the RX filter with / without VLAN tag stripping (the netdev stays) and
+        /// returns the new filter; `filter_id` is the old one, which the backend destroys (C++:
+        /// an in/out parameter, logged on both sides; the SAI layer passes `None`, as the C++
+        /// passes -1). Required (the hostif area uses it).
+        required fn netif_set_keep_tag(&mut self, netif_id: NetifId, hw: HwPort, keep_tag: bool, filter_id: Option<FilterId>) -> Result<FilterId>, status(filter_id) {
             Err(Error::NotSupported)
         }
         /// Steers a protocol to the CPU or stops doing so; `NotSupported` for a kind the
-        /// backend has no control for. G1: required once the hostif area is ported.
-        fn trap_set(&mut self, kind: TrapKind, to_cpu: bool) -> Result<()>, status() {
+        /// backend has no control for. Required (the hostif area uses it).
+        required fn trap_set(&mut self, kind: TrapKind, to_cpu: bool) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
         /// Optional: a backend that steers, queues and polices a trap itself programs it here
@@ -448,74 +471,74 @@ backend_ops! {
     /// L3 in the SDK's egress mode (`sai_l3.cpp`): interfaces bind a VLAN to a VRF; host and
     /// route entries are per VRF, egress objects and ECMP groups are not.
     pub trait L3 {
-        /// An L3 interface. G1: required once the L3 area is ported.
-        fn l3_intf_create(&mut self, mac: MacAddr, vid: Vid, mtu: u32, vrf: Vrf) -> Result<IntfId>, status(intf_id) {
+        /// An L3 interface. Required (the L3 area uses it).
+        required fn l3_intf_create(&mut self, mac: MacAddr, vid: Vid, mtu: u32, vrf: Vrf) -> Result<IntfId>, status(intf_id) {
             Err(Error::NotSupported)
         }
-        /// Changes one. G1: required once the L3 area is ported.
-        fn l3_intf_update(&mut self, intf_id: IntfId, mac: MacAddr, vid: Vid, mtu: u32, vrf: Vrf) -> Result<()>, status() {
+        /// Changes one. Required (the L3 area uses it).
+        required fn l3_intf_update(&mut self, intf_id: IntfId, mac: MacAddr, vid: Vid, mtu: u32, vrf: Vrf) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// Destroys one. G1: required once the L3 area is ported.
-        fn l3_intf_destroy(&mut self, intf_id: IntfId) -> Result<()>, status() {
+        /// Destroys one. Required (the L3 area uses it).
+        required fn l3_intf_destroy(&mut self, intf_id: IntfId) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// A my-station entry (the router MAC). G1: required once the L3 area is ported.
-        fn l3_station_add(&mut self, mac: MacAddr) -> Result<StationId>, status(station_id) {
+        /// A my-station entry (the router MAC). Required (the L3 area uses it).
+        required fn l3_station_add(&mut self, mac: MacAddr) -> Result<StationId>, status(station_id) {
             Err(Error::NotSupported)
         }
-        /// Deletes one. G1: required once the L3 area is ported.
-        fn l3_station_delete(&mut self, station_id: StationId) -> Result<()>, status() {
+        /// Deletes one. Required (the L3 area uses it).
+        required fn l3_station_delete(&mut self, station_id: StationId) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// An egress object (a neighbor). G1: required once the L3 area is ported.
-        fn l3_egress_create(&mut self, intf_id: IntfId, dmac: MacAddr, hw: Dest, vid: Vid) -> Result<EgressId>, status(egress_id) {
+        /// An egress object (a neighbor). Required (the L3 area uses it).
+        required fn l3_egress_create(&mut self, intf_id: IntfId, dmac: MacAddr, hw: Dest, vid: Vid) -> Result<EgressId>, status(egress_id) {
             Err(Error::NotSupported)
         }
-        /// Changes one. G1: required once the L3 area is ported.
-        fn l3_egress_update(&mut self, egress_id: EgressId, intf_id: IntfId, dmac: MacAddr, hw: Dest, vid: Vid) -> Result<()>, status() {
+        /// Changes one. Required (the L3 area uses it).
+        required fn l3_egress_update(&mut self, egress_id: EgressId, intf_id: IntfId, dmac: MacAddr, hw: Dest, vid: Vid) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// Destroys one. G1: required once the L3 area is ported.
-        fn l3_egress_destroy(&mut self, egress_id: EgressId) -> Result<()>, status() {
+        /// Destroys one. Required (the L3 area uses it).
+        required fn l3_egress_destroy(&mut self, egress_id: EgressId) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// The shared CPU egress (never destroyed). G1: required once the L3 area is ported.
-        fn l3_egress_cpu(&mut self) -> Result<EgressId>, status(egress_id) {
+        /// The shared CPU egress (never destroyed). Required (the L3 area uses it).
+        required fn l3_egress_cpu(&mut self) -> Result<EgressId>, status(egress_id) {
             Err(Error::NotSupported)
         }
-        /// The shared drop egress (never destroyed). G1: required once the L3 area is ported.
-        fn l3_egress_drop(&mut self) -> Result<EgressId>, status(egress_id) {
+        /// The shared drop egress (never destroyed). Required (the L3 area uses it).
+        required fn l3_egress_drop(&mut self) -> Result<EgressId>, status(egress_id) {
             Err(Error::NotSupported)
         }
-        /// A host entry. G1: required once the L3 area is ported.
-        fn l3_host_add(&mut self, vrf: Vrf, ip: IpAddr, egress_id: EgressId) -> Result<()>, status() {
+        /// A host entry. Required (the L3 area uses it).
+        required fn l3_host_add(&mut self, vrf: Vrf, ip: IpAddr, egress_id: EgressId) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// Deletes one. G1: required once the L3 area is ported.
-        fn l3_host_delete(&mut self, vrf: Vrf, ip: IpAddr) -> Result<()>, status() {
+        /// Deletes one. Required (the L3 area uses it).
+        required fn l3_host_delete(&mut self, vrf: Vrf, ip: IpAddr) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
         /// A route to an egress object or an ECMP group (`replace`: it exists and is changed).
-        /// G1: required once the L3 area is ported.
-        fn l3_route_add(&mut self, vrf: Vrf, p: IpPrefix, target: RouteTarget, replace: bool) -> Result<()>, status() {
+        /// Required (the L3 area uses it).
+        required fn l3_route_add(&mut self, vrf: Vrf, p: IpPrefix, target: RouteTarget, replace: bool) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// Deletes one. G1: required once the L3 area is ported.
-        fn l3_route_delete(&mut self, vrf: Vrf, p: IpPrefix) -> Result<()>, status() {
+        /// Deletes one. Required (the L3 area uses it).
+        required fn l3_route_delete(&mut self, vrf: Vrf, p: IpPrefix) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// An ECMP group over egress objects (a repeated one weighs more; never empty). G1:
-        /// required once the L3 area is ported.
-        fn l3_ecmp_create(&mut self, egress: &[EgressId]) -> Result<EcmpId>, status(ecmp_id) {
+        /// An ECMP group over egress objects (a repeated one weighs more; never empty). Required
+        /// (the L3 area uses it).
+        required fn l3_ecmp_create(&mut self, egress: &[EgressId]) -> Result<EcmpId>, status(ecmp_id) {
             Err(Error::NotSupported)
         }
-        /// Replaces its members. G1: required once the L3 area is ported.
-        fn l3_ecmp_update(&mut self, ecmp_id: EcmpId, egress: &[EgressId]) -> Result<()>, status() {
+        /// Replaces its members. Required (the L3 area uses it).
+        required fn l3_ecmp_update(&mut self, ecmp_id: EcmpId, egress: &[EgressId]) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// Destroys one. G1: required once the L3 area is ported.
-        fn l3_ecmp_destroy(&mut self, ecmp_id: EcmpId) -> Result<()>, status() {
+        /// Destroys one. Required (the L3 area uses it).
+        required fn l3_ecmp_destroy(&mut self, ecmp_id: EcmpId) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
         /// Probe: whether router interface counter `id` (`SAI_ROUTER_INTERFACE_STAT_*`) exists.
@@ -543,25 +566,25 @@ backend_ops! {
     /// one SDK field group with a qualifier set; an entry is installed at create (destroyed and
     /// re-created to change it, unless [`FpCap::EntryUpdate`]).
     pub trait Field {
-        /// A group; `priority` orders groups (higher wins on conflicting actions). G1: required
-        /// once the ACL area is ported.
-        fn fp_group_create(&mut self, qset: &[FpQual], priority: i32) -> Result<FpGroupId>, status(gid) {
+        /// A group; `priority` orders groups (higher wins on conflicting actions). Required (the
+        /// ACL area uses it).
+        required fn fp_group_create(&mut self, qset: &[FpQual], priority: i32) -> Result<FpGroupId>, status(gid) {
             Err(Error::NotSupported)
         }
-        /// Destroys one. G1: required once the ACL area is ported.
-        fn fp_group_destroy(&mut self, gid: FpGroupId) -> Result<()>, status() {
+        /// Destroys one. Required (the ACL area uses it).
+        required fn fp_group_destroy(&mut self, gid: FpGroupId) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// An entry. G1: required once the ACL area is ported.
-        fn fp_entry_create(&mut self, gid: FpGroupId, r: &FpRule) -> Result<FpEntryId>, status(eid) {
+        /// An entry. Required (the ACL area uses it).
+        required fn fp_entry_create(&mut self, gid: FpGroupId, r: &FpRule) -> Result<FpEntryId>, status(eid) {
             Err(Error::NotSupported)
         }
-        /// Destroys one. G1: required once the ACL area is ported.
-        fn fp_entry_destroy(&mut self, eid: FpEntryId) -> Result<()>, status() {
+        /// Destroys one. Required (the ACL area uses it).
+        required fn fp_entry_destroy(&mut self, eid: FpEntryId) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// Its counter. G1: required once the ACL area is ported.
-        fn fp_entry_counter(&self, eid: FpEntryId) -> Result<FpCounter>, outs(packets, bytes) {
+        /// Its counter. Required (the ACL area uses it).
+        required fn fp_entry_counter(&self, eid: FpEntryId) -> Result<FpCounter>, outs(packets, bytes) {
             Err(Error::NotSupported)
         }
         /// Probe: an optional field-processor feature.
@@ -591,16 +614,16 @@ backend_ops! {
 backend_ops! {
     /// Meters (`sai_acl.cpp` policers; one may serve several entries).
     pub trait Policer {
-        /// A meter. G1: required once the ACL area is ported.
-        fn policer_create(&mut self, cfg: &PolicerCfg) -> Result<PolicerId>, status(pid) {
+        /// A meter. Required (the ACL area uses it).
+        required fn policer_create(&mut self, cfg: &PolicerCfg) -> Result<PolicerId>, status(pid) {
             Err(Error::NotSupported)
         }
-        /// Changes one. G1: required once the ACL area is ported.
-        fn policer_set(&mut self, pid: PolicerId, cfg: &PolicerCfg) -> Result<()>, status() {
+        /// Changes one. Required (the ACL area uses it).
+        required fn policer_set(&mut self, pid: PolicerId, cfg: &PolicerCfg) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
-        /// Destroys one. G1: required once the ACL area is ported.
-        fn policer_destroy(&mut self, pid: PolicerId) -> Result<()>, status() {
+        /// Destroys one. Required (the ACL area uses it).
+        required fn policer_destroy(&mut self, pid: PolicerId) -> Result<()>, status() {
             Err(Error::NotSupported)
         }
     }
@@ -825,7 +848,7 @@ mod tests {
         let _ = n.netif_create("x", hw, vid, mac, false);
         let _ = n.netif_destroy(NetifId(0), FilterId(0));
         let _ = n.netif_carrier_set("x", false);
-        let _ = n.netif_set_keep_tag(NetifId(0), hw, false);
+        let _ = n.netif_set_keep_tag(NetifId(0), hw, false, None);
         let _ = n.trap_set(TrapKind::Lldp, false);
         let _ = n.trap_program(
             &TrapSpec {

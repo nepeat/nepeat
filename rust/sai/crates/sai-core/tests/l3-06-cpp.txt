@@ -1,0 +1,223 @@
+> create router_interface rif3 VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=port3
+= SUCCESS
+  vlan_create(vid=4094) -> SUCCESS
+  vlan_port_add(vid=4094, hw=13, untagged=true) -> SUCCESS
+  port_pvid_set(hw=13, vid=4094) -> SUCCESS
+  l3_station_add(mac=02:00:00:00:00:01) -> SUCCESS station_id=1
+  l3_intf_create(mac=02:00:00:00:00:01, vid=4094, mtu=1514, vrf=0) -> SUCCESS intf_id=1
+> create router_interface rifdup VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=port3
+= ITEM_ALREADY_EXISTS
+> create next_hop nh1 TYPE=IP IP=10.0.0.2 ROUTER_INTERFACE_ID=rif3
+= SUCCESS
+  l3_egress_glean() -> SUCCESS egress_id=100002
+> create route_entry 192.168.0.0/24@vr0 NEXT_HOP_ID=nh1
+= SUCCESS
+  l3_route_add(vrf=0, p=192.168.0.0/24, target=100002, ecmp=false, replace=false) -> SUCCESS
+> create neighbor_entry 10.0.0.2@rif3 DST_MAC_ADDRESS=00:00:5e:00:53:01
+= SUCCESS
+  l3_egress_create(intf_id=1, dmac=00:00:5e:00:53:01, hw=13, vid=4094) -> SUCCESS egress_id=100003
+  l3_host_add(vrf=0, ip=10.0.0.2, egress_id=100003) -> SUCCESS
+  l3_route_add(vrf=0, p=192.168.0.0/24, target=100003, ecmp=false, replace=true) -> SUCCESS
+> create route_entry 10.0.0.1/32@vr0 NEXT_HOP_ID=cpu
+= SUCCESS
+  l3_egress_cpu() -> SUCCESS egress_id=100002
+  l3_route_add(vrf=0, p=10.0.0.1/32, target=100002, ecmp=false, replace=false) -> SUCCESS
+> create route_entry 0.0.0.0/0@vr0 PACKET_ACTION=DROP
+= SUCCESS
+  l3_egress_drop() -> SUCCESS egress_id=100004
+  l3_route_add(vrf=0, p=0.0.0.0/0, target=100004, ecmp=false, replace=false) -> SUCCESS
+> get route_entry 192.168.0.77/24@vr0 NEXT_HOP_ID PACKET_ACTION
+= SUCCESS
+> create virtual_router vr1 SRC_MAC_ADDRESS=02:00:00:00:0a:01
+= SUCCESS
+> get virtual_router vr1 SRC_MAC_ADDRESS
+= SUCCESS
+> create router_interface rif6 VIRTUAL_ROUTER_ID=vr1 TYPE=PORT PORT_ID=port6
+= SUCCESS
+  vlan_create(vid=4093) -> SUCCESS
+  vlan_port_add(vid=4093, hw=25, untagged=true) -> SUCCESS
+  port_pvid_set(hw=25, vid=4093) -> SUCCESS
+  l3_station_add(mac=02:00:00:00:0a:01) -> SUCCESS station_id=2
+  l3_intf_create(mac=02:00:00:00:0a:01, vid=4093, mtu=1514, vrf=1) -> SUCCESS intf_id=2
+> create router_interface rif7 VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=port7
+= SUCCESS
+  vlan_create(vid=4092) -> SUCCESS
+  vlan_port_add(vid=4092, hw=29, untagged=true) -> SUCCESS
+  port_pvid_set(hw=29, vid=4092) -> SUCCESS
+  l3_intf_create(mac=02:00:00:00:00:01, vid=4092, mtu=1514, vrf=0) -> SUCCESS intf_id=3
+> set router_interface rif6 MTU=9100
+= SUCCESS
+  l3_intf_update(intf_id=2, mac=02:00:00:00:0a:01, vid=4093, mtu=9100, vrf=1) -> SUCCESS
+> create neighbor_entry 10.9.0.1@rif6 DST_MAC_ADDRESS=00:00:5e:00:53:11
+= SUCCESS
+  l3_egress_create(intf_id=2, dmac=00:00:5e:00:53:11, hw=25, vid=4093) -> SUCCESS egress_id=100005
+  l3_host_add(vrf=1, ip=10.9.0.1, egress_id=100005) -> SUCCESS
+> create neighbor_entry 10.9.0.1@rif7 DST_MAC_ADDRESS=00:00:5e:00:53:12
+= SUCCESS
+  l3_egress_create(intf_id=3, dmac=00:00:5e:00:53:12, hw=29, vid=4092) -> SUCCESS egress_id=100006
+  l3_host_add(vrf=0, ip=10.9.0.1, egress_id=100006) -> SUCCESS
+> create next_hop nh6 TYPE=IP IP=10.9.0.1 ROUTER_INTERFACE_ID=rif6
+= SUCCESS
+> create next_hop nh7 TYPE=IP IP=10.9.0.1 ROUTER_INTERFACE_ID=rif7
+= SUCCESS
+> create route_entry 198.51.100.0/24@vr1 NEXT_HOP_ID=nh6
+= SUCCESS
+  l3_route_add(vrf=1, p=198.51.100.0/24, target=100005, ecmp=false, replace=false) -> SUCCESS
+> create route_entry 203.0.113.0/24@vr1 NEXT_HOP_ID=nh7
+= SUCCESS
+  l3_route_add(vrf=1, p=203.0.113.0/24, target=100006, ecmp=false, replace=false) -> SUCCESS
+> create next_hop nhb TYPE=IP IP=10.8.1.1 ROUTER_INTERFACE_ID=rif7
+= SUCCESS
+  l3_egress_glean() -> SUCCESS egress_id=100002
+> create next_hop_group grp TYPE=ECMP
+= SUCCESS
+> create route_entry 192.0.2.0/24@vr0 NEXT_HOP_ID=grp
+= SUCCESS
+  l3_egress_drop() -> SUCCESS egress_id=100004
+  l3_route_add(vrf=0, p=192.0.2.0/24, target=100004, ecmp=false, replace=false) -> SUCCESS
+> create next_hop_group_member ma NEXT_HOP_GROUP_ID=grp NEXT_HOP_ID=nh7
+= SUCCESS
+  l3_egress_cpu() -> SUCCESS egress_id=100002
+  l3_egress_drop() -> SUCCESS egress_id=100004
+  l3_egress_glean() -> SUCCESS egress_id=100002
+  l3_ecmp_create(egress=[100006]) -> SUCCESS ecmp_id=200000
+  l3_route_add(vrf=0, p=192.0.2.0/24, target=200000, ecmp=true, replace=true) -> SUCCESS
+> create next_hop_group_member mb NEXT_HOP_GROUP_ID=grp NEXT_HOP_ID=nhb WEIGHT=2
+= SUCCESS
+  l3_egress_cpu() -> SUCCESS egress_id=100002
+  l3_egress_drop() -> SUCCESS egress_id=100004
+  l3_egress_glean() -> SUCCESS egress_id=100002
+  l3_egress_cpu() -> SUCCESS egress_id=100002
+  l3_egress_drop() -> SUCCESS egress_id=100004
+  l3_egress_glean() -> SUCCESS egress_id=100002
+> create neighbor_entry 10.8.1.1@rif7 DST_MAC_ADDRESS=00:00:5e:00:53:22
+= SUCCESS
+  l3_egress_create(intf_id=3, dmac=00:00:5e:00:53:22, hw=29, vid=4092) -> SUCCESS egress_id=100007
+  l3_host_add(vrf=0, ip=10.8.1.1, egress_id=100007) -> SUCCESS
+  l3_egress_cpu() -> SUCCESS egress_id=100002
+  l3_egress_drop() -> SUCCESS egress_id=100004
+  l3_egress_glean() -> SUCCESS egress_id=100002
+  l3_egress_cpu() -> SUCCESS egress_id=100002
+  l3_egress_drop() -> SUCCESS egress_id=100004
+  l3_egress_glean() -> SUCCESS egress_id=100002
+  l3_ecmp_update(ecmp_id=200000, egress=[100006,100007,100007]) -> SUCCESS
+> set next_hop_group_member ma WEIGHT=3
+= SUCCESS
+  l3_egress_cpu() -> SUCCESS egress_id=100002
+  l3_egress_drop() -> SUCCESS egress_id=100004
+  l3_egress_glean() -> SUCCESS egress_id=100002
+  l3_egress_cpu() -> SUCCESS egress_id=100002
+  l3_egress_drop() -> SUCCESS egress_id=100004
+  l3_egress_glean() -> SUCCESS egress_id=100002
+  l3_ecmp_update(ecmp_id=200000, egress=[100006,100006,100006,100007,100007]) -> SUCCESS
+> get next_hop_group grp NEXT_HOP_COUNT NEXT_HOP_MEMBER_LIST
+= SUCCESS
+> get switch switch AVAILABLE_NEXT_HOP_GROUP_ENTRY AVAILABLE_NEXT_HOP_GROUP_MEMBER_ENTRY
+= SUCCESS
+  table_usage() -> SUCCESS u={v4_routes_free=16378,v6_routes_free=8192,hosts_free=16380,egress_free=32762,fdb_free=32768,ecmp_groups_free=4095,ecmp_members_free=16379}
+  table_usage() -> SUCCESS u={v4_routes_free=16378,v6_routes_free=8192,hosts_free=16380,egress_free=32762,fdb_free=32768,ecmp_groups_free=4095,ecmp_members_free=16379}
+> remove next_hop nh7
+= OBJECT_IN_USE
+> remove next_hop_group_member ma
+= SUCCESS
+  l3_egress_cpu() -> SUCCESS egress_id=100002
+  l3_egress_drop() -> SUCCESS egress_id=100004
+  l3_egress_glean() -> SUCCESS egress_id=100002
+  l3_ecmp_update(ecmp_id=200000, egress=[100007,100007]) -> SUCCESS
+> remove next_hop_group_member mb
+= SUCCESS
+  l3_egress_drop() -> SUCCESS egress_id=100004
+  l3_route_add(vrf=0, p=192.0.2.0/24, target=100004, ecmp=false, replace=true) -> SUCCESS
+  l3_ecmp_destroy(ecmp_id=200000) -> SUCCESS
+> remove route_entry 192.0.2.0/24@vr0
+= SUCCESS
+  l3_route_delete(vrf=0, p=192.0.2.0/24) -> SUCCESS
+> remove next_hop_group grp
+= SUCCESS
+> remove route_entry 198.51.100.0/24@vr1
+= SUCCESS
+  l3_route_delete(vrf=1, p=198.51.100.0/24) -> SUCCESS
+> remove route_entry 203.0.113.0/24@vr1
+= SUCCESS
+  l3_route_delete(vrf=1, p=203.0.113.0/24) -> SUCCESS
+> remove next_hop nh6
+= SUCCESS
+> remove next_hop nh7
+= SUCCESS
+> remove next_hop nhb
+= SUCCESS
+> remove neighbor_entry 10.9.0.1@rif6
+= SUCCESS
+  l3_host_delete(vrf=1, ip=10.9.0.1) -> SUCCESS
+  l3_egress_cpu() -> SUCCESS egress_id=100002
+  l3_egress_drop() -> SUCCESS egress_id=100004
+  l3_egress_glean() -> SUCCESS egress_id=100002
+  l3_egress_destroy(egress_id=100005) -> SUCCESS
+> remove neighbor_entry 10.9.0.1@rif7
+= SUCCESS
+  l3_host_delete(vrf=0, ip=10.9.0.1) -> SUCCESS
+  l3_egress_cpu() -> SUCCESS egress_id=100002
+  l3_egress_drop() -> SUCCESS egress_id=100004
+  l3_egress_glean() -> SUCCESS egress_id=100002
+  l3_egress_destroy(egress_id=100006) -> SUCCESS
+> remove neighbor_entry 10.8.1.1@rif7
+= SUCCESS
+  l3_host_delete(vrf=0, ip=10.8.1.1) -> SUCCESS
+  l3_egress_cpu() -> SUCCESS egress_id=100002
+  l3_egress_drop() -> SUCCESS egress_id=100004
+  l3_egress_glean() -> SUCCESS egress_id=100002
+  l3_egress_destroy(egress_id=100007) -> SUCCESS
+> remove router_interface rif6
+= SUCCESS
+  l3_intf_destroy(intf_id=2) -> SUCCESS
+  l3_station_delete(station_id=2) -> SUCCESS
+  vlan_port_remove(vid=4093, hw=25) -> SUCCESS
+  port_pvid_set(hw=25, vid=1) -> SUCCESS
+  vlan_destroy(vid=4093) -> SUCCESS
+> remove router_interface rif7
+= SUCCESS
+  l3_intf_destroy(intf_id=3) -> SUCCESS
+  vlan_port_remove(vid=4092, hw=29) -> SUCCESS
+  port_pvid_set(hw=29, vid=1) -> SUCCESS
+  vlan_destroy(vid=4092) -> SUCCESS
+> remove virtual_router vr1
+= SUCCESS
+> remove route_entry 192.168.0.0/24@vr0
+= SUCCESS
+  l3_route_delete(vrf=0, p=192.168.0.0/24) -> SUCCESS
+> remove next_hop nh1
+= SUCCESS
+> remove neighbor_entry 10.0.0.2@rif3
+= SUCCESS
+  l3_host_delete(vrf=0, ip=10.0.0.2) -> SUCCESS
+  l3_egress_cpu() -> SUCCESS egress_id=100002
+  l3_egress_drop() -> SUCCESS egress_id=100004
+  l3_egress_glean() -> SUCCESS egress_id=100002
+  l3_egress_destroy(egress_id=100003) -> SUCCESS
+> remove route_entry 10.0.0.1/32@vr0
+= SUCCESS
+  l3_route_delete(vrf=0, p=10.0.0.1/32) -> SUCCESS
+> remove route_entry 0.0.0.0/0@vr0
+= SUCCESS
+  l3_route_delete(vrf=0, p=0.0.0.0/0) -> SUCCESS
+> remove router_interface rif3
+= SUCCESS
+  l3_intf_destroy(intf_id=1) -> SUCCESS
+  vlan_port_remove(vid=4094, hw=13) -> SUCCESS
+  port_pvid_set(hw=13, vid=1) -> SUCCESS
+  vlan_destroy(vid=4094) -> SUCCESS
+> create vlan v200 VLAN_ID=200
+= SUCCESS
+  vlan_create(vid=200) -> SUCCESS
+> create router_interface vrif VIRTUAL_ROUTER_ID=vr0 TYPE=VLAN VLAN_ID=v200
+= SUCCESS
+  l3_intf_create(mac=02:00:00:00:00:01, vid=200, mtu=1514, vrf=0) -> SUCCESS intf_id=4
+> remove router_interface vrif
+= SUCCESS
+  l3_intf_destroy(intf_id=4) -> SUCCESS
+> remove vlan v200
+= SUCCESS
+  vlan_destroy(vid=200) -> SUCCESS
+> remove_switch
+= SUCCESS
+  shutdown() -> void

@@ -70,6 +70,89 @@ static void qos(sai_qos_map_params_t* p, int n)
         im->member_size = sizeof(im->v.member);                 \
     } while (0)
 
+/* ACL fields (enable + mask + data) and actions (enable + parameter): the members the case
+ * names, set through them. For u8list the data list is at addr and the mask list at addr+16. */
+#define ACLF(member, dval, mval)                       \
+    do {                                               \
+        im->v.aclfield.enable = true;                  \
+        im->v.aclfield.data.member = (dval);           \
+        im->v.aclfield.mask.member = (mval);           \
+    } while (0)
+#define ACLF_BYTES(member, dsrc, msrc)                                         \
+    do {                                                                       \
+        im->v.aclfield.enable = true;                                          \
+        memcpy(&im->v.aclfield.data.member, (dsrc), sizeof(im->v.aclfield.data.member)); \
+        memcpy(&im->v.aclfield.mask.member, (msrc), sizeof(im->v.aclfield.mask.member)); \
+    } while (0)
+#define ACLA(member, val)                              \
+    do {                                               \
+        im->v.aclaction.enable = true;                 \
+        im->v.aclaction.parameter.member = (val);      \
+    } while (0)
+#define ACLA_BYTES(member, src)                                                        \
+    do {                                                                               \
+        im->v.aclaction.enable = true;                                                 \
+        memcpy(&im->v.aclaction.parameter.member, (src), sizeof(im->v.aclaction.parameter.member)); \
+    } while (0)
+static const sai_object_id_t ACL_OIDS[3] = {0x2100000000000010ULL, 0x20, 0x0102030405060708ULL};
+
+static int make_acl(const char* name, image_t* im, uintptr_t addr)
+{
+    int field = !strncmp(name, "aclfield_", 9);
+    im->member_size = field ? sizeof(im->v.aclfield) : sizeof(im->v.aclaction);
+    if (!strcmp(name, "aclfield_off")) im->v.aclfield.enable = false;
+    else if (!strcmp(name, "aclfield_bool")) { im->v.aclfield.enable = true; im->v.aclfield.data.booldata = true; }
+    else if (!strcmp(name, "aclfield_u8")) ACLF(u8, 0x5c, 0xf0);
+    else if (!strcmp(name, "aclfield_u16")) ACLF(u16, 0x0806, 0xffff);
+    else if (!strcmp(name, "aclfield_u32")) ACLF(u32, 0x01020304, 0xffff0000);
+    else if (!strcmp(name, "aclfield_u64")) ACLF(u64, 0x0102030405060708ULL, 0xffffffff00000000ULL);
+    else if (!strcmp(name, "aclfield_enum")) ACLF(s32, 3, -1);
+    else if (!strcmp(name, "aclfield_mac")) ACLF_BYTES(mac, "\x02\x11\x22\x33\x44\x55", "\xff\xff\xff\x00\x00\x00");
+    else if (!strcmp(name, "aclfield_ip4")) ACLF_BYTES(ip4, "\x0a\x01\x02\x03", "\xff\xff\x00\x00");
+    else if (!strcmp(name, "aclfield_ip6")) ACLF_BYTES(ip6, IP6, MASK6);
+    else if (!strcmp(name, "aclfield_oid")) { im->v.aclfield.enable = true; im->v.aclfield.data.oid = 0x2100000000000042ULL; }
+    else if (!strcmp(name, "aclfield_objlist")) {
+        im->v.aclfield.enable = true;
+        memcpy(im->elems, ACL_OIDS, sizeof(ACL_OIDS));
+        im->elem_bytes = sizeof(ACL_OIDS);
+        im->v.aclfield.data.objlist.count = 3;
+        im->v.aclfield.data.objlist.list = (sai_object_id_t*)addr;
+    } else if (!strcmp(name, "aclfield_u8list")) {
+        im->v.aclfield.enable = true;
+        memset(im->elems, 0, 19);
+        memcpy(im->elems, "\x01\x02\x03", 3);
+        memcpy(im->elems + 16, "\xff\xf0\x0f", 3);
+        im->elem_bytes = 19;
+        im->v.aclfield.data.u8list.count = 3;
+        im->v.aclfield.data.u8list.list = (uint8_t*)addr;
+        im->v.aclfield.mask.u8list.count = 3;
+        im->v.aclfield.mask.u8list.list = (uint8_t*)(addr + 16);
+    } else if (!strcmp(name, "aclaction_off")) im->v.aclaction.enable = false;
+    else if (!strcmp(name, "aclaction_bool")) ACLA(booldata, true);
+    else if (!strcmp(name, "aclaction_u8")) ACLA(u8, 0x5c);
+    else if (!strcmp(name, "aclaction_u16")) ACLA(u16, 0x1234);
+    else if (!strcmp(name, "aclaction_u32")) ACLA(u32, 0x01020304);
+    else if (!strcmp(name, "aclaction_s32")) ACLA(s32, -7);
+    else if (!strcmp(name, "aclaction_enum")) ACLA(s32, SAI_PACKET_ACTION_DROP);
+    else if (!strcmp(name, "aclaction_mac")) ACLA_BYTES(mac, "\x02\x11\x22\x33\x44\x55");
+    else if (!strcmp(name, "aclaction_ip4")) ACLA_BYTES(ip4, "\x0a\x01\x02\x03");
+    else if (!strcmp(name, "aclaction_ip6")) ACLA_BYTES(ip6, IP6);
+    else if (!strcmp(name, "aclaction_oid")) ACLA(oid, 0x2100000000000042ULL);
+    else if (!strcmp(name, "aclaction_objlist")) {
+        im->v.aclaction.enable = true;
+        memcpy(im->elems, ACL_OIDS, sizeof(ACL_OIDS));
+        im->elem_bytes = sizeof(ACL_OIDS);
+        im->v.aclaction.parameter.objlist.count = 3;
+        im->v.aclaction.parameter.objlist.list = (sai_object_id_t*)addr;
+    } else if (!strcmp(name, "aclaction_ipaddr6")) {
+        im->v.aclaction.enable = true;
+        im->v.aclaction.parameter.ipaddr.addr_family = SAI_IP_ADDR_FAMILY_IPV6;
+        memcpy(im->v.aclaction.parameter.ipaddr.addr.ip6, IP6, 16);
+    } else
+        return 0;
+    return 1;
+}
+
 /* The value of a case, set through the member the header names. 0: no such case. */
 static int make(const char* name, image_t* im, uintptr_t addr)
 {
@@ -177,6 +260,8 @@ static int make(const char* name, image_t* im, uintptr_t addr)
         im->v.aclcapability.supported_match_type = SAI_ACL_TABLE_SUPPORTED_MATCH_TYPE_EXACT;
         im->v.aclcapability.is_non_contiguous_bits_exact_match_supported = false;
         im->member_size = sizeof(im->v.aclcapability);
+    } else if (!strncmp(name, "aclfield_", 9) || !strncmp(name, "aclaction_", 10)) {
+        return make_acl(name, im, addr);
     } else
         return 0;
     return 1;
@@ -204,6 +289,20 @@ static int request(const char* name, image_t* im, uintptr_t addr, uint32_t capac
         im->v.aclcapability.action_list.count = capacity;
         im->v.aclcapability.action_list.list = (int32_t*)addr;
     }
+    if (!strcmp(name, "aclfield_objlist")) {
+        im->v.aclfield.data.objlist.count = capacity;
+        im->v.aclfield.data.objlist.list = (sai_object_id_t*)addr;
+    }
+    if (!strcmp(name, "aclfield_u8list")) {
+        im->v.aclfield.data.u8list.count = capacity;
+        im->v.aclfield.data.u8list.list = (uint8_t*)addr;
+        im->v.aclfield.mask.u8list.count = capacity;
+        im->v.aclfield.mask.u8list.list = (uint8_t*)(addr + 16);
+    }
+    if (!strcmp(name, "aclaction_objlist")) {
+        im->v.aclaction.parameter.objlist.count = capacity;
+        im->v.aclaction.parameter.objlist.list = (sai_object_id_t*)addr;
+    }
     return 1;
 }
 
@@ -224,6 +323,49 @@ static const char* compare(const char* name, const image_t* got, uintptr_t addr)
     if (!strcmp(name, "timespec")) {
         SAME(timespec.tv_sec);
         SAME(timespec.tv_nsec);
+        return NULL;
+    }
+    if (!strncmp(name, "aclfield_", 9)) {
+        /* enable and the members the case names; the rest of the struct is the caller's */
+        SAME(aclfield.enable);
+        const char* m = name + 9;
+        if (!strcmp(m, "bool")) SAME(aclfield.data.booldata);
+        else if (!strcmp(m, "u8")) { SAME(aclfield.data.u8); SAME(aclfield.mask.u8); }
+        else if (!strcmp(m, "u16")) { SAME(aclfield.data.u16); SAME(aclfield.mask.u16); }
+        else if (!strcmp(m, "u32")) { SAME(aclfield.data.u32); SAME(aclfield.mask.u32); }
+        else if (!strcmp(m, "u64")) { SAME(aclfield.data.u64); SAME(aclfield.mask.u64); }
+        else if (!strcmp(m, "enum")) { SAME(aclfield.data.s32); SAME(aclfield.mask.s32); }
+        else if (!strcmp(m, "mac")) { SAME(aclfield.data.mac); SAME(aclfield.mask.mac); }
+        else if (!strcmp(m, "ip4")) { SAME(aclfield.data.ip4); SAME(aclfield.mask.ip4); }
+        else if (!strcmp(m, "ip6")) { SAME(aclfield.data.ip6); SAME(aclfield.mask.ip6); }
+        else if (!strcmp(m, "oid")) SAME(aclfield.data.oid);
+        else if (!strcmp(m, "objlist")) { SAME(aclfield.data.objlist.count); SAME(aclfield.data.objlist.list); }
+        else if (!strcmp(m, "u8list")) {
+            SAME(aclfield.data.u8list.count);
+            SAME(aclfield.data.u8list.list);
+            SAME(aclfield.mask.u8list.count);
+            SAME(aclfield.mask.u8list.list);
+        }
+        if (got->elem_bytes != want.elem_bytes) return "element bytes";
+        if (memcmp(got->elems, want.elems, want.elem_bytes)) return "elements";
+        return NULL;
+    }
+    if (!strncmp(name, "aclaction_", 10)) {
+        SAME(aclaction.enable);
+        const char* m = name + 10;
+        if (!strcmp(m, "bool")) SAME(aclaction.parameter.booldata);
+        else if (!strcmp(m, "u8")) SAME(aclaction.parameter.u8);
+        else if (!strcmp(m, "u16")) SAME(aclaction.parameter.u16);
+        else if (!strcmp(m, "u32")) SAME(aclaction.parameter.u32);
+        else if (!strcmp(m, "s32") || !strcmp(m, "enum")) SAME(aclaction.parameter.s32);
+        else if (!strcmp(m, "mac")) SAME(aclaction.parameter.mac);
+        else if (!strcmp(m, "ip4")) SAME(aclaction.parameter.ip4);
+        else if (!strcmp(m, "ip6")) SAME(aclaction.parameter.ip6);
+        else if (!strcmp(m, "oid")) SAME(aclaction.parameter.oid);
+        else if (!strcmp(m, "objlist")) { SAME(aclaction.parameter.objlist.count); SAME(aclaction.parameter.objlist.list); }
+        else if (!strcmp(m, "ipaddr6")) { SAME(aclaction.parameter.ipaddr.addr_family); SAME(aclaction.parameter.ipaddr.addr.ip6); }
+        if (got->elem_bytes != want.elem_bytes) return "element bytes";
+        if (memcmp(got->elems, want.elems, want.elem_bytes)) return "elements";
         return NULL;
     }
     if (!strcmp(name, "aclcapability")) {

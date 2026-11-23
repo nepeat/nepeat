@@ -284,11 +284,15 @@ fn parse_tag(line: &str, tags: &mut Tags) {
 }
 
 /// The union member an `@type` travels in, and the C type name for messages.
-fn value_type(ty: &str, enums: &BTreeMap<String, Vec<String>>) -> (&'static str, String) {
+fn value_type(ty: &str, enums: &BTreeMap<String, Vec<String>>) -> (String, String) {
     let mut words = ty.split_whitespace();
     let first = words.next().unwrap_or_default();
     let second = words.next();
+    let type_name = second.map_or_else(|| first.to_string(), |s| format!("{first} {s}"));
     let vt = match first {
+        // ACL entry fields and actions: `sai_acl_field_data_t` / `sai_acl_action_data_t` with
+        // the member of their data union named by the second word.
+        "sai_acl_field_data_t" | "sai_acl_action_data_t" => return (acl_value_type(first, second, enums), type_name),
         "bool" => "Bool",
         "char" => "CharData",
         "sai_uint8_t" | "sai_cos_t" | "sai_queue_index_t" => "U8",
@@ -322,11 +326,38 @@ fn value_type(ty: &str, enums: &BTreeMap<String, Vec<String>>) -> (&'static str,
         "sai_vlan_list_t" => "VlanList",
         "sai_u32_range_t" => "U32Range",
         "sai_pointer_t" => "Pointer",
+        "sai_macsec_sak_t" => "MacsecSak",
+        "sai_macsec_salt_t" => "MacsecSalt",
+        "sai_macsec_auth_key_t" => "MacsecAuthKey",
         // An enum typedef and nothing else: the s32 member.
         t if second.is_none() && enums.contains_key(t) => "Enum",
         _ => "Other",
     };
-    (vt, second.map_or_else(|| first.to_string(), |s| format!("{first} {s}")))
+    (vt.to_string(), type_name)
+}
+
+/// `AclField(AclKind::..)` / `AclAction(AclKind::..)` for an ACL field or action whose data
+/// member the second word names; `Other` for a member its union does not have.
+fn acl_value_type(first: &str, second: Option<&str>, enums: &BTreeMap<String, Vec<String>>) -> String {
+    let field = first == "sai_acl_field_data_t";
+    let kind = match second.unwrap_or_default() {
+        "bool" => "Bool",
+        "sai_uint8_t" => "U8",
+        "sai_uint16_t" => "U16",
+        "sai_uint32_t" => "U32",
+        "sai_int32_t" => "I32",
+        "sai_uint64_t" if field => "U64",
+        "sai_mac_t" => "Mac",
+        "sai_ip4_t" => "Ip4",
+        "sai_ip6_t" => "Ip6",
+        "sai_object_id_t" => "Oid",
+        "sai_object_list_t" => "OidList",
+        "sai_u8_list_t" if field => "U8List",
+        "sai_ip_address_t" if !field => "IpAddress",
+        t if enums.contains_key(t) => "Enum",
+        _ => return "Other".to_string(),
+    };
+    format!("{}(AclKind::{kind})", if field { "AclField" } else { "AclAction" })
 }
 
 /// The enum type whose enumerators are an attribute's values: `@type sai_x_t` or
@@ -335,7 +366,7 @@ fn enum_of(ty: &str, enums: &BTreeMap<String, Vec<String>>) -> Option<String> {
     let mut words = ty.split_whitespace();
     let first = words.next()?;
     let name = match (first, words.next()) {
-        ("sai_s32_list_t" | "sai_int32_t", Some(second)) => second,
+        ("sai_s32_list_t" | "sai_int32_t" | "sai_acl_field_data_t" | "sai_acl_action_data_t", Some(second)) => second,
         (first, None) => first,
         _ => return None,
     };

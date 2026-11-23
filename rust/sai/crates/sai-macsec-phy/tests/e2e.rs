@@ -756,6 +756,28 @@ fn normalise(text: &str) -> String {
 
 static COMPARED: AtomicU64 = AtomicU64::new(0);
 static EVENTS: AtomicU64 = AtomicU64::new(0);
+/// Scripts that reached sai-macsec's D9 or D10 (compared up to there).
+static LISTED: AtomicU64 = AtomicU64::new(0);
+
+/// Whether the first differing line is sai-macsec's D9 (a flow switch: the Rust model takes the
+/// old SC's SAs out, so it makes more writes with the same status) or D10 (a cipher suite change
+/// under a waiting SA: `OBJECT_IN_USE` where the C++ says 0).
+fn listed_difference(cpp: &str, rust: &str) -> bool {
+    let (Some((c_op, c_rest)), Some((r_op, r_rest))) = (cpp.split_once(" => "), rust.split_once(" => ")) else {
+        return false;
+    };
+    if c_op != r_op {
+        return false;
+    }
+    let op = c_op.split_whitespace().next().unwrap_or_default();
+    if op == "scset" && c_op.contains(" cipher ") && c_rest == "0" {
+        return r_rest == sai_core::Error::ObjectInUse.status().to_string();
+    }
+    let writes = |text: &str| text.split_whitespace().filter(|w| w.starts_with('W')).count();
+    ["eflow", "eadmin", "entry", "bind", "rm"].contains(&op)
+        && c_rest.split_whitespace().next() == r_rest.split_whitespace().next()
+        && writes(r_rest) > writes(c_rest)
+}
 
 fn compare(driver: &Driver, table: &Path, script: &str) -> Result<(), String> {
     let text = std::fs::read(table).unwrap();
@@ -775,6 +797,18 @@ fn compare(driver: &Driver, table: &Path, script: &str) -> Result<(), String> {
         return Ok(());
     }
     let at = cpp.lines().zip(rust.lines()).position(|(a, b)| a != b).unwrap_or(0);
+    // sai-macsec's D9 / D10 (Q7, Q10 fixed): the outputs agree up to the operation that reaches
+    // one, and differ from there on
+    if let (Some(c), Some(r)) = (cpp.lines().nth(at), rust.lines().nth(at)) {
+        if listed_difference(c, r) {
+            COMPARED.fetch_add(
+                cpp.lines().take(at).filter(|l| l.contains(" => ")).count() as u64,
+                Ordering::Relaxed,
+            );
+            LISTED.fetch_add(1, Ordering::Relaxed);
+            return Ok(());
+        }
+    }
     let show = |text: &str| -> String {
         text.lines()
             .skip(at.saturating_sub(3))

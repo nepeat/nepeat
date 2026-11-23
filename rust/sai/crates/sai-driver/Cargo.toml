@@ -1,0 +1,28 @@
+[package]
+name = "sai-driver"
+description = "Op-script driver of the Rust SAI core (the Rust half of the C++-vs-Rust frontend differential: same grammar and output as sai-openbcm's tests/frontend_driver.cpp)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+build = "build.rs"
+
+[[bin]]
+name = "sai-rs-frontend-driver"
+path = "src/main.rs"
+
+[dependencies]
+sai-sys.workspace = true
+sai-meta.workspace = true
+sai-core.workspace = true
+# the diag socket's profile key (the rim asks the SAI user for it, so the init line carries it)
+sai-diag.workspace = true
+# the MACsec model behind the core's MACsec seam (as the rim registers it, sai-ffi state.rs)
+sai-macsec-phy.workspace = true
+# the allow-list matcher of the differential (src/compare.rs); already in the lock file (bindgen)
+regex = { workspace = true }
+# wipes the driver's copy of MACsec key material parsed from a script
+zeroize.workspace = true
+
+[lints]
+workspace = true

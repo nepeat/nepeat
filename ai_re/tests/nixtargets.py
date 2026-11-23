@@ -166,6 +166,8 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     # with -z defs, soname, exports = the virtual build's; nothing executed).
     "sai-rs-openbcm-fake": ("packages", "saiRsOpenbcm p { }", 0),
     "as7760-sai-rs-openbcm": ("packages", 'saiRsOpenbcm ppc { libsdk = ppcOpenbcm.libsdk { }; glueSrc = src + "/packages/sai-openbcm/src"; }', 0),
+    # test_sai.cpp (unmodified, through the test port) and the op-script differential against the C++ frontend_driver.
+    "sai-rs-parity": ("packages", 'p.callPackage (saiRsDir + "/parity-harness.nix") { saiSrc = sonic.sources.sairedis; saiOpenbcm = src + "/packages/sai-openbcm"; }', 0),
     # phy-seq: the sequence engine with its tests, compared with the C++ tools over the AS7772's
     # tables and generated ones; the C++ libsai on the Rust engine with test_sai unchanged; ppc64.
     "phy-seq": ("packages", 'physeq p { cxxTools = saiFake; tables = [ sys.as7772.config.services.sonic.sai.profile.SAI_OPENBCM_EXT_MACSEC_FILE sys.as7772.config.services.sonic.sai.profile.SAI_OPENBCM_EXT_PHY_FILE ]; }', 0),
@@ -247,7 +249,6 @@ EXCLUDE: dict[str, str] = {
 # entry here is a build nobody checks. A stale entry fails test_tables_are_current.
 SKIP: dict[str, str] = {
     "extra:vm-sonic-bfdd-leak": "a 2 x 10 min memory soak (an experiment, not a regression test)",
-    "extra:vm-sai-rs-sonic-acl": "fails by design: the ACL API is not in the Rust SAI slice (create_acl_table: NOT_IMPLEMENTED; rust/sai README, Parity)",
     "git:packages.aarch64-linux.pyghidra-mcp": "devshell tool, only verified on x86_64-linux (flake.nix)",
 }
 

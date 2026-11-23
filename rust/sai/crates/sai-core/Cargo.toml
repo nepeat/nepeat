@@ -11,9 +11,21 @@ sai-sys.workspace = true
 sai-meta.workspace = true
 # the virtual backend's TAP netdevs (SAI_RS_VIRTUAL_NETDEV=tap); its only unsafe code is there
 tap-netdev.workspace = true
+# the diag socket's server; the core implements its DiagHandler (src/diag.rs)
+sai-diag.workspace = true
+# the external PHY runtime (link gate, debounce, admin sequences): src/extphy.rs
+sai-extphy.workspace = true
+# wipes MACsec key material (src/macsec.rs Secret); no dependencies of its own
+zeroize = { workspace = true, features = ["alloc"] }
+
+[features]
+# the test port's view of the library (src/testing.rs; crate sai-test-port, sai-ffi's "test-port")
+testing = []
 
 [dev-dependencies]
 proptest.workspace = true
+# tests/macsec.rs: the MACsec model behind the core's seam, as the rim registers it
+sai-macsec-phy.workspace = true
 
 [lints]
 workspace = true

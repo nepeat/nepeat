@@ -270,6 +270,48 @@ object_fns!(
     sys::SAI_API_NEXT_HOP_GROUP
 );
 object_fns!(policer, sys::SAI_OBJECT_TYPE_POLICER, sys::SAI_API_POLICER, stats);
+object_fns!(acl_table, sys::SAI_OBJECT_TYPE_ACL_TABLE, sys::SAI_API_ACL);
+object_fns!(acl_entry, sys::SAI_OBJECT_TYPE_ACL_ENTRY, sys::SAI_API_ACL);
+object_fns!(acl_counter, sys::SAI_OBJECT_TYPE_ACL_COUNTER, sys::SAI_API_ACL);
+object_fns!(acl_range, sys::SAI_OBJECT_TYPE_ACL_RANGE, sys::SAI_API_ACL);
+object_fns!(acl_table_group, sys::SAI_OBJECT_TYPE_ACL_TABLE_GROUP, sys::SAI_API_ACL);
+object_fns!(
+    acl_table_group_member,
+    sys::SAI_OBJECT_TYPE_ACL_TABLE_GROUP_MEMBER,
+    sys::SAI_API_ACL
+);
+
+/// ACL table chain groups: not an object type of this library. The C++ answers create with
+/// `NOT_SUPPORTED` and the rest with `INVALID_OBJECT_ID` (no such group can exist); so do these,
+/// reading none of their arguments.
+mod acl_table_chain_group {
+    use super::{Status, sys};
+
+    pub(crate) extern "C" fn create(
+        _id: *mut sys::sai_object_id_t,
+        _switch_id: sys::sai_object_id_t,
+        _attr_count: u32,
+        _attr_list: *const sys::sai_attribute_t,
+    ) -> Status {
+        sys::SAI_STATUS_NOT_SUPPORTED
+    }
+
+    pub(crate) extern "C" fn remove(_id: sys::sai_object_id_t) -> Status {
+        sys::SAI_STATUS_INVALID_OBJECT_ID
+    }
+
+    pub(crate) extern "C" fn set(_id: sys::sai_object_id_t, _attr: *const sys::sai_attribute_t) -> Status {
+        sys::SAI_STATUS_INVALID_OBJECT_ID
+    }
+
+    pub(crate) extern "C" fn get(
+        _id: sys::sai_object_id_t,
+        _attr_count: u32,
+        _attr_list: *mut sys::sai_attribute_t,
+    ) -> Status {
+        sys::SAI_STATUS_INVALID_OBJECT_ID
+    }
+}
 object_fns!(qos_map, sys::SAI_OBJECT_TYPE_QOS_MAP, sys::SAI_API_QOS_MAP);
 object_fns!(scheduler, sys::SAI_OBJECT_TYPE_SCHEDULER, sys::SAI_API_SCHEDULER);
 object_fns!(
@@ -279,8 +321,29 @@ object_fns!(
 );
 object_fns!(wred, sys::SAI_OBJECT_TYPE_WRED, sys::SAI_API_WRED);
 object_fns!(hash, sys::SAI_OBJECT_TYPE_HASH, sys::SAI_API_HASH);
+object_fns!(mirror_session, sys::SAI_OBJECT_TYPE_MIRROR_SESSION, sys::SAI_API_MIRROR);
+object_fns!(
+    samplepacket,
+    sys::SAI_OBJECT_TYPE_SAMPLEPACKET,
+    sys::SAI_API_SAMPLEPACKET
+);
 object_fns!(lag, sys::SAI_OBJECT_TYPE_LAG, sys::SAI_API_LAG);
 object_fns!(lag_member, sys::SAI_OBJECT_TYPE_LAG_MEMBER, sys::SAI_API_LAG);
+object_fns!(macsec, sys::SAI_OBJECT_TYPE_MACSEC, sys::SAI_API_MACSEC);
+object_fns!(
+    macsec_port,
+    sys::SAI_OBJECT_TYPE_MACSEC_PORT,
+    sys::SAI_API_MACSEC,
+    stats
+);
+object_fns!(
+    macsec_flow,
+    sys::SAI_OBJECT_TYPE_MACSEC_FLOW,
+    sys::SAI_API_MACSEC,
+    stats
+);
+object_fns!(macsec_sc, sys::SAI_OBJECT_TYPE_MACSEC_SC, sys::SAI_API_MACSEC, stats);
+object_fns!(macsec_sa, sys::SAI_OBJECT_TYPE_MACSEC_SA, sys::SAI_API_MACSEC, stats);
 entry_fns!(fdb_entry, sys::sai_fdb_entry_t, sys::SAI_API_FDB);
 entry_fns!(neighbor_entry, sys::sai_neighbor_entry_t, sys::SAI_API_NEIGHBOR);
 entry_fns!(route_entry, sys::sai_route_entry_t, sys::SAI_API_ROUTE);
@@ -341,11 +404,15 @@ pub(crate) fn of(api: sys::sai_api_t) -> Option<*const core::ffi::c_void> {
         sys::SAI_API_ROUTE => (&raw const ROUTE_API).cast(),
         sys::SAI_API_LAG => (&raw const LAG_API).cast(),
         sys::SAI_API_POLICER => (&raw const POLICER_API).cast(),
+        sys::SAI_API_ACL => (&raw const ACL_API).cast(),
         sys::SAI_API_QOS_MAP => (&raw const QOS_MAP_API).cast(),
         sys::SAI_API_SCHEDULER => (&raw const SCHEDULER_API).cast(),
         sys::SAI_API_SCHEDULER_GROUP => (&raw const SCHEDULER_GROUP_API).cast(),
         sys::SAI_API_WRED => (&raw const WRED_API).cast(),
         sys::SAI_API_HASH => (&raw const HASH_API).cast(),
+        sys::SAI_API_MIRROR => (&raw const MIRROR_API).cast(),
+        sys::SAI_API_SAMPLEPACKET => (&raw const SAMPLEPACKET_API).cast(),
+        sys::SAI_API_MACSEC => (&raw const MACSEC_API).cast(),
         _ => return None,
     })
 }
@@ -369,6 +436,17 @@ pub(crate) static SWITCH_API: sys::sai_switch_api_t = sys::sai_switch_api_t {
     switch_mdio_cl22_write: NotImplemented::NOT_IMPLEMENTED,
 };
 
+/// `clear_port_all_stats`: zeroes every counter of a port.
+pub(crate) extern "C" fn clear_port_all_stats(oid: sys::sai_object_id_t) -> Status {
+    guard(sys::SAI_API_PORT, || {
+        crate::state::with_api(|api| {
+            api.sai
+                .clear_port_all_stats(sai_core::oid::RawOid(oid))
+                .map_err(sai_core::error::Error::status)
+        })
+    })
+}
+
 /// The `sai_port_api_t` method table.
 pub(crate) static PORT_API: sys::sai_port_api_t = sys::sai_port_api_t {
     create_port: Some(port::create),
@@ -378,7 +456,7 @@ pub(crate) static PORT_API: sys::sai_port_api_t = sys::sai_port_api_t {
     get_port_stats: Some(port::get_stats),
     get_port_stats_ext: Some(port::get_stats_ext),
     clear_port_stats: Some(port::clear_stats),
-    clear_port_all_stats: NotImplemented::NOT_IMPLEMENTED,
+    clear_port_all_stats: Some(clear_port_all_stats),
     create_port_pool: NotImplemented::NOT_IMPLEMENTED,
     remove_port_pool: NotImplemented::NOT_IMPLEMENTED,
     set_port_pool_attribute: NotImplemented::NOT_IMPLEMENTED,
@@ -456,16 +534,44 @@ pub(crate) static FDB_API: sys::sai_fdb_api_t = sys::sai_fdb_api_t {
     get_fdb_entries_attribute: NotImplemented::NOT_IMPLEMENTED,
 };
 
+/// STP ports: the default instance is the only one and has none (C++ `sai_l2.cpp`: create,
+/// remove and set `NOT_SUPPORTED`, get `INVALID_OBJECT_ID`). The arguments are not read.
+mod stp_port {
+    use crate::Status;
+    use sai_sys as sys;
+
+    pub(crate) extern "C" fn create(
+        _: *mut sys::sai_object_id_t,
+        _: sys::sai_object_id_t,
+        _: u32,
+        _: *const sys::sai_attribute_t,
+    ) -> Status {
+        sys::SAI_STATUS_NOT_SUPPORTED
+    }
+
+    pub(crate) extern "C" fn remove(_: sys::sai_object_id_t) -> Status {
+        sys::SAI_STATUS_NOT_SUPPORTED
+    }
+
+    pub(crate) extern "C" fn set(_: sys::sai_object_id_t, _: *const sys::sai_attribute_t) -> Status {
+        sys::SAI_STATUS_NOT_SUPPORTED
+    }
+
+    pub(crate) extern "C" fn get(_: sys::sai_object_id_t, _: u32, _: *mut sys::sai_attribute_t) -> Status {
+        sys::SAI_STATUS_INVALID_OBJECT_ID
+    }
+}
+
 /// The `sai_stp_api_t` method table.
 pub(crate) static STP_API: sys::sai_stp_api_t = sys::sai_stp_api_t {
     create_stp: Some(stp::create),
     remove_stp: Some(stp::remove),
     set_stp_attribute: Some(stp::set),
     get_stp_attribute: Some(stp::get),
-    create_stp_port: NotImplemented::NOT_IMPLEMENTED,
-    remove_stp_port: NotImplemented::NOT_IMPLEMENTED,
-    set_stp_port_attribute: NotImplemented::NOT_IMPLEMENTED,
-    get_stp_port_attribute: NotImplemented::NOT_IMPLEMENTED,
+    create_stp_port: Some(stp_port::create),
+    remove_stp_port: Some(stp_port::remove),
+    set_stp_port_attribute: Some(stp_port::set),
+    get_stp_port_attribute: Some(stp_port::get),
     create_stp_ports: NotImplemented::NOT_IMPLEMENTED,
     remove_stp_ports: NotImplemented::NOT_IMPLEMENTED,
 };
@@ -558,13 +664,18 @@ pub(crate) static ROUTER_INTERFACE_API: sys::sai_router_interface_api_t = sys::s
     get_router_interfaces_attribute: NotImplemented::NOT_IMPLEMENTED,
 };
 
+/// `remove_all_neighbor_entries`: refused, as the C++ library does (`sai_l3.cpp`: `NOT_SUPPORTED`).
+extern "C" fn remove_all_neighbor_entries(_switch_id: sys::sai_object_id_t) -> Status {
+    sys::SAI_STATUS_NOT_SUPPORTED
+}
+
 /// The `sai_neighbor_api_t` method table.
 pub(crate) static NEIGHBOR_API: sys::sai_neighbor_api_t = sys::sai_neighbor_api_t {
     create_neighbor_entry: Some(neighbor_entry::create),
     remove_neighbor_entry: Some(neighbor_entry::remove),
     set_neighbor_entry_attribute: Some(neighbor_entry::set),
     get_neighbor_entry_attribute: Some(neighbor_entry::get),
-    remove_all_neighbor_entries: NotImplemented::NOT_IMPLEMENTED,
+    remove_all_neighbor_entries: Some(remove_all_neighbor_entries),
     create_neighbor_entries: NotImplemented::NOT_IMPLEMENTED,
     remove_neighbor_entries: NotImplemented::NOT_IMPLEMENTED,
     set_neighbor_entries_attribute: NotImplemented::NOT_IMPLEMENTED,
@@ -633,6 +744,38 @@ pub(crate) static LAG_API: sys::sai_lag_api_t = sys::sai_lag_api_t {
     remove_lag_members: NotImplemented::NOT_IMPLEMENTED,
 };
 
+/// The `sai_acl_api_t` method table.
+pub(crate) static ACL_API: sys::sai_acl_api_t = sys::sai_acl_api_t {
+    create_acl_table: Some(acl_table::create),
+    remove_acl_table: Some(acl_table::remove),
+    set_acl_table_attribute: Some(acl_table::set),
+    get_acl_table_attribute: Some(acl_table::get),
+    create_acl_entry: Some(acl_entry::create),
+    remove_acl_entry: Some(acl_entry::remove),
+    set_acl_entry_attribute: Some(acl_entry::set),
+    get_acl_entry_attribute: Some(acl_entry::get),
+    create_acl_counter: Some(acl_counter::create),
+    remove_acl_counter: Some(acl_counter::remove),
+    set_acl_counter_attribute: Some(acl_counter::set),
+    get_acl_counter_attribute: Some(acl_counter::get),
+    create_acl_range: Some(acl_range::create),
+    remove_acl_range: Some(acl_range::remove),
+    set_acl_range_attribute: Some(acl_range::set),
+    get_acl_range_attribute: Some(acl_range::get),
+    create_acl_table_group: Some(acl_table_group::create),
+    remove_acl_table_group: Some(acl_table_group::remove),
+    set_acl_table_group_attribute: Some(acl_table_group::set),
+    get_acl_table_group_attribute: Some(acl_table_group::get),
+    create_acl_table_group_member: Some(acl_table_group_member::create),
+    remove_acl_table_group_member: Some(acl_table_group_member::remove),
+    set_acl_table_group_member_attribute: Some(acl_table_group_member::set),
+    get_acl_table_group_member_attribute: Some(acl_table_group_member::get),
+    create_acl_table_chain_group: Some(acl_table_chain_group::create),
+    remove_acl_table_chain_group: Some(acl_table_chain_group::remove),
+    set_acl_table_chain_group_attribute: Some(acl_table_chain_group::set),
+    get_acl_table_chain_group_attribute: Some(acl_table_chain_group::get),
+};
+
 /// The `sai_policer_api_t` method table.
 pub(crate) static POLICER_API: sys::sai_policer_api_t = sys::sai_policer_api_t {
     create_policer: Some(policer::create),
@@ -688,6 +831,59 @@ pub(crate) static HASH_API: sys::sai_hash_api_t = sys::sai_hash_api_t {
     get_fine_grained_hash_field_attribute: NotImplemented::NOT_IMPLEMENTED,
 };
 
+/// The `sai_mirror_api_t` method table.
+pub(crate) static MIRROR_API: sys::sai_mirror_api_t = sys::sai_mirror_api_t {
+    create_mirror_session: Some(mirror_session::create),
+    remove_mirror_session: Some(mirror_session::remove),
+    set_mirror_session_attribute: Some(mirror_session::set),
+    get_mirror_session_attribute: Some(mirror_session::get),
+};
+
+/// The `sai_samplepacket_api_t` method table.
+pub(crate) static SAMPLEPACKET_API: sys::sai_samplepacket_api_t = sys::sai_samplepacket_api_t {
+    create_samplepacket: Some(samplepacket::create),
+    remove_samplepacket: Some(samplepacket::remove),
+    set_samplepacket_attribute: Some(samplepacket::set),
+    get_samplepacket_attribute: Some(samplepacket::get),
+};
+
+/// The `sai_macsec_api_t` method table (every field; `MACSEC` itself has no counters: its
+/// struct has none).
+pub(crate) static MACSEC_API: sys::sai_macsec_api_t = sys::sai_macsec_api_t {
+    create_macsec: Some(macsec::create),
+    remove_macsec: Some(macsec::remove),
+    set_macsec_attribute: Some(macsec::set),
+    get_macsec_attribute: Some(macsec::get),
+    create_macsec_port: Some(macsec_port::create),
+    remove_macsec_port: Some(macsec_port::remove),
+    set_macsec_port_attribute: Some(macsec_port::set),
+    get_macsec_port_attribute: Some(macsec_port::get),
+    get_macsec_port_stats: Some(macsec_port::get_stats),
+    get_macsec_port_stats_ext: Some(macsec_port::get_stats_ext),
+    clear_macsec_port_stats: Some(macsec_port::clear_stats),
+    create_macsec_flow: Some(macsec_flow::create),
+    remove_macsec_flow: Some(macsec_flow::remove),
+    set_macsec_flow_attribute: Some(macsec_flow::set),
+    get_macsec_flow_attribute: Some(macsec_flow::get),
+    get_macsec_flow_stats: Some(macsec_flow::get_stats),
+    get_macsec_flow_stats_ext: Some(macsec_flow::get_stats_ext),
+    clear_macsec_flow_stats: Some(macsec_flow::clear_stats),
+    create_macsec_sc: Some(macsec_sc::create),
+    remove_macsec_sc: Some(macsec_sc::remove),
+    set_macsec_sc_attribute: Some(macsec_sc::set),
+    get_macsec_sc_attribute: Some(macsec_sc::get),
+    get_macsec_sc_stats: Some(macsec_sc::get_stats),
+    get_macsec_sc_stats_ext: Some(macsec_sc::get_stats_ext),
+    clear_macsec_sc_stats: Some(macsec_sc::clear_stats),
+    create_macsec_sa: Some(macsec_sa::create),
+    remove_macsec_sa: Some(macsec_sa::remove),
+    set_macsec_sa_attribute: Some(macsec_sa::set),
+    get_macsec_sa_attribute: Some(macsec_sa::get),
+    get_macsec_sa_stats: Some(macsec_sa::get_stats),
+    get_macsec_sa_stats_ext: Some(macsec_sa::get_stats_ext),
+    clear_macsec_sa_stats: Some(macsec_sa::clear_stats),
+};
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -738,11 +934,15 @@ mod tests {
                     | sys::SAI_API_ROUTE
                     | sys::SAI_API_LAG
                     | sys::SAI_API_POLICER
+                    | sys::SAI_API_ACL
                     | sys::SAI_API_QOS_MAP
                     | sys::SAI_API_SCHEDULER
                     | sys::SAI_API_SCHEDULER_GROUP
                     | sys::SAI_API_WRED
                     | sys::SAI_API_HASH
+                    | sys::SAI_API_MIRROR
+                    | sys::SAI_API_SAMPLEPACKET
+                    | sys::SAI_API_MACSEC
             );
             assert_eq!(has, expected, "api {api}");
         }

@@ -37,6 +37,7 @@
 //! objects, no temperature files, no diag socket, messages go to stderr (C++: syslog).
 #![forbid(unsafe_code)]
 
+mod g2;
 pub mod quirks;
 pub mod status;
 
@@ -191,14 +192,74 @@ impl OpenbcmBackend {
                 hw: HwPort(number),
                 lanes,
                 speed: port.speed,
+                name: port.name.clone(),
+                autoneg: false,
             });
         }
         Ok((ports, cpu))
     }
 }
 
-// The typed operations are not on this backend yet (G2): their defaults answer NotSupported.
-sai_core::typed_defaults!(OpenbcmBackend: Base, Shell, Temp, Mdio, PortOps, Lag, L2, Hostif, L3, Field, Policer, Qos, Mirror, Sample, Hash, Storm);
+// The optional typed operations are not on this backend yet (G2): their defaults answer
+// NotSupported. The required ones it has not ported answer so explicitly: src/g2.rs.
+sai_core::typed_defaults!(OpenbcmBackend: Mdio, Qos, Mirror, Sample, Hash, Storm);
+
+/// The board-quirk operations the SAI layer applies at switch creation and after a speed change
+/// (`sai_core::port`); the other port operations are not on this backend yet (G2).
+impl sai_core::backend::PortOps for OpenbcmBackend {
+    fn port_autoneg_set(&mut self, port: HwPort, on: bool) -> Result<()> {
+        checked("port autoneg", self.switch()?.port_autoneg_set(hw(port), on))
+    }
+
+    fn port_interface_set(&mut self, port: HwPort, name: sai_core::backend::types::PortInterface) -> Result<()> {
+        let name = std::ffi::CString::new(name.name()).map_err(|_| Error::InvalidParameter)?;
+        checked("port interface", self.switch()?.port_interface_set(hw(port), &name))
+    }
+
+    fn port_fec_set(&mut self, port: HwPort, fec: sai_core::backend::types::Fec) -> Result<()> {
+        use sai_core::backend::types::Fec;
+        let fec = match fec {
+            Fec::None => sdk_glue::Fec::None,
+            Fec::Rs => sdk_glue::Fec::Rs,
+            Fec::Fc => sdk_glue::Fec::Fc,
+        };
+        checked("port fec", self.switch()?.port_fec_set(hw(port), fec))
+    }
+
+    fn port_ifg_set(&mut self, port: HwPort, bits: u32) -> Result<()> {
+        checked("port ifg", self.switch()?.port_ifg_set(hw(port), bits))
+    }
+
+    // G2
+    fn port_frame_max_set(&mut self, _hw: HwPort, _bytes: u32) -> Result<()> {
+        Err(Error::NotSupported)
+    }
+
+    // G2
+    fn port_loopback_set(&mut self, _hw: HwPort, _lb: sai_core::backend::types::Loopback) -> Result<()> {
+        Err(Error::NotSupported)
+    }
+
+    // G2
+    fn port_pvid_set(&mut self, _hw: HwPort, _vid: Vid) -> Result<()> {
+        Err(Error::NotSupported)
+    }
+
+    // G2
+    fn port_learn_set(&mut self, _hw: HwPort, _mode: sai_core::backend::types::Learn) -> Result<()> {
+        Err(Error::NotSupported)
+    }
+
+    // G2
+    fn port_stat_get(&self, _hw: HwPort, _stat: sai_core::backend::types::PortStat) -> Result<u64> {
+        Err(Error::NotSupported)
+    }
+
+    // G2
+    fn port_stat_clear(&mut self, _hw: HwPort) -> Result<()> {
+        Err(Error::NotSupported)
+    }
+}
 
 impl Backend for OpenbcmBackend {
     fn name(&self) -> &'static str {

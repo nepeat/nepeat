@@ -254,6 +254,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "openbcm-diag"
+version = "0.1.0"
+
+[[package]]
 name = "phy-seq"
 version = "0.1.0"
 dependencies = [
@@ -396,19 +400,57 @@ name = "sai-core"
 version = "0.1.0"
 dependencies = [
  "proptest",
+ "sai-diag",
+ "sai-extphy",
+ "sai-macsec-phy",
  "sai-meta",
  "sai-sys",
  "tap-netdev",
+ "zeroize",
+]
+
+[[package]]
+name = "sai-diag"
+version = "0.1.0"
+dependencies = [
+ "mdio-tool",
+ "proptest",
+ "sai-core",
+ "sai-sys",
+]
+
+[[package]]
+name = "sai-driver"
+version = "0.1.0"
+dependencies = [
+ "regex",
+ "sai-core",
+ "sai-diag",
+ "sai-macsec-phy",
+ "sai-meta",
+ "sai-sys",
+ "zeroize",
+]
+
+[[package]]
+name = "sai-extphy"
+version = "0.1.0"
+dependencies = [
+ "phy-seq",
 ]
 
 [[package]]
 name = "sai-ffi"
 version = "0.1.0"
 dependencies = [
+ "libc",
  "sai-backend-openbcm",
  "sai-core",
+ "sai-diag",
+ "sai-macsec-phy",
  "sai-meta",
  "sai-sys",
+ "sai-test-port",
 ]
 
 [[package]]
@@ -443,6 +485,7 @@ dependencies = [
  "proptest",
  "sai-core",
  "sai-macsec",
+ "sai-meta",
  "sai-sys",
 ]
 
@@ -461,15 +504,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "sai-test-port"
+version = "0.1.0"
+dependencies = [
+ "sai-core",
+ "sai-sys",
+]
+
+[[package]]
 name = "sdk-glue"
 version = "0.1.0"
 dependencies = [
+ "sdk-glue",
  "sdk-glue-sys",
+ "signal-hook",
 ]
 
 [[package]]
 name = "sdk-glue-sys"
 version = "0.1.0"
+dependencies = [
+ "bindgen",
+]
 
 [[package]]
 name = "shlex"

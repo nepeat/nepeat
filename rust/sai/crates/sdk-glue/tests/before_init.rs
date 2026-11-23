@@ -12,8 +12,8 @@ fn the_glue_refuses_mdio_before_any_bring_up() {
     // unsigned through it. No bring-up happened in this process, which is the point.
     let rv = unsafe { sdk_glue_sys::ob_sdk_mdio_c45_read(0, 0x24, 1, 0x8b00, &raw mut val) };
     assert_eq!(rv, sdk_glue_sys::OB_E_INIT);
-    // SAFETY: plain integers only.
-    let rv = unsafe { sdk_glue_sys::ob_sdk_mdio_c45_write(0, 0x24, 1, 0x8b00, 1) };
+    // A safe declaration (scalars, checked by the glue: sdk-glue-sys's rule).
+    let rv = sdk_glue_sys::ob_sdk_mdio_c45_write(0, 0x24, 1, 0x8b00, 1);
     assert_eq!(rv, sdk_glue_sys::OB_E_INIT);
     assert_eq!(sdk_glue::LINKED, "fake");
     let e = sdk_glue::Error::from_raw(rv).unwrap();

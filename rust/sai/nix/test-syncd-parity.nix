@@ -4,15 +4,14 @@
 # ASIC_DB expectations as the C++ test (ai_re/nix/packages/sai-openbcm/test-syncd.nix).
 #
 # This file is a labelled copy of that test-syncd.nix, not an import of it: the original
-# takes `libsai` but hardcodes the C++ profile (SAI_OPENBCM_BACKEND=fake) and asserts two
-# lines of the C++ library's log. The differences, all of them:
-#   - profile: SAI_RS_BACKEND=virtual (the C++ one: SAI_OPENBCM_BACKEND=fake, SAI_OPENBCM_LOG_STDERR=1)
-#   - log: "VIRTUAL backend selected" instead of "FAKE backend selected"; no "oper up" line
-#     (the Rust library does not log link changes; the notification itself is checked, as there)
-#   - two more expectations: 256 scheduler groups and the two hash objects, which the Rust
-#     switch has and the C++ fake only has with its QoS / hash switches on
-# With the two parameters named in ../README.md ("Parity") added to the original, this file
-# becomes an import of it.
+# takes `libsai` but asserts a line of the C++ library's log the Rust one does not write. The
+# profile is the C++ one (SAI_OPENBCM_BACKEND=fake, SAI_OPENBCM_LOG_STDERR=1: the Rust library
+# reads the C++ keys). The differences, all of them:
+#   - no "oper up" line (the Rust library does not log link changes; the notification itself
+#     is checked, as there)
+#   - the smoke run's exit status and the syncd / syslog tails are printed (diagnostics only)
+# With the parameter named in ../README.md ("Parity") added to the original, this file becomes
+# an import of it.
 #   import ./test-syncd-parity.nix { pkgs = p; sonic = <ai_re sonic set>; libsai = <./package.nix>;
 #                                    smoke = <ai_re>/nix/packages/sai-openbcm/tests/sai_smoke.py; }
 { pkgs
@@ -25,8 +24,9 @@ let
   py = pkgs.python3;
   site = "${py.sitePackages}";
   pythonPath = "${sairedis}/${site}/sairedis:${sonic.swss-common}/${site}";
-  profile = pkgs.writeText "sai-rs-virtual.profile" ''
-    SAI_RS_BACKEND=virtual
+  profile = pkgs.writeText "sai-openbcm-fake.profile" ''
+    SAI_OPENBCM_BACKEND=fake
+    SAI_OPENBCM_LOG_STDERR=1
   '';
 in
 pkgs.testers.runNixOSTest {
@@ -88,9 +88,6 @@ pkgs.testers.runNixOSTest {
         "ASIC_STATE:SAI_OBJECT_TYPE_STP:*": 1,
         "ASIC_STATE:SAI_OBJECT_TYPE_HOSTIF_TRAP_GROUP:*": 1,
         "ASIC_STATE:SAI_OBJECT_TYPE_ROUTER_INTERFACE:*": 1,
-        # not in the C++ test (see the header)
-        "ASIC_STATE:SAI_OBJECT_TYPE_SCHEDULER_GROUP:*": 256,
-        "ASIC_STATE:SAI_OBJECT_TYPE_HASH:*": 2,
     }
     got = {k: count(k) for k in expected}
     print(got)
@@ -104,7 +101,7 @@ pkgs.testers.runNixOSTest {
     assert int(machine.succeed("redis-cli -s /var/run/redis/redis.sock -n 1 hlen VIDTORID").strip()) > 600
 
     syncd_log = machine.succeed("cat /tmp/syncd.txt")
-    assert "VIRTUAL backend selected" in syncd_log, syncd_log
+    assert "FAKE backend selected" in syncd_log, syncd_log
     machine.succeed("grep -q port_state_change /tmp/notifications.txt")   # what syncd published
     print(machine.succeed("head -20 /tmp/notifications.txt"))
     machine.succeed("systemctl stop syncd")

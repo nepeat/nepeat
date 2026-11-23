@@ -17,7 +17,6 @@ use sai_core::error::Error;
 use sai_core::model::EntryKey;
 use sai_core::oid::RawOid;
 use sai_core::value::{Attr, IpPrefix, Value};
-use sai_core::virt::Op;
 use sai_sys as sys;
 use std::net::{IpAddr, Ipv4Addr};
 
@@ -150,9 +149,12 @@ proptest! {
         let mut bridge_ports = oid_list(get1(&sai, BRIDGE, bridge, sys::SAI_BRIDGE_ATTR_PORT_LIST).unwrap());
         let mut members = oid_list(get1(&sai, VLAN, default_vlan, sys::SAI_VLAN_ATTR_MEMBER_LIST).unwrap());
         let types = [SWITCH, PORT, VLAN, VLAN_MEMBER, BRIDGE, BRIDGE_PORT, sys::SAI_OBJECT_TYPE_TUNNEL];
+        // the chip operations a failure is injected into (by name: the first slice's and the
+        // typed ones the routers, interfaces, next hops, schedulers and entries below use)
         let ops = [
-            Op::PortAdminSet, Op::PortSpeedSet, Op::VlanCreate, Op::VlanDestroy, Op::VlanPortAdd, Op::VlanPortRemove,
-            Op::ObjectCreate, Op::ObjectSet, Op::ObjectRemove, Op::EntryCreate, Op::EntrySet, Op::EntryRemove,
+            "port_admin_set", "port_speed_set", "vlan_create", "vlan_destroy", "vlan_port_add", "vlan_port_remove",
+            "l3_intf_create", "l3_intf_update", "l3_intf_destroy", "l3_egress_create", "l3_egress_destroy",
+            "l3_host_add", "l3_host_delete", "l3_route_add", "l3_route_delete", "queue_scheduler_set",
         ];
         // attribute-bag objects and entries: every id and key the test ever saw
         let default_router = oid(get1(&sai, SWITCH, switch, sys::SAI_SWITCH_ATTR_DEFAULT_VIRTUAL_ROUTER_ID).unwrap());
@@ -198,7 +200,9 @@ proptest! {
                     if object_type == SWITCH { Ok(()) } else { sai.remove(object_type, pick(&all, id)) }
                 }
                 Step::FailNext(i) => {
-                    sai.backend_mut().fail_next(ops[i % ops.len()], Error::Failure);
+                    // one armed failure at a time (a failing roll-back is not what this checks)
+                    sai.backend_mut().clear_faults();
+                    sai.backend_mut().fail_nth(ops[i % ops.len()], 1, Error::Failure).unwrap();
                     Ok(())
                 }
                 Step::CreateRouter => sai.create(VR, switch, &[]).map(|id| routers.push(id)),
@@ -219,7 +223,30 @@ proptest! {
                 }
                 Step::RemoveBag { object_type, id } => {
                     let all: Vec<RawOid> = [&routers[..], &interfaces[..], &next_hops[..], &schedulers[..], &queues[..], &[RawOid::NULL]].concat();
-                    sai.remove(bag_types[object_type % bag_types.len()], pick(&all, id))
+                    let (object_type, target) = (bag_types[object_type % bag_types.len()], pick(&all, id));
+                    // The C++ takes a port RIF's internal VLAN apart ignoring failures (a finding of the
+                    // L3 port, kept): what the chip could not remove stays there. Put the chip back in
+                    // step so the rest of the sequence is checked.
+                    let internal = sai_core::oid::RouterInterfaceId::try_from(target)
+                        .ok()
+                        .filter(|_| object_type == RIF)
+                        .and_then(|rif| sai.store()?.get::<sai_core::l3::RouterInterface>(rif).ok())
+                        .and_then(|rif| match rif.kind {
+                            sai_core::l3::RifKind::Port { vid, .. } => Some(vid),
+                            _ => None,
+                        });
+                    let result = sai.remove(object_type, target);
+                    if let (Ok(()), Some(vid)) = (result, internal) {
+                        use sai_core::backend::Backend as _;
+                        let chip = sai.backend_mut();
+                        if let Some(left) = chip.vlans().get(&vid).cloned() {
+                            for hw in left.keys() {
+                                chip.vlan_port_remove(vid, *hw).unwrap();
+                            }
+                            chip.vlan_destroy(vid).unwrap();
+                        }
+                    }
+                    result
                 }
                 Step::CreateFdb { vlan, mac, bridge_port, fixed } => {
                     let key = EntryKey::Fdb { bv_id: pick(&vlans, vlan), mac: [2, 0, 0, 0, 0, mac] };

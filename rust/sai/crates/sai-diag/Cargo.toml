@@ -1,0 +1,20 @@
+[package]
+name = "sai-diag"
+description = "The SAI library's diag socket (port of sai-openbcm's sai_diag.cpp): one SDK diag-shell command per unix-socket connection, run under the library's lock"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+
+[dev-dependencies]
+proptest.workspace = true
+# tests/mdio_tool.rs: the MDIO tool's --verify-only --diag-socket against this server on the
+# virtual backend's MDIO model (sai-core depends on this crate; a dev-dependency cycle is fine)
+sai-core.workspace = true
+sai-sys.workspace = true
+mdio-tool = { path = "../mdio-tool" }
+
+[lints]
+workspace = true

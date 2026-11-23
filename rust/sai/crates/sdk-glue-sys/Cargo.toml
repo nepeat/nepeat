@@ -8,6 +8,9 @@ rust-version.workspace = true
 links = "ob_sdk_glue"
 build = "build.rs"
 
+[build-dependencies]
+bindgen.workspace = true
+
 [features]
 # Link the real glue: sdk_glue.c compiled with the SDK's cflags, and libsdk. Paths from
 # SDK_GLUE_LINK (build.rs). Only exists for big-endian ppc64.

@@ -179,9 +179,9 @@ static void second_slice(void* lib, const sai_object_id_t* ports)
     trap_group = a.value.oid;
     CHECK(type_of(trap_group) == SAI_OBJECT_TYPE_HOSTIF_TRAP_GROUP);
     fill(&a, SAI_SWITCH_ATTR_LAG_HASH);
-    CHECK_STATUS(switch_api->get_switch_attribute(the_switch, 1, &a), SAI_STATUS_SUCCESS);
-    lag_hash = a.value.oid;
-    CHECK(type_of(lag_hash) == SAI_OBJECT_TYPE_HASH);
+    /* C++: the hash objects answer only with a hash backend (switch_hash_get) */
+    CHECK_STATUS(switch_api->get_switch_attribute(the_switch, 1, &a), SAI_STATUS_ATTR_NOT_SUPPORTED_0);
+    lag_hash = SAI_NULL_OBJECT_ID;
     fill(&a, SAI_SWITCH_ATTR_DEFAULT_VLAN_ID);
     CHECK_STATUS(switch_api->get_switch_attribute(the_switch, 1, &a), SAI_STATUS_SUCCESS);
     default_vlan = a.value.oid;
@@ -218,7 +218,10 @@ static void second_slice(void* lib, const sai_object_id_t* ports)
         a.value.aclcapability.action_list.count = 4;
         a.value.aclcapability.action_list.list = actions;
         CHECK_STATUS(switch_api->get_switch_attribute(the_switch, 1, &a), SAI_STATUS_SUCCESS);
-        CHECK(a.value.aclcapability.is_action_list_mandatory == false && a.value.aclcapability.action_list.count == 0);
+        /* the C++ library's: packet action, counter, policer (no mirror / redirect / TC / DSCP here) */
+        CHECK(a.value.aclcapability.is_action_list_mandatory == false && a.value.aclcapability.action_list.count == 3);
+        CHECK(actions[0] == SAI_ACL_ACTION_TYPE_PACKET_ACTION && actions[1] == SAI_ACL_ACTION_TYPE_COUNTER &&
+              actions[2] == SAI_ACL_ACTION_TYPE_SET_POLICER);
         CHECK(a.value.aclcapability.action_list.list == actions && MEMBER(a, aclcapability));
     }
     /* kept switch attributes: set and get of u32, u8, s32 */
@@ -239,11 +242,11 @@ static void second_slice(void* lib, const sai_object_id_t* ports)
         fill(&s, SAI_SWITCH_ATTR_ECMP_DEFAULT_HASH_ALGORITHM);
         s.value.s32 = SAI_HASH_ALGORITHM_XOR;
         CHECK_STATUS(switch_api->set_switch_attribute(the_switch, &s), SAI_STATUS_SUCCESS);
-        s.value.s32 = 0x01000000; /* an enumerator only when read through the wrong bytes */
-        CHECK_STATUS(switch_api->set_switch_attribute(the_switch, &s), SAI_STATUS_INVALID_ATTR_VALUE_0);
+        s.value.s32 = 0x01000000; /* kept as given (a C++ stub); read back through the same member */
+        CHECK_STATUS(switch_api->set_switch_attribute(the_switch, &s), SAI_STATUS_SUCCESS);
         fill(&a, SAI_SWITCH_ATTR_ECMP_DEFAULT_HASH_ALGORITHM);
         CHECK_STATUS(switch_api->get_switch_attribute(the_switch, 1, &a), SAI_STATUS_SUCCESS);
-        CHECK(a.value.s32 == SAI_HASH_ALGORITHM_XOR && MEMBER(a, s32));
+        CHECK(a.value.s32 == 0x01000000 && MEMBER(a, s32));
     }
 
     /* ---- ports: u16, u8, enum, bool set and get; queues, groups ---- */
@@ -298,7 +301,8 @@ static void second_slice(void* lib, const sai_object_id_t* ports)
         a.value.objlist.count = 8;
         a.value.objlist.list = sgs;
         CHECK_STATUS(port_api->get_port_attribute(ports[1], 1, &a), SAI_STATUS_SUCCESS);
-        CHECK(a.value.objlist.count == 8 && type_of(sgs[0]) == SAI_OBJECT_TYPE_SCHEDULER_GROUP);
+        /* C++ fake without its QoS model (qos_on, which nothing in the C ABI turns on): no groups */
+        CHECK(a.value.objlist.count == 0);
 
         sai_attribute_t q[3];
         fill(&q[0], SAI_QUEUE_ATTR_INDEX);
@@ -307,12 +311,11 @@ static void second_slice(void* lib, const sai_object_id_t* ports)
         CHECK_STATUS(queue_api->get_queue_attribute(queues[6], 3, q), SAI_STATUS_SUCCESS);
         CHECK(q[0].value.u8 == 6 && MEMBER(q[0], u8) && q[1].value.oid == ports[1] && q[2].value.s32 == SAI_QUEUE_TYPE_UNICAST);
         CHECK_STATUS(queue_api->remove_queue(queues[6]), SAI_STATUS_NOT_SUPPORTED);
-        sai_object_id_t children[2];
-        fill(&a, SAI_SCHEDULER_GROUP_ATTR_CHILD_LIST);
-        a.value.objlist.count = 2;
-        a.value.objlist.list = children;
-        CHECK_STATUS(sg_api->get_scheduler_group_attribute(sgs[6], 1, &a), SAI_STATUS_SUCCESS);
-        CHECK(a.value.objlist.count == 1 && children[0] == queues[6]);
+        /* ... so a queue's parent is its port */
+        fill(&a, SAI_QUEUE_ATTR_PARENT_SCHEDULER_NODE);
+        CHECK_STATUS(queue_api->get_queue_attribute(queues[6], 1, &a), SAI_STATUS_SUCCESS);
+        CHECK(a.value.oid == ports[1]);
+        (void)sgs;
         uint16_t vlans[4];
         fill(&a, SAI_STP_ATTR_VLAN_LIST);
         a.value.vlanlist.count = 4;
@@ -446,21 +449,21 @@ static void second_slice(void* lib, const sai_object_id_t* ports)
         CHECK_STATUS(policer_api->remove_policer(policer), SAI_STATUS_OBJECT_IN_USE);
     }
     {
-        /* hash: a list of enumerators, set and get */
+        /* hash: no hash objects without the backend's hash model (C++ hash_be(), the fake's
+         * l2x_on): every call on one is INVALID_OBJECT_ID; remove answers NOT_SUPPORTED
+         * without looking at the id (sai_hash.cpp:74) */
         int32_t fields[3] = {SAI_NATIVE_HASH_FIELD_SRC_IP, SAI_NATIVE_HASH_FIELD_DST_IP, SAI_NATIVE_HASH_FIELD_L4_SRC_PORT};
         sai_attribute_t s;
         fill(&s, SAI_HASH_ATTR_NATIVE_HASH_FIELD_LIST);
         s.value.s32list.count = 3;
         s.value.s32list.list = fields;
-        CHECK_STATUS(hash_api->set_hash_attribute(lag_hash, &s), SAI_STATUS_SUCCESS);
+        CHECK_STATUS(hash_api->set_hash_attribute(lag_hash, &s), SAI_STATUS_INVALID_OBJECT_ID);
         int32_t back[4] = {0};
         fill(&a, SAI_HASH_ATTR_NATIVE_HASH_FIELD_LIST);
         a.value.s32list.count = 4;
         a.value.s32list.list = back;
-        CHECK_STATUS(hash_api->get_hash_attribute(lag_hash, 1, &a), SAI_STATUS_SUCCESS);
-        CHECK(a.value.s32list.count == 3 && back[2] == SAI_NATIVE_HASH_FIELD_L4_SRC_PORT);
-        fields[1] = 0x01000000;
-        CHECK_STATUS(hash_api->set_hash_attribute(lag_hash, &s), SAI_STATUS_INVALID_ATTR_VALUE_0);
+        CHECK_STATUS(hash_api->get_hash_attribute(lag_hash, 1, &a), SAI_STATUS_INVALID_OBJECT_ID);
+        CHECK(back[0] == 0);
         CHECK_STATUS(hash_api->remove_hash(lag_hash), SAI_STATUS_NOT_SUPPORTED);
     }
     {
@@ -478,8 +481,8 @@ static void second_slice(void* lib, const sai_object_id_t* ports)
         fill(&c[3], SAI_ROUTER_INTERFACE_ATTR_SRC_MAC_ADDRESS);
         memcpy(c[3].value.mac, "\x02\x11\x22\x33\x44\x55", 6);
         CHECK_STATUS(rif_api->create_router_interface(&rif, the_switch, 2, c), SAI_STATUS_MANDATORY_ATTRIBUTE_MISSING);
-        c[2].value.oid = queues[0]; /* not a port */
-        CHECK_STATUS(rif_api->create_router_interface(&rif, the_switch, 4, c), SAI_STATUS_INVALID_ATTR_VALUE_0 + SAI_STATUS_CODE(2));
+        c[2].value.oid = queues[0]; /* not a port: C++ rif_attr, INVALID_PARAMETER */
+        CHECK_STATUS(rif_api->create_router_interface(&rif, the_switch, 4, c), SAI_STATUS_INVALID_PARAMETER);
         c[2].value.oid = ports[2];
         CHECK_STATUS(rif_api->create_router_interface(&rif, the_switch, 4, c), SAI_STATUS_SUCCESS);
         sai_attribute_t g[2];
@@ -606,8 +609,10 @@ static void second_slice(void* lib, const sai_object_id_t* ports)
         CHECK_STATUS(route_api->remove_route_entry(&r), SAI_STATUS_ITEM_NOT_FOUND);
         r.destination.addr_family = (sai_ip_addr_family_t)7;
         CHECK_STATUS(route_api->remove_route_entry(&r), SAI_STATUS_INVALID_PARAMETER);
-        CHECK_STATUS(neighbor_api->remove_neighbor_entry(&n), SAI_STATUS_SUCCESS);
+        /* C++: the next hop on the neighbour's address holds it */
+        CHECK_STATUS(neighbor_api->remove_neighbor_entry(&n), SAI_STATUS_OBJECT_IN_USE);
         CHECK_STATUS(nh_api->remove_next_hop(next_hop), SAI_STATUS_SUCCESS);
+        CHECK_STATUS(neighbor_api->remove_neighbor_entry(&n), SAI_STATUS_SUCCESS);
         CHECK_STATUS(rif_api->remove_router_interface(rif), SAI_STATUS_SUCCESS);
         CHECK_STATUS(vr_api->remove_virtual_router(vr2), SAI_STATUS_SUCCESS);
 
@@ -631,8 +636,8 @@ static void second_slice(void* lib, const sai_object_id_t* ports)
         f2.mac_address[5] = 2;
         c[0].value.s32 = SAI_FDB_ENTRY_TYPE_DYNAMIC;
         CHECK_STATUS(fdb_api->create_fdb_entry(&f2, 2, c), SAI_STATUS_SUCCESS);
-        f2.bv_id = bridge; /* .1D: not implemented */
-        CHECK_STATUS(fdb_api->create_fdb_entry(&f2, 2, c), SAI_STATUS_INVALID_PARAMETER);
+        f2.bv_id = bridge; /* .1D: C++ NOT_SUPPORTED */
+        CHECK_STATUS(fdb_api->create_fdb_entry(&f2, 2, c), SAI_STATUS_NOT_SUPPORTED);
         f2.bv_id = default_vlan;
         fill(&a, SAI_FDB_ENTRY_ATTR_BRIDGE_PORT_ID);
         CHECK_STATUS(fdb_api->get_fdb_entry_attribute(&f, 1, &a), SAI_STATUS_SUCCESS);
@@ -656,19 +661,21 @@ static void second_slice(void* lib, const sai_object_id_t* ports)
         CHECK(counters[0] == 0 && counters[2] == 0 && counters[3] == 7);
         CHECK_STATUS(port_api->get_port_stats(ports[1], 3, ids, NULL), SAI_STATUS_INVALID_PARAMETER);
         CHECK_STATUS(port_api->get_port_stats(ports[1], 3, NULL, counters), SAI_STATUS_INVALID_PARAMETER);
-        CHECK_STATUS(port_api->get_port_stats_ext(ports[1], 3, ids, SAI_STATS_MODE_READ_AND_CLEAR, counters), SAI_STATUS_SUCCESS);
-        CHECK_STATUS(port_api->clear_port_stats(ports[1], 3, ids), SAI_STATUS_SUCCESS);
-        CHECK_STATUS(port_api->clear_port_all_stats(ports[1]), SAI_STATUS_NOT_IMPLEMENTED);
+        /* C++: no per-counter clear in the SDK API; clear_port_all_stats zeroes every counter */
+        CHECK_STATUS(port_api->get_port_stats_ext(ports[1], 3, ids, SAI_STATS_MODE_READ_AND_CLEAR, counters), SAI_STATUS_NOT_SUPPORTED);
+        CHECK_STATUS(port_api->clear_port_stats(ports[1], 3, ids), SAI_STATUS_NOT_SUPPORTED);
+        CHECK_STATUS(port_api->clear_port_all_stats(ports[1]), SAI_STATUS_SUCCESS);
         ids[1] = SAI_PORT_STAT_ETHER_STATS_JABBERS;
         counters[0] = 7;
         CHECK_STATUS(port_api->get_port_stats(ports[1], 3, ids, counters), SAI_STATUS_NOT_SUPPORTED);
         CHECK(counters[0] == 7);
         sai_stat_id_t qids[2] = {SAI_QUEUE_STAT_PACKETS, SAI_QUEUE_STAT_BYTES};
-        CHECK_STATUS(queue_api->get_queue_stats(queues[1], 2, qids, counters), SAI_STATUS_SUCCESS);
-        CHECK(counters[0] == 0 && counters[1] == 0);
-        CHECK_STATUS(queue_api->get_queue_stats(ports[1], 2, qids, counters), SAI_STATUS_INVALID_OBJECT_TYPE);
+        /* queue and priority group counters: the C++ fake's QoS model only (qos_on) */
+        CHECK_STATUS(queue_api->get_queue_stats(queues[1], 2, qids, counters), SAI_STATUS_NOT_SUPPORTED);
+        CHECK(counters[0] == 7); /* a failed get writes nothing (the C++ writes zeros) */
+        CHECK_STATUS(queue_api->get_queue_stats(ports[1], 2, qids, counters), SAI_STATUS_INVALID_OBJECT_ID);
         sai_stat_id_t gids[1] = {SAI_INGRESS_PRIORITY_GROUP_STAT_PACKETS};
-        CHECK_STATUS(buffer_api->get_ingress_priority_group_stats(groups[1], 1, gids, counters), SAI_STATUS_SUCCESS);
+        CHECK_STATUS(buffer_api->get_ingress_priority_group_stats(groups[1], 1, gids, counters), SAI_STATUS_NOT_SUPPORTED);
         CHECK_STATUS(switch_api->get_switch_stats(the_switch, 0, NULL, NULL), SAI_STATUS_NOT_SUPPORTED);
 
         sai_stat_capability_t caps[32];
@@ -677,9 +684,11 @@ static void second_slice(void* lib, const sai_object_id_t* ports)
         CHECK(list.count == 15);
         list.count = 32;
         list.list = caps;
-        CHECK_STATUS(stats_caps(the_switch, SAI_OBJECT_TYPE_QUEUE, &list), SAI_STATUS_SUCCESS);
-        CHECK(list.count == 3 && caps[0].stat_enum == SAI_QUEUE_STAT_PACKETS && (caps[0].stat_modes & SAI_STATS_MODE_READ));
-        CHECK_STATUS(stats_caps(the_switch, SAI_OBJECT_TYPE_ROUTER_INTERFACE, &list), SAI_STATUS_NOT_SUPPORTED);
+        CHECK_STATUS(stats_caps(the_switch, SAI_OBJECT_TYPE_QUEUE, &list), SAI_STATUS_NOT_SUPPORTED); /* no QoS model */
+        CHECK_STATUS(stats_caps(the_switch, SAI_OBJECT_TYPE_PORT, &list), SAI_STATUS_SUCCESS);
+        CHECK(list.count == 15 && caps[0].stat_enum == SAI_PORT_STAT_IF_IN_OCTETS && (caps[0].stat_modes & SAI_STATS_MODE_READ));
+        /* C++: the RIF counters the backend has (none on the virtual chip) */
+        CHECK_STATUS(stats_caps(the_switch, SAI_OBJECT_TYPE_ROUTER_INTERFACE, &list), SAI_STATUS_SUCCESS);
         CHECK_STATUS(stats_caps(the_switch, SAI_OBJECT_TYPE_PORT, NULL), SAI_STATUS_INVALID_PARAMETER);
         int32_t values[4];
         sai_s32_list_t enums = {.count = 4, .list = values};
@@ -785,20 +794,20 @@ int main(int argc, char** argv)
     {
         sai_attribute_t bad[2] = {sw_attrs[0], sw_attrs[0]};
         CHECK_STATUS(switch_api->create_switch(&tmp, 2, bad), SAI_STATUS_INVALID_PARAMETER); /* twice */
-        bad[1].id = SAI_SWITCH_ATTR_PORT_NUMBER; /* read-only */
-        CHECK_STATUS(switch_api->create_switch(&tmp, 2, bad), SAI_STATUS_INVALID_ATTRIBUTE_0 + SAI_STATUS_CODE(1));
+        bad[1].id = SAI_SWITCH_ATTR_PORT_NUMBER; /* read-only: C++ create_switch, attr_not_supported(1) */
+        CHECK_STATUS(switch_api->create_switch(&tmp, 2, bad), SAI_STATUS_ATTR_NOT_SUPPORTED_0 + SAI_STATUS_CODE(1));
         bad[1].id = SAI_SWITCH_ATTR_CRC_CHECK_ENABLE; /* valid SAI, not implemented */
         bad[1].value.booldata = false;
         CHECK_STATUS(switch_api->create_switch(&tmp, 2, bad), SAI_STATUS_ATTR_NOT_SUPPORTED_0 + SAI_STATUS_CODE(1));
-        bad[1].id = SAI_SWITCH_ATTR_ACL_ENTRY_MINIMUM_PRIORITY + 100000; /* nothing */
-        CHECK_STATUS(switch_api->create_switch(&tmp, 2, bad), SAI_STATUS_UNKNOWN_ATTRIBUTE_0 + SAI_STATUS_CODE(1));
+        bad[1].id = SAI_SWITCH_ATTR_ACL_ENTRY_MINIMUM_PRIORITY + 100000; /* nothing: the same (C++) */
+        CHECK_STATUS(switch_api->create_switch(&tmp, 2, bad), SAI_STATUS_ATTR_NOT_SUPPORTED_0 + SAI_STATUS_CODE(1));
     }
     offer_backend = 0; /* the virtual backend must be asked for in the profile */
     CHECK_STATUS(switch_api->create_switch(&tmp, 3, sw_attrs), SAI_STATUS_FAILURE);
     offer_backend = 1;
     CHECK(tmp == 0x1234); /* no failed call wrote its output */
     CHECK_STATUS(switch_api->create_switch(&the_switch, 3, sw_attrs), SAI_STATUS_SUCCESS);
-    CHECK_STATUS(switch_api->create_switch(&tmp, 3, sw_attrs), SAI_STATUS_ITEM_ALREADY_EXISTS);
+    CHECK_STATUS(switch_api->create_switch(&tmp, 3, sw_attrs), SAI_STATUS_INSUFFICIENT_RESOURCES); /* C++ */
     CHECK(p_sai_object_type_query(the_switch) == SAI_OBJECT_TYPE_SWITCH);
     CHECK(p_sai_switch_id_query(the_switch) == the_switch);
     CHECK(p_sai_object_type_query(SAI_NULL_OBJECT_ID) == SAI_OBJECT_TYPE_NULL);
@@ -856,8 +865,8 @@ int main(int argc, char** argv)
         CHECK(g[0].value.u32list.count == 2 && lanes[0] == 7 && lanes[1] == 8 && g[1].value.u32 == 50000);
         CHECK(g[2].value.booldata == false); /* ports come up disabled */
         /* wrong object types */
-        CHECK_STATUS(port_api->get_port_attribute(the_switch, 1, &g[1]), SAI_STATUS_INVALID_OBJECT_TYPE);
-        CHECK_STATUS(switch_api->get_switch_attribute(ports[0], 1, &g[1]), SAI_STATUS_INVALID_OBJECT_TYPE);
+        CHECK_STATUS(port_api->get_port_attribute(the_switch, 1, &g[1]), SAI_STATUS_INVALID_OBJECT_ID); /* C++ */
+        CHECK_STATUS(switch_api->get_switch_attribute(ports[0], 1, &g[1]), SAI_STATUS_INVALID_OBJECT_ID); /* C++ */
         CHECK_STATUS(port_api->remove_port(ports[0]), SAI_STATUS_NOT_SUPPORTED);
 
         sai_attribute_t s = {.id = SAI_PORT_ATTR_SPEED, .value.u32 = 12345};
@@ -865,12 +874,12 @@ int main(int argc, char** argv)
         CHECK_STATUS(port_api->set_port_attribute(ports[3], &s), SAI_STATUS_INVALID_ATTR_VALUE_0);
         s.value.u32 = 25000;
         CHECK_STATUS(port_api->set_port_attribute(ports[3], &s), SAI_STATUS_SUCCESS);
-        s.id = SAI_PORT_ATTR_OPER_STATUS; /* read-only */
-        CHECK_STATUS(port_api->set_port_attribute(ports[3], &s), SAI_STATUS_INVALID_ATTRIBUTE_0);
+        s.id = SAI_PORT_ATTR_OPER_STATUS; /* read-only: C++ port_set_one's default */
+        CHECK_STATUS(port_api->set_port_attribute(ports[3], &s), SAI_STATUS_ATTR_NOT_SUPPORTED_0);
         /* a create-only list in a set, its value garbage: refused without following the pointer */
         memset(&s, 0xa5, sizeof(s));
         s.id = SAI_PORT_ATTR_HW_LANE_LIST;
-        CHECK_STATUS(port_api->set_port_attribute(ports[3], &s), SAI_STATUS_INVALID_ATTRIBUTE_0);
+        CHECK_STATUS(port_api->set_port_attribute(ports[3], &s), SAI_STATUS_ATTR_NOT_SUPPORTED_0);
 
         /* admin up: link up, told through the callback (from the library's thread) */
         sai_attribute_t admin = {.id = SAI_PORT_ATTR_ADMIN_STATE, .value.booldata = true};
@@ -914,7 +923,7 @@ int main(int argc, char** argv)
         CHECK_STATUS(vlan_api->create_vlan(NULL, the_switch, 1, &v), SAI_STATUS_INVALID_PARAMETER);
         CHECK_STATUS(vlan_api->create_vlan(&vlan, the_switch, 1, NULL), SAI_STATUS_INVALID_PARAMETER);
         CHECK_STATUS(vlan_api->create_vlan(&vlan, the_switch, 0, NULL), SAI_STATUS_MANDATORY_ATTRIBUTE_MISSING);
-        CHECK_STATUS(vlan_api->create_vlan(&vlan, ports[0], 1, &v), SAI_STATUS_INVALID_OBJECT_TYPE); /* not a switch id */
+        CHECK_STATUS(vlan_api->create_vlan(&vlan, ports[0], 1, &v), SAI_STATUS_INVALID_OBJECT_ID); /* the C++ does not look */ /* not a switch id */
         v.value.u16 = 4095;
         CHECK_STATUS(vlan_api->create_vlan(&vlan, the_switch, 1, &v), SAI_STATUS_INVALID_ATTR_VALUE_0);
         v.value.u16 = 100;
@@ -945,15 +954,15 @@ int main(int argc, char** argv)
         /* lifecycle: in use, wrong type, stale */
         CHECK_STATUS(vlan_api->remove_vlan(vlan), SAI_STATUS_OBJECT_IN_USE);
         CHECK_STATUS(bridge_api->remove_bridge_port(bps[2]), SAI_STATUS_OBJECT_IN_USE);
-        CHECK_STATUS(vlan_api->remove_vlan(member), SAI_STATUS_INVALID_OBJECT_TYPE);
-        CHECK_STATUS(vlan_api->remove_vlan_member(vlan), SAI_STATUS_INVALID_OBJECT_TYPE);
+        CHECK_STATUS(vlan_api->remove_vlan(member), SAI_STATUS_INVALID_OBJECT_ID); /* C++: no such VLAN */
+        CHECK_STATUS(vlan_api->remove_vlan_member(vlan), SAI_STATUS_INVALID_OBJECT_ID);
         CHECK_STATUS(vlan_api->remove_vlan_member(member), SAI_STATUS_SUCCESS);
         CHECK_STATUS(vlan_api->remove_vlan_member(member), SAI_STATUS_INVALID_OBJECT_ID);
         CHECK_STATUS(vlan_api->get_vlan_member_attribute(member, 3, mg), SAI_STATUS_INVALID_OBJECT_ID);
         CHECK_STATUS(vlan_api->remove_vlan(vlan), SAI_STATUS_SUCCESS);
         CHECK_STATUS(vlan_api->remove_vlan(vlan), SAI_STATUS_INVALID_OBJECT_ID);
         CHECK_STATUS(vlan_api->create_vlan(&vlan2, the_switch, 1, &v), SAI_STATUS_SUCCESS);
-        CHECK(vlan2 != vlan); /* a removed object's id is not given out again */
+        CHECK(vlan2 == vlan); /* a VLAN's id is its VID (C++ make_oid(VLAN, vid)) */
 
         /* the first thing orchagent does: default members and bridge ports go, bridge ports come back */
         for (int i = 0; i < 8; i++) CHECK_STATUS(vlan_api->remove_vlan_member(defaults[i]), SAI_STATUS_SUCCESS);
@@ -978,14 +987,16 @@ int main(int argc, char** argv)
         CHECK_STATUS(p_sai_query_attribute_capability(the_switch, SAI_OBJECT_TYPE_PORT, SAI_PORT_ATTR_SPEED, &cap), SAI_STATUS_SUCCESS);
         CHECK(!cap.create_implemented && cap.set_implemented && cap.get_implemented);
         CHECK_STATUS(p_sai_query_attribute_capability(the_switch, SAI_OBJECT_TYPE_ACL_TABLE, SAI_ACL_TABLE_ATTR_ACL_STAGE, &cap), SAI_STATUS_SUCCESS);
-        CHECK(!cap.create_implemented && !cap.set_implemented && !cap.get_implemented);
+        CHECK(cap.create_implemented && !cap.set_implemented && cap.get_implemented); /* the C++ table */
+        CHECK_STATUS(p_sai_query_attribute_capability(the_switch, SAI_OBJECT_TYPE_PORT, SAI_PORT_ATTR_MEDIA_TYPE, &cap), SAI_STATUS_SUCCESS);
+        CHECK(!cap.create_implemented && !cap.set_implemented && !cap.get_implemented); /* kept, not advertised */
         CHECK_STATUS(p_sai_query_attribute_capability(the_switch, SAI_OBJECT_TYPE_PORT, SAI_PORT_ATTR_SPEED, NULL), SAI_STATUS_INVALID_PARAMETER);
     }
     CHECK_STATUS(p_sai_object_type_get_availability(the_switch, SAI_OBJECT_TYPE_VLAN, 0, NULL, NULL), SAI_STATUS_NOT_SUPPORTED);
     CHECK_STATUS(p_sai_get_object_count(the_switch, SAI_OBJECT_TYPE_VLAN, NULL), SAI_STATUS_NOT_SUPPORTED);
 
     /* ---- teardown ---- */
-    CHECK_STATUS(switch_api->remove_switch(ports[0]), SAI_STATUS_INVALID_OBJECT_TYPE);
+    CHECK_STATUS(switch_api->remove_switch(ports[0]), SAI_STATUS_INVALID_OBJECT_ID); /* C++ */
     CHECK_STATUS(switch_api->remove_switch(the_switch), SAI_STATUS_SUCCESS);
     CHECK_STATUS(switch_api->remove_switch(the_switch), SAI_STATUS_UNINITIALIZED);
     {

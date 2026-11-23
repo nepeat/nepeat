@@ -10,10 +10,12 @@ rust-version.workspace = true
 sai-core.workspace = true
 sai-macsec.workspace = true
 phy-seq.workspace = true
+# native.rs: the core's seam (statuses, object types, the ACL members of attributes)
+sai-sys.workspace = true
+sai-meta.workspace = true
 
 [dev-dependencies]
 proptest.workspace = true
-sai-sys.workspace = true
 
 [lints]
 workspace = true

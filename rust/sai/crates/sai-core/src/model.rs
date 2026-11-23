@@ -1,8 +1,12 @@
 //! The objects of this slice. Each holds its own state only: lists such as a VLAN's members
 //! or the switch's ports are read from the store, so there is no second copy to keep in step.
+use crate::backend::types::{Fec, Loopback};
 use crate::backend::{HwPort, Vid};
 use crate::oid::{BridgeId, BridgePortId, EntryType, ObjectType, PortId, RawOid, TypedId, VlanId};
 use crate::value::{IpPrefix, Value};
+
+pub use crate::l2::{FdbLearning, Tagging};
+pub use crate::lag::{Attach, Lag, LagMember};
 use sai_sys as sys;
 use std::collections::BTreeMap;
 use std::net::IpAddr;
@@ -27,6 +31,12 @@ pub struct Switch {
     pub objects: BTreeMap<sys::sai_attr_id_t, RawOid>,
     /// Notification callbacks and other kept attributes.
     pub kept: Kept,
+    /// ACL bindings and the `CoPP` field group ([`crate::acl`], [`crate::copp`]).
+    pub acl: crate::acl::AclState,
+    /// `FDB_AGING_TIME` as last programmed (0 until set).
+    pub fdb_aging: u32,
+    /// The board quirks (`SAI_OPENBCM_PORT_*`), parsed at creation ([`crate::port`]).
+    pub quirks: crate::port::PortQuirks,
 }
 
 /// An object whose whole state is its attributes: stored as the metadata allows, with no
@@ -103,21 +113,68 @@ pub enum PortKind {
     Cpu,
 }
 
-/// A port.
+/// A port (the C++ `PortObj`; `QoS`, mirror, storm and `MACsec` state of other areas lives in
+/// [`Port::kept`] or in those areas).
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[allow(clippy::struct_excessive_bools, reason = "each is one SAI attribute's state")]
 pub struct Port {
     /// The chip's logical port.
     pub hw: HwPort,
     /// Front panel or CPU.
     pub kind: PortKind,
+    /// The SDK's name (`ce0`; `cpu0` for the CPU port), for logs and the dump.
+    pub name: String,
     /// `ADMIN_STATE`
     pub admin: bool,
-    /// `SPEED` in Mb/s
+    /// `SPEED` in Mb/s as the chip came up (the attribute is read from the chip).
     pub speed: u32,
     /// The link state last reported to the notification callback.
     pub oper_up: bool,
+    /// `MTU` (1514 until set).
+    pub mtu: u32,
+    /// `FEC_MODE` (with a fixed-FEC board quirk: kept, not programmed).
+    pub fec: Fec,
+    /// `AUTO_NEG_MODE` (the same with a fixed-autoneg quirk).
+    pub autoneg: bool,
+    /// `LOOPBACK_MODE`
+    pub loopback: Loopback,
+    /// `PORT_VLAN_ID`
+    pub pvid: Vid,
+    /// The `MACsec` inter-frame gap is programmed (`crate::port::port_ifg_apply`).
+    pub macsec_ifg: bool,
     /// Kept attributes.
     pub kept: Kept,
+}
+
+impl Port {
+    /// A front-panel port as the chip came up: admin down, link down, SAI defaults.
+    pub fn front(hw: HwPort, lanes: Vec<u32>, speed: u32, name: String) -> Self {
+        Self {
+            hw,
+            kind: PortKind::Front { lanes },
+            name,
+            admin: false,
+            speed,
+            oper_up: false,
+            mtu: 1514,
+            fec: Fec::None,
+            autoneg: false,
+            loopback: Loopback::None,
+            pvid: Vid::DEFAULT,
+            macsec_ifg: false,
+            kept: Kept::new(),
+        }
+    }
+
+    /// The CPU port: always enabled and up.
+    pub fn cpu(hw: HwPort) -> Self {
+        Self {
+            kind: PortKind::Cpu,
+            admin: true,
+            oper_up: true,
+            ..Self::front(hw, Vec::new(), 0, "cpu0".to_owned())
+        }
+    }
 }
 
 /// A VLAN.
@@ -136,8 +193,8 @@ pub struct VlanMember {
     pub vlan: VlanId,
     /// The member.
     pub bridge_port: BridgePortId,
-    /// Egress untagged (true) or tagged.
-    pub untagged: bool,
+    /// Egress untagged or tagged.
+    pub tagging: Tagging,
 }
 
 /// A bridge. Only the default .1Q bridge exists.
@@ -152,10 +209,12 @@ pub struct Bridge {
 pub struct BridgePort {
     /// The bridge.
     pub bridge: BridgeId,
-    /// The port.
-    pub port: PortId,
+    /// What it sits on: a port or a LAG.
+    pub attach: Attach,
     /// `ADMIN_STATE`
     pub admin: bool,
+    /// `FDB_LEARNING_MODE`, programmed on its ports.
+    pub learn: FdbLearning,
     /// Kept attributes.
     pub kept: Kept,
 }
@@ -175,6 +234,20 @@ pub enum Object {
     Bridge(Bridge),
     /// A bridge port.
     BridgePort(BridgePort),
+    /// A LAG ([`crate::lag`]).
+    Lag(Lag),
+    /// A LAG member ([`crate::lag`]).
+    LagMember(LagMember),
+    /// An ACL object or a policer ([`crate::acl`]).
+    Acl(crate::acl::AclObject),
+    /// A host interface, trap group, trap or host interface table entry ([`crate::hostif`]).
+    Hostif(crate::hostif::HostifObject),
+    /// A virtual router, router interface, next hop, next-hop group or member ([`crate::l3`]).
+    L3(crate::l3::L3Object),
+    /// A `QoS` map, scheduler, WRED profile, buffer pool or profile ([`crate::qos`]).
+    Qos(crate::qos::QosObject),
+    /// A mirror session or packet sampler ([`crate::mirror`]).
+    Mirror(crate::mirror::MirrorObject),
     /// An object of any other type.
     Bag(Bag),
 }
@@ -189,6 +262,13 @@ impl Object {
             Self::VlanMember(_) => ObjectType::VlanMember,
             Self::Bridge(_) => ObjectType::Bridge,
             Self::BridgePort(_) => ObjectType::BridgePort,
+            Self::Lag(_) => ObjectType::Lag,
+            Self::LagMember(_) => ObjectType::LagMember,
+            Self::Acl(acl) => acl.object_type(),
+            Self::Hostif(o) => o.object_type(),
+            Self::L3(o) => o.object_type(),
+            Self::Qos(o) => o.object_type(),
+            Self::Mirror(o) => o.object_type(),
             Self::Bag(bag) => bag.object_type,
         }
     }
@@ -201,16 +281,27 @@ impl Object {
                 .into_iter()
                 .chain(s.objects.values().copied())
                 .chain(references_of(&s.kept))
+                .chain(s.acl.references())
                 .collect(),
+            Self::Acl(acl) => acl.references(),
+            Self::Hostif(o) => o.references(),
+            Self::L3(o) => o.references(),
+            Self::Qos(o) => o.references(),
+            Self::Mirror(_) => Vec::new(),
             Self::Bag(bag) => references_of(&bag.attrs),
             // Kept attributes that name objects (a port's QoS maps, ...) hold them too.
             Self::Port(p) => references_of(&p.kept),
             Self::Vlan(v) => references_of(&v.kept),
             Self::Bridge(b) => references_of(&b.kept),
             Self::VlanMember(m) => vec![m.vlan.raw(), m.bridge_port.raw()],
-            Self::BridgePort(b) => [b.bridge.raw(), b.port.raw()]
+            Self::BridgePort(b) => [b.bridge.raw(), b.attach.raw()]
                 .into_iter()
                 .chain(references_of(&b.kept))
+                .collect(),
+            Self::Lag(l) => references_of(&l.kept),
+            Self::LagMember(m) => [m.lag.raw(), m.port.raw()]
+                .into_iter()
+                .chain(references_of(&m.kept))
                 .collect(),
         }
     }
@@ -257,4 +348,6 @@ kinds! {
     VlanMember: crate::oid::VlanMemberId;
     Bridge: BridgeId;
     BridgePort: BridgePortId;
+    Lag: crate::oid::LagId;
+    LagMember: crate::oid::LagMemberId;
 }

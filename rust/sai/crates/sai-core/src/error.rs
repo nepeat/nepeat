@@ -72,6 +72,19 @@ impl Error {
         Self::Attr(kind, u16::try_from(index).unwrap_or(u16::MAX))
     }
 
+    /// A backend's answer while handling the attribute at `index` (C++ `attr_backend_status`):
+    /// `InvalidParameter`, `NotSupported` and `NotImplemented` become that attribute's
+    /// `INVALID_ATTR_VALUE`, `ATTR_NOT_SUPPORTED` and `ATTR_NOT_IMPLEMENTED`; others stay.
+    #[must_use]
+    pub fn for_attr(self, index: usize) -> Self {
+        match self {
+            Self::InvalidParameter => Self::attr(AttrError::InvalidValue, index),
+            Self::NotSupported => Self::attr(AttrError::NotSupported, index),
+            Self::NotImplemented => Self::attr(AttrError::NotImplemented, index),
+            other => other,
+        }
+    }
+
     /// The same error for a call that carries one attribute (set).
     #[must_use]
     pub fn at_index(self, index: usize) -> Self {

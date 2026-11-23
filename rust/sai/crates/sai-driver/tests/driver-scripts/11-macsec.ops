@@ -1,0 +1,101 @@
+# MACsec objects through the SAI API on the made-up PHY table of sai-openbcm's
+# tests/test_tables.h (ms_table(): port 0 = lane 1 = PHY 0x10), after tests/test_macsec.inc.
+# @EXT_MACSEC_TABLE@ is the table file the differential writes (tests/differential.rs).
+profile SAI_OPENBCM_FAKE_PORTS=4
+profile SAI_OPENBCM_FAKE_LANES=4
+profile SAI_OPENBCM_PORT_IFG=128
+profile SAI_OPENBCM_EXT_MACSEC_FILE=@EXT_MACSEC_TABLE@
+switch
+# the SA sequences poll 1.2?f for 1
+mdio 10 1 20f 1
+mdio 10 1 21f 1
+mdio 11 1 20f 1
+mdio 11 1 21f 1
+create macsec me DIRECTION=EGRESS PHYSICAL_BYPASS_ENABLE=true
+create macsec mi DIRECTION=INGRESS PHYSICAL_BYPASS_ENABLE=true
+create macsec mx DIRECTION=INGRESS
+create macsec my DIRECTION=INGRESS ENABLE_POST=true
+get macsec mi SCI_IN_INGRESS_MACSEC_ACL
+get macsec me MAX_SECURE_ASSOCIATIONS_PER_SC XPN_64BIT_SUPPORTED
+set macsec me PHYSICAL_BYPASS_ENABLE=false
+set macsec me DIRECTION=INGRESS
+create macsec_port bad MACSEC_DIRECTION=EGRESS PORT_ID=port2
+create macsec_port mpe MACSEC_DIRECTION=EGRESS PORT_ID=port0
+create macsec_port mpi MACSEC_DIRECTION=INGRESS PORT_ID=port0
+create macsec_port dup MACSEC_DIRECTION=INGRESS PORT_ID=port0
+set port port0 SPEED=100000
+set macsec_port mpe CTAG_ENABLE=false
+set macsec_port mpe CTAG_ENABLE=true
+create macsec_flow fe MACSEC_DIRECTION=EGRESS
+create macsec_flow fi MACSEC_DIRECTION=INGRESS
+set macsec_flow fe MACSEC_DIRECTION=INGRESS
+create acl_table te ACL_STAGE=EGRESS_MACSEC ACL_BIND_POINT_TYPE_LIST=[PORT] FIELD_DST_MAC=true FIELD_ETHER_TYPE=true
+create acl_table ti ACL_STAGE=INGRESS_MACSEC ACL_BIND_POINT_TYPE_LIST=[PORT] FIELD_DST_MAC=true FIELD_ETHER_TYPE=true
+create acl_entry eapole TABLE_ID=te PRIORITY=1000 ADMIN_STATE=true FIELD_ETHER_TYPE=0x888e/0xffff ACTION_PACKET_ACTION=FORWARD
+create acl_entry eapoli TABLE_ID=ti PRIORITY=1000 ADMIN_STATE=true FIELD_ETHER_TYPE=0x888e/0xffff ACTION_PACKET_ACTION=FORWARD
+set port port0 EGRESS_MACSEC_ACL=te
+set port port0 INGRESS_MACSEC_ACL=ti
+get port port0 EGRESS_MACSEC_ACL INGRESS_MACSEC_ACL
+set port port0 EGRESS_MACSEC_ACL=ti
+create macsec_sc scx MACSEC_DIRECTION=EGRESS FLOW_ID=fe MACSEC_SCI=0x0100d52b380bea1c ENCRYPTION_ENABLE=false MACSEC_EXPLICIT_SCI_ENABLE=true MACSEC_CIPHER_SUITE=GCM_AES_128
+create macsec_sc scy MACSEC_DIRECTION=EGRESS FLOW_ID=fi MACSEC_SCI=0x0100d52b380bea1c ENCRYPTION_ENABLE=true MACSEC_EXPLICIT_SCI_ENABLE=true MACSEC_CIPHER_SUITE=GCM_AES_128
+create macsec_sc sce MACSEC_DIRECTION=EGRESS FLOW_ID=fe MACSEC_SCI=0x0100d52b380bea1c ENCRYPTION_ENABLE=true MACSEC_EXPLICIT_SCI_ENABLE=true MACSEC_CIPHER_SUITE=GCM_AES_128
+create macsec_sc sc2 MACSEC_DIRECTION=EGRESS FLOW_ID=fe MACSEC_SCI=0x0100d52b380bea1c ENCRYPTION_ENABLE=true MACSEC_EXPLICIT_SCI_ENABLE=true MACSEC_CIPHER_SUITE=GCM_AES_128
+create macsec_sc sci MACSEC_DIRECTION=INGRESS FLOW_ID=fi MACSEC_SCI=0x0100d52b380bea1c ENCRYPTION_ENABLE=true MACSEC_EXPLICIT_SCI_ENABLE=true MACSEC_CIPHER_SUITE=GCM_AES_XPN_256 MACSEC_REPLAY_PROTECTION_ENABLE=true MACSEC_REPLAY_PROTECTION_WINDOW=0x1234
+create acl_entry datae TABLE_ID=te PRIORITY=1 ADMIN_STATE=true ACTION_PACKET_ACTION=DROP
+create acl_entry datai TABLE_ID=ti PRIORITY=1 ADMIN_STATE=true ACTION_PACKET_ACTION=DROP
+# an SA before its flow is bound: kept, nothing on the bus
+create macsec_sa sae0 MACSEC_DIRECTION=EGRESS SC_ID=sce AN=0 CONFIGURED_EGRESS_XPN=7 SAK=00000000000000000000000000000000c0c1c2c3c4c5c6c7c8c9cacbcccdcecf AUTH_KEY=808182838485868788898a8b8c8d8e8f
+get macsec_sa sae0 CURRENT_XPN
+set acl_entry datae ACTION_MACSEC_FLOW=fe
+set acl_entry datae ACTION_PACKET_ACTION=off
+# rekey: AN 1 goes in, AN 0 goes
+create macsec_sa sae1 MACSEC_DIRECTION=EGRESS SC_ID=sce AN=1 CONFIGURED_EGRESS_XPN=1 SAK=00000000000000000000000000000000c1c2c3c4c5c6c7c8c9cacbcccdcecfd0 AUTH_KEY=808182838485868788898a8b8c8d8e8f
+create macsec_sa sae9 MACSEC_DIRECTION=EGRESS SC_ID=sce AN=1 CONFIGURED_EGRESS_XPN=1 SAK=00000000000000000000000000000000c1c2c3c4c5c6c7c8c9cacbcccdcecfd0 AUTH_KEY=808182838485868788898a8b8c8d8e8f
+get macsec_sc sce ACTIVE_EGRESS_SA_ID
+remove macsec_sa sae0
+mdio 10 1 402 5
+stats macsec_sa sae1 OUT_PKTS_ENCRYPTED
+mdio 10 1 402 3
+mdio 10 1 403 1
+stats macsec_sa sae1 OUT_PKTS_ENCRYPTED OCTETS_ENCRYPTED
+mdio 10 1 4f0 9
+stats macsec_flow fe CONTROL_PKTS
+stats macsec_flow fe CONTROL_PKTS
+mdio 10 1 504 2222
+mdio 10 1 505 1111
+mdio 10 1 506 ffff
+get macsec_sa sae1 CURRENT_XPN
+get macsec_sa sae1 SAK
+set macsec_sa sae1 CONFIGURED_EGRESS_XPN=5
+set macsec_sc sce MACSEC_CIPHER_SUITE=GCM_AES_256
+clear macsec_flow fe CONTROL_PKTS
+clear macsec_sa sae1 OUT_PKTS_ENCRYPTED
+# ingress: the flow is active first, the SA goes in at once (XPN-256, replay protection)
+set acl_entry datai ACTION_MACSEC_FLOW=fi
+set acl_entry datai ACTION_PACKET_ACTION=off
+create macsec_sa sai0 MACSEC_DIRECTION=INGRESS SC_ID=sci AN=0 MINIMUM_INGRESS_XPN=1 SAK=c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf AUTH_KEY=808182838485868788898a8b8c8d8e8f SALT=505152535455565758595a5b MACSEC_SSCI=0x01020304
+set macsec_sa sai0 MINIMUM_INGRESS_XPN=100
+stats macsec_sa sai0 IN_PKTS_OK
+# teardown, in MACsecOrch's order
+remove macsec_sa sai0
+remove macsec_sa sae1
+set acl_entry datae ACTION_MACSEC_FLOW=off
+set acl_entry datai ACTION_MACSEC_FLOW=off
+remove acl_entry datae
+remove acl_entry datai
+remove macsec_sc sce
+remove macsec_sc sci
+remove macsec_flow fe
+remove macsec_flow fi
+set port port0 EGRESS_MACSEC_ACL=null
+set port port0 INGRESS_MACSEC_ACL=null
+remove acl_entry eapole
+remove acl_entry eapoli
+remove acl_table te
+remove acl_table ti
+remove macsec_port mpe
+remove macsec_port mpi
+remove macsec me
+remove macsec mi
+remove_switch

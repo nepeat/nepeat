@@ -149,6 +149,7 @@ fn auth_key_policy_verify_refuses_a_hash_key_that_is_not_the_saks() {
             auth_key: AuthKeyPolicy::Verify,
             log: None,
             alloc: None,
+            engines_on_at_stop: false,
         };
         let mut w = World::with(&ms_table(true, true), options).unwrap();
         w.phy.reg(0x10, 0x20f, 1);
@@ -498,47 +499,59 @@ fn q4_a_failed_install_at_bind_time_is_kept_and_retried() {
     );
 }
 
-/// Q10: the cipher suite of an SC can change while SAs wait for their flow to be bound (only
-/// installed SAs fix it). A waiting SA keeps the key bytes cut for the suite it was created
-/// under.
+/// D10 (Q10 fixed): the cipher suite of an SC cannot change while SAs wait for their flow (they
+/// keep the key bytes cut for the suite they were created under), as it cannot under installed
+/// ones. Without SAs it can.
 #[test]
-fn q10_a_cipher_suite_change_under_waiting_sas() {
+fn d10_no_cipher_suite_change_under_waiting_sas() {
     let mut w = good();
     let b = bound(&mut w, 0, EGR, AES128, None);
     let entry_admin = |on| boolean(sys::SAI_ACL_ENTRY_ATTR_ADMIN_STATE, on);
     let cipher = |c: u32| en(sys::SAI_MACSEC_SC_ATTR_MACSEC_CIPHER_SUITE, e(c));
     w.m.set_acl_entry(&mut w.phy, b.entry, &entry_admin(false)).unwrap();
-    // created under gcm-aes-128: 16 key bytes kept. Then the SC becomes gcm-aes-256.
+    // created under gcm-aes-128 (16 key bytes kept): the SC stays gcm-aes-128
     let a =
         w.m.create_sa(&mut w.phy, &sa_attrs(EGR, b.sc.raw(), 0, false, false, 1))
             .unwrap();
-    w.m.set_sc(b.sc, &cipher(sys::SAI_MACSEC_CIPHER_SUITE_GCM_AES_256))
-        .unwrap();
-    w.m.set_acl_entry(&mut w.phy, b.entry, &entry_admin(true)).unwrap();
-    assert!(w.phy.log_take().is_empty()); // the runner refused: the 256-bit sequence wants key[31]
-    let state = w.m.engine_state(w.key(0), Dir::Egress).unwrap();
-    assert!(
-        state.last_fail.starts_with("sa-add-first.egress.0.gcm-aes-256: "),
-        "{}",
-        state.last_fail
-    );
-    assert_eq!(w.m.sa_installed(a), Some(false));
-    w.m.remove_sa(&mut w.phy, a).unwrap();
-    // created under gcm-aes-256 (32 key bytes kept), installed as gcm-aes-128: the sequence takes
-    // key[0..16], the FIRST half, where SAI puts a 128-bit SAK in the last 16 bytes
-    w.m.set_acl_entry(&mut w.phy, b.entry, &entry_admin(false)).unwrap();
-    let a =
-        w.m.create_sa(&mut w.phy, &sa_attrs(EGR, b.sc.raw(), 0, true, false, 1))
-            .unwrap();
-    w.m.set_sc(b.sc, &cipher(AES128)).unwrap();
-    w.phy.runs_take();
+    for other in [
+        sys::SAI_MACSEC_CIPHER_SUITE_GCM_AES_256,
+        sys::SAI_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128,
+        sys::SAI_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256,
+    ] {
+        assert_eq!(w.m.set_sc(b.sc, &cipher(other)), Err(Error::ObjectInUse));
+    }
+    w.m.set_sc(b.sc, &cipher(AES128)).unwrap(); // the same suite: no change
     w.m.set_acl_entry(&mut w.phy, b.entry, &entry_admin(true)).unwrap();
     assert_eq!(w.m.sa_installed(a), Some(true));
     assert_eq!(
         w.phy.writes(),
         "200=100 201=c1c0 202=cfce 203=8f80 204=108 205=1 206=0 207=0 120=1"
     );
-    assert_eq!(w.phy.runs_take()[0].param("key").len(), 64);
+    w.m.remove_sa(&mut w.phy, a).unwrap();
+    // no SA left: the suite may change again
+    w.m.set_sc(b.sc, &cipher(sys::SAI_MACSEC_CIPHER_SUITE_GCM_AES_256))
+        .unwrap();
+    // created under gcm-aes-256 while waiting: 128 is refused (the C++ would install key[0..16])
+    w.m.set_acl_entry(&mut w.phy, b.entry, &entry_admin(false)).unwrap();
+    w.phy.log_take();
+    w.phy.runs_take();
+    let a =
+        w.m.create_sa(&mut w.phy, &sa_attrs(EGR, b.sc.raw(), 0, true, false, 1))
+            .unwrap();
+    assert_eq!(w.m.set_sc(b.sc, &cipher(AES128)), Err(Error::ObjectInUse));
+    w.m.set_acl_entry(&mut w.phy, b.entry, &entry_admin(true)).unwrap();
+    assert_eq!(w.m.sa_installed(a), Some(true));
+    assert_eq!(
+        w.phy
+            .runs_take()
+            .iter()
+            .find(|r| r.name.starts_with("sa-add"))
+            .unwrap()
+            .param("key")
+            .len(),
+        64
+    );
+    w.m.check_invariants().unwrap();
 }
 
 #[test]
@@ -632,8 +645,10 @@ fn detach_forgets_everything_and_runs_nothing() {
 
 // ------------------------------------------------------------------ one SC per port; flows that move
 
+/// D9 (Q7 fixed): when the entry sends the port's data to another flow, the old SC's SAs come
+/// out of the PHY (gate closed first), so the new SC gets the AN and the gate opens only for it.
 #[test]
-fn an_association_number_held_by_another_sc_is_insufficient_resources() {
+fn d9_a_flow_switch_takes_the_old_scs_sas_out() {
     let mut w = good();
     let b = bound(&mut w, 0, EGR, AES128, None);
     let a0 = sa(&mut w, EGR, b.sc, 0).unwrap();
@@ -642,25 +657,43 @@ fn an_association_number_held_by_another_sc_is_insufficient_resources() {
         w.m.create_flow(&[en(sys::SAI_MACSEC_FLOW_ATTR_MACSEC_DIRECTION, EGR)])
             .unwrap();
     let sc2 = w.m.create_sc(&sc_attrs(EGR, flow2, AES128, None)).unwrap();
+    w.phy.names_take();
     w.m.set_acl_entry(
         &mut w.phy,
         b.entry,
         &action_oid(sys::SAI_ACL_ENTRY_ATTR_ACTION_MACSEC_FLOW, true, flow2.raw()),
     )
     .unwrap();
-    w.phy.log_take();
-    assert_eq!(sa(&mut w, EGR, sc2, 0), Err(Error::InsufficientResources));
-    assert!(w.phy.log_take().is_empty());
-    assert_eq!(w.m.counts().sas, 1);
-    // Q7: the first SC's SA is still in the PHY and the gate is still open for the new flow
+    assert_eq!(w.phy.names_take(), ["gate-close.egress", "sa-del-last.egress.0"]);
     let state = w.m.engine_state(w.key(0), Dir::Egress).unwrap();
-    assert_eq!((state.sa[0], state.gate), (Some(a0), true));
-    // Q8: a free AN installs, and the first SC now reports the other SC's SA as its transmitting one
-    let other = sa(&mut w, EGR, sc2, 1).unwrap();
+    assert_eq!((state.sa[0], state.gate), (None, false));
+    assert_eq!(w.m.sa_installed(a0), Some(false));
+    assert!(
+        w.log_text()
+            .contains("port ce0: egress SA AN 0 of another flow's SC taken out")
+    );
+    // the new SC's SA on the same AN goes in as the first of its SC, then the gate opens
+    let other = sa(&mut w, EGR, sc2, 0).unwrap();
+    assert_eq!(
+        w.phy.names_take(),
+        ["sa-add-first.egress.0.gcm-aes-128", "gate-open.egress"]
+    );
+    // Q8 (kept): the first SC reports the other SC's SA as its transmitting one (its `hw`)
     let active =
         w.m.get_sc(b.sc, &[sys::SAI_MACSEC_SC_ATTR_ACTIVE_EGRESS_SA_ID])
             .unwrap();
     assert!(matches!(active[0], Value::Oid(o) if o == other.raw()), "{active:?}");
+    // back to the first flow: the second SC's SA comes out; the first SC's old SA lost its key
+    // when it was installed (as Q3), so it cannot go back in: the gate stays closed
+    w.m.set_acl_entry(
+        &mut w.phy,
+        b.entry,
+        &action_oid(sys::SAI_ACL_ENTRY_ATTR_ACTION_MACSEC_FLOW, true, b.flow.raw()),
+    )
+    .unwrap();
+    let names = w.phy.names_take();
+    assert_eq!(&names[..2], ["gate-close.egress", "sa-del-last.egress.0"]);
+    assert!(!w.m.engine_state(w.key(0), Dir::Egress).unwrap().gate);
     w.m.check_invariants().unwrap();
 }
 

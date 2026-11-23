@@ -15,8 +15,15 @@ crate-type = ["cdylib", "rlib"]
 sai-sys.workspace = true
 sai-meta.workspace = true
 sai-core.workspace = true
+# the MACsec model behind the core's seam (src/macsec.rs; registered at sai_api_initialize)
+sai-macsec-phy.workspace = true
+# the diag socket's server (src/diag.rs); libc for its SO_PEERCRED read
+sai-diag.workspace = true
+libc.workspace = true
 # only with the feature "openbcm" (path, not a workspace entry: nothing else depends on it)
 sai-backend-openbcm = { path = "../sai-backend-openbcm", optional = true }
+# only with the feature "test-port" (path, not a workspace entry: only the test build uses it)
+sai-test-port = { path = "../sai-test-port", optional = true }
 
 [features]
 # the hardware backend (Broadcom SDK through the C glue): see src/backends.rs, crate
@@ -27,6 +34,9 @@ openbcm = ["dep:sai-backend-openbcm"]
 openbcm-real = ["openbcm", "sai-backend-openbcm/real"]
 # the in-memory fake glue: the openbcm code path without a chip (smoke program's self-test)
 openbcm-fake = ["openbcm", "sai-backend-openbcm/fake"]
+# sai_rs_test_query, the test-only export the C++ suite's test port uses (src/test_port.rs,
+# crate sai-test-port); never in a production library
+test-port = ["dep:sai-test-port", "sai-core/testing"]
 
 [lints]
 workspace = true

@@ -28,6 +28,10 @@ pub struct Store {
     objects: BTreeMap<RawOid, Entry>,
     entries: BTreeMap<EntryKey, Kept>,
     next_index: BTreeMap<ObjectType, u64>,
+    /// Neighbor and route entries, the switch's my-station entry ([`crate::l3`]).
+    pub(crate) l3: crate::l3::L3Tables,
+    /// The external PHY runtime and the `MACsec` model ([`crate::extphy`], [`crate::macsec`]).
+    ext: crate::extphy::External,
 }
 
 /// What an entry refers to: the object in its key and the objects its attributes name.
@@ -261,9 +265,30 @@ impl Store {
         self.objects.get(&raw).map_or(0, |e| e.referrers)
     }
 
+    /// The ids of every stored object of one type, in id order, whatever its stored form (the
+    /// dump counts and lists objects by type).
+    pub fn ids(&self, object_type: ObjectType) -> impl Iterator<Item = RawOid> + '_ {
+        self.objects.range(object_type.id_range()).map(|(raw, _)| *raw)
+    }
+
+    /// The switch's external PHY runtime and `MACsec` model.
+    pub fn ext(&self) -> &crate::extphy::External {
+        &self.ext
+    }
+
+    /// The same, mutably (switch creation puts the attached state here).
+    pub(crate) fn ext_mut(&mut self) -> &mut crate::extphy::External {
+        &mut self.ext
+    }
+
     /// Number of stored objects (entries not counted).
     pub fn len(&self) -> usize {
         self.objects.len()
+    }
+
+    /// Number of stored objects of one type, whatever their representation.
+    pub fn count_of(&self, object_type: ObjectType) -> usize {
+        self.objects.range(object_type.id_range()).count()
     }
 
     /// Whether the store is empty.
@@ -344,18 +369,11 @@ impl Store {
 mod tests {
     use super::*;
     use crate::backend::{HwPort, Vid};
-    use crate::model::{Bridge, BridgePort, Kept, Port, PortKind, Vlan, VlanMember};
+    use crate::model::{Attach, Bridge, BridgePort, FdbLearning, Kept, Port, Tagging, Vlan, VlanMember};
     use crate::oid::{BridgePortId, PortId, VlanId};
 
     fn port(hw: u16) -> Port {
-        Port {
-            hw: HwPort(hw),
-            kind: PortKind::Front { lanes: vec![1] },
-            admin: false,
-            speed: 1000,
-            oper_up: false,
-            kept: Kept::new(),
-        }
+        Port::front(HwPort(hw), vec![1], 1000, format!("xe{hw}"))
     }
 
     #[test]
@@ -368,8 +386,9 @@ mod tests {
         let bp = s
             .insert(BridgePort {
                 bridge,
-                port: p,
+                attach: Attach::Port(p),
                 admin: true,
+                learn: FdbLearning::Hw,
                 kept: Kept::new(),
             })
             .unwrap();
@@ -383,7 +402,7 @@ mod tests {
             .insert(VlanMember {
                 vlan,
                 bridge_port: bp,
-                untagged: true,
+                tagging: Tagging::Untagged,
             })
             .unwrap();
         s.check_invariants().unwrap();
@@ -412,7 +431,7 @@ mod tests {
             s.insert(VlanMember {
                 vlan,
                 bridge_port: bp,
-                untagged: true
+                tagging: Tagging::Untagged
             })
             .unwrap_err(),
             Error::InvalidObjectId
@@ -421,7 +440,7 @@ mod tests {
             s.insert(VlanMember {
                 vlan: vlan2,
                 bridge_port: BridgePortId::from_index(99),
-                untagged: true
+                tagging: Tagging::Untagged
             })
             .unwrap_err(),
             Error::InvalidObjectId
@@ -441,21 +460,23 @@ mod tests {
         let bp = s
             .insert(BridgePort {
                 bridge,
-                port: p1,
+                attach: Attach::Port(p1),
                 admin: true,
+                learn: FdbLearning::Hw,
                 kept: Kept::new(),
             })
             .unwrap();
-        s.update::<BridgePort, _>(bp, |b| b.port = p2).unwrap();
+        s.update::<BridgePort, _>(bp, |b| b.attach = Attach::Port(p2)).unwrap();
         s.check_invariants().unwrap();
         s.remove::<Port>(p1).unwrap();
         assert_eq!(s.remove::<Port>(p2).unwrap_err(), Error::ObjectInUse);
         // a change to a missing target is refused and undone
         assert_eq!(
-            s.update::<BridgePort, _>(bp, |b| b.port = p1).unwrap_err(),
+            s.update::<BridgePort, _>(bp, |b| b.attach = Attach::Port(p1))
+                .unwrap_err(),
             Error::InvalidObjectId
         );
-        assert_eq!(s.get::<BridgePort>(bp).unwrap().port, p2);
+        assert_eq!(s.get::<BridgePort>(bp).unwrap().attach, Attach::Port(p2));
         s.check_invariants().unwrap();
     }
 }

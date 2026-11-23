@@ -4,6 +4,7 @@
 # The caller passes the SONiC package set (this tree does not know where it lives):
 #   import ./test-syncd.nix { pkgs = p; sonic = <ai_re sonic set>; libsai = <./package.nix>; }
 # ai_re: target "vm-sai-rs-syncd" (just test-vm -k sai-rs). What it shows: ../README.md, "syncd".
+# The profile uses the Rust alias (SAI_RS_BACKEND=virtual); vm-sai-rs-syncd-parity the C++ key.
 { pkgs
 , sonic
 , libsai
@@ -15,6 +16,7 @@ let
   pythonPath = "${sairedis}/${site}/sairedis:${sonic.swss-common}/${site}";
   profile = pkgs.writeText "sai-rs-virtual.profile" ''
     SAI_RS_BACKEND=virtual
+    SAI_OPENBCM_LOG_STDERR=1
   '';
   smoke = ./sai_slice_smoke.py;
 in
@@ -69,7 +71,7 @@ pkgs.testers.runNixOSTest {
     got = {k: count(k) for k in expected}
     assert got == expected, got
     assert "SMOKE_OK" in out, out
-    assert "VIRTUAL backend selected" in machine.succeed("cat /tmp/syncd.txt")
+    assert "FAKE backend selected" in machine.succeed("cat /tmp/syncd.txt")   # the C++ line
     assert "port0_oper_up_notified" in out, out
     machine.succeed("grep -q port_state_change /tmp/notifications.txt")
     machine.succeed("systemctl stop syncd")

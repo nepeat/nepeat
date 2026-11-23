@@ -25,7 +25,9 @@ let
   ws = ../.;
   manifest = lib.importTOML ../Cargo.toml;
   own = [ "sai-macsec" "sai-macsec-phy" "sai-macsec-capi" ];
-  deps = [ "sai-sys" "sai-meta" "sai-core" "tap-netdev" "phy-seq" "phy-seq-capi" "mdio-script" ];
+  # every workspace crate the three reach through path dependencies (dev-dependencies included:
+  # cargo loads their manifests too); a new dependency of sai-core must be added here
+  deps = [ "mdio-report" "mdio-script" "mdio-tool" "phy-seq" "phy-seq-capi" "sai-core" "sai-diag" "sai-extphy" "sai-meta" "sai-sys" "sdk-glue" "sdk-glue-sys" "tap-netdev" ];
   crate = name: lib.fileset.fileFilter (f: f.hasExt "rs" || f.hasExt "h" || f.hasExt "cpp" || f.name == "Cargo.toml") (ws + "/crates/${name}");
   flags = lib.concatMap (c: [ "-p" c ]) own;
   native = stdenv.buildPlatform.canExecute stdenv.hostPlatform;
