@@ -1,0 +1,119 @@
+# step 3: link gate after step 2 (d2) and after 5 idle minutes (no tool, no test); openbcm-diag extphy (counter lines)
+# histogram buckets: <=500 / <=2000 / <=10000 / <=100000 / more us, then max us; W = waits for a library run before a poll (only after 3 busy in a row)
+after step 2 (20:07:00 PST): {"lease":5892,"behindRun":208,"hist":[20270,14,0,0,0,1085],"W":0,"Wmax":0}
+after 5 idle min:            {"lease":5892,"behindRun":228,"hist":[23050,16,0,0,0,1085],"W":0,"Wmax":0}
+busy by cause: during a lease 2953 -> 5892 over d2 (phystat transactions), +0 idle; behind a library run 132 -> 208 over d2 (SA installs / stats runs of the rekey), 208 -> 228 idle (periodic MACsec stats / PN runs)
+boot (b3, gen 33, 160 s after boot): behind a library run 10, W 0, histogram 289 / 0 / 0 / 0 / 0, max 345 us
+result: the gate never waited (W 0, max 0 us; G7 had 72-89 ms on every boot), longest gate time per poll 1085 us (lock + poll), 0 polls above 2 ms; busy answers present during SA installs. PASS
+# ---------------- after step 2
+== 2026-11-24T04:06:59.968042559Z / 2026-11-23T20:06:59-08:00
+current /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+booted  /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+profile system-33-link -> /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+kernel 7.3.4; uptime 3112.84 s
+== fan
+as7760_fan             28672  0
+hwmon /sys/class/hwmon/hwmon7 driver as7760_fan fan1_input=17000 pwm1=170
+fand active
+failsafe False {'asic': ('normal', 44.700000000000003, 53.299999999999997), 'board': ('normal', 35.5, 61.5), 'cpu': ('normal', 41.0, 53.299999999999997)}
+== units
+failed: 0
+sonic-nix-apply active/exited result=success
+sonic-nix-watch active/running result=success
+openbcm-mdio-script active/exited result=success
+sonic-syncd active/running result=success
+sonic-orchagent active/running result=success
+sonic-macsecmgrd active/running result=success
+-- sonic-nix-apply journal (this boot)
+Nov 23 19:15:26.641140 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 19:15:27.238203 as7772 sonic-nix[581]: sonic-nix apply: 0 field(s) written
+Nov 23 19:15:27.408407 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+== PHY bring-up
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 101.3 s
+  run started 2026-11-24 03:15:23 +0000, took 101.3 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 98.8 s (553600 writes, 426959 reads, 15799 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 43.3 C, 0 failed, longest read 0.13 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+== libsai in syncd
+/nix/store/9ykrpgxmwcracl2xwbwnxs7j1q8wx557-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+== extphy (counters)
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 30354 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+ce0         49   50 up    up    no     0x0003     4975        0    1     0     188     207    1080     2    0        7415
+ce1         53   54 up    up    no     0x0003     5105        0    1     0     205     204     481     2    0        8552
+ce30         9    9 up    up    no     0x0003     5103        0    1     0     325     216     646     2    0        7331
+ce31        13   13 up    up    no     0x0003     5101        0    1     0     188     209     498     2    0        9059
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 30221, ended 30220, expired 1; raw MDIO hold-offs 133; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 5892, behind a library run 208; waits for a library run before a poll 0 (after 3 busy in a row; max 0 us, total 0 us)
+extphy: link gate time per poll (us): <=500 20270, <=2000 14, <=10000 0, <=100000 0, more 0; max 1085
+extphy: MACsec polls skipped during a lease 4150; forced reads after 10000 ms 426 (max wait 0 us); MACsec / admin runs and SAI calls that waited for a transaction 700 (max 72628 us); extmacsec run refused 0
+extphy: SAI calls that waited for a transaction outside the SAI lock 701; waits under the SAI lock 0
+== extmacsec
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+ce30      17e  egress  on     open   sa  -   -   -   0    3272     0   82067 
+ce30      17e  ingress on     open   sa  -   -   -        3585     0   90836 
+ce31      17f  egress  on     open   sa  -   -   -   0    3435     0   82239 
+ce31      17f  ingress on     open   sa  -   -   -        3825     0   92794 
+ce0         0  egress  on     open   sa  -   -   -   0    3239     0   82114 
+ce0         0  ingress on     open   sa  -   -   -        3541     0   91170 
+ce1         1  egress  on     open   sa  -   -   -   0    3420     0   84084 
+ce1         1  ingress on     open   sa  -   -   -        3811     0   91597 
+engines in bypass: 56 of 64
+# ---------------- after 5 idle minutes
+== 2026-11-24T04:12:57.497218611Z / 2026-11-23T20:12:57-08:00
+current /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+booted  /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+profile system-33-link -> /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+kernel 7.3.4; uptime 3470.37 s
+== fan
+as7760_fan             28672  0
+hwmon /sys/class/hwmon/hwmon7 driver as7760_fan fan1_input=17000 pwm1=170
+fand active
+failsafe False {'asic': ('normal', 46.700000000000003, 53.299999999999997), 'board': ('normal', 36.5, 61.5), 'cpu': ('normal', 40.0, 53.299999999999997)}
+== units
+failed: 0
+sonic-nix-apply active/exited result=success
+sonic-nix-watch active/running result=success
+openbcm-mdio-script active/exited result=success
+sonic-syncd active/running result=success
+sonic-orchagent active/running result=success
+sonic-macsecmgrd active/running result=success
+-- sonic-nix-apply journal (this boot)
+Nov 23 19:15:26.641140 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 19:15:27.238203 as7772 sonic-nix[581]: sonic-nix apply: 0 field(s) written
+Nov 23 19:15:27.408407 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+== PHY bring-up
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 101.3 s
+  run started 2026-11-24 03:15:23 +0000, took 101.3 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 98.8 s (553600 writes, 426959 reads, 15799 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 43.3 C, 0 failed, longest read 0.13 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+== libsai in syncd
+/nix/store/9ykrpgxmwcracl2xwbwnxs7j1q8wx557-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+== extphy (counters)
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 30354 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+ce0         49   50 up    up    no     0x0003     5670        0    1     0     309     207    1080     2    0        7415
+ce1         53   54 up    up    no     0x0003     5801        0    1     0     188     204     611     2    0        8552
+ce30         9    9 up    up    no     0x0003     5799        0    1     0     204     215     646     2    0        7331
+ce31        13   13 up    up    no     0x0003     5796        0    1     0     206     208     498     2    0        9059
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 30221, ended 30220, expired 1; raw MDIO hold-offs 133; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 5892, behind a library run 228; waits for a library run before a poll 0 (after 3 busy in a row; max 0 us, total 0 us)
+extphy: link gate time per poll (us): <=500 23050, <=2000 16, <=10000 0, <=100000 0, more 0; max 1085
+extphy: MACsec polls skipped during a lease 4150; forced reads after 10000 ms 426 (max wait 0 us); MACsec / admin runs and SAI calls that waited for a transaction 700 (max 72628 us); extmacsec run refused 0
+extphy: SAI calls that waited for a transaction outside the SAI lock 701; waits under the SAI lock 0
+== extmacsec
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+ce30      17e  egress  on     open   sa  -   -   -   0    3664     0   82067 
+ce30      17e  ingress on     open   sa  -   -   -        3977     0   90836 
+ce31      17f  egress  on     open   sa  -   -   -   0    3827     0   82239 
+ce31      17f  ingress on     open   sa  -   -   -        4217     0   92794 
+ce0         0  egress  on     open   sa  -   -   -   0    3631     0   82114 
+ce0         0  ingress on     open   sa  -   -   -        3933     0   91170 
+ce1         1  egress  on     open   sa  -   -   -   0    3812     0   84084 
+ce1         1  ingress on     open   sa  -   -   -        4203     0   91597 
+engines in bypass: 56 of 64

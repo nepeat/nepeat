@@ -1,0 +1,174 @@
+# step 1: closure diff, running gen 32 vs the 7aba11f build (nix build git+file:///home/erin/nepeat?dir=ai_re&rev=7aba11f119bf32842597a38b3feb3c2014f198e8#nixosConfigurations.as7772.config.system.build.toplevel)
+OLD /nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+NEW /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+# kernel / modules / initrd (old, then new)
+/nix/store/8paw4bmx6zlzqm5fqw93c8vg4cm5h1y2-linux-powerpc64-unknown-linux-gnuabielfv2-7.3.4/uImage
+/nix/store/bn7107pl412zy9p980giin4brxq4wjz1-linux-powerpc64-unknown-linux-gnuabielfv2-7.3.4-modules
+/nix/store/sgyicdf1gnm8pbv6lryqh5l9rq2y42gf-initrd-linux-powerpc64-unknown-linux-gnuabielfv2-7.3.4/initrd
+/nix/store/8paw4bmx6zlzqm5fqw93c8vg4cm5h1y2-linux-powerpc64-unknown-linux-gnuabielfv2-7.3.4/uImage
+/nix/store/bn7107pl412zy9p980giin4brxq4wjz1-linux-powerpc64-unknown-linux-gnuabielfv2-7.3.4-modules
+/nix/store/sgyicdf1gnm8pbv6lryqh5l9rq2y42gf-initrd-linux-powerpc64-unknown-linux-gnuabielfv2-7.3.4/initrd
+# nix store diff-closures
+sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2: 111.5 KiB
+# store paths only in one closure (comm -3; tab = new)
+/nix/store/1aamasqxrkzdd1c0md4x9naqw10vxrv3-dbus-1
+/nix/store/1vllsly340629ibp1g2cas50q7yykakv-X-Restart-Triggers-systemd-tmpfiles-resetup
+	/nix/store/42nx1z5j3jg5jwy7xsq8yapw94saxr9h-unit-sonic-nix-apply.service
+	/nix/store/4hjgl12px3f3jkka8i3mjknlp83kjgrh-unit-sonic-nix-watch.service
+	/nix/store/56n3jkg5fzn1cf8m0kvs43zrg0r9m4jg-unit-sonic-config-loader.service
+/nix/store/5f8rslhv4qv8sfnwl6083kddmn2lja07-as7772-ext-macsec.tbl
+	/nix/store/5ghxvm5f5w0frc8xn1f63qbj2xxjmwxc-as7772-ext-macsec.tbl
+	/nix/store/5izfarxb8aqv9i3dby4hjhafpp4y5yms-unit-dbus-broker.service
+	/nix/store/6lygdag8jqq3ld3lyld8vpzqwkpma1z2-unit-sonic-syncd.service
+/nix/store/711gsdwbz2pihn175k7rjgxsbffkbbgg-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c
+	/nix/store/7wczi5zgcrgpaibyamvz2jnldd2xwqy0-X-Restart-Triggers-systemd-tmpfiles-resetup
+	/nix/store/87al5n9cqimb5hhc0x4pinhafrjyxylj-dbus-1
+/nix/store/8jdn4qi5inb2haspan6m79cddxpd5hri-unit-sonic-syncd.service
+/nix/store/8vaasrdzr33z35y6hp9vfmsh61llc9k0-sonic-share-Accton-AS7772-32X
+/nix/store/9sb413fvf44n1rggdsbkp973yi3azaa5-sonic-nix.py
+	/nix/store/9ykrpgxmwcracl2xwbwnxs7j1q8wx557-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+/nix/store/a13sg2751jjns7cjcqcic1kl8w7pl578-sonic-nix
+	/nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+/nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+	/nix/store/cmp5asbw48hfs4anmgndzhvg8cxclcfg-sai.profile
+	/nix/store/d5daqgv8j7a50zfxsf418fqwvp3ckwyj-phy-status
+	/nix/store/drifsljrwiadkassn38zp6kidphwglnh-user-units
+/nix/store/dzzrhrcpdm5xpbbfvy2whmsj8ivz0jvy-system-units
+/nix/store/g3jhdhqv9bbvk51w8xha7kh43mp9k2hl-unit-dbus-broker.service
+/nix/store/hhyvxq005s02p59avx8vz79g65fzp8qf-phy-status
+	/nix/store/hvd75ha53al2mm30la2dcina2h9qr9gc-sonic-nix-diff
+	/nix/store/j1m7lyaxwncybs405zgyrkn6is1lgn6y-system-units
+	/nix/store/j5j8nvv5gc94k5ykrawn8d0x8sgb6jxb-as7772-ext-phy.tbl
+	/nix/store/jvdr1vikxl3ryvrjwa8l1yvvr9sr2sby-X-Restart-Triggers-dbus-broker
+	/nix/store/kma0d4ldb5ba29wnzbgqf6byyd7fqk9h-sonic-nix
+	/nix/store/ldq055wlb1llhcqc4xnn98562aqjfqzy-unit-systemd-tmpfiles-resetup.service
+	/nix/store/n8gzn7b6bb82jjzfawb4zqrnhc7k856m-unit-dbus-broker.service
+/nix/store/ndh6sq4s8acsfsp3wx2r192047d9n7jg-unit-sonic-nix-apply.service
+	/nix/store/nl0knz4mfdb8szfwihi07k4j40yvxz68-etc
+/nix/store/pvg2c84dxfn92xqj7f3bfawwdinfiyxv-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+/nix/store/q2lhqhz0a1417x6xgagdgfs5jf4g6yzg-sonic-nix-diff
+/nix/store/q4r1nlvq54pyj1isaifn2mcrjmq6yj2k-unit-sonic-config-loader.service
+/nix/store/q6xvwgkxi963a8iyb473h4nwk2ix3pd1-unit-sonic-nix-watch.service
+	/nix/store/q8s38a82bx6hzrq5hdbscmsdcf5qdkrj-nixos-tmpfiles.d
+	/nix/store/r3xn2sc2fnza77qryli6jwb0r3pkrb31-unit-openbcm-asic-temp.service
+/nix/store/r7dmfm8bv1ywh2d6m75y8iy5n8n5jh82-X-Restart-Triggers-dbus-broker
+/nix/store/rck8x7rh7kdm9hz0hy1rfb4zrzdigdkv-unit-dbus-broker.service
+/nix/store/s5bidgb3gcig1drwd1wmzpxfyimd9cfm-sai.profile
+/nix/store/vcsif5wzw6v1djfp7ivf7z3gi5d523k5-user-units
+	/nix/store/vfa7x6can2rcvixgzf8ylqxxykv0j8im-unit-openbcm-mdio-script.service
+/nix/store/vk48xzwh46jjczqmyx1y61gd9j0xlibf-etc
+	/nix/store/vx9x1v8svhgsmmj1cxiqb1v9xrqsd8jp-sonic-share-Accton-AS7772-32X
+/nix/store/w5lk2asv3akahsk59js31avzh2br3y1b-system-path
+	/nix/store/wbx5yjfd9xz39nqn89agr15ghb7j8mja-system-path
+/nix/store/wh44fha0y78kfilfsmlfskiislnhin02-unit-openbcm-asic-temp.service
+	/nix/store/xr5a3njl7fig85rrfnx7psk1n2ph2b1s-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c
+/nix/store/y3bwwc8i29x08ysxq5zvp5ddq3h14rpc-nixos-tmpfiles.d
+	/nix/store/yfbfw5gz6rmcv6faaq8lf9xj2ka7b84d-tmpfiles.d
+/nix/store/ylbn4i7phr4m02xm7jlhgdhdicq49225-as7772-ext-phy.tbl
+	/nix/store/z4s5i8rszaxqqpinlw6c8v18h45ak65h-sonic-nix.py
+/nix/store/z54badns6a9rcfkn61l11lgi93fygciz-unit-systemd-tmpfiles-resetup.service
+/nix/store/z5kl80ny4slz6271vj2pajqblvngivp3-unit-openbcm-mdio-script.service
+/nix/store/zxf257gk033csrs525a7fg3axxkmqr25-tmpfiles.d
+# pairwise by name, contents compared after mapping every old->new hash of the pairs above (sed); "same" = identical modulo the changed dependencies
+dbus-1: identical modulo changed deps
+X-Restart-Triggers-systemd-tmpfiles-resetup: identical modulo changed deps
+as7772-ext-macsec.tbl: identical modulo changed deps
+sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c: identical modulo changed deps
+unit-sonic-syncd.service: identical modulo changed deps
+sonic-share-Accton-AS7772-32X: identical modulo changed deps
+sonic-nix.py: 241,244c241,251
+<     tmp = path + ".tmp"
+<     with open(tmp, "w") as f:
+<         f.write(text)
+<     os.replace(tmp, path)
+---
+>     # A name of this process's own: sonic-nix-apply and sonic-nix-watch write the same files and
+>     # can start in the same second; with one shared ".tmp" one renamed it away under the other
+>     # (FileNotFoundError at boot, AS7772 2026-11-23).
+>     tmp = "%s.%d.tmp" % (path, os.getpid())
+>     try:
+>         with open(tmp, "w") as f:
+>             f.write(text)
+>         os.replace(tmp, path)
+>     finally:
+>         if os.path.exists(tmp):
+>             os.unlink(tmp)
+sonic-nix: identical modulo changed deps
+system-units: identical modulo changed deps
+unit-dbus-broker.service: UNPAIRED 2
+phy-status: identical modulo changed deps
+unit-sonic-nix-apply.service: identical modulo changed deps
+sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0: DIFF ./bin/openbcm-asic-temp
+DIFF ./lib/libsai.so.1.0.0
+DIFF ./share/sai-rs/libsai-openbcm.txt
+sonic-nix-diff: identical modulo changed deps
+unit-sonic-config-loader.service: identical modulo changed deps
+unit-sonic-nix-watch.service: identical modulo changed deps
+X-Restart-Triggers-dbus-broker: identical modulo changed deps
+sai.profile: identical modulo changed deps
+user-units: identical modulo changed deps
+etc: identical modulo changed deps
+system-path: identical modulo changed deps
+unit-openbcm-asic-temp.service: identical modulo changed deps
+nixos-tmpfiles.d: identical modulo changed deps
+as7772-ext-phy.tbl: identical modulo changed deps
+unit-systemd-tmpfiles-resetup.service: identical modulo changed deps
+unit-openbcm-mdio-script.service: identical modulo changed deps
+tmpfiles.d: identical modulo changed deps
+# directory trees (names, types, symlink targets, file contents; mapped)
+dbus-1: same
+sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c: same
+unit-sonic-syncd.service: same
+sonic-share-Accton-AS7772-32X: same
+sonic-nix: same
+system-units: 15c15
+< dbus-broker.service.d/overrides.conf l /nix/store/rck8x7rh7kdm9hz0hy1rfb4zrzdigdkv-unit-dbus-broker.service/dbus-broker.service
+---
+> dbus-broker.service.d/overrides.conf l /nix/store/5izfarxb8aqv9i3dby4hjhafpp4y5yms-unit-dbus-broker.service/dbus-broker.service
+phy-status: same
+unit-sonic-nix-apply.service: same
+sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0: DIFF ./bin/openbcm-asic-temp
+DIFF ./lib/libsai.so.1.0.0
+DIFF ./share/sai-rs/libsai-openbcm.txt
+sonic-nix-diff: same
+unit-sonic-config-loader.service: same
+unit-sonic-nix-watch.service: same
+user-units: 10c10
+< dbus-broker.service.d/overrides.conf l /nix/store/g3jhdhqv9bbvk51w8xha7kh43mp9k2hl-unit-dbus-broker.service/dbus-broker.service
+---
+> dbus-broker.service.d/overrides.conf l /nix/store/n8gzn7b6bb82jjzfawb4zqrnhc7k856m-unit-dbus-broker.service/dbus-broker.service
+etc: same
+system-path: same
+unit-openbcm-asic-temp.service: same
+nixos-tmpfiles.d: same
+unit-systemd-tmpfiles-resetup.service: same
+unit-openbcm-mdio-script.service: same
+tmpfiles.d: same
+dbus g3jhdhqv->5izfarxb: sed: read error on /nix/store/g3jhdhqv9bbvk51w8xha7kh43mp9k2hl-unit-dbus-broker.service: Is a directory
+cmp: /nix/store/5izfarxb8aqv9i3dby4hjhafpp4y5yms-unit-dbus-broker.service: Is a directory
+differ
+dbus g3jhdhqv->n8gzn7b6: sed: read error on /nix/store/g3jhdhqv9bbvk51w8xha7kh43mp9k2hl-unit-dbus-broker.service: Is a directory
+cmp: /nix/store/n8gzn7b6bb82jjzfawb4zqrnhc7k856m-unit-dbus-broker.service: Is a directory
+differ
+dbus rck8x7rh->5izfarxb: sed: read error on /nix/store/rck8x7rh7kdm9hz0hy1rfb4zrzdigdkv-unit-dbus-broker.service: Is a directory
+cmp: /nix/store/5izfarxb8aqv9i3dby4hjhafpp4y5yms-unit-dbus-broker.service: Is a directory
+differ
+dbus rck8x7rh->n8gzn7b6: sed: read error on /nix/store/rck8x7rh7kdm9hz0hy1rfb4zrzdigdkv-unit-dbus-broker.service: Is a directory
+cmp: /nix/store/n8gzn7b6bb82jjzfawb4zqrnhc7k856m-unit-dbus-broker.service: Is a directory
+differ
+toplevel: DIFF ./as7760-boot/boot-prev.scr
+DIFF ./as7760-boot/boot.scr
+# dbus-broker unit pairs (two units of that name in each closure)
+g3jhdhqv->5izfarxb: DIFF ./dbus-broker.service
+g3jhdhqv->n8gzn7b6: same
+rck8x7rh->5izfarxb: same
+rck8x7rh->n8gzn7b6: DIFF ./dbus-broker.service
+bootscr: rc=0
+# ext tables: raw cmp
+macsec-tbl-bytes-identical
+phy-tbl-bytes-identical
+# sai-openbcm-rs share/sai-rs/libsai-openbcm.txt diff (mapped)
+2c2  size: 6144760 bytes -> 6258888 bytes
+# summary: changed = sai-openbcm-rs (libsai.so, openbcm-asic-temp binary, its size note) and sonic-nix.py (atomic_write: per-PID temp name);
+# everything else in the list only embeds their paths. kernel, kernel-modules (as7760_fan), initrd identical; fand not in the diff (identical);
+# ext-phy / ext-macsec tables byte-identical. Expected set: PASS.

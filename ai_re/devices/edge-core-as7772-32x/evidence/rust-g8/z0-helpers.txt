@@ -1,0 +1,106 @@
+# H6 session helpers (not in the repo). On the switch: /root/h6-state.sh, /root/h6-diagpoll.sh, /root/h6-sa-sampler.sh, /root/h6-ring5.sh (and G7's /root/h5-lat.sh, text in rust-g7 f1); on the workstation: h6-phystat-loop.sh (scratchpad)
+################ h6-state.sh
+#!/usr/bin/env bash
+# H6 session helper (not in the repo): read-only state of the AS7772. No MDIO; one openbcm-diag extphy/extmacsec read unless NODIAG=1.
+set -u
+echo "== $(date -u +%FT%T.%NZ) / $(date -Is)"
+echo "current $(readlink /run/current-system)"
+echo "booted  $(readlink /run/booted-system)"
+echo "profile $(readlink /nix/var/nix/profiles/system) -> $(readlink -f /nix/var/nix/profiles/system)"
+echo "kernel $(uname -r); uptime $(cut -d' ' -f1 /proc/uptime) s"
+echo "== fan"
+lsmod | grep -E '^as7760_fan' || echo "as7760_fan NOT LOADED"
+hw=; for d in /sys/class/hwmon/hwmon*; do [ "$(cat $d/name 2>/dev/null)" = as7760_fan ] && hw=$d; done
+if [ -n "$hw" ]; then echo "hwmon $hw driver $(basename "$(readlink -f $hw/device/driver)") fan1_input=$(cat $hw/fan1_input) pwm1=$(cat $hw/pwm1 2>/dev/null)"; else echo "NO as7760_fan hwmon (UNBOUND)"; fi
+echo "fand $(systemctl is-active fand)"
+python3 -c 'import json; s=json.load(open("/run/fand/state.json")); print("failsafe", s.get("failsafe"), {k:(v.get("state"), v.get("temperature"), v.get("duty")) for k,v in s.get("zones",{}).items()})' 2>&1
+echo "== units"
+echo "failed: $(systemctl --failed --no-legend | wc -l)"; systemctl --failed --no-legend
+for u in sonic-nix-apply sonic-nix-watch openbcm-mdio-script sonic-syncd sonic-orchagent sonic-macsecmgrd; do printf '%s %s/%s result=%s\n' $u "$(systemctl is-active $u)" "$(systemctl show -P SubState $u)" "$(systemctl show -P Result $u)"; done
+echo "-- sonic-nix-apply journal (this boot)"; journalctl -b -u sonic-nix-apply --no-pager -o short-precise | tail -15
+echo "== PHY bring-up"; cat /run/openbcm-mdio-script/status.txt 2>&1 | head -6
+echo "== libsai in syncd"; grep -o '/nix/store/[^ ]*libsai.so[^ ]*' /proc/$(pidof syncd)/maps 2>/dev/null | sort -u
+if [ "${NODIAG:-0}" != 1 ]; then
+echo "== extphy (counters)"; openbcm-diag extphy | grep -E '^extphy:|^ce(0|1|30|31) '
+echo "== extmacsec"; openbcm-diag extmacsec | grep -E '^extmacsec:|^ce(0|1|30|31) |bypass'
+fi
+
+################ h6-diagpoll.sh
+#!/usr/bin/env bash
+# H6 helper (not in the repo): poll "openbcm-diag extmacsec" every 1 s (as macsec-rekey-test's MKA wait does), log time, rc, duration.
+# Stops when /run/h6-stop-poll exists. Output: one line per call: <unix start> rc=<rc> ms=<duration>
+set -u
+rm -f /run/h6-stop-poll
+while [ ! -e /run/h6-stop-poll ]; do
+  a=$(date +%s.%N); openbcm-diag extmacsec > /dev/null 2>/run/h6-poll-err; rc=$?; b=$(date +%s.%N)
+  echo "$a rc=$rc ms=$(awk -v a=$a -v b=$b 'BEGIN { printf "%.1f", (b - a) * 1000 }')$( [ $rc = 0 ] || echo " err=$(head -c 200 /run/h6-poll-err | tr '\n' ' ')")"
+  sleep 1
+done
+
+################ h6-sa-sampler.sh
+#!/usr/bin/env bash
+# H6 helper (not in the repo): COUNTERS_DB MACsec SA counters every 2 s: <unix> <name> out_pkts_encrypted in_pkts_ok current_xpn
+# Stops when /run/h6-stop-sampler exists.
+set -u
+rm -f /run/h6-stop-sampler
+while [ ! -e /run/h6-stop-sampler ]; do
+  t=$(date +%s.%N)
+  redis-cli -n 2 hgetall COUNTERS_MACSEC_NAME_MAP | paste - - | while read -r n o; do
+    printf '%s %s %s %s %s\n' "$t" "$n" "$(redis-cli -n 2 hget "COUNTERS:$o" SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED)" "$(redis-cli -n 2 hget "COUNTERS:$o" SAI_MACSEC_SA_STAT_IN_PKTS_OK)" "$(redis-cli -n 2 hget "COUNTERS:$o" SAI_MACSEC_SA_ATTR_CURRENT_XPN)"
+  done
+  sleep 2
+done
+
+################ h6-phystat-loop.sh (run from ai_re/ as: direnv exec . bash h6-phystat-loop.sh N OUT evora-rehost-dir)
+#!/usr/bin/env bash
+# H6 helper (workstation): N back-to-back phystat.py runs (default --txn phy), JSON to $OUT.jsonl, per-run line to stdout.
+set -u
+n=$1; OUT=$2; RH=$3
+: > "$OUT.jsonl"; : > "$OUT.err"
+for i in $(seq "$n"); do
+  [ -e "$OUT.stop" ] && break
+  a=$(date +%s.%N)
+  python3 "$RH/phystat.py" --json 0x00 0x01 0x17e 0x17f > "$OUT.run" 2> "$OUT.runerr"; rc=$?
+  b=$(date +%s.%N)
+  sed "s/^/{\"run\": $i, /; s/^{\"run\": $i, {/{\"run\": $i, /" "$OUT.run" >> "$OUT.jsonl"
+  e=$(tr '\n' '|' < "$OUT.runerr" | cut -c1-600)
+  echo "run $i: t0 $a rc $rc $(awk -v a=$a -v b=$b 'BEGIN { printf "%.3f", b - a }') s lines $(wc -l < "$OUT.run")${e:+ STDERR: $e}"
+  cat "$OUT.runerr" >> "$OUT.err"
+done
+
+################ h6-ring5.sh
+#!/usr/bin/env bash
+# H6 session helper (not in the repo): step 5. sonic-ring.sh up + inject, the read-only rx_dropped check during the ring (120 s tcpdump on Ethernet0),
+# samples, then stop + down + check. Ring about 4-5 min. Markers in /root/h6-g8/ring5.marker for the workstation's phystat read.
+set -u
+cd /root
+M=/root/h6-g8/ring5.marker; : > $M
+R() { bash -l /root/sonic-ring.sh "$@"; echo "== sonic-ring.sh $* rc=$?"; }
+echo "#### $(date -Is) up"; bash -l /root/sonic-ring.sh up; rc=$?; echo "== sonic-ring.sh up rc=$rc"
+[ $rc = 0 ] || { echo "UP FAILED: no inject"; R check; echo "RING DONE" > $M; exit 1; }
+echo "#### $(date -Is) inject"; R inject
+sleep 20
+echo "#### $(date -Is) sample 1"; R sample
+echo "#### $(date -Is) rx_dropped check (120 s)"
+lldpcli show statistics ports Ethernet0
+a=$(cat /sys/class/net/Ethernet0/statistics/rx_dropped); ap=$(cat /sys/class/net/Ethernet0/statistics/rx_packets); t0=$(date +%s.%N)
+timeout 120 tcpdump -p -nn -e -i Ethernet0 -Q in 2>/dev/null > /root/h6-g8/ring5-tcpdump.txt
+b=$(cat /sys/class/net/Ethernet0/statistics/rx_dropped); bp=$(cat /sys/class/net/Ethernet0/statistics/rx_packets); t1=$(date +%s.%N)
+echo "-- frames received by the CPU on Ethernet0 in the window, by destination MAC and EtherType field (tcpdump -e: \$4 dst, \$7 type)"
+awk '{print $4,$7}' /root/h6-g8/ring5-tcpdump.txt | sort | uniq -c
+echo "-- total $(wc -l < /root/h6-g8/ring5-tcpdump.txt), of them 0x888e (EAPOL): $(grep -c '(0x888e)' /root/h6-g8/ring5-tcpdump.txt), not 0x888e: $(grep -vc '(0x888e)' /root/h6-g8/ring5-tcpdump.txt)"
+echo "drop+$((b - a)) rx_packets+$((bp - ap)) window $t0 .. $t1"
+lldpcli show statistics ports Ethernet0
+echo "-- sample lines of each type (first 2)"
+awk '{k=$4" "$7; if (c[k]++ < 2) print}' /root/h6-g8/ring5-tcpdump.txt | cut -c1-200
+echo "TCPDUMP DONE" > $M
+echo "#### $(date -Is) sample 2"; R sample
+sleep 60
+echo "#### $(date -Is) macsec"; R macsec
+echo "#### $(date -Is) sample 3"; R sample
+echo "#### $(date -Is) stop"; R stop
+echo "#### $(date -Is) down"; R down
+echo "#### $(date -Is) check"; R check
+echo "RING DONE" > $M
+
+################ step-4 launcher (each script): ssh root@10.60.2.23 'cd /root && { bash -l <script> <args> > /root/h6-g8/<tag>.txt 2>&1; echo "rc=$? $(date -Is)" > /root/h6-g8/<tag>.rc; bash -l /root/sonic-ring.sh check > /root/h6-g8/<tag>.ring 2>&1; echo "ring-rc=$?" >> /root/h6-g8/<tag>.ring; }'

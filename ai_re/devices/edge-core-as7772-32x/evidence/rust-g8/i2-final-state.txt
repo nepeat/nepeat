@@ -1,0 +1,62 @@
+# end state after the session
+== 2026-11-24T04:59:52.486091081Z / 2026-11-23T20:59:52-08:00
+current /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+booted  /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+profile system-33-link -> /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+kernel 7.3.4; uptime 301.58 s
+== fan
+as7760_fan             28672  0
+hwmon /sys/class/hwmon/hwmon7 driver as7760_fan fan1_input=15800 pwm1=153
+fand active
+failsafe False {'asic': ('normal', 47.200000000000003, 53.299999999999997), 'board': ('normal', 36.5, 58.100000000000001), 'cpu': ('normal', 41.0, 53.299999999999997)}
+== units
+failed: 0
+sonic-nix-apply active/exited result=success
+sonic-nix-watch active/running result=success
+openbcm-mdio-script active/exited result=success
+sonic-syncd active/running result=success
+sonic-orchagent active/running result=success
+sonic-macsecmgrd active/running result=success
+-- sonic-nix-apply journal (this boot)
+Nov 23 20:55:09.681603 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 20:55:10.298115 as7772 sonic-nix[584]: sonic-nix apply: 0 field(s) written
+Nov 23 20:55:10.465818 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+== PHY bring-up
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 101.0 s
+  run started 2026-11-24 04:55:06 +0000, took 101.0 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 98.5 s (553600 writes, 426743 reads, 15583 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 44.7 C, 0 failed, longest read 0.14 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+== libsai in syncd
+/nix/store/9ykrpgxmwcracl2xwbwnxs7j1q8wx557-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+== extphy (counters)
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+ce0         49   50 up    up    no     0x0003      346        0    1     0     189     202     330     2    0        7329
+ce1         53   54 up    up    no     0x0003      347        0    1     0     188     204     339     2    0        7550
+ce30         9    9 up    up    no     0x0003      346        0    1     0     203     213     386     2    0        7541
+ce31        13   13 up    up    no     0x0003      345        0    1     0     201     206     346     2    0        7120
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 0, ended 0, expired 0; raw MDIO hold-offs 0; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 0, behind a library run 15; waits for a library run before a poll 0 (after 3 busy in a row; max 0 us, total 0 us)
+extphy: link gate time per poll (us): <=500 1384, <=2000 0, <=10000 0, <=100000 0, more 0; max 395
+extphy: MACsec polls skipped during a lease 0; forced reads after 10000 ms 0 (max wait 0 us); MACsec / admin runs and SAI calls that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+extphy: SAI calls that waited for a transaction outside the SAI lock 0; waits under the SAI lock 0
+== extmacsec
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+ce30      17e  egress  on     open   sa  -   -   -   0     194     0   79141 
+ce30      17e  ingress on     open   sa  -   -   -         194     0   90762 
+ce31      17f  egress  on     open   sa  -   -   -   0     193     0   81914 
+ce31      17f  ingress on     open   sa  -   -   -         193     0   90908 
+ce0         0  egress  on     open   sa  -   -   -   0     194     0   80079 
+ce0         0  ingress on     open   sa  -   -   -         194     0   94004 
+ce1         1  egress  on     open   sa  -   -   -   0     193     0   81834 
+ce1         1  ingress on     open   sa  -   -   -         193     0   91061 
+engines in bypass: 56 of 64
+== generations
+lrwxrwxrwx 1 root root   14 Nov 23 19:14 system -> system-33-link
+lrwxrwxrwx 1 root root   86 Nov 23 08:09 system-30-link -> /nix/store/631c5hx7kznld417zvpvp38w7ml2dc05-nixos-system-as7772-26.11.20261111.d4f25a3
+lrwxrwxrwx 1 root root   86 Nov 23 08:55 system-31-link -> /nix/store/na3yx1c2yqyaf5vi1lk7n915aylwp1a1-nixos-system-as7772-26.11.20261111.d4f25a3
+lrwxrwxrwx 1 root root   86 Nov 23 15:05 system-32-link -> /nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+lrwxrwxrwx 1 root root   86 Nov 23 19:14 system-33-link -> /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3

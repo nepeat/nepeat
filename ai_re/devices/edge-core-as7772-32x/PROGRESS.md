@@ -11,7 +11,7 @@
 - **Ports:** 32 BCM82391 "Evora" PHYs initialised at boot (98 s, 100G MACsec bypass, factory TX taps); cages 1-2
   and 31-32 (DACs) up at 100G, the rest admin-down (their PHY line side powered down): [extphy.md](extphy.md).
   **Link state and LEDs follow the cable** (PHY line-side link polled inside the SDK link scan: far end down ->
-  oper down within about 0-0.5 s: bounded by the 250 ms link scan and the 500 ms gate poll; measurement pending). 26 min at line rate, 0 loss ([load-test.md](load-test.md)). **MACsec under SONiC at boot on the
+  oper down in about 0-0.5 s, mean about 0.24 s (40 cycles; bounded by the 250 ms link scan and the 500 ms gate poll)). 26 min at line rate, 0 loss ([load-test.md](load-test.md)). **MACsec under SONiC at boot on the
   four DAC ports** (MKA, GCM-AES-XPN-256, lab test key in `/var/lib/sonic-macsec/lab-test.cak`; if the file is
   missing those ports run in clear): [macsec.md](macsec.md).
 - **MDIO rules:** `init misc` / `init all` before any external MDIO access; clause 45 **device 1 only**; no
@@ -76,6 +76,22 @@
 - Transcripts live in [evidence/](evidence/); serial captures (`serial-*.txt`) are git-ignored.
 
 ## Log
+
+### 2026-11-23 (4): arbitration fixes and reworked scripts proven on the box
+- **Running:** generation 33 (`ahzyb6kk`) = `7aba11f`; rollback generation 32. Evidence:
+  [evidence/rust-g8/README.md](evidence/rust-g8/README.md). No red checks, no PHY hang, no power cycle.
+- **Lease starvation closed:** rekey against a `phystat` loop: 66 runs + 1035 `extmacsec` status calls all exit 0, 0
+  expired leases, 0 interrupted polls, 0 of 483,000 pings lost, 168 SA installs; waits under the SAI lock 0; SAI calls
+  waited outside the lock 367 times (median 39 ms, max 72 ms). One expiry on the lifetime counter is from the test
+  harness killing a client mid-transaction in an aborted first run (1054 ms, the documented bound).
+- **Gate wait closed:** longest poll 1085 us (was 72-89 ms); answered from cache 208 times during the rekey.
+- **Scripts:** all six end "RESTORED and verified"; SIGINT mid-rekey restores itself.
+- **`sonic-nix-apply` race:** five warm reboots, succeeded every time (fix `189fb2f`).
+- **`rx_dropped` during the ring** = the LLDP frame count (35 of 35 in 120 s); why the kernel counts tapped LLDP as
+  dropped is a guess. **FEC:** 0/0 under load; the session's first read showed 9/3/6/3 uncorrected codewords since
+  the previous read, attributed (not shown) to link re-locks in earlier steps.
+- **Still open, owner's decisions:** the clear-traffic window on MACsec ports around stack stop/start (keys exist,
+  off); `poll-ms` (faster link-down detection); eyeball check of the LEDs. AS7760: never run on the Rust stack.
 
 ### 2026-11-23 (3): per-PHY MDIO arbitration on the box; FEC under load; link-down latency measured
 - **Running:** generation 32 (`azkkiphr`) = `3c84eb3`: Rust SAI with per-PHY MDIO arbitration, Rust kernel + fan driver.

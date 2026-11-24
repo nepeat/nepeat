@@ -1,0 +1,63 @@
+# step 4: bash -l macsec-wrongcak-test.sh (7aba11f copy; own topology; the wrong CAK is random, written mode 600 in the snapshot dir), then sonic-ring.sh check
+== 2026-11-23T20:26:52-08:00 /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+== snapshot: /run/as7772-tests/macsec-wrongcak-test (142 CONFIG_DB keys)
+== setup: VRFs, far ends into them, addresses (CONFIG_DB)
+  redis-cli -n 4 hset VRF\|Vrf-a NULL NULL
+  redis-cli -n 4 hset VRF\|Vrf-b NULL NULL
+  redis-cli -n 4 del INTERFACE\|Ethernet4
+  redis-cli -n 4 hset INTERFACE\|Ethernet4 vrf_name Vrf-a mac_addr 1c:ea:0b:38:2b:d6
+  redis-cli -n 4 del INTERFACE\|Ethernet124
+  redis-cli -n 4 hset INTERFACE\|Ethernet124 vrf_name Vrf-b mac_addr 1c:ea:0b:38:2b:d7
+  redis-cli -n 4 hset INTERFACE\|Ethernet0 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet0\|10.0.1.0/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet4\|10.0.1.1/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet120 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet120\|10.0.31.0/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet124\|10.0.31.1/31 NULL NULL
+== 2026-11-23T20:27:06-08:00 before
+ce30 egress gate open SAs sa---;ce30 ingress gate open SAs sa---;ce0 egress gate open SAs sa---;ce0 ingress gate open SAs sa---;ce1 egress gate open SAs sa---;ce1 ingress gate open SAs sa---;
+cage 1 -> 2: 100 packets transmitted, 100 received, 0% packet loss, time 1582ms
+cage 31 -> 32: 100 packets transmitted, 100 received, 0% packet loss, time 1583ms
+== cage 2 (Ethernet4) -> profile wrong-test (same CKN, other CAK)
+  run /nix/store/hga2ydskcmqvys4msgfpjilr2qpc5lki-python3-powerpc64-unknown-linux-gnuabielfv2-3.14.10-env/bin/python3 -I /nix/store/62458dw34xw1whz0qplwfypifp9nlsm7-sonic-macsec-config.py /run/as7772-tests/macsec-wrongcak-test/wrong-test.json
+MACsec profile wrong-test written (GCM-AES-XPN-256, key from /run/as7772-tests/macsec-wrongcak-test/wrong-test.cak)
+port Ethernet4: MACsec profile wrong-test
+ce30 egress gate open SAs sa---;ce30 ingress gate open SAs sa---;ce0 egress gate closed SAs ----;ce0 ingress gate closed SAs ----;ce1 egress gate closed SAs ----;ce1 ingress gate closed SAs ----;
+cage 1 -> 2: 100 packets transmitted, 0 received, 100% packet loss, time 1587ms
+cage 31 -> 32: 100 packets transmitted, 100 received, 0% packet loss, time 1589ms
+     20 KaY: Computed ICV is not equal to Received ICV
+== the declared profile again (from the snapshot: PORT|Ethernet4 macsec, MACSEC_PROFILE|wrong-test)
+  -- phase /^PORT[|]Ethernet4$/: 1 change(s)
+  redis-cli -n 4 hset PORT\|Ethernet4 macsec lab-test
+  -- phase /^MACSEC_PROFILE[|]wrong-test$/: 1 change(s)
+  redis-cli -n 4 del MACSEC_PROFILE\|wrong-test
+MKA up after 0 s
+ce30 egress gate open SAs sa---;ce30 ingress gate open SAs sa---;ce0 egress gate open SAs -sa--;ce0 ingress gate open SAs -sa--;ce1 egress gate open SAs -sa--;ce1 ingress gate open SAs -sa--;
+cage 1 -> 2: 100 packets transmitted, 100 received, 0% packet loss, time 1584ms
+cage 31 -> 32: 100 packets transmitted, 100 received, 0% packet loss, time 1585ms
+== failed units: 0; profiles: MACSEC_PROFILE|lab-test 
+]0;== restore (macsec-wrongcak-test; exit status so far 0)
+  -- phase /^INTERFACE[|]Ethernet(0|4|120|124)[|]/: 4 change(s)
+  redis-cli -n 4 del INTERFACE\|Ethernet0\|10.0.1.0/31
+  redis-cli -n 4 del INTERFACE\|Ethernet120\|10.0.31.0/31
+  redis-cli -n 4 del INTERFACE\|Ethernet124\|10.0.31.1/31
+  redis-cli -n 4 del INTERFACE\|Ethernet4\|10.0.1.1/31
+  -- phase /^INTERFACE[|]Ethernet(0|4|120|124)$/: 6 change(s)
+  redis-cli -n 4 del INTERFACE\|Ethernet0
+  redis-cli -n 4 del INTERFACE\|Ethernet120
+  redis-cli -n 4 del INTERFACE\|Ethernet124
+  redis-cli -n 4 del INTERFACE\|Ethernet4
+  redis-cli -n 4 hset INTERFACE\|Ethernet124 mac_addr 1c:ea:0b:38:2b:d7
+  redis-cli -n 4 hset INTERFACE\|Ethernet4 mac_addr 1c:ea:0b:38:2b:d6
+  -- phase /^VRF[|]Vrf-[ab]$/: 2 change(s)
+  redis-cli -n 4 del VRF\|Vrf-a
+  redis-cli -n 4 del VRF\|Vrf-b
+== CONFIG_DB identical to the snapshot: 142 keys, 429 fields
+== kernel state identical to the snapshot
+== MKA: 8 SAs open 0 s after the restore
+== RESTORED and verified
+##### rc
+rc=0 2026-11-23T20:28:44-08:00
+##### sonic-ring.sh check
+CHECK OK: the four DAC ports up and looped to themselves (LLDP), nothing else up, no leftovers
+ring-rc=0

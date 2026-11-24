@@ -1,0 +1,150 @@
+# step 4: bash -l macsec-wrap-test.sh /var/lib/evora-phy/h6-wrap one w1 w2 (7aba11f copy; parameter files with test keys from dumps/x/taskU, copied mode 700/600, removed afterwards), then sonic-ring.sh check
+== 2026-11-23T20:29:22-08:00 /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+table /nix/store/5ghxvm5f5w0frc8xn1f63qbj2xxjmwxc-as7772-ext-macsec.tbl: 32 writes of the ingress SecTAG-check register 0x5000 in it (0 = the table before the fix)
+== snapshot: /run/as7772-tests/macsec-wrap-test (142 CONFIG_DB keys)
+== setup: VRFs, far ends into them, addresses (CONFIG_DB)
+  redis-cli -n 4 hset VRF\|Vrf-a NULL NULL
+  redis-cli -n 4 hset VRF\|Vrf-b NULL NULL
+  redis-cli -n 4 del INTERFACE\|Ethernet4
+  redis-cli -n 4 hset INTERFACE\|Ethernet4 vrf_name Vrf-a mac_addr 1c:ea:0b:38:2b:d6
+  redis-cli -n 4 del INTERFACE\|Ethernet124
+  redis-cli -n 4 hset INTERFACE\|Ethernet124 vrf_name Vrf-b mac_addr 1c:ea:0b:38:2b:d7
+  redis-cli -n 4 hset INTERFACE\|Ethernet0 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet0\|10.0.1.0/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet4\|10.0.1.1/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet120 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet120\|10.0.31.0/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet124\|10.0.31.1/31 NULL NULL
+== 0. SONiC MACsec off on cages 1, 2 (CONFIG_DB PORT.macsec removed)
+  redis-cli -n 4 hdel PORT\|Ethernet0 macsec
+  redis-cli -n 4 hdel PORT\|Ethernet4 macsec
+SONiC MACsec engines on ce0 / ce1: 0 (0 = both ports left to this test)
+20 packets transmitted, 20 received, 0% packet loss, time 304ms
+== 1. engines on, gap 48 bytes
+== set one: first packet number (8 bytes, low first) a2b 0100000000000000, b2a 0100000000000000
+-- packet numbers before
+ce0 pn.egress.0    extmacsec: ce0 pn.egress.0: ok, 1301 us   pn 1 
+ce1 pn.ingress.0   extmacsec: ce1 pn.ingress.0: ok, 1338 us   pn 1 
+ce1 pn.egress.0    extmacsec: ce1 pn.egress.0: ok, 1294 us   pn 1 
+ce0 pn.ingress.0   extmacsec: ce0 pn.ingress.0: ok, 1266 us   pn 1 
++ ping -c 600 -i 0.01 10.0.1.1 (cage 1 -> 2; replies come back 2 -> 1)
+600 packets transmitted, 600 received, 0% packet loss, time 9592ms;
+-- packet numbers after
+ce0 pn.egress.0    extmacsec: ce0 pn.egress.0: ok, 1303 us   pn 601 
+ce1 pn.ingress.0   extmacsec: ce1 pn.ingress.0: ok, 1318 us   pn 602 
+ce1 pn.egress.0    extmacsec: ce1 pn.egress.0: ok, 1306 us   pn 601 
+ce0 pn.ingress.0   extmacsec: ce0 pn.ingress.0: ok, 1322 us   pn 602 
+-- SecY counters, non-zero (cleared before the egress SAs were made)
+ce0 stats-sa.egress.0      octets_encrypted=51600 out_pkts_encrypted=600 
+ce1 stats-flow.ingress     octets_controlled=58800 octets_uncontrolled=78000 ucast_pkts_controlled=600 ucast_pkts_uncontrolled=600 
+ce1 stats-sa.ingress.0     in_pkts_ok=600 octets_encrypted=51600 
+ce0 stats-flow.egress      octets_controlled=58800 out_octets_common=78000 ucast_pkts_controlled=600 
+ce1 stats-sa.egress.0      octets_encrypted=51600 out_pkts_encrypted=600 
+ce0 stats-flow.ingress     octets_controlled=58800 octets_uncontrolled=78000 ucast_pkts_controlled=600 ucast_pkts_uncontrolled=600 
+ce0 stats-sa.ingress.0     in_pkts_ok=600 octets_encrypted=51600 
+ce1 stats-flow.egress      octets_controlled=58800 out_octets_common=78000 ucast_pkts_controlled=600 
+-- ASIC
+RPKT.ce0=600 TPKT.ce0=600 
+RPKT.ce1=600 TPKT.ce1=600 
+== set w1: first packet number (8 bytes, low first) a2b 00ffffff00000000, b2a 00ffffff00000000
+-- packet numbers before
+ce0 pn.egress.0    extmacsec: ce0 pn.egress.0: ok, 1311 us   pn 4294967040 
+ce1 pn.ingress.0   extmacsec: ce1 pn.ingress.0: ok, 1299 us   pn 4294967040 
+ce1 pn.egress.0    extmacsec: ce1 pn.egress.0: ok, 1296 us   pn 4294967040 
+ce0 pn.ingress.0   extmacsec: ce0 pn.ingress.0: ok, 1334 us   pn 4294967040 
++ ping -c 600 -i 0.01 10.0.1.1 (cage 1 -> 2; replies come back 2 -> 1)
+600 packets transmitted, 600 received, 0% packet loss, time 9598ms;
+-- packet numbers after
+ce0 pn.egress.0    extmacsec: ce0 pn.egress.0: ok, 1333 us   pn 4294967641 
+ce1 pn.ingress.0   extmacsec: ce1 pn.ingress.0: ok, 1299 us   pn 4294967642 
+ce1 pn.egress.0    extmacsec: ce1 pn.egress.0: ok, 1304 us   pn 4294967641 
+ce0 pn.ingress.0   extmacsec: ce0 pn.ingress.0: ok, 1307 us   pn 4294967642 
+-- SecY counters, non-zero (cleared before the egress SAs were made)
+ce0 stats-sa.egress.0      octets_encrypted=51823 out_pkts_encrypted=601 
+ce1 stats-flow.ingress     multicast_pkts_controlled=1 multicast_pkts_uncontrolled=1 octets_controlled=59035 octets_uncontrolled=78267 ucast_pkts_controlled=600 ucast_pkts_uncontrolled=600 
+ce1 stats-sa.ingress.0     in_pkts_ok=601 octets_encrypted=51823 
+ce0 stats-flow.egress      multicast_pkts_controlled=1 octets_controlled=59035 out_octets_common=78267 ucast_pkts_controlled=600 
+ce1 stats-sa.egress.0      octets_encrypted=51823 out_pkts_encrypted=601 
+ce0 stats-flow.ingress     multicast_pkts_controlled=1 multicast_pkts_uncontrolled=1 octets_controlled=59035 octets_uncontrolled=78267 ucast_pkts_controlled=600 ucast_pkts_uncontrolled=600 
+ce0 stats-sa.ingress.0     in_pkts_ok=601 octets_encrypted=51823 
+ce1 stats-flow.egress      multicast_pkts_controlled=1 octets_controlled=59035 out_octets_common=78267 ucast_pkts_controlled=600 
+-- ASIC
+RPKT.ce0=601 TPKT.ce0=601 
+RPKT.ce1=601 TPKT.ce1=601 
+== set w2: first packet number (8 bytes, low first) a2b 00ffffff01000000, b2a 00ffffff01000000
+-- packet numbers before
+ce0 pn.egress.0    extmacsec: ce0 pn.egress.0: ok, 1297 us   pn 8589934336 
+ce1 pn.ingress.0   extmacsec: ce1 pn.ingress.0: ok, 1297 us   pn 8589934336 
+ce1 pn.egress.0    extmacsec: ce1 pn.egress.0: ok, 1310 us   pn 8589934336 
+ce0 pn.ingress.0   extmacsec: ce0 pn.ingress.0: ok, 1332 us   pn 8589934336 
++ ping -c 600 -i 0.01 10.0.1.1 (cage 1 -> 2; replies come back 2 -> 1)
+600 packets transmitted, 600 received, 0% packet loss, time 9601ms;
+-- packet numbers after
+ce0 pn.egress.0    extmacsec: ce0 pn.egress.0: ok, 1305 us   pn 8589934937 
+ce1 pn.ingress.0   extmacsec: ce1 pn.ingress.0: ok, 1310 us   pn 8589934938 
+ce1 pn.egress.0    extmacsec: ce1 pn.egress.0: ok, 1307 us   pn 8589934937 
+ce0 pn.ingress.0   extmacsec: ce0 pn.ingress.0: ok, 1307 us   pn 8589934938 
+-- SecY counters, non-zero (cleared before the egress SAs were made)
+ce0 stats-sa.egress.0      octets_encrypted=51648 out_pkts_encrypted=601 
+ce1 stats-flow.ingress     octets_controlled=58860 octets_uncontrolled=78092 ucast_pkts_controlled=601 ucast_pkts_uncontrolled=601 
+ce1 stats-sa.ingress.0     in_pkts_ok=601 octets_encrypted=51648 
+ce0 stats-flow.egress      octets_controlled=58860 out_octets_common=78092 ucast_pkts_controlled=601 
+ce1 stats-sa.egress.0      octets_encrypted=51648 out_pkts_encrypted=601 
+ce0 stats-flow.ingress     octets_controlled=58860 octets_uncontrolled=78092 ucast_pkts_controlled=601 ucast_pkts_uncontrolled=601 
+ce0 stats-sa.ingress.0     in_pkts_ok=601 octets_encrypted=51648 
+ce1 stats-flow.egress      octets_controlled=58860 out_octets_common=78092 ucast_pkts_controlled=601 
+-- ASIC
+RPKT.ce0=601 TPKT.ce0=601 
+RPKT.ce1=601 TPKT.ce1=601 
+== ce0 / ce1 back to bypass (gates closed, engines off), AVERAGE_IPG 16
+  run X ce0 gate-close.egress
+  run X ce0 disable.egress
+  run X ce0 gate-close.ingress
+  run X ce0 disable.ingress
+  run X ce1 gate-close.egress
+  run X ce1 disable.egress
+  run X ce1 gate-close.ingress
+  run X ce1 disable.ingress
+== SONiC's MACsec back on the two ports (PORT.macsec from the snapshot)
+  -- phase /^PORT[|]Ethernet(0|4)$/: 2 change(s)
+  redis-cli -n 4 hset PORT\|Ethernet0 macsec lab-test
+  redis-cli -n 4 hset PORT\|Ethernet4 macsec lab-test
+MKA up after 3 s
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+port      phy  dir     engine gate   AN0 AN1 AN2 AN3 tx   runs fails  max_us last failure
+ce30      17e  egress  on     open   sa  -   -   -   0    4914     0   82067 
+ce30      17e  ingress on     open   sa  -   -   -        5309     0   90836 
+ce31      17f  egress  on     open   sa  -   -   -   0    5120     0   82239 
+ce31      17f  ingress on     open   sa  -   -   -        5612     0   92794 
+ce0         0  egress  on     open   sa  -   -   -   0    4841     0   82114 
+ce0         0  ingress on     open   sa  -   -   -        5228     0   91170 
+ce1         1  egress  on     open   sa  -   -   -   0    5067     0   84084 
+ce1         1  ingress on     open   sa  -   -   -        5559     0   91597 
+100 packets transmitted, 100 received, 0% packet loss, time 1588ms
+== failed units: 0
+]0;== restore (macsec-wrap-test; exit status so far 0)
+  -- phase /^INTERFACE[|]Ethernet(0|4|120|124)[|]/: 4 change(s)
+  redis-cli -n 4 del INTERFACE\|Ethernet0\|10.0.1.0/31
+  redis-cli -n 4 del INTERFACE\|Ethernet120\|10.0.31.0/31
+  redis-cli -n 4 del INTERFACE\|Ethernet124\|10.0.31.1/31
+  redis-cli -n 4 del INTERFACE\|Ethernet4\|10.0.1.1/31
+  -- phase /^INTERFACE[|]Ethernet(0|4|120|124)$/: 6 change(s)
+  redis-cli -n 4 del INTERFACE\|Ethernet0
+  redis-cli -n 4 del INTERFACE\|Ethernet120
+  redis-cli -n 4 del INTERFACE\|Ethernet124
+  redis-cli -n 4 del INTERFACE\|Ethernet4
+  redis-cli -n 4 hset INTERFACE\|Ethernet124 mac_addr 1c:ea:0b:38:2b:d7
+  redis-cli -n 4 hset INTERFACE\|Ethernet4 mac_addr 1c:ea:0b:38:2b:d6
+  -- phase /^VRF[|]Vrf-[ab]$/: 2 change(s)
+  redis-cli -n 4 del VRF\|Vrf-a
+  redis-cli -n 4 del VRF\|Vrf-b
+== CONFIG_DB identical to the snapshot: 142 keys, 429 fields
+== kernel state identical to the snapshot
+== MKA: 8 SAs open 0 s after the restore
+== AVERAGE_IPG of ce0 / ce1 as in the snapshot: ce0 AVERAGE_IPG=0x30 ce1 AVERAGE_IPG=0x30 
+== RESTORED and verified
+##### rc
+rc=0 2026-11-23T20:31:07-08:00
+##### sonic-ring.sh check
+CHECK OK: the four DAC ports up and looped to themselves (LLDP), nothing else up, no leftovers
+ring-rc=0

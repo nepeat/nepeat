@@ -1,0 +1,93 @@
+# step 4: deliberate interruption: bash -l macsec-rekey-test.sh 20 100, SIGINT (kill -INT to the script's bash, pid shown) 75 s after the launch, during the pings
+# then: processes, /run/as7772-tests, CONFIG_DB, --cleanup --dry-run, macsec-up-check -s sonic-macsecmgrd
+# ---------------- the moment of the SIGINT
+2026-11-23T20:34:38-08:00
+ 886878  886876 bash -l macsec-rekey-test.sh 20 100
+ 888238  886876 ping -q -c 100000 -i 0.001 -W 1 10.0.1.1
+ 888239  886876 ping -q -c 100000 -i 0.001 -W 1 10.0.1.0
+ 888240  886876 ping -q -c 10000 -i 0.01 -W 1 10.0.31.1
+script pid 886878
+  redis-cli -n 4 hset MACSEC_PROFILE\|lab-test rekey_period 20
+  run systemctl restart sonic-macsecmgrd
+MKA up after 7 s
+SIGINT sent to 886878 at 2026-11-23T20:34:38-08:00
+# ---------------- script output, rc, ring check
+== 2026-11-23T20:33:19-08:00 /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+== snapshot: /run/as7772-tests/macsec-rekey-test (142 CONFIG_DB keys)
+== setup: VRFs, far ends into them, addresses (CONFIG_DB)
+  redis-cli -n 4 hset VRF\|Vrf-a NULL NULL
+  redis-cli -n 4 hset VRF\|Vrf-b NULL NULL
+  redis-cli -n 4 del INTERFACE\|Ethernet4
+  redis-cli -n 4 hset INTERFACE\|Ethernet4 vrf_name Vrf-a mac_addr 1c:ea:0b:38:2b:d6
+  redis-cli -n 4 del INTERFACE\|Ethernet124
+  redis-cli -n 4 hset INTERFACE\|Ethernet124 vrf_name Vrf-b mac_addr 1c:ea:0b:38:2b:d7
+  redis-cli -n 4 hset INTERFACE\|Ethernet0 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet0\|10.0.1.0/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet4\|10.0.1.1/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet120 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet120\|10.0.31.0/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet124\|10.0.31.1/31 NULL NULL
+== profile lab-test: rekey_period 20 s, 100 s of pings (1 ms apart, both directions, cage 1 <-> 2)
+  redis-cli -n 4 hset MACSEC_PROFILE\|lab-test rekey_period 20
+  run systemctl restart sonic-macsecmgrd
+MKA up after 7 s
+]0;== restore (macsec-rekey-test; exit status so far 130)
+  -- phase /^MACSEC_PROFILE[|]/: 1 change(s)
+  redis-cli -n 4 hdel MACSEC_PROFILE\|lab-test rekey_period
+  -- phase /^INTERFACE[|]Ethernet(0|4|120|124)[|]/: 4 change(s)
+  redis-cli -n 4 del INTERFACE\|Ethernet0\|10.0.1.0/31
+  redis-cli -n 4 del INTERFACE\|Ethernet120\|10.0.31.0/31
+  redis-cli -n 4 del INTERFACE\|Ethernet124\|10.0.31.1/31
+  redis-cli -n 4 del INTERFACE\|Ethernet4\|10.0.1.1/31
+  -- phase /^INTERFACE[|]Ethernet(0|4|120|124)$/: 6 change(s)
+  redis-cli -n 4 del INTERFACE\|Ethernet0
+  redis-cli -n 4 del INTERFACE\|Ethernet120
+  redis-cli -n 4 del INTERFACE\|Ethernet124
+  redis-cli -n 4 del INTERFACE\|Ethernet4
+  redis-cli -n 4 hset INTERFACE\|Ethernet124 mac_addr 1c:ea:0b:38:2b:d7
+  redis-cli -n 4 hset INTERFACE\|Ethernet4 mac_addr 1c:ea:0b:38:2b:d6
+  -- phase /^VRF[|]Vrf-[ab]$/: 2 change(s)
+  redis-cli -n 4 del VRF\|Vrf-a
+  redis-cli -n 4 del VRF\|Vrf-b
+  run systemctl restart sonic-macsecmgrd
+== CONFIG_DB identical to the snapshot: 142 keys, 429 fields
+== kernel state identical to the snapshot
+== MKA: 8 SAs open 1 s after the restore
+== failed units: 0
+== RESTORED and verified
+##### rc
+rc=130 2026-11-23T20:35:24-08:00
+##### sonic-ring.sh check
+CHECK OK: the four DAC ports up and looped to themselves (LLDP), nothing else up, no leftovers
+ring-rc=0
+# ---------------- after
+== processes left
+== /run/as7772-tests
+total 0
+drwx------  2 root root   40 Nov 23 20:35 .
+drwxr-xr-x 34 root root 1060 Nov 23 20:35 ..
+== MACSEC_PROFILE|lab-test
+send_sci	true
+enable_replay_protect	false
+priority	255
+cipher_suite	GCM-AES-XPN-256
+policy	security
+== VRFs
+
+== cleanup dry-run
+== DRY RUN: the writes are printed, none is made
+== cleanup: no snapshot in /run/as7772-tests/macsec-rekey-test: restoring the clean state this script knows
+== restore (macsec-rekey-test; exit status so far 0)
+  (would wait for the kernel state of the snapshot)
+== dry-run: nothing written, nothing verified
+]0;cleanup-dry-rc=0
+== up-check from the macsecmgrd restart
+== 2026-11-23T20:36:14-08:00 ahzyb6kkpyy4... up 4867.52 s; the start of sonic-macsecmgrd: 4809.346 s; limit 60 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124 
+Ethernet0: secured; MKA session started +0.5 s, secured +6.4 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +1.6 s, secured +6.5 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +0.8 s, secured +5.1 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +1.2 s, secured +5.2 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 6.5 s after the start of sonic-macsecmgrd (limit 60 s)
+]0;up-rc=0
+0

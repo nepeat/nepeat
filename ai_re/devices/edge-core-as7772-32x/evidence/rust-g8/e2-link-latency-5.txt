@@ -1,0 +1,168 @@
+# step 3: link follows the cable, 5 cycles (rust-g7 f1 method: /root/h5-lat.sh 5, CONFIG_DB PORT|<far> admin_status down 1.5 s, up, 2.5-3.1 s; Ethernet4 / Ethernet124 alternating),
+# MACsec on (8 SAs, as booted), no diag-socket use between the snapshots (journal 'diag socket' lines in the window: 0)
+# latency = syncd "port <near> (hw N) oper down" - syncd "port <far> admin down" (t0 of G7), box clock
+cycle 1: far ce1 admin down 1795493582.143731; near ce0 line side down +371 ms, oper down +374.1 ms
+cycle 2: far ce31 admin down 1795493586.727909; near ce30 line side down +417.1 ms, oper down +420.2 ms
+cycle 3: far ce1 admin down 1795493591.313656; near ce0 line side down +453 ms, oper down +456.1 ms
+cycle 4: far ce31 admin down 1795493595.703208; near ce30 line side down +169.8 ms, oper down +172.9 ms
+cycle 5: far ce1 admin down 1795493600.305520; near ce0 line side down +193.3 ms, oper down +196.4 ms
+min 172.9 / median 374.1 / mean 323.9 / max 456.1 ms (G7 f1, 20 cycles: 41 / 200 / 223 / 477)
+busy answers during the arm: behind a library run 228 -> 228, during a lease 5892 -> 5892: no cycle met a busy PHY; within 0-0.52 s: 5 of 5. PASS
+# ---------------- h5-lat.sh output
+BEFORE PORT|Ethernet4 admin_status=up
+BEFORE PORT|Ethernet124 admin_status=up
+CYCLE 1 Ethernet4 down 1795493582.075852867 1795493582.108362654
+CYCLE 1 Ethernet4 up 1795493583.639179732 1795493583.671441012
+JITTER 1 2.942
+CYCLE 2 Ethernet124 down 1795493586.655268320 1795493586.688768242
+CYCLE 2 Ethernet124 up 1795493588.219123425 1795493588.250099610
+JITTER 2 2.954
+CYCLE 3 Ethernet4 down 1795493591.243291357 1795493591.275974584
+CYCLE 3 Ethernet4 up 1795493592.807046754 1795493592.837851285
+JITTER 3 2.758
+CYCLE 4 Ethernet124 down 1795493595.635189082 1795493595.666596013
+CYCLE 4 Ethernet124 up 1795493597.195056551 1795493597.226320549
+JITTER 4 2.970
+CYCLE 5 Ethernet4 down 1795493600.235506265 1795493600.268887013
+CYCLE 5 Ethernet4 up 1795493601.799284006 1795493601.830778245
+JITTER 5 2.589
+AFTER PORT|Ethernet4 admin_status=up
+AFTER PORT|Ethernet124 admin_status=up
+rc=0
+# ---------------- syncd + networkd journal of the window (short-unix)
+1795493582.132519 as7772 systemd-networkd[509]: Ethernet4: Link DOWN
+1795493582.132553 as7772 systemd-networkd[509]: Ethernet4: Lost carrier
+1795493582.143731 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce1 admin down
+1795493582.260748 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+1795493582.514703 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+1795493582.517786 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+1795493583.289362 as7772 systemd-networkd[509]: Ethernet0: Lost carrier
+1795493583.696101 as7772 systemd-networkd[509]: Ethernet4: Link UP
+1795493583.706489 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce1 admin up
+1795493584.310706 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+1795493584.567190 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+1795493584.570762 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+1795493584.574317 as7772 systemd-networkd[509]: Ethernet0: Gained carrier
+1795493584.584188 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+1795493584.590120 as7772 systemd-networkd[509]: Ethernet4: Gained carrier
+1795493586.008674 as7772 systemd-networkd[509]: Ethernet4: Gained IPv6LL
+1795493586.716079 as7772 systemd-networkd[509]: Ethernet124: Link DOWN
+1795493586.716113 as7772 systemd-networkd[509]: Ethernet124: Lost carrier
+1795493586.727909 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce31 admin down
+1795493586.886989 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper down
+1795493587.144965 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce30: line side down (external PHY, value 0x0000)
+1795493587.148083 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper down
+1795493587.897181 as7772 systemd-networkd[509]: Ethernet120: Lost carrier
+1795493588.274153 as7772 systemd-networkd[509]: Ethernet124: Link UP
+1795493588.285041 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce31 admin up
+1795493588.940955 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+1795493589.196944 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+1795493589.200311 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper up
+1795493589.204855 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper up
+1795493589.204131 as7772 systemd-networkd[509]: Ethernet120: Gained carrier
+1795493589.214147 as7772 systemd-networkd[509]: Ethernet124: Gained carrier
+1795493590.584675 as7772 systemd-networkd[509]: Ethernet124: Gained IPv6LL
+1795493591.301407 as7772 systemd-networkd[509]: Ethernet4: Link DOWN
+1795493591.301438 as7772 systemd-networkd[509]: Ethernet4: Lost carrier
+1795493591.313656 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce1 admin down
+1795493591.512695 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+1795493591.766701 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+1795493591.769779 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+1795493592.537680 as7772 systemd-networkd[509]: Ethernet0: Lost carrier
+1795493592.862214 as7772 systemd-networkd[509]: Ethernet4: Link UP
+1795493592.872214 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce1 admin up
+1795493593.562683 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+1795493593.818674 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+1795493593.821872 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+1795493593.825276 as7772 systemd-networkd[509]: Ethernet0: Gained carrier
+1795493593.826186 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+1795493593.833410 as7772 systemd-networkd[509]: Ethernet4: Gained carrier
+1795493595.693424 as7772 systemd-networkd[509]: Ethernet124: Link DOWN
+1795493595.693453 as7772 systemd-networkd[509]: Ethernet124: Lost carrier
+1795493595.703208 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce31 admin down
+1795493595.736808 as7772 systemd-networkd[509]: Ethernet4: Gained IPv6LL
+1795493595.872963 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce30: line side down (external PHY, value 0x0000)
+1795493595.876087 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper down
+1795493595.878005 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper down
+1795493595.881112 as7772 systemd-networkd[509]: Ethernet120: Lost carrier
+1795493597.249890 as7772 systemd-networkd[509]: Ethernet124: Link UP
+1795493597.260596 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce31 admin up
+1795493597.925000 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+1795493597.928243 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper up
+1795493597.929450 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+1795493597.931644 as7772 systemd-networkd[509]: Ethernet120: Gained carrier
+1795493598.192118 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper up
+1795493598.195461 as7772 systemd-networkd[509]: Ethernet124: Gained carrier
+1795493600.088716 as7772 systemd-networkd[509]: Ethernet124: Gained IPv6LL
+1795493600.294396 as7772 systemd-networkd[509]: Ethernet4: Link DOWN
+1795493600.294427 as7772 systemd-networkd[509]: Ethernet4: Lost carrier
+1795493600.305520 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce1 admin down
+1795493600.498838 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+1795493600.501929 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+1795493600.503852 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+1795493600.505314 as7772 systemd-networkd[509]: Ethernet0: Lost carrier
+1795493601.853747 as7772 systemd-networkd[509]: Ethernet4: Link UP
+1795493601.863473 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce1 admin up
+1795493602.550869 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+1795493602.554084 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+1795493602.555237 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+1795493602.557314 as7772 systemd-networkd[509]: Ethernet0: Gained carrier
+1795493602.817570 as7772 syncd[885]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+1795493602.820546 as7772 systemd-networkd[509]: Ethernet4: Gained carrier
+1795493604.376691 as7772 systemd-networkd[509]: Ethernet4: Gained IPv6LL
+# ---------------- extphy after the arm
+== 2026-11-24T04:13:30.829315413Z / 2026-11-23T20:13:30-08:00
+current /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+booted  /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+profile system-33-link -> /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+kernel 7.3.4; uptime 3503.70 s
+== fan
+as7760_fan             28672  0
+hwmon /sys/class/hwmon/hwmon7 driver as7760_fan fan1_input=17000 pwm1=170
+fand active
+failsafe False {'asic': ('normal', 47.700000000000003, 53.299999999999997), 'board': ('normal', 36.0, 61.5), 'cpu': ('normal', 40.0, 53.299999999999997)}
+== units
+failed: 0
+sonic-nix-apply active/exited result=success
+sonic-nix-watch active/running result=success
+openbcm-mdio-script active/exited result=success
+sonic-syncd active/running result=success
+sonic-orchagent active/running result=success
+sonic-macsecmgrd active/running result=success
+-- sonic-nix-apply journal (this boot)
+Nov 23 19:15:26.641140 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 19:15:27.238203 as7772 sonic-nix[581]: sonic-nix apply: 0 field(s) written
+Nov 23 19:15:27.408407 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+== PHY bring-up
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 101.3 s
+  run started 2026-11-24 03:15:23 +0000, took 101.3 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 98.8 s (553600 writes, 426959 reads, 15799 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 43.3 C, 0 failed, longest read 0.13 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+== libsai in syncd
+/nix/store/9ykrpgxmwcracl2xwbwnxs7j1q8wx557-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+== extphy (counters)
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 30354 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+ce0         49   50 up    up    no     0x0003     5735        0    4     3     188     207    1080     2    0        7415
+ce1         53   54 up    up    no     0x0003     5858        0    4     0     188     204     611     8    0        8552
+ce30         9    9 up    up    no     0x0003     5864        0    3     2     206     215     646     2    0        7331
+ce31        13   13 up    up    no     0x0003     5855        0    3     0     187     208     498     6    0        9059
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 30221, ended 30220, expired 1; raw MDIO hold-offs 133; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 5892, behind a library run 228; waits for a library run before a poll 0 (after 3 busy in a row; max 0 us, total 0 us)
+extphy: link gate time per poll (us): <=500 23296, <=2000 16, <=10000 0, <=100000 0, more 0; max 1085
+extphy: MACsec polls skipped during a lease 4150; forced reads after 10000 ms 426 (max wait 0 us); MACsec / admin runs and SAI calls that waited for a transaction 700 (max 72628 us); extmacsec run refused 0
+extphy: SAI calls that waited for a transaction outside the SAI lock 701; waits under the SAI lock 0
+== extmacsec
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+ce30      17e  egress  on     open   sa  -   -   -   0    3701     0   82067 
+ce30      17e  ingress on     open   sa  -   -   -        4014     0   90836 
+ce31      17f  egress  on     open   sa  -   -   -   0    3864     0   82239 
+ce31      17f  ingress on     open   sa  -   -   -        4254     0   92794 
+ce0         0  egress  on     open   sa  -   -   -   0    3668     0   82114 
+ce0         0  ingress on     open   sa  -   -   -        3970     0   91170 
+ce1         1  egress  on     open   sa  -   -   -   0    3849     0   84084 
+ce1         1  ingress on     open   sa  -   -   -        4240     0   91597 
+engines in bypass: 56 of 64

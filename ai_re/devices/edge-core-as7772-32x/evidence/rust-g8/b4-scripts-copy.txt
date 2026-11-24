@@ -1,0 +1,12 @@
+# step 1: scripts copied from 7aba11f (git show) to /root on the switch (flat: sonic-test-lib.sh beside them); sha256 local == remote: true
+cde33405c8bf52528c1e8622b0f4a93430ba0c9ea18164ab7e624d8f01fa2324  macsec-appdb-test.sh
+5b3677a97578e85bc4bfea4bdebe6a0b6c81f8cb1f6cd6687d39669ad29fcb8a  macsec-clear-window-test.sh
+9f628794508462ce2679a490f03d35e9b0439ecc5db6d8ab8b73ea709afe9f44  macsec-rekey-test.sh
+5162d5313c0eaa6bc59c13ffbbaf3913927b5b35b3a01da39f3abc567601ec8a  macsec-static-test.sh
+56f7c63074b1664bb55efc091556d6430a1c334eb9507b9bc6f27c3474984fb3  macsec-traffic-test.sh
+a80a8f1863d940a3f62797c5624731caf539c21cc38a765e56f6217ae5030ada  macsec-up-check.sh
+967f822e02abf5b362f70f16f1d6e0d0c853a3ba5208ea310237b1b4544e6161  macsec-wrap-test.sh
+889c49a30b3ee47ba60a3478071e4c39830b22b54297174b38775339c0eb2712  macsec-wrongcak-test.sh
+76c5ab53858bfb995d512affb231b494cf4e34c9c23fc773ed042c4c8375bf05  sonic-ring.sh
+dae7ab16b424146411b2772366ab71ac964fa13f2cb064543fcfabde0a56991d  sonic-test-lib.sh
+ea250b8c6dfe12e5561026812eedbd7ee4460c6b8b58e16babdaed5f0baec428  sonic-traffic-test.sh

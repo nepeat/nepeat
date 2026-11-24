@@ -1,0 +1,14 @@
+# environment smoke: phystat.py 0x00 0x01 0x17e 0x17f (table, default --txn phy; working-tree copy == 7aba11f, git diff empty), run from ai_re/ via direnv exec, 30.424 s incl. devshell, rc 0
+# first PHY read after the reboot: FEC counters are clear on read, so 'uncorrected 3' on 0x001 / 0x17f is what accumulated since the PHY bring-up
+phy 0x000  - C (latched)  FEC corrected 0 uncorrected 0 symerr [0, 0, 0, 0]  sys CL82 BER 0
+  line pcs_live ['0000', '0003'] latched ['03ff', '03ff']  RPKT=57 RFCS=0 RBYT=9839 TPKT=55 TBYT=9634
+  sys  pcs_live ['03ff', '0003'] latched ['03ff', '03ff']  RPKT=69 RFCS=0 RBYT=11273 TPKT=57 TBYT=9749
+phy 0x001  - C (latched)  FEC corrected 0 uncorrected 3 symerr [0, 0, 0, 0]  sys CL82 BER 0
+  line pcs_live ['0000', '0003'] latched ['03ff', '03ff']  RPKT=57 RFCS=0 RBYT=9800 TPKT=58 TBYT=10005
+  sys  pcs_live ['03ff', '0003'] latched ['03ff', '03ff']  RPKT=60 RFCS=0 RBYT=10152 TPKT=58 TBYT=9742
+phy 0x17e  - C (latched)  FEC corrected 0 uncorrected 0 symerr [0, 0, 0, 0]  sys CL82 BER 0
+  line pcs_live ['0000', '0003'] latched ['03ff', '03ff']  RPKT=68 RFCS=0 RBYT=11177 TPKT=59 TBYT=10336
+  sys  pcs_live ['03ff', '0003'] latched ['03ff', '03ff']  RPKT=60 RFCS=0 RBYT=10321 TPKT=65 TBYT=10597
+phy 0x17f  - C (latched)  FEC corrected 0 uncorrected 3 symerr [0, 0, 0, 0]  sys CL82 BER 0
+  line pcs_live ['0000', '0003'] latched ['03ff', '03ff']  RPKT=60 RFCS=0 RBYT=10502 TPKT=70 TBYT=11509
+  sys  pcs_live ['03ff', '0003'] latched ['03ff', '03ff']  RPKT=74 RFCS=0 RBYT=12058 TPKT=60 TBYT=10310

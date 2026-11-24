@@ -1,0 +1,199 @@
+# step 4: bash -l macsec-traffic-test.sh (7aba11f copy in /root), then bash -l sonic-ring.sh check
+== 2026-11-23T20:14:18-08:00 /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+== uptime:  20:14:18 up 59 min,  3 users,  load average: 1.21, 1.37, 1.83
+active active active active active 
+== failed units: 0
+== snapshot: /run/as7772-tests/vrf-pairs (142 CONFIG_DB keys)
+== setup: VRFs, far ends into them, addresses (CONFIG_DB)
+  redis-cli -n 4 hset VRF\|Vrf-a NULL NULL
+  redis-cli -n 4 hset VRF\|Vrf-b NULL NULL
+  redis-cli -n 4 del INTERFACE\|Ethernet4
+  redis-cli -n 4 hset INTERFACE\|Ethernet4 vrf_name Vrf-a mac_addr 1c:ea:0b:38:2b:d6
+  redis-cli -n 4 del INTERFACE\|Ethernet124
+  redis-cli -n 4 hset INTERFACE\|Ethernet124 vrf_name Vrf-b mac_addr 1c:ea:0b:38:2b:d7
+  redis-cli -n 4 hset INTERFACE\|Ethernet0 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet0\|10.0.1.0/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet4\|10.0.1.1/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet120 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet120\|10.0.31.0/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet124\|10.0.31.1/31 NULL NULL
+NOTE: macsecmgrd was started 5 times since the stack start: this run does not show that MKA came up by itself
+== MACsec up on all four ports 0 s after the check began
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+port      phy  dir     engine gate   AN0 AN1 AN2 AN3 tx   runs fails  max_us last failure
+ce30      17e  egress  on     open   sa  -   -   -   0    3762     0   82067 
+ce30      17e  ingress on     open   sa  -   -   -        4075     0   90836 
+ce31      17f  egress  on     open   sa  -   -   -   0    3925     0   82239 
+ce31      17f  ingress on     open   sa  -   -   -        4315     0   92794 
+ce0         0  egress  on     open   sa  -   -   -   0    3729     0   82114 
+ce0         0  ingress on     open   sa  -   -   -        4031     0   91170 
+ce1         1  egress  on     open   sa  -   -   -   0    3910     0   84084 
+ce1         1  ingress on     open   sa  -   -   -        4301     0   91597 
+engines in bypass: 56 of 64
+  Interface            Lanes    Speed    MTU    FEC         Alias    Vlan    Oper    Admin             Type    Asym PFC
+-----------  ---------------  -------  -----  -----  ------------  ------  ------  -------  ---------------  ----------
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later         N/A
+Ethernet120       9,10,11,12     100G   9100    N/A  Ethernet31/1  routed      up       up  QSFP28 or later         N/A
+Ethernet124      13,14,15,16     100G   9100    N/A  Ethernet32/1  routed      up       up  QSFP28 or later         N/A
+== ping cage 1 -> 2 (1000 x 64 B, then 1000 x 1400 B, then 200 x 8000 B)
+1000 packets transmitted, 1000 received, 0% packet loss, time 1999ms
+rtt min/avg/max/mdev = 0.105/0.112/0.244/0.012 ms
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.136/0.145/0.264/0.008 ms
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.282/0.298/0.431/0.029 ms
+== ping cage 2 -> 1 (Vrf-a)
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.096/0.109/0.225/0.007 ms
+== ping cage 31 -> 32
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.095/0.106/0.218/0.007 ms
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.134/0.145/0.262/0.011 ms
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.277/0.294/0.477/0.033 ms
+== ping cage 32 -> 31 (Vrf-b)
+1000 packets transmitted, 1000 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.102/0.128/0.267/0.030 ms
+== MACsec SA counters (show macsec: counted from each SA's install, not reset by sonic-clear macsec; flex counters poll every 10 s)
+MACsec port(Ethernet0)
+	MACsec Egress SC (1cea0b382bd50001)
+	encoding_an  0
+		MACsec Egress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN         3261
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED    3216459
+		SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED  3260
+	MACsec Ingress SC (1cea0b382bd60001)
+		MACsec Ingress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN           3298
+		SAI_MACSEC_SA_STAT_IN_PKTS_INVALID       0
+		SAI_MACSEC_SA_STAT_IN_PKTS_LATE          0
+		SAI_MACSEC_SA_STAT_IN_PKTS_NOT_VALID     0
+		SAI_MACSEC_SA_STAT_IN_PKTS_OK            3296
+		SAI_MACSEC_SA_STAT_IN_PKTS_UNCHECKED     0
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED      3221019
+MACsec port(Ethernet4)
+	MACsec Egress SC (1cea0b382bd60001)
+	encoding_an  0
+		MACsec Egress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN         3297
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED    3221019
+		SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED  3296
+	MACsec Ingress SC (1cea0b382bd50001)
+		MACsec Ingress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN           3262
+		SAI_MACSEC_SA_STAT_IN_PKTS_INVALID       0
+		SAI_MACSEC_SA_STAT_IN_PKTS_LATE          0
+		SAI_MACSEC_SA_STAT_IN_PKTS_NOT_VALID     0
+		SAI_MACSEC_SA_STAT_IN_PKTS_OK            3260
+		SAI_MACSEC_SA_STAT_IN_PKTS_UNCHECKED     0
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED      3216459
+MACsec port(Ethernet120)
+	MACsec Egress SC (1cea0b382bd50001)
+	encoding_an  0
+		MACsec Egress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN         3239
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED    3214094
+		SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED  3238
+	MACsec Ingress SC (1cea0b382bd70001)
+		MACsec Ingress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN           3282
+		SAI_MACSEC_SA_STAT_IN_PKTS_INVALID       0
+		SAI_MACSEC_SA_STAT_IN_PKTS_LATE          0
+		SAI_MACSEC_SA_STAT_IN_PKTS_NOT_VALID     0
+		SAI_MACSEC_SA_STAT_IN_PKTS_OK            3280
+		SAI_MACSEC_SA_STAT_IN_PKTS_UNCHECKED     0
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED      3219160
+MACsec port(Ethernet124)
+	MACsec Egress SC (1cea0b382bd70001)
+	encoding_an  0
+		MACsec Egress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN         3281
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED    3219160
+		SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED  3280
+	MACsec Ingress SC (1cea0b382bd50001)
+		MACsec Ingress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN           3240
+		SAI_MACSEC_SA_STAT_IN_PKTS_INVALID       0
+		SAI_MACSEC_SA_STAT_IN_PKTS_LATE          0
+		SAI_MACSEC_SA_STAT_IN_PKTS_NOT_VALID     0
+		SAI_MACSEC_SA_STAT_IN_PKTS_OK            3238
+		SAI_MACSEC_SA_STAT_IN_PKTS_UNCHECKED     0
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED      3214094
+== per link: frames encrypted by the sender = frames accepted by the receiver?
+SC 1cea0b382bd50001: encrypted 6498, accepted by the peer 6498: equal
+SC 1cea0b382bd60001: encrypted 3296, accepted by the peer 3296: equal
+SC 1cea0b382bd70001: encrypted 3280, accepted by the peer 3280: equal
+ingress error counters, all SAs: 0
+== SONiC counters
+Last cached time was 2026-11-23T20:14:51.830931
+       IFACE    STATE    RX_OK    RX_BPS    RX_UTIL    RX_ERR    RX_DRP    RX_OVR    TX_OK    TX_BPS    TX_UTIL    TX_ERR    TX_DRP    TX_OVR
+------------  -------  -------  --------  ---------  --------  --------  --------  -------  --------  ---------  --------  --------  --------
+ Ethernet1/1        U    3,217       N/A        N/A         0         0       N/A    3,218       N/A        N/A         0         0       N/A
+ Ethernet2/1        U    3,218       N/A        N/A         0         0       N/A    3,217       N/A        N/A         0         0       N/A
+Ethernet31/1        U    3,219       N/A        N/A         0         0       N/A    3,219       N/A        N/A         0         0       N/A
+Ethernet32/1        U    3,219       N/A        N/A         0         0       N/A    3,219       N/A        N/A         0         0       N/A
+== ASIC counters (frames, bytes, errors)
+RPKT.ce0		    :		      3,219		 +3,219 	      1/s
+RBYT.ce0		    :		  3,262,427	     +3,262,427 	    157/s
+TPKT.ce0		    :		      3,218		 +3,218
+TBYT.ce0		    :		  3,262,261	     +3,262,261
+RPKT.ce1		    :		      3,218		 +3,218
+RBYT.ce1		    :		  3,262,261	     +3,262,261
+TPKT.ce1		    :		      3,219		 +3,219 	      1/s
+TBYT.ce1		    :		  3,262,427	     +3,262,427 	    157/s
+RPKT.ce30		    :		      3,220		 +3,220 	      1/s
+RBYT.ce30		    :		  3,262,672	     +3,262,672 	    157/s
+TPKT.ce30		    :		      3,219		 +3,219
+TBYT.ce30		    :		  3,262,506	     +3,262,506
+RPKT.ce31		    :		      3,219		 +3,219
+RBYT.ce31		    :		  3,262,506	     +3,262,506
+TPKT.ce31		    :		      3,220		 +3,220 	      1/s
+TBYT.ce31		    :		  3,262,672	     +3,262,672 	    157/s
+== ASIC port state
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9162    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9162    No      
+      ce30(  9)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9162    No      
+      ce31( 13)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9162    No      
+ce0 AVERAGE_IPG=0x30  ce1 AVERAGE_IPG=0x30  ce30 AVERAGE_IPG=0x30  ce31 AVERAGE_IPG=0x30  ce2 AVERAGE_IPG=0x10  
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 30354 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce0         49   50 up    up    no     0x0003     5959        0    4     3     189     207    1080     2    0        7415
+== temperature / fans
+asic 46.2 C; fand failsafe: "failsafe": false
+== lldp
+Capability codes: (R) Router, (B) Bridge, (O) Other
+   LocalPort    RemoteDevice    RemotePortID    Capability    RemotePortDescr
+------------  --------------  --------------  ------------  -----------------
+ Ethernet1/1    as7772          Ethernet2/1     BR            Ethernet4
+ Ethernet2/1    as7772          Ethernet1/1     BR            Ethernet0
+Ethernet31/1  as7772          Ethernet32/1    BR            Ethernet124
+Ethernet32/1  as7772          Ethernet31/1    BR            Ethernet120
+--------------------------------------
+== restore (vrf-pairs; exit status so far 0)
+  -- phase /^INTERFACE[|]Ethernet(0|4|120|124)[|]/: 4 change(s)
+  redis-cli -n 4 del INTERFACE\|Ethernet0\|10.0.1.0/31
+  redis-cli -n 4 del INTERFACE\|Ethernet120\|10.0.31.0/31
+  redis-cli -n 4 del INTERFACE\|Ethernet124\|10.0.31.1/31
+  redis-cli -n 4 del INTERFACE\|Ethernet4\|10.0.1.1/31
+  -- phase /^INTERFACE[|]Ethernet(0|4|120|124)$/: 6 change(s)
+  redis-cli -n 4 del INTERFACE\|Ethernet0
+  redis-cli -n 4 del INTERFACE\|Ethernet120
+  redis-cli -n 4 del INTERFACE\|Ethernet124
+  redis-cli -n 4 del INTERFACE\|Ethernet4
+  redis-cli -n 4 hset INTERFACE\|Ethernet124 mac_addr 1c:ea:0b:38:2b:d7
+  redis-cli -n 4 hset INTERFACE\|Ethernet4 mac_addr 1c:ea:0b:38:2b:d6
+  -- phase /^VRF[|]Vrf-[ab]$/: 2 change(s)
+  redis-cli -n 4 del VRF\|Vrf-a
+  redis-cli -n 4 del VRF\|Vrf-b
+== CONFIG_DB identical to the snapshot: 142 keys, 429 fields
+== kernel state identical to the snapshot
+== MKA: 8 SAs open after the restore
+== RESTORED and verified
+]0;##### rc
+rc=0 2026-11-23T20:16:04-08:00
+##### sonic-ring.sh check
+CHECK OK: the four DAC ports up and looped to themselves (LLDP), nothing else up, no leftovers
+ring-rc=0

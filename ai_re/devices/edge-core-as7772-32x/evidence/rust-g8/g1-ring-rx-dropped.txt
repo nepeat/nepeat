@@ -1,0 +1,389 @@
+# step 5: rx_dropped during a sonic-ring run (h6-ring5.sh helper: sonic-ring.sh up, inject, sample, the read-only check, sample, macsec, sample, stop, down, check)
+# ring: inject 20:37:26 PST, stop 20:41:06 (3 min 40 s at line rate); down: RESTORED and verified; check OK
+# the check (120 s, during the ring): a=rx_dropped; timeout 120 tcpdump -p -nn -e -i Ethernet0 -Q in | awk '{print $4,$7}' | sort | uniq -c; drop+(rx_dropped - a); lldpcli show statistics ports Ethernet0
+# RESULT: 94 frames received by the CPU on Ethernet0 (rx_packets +94; tcpdump 94 frames + 1 empty line at its timeout):
+#   59 EAPOL  (dst 01:80:c2:00:00:03, 0x888e)
+#   35 LLDP   (dst 01:80:c2:00:00:0e, 0x88cc)   lldpd Received 25 -> 60 (+35), Discarded 0
+#   nothing else (no ring frame reaches the CPU)
+#   rx_dropped +35 = exactly the LLDP count; the non-0x888e count (35) matches the rx_dropped delta.
+# Reading (inferred, not proven here): lldpd takes its frames through a packet tap; the kernel finds no protocol handler for 0x88cc after the taps
+#   and counts the frame in rx_dropped although lldpd got it (EAPOL has a protocol-bound socket and is not counted). Harmless.
+# phystat during the ring: see g2 (temp_c prints '-' / null).
+# ---------------- helper output
+#### 2026-11-23T20:37:13-08:00 up
+== snapshot: /run/as7772-tests/sonic-ring (142 CONFIG_DB keys)
+  run sysctl -q -w net.ipv6.conf.default.disable_ipv6=1
+  run sysctl -q -w net.ipv6.conf.Bridge.disable_ipv6=1
+  run sysctl -q -w net.ipv6.conf.Ethernet0.disable_ipv6=1
+  run sysctl -q -w net.ipv6.conf.Ethernet4.disable_ipv6=1
+  run sysctl -q -w net.ipv6.conf.Ethernet120.disable_ipv6=1
+  run sysctl -q -w net.ipv6.conf.Ethernet124.disable_ipv6=1
+  redis-cli -n 4 del INTERFACE\|Ethernet4
+  redis-cli -n 4 del INTERFACE\|Ethernet124
+  redis-cli -n 4 hset VLAN\|Vlan100 vlanid 100
+  redis-cli -n 4 hset VLAN\|Vlan200 vlanid 200
+  run sysctl -q -w net.ipv6.conf.Vlan100.disable_ipv6=1
+  run sysctl -q -w net.ipv6.conf.Vlan200.disable_ipv6=1
+  redis-cli -n 4 hset VLAN_MEMBER\|Vlan100\|Ethernet0 tagging_mode untagged
+  redis-cli -n 4 hset VLAN_MEMBER\|Vlan100\|Ethernet120 tagging_mode untagged
+  redis-cli -n 4 hset VLAN_MEMBER\|Vlan200\|Ethernet4 tagging_mode untagged
+  redis-cli -n 4 hset VLAN_MEMBER\|Vlan200\|Ethernet124 tagging_mode untagged
+  run bridge link set dev Ethernet0 learning off flood off mcast_flood off bcast_flood off
+  run bridge link set dev Ethernet4 learning off flood off mcast_flood off bcast_flood off
+  run bridge link set dev Ethernet120 learning off flood off mcast_flood off bcast_flood off
+  run bridge link set dev Ethernet124 learning off flood off mcast_flood off bcast_flood off
+    hairpin off guard off root_block off fastleave off learning on flood on mcast_flood on bcast_flood on mcast_router 1 mcast_to_unicast off neigh_suppress off neigh_vlan_suppress off neigh_forward_grat off vlan_tunnel off isolated off locked off mab off mcast_n_groups 0 mcast_max_groups 0 
+    hairpin off guard off root_block off fastleave off learning off flood off mcast_flood off bcast_flood off mcast_router 1 mcast_to_unicast off neigh_suppress off neigh_vlan_suppress off neigh_forward_grat off vlan_tunnel off isolated off locked off mab off mcast_n_groups 0 mcast_max_groups 0 
+    hairpin off guard off root_block off fastleave off learning off flood off mcast_flood off bcast_flood off mcast_router 1 mcast_to_unicast off neigh_suppress off neigh_vlan_suppress off neigh_forward_grat off vlan_tunnel off isolated off locked off mab off mcast_n_groups 0 mcast_max_groups 0 
+    hairpin off guard off root_block off fastleave off learning off flood off mcast_flood off bcast_flood off mcast_router 1 mcast_to_unicast off neigh_suppress off neigh_vlan_suppress off neigh_forward_grat off vlan_tunnel off isolated off locked off mab off mcast_n_groups 0 mcast_max_groups 0 
+    hairpin off guard off root_block off fastleave off learning off flood off mcast_flood off bcast_flood off mcast_router 1 mcast_to_unicast off neigh_suppress off neigh_vlan_suppress off neigh_forward_grat off vlan_tunnel off isolated off locked off mab off mcast_n_groups 0 mcast_max_groups 0 
+  run /nix/store/69llic5l6rl2lp8p0xkfzayjmxkw9hjc-sonic-swss-powerpc64-unknown-linux-gnuabielfv2-0-d9684cc/bin/swssconfig /run/as7772-tests/sonic-ring/fdb.json
++-----------+--------------+-------------+----------------+-------------+--------------------------+
+|   VLAN ID | IP Address   | Ports       | Port Tagging   | Proxy ARP   | Static Anycast Gateway   |
++===========+==============+=============+================+=============+==========================+
+|       100 |              | Ethernet0   | untagged       | disabled    | disabled                 |
+|           |              | Ethernet120 | untagged       |             |                          |
++-----------+--------------+-------------+----------------+-------------+--------------------------+
+|       200 |              | Ethernet4   | untagged       | disabled    | disabled                 |
+|           |              | Ethernet124 | untagged       |             |                          |
++-----------+--------------+-------------+----------------+-------------+--------------------------+
+vlan 1	ports cpu,xe (0x0000000000000000000000000000000000000010000000040000000000000001), untagged xe (0x0000000000000000000000000000000000000010000000040000000000000000) MCAST_FLOOD_UNKNOWN
+vlan 100	ports cpu,ce0,ce30 (0x0000000000000000000000000000000000000000000000000004000000000201), untagged ce0,ce30 (0x0000000000000000000000000000000000000000000000000004000000000200) MCAST_FLOOD_UNKNOWN
+vlan 200	ports cpu,ce1,ce31 (0x0000000000000000000000000000000000000000000000000040000000002001), untagged ce1,ce31 (0x0000000000000000000000000000000000000000000000000040000000002000) MCAST_FLOOD_UNKNOWN
+mac=02:00:00:00:00:d1 vlan=100 GPORT=0x32 modid=0 port=50/ce0 Static
+mac=1c:ea:0b:38:2b:d7 vlan=4093 GPORT=0x9 modid=0 port=9/ce30 Hit
+mac=1c:ea:0b:38:2b:d7 vlan=1 GPORT=0x9 modid=0 port=9/ce30 Hit
+mac=1c:ea:0b:38:2b:d6 vlan=4094 GPORT=0x32 modid=0 port=50/ce0 Hit
+mac=1c:ea:0b:38:2b:d7 vlan=4091 GPORT=0x9 modid=0 port=9/ce30 Hit
+mac=02:00:00:00:00:d2 vlan=200 GPORT=0x36 modid=0 port=54/ce1 Static
+mac=1c:ea:0b:38:2b:d6 vlan=1 GPORT=0x32 modid=0 port=50/ce0 Hit
+mac=1c:ea:0b:38:2b:d6 vlan=4092 GPORT=0x32 modid=0 port=50/ce0 Hit
+mac=02:00:00:00:00:d1 vlan=200 GPORT=0xd modid=0 port=13/ce31 Static
+mac=1c:ea:0b:38:2b:d5 vlan=1 GPORT=0xd modid=0 port=13/ce31 Hit
+mac=1c:ea:0b:38:2b:d5 vlan=4093 GPORT=0x36 modid=0 port=54/ce1 Hit
+mac=1c:ea:0b:38:2b:d5 vlan=4092 GPORT=0xd modid=0 port=13/ce31 Hit
+mac=1c:ea:0b:38:2b:d6 vlan=100 GPORT=0x32 modid=0 port=50/ce0 Hit
+mac=1c:ea:0b:38:2b:d5 vlan=200 GPORT=0xd modid=0 port=13/ce31 Hit
+mac=1c:ea:0b:38:2b:d7 vlan=100 GPORT=0x9 modid=0 port=9/ce30 Hit
+mac=1c:ea:0b:38:2b:d5 vlan=4091 GPORT=0x36 modid=0 port=54/ce1 Hit
+mac=1c:ea:0b:38:2b:d5 vlan=4094 GPORT=0xd modid=0 port=13/ce31 Hit
+mac=02:00:00:00:00:d2 vlan=100 GPORT=0x9 modid=0 port=9/ce30 Static
+Ethernet0 1c:ea:0b:38:2b:d5 ipv6-off=1
+Ethernet4 1c:ea:0b:38:2b:d6 ipv6-off=1
+Ethernet120 1c:ea:0b:38:2b:d5 ipv6-off=1
+Ethernet124 1c:ea:0b:38:2b:d7 ipv6-off=1
+Vlan100@Bridge   UP             1c:ea:0b:38:2b:d5 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+Vlan200@Bridge   UP             1c:ea:0b:38:2b:d5 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+== ring configured; 'down' puts everything back (snapshot /run/as7772-tests/sonic-ring)
+== sonic-ring.sh up rc=0
+#### 2026-11-23T20:37:26-08:00 inject
+Ethernet0 sent 740
+Ethernet4 sent 740
+== sonic-ring.sh inject rc=0
+#### 2026-11-23T20:37:47-08:00 sample 1
+== sample 1795495067 2026-11-24T04:37:47Z
+SAI Ethernet0 340765736 341338259 221350841110 221714176530 4029 221 0 0 0 0 
+SAI Ethernet4 341339845 340775364 221717704147 221354632021 3947 277 0 0 0 0 
+SAI Ethernet120 341259819 340695423 221675463641 221312397777 4015 213 0 0 0 0 
+SAI Ethernet124 340696985 341269501 221315922344 221679300382 4000 278 0 0 0 0 
+ASIC ce0 RDBGC1.ce0=59 RPKT.ce0=359,518,854 RBYT.ce0=233,551,923,541 TPKT.ce0=360,087,520 TBYT.ce0=233,915,253,337 UC_PERQ_PKT(0).ce0=360,255,084 
+ASIC ce1 RDBGC1.ce1=12 RPKT.ce1=360,092,822 RBYT.ce1=233,918,760,640 TPKT.ce1=359,524,715 TBYT.ce1=233,555,689,112 UC_PERQ_PKT(0).ce1=359,686,935 
+ASIC ce30 RDBGC1.ce30=61 RPKT.ce30=360,013,139 RBYT.ce30=233,876,683,699 TPKT.ce30=359,444,898 TBYT.ce30=233,513,613,877 UC_PERQ_PKT(0).ce30=359,663,799 
+ASIC ce31 RDBGC1.ce31=13 RPKT.ce31=359,450,231 RBYT.ce31=233,517,117,032 TPKT.ce31=360,019,082 TBYT.ce31=233,880,490,574 UC_PERQ_PKT(0).ce31=360,232,655 
+CPU PERQ_PKT(0).cpu0=54,386 
+NETDEV Ethernet0 rx/tx/rxdrop/txdrop 22545 23251 8 0 
+NETDEV Ethernet4 rx/tx/rxdrop/txdrop 22497 23309 8 0 
+NETDEV Ethernet120 rx/tx/rxdrop/txdrop 4697 4652 8 0 
+NETDEV Ethernet124 rx/tx/rxdrop/txdrop 4645 4720 8 0 
+TEMP asic 47.7 failsafe=False asic:47.7C/53% board:37.0C/60% cpu:41.0C/53%
+HWMON 37000 33500 29000 30500 25500 27000 31000 42000  FANS 13200 15600 13000 15800 13200 15600 13000 16000 13200 15800 13000 15800 
+PROC syncd(880967) cpu%=12.4 rss=139516k cpus=44; orchagent(880969) cpu%=0.7 rss=59000k cpus=2;  load=1.10 1.60 1.65
+MKA open-SAs=8 failed-units=0 oper-up=4
+KBRIDGE fwd: 21 bridge-tx; fdb entries for d1/d2: 0
+== sonic-ring.sh sample rc=0
+#### 2026-11-23T20:37:52-08:00 rx_dropped check (120 s)
+-------------------------------------------------------------------------------
+LLDP statistics:
+-------------------------------------------------------------------------------
+Interface:    Ethernet0
+  Transmitted:  25
+  Received:     25
+  Discarded:    0
+  Unrecognized: 0
+  Ageout:       0
+  Inserted:     2
+  Deleted:      1
+-------------------------------------------------------------------------------
+-- frames received by the CPU on Ethernet0 in the window, by destination MAC and EtherType field (tcpdump -e: $4 dst, $7 type)
+      1  
+     59 01:80:c2:00:00:03, (0x888e),
+     35 01:80:c2:00:00:0e, (0x88cc),
+-- total 95, of them 0x888e (EAPOL): 59, not 0x888e: 36
+drop+35 rx_packets+94 window 1795495072.791870875 .. 1795495192.864864118
+-------------------------------------------------------------------------------
+LLDP statistics:
+-------------------------------------------------------------------------------
+Interface:    Ethernet0
+  Transmitted:  60
+  Received:     60
+  Discarded:    0
+  Unrecognized: 0
+  Ageout:       0
+  Inserted:     2
+  Deleted:      1
+-------------------------------------------------------------------------------
+-- sample lines of each type (first 2)
+20:37:53.858278 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:37:54.533502 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:37:56.537457 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:37:57.866390 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+
+#### 2026-11-23T20:39:52-08:00 sample 2
+== sample 1795495193 2026-11-24T04:39:53Z
+SAI Ethernet0 2568418776 2568991219 1671011090239 1671374418697 4056 321 0 0 0 0 
+SAI Ethernet4 2568992967 2568428543 1671378064126 1671014992212 4041 377 0 0 0 0 
+SAI Ethernet120 2568913425 2568348950 1671336058787 1670972991469 4061 313 0 0 0 0 
+SAI Ethernet124 2568350486 2568922991 1670976479096 1671339842194 4039 378 0 0 0 0 
+ASIC ce0 RDBGC1.ce0=59 RPKT.ce0=2,568,422,831 RBYT.ce0=1,671,011,090,239 TPKT.ce0=2,568,991,540 TBYT.ce0=1,671,374,418,697 UC_PERQ_PKT(0).ce0=2,577,610,861 
+ASIC ce1 RDBGC1.ce1=12 RPKT.ce1=2,568,997,003 RBYT.ce1=1,671,378,064,126 TPKT.ce1=2,568,428,915 TBYT.ce1=1,671,014,992,212 UC_PERQ_PKT(0).ce1=2,580,241,389 
+ASIC ce30 RDBGC1.ce30=61 RPKT.ce30=2,568,917,476 RBYT.ce30=1,671,336,058,787 TPKT.ce30=2,568,349,261 TBYT.ce30=1,670,972,991,469 UC_PERQ_PKT(0).ce30=2,573,209,031 
+ASIC ce31 RDBGC1.ce31=13 RPKT.ce31=2,568,354,524 RBYT.ce31=1,670,976,479,096 TPKT.ce31=2,568,923,354 TBYT.ce31=1,671,339,842,194 UC_PERQ_PKT(0).ce31=2,573,777,568 
+CPU PERQ_PKT(0).cpu0=54,781 
+NETDEV Ethernet0 rx/tx/rxdrop/txdrop 22644 23349 44 0 
+NETDEV Ethernet4 rx/tx/rxdrop/txdrop 22595 23408 44 0 
+NETDEV Ethernet120 rx/tx/rxdrop/txdrop 4796 4751 44 0 
+NETDEV Ethernet124 rx/tx/rxdrop/txdrop 4744 4819 44 0 
+TEMP asic 47.7 failsafe=False asic:47.7C/53% board:37.0C/62% cpu:41.0C/53%
+HWMON 37000 33000 29000 30000 25000 27000 31000 42000  FANS 14200 16800 14000 17000 14200 16900 14100 17100 14200 17000 14000 17000 
+PROC syncd(880967) cpu%=11.5 rss=139540k cpus=55; orchagent(880969) cpu%=0.6 rss=59000k cpus=3;  load=0.74 1.27 1.52
+MKA open-SAs=8 failed-units=0 oper-up=4
+KBRIDGE fwd: 21 bridge-tx; fdb entries for d1/d2: 0
+== sonic-ring.sh sample rc=0
+#### 2026-11-23T20:40:59-08:00 macsec
+== macsec 2026-11-24T04:40:59Z
+MACsec port(Ethernet0)
+	MACsec Egress SC (1cea0b382bd50001)
+	encoding_an  0
+		MACsec Egress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN         3768032208
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED    2299985373191
+		SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED  3624045360
+	MACsec Ingress SC (1cea0b382bd60001)
+		MACsec Ingress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN           3767485967
+		SAI_MACSEC_SA_STAT_IN_PKTS_INVALID       0
+		SAI_MACSEC_SA_STAT_IN_PKTS_LATE          0
+		SAI_MACSEC_SA_STAT_IN_PKTS_NOT_USING_SA  0
+		SAI_MACSEC_SA_STAT_IN_PKTS_NOT_VALID     0
+		SAI_MACSEC_SA_STAT_IN_PKTS_OK            3623760374
+		SAI_MACSEC_SA_STAT_IN_PKTS_UNCHECKED     0
+		SAI_MACSEC_SA_STAT_IN_PKTS_UNUSED_SA     0
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED      2299811089589
+MACsec port(Ethernet4)
+	MACsec Egress SC (1cea0b382bd60001)
+	encoding_an  0
+		MACsec Egress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN         3767532124
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED    2300170377271
+		SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED  3624326232
+	MACsec Ingress SC (1cea0b382bd50001)
+		MACsec Ingress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN           3768076747
+		SAI_MACSEC_SA_STAT_IN_PKTS_INVALID       0
+		SAI_MACSEC_SA_STAT_IN_PKTS_LATE          0
+		SAI_MACSEC_SA_STAT_IN_PKTS_NOT_USING_SA  0
+		SAI_MACSEC_SA_STAT_IN_PKTS_NOT_VALID     0
+		SAI_MACSEC_SA_STAT_IN_PKTS_OK            3624611755
+		SAI_MACSEC_SA_STAT_IN_PKTS_UNCHECKED     0
+		SAI_MACSEC_SA_STAT_IN_PKTS_UNUSED_SA     0
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED      2300344768425
+MACsec port(Ethernet120)
+	MACsec Egress SC (1cea0b382bd50001)
+	encoding_an  0
+		MACsec Egress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN         3767372764
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED    2298912740728
+		SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED  3622344967
+	MACsec Ingress SC (1cea0b382bd70001)
+		MACsec Ingress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN           3767964876
+		SAI_MACSEC_SA_STAT_IN_PKTS_INVALID       0
+		SAI_MACSEC_SA_STAT_IN_PKTS_LATE          0
+		SAI_MACSEC_SA_STAT_IN_PKTS_NOT_USING_SA  0
+		SAI_MACSEC_SA_STAT_IN_PKTS_NOT_VALID     0
+		SAI_MACSEC_SA_STAT_IN_PKTS_OK            3623196807
+		SAI_MACSEC_SA_STAT_IN_PKTS_UNCHECKED     0
+		SAI_MACSEC_SA_STAT_IN_PKTS_UNUSED_SA     0
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED      2299446618424
+MACsec port(Ethernet124)
+	MACsec Egress SC (1cea0b382bd70001)
+	encoding_an  0
+		MACsec Egress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN         3768009728
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED    2299805719926
+		SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED  3623762305
+	MACsec Ingress SC (1cea0b382bd50001)
+		MACsec Ingress SA (0)
+		SAI_MACSEC_SA_ATTR_CURRENT_XPN           3767418680
+		SAI_MACSEC_SA_STAT_IN_PKTS_INVALID       0
+		SAI_MACSEC_SA_STAT_IN_PKTS_LATE          0
+		SAI_MACSEC_SA_STAT_IN_PKTS_NOT_USING_SA  0
+		SAI_MACSEC_SA_STAT_IN_PKTS_NOT_VALID     0
+		SAI_MACSEC_SA_STAT_IN_PKTS_OK            3622911122
+		SAI_MACSEC_SA_STAT_IN_PKTS_UNCHECKED     0
+		SAI_MACSEC_SA_STAT_IN_PKTS_UNUSED_SA     0
+		SAI_MACSEC_SA_STAT_OCTETS_ENCRYPTED      2299272000616
+== sonic-ring.sh macsec rc=0
+#### 2026-11-23T20:41:00-08:00 sample 3
+== sample 1795495260 2026-11-24T04:41:00Z
+SAI Ethernet0 3767321244 3767893647 2451204990925 2451568323853 4147 375 0 0 0 0 
+SAI Ethernet4 3767895301 3767330810 2451571835668 2451208761822 4097 431 0 0 0 0 
+SAI Ethernet120 3767815707 3767251274 2451529887955 2451166820653 4163 366 0 0 0 0 
+SAI Ethernet124 3767252876 3767825382 2451170322132 2451533698600 4103 431 0 0 0 0 
+ASIC ce0 RDBGC1.ce0=59 RPKT.ce0=3,767,325,376 RBYT.ce0=2,451,204,990,925 TPKT.ce0=3,767,894,016 TBYT.ce0=2,451,568,323,853 UC_PERQ_PKT(0).ce0=3,771,183,616 
+ASIC ce1 RDBGC1.ce1=12 RPKT.ce1=3,767,899,394 RBYT.ce1=2,451,571,835,668 TPKT.ce1=3,767,331,240 TBYT.ce1=2,451,208,761,822 UC_PERQ_PKT(0).ce1=3,770,615,204 
+ASIC ce30 RDBGC1.ce30=61 RPKT.ce30=3,767,819,870 RBYT.ce30=2,451,529,887,955 TPKT.ce30=3,767,251,638 TBYT.ce30=2,451,166,820,653 UC_PERQ_PKT(0).ce30=3,778,056,974 
+ASIC ce31 RDBGC1.ce31=13 RPKT.ce31=3,767,256,969 RBYT.ce31=2,451,170,322,132 TPKT.ce31=3,767,825,812 TBYT.ce31=2,451,533,698,600 UC_PERQ_PKT(0).ce31=3,768,038,974 
+CPU PERQ_PKT(0).cpu0=54,995 
+NETDEV Ethernet0 rx/tx/rxdrop/txdrop 22697 23403 64 0 
+NETDEV Ethernet4 rx/tx/rxdrop/txdrop 22649 23461 64 0 
+NETDEV Ethernet120 rx/tx/rxdrop/txdrop 4850 4805 64 0 
+NETDEV Ethernet124 rx/tx/rxdrop/txdrop 4798 4873 64 0 
+TEMP asic 47.7 failsafe=False asic:47.7C/53% board:36.5C/62% cpu:42.0C/53%
+HWMON 36500 33000 29000 30000 25500 26500 31000 42000  FANS 14200 16800 14000 17000 14300 16900 14100 17100 14200 17000 14100 17000 
+PROC syncd(880967) cpu%=11.3 rss=139560k cpus=62; orchagent(880969) cpu%=0.6 rss=59000k cpus=3;  load=1.15 1.31 1.52
+MKA open-SAs=8 failed-units=0 oper-up=4
+KBRIDGE fwd: 21 bridge-tx; fdb entries for d1/d2: 0
+== sonic-ring.sh sample rc=0
+#### 2026-11-23T20:41:06-08:00 stop
+  redis-cli -n 4 del VLAN_MEMBER\|Vlan100\|Ethernet0
+  redis-cli -n 4 del VLAN_MEMBER\|Vlan100\|Ethernet120
+  redis-cli -n 4 del VLAN_MEMBER\|Vlan200\|Ethernet4
+  redis-cli -n 4 del VLAN_MEMBER\|Vlan200\|Ethernet124
++-----------+--------------+---------+----------------+-------------+--------------------------+
+|   VLAN ID | IP Address   | Ports   | Port Tagging   | Proxy ARP   | Static Anycast Gateway   |
++===========+==============+=========+================+=============+==========================+
+|       100 |              |         |                | disabled    | disabled                 |
++-----------+--------------+---------+----------------+-------------+--------------------------+
+|       200 |              |         |                | disabled    | disabled                 |
++-----------+--------------+---------+----------------+-------------+--------------------------+
+== sonic-ring.sh stop rc=0
+#### 2026-11-23T20:41:17-08:00 down
+  run /nix/store/69llic5l6rl2lp8p0xkfzayjmxkw9hjc-sonic-swss-powerpc64-unknown-linux-gnuabielfv2-0-d9684cc/bin/swssconfig /tmp/tmp.8sAOrnBrY8
+== cleanup: restoring the snapshot of an interrupted run (/run/as7772-tests/sonic-ring, taken 2026-11-23T20:37:22-08:00)
+== restore (sonic-ring; exit status so far 0)
+  -- phase /^VLAN[|]Vlan(100|200)$/: 2 change(s)
+  redis-cli -n 4 del VLAN\|Vlan100
+  redis-cli -n 4 del VLAN\|Vlan200
+  -- phase /^INTERFACE[|]Ethernet(0|4|120|124)([|]|$)/: 2 change(s)
+  redis-cli -n 4 hset INTERFACE\|Ethernet124 mac_addr 1c:ea:0b:38:2b:d7
+  redis-cli -n 4 hset INTERFACE\|Ethernet4 mac_addr 1c:ea:0b:38:2b:d6
+  run sysctl -q -w net.ipv6.conf.default.disable_ipv6=0
+  run sysctl -q -w net.ipv6.conf.Bridge.disable_ipv6=0
+  run sysctl -q -w net.ipv6.conf.Ethernet0.disable_ipv6=0
+  run sysctl -q -w net.ipv6.conf.Ethernet4.disable_ipv6=0
+  run sysctl -q -w net.ipv6.conf.Ethernet120.disable_ipv6=0
+  run sysctl -q -w net.ipv6.conf.Ethernet124.disable_ipv6=0
+== CONFIG_DB identical to the snapshot: 142 keys, 429 fields
+== kernel state identical to the snapshot
+== APPL_DB FDB keys as in the snapshot
+== RESTORED and verified
+]0;== sonic-ring.sh down rc=0
+#### 2026-11-23T20:41:48-08:00 check
+CHECK OK: the four DAC ports up and looped to themselves (LLDP), nothing else up, no leftovers
+== sonic-ring.sh check rc=0
+# ---------------- tcpdump lines (no payload)
+20:37:53.858278 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:37:54.533502 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:37:56.537457 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:37:57.866390 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:37:58.541479 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:00.545565 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:00.845966 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:02.549798 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:04.438002 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:04.553491 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:06.558262 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:08.221999 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:08.561550 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:10.565528 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:11.729975 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:12.570311 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:14.573479 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:15.457910 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:16.577440 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:18.581454 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:19.281962 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:20.588890 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:22.361932 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:22.597804 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:24.604833 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:25.434738 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:26.612865 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:28.550015 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:28.621196 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:30.628897 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:31.962223 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:32.638116 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:34.645949 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:35.114072 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:36.652870 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:37.934094 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:38.660856 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:40.669188 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:41.518003 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:42.676898 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:44.674031 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:44.686063 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:46.692906 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:48.586024 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:48.701292 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:50.709655 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:52.582112 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:52.716855 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:54.724872 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:55.838379 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:38:56.733926 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:58.741921 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:38:59.666013 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:39:00.749036 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:02.758949 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:03.454616 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:39:04.764920 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:06.772971 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:06.902354 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:39:08.781963 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:10.286329 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:39:10.789623 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:12.797020 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:13.914334 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:39:14.805763 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:16.812954 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:17.158064 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:39:18.820860 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:20.174056 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:39:20.829911 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:22.837897 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:23.261951 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:39:24.844902 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:25.746621 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:39:26.853860 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:28.860843 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:29.162028 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:39:30.868881 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:32.601989 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:39:32.877785 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:34.885809 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:36.074088 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:39:36.892838 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:38.901242 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:39.897953 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:39:40.908885 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:42.916910 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:43.746052 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:39:44.924983 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:46.935034 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:47.226042 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:39:48.940915 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144
+20:39:50.238086 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:0e, ethertype LLDP (0x88cc), length 259: LLDP, length 245: as7772
+20:39:50.948848 1c:ea:0b:38:2b:d6 > 01:80:c2:00:00:03, ethertype EAPOL (0x888e), length 162: unknown (5) v3, len 144

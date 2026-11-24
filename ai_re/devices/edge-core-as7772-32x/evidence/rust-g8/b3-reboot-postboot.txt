@@ -1,0 +1,67 @@
+# step 1: reboot into gen 33 (/nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3); ssh + syncd + mdio-script active after 140.918 s (+30 s wait)
+# before: uptime/date 10099.36 2026-11-24T03:14:50Z
+# h6-state.sh (helper, text in README) + macsec-up-check.sh (3c84eb3 copy, before the script copy)
+== 2026-11-24T03:17:48.974824551Z / 2026-11-23T19:17:48-08:00
+current /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+booted  /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+profile system-33-link -> /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+kernel 7.3.4; uptime 161.85 s
+== fan
+as7760_fan             28672  0
+hwmon /sys/class/hwmon/hwmon7 driver as7760_fan fan1_input=15800 pwm1=153
+fand active
+failsafe False {'asic': ('normal', 46.700000000000003, 53.299999999999997), 'board': ('normal', 35.5, 54.700000000000003), 'cpu': ('normal', 40.0, 53.299999999999997)}
+== units
+failed: 0
+sonic-nix-apply active/exited result=success
+sonic-nix-watch active/running result=success
+openbcm-mdio-script active/exited result=success
+sonic-syncd active/running result=success
+sonic-orchagent active/running result=success
+sonic-macsecmgrd active/running result=success
+-- sonic-nix-apply journal (this boot)
+Nov 23 19:15:26.641140 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 19:15:27.238203 as7772 sonic-nix[581]: sonic-nix apply: 0 field(s) written
+Nov 23 19:15:27.408407 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+== PHY bring-up
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 101.3 s
+  run started 2026-11-24 03:15:23 +0000, took 101.3 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 98.8 s (553600 writes, 426959 reads, 15799 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 43.3 C, 0 failed, longest read 0.13 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+== libsai in syncd
+/nix/store/9ykrpgxmwcracl2xwbwnxs7j1q8wx557-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+== extphy (counters)
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+ce0         49   50 up    up    no     0x0003       73        0    1     0     193     202     333     2    0        7415
+ce1         53   54 up    up    no     0x0003       72        0    1     0     191     200     334     2    0        8552
+ce30         9    9 up    up    no     0x0003       72        0    1     0     207     214     329     2    0        7331
+ce31        13   13 up    up    no     0x0003       72        0    1     0     207     203     308     2    0        9059
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 0, ended 0, expired 0; raw MDIO hold-offs 0; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 0, behind a library run 10; waits for a library run before a poll 0 (after 3 busy in a row; max 0 us, total 0 us)
+extphy: link gate time per poll (us): <=500 289, <=2000 0, <=10000 0, <=100000 0, more 0; max 345
+extphy: MACsec polls skipped during a lease 0; forced reads after 10000 ms 0 (max wait 0 us); MACsec / admin runs and SAI calls that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+extphy: SAI calls that waited for a transaction outside the SAI lock 0; waits under the SAI lock 0
+== extmacsec
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+ce30      17e  egress  on     open   sa  -   -   -   0      39     0   79514 
+ce30      17e  ingress on     open   sa  -   -   -          39     0   90836 
+ce31      17f  egress  on     open   sa  -   -   -   0      38     0   81051 
+ce31      17f  ingress on     open   sa  -   -   -          38     0   91090 
+ce0         0  egress  on     open   sa  -   -   -   0      39     0   79968 
+ce0         0  ingress on     open   sa  -   -   -          39     0   90788 
+ce1         1  egress  on     open   sa  -   -   -   0      38     0   81927 
+ce1         1  ingress on     open   sa  -   -   -          38     0   90894 
+engines in bypass: 56 of 64
+== macsec-up-check
+== 2026-11-23T19:17:50-08:00 ahzyb6kkpyy4... up 163.44 s; the start of sonic-syncd: 117.409 s; limit 60 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +10.0 s, secured +16.2 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.0 s, secured +16.3 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.4 s, secured +16.1 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.7 s, secured +16.2 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 16.3 s after the start of sonic-syncd (limit 60 s)
+]0;up-check-rc=0

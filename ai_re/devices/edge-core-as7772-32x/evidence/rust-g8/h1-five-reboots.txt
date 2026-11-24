@@ -1,0 +1,409 @@
+# step 6: five warm reboots (systemctl reboot) on gen 33 (/nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3); after each, 30 s after ssh + syncd + mdio-script were active:
+#   h6-state.sh, systemctl status sonic-nix-apply, journal of sonic-nix-apply + sonic-nix-watch (this boot), macsec-up-check.sh
+reboot 1: up in 140.831 s | /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs | hwmon /sys/class/hwmon/hwmon7 driver as7760_fan | failsafe False | failed: 0 | sonic-nix-apply active/exited result=success | ok: 32 PHYs verified after 1058160 operations in 100.8 s | up-check-rc=0 PASS: MKA up on 4 ports without intervention, the slowest 15.4 s after the start of sonic-syncd (limit 60 s)
+reboot 2: up in 140.847 s | /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs | hwmon /sys/class/hwmon/hwmon7 driver as7760_fan | failsafe False | failed: 0 | sonic-nix-apply active/exited result=success | ok: 32 PHYs verified after 1058160 operations in 102.1 s | up-check-rc=0 PASS: MKA up on 4 ports without intervention, the slowest 15.2 s after the start of sonic-syncd (limit 60 s)
+reboot 3: up in 140.903 s | /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs | hwmon /sys/class/hwmon/hwmon7 driver as7760_fan | failsafe False | failed: 0 | sonic-nix-apply active/exited result=success | ok: 32 PHYs verified after 1058160 operations in 100.6 s | up-check-rc=0 PASS: MKA up on 4 ports without intervention, the slowest 15.4 s after the start of sonic-syncd (limit 60 s)
+reboot 4: up in 141.01 s | /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs | hwmon /sys/class/hwmon/hwmon7 driver as7760_fan | failsafe False | failed: 0 | sonic-nix-apply active/exited result=success | ok: 32 PHYs verified after 1058160 operations in 101.4 s | up-check-rc=0 PASS: MKA up on 4 ports without intervention, the slowest 16.5 s after the start of sonic-syncd (limit 60 s)
+reboot 5: up in 140.88 s | /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs | hwmon /sys/class/hwmon/hwmon7 driver as7760_fan | failsafe False | failed: 0 | sonic-nix-apply active/exited result=success | ok: 32 PHYs verified after 1058160 operations in 101.0 s | up-check-rc=0 PASS: MKA up on 4 ports without intervention, the slowest 15.6 s after the start of sonic-syncd (limit 60 s)
+FileNotFoundError / Traceback / "Failed with result" lines per boot in sonic-nix-apply / -watch journals: [0,0,0,0,0]
+# ---------------- sonic-nix-apply journal lines per boot
+reboot 1: -- sonic-nix-apply journal (this boot)
+Nov 23 20:43:15.609285 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 20:43:16.191060 as7772 sonic-nix[577]: sonic-nix apply: 0 field(s) written
+Nov 23 20:43:16.352334 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+reboot 2: -- sonic-nix-apply journal (this boot)
+Nov 23 20:46:15.561778 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 20:46:16.172251 as7772 sonic-nix[583]: sonic-nix apply: 0 field(s) written
+Nov 23 20:46:16.339743 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+reboot 3: -- sonic-nix-apply journal (this boot)
+Nov 23 20:49:11.625577 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 20:49:12.232297 as7772 sonic-nix[581]: sonic-nix apply: 0 field(s) written
+Nov 23 20:49:12.399548 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+reboot 4: -- sonic-nix-apply journal (this boot)
+Nov 23 20:52:14.697861 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 20:52:15.315684 as7772 sonic-nix[582]: sonic-nix apply: 0 field(s) written
+Nov 23 20:52:15.484046 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+reboot 5: -- sonic-nix-apply journal (this boot)
+Nov 23 20:55:09.681603 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 20:55:10.298115 as7772 sonic-nix[584]: sonic-nix apply: 0 field(s) written
+Nov 23 20:55:10.465818 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+
+################ reboot 1 (rebootWait {"tag":"reboot1","tBefore":"5251.53\n2026-11-24T04:42:38Z","secs":140.831,"up":"123.56\nactive\nactive"})
+== 2026-11-24T04:45:30.198470026Z / 2026-11-23T20:45:30-08:00
+current /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+booted  /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+profile system-33-link -> /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+kernel 7.3.4; uptime 153.98 s
+== fan
+as7760_fan             28672  0
+hwmon /sys/class/hwmon/hwmon7 driver as7760_fan fan1_input=15700 pwm1=153
+fand active
+failsafe False {'asic': ('normal', 45.700000000000003, 53.299999999999997), 'board': ('normal', 35.5, 54.700000000000003), 'cpu': ('normal', 40.0, 53.299999999999997)}
+== units
+failed: 0
+sonic-nix-apply active/exited result=success
+sonic-nix-watch active/running result=success
+openbcm-mdio-script active/exited result=success
+sonic-syncd active/running result=success
+sonic-orchagent active/running result=success
+sonic-macsecmgrd active/running result=success
+-- sonic-nix-apply journal (this boot)
+Nov 23 20:43:15.609285 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 20:43:16.191060 as7772 sonic-nix[577]: sonic-nix apply: 0 field(s) written
+Nov 23 20:43:16.352334 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+== PHY bring-up
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 100.8 s
+  run started 2026-11-24 04:43:12 +0000, took 100.8 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 98.3 s (553600 writes, 426523 reads, 15363 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 44.7 C, 0 failed, longest read 0.14 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+== libsai in syncd
+/nix/store/9ykrpgxmwcracl2xwbwnxs7j1q8wx557-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+== extphy (counters)
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+ce0         49   50 up    up    no     0x0003       59        0    1     0     191     196     339     2    0        6973
+ce1         53   54 up    up    no     0x0003       58        0    1     0     189     208     342     2    0        7908
+ce30         9    9 up    up    no     0x0003       59        0    1     0     204     216     351     2    0        6759
+ce31        13   13 up    up    no     0x0003       59        0    1     0     208     216     329     2    0        7659
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 0, ended 0, expired 0; raw MDIO hold-offs 0; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 0, behind a library run 7; waits for a library run before a poll 0 (after 3 busy in a row; max 0 us, total 0 us)
+extphy: link gate time per poll (us): <=500 235, <=2000 0, <=10000 0, <=100000 0, more 0; max 362
+extphy: MACsec polls skipped during a lease 0; forced reads after 10000 ms 0 (max wait 0 us); MACsec / admin runs and SAI calls that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+extphy: SAI calls that waited for a transaction outside the SAI lock 0; waits under the SAI lock 0
+== extmacsec
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+ce30      17e  egress  on     open   sa  -   -   -   0      32     0   81820 
+ce30      17e  ingress on     open   sa  -   -   -          32     0   90829 
+ce31      17f  egress  on     open   sa  -   -   -   0      31     0   80285 
+ce31      17f  ingress on     open   sa  -   -   -          31     0   90725 
+ce0         0  egress  on     open   sa  -   -   -   0      32     0   82035 
+ce0         0  ingress on     open   sa  -   -   -          32     0   93995 
+ce1         1  egress  on     open   sa  -   -   -   0      31     0   81530 
+ce1         1  ingress on     open   sa  -   -   -          31     0   91042 
+engines in bypass: 56 of 64
+== sonic-nix-apply
+● sonic-nix-apply.service - Apply changed Nix SONiC settings to the running CONFIG_DB
+     Loaded: loaded (/etc/systemd/system/sonic-nix-apply.service; enabled; preset: ignored)
+     Active: active (exited) since Mon 2026-11-23 20:43:16 PST; 2min 14s ago
+ Invocation: 2e4400fd60234e3199db95fe5bb03e32
+    Process: 577 ExecStart=/nix/store/kma0d4ldb5ba29wnzbgqf6byyd7fqk9h-sonic-nix/bin/sonic-nix apply (code=exited, status=0/SUCCESS)
+Nov 23 20:43:15.609285 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 20:43:15.629946 as7772 systemd[1]: Started Flag runtime changes to Nix-enforced SONiC settings.
+Nov 23 20:43:16.191060 as7772 sonic-nix[577]: sonic-nix apply: 0 field(s) written
+Nov 23 20:43:16.352334 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+== macsec-up-check
+== 2026-11-23T20:45:31-08:00 ahzyb6kkpyy4... up 155.61 s; the start of sonic-syncd: 116.895 s; limit 60 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124 
+Ethernet0: secured; MKA session started +10.0 s, secured +15.0 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.0 s, secured +15.1 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.4 s, secured +15.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.7 s, secured +15.4 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 15.4 s after the start of sonic-syncd (limit 60 s)
+]0;up-check-rc=0
+
+################ reboot 2 (rebootWait {"tag":"reboot2","tBefore":"163.93\n2026-11-24T04:45:40Z","secs":140.847,"up":"124.41\nactive\nactive"})
+== 2026-11-24T04:48:31.724664135Z / 2026-11-23T20:48:31-08:00
+current /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+booted  /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+profile system-33-link -> /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+kernel 7.3.4; uptime 154.83 s
+== fan
+as7760_fan             28672  0
+hwmon /sys/class/hwmon/hwmon7 driver as7760_fan fan1_input=15800 pwm1=153
+fand active
+failsafe False {'asic': ('normal', 47.700000000000003, 53.299999999999997), 'board': ('normal', 35.5, 54.700000000000003), 'cpu': ('normal', 40.0, 53.299999999999997)}
+== units
+failed: 0
+sonic-nix-apply active/exited result=success
+sonic-nix-watch active/running result=success
+openbcm-mdio-script active/exited result=success
+sonic-syncd active/running result=success
+sonic-orchagent active/running result=success
+sonic-macsecmgrd active/running result=success
+-- sonic-nix-apply journal (this boot)
+Nov 23 20:46:15.561778 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 20:46:16.172251 as7772 sonic-nix[583]: sonic-nix apply: 0 field(s) written
+Nov 23 20:46:16.339743 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+== PHY bring-up
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 102.1 s
+  run started 2026-11-24 04:46:12 +0000, took 102.1 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 99.6 s (553600 writes, 427859 reads, 16699 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 44.3 C, 0 failed, longest read 0.13 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+== libsai in syncd
+/nix/store/9ykrpgxmwcracl2xwbwnxs7j1q8wx557-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+== extphy (counters)
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+ce0         49   50 up    up    no     0x0003       58        0    1     0     188     204     343     2    0        7446
+ce1         53   54 up    up    no     0x0003       59        0    1     0     192     202     327     2    0        6978
+ce30         9    9 up    up    no     0x0003       58        0    1     0     203     211     338     2    0        7106
+ce31        13   13 up    up    no     0x0003       58        0    1     0     202     211     335     2    0        7404
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 0, ended 0, expired 0; raw MDIO hold-offs 0; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 0, behind a library run 4; waits for a library run before a poll 0 (after 3 busy in a row; max 0 us, total 0 us)
+extphy: link gate time per poll (us): <=500 233, <=2000 0, <=10000 0, <=100000 0, more 0; max 351
+extphy: MACsec polls skipped during a lease 0; forced reads after 10000 ms 0 (max wait 0 us); MACsec / admin runs and SAI calls that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+extphy: SAI calls that waited for a transaction outside the SAI lock 0; waits under the SAI lock 0
+== extmacsec
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+ce30      17e  egress  on     open   sa  -   -   -   0      32     0   82347 
+ce30      17e  ingress on     open   sa  -   -   -          32     0   90953 
+ce31      17f  egress  on     open   sa  -   -   -   0      31     0   82617 
+ce31      17f  ingress on     open   sa  -   -   -          31     0   90075 
+ce0         0  egress  on     open   sa  -   -   -   0      32     0   79369 
+ce0         0  ingress on     open   sa  -   -   -          32     0   91074 
+ce1         1  egress  on     open   sa  -   -   -   0      31     0   80310 
+ce1         1  ingress on     open   sa  -   -   -          31     0   91043 
+engines in bypass: 56 of 64
+== sonic-nix-apply
+● sonic-nix-apply.service - Apply changed Nix SONiC settings to the running CONFIG_DB
+     Loaded: loaded (/etc/systemd/system/sonic-nix-apply.service; enabled; preset: ignored)
+     Active: active (exited) since Mon 2026-11-23 20:46:16 PST; 2min 16s ago
+ Invocation: 62bd642e96764f9f85f0b209b4d7487d
+    Process: 583 ExecStart=/nix/store/kma0d4ldb5ba29wnzbgqf6byyd7fqk9h-sonic-nix/bin/sonic-nix apply (code=exited, status=0/SUCCESS)
+Nov 23 20:46:15.561778 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 20:46:15.581722 as7772 systemd[1]: Started Flag runtime changes to Nix-enforced SONiC settings.
+Nov 23 20:46:16.172251 as7772 sonic-nix[583]: sonic-nix apply: 0 field(s) written
+Nov 23 20:46:16.339743 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+== macsec-up-check
+== 2026-11-23T20:48:33-08:00 ahzyb6kkpyy4... up 156.46 s; the start of sonic-syncd: 118.140 s; limit 60 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124 
+Ethernet0: secured; MKA session started +10.3 s, secured +14.5 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.0 s, secured +14.5 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +9.0 s, secured +15.2 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.7 s, secured +15.2 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 15.2 s after the start of sonic-syncd (limit 60 s)
+]0;up-check-rc=0
+
+################ reboot 3 (rebootWait {"tag":"reboot3","tBefore":"158.33\n2026-11-24T04:48:35Z","secs":140.903,"up":"124.49\nactive\nactive"})
+== 2026-11-24T04:51:26.841422960Z / 2026-11-23T20:51:26-08:00
+current /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+booted  /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+profile system-33-link -> /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+kernel 7.3.4; uptime 154.91 s
+== fan
+as7760_fan             28672  0
+hwmon /sys/class/hwmon/hwmon7 driver as7760_fan fan1_input=15800 pwm1=153
+fand active
+failsafe False {'asic': ('normal', 46.200000000000003, 53.299999999999997), 'board': ('normal', 35.5, 54.700000000000003), 'cpu': ('normal', 40.0, 53.299999999999997)}
+== units
+failed: 0
+sonic-nix-apply active/exited result=success
+sonic-nix-watch active/running result=success
+openbcm-mdio-script active/exited result=success
+sonic-syncd active/running result=success
+sonic-orchagent active/running result=success
+sonic-macsecmgrd active/running result=success
+-- sonic-nix-apply journal (this boot)
+Nov 23 20:49:11.625577 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 20:49:12.232297 as7772 sonic-nix[581]: sonic-nix apply: 0 field(s) written
+Nov 23 20:49:12.399548 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+== PHY bring-up
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 100.6 s
+  run started 2026-11-24 04:49:08 +0000, took 100.6 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 98.1 s (553600 writes, 426362 reads, 15202 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 45.2 C, 0 failed, longest read 0.13 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+== libsai in syncd
+/nix/store/9ykrpgxmwcracl2xwbwnxs7j1q8wx557-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+== extphy (counters)
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+ce0         49   50 up    up    no     0x0003       61        0    1     0     202     204     327     2    0        7800
+ce1         53   54 up    up    no     0x0003       61        0    1     0     309     204     327     2    0        7783
+ce30         9    9 up    up    no     0x0003       62        0    1     0     203     215     326     2    0        7450
+ce31        13   13 up    up    no     0x0003       61        0    1     0     188     203     314     2    0        7378
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 0, ended 0, expired 0; raw MDIO hold-offs 0; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 0, behind a library run 4; waits for a library run before a poll 0 (after 3 busy in a row; max 0 us, total 0 us)
+extphy: link gate time per poll (us): <=500 245, <=2000 0, <=10000 0, <=100000 0, more 0; max 336
+extphy: MACsec polls skipped during a lease 0; forced reads after 10000 ms 0 (max wait 0 us); MACsec / admin runs and SAI calls that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+extphy: SAI calls that waited for a transaction outside the SAI lock 0; waits under the SAI lock 0
+== extmacsec
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+ce30      17e  egress  on     open   sa  -   -   -   0      34     0   78609 
+ce30      17e  ingress on     open   sa  -   -   -          34     0   90944 
+ce31      17f  egress  on     open   sa  -   -   -   0      33     0   81673 
+ce31      17f  ingress on     open   sa  -   -   -          33     0   91172 
+ce0         0  egress  on     open   sa  -   -   -   0      34     0   82433 
+ce0         0  ingress on     open   sa  -   -   -          34     0   90886 
+ce1         1  egress  on     open   sa  -   -   -   0      33     0   80874 
+ce1         1  ingress on     open   sa  -   -   -          33     0   91303 
+engines in bypass: 56 of 64
+== sonic-nix-apply
+● sonic-nix-apply.service - Apply changed Nix SONiC settings to the running CONFIG_DB
+     Loaded: loaded (/etc/systemd/system/sonic-nix-apply.service; enabled; preset: ignored)
+     Active: active (exited) since Mon 2026-11-23 20:49:12 PST; 2min 15s ago
+ Invocation: e93d9b0fb9c0446fbff694c98978f557
+    Process: 581 ExecStart=/nix/store/kma0d4ldb5ba29wnzbgqf6byyd7fqk9h-sonic-nix/bin/sonic-nix apply (code=exited, status=0/SUCCESS)
+Nov 23 20:49:11.625577 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 20:49:11.645662 as7772 systemd[1]: Started Flag runtime changes to Nix-enforced SONiC settings.
+Nov 23 20:49:12.232297 as7772 sonic-nix[581]: sonic-nix apply: 0 field(s) written
+Nov 23 20:49:12.399548 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+== macsec-up-check
+== 2026-11-23T20:51:28-08:00 ahzyb6kkpyy4... up 156.53 s; the start of sonic-syncd: 116.607 s; limit 60 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124 
+Ethernet0: secured; MKA session started +9.0 s, secured +15.3 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.0 s, secured +15.4 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +9.3 s, secured +14.9 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.7 s, secured +14.9 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 15.4 s after the start of sonic-syncd (limit 60 s)
+]0;up-check-rc=0
+
+################ reboot 4 (rebootWait {"tag":"reboot4","tBefore":"166.60\n2026-11-24T04:51:38Z","secs":141.01,"up":"124.48\nactive\nactive"})
+== 2026-11-24T04:54:30.273656056Z / 2026-11-23T20:54:30-08:00
+current /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+booted  /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+profile system-33-link -> /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+kernel 7.3.4; uptime 154.93 s
+== fan
+as7760_fan             28672  0
+hwmon /sys/class/hwmon/hwmon7 driver as7760_fan fan1_input=15800 pwm1=153
+fand active
+failsafe False {'asic': ('normal', 45.200000000000003, 53.299999999999997), 'board': ('normal', 35.5, 54.700000000000003), 'cpu': ('normal', 40.0, 53.299999999999997)}
+== units
+failed: 0
+sonic-nix-apply active/exited result=success
+sonic-nix-watch active/running result=success
+openbcm-mdio-script active/exited result=success
+sonic-syncd active/running result=success
+sonic-orchagent active/running result=success
+sonic-macsecmgrd active/running result=success
+-- sonic-nix-apply journal (this boot)
+Nov 23 20:52:14.697861 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 20:52:15.315684 as7772 sonic-nix[582]: sonic-nix apply: 0 field(s) written
+Nov 23 20:52:15.484046 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+== PHY bring-up
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 101.4 s
+  run started 2026-11-24 04:52:12 +0000, took 101.4 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 98.9 s (553600 writes, 427077 reads, 15917 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 44.3 C, 0 failed, longest read 0.13 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+== libsai in syncd
+/nix/store/9ykrpgxmwcracl2xwbwnxs7j1q8wx557-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+== extphy (counters)
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+ce0         49   50 up    up    no     0x0003       60        0    1     0     194     198     340     2    0        7261
+ce1         53   54 up    up    no     0x0003       59        0    1     0     190     199     354     2    0        8148
+ce30         9    9 up    up    no     0x0003       60        0    1     0     203     215     348     2    0        8496
+ce31        13   13 up    up    no     0x0003       58        0    1     0     188     212     342     2    0        7790
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 0, ended 0, expired 0; raw MDIO hold-offs 0; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 0, behind a library run 8; waits for a library run before a poll 0 (after 3 busy in a row; max 0 us, total 0 us)
+extphy: link gate time per poll (us): <=500 237, <=2000 0, <=10000 0, <=100000 0, more 0; max 361
+extphy: MACsec polls skipped during a lease 0; forced reads after 10000 ms 0 (max wait 0 us); MACsec / admin runs and SAI calls that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+extphy: SAI calls that waited for a transaction outside the SAI lock 0; waits under the SAI lock 0
+== extmacsec
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+ce30      17e  egress  on     open   sa  -   -   -   0      33     0   81745 
+ce30      17e  ingress on     open   sa  -   -   -          33     0   90589 
+ce31      17f  egress  on     open   sa  -   -   -   0      32     0   82292 
+ce31      17f  ingress on     open   sa  -   -   -          32     0   91295 
+ce0         0  egress  on     open   sa  -   -   -   0      32     0   79936 
+ce0         0  ingress on     open   sa  -   -   -          32     0   91077 
+ce1         1  egress  on     open   sa  -   -   -   0      31     0   81674 
+ce1         1  ingress on     open   sa  -   -   -          31     0   91245 
+engines in bypass: 56 of 64
+== sonic-nix-apply
+● sonic-nix-apply.service - Apply changed Nix SONiC settings to the running CONFIG_DB
+     Loaded: loaded (/etc/systemd/system/sonic-nix-apply.service; enabled; preset: ignored)
+     Active: active (exited) since Mon 2026-11-23 20:52:15 PST; 2min 15s ago
+ Invocation: 341f417a28e8416b92a06310f36dcdb7
+    Process: 582 ExecStart=/nix/store/kma0d4ldb5ba29wnzbgqf6byyd7fqk9h-sonic-nix/bin/sonic-nix apply (code=exited, status=0/SUCCESS)
+Nov 23 20:52:14.697861 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 20:52:14.717665 as7772 systemd[1]: Started Flag runtime changes to Nix-enforced SONiC settings.
+Nov 23 20:52:15.315684 as7772 sonic-nix[582]: sonic-nix apply: 0 field(s) written
+Nov 23 20:52:15.484046 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+== macsec-up-check
+== 2026-11-23T20:54:31-08:00 ahzyb6kkpyy4... up 156.56 s; the start of sonic-syncd: 117.528 s; limit 60 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124 
+Ethernet0: secured; MKA session started +10.0 s, secured +16.4 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.0 s, secured +16.5 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.4 s, secured +15.0 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.7 s, secured +15.0 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 16.5 s after the start of sonic-syncd (limit 60 s)
+]0;up-check-rc=0
+
+################ reboot 5 (rebootWait {"tag":"reboot5","tBefore":"158.44\n2026-11-24T04:54:33Z","secs":140.88,"up":"124.05\nactive\nactive"})
+== 2026-11-24T04:57:25.374830342Z / 2026-11-23T20:57:25-08:00
+current /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+booted  /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+profile system-33-link -> /nix/store/ahzyb6kkpyy4rb8pkps1j2y841kcs4cq-nixos-system-as7772-26.11.20261111.d4f25a3
+kernel 7.3.4; uptime 154.47 s
+== fan
+as7760_fan             28672  0
+hwmon /sys/class/hwmon/hwmon7 driver as7760_fan fan1_input=15800 pwm1=153
+fand active
+failsafe False {'asic': ('normal', 46.700000000000003, 53.299999999999997), 'board': ('normal', 35.5, 54.700000000000003), 'cpu': ('normal', 40.0, 53.299999999999997)}
+== units
+failed: 0
+sonic-nix-apply active/exited result=success
+sonic-nix-watch active/running result=success
+openbcm-mdio-script active/exited result=success
+sonic-syncd active/running result=success
+sonic-orchagent active/running result=success
+sonic-macsecmgrd active/running result=success
+-- sonic-nix-apply journal (this boot)
+Nov 23 20:55:09.681603 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 20:55:10.298115 as7772 sonic-nix[584]: sonic-nix apply: 0 field(s) written
+Nov 23 20:55:10.465818 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+== PHY bring-up
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 101.0 s
+  run started 2026-11-24 04:55:06 +0000, took 101.0 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 98.5 s (553600 writes, 426743 reads, 15583 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 44.7 C, 0 failed, longest read 0.14 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+== libsai in syncd
+/nix/store/9ykrpgxmwcracl2xwbwnxs7j1q8wx557-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+== extphy (counters)
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+ce0         49   50 up    up    no     0x0003       60        0    1     0     188     198     309     2    0        7329
+ce1         53   54 up    up    no     0x0003       60        0    1     0     310     203     317     2    0        7550
+ce30         9    9 up    up    no     0x0003       60        0    1     0     203     222     386     2    0        7541
+ce31        13   13 up    up    no     0x0003       59        0    1     0     203     214     325     2    0        7120
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 0, ended 0, expired 0; raw MDIO hold-offs 0; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 0, behind a library run 5; waits for a library run before a poll 0 (after 3 busy in a row; max 0 us, total 0 us)
+extphy: link gate time per poll (us): <=500 239, <=2000 0, <=10000 0, <=100000 0, more 0; max 395
+extphy: MACsec polls skipped during a lease 0; forced reads after 10000 ms 0 (max wait 0 us); MACsec / admin runs and SAI calls that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+extphy: SAI calls that waited for a transaction outside the SAI lock 0; waits under the SAI lock 0
+== extmacsec
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+ce30      17e  egress  on     open   sa  -   -   -   0      33     0   79141 
+ce30      17e  ingress on     open   sa  -   -   -          33     0   90762 
+ce31      17f  egress  on     open   sa  -   -   -   0      32     0   81914 
+ce31      17f  ingress on     open   sa  -   -   -          32     0   90908 
+ce0         0  egress  on     open   sa  -   -   -   0      33     0   80079 
+ce0         0  ingress on     open   sa  -   -   -          33     0   94004 
+ce1         1  egress  on     open   sa  -   -   -   0      32     0   81834 
+ce1         1  ingress on     open   sa  -   -   -          32     0   91061 
+engines in bypass: 56 of 64
+== sonic-nix-apply
+● sonic-nix-apply.service - Apply changed Nix SONiC settings to the running CONFIG_DB
+     Loaded: loaded (/etc/systemd/system/sonic-nix-apply.service; enabled; preset: ignored)
+     Active: active (exited) since Mon 2026-11-23 20:55:10 PST; 2min 15s ago
+ Invocation: cc1af4af5b92482386aa77313a0297ab
+    Process: 584 ExecStart=/nix/store/kma0d4ldb5ba29wnzbgqf6byyd7fqk9h-sonic-nix/bin/sonic-nix apply (code=exited, status=0/SUCCESS)
+Nov 23 20:55:09.681603 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 20:55:09.701349 as7772 systemd[1]: Started Flag runtime changes to Nix-enforced SONiC settings.
+Nov 23 20:55:10.298115 as7772 sonic-nix[584]: sonic-nix apply: 0 field(s) written
+Nov 23 20:55:10.465818 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+== macsec-up-check
+== 2026-11-23T20:57:27-08:00 ahzyb6kkpyy4... up 156.10 s; the start of sonic-syncd: 117.022 s; limit 60 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124 
+Ethernet0: secured; MKA session started +10.0 s, secured +15.5 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.0 s, secured +15.6 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +10.4 s, secured +14.8 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.7 s, secured +14.8 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 15.6 s after the start of sonic-syncd (limit 60 s)
+]0;up-check-rc=0

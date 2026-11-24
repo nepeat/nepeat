@@ -1,0 +1,71 @@
+# H6 baseline, gen 32 (rollback target: system-32-link -> /nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3)
+== 2026-11-24T03:13:49.991468415Z / 2026-11-23T19:13:50-08:00
+current /nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+booted  /nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+profile system-32-link -> /nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+kernel 7.3.4; uptime 10038.57 s
+== fan
+as7760_fan             28672  0
+hwmon /sys/class/hwmon/hwmon7 driver as7760_fan fan1_input=17000 pwm1=170
+fand active
+failsafe False {'asic': ('normal', 46.200000000000003, 53.299999999999997), 'board': ('normal', 35.5, 61.5), 'cpu': ('normal', 40.0, 53.299999999999997)}
+== units
+failed: 0
+sonic-nix-apply active/exited result=success
+sonic-nix-watch active/running result=success
+openbcm-mdio-script active/exited result=success
+sonic-syncd active/running result=success
+sonic-orchagent active/running result=success
+sonic-macsecmgrd active/running result=success
+-- sonic-nix-apply journal (this boot)
+Nov 23 16:26:51.481983 as7772 sonic-nix[586]:     ~~~~~~~^^^^^^^^^^^^^^^^^
+Nov 23 16:26:51.482748 as7772 sonic-nix[586]:   File "/nix/store/9sb413fvf44n1rggdsbkp973yi3azaa5-sonic-nix.py", line 284, in publish
+Nov 23 16:26:51.482748 as7772 sonic-nix[586]:     atomic_write(os.path.join(RUN, "issue"), text.replace("\\", "\\\\") + ("\n" if text else ""))
+Nov 23 16:26:51.482748 as7772 sonic-nix[586]:     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Nov 23 16:26:51.482748 as7772 sonic-nix[586]:   File "/nix/store/9sb413fvf44n1rggdsbkp973yi3azaa5-sonic-nix.py", line 244, in atomic_write
+Nov 23 16:26:51.482748 as7772 sonic-nix[586]:     os.replace(tmp, path)
+Nov 23 16:26:51.482748 as7772 sonic-nix[586]:     ~~~~~~~~~~^^^^^^^^^^^
+Nov 23 16:26:51.482748 as7772 sonic-nix[586]: FileNotFoundError: [Errno 2] No such file or directory: '/run/sonic-nix/issue.tmp' -> '/run/sonic-nix/issue'
+Nov 23 16:26:51.635952 as7772 systemd[1]: sonic-nix-apply.service: Main process exited, code=exited, status=1/FAILURE
+Nov 23 16:26:51.636808 as7772 systemd[1]: sonic-nix-apply.service: Failed with result 'exit-code'.
+Nov 23 16:26:51.638839 as7772 systemd[1]: Failed to start Apply changed Nix SONiC settings to the running CONFIG_DB.
+Nov 23 16:26:51.669236 as7772 systemd[1]: sonic-nix-apply.service: Consumed 752ms CPU time over 779ms wall clock time, 12.1M memory peak, 90B incoming IP traffic, 93B outgoing IP traffic.
+Nov 23 16:29:31.156934 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+Nov 23 16:29:31.607994 as7772 sonic-nix[1538]: sonic-nix apply: 0 field(s) written
+Nov 23 16:29:31.704240 as7772 systemd[1]: Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+== PHY bring-up
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 101.5 s
+  run started 2026-11-24 00:26:48 +0000, took 101.5 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 99.0 s (553600 writes, 427148 reads, 15988 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 20 readings, last 43.8 C, 0 failed, longest read 0.14 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+== libsai in syncd
+/nix/store/pvg2c84dxfn92xqj7f3bfawwdinfiyxv-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+== extphy (counters)
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 32 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+ce0         49   50 up    up    no     0x0003    19346        0    1     0     322     211    1228     2    0        7398
+ce1         53   54 up    up    no     0x0003    19346        0    1     0     188     197     626     2    0        7611
+ce30         9    9 up    up    no     0x0003    19346        0    1     0     202     210     506     2    0        7522
+ce31        13   13 up    up    no     0x0003    19346        0    1     0     187     198     460     2    0        6710
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 0, ended 0, expired 0; raw MDIO hold-offs 32; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 46; waits for a library run before a poll 631 (max 72186 us, total 3688172 us)
+extphy: MACsec polls skipped during a lease 24; forced reads after 10000 ms 8 (max wait 0 us); MACsec / admin runs that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+== extmacsec
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+ce30      17e  egress  on     open   sa  -   -   -   0   10863     0   80672 
+ce30      17e  ingress on     open   sa  -   -   -       10863     0   89261 
+ce31      17f  egress  on     open   sa  -   -   -   0   10862     0   81712 
+ce31      17f  ingress on     open   sa  -   -   -       10862     0   89529 
+ce0         0  egress  on     open   sa  -   -   -   0   10862     0   81875 
+ce0         0  ingress on     open   sa  -   -   -       10862     0   89018 
+ce1         1  egress  on     open   sa  -   -   -   0   10861     0   81251 
+ce1         1  ingress on     open   sa  -   -   -       10861     0   89542 
+engines in bypass: 56 of 64
+total 0
+drwxr-xr-x  2 root root   40 Nov 23 16:31 .
+drwxr-xr-x 34 root root 1000 Nov 23 16:29 ..
+CHECK OK: the four DAC ports up and looped to themselves (LLDP), nothing else up, no leftovers
+ring-rc=0
