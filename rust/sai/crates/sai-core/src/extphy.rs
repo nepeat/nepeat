@@ -14,8 +14,17 @@
 //! access is logged as the `mdio_c45_read` / `_write` it stands for, as the C++ gate's calls on
 //! the recording backend are). A gate closure holds a clone of the runtime and of the `MACsec`
 //! hold: it takes the runtime's PHY slot for its port's PHYs and the handle's lock, never the
-//! SAI lock. Lock order: SAI lock, a diag lease, a PHY's slot, the bus master's (`sai-extphy`,
-//! "Serialisation").
+//! SAI lock. Lock order: a PHY claim (outside the SAI lock), the SAI lock, a PHY's slot, the bus
+//! master's (`sai-extphy`, "Serialisation", "SAI calls and the SAI lock").
+//!
+//! # Claims
+//!
+//! Every PHY change of a SAI call (a port's admin state here, the `MACsec` model's changes in
+//! [`crate::macsec`]) claims its PHYs **before its first effect** ([`claim_admin`],
+//! [`claim_phys`]): inside the rim's [`call`] a transaction in the way makes the call return at
+//! once with nothing done (`OBJECT_IN_USE`, never seen by the caller: the rim waits outside the SAI
+//! lock and runs the call again). "Backend first, store second" holds: nothing reached the backend
+//! or the store before the claim.
 //!
 //! # The diag socket's raw MDIO
 //!
@@ -47,8 +56,9 @@ use std::fmt;
 use std::sync::Arc;
 
 pub use sai_extphy::{
-    ArbCounts, ChipPort as ChipPortNo, Clock, DiagTarget, DiagWho, ExtPhy, LEASE_DEFAULT_MS, LEASE_MAX_MS, LeaseScope,
-    LeaseView, MACSEC_POLL_DEFER_MAX_MS, ManualClock, SystemClock, TxnRefused,
+    ArbCounts, ChipPort as ChipPortNo, Claim, Clock, Deferred, DiagTarget, DiagWho, ExtPhy, GATE_BUSY_MAX,
+    LEASE_DEFAULT_MS, LEASE_MAX_MS, LeaseScope, LeaseView, MACSEC_POLL_DEFER_MAX_MS, ManualClock, SystemClock,
+    TxnRefused, call, in_call, sai_locked, under_sai_lock,
 };
 
 /// `SAI_OPENBCM_EXT_PHY_FILE`
@@ -320,6 +330,23 @@ pub(crate) fn ext_phy_detach<B: Backend + ?Sized>(backend: &mut B, ext: &Externa
 pub(crate) fn ext_phy_admin<B: Backend + ?Sized>(backend: &mut B, store: &Store, hw: HwPort, up: bool) {
     let _ = backend;
     ext_phy_admin_at(store.ext(), hw, up);
+}
+
+/// The claim of a port's admin change: the PHYs its admin sequences (and its link poll) run on;
+/// before the change's first effect. Deferred (inside [`call`]): `ObjectInUse`, the call returns
+/// at once and runs again.
+pub(crate) fn claim_admin(store: &Store, hw: HwPort) -> Result<Claim> {
+    store
+        .ext()
+        .phy
+        .claim_port(ChipPort(hw.0))
+        .map_err(|_| Error::ObjectInUse)
+}
+
+/// The claim of `phys` on the switch's runtime `phy` (the `MACsec` model's changes): as
+/// [`claim_admin`].
+pub(crate) fn claim_phys(phy: &ExtPhy, phys: &[u16]) -> Result<Claim> {
+    phy.claim(phys).map_err(|_| Error::ObjectInUse)
 }
 
 /// [`ext_phy_admin`] on the state of a switch that is being built (not in a store yet).

@@ -371,6 +371,8 @@ pub(crate) fn set<B: Backend>(
     match (attr.id, &attr.value) {
         (sys::SAI_PORT_ATTR_ADMIN_STATE, Value::Bool(up)) => {
             let up = *up;
+            // the external PHY's PHYs, claimed before anything is changed (`extphy`, "Claims")
+            let _claim = extphy::claim_admin(store, hw)?;
             // The external PHY's line side comes on before the MAC and goes off after it.
             if up {
                 extphy::ext_phy_admin(backend, store, hw, true);

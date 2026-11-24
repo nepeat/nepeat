@@ -27,14 +27,14 @@ use sai_core::backend::HwPort;
 use sai_core::backend::types::{MdioDev, PhyAddr};
 use sai_core::macsec::{
     AclSide, BusTurn, BusUse, ChipPortInfo, MacsecBus, MacsecIo, MacsecLoader, MacsecModel, MacsecObject,
-    MacsecOptions, MacsecPending, Secret, StatsMode,
+    MacsecOptions, MacsecPending, Reach as CoreReach, Secret, StatsMode,
 };
 use sai_core::oid::{PortId, RawOid};
 use sai_core::value::{AclAction as CoreAction, AclField as CoreField, AclFieldData, AclKind, AclParam, FieldMatch};
 use sai_core::{Error, Result};
 use sai_macsec::{
-    AclEntryId, AclField, AclParameter, AclTableId, Attr, ChipPort, Dir, FlowId, Level, Macsec, MacsecId, MacsecPortId,
-    Options, Params, PortKey, Results, SaId, ScId, SeqError, SeqRunner, Value,
+    AclEntryId, AclField, AclParameter, AclTableId, Attr, Change, ChipPort, Dir, FlowId, Level, Macsec, MacsecId,
+    MacsecPortId, Options, Params, PortKey, Reach, Results, SaId, ScId, SeqError, SeqRunner, Value,
 };
 use sai_sys as sys;
 use std::collections::{BTreeMap, VecDeque};
@@ -190,6 +190,16 @@ impl Engine {
             .collect();
         let names = table.sequences().map(|(name, _)| name.to_owned()).collect();
         Self { table, names, phy_of }
+    }
+
+    /// The PHYs any sequence of the table addresses when it runs for `port` (none for a port
+    /// without a `MACsec` PHY).
+    fn port_phys(&self, port: PortKey, into: &mut std::collections::BTreeSet<u16>) {
+        if let Some(&phy) = self.phy_of.get(&port) {
+            for (_, seq) in self.table.sequences() {
+                into.extend(sai_extphy_phys(seq.ops(), phy));
+            }
+        }
     }
 
     fn result_names(&self, name: &str) -> Vec<String> {
@@ -801,6 +811,56 @@ impl MacsecModel for Native {
             MacsecObject::Sc => m.clear_sc_stats(typed(id)?),
             _ => Err(Error::InvalidObjectType),
         }
+    }
+
+    fn reach(&self, change: CoreReach<'_>) -> Vec<u16> {
+        let Some(engine) = self.engine.as_ref() else {
+            return Vec::new(); // no table: nothing runs
+        };
+        let attrs;
+        let change = match change {
+            CoreReach::Create(object, a) => {
+                attrs = to_model_all(a);
+                match object {
+                    MacsecObject::Port => Some(Change::CreateMacsecPort(&attrs)),
+                    MacsecObject::Sa => Some(Change::CreateSa(&attrs)),
+                    MacsecObject::AclEntry => Some(Change::CreateAclEntry(&attrs)),
+                    // no sequence (the model's call has no runner)
+                    _ => None,
+                }
+            }
+            CoreReach::Remove(object, raw) => match object {
+                MacsecObject::Port => typed::<MacsecPortId>(raw).ok().map(Change::RemoveMacsecPort),
+                MacsecObject::Sa => typed::<SaId>(raw).ok().map(Change::RemoveSa),
+                MacsecObject::AclEntry => typed::<AclEntryId>(raw).ok().map(Change::RemoveAclEntry),
+                _ => None,
+            },
+            CoreReach::Set(object, raw) => match object {
+                MacsecObject::AclEntry => typed::<AclEntryId>(raw).ok().map(Change::SetAclEntry),
+                _ => None,
+            },
+            CoreReach::Clear(object, raw) => match object {
+                MacsecObject::Sa => typed::<SaId>(raw).ok().map(Change::ClearSa),
+                MacsecObject::Flow => typed::<FlowId>(raw).ok().map(Change::ClearFlow),
+                _ => None,
+            },
+            CoreReach::PortAcl(port) => Some(Change::PortAcl(port)),
+        };
+        // an id of the wrong type: the call fails before it runs anything
+        let Some(change) = change else {
+            return Vec::new();
+        };
+        let mut phys = std::collections::BTreeSet::new();
+        match self.model.reach(change) {
+            Reach::Nothing => {}
+            Reach::Port(port) => engine.port_phys(port, &mut phys),
+            Reach::Every => {
+                for port in engine.phy_of.keys() {
+                    engine.port_phys(*port, &mut phys);
+                }
+            }
+        }
+        phys.into_iter().collect()
     }
 
     fn owns(&self, object: MacsecObject, id: RawOid) -> bool {

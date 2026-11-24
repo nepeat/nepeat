@@ -1168,16 +1168,28 @@ impl MdioDevice for FwDevice {
     }
 }
 
-/// The rim's host over a core behind one mutex (the SAI lock).
+/// The rim's host over a core behind one mutex (the SAI lock), as `sai-ffi`'s `state` holds it:
+/// everything under the lock is marked (`extphy::under_sai_lock`), and a SAI call goes through
+/// `extphy::call` ([`TxnHost::call`], the rim's `with_api_call`).
 struct TxnHost {
     sai: Mutex<Core>,
     uid: u32,
 }
 
+impl TxnHost {
+    /// One SAI call as the rim makes it.
+    fn call<T>(&self, mut body: impl FnMut(&mut Core) -> T) -> T {
+        extphy::call(|| {
+            let mut sai = self.sai.lock().unwrap();
+            extphy::under_sai_lock(|| body(&mut sai))
+        })
+    }
+}
+
 impl DiagHost for TxnHost {
     fn with_handler(&self, body: &mut dyn FnMut(Option<&mut dyn DiagHandler>)) {
         let mut sai = self.sai.lock().unwrap();
-        body(Some(&mut *sai));
+        extphy::under_sai_lock(|| body(Some(&mut *sai)));
     }
     fn peer_uid(&self, _conn: BorrowedFd<'_>) -> Option<u32> {
         Some(self.uid)
@@ -1197,6 +1209,8 @@ fn until(what: &str, cond: impl Fn() -> bool) {
 
 fn ask(path: &std::path::Path, line: &str) -> String {
     let mut s = std::os::unix::net::UnixStream::connect(path).unwrap();
+    // a watchdog only: an answer that never comes is a failure, not a hang
+    s.set_read_timeout(Some(Duration::from_secs(60))).unwrap();
     s.write_all(format!("{line}\n").as_bytes()).unwrap();
     s.shutdown(std::net::Shutdown::Write).unwrap();
     let mut out = String::new();
@@ -1218,7 +1232,7 @@ struct TxnRig {
     sa: RawOid,
     /// The runtime's clock: leases run out only when a test moves it.
     clock: ManualClock,
-    _server: DiagServer,
+    server: DiagServer,
     dir: std::path::PathBuf,
 }
 
@@ -1265,7 +1279,7 @@ fn txn_rig(name: &str) -> TxnRig {
         sc,
         sa,
         clock,
-        _server: server,
+        server,
         dir,
     }
 }
@@ -1292,10 +1306,11 @@ fn socket_conversation(path: &std::path::Path, txn: Option<u64>, cmd: u16) -> St
 }
 
 /// The diag socket with the switch's PHY arbitration: a transaction's raw MDIO is served without
-/// the SAI lock (an SA install that waits for the transaction holds it meanwhile), the install
-/// runs once the transaction ends, the PN get inside it answers its last read without a bus
-/// access, the link poll answers its last verdict; nothing interleaves. The recording backend
-/// logs the served accesses as the MDIO operations they are (no shell command).
+/// the SAI lock, an SA install that meets the transaction waits for it **outside** the SAI lock
+/// (diag commands that need the lock are answered meanwhile) and runs once the transaction ends,
+/// the PN get inside it answers its last read without a bus access, the link poll answers its
+/// last verdict; nothing interleaves. The recording backend logs the served accesses as the MDIO
+/// operations they are (no shell command).
 #[test]
 fn a_diag_transaction_holds_sonic_changes_off_and_needs_no_sai_lock() {
     let t = txn_rig("txn");
@@ -1342,20 +1357,28 @@ fn a_diag_transaction_holds_sonic_changes_off_and_needs_no_sai_lock() {
     assert_eq!(pn, [Value::U64(1)]);
     assert_eq!(t.ext.gate(extphy::ChipPortNo(1)), sai_extphy::Verdict::NoOpinion);
     assert_eq!(ops(&t), before);
-    // an SA install (rekey): waits for the transaction, holding the SAI lock
+    // an SA install (rekey): its claim meets the transaction, so the call lets go of the SAI lock
+    // and waits for it outside
     let done = Arc::new(AtomicBool::new(false));
     let sai_thread = {
         let (host, done, sc) = (Arc::clone(&t.host), Arc::clone(&done), t.sc);
         std::thread::spawn(move || {
-            let mut sai = host.sai.lock().unwrap();
-            sai.macsec_create(MacsecObject::Sa, &sa_attrs(EGR, sc, 1, false, false, 1))
+            host.call(|sai| sai.macsec_create(MacsecObject::Sa, &sa_attrs(EGR, sc, 1, false, false, 1)))
                 .unwrap();
             done.store(true, Ordering::SeqCst);
         })
     };
     until("the SA install waits for the transaction", || t.ext.waiting() == 1);
     assert!(!done.load(Ordering::SeqCst));
-    // the SAI lock is held: raw MDIO of the transaction is still served
+    // the SAI lock is free meanwhile: a SAI call and a diag command that need it are served
+    drop(
+        t.host
+            .sai
+            .try_lock()
+            .expect("the SAI lock is free while the install waits"),
+    );
+    assert!(ask(&t.path, "extmacsec").starts_with("extmacsec: "));
+    // raw MDIO of the transaction is served
     assert_eq!(p("0x8221"), "\t0x8221: 0x18e3\n");
     assert_eq!(p("0xa100"), "\t0xa100: 0x0002\n");
     assert_eq!(p("0xa101"), "\t0xa101: 0x0003\n");
@@ -1369,6 +1392,7 @@ fn a_diag_transaction_holds_sonic_changes_off_and_needs_no_sai_lock() {
     let c = t.ext.counts();
     assert_eq!((c.txn_begun, c.txn_ended, c.gate_cached), (1, 1, 1));
     assert!(c.polls_skipped >= 1 && c.op_waits >= 1, "{c:?}");
+    assert_eq!((c.calls_deferred, c.locked_waits), (1, 0), "{c:?}");
     // served by the arbitration: MDIO operations in the call log, no shell command
     let lines = log.take();
     assert!(
@@ -1417,29 +1441,32 @@ fn link_scan_sai_and_diag_threads_on_one_phy_never_interleave() {
             let mut n = 0u64;
             let p0 = t.p0;
             while !stop.load(Ordering::SeqCst) {
-                let mut sai = t.host.sai.lock().unwrap();
-                sai.macsec_get(MacsecObject::Sa, t.sa, &[sys::SAI_MACSEC_SA_ATTR_CURRENT_XPN])
+                // each one a SAI call of the rim (a change that meets a transaction waits for it
+                // outside the SAI lock)
+                let h = &t.host;
+                h.call(|sai| sai.macsec_get(MacsecObject::Sa, t.sa, &[sys::SAI_MACSEC_SA_ATTR_CURRENT_XPN]))
                     .unwrap();
-                sai.macsec_stats(
-                    MacsecObject::Sa,
-                    t.sa,
-                    &[sys::SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED],
-                    StatsMode::Read,
-                )
+                h.call(|sai| {
+                    sai.macsec_stats(
+                        MacsecObject::Sa,
+                        t.sa,
+                        &[sys::SAI_MACSEC_SA_STAT_OUT_PKTS_ENCRYPTED],
+                        StatsMode::Read,
+                    )
+                })
                 .unwrap();
                 if n.is_multiple_of(5) {
-                    let sa = sai
-                        .macsec_create(MacsecObject::Sa, &sa_attrs(EGR, t.sc, 2, false, false, 1))
+                    let sa = h
+                        .call(|sai| sai.macsec_create(MacsecObject::Sa, &sa_attrs(EGR, t.sc, 2, false, false, 1)))
                         .unwrap();
-                    sai.macsec_remove(MacsecObject::Sa, sa).unwrap();
+                    h.call(|sai| sai.macsec_remove(MacsecObject::Sa, sa)).unwrap();
                 }
                 if n.is_multiple_of(7) {
                     for up in [false, true] {
-                        sai.set(PORT, p0, &Attr::new(sys::SAI_PORT_ATTR_ADMIN_STATE, Value::Bool(up)))
+                        h.call(|sai| sai.set(PORT, p0, &Attr::new(sys::SAI_PORT_ATTR_ADMIN_STATE, Value::Bool(up))))
                             .unwrap();
                     }
                 }
-                drop(sai);
                 n += 1;
                 rounds[1].fetch_add(1, Ordering::SeqCst);
                 std::thread::yield_now();
@@ -1484,6 +1511,89 @@ fn link_scan_sai_and_diag_threads_on_one_phy_never_interleave() {
     assert!(!status.contains(": line "), "a MACsec sequence failed:\n{status}");
     let c = t.ext.counts();
     assert!(c.txn_begun >= ROUNDS && c.txn_expired >= ROUNDS / 4, "{c:?}");
+    assert_eq!(c.locked_waits, 0, "{c:?}");
+    assert_eq!(t.ext.claimed(), 0, "a claim outlived its call");
     let phy = t.ext.port_counters(extphy::ChipPortNo(1)).unwrap();
     assert_eq!(phy.faults, 0, "{phy:?}");
+}
+
+/// The loop that expired two leases on the AS7772 (evidence `rust-g7` d4: "txn expired (1001 ms,
+/// 0 accesses)"), set up exactly: a tool's transaction on PHY 0x10 half-way through a firmware
+/// conversation; syncd's SA install on that PHY; a second client's `extmacsec` status, queued on
+/// the SAI lock. Before: the install waited for the lease **holding** the SAI lock, the status
+/// command waited for the lock, and the server (one connection at a time) had the tool's next
+/// request queued behind it, so only the lease's expiry broke it. Now: the install waits outside
+/// the SAI lock, the status command is answered while the transaction is still live, the tool's
+/// next access is served beside the queued command, the install runs right after the transaction
+/// ends, and no lease runs out (the injected clock never moves).
+#[test]
+fn the_expired_lease_loop_of_the_as7772_cannot_form() {
+    let t = txn_rig("loop");
+    let p = |rest: &str| ask(&t.path, &format!("extphy txn 1 phy raw c45 0x10 1 {rest}"));
+    assert!(ask(&t.path, "extphy txn begin 0x10").starts_with("txn 1 begun: phy 0x10, lease 1000 ms"));
+    assert_eq!(p("0x8221"), "\t0x8221: 0x0000\n");
+    assert_eq!(p("0xa000 0xc161"), "");
+    assert_eq!(p("0x8222 0x1888"), "");
+    // syncd: an SA install (rekey) on the leased PHY
+    let done = Arc::new(AtomicBool::new(false));
+    let install = {
+        let (host, done, sc) = (Arc::clone(&t.host), Arc::clone(&done), t.sc);
+        std::thread::spawn(move || {
+            let sa = host
+                .call(|sai| sai.macsec_create(MacsecObject::Sa, &sa_attrs(EGR, sc, 1, false, false, 1)))
+                .unwrap();
+            done.store(true, Ordering::SeqCst);
+            sa
+        })
+    };
+    until("the install waits for the transaction", || t.ext.waiting() == 1);
+    // a second client's status command, queued on the SAI lock (held here for the moment, as the
+    // install held it before)
+    let held = {
+        let t0 = Instant::now();
+        loop {
+            if let Ok(guard) = t.host.sai.try_lock() {
+                break guard;
+            }
+            assert!(
+                t0.elapsed() < Duration::from_secs(60),
+                "the install holds the SAI lock while it waits (the old loop)"
+            );
+            std::thread::yield_now();
+        }
+    };
+    let status = {
+        let path = t.path.clone();
+        std::thread::spawn(move || ask(&path, "extmacsec"))
+    };
+    until("the status command is being served", || t.server.serving() == 1);
+    // the tool's next access: served beside it, without the SAI lock
+    assert_eq!(p("0x8221"), "\t0x8221: 0x18e3\n");
+    drop(held);
+    // the status command is answered while the transaction is still live and the install waits
+    let text = status.join().unwrap();
+    assert!(
+        text.starts_with("extmacsec: ") && !text.contains("openbcm-diag:"),
+        "{text}"
+    );
+    assert!(!done.load(Ordering::SeqCst));
+    assert_eq!(t.ext.waiting(), 1);
+    assert!(ask(&t.path, "extphy txn list").contains("txn 1 phy 0x10: "));
+    // the conversation completes, the transaction ends, the install runs right after it
+    assert_eq!(p("0xa100"), "\t0xa100: 0x0002\n");
+    assert_eq!(p("0xa101"), "\t0xa101: 0x0003\n");
+    assert!(ask(&t.path, "extphy txn end 1").starts_with("txn 1 ended: 6 accesses in "));
+    let sa = install.join().unwrap();
+    assert!(done.load(Ordering::SeqCst));
+    let an = t
+        .host
+        .call(|sai| sai.macsec_get(MacsecObject::Sa, sa, &[sys::SAI_MACSEC_SA_ATTR_AN]))
+        .unwrap();
+    assert_eq!(an, [Value::U8(1)]);
+    assert_eq!(t.fw.violations(), Vec::<String>::new());
+    let c = t.ext.counts();
+    assert_eq!((c.txn_begun, c.txn_ended, c.txn_expired), (1, 1, 0), "{c:?}");
+    assert_eq!((c.calls_deferred, c.op_waits, c.locked_waits), (1, 1, 0), "{c:?}");
+    assert_eq!(t.ext.claimed(), 0);
+    assert_eq!(t.server.serving(), 0);
 }

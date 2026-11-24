@@ -77,12 +77,21 @@ rustPlatform.buildRustPackage {
     # 1. test_sai through the test port (exit 0 unless the harness broke, or strict and red)
     LIBSAI=$PWD/$so SUMMARY=$TMPDIR/parity/test-port.txt BUILD_DIR=$TMPDIR/test-port CPP_REF=build \
       ${lib.optionalString strict "HARNESS_STRICT=1"} bash tests/test-port/run.sh 2>&1 | tee $TMPDIR/parity/test-port-run.txt
+    # The summaries in $out are reproducible (nix build --rebuild): the test binaries are built first
+    # (cargo's "Compiling" lines come in no fixed order: they go to the build log, not to $out), the
+    # runs are single-threaded (libtest prints results in completion order) and their timings are cut.
+    mkdir -p $TMPDIR/parity-build
+    steady() { grep -vE '^ *(Compiling|Finished|Fresh|Blocking|Running) ' | sed -E 's/(finished in )[0-9.]+s/\1(time)/'; }
     # 2. the driver differential (green only when every difference is in the allow-list)
-    cargo test --offline --profile "$cargoCheckType" -p sai-driver --test differential -- --nocapture 2>&1 \
-      | tee $TMPDIR/parity/differential.txt
+    cargo test --offline --profile "$cargoCheckType" -p sai-driver --test differential --no-run 2>&1 \
+      | tee $TMPDIR/parity-build/differential.txt
+    cargo test --offline --profile "$cargoCheckType" -p sai-driver --test differential -- --nocapture --test-threads=1 2>&1 \
+      | steady | tee $TMPDIR/parity/differential.txt
     # 3. the glue-call golden (same rule)
-    cargo test --offline --profile "$cargoCheckType" -p sai-backend-openbcm --test glue_differential -- --nocapture 2>&1 \
-      | tee $TMPDIR/parity/glue-differential.txt
+    cargo test --offline --profile "$cargoCheckType" -p sai-backend-openbcm --test glue_differential --no-run 2>&1 \
+      | tee $TMPDIR/parity-build/glue-differential.txt
+    cargo test --offline --profile "$cargoCheckType" -p sai-backend-openbcm --test glue_differential -- --nocapture --test-threads=1 2>&1 \
+      | steady | tee $TMPDIR/parity/glue-differential.txt
     if grep -q SKIPPED $TMPDIR/parity/differential.txt $TMPDIR/parity/glue-differential.txt; then
       echo "a differential was skipped although its inputs are here"; exit 1
     fi

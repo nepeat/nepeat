@@ -17,13 +17,13 @@ D1=02:00:00:00:00:d1; D2=02:00:00:00:00:d2
 case "${1:-}" in
 up)
   systemctl stop sonic.target
-  for i in $(seq 30); do systemctl is-active -q sonic-syncd || break; sleep 1; done
+  for _ in $(seq 30); do systemctl is-active -q sonic-syncd || break; sleep 1; done
   sleep 12; systemctl stop openbcm-asic-temp      # it comes back when syncd stops; the SDK lock allows one process
   cfg=$(systemctl cat openbcm-mdio-script | grep -o '/nix/store/[^ "]*config\.bcm' | head -1)   # the generated SDK config (MDIO clock, hold delay)
   rm -f $OPENBCM_DIAG_SOCKET; systemctl reset-failed m-load-bcmd 2>/dev/null
   systemd-run --unit m-load-bcmd --collect -E PATH="$PATH" -p StandardOutput=append:/run/m-load-bcmd.out -p StandardError=inherit \
     python3 "$here/bcmd.py" --config "$cfg"
-  for i in $(seq 120); do [ -S $OPENBCM_DIAG_SOCKET ] && break; sleep 1; done
+  for _ in $(seq 120); do [ -S "$OPENBCM_DIAG_SOCKET" ] && break; sleep 1; done
   [ -S $OPENBCM_DIAG_SOCKET ] || { echo "bcmd did not come up"; tail -5 /run/m-load-bcmd.out; exit 1; }
   D "g raw CMIC_RATE_ADJUST_EXT_MDIO"; D "g raw CMIC_MIIM_CONFIG"
   D "vlan remove 1 pbm=ce,xe"; D "port ce,xe en=0"
@@ -61,7 +61,7 @@ EOF
   grep -h . /sys/class/hwmon/hwmon*/temp*_input 2>/dev/null | tr '\n' ' '; echo
   ;;
 stop)  # turn the ring entries into discard entries: every circulating frame is dropped at its next ingress
-  for e in "$D1 200 ce31" "$D1 100 ce0" "$D2 100 ce30" "$D2 200 ce1"; do set -- $e
+  for e in "$D1 200 ce31" "$D1 100 ce0" "$D2 100 ce30" "$D2 200 ce1"; do read -r -a f <<< "$e"; set -- "${f[@]}"
     D "l2 del mac=$1 vlan=$2"; D "l2 add mac=$1 vlan=$2 pbm=$3 static=true dd=true"; done
   sleep 3; D "l2 show"; D "ps $P"
   ;;
@@ -70,7 +70,7 @@ soak)  # background sampler (every 30 s) with the thermal guard: stops the ring 
   ;;
 down)  # leave the chip to SONiC again
   D "port $P en=0" ; D m-quit
-  for i in $(seq 30); do systemctl is-active -q m-load-bcmd || break; sleep 1; done
+  for _ in $(seq 30); do systemctl is-active -q m-load-bcmd || break; sleep 1; done
   systemctl start sonic.target
   ;;
 *) sed -n '2,12p' "$0"; exit 2;;

@@ -16,7 +16,10 @@ from the public OpenBCM TSCF-16nm register header (the Evora PCS matches that la
   sys side  : a082/a083 CL82 BER count (no FEC towards the ASIC), c156/c161
   both      : CLMIB counters of the PHY's two MACs (not clear on read)
   temp      : Falcon die temperature, line side core: 410.04 - 0.48705 * (0xd03e & 0x3ff)  (formula of the public
-              falcon API; agrees with the vendor 'status dsc' LIVE_TEMP)
+              falcon API; agrees with the vendor 'status dsc' LIVE_TEMP). 0xd03e is the microcode's command data
+              mailbox: it holds a temperature only after a die-temperature command (a write to 0xd03d, which 'status
+              dsc' makes and this tool does not), so the value is the one latched then, not live, on every backend;
+              temp_c is None while the raw value is 0 (no such command since boot; 410.0 C before), temp_raw is kept
 """
 import argparse, contextlib, json, os, re, sys, time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -59,7 +62,8 @@ class Phy:
 
     def snapshot(self, phy, taps=False):
         r = {'phy': phy, 't': time.time()}
-        r['temp_c'] = round(410.04 - 0.48705 * (self.reg(phy, 0x4200d03e) & 0x3ff), 1)
+        r['temp_raw'] = self.reg(phy, 0x4200d03e) & 0x3ff   # latched by the last die-temperature command, see above
+        r['temp_c'] = round(410.04 - 0.48705 * r['temp_raw'], 1) if r['temp_raw'] else None
         r['fec_corr'] = self.pair(phy, 0xc352)
         r['fec_uncorr'] = self.pair(phy, 0xc354)
         r['fec_symerr'] = [self.pair(phy, 0xc360 + 2 * i) for i in range(4)]
@@ -104,8 +108,9 @@ def main():
                 if a.json:
                     print(json.dumps(r), flush=True)
                     continue
-                print('phy 0x%03x  %.1f C  FEC corrected %d uncorrected %d symerr %s  sys CL82 BER %d' % (
-                    r['phy'], r['temp_c'], r['fec_corr'], r['fec_uncorr'], r['fec_symerr'], r['sys_cl82_ber']))
+                print('phy 0x%03x  %s C (latched)  FEC corrected %d uncorrected %d symerr %s  sys CL82 BER %d' % (
+                    r['phy'], '-' if r['temp_c'] is None else '%.1f' % r['temp_c'], r['fec_corr'], r['fec_uncorr'],
+                    r['fec_symerr'], r['sys_cl82_ber']))
                 for n in ('line', 'sys'):
                     m = r[n + '_mib']
                     print('  %-4s pcs_live %s latched %s  %s' % (n, ['%04x' % x for x in r[n + '_pcs_live']],

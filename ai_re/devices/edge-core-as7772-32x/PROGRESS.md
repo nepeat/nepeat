@@ -91,8 +91,9 @@
   and of the C++/Rust change; the earlier "67-141 ms" were three first-pass runs. Link-up 0.58-1.06 s.
 - **Red at the final reboot:** `sonic-nix-apply` failed once (FileNotFoundError on `/run/sonic-nix/issue.tmp`):
   apply and watch shared one temp name. Fixed in `sonic-nix.py` (per-process name; race-tested), not yet deployed.
-- Open small items: `macsec-rekey-test.sh` / `macsec-wrongcak-test.sh` relied on VRFs the old traffic test left;
-  `phystat` `temp_c` reads 410.0; kernel `rx_dropped` +530 per netdev during the ring (unexplained).
+- Small items, resolved offline in the next commit: the MACsec test scripts build their own VRF topology; `phystat`
+  `temp_c` 410.0 was a command mailbox read without its measurement command (now reported as absent); kernel
+  `rx_dropped` during the ring is partly link-local frames on bridge ports (about 61 of 530 are LLDP, the rest open).
 
 ### 2026-11-23 (2): Rust-enabled kernel and Rust fan driver are the default; the C fan driver is deleted
 - **Running:** generation 31 (`na3yx1c2`): the 47c0012 system + Linux 7.3.4 with `CONFIG_RUST=y` (64-bit big-endian,

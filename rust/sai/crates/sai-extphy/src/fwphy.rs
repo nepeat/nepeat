@@ -9,7 +9,9 @@
 //! 1.a100..=1.a1ff hold what [`FwPhy::set`] put there). Every other register is plain storage.
 //!
 //! The owner is the accessing thread together with its *actor* tag ([`as_actor`], default
-//! `"lib"`), so one test thread can play a diag tool and the library in turn. An access of
+//! `"lib"`), so one test thread can play a diag tool and the library in turn. The diag socket's
+//! threads (named `sai-diag...`: the server serves each connection on a thread of its own) are one
+//! party, the diag client, tagged `"diag"`. An access of
 //! anyone else to that PHY while a conversation is open is recorded ([`FwPhy::violations`])
 //! and **breaks** the conversation: its ack reads 0x0000 from then on, so the owner's `P 1.8221`
 //! fails as on the hardware ("1.8221 read 0x0000").
@@ -31,10 +33,15 @@ pub fn as_actor<R>(tag: &'static str, f: impl FnOnce() -> R) -> R {
     r
 }
 
-type Actor = (ThreadId, &'static str);
+/// A thread (`None`: the diag socket's) and its tag.
+type Actor = (Option<ThreadId>, &'static str);
 
 fn actor() -> Actor {
-    (std::thread::current().id(), ACTOR.with(Cell::get))
+    let me = std::thread::current();
+    if me.name().is_some_and(|n| n.starts_with("sai-diag")) {
+        return (None, "diag");
+    }
+    (Some(me.id()), ACTOR.with(Cell::get))
 }
 
 #[derive(Debug)]

@@ -13,12 +13,21 @@
 //!   [`LEASE_MAX_MS`] from their begin; implicit ones (a bare raw access, [`DiagWho::Bare`])
 //!   last `holdoff-ms` after the last access on that PHY, as the C++ hold-off did, per PHY.
 //!
+//! - **Claims**: a SAI call's reservation of the PHYs it will run sequences on (crate
+//!   documentation, "SAI calls and the SAI lock"). Taken only while no transaction holds those
+//!   PHYs, held until the call returns; a claim holds no slot, but no transaction may begin on a
+//!   claimed PHY. So a call that holds its claims never meets a transaction on them.
+//!
 //! What a library user does while a lease covers one of its PHYs ([`LibWant`]): the link gate and
 //! the periodic `MACsec` polls do not wait (cached verdict, last read); `SONiC`'s `MACsec` changes,
 //! admin sequences and the forced PN read wait for an **explicit** lease to end or run out
-//! (bounded by [`LEASE_MAX_MS`]) and pass an implicit one; a diag-socket `extmacsec run` is refused.
+//! (bounded by [`LEASE_MAX_MS`]) and pass an implicit one, **never under the SAI lock** (a SAI call
+//! claims first, outside it: [`Arbiter::claim_wait`]); a diag-socket `extmacsec run` is refused.
 //! Library users that wait are counted as pending on their PHYs: a new transaction on those PHYs
-//! waits for them first, so back-to-back transactions cannot starve them.
+//! waits for them (and for claims) first, so back-to-back transactions cannot starve them. The
+//! link gate never waits behind a library holder either ([`LibWant::Gate`]: try only), unless it
+//! was turned away [`crate::GATE_BUSY_MAX`] times in a row: then it waits for the holder's run and
+//! goes before every other library user of those PHYs.
 use crate::clock::Clock;
 use crate::leaf::{self, Leaf};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
@@ -270,22 +279,38 @@ pub struct ArbCounts {
     pub void_refused: u64,
     /// Link polls answered from the last verdict because a lease held one of their PHYs.
     pub gate_cached: u64,
-    /// Link polls that waited for a library holder of their PHYs.
+    /// Link polls answered from the last verdict because a library run (a `MACsec` or admin
+    /// sequence, another poll) held one of their PHYs: the gate does not wait for it.
+    pub gate_busy: u64,
+    /// Link polls that waited for a library holder of their PHYs: only after
+    /// [`crate::GATE_BUSY_MAX`] busy answers in a row (the starvation bound).
     pub gate_waits: u64,
     /// The longest of those waits, us (measured from before the wait).
     pub gate_wait_us_max: u64,
     /// All of those waits, us.
     pub gate_wait_us_total: u64,
+    /// Due link polls by the time the gate took, from asking for its PHYs to its verdict (the
+    /// poll included): [`crate::GATE_TIME_BUCKETS_US`], then longer.
+    pub gate_time_hist: [u64; 5],
+    /// The longest of those, us.
+    pub gate_time_us_max: u64,
     /// `MACsec` periodic polls answered from the last read because a lease held their PHY.
     pub polls_skipped: u64,
     /// `MACsec` polls run after [`crate::MACSEC_POLL_DEFER_MAX_MS`] of skips.
     pub forced_reads: u64,
     /// The longest wait of a forced read for a transaction to end, us.
     pub forced_wait_us_max: u64,
-    /// Library runs (`MACsec` changes, admin sequences) that waited for a transaction.
+    /// Library users (`MACsec` changes, admin sequences, forced reads; inside a SAI call: the call,
+    /// outside the SAI lock) that waited for a transaction.
     pub op_waits: u64,
     /// The longest of those waits, us.
     pub op_wait_us_max: u64,
+    /// SAI calls that met a transaction on a PHY they need and let go of the SAI lock to wait
+    /// for it ([`crate::call`]), then ran again.
+    pub calls_deferred: u64,
+    /// Waits for a transaction **under the SAI lock**: a SAI call's sequence on a PHY it had not
+    /// claimed (a gap in the claims, logged as an error). Always 0 when the claims are complete.
+    pub locked_waits: u64,
     /// Diag-socket `extmacsec run`s refused because a transaction held their PHY.
     pub diag_run_refused: u64,
 }
@@ -293,14 +318,43 @@ pub struct ArbCounts {
 /// What a library user does about a lease on one of its PHYs.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum LibWant {
-    /// The link gate and the periodic `MACsec` polls: any lease answers "leased" (the cached
-    /// verdict, the last read); they wait only for slots.
+    /// The link gate: any lease answers "leased" (the cached verdict); a held slot answers
+    /// "busy" at once unless `wait` (the starvation bound: then it waits for the slots, before
+    /// every other library user of those PHYs).
+    Gate {
+        /// Wait for the slots.
+        wait: bool,
+    },
+    /// The periodic `MACsec` polls: any lease answers "leased" (the last read); they wait only
+    /// for slots.
     Skip,
     /// A `SONiC` change, an admin sequence, a forced poll: waits for an explicit lease to end or
-    /// run out, passes implicit ones.
-    Wait,
+    /// run out, passes implicit ones. Inside a SAI call ([`Ctx`]) it never waits for a lease:
+    /// a forced poll (`op` false) answers "defer" (the call runs again after the transaction);
+    /// a change on PHYs its call did not claim waits as the fallback (counted, an error).
+    Wait {
+        /// A change (not a read: a read may be deferred).
+        op: bool,
+    },
     /// `extmacsec run` from the diag socket: an explicit lease answers "leased" (refused).
     NoWait,
+}
+
+/// Where a library user asks from (crate `call`): its thread's SAI call and lock.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub(crate) struct Ctx {
+    /// Inside a SAI call of the rim ([`crate::call`]): may defer, may claim.
+    pub(crate) in_call: bool,
+    /// The PHYs the call has not claimed (empty: covered).
+    pub(crate) missing: Vec<u16>,
+    /// The thread holds the SAI lock.
+    pub(crate) sai_locked: bool,
+}
+
+impl Ctx {
+    fn covered(&self) -> bool {
+        self.missing.is_empty()
+    }
 }
 
 /// The outcome of a library user's request.
@@ -314,9 +368,19 @@ pub(crate) enum LibTurn<'a> {
         for_txn: Option<u64>,
         /// A lease (a transaction or an implicit one) held one of the PHYs when it asked.
         leased: bool,
+        /// The PHYs the caller's SAI call had not claimed were claimed now ([`Ctx::missing`]; it
+        /// keeps them until the call returns: [`crate::call`]).
+        claimed: bool,
+        /// It waited for a transaction under the SAI lock (the fallback; counted).
+        locked_wait: bool,
     },
     /// A lease holds one of the PHYs (the transaction, `None` for an implicit lease).
     Leased(Option<u64>),
+    /// The gate's try: a library run holds one of the PHYs.
+    Busy,
+    /// Inside a SAI call, a forced read met transaction `txn`: the call defers (runs again
+    /// after it, outside the SAI lock).
+    Defer(u64),
 }
 
 /// Held PHYs; given back when dropped.
@@ -380,6 +444,10 @@ struct State {
     global_held: bool,
     /// Library users waiting, by PHY.
     pending: BTreeMap<u16, u32>,
+    /// SAI calls' claims, by PHY.
+    claimed: BTreeMap<u16, u32>,
+    /// Link gates waiting for slots (after too many busy answers), by PHY: they go first.
+    gate_first: BTreeMap<u16, u32>,
     /// Library users waiting (each once, whatever its PHYs).
     pending_users: u32,
     /// Diag accesses waiting for the global slot.
@@ -444,16 +512,12 @@ impl State {
         } else {
             self.pending_users = self.pending_users.saturating_sub(1);
         }
-        for p in phys {
-            if up {
-                *self.pending.entry(*p).or_insert(0) += 1;
-            } else if let Some(n) = self.pending.get_mut(p) {
-                *n -= 1;
-                if *n == 0 {
-                    self.pending.remove(p);
-                }
-            }
-        }
+        bump(&mut self.pending, phys, up);
+    }
+
+    /// A gate goes before the other library users of `phys`.
+    fn gate_ahead(&self, phys: &[u16]) -> bool {
+        phys.iter().any(|p| self.gate_first.contains_key(p))
     }
 
     /// A slot of `scope` is held (a library run or a diag access in progress).
@@ -465,11 +529,13 @@ impl State {
             }
     }
 
+    /// Library users wait for, or SAI calls claimed, a PHY of `scope`.
     fn pending_in(&self, scope: &LeaseScope) -> bool {
-        match scope {
-            LeaseScope::All => !self.pending.is_empty(),
-            LeaseScope::Phys(set) => set.iter().any(|p| self.pending.contains_key(p)),
-        }
+        let any = |m: &BTreeMap<u16, u32>| match scope {
+            LeaseScope::All => !m.is_empty(),
+            LeaseScope::Phys(set) => set.iter().any(|p| m.contains_key(p)),
+        };
+        any(&self.pending) || any(&self.claimed)
     }
 
     fn unknown_or_expired(&mut self, txn: u64) -> TxnRefused {
@@ -482,6 +548,20 @@ impl State {
                 accesses,
             },
             None => TxnRefused::Unknown(txn),
+        }
+    }
+}
+
+/// Counts `phys` up or down in `m` (a PHY at 0 leaves it).
+fn bump(m: &mut BTreeMap<u16, u32>, phys: &[u16], up: bool) {
+    for p in phys {
+        if up {
+            *m.entry(*p).or_insert(0) += 1;
+        } else if let Some(n) = m.get_mut(p) {
+            *n -= 1;
+            if *n == 0 {
+                m.remove(p);
+            }
         }
     }
 }
@@ -540,15 +620,22 @@ impl Arbiter {
         out
     }
 
-    /// The PHYs `phys` for a library user (module documentation). `phys` sorted, no doubles;
-    /// none: nothing to wait for.
-    pub(crate) fn lib(&self, clock: &dyn Clock, phys: &[u16], want: LibWant) -> LibTurn<'_> {
+    /// The PHYs `phys` for a library user (module documentation), asking from `ctx`. `phys` sorted,
+    /// no doubles; none: nothing to wait for.
+    #[allow(
+        clippy::too_many_lines,
+        reason = "one loop over the arbiter's state, every kind of user"
+    )]
+    pub(crate) fn lib(&self, clock: &dyn Clock, phys: &[u16], want: LibWant, ctx: &Ctx) -> LibTurn<'_> {
         let t0 = clock.now_us();
         let mut a = self.lock();
         let mut pending = false;
+        let mut ahead = false;
         let mut for_txn = None;
         let mut first = true;
         let mut leased_at_ask = false;
+        let mut locked_wait = false;
+        let gate = matches!(want, LibWant::Gate { .. });
         loop {
             if a.reap(ms(clock)) {
                 self.cv.notify_all();
@@ -556,32 +643,50 @@ impl Arbiter {
             let txn = a.txn_over(phys).map(|(t, _)| t);
             if first {
                 leased_at_ask = txn.is_some() || a.implicit_over(phys);
-                first = false;
             }
             let leased = match want {
-                LibWant::Skip => txn.is_some() || a.implicit_over(phys),
+                LibWant::Gate { .. } | LibWant::Skip => txn.is_some() || a.implicit_over(phys),
                 LibWant::NoWait => txn.is_some(),
-                LibWant::Wait => false,
+                LibWant::Wait { .. } => false,
             };
             if leased {
-                if pending {
-                    a.pend(phys, false);
-                    drop(a);
-                    self.cv.notify_all();
-                }
+                self.leave(a, phys, pending, ahead);
                 return LibTurn::Leased(txn);
             }
-            if txn.is_some() {
-                for_txn = txn;
-            } else if a.slots_free(phys) {
+            if let Some(t) = txn {
+                // a waiting user and a transaction
+                if ctx.in_call && !ctx.covered() && want == (LibWant::Wait { op: false }) {
+                    self.leave(a, phys, pending, ahead);
+                    return LibTurn::Defer(t);
+                }
+                if ctx.sai_locked && !ctx.covered() && !locked_wait {
+                    // a change of a SAI call on PHYs the call did not claim: the claims have a gap
+                    debug_assert!(
+                        false,
+                        "sai-extphy: a library run waits for diag transaction {t} under the SAI lock (unclaimed PHYs {phys:?})"
+                    );
+                    locked_wait = true;
+                }
+                for_txn = Some(t);
+            } else if a.slots_free(phys) && (gate || !a.gate_ahead(phys)) {
                 if pending {
                     a.pend(phys, false);
+                }
+                if ahead {
+                    bump(&mut a.gate_first, phys, false);
+                }
+                let claimed = ctx.in_call && !ctx.covered() && want == (LibWant::Wait { op: true });
+                if claimed {
+                    bump(&mut a.claimed, &ctx.missing, true);
+                }
+                if locked_wait {
+                    a.counts.locked_waits += 1;
                 }
                 for p in phys {
                     a.held.insert(*p);
                 }
                 drop(a);
-                if pending {
+                if pending || ahead {
                     self.cv.notify_all();
                 }
                 return LibTurn::Slot {
@@ -597,20 +702,115 @@ impl Arbiter {
                     },
                     for_txn,
                     leased: leased_at_ask,
+                    claimed,
+                    locked_wait,
                 };
+            } else {
+                match want {
+                    LibWant::Gate { wait: false } => {
+                        self.leave(a, phys, pending, ahead);
+                        return LibTurn::Busy;
+                    }
+                    LibWant::Gate { wait: true } if !ahead => {
+                        bump(&mut a.gate_first, phys, true);
+                        ahead = true;
+                    }
+                    _ => {}
+                }
             }
             if !pending {
                 a.pend(phys, true);
                 pending = true;
             }
+            first = false;
             a = self.pause(a);
         }
     }
 
+    /// A library user gives up its request: no longer pending, no longer ahead.
+    fn leave(&self, mut a: Leaf<'_, State>, phys: &[u16], pending: bool, ahead: bool) {
+        if pending {
+            a.pend(phys, false);
+        }
+        if ahead {
+            bump(&mut a.gate_first, phys, false);
+        }
+        drop(a);
+        if pending || ahead {
+            self.cv.notify_all();
+        }
+    }
+
+    /// Claims `phys` for a SAI call without waiting: refused (the transaction) while a
+    /// transaction holds one of them.
+    pub(crate) fn claim_try(&self, clock: &dyn Clock, phys: &[u16]) -> Result<(), u64> {
+        let mut a = self.lock();
+        if a.reap(ms(clock)) {
+            self.cv.notify_all();
+        }
+        if let Some((t, _)) = a.txn_over(phys) {
+            return Err(t);
+        }
+        bump(&mut a.claimed, phys, true);
+        Ok(())
+    }
+
+    /// Claims `phys` for a SAI call, waiting (never under the SAI lock) for the transactions on
+    /// them to end or run out: at most one transaction's rest, [`LEASE_MAX_MS`], since no new one
+    /// may begin on PHYs a user waits for. How long it waited (us, 0: at once) and for which
+    /// transaction.
+    pub(crate) fn claim_wait(&self, clock: &dyn Clock, phys: &[u16]) -> (u64, Option<u64>) {
+        let t0 = clock.now_us();
+        let mut a = self.lock();
+        let mut pending = false;
+        let mut for_txn = None;
+        loop {
+            if a.reap(ms(clock)) {
+                self.cv.notify_all();
+            }
+            if let Some((t, _)) = a.txn_over(phys) {
+                for_txn = Some(t);
+                if !pending {
+                    a.pend(phys, true);
+                    pending = true;
+                }
+                a = self.pause(a);
+                continue;
+            }
+            if pending {
+                a.pend(phys, false);
+            }
+            bump(&mut a.claimed, phys, true);
+            drop(a);
+            if pending {
+                self.cv.notify_all();
+            }
+            let waited = if pending {
+                clock.now_us().saturating_sub(t0).max(1)
+            } else {
+                0
+            };
+            return (waited, for_txn);
+        }
+    }
+
+    /// Gives a claim back.
+    pub(crate) fn unclaim(&self, phys: &[u16]) {
+        bump(&mut self.lock().claimed, phys, false);
+        self.cv.notify_all();
+    }
+
+    /// PHYs claimed by SAI calls now (tests).
+    #[cfg(feature = "testing")]
+    pub(crate) fn claimed(&self) -> usize {
+        self.lock().claimed.len()
+    }
+
     /// Begins a transaction on `scope`, lasting `step_ms` after each access, at most
     /// [`LEASE_MAX_MS`] in all. Refused while another transaction holds one of its PHYs; waits
-    /// (at most [`LEASE_MAX_MS`]) for the library runs on those PHYs and for the library users
-    /// waiting for them, so that no library run overlaps a transaction.
+    /// (at most [`LEASE_MAX_MS`]) for the library runs on those PHYs, for the library users
+    /// waiting for them and for the SAI calls that claimed them, so that no library run overlaps a
+    /// transaction.
     pub(crate) fn begin(&self, clock: &dyn Clock, scope: LeaseScope, step_ms: u64) -> Result<TxnInfo, TxnRefused> {
         if scope == LeaseScope::Phys(BTreeSet::new()) {
             return Err(TxnRefused::NoPhys);

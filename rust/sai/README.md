@@ -437,10 +437,13 @@ captured contents (else SKIPPED).
   status text, and the **MDIO arbitration** of every library user of the PHYs plus the diag
   socket's **transactions** (below). Never the SAI lock. The SAI layer holds it per switch
   (`sai-core::extphy`).
-- `sai-diag`: the diag socket server of `sai_diag.cpp` (one thread, one connection at a time,
-  root only, the command under the SAI lock, output written after it is released; differences
-  in its `lib.rs`), except raw MDIO and `extphy txn`, which the switch's `sai_core::diag::DiagPort`
-  serves **without** the SAI lock. `openbcm-diag`: the client `openbcm_diag.c`, same command line,
+- `sai-diag`: the diag socket server of `sai_diag.cpp` (root only, the command under the SAI lock,
+  output written after it is released; differences in its `lib.rs`), except raw MDIO and `extphy
+  txn`, which the switch's `sai_core::diag::DiagPort` serves **without** the SAI lock. An accepting
+  thread and one thread per connection, at most `MAX_CONNECTIONS` (8) at once (a further one waits
+  in the backlog, not refused); the C++ serves one connection at a time, which let a command queued
+  on the SAI lock hold up a tool's next raw access (below). Stopping the server cuts the connected
+  clients off and joins every connection's thread, so `remove_switch` returns with none left. `openbcm-diag`: the client `openbcm_diag.c`, same command line,
   bytes and exit codes (differential against the C tool).
 
 #### MDIO serialisation and diag transactions (2026-11-23, replaces the hold-off of 9d64222)
@@ -466,37 +469,74 @@ failure", `ai_re/devices/edge-core-as7772-32x/evidence/rust-g6/` f1, g2).
   transaction is refused; without one it gets an **implicit lease** of `holdoff-ms` on its PHY (the
   old hold-off, per PHY now) so today's tools keep working.
 - **Who waits for what** while a lease holds a PHY: the link gate never waits (cached verdict,
-  counted) but waits behind short library runs (<= ~18 ms) rather than skipping a pass; MACsec periodic
-  reads (`pn.*`, `stats-sa.*`, `stats-flow.*` of a get) skip (the model's last read answers, counted,
-  no error line), and a read that has not reached its PHY for `MACSEC_POLL_DEFER_MAX_MS` 10 s waits
-  for the transaction to end (<= 2 s) and reads, never inside one; SONiC's MACsec changes (SA
-  install / remove, gate, enable / disable, clears) and admin sequences wait for a **transaction**
-  (<= 2 s, under the SAI lock), never dropped, and pass implicit leases (as in the C++); a diag
-  `extmacsec run` is refused inside a transaction. A new transaction waits for library runs on its
-  PHYs and for library users already waiting, so back-to-back transactions cannot starve them.
-- **Lock order**, by construction: SAI lock, then a lease, then a PHY slot, then the MDIO master's
-  own lock. The runtime's mutexes are leaves (`sai-extphy` `leaf`: debug builds assert no nesting,
-  no logger and no bus access under them); slots are never held while anything waits; the gate
-  closure and the `DiagPort` have no way to take the SAI lock; the diag server serves raw clause-45
-  MDIO and transactions over the backend's MDIO handle (answer format the SDK shell's `\t0x%02x:
-  0x%04x`) when a PHY table is attached and the backend's shell would answer it from that bus
+  counted); MACsec periodic reads (`pn.*`, `stats-sa.*`, `stats-flow.*` of a get) skip (the model's
+  last read answers, counted, no error line), and a read that has not reached its PHY for
+  `MACSEC_POLL_DEFER_MAX_MS` 10 s has its get wait for the transaction to end (<= 2 s, **outside the
+  SAI lock**, below) and reads, never inside one; SONiC's MACsec changes (SA install / remove, gate,
+  enable / disable, clears) and admin sequences wait for a **transaction** (<= 2 s, outside the SAI
+  lock), never dropped, and pass implicit leases (as in the C++); a diag `extmacsec run` is refused
+  inside a transaction. A new transaction waits for library runs on its PHYs, for library users
+  already waiting and for SAI calls that claimed them, so back-to-back transactions cannot starve
+  them.
+- **No SAI-lock wait behind a lease** (Y1, 2026-11-23; the AS7772's two "txn expired (1001 ms, 0
+  accesses)" in `evidence/rust-g7` d4: an SA install waited for a lease *holding* the SAI lock, the
+  lease holder's next request sat behind another client's `extmacsec` that needed the lock, only the
+  expiry broke it). Every SAI call of the rim runs in `sai_extphy::call` (`sai-ffi` `with_api_call`:
+  create / remove / set / get / stats / clear) with the lock marked (`under_sai_lock`). A PHY change
+  **claims** the PHYs it will run on before its first effect (port admin: the port's ext-PHY PHYs;
+  MACsec: the model's `reach`, the PHYs of the one port the change runs on); a claim is taken at once
+  when no transaction holds them, and then no transaction may begin on them until the call returns.
+  When one does, the call returns at once with nothing done, the rim lets go of the SAI lock, waits for
+  the transaction (<= `LEASE_MAX_MS`, the PHYs held claimed meanwhile so no new one begins) and runs
+  the call again, which re-validates by claiming again (an object that moved claims its new port: one
+  more bounded wait at most per PHY). A forced read defers its get the same way. So link
+  notifications, port sets on other ports and diag status commands never wait behind a lease. A
+  change on PHYs its call did not claim that meets a transaction under the SAI lock is a bug of the
+  claims: asserted in debug builds, counted (`waits under the SAI lock`) and logged in release ones.
+- **The link gate never stalls the link scan** (Y1): it answers its cached verdict behind *any*
+  holder it cannot get at once (try only, bound 0): a lease (counted as before) or a library run
+  (counted, `behind a library run`); its poll stays due and runs on the next pass, so link-down is
+  seen at most one pass (~255 ms) later in the common case. The scan pass is 250 ms and a poll costs
+  0.2-0.36 ms of bus, while a library run holds its PHY 1.3 ms (PN read), 14-18 ms (SA statistics) or
+  80-90 ms (SA install) on the AS7772: before this change the gate waited up to 72-89 ms behind SA
+  installs (G7, also right after boot with no tool running), holding every port's link processing
+  up; X1's expectation (`max ~20000 us`, "one MACsec stats run") was wrong, it left SA installs out.
+  Starvation bound: after `GATE_BUSY_MAX` (3) busy answers in a row the next due poll waits for that
+  one run (it goes before every other library user of those PHYs), so a port is polled at the latest
+  3 passes (~765 ms) plus one run (<= ~90 ms) after its poll was due.
+- **Lock order** (one global order, by construction): a PHY claim (waited for outside the SAI lock
+  only), then the SAI lock, then a PHY slot, then the MDIO master's own lock; a lease is a record,
+  nobody holds anything while it lives. The runtime's mutexes are leaves (`sai-extphy` `leaf`: debug
+  builds assert no nesting, no logger and no bus access under them); slots are never held while
+  anything waits; a claim is never waited for under the SAI lock (asserted); the gate closure and the
+  `DiagPort` have no way to take the SAI lock; the diag server serves raw clause-45 MDIO and
+  transactions over the backend's MDIO handle (answer format the SDK shell's `\t0x%02x: 0x%04x`) when
+  a PHY table is attached and the backend's shell would answer it from that bus
   (`Backend::diag_mdio_native`; the virtual chip only in `ShellMdio::Answer`); everything else still
   goes through the SDK shell under the SAI lock, within the arbitration.
 - **Visibility**: the `extphy` text keeps the C++ header (`PAUSED now` = some lease live, `N so far` =
-  leases begun) and table, then four lines: transactions begun / ended / expired, hold-offs, busy /
-  void refusals; link polls answered from a lease and gate waits (count, max, total us, measured from
-  before the wait); MACsec polls skipped, forced reads (max wait), runs that waited for a transaction,
-  `extmacsec run` refused; then one line per live lease. Log: a NOTICE per implicit lease begun
+  leases begun) and table, then six lines: transactions begun / ended / expired, hold-offs, busy /
+  void refusals; link polls answered from a lease and behind a library run, gate waits (count, max,
+  total us, from before the wait; only after 3 busy in a row); the gate-time histogram per due poll
+  (us: <=500, <=2000, <=10000, <=100000, more; max), lock wait and poll included; MACsec polls skipped,
+  forced reads (max wait), runs and SAI calls that waited for a transaction, `extmacsec run` refused;
+  SAI calls that waited for a transaction outside the SAI lock and waits under the SAI lock (0 unless
+  the claims have a gap); then one line per live lease. Log: a NOTICE per implicit lease begun
   (`external PHY phy 0x10: link polls and MACsec polls paused: raw MDIO on the diag socket without a
-  transaction ...`), per expiry, per forced read, per MACsec run that waited; INFO per transaction
-  begun / ended.
+  transaction ...`), per expiry, per forced read, per SAI call that waited (`external PHY phy 0x10: a
+  SAI call waited N ms for diag transaction T, outside the SAI lock`); an ERROR per wait under the SAI
+  lock; INFO per transaction begun / ended.
 - **Not solved, documented:** MACsec counters clear on read; a diag read of them (transaction or not)
   takes those counts from SONiC's statistics. A client that dies in the middle of a conversation leaves
   the PHY's message interface in an unknown state for the next user after its lease runs out.
 - Tools: `evora-rehost/mdio.py` (`Diag.transaction()`) and `phystat.py` (one transaction per register
   read, `--txn phy|all|off`). Tests: `sai-extphy/tests/arbitration.rs` (a stateful fake of the
   message interface, `sai_extphy::fwphy`, that breaks a conversation on any foreign access, as the
-  hardware does), `sai-core/tests/macsec.rs` (through the SAI layer and the socket, real threads).
+  hardware does; the gate behind slow runs, the starvation bound, link-down one pass late, a SAI
+  call's deferral and the debug assertion), `sai-core/tests/macsec.rs` (through the SAI layer and the
+  socket, real threads; `the_expired_lease_loop_of_the_as7772_cannot_form` sets up the G7 loop
+  exactly), `sai-diag/tests/server.rs` (concurrent clients, the connection bound, stop with clients
+  connected).
 
 ### sai-test-port, sai-driver (the parity harnesses)
 
@@ -810,7 +850,10 @@ Results of this tree (G6, 2026-11-23, x86_64): test-eval 220 passed, 19 xfailed 
 `-k sai` 16 passed, `-k 'sai-rs or mdio or phy-seq'` 8; test-systems 4 passed (11 KNOWN_BROKEN path: outputs
 skipped); test-deploy 23; test-vm 10 (`vm-sonic-openbcm-fake`, `-l3`, `-acl`, `vm-openbcm-mdio-units`,
 `vm-sai-rs-sonic`, `-l3`, `-acl`, `-syncd`, `-syncd-parity`, `-privileged`). `cargo test --workspace` in
-`sai-rs`: 566 passed, 0 failed (117 suites, with the real-stub runs).
+`sai-rs`: 566 passed, 0 failed (117 suites, with the real-stub runs). Y1 (MDIO claims, concurrent diag server,
+non-waiting gate; 2026-11-23, x86_64): `cargo test --workspace` 586 passed, 0 failed (116 suites, the package's
+develop environment); test-eval 219 passed, 19 xfailed; test-packages `-k 'sai or mdio or phy-seq'` 18 passed;
+test-vm `-k 'openbcm or sai or mdio'` 10 passed; `sai-rs-parity` reproducible (`nix build --rebuild`).
 
 By hand, in the package's own build environment:
 

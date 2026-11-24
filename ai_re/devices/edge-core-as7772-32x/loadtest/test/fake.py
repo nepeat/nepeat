@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Offline stand-in for the switch side of sonic-test-lib.sh: redis-cli (one JSON file, all databases), the SONiC
-managers' STATE_DB entries and the kernel state they make (ip, bridge, sysctl), swssconfig and ping. Called by the
-name of the tool it replaces (symlinks made by run.sh). State: $FAKE_STATE (JSON).
+managers' STATE_DB entries and the kernel state they make (ip, bridge, sysctl), swssconfig, ping, openbcm-diag (the
+PHYs' MACsec engines and the MAC gap) and sonic-macsec-config.py. Called by the name of the tool it replaces
+(symlinks made by run.sh). State: $FAKE_STATE (JSON).
 
 Manager model (from sonic-swss cfgmgr/intfmgr.cpp, vrfmgr.cpp, vlanmgr.cpp), applied after every write until stable:
   APPL_DB INTF_TABLE / VRF_TABLE / VLAN_TABLE / VLAN_MEMBER_TABLE mirror the applied entries (orchagent popped them).
@@ -10,8 +11,14 @@ Manager model (from sonic-swss cfgmgr/intfmgr.cpp, vrfmgr.cpp, vlanmgr.cpp), app
   INTERFACE|p|a: applied once INTERFACE|p is.   VRF|v: applied at once; a delete waits while an interface uses it.
   VLAN|v: applied at once.   VLAN_MEMBER|v|p: applied once VLAN|v is; p is then in the kernel bridge.
 Kernel = the applied entries, plus 'stuck' leftovers (state['stuck']) that only ip link del / ip addr del remove.
+PHYs (state['phy']): MKA is up on a DAC link when both ends have the same existing PORT.macsec profile; the SAI sets
+  AVERAGE_IPG 48 when a port gets a profile and 16 when it loses it; engines turned on by hand ("extmacsec run ceN
+  enable.<dir>") stay on until "disable.<dir>" and keep SONiC's SAs off the port.
 """
-import json, os, sys, fnmatch, time
+import json, os, re, signal, sys, fnmatch, time
+
+CE = {'ce0': 'Ethernet0', 'ce1': 'Ethernet4', 'ce30': 'Ethernet120', 'ce31': 'Ethernet124'}
+PEER = {'Ethernet0': 'Ethernet4', 'Ethernet4': 'Ethernet0', 'Ethernet120': 'Ethernet124', 'Ethernet124': 'Ethernet120'}
 
 F = os.environ['FAKE_STATE']
 
@@ -81,6 +88,13 @@ def managers(s):
         t, _, rest = sk.partition('|')
         if t in m:
             a[m[t] + ':' + rest.replace('|', ':')] = {'t': 'hash', 'v': {'popped': '1'}}
+    phy = s.get('phy')   # the SAI: MAC gap of a port with / without MACsec
+    if phy is not None:
+        for ce, p in CE.items():
+            on = bool(c.get('PORT|' + p, {'v': {}})['v'].get('macsec'))
+            if phy['sai'].get(p) != on:
+                phy['sai'][p] = on
+                phy['ipg'][ce] = 48 if on else 16
     vlans = kernel(s)['vlan']   # a netdev's sysctls go with it
     for k in [k for k in s.get('sysctl', {}) if k.startswith('net.ipv6.conf.Vlan') and k.split('.')[3] not in vlans]:
         del s['sysctl'][k]
@@ -234,15 +248,30 @@ def swssconfig(argv):
 
 
 def ping(argv):
-    m = os.environ.get('FAKE_HANG_MARKER')
-    if m and not os.path.exists(m):
-        open(m, 'w').close(); time.sleep(float(os.environ.get('FAKE_HANG_SECONDS', '60')))
-    x = os.environ.get('FAKE_PING_DOES')   # once: 'stuck <item>' (a kernel leftover) or 'hset <key> <f> <v>' (a foreign write)
+    if '-c' not in argv:   # runs until it is stopped, as the real one (which handles SIGINT itself)
+        with open(F + '.pids', 'a') as f:
+            f.write('%d\n' % os.getpid())
+        signal.signal(signal.SIGINT, lambda *a: sys.exit(0))
+        print('PING %s 56(84) bytes of data.' % argv[-1], flush=True)
+        while True:
+            signal.pause()
+    m = os.environ.get('FAKE_HANG_MARKER')   # hang in the FAKE_HANG_NTH (1) call whose arguments contain FAKE_HANG_MATCH
+    if m and os.environ.get('FAKE_HANG_MATCH', '') in ' '.join(argv):
+        cnt = F + '.hangcount'
+        k = int(open(cnt).read()) + 1 if os.path.exists(cnt) else 1
+        with open(cnt, 'w') as f:
+            f.write(str(k))
+        if k == int(os.environ.get('FAKE_HANG_NTH', '1')):
+            with open(F + '.pids', 'a') as f:
+                f.write('%d\n' % os.getpid())
+            open(m, 'w').close(); time.sleep(float(os.environ.get('FAKE_HANG_SECONDS', '60')))
+    x = os.environ.get('FAKE_PING_DOES')   # once: 'stuck <item>' (a kernel leftover), 'hset <key> <f> <v>', 'del <key>' (foreign writes)
     if x and not os.path.exists(F + '.pingdid'):
         open(F + '.pingdid', 'w').close()
         s = load(); w = x.split()
         if w[0] == 'stuck': s['stuck'].append(' '.join(w[1:]))
         if w[0] == 'hset': s['db']['4'].setdefault(w[1], {'t': 'hash', 'v': {}})['v'][w[2]] = w[3]
+        if w[0] == 'del': s['db']['4'].pop(w[1], None)
         save(s)
     n = argv[argv.index('-c') + 1] if '-c' in argv else '1'
     if '-q' in argv:
@@ -254,5 +283,91 @@ def bridge(argv):
     return 0
 
 
+def diag(argv):   # openbcm-diag: extmacsec (the table), extmacsec run, g / m CLMAC_TX_CTRL; anything else prints nothing
+    s = load(); c = s['db']['4']; phy = s['phy']; w = ' '.join(argv).split()
+    with open(F + '.diag.log', 'a') as f:
+        f.write(' '.join(w) + '\n')
+    prof = lambda p: c.get('PORT|' + p, {'v': {}})['v'].get('macsec')
+    if w == ['extmacsec']:
+        for ce in ('ce30', 'ce31', 'ce0', 'ce1'):
+            p = CE[ce]
+            hand = [d for d in ('egress', 'ingress') if '%s %s' % (ce, d) in phy['engines']]
+            for d in hand:
+                print('%-6s 0 %s on closed -' % (ce, d))
+            if hand or not prof(p):
+                continue
+            up = prof(p) == prof(PEER[p]) and 'MACSEC_PROFILE|' + prof(p) in c
+            for d in ('egress', 'ingress'):
+                print('%-6s 0 %s on %s sa' % (ce, d, 'open' if up else 'closed'))
+    elif w[:2] == ['extmacsec', 'run'] and len(w) >= 4:
+        verb, _, rest = w[3].partition('.')
+        key = '%s %s' % (w[2], rest.split('.')[0])
+        if verb == 'enable' and key not in phy['engines']:
+            phy['engines'] = sorted(phy['engines'] + [key])
+        if verb == 'disable' and key in phy['engines']:
+            phy['engines'].remove(key)
+        save(s)
+    elif len(w) == 2 and w[0] == 'g' and w[1].startswith('CLMAC_TX_CTRL.'):
+        print('CLMAC_TX_CTRL.%s[1]=0x0: <AVERAGE_IPG=0x%x,CRC_MODE=2>' % (w[1][14:], phy['ipg'].get(w[1][14:], 16)))
+    elif len(w) == 3 and w[0] == 'm' and w[1].startswith('CLMAC_TX_CTRL.') and w[2].startswith('AVERAGE_IPG='):
+        phy['ipg'][w[1][14:]] = int(w[2][12:], 0); save(s)
+    return 0
+
+
+SALT = b"dsfd;kfoA,.iyewrkldJKDHSUBsgvca69834ncxv9873254k;fg87"   # as nix/modules/switch/sonic/sonic-macsec-config.py
+
+
+def type7(text, index=7):
+    return "%02d" % index + "".join("%02x" % (ord(ch) ^ SALT[(index + i) % len(SALT)]) for i, ch in enumerate(text))
+
+
+def macsec_config(argv):   # sonic-macsec-config.py DECLARED.json: the same CONFIG_DB writes, into the fake
+    d = json.load(open(argv[0]))
+    try:
+        old = json.load(open(d['stateFile']))
+    except (OSError, ValueError):
+        old = {'profiles': [], 'ports': {}}
+    s = load(); c = s['db']['4']; rc = 0; good = {}; wrote = []
+    for name, p in sorted(d['profiles'].items()):
+        try:
+            if os.stat(p['cakFile']).st_mode & 0o077:
+                raise ValueError('readable by group or others')
+            cak = open(p['cakFile']).read().strip()
+            if not re.fullmatch('[0-9a-fA-F]{%d}' % p['cakHexDigits'], cak):
+                raise ValueError('not %d hex digits' % p['cakHexDigits'])
+        except (OSError, ValueError) as e:
+            print('MACsec profile %s: %s: not written' % (name, e), file=sys.stderr); rc = 1; continue
+        good[name] = dict(p['fields'], primary_cak=type7(cak.lower()))
+    port = lambda p: c.get('PORT|' + p, {'v': {}})['v']
+    for p, prof in sorted(old.get('ports', {}).items()):
+        want = d['ports'].get(p)
+        if port(p).get('macsec') == prof and (want != prof or want not in good):
+            del c['PORT|' + p]['v']['macsec']; wrote.append('hdel PORT|%s macsec' % p)
+    for name, f in good.items():
+        if c.get('MACSEC_PROFILE|' + name, {'v': None})['v'] != f:
+            c['MACSEC_PROFILE|' + name] = {'t': 'hash', 'v': dict(f)}; wrote.append('hset MACSEC_PROFILE|%s (all fields)' % name)
+    for name in old.get('profiles', []):
+        if name not in d['profiles'] and 'MACSEC_PROFILE|' + name in c:
+            del c['MACSEC_PROFILE|' + name]; wrote.append('del MACSEC_PROFILE|%s' % name)
+    done = {}
+    for p, prof in sorted(d['ports'].items()):
+        if prof not in good:
+            continue
+        if 'PORT|' + p not in c:
+            rc = 1; continue
+        if port(p).get('macsec') != prof:
+            c['PORT|' + p]['v']['macsec'] = prof; wrote.append('hset PORT|%s macsec %s' % (p, prof))
+        done[p] = prof
+    with open(d['stateFile'], 'w') as f:
+        json.dump({'profiles': sorted(good), 'ports': done}, f)
+    if wrote:
+        with open(F + '.writes.log', 'a') as f:
+            f.write(''.join('4 %s\n' % x for x in wrote))
+        managers(s)
+        save(s)
+    return rc
+
+
 tool = os.path.basename(sys.argv[0])
-sys.exit({'redis-cli': redis, 'ip': ip, 'sysctl': sysctl, 'swssconfig': swssconfig, 'ping': ping, 'bridge': bridge}[tool](sys.argv[1:]))
+sys.exit({'redis-cli': redis, 'ip': ip, 'sysctl': sysctl, 'swssconfig': swssconfig, 'ping': ping, 'bridge': bridge,
+          'openbcm-diag': diag, 'sonic-macsec-config.py': macsec_config}[tool](sys.argv[1:]))

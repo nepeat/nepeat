@@ -14,7 +14,8 @@ Tool: `evora-rehost/macsec.py` (+ `lmi.py`, `macsec_test.py`, `macsec-live.sh`).
 - **State now:** MACsec (GCM-AES-XPN-256, MKA, lab test key) is **on at boot on cages 1, 2, 31, 32**; the other 28 engines
   are in bypass. System `j7y63gfr529f...`. Config: `nix/configs/as7772/configuration.nix` (`services.sonic.macsec`).
 - **Look:** `show macsec [--mka] [Ethernet1/1]` (**prints SAKs**: never paste it unfiltered; the test scripts drop the
-  `sak`, `auth_key`, `salt` lines), `sonic-clear macsec`, `openbcm-diag extmacsec` (what each PHY holds: engine, gate, SA per
+  `sak`, `auth_key`, `salt` lines; its SA counters count from that SA's install, so they restart at every SAK change
+  and `sonic-clear macsec` does not reset them), `sonic-clear macsec`, `openbcm-diag extmacsec` (what each PHY holds: engine, gate, SA per
   AN, the transmitting AN, sequences run / failed).
 - **Key:** the CAK is a file on the switch outside the store, `/var/lib/sonic-macsec/lab-test.cak` (0600, one line of 64 hex
   digits, made by hand: `head -c 32 /dev/urandom | od -An -v -tx1 | tr -d ' \n'`). `sonic-macsec-config` reads it at every
@@ -26,7 +27,13 @@ Tool: `evora-rehost/macsec.py` (+ `lmi.py`, `macsec_test.py`, `macsec-live.sh`).
   that address and starts it again when the address changes: [Start-up](#start-up-mka-comes-up-by-itself).
 - **Is it up, by itself?** `macsec-up-check.sh` (on the switch, changes nothing): every port with a profile has SAs made
   since the last stack start, with the SCI of the address the netdev has, and macsecmgrd was started once; prints the
-  time each port took.
+  time each port took. So it **fails by design after any macsecmgrd restart** (macsec-rekey-test.sh makes two; systemd
+  makes one, below) until the next stack start (rust-g7 e0: 4 ports secured, FAIL on the start count);
+  `-s sonic-macsecmgrd` asks the same from that restart (from the code; not yet run so on the box).
+- **MACsec off for a test:** remove the port's CONFIG_DB `PORT` field `macsec` (and put it back: macsecmgrd
+  removes / starts the port's MKA session, the PHY goes to bypass and back), as `macsec-wrap-test.sh` does.
+  `systemctl stop sonic-macsecmgrd` does not: orchagent's `Upholds=` starts it again within 10 ms
+  ([evidence/rust-g7](evidence/rust-g7/README.md) f2).
 
 ### Start-up: MKA comes up by itself
 2026-11-22. **It did not after a stack restart; it does now** (cold boot, reboot, `sonic.target` restart, syncd-only
@@ -135,8 +142,11 @@ restart, macsecmgrd restart, port flaps: every run, 15-17 s after syncd starts).
 | S4 load: the ring of [load-test.md](load-test.md) with the PHYs left in MACsec by SONiC (syncd killed, plain SDK, IPG 48), 9 min 20 s | each port **17.75 Mpps, 92.05 Gb/s of frames** per direction (IPG 16 in bypass: 18.59 Mpps, 96.4 Gb/s: MACsec costs 4.5 % with this frame mix); every PHY adds **32.0 B per frame** on the line and removes it again; 9.9 x 10^9 frames per port per direction; RS-FEC 0 / 0, no FCS or error counter anywhere; ASIC 45.7-48.6 C, fans on their curve. **4 of the 740 frames of each ring were lost** (2 per cable direction): one frame per SA at each wrap of the packet number's low 32 bits, **found and fixed**, next row | macsec-load (d34e1092d1a6), -phystat, -samples |
 | S4 after the fix ([macsec-loss.md](macsec-loss.md)): the ingress engine's "PN field is not 0" SecTAG check is switched off for XPN SAs by the table | wrap test (first PN 2^32 - 256): 1 frame lost per SA before (`in_pkts_bad_tag`), 0 after; ring 34 min 40 s without any PHY access + 13 min 39 s with PHY reads every 30 s: **2.06 x 10^11 encrypted frames, 44 low-word wraps, 0 lost**, every hop equal to the frame | macsec-loss-wrap-before-fix (068be0a9d340), -after-fix (c71d4970c207), macsec-loss-soak (d9ee0a0a1938) |
 | SONiC back after the load | 8 engines reset at the syncd start, MKA up, 6,400 pings 0 lost | macsec-s3-traffic-after-load (71d4559a5e12) |
-Scripts (run on the switch): `macsec-up-check.sh`, `macsec-static-test.sh`, `macsec-appdb-test.sh`, `macsec-traffic-test.sh`,
-`macsec-clear-window-test.sh`, `macsec-rekey-test.sh`, `macsec-wrongcak-test.sh`, `macsec-wrap-test.sh`; parameter files: `evora-rehost/macsec-params.py`, `macsec-appdb.py`. Unit tests: sai-openbcm
+Scripts (run on the switch, `bash -l`: the exit status is the script's own): `macsec-up-check.sh`, `macsec-static-test.sh`, `macsec-appdb-test.sh`, `macsec-traffic-test.sh`,
+`macsec-clear-window-test.sh`, `macsec-rekey-test.sh`, `macsec-wrongcak-test.sh`, `macsec-wrap-test.sh` (the last four build
+the VRF-pair topology of the traffic test themselves through `loadtest/sonic-test-lib.sh`, copied beside them: snapshot,
+restore on every exit, `--cleanup`, `--dry-run`; offline test `loadtest/test/run.sh`; not yet run on the box in
+this form); parameter files: `evora-rehost/macsec-params.py`, `macsec-appdb.py`. Unit tests: sai-openbcm
 `tests/test_macsec.inc` (fake bus: parser, golden rendering, the object model in MACsecOrch's order, key bytes on the bus
 and nowhere in the log).
 

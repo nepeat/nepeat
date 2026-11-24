@@ -97,9 +97,9 @@ Measured 2026-11-22 ([evidence/extlink-explore-20261122.txt](evidence/extlink-ex
   (index 6) back as read (0x0003). Same values on every PHY and lane looked at. Off takes the link down at both
   ends of the cable; on brings it back by itself (far end up 0.8 s later under SONiC). 1.8251 stays 0x000d.
 - **How fast a loss is seen** under SONiC: bounded by the 250 ms SDK link-scan pass and the 500 ms gate poll (the
-  PHY is read on every second pass): about 0-0.52 s, mean about 0.26 s, the same in the C++ and the Rust SAI
-  (67-141 ms and 282-491 ms were three runs each, first pass and second pass). Detail and the pending 20 + 20 run
-  measurement: [sonic.md](sonic.md#link-state-follows-the-cable). poll-ms is an owner decision, unchanged.
+  PHY is read on every second pass): measured over 40 cycles, MACsec on or off, **0.01-0.51 s, mean about 0.24 s**;
+  link up again 0.58-1.06 s ([evidence/rust-g7](evidence/rust-g7/README.md); detail:
+  [sonic.md](sonic.md#link-state-follows-the-cable)). poll-ms is an owner decision, unchanged.
 
 ## Modes (vendor `extphy init ... mode=`)
 The Evora is a MAC-PHY inline on every port; the vendor init brings its MACsec engine up even for bypass.

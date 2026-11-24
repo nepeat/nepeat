@@ -87,6 +87,7 @@ ring_check() {
   ST_REFUSED=0
   [ -e "$ST_RUN/sonic-ring/configdb-before.tsv" ] && st_refuse "$ST_RUN/sonic-ring exists: the ring is up, or an 'up' did not finish ('down' first)"
   [ -e "$ST_RUN/vrf-pairs/configdb-before.tsv" ] && st_refuse "$ST_RUN/vrf-pairs exists: a traffic test runs or was interrupted (macsec-traffic-test.sh --cleanup)"
+  st_other_runs sonic-ring vrf-pairs
   [ -x "$SWSSCONFIG" ] || st_refuse "swssconfig not found ($SWSSCONFIG): is sonic-orchagent installed?"
   for p in $P4; do
     v=$(st_hget "INTERFACE|$p" vrf_name); [ -n "$v" ] && st_refuse "CONFIG_DB INTERFACE|$p has vrf_name=$v (a traffic test's leftover: macsec-traffic-test.sh --cleanup)"

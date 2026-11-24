@@ -290,7 +290,7 @@ fn no_switch_and_not_root() {
 }
 
 #[test]
-fn concurrent_clients_are_served_one_by_one() {
+fn concurrent_clients_are_all_served() {
     let dir = scratch("many");
     let host = host();
     let (_server, path) = start(&dir, &host);
@@ -319,7 +319,7 @@ fn a_silent_client_does_not_block_sai_calls() {
     let host = host();
     let (server, path) = start(&dir, &host);
     let mut silent = UnixStream::connect(&path).unwrap();
-    std::thread::sleep(Duration::from_millis(100)); // the server is reading from it now
+    until("the server reads from it", || server.serving() == 1);
     // SAI calls go on: the lock is free while the server waits for the line
     let started = Instant::now();
     for vid in 10..20u16 {
@@ -337,27 +337,31 @@ fn a_silent_client_does_not_block_sai_calls() {
         .unwrap();
     }
     assert!(started.elapsed() < Duration::from_secs(1), "{:?}", started.elapsed());
-    // the next client waits for the silent one's 5 s
-    let next = std::thread::spawn({
-        let path = path.clone();
-        move || {
-            let t = Instant::now();
-            (diag_cmd(&path, b"ps\n"), t.elapsed())
-        }
-    });
+    // the next client is served beside the silent one (the C++ makes it wait for its 5 s)
+    assert_eq!(diag_cmd(&path, b"ps\n"), "fake: ps\n");
+    until("only the silent one is left", || server.serving() == 1);
     let mut answer = String::new();
     silent.read_to_string(&mut answer).unwrap();
     assert_eq!(answer, "openbcm-diag: send one command line (< 1000 characters)\n");
-    let (answer, waited) = next.join().unwrap();
-    assert_eq!(answer, "fake: ps\n");
-    assert!(waited >= Duration::from_secs(3), "{waited:?}");
-    // stopping while a silent client is connected takes at most its timeout
-    let _silent = UnixStream::connect(&path).unwrap();
-    std::thread::sleep(Duration::from_millis(100));
+    // stopping while a silent client is connected cuts it off: no waiting for its timeout
+    let mut silent = UnixStream::connect(&path).unwrap();
+    until("the server reads from it", || server.serving() == 1);
     let t = Instant::now();
     drop(server);
-    assert!(t.elapsed() < Duration::from_secs(7), "{:?}", t.elapsed());
+    assert!(t.elapsed() < Duration::from_secs(4), "{:?}", t.elapsed());
     assert!(!path.exists());
+    let mut rest = Vec::new();
+    let _ = silent.read_to_end(&mut rest); // EOF (or a reset): the server is gone
+}
+
+/// Waits until `cond` holds (a handshake on the server's state, no fixed sleep; the 60 s
+/// watchdog only turns a hang into a failure).
+fn until(what: &str, cond: impl Fn() -> bool) {
+    let t0 = Instant::now();
+    while !cond() {
+        assert!(t0.elapsed() < Duration::from_secs(60), "never happened: {what}");
+        std::thread::yield_now();
+    }
 }
 
 #[test]

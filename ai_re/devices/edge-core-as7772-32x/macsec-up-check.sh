@@ -11,7 +11,13 @@
 # SCI is the address the netdev has now. By itself = macsecmgrd was started at most once since the start (no restart
 # by hand or by systemd). Times are from the journal (monotonic clock): the orchagent line that created the first SA
 # of the port's second SC. Prints no key material.
+# After a macsecmgrd restart (macsec-rekey-test.sh, or anyone's) the default fails on "started at most once" until
+# the next stack start, by design; -s sonic-macsecmgrd asks the same question from that restart.
 set -u
+# `bash -l`: a login shell's exit reads the logout files under this set -u (NixOS /etc/bash_logout reads an unset
+# variable) and every exit status became 1: exit without nounset
+# shellcheck disable=SC2329  # every exit below calls it
+exit() { local rc=$?; set +u; builtin exit "${1:-$rc}"; }
 limit=60; since=sonic-syncd
 while getopts t:s: o; do case $o in t) limit=$OPTARG;; s) since=$OPTARG;; *) exit 2;; esac; done
 db() { sonic-db-cli "$@"; }
@@ -23,8 +29,8 @@ case $since in
 esac
 ports=$(for k in $(db CONFIG_DB keys 'PORT|*'); do [ -n "$(db CONFIG_DB hget "$k" macsec)" ] && echo "${k#PORT|}"; done | sort -V)
 [ -n "$ports" ] || { echo "FAIL: no port has a MACsec profile in CONFIG_DB"; exit 1; }
-nports=$(echo $ports | wc -w)
-echo "== $(date -Is) $(readlink /run/current-system | cut -c12-23)... up $(now) s; $what: $t0 s; limit $limit s; ports: $(echo $ports)"
+nports=$(wc -w <<< "$ports")
+echo "== $(date -Is) $(readlink /run/current-system | cut -c12-23)... up $(now) s; $what: $t0 s; limit $limit s; ports: $(tr '\n' ' ' <<< "$ports")"
 secured() {   # port -> 0 when it has both SAs and the egress SCI is the netdev's address
   local p=$1 e i a
   e=$(db STATE_DB keys "MACSEC_EGRESS_SA_TABLE|$p|*" | head -1); i=$(db STATE_DB keys "MACSEC_INGRESS_SA_TABLE|$p|*" | head -1)
@@ -69,5 +75,4 @@ else
   echo "FAIL: MKA is not up by itself on every port within $limit s of $what"
   journalctl -b -o short-monotonic --no-pager -t wpa_supplicant 2>/dev/null | mono | grep KaY | grep -v -i -E 'sak|key=|cak' | cut -c1-160 | tail -6
 fi
-set +u
 exit $rc

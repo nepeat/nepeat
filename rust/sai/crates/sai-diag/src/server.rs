@@ -1,6 +1,12 @@
-//! The server thread (`sai_diag.cpp` `diag_start`, `loop`, `serve`, `diag_stop`).
+//! The server (`sai_diag.cpp` `diag_start`, `loop`, `serve`, `diag_stop`): one accepting thread and
+//! one thread per connection being served, at most [`MAX_CONNECTIONS`] at once. The C++ serves one
+//! connection at a time; here a command that waits (for the library's lock, a transaction's begin)
+//! never holds up the next client: a tool's raw MDIO inside its transaction is served while another
+//! client's `extmacsec` waits for the lock (the AS7772's expired-lease loop). Commands that need
+//! the library's lock still run one at a time on it.
 use crate::command::{self, Command, READ_LIMIT, RawRequest, Txn};
 use crate::{DiagHandler, DiagHost, Level, MARKER, PhyDiag, RawFailed, Reply, ShellFailed, strerror};
+use std::collections::BTreeMap;
 use std::fmt;
 use std::fs;
 use std::io::{self, Read, Write};
@@ -9,8 +15,8 @@ use std::os::fd::{AsFd, BorrowedFd, OwnedFd};
 use std::os::unix::fs::{DirBuilderExt, FileTypeExt, MetadataExt, PermissionsExt};
 use std::os::unix::net::{UnixListener, UnixStream};
 use std::path::PathBuf;
-use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Condvar, Mutex, PoisonError};
 use std::thread::JoinHandle;
 use std::time::Duration;
 
@@ -20,6 +26,36 @@ const SUN_PATH: usize = 108;
 const PEER_TIMEOUT: Duration = Duration::from_secs(5);
 /// The C++ reads in pieces of this size, and checks the limit between pieces.
 const READ_PIECE: usize = 256;
+/// Connections served at once. A further one waits in the socket's backlog (std's 128) until one
+/// of them is done: each is done within the peer timeouts plus its command, and no command waits
+/// for another connection (a transaction's begin waits at most `LEASE_MAX_MS`). The tools use one
+/// or two at a time (`phystat.py`, the rekey test's `extmacsec` poll, `phy-status`).
+pub const MAX_CONNECTIONS: usize = 8;
+
+/// The connections being served: their threads and a handle of each socket (to wake them at
+/// stop), and whether the accepting thread waits for one of them to finish.
+#[derive(Default)]
+struct Conns {
+    next: u64,
+    live: BTreeMap<u64, (UnixStream, Option<JoinHandle<()>>)>,
+    /// Threads that finished, to be joined (by the accepting thread or at stop).
+    done: Vec<JoinHandle<()>>,
+    /// The accepting thread is at [`MAX_CONNECTIONS`] and waits.
+    full: bool,
+}
+
+#[derive(Default)]
+struct Pool {
+    conns: Mutex<Conns>,
+    /// Signalled when a connection is done (and at stop).
+    freed: Condvar,
+}
+
+impl Pool {
+    fn lock(&self) -> std::sync::MutexGuard<'_, Conns> {
+        self.conns.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+}
 
 /// Why the server did not start. `Display` is the C++ log line.
 #[derive(Debug)]
@@ -50,18 +86,28 @@ impl fmt::Display for StartError {
 
 impl std::error::Error for StartError {}
 
-/// The running server. Stopping it (dropping it) ends the thread, waits for it and removes the
-/// socket file.
+/// The running server. Stopping it (dropping it) ends the accepting thread and every connection's
+/// thread (their sockets are shut down: a silent client does not keep it waiting), waits for all of
+/// them and removes the socket file: no thread of the server outlives it.
 ///
-/// Drop it **without** holding the library's lock: the thread may be waiting for that lock to
-/// run a command, and dropping waits for the thread.
-#[derive(Debug)]
+/// Drop it **without** holding the library's lock: a connection's thread may be waiting for that
+/// lock to run a command, and dropping waits for the thread.
 pub struct DiagServer {
     path: PathBuf,
     stop: Arc<AtomicBool>,
     /// The listening socket, as a stream: `shutdown` on it wakes the thread's `accept`.
     waker: UnixStream,
     thread: Option<JoinHandle<()>>,
+    pool: Arc<Pool>,
+}
+
+impl fmt::Debug for DiagServer {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("DiagServer")
+            .field("path", &self.path)
+            .field("serving", &self.serving())
+            .finish_non_exhaustive()
+    }
 }
 
 impl DiagServer {
@@ -101,15 +147,17 @@ impl DiagServer {
             let owner = fs::symlink_metadata(path)?.uid();
             let waker = UnixStream::from(OwnedFd::from(listener.try_clone()?));
             let stop = Arc::new(AtomicBool::new(false));
+            let pool = Arc::new(Pool::default());
             let thread = {
-                let stop = Arc::clone(&stop);
+                let (stop, pool) = (Arc::clone(&stop), Arc::clone(&pool));
+                let served = Served { host, phy, owner };
                 std::thread::Builder::new()
                     .name("sai-diag".into())
-                    .spawn(move || accept_loop(&listener, &stop, &*host, phy.as_deref(), owner))?
+                    .spawn(move || accept_loop(&listener, &stop, &pool, &served))?
             };
-            Ok((waker, stop, thread))
+            Ok((waker, stop, thread, pool))
         })();
-        let (waker, stop, thread) = rest.map_err(|e| {
+        let (waker, stop, thread, pool) = rest.map_err(|e| {
             let _ = fs::remove_file(path);
             failed(e)
         })?;
@@ -122,12 +170,23 @@ impl DiagServer {
             stop,
             waker,
             thread: Some(thread),
+            pool,
         })
     }
 
     /// The socket's path.
     pub fn path(&self) -> &std::path::Path {
         &self.path
+    }
+
+    /// Connections being served now (at most [`MAX_CONNECTIONS`]).
+    pub fn serving(&self) -> usize {
+        self.pool.lock().live.len()
+    }
+
+    /// Whether the server serves [`MAX_CONNECTIONS`] and the next one waits in the backlog.
+    pub fn full(&self) -> bool {
+        self.pool.lock().full
     }
 
     /// Stops the server (the same as dropping it).
@@ -137,28 +196,116 @@ impl DiagServer {
 impl Drop for DiagServer {
     fn drop(&mut self) {
         self.stop.store(true, Ordering::SeqCst);
-        // Wakes the blocked accept (EINVAL) and refuses new connections; a connection being
-        // served is finished first (at most the peer timeouts).
+        // Wakes the blocked accept (EINVAL) and refuses new connections.
         let _ = self.waker.shutdown(Shutdown::Both);
+        // under the pool's lock: the accepting thread either sees `stop` or is already waiting
+        drop(self.pool.lock());
+        self.pool.freed.notify_all();
         if let Some(thread) = self.thread.take() {
             // A panic of the thread already poisoned what it held; nothing to add here.
             let _ = thread.join();
         }
+        // The connections: a client that is silent or does not read is cut off (its read or
+        // write returns); a command running finishes first (it never waits for another client).
+        let threads: Vec<JoinHandle<()>> = {
+            let mut c = self.pool.lock();
+            for (conn, _) in c.live.values() {
+                let _ = conn.shutdown(Shutdown::Both);
+            }
+            let mut threads: Vec<JoinHandle<()>> = c.live.values_mut().filter_map(|(_, t)| t.take()).collect();
+            threads.append(&mut c.done);
+            threads
+        };
+        for thread in threads {
+            let _ = thread.join();
+        }
+        let mut c = self.pool.lock();
+        c.live.clear();
+        for thread in std::mem::take(&mut c.done) {
+            let _ = thread.join();
+        }
+        drop(c);
         let _ = fs::remove_file(&self.path);
     }
 }
 
-fn accept_loop(listener: &UnixListener, stop: &AtomicBool, host: &dyn DiagHost, phy: Option<&dyn PhyDiag>, owner: u32) {
+/// What a connection's thread serves with.
+struct Served {
+    host: Arc<dyn DiagHost>,
+    phy: Option<Arc<dyn PhyDiag>>,
+    owner: u32,
+}
+
+impl Clone for Served {
+    fn clone(&self) -> Self {
+        Self {
+            host: Arc::clone(&self.host),
+            phy: self.phy.clone(),
+            owner: self.owner,
+        }
+    }
+}
+
+fn accept_loop(listener: &UnixListener, stop: &AtomicBool, pool: &Arc<Pool>, served: &Served) {
     loop {
+        // at most MAX_CONNECTIONS at once: the next one waits in the backlog
+        {
+            let mut c = pool.lock();
+            for thread in std::mem::take(&mut c.done) {
+                let _ = thread.join();
+            }
+            while c.live.len() >= MAX_CONNECTIONS && !stop.load(Ordering::SeqCst) {
+                c.full = true;
+                c = pool.freed.wait(c).unwrap_or_else(PoisonError::into_inner);
+                for thread in std::mem::take(&mut c.done) {
+                    let _ = thread.join();
+                }
+            }
+            c.full = false;
+        }
         let accepted = listener.accept();
         if stop.load(Ordering::SeqCst) {
             return;
         }
         match accepted {
-            Ok((conn, _)) => serve(host, phy, conn, owner),
+            Ok((conn, _)) => spawn(pool, served, conn),
             Err(e) if e.kind() == io::ErrorKind::Interrupted => {}
             // EMFILE and the like: try again, without spinning
             Err(_) => std::thread::sleep(Duration::from_millis(10)),
+        }
+    }
+}
+
+/// Serves `conn` on a thread of its own, registered in `pool` until it is done. When the socket
+/// cannot be copied (for the stop), it is served on the accepting thread, as the C++ serves every
+/// connection; when no thread can be started, it is closed unserved (the client reads EOF).
+fn spawn(pool: &Arc<Pool>, served: &Served, conn: UnixStream) {
+    let Ok(handle) = conn.try_clone() else {
+        return serve(&*served.host, served.phy.as_deref(), conn, served.owner);
+    };
+    let mut c = pool.lock();
+    let id = c.next;
+    c.next += 1;
+    let job = {
+        let (pool, served) = (Arc::clone(pool), served.clone());
+        move || {
+            serve(&*served.host, served.phy.as_deref(), conn, served.owner);
+            let mut c = pool.lock();
+            if let Some((_, Some(thread))) = c.live.remove(&id) {
+                c.done.push(thread);
+            }
+            drop(c);
+            pool.freed.notify_all();
+        }
+    };
+    // registered before the thread can finish (it removes itself under the same lock)
+    match std::thread::Builder::new().name("sai-diag-conn".into()).spawn(job) {
+        Ok(thread) => {
+            c.live.insert(id, (handle, Some(thread)));
+        }
+        Err(_) => {
+            drop(c);
+            // the closure (and the connection) went with the failed spawn: nothing to serve
         }
     }
 }

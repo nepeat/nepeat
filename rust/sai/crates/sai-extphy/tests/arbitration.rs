@@ -21,7 +21,7 @@
 use sai_extphy::fwphy::{FwBus, FwPhy, as_actor};
 use sai_extphy::{
     Api, ChipPort, Clock, DiagTarget, DiagWho, ExtPhy, LEASE_MAX_MS, LeaseScope, Level, Logger,
-    MACSEC_POLL_DEFER_MAX_MS, MacsecUse, ManualClock, PortRef, SystemClock, Turn, TxnRefused, Verdict,
+    MACSEC_POLL_DEFER_MAX_MS, MacsecUse, ManualClock, PortRef, Turn, TxnRefused, Verdict,
 };
 use std::collections::BTreeSet;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
@@ -572,38 +572,89 @@ fn back_to_back_transactions_for_five_minutes_the_pn_is_read_within_the_bound_ne
     assert_eq!(c.txn_expired, 0);
 }
 
-#[test]
-fn the_gate_waits_behind_a_short_library_run_and_never_behind_a_transaction() {
-    let r = Arc::new(rig_on(Arc::new(SystemClock::new()), 3000));
-    // a MACsec run on PHY 0x10 that holds the PHY until it is told to finish
+/// A library run on PHY 0x10 that holds it until told to finish: 10 ms of its sequence's waits
+/// before, 70 ms after (an SA install's 80 ms on the AS7772), on the injected clock.
+fn slow_run(r: &Arc<Rig>, clock: &ManualClock) -> (std::thread::JoinHandle<Turn<()>>, mpsc::Sender<()>) {
     let (held, holding) = mpsc::channel();
     let (finish, finished) = mpsc::channel::<()>();
     let holder = {
-        let r = Arc::clone(&r);
+        let (r, clock) = (Arc::clone(r), clock.clone());
         std::thread::spawn(move || {
-            r.ext.macsec_run(P0, &[0x10], MacsecUse::Poll("stats-sa.egress.0"), || {
+            r.ext.macsec_run(P0, &[0x10], MacsecUse::Op, || {
+                clock.wait_us(10_000);
                 held.send(()).unwrap();
                 finished.recv().unwrap();
+                clock.wait_us(70_000);
             })
         })
     };
     holding.recv().unwrap();
-    // the link scan asks meanwhile: it waits (counted as waiting), then polls
-    let scan = {
-        let r = Arc::clone(&r);
-        std::thread::spawn(move || r.ext.gate(P0))
-    };
-    until("the gate waits", || r.ext.waiting() == 1);
-    assert!(!scan.is_finished());
-    finish.send(()).unwrap();
-    assert_eq!(holder.join().unwrap(), Turn::Ran(()));
-    assert_eq!(scan.join().unwrap(), Verdict::NoOpinion);
+    (holder, finish)
+}
+
+/// The SDK's link scan on a thread of its own: `passes` gate calls of port 0, their verdicts.
+fn scan(r: &Arc<Rig>, passes: usize) -> std::thread::JoinHandle<Vec<Verdict>> {
+    let r = Arc::clone(r);
+    std::thread::spawn(move || (0..passes).map(|_| r.ext.gate(P0)).collect())
+}
+
+#[test]
+fn the_gate_never_waits_behind_a_library_run_and_is_polled_after_the_bound() {
+    use sai_extphy::GATE_BUSY_MAX;
+    let clock = ManualClock::new();
+    let r = Arc::new(rig_on(Arc::new(clock.clone()), 3000));
+    let polls = || r.ext.port_counters(P0).unwrap().polls;
+    let polls0 = polls();
+    let (holder, finish) = slow_run(&r, &clock);
+    // GATE_BUSY_MAX passes while the run holds the PHY: each returns at once with the cached
+    // verdict (the run cannot progress until the test lets it: a gate that waited would never
+    // return), the poll stays due, no bus access
+    let before = r.fw.accesses();
+    let passes = usize::try_from(GATE_BUSY_MAX).unwrap();
+    let pass = scan(&r, passes);
+    until("the passes return", || pass.is_finished());
+    assert_eq!(pass.join().unwrap(), vec![Verdict::NoOpinion; passes]);
+    assert_eq!((polls(), r.fw.accesses()), (polls0, before));
     let c = r.ext.counts();
-    assert_eq!((c.gate_waits, c.gate_cached), (1, 0));
-    assert!(
-        c.gate_wait_us_max > 0 && c.gate_wait_us_total == c.gate_wait_us_max,
+    assert_eq!(
+        (c.gate_busy, c.gate_waits, c.gate_cached),
+        (u64::from(GATE_BUSY_MAX), 0, 0),
         "{c:?}"
     );
+    // the next pass: starved, it waits for this one run, before every other library user
+    let starved = scan(&r, 1);
+    until("the starved gate waits", || r.ext.waiting() == 1);
+    let other = {
+        let r = Arc::clone(&r);
+        std::thread::spawn(move || {
+            r.ext.macsec_run(P1, &[0x10], MacsecUse::Op, || {
+                // the gate went first
+                assert_eq!(r.ext.port_counters(P0).unwrap().polls, polls0 + 1);
+            })
+        })
+    };
+    until("the other user waits too", || r.ext.waiting() == 2);
+    assert!(!starved.is_finished());
+    finish.send(()).unwrap();
+    assert_eq!(holder.join().unwrap(), Turn::Ran(()));
+    assert_eq!(starved.join().unwrap(), vec![Verdict::NoOpinion]);
+    assert_eq!(other.join().unwrap(), Turn::Ran(()));
+    assert_eq!(polls(), polls0 + 1);
+    let c = r.ext.counts();
+    assert_eq!(c.gate_waits, 1, "{c:?}");
+    // it waited for the rest of the run: 70 ms of the injected clock
+    assert!(
+        c.gate_wait_us_max >= 70_000 && c.gate_wait_us_total == c.gate_wait_us_max,
+        "{c:?}"
+    );
+    assert_eq!(c.gate_time_hist[3], 1, "{c:?}");
+    assert!(c.gate_time_us_max >= 70_000, "{c:?}");
+    // and the count starts again: the next busy pass answers from the cache
+    let (holder, finish) = slow_run(&r, &clock);
+    assert_eq!(r.ext.gate(P0), Verdict::NoOpinion);
+    assert_eq!(r.ext.counts().gate_busy, u64::from(GATE_BUSY_MAX) + 1);
+    finish.send(()).unwrap();
+    holder.join().unwrap();
     // a transaction: the gate answers its last verdict without waiting and without the bus
     let t = begin(&r, 0x10);
     let before = r.fw.accesses();
@@ -615,6 +666,235 @@ fn the_gate_waits_behind_a_short_library_run_and_never_behind_a_transaction() {
     r.ext.txn_end(t).unwrap();
     let c = r.ext.counts();
     assert_eq!((c.gate_cached, c.gate_waits), (100, 1));
+    let text = r.ext.status();
+    assert!(
+        text.contains("behind a library run 4; waits for a library run before a poll 1 (after 3 busy in a row"),
+        "{text}"
+    );
+    assert!(text.contains("extphy: link gate time per poll (us): <=500 "), "{text}");
+    assert_eq!(r.fw.violations(), Vec::<String>::new());
+}
+
+#[test]
+fn link_down_behind_a_library_run_is_seen_one_pass_later() {
+    let clock = ManualClock::new();
+    let r = Arc::new(rig_on(Arc::new(clock.clone()), 3000));
+    // the far end goes dark: the link sequence's condition fails from now on
+    r.fw.set(0x10, 0xa101, 0);
+    let (holder, finish) = slow_run(&r, &clock);
+    // the pass while the run holds the PHY: the last verdict (up), at once
+    let pass = scan(&r, 1);
+    until("the pass returns", || pass.is_finished());
+    assert_eq!(pass.join().unwrap(), vec![Verdict::NoOpinion]);
+    finish.send(()).unwrap();
+    holder.join().unwrap();
+    // the next pass polls (still due) and sees it
+    assert_eq!(r.ext.gate(P0), Verdict::Down);
+    let c = r.ext.port_counters(P0).unwrap();
+    assert_eq!(c.downs, 1, "{c:?}");
+    assert_eq!(r.ext.counts().gate_busy, 1);
+}
+
+/// Real threads: the SDK's link scan calls the gate of both ports every pass while the SAI
+/// thread runs slow library sequences (80 ms of waits each, on the injected clock that only it
+/// moves) back to back on PHY 0x10. Every pass returns, the gate never waits for longer than one
+/// run (and only after [`sai_extphy::GATE_BUSY_MAX`] busy answers), port 1's poll on PHY 0x11 is
+/// never held up, and port 0 is still polled.
+#[test]
+fn a_link_scan_beside_back_to_back_slow_runs_never_stalls() {
+    const PASSES: u64 = 200;
+    let clock = ManualClock::new();
+    let r = Arc::new(rig_on(Arc::new(clock.clone()), 3000));
+    let stop = Arc::new(AtomicBool::new(false));
+    let runs = Arc::new(AtomicU64::new(0));
+    let sai = {
+        let (r, clock, stop, runs) = (Arc::clone(&r), clock.clone(), Arc::clone(&stop), Arc::clone(&runs));
+        std::thread::spawn(move || {
+            while !stop.load(Ordering::SeqCst) {
+                let turn = r.ext.macsec_run(P0, &[0x10], MacsecUse::Op, || {
+                    for _ in 0..8 {
+                        clock.wait_us(10_000);
+                        std::thread::yield_now();
+                    }
+                });
+                assert_eq!(turn, Turn::Ran(()));
+                runs.fetch_add(1, Ordering::SeqCst);
+            }
+        })
+    };
+    let p1_before = r.ext.port_counters(P1).unwrap().polls;
+    let scan = {
+        let r = Arc::clone(&r);
+        std::thread::spawn(move || {
+            for _ in 0..PASSES {
+                assert_eq!(r.ext.gate(P0), Verdict::NoOpinion);
+                assert_eq!(r.ext.gate(P1), Verdict::NoOpinion);
+            }
+        })
+    };
+    until("every pass returned", || scan.is_finished());
+    scan.join().unwrap();
+    stop.store(true, Ordering::SeqCst);
+    until("the SAI thread stops", || sai.is_finished());
+    sai.join().unwrap();
+    let c = r.ext.counts();
+    // port 1 (another PHY) polled on every pass
+    assert_eq!(r.ext.port_counters(P1).unwrap().polls - p1_before, PASSES);
+    // port 0: every pass either polled or answered from the cache because of a run; a wait only
+    // after GATE_BUSY_MAX busy ones, each at most one run (80 ms of the clock)
+    let p0 = r.ext.port_counters(P0).unwrap();
+    assert!(p0.polls >= 1, "{p0:?}");
+    assert!(
+        c.gate_waits <= c.gate_busy / u64::from(sai_extphy::GATE_BUSY_MAX),
+        "{c:?}"
+    );
+    assert!(c.gate_wait_us_max <= 80_000, "{c:?}");
+    assert_eq!(r.fw.violations(), Vec::<String>::new());
+}
+
+/// The rim's SAI call ([`sai_extphy::call`]) on a stand-in SAI lock: the change claims its PHY
+/// first; the transaction in the way makes the call let go of the lock and wait outside it; a
+/// begin cannot slip in while the call holds its claim; the change runs once, after the
+/// transaction, never under the lock behind it. A get whose PN read is overdue does the same.
+#[test]
+fn inside_a_sai_call_nothing_waits_for_a_transaction_under_the_sai_lock() {
+    let (r, clock) = rig(3000);
+    let r = Arc::new(r);
+    let sai_lock = Arc::new(Mutex::new(()));
+    let t = begin(&r, 0x10);
+    let mut tool = diag(&r, DiagWho::Txn(t), 0x10);
+    tool(0xa000, Some(0xc161)).unwrap();
+    let runs = Arc::new(AtomicU64::new(0));
+    let sai = {
+        let (r, sai_lock, runs) = (Arc::clone(&r), Arc::clone(&sai_lock), Arc::clone(&runs));
+        std::thread::spawn(move || {
+            sai_extphy::call(|| {
+                let _lock = sai_lock.lock().unwrap();
+                sai_extphy::under_sai_lock(|| {
+                    runs.fetch_add(1, Ordering::SeqCst);
+                    // before the first effect
+                    let _claim = match r.ext.claim(&[0x10]) {
+                        Ok(claim) => claim,
+                        Err(deferred) => {
+                            assert_eq!(deferred.txn, 1);
+                            return None;
+                        }
+                    };
+                    Some(lib_run(&r, P0, 0x10, MacsecUse::Op))
+                })
+            })
+        })
+    };
+    until("the call waits outside the SAI lock", || r.ext.waiting() == 1);
+    drop(sai_lock.try_lock().expect("the SAI lock is free"));
+    assert_eq!(runs.load(Ordering::SeqCst), 1);
+    tool(0x8222, Some(0x1444)).unwrap();
+    assert_eq!(tool(0x8221, None).unwrap(), 0x14e3);
+    tool(0xa100, None).unwrap();
+    tool(0xa101, None).unwrap();
+    r.ext.txn_end(t).unwrap();
+    assert_eq!(sai.join().unwrap(), Some(Turn::Ran(true)));
+    assert_eq!(runs.load(Ordering::SeqCst), 2);
+    assert_eq!(r.ext.claimed(), 0);
+    let c = r.ext.counts();
+    assert_eq!((c.calls_deferred, c.op_waits, c.locked_waits), (1, 1, 0), "{c:?}");
+    assert_eq!(count(&r.lines, "external PHY phy 0x10: a SAI call waited "), 1);
+    // a held claim keeps a begin off its PHY: it gives up after LEASE_MAX_MS (the clock moved
+    // here until it does), busy, with no transaction in the way
+    let claim = r.ext.claim(&[0x10]).unwrap();
+    assert_eq!(r.ext.claimed(), 1);
+    let beginner = {
+        let r = Arc::clone(&r);
+        std::thread::spawn(move || r.ext.txn_begin(LeaseScope::Phys(BTreeSet::from([0x10])), None))
+    };
+    until("the begin gives up", || {
+        clock.advance_ms(100);
+        beginner.is_finished()
+    });
+    assert!(matches!(
+        beginner.join().unwrap(),
+        Err(TxnRefused::Busy { txn: None, .. })
+    ));
+    drop(claim);
+    assert_eq!(r.ext.claimed(), 0);
+    // a PN get whose read is overdue: skipped inside the transaction, its call waits outside the
+    // lock and reads once it is over (never inside it)
+    let _expires = begin(&r, 0x10);
+    assert_eq!(lib_run(&r, P0, 0x10, MacsecUse::Poll("pn.egress.0")), Turn::Skipped);
+    clock.advance_ms(MACSEC_POLL_DEFER_MAX_MS); // that lease (1000 ms) runs out meanwhile
+    let t = begin(&r, 0x10);
+    let get = {
+        let (r, sai_lock) = (Arc::clone(&r), Arc::clone(&sai_lock));
+        std::thread::spawn(move || {
+            sai_extphy::call(|| {
+                let _lock = sai_lock.lock().unwrap();
+                sai_extphy::under_sai_lock(|| lib_run(&r, P0, 0x10, MacsecUse::Poll("pn.egress.0")))
+            })
+        })
+    };
+    until("the get waits outside the SAI lock", || r.ext.waiting() == 1);
+    drop(sai_lock.try_lock().expect("the SAI lock is free"));
+    r.ext.txn_end(t).unwrap();
+    assert_eq!(get.join().unwrap(), Turn::Ran(true));
+    let c = r.ext.counts();
+    assert_eq!((c.forced_reads, c.calls_deferred, c.locked_waits), (1, 2, 0), "{c:?}");
+    assert_eq!(r.ext.claimed(), 0);
+    assert_eq!(r.fw.violations(), Vec::<String>::new());
+}
+
+/// Re-validation: a SAI call's object moves to another PHY while the call waits outside the SAI
+/// lock (here: the PHY it wants changes between its runs). The second run claims the new PHY,
+/// meets the transaction there, waits for it too; the third run holds both claims and changes the
+/// new PHY, never inside a transaction; every claim is given back when the call returns.
+#[test]
+fn a_call_whose_object_moved_while_it_waited_claims_again() {
+    let (r, _clock) = rig(3000);
+    let r = Arc::new(r);
+    let target = Arc::new(AtomicU64::new(0x10));
+    let runs = Arc::new(AtomicU64::new(0));
+    let t1 = begin(&r, 0x10);
+    let sai = {
+        let (r, target, runs) = (Arc::clone(&r), Arc::clone(&target), Arc::clone(&runs));
+        std::thread::spawn(move || {
+            sai_extphy::call(|| {
+                sai_extphy::under_sai_lock(|| {
+                    runs.fetch_add(1, Ordering::SeqCst);
+                    let phy = u16::try_from(target.load(Ordering::SeqCst)).unwrap();
+                    let _claim = r.ext.claim(&[phy]).ok()?;
+                    let port = if phy == 0x10 { P0 } else { P1 };
+                    Some((phy, lib_run(&r, port, phy, MacsecUse::Op)))
+                })
+            })
+        })
+    };
+    until("the first run waits for transaction 1", || r.ext.waiting() == 1);
+    // the object moves to PHY 0x11, where another transaction begins
+    target.store(0x11, Ordering::SeqCst);
+    let t2 = begin(&r, 0x11);
+    r.ext.txn_end(t1).unwrap();
+    until("the second run waits for transaction 2", || {
+        runs.load(Ordering::SeqCst) == 2 && r.ext.waiting() == 1
+    });
+    assert_eq!(r.ext.claimed(), 1); // 0x10, taken after transaction 1
+    r.ext.txn_end(t2).unwrap();
+    assert_eq!(sai.join().unwrap(), Some((0x11, Turn::Ran(true))));
+    assert_eq!(runs.load(Ordering::SeqCst), 3);
+    assert_eq!(r.ext.claimed(), 0);
+    let c = r.ext.counts();
+    assert_eq!((c.calls_deferred, c.locked_waits), (2, 0), "{c:?}");
+    assert_eq!(r.fw.violations(), Vec::<String>::new());
+}
+
+/// A change under the SAI lock on PHYs its call did not claim, with a transaction in the way:
+/// the gap in the claims is a bug, caught by the debug assertion (release builds count and log
+/// it, and wait).
+#[test]
+#[cfg(debug_assertions)]
+#[should_panic(expected = "under the SAI lock")]
+fn an_unclaimed_change_under_the_sai_lock_is_asserted() {
+    let (r, _clock) = rig(3000);
+    let _t = begin(&r, 0x10);
+    sai_extphy::under_sai_lock(|| lib_run(&r, P0, 0x10, MacsecUse::Op));
 }
 
 #[test]

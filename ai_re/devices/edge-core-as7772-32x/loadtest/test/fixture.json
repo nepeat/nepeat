@@ -134,7 +134,8 @@
     "v": {
      "cipher_suite": "GCM-AES-XPN-256",
      "priority": "0",
-     "send_sci": "true"
+     "send_sci": "true",
+     "primary_cak": "075f701e1d5d4c53404a520d06292f212e63647040534355560e005951570a061e46080a0407070303530207055b53011556550958525a771b1650180714160e0a"
     }
    },
    "PORT|Ethernet0": {
@@ -297,5 +298,20 @@
   "net.ipv6.conf.Ethernet120.disable_ipv6": "0",
   "net.ipv6.conf.Ethernet124.disable_ipv6": "0"
  },
- "stuck": []
+ "stuck": [],
+ "phy": {
+  "engines": [],
+  "ipg": {
+   "ce0": 48,
+   "ce1": 48,
+   "ce30": 48,
+   "ce31": 48
+  },
+  "sai": {
+   "Ethernet0": true,
+   "Ethernet4": true,
+   "Ethernet120": true,
+   "Ethernet124": true
+  }
+ }
 }

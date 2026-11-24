@@ -3,8 +3,8 @@
 //! wait, which gives its mutex up). [`Leaf`] wraps their guards and counts them per thread, so a
 //! debug build (every test) panics at the first place that breaks the rule; a release build only
 //! counts. This, and the arbiter's slots never being held while anything waits, is what makes the
-//! lock order (SAI lock, then a lease, then a PHY's slot, then the bus master's own lock) hold by
-//! construction.
+//! lock order (a claim, waited for outside the SAI lock only, then the SAI lock, then a PHY's slot,
+//! then the bus master's own lock) hold by construction.
 use std::cell::Cell;
 use std::ops::{Deref, DerefMut};
 use std::sync::{Condvar, Mutex, MutexGuard, PoisonError};

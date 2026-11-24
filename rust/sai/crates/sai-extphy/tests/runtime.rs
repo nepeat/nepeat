@@ -364,8 +364,10 @@ fn the_status_text_is_the_cpp_table() {
          ce1          5    5 down  down  no     0x0000        0        0    0     0       0       0       0     0    0           0\n\
          extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY\n\
          extphy: leases now 0; transactions begun 0, ended 0, expired 0; raw MDIO hold-offs 0; refused: busy 0, void 0\n\
-         extphy: link polls answered from the last verdict during a lease 0; waits for a library run before a poll 0 (max 0 us, total 0 us)\n\
-         extphy: MACsec polls skipped during a lease 0; forced reads after 10000 ms 0 (max wait 0 us); MACsec / admin runs that waited for a transaction 0 (max 0 us); extmacsec run refused 0\n"
+         extphy: link polls answered from the last verdict during a lease 0, behind a library run 0; waits for a library run before a poll 0 (after 3 busy in a row; max 0 us, total 0 us)\n\
+         extphy: link gate time per poll (us): <=500 3, <=2000 0, <=10000 0, <=100000 0, more 0; max 0\n\
+         extphy: MACsec polls skipped during a lease 0; forced reads after 10000 ms 0 (max wait 0 us); MACsec / admin runs and SAI calls that waited for a transaction 0 (max 0 us); extmacsec run refused 0\n\
+         extphy: SAI calls that waited for a transaction outside the SAI lock 0; waits under the SAI lock 0\n"
     );
 }
 

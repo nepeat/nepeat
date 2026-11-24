@@ -258,6 +258,21 @@ pub trait MacsecIo {
     fn next_id(&mut self, object: MacsecObject) -> Option<RawOid>;
 }
 
+/// A change of the model, as [`MacsecModel::reach`] is asked about it before it runs.
+#[derive(Clone, Copy, Debug)]
+pub enum Reach<'a> {
+    /// A create, with its attributes.
+    Create(MacsecObject, &'a [Attr]),
+    /// A remove.
+    Remove(MacsecObject, RawOid),
+    /// A set.
+    Set(MacsecObject, RawOid),
+    /// A counter clear.
+    Clear(MacsecObject, RawOid),
+    /// `INGRESS_MACSEC_ACL` / `EGRESS_MACSEC_ACL` of a port.
+    PortAcl(PortId),
+}
+
 /// The `MACsec` model of one switch (implemented by `sai-macsec-phy`'s `native` module over
 /// `sai-macsec`). Statuses, check order and the sequences run are the model's: the core adds
 /// nothing but the routing. Attribute errors carry the attribute's index.
@@ -293,6 +308,16 @@ pub trait MacsecModel: Send + fmt::Debug {
     fn clear_stats(&mut self, io: &mut dyn MacsecIo, object: MacsecObject, id: RawOid) -> Result<()>;
     /// Whether `id` is one of the model's objects of that type.
     fn owns(&self, object: MacsecObject, id: RawOid) -> bool;
+    /// The PHYs (sorted, no doubles) the sequences of a change may address: what the core claims
+    /// before the change runs (`crate::extphy`, "Claims"), so the change never meets a diag
+    /// transaction once it has begun. More than it will touch is allowed (every PHY of the table
+    /// when unsure), fewer is a bug (the change would then wait for a transaction under the SAI
+    /// lock: asserted in debug builds). Empty: it runs no sequence. Without an answer (the
+    /// default), every change claims nothing.
+    fn reach(&self, change: Reach<'_>) -> Vec<u16> {
+        let _ = change;
+        Vec::new()
+    }
     /// The switch's front-panel ports, SAI id to chip port (handed over whenever they change).
     fn set_switch_ports(&mut self, ports: &[(PortId, HwPort)]);
     /// `INGRESS_MACSEC_ACL` / `EGRESS_MACSEC_ACL` set on a port (errors at index 0).
@@ -486,13 +511,16 @@ fn front_ports(store: &Store) -> Vec<(PortId, HwPort)> {
 
 /// Runs `call` on the switch's model with the core's io: the model is taken out of the store
 /// for the call (the io lends the store to the port code), handed the live port table first
-/// (C++ `sync_ports`), and put back after; the hold is refreshed.
+/// (C++ `sync_ports`), and put back after; the hold is refreshed. `reach`: a change, whose PHYs
+/// are claimed before it runs (`crate::extphy`, "Claims"; a deferred claim returns
+/// `ObjectInUse` with nothing done); `None`: a read (its polls defer their own call).
 pub(crate) fn with_model<B: Backend + ?Sized, T>(
     backend: &mut B,
     store: &mut Store,
+    reach: Option<Reach<'_>>,
     call: impl FnOnce(&mut dyn MacsecModel, &mut dyn MacsecIo) -> Result<T>,
 ) -> Result<T> {
-    with_model_alloc(backend, store, None, false, call)
+    with_model_alloc(backend, store, None, false, reach, call)
 }
 
 /// [`with_model`] for a create whose id the caller chose.
@@ -501,6 +529,7 @@ fn with_model_alloc<B: Backend + ?Sized, T>(
     store: &mut Store,
     alloc: Option<RawOid>,
     diag_run: bool,
+    reach: Option<Reach<'_>>,
     call: impl FnOnce(&mut dyn MacsecModel, &mut dyn MacsecIo) -> Result<T>,
 ) -> Result<T> {
     let Some(mut model) = store.ext_mut().macsec.model.take() else {
@@ -512,6 +541,17 @@ fn with_model_alloc<B: Backend + ?Sized, T>(
         store.ext_mut().macsec.handed = ports;
     }
     let phy = store.ext().phy.clone();
+    // the change's PHYs, before anything runs
+    let claim = match reach.map(|r| model.reach(r)).filter(|phys| !phys.is_empty()) {
+        Some(phys) => match crate::extphy::claim_phys(&phy, &phys) {
+            Ok(claim) => Some(claim),
+            Err(e) => {
+                store.ext_mut().macsec.model = Some(model);
+                return Err(e);
+            }
+        },
+        None => None,
+    };
     let clock = phy.clock();
     let result = {
         let mut io = CoreIo {
@@ -524,6 +564,7 @@ fn with_model_alloc<B: Backend + ?Sized, T>(
         };
         call(model.as_mut(), &mut io)
     };
+    drop(claim);
     let state = &mut store.ext_mut().macsec;
     state.model = Some(model);
     state.refresh_hold();
@@ -541,25 +582,31 @@ impl<B: Backend> Sai<B> {
     /// `create_macsec*` (the switch id is the rim's: one switch).
     pub fn macsec_create(&mut self, object: MacsecObject, attrs: &[Attr]) -> Result<RawOid> {
         let (backend, store) = self.macsec_parts()?;
-        with_model(backend, store, |m, io| m.create(io, object, attrs))
+        with_model(backend, store, Some(Reach::Create(object, attrs)), |m, io| {
+            m.create(io, object, attrs)
+        })
     }
 
     /// `remove_macsec*`
     pub fn macsec_remove(&mut self, object: MacsecObject, id: RawOid) -> Result<()> {
         let (backend, store) = self.macsec_parts()?;
-        with_model(backend, store, |m, io| m.remove(io, object, id))
+        with_model(backend, store, Some(Reach::Remove(object, id)), |m, io| {
+            m.remove(io, object, id)
+        })
     }
 
     /// `set_macsec*_attribute`
     pub fn macsec_set(&mut self, object: MacsecObject, id: RawOid, attr: &Attr) -> Result<()> {
         let (backend, store) = self.macsec_parts()?;
-        with_model(backend, store, |m, io| m.set(io, object, id, attr))
+        with_model(backend, store, Some(Reach::Set(object, id)), |m, io| {
+            m.set(io, object, id, attr)
+        })
     }
 
     /// `get_macsec*_attribute`: the values in the order of `ids`.
     pub fn macsec_get(&mut self, object: MacsecObject, id: RawOid, ids: &[sys::sai_attr_id_t]) -> Result<Vec<Value>> {
         let (backend, store) = self.macsec_parts()?;
-        with_model(backend, store, |m, io| m.get(io, object, id, ids))
+        with_model(backend, store, None, |m, io| m.get(io, object, id, ids))
     }
 
     /// `get_macsec*_stats` / `_stats_ext`.
@@ -571,13 +618,15 @@ impl<B: Backend> Sai<B> {
         mode: StatsMode,
     ) -> Result<Vec<u64>> {
         let (backend, store) = self.macsec_parts()?;
-        with_model(backend, store, |m, io| m.stats(io, object, id, ids, mode))
+        with_model(backend, store, None, |m, io| m.stats(io, object, id, ids, mode))
     }
 
     /// `clear_macsec*_stats`
     pub fn macsec_clear_stats(&mut self, object: MacsecObject, id: RawOid) -> Result<()> {
         let (backend, store) = self.macsec_parts()?;
-        with_model(backend, store, |m, io| m.clear_stats(io, object, id))
+        with_model(backend, store, Some(Reach::Clear(object, id)), |m, io| {
+            m.clear_stats(io, object, id)
+        })
     }
 
     /// Whether a `MACsec` table is attached (the test port's `ext_macsec_active`).
@@ -675,7 +724,11 @@ pub fn ext_macsec_diag_run<B: Backend>(sai: &mut Sai<B>, port: &str, seq: &str, 
         }
     };
     let lent: Vec<(&str, &[u8])> = params.iter().map(|(n, b)| (n.as_str(), b.as_slice())).collect();
-    with_model_alloc(backend, store, None, true, |m, io| Ok(m.diag_run(io, port, seq, &lent))).unwrap_or_default()
+    // a diag run waits for no transaction (it is refused inside one): nothing to claim
+    with_model_alloc(backend, store, None, true, None, |m, io| {
+        Ok(m.diag_run(io, port, seq, &lent))
+    })
+    .unwrap_or_default()
 }
 
 // ------------------------------------------------------------------ hooks of the port and ACL areas
@@ -711,7 +764,9 @@ pub(crate) fn port_macsec_set<B: Backend + ?Sized>(
             Err(Error::attr(AttrError::InvalidValue, 0))
         });
     }
-    Some(with_model(backend, store, |m, io| m.set_port_acl(io, id, side, table)))
+    Some(with_model(backend, store, Some(Reach::PortAcl(id)), |m, io| {
+        m.set_port_acl(io, id, side, table)
+    }))
 }
 
 /// `INGRESS_MACSEC_ACL`, `EGRESS_MACSEC_ACL`, `MACSEC_PORT_LIST` of a port (C++
@@ -765,7 +820,12 @@ pub(crate) fn macsec_acl_table_remove<B: Backend + ?Sized>(
     store: &mut Store,
     id: RawOid,
 ) -> Result<()> {
-    with_model(backend, store, |m, io| m.remove(io, MacsecObject::AclTable, id))
+    with_model(
+        backend,
+        store,
+        Some(Reach::Remove(MacsecObject::AclTable, id)),
+        |m, io| m.remove(io, MacsecObject::AclTable, id),
+    )
 }
 
 /// `macsec_acl_table_get`, one attribute.
@@ -795,7 +855,12 @@ pub(crate) fn macsec_acl_entry_remove<B: Backend + ?Sized>(
     store: &mut Store,
     id: RawOid,
 ) -> Result<()> {
-    with_model(backend, store, |m, io| m.remove(io, MacsecObject::AclEntry, id))
+    with_model(
+        backend,
+        store,
+        Some(Reach::Remove(MacsecObject::AclEntry, id)),
+        |m, io| m.remove(io, MacsecObject::AclEntry, id),
+    )
 }
 
 /// `macsec_acl_entry_set`
@@ -805,7 +870,9 @@ pub(crate) fn macsec_acl_entry_set<B: Backend + ?Sized>(
     id: RawOid,
     attr: &Attr,
 ) -> Result<()> {
-    with_model(backend, store, |m, io| m.set(io, MacsecObject::AclEntry, id, attr))
+    with_model(backend, store, Some(Reach::Set(MacsecObject::AclEntry, id)), |m, io| {
+        m.set(io, MacsecObject::AclEntry, id, attr)
+    })
 }
 
 /// `macsec_acl_entry_get`, one attribute.
@@ -826,12 +893,21 @@ fn acl_create<B: Backend + ?Sized>(
     id: RawOid,
     attrs: &[Attr],
 ) -> Result<()> {
-    let made = with_model_alloc(backend, store, Some(id), false, |m, io| m.create(io, object, attrs))?;
+    let made = with_model_alloc(
+        backend,
+        store,
+        Some(id),
+        false,
+        Some(Reach::Create(object, attrs)),
+        |m, io| m.create(io, object, attrs),
+    )?;
     if made == id {
         Ok(())
     } else {
         // the model did not take the id it was given (cannot happen with sai-macsec)
-        let _ = with_model(backend, store, |m, io| m.remove(io, object, made));
+        let _ = with_model(backend, store, Some(Reach::Remove(object, made)), |m, io| {
+            m.remove(io, object, made)
+        });
         Err(Error::Failure)
     }
 }

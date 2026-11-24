@@ -1,7 +1,8 @@
 //! The diag socket (crate `sai-diag`, the port of `sai_diag.cpp`) on the API lock: its commands
 //! run on the core under the same mutex as every SAI call, but raw MDIO and `extphy txn` on a
 //! switch with external PHY tables, which the switch's `sai_core::diag::DiagPort` serves without
-//! it (lock order: API lock, a diag lease, a PHY's slot, the MDIO master's lock). Started by `create_switch` when the
+//! it (lock order: a PHY claim, taken outside the API lock, then the API lock, a PHY's slot, the MDIO
+//! master's lock: `sai-extphy`, "SAI calls and the SAI lock"). Started by `create_switch` when the
 //! profile has `SAI_OPENBCM_DIAG_SOCKET`; stopped by `remove_switch` and `sai_api_uninitialize`,
 //! always after the lock was released (the server's thread may be waiting for it).
 use crate::state;

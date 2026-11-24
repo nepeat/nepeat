@@ -174,10 +174,22 @@ pub(crate) fn uninitialize() -> Result<(), Status> {
     Ok(())
 }
 
-/// Runs `body` on the initialised API, under the lock.
+/// Runs `body` on the initialised API, under the lock (marked as held for the external-PHY
+/// arbitration: `sai_core::extphy::under_sai_lock`).
 pub(crate) fn with_api<T>(body: impl FnOnce(&mut Api) -> Result<T, Status>) -> Result<T, Status> {
     let mut guard = API.lock().map_err(|_| sys::SAI_STATUS_FAILURE)?;
-    body(guard.as_mut().ok_or(sys::SAI_STATUS_UNINITIALIZED)?)
+    let api = guard.as_mut().ok_or(sys::SAI_STATUS_UNINITIALIZED)?;
+    sai_core::extphy::under_sai_lock(|| body(api))
+}
+
+/// One SAI call that may change or read external PHYs: [`with_api`] inside
+/// `sai_core::extphy::call`. When a PHY change of the call meets a diag transaction (or a forced
+/// `MACsec` read does), the call returns at once with nothing done; this lets go of the lock,
+/// waits for the transaction outside it (at most `LEASE_MAX_MS`, the PHYs claimed so that no new
+/// one begins) and runs `body` again. So no SAI call waits for a lease under the lock, and a
+/// change is never dropped (`sai-extphy`, "SAI calls and the SAI lock").
+pub(crate) fn with_api_call<T>(mut body: impl FnMut(&mut Api) -> Result<T, Status>) -> Result<T, Status> {
+    sai_core::extphy::call(|| with_api(&mut body))
 }
 
 #[cfg(test)]

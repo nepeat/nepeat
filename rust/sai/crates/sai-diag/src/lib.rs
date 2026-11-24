@@ -8,11 +8,15 @@
 //!
 //! - Root only: the directory is created 0700, the socket 0600, and a peer whose uid is neither 0
 //!   nor the socket owner's is answered `root only`.
-//! - One thread ([`DiagServer`]), serving one connection at a time. A request is read with a 5 s
-//!   timeout and **without** the library's lock; the command then runs under it
-//!   ([`DiagHost::with_handler`]), never beside a SAI call. Its output is collected while the lock
-//!   is held and written to the client after the lock is released: a client that does not read
-//!   never holds up a SAI call.
+//! - An accepting thread and one thread per connection being served ([`DiagServer`]), at most
+//!   [`MAX_CONNECTIONS`] (8) at once; a further connection waits in the socket's backlog
+//!   until one is done. A request is read with a 5 s timeout and **without** the library's lock;
+//!   the command then runs under it ([`DiagHost::with_handler`]), never beside a SAI call, one at a
+//!   time with the other locked commands. Its output is collected while the lock is held and
+//!   written to the client after the lock is released: a client that does not read never holds up
+//!   a SAI call. A command that waits (for the lock, for a transaction's begin) never holds up
+//!   another client's: a tool's raw MDIO inside its transaction is served while another client's
+//!   `extmacsec` waits for the lock (the C++ serves one connection at a time).
 //! - **Raw MDIO and transactions do not take the library's lock** (Rust only): `phy raw c45 ...`
 //!   and `extphy txn ...` go to the [`PhyDiag`] the library handed to
 //!   [`DiagServer::start_with`] (the core's PHY arbitration and a handle of the MDIO master), so a
@@ -46,13 +50,16 @@
 //!   connects in between is refused by the uid check. The listen backlog is std's (128; C++ 4).
 //! - When setting up the socket fails after it was bound, the socket file is removed (the C++ leaves
 //!   it behind). A failed `accept` is retried after 10 ms (the C++ retries at once).
+//! - Connections are served concurrently, at most [`MAX_CONNECTIONS`] (the C++: one at a time, on
+//!   its one thread); stopping the server cuts off the clients still connected and waits for every
+//!   connection's thread (the C++ waits for the one being served, at most its timeouts).
 #![forbid(unsafe_code)]
 
 pub mod command;
 mod server;
 
 pub use command::{Command, MacsecRun, MdioAccess, RawC45, RawRequest, RawTarget, Rejection, ShellCommand, Txn};
-pub use server::{DiagServer, StartError};
+pub use server::{DiagServer, MAX_CONNECTIONS, StartError};
 
 use std::os::fd::BorrowedFd;
 

@@ -1,22 +1,47 @@
 #!/usr/bin/env bash
-# Run ON the AS7772 (root, login shell), SONiC up with MACsec on cages 1-2 and the test addresses of
-# macsec-traffic-test.sh configured (run that first): what passes IN CLEAR on a port that is configured for MACsec
-# while the stack starts? A ping (20 per second, cage 1 -> cage 2) runs across a restart; every reply is placed on
-# the time line of the PHY engines (syncd's "MACsec egress|ingress on|off" lines) and of the SAs (orchagent).
-#   bash -l macsec-clear-window-test.sh ['systemctl restart sonic.target']
+# Run ON the AS7772 (root, login shell), SONiC up with MACsec on cages 1-2: what passes IN CLEAR on a port that is
+# configured for MACsec while the stack starts? A ping (20 per second, cage 1 -> cage 2) runs across a restart; every
+# reply is placed on the time line of the PHY engines (syncd's "MACsec egress|ingress on|off" lines) and of the SAs
+# (orchagent).
+#   bash -l macsec-clear-window-test.sh [--dry-run] ['systemctl restart sonic.target']
+#   bash -l macsec-clear-window-test.sh --cleanup [--dry-run]    undo an interrupted run
+# Builds the VRF-pair topology of macsec-traffic-test.sh itself (loadtest/sonic-test-lib.sh beside it or in
+# ./loadtest/: CONFIG_DB snapshot, restore on every exit, the whole CONFIG_DB compared with it, refuses over an
+# earlier run's leftovers); the topology is runtime CONFIG_DB and lives through the restart.
 # A reply while all four engines of the link are off went through both PHYs in bypass: in clear. While the engines
 # are on and there is no SA the PHY drops data (the gate): there must be no reply. The ping needs its addresses,
 # which come back late in a start, so every frame the CPU RECEIVES on the two ports is recorded too (a packet socket
 # on all interfaces; IPv6 neighbour discovery, MLD, ARP, LLDP that the kernel and lldpd send as soon as a port is
 # up): a frame other than EAPOL received while the engines are off crossed the cable in clear.
 # Only frames from and to the CPU are seen here; what the ASIC forwards between front ports is not measured.
+# Exit status: macsec-up-check.sh's (MACSEC_UP_CHECK: another path to it, for the offline test).
 set -u
-cmd=${1:-systemctl restart sonic.target}
-tmp=$(mktemp -d)
+here=$(cd "$(dirname "$0")" && pwd)
+lib=
+for l in "${SONIC_TEST_LIB:-}" "$here/loadtest/sonic-test-lib.sh" "$here/sonic-test-lib.sh"; do
+  if [ -n "$l" ] && [ -r "$l" ]; then lib=$l; break; fi
+done
+[ -n "$lib" ] || { echo "sonic-test-lib.sh not found: copy loadtest/sonic-test-lib.sh next to this script"; exit 2; }
+# shellcheck source=loadtest/sonic-test-lib.sh
+. "$lib"
+st_args "$@"
+ST_PHASES=("${ST_PAIRS_PHASES[@]}")
+st_verify_extra() { st_mka_verify; }
+[ "$ST_MODE" = cleanup ] && st_cleanup macsec-clear-window-test
+cmd=${ST_ARGS[0]:-systemctl restart sonic.target}
+check=${MACSEC_UP_CHECK:-$here/macsec-up-check.sh}
 echo "== $(date -Is) $(readlink /run/current-system | cut -c12-23)... ; command: $cmd"
-ping -c 2 -W 2 10.0.1.1 >/dev/null || { echo "no ping 10.0.1.1 before the test: run macsec-traffic-test.sh first"; exit 1; }
+st_pairs_macsec_check
+[ -r "$check" ] || st_refuse "$check not found (macsec-up-check.sh beside this script)"
+st_refusals || exit 1
+st_pairs_session macsec-clear-window-test
+[ "$ST_DRY" = 1 ] && { echo "(dry run: '$cmd' and the ping across it are not run)"; exit 0; }
+tmp=$ST_DIR/clear-window; mkdir -p "$tmp"
+ping -c 2 -W 2 10.0.1.1 >/dev/null || { echo "FAIL: no ping 10.0.1.1 after the setup"; exit 1; }
 ping -D -O -i 0.05 -W 1 10.0.1.1 > "$tmp/ping.txt" 2>&1 &
-pp=$!
+pp=$!; ST_BG+=("$pp")
+t=$SECONDS   # the ping runs (its first line) before anything else: its SIGINT at the end must find it ready
+while [ ! -s "$tmp/ping.txt" ] && kill -0 "$pp" 2>/dev/null && [ $((SECONDS - t)) -lt 10 ]; do sleep 0.1; done
 python3 -u -c '
 import socket, struct, time
 s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(3))      # every protocol, every interface
@@ -25,14 +50,14 @@ while True:
     if pkttype != 4 and ifname in ("Ethernet0", "Ethernet4"):               # not our own transmissions
         print("%.6f %s %04x %s" % (time.time(), ifname, proto, ":".join("%02x" % b for b in data[6:12])), flush=True)
 ' > "$tmp/rx.txt" 2>/dev/null &
-cp=$!
+cp=$!; ST_BG+=("$cp")
 sleep 3
 t0=$(date +%s.%N)
 $cmd
-bash -l "$(dirname "$0")/macsec-up-check.sh" -t 90 > "$tmp/check.txt" 2>&1; rc=$?
+bash "$check" -t 90 > "$tmp/check.txt" 2>&1; rc=$?
 tail -2 "$tmp/check.txt" | head -1
 sleep 5
-kill -INT $pp; kill $cp; wait $pp $cp 2>/dev/null
+kill -INT "$pp"; kill "$cp"; wait "$pp" "$cp" 2>/dev/null; ST_BG=()
 journalctl -b -o short-unix --no-pager --since "@${t0%.*}" > "$tmp/journal.txt"
 python3 - "$tmp" "$t0" <<'EOF'
 import re, sys
@@ -151,6 +176,4 @@ for o in odd:
 if odd:
     print("   (syncd logs an engine change when its register sequence is done, 36-110 ms after it began: a frame that close to a change is not placed reliably)")
 EOF
-rm -rf "$tmp"
-set +u
-exit $rc
+exit "$rc"

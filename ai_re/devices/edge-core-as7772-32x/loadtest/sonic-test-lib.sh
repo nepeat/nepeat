@@ -1,5 +1,6 @@
 # shellcheck shell=bash disable=SC2034  # (variables for the scripts that source this file)
-# Sourced by macsec-traffic-test.sh, sonic-traffic-test.sh and loadtest/sonic-ring.sh (run ON the AS7772, root).
+# Sourced by sonic-traffic-test.sh, macsec-traffic-test.sh, macsec-{rekey,wrongcak,wrap,clear-window}-test.sh and
+# loadtest/sonic-ring.sh (run ON the AS7772, root).
 # - Before the first write: a snapshot of the whole CONFIG_DB and of the kernel state these scripts touch, in
 #   $ST_RUN/<name> (/run: a reboot regenerates CONFIG_DB from Nix and drops it).
 # - Restore of the touched CONFIG_DB keys to the snapshot on every exit path (EXIT/INT/TERM/HUP traps; a second ^C,
@@ -11,11 +12,14 @@
 # the manager's STATE_DB entry (intfmgrd / vrfmgrd / vlanmgrd write one when they have applied a key) and for
 # orchagent to have taken the APPL_DB entry.
 # Environment, for the offline test (loadtest/test/run.sh): ST_REDIS, ST_RUN, ST_WAIT (s per wait), ST_SETTLE (s).
+# `bash -l script`: the exit builtin of a login shell reads the logout files before the EXIT trap, under the script's
+# set -u, and NixOS /etc/bash_logout reads an unset variable: every exit status became 1. Exit without nounset:
+exit() { local rc=$?; set +u; builtin exit "${1:-$rc}"; }
 : "${ST_REDIS:=redis-cli -s /var/run/redis/redis.sock}"
 : "${ST_RUN:=/run/as7772-tests}"
 : "${ST_WAIT:=20}"
 : "${ST_SETTLE:=2}"
-ST_DRY=0 ST_MODE=run ST_ARGS=() ST_TMPDIR=0 ST_NAME='' ST_DIR='' ST_PHASES=() ST_FORCED=0 ST_REFUSED=0
+ST_DRY=0 ST_MODE=run ST_ARGS=() ST_TMPDIR=0 ST_NAME='' ST_DIR='' ST_PHASES=() ST_FORCED=0 ST_REFUSED=0 ST_BG=() ST_MKA_S=0
 read -r -a ST__R <<< "$ST_REDIS"
 CDB=4 APPL=0 STATE=6   # redis database numbers of CONFIG_DB, APPL_DB, STATE_DB (database_config.json)
 P4="Ethernet0 Ethernet4 Ethernet120 Ethernet124"
@@ -56,9 +60,14 @@ st_dump() {
 # usable only when redis answered and SONiC's loader had run: an empty snapshot would make the restore delete keys
 st_dump_ok() { grep -q "^CONFIG_DB_INITIALIZED$TAB" "$1"; }
 
-st_w() {   # a redis write: printed, made unless dry-run
-  local db=$1; shift
-  printf '  redis-cli -n %s' "$db"; printf ' %q' "$@"; echo
+st__secret() { [[ ${1,,} =~ (^|_)(cak|sak|auth_key|salt)$ ]]; }   # a field whose value is never printed
+st__mask() { awk -F'\t' 'BEGIN { OFS = FS } tolower($2) ~ /(^|_)(cak|sak|auth_key|salt)$/ { $3 = "<not shown>" } 1'; }
+st_w() {   # a redis write: printed (key material masked), made unless dry-run
+  local db=$1 a m=0; shift
+  printf '  redis-cli -n %s' "$db"
+  for a in "$@"; do
+    if [ "$m" = 1 ]; then printf ' <not shown>'; m=0; else printf ' %q' "$a"; st__secret "$a" && m=1; fi
+  done; echo
   [ "$ST_DRY" = 1 ] && return 0
   st_r "$db" "$@" > /dev/null
 }
@@ -204,7 +213,7 @@ st_verify() {   # the whole CONFIG_DB and the kernel state against the snapshot
     echo "== CONFIG_DB identical to the snapshot: $(cut -f1 "$d/configdb-after.tsv" | sort -u | wc -l) keys, $(wc -l < "$d/configdb-after.tsv") fields"
   else
     echo "== FAIL: CONFIG_DB DIFFERS from the snapshot ($d/configdb.diff; - snapshot, + now):"
-    grep -E '^[-+][^-+]' "$d/configdb.diff"; rc=1
+    grep -E '^[-+][^-+]' "$d/configdb.diff" | st__mask; rc=1
   fi
   st_kernel_state > "$d/kernel-after.txt"
   if diff -u "$d/kernel-before.txt" "$d/kernel-after.txt" > "$d/kernel.diff"; then echo "== kernel state identical to the snapshot"
@@ -212,10 +221,19 @@ st_verify() {   # the whole CONFIG_DB and the kernel state against the snapshot
   if declare -F st_verify_extra > /dev/null; then st_verify_extra || rc=1; fi
   return $rc
 }
-st_restore() { st_restore_configdb "$ST_DIR/configdb-before.tsv" "${ST_PHASES[@]}" && st_restore_kernel "$ST_DIR/kernel-before.txt"; }
+# st_restore_pre_extra (a script may define it): before the CONFIG_DB restore (hardware a test took by hand);
+# st_restore_extra: after it (a daemon that reads its config only at start)
+st_restore() {
+  local rc=0
+  if declare -F st_restore_pre_extra > /dev/null; then st_restore_pre_extra || rc=1; fi
+  st_restore_configdb "$ST_DIR/configdb-before.tsv" "${ST_PHASES[@]}" || return 1
+  if declare -F st_restore_extra > /dev/null; then st_restore_extra || rc=1; fi
+  st_restore_kernel "$ST_DIR/kernel-before.txt" || rc=1
+  return $rc
+}
 
-st_mkdir() {   # the snapshot directory; a temporary one in a dry run
-  if [ "$ST_DRY" = 1 ]; then ST_DIR=$(mktemp -d) ST_TMPDIR=1; else mkdir -p "$ST_DIR" || exit 2; fi
+st_mkdir() {   # the snapshot directory (mode 700: CONFIG_DB holds the MACsec profiles' keys); a temporary one in a dry run
+  if [ "$ST_DRY" = 1 ]; then ST_DIR=$(mktemp -d) ST_TMPDIR=1; else (umask 077 && mkdir -p "$ST_DIR") || exit 2; fi
 }
 st_begin() {   # name [arm]: snapshot into $ST_RUN/<name>; with arm the restore runs on every exit of this shell
   ST_NAME=$1 ST_DIR=$ST_RUN/$1
@@ -237,6 +255,9 @@ st__on_exit() {   # [status]
   local rc=${1:-$?}
   trap '' INT TERM HUP PIPE
   trap - EXIT
+  if [ "${#ST_BG[@]}" -gt 0 ]; then   # the script's background jobs (ST_BG+=($!)): stopped before the restore
+    kill "${ST_BG[@]}" 2> /dev/null; wait "${ST_BG[@]}" 2> /dev/null; ST_BG=()
+  fi
   echo "== restore ($ST_NAME; exit status so far $rc)"
   if st_restore && st_verify; then
     if [ "$ST_FORCED" = 1 ]; then
@@ -252,6 +273,15 @@ st__on_exit() {   # [status]
   exit "$rc"
 }
 st_refuse() { echo "REFUSED: $*"; ST_REFUSED=$((ST_REFUSED + 1)); }
+st_other_runs() {   # names the caller checks itself: any other unfinished run in $ST_RUN (its snapshot) is refused
+  local f n
+  for f in "$ST_RUN"/*/configdb-before.tsv; do
+    [ -e "$f" ] || continue
+    n=${f%/configdb-before.tsv} n=${n##*/}
+    case " $* " in *" $n "*) continue ;; esac
+    st_refuse "$ST_RUN/$n exists: $n.sh did not finish its restore ($n.sh --cleanup)"
+  done
+}
 st_refusals() {   # end of a check: 0 when nothing was refused
   if [ "$ST_REFUSED" = 0 ]; then return 0; fi
   if [ "$ST_DRY" = 1 ]; then echo "(dry run: a real run would stop here: $ST_REFUSED refusal(s))"; return 0; fi
@@ -288,6 +318,7 @@ st_pairs_check() {   # refuses on any trace of an earlier run of this topology o
   ST_REFUSED=0
   [ -e "$ST_RUN/vrf-pairs/configdb-before.tsv" ] && st_refuse "$ST_RUN/vrf-pairs exists: an earlier traffic test did not finish its restore (--cleanup)"
   [ -e "$ST_RUN/sonic-ring/configdb-before.tsv" ] && st_refuse "$ST_RUN/sonic-ring exists: the load ring is up or was interrupted (loadtest/sonic-ring.sh down)"
+  st_other_runs vrf-pairs sonic-ring
   for k in 'VRF|Vrf-a' 'VRF|Vrf-b'; do st_has "$CDB" "$k" && st_refuse "CONFIG_DB $k exists (--cleanup)"; done
   for p in $P4; do
     v=$(st_hget "INTERFACE|$p" vrf_name); [ -n "$v" ] && st_refuse "CONFIG_DB INTERFACE|$p has vrf_name=$v (--cleanup)"
@@ -328,10 +359,42 @@ st_kernel_master() { ip -o link show dev "$1" 2> /dev/null | grep -q "master $2 
 st_kernel_addr() { ip -o -4 addr show dev "$1" 2> /dev/null | grep -q -F " $2 "; }
 # the clean state for --cleanup without a snapshot: no Vrf-a/b, no INTERFACE entries of Ethernet0/120 nor addresses
 # on the four ports, the far ends' INTERFACE entries with exactly their mac_addr (as NixOS generates them)
-st_synth_configdb() {
+st_pairs_synth_configdb() {
   awk -F'\t' -v m4="$FAR_MAC_Ethernet4" -v m124="$FAR_MAC_Ethernet124" '
     $1 ~ /^VRF[|]Vrf-[ab]$/ || $1 ~ /^INTERFACE[|]Ethernet(0|4|120|124)([|]|$)/ { next }
     { print }
     END { print "INTERFACE|Ethernet4\tmac_addr\t" m4; print "INTERFACE|Ethernet124\tmac_addr\t" m124 }' | LC_ALL=C sort
 }
+st_synth_configdb() { st_pairs_synth_configdb; }   # a script with more to undo redefines it, starting from that
 st_synth_kernel() { sed -E -e 's/^(port [^ ]+) master=[^ ]* inet=.*/\1 master= inet=/' -e '/^vrf /s/\bVrf-[ab] //g'; }
+
+# ---- MACsec tests on that topology (macsec-rekey / -wrongcak / -wrap / -clear-window-test.sh; MKA must come up by itself)
+st_mka() {   # seconds: wait until the PHYs have 8 SAs open (4 ports, egress + ingress); ST_MKA_S = seconds it took
+  for ((ST_MKA_S = 0; ST_MKA_S < $1; ST_MKA_S++)); do
+    [ "$(openbcm-diag extmacsec | grep -c ' open ')" = 8 ] && return 0
+    sleep 1
+  done
+  return 1
+}
+st_mka_verify() {   # a MACsec test's st_verify_extra: MKA again on all four ports after the restore
+  if st_mka 60; then echo "== MKA: 8 SAs open $ST_MKA_S s after the restore"
+  else echo "== FAIL: MKA not up on all four ports 60 s after the restore"; openbcm-diag extmacsec; return 1; fi
+}
+st_pairs_macsec_check() {   # st_pairs_check, and the far ends have their own MAC (the KaY: "duplicate MAC detected")
+  local p want have
+  st_pairs_check
+  for p in Ethernet4 Ethernet124; do
+    want=FAR_MAC_$p have=$(st_hget "INTERFACE|$p" mac_addr)
+    [ "$have" = "${!want}" ] || st_refuse "CONFIG_DB INTERFACE|$p mac_addr is '$have', not ${!want}: MACsec needs the far end's own address (--cleanup puts it back)"
+  done
+  return 0
+}
+st_pairs_session() {   # name: snapshot, restore armed, the topology up; then (not in a dry run) MKA on all four, ARP
+  st_begin "$1" arm
+  echo "== setup: VRFs, far ends into them, addresses (CONFIG_DB)"
+  st_pairs_up || { echo "FAIL: setup did not complete"; exit 1; }
+  [ "$ST_DRY" = 1 ] && return 0
+  st_mka 60 || { echo "FAIL: MKA is not up on all four ports 60 s after the setup (nothing is restarted here)"; openbcm-diag extmacsec; exit 1; }
+  ping -c 3 -W 2 10.0.1.1 > /dev/null; ping -c 3 -W 2 10.0.31.1 > /dev/null   # ARP
+  return 0
+}

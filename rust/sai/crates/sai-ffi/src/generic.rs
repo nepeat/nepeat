@@ -269,7 +269,7 @@ pub(crate) unsafe fn create(
     implemented(object_type)?;
     // SAFETY: this function's contract.
     let attrs = unsafe { decode_list(object_type, attr_list, attr_count) }?;
-    let id = state::with_api(|api| {
+    let id = state::with_api_call(|api| {
         api.sai
             .create(object_type, RawOid(switch_id), &attrs)
             .map_err(Error::status)
@@ -281,7 +281,7 @@ pub(crate) unsafe fn create(
 /// Remove, for every object type. Removing the switch also ends its notifier thread.
 pub(crate) fn remove(object_type: sys::sai_object_type_t, oid: sys::sai_object_id_t) -> Result<(), Status> {
     implemented(object_type)?;
-    let (notifier, diag) = state::with_api(|api| {
+    let (notifier, diag) = state::with_api_call(|api| {
         api.sai.remove(object_type, RawOid(oid)).map_err(Error::status)?;
         Ok(if object_type == sys::SAI_OBJECT_TYPE_SWITCH {
             (api.notifier.take(), api.diag.take())
@@ -321,7 +321,7 @@ pub(crate) unsafe fn set(
         }
         Err(e) => return Err(e.status()),
     };
-    state::with_api(|api| api.sai.set(object_type, RawOid(oid), &attr).map_err(Error::status))
+    state::with_api_call(|api| api.sai.set(object_type, RawOid(oid), &attr).map_err(Error::status))
 }
 
 /// Get, for every object type. Every attribute is encoded even after a list did not fit, so
@@ -348,7 +348,7 @@ pub(crate) unsafe fn get(
         Err(status) => return Err(bad_pointer(object_type, oid, false, status)),
     };
     let ids: Vec<sys::sai_attr_id_t> = attrs.iter().map(|a| a.id).collect();
-    let values = state::with_api(|api| api.sai.get_any(object_type, RawOid(oid), &ids).map_err(Error::status))?;
+    let values = state::with_api_call(|api| api.sai.get_any(object_type, RawOid(oid), &ids).map_err(Error::status))?;
     // SAFETY: the core returns values of the kind SAI defines for each requested id (it
     // checks), so a list result goes to the list member this function's contract covers.
     unsafe { encode_all(attrs, &values) }
@@ -449,7 +449,7 @@ pub(crate) unsafe fn get_stats(
         }
         (Err(status), _) | (_, Err(status)) => return Err(status),
     };
-    let values = state::with_api(|api| {
+    let values = state::with_api_call(|api| {
         api.sai
             .stats_get(object_type, RawOid(oid), ids, clear)
             .map_err(Error::status)
@@ -477,7 +477,7 @@ pub(crate) unsafe fn clear_stats(
         // SAFETY: this function's contract.
         unsafe { ptr::in_slice(counter_ids, number_of_counters) }?
     };
-    state::with_api(|api| {
+    state::with_api_call(|api| {
         api.sai
             .stats_clear(object_type, RawOid(oid), ids)
             .map_err(Error::status)

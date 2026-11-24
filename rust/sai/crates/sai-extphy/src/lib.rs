@@ -39,10 +39,10 @@
 //!
 //! | user | thread | while a diag lease holds one of its PHYs |
 //! |---|---|---|
-//! | link poll ([`ExtPhy::gate`]) | SDK link scan | never waits: the cached verdict (counted); waits only behind short library holders |
-//! | admin sequence ([`ExtPhy::admin`]) | SAI call | waits for a transaction to end or run out ([`LEASE_MAX_MS`]) |
-//! | `MACsec` change ([`MacsecUse::Op`]: SA install / remove, gate, enable, clear) | SAI call | waits, as admin: never dropped |
-//! | `MACsec` periodic read ([`MacsecUse::Poll`]: PN, SA / flow stats) | SAI call (syncd's counter thread) | skipped: the model's last read answers (counted, no error); after [`MACSEC_POLL_DEFER_MAX_MS`] of skips it waits for a transaction to end, then reads (never inside one) |
+//! | link poll ([`ExtPhy::gate`]) | SDK link scan | never waits: the cached verdict (counted); behind a library run too (counted; the poll runs on the next pass), unless [`GATE_BUSY_MAX`] in a row: then it waits for that one run |
+//! | admin sequence ([`ExtPhy::admin`]) | SAI call | its call waits for a transaction to end or run out ([`LEASE_MAX_MS`]), **outside the SAI lock** (below) |
+//! | `MACsec` change ([`MacsecUse::Op`]: SA install / remove, gate, enable, clear) | SAI call | waits, as admin: never dropped, never under the SAI lock |
+//! | `MACsec` periodic read ([`MacsecUse::Poll`]: PN, SA / flow stats) | SAI call (syncd's counter thread) | skipped: the model's last read answers (counted, no error); after [`MACSEC_POLL_DEFER_MAX_MS`] of skips its get waits for a transaction to end (outside the SAI lock), then reads (never inside one) |
 //! | diag `extmacsec run` ([`MacsecUse::DiagRun`]) | diag socket, SAI lock | refused (the transaction's client is the one who would have to end it) |
 //! | diag raw access ([`ExtPhy::diag_access`]) | diag socket, **no** SAI lock for clause 45 | in its transaction: served; without one (bare): refused inside another client's transaction, else an implicit lease of `holdoff-ms` on that PHY (the C++ hold-off, per PHY) |
 //!
@@ -56,11 +56,33 @@
 //! another bus) takes the **global** slot (every PHY) and, without a transaction, an implicit lease
 //! on all PHYs.
 //!
-//! **Lock order** (enforced by construction): SAI lock, then a lease, then a PHY's slot, then the
-//! bus master's own lock. The runtime's state mutex and the arbiter's mutex are leaves (module
-//! `leaf`, checked in debug builds); slots are never held while anything waits; the gate closure
-//! and the diag socket's raw path hold no SAI lock (they have no way to take it); log lines are
-//! written after every lock is released.
+//! # SAI calls and the SAI lock
+//!
+//! **No library path waits for a diag lease while it holds the SAI lock** (the AS7772's
+//! "txn expired (1001 ms, 0 accesses)": an SA install waited for a lease under the SAI lock, the
+//! lease holder's next request queued behind a diag command that needed that lock; only the expiry
+//! broke the loop). A SAI call of the rim runs inside [`call`] and under [`under_sai_lock`]; before
+//! its first effect each PHY change **claims** the PHYs it will run on ([`ExtPhy::claim`],
+//! [`ExtPhy::claim_port`]; module `call`). A claim is taken at once when no transaction holds those
+//! PHYs, and from then on no transaction may begin on them until the call returns, so the call
+//! never meets one. When a transaction holds them, the claim is deferred: the call returns at once
+//! (nothing done), [`call`] lets go of the SAI lock, waits for that transaction (at most
+//! [`LEASE_MAX_MS`]), claims, and runs the call again; the second run re-validates by claiming
+//! again (an object that moved meanwhile claims its new PHYs: one more deferral at most per PHY,
+//! each bounded). A forced `MACsec` read defers its get the same way. Link notifications, port sets
+//! on other ports and diag status commands therefore never wait behind a lease; the change itself
+//! is never dropped, never runs inside a transaction, and waits at most [`LEASE_MAX_MS`] per
+//! transaction in its way. A library user that would still wait under the SAI lock (a change on
+//! PHYs its call did not claim: a gap in the claims) is asserted in debug builds, and counted and
+//! logged in release builds ([`ArbCounts::locked_waits`], 0 when the claims are complete).
+//!
+//! **Lock order** (one global order, enforced by construction): a claim (waited for outside the
+//! SAI lock only), then the SAI lock, then a PHY's slot, then the bus master's own lock. A diag
+//! lease is a record, not a lock: nobody holds anything while it lives. The runtime's state mutex
+//! and the arbiter's mutex are leaves (module `leaf`, checked in debug builds); slots are never held
+//! while anything waits; claims are never waited for under the SAI lock (asserted); the gate
+//! closure and the diag socket's raw path hold no SAI lock (they have no way to take it); log lines
+//! are written after every lock is released.
 //!
 //! **Hazard, documented and not solved**: the `MACsec` counters clear on read. A diag read of them
 //! (transaction or not) takes those counts away from `SONiC`'s accumulated statistics.
@@ -82,6 +104,7 @@
 #![forbid(unsafe_code)]
 
 mod arbiter;
+mod call;
 mod clock;
 #[cfg(feature = "testing")]
 pub mod fwphy;
@@ -91,10 +114,11 @@ pub use arbiter::{
     ArbCounts, DiagTarget, DiagWho, LEASE_DEFAULT_MS, LEASE_MAX_MS, LeaseScope, LeaseView, TxnEnded, TxnInfo,
     TxnRefused,
 };
+pub use call::{call, in_call, sai_locked, under_sai_lock};
 pub use clock::{Clock, ManualClock, SystemClock};
 pub use phy_seq::{Dev, ExtPhyTable, ParseError};
 
-use arbiter::{Arbiter, LibTurn, LibWant};
+use arbiter::{Arbiter, Ctx, LibTurn, LibWant};
 use leaf::Leaf;
 use phy_seq::{Op, Params, Section};
 use std::collections::{BTreeMap, BTreeSet};
@@ -237,6 +261,20 @@ pub struct PortState {
 /// the PN about once a second).
 pub const MACSEC_POLL_DEFER_MAX_MS: u64 = 10_000;
 
+/// How many due link polls in a row a port answers from its last verdict because a library run
+/// (a `MACsec` or admin sequence) holds its PHYs, before the next one waits for that run (the
+/// gate's starvation bound). The gate runs inside the SDK's link-scan pass (250 ms; a poll costs
+/// 0.2-0.36 ms of bus), so it never waits behind a library run otherwise: a run holds its PHY for
+/// 1.3 ms (PN read), 14-18 ms (SA statistics) or 80-90 ms (SA install, measured on the AS7772), and
+/// waiting would hold every port's link processing up by that much. A busy answer costs that port
+/// one pass (its poll stays due and runs on the next one); after this many, the wait is at most one
+/// run (the waiting gate goes before every other library user of those PHYs), once.
+pub const GATE_BUSY_MAX: u32 = 3;
+
+/// The upper bounds (us) of the gate-time histogram ([`ArbCounts::gate_time_hist`]); the last
+/// bucket is everything longer.
+pub const GATE_TIME_BUCKETS_US: [u64; 4] = [500, 2_000, 10_000, 100_000];
+
 /// What a `MACsec` table sequence is, for the arbitration (crate documentation's table).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MacsecUse<'a> {
@@ -261,6 +299,51 @@ pub enum Turn<R> {
     Refused(String),
 }
 
+/// PHYs claimed for a SAI call ([`ExtPhy::claim`]): given back when dropped. The claim of a call
+/// made through [`call`] belongs to the call (given back when it returns); this value is then
+/// empty.
+#[must_use = "the PHYs are claimed while it lives"]
+pub struct Claim {
+    owned: Option<(Arc<Shared>, Vec<u16>)>,
+}
+
+impl Drop for Claim {
+    fn drop(&mut self) {
+        if let Some((shared, phys)) = self.owned.take() {
+            shared.arb.unclaim(&phys);
+        }
+    }
+}
+
+impl fmt::Debug for Claim {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Claim")
+            .field("owned", &self.owned.as_ref().map(|(_, phys)| phys))
+            .finish()
+    }
+}
+
+/// A claim that met a transaction inside [`call`]: the SAI call returns now, having done
+/// nothing, and runs again after the transaction (outside the SAI lock).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Deferred {
+    /// The PHYs it could not claim.
+    pub phys: Vec<u16>,
+    /// The transaction in the way.
+    pub txn: u64,
+}
+
+impl fmt::Display for Deferred {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{} in diag transaction {}: the call runs again after it",
+            LeaseScope::Phys(self.phys.iter().copied().collect()),
+            self.txn
+        )
+    }
+}
+
 /// The most good polls counted (the C++ `1000000`).
 const GOOD_MAX: u32 = 1_000_000;
 
@@ -276,6 +359,8 @@ struct PortRt {
     /// The PHYs of all its sequences: what an admin change holds (so that it never runs beside
     /// the port's own poll).
     all_phys: Vec<u16>,
+    /// Due polls answered from the last verdict in a row because a library run held its PHYs.
+    busy_in_row: u32,
 }
 
 struct State {
@@ -290,11 +375,11 @@ struct State {
     last_read: BTreeMap<(ChipPort, String), u64>,
 }
 
-struct Shared {
+pub(crate) struct Shared {
     state: Mutex<State>,
     /// Replaceable (tests: a manual clock once the switch is up).
     clock: Mutex<Arc<dyn Clock>>,
-    arb: Arbiter,
+    pub(crate) arb: Arbiter,
     log: Logger,
 }
 
@@ -302,7 +387,7 @@ struct Shared {
 /// it (the gates hold clones).
 #[derive(Clone)]
 pub struct ExtPhy {
-    shared: Arc<Shared>,
+    pub(crate) shared: Arc<Shared>,
 }
 
 impl fmt::Debug for ExtPhy {
@@ -674,16 +759,20 @@ impl ExtPhy {
             };
             (i, rt.all_phys.clone(), st.epoch)
         };
-        let turn = self.shared.arb.lib(clock, &phys, LibWant::Wait);
+        let ctx = self.ctx(&phys);
+        let turn = self.shared.arb.lib(clock, &phys, LibWant::Wait { op: true }, &ctx);
         let LibTurn::Slot {
             slot,
             waited_us,
             for_txn,
+            claimed,
+            locked_wait,
             ..
         } = turn
         else {
-            return; // Wait never answers "leased"
+            return; // a change never answers "leased" or "defer"
         };
+        self.after_turn(&ctx, claimed, locked_wait, for_txn);
         self.count_op_wait(waited_us, for_txn);
         let (bus, table, name) = {
             let mut guard = self.lock();
@@ -748,14 +837,143 @@ impl ExtPhy {
         self.log_notes();
     }
 
+    /// The context of a library user of this thread on `phys` (module `call`).
+    fn ctx(&self, phys: &[u16]) -> Ctx {
+        let in_call = call::in_call();
+        Ctx {
+            in_call,
+            missing: if in_call {
+                call::missing(&self.shared, phys)
+            } else {
+                phys.to_vec()
+            },
+            sai_locked: call::sai_locked(),
+        }
+    }
+
+    /// After a library user's turn: PHYs claimed for its call stay claimed with the call; a wait
+    /// for a transaction under the SAI lock (a gap in the call's claims) is logged.
+    fn after_turn(&self, ctx: &Ctx, claimed: bool, locked_wait: bool, for_txn: Option<u64>) {
+        if claimed {
+            call::keep(&self.shared, &ctx.missing);
+        }
+        if locked_wait {
+            self.log(
+                Api::Switch,
+                Level::Error,
+                &format!(
+                    "external PHY {}: a library run waited for diag transaction {} under the SAI lock: \
+                     the SAI call did not claim these PHYs first (a bug of the claims)",
+                    LeaseScope::Phys(ctx.missing.iter().copied().collect()),
+                    for_txn.unwrap_or_default()
+                ),
+            );
+        }
+    }
+
+    /// Claims `phys` for the SAI call this thread is in, before the call's first effect (module
+    /// `call`): at once when no transaction holds them (or the call claimed them already);
+    /// inside [`call`] with a transaction in the way: [`Deferred`] (the caller returns at once,
+    /// having done nothing; the call runs again after the transaction, outside the SAI lock).
+    /// Outside [`call`] (the runtime used directly) it waits for the transaction (at most
+    /// [`LEASE_MAX_MS`]) and the claim lives as long as the returned [`Claim`]. A claim holds no
+    /// PHY: link polls and other users run beside it; only new transactions on those PHYs wait.
+    pub fn claim(&self, phys: &[u16]) -> Result<Claim, Deferred> {
+        let none = Claim { owned: None };
+        let clock = self.clock();
+        let clock = &*clock;
+        if call::in_call() {
+            let missing = call::missing(&self.shared, phys);
+            if missing.is_empty() {
+                return Ok(none);
+            }
+            return match self.shared.arb.claim_try(clock, &missing) {
+                Ok(()) => {
+                    call::keep(&self.shared, &missing);
+                    Ok(none)
+                }
+                Err(txn) => {
+                    call::defer(self, &missing);
+                    self.shared.arb.count(|c| c.calls_deferred += 1);
+                    self.log_notes();
+                    Err(Deferred { phys: missing, txn })
+                }
+            };
+        }
+        if phys.is_empty() {
+            return Ok(none);
+        }
+        let owned = Claim {
+            owned: Some((Arc::clone(&self.shared), phys.to_vec())),
+        };
+        if self.shared.arb.claim_try(clock, phys).is_ok() {
+            return Ok(owned);
+        }
+        if call::sai_locked() {
+            // a SAI call that did not come through `call`: it cannot let go of the lock
+            debug_assert!(
+                false,
+                "sai-extphy: a claim of phys {phys:?} meets a transaction under the SAI lock outside call()"
+            );
+            self.shared.arb.count(|c| c.locked_waits += 1);
+            self.log(
+                Api::Switch,
+                Level::Error,
+                &format!(
+                    "external PHY {}: a SAI call waits for a diag transaction under the SAI lock (not made through \
+                     the rim's call): a bug of the rim",
+                    LeaseScope::Phys(phys.iter().copied().collect())
+                ),
+            );
+        }
+        let (waited_us, for_txn) = self.shared.arb.claim_wait(clock, phys);
+        self.count_op_wait(waited_us, for_txn);
+        Ok(owned)
+    }
+
+    /// [`ExtPhy::claim`] of the PHYs an admin change of chip port `hw` runs on (none for a port
+    /// outside the table, or without a table).
+    pub fn claim_port(&self, hw: ChipPort) -> Result<Claim, Deferred> {
+        let phys = {
+            let st = self.lock();
+            match (st.bus.as_ref(), st.by_hw.get(&hw).and_then(|&i| st.ports.get(i))) {
+                (Some(_), Some(rt)) => rt.all_phys.clone(),
+                _ => Vec::new(),
+            }
+        };
+        self.claim(&phys)
+    }
+
+    /// Waits for the transactions on `phys` outside the SAI lock and claims them, for [`call`]
+    /// (between two runs of a deferred call).
+    pub(crate) fn claim_outside(&self, phys: &[u16]) {
+        debug_assert!(!call::sai_locked(), "sai-extphy: a claim waits under the SAI lock");
+        let clock = self.clock();
+        let (waited_us, for_txn) = self.shared.arb.claim_wait(&*clock, phys);
+        self.count_op_wait(waited_us, for_txn);
+        if let Some(t) = for_txn {
+            self.log(
+                Api::Switch,
+                Level::Notice,
+                &format!(
+                    "external PHY {}: a SAI call waited {} ms for diag transaction {t}, outside the SAI lock",
+                    LeaseScope::Phys(phys.iter().copied().collect()),
+                    waited_us / 1000
+                ),
+            );
+        }
+    }
+
     /// `ext_phy_gate`: asked by the backend's link scan, per pass and port. Never waits for a
-    /// diag lease (the cached verdict answers, counted); waits behind a library holder of the
-    /// poll's PHYs (a `MACsec` or admin run, milliseconds; counted with its time).
+    /// diag lease (the cached verdict answers, counted) nor, normally, for a library run on the
+    /// poll's PHYs (the cached verdict answers at once, counted; the poll stays due, so it runs on
+    /// the next pass): only after [`GATE_BUSY_MAX`] such answers in a row does a due poll wait for
+    /// the run (at most one run: it goes first; counted with its time).
     pub fn gate(&self, hw: ChipPort) -> Verdict {
         let clock = self.clock();
         let clock = &*clock;
         // is a poll due? (no PHY taken yet)
-        let (i, phys, epoch) = {
+        let (i, phys, epoch, starved) = {
             let st = self.lock();
             let (Some(_), Some(&i)) = (st.bus.as_ref(), st.by_hw.get(&hw)) else {
                 return Verdict::NoOpinion;
@@ -769,16 +987,23 @@ impl ExtPhy {
             if clock.now_us() / 1000 < rt.next_poll_ms {
                 return verdict_of(&rt.state);
             }
-            (i, rt.link_phys.clone(), st.epoch)
+            (i, rt.link_phys.clone(), st.epoch, rt.busy_in_row >= GATE_BUSY_MAX)
         };
+        let t_ask = clock.now_us();
         // the wait is measured from before the request, inside the arbiter
-        let (slot, waited_us) = match self.shared.arb.lib(clock, &phys, LibWant::Skip) {
+        let want = LibWant::Gate { wait: starved };
+        let (slot, waited_us) = match self.shared.arb.lib(clock, &phys, want, &Ctx::default()) {
             LibTurn::Leased(_) => {
                 self.shared.arb.count(|c| c.gate_cached += 1);
                 self.log_notes(); // a lease that ran out meanwhile
-                return self.cached(i, epoch);
+                return self.cached(i, epoch, false);
+            }
+            LibTurn::Busy => {
+                self.shared.arb.count(|c| c.gate_busy += 1);
+                return self.cached(i, epoch, true);
             }
             LibTurn::Slot { slot, waited_us, .. } => (slot, waited_us),
+            LibTurn::Defer(_) => return self.cached(i, epoch, false), // not asked by the gate
         };
         if waited_us > 0 {
             self.shared.arb.count(|c| {
@@ -791,26 +1016,33 @@ impl ExtPhy {
         let t1 = clock.now_us();
         let now_ms = t1 / 1000;
         let (bus, table, poll_ms, up_polls) = {
-            let st = self.lock();
-            let Some(rt) = st.ports.get(i).filter(|_| st.epoch == epoch) else {
+            let mut st = self.lock();
+            if st.epoch != epoch {
                 return Verdict::NoOpinion;
-            };
+            }
             let Some(bus) = st.bus.clone() else {
                 return Verdict::NoOpinion;
             };
+            let (poll_ms, up_polls) = (st.table.poll_ms(), st.table.up_polls());
+            let table = Arc::clone(&st.table);
+            let Some(rt) = st.ports.get_mut(i) else {
+                return Verdict::NoOpinion;
+            };
+            rt.busy_in_row = 0;
             if !rt.state.admin {
                 return Verdict::NoOpinion;
             }
             if now_ms < rt.next_poll_ms {
                 return verdict_of(&rt.state);
             }
-            (bus, Arc::clone(&st.table), st.table.poll_ms(), st.table.up_polls())
+            (bus, table, poll_ms, up_polls)
         };
         let Some(tp) = table.ports().get(i) else {
             return Verdict::NoOpinion;
         };
         let r = run_seq(&*bus, clock, tp.ops(Section::Link));
-        let dt = clock.now_us().saturating_sub(t1);
+        let t2 = clock.now_us();
+        let dt = t2.saturating_sub(t1);
         let (v, lines) = {
             let mut st = self.lock();
             if st.epoch != epoch {
@@ -822,6 +1054,17 @@ impl ExtPhy {
             record_poll(rt, &r, dt, now_ms.saturating_add(u64::from(poll_ms)), up_polls)
         };
         drop(slot);
+        let took = t2.saturating_sub(t_ask);
+        self.shared.arb.count(|c| {
+            let bucket = GATE_TIME_BUCKETS_US
+                .iter()
+                .position(|b| took <= *b)
+                .unwrap_or(GATE_TIME_BUCKETS_US.len());
+            if let Some(n) = c.gate_time_hist.get_mut(bucket) {
+                *n += 1;
+            }
+            c.gate_time_us_max = c.gate_time_us_max.max(took);
+        });
         for (level, text) in lines {
             self.log(Api::Port, level, &text);
         }
@@ -829,11 +1072,20 @@ impl ExtPhy {
         v
     }
 
-    /// The last verdict of port `i` (a lease holds its PHYs).
-    fn cached(&self, i: usize, epoch: u64) -> Verdict {
-        let st = self.lock();
-        match st.ports.get(i).filter(|_| st.epoch == epoch) {
-            Some(rt) if rt.state.admin => verdict_of(&rt.state),
+    /// The last verdict of port `i` (a lease or, `busy`, a library run holds its PHYs; a busy
+    /// answer is counted towards [`GATE_BUSY_MAX`]).
+    fn cached(&self, i: usize, epoch: u64, busy: bool) -> Verdict {
+        let mut st = self.lock();
+        if st.epoch != epoch {
+            return Verdict::NoOpinion;
+        }
+        match st.ports.get_mut(i) {
+            Some(rt) if rt.state.admin => {
+                if busy {
+                    rt.busy_in_row = rt.busy_in_row.saturating_add(1);
+                }
+                verdict_of(&rt.state)
+            }
             _ => Verdict::NoOpinion,
         }
     }
@@ -846,15 +1098,19 @@ impl ExtPhy {
         let clock = &*clock;
         match use_ {
             MacsecUse::Op => {
+                let ctx = self.ctx(phys);
                 let LibTurn::Slot {
                     slot,
                     waited_us,
                     for_txn,
+                    claimed,
+                    locked_wait,
                     ..
-                } = self.shared.arb.lib(clock, phys, LibWant::Wait)
+                } = self.shared.arb.lib(clock, phys, LibWant::Wait { op: true }, &ctx)
                 else {
-                    return Turn::Refused("not served".to_owned()); // Wait never answers "leased"
+                    return Turn::Refused("not served".to_owned()); // a change never answers "leased"
                 };
+                self.after_turn(&ctx, claimed, locked_wait, for_txn);
                 self.count_op_wait(waited_us, for_txn);
                 let r = f();
                 drop(slot);
@@ -871,7 +1127,7 @@ impl ExtPhy {
                 }
                 Turn::Ran(r)
             }
-            MacsecUse::DiagRun => match self.shared.arb.lib(clock, phys, LibWant::NoWait) {
+            MacsecUse::DiagRun => match self.shared.arb.lib(clock, phys, LibWant::NoWait, &Ctx::default()) {
                 LibTurn::Leased(t) => {
                     self.shared.arb.count(|c| c.diag_run_refused += 1);
                     Turn::Refused(format!(
@@ -885,6 +1141,7 @@ impl ExtPhy {
                     drop(slot);
                     Turn::Ran(r)
                 }
+                LibTurn::Busy | LibTurn::Defer(_) => Turn::Refused("not served".to_owned()), // not asked
             },
             MacsecUse::Poll(name) => self.poll_run(clock, (port, name.to_owned()), phys, f),
         }
@@ -893,22 +1150,53 @@ impl ExtPhy {
     /// A periodic read: skipped while a lease holds its PHY, unless it last read the PHY
     /// [`MACSEC_POLL_DEFER_MAX_MS`] ago: then it waits for the transaction to end (decided under
     /// the arbiter's lock with the wait, so no new transaction slips in before it) and reads.
+    /// Inside a SAI call ([`call`]) it does not wait there: it skips and defers the call, which
+    /// claims the PHYs once the transaction is over (outside the SAI lock) and runs again: the
+    /// read then happens, with no transaction in between.
     fn poll_run<R>(&self, clock: &dyn Clock, key: (ChipPort, String), phys: &[u16], f: impl FnOnce() -> R) -> Turn<R> {
         let now_ms = clock.now_us() / 1000;
         let last = self.lock().last_read.get(&key).copied();
         let overdue = last.is_some_and(|t| now_ms.saturating_sub(t) >= MACSEC_POLL_DEFER_MAX_MS);
-        let want = if overdue { LibWant::Wait } else { LibWant::Skip };
-        let (slot, waited_us, for_txn, leased) = match self.shared.arb.lib(clock, phys, want) {
+        let want = if overdue {
+            LibWant::Wait { op: false }
+        } else {
+            LibWant::Skip
+        };
+        let ctx = self.ctx(phys);
+        let (slot, waited_us, for_txn, leased) = match self.shared.arb.lib(clock, phys, want, &ctx) {
             LibTurn::Slot {
                 slot,
                 waited_us,
                 for_txn,
                 leased,
-            } => (slot, waited_us, for_txn, leased),
-            LibTurn::Leased(_) => {
+                locked_wait,
+                ..
+            } => {
+                self.after_turn(&ctx, false, locked_wait, for_txn);
+                (slot, waited_us, for_txn, leased)
+            }
+            LibTurn::Leased(_) | LibTurn::Busy => {
                 self.lock().last_read.entry(key).or_insert(now_ms);
                 self.shared.arb.count(|c| c.polls_skipped += 1);
                 self.log_notes();
+                return Turn::Skipped;
+            }
+            LibTurn::Defer(txn) => {
+                // the get runs again once the transaction is over (its answer now is dropped)
+                call::defer(self, &ctx.missing);
+                self.shared.arb.count(|c| c.calls_deferred += 1);
+                self.log_notes();
+                let (port, name) = key;
+                self.log(
+                    Api::Switch,
+                    Level::Notice,
+                    &format!(
+                        "external MACsec poll {name} on chip port {} skipped for {} ms, the most allowed: \
+                         its get waits for diag transaction {txn} outside the SAI lock, then reads",
+                        port.0,
+                        now_ms.saturating_sub(last.unwrap_or(now_ms))
+                    ),
+                );
                 return Turn::Skipped;
             }
         };
@@ -916,7 +1204,9 @@ impl ExtPhy {
         self.lock().last_read.insert(key.clone(), read_ms);
         let r = f();
         drop(slot);
-        if overdue && leased {
+        // a deferred get's second run: its call claimed the PHYs after the transaction
+        let after_defer = ctx.in_call && ctx.missing.is_empty();
+        if overdue && (leased || after_defer) {
             self.shared.arb.count(|c| {
                 c.forced_reads += 1;
                 c.forced_wait_us_max = c.forced_wait_us_max.max(waited_us);
@@ -929,6 +1219,11 @@ impl ExtPhy {
                      read after diag transaction {t} (waited {} ms)",
                     port.0,
                     waited_us / 1000
+                ),
+                None if after_defer => format!(
+                    "external MACsec poll {name} on chip port {} skipped for {skipped_ms} ms, the most allowed: \
+                     read after the diag transaction (its get waited outside the SAI lock)",
+                    port.0
                 ),
                 None => format!(
                     "external MACsec poll {name} on chip port {} skipped for {skipped_ms} ms, the most allowed: \
@@ -1021,6 +1316,12 @@ impl ExtPhy {
     #[cfg(feature = "testing")]
     pub fn waiting(&self) -> u32 {
         self.shared.arb.waiting()
+    }
+
+    /// How many PHYs SAI calls hold claimed now: for tests (feature `testing`).
+    #[cfg(feature = "testing")]
+    pub fn claimed(&self) -> usize {
+        self.shared.arb.claimed()
     }
 
     /// What the arbitration did so far.
@@ -1120,14 +1421,27 @@ fn status_tail(s: &mut String, c: &ArbCounts, leases: &[LeaseView]) {
     );
     let _ = writeln!(
         s,
-        "extphy: link polls answered from the last verdict during a lease {}; waits for a library run before a poll {} (max {} us, total {} us)",
-        c.gate_cached, c.gate_waits, c.gate_wait_us_max, c.gate_wait_us_total
+        "extphy: link polls answered from the last verdict during a lease {}, behind a library run {}; \
+         waits for a library run before a poll {} (after {GATE_BUSY_MAX} busy in a row; max {} us, total {} us)",
+        c.gate_cached, c.gate_busy, c.gate_waits, c.gate_wait_us_max, c.gate_wait_us_total
+    );
+    let [b0, b1, b2, b3] = GATE_TIME_BUCKETS_US;
+    let [h0, h1, h2, h3, h4] = c.gate_time_hist;
+    let _ = writeln!(
+        s,
+        "extphy: link gate time per poll (us): <={b0} {h0}, <={b1} {h1}, <={b2} {h2}, <={b3} {h3}, more {h4}; max {}",
+        c.gate_time_us_max
     );
     let _ = writeln!(
         s,
         "extphy: MACsec polls skipped during a lease {}; forced reads after {MACSEC_POLL_DEFER_MAX_MS} ms {} (max wait {} us); \
-         MACsec / admin runs that waited for a transaction {} (max {} us); extmacsec run refused {}",
+         MACsec / admin runs and SAI calls that waited for a transaction {} (max {} us); extmacsec run refused {}",
         c.polls_skipped, c.forced_reads, c.forced_wait_us_max, c.op_waits, c.op_wait_us_max, c.diag_run_refused
+    );
+    let _ = writeln!(
+        s,
+        "extphy: SAI calls that waited for a transaction outside the SAI lock {}; waits under the SAI lock {}",
+        c.calls_deferred, c.locked_waits
     );
     for l in leases {
         match l.txn {

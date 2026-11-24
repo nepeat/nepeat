@@ -85,18 +85,17 @@ side) and an admin down never reached the far end. Now (`SAI_OPENBCM_EXT_PHY_FIL
   cages are therefore dark towards the cable. This state survives a stack restart and ends with a reboot.
 - `openbcm-diag extphy`: per port admin, line, fault, last value, poll counts and times.
 - **Detection time** (far end dark -> this port oper down) is set by the cadence, not by the PHY: the SDK link-scan
-  pass runs every 250 ms (254-258 ms measured) and the gate reads a port's PHY on every second pass (poll-ms 500), so
-  it is about **0-0.52 s, mean about 0.26 s**, plus ~3 ms of SDK and notifier work. The earlier 67 / 102 / 141 ms were
-  three C++ runs (MACsec off) that all landed in the first pass
-  ([evidence/extlink-live-20261122.txt](evidence/extlink-live-20261122.txt)); the three Rust runs (MACsec on, 491 /
-  305 / 282 ms, [evidence/rust-g6](evidence/rust-g6/README.md) c9) all landed one pass later. Same code path in both
-  (gate, SDK glue, notifier). Pending: 20 + 20 runs (MACsec on / off) to confirm the distribution. poll-ms is an owner
+  pass runs every 250 ms (254-258 ms measured; 261 ms on 3c84eb3) and the gate reads a port's PHY on every second pass
+  (poll-ms 500). **Measured over 40 cycles, MACsec on and off (20 each): 0.01-0.51 s, mean about 0.24 s** (on 41-477
+  ms, mean 223; off 12-513 ms, mean 263; the difference is within the error), 40 % / 50 % of the cycles one pass
+  later, as the poll phase predicts; link up again 0.58-1.06 s ([evidence/rust-g7](evidence/rust-g7/README.md) f1 / f3;
+  the earlier 3 + 3 runs, C++ 67-141 ms and Rust 282-491 ms, fit the same distribution). poll-ms is an owner
   decision and unchanged; a shorter one costs bus time on every pass.
 - Measured ([evidence/extlink-live-20261122.txt](evidence/extlink-live-20261122.txt), sha256 6fa2f8ca9b0c; 3 runs each):
 
   | event | result |
   | --- | --- |
-  | far end admin down -> this port oper down (syncd "admin down" to "oper down") | 67 / 102 / 141 ms (all three in the first pass, see above); orchagent 1 ms later, netdev carrier 4 ms later |
+  | far end admin down -> this port oper down (syncd "admin down" to "oper down") | 67 / 102 / 141 ms (all three in the first pass; 40 cycles since: see above); orchagent 1 ms later, netdev carrier 4 ms later |
   | far end admin up -> this port oper up | 0.79-0.81 s; the port that was started itself: 1.31-1.33 s |
   | empty cage admin up | stays oper down (ASIC `ps` "down", LED link byte 0) |
   | flood ping over a DAC, far end shut | near port down, its counters stop, `CLMAC_CTRL RX_EN=0`, kernel route "linkdown"; pings resume after startup |
@@ -105,13 +104,15 @@ side) and an admin down never reached the far end. Now (`SAI_OPENBCM_EXT_PHY_FIL
   | admin sequence | 144 (down) / 216 (up) MDIO operations, 4-8 ms |
   | cold boot, reboot, `systemctl restart sonic.target` | 4 ports up, 28 dark, 0 failed sequences, 0 poll faults; `sonic-traffic-test.sh` 6400 pings 0 lost |
 - The `config interface ...` command itself takes 4 s before syncd sees anything (SONiC's Python CLI).
-- **PHY tools and the polls** (library after 9d64222, not yet run on the box; rust/sai README "MDIO
+- **PHY tools and the polls** (3c84eb3, the boot default since 2026-11-23; rust/sai README "MDIO
   arbitration"). A tool's diag access takes a lease on that PHY: a bare `phy raw` 3 s, an explicit transaction
   (`extphy txn begin`, as `phystat.py` uses) 1 s per access and at most 2 s. Meanwhile that PHY's link state is
   the cached one and its MACsec counter reads are skipped; an admin change or SA install on it waits for the
-  transaction (at most 2 s). Other PHYs are not affected. Counts: `openbcm-diag extphy`. On the deployed
-  47c0012 the old rule holds: all polls pause for 3 s after a tool's access, MACsec counter reads do not, and
-  a tool run can collide with them (rust-g6); do not change admin state while a tool runs.
+  transaction (at most 2 s). Other PHYs are not affected. Counts: `openbcm-diag extphy`. On the box
+  ([evidence/rust-g7](evidence/rust-g7/README.md)): phystat once, x5, `--txn off` and phy-status left 0 `stopped` /
+  read 0x0000 / FW failure / poll fault lines, transactions begun = ended. Under a rekey with phystat back to back,
+  2 of 19 runs failed on an expired lease: an SA install waited the whole 1 s lease (inferred: behind a locked diag
+  command queued in the one-connection-at-a-time diag server); 0 pings lost.
 - Not tested: pulling a cable by hand (the stand-in was powering down the far PHY's line side, which is the same
   loss of signal at this end), a link partner that is not this switch. With MACsec on: rust-g6 c9 / c10 above. A raw-SDK session after SONiC (load test, `bcm.user`) finds the line side of
   every port SONiC had admin down still off: reboot first, or `extphy power <phy> 1`.
@@ -177,7 +178,7 @@ not forwarding at rate.
 
 ## Open
 - Four cabled cages at 100G. Done since: MACsec on ([macsec.md](macsec.md)), load at rate through SONiC
-  ([load-test.md](load-test.md)), factory taps. Not done: PHY-side FEC under that load (planned, load-test.md), 25G
+  ([load-test.md](load-test.md)), factory taps. PHY-side FEC under that load (0 / 0 / 0, load-test.md). Not done: 25G
   break-out (needs its own script and SDK config), the other 28 cages with a cable.
 - Port LEDs: programs run at boot, register read-back correct, **not yet seen by eye** ([leds.md](leds.md)).
 - PSU 2 (slot empty) shows "NOT OK" rather than absent: CPLD1 0x02 reads 0x28 and the AS7760 decoding takes
