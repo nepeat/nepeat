@@ -1,0 +1,53 @@
+== snapshot: /run/as7772-tests/vrf-pairs (142 CONFIG_DB keys)
+  redis-cli -n 4 hset VRF\|Vrf-a NULL NULL
+  redis-cli -n 4 hset VRF\|Vrf-b NULL NULL
+  redis-cli -n 4 del INTERFACE\|Ethernet4
+  redis-cli -n 4 hset INTERFACE\|Ethernet4 vrf_name Vrf-a mac_addr 1c:ea:0b:38:2b:d6
+  redis-cli -n 4 del INTERFACE\|Ethernet124
+  redis-cli -n 4 hset INTERFACE\|Ethernet124 vrf_name Vrf-b mac_addr 1c:ea:0b:38:2b:d7
+  redis-cli -n 4 hset INTERFACE\|Ethernet0 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet0\|10.0.1.0/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet4\|10.0.1.1/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet120 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet120\|10.0.31.0/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet124\|10.0.31.1/31 NULL NULL
+== wrapper: topology up, running: /root/macsec-wrongcak-test.sh
+== 2026-11-23T15:21:46-08:00 before
+ce30 egress gate open SAs sa---;ce30 ingress gate open SAs sa---;ce0 egress gate open SAs sa---;ce0 ingress gate open SAs sa---;ce1 egress gate open SAs sa---;ce1 ingress gate open SAs sa---;
+cage 1 -> 2: 100 packets transmitted, 100 received, 0% packet loss, time 1585ms
+cage 31 -> 32: 100 packets transmitted, 100 received, 0% packet loss, time 1581ms
+== cage 2 (Ethernet4) -> profile wrong-test (same CKN, other CAK)
+MACsec profile wrong-test written (GCM-AES-XPN-256, key from /var/lib/sonic-macsec/wrong-test.cak)
+port Ethernet4: MACsec profile wrong-test
+ce30 egress gate open SAs sa---;ce30 ingress gate open SAs sa---;ce0 egress gate closed SAs ----;ce0 ingress gate closed SAs ----;ce1 egress gate closed SAs ----;ce1 ingress gate closed SAs ----;
+cage 1 -> 2: 100 packets transmitted, 0 received, 100% packet loss, time 1580ms
+cage 31 -> 32: 100 packets transmitted, 100 received, 0% packet loss, time 1582ms
+     20 KaY: Computed ICV is not equal to Received ICV
+== the declared profile again
+MKA up after 6 s
+ce30 egress gate open SAs sa---;ce30 ingress gate open SAs sa---;ce0 egress gate open SAs -sa--;ce0 ingress gate open SAs -sa--;ce1 egress gate open SAs -sa--;ce1 ingress gate open SAs -sa--;
+cage 1 -> 2: 100 packets transmitted, 100 received, 0% packet loss, time 1585ms
+cage 31 -> 32: 100 packets transmitted, 100 received, 0% packet loss, time 1581ms
+== failed units: 0; profiles: MACSEC_PROFILE|lab-test 
+== wrapper: test exit 0
+== restore (vrf-pairs; exit status so far 0)
+  -- phase /^INTERFACE[|]Ethernet(0|4|120|124)[|]/: 4 change(s)
+  redis-cli -n 4 del INTERFACE\|Ethernet0\|10.0.1.0/31
+  redis-cli -n 4 del INTERFACE\|Ethernet120\|10.0.31.0/31
+  redis-cli -n 4 del INTERFACE\|Ethernet124\|10.0.31.1/31
+  redis-cli -n 4 del INTERFACE\|Ethernet4\|10.0.1.1/31
+  -- phase /^INTERFACE[|]Ethernet(0|4|120|124)$/: 6 change(s)
+  redis-cli -n 4 del INTERFACE\|Ethernet0
+  redis-cli -n 4 del INTERFACE\|Ethernet120
+  redis-cli -n 4 del INTERFACE\|Ethernet124
+  redis-cli -n 4 del INTERFACE\|Ethernet4
+  redis-cli -n 4 hset INTERFACE\|Ethernet124 mac_addr 1c:ea:0b:38:2b:d7
+  redis-cli -n 4 hset INTERFACE\|Ethernet4 mac_addr 1c:ea:0b:38:2b:d6
+  -- phase /^VRF[|]Vrf-[ab]$/: 2 change(s)
+  redis-cli -n 4 del VRF\|Vrf-a
+  redis-cli -n 4 del VRF\|Vrf-b
+== CONFIG_DB identical to the snapshot: 142 keys, 429 fields
+== kernel state identical to the snapshot
+== MKA: 8 SAs open after the restore
+== RESTORED and verified
+rc=0

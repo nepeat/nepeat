@@ -1,0 +1,356 @@
+# step 4.4: macsec-rekey-test.sh 20 40 (VRF-pair wrapper) concurrent with back-to-back phystat.py runs (txn phy) for the whole test
+# phystat runs: 19, box start 1795476701.653050588 .. last start 1795476941.075092430
+run 1: t0 1795476701.653050588 rc 0 14.106 s 
+run 2: t0 1795476716.056546654 rc 1 9.409 s STDERR: !! call 11743660: bridge: unexpected answer to a read (or noise from earlier writes): 'openbcm-diag: extphy txn 1948: expired (its lease ran out after 1001 ms, 0 accesses): what the PHY did since is unknown; begin a new transaction\nopenbcm-diag: extphy txn 1948: expired (its lease ran out after 1001 ms, 0 accesses): what the PHY did since is unknown; begin a new transaction\n' |    pc=11737db0 lr=117ef244 sp=7fefeb50 r3=00000005 r4=0000017e r5=00018b90 |    backtrace: 117ef244 11837370 11822888 11822c10 117f27dc 1173a2e0 11743d08 0fff0000 118ea980 00000000 | Traceback (most recent call last):
+run 3: t0 1795476725.770394141 rc 0 13.135 s 
+run 4: t0 1795476739.208390568 rc 0 13.428 s 
+run 5: t0 1795476752.939733157 rc 0 13.616 s 
+run 6: t0 1795476766.859049703 rc 0 13.543 s 
+run 7: t0 1795476780.703194142 rc 0 13.511 s 
+run 8: t0 1795476794.512441397 rc 0 13.384 s 
+run 9: t0 1795476808.203955512 rc 0 13.377 s 
+run 10: t0 1795476821.914772975 rc 0 13.456 s 
+run 11: t0 1795476835.667548133 rc 0 13.501 s 
+run 12: t0 1795476849.471654691 rc 0 13.34 s 
+run 13: t0 1795476863.115070695 rc 0 13.407 s 
+run 14: t0 1795476876.831511725 rc 0 13.449 s 
+run 15: t0 1795476890.578706976 rc 0 13.65 s 
+run 16: t0 1795476904.539206275 rc 1 7.439 s STDERR: !! call 11743660: bridge: unexpected answer to a read (or noise from earlier writes): 'openbcm-diag: extphy txn 5007: expired (its lease ran out after 1010 ms, 2 accesses): what the PHY did since is unknown; begin a new transaction\nopenbcm-diag: extphy txn 5007: expired (its lease ran out after 1010 ms, 2 accesses): what the PHY did since is unknown; begin a new transaction\nopenbcm-diag: extphy txn 5007: expired (its lease ran out after 1010 ms, 2 accesses): what the PHY did since is unknown; begin a new transaction\nopenbcm-diag: extphy txn 5007: expired (its lease ran out after 1010 ms, 2 
+run 17: t0 1795476912.267271344 rc 0 13.814 s 
+run 18: t0 1795476926.382471905 rc 0 14.391 s 
+run 19: t0 1795476941.075092430 rc 0 14.339 s 
+# counters before
+2026-11-23T15:31:40-08:00
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 1671 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 1596, ended 1596, expired 0; raw MDIO hold-offs 75; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 453; waits for a library run before a poll 155 (max 88938 us, total 1966750 us)
+extphy: MACsec polls skipped during a lease 256; forced reads after 10000 ms 38 (max wait 58590 us); MACsec / admin runs that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+ce30      17e  egress  on     open   sa  -   -   -   0    1633     0   82288 
+ce30      17e  ingress on     open   sa  -   -   -        1747     0   90884 
+ce31      17f  egress  on     open   sa  -   -   -   0    1684     0   81589 
+ce31      17f  ingress on     open   sa  -   -   -        1826     0   92881 
+ce0         0  egress  on     open   sa  -   -   -   0    1609     0   82569 
+ce0         0  ingress on     open   sa  -   -   -        1716     0   90418 
+ce1         1  egress  on     open   sa  -   -   -   0    1671     0   82083 
+ce1         1  ingress on     open   sa  -   -   -        1801     0   91409 
+engines in bypass: 56 of 64
+# counters after
+2026-11-23T15:36:48-08:00
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 5785 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 5691, ended 5689, expired 2; raw MDIO hold-offs 94; refused: busy 0, void 10
+extphy: link polls answered from the last verdict during a lease 1255; waits for a library run before a poll 193 (max 88938 us, total 2684804 us)
+extphy: MACsec polls skipped during a lease 759; forced reads after 10000 ms 91 (max wait 59649 us); MACsec / admin runs that waited for a transaction 63 (max 1007825 us); extmacsec run refused 0
+ce30      17e  egress  on     open   sa  -   -   -   0    1958     0   82288 
+ce30      17e  ingress on     open   sa  -   -   -        2090     0 1005939 
+ce31      17f  egress  on     open   sa  -   -   -   0    2013     0   81589 
+ce31      17f  ingress on     open   sa  -   -   -        2185     0   92881 
+ce0         0  egress  on     open   sa  -   -   -   0    1924     0  136787 
+ce0         0  ingress on     open   sa  -   -   -        2054     0  137861 
+ce1         1  egress  on     open   sa  -   -   -   0    2001     0  124020 
+ce1         1  ingress on     open   sa  -   -   -        2166     0 1019868 
+engines in bypass: 56 of 64
+# rekey test output
+== snapshot: /run/as7772-tests/vrf-pairs (142 CONFIG_DB keys)
+  redis-cli -n 4 hset VRF\|Vrf-a NULL NULL
+  redis-cli -n 4 hset VRF\|Vrf-b NULL NULL
+  redis-cli -n 4 del INTERFACE\|Ethernet4
+  redis-cli -n 4 hset INTERFACE\|Ethernet4 vrf_name Vrf-a mac_addr 1c:ea:0b:38:2b:d6
+  redis-cli -n 4 del INTERFACE\|Ethernet124
+  redis-cli -n 4 hset INTERFACE\|Ethernet124 vrf_name Vrf-b mac_addr 1c:ea:0b:38:2b:d7
+  redis-cli -n 4 hset INTERFACE\|Ethernet0 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet0\|10.0.1.0/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet4\|10.0.1.1/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet120 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet120\|10.0.31.0/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet124\|10.0.31.1/31 NULL NULL
+== wrapper: topology up, running: /root/macsec-rekey-test.sh 20 40
+== 2026-11-23T15:31:55-08:00 profile lab-test: rekey_period 20 s, 40 s of pings (1 ms apart, both directions, cage 1 <-> 2)
+MKA up after 8 s
+-- cage 1 -> 2
+40000 packets transmitted, 40000 received, 0% packet loss, time 167912ms
+rtt min/avg/max/mdev = 0.106/4.106/32.841/5.033 ms, pipe 3
+-- cage 2 -> 1
+40000 packets transmitted, 40000 received, 0% packet loss, time 168024ms
+rtt min/avg/max/mdev = 0.103/4.109/32.822/5.041 ms, pipe 3
+-- cage 31 -> 32 (10 ms apart)
+4000 packets transmitted, 4000 received, 0% packet loss, time 47274ms
+rtt min/avg/max/mdev = 0.111/5.225/28.092/4.464 ms, pipe 2
+-- SA changes in the PHYs (syncd)
+15:32:28.227738 port ce30: ingress SA AN 1 installed (gcm-aes-xpn-256)
+15:32:28.322784 port ce31: ingress SA AN 1 installed (gcm-aes-xpn-256)
+15:32:29.471379 port ce0: ingress SA AN 1 installed (gcm-aes-xpn-256)
+15:32:29.518099 port ce1: ingress SA AN 1 installed (gcm-aes-xpn-256)
+15:32:32.290188 port ce30: egress SA AN 1 installed (gcm-aes-xpn-256)
+15:32:33.378400 port ce31: egress SA AN 1 installed (gcm-aes-xpn-256)
+15:32:33.589916 port ce0: egress SA AN 1 installed (gcm-aes-xpn-256)
+15:32:34.564187 port ce30: egress SA AN 0 removed
+15:32:34.572944 port ce30: ingress SA AN 0 removed
+15:32:34.616592 port ce1: egress SA AN 1 installed (gcm-aes-xpn-256)
+15:32:35.386552 port ce0: egress SA AN 0 removed
+15:32:35.429797 port ce0: ingress SA AN 0 removed
+15:32:37.560185 port ce31: egress SA AN 0 removed
+15:32:37.567474 port ce31: ingress SA AN 0 removed
+15:32:38.381697 port ce1: egress SA AN 0 removed
+15:32:38.437130 port ce1: ingress SA AN 0 removed
+15:32:52.344225 port ce30: ingress SA AN 2 installed (gcm-aes-xpn-256)
+15:32:52.392812 port ce31: ingress SA AN 2 installed (gcm-aes-xpn-256)
+15:32:53.595299 port ce0: ingress SA AN 2 installed (gcm-aes-xpn-256)
+15:32:53.667950 port ce1: ingress SA AN 2 installed (gcm-aes-xpn-256)
+15:32:56.441780 port ce30: egress SA AN 2 installed (gcm-aes-xpn-256)
+15:32:57.498153 port ce31: egress SA AN 2 installed (gcm-aes-xpn-256)
+15:32:57.670113 port ce0: egress SA AN 2 installed (gcm-aes-xpn-256)
+15:32:58.512678 port ce30: egress SA AN 1 removed
+15:32:58.519665 port ce30: ingress SA AN 1 removed
+15:32:58.544422 port ce1: egress SA AN 2 installed (gcm-aes-xpn-256)
+15:32:59.412483 port ce0: egress SA AN 1 removed
+15:32:59.424427 port ce0: ingress SA AN 1 removed
+15:33:01.514906 port ce31: egress SA AN 1 removed
+15:33:01.523899 port ce31: ingress SA AN 1 removed
+15:33:02.411085 port ce1: egress SA AN 1 removed
+15:33:02.418080 port ce1: ingress SA AN 1 removed
+15:33:16.466746 port ce30: ingress SA AN 3 installed (gcm-aes-xpn-256)
+15:33:16.522761 port ce31: ingress SA AN 3 installed (gcm-aes-xpn-256)
+15:33:17.763943 port ce0: ingress SA AN 3 installed (gcm-aes-xpn-256)
+15:33:17.857454 port ce1: ingress SA AN 3 installed (gcm-aes-xpn-256)
+15:33:20.541279 port ce30: egress SA AN 3 installed (gcm-aes-xpn-256)
+15:33:21.625204 port ce31: egress SA AN 3 installed (gcm-aes-xpn-256)
+15:33:21.793201 port ce0: egress SA AN 3 installed (gcm-aes-xpn-256)
+15:33:22.565852 port ce1: egress SA AN 3 installed (gcm-aes-xpn-256)
+15:33:22.595866 port ce30: egress SA AN 2 removed
+15:33:22.641145 port ce30: ingress SA AN 2 removed
+15:33:23.540529 port ce0: egress SA AN 2 removed
+15:33:23.547483 port ce0: ingress SA AN 2 removed
+15:33:25.596259 port ce31: egress SA AN 2 removed
+15:33:25.616740 port ce31: ingress SA AN 2 removed
+15:33:26.535560 port ce1: egress SA AN 2 removed
+15:33:26.543437 port ce1: ingress SA AN 2 removed
+15:33:40.614034 port ce30: ingress SA AN 0 installed (gcm-aes-xpn-256)
+15:33:40.696761 port ce31: ingress SA AN 0 installed (gcm-aes-xpn-256)
+15:33:41.843182 port ce0: ingress SA AN 0 installed (gcm-aes-xpn-256)
+15:33:41.889597 port ce1: ingress SA AN 0 installed (gcm-aes-xpn-256)
+15:33:44.686158 port ce30: egress SA AN 0 installed (gcm-aes-xpn-256)
+15:33:45.668381 port ce31: egress SA AN 0 installed (gcm-aes-xpn-256)
+15:33:45.917248 port ce0: egress SA AN 0 installed (gcm-aes-xpn-256)
+15:33:46.639439 port ce30: egress SA AN 3 removed
+15:33:46.647119 port ce30: ingress SA AN 3 removed
+15:33:46.707989 port ce1: egress SA AN 0 installed (gcm-aes-xpn-256)
+15:33:47.726908 port ce0: egress SA AN 3 removed
+15:33:47.735942 port ce0: ingress SA AN 3 removed
+15:33:49.638669 port ce31: egress SA AN 3 removed
+15:33:49.645597 port ce31: ingress SA AN 3 removed
+15:33:50.728041 port ce1: egress SA AN 3 removed
+15:33:50.734946 port ce1: ingress SA AN 3 removed
+15:34:04.737093 port ce30: ingress SA AN 1 installed (gcm-aes-xpn-256)
+15:34:04.829290 port ce31: ingress SA AN 1 installed (gcm-aes-xpn-256)
+15:34:05.972903 port ce0: ingress SA AN 1 installed (gcm-aes-xpn-256)
+15:34:06.017224 port ce1: ingress SA AN 1 installed (gcm-aes-xpn-256)
+15:34:08.809192 port ce30: egress SA AN 1 installed (gcm-aes-xpn-256)
+15:34:09.788712 port ce31: egress SA AN 1 installed (gcm-aes-xpn-256)
+15:34:10.041830 port ce0: egress SA AN 1 installed (gcm-aes-xpn-256)
+15:34:10.754100 port ce1: egress SA AN 1 installed (gcm-aes-xpn-256)
+15:34:10.786167 port ce30: egress SA AN 0 removed
+15:34:10.794245 port ce30: ingress SA AN 0 removed
+15:34:11.725058 port ce0: egress SA AN 0 removed
+15:34:11.769505 port ce0: ingress SA AN 0 removed
+15:34:13.760091 port ce31: egress SA AN 0 removed
+15:34:13.766997 port ce31: ingress SA AN 0 removed
+15:34:14.727723 port ce1: egress SA AN 0 removed
+15:34:14.748271 port ce1: ingress SA AN 0 removed
+15:34:28.090781 port ce0: ingress SA AN 2 installed (gcm-aes-xpn-256)
+15:34:28.141666 port ce1: ingress SA AN 2 installed (gcm-aes-xpn-256)
+15:34:28.861336 port ce30: ingress SA AN 2 installed (gcm-aes-xpn-256)
+15:34:28.908388 port ce31: ingress SA AN 2 installed (gcm-aes-xpn-256)
+15:34:32.161947 port ce0: egress SA AN 2 installed (gcm-aes-xpn-256)
+15:34:32.840704 port ce1: egress SA AN 2 installed (gcm-aes-xpn-256)
+15:34:32.980662 port ce30: egress SA AN 2 installed (gcm-aes-xpn-256)
+15:34:33.821446 port ce31: egress SA AN 2 installed (gcm-aes-xpn-256)
+15:34:33.898953 port ce0: egress SA AN 1 removed
+15:34:33.906505 port ce0: ingress SA AN 1 removed
+15:34:34.845000 port ce30: egress SA AN 1 removed
+15:34:34.851939 port ce30: ingress SA AN 1 removed
+15:34:36.814912 port ce1: egress SA AN 1 removed
+15:34:36.823258 port ce1: ingress SA AN 1 removed
+15:34:37.842047 port ce31: egress SA AN 1 removed
+15:34:37.851989 port ce31: ingress SA AN 1 removed
+15:34:52.228342 port ce0: ingress SA AN 3 installed (gcm-aes-xpn-256)
+15:34:52.325184 port ce1: ingress SA AN 3 installed (gcm-aes-xpn-256)
+15:34:52.983167 port ce30: ingress SA AN 3 installed (gcm-aes-xpn-256)
+15:34:53.026412 port ce31: ingress SA AN 3 installed (gcm-aes-xpn-256)
+15:34:56.285286 port ce0: egress SA AN 3 installed (gcm-aes-xpn-256)
+15:34:56.976064 port ce1: egress SA AN 3 installed (gcm-aes-xpn-256)
+15:34:57.061479 port ce30: egress SA AN 3 installed (gcm-aes-xpn-256)
+15:34:57.940331 port ce31: egress SA AN 3 installed (gcm-aes-xpn-256)
+15:34:57.997256 port ce0: egress SA AN 2 removed
+15:34:58.003803 port ce0: ingress SA AN 2 removed
+15:34:58.911377 port ce30: egress SA AN 2 removed
+15:34:58.962640 port ce30: ingress SA AN 2 removed
+-- rekeys per port: 28 egress SA installs on 4 ports
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+port      phy  dir     engine gate   AN0 AN1 AN2 AN3 tx   runs fails  max_us last failure
+ce30      17e  egress  on     open   -   -   -   sa  3    1849     0   82288 
+ce30      17e  ingress on     open   -   -   -   sa       1981     0 1005939 
+ce31      17f  egress  on     open   -   -   -   sa  3    1906     0   81589 
+ce31      17f  ingress on     open   -   -   -   sa       2077     0   92881 
+ce0         0  egress  on     open   -   -   -   sa  3    1815     0  136787 
+ce0         0  ingress on     open   -   -   -   sa       1945     0  137861 
+ce1         1  egress  on     open   -   -   -   sa  3    1893     0  124020 
+ce1         1  ingress on     open   -   -   -   sa       2058     0  139932 
+engines in bypass: 56 of 64
+== restore: the declared profile, macsecmgrd restarted
+
+MKA up after 9 s; failed units: 0
+== wrapper: test exit 0
+== restore (vrf-pairs; exit status so far 0)
+  -- phase /^INTERFACE[|]Ethernet(0|4|120|124)[|]/: 4 change(s)
+  redis-cli -n 4 del INTERFACE\|Ethernet0\|10.0.1.0/31
+  redis-cli -n 4 del INTERFACE\|Ethernet120\|10.0.31.0/31
+  redis-cli -n 4 del INTERFACE\|Ethernet124\|10.0.31.1/31
+  redis-cli -n 4 del INTERFACE\|Ethernet4\|10.0.1.1/31
+  -- phase /^INTERFACE[|]Ethernet(0|4|120|124)$/: 6 change(s)
+  redis-cli -n 4 del INTERFACE\|Ethernet0
+  redis-cli -n 4 del INTERFACE\|Ethernet120
+  redis-cli -n 4 del INTERFACE\|Ethernet124
+  redis-cli -n 4 del INTERFACE\|Ethernet4
+  redis-cli -n 4 hset INTERFACE\|Ethernet124 mac_addr 1c:ea:0b:38:2b:d7
+  redis-cli -n 4 hset INTERFACE\|Ethernet4 mac_addr 1c:ea:0b:38:2b:d6
+  -- phase /^VRF[|]Vrf-[ab]$/: 2 change(s)
+  redis-cli -n 4 del VRF\|Vrf-a
+  redis-cli -n 4 del VRF\|Vrf-b
+== CONFIG_DB identical to the snapshot: 142 keys, 429 fields
+== kernel state identical to the snapshot
+== MKA: 8 SAs open after the restore
+== RESTORED and verified
+rc=0
+# journal summary (sonic-syncd, from the first phystat start)
+51981
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=19; skipped for=53; waited=116; expired=2; refused=2; 
+2026-11-23T15:31:42.217357-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:31:42.538389-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 50 skipped for 10005 ms, the most allowed: read after diag transaction 1600 (waited 44 ms)
+2026-11-23T15:31:42.606866-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 50 skipped for 10048 ms, the most allowed: read after diag transaction 1601 (waited 51 ms)
+2026-11-23T15:31:49.339002-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=5: virtual router: SDK VRF 1
+2026-11-23T15:31:49.383714-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=5: virtual router: SDK VRF 2
+2026-11-23T15:31:49.968377-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=9: rif type 0 vid 4093 intf 1 vrf 1
+2026-11-23T15:31:49.970837-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=9: my-station 8: 1c:ea:0b:38:2b:d6 (IPv4, IPv6, ARP)
+2026-11-23T15:31:50.783835-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=9: rif type 0 vid 4094 intf 0 vrf 2
+2026-11-23T15:31:50.786776-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=9: my-station 9: 1c:ea:0b:38:2b:d7 (IPv4, IPv6, ARP)
+2026-11-23T15:31:51.158067-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=9: rif type 0 vid 4092 intf 2 vrf 0
+2026-11-23T15:31:51.330508-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=9: rif type 0 vid 4091 intf 3 vrf 0
+2026-11-23T15:31:52.478264-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 9 skipped for 10004 ms, the most allowed: read after diag transaction 1764 (waited 41 ms)
+2026-11-23T15:31:52.546779-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 9 skipped for 10048 ms, the most allowed: read after diag transaction 1765 (waited 51 ms)
+2026-11-23T15:31:56.541434-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:31:56.968234-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec sequence on chip port 50 waited 12 ms for diag transaction 1831
+2026-11-23T15:31:56.968274-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce0: egress data frames are dropped
+2026-11-23T15:31:57.014077-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec sequence on chip port 50 waited 44 ms for diag transaction 1832
+2026-11-23T15:31:57.014114-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce0: egress SA AN 0 removed
+2026-11-23T15:31:57.066106-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec sequence on chip port 50 waited 38 ms for diag transaction 1833
+2026-11-23T15:31:57.066144-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce0: ingress data frames are dropped
+2026-11-23T15:31:57.115847-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec sequence on chip port 50 waited 46 ms for diag transaction 1834
+2026-11-23T15:31:57.115887-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce0: ingress SA AN 0 removed
+2026-11-23T15:31:57.204755-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec sequence on chip port 50 waited 21 ms for diag transaction 1835
+2026-11-23T15:31:57.205361-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce0: MACsec egress off
+2026-11-23T15:31:57.284711-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec sequence on chip port 50 waited 41 ms for diag transaction 1836
+2026-11-23T15:31:57.285239-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce0: MACsec ingress off
+2026-11-23T15:31:57.391353-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce30: egress data frames are dropped
+2026-11-23T15:31:57.392930-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce30: egress SA AN 0 removed
+2026-11-23T15:31:57.407278-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce30: ingress data frames are dropped
+2026-11-23T15:31:57.410752-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce30: ingress SA AN 0 removed
+2026-11-23T15:31:57.477343-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce30: MACsec egress off
+2026-11-23T15:31:57.513366-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce30: MACsec ingress off
+2026-11-23T15:31:57.616254-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce31: egress data frames are dropped
+2026-11-23T15:31:57.617486-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce31: egress SA AN 0 removed
+2026-11-23T15:31:57.633412-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce31: ingress data frames are dropped
+2026-11-23T15:31:57.636901-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce31: ingress SA AN 0 removed
+2026-11-23T15:31:57.709323-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce31: MACsec egress off
+2026-11-23T15:31:57.745378-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce31: MACsec ingress off
+2026-11-23T15:31:57.851866-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce1: egress data frames are dropped
+2026-11-23T15:31:57.853136-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce1: egress SA AN 0 removed
+# expiries and >500 ms waits
+4515:2026-11-23T15:32:05.376296-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY diag transaction 1948 (phy 0x17e) expired after 1001 ms (0 accesses) without an end: its next request is refused
+43311:2026-11-23T15:35:11.780280-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY diag transaction 5007 (phy 0x1) expired after 1010 ms (2 accesses) without an end: its next request is refused
+===
+n=63 min=0 med=42 p90=50 max=1007
+2026-11-23T15:32:05.380918-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec sequence on chip port 9 waited 1001 ms for diag transaction 1948
+2026-11-23T15:35:11.792224-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec sequence on chip port 54 waited 1007 ms for diag transaction 5007
+# context of the first expiry (txn 1948), 'phy raw' lines of other txns omitted
+15:32:03.552818-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn end 1933
+15:32:03.557022-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn begin 0x1
+15:32:03.608133-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn end 1934
+15:32:03.612729-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn begin 0x1
+15:32:03.662415-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn end 1935
+15:32:03.666847-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn begin 0x1
+15:32:03.716828-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn end 1936
+15:32:03.721193-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn begin 0x1
+15:32:03.765048-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn end 1937
+15:32:03.769371-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn begin 0x1
+15:32:03.812732-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn end 1938
+15:32:03.817255-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn begin 0x17e
+15:32:03.862672-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn end 1939
+15:32:03.867145-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn begin 0x17e
+15:32:03.917661-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn end 1940
+15:32:03.923735-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn begin 0x17e
+15:32:03.978338-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn end 1941
+15:32:03.983222-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn begin 0x17e
+15:32:04.035825-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn end 1942
+15:32:04.041239-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn begin 0x17e
+15:32:04.095271-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn end 1943
+15:32:04.100426-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn begin 0x17e
+15:32:04.156596-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn end 1944
+15:32:04.162355-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn begin 0x17e
+15:32:04.222734-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn end 1945
+15:32:04.229268-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn begin 0x17e
+15:32:04.236733-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce30: egress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+15:32:04.290821-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn end 1946
+15:32:04.295569-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec sequence on chip port 9 waited 54 ms for diag transaction 1946
+15:32:04.295627-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce30: egress data frames go through the secure channel
+15:32:04.296408-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn begin 0x17e
+15:32:04.353056-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn end 1947
+15:32:04.358619-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn begin 0x17e
+15:32:04.374904-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec sequence on chip port 9 waited 52 ms for diag transaction 1947
+15:32:04.374980-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce30: ingress SA AN 0 installed (gcm-aes-xpn-256, first of its SC)
+15:32:05.180263-08:00 as7772 syncd[886]: :- threadFunction: time span 880 ms for 'set:SAI_OBJECT_TYPE_ACL_ENTRY:oid:0x80000000005f2'
+15:32:05.376296-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY diag transaction 1948 (phy 0x17e) expired after 1001 ms (0 accesses) without an end: its next request is refused
+15:32:05.380918-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec sequence on chip port 9 waited 1001 ms for diag transaction 1948
+15:32:05.380957-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=43: port ce30: ingress data frames go through the secure channel
+15:32:05.392831-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn end 1948
+====
+15:32:05.381321-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn 1948 phy raw c45 0x17e 0x1 0x8b90 0x0
+15:32:05.386804-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: diag socket: extphy txn 1948 phy raw c45 0x17e 0x1 0x8b90
+# COUNTERS_DB per SA name (port:SCI:AN; names reused as ANs cycle, so 'down' = a new SA on a reused AN, not a counter going back)
+{
+ "Ethernet120:1cea0b382bd50001:0": "n=70 3->2 adv=8 down=2 maxgap=121.2s span=298s",
+ "Ethernet120:1cea0b382bd70001:0": "n=71 18->17 adv=9 down=2 maxgap=114.4s span=298s",
+ "Ethernet124:1cea0b382bd50001:0": "n=74 3->2 adv=9 down=2 maxgap=123.5s span=298s",
+ "Ethernet124:1cea0b382bd70001:0": "n=72 18->17 adv=10 down=2 maxgap=109.7s span=298s",
+ "Ethernet0:1cea0b382bd50001:0": "n=68 3->2 adv=11 down=3 maxgap=80.9s span=298s",
+ "Ethernet0:1cea0b382bd60001:0": "n=70 18->17 adv=12 down=3 maxgap=78.4s span=298s",
+ "Ethernet4:1cea0b382bd50001:0": "n=74 3->2 adv=11 down=3 maxgap=73.1s span=298s",
+ "Ethernet4:1cea0b382bd60001:0": "n=72 18->17 adv=12 down=3 maxgap=73.1s span=298s",
+ "Ethernet120:1cea0b382bd70001:1": "n=26 0->0 adv=4 down=1 maxgap=69.2s span=125s",
+ "Ethernet124:1cea0b382bd50001:1": "n=29 0->1 adv=4 down=1 maxgap=69.2s span=127s",
+ "Ethernet0:1cea0b382bd60001:1": "n=25 0->6749 adv=5 down=1 maxgap=71.6s span=122s",
+ "Ethernet4:1cea0b382bd50001:1": "n=27 0->10999 adv=6 down=1 maxgap=71.6s span=125s",
+ "Ethernet120:1cea0b382bd50001:1": "n=22 0->1 adv=5 down=1 maxgap=73.9s span=120s",
+ "Ethernet124:1cea0b382bd70001:1": "n=24 90->0 adv=2 down=1 maxgap=73.9s span=120s",
+ "Ethernet0:1cea0b382bd50001:1": "n=22 27->7130 adv=5 down=1 maxgap=73.9s span=118s",
+ "Ethernet4:1cea0b382bd60001:1": "n=23 0->10979 adv=6 down=1 maxgap=76.4s span=120s",
+ "Ethernet120:1cea0b382bd70001:2": "n=25 0->1 adv=4 down=1 maxgap=76.2s span=122s",
+ "Ethernet124:1cea0b382bd50001:2": "n=28 0->1 adv=4 down=1 maxgap=76.2s span=127s",
+ "Ethernet0:1cea0b382bd60001:2": "n=26 0->10648 adv=5 down=1 maxgap=73.8s span=122s",
+ "Ethernet4:1cea0b382bd50001:2": "n=28 0->10995 adv=7 down=1 maxgap=64.4s span=125s",
+ "Ethernet120:1cea0b382bd50001:2": "n=22 0->1 adv=4 down=1 maxgap=78.5s span=118s",
+ "Ethernet124:1cea0b382bd70001:2": "n=24 0->1 adv=4 down=1 maxgap=81.0s span=122s",
+ "Ethernet0:1cea0b382bd50001:2": "n=22 0->11022 adv=6 down=1 maxgap=78.5s span=118s",
+ "Ethernet4:1cea0b382bd60001:2": "n=24 0->10691 adv=7 down=1 maxgap=69.1s span=120s",
+ "Ethernet120:1cea0b382bd70001:3": "n=19 0->0 adv=2 down=1 maxgap=69.2s span=109s",
+ "Ethernet124:1cea0b382bd50001:3": "n=20 0->0 adv=2 down=1 maxgap=69.2s span=109s",
+ "Ethernet0:1cea0b382bd60001:3": "n=19 0->797 adv=5 down=1 maxgap=69.2s span=106s",
+ "Ethernet4:1cea0b382bd50001:3": "n=21 0->1135 adv=5 down=1 maxgap=69.2s span=109s",
+ "Ethernet120:1cea0b382bd50001:3": "n=15 0->0 adv=2 down=1 maxgap=74.0s span=104s",
+ "Ethernet124:1cea0b382bd70001:3": "n=16 0->0 adv=2 down=1 maxgap=74.0s span=104s",
+ "Ethernet0:1cea0b382bd50001:3": "n=17 0->1135 adv=5 down=1 maxgap=71.6s span=104s",
+ "Ethernet4:1cea0b382bd60001:3": "n=17 892->792 adv=3 down=1 maxgap=74.0s span=104s"
+}

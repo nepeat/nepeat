@@ -77,6 +77,23 @@
 
 ## Log
 
+### 2026-11-23 (3): per-PHY MDIO arbitration on the box; FEC under load; link-down latency measured
+- **Running:** generation 32 (`azkkiphr`) = `3c84eb3`: Rust SAI with per-PHY MDIO arbitration, Rust kernel + fan driver.
+  Rollback: generation 31. Evidence: [evidence/rust-g7/README.md](evidence/rust-g7/README.md).
+- **PHY tools vs the library:** `phystat.py` single and five back-to-back: 0 interrupted polls, 0 tool failures (the
+  previous build logged 13). **Defect:** during a rekey 2 of 19 `phystat` runs failed with an expired lease (diag
+  server serves one connection at a time; an SA install waits for the lease while holding the SAI lock). **Defect:**
+  the link-scan gate waits up to 89 ms behind SA-install runs. Both open.
+- **FEC under load (closes the gap):** 30 min ring through SONiC, MACsec on, 92.07 Gb/s per port: 0 lost, encrypted =
+  accepted, **RS-FEC corrected 0 / uncorrected 0 / symbol errors 0** on all four PHYs at every read.
+- **Link-down latency, 40 cycles:** MACsec on 41 / 200 / 223 / 477 ms (min/median/mean/max), off 12 / 260 / 263 / 513 ms;
+  8 and 10 of 20 landed in the next 261 ms scan pass. So: about 0-0.5 s, mean about 0.24 s, independent of MACsec
+  and of the C++/Rust change; the earlier "67-141 ms" were three first-pass runs. Link-up 0.58-1.06 s.
+- **Red at the final reboot:** `sonic-nix-apply` failed once (FileNotFoundError on `/run/sonic-nix/issue.tmp`):
+  apply and watch shared one temp name. Fixed in `sonic-nix.py` (per-process name; race-tested), not yet deployed.
+- Open small items: `macsec-rekey-test.sh` / `macsec-wrongcak-test.sh` relied on VRFs the old traffic test left;
+  `phystat` `temp_c` reads 410.0; kernel `rx_dropped` +530 per netdev during the ring (unexplained).
+
 ### 2026-11-23 (2): Rust-enabled kernel and Rust fan driver are the default; the C fan driver is deleted
 - **Running:** generation 31 (`na3yx1c2`): the 47c0012 system + Linux 7.3.4 with `CONFIG_RUST=y` (64-bit big-endian,
   our six-patch series `nix/packages/kernel-rust-ppc64be`) + `as7760_fan` in Rust. Verified on the box. Rollback:

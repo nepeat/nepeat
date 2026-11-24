@@ -1,0 +1,58 @@
+# step 4.2: phystat.py x5 back to back (txn phy); box start 1795476239.177798289
+run 1: rc 0, 12.483 s, stderr: (none)
+run 2: rc 0, 12.558 s, stderr: (none)
+run 3: rc 0, 12.558 s, stderr: (none)
+run 4: rc 0, 12.474 s, stderr: (none)
+run 5: rc 0, 12.698 s, stderr: (none)
+# counters before
+2026-11-23T15:23:58-08:00
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 261 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 228, ended 228, expired 0; raw MDIO hold-offs 33; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 88; waits for a library run before a poll 109 (max 74857 us, total 1344093 us)
+extphy: MACsec polls skipped during a lease 46; forced reads after 10000 ms 12 (max wait 48692 us); MACsec / admin runs that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+ce30      17e  egress  on     open   sa  -   -   -   0    1110     0   82100 
+ce30      17e  ingress on     open   sa  -   -   -        1192     0   89458 
+ce31      17f  egress  on     open   sa  -   -   -   0    1147     0   81562 
+ce31      17f  ingress on     open   sa  -   -   -        1248     0   89595 
+ce0         0  egress  on     open   -   sa  -   -   1    1088     0   82184 
+ce0         0  ingress on     open   -   sa  -   -        1165     0   90418 
+ce1         1  egress  on     open   -   sa  -   -   1    1131     0   82083 
+ce1         1  ingress on     open   -   sa  -   -        1224     0   91139 
+engines in bypass: 56 of 64
+# counters after
+2026-11-23T15:25:08-08:00
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 1406 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 1368, ended 1368, expired 0; raw MDIO hold-offs 38; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 281; waits for a library run before a poll 116 (max 74857 us, total 1373280 us)
+extphy: MACsec polls skipped during a lease 165; forced reads after 10000 ms 22 (max wait 53355 us); MACsec / admin runs that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+ce30      17e  egress  on     open   sa  -   -   -   0    1172     0   82100 
+ce30      17e  ingress on     open   sa  -   -   -        1254     0   89458 
+ce31      17f  egress  on     open   sa  -   -   -   0    1209     0   81562 
+ce31      17f  ingress on     open   sa  -   -   -        1311     0   89595 
+ce0         0  egress  on     open   -   sa  -   -   1    1150     0   82184 
+ce0         0  ingress on     open   -   sa  -   -        1227     0   90418 
+ce1         1  egress  on     open   -   sa  -   -   1    1193     0   82083 
+ce1         1  ingress on     open   -   sa  -   -        1286     0   91139 
+engines in bypass: 56 of 64
+# journal sonic-syncd
+14380
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=5; skipped for=10; waited=10; expired=0; refused=0; 
+2026-11-23T15:23:59.661231-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:24:02.330783-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.1 on chip port 50 skipped for 10004 ms, the most allowed: read after diag transaction 278 (waited 21 ms)
+2026-11-23T15:24:02.394257-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.1 on chip port 50 skipped for 10024 ms, the most allowed: read after diag transaction 279 (waited 48 ms)
+2026-11-23T15:24:12.440972-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:24:22.306780-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 13 skipped for 10004 ms, the most allowed: read after diag transaction 646 (waited 18 ms)
+2026-11-23T15:24:22.370272-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 13 skipped for 10024 ms, the most allowed: read after diag transaction 647 (waited 48 ms)
+2026-11-23T15:24:25.330284-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:24:32.302439-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 9 skipped for 10004 ms, the most allowed: read after diag transaction 817 (waited 40 ms)
+2026-11-23T15:24:32.366781-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 9 skipped for 10048 ms, the most allowed: read after diag transaction 818 (waited 49 ms)
+2026-11-23T15:24:38.193412-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:24:50.957429-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:24:52.354800-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.1 on chip port 50 skipped for 10004 ms, the most allowed: read after diag transaction 1166 (waited 22 ms)
+2026-11-23T15:24:52.426292-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.1 on chip port 50 skipped for 10028 ms, the most allowed: read after diag transaction 1167 (waited 53 ms)
+2026-11-23T15:25:02.346807-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 13 skipped for 10004 ms, the most allowed: read after diag transaction 1354 (waited 41 ms)
+2026-11-23T15:25:02.414261-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 13 skipped for 10049 ms, the most allowed: read after diag transaction 1355 (waited 48 ms)

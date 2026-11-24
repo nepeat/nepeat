@@ -1,0 +1,942 @@
+# step 2: closure diff, gen 31 vs 3c84eb3 build
+OLD /nix/store/na3yx1c2yqyaf5vi1lk7n915aylwp1a1-nixos-system-as7772-26.11.20261111.d4f25a3
+NEW /nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+OLD drv /nix/store/561w0n1g3fri592dynpri787a9z3sy2k-nixos-system-as7772-26.11.20261111.d4f25a3.drv
+NEW drv /nix/store/x52kv7w6clpcx7phvjwssxl020anghw2-nixos-system-as7772-26.11.20261111.d4f25a3.drv
+
+# kernel / modules / initrd (old, new)
+/nix/store/8paw4bmx6zlzqm5fqw93c8vg4cm5h1y2-linux-powerpc64-unknown-linux-gnuabielfv2-7.3.4/uImage
+/nix/store/8paw4bmx6zlzqm5fqw93c8vg4cm5h1y2-linux-powerpc64-unknown-linux-gnuabielfv2-7.3.4/uImage
+/nix/store/bn7107pl412zy9p980giin4brxq4wjz1-linux-powerpc64-unknown-linux-gnuabielfv2-7.3.4-modules
+/nix/store/bn7107pl412zy9p980giin4brxq4wjz1-linux-powerpc64-unknown-linux-gnuabielfv2-7.3.4-modules
+/nix/store/sgyicdf1gnm8pbv6lryqh5l9rq2y42gf-initrd-linux-powerpc64-unknown-linux-gnuabielfv2-7.3.4/initrd
+/nix/store/sgyicdf1gnm8pbv6lryqh5l9rq2y42gf-initrd-linux-powerpc64-unknown-linux-gnuabielfv2-7.3.4/initrd
+# nix store diff-closures
+sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2: [31;1m206.6 KiB[0m
+# store paths only in one closure (comm -3; tab = new)
+/nix/store/0fnbjnykzn5hvaiz5qjsq09wijpidvcr-tmpfiles.d
+/nix/store/110qq60gbbw2qb5ysw2wm6hnpfwlzf6x-as7772-ext-phy.tbl
+	/nix/store/1aamasqxrkzdd1c0md4x9naqw10vxrv3-dbus-1
+	/nix/store/1vllsly340629ibp1g2cas50q7yykakv-X-Restart-Triggers-systemd-tmpfiles-resetup
+	/nix/store/5f8rslhv4qv8sfnwl6083kddmn2lja07-as7772-ext-macsec.tbl
+/nix/store/5vdhap8v6d63db9d1dh1wr7jckz2kxj5-system-path
+	/nix/store/711gsdwbz2pihn175k7rjgxsbffkbbgg-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c
+	/nix/store/8jdn4qi5inb2haspan6m79cddxpd5hri-unit-sonic-syncd.service
+	/nix/store/8vaasrdzr33z35y6hp9vfmsh61llc9k0-sonic-share-Accton-AS7772-32X
+	/nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+/nix/store/b8qllq6130hk80yvjb0mpi7fyp6nj1j5-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+/nix/store/c0873nwla2zp8a0vkrzhvvnq5m5pipq3-as7772-ext-macsec.tbl
+/nix/store/c254kwphi5gbhldclrxqj6jrwqil0q5w-user-units
+/nix/store/d2d1cjdlr7jy32nni5n33hv1b0vjg1c0-etc
+/nix/store/dn1a1sww6pcz0zs2ajgzkzc0r3ya6v8y-phy-status
+/nix/store/dz88i0xvs2vnn8ka2ka1g5ja7v0f6dl9-unit-systemd-tmpfiles-resetup.service
+	/nix/store/dzzrhrcpdm5xpbbfvy2whmsj8ivz0jvy-system-units
+/nix/store/fb58w2q483b873qcip0wr36fay6j7rkl-X-Restart-Triggers-dbus-broker
+	/nix/store/g3jhdhqv9bbvk51w8xha7kh43mp9k2hl-unit-dbus-broker.service
+	/nix/store/hhyvxq005s02p59avx8vz79g65fzp8qf-phy-status
+/nix/store/hjwgh3mzmwaj07akcd7ggfgr3d416ygs-unit-sonic-syncd.service
+/nix/store/l30zwqmrc9smbjdkbrz4b3ca822z8gl3-unit-dbus-broker.service
+/nix/store/mpyfhfm7w66bi7r5wrzyccv2w6v8cxb4-X-Restart-Triggers-systemd-tmpfiles-resetup
+/nix/store/msz26q29m7zjkw1r786966vm2kdmkr9j-dbus-1
+/nix/store/na3yx1c2yqyaf5vi1lk7n915aylwp1a1-nixos-system-as7772-26.11.20261111.d4f25a3
+/nix/store/pgdrjp02x53adqsh5dgvpn2j90i5a7zi-nixos-tmpfiles.d
+	/nix/store/pvg2c84dxfn92xqj7f3bfawwdinfiyxv-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+/nix/store/qnfh02j2imy24ibsan5rfn23xay2k7d8-system-units
+/nix/store/r0cpvivn70m99i7g8q1z6132nfshlzc6-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c
+	/nix/store/r7dmfm8bv1ywh2d6m75y8iy5n8n5jh82-X-Restart-Triggers-dbus-broker
+	/nix/store/rck8x7rh7kdm9hz0hy1rfb4zrzdigdkv-unit-dbus-broker.service
+	/nix/store/s5bidgb3gcig1drwd1wmzpxfyimd9cfm-sai.profile
+/nix/store/sir97irdjxc0h69i63lbcajaxr5arjls-sai.profile
+/nix/store/vc0jg4xvcxzb8c54sf610rs0nd1hj6zp-unit-openbcm-asic-temp.service
+	/nix/store/vcsif5wzw6v1djfp7ivf7z3gi5d523k5-user-units
+	/nix/store/vk48xzwh46jjczqmyx1y61gd9j0xlibf-etc
+	/nix/store/w5lk2asv3akahsk59js31avzh2br3y1b-system-path
+	/nix/store/wh44fha0y78kfilfsmlfskiislnhin02-unit-openbcm-asic-temp.service
+/nix/store/xh9diz2hw8k6xnczb5q50rpgb1kpw210-unit-dbus-broker.service
+/nix/store/xxbkjxk8ngpq8fr1h30xnspakagavhfw-sonic-share-Accton-AS7772-32X
+	/nix/store/y3bwwc8i29x08ysxq5zvp5ddq3h14rpc-nixos-tmpfiles.d
+	/nix/store/ylbn4i7phr4m02xm7jlhgdhdicq49225-as7772-ext-phy.tbl
+/nix/store/yw2wj7rv06fbrks7ygxdlhf4y41y5ka4-unit-openbcm-mdio-script.service
+	/nix/store/z54badns6a9rcfkn61l11lgi93fygciz-unit-systemd-tmpfiles-resetup.service
+	/nix/store/z5kl80ny4slz6271vj2pajqblvngivp3-unit-openbcm-mdio-script.service
+	/nix/store/zxf257gk033csrs525a7fg3axxkmqr25-tmpfiles.d
+# tables + fan stack
+as7772-ext-phy.tbl: 67d1071efcef7484 67d1071efcef7484
+as7772-ext-macsec.tbl: 1ef74ead737f7e01 1ef74ead737f7e01
+/nix/store/cc6v813q8yc89kb2sxbhfdih2khcad7f-fand-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+/nix/store/9cs4c0nxy32my9zzmdww4lpdl1crkidq-as7760-fan-control.py
+/nix/store/isn0slkw8cmq9w0g3xvzm2f95j2bnr17-as7760-fan
+/nix/store/pymkpr4iap0g7hb9kq8shpkxm9gzn6vd-fand-config.yaml
+/nix/store/8bm1zgd641r4mad8wqrdrh9gk3n3rwif-unit-fand.service
+/nix/store/dx9ksx1xcfhqwsvr9qbcmv9bf5mgznxn-as7760-fan-rs-powerpc64-unknown-linux-gnuabielfv2-7.3.4
+
+/nix/store/cc6v813q8yc89kb2sxbhfdih2khcad7f-fand-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+/nix/store/9cs4c0nxy32my9zzmdww4lpdl1crkidq-as7760-fan-control.py
+/nix/store/isn0slkw8cmq9w0g3xvzm2f95j2bnr17-as7760-fan
+/nix/store/pymkpr4iap0g7hb9kq8shpkxm9gzn6vd-fand-config.yaml
+/nix/store/8bm1zgd641r4mad8wqrdrh9gk3n3rwif-unit-fand.service
+/nix/store/dx9ksx1xcfhqwsvr9qbcmv9bf5mgznxn-as7760-fan-rs-powerpc64-unknown-linux-gnuabielfv2-7.3.4
+# nix-diff tree (Cargo.lock body elided)
+• The input derivation named `activate` differs
+  • The input derivation named `etc` differs
+    • The input derivation named `dbus-1` differs
+      • The input derivation named `system-path` differs
+        • The input derivation named `openbcm-diag` differs
+          • The input derivation named `sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0` differs
+            • The input derivation named `sai-rs-libsai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0` differs
+              • The input source named `source` differs
+              • The input derivation named `cargo-vendor-dir` differs
+                • The environments do not match:
+              • The input derivation named `sai-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0` differs
+                • The input source named `source` differs
+                • Input derivations differ but have already been compared
+                • Skipping environment comparison
+              • Skipping environment comparison
+            • Input derivations differ but have already been compared
+            • Skipping environment comparison
+          • Skipping environment comparison
+        • The input derivation named `phy-status` differs
+          • Input derivations differ but have already been compared
+          • Skipping environment comparison
+        • Input derivations differ but have already been compared
+        • Skipping environment comparison
+      • Skipping environment comparison
+    • The input derivation named `system-units` differs
+      • The input derivation named `unit-dbus-broker.service` differs
+        • The input derivation named `X-Restart-Triggers-dbus-broker` differs
+          • Input derivations differ but have already been compared
+          • Skipping environment comparison
+        • Skipping environment comparison
+      • The input derivation named `unit-openbcm-asic-temp.service` differs
+        • Input derivations differ but have already been compared
+        • Skipping environment comparison
+      • The input derivation named `unit-openbcm-mdio-script.service` differs
+        • Input derivations differ but have already been compared
+        • Skipping environment comparison
+      • The input derivation named `unit-sonic-syncd.service` differs
+        • The input derivation named `sai.profile` differs
+          • The input derivation named `as7772-ext-macsec.tbl` differs
+            • The input derivation named `sai-openbcm-rs-fake-0.1.0` differs
+              • The input derivation named `sai-rs-0.1.0` differs
+                • The input source named `source` differs
+                • Input derivations differ but have already been compared
+                • Skipping environment comparison
+              • The input derivation named `sai-rs-libsai-openbcm-fake-0.1.0` differs
+                • The input source named `source` differs
+                • Input derivations differ but have already been compared
+                • Skipping environment comparison
+              • Skipping environment comparison
+            • Skipping environment comparison
+          • The input derivation named `as7772-ext-phy.tbl` differs
+            • Input derivations differ but have already been compared
+            • Skipping environment comparison
+          • Skipping environment comparison
+        • The input derivation named `sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c` differs
+          • Input derivations differ but have already been compared
+          • Skipping environment comparison
+        • Input derivations differ but have already been compared
+        • Skipping environment comparison
+      • The input derivation named `unit-systemd-tmpfiles-resetup.service` differs
+        • The input derivation named `X-Restart-Triggers-systemd-tmpfiles-resetup` differs
+          • The input derivation named `tmpfiles.d` differs
+            • The input derivation named `nixos-tmpfiles.d` differs
+              • The input derivation named `sonic-share-Accton-AS7772-32X` differs
+                • Input derivations differ but have already been compared
+                • Skipping environment comparison
+              • Skipping environment comparison
+            • Skipping environment comparison
+          • Skipping environment comparison
+        • Skipping environment comparison
+      • Skipping environment comparison
+    • The input derivation named `user-units` differs
+      • The input derivation named `unit-dbus-broker.service` differs
+        • Input derivations differ but have already been compared
+        • Skipping environment comparison
+      • Skipping environment comparison
+    • Input derivations differ but have already been compared
+    • Skipping environment comparison
+  • Skipping environment comparison
+• The input derivation named `openbcm-tools-present` differs
+  • Input derivations differ but have already been compared
+  • Skipping environment comparison
+• Input derivations differ but have already been compared
+• Skipping environment comparison
+
+# nix-diff full
+- /nix/store/561w0n1g3fri592dynpri787a9z3sy2k-nixos-system-as7772-26.11.20261111.d4f25a3.drv:{out}
++ /nix/store/x52kv7w6clpcx7phvjwssxl020anghw2-nixos-system-as7772-26.11.20261111.d4f25a3.drv:{out}
+• The input derivation named `activate` differs
+  - /nix/store/yywl6pwj8ywdgc32v38nih7l5aaj3f8f-activate.drv:{out}
+  + /nix/store/w213f9dhz4c0rv2v62g3kq5hflhnv58v-activate.drv:{out}
+  • The input derivation named `etc` differs
+    - /nix/store/zqcj4a5lgkg8yxrm2mbmkvlabxh39m69-etc.drv:{out}
+    + /nix/store/b8fxr61mzvkbl56mzf8wy9qzw4yag0w5-etc.drv:{out}
+    • The input derivation named `dbus-1` differs
+      - /nix/store/mlg7qp9g3ndi3rjild8p51s7ywmpmas2-dbus-1.drv:{out}
+      + /nix/store/8rc1scrfcz2njd47n5alz2bnswbrvysv-dbus-1.drv:{out}
+      • The input derivation named `system-path` differs
+        - /nix/store/4353lhgjk7jla5jmrfzvkrbnnczq2nra-system-path.drv:{out}
+        + /nix/store/9hzr2r4v3axzk1lca4p5vqb0l7ah52rp-system-path.drv:{out}
+        • The input derivation named `openbcm-diag` differs
+          - /nix/store/wrxv1kyw4cljh83l1pnx86ad0l71as9z-openbcm-diag.drv:{out}
+          + /nix/store/9n1gfn185m4qk1mjmdvn9pi02zgix11c-openbcm-diag.drv:{out}
+          • The input derivation named `sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0` differs
+            - /nix/store/l2xm1ip1azh0lgkmzj3lfqvfjw778nci-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0.drv:{out}
+            + /nix/store/l6038gcjgnmqajg1pzlggz573c36izkq-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0.drv:{out}
+            • The input derivation named `sai-rs-libsai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0` differs
+              - /nix/store/rbkj5xk4pdf8gnrpzyahq35fjbadabz3-sai-rs-libsai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0.drv:{out}
+              + /nix/store/vbnsj4cbdfarpkgzrmgjj2xjadbfsqsj-sai-rs-libsai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0.drv:{out}
+              • The input source named `source` differs
+              • The input derivation named `cargo-vendor-dir` differs
+                - /nix/store/xqbvjrhhyg92yi8c3alpr1xrj4ki6401-cargo-vendor-dir.drv:{out}
+                + /nix/store/dzdk9c0z3i5fba4nhrcr1i2bwlfrsm7f-cargo-vendor-dir.drv:{out}
+                • The input source named `Cargo.lock` differs
+                    ''
+                    # This file is automatically @generated by Cargo.
+                    # It is not intended for manual editing.
+                    version = 4
+                    
+                    [[package]]
+                    name = "aes"
+                    version = "0.9.4"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "fc0fc36d7440d015b45468ba08a21e80e056ebbd014c611c6298bb7503e04bd1"
+                    dependencies = [
+                     "cipher",
+                     "cpubits",
+                     "cpufeatures",
+                     "zeroize",
+                    ]
+                    
+                    [[package]]
+                    name = "aho-corasick"
+                    version = "1.1.5"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "c982642fa9e8606056828ee9a8505737230110bb1099153c79efe865c59d12ba"
+                    dependencies = [
+                     "memchr",
+                    ]
+                    
+                    [[package]]
+                    name = "autocfg"
+                    version = "1.5.1"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "f2032f911046de80f0a198e0901378627c33f59ea0ac00e363d481118bd70a53"
+                    
+                    [[package]]
+                    name = "bindgen"
+                    version = "0.72.1"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "993776b509cfb49c750f11b8f07a46fa23e0a1386ffc01fb1e7d343efc387895"
+                    dependencies = [
+                     "bitflags",
+                     "cexpr",
+                     "clang-sys",
+                     "itertools",
+                     "prettyplease",
+                     "proc-macro2",
+                     "quote",
+                     "regex",
+                     "rustc-hash",
+                     "shlex",
+                     "syn",
+                    ]
+                    
+                    [[package]]
+                    name = "bitflags"
+                    version = "2.13.2"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "3ded4057c258ba199e2d26386d3af3780957ecaee6c4ef4041c6b4b8b97c0b06"
+                    
+                    [[package]]
+                    name = "cexpr"
+                    version = "0.6.0"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "6fac387a98bb7c37292057cffc56d62ecb629900026402633ae9160df93a8766"
+                    dependencies = [
+                     "nom",
+                    ]
+                    
+                    [[package]]
+                    name = "cfg-if"
+                    version = "1.0.5"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "4e7648175b45a9a48536d676f68d918270699102aa8dab5496df06904c914600"
+                    
+                    [[package]]
+                    name = "chacha20"
+                    version = "0.10.2"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "65c35e4b699c7e15ccbe7ee35c005e4fc0a278d22238a2857e6ce2dadeda1b06"
+                    dependencies = [
+                     "cfg-if",
+                     "cpufeatures",
+                     "rand_core",
+                    ]
+                    
+                    [[package]]
+                    name = "cipher"
+                    version = "0.5.2"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "e8cf2a2c93cd704877c0858356ed03480ff301ee950b43f1cbe4573b088bfa6c"
+                    dependencies = [
+                     "crypto-common",
+                     "inout",
+                    ]
+                    
+                    [[package]]
+                    name = "clang-sys"
+                    version = "1.9.1"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "157a8ba7b480713b56f4c09fd13fc3e0a22a5dfab8097ba61cbc5feef950788a"
+                    dependencies = [
+                     "glob",
+                     "libc",
+                    ]
+                    
+                    [[package]]
+                    name = "core_detect"
+                    version = "1.0.0"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "7f8f80099a98041a3d1622845c271458a2d73e688351bf3cb999266764b81d48"
+                    
+                    [[package]]
+                    name = "cpubits"
+                    version = "0.1.1"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "15b85f9c39137c3a891689859392b1bd49812121d0d61c9caf00d46ed5ce06ae"
+                    
+                    [[package]]
+                    name = "cpufeatures"
+                    version = "0.3.1"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "5ca28b0ae3115b884660db4118d803791fd6756b6e88f39c0f3f7859060d7566"
+                    dependencies = [
+                     "libc",
+                    ]
+                    
+                    [[package]]
+                    name = "crypto-common"
+                    version = "0.2.2"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "ce6e4c961d6cd6c9a86db418387425e8bdeaf05b3c8bc1411e6dca4c252f1453"
+                    dependencies = [
+                     "hybrid-array",
+                    ]
+                    
+                    [[package]]
+                    name = "either"
+                    version = "1.19.0"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "0e9c71c2167ca323c882b99918929403426e2373ea17242ff5653e0d5e1058be"
+                    
+                    [[package]]
+                    name = "errno"
+                    version = "0.3.15"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "e35d6e78f4cebb90e51d543db8fe41528851d6deeef6ef21ebd4bfdc1e784776"
+                    dependencies = [
+                     "libc",
+                     "windows-sys",
+                    ]
+                    
+                    [[package]]
+                    name = "getrandom"
+                    version = "0.4.3"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "300e883d756b2e4ec94e02791f39b04b522276138852cfc41d9fb7e904106099"
+                    dependencies = [
+                     "cfg-if",
+                     "libc",
+                     "r-efi",
+                     "rand_core",
+                    ]
+                    
+                    [[package]]
+                    name = "glob"
+                    version = "0.3.4"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "e4eba85ea1d0a966a983acd07deee566e67395d2d96b6fb39e62b5a833f1eb0b"
+                    
+                    [[package]]
+                    name = "hybrid-array"
+                    version = "0.4.15"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "27f864f10dfb56725ce5ce5472bc52252c8f93a4ab86327122cebf62c5f59a17"
+                    dependencies = [
+                     "typenum",
+                    ]
+                    
+                    [[package]]
+                    name = "inout"
+                    version = "0.2.6"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "3a580c13f0ffc335ef42dd3f6b1a41b726051c5e1656d9a3aa6fddb3c5dfbbf9"
+                    dependencies = [
+                     "hybrid-array",
+                    ]
+                    
+                    [[package]]
+                    name = "itertools"
+                    version = "0.13.0"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "413ee7dfc52ee1a4949ceeb7dbc8a33f2d6c088194d9f922fb8318faf1f01186"
+                    dependencies = [
+                     "either",
+                    ]
+                    
+                    [[package]]
+                    name = "libc"
+                    version = "0.2.191"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "65cd87c9a6d60536580b316ad985726104730a5151c99845f2490428ef91240a"
+                    
+                    [[package]]
+                    name = "mdio-report"
+                    version = "0.1.0"
+                    dependencies = [
+                     "mdio-script",
+                    ]
+                    
+                    [[package]]
+                    name = "mdio-script"
+                    version = "0.1.0"
+                    dependencies = [
+                     "proptest",
+                    ]
+                    
+                    [[package]]
+                    name = "mdio-tool"
+                    version = "0.1.0"
+                    dependencies = [
+                     "mdio-report",
+                     "mdio-script",
+                     "mdio-tool",
+                     "sdk-glue",
+                     "signal-hook",
+                    ]
+                    
+                    [[package]]
+                    name = "memchr"
+                    version = "2.8.3"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
+                    
+                    [[package]]
+                    name = "minimal-lexical"
+                    version = "0.2.1"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
+                    
+                    [[package]]
+                    name = "nom"
+                    version = "7.1.3"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "d273983c5a657a70a3e8f2a01329822f3b8c8172b73826411a55751e404a0a4a"
+                    dependencies = [
+                     "memchr",
+                     "minimal-lexical",
+                    ]
+                    
+                    [[package]]
+                    name = "num-traits"
+                    version = "0.2.19"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
+                    dependencies = [
+                     "autocfg",
+                    ]
+                    
+                    [[package]]
+                    name = "openbcm-asic-temp"
+                    version = "0.1.0"
+                    dependencies = [
+                     "openbcm-asic-temp",
+                     "sai-core",
+                     "sdk-glue",
+                     "signal-hook",
+                    ]
+                    
+                    [[package]]
+                    name = "openbcm-diag"
+                    version = "0.1.0"
+                    
+                    [[package]]
+                    name = "phy-seq"
+                    version = "0.1.0"
+                    dependencies = [
+                     "mdio-script",
+                     "proptest",
+                     "zeroize",
+                    ]
+                    
+                    [[package]]
+                    name = "prettyplease"
+                    version = "0.2.37"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "479ca8adacdd7ce8f1fb39ce9ecccbfe93a3f1344b3d0d97f20bc0196208f62b"
+                    dependencies = [
+                     "proc-macro2",
+                     "syn",
+                    ]
+                    
+                    [[package]]
+                    name = "proc-macro2"
+                    version = "1.0.107"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "985e7ec9bb745e6ce6535b544d84d6cd6f7ad8bd711c398938ae983b91a766d9"
+                    dependencies = [
+                     "unicode-ident",
+                    ]
+                    
+                    [[package]]
+                    name = "proptest"
+                    version = "1.12.0"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "b8530004ccb15eae51c7e40009fbe317f341f804db54dc033eec1c50be28cfa0"
+                    dependencies = [
+                     "bitflags",
+                     "chacha20",
+                     "core_detect",
+                     "num-traits",
+                     "rand",
+                     "rand_xorshift",
+                     "regex-syntax",
+                     "unarray",
+                    ]
+                    
+                    [[package]]
+                    name = "quote"
+                    version = "1.0.47"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001"
+                    dependencies = [
+                     "proc-macro2",
+                    ]
+                    
+                    [[package]]
+                    name = "r-efi"
+                    version = "6.0.0"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf"
+                    
+                    [[package]]
+                    name = "rand"
+                    version = "0.10.4"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "8f6fa277c67e6ea590466f04c3fe82cb509f0864fe470643e5570de9514a9b11"
+                    dependencies = [
+                     "getrandom",
+                     "rand_core",
+                    ]
+                    
+                    [[package]]
+                    name = "rand_core"
+                    version = "0.10.1"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "63b8176103e19a2643978565ca18b50549f6101881c443590420e4dc998a3c69"
+                    
+                    [[package]]
+                    name = "rand_xorshift"
+                    version = "0.5.0"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "60aa6af80be32871323012e02e6e65f8a7cc7890931ae421d217ad8fe0df2ccf"
+                    dependencies = [
+                     "rand_core",
+                    ]
+                    
+                    [[package]]
+                    name = "regex"
+                    version = "1.13.2"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "9807af0e638c12e753aa1b4e601791bf2a8f71274023c8bbeec12fc149950857"
+                    dependencies = [
+                     "aho-corasick",
+                     "memchr",
+                     "regex-automata",
+                     "regex-syntax",
+                    ]
+                    
+                    [[package]]
+                    name = "regex-automata"
+                    version = "0.4.19"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "41d60ef07df457506a0a1a2073112eb4aae5733dbd2813c3da77d1b0fd441158"
+                    dependencies = [
+                     "aho-corasick",
+                     "memchr",
+                     "regex-syntax",
+                    ]
+                    
+                    [[package]]
+                    name = "regex-syntax"
+                    version = "0.8.12"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "d902046e6a28a1e4c3cab97258a0ce11e994903f01c2d97a9447a0b3df85f4f6"
+                    
+                    [[package]]
+                    name = "rustc-hash"
+                    version = "2.1.3"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "6b1e7f9a428571be2dc5bc0505c13fb6bf936822b894ec87abf8a08a4e51742d"
+                    
+                    [[package]]
+                    name = "sai-backend-openbcm"
+                    version = "0.1.0"
+                    dependencies = [
+                     "proptest",
+                     "sai-backend-openbcm",
+                     "sai-core",
+                     "sai-driver",
+                     "sai-sys",
+                     "sdk-glue",
+                    ]
+                    
+                    [[package]]
+                    name = "sai-core"
+                    version = "0.1.0"
+                    dependencies = [
+                     "proptest",
+                     "sai-diag",
+                     "sai-extphy",
+                     "sai-macsec-phy",
+                     "sai-meta",
+                     "sai-sys",
+                     "tap-netdev",
+                     "zeroize",
+                    ]
+                    
+                    [[package]]
+                    name = "sai-diag"
+                    version = "0.1.0"
+                    dependencies = [
+                     "mdio-tool",
+                     "proptest",
+                     "sai-core",
+                     "sai-sys",
+                    ]
+                    
+                    [[package]]
+                    name = "sai-driver"
+                    version = "0.1.0"
+                    dependencies = [
+                     "regex",
+                     "sai-core",
+                     "sai-diag",
+                     "sai-macsec-phy",
+                     "sai-meta",
+                     "sai-sys",
+                     "zeroize",
+                    ]
+                    
+                    [[package]]
+                    name = "sai-extphy"
+                    version = "0.1.0"
+                    dependencies = [
+                     "phy-seq",→
+                     →→"sai-extphy",→
+                    ]
+                    
+                    [[package]]
+                    name = "sai-ffi"
+                    version = "0.1.0"
+                    dependencies = [
+                     "libc",
+                     "sai-backend-openbcm",
+                     "sai-core",
+                     "sai-diag",
+                     "sai-macsec-phy",
+                     "sai-meta",
+                     "sai-sys",
+                     "sai-test-port",
+                    ]
+                    
+                    [[package]]
+                    name = "sai-macsec"
+                    version = "0.1.0"
+                    dependencies = [
+                     "aes",
+                     "proptest",
+                     "sai-core",
+                     "sai-sys",
+                     "zeroize",
+                    ]
+                    
+                    [[package]]
+                    name = "sai-macsec-phy"
+                    version = "0.1.0"
+                    dependencies = [
+                     "phy-seq",
+                     "proptest",
+                     "sai-core",
+                     "sai-macsec",
+                     "sai-meta",
+                     "sai-sys",
+                    ]
+                    
+                    [[package]]
+                    name = "sai-meta"
+                    version = "0.1.0"
+                    dependencies = [
+                     "sai-sys",
+                    ]
+                    
+                    [[package]]
+                    name = "sai-sys"
+                    version = "0.1.0"
+                    dependencies = [
+                     "bindgen",
+                    ]
+                    
+                    [[package]]
+                    name = "sai-test-port"
+                    version = "0.1.0"
+                    dependencies = [
+                     "sai-core",
+                     "sai-sys",
+                    ]
+                    
+                    [[package]]
+                    name = "sdk-glue"
+                    version = "0.1.0"
+                    dependencies = [
+                     "sdk-glue",
+                     "sdk-glue-sys",
+                     "signal-hook",
+                    ]
+                    
+                    [[package]]
+                    name = "sdk-glue-sys"
+                    version = "0.1.0"
+                    dependencies = [
+                     "bindgen",
+                    ]
+                    
+                    [[package]]
+                    name = "shlex"
+                    version = "1.3.0"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
+                    
+                    [[package]]
+                    name = "signal-hook"
+                    version = "0.3.18"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "d881a16cf4426aa584979d30bd82cb33429027e42122b169753d6ef1085ed6e2"
+                    dependencies = [
+                     "libc",
+                     "signal-hook-registry",
+                    ]
+                    
+                    [[package]]
+                    name = "signal-hook-registry"
+                    version = "1.4.8"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "c4db69cba1110affc0e9f7bcd48bbf87b3f4fc7c61fc9155afd4c469eb3d6c1b"
+                    dependencies = [
+                     "errno",
+                     "libc",
+                    ]
+                    
+                    [[package]]
+                    name = "syn"
+                    version = "2.0.119"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "872831b642d1a07999a962a351ed35b955ea2cfc8f3862091e2a240a84f17297"
+                    dependencies = [
+                     "proc-macro2",
+                     "quote",
+                     "unicode-ident",
+                    ]
+                    
+                    [[package]]
+                    name = "tap-netdev"
+                    version = "0.1.0"
+                    dependencies = [
+                     "libc",
+                     "proptest",
+                    ]
+                    
+                    [[package]]
+                    name = "typenum"
+                    version = "1.20.1"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "b6f5e870be6c3b371b77fe0ee0bafb859fa4964b4404c27de1d380043c4dda20"
+                    
+                    [[package]]
+                    name = "unarray"
+                    version = "0.1.4"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "eaea85b334db583fe3274d12b4cd1880032beab409c0d774be044d4480ab9a94"
+                    
+                    [[package]]
+                    name = "unicode-ident"
+                    version = "1.0.27"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "a2c754d6c33795a1c324727428e5a7dedb5b06195f9890bdbcba760d3e246563"
+                    
+                    [[package]]
+                    name = "windows-link"
+                    version = "0.2.1"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "f0805222e57f7521d6a62e36fa9163bc891acd422f971defe97d64e70d0a4fe5"
+                    
+                    [[package]]
+                    name = "windows-sys"
+                    version = "0.61.2"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "ae137229bcbd6cdf0f7b80a31df61766145077ddf49416a728b02cb3921ff3fc"
+                    dependencies = [
+                     "windows-link",
+                    ]
+                    
+                    [[package]]
+                    name = "zeroize"
+                    version = "1.9.2"
+                    source = "registry+https://github.com/rust-lang/crates.io-index"
+                    checksum = "85ccff8a4805aba1eaa4cd4afcd49f7557dd2cf5fd79ffc37f8959466effc5aa"
+                ''
+                • The environments do not match:
+                    __json=''
+                    {"buildCommand":"    mkdir -p $out/.cargo\n\n    ln -s ←/nix/store/z5hvwln3m2859684x24qqcvszin1sgbg-Cargo.lock←→/nix/store/4aggkq8gx3arzzpz618w842a35hsfv1l-Cargo.lock→ $out/Cargo.lock\n\n    cat > $out/.cargo/config.toml <<EOF\n[source.crates-io]\nreplace-with = \"vendored-sources\"\n\n[source.vendored-sources]\ndirectory = \"cargo-vendor-dir\"\nEOF\n\n    declare -A keysSeen\n\n    for registry in ; do\n      cat >> $out/.cargo/config.toml <<EOF\n\n[source.\"$registry\"]\nregistry = \"$registry\"\nreplace-with = \"vendored-sources\"\nEOF\n    done\n\n    for crate in /nix/store/67qsnv7xg355b4k4frlbwmw538rhnkq9-aes-0.9.4 /nix/store/7wsv0hkw2qdyhk712jdlg82688mmrhi6-aho-corasick-1.1.5 /nix/store/fy0bmkk7dy306jsbc534d2q28x0sqacr-autocfg-1.5.1 /nix/store/93z1h8dk8006saf02a2cjqdrrq4jkdv6-bindgen-0.72.1 /nix/store/qnp00nzrn296r8kzrs6sp9jyz3z03jyi-bitflags-2.13.2 /nix/store/b6hf1wg494snhcp678wdxhwq5pdlwx7s-cexpr-0.6.0 /nix/store/jcqsbq046snzmwyn7jkbazkmay270gk1-cfg-if-1.0.5 /nix/store/za35mwja5jrj87v513zgd2kk2sx506zv-chacha20-0.10.2 /nix/store/avl73s94aid04n7w5sm8wdjcdp9dfnk4-cipher-0.5.2 /nix/store/g00jm5aj3si3l9cwbyzflkg4lmq73pbq-clang-sys-1.9.1 /nix/store/3i5iayqjj8ypn8706vi4khjg9602kk1f-core_detect-1.0.0 /nix/store/lsibf2q8cl21c0l6ah210d804gmym5jc-cpubits-0.1.1 /nix/store/qfrycbvmrqdld3n91qi402ypb2hygk4r-cpufeatures-0.3.1 /nix/store/4spcjc28njwnr9pnyqjikxxyiz9hq7r0-crypto-common-0.2.2 /nix/store/y7yhlckdg52jcbw3cpp6s7r3bacq0z5k-either-1.19.0 /nix/store/fz8c14bgpvqnnjc4p7awcffc6zh8x8vc-errno-0.3.15 /nix/store/ppyp7wm27rr1lcgxdb5b12bqyllvz2ba-getrandom-0.4.3 /nix/store/73w3fi36qhykr2sbaw18xc17cgqqmbp7-glob-0.3.4 /nix/store/v79lvwqp1rz4ifqv5wk6dlk3anz0zvvn-hybrid-array-0.4.15 /nix/store/fz8hrb5754s10ylcfr81rhjvdqywidvs-inout-0.2.6 /nix/store/c0476g9dw83dvv077b5pwrrn2v6x71c3-itertools-0.13.0 /nix/store/bfhkqhp2hv7d5mc9r8a7rl0dfb22h9ld-libc-0.2.191 /nix/store/91yrhmmq7dfnrg83g5pn072jnamkd399-memchr-2.8.3 /nix/store/q6xw5kzm6knmpwz90q6y0nsf2dja3v60-minimal-lexical-0.2.1 /nix/store/a975v71ppj1g33gga39pvhgxc26q230z-nom-7.1.3 /nix/store/x2vsh2ah4ix0gcvisxvvd5mfsnnhbb2a-num-traits-0.2.19 /nix/store/bvqcjbxyamdfx2x8kjpaxc7qnzvyj5sq-prettyplease-0.2.37 /nix/store/xfaid9r8v6d4mj7ml1v4xhsn019m5f4v-proc-macro2-1.0.107 /nix/store/k1xgfj4qhh5kdjsz66s44mrqy0y3w6xs-proptest-1.12.0 /nix/store/rjjclhqmqlnzckgcj6m4wa0zpis2vwx2-quote-1.0.47 /nix/store/5xdnmpyknqxyrzhl78abgkwg5fknkbr2-r-efi-6.0.0 /nix/store/gwqlszzzl57nbbdh7w85civ29qpvv0s8-rand-0.10.4 /nix/store/q28ga5f8ba820ri8z50c0yvs10fqr26l-rand_core-0.10.1 /nix/store/1q4a8cs8i15gigswbrwjp8840axzay8r-rand_xorshift-0.5.0 /nix/store/46nlgfalqiq9rpl120la3bi1d99dlckm-regex-1.13.2 /nix/store/fymccpc4i97vrff1nsc5wr5yxid0mz4p-regex-automata-0.4.19 /nix/store/xg9ncqvdwwpp2y7s860q70xdy5w2ap17-regex-syntax-0.8.12 /nix/store/jm02z1vl4bk9r5w5gmm817lhl2c2x4hc-rustc-hash-2.1.3 /nix/store/rxmdaz7fk314d5j0vvlzyxw0f1arfqw0-shlex-1.3.0 /nix/store/qighl17077jzljz7z9cp268ihdjjhzd5-signal-hook-0.3.18 /nix/store/xvsrk1z9frxvmljp1l6j16wcim805has-signal-hook-registry-1.4.8 /nix/store/3lwb6wllk4y2krp8g71m5bc354l5dqy2-syn-2.0.119 /nix/store/iicpm0r2c08grl3giqqhm5sicv5hlk41-typenum-1.20.1 /nix/store/k4vyjvhvmwxmk0h3lyg5cznikhdvksbq-unarray-0.1.4 /nix/store/8iyx5cnpgybnxl69mddpzcc43mvh5i5h-unicode-ident-1.0.27 /nix/store/v3ya69c0wmdh4cadl76pvvf02y2pgjw9-windows-link-0.2.1 /nix/store/r04nl7rcm8rvhmwcrpnkq7300r71g75n-windows-sys-0.61.2 /nix/store/xjchvina2hkdyw9q6hp334fgs6w2cr0q-zeroize-1.9.2; do\n      # Link the crate directory, removing the output path hash from the destination.\n      ln -s \"$crate\" $out/$(basename \"$crate\" | cut -c 34-)\n\n      if [ -e \"$crate/.cargo-config\" ]; then\n        key=$(sed 's/\\[source\\.\"\\(.*\\)\"\\]/\\1/; t; d' < \"$crate/.cargo-config\")\n        if [[ -z ${keysSeen[$key]} ]]; then\n          keysSeen[$key]=1\n          cat \"$crate/.cargo-config\" >> $out/.cargo/config.toml\n        fi\n      fi\n    done\n","buildInputs":[],"builder":"/nix/store/hasnvc0j36gg6qrdsfcx7yivx3c2bpqr-bash-5.3p20/bin/bash","cmakeFlags":[],"configureFlags":[],"depsBuildBuild":[],"depsBuildBuildPropagated":[],"depsBuildTarget":[],"depsBuildTargetPropagated":[],"depsHostHost":[],"depsHostHostPropagated":[],"depsTargetTarget":[],"depsTargetTargetPropagated":[],"doCheck":false,"doInstallCheck":false,"enableParallelBuilding":true,"enableParallelChecking":true,"enableParallelInstalling":true,"env":{},"mesonFlags":[],"name":"cargo-vendor-dir","nativeBuildInputs":[],"outputChecks":{"out":{}},"outputs":["out"],"passAsFile":["buildCommand"],"patches":[],"propagatedBuildInputs":[],"propagatedNativeBuildInputs":[],"stdenv":"/nix/store/vd29sjk0bfwm2fygq5a9an70qd8hfnlb-stdenv-linux-no-cc","strictDeps":true,"system":"x86_64-linux"}
+                ''
+              • The input derivation named `sai-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0` differs
+                - /nix/store/1qz3sham4wncs0nisnr0c93d2zgazk3s-sai-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0.drv:{out}
+                + /nix/store/mdxsdhq8kpkbhbr4skd3p6sjrcbs0iad-sai-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0.drv:{out}
+                • The input source named `source` differs
+                • Input derivations differ but have already been compared
+                    cargo-vendor-dir
+                • Skipping environment comparison
+              • Skipping environment comparison
+            • Input derivations differ but have already been compared
+                sai-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+            • Skipping environment comparison
+          • Skipping environment comparison
+        • The input derivation named `phy-status` differs
+          - /nix/store/1cl92n5qzkbpj8icn7qbdwkabpxybay9-phy-status.drv:{out}
+          + /nix/store/04x5mczjx8nnqymam4xs534pvqkhn5ii-phy-status.drv:{out}
+          • Input derivations differ but have already been compared
+              sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+          • Skipping environment comparison
+        • Input derivations differ but have already been compared
+            sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+        • Skipping environment comparison
+      • Skipping environment comparison
+    • The input derivation named `system-units` differs
+      - /nix/store/7yclks8zl06azpl7a478fk6mm0b14lhz-system-units.drv:{out}
+      + /nix/store/lfyg42zrj68i0sacvhvzfkraz6j7f5h3-system-units.drv:{out}
+      • The input derivation named `unit-dbus-broker.service` differs
+        - /nix/store/prpnjp95wi4xj421v6f4kgy3pgz0lxw1-unit-dbus-broker.service.drv:{out}
+        + /nix/store/1c6pbmm9ck75d07mgs96hhh7b5gw9pf6-unit-dbus-broker.service.drv:{out}
+        • The input derivation named `X-Restart-Triggers-dbus-broker` differs
+          - /nix/store/45m65vs3zk68fnlsmfpwd0nwzfk4irjr-X-Restart-Triggers-dbus-broker.drv:{out}
+          + /nix/store/j6ph4r57inlbnldv62wqj14703lvr3kl-X-Restart-Triggers-dbus-broker.drv:{out}
+          • Input derivations differ but have already been compared
+              dbus-1
+          • Skipping environment comparison
+        • Skipping environment comparison
+      • The input derivation named `unit-openbcm-asic-temp.service` differs
+        - /nix/store/pqnjcskn0858wxlqk6gx5simf0asainz-unit-openbcm-asic-temp.service.drv:{out}
+        + /nix/store/skx78vy32b59aa16nffjihdv507y76az-unit-openbcm-asic-temp.service.drv:{out}
+        • Input derivations differ but have already been compared
+            sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+        • Skipping environment comparison
+      • The input derivation named `unit-openbcm-mdio-script.service` differs
+        - /nix/store/zpax897hmns3f2fjsih03nxmg9np2iab-unit-openbcm-mdio-script.service.drv:{out}
+        + /nix/store/qrlgripmx0xfks0r8xj5srca07g167zx-unit-openbcm-mdio-script.service.drv:{out}
+        • Input derivations differ but have already been compared
+            sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+        • Skipping environment comparison
+      • The input derivation named `unit-sonic-syncd.service` differs
+        - /nix/store/nbaf8wacn46vkby6g9br9q2pxyl5k9h1-unit-sonic-syncd.service.drv:{out}
+        + /nix/store/cxg8cyqn43ddyqzy2wi9gbvpcigkailr-unit-sonic-syncd.service.drv:{out}
+        • The input derivation named `sai.profile` differs
+          - /nix/store/m0pnl1sqsr8f3zd0wsdbdj7bxnl5g57i-sai.profile.drv:{out}
+          + /nix/store/k6x29ib7frgx69h4zs25mz027s0nasvi-sai.profile.drv:{out}
+          • The input derivation named `as7772-ext-macsec.tbl` differs
+            - /nix/store/0an2pjziffz5zcyny4nm02khmnrnp071-as7772-ext-macsec.tbl.drv:{out}
+            + /nix/store/2qs77r94zv75qjhjqbswzvbc9y4blypp-as7772-ext-macsec.tbl.drv:{out}
+            • The input derivation named `sai-openbcm-rs-fake-0.1.0` differs
+              - /nix/store/5mfkq9imhgydpiqq1yb8sm6i77dbmrfy-sai-openbcm-rs-fake-0.1.0.drv:{out}
+              + /nix/store/q8wrnp61y5h36qwnqcylgxhqcm7hdlk8-sai-openbcm-rs-fake-0.1.0.drv:{out}
+              • The input derivation named `sai-rs-0.1.0` differs
+                - /nix/store/qaskz9phk8i9f8ha6kngfg19628b24rz-sai-rs-0.1.0.drv:{out}
+                + /nix/store/fv0k2h4qyvk8la4x535c1z90a722afi8-sai-rs-0.1.0.drv:{out}
+                • The input source named `source` differs
+                • Input derivations differ but have already been compared
+                    cargo-vendor-dir
+                • Skipping environment comparison
+              • The input derivation named `sai-rs-libsai-openbcm-fake-0.1.0` differs
+                - /nix/store/x1wqys6cvwbhwn2cpb0vgx2yyi2jdycq-sai-rs-libsai-openbcm-fake-0.1.0.drv:{out}
+                + /nix/store/rycv0cza11cbyk8qqp5b9spzlqx61ipv-sai-rs-libsai-openbcm-fake-0.1.0.drv:{out}
+                • The input source named `source` differs
+                • Input derivations differ but have already been compared
+                    cargo-vendor-dir
+                    sai-rs-0.1.0
+                • Skipping environment comparison
+              • Skipping environment comparison
+            • Skipping environment comparison
+          • The input derivation named `as7772-ext-phy.tbl` differs
+            - /nix/store/wx75kw8qwqy3y7403f66mqln0519c0qp-as7772-ext-phy.tbl.drv:{out}
+            + /nix/store/qc5izal6jb0fn7xsb45wzkdk4m51asn3-as7772-ext-phy.tbl.drv:{out}
+            • Input derivations differ but have already been compared
+                sai-openbcm-rs-fake-0.1.0
+            • Skipping environment comparison
+          • Skipping environment comparison
+        • The input derivation named `sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c` differs
+          - /nix/store/hzp2zgv2987d3n8f5il5rsvjblx324xr-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c.drv:{out}
+          + /nix/store/7rwa7y54zifv6w90z0jv8n81b7915q8c-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c.drv:{out}
+          • Input derivations differ but have already been compared
+              sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+          • Skipping environment comparison
+        • Input derivations differ but have already been compared
+            sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+        • Skipping environment comparison
+      • The input derivation named `unit-systemd-tmpfiles-resetup.service` differs
+        - /nix/store/5zdaxzx842ayb2lmhnc5zzzyxjvjjl5c-unit-systemd-tmpfiles-resetup.service.drv:{out}
+        + /nix/store/8p9djwqkayndwbs8lcg8raby34za08nk-unit-systemd-tmpfiles-resetup.service.drv:{out}
+        • The input derivation named `X-Restart-Triggers-systemd-tmpfiles-resetup` differs
+          - /nix/store/c32zwpzi11zkwqgnpxlj3rx7rbgqqsbg-X-Restart-Triggers-systemd-tmpfiles-resetup.drv:{out}
+          + /nix/store/r7fp49xrhd8zdqimil0m4dvq1kz40gs7-X-Restart-Triggers-systemd-tmpfiles-resetup.drv:{out}
+          • The input derivation named `tmpfiles.d` differs
+            - /nix/store/ny93l256fz7wlqpky18rvmyr4hjbgvn3-tmpfiles.d.drv:{out}
+            + /nix/store/05n2jzb7ppw3idbjf68k38mpadr73wp8-tmpfiles.d.drv:{out}
+            • The input derivation named `nixos-tmpfiles.d` differs
+              - /nix/store/5k4l202f7ifacc6ccwq90ya8wp319if0-nixos-tmpfiles.d.drv:{out}
+              + /nix/store/swhj01s1z01wm78ni0ypn3zqp670vn6a-nixos-tmpfiles.d.drv:{out}
+              • The input derivation named `sonic-share-Accton-AS7772-32X` differs
+                - /nix/store/dhfhgb83z836rpacfm7yj5f12dcgc8ag-sonic-share-Accton-AS7772-32X.drv:{out}
+                + /nix/store/cgy2vc3xjkk14adrnn0zwh8xxzj8lidc-sonic-share-Accton-AS7772-32X.drv:{out}
+                • Input derivations differ but have already been compared
+                    sai.profile
+                • Skipping environment comparison
+              • Skipping environment comparison
+            • Skipping environment comparison
+          • Skipping environment comparison
+        • Skipping environment comparison
+      • Skipping environment comparison
+    • The input derivation named `user-units` differs
+      - /nix/store/iv8ykckcj36p8is8j0zpwz69kp066wb5-user-units.drv:{out}
+      + /nix/store/bjlm36lhb85g27pfwp1fgxnfibcsb4nh-user-units.drv:{out}
+      • The input derivation named `unit-dbus-broker.service` differs
+        - /nix/store/05v3258bjqx8d592nf7lf4gm2053wwpp-unit-dbus-broker.service.drv:{out}
+        + /nix/store/jaa3rd61lnxn5p7rzk42cg2w6hddisw9-unit-dbus-broker.service.drv:{out}
+        • Input derivations differ but have already been compared
+            X-Restart-Triggers-dbus-broker
+        • Skipping environment comparison
+      • Skipping environment comparison
+    • Input derivations differ but have already been compared
+        system-path
+        tmpfiles.d
+    • Skipping environment comparison
+  • Skipping environment comparison
+• The input derivation named `openbcm-tools-present` differs
+  - /nix/store/w6i9xn8lp5sd6q0b55gbx1z9g3dyfplx-openbcm-tools-present.drv:{out}
+  + /nix/store/7l3b26vqx8q6m6gwaazvp6v0w55l0nm3-openbcm-tools-present.drv:{out}
+  • Input derivations differ but have already been compared
+      sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+  • Skipping environment comparison
+• Input derivations differ but have already been compared
+    etc
+    system-path
+• Skipping environment comparison

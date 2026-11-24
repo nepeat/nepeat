@@ -1,0 +1,475 @@
+# step 6 arm OFF (no MACsec objects, engines in bypass 64 of 64); h5-lat.sh 20; diag socket lines in window: 0
+# snapshot before
+1795479805.458320422
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 8304 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce0         49   50 up    up    no     0x0003     8538        0   11    10     200     206    1225     2    0        7389
+ce1         53   54 up    up    no     0x0003     8541        0   11     0     189     200     689    22    0        6870
+ce30         9    9 up    up    no     0x0003     8576        0   11    10     199     212     505     2    0        7314
+ce31        13   13 up    up    no     0x0003     8554        0   11     0     187     201     452    22    0        7765
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 8199, ended 8197, expired 2; raw MDIO hold-offs 105; refused: busy 0, void 10
+extphy: link polls answered from the last verdict during a lease 1699; waits for a library run before a poll 341 (max 88938 us, total 3683616 us)
+extphy: MACsec polls skipped during a lease 1007; forced reads after 10000 ms 119 (max wait 59649 us); MACsec / admin runs that waited for a transaction 63 (max 1007825 us); extmacsec run refused 0
+extmacsec: 32 ports, 126 sequences; objects: 0 macsec, 0 ports, 0 flows, 0 SCs, 0 SAs, 0 ACL tables, 0 ACL entries
+engines in bypass: 64 of 64
+# cycles
+BEFORE PORT|Ethernet4 admin_status=up
+BEFORE PORT|Ethernet124 admin_status=up
+CYCLE 1 Ethernet4 down 1795479810.150026438 1795479810.181787446
+CYCLE 1 Ethernet4 up 1795479811.710700039 1795479811.741426983
+JITTER 1 2.551
+CYCLE 2 Ethernet124 down 1795479814.330995697 1795479814.362121950
+CYCLE 2 Ethernet124 up 1795479815.890978713 1795479815.922326487
+JITTER 2 2.547
+CYCLE 3 Ethernet4 down 1795479818.510942231 1795479818.544394155
+CYCLE 3 Ethernet4 up 1795479820.075452810 1795479820.110859363
+JITTER 3 2.742
+CYCLE 4 Ethernet124 down 1795479822.895106271 1795479822.926788017
+CYCLE 4 Ethernet124 up 1795479824.454869524 1795479824.486518868
+JITTER 4 2.610
+CYCLE 5 Ethernet4 down 1795479827.138905883 1795479827.170270209
+CYCLE 5 Ethernet4 up 1795479828.698845649 1795479828.730356937
+JITTER 5 2.869
+CYCLE 6 Ethernet124 down 1795479831.639083199 1795479831.670780086
+CYCLE 6 Ethernet124 up 1795479833.198857203 1795479833.231589111
+JITTER 6 2.928
+CYCLE 7 Ethernet4 down 1795479836.198984769 1795479836.230491171
+CYCLE 7 Ethernet4 up 1795479837.758807436 1795479837.790150690
+JITTER 7 2.889
+CYCLE 8 Ethernet124 down 1795479840.718991365 1795479840.750116375
+CYCLE 8 Ethernet124 up 1795479842.278953046 1795479842.310138376
+JITTER 8 2.528
+CYCLE 9 Ethernet4 down 1795479844.879325334 1795479844.911073840
+CYCLE 9 Ethernet4 up 1795479846.438880996 1795479846.470598034
+JITTER 9 2.666
+CYCLE 10 Ethernet124 down 1795479849.174943543 1795479849.206897488
+CYCLE 10 Ethernet124 up 1795479850.735112365 1795479850.767678181
+JITTER 10 2.941
+CYCLE 11 Ethernet4 down 1795479853.751063072 1795479853.783504379
+CYCLE 11 Ethernet4 up 1795479855.310876694 1795479855.342356498
+JITTER 11 2.826
+CYCLE 12 Ethernet124 down 1795479858.207038255 1795479858.238091974
+CYCLE 12 Ethernet124 up 1795479859.766787188 1795479859.798268164
+JITTER 12 2.855
+CYCLE 13 Ethernet4 down 1795479862.695023972 1795479862.726733347
+CYCLE 13 Ethernet4 up 1795479864.254947286 1795479864.289740019
+JITTER 13 2.916
+CYCLE 14 Ethernet124 down 1795479867.250944769 1795479867.282764142
+CYCLE 14 Ethernet124 up 1795479868.810900062 1795479868.842150817
+JITTER 14 2.867
+CYCLE 15 Ethernet4 down 1795479871.750975552 1795479871.784588378
+CYCLE 15 Ethernet4 up 1795479873.315020299 1795479873.346687668
+JITTER 15 2.742
+CYCLE 16 Ethernet124 down 1795479876.127117969 1795479876.159057925
+CYCLE 16 Ethernet124 up 1795479877.686888776 1795479877.718457049
+JITTER 16 2.888
+CYCLE 17 Ethernet4 down 1795479880.647360631 1795479880.681197666
+CYCLE 17 Ethernet4 up 1795479882.210762568 1795479882.242803882
+JITTER 17 2.715
+CYCLE 18 Ethernet124 down 1795479884.999114634 1795479885.031241599
+CYCLE 18 Ethernet124 up 1795479886.558884343 1795479886.589923513
+JITTER 18 2.894
+CYCLE 19 Ethernet4 down 1795479889.522943982 1795479889.554637956
+CYCLE 19 Ethernet4 up 1795479891.082873602 1795479891.114529760
+JITTER 19 2.796
+CYCLE 20 Ethernet124 down 1795479893.951903870 1795479893.985838472
+CYCLE 20 Ethernet124 up 1795479895.514878858 1795479895.546277359
+JITTER 20 2.617
+AFTER PORT|Ethernet4 admin_status=up
+AFTER PORT|Ethernet124 admin_status=up
+rc=0
+# syncd journal (µs)
+2026-11-23T16:23:30.216887-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin down
+2026-11-23T16:23:30.330490-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+2026-11-23T16:23:30.349227-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+2026-11-23T16:23:30.351090-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+2026-11-23T16:23:31.775791-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin up
+2026-11-23T16:23:32.402259-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:23:32.405504-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+2026-11-23T16:23:32.406696-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:23:32.669870-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+2026-11-23T16:23:34.398617-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin down
+2026-11-23T16:23:34.462772-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper down
+2026-11-23T16:23:34.716723-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side down (external PHY, value 0x0000)
+2026-11-23T16:23:34.719812-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper down
+2026-11-23T16:23:35.956133-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin up
+2026-11-23T16:23:36.768686-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:23:36.771902-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper up
+2026-11-23T16:23:37.029181-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:23:37.288001-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper up
+2026-11-23T16:23:38.581360-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin down
+2026-11-23T16:23:38.832715-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+2026-11-23T16:23:39.090702-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+2026-11-23T16:23:39.094097-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+2026-11-23T16:23:40.146484-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin up
+2026-11-23T16:23:40.890455-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:23:41.146452-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:23:41.149833-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+2026-11-23T16:23:41.154300-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+2026-11-23T16:23:42.962904-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin down
+2026-11-23T16:23:43.202790-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper down
+2026-11-23T16:23:43.460725-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side down (external PHY, value 0x0000)
+2026-11-23T16:23:43.463846-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper down
+2026-11-23T16:23:44.520751-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin up
+2026-11-23T16:23:45.256724-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:23:45.512737-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:23:45.516527-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper up
+2026-11-23T16:23:45.521686-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper up
+2026-11-23T16:23:47.206147-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin down
+2026-11-23T16:23:47.318447-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+2026-11-23T16:23:47.321511-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+2026-11-23T16:23:47.323342-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+2026-11-23T16:23:48.764059-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin up
+2026-11-23T16:23:49.370566-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:23:49.373975-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+2026-11-23T16:23:49.375154-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:23:49.637582-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+2026-11-23T16:23:51.707783-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin down
+2026-11-23T16:23:51.942838-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper down
+2026-11-23T16:23:52.200725-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side down (external PHY, value 0x0000)
+2026-11-23T16:23:52.203847-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper down
+2026-11-23T16:23:53.265532-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin up
+2026-11-23T16:23:53.996733-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:23:54.252674-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:23:54.255907-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper up
+2026-11-23T16:23:54.260423-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper up
+2026-11-23T16:23:56.266837-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin down
+2026-11-23T16:23:56.312518-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+2026-11-23T16:23:56.566435-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+2026-11-23T16:23:56.569502-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+2026-11-23T16:23:57.826707-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin up
+2026-11-23T16:23:58.622422-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:23:58.625630-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+2026-11-23T16:23:58.882966-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:23:59.141738-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+2026-11-23T16:24:00.786328-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin down
+2026-11-23T16:24:00.932706-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side down (external PHY, value 0x0000)
+2026-11-23T16:24:00.935796-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper down
+2026-11-23T16:24:00.937640-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper down
+2026-11-23T16:24:02.344521-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin up
+2026-11-23T16:24:02.984717-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:02.987943-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper up
+2026-11-23T16:24:02.989070-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:03.251824-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper up
+2026-11-23T16:24:04.946730-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin down
+2026-11-23T16:24:05.048794-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+2026-11-23T16:24:05.306255-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+2026-11-23T16:24:05.309324-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+2026-11-23T16:24:06.503827-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin up
+2026-11-23T16:24:07.102744-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:07.358435-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:07.362041-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+2026-11-23T16:24:07.366294-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+2026-11-23T16:24:09.243259-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin down
+2026-11-23T16:24:09.414752-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper down
+2026-11-23T16:24:09.668755-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side down (external PHY, value 0x0000)
+2026-11-23T16:24:09.671911-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper down
+2026-11-23T16:24:10.801763-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin up
+2026-11-23T16:24:11.464750-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:11.720726-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:11.723958-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper up
+2026-11-23T16:24:11.728414-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper up
+2026-11-23T16:24:13.820615-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin down
+2026-11-23T16:24:14.034458-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+2026-11-23T16:24:14.037531-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+2026-11-23T16:24:14.039462-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+2026-11-23T16:24:15.376531-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin up
+2026-11-23T16:24:16.086560-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:16.089785-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+2026-11-23T16:24:16.090995-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:16.353610-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+2026-11-23T16:24:18.273716-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin down
+2026-11-23T16:24:18.400721-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side down (external PHY, value 0x0000)
+2026-11-23T16:24:18.403818-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper down
+2026-11-23T16:24:18.405686-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper down
+2026-11-23T16:24:19.832769-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin up
+2026-11-23T16:24:20.452723-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:20.455964-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper up
+2026-11-23T16:24:20.457111-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:20.719811-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper up
+2026-11-23T16:24:22.762713-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin down
+2026-11-23T16:24:22.771073-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+2026-11-23T16:24:22.774245-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+2026-11-23T16:24:22.776090-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+2026-11-23T16:24:24.324145-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin up
+2026-11-23T16:24:25.078629-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:25.334432-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:25.341238-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+2026-11-23T16:24:25.347128-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+2026-11-23T16:24:27.318615-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin down
+2026-11-23T16:24:27.394776-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper down
+2026-11-23T16:24:27.652713-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side down (external PHY, value 0x0000)
+2026-11-23T16:24:27.655804-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper down
+2026-11-23T16:24:28.875982-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin up
+2026-11-23T16:24:29.448742-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:29.704832-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:29.708062-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper up
+2026-11-23T16:24:29.712395-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper up
+2026-11-23T16:24:31.821117-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin down
+2026-11-23T16:24:32.018455-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+2026-11-23T16:24:32.021557-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+2026-11-23T16:24:32.023408-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+2026-11-23T16:24:33.380552-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin up
+2026-11-23T16:24:34.070425-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:34.073647-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+2026-11-23T16:24:34.074850-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:34.337533-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+2026-11-23T16:24:36.195220-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin down
+2026-11-23T16:24:36.384715-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side down (external PHY, value 0x0000)
+2026-11-23T16:24:36.387819-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper down
+2026-11-23T16:24:36.389696-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper down
+2026-11-23T16:24:37.752707-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin up
+2026-11-23T16:24:38.436699-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:38.439937-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper up
+2026-11-23T16:24:38.441160-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:38.703833-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper up
+2026-11-23T16:24:40.721993-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin down
+2026-11-23T16:24:40.754305-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+2026-11-23T16:24:40.757539-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+2026-11-23T16:24:40.759539-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+2026-11-23T16:24:42.277130-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin up
+2026-11-23T16:24:43.318628-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:43.324888-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+2026-11-23T16:24:43.326142-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:43.585832-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+2026-11-23T16:24:45.066569-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin down
+2026-11-23T16:24:45.120723-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side down (external PHY, value 0x0000)
+2026-11-23T16:24:45.123809-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper down
+2026-11-23T16:24:45.125754-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper down
+2026-11-23T16:24:46.623771-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin up
+2026-11-23T16:24:47.684718-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:47.687950-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper up
+2026-11-23T16:24:47.689088-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:47.951876-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper up
+2026-11-23T16:24:49.589495-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin down
+2026-11-23T16:24:49.748676-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper down
+2026-11-23T16:24:50.002233-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side down (external PHY, value 0x0000)
+2026-11-23T16:24:50.005307-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper down
+2026-11-23T16:24:51.147462-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 admin up
+2026-11-23T16:24:51.799388-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:52.058246-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:52.061448-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce0 (hw 50) oper up
+2026-11-23T16:24:52.065480-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce1 (hw 54) oper up
+2026-11-23T16:24:54.022900-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin down
+2026-11-23T16:24:54.114796-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper down
+2026-11-23T16:24:54.368702-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side down (external PHY, value 0x0000)
+2026-11-23T16:24:54.371796-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper down
+2026-11-23T16:24:55.580153-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 admin up
+2026-11-23T16:24:56.164721-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:56.420695-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30: line side up (external PHY, value 0x0003, 2 good polls)
+2026-11-23T16:24:56.423915-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce30 (hw 9) oper up
+2026-11-23T16:24:56.428129-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=2: port ce31 (hw 13) oper up
+# networkd carrier
+2026-11-23T16:23:30.206242-08:00 as7772 systemd-networkd[503]: Ethernet4: Lost carrier
+2026-11-23T16:23:30.353071-08:00 as7772 systemd-networkd[503]: Ethernet0: Lost carrier
+2026-11-23T16:23:32.408697-08:00 as7772 systemd-networkd[503]: Ethernet0: Gained carrier
+2026-11-23T16:23:32.673376-08:00 as7772 systemd-networkd[503]: Ethernet4: Gained carrier
+2026-11-23T16:23:34.386313-08:00 as7772 systemd-networkd[503]: Ethernet124: Lost carrier
+2026-11-23T16:23:35.481080-08:00 as7772 systemd-networkd[503]: Ethernet120: Lost carrier
+2026-11-23T16:23:36.776060-08:00 as7772 systemd-networkd[503]: Ethernet120: Gained carrier
+2026-11-23T16:23:37.292161-08:00 as7772 systemd-networkd[503]: Ethernet124: Gained carrier
+2026-11-23T16:23:38.568697-08:00 as7772 systemd-networkd[503]: Ethernet4: Lost carrier
+2026-11-23T16:23:39.866610-08:00 as7772 systemd-networkd[503]: Ethernet0: Lost carrier
+2026-11-23T16:23:41.154809-08:00 as7772 systemd-networkd[503]: Ethernet0: Gained carrier
+2026-11-23T16:23:41.161818-08:00 as7772 systemd-networkd[503]: Ethernet4: Gained carrier
+2026-11-23T16:23:42.951295-08:00 as7772 systemd-networkd[503]: Ethernet124: Lost carrier
+2026-11-23T16:23:44.216869-08:00 as7772 systemd-networkd[503]: Ethernet120: Lost carrier
+2026-11-23T16:23:45.520186-08:00 as7772 systemd-networkd[503]: Ethernet120: Gained carrier
+2026-11-23T16:23:45.531487-08:00 as7772 systemd-networkd[503]: Ethernet124: Gained carrier
+2026-11-23T16:23:47.194277-08:00 as7772 systemd-networkd[503]: Ethernet4: Lost carrier
+2026-11-23T16:23:47.324988-08:00 as7772 systemd-networkd[503]: Ethernet0: Lost carrier
+2026-11-23T16:23:49.377824-08:00 as7772 systemd-networkd[503]: Ethernet0: Gained carrier
+2026-11-23T16:23:49.641264-08:00 as7772 systemd-networkd[503]: Ethernet4: Gained carrier
+2026-11-23T16:23:51.695992-08:00 as7772 systemd-networkd[503]: Ethernet124: Lost carrier
+2026-11-23T16:23:52.952890-08:00 as7772 systemd-networkd[503]: Ethernet120: Lost carrier
+2026-11-23T16:23:54.259808-08:00 as7772 systemd-networkd[503]: Ethernet120: Gained carrier
+2026-11-23T16:23:54.269621-08:00 as7772 systemd-networkd[503]: Ethernet124: Gained carrier
+2026-11-23T16:23:56.255389-08:00 as7772 systemd-networkd[503]: Ethernet4: Lost carrier
+2026-11-23T16:23:57.336928-08:00 as7772 systemd-networkd[503]: Ethernet0: Lost carrier
+2026-11-23T16:23:58.628711-08:00 as7772 systemd-networkd[503]: Ethernet0: Gained carrier
+2026-11-23T16:23:59.145006-08:00 as7772 systemd-networkd[503]: Ethernet4: Gained carrier
+2026-11-23T16:24:00.774658-08:00 as7772 systemd-networkd[503]: Ethernet124: Lost carrier
+2026-11-23T16:24:00.939284-08:00 as7772 systemd-networkd[503]: Ethernet120: Lost carrier
+2026-11-23T16:24:02.991789-08:00 as7772 systemd-networkd[503]: Ethernet120: Gained carrier
+2026-11-23T16:24:03.255088-08:00 as7772 systemd-networkd[503]: Ethernet124: Gained carrier
+2026-11-23T16:24:04.936288-08:00 as7772 systemd-networkd[503]: Ethernet4: Lost carrier
+2026-11-23T16:24:06.072875-08:00 as7772 systemd-networkd[503]: Ethernet0: Lost carrier
+2026-11-23T16:24:07.367303-08:00 as7772 systemd-networkd[503]: Ethernet0: Gained carrier
+2026-11-23T16:24:07.375902-08:00 as7772 systemd-networkd[503]: Ethernet4: Gained carrier
+2026-11-23T16:24:09.230694-08:00 as7772 systemd-networkd[503]: Ethernet124: Lost carrier
+2026-11-23T16:24:10.424930-08:00 as7772 systemd-networkd[503]: Ethernet120: Lost carrier
+2026-11-23T16:24:11.727478-08:00 as7772 systemd-networkd[503]: Ethernet120: Gained carrier
+2026-11-23T16:24:11.738041-08:00 as7772 systemd-networkd[503]: Ethernet124: Gained carrier
+2026-11-23T16:24:13.808173-08:00 as7772 systemd-networkd[503]: Ethernet4: Lost carrier
+2026-11-23T16:24:14.040874-08:00 as7772 systemd-networkd[503]: Ethernet0: Lost carrier
+2026-11-23T16:24:16.092945-08:00 as7772 systemd-networkd[503]: Ethernet0: Gained carrier
+2026-11-23T16:24:16.356846-08:00 as7772 systemd-networkd[503]: Ethernet4: Gained carrier
+2026-11-23T16:24:18.263778-08:00 as7772 systemd-networkd[503]: Ethernet124: Lost carrier
+2026-11-23T16:24:18.407540-08:00 as7772 systemd-networkd[503]: Ethernet120: Lost carrier
+2026-11-23T16:24:20.459353-08:00 as7772 systemd-networkd[503]: Ethernet120: Gained carrier
+2026-11-23T16:24:20.723894-08:00 as7772 systemd-networkd[503]: Ethernet124: Gained carrier
+2026-11-23T16:24:22.751376-08:00 as7772 systemd-networkd[503]: Ethernet4: Lost carrier
+2026-11-23T16:24:22.777549-08:00 as7772 systemd-networkd[503]: Ethernet0: Lost carrier
+2026-11-23T16:24:25.345104-08:00 as7772 systemd-networkd[503]: Ethernet0: Gained carrier
+2026-11-23T16:24:25.353818-08:00 as7772 systemd-networkd[503]: Ethernet4: Gained carrier
+2026-11-23T16:24:27.307355-08:00 as7772 systemd-networkd[503]: Ethernet124: Lost carrier
+2026-11-23T16:24:28.409019-08:00 as7772 systemd-networkd[503]: Ethernet120: Lost carrier
+2026-11-23T16:24:29.711558-08:00 as7772 systemd-networkd[503]: Ethernet120: Gained carrier
+2026-11-23T16:24:29.722321-08:00 as7772 systemd-networkd[503]: Ethernet124: Gained carrier
+2026-11-23T16:24:31.808934-08:00 as7772 systemd-networkd[503]: Ethernet4: Lost carrier
+2026-11-23T16:24:32.024736-08:00 as7772 systemd-networkd[503]: Ethernet0: Lost carrier
+2026-11-23T16:24:34.077361-08:00 as7772 systemd-networkd[503]: Ethernet0: Gained carrier
+2026-11-23T16:24:34.340579-08:00 as7772 systemd-networkd[503]: Ethernet4: Gained carrier
+2026-11-23T16:24:36.183707-08:00 as7772 systemd-networkd[503]: Ethernet124: Lost carrier
+2026-11-23T16:24:36.392143-08:00 as7772 systemd-networkd[503]: Ethernet120: Lost carrier
+2026-11-23T16:24:38.443467-08:00 as7772 systemd-networkd[503]: Ethernet120: Gained carrier
+2026-11-23T16:24:38.707357-08:00 as7772 systemd-networkd[503]: Ethernet124: Gained carrier
+2026-11-23T16:24:40.708160-08:00 as7772 systemd-networkd[503]: Ethernet4: Lost carrier
+2026-11-23T16:24:40.761948-08:00 as7772 systemd-networkd[503]: Ethernet0: Lost carrier
+2026-11-23T16:24:43.328400-08:00 as7772 systemd-networkd[503]: Ethernet0: Gained carrier
+2026-11-23T16:24:43.589081-08:00 as7772 systemd-networkd[503]: Ethernet4: Gained carrier
+2026-11-23T16:24:45.054972-08:00 as7772 systemd-networkd[503]: Ethernet124: Lost carrier
+2026-11-23T16:24:45.127384-08:00 as7772 systemd-networkd[503]: Ethernet120: Lost carrier
+2026-11-23T16:24:47.691385-08:00 as7772 systemd-networkd[503]: Ethernet120: Gained carrier
+2026-11-23T16:24:47.954937-08:00 as7772 systemd-networkd[503]: Ethernet124: Gained carrier
+2026-11-23T16:24:49.579787-08:00 as7772 systemd-networkd[503]: Ethernet4: Lost carrier
+2026-11-23T16:24:50.776990-08:00 as7772 systemd-networkd[503]: Ethernet0: Lost carrier
+2026-11-23T16:24:52.065708-08:00 as7772 systemd-networkd[503]: Ethernet0: Gained carrier
+2026-11-23T16:24:52.072956-08:00 as7772 systemd-networkd[503]: Ethernet4: Gained carrier
+2026-11-23T16:24:54.011356-08:00 as7772 systemd-networkd[503]: Ethernet124: Lost carrier
+2026-11-23T16:24:55.128915-08:00 as7772 systemd-networkd[503]: Ethernet120: Lost carrier
+2026-11-23T16:24:56.427779-08:00 as7772 systemd-networkd[503]: Ethernet120: Gained carrier
+2026-11-23T16:24:56.437160-08:00 as7772 systemd-networkd[503]: Ethernet124: Gained carrier
+# snapshot after
+1795479902.486538797
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 8304 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce0         49   50 up    up    no     0x0003     8727        0   21    20     187     206    1225     2    0        7389
+ce1         53   54 up    up    no     0x0003     8703        0   21     0     190     200     689    42    0        6870
+ce30         9    9 up    up    no     0x0003     8765        0   21    20     203     212     505     2    0        7314
+ce31        13   13 up    up    no     0x0003     8717        0   21     0     202     201     452    42    0        7765
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 8199, ended 8197, expired 2; raw MDIO hold-offs 105; refused: busy 0, void 10
+extphy: link polls answered from the last verdict during a lease 1699; waits for a library run before a poll 341 (max 88938 us, total 3683616 us)
+extphy: MACsec polls skipped during a lease 1007; forced reads after 10000 ms 119 (max wait 59649 us); MACsec / admin runs that waited for a transaction 63 (max 1007825 us); extmacsec run refused 0
+extmacsec: 32 ports, 126 sequences; objects: 0 macsec, 0 ports, 0 flows, 0 SCs, 0 SAs, 0 ACL tables, 0 ACL entries
+engines in bypass: 64 of 64
+# per cycle (ms)
+1	Ethernet4	A=134.2	D=-20.6	B=0	R=-15.6	G=18.7	total=132.3	fromHset=167.4	fromLostCarrier=143	hsetToT0=35.1	up=629.7
+2	Ethernet124	A=64.2	D=254	B=1	R=-1.9	G=3.1	total=321.2	fromHset=357.7	fromLostCarrier=333.5	hsetToT0=36.5	up=815.8
+3	Ethernet4	A=251.4	D=258	B=1	R=2.1	G=3.4	total=512.7	fromHset=549.7	fromLostCarrier=525.4	hsetToT0=37	up=1003.3
+4	Ethernet124	A=239.9	D=257.9	B=1	R=2	G=3.1	total=500.9	fromHset=537.1	fromLostCarrier=512.6	hsetToT0=36.1	up=995.8
+5	Ethernet4	A=117.2	D=-4.9	B=0	R=0.1	G=3.1	total=115.4	fromHset=151.2	fromLostCarrier=127.2	hsetToT0=35.9	up=609.9
+6	Ethernet124	A=235.1	D=257.9	B=1	R=2	G=3.1	total=496.1	fromHset=533.1	fromLostCarrier=507.9	hsetToT0=37	up=990.4
+7	Ethernet4	A=45.7	D=253.9	B=1	R=-2	G=3.1	total=302.7	fromHset=339	fromLostCarrier=314.1	hsetToT0=36.3	up=798.9
+8	Ethernet124	A=151.3	D=-4.9	B=0	R=0.1	G=3.1	total=149.5	fromHset=185.7	fromLostCarrier=161.1	hsetToT0=36.2	up=643.4
+9	Ethernet4	A=102.1	D=257.5	B=1	R=1.6	G=3.1	total=362.6	fromHset=398.3	fromLostCarrier=373	hsetToT0=35.7	up=858.2
+10	Ethernet124	A=171.5	D=254	B=1	R=-1.9	G=3.2	total=428.7	fromHset=465	fromLostCarrier=441.2	hsetToT0=36.4	up=922.2
+11	Ethernet4	A=218.8	D=-5	B=0	R=0	G=3.1	total=216.9	fromHset=254	fromLostCarrier=229.4	hsetToT0=37.1	up=713.3
+12	Ethernet124	A=132	D=-5	B=0	R=0	G=3.1	total=130.1	fromHset=165.7	fromLostCarrier=140	hsetToT0=35.6	up=623.2
+13	Ethernet4	A=13.4	D=-5	B=0	R=0	G=3.2	total=11.5	fromHset=47.5	fromLostCarrier=22.9	hsetToT0=36	up=1017.1
+14	Ethernet124	A=76.2	D=257.9	B=1	R=2	G=3.1	total=337.2	fromHset=373	fromLostCarrier=348.4	hsetToT0=35.9	up=832.1
+15	Ethernet4	A=202.3	D=-5	B=0	R=0	G=3.1	total=200.4	fromHset=237	fromLostCarrier=212.6	hsetToT0=36.5	up=693.1
+16	Ethernet124	A=194.5	D=-5	B=0	R=0	G=3.1	total=192.6	fromHset=228.8	fromLostCarrier=204.1	hsetToT0=36.2	up=687.2
+17	Ethernet4	A=37.5	D=-5.2	B=0	R=-0.2	G=3.2	total=35.5	fromHset=76.3	fromLostCarrier=49.4	hsetToT0=40.8	up=1047.8
+18	Ethernet124	A=59.2	D=-5	B=0	R=0	G=3.1	total=57.2	fromHset=92.6	fromLostCarrier=68.8	hsetToT0=35.3	up=1064.2
+19	Ethernet4	A=159.2	D=253.6	B=1	R=-2.3	G=3.1	total=415.8	fromHset=450.7	fromLostCarrier=425.5	hsetToT0=34.9	up=914
+20	Ethernet124	A=91.9	D=253.9	B=1	R=-2	G=3.1	total=348.9	fromHset=386	fromLostCarrier=360.4	hsetToT0=37.1	up=843.8
+# stats
+{
+ "n": 20,
+ "B1": 10,
+ "share": "50%",
+ "P_ms": 260.9,
+ "total": {
+  "n": 20,
+  "min": 11.5,
+  "median": 259.8,
+  "mean": 263.4,
+  "se": 35.9,
+  "max": 512.7
+ },
+ "totalFromHset": {
+  "n": 20,
+  "min": 47.5,
+  "median": 296.5,
+  "mean": 299.8,
+  "se": 35.9,
+  "max": 549.7
+ },
+ "totalFromLostCarrier": {
+  "n": 20,
+  "min": 22.9,
+  "median": 271.8,
+  "mean": 275,
+  "se": 35.9,
+  "max": 525.4
+ },
+ "hsetToT0": {
+  "n": 20,
+  "min": 34.9,
+  "median": 36.2,
+  "mean": 36.4,
+  "se": 0.3,
+  "max": 40.8
+ },
+ "A": {
+  "n": 20,
+  "min": 13.4,
+  "median": 133.1,
+  "mean": 134.9,
+  "se": 16.4,
+  "max": 251.4
+ },
+ "R": {
+  "n": 20,
+  "min": -15.6,
+  "median": 0,
+  "mean": -0.8,
+  "se": 0.8,
+  "max": 2.1
+ },
+ "G": {
+  "n": 20,
+  "min": 3.1,
+  "median": 3.1,
+  "mean": 3.9,
+  "se": 0.8,
+  "max": 18.7
+ },
+ "up": {
+  "n": 20,
+  "min": 609.9,
+  "median": 838,
+  "mean": 835.2,
+  "se": 34.7,
+  "max": 1064.2
+ },
+ "totalB0": {
+  "n": 10,
+  "min": 11.5,
+  "median": 131.2,
+  "mean": 124.1,
+  "se": 22.3,
+  "max": 216.9
+ },
+ "totalB1": {
+  "n": 10,
+  "min": 302.7,
+  "median": 389.2,
+  "mean": 402.7,
+  "se": 25.1,
+  "max": 512.7
+ },
+ "Gover4": [
+  "#1 G=18.7 R=-15.6"
+ ],
+ "Rover2": [
+  "#1 R=-15.6",
+  "#3 R=2.1",
+  "#19 R=-2.3"
+ ]
+}

@@ -1,0 +1,140 @@
+# step 7: reboot on gen 32; profile before
+system-32-link
+/nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+0
+# ssh+syncd after 135.567 s (+30 s)
+2026-11-23T16:29:01-08:00
+/nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+/nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+system-32-link
+ 16:29:01 up 2 min,  3 users,  load average: 1.29, 0.86, 0.35
+== fan
+as7760_fan             28672  0
+hwmon /sys/class/hwmon/hwmon7 36 fan files; fan1_input=14500
+total 0
+lrwxrwxrwx 1 root root    0 Nov 23 16:29 4-0066 -> ../../../../devices/platform/ffe000000.soc/ffe119000.i2c/i2c-2/i2c-4/4-0066
+--w------- 1 root root 4096 Nov 23 16:29 bind
+lrwxrwxrwx 1 root root    0 Nov 23 16:29 module -> ../../../../module/as7760_fan
+--w------- 1 root root 4096 Nov 23 16:26 uevent
+--w------- 1 root root 4096 Nov 23 16:29 unbind
+active
+failsafe False {'asic': ('normal', 46.200000000000003, 53.299999999999997), 'board': ('normal', 35.5, 54.700000000000003), 'cpu': ('normal', 40.0, 53.299999999999997)}
+== failed
+1
+● sonic-nix-apply.service loaded failed failed Apply changed Nix SONiC settings to the running CONFIG_DB
+== mdio
+active
+cage28  0x15b  2391    80a0    d00b    600d    000d    ok
+cage29  0x17c  2391    80a0    d00b    600d    000d    ok
+cage30  0x17d  2391    80a0    d00b    600d    000d    ok
+cage31  0x17e  2391    80a0    d00b    600d    000d    ok
+cage32  0x17f  2391    80a0    d00b    600d    000d    ok
+== maps
+/nix/store/711gsdwbz2pihn175k7rjgxsbffkbbgg-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c/lib/libsaimetadata.so.0.0.0
+/nix/store/711gsdwbz2pihn175k7rjgxsbffkbbgg-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c/lib/libsaimeta.so.0.0.0
+/nix/store/pvg2c84dxfn92xqj7f3bfawwdinfiyxv-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+608 /nix/store/9x31iwa2vwpzdca3xrhiv8wkk87ciqnn-python3-powerpc64-unknown-linux-gnuabielfv2-3.14.10/bin/python3 /nix/store/vfy22lah8lipqmc896kcam0qzzpnryaf-python3.14-sonic-lldp-syncd-0-0cfeda3-powerpc64-unknown-linux-gnuabielfv2/bin/.lldp_syncd-wrapped
+875 /nix/store/711gsdwbz2pihn175k7rjgxsbffkbbgg-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c/bin/syncd -p /nix/store/s5bidgb3gcig1drwd1wmzpxfyimd9cfm-sai.profile -u -z redis_sync
+876 /nix/store/69llic5l6rl2lp8p0xkfzayjmxkw9hjc-sonic-swss-powerpc64-unknown-linux-gnuabielfv2-0-d9684cc/bin/portsyncd
+== extphy
+ce24       113  118 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5375
+ce25       117  122 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5099
+ce26       121  126 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5370
+ce27       125  130 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5430
+ce28         1    1 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5173
+ce29         5    5 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5223
+ce30         9    9 up    up    no     0x0003       48        0    1     0     204     219     364     2    0        7522
+ce31        13   13 up    up    no     0x0003       48        0    1     0     308     198     310     2    0        6710
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 0, ended 0, expired 0; raw MDIO hold-offs 0; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 0; waits for a library run before a poll 6 (max 72186 us, total 214433 us)
+extphy: MACsec polls skipped during a lease 0; forced reads after 10000 ms 0 (max wait 0 us); MACsec / admin runs that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+32
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 101.5 s
+  run started 2026-11-24 00:26:48 +0000, took 101.5 s
+  30   2026-11-23 08:09:29   
+  31   2026-11-23 08:55:25   
+  32   2026-11-23 15:05:49   (current)
+# sonic-nix-apply.service FAILED at boot (race on /run/sonic-nix/issue.tmp; sonic-nix-watch started the same second)
+× sonic-nix-apply.service - Apply changed Nix SONiC settings to the running CONFIG_DB
+     Loaded: loaded (/etc/systemd/system/sonic-nix-apply.service; enabled; preset: ignored)
+     Active: failed (Result: exit-code) since Mon 2026-11-23 16:26:51 PST; 2min 18s ago
+ Invocation: 6431c3e889914320b46768e21029604b
+    Process: 586 ExecStart=/nix/store/a13sg2751jjns7cjcqcic1kl8w7pl578-sonic-nix/bin/sonic-nix apply (code=exited, status=1/FAILURE)
+   Main PID: 586 (code=exited, status=1/FAILURE)
+         IP: 90B in, 93B out
+   Mem peak: 12.1M
+        CPU: 752ms
+
+Nov 23 16:26:51 as7772 sonic-nix[586]:     atomic_write(os.path.join(RUN, "issue"), text.replace("\\", "\\\\") + ("\n" if text else ""))
+Nov 23 16:26:51 as7772 sonic-nix[586]:     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-23T16:26:50.857753-08:00 as7772 systemd[1]: Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+2026-11-23T16:26:51.476579-08:00 as7772 sonic-nix[586]: Traceback (most recent call last):
+2026-11-23T16:26:51.481983-08:00 as7772 sonic-nix[586]:   File "/nix/store/9sb413fvf44n1rggdsbkp973yi3azaa5-sonic-nix.py", line 520, in <module>
+2026-11-23T16:26:51.481983-08:00 as7772 sonic-nix[586]:     sys.exit(main())
+2026-11-23T16:26:51.481983-08:00 as7772 sonic-nix[586]:              ~~~~^^
+2026-11-23T16:26:51.481983-08:00 as7772 sonic-nix[586]:   File "/nix/store/9sb413fvf44n1rggdsbkp973yi3azaa5-sonic-nix.py", line 516, in main
+2026-11-23T16:26:51.481983-08:00 as7772 sonic-nix[586]:     return {"load": cmd_load, "reload": cmd_reload, "apply": cmd_apply, "diff": cmd_diff, "watch": cmd_watch}[a.cmd](a) or 0
+2026-11-23T16:26:51.481983-08:00 as7772 sonic-nix[586]:            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+2026-11-23T16:26:51.481983-08:00 as7772 sonic-nix[586]:   File "/nix/store/9sb413fvf44n1rggdsbkp973yi3azaa5-sonic-nix.py", line 420, in cmd_apply
+2026-11-23T16:26:51.481983-08:00 as7772 sonic-nix[586]:     publish(pending, bnotes)
+2026-11-23T16:26:51.481983-08:00 as7772 sonic-nix[586]:     ~~~~~~~^^^^^^^^^^^^^^^^^
+2026-11-23T16:26:51.482748-08:00 as7772 sonic-nix[586]:   File "/nix/store/9sb413fvf44n1rggdsbkp973yi3azaa5-sonic-nix.py", line 284, in publish
+2026-11-23T16:26:51.482748-08:00 as7772 sonic-nix[586]:     atomic_write(os.path.join(RUN, "issue"), text.replace("\\", "\\\\") + ("\n" if text else ""))
+2026-11-23T16:26:51.482748-08:00 as7772 sonic-nix[586]:     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-23T16:26:51.482748-08:00 as7772 sonic-nix[586]:   File "/nix/store/9sb413fvf44n1rggdsbkp973yi3azaa5-sonic-nix.py", line 244, in atomic_write
+2026-11-23T16:26:51.482748-08:00 as7772 sonic-nix[586]:     os.replace(tmp, path)
+2026-11-23T16:26:51.482748-08:00 as7772 sonic-nix[586]:     ~~~~~~~~~~^^^^^^^^^^^
+2026-11-23T16:26:51.482748-08:00 as7772 sonic-nix[586]: FileNotFoundError: [Errno 2] No such file or directory: '/run/sonic-nix/issue.tmp' -> '/run/sonic-nix/issue'
+2026-11-23T16:26:51.635952-08:00 as7772 systemd[1]: sonic-nix-apply.service: Main process exited, code=exited, status=1/FAILURE
+2026-11-23T16:26:51.636808-08:00 as7772 systemd[1]: sonic-nix-apply.service: Failed with result 'exit-code'.
+2026-11-23T16:26:51.638839-08:00 as7772 systemd[1]: Failed to start Apply changed Nix SONiC settings to the running CONFIG_DB.
+2026-11-23T16:26:51.669236-08:00 as7772 systemd[1]: sonic-nix-apply.service: Consumed 752ms CPU time over 779ms wall clock time, 12.1M memory peak, 90B incoming IP traffic, 93B outgoing IP traffic.
+After=sonic-config-loader.service
+Requires=sonic-config-loader.service
+ExecStart=/nix/store/a13sg2751jjns7cjcqcic1kl8w7pl578-sonic-nix/bin/sonic-nix apply
+RemainAfterExit=true
+Type=oneshot
+239:def atomic_write(path, text):
+240-    os.makedirs(os.path.dirname(path), exist_ok=True)
+241-    tmp = path + ".tmp"
+242-    with open(tmp, "w") as f:
+243-        f.write(text)
+244-    os.replace(tmp, path)
+245-
+246-
+247-def label(c):
+284:    atomic_write(os.path.join(RUN, "issue"), text.replace("\\", "\\\\") + ("\n" if text else ""))
+sonic-bfdsyncd.service
+sonic-config-loader.service
+sonic-nix-apply.service
+sonic-nix-watch.service
+== diff
+Nix base: /nix/store/rnlv0zj5jfbqixl82rpz7ikfnnjgpjp8-sonic-config-db-nix-validated.json
+saved:    /var/lib/sonic/config_db.json (none)
+
+No conflicts with enforced Nix settings.
+# restart of the unit (0 fields written)
+ActiveEnterTimestamp=Mon 2026-11-23 16:26:50 PST
+ExecMainStartTimestamp=Mon 2026-11-23 16:26:50 PST
+
+ActiveEnterTimestamp=
+ExecMainStartTimestamp=Mon 2026-11-23 16:26:50 PST
+active
+Starting Apply changed Nix SONiC settings to the running CONFIG_DB...
+sonic-nix apply: 0 field(s) written
+Finished Apply changed Nix SONiC settings to the running CONFIG_DB.
+0
+# final state
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 0, ended 0, expired 0; raw MDIO hold-offs 0; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 0; waits for a library run before a poll 18 (max 72186 us, total 297378 us)
+extphy: MACsec polls skipped during a lease 0; forced reads after 10000 ms 0 (max wait 0 us); MACsec / admin runs that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+0
+/nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+/nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+/nix/store/na3yx1c2yqyaf5vi1lk7n915aylwp1a1-nixos-system-as7772-26.11.20261111.d4f25a3
+"failsafe": false
+0

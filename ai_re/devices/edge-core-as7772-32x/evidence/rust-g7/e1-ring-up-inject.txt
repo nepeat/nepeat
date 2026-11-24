@@ -1,0 +1,71 @@
+== snapshot: /run/as7772-tests/sonic-ring (142 CONFIG_DB keys)
+  run sysctl -q -w net.ipv6.conf.default.disable_ipv6=1
+  run sysctl -q -w net.ipv6.conf.Bridge.disable_ipv6=1
+  run sysctl -q -w net.ipv6.conf.Ethernet0.disable_ipv6=1
+  run sysctl -q -w net.ipv6.conf.Ethernet4.disable_ipv6=1
+  run sysctl -q -w net.ipv6.conf.Ethernet120.disable_ipv6=1
+  run sysctl -q -w net.ipv6.conf.Ethernet124.disable_ipv6=1
+  redis-cli -n 4 del INTERFACE\|Ethernet4
+  redis-cli -n 4 del INTERFACE\|Ethernet124
+  redis-cli -n 4 hset VLAN\|Vlan100 vlanid 100
+  redis-cli -n 4 hset VLAN\|Vlan200 vlanid 200
+  run sysctl -q -w net.ipv6.conf.Vlan100.disable_ipv6=1
+  run sysctl -q -w net.ipv6.conf.Vlan200.disable_ipv6=1
+  redis-cli -n 4 hset VLAN_MEMBER\|Vlan100\|Ethernet0 tagging_mode untagged
+  redis-cli -n 4 hset VLAN_MEMBER\|Vlan100\|Ethernet120 tagging_mode untagged
+  redis-cli -n 4 hset VLAN_MEMBER\|Vlan200\|Ethernet4 tagging_mode untagged
+  redis-cli -n 4 hset VLAN_MEMBER\|Vlan200\|Ethernet124 tagging_mode untagged
+  run bridge link set dev Ethernet0 learning off flood off mcast_flood off bcast_flood off
+  run bridge link set dev Ethernet4 learning off flood off mcast_flood off bcast_flood off
+  run bridge link set dev Ethernet120 learning off flood off mcast_flood off bcast_flood off
+  run bridge link set dev Ethernet124 learning off flood off mcast_flood off bcast_flood off
+    hairpin off guard off root_block off fastleave off learning on flood on mcast_flood on bcast_flood on mcast_router 1 mcast_to_unicast off neigh_suppress off neigh_vlan_suppress off neigh_forward_grat off vlan_tunnel off isolated off locked off mab off mcast_n_groups 0 mcast_max_groups 0 
+    hairpin off guard off root_block off fastleave off learning off flood off mcast_flood off bcast_flood off mcast_router 1 mcast_to_unicast off neigh_suppress off neigh_vlan_suppress off neigh_forward_grat off vlan_tunnel off isolated off locked off mab off mcast_n_groups 0 mcast_max_groups 0 
+    hairpin off guard off root_block off fastleave off learning off flood off mcast_flood off bcast_flood off mcast_router 1 mcast_to_unicast off neigh_suppress off neigh_vlan_suppress off neigh_forward_grat off vlan_tunnel off isolated off locked off mab off mcast_n_groups 0 mcast_max_groups 0 
+    hairpin off guard off root_block off fastleave off learning off flood off mcast_flood off bcast_flood off mcast_router 1 mcast_to_unicast off neigh_suppress off neigh_vlan_suppress off neigh_forward_grat off vlan_tunnel off isolated off locked off mab off mcast_n_groups 0 mcast_max_groups 0 
+    hairpin off guard off root_block off fastleave off learning off flood off mcast_flood off bcast_flood off mcast_router 1 mcast_to_unicast off neigh_suppress off neigh_vlan_suppress off neigh_forward_grat off vlan_tunnel off isolated off locked off mab off mcast_n_groups 0 mcast_max_groups 0 
+  run /nix/store/69llic5l6rl2lp8p0xkfzayjmxkw9hjc-sonic-swss-powerpc64-unknown-linux-gnuabielfv2-0-d9684cc/bin/swssconfig /run/as7772-tests/sonic-ring/fdb.json
++-----------+--------------+-------------+----------------+-------------+--------------------------+
+|   VLAN ID | IP Address   | Ports       | Port Tagging   | Proxy ARP   | Static Anycast Gateway   |
++===========+==============+=============+================+=============+==========================+
+|       100 |              | Ethernet0   | untagged       | disabled    | disabled                 |
+|           |              | Ethernet120 | untagged       |             |                          |
++-----------+--------------+-------------+----------------+-------------+--------------------------+
+|       200 |              | Ethernet4   | untagged       | disabled    | disabled                 |
+|           |              | Ethernet124 | untagged       |             |                          |
++-----------+--------------+-------------+----------------+-------------+--------------------------+
+vlan 1	ports cpu,xe (0x0000000000000000000000000000000000000010000000040000000000000001), untagged xe (0x0000000000000000000000000000000000000010000000040000000000000000) MCAST_FLOOD_UNKNOWN
+vlan 100	ports cpu,ce0,ce30 (0x0000000000000000000000000000000000000000000000000004000000000201), untagged ce0,ce30 (0x0000000000000000000000000000000000000000000000000004000000000200) MCAST_FLOOD_UNKNOWN
+vlan 200	ports cpu,ce1,ce31 (0x0000000000000000000000000000000000000000000000000040000000002001), untagged ce1,ce31 (0x0000000000000000000000000000000000000000000000000040000000002000) MCAST_FLOOD_UNKNOWN
+mac=02:00:00:00:00:d1 vlan=100 GPORT=0x32 modid=0 port=50/ce0 Static
+mac=1c:ea:0b:38:2b:d7 vlan=1 GPORT=0x9 modid=0 port=9/ce30 Hit
+mac=1c:ea:0b:38:2b:d7 vlan=4091 GPORT=0x9 modid=0 port=9/ce30 Hit
+mac=02:00:00:00:00:d2 vlan=200 GPORT=0x36 modid=0 port=54/ce1 Static
+mac=1c:ea:0b:38:2b:d6 vlan=1 GPORT=0x32 modid=0 port=50/ce0 Hit
+mac=1c:ea:0b:38:2b:d6 vlan=4092 GPORT=0x32 modid=0 port=50/ce0 Hit
+mac=02:00:00:00:00:d1 vlan=200 GPORT=0xd modid=0 port=13/ce31 Static
+mac=1c:ea:0b:38:2b:d5 vlan=1 GPORT=0x36 modid=0 port=54/ce1 Hit
+mac=1c:ea:0b:38:2b:d5 vlan=4093 GPORT=0x36 modid=0 port=54/ce1 Hit
+mac=1c:ea:0b:38:2b:d6 vlan=100 GPORT=0x32 modid=0 port=50/ce0 Hit
+mac=1c:ea:0b:38:2b:d5 vlan=200 GPORT=0x36 modid=0 port=54/ce1 Hit
+mac=1c:ea:0b:38:2b:d7 vlan=100 GPORT=0x9 modid=0 port=9/ce30 Hit
+mac=1c:ea:0b:38:2b:d5 vlan=4094 GPORT=0xd modid=0 port=13/ce31 Hit
+mac=02:00:00:00:00:d2 vlan=100 GPORT=0x9 modid=0 port=9/ce30 Static
+Ethernet0 1c:ea:0b:38:2b:d5 ipv6-off=1
+Ethernet4 1c:ea:0b:38:2b:d6 ipv6-off=1
+Ethernet120 1c:ea:0b:38:2b:d5 ipv6-off=1
+Ethernet124 1c:ea:0b:38:2b:d7 ipv6-off=1
+Vlan100@Bridge   UP             1c:ea:0b:38:2b:d5 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+Vlan200@Bridge   UP             1c:ea:0b:38:2b:d5 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+== ring configured; 'down' puts everything back (snapshot /run/as7772-tests/sonic-ring)
+rc=0
+# inject
+Ethernet0 sent 740
+Ethernet4 sent 740
+rc=0
+# sampler unit
+Running as unit: h5-ring-samples.service; invocation ID: aca6710302bc48c296ac4f462d4dfb18
+active
+== sample 1795477369 2026-11-23T23:42:49Z
+SAI Ethernet0 14874131 15378456 9295455252 9646465470 3993 130 0 0 0 0 
+SAI Ethernet4 15380161 14883959 9650070218 9299322136 3954 144 0 0 0 0

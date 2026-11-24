@@ -1,0 +1,72 @@
+# reboot into gen 32 (/nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3); ssh+syncd active after 145.838 s (+30 s wait)
+2026-11-23T15:08:58-08:00
+/nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+/nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+system-32-link
+ 15:08:58 up 2 min,  3 users,  load average: 1.40, 0.61, 0.23
+== fan
+as7760_fan             28672  0
+hwmon /sys/class/hwmon/hwmon7 36 fan files; fan1_input=15700
+total 0
+lrwxrwxrwx 1 root root    0 Nov 23 15:08 4-0066 -> ../../../../devices/platform/ffe000000.soc/ffe119000.i2c/i2c-2/i2c-4/4-0066
+--w------- 1 root root 4096 Nov 23 15:08 bind
+lrwxrwxrwx 1 root root    0 Nov 23 15:08 module -> ../../../../module/as7760_fan
+--w------- 1 root root 4096 Nov 23 15:06 uevent
+--w------- 1 root root 4096 Nov 23 15:08 unbind
+active
+failsafe False {'asic': ('normal', 46.200000000000003, 53.299999999999997), 'board': ('normal', 35.5, 54.700000000000003), 'cpu': ('normal', 40.0, 53.299999999999997)}
+== failed
+0
+== mdio
+active
+cage28  0x15b  2391    80a0    d00b    600d    000d    ok
+cage29  0x17c  2391    80a0    d00b    600d    000d    ok
+cage30  0x17d  2391    80a0    d00b    600d    000d    ok
+cage31  0x17e  2391    80a0    d00b    600d    000d    ok
+cage32  0x17f  2391    80a0    d00b    600d    000d    ok
+== maps
+/nix/store/711gsdwbz2pihn175k7rjgxsbffkbbgg-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c/lib/libsaimetadata.so.0.0.0
+/nix/store/711gsdwbz2pihn175k7rjgxsbffkbbgg-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c/lib/libsaimeta.so.0.0.0
+/nix/store/pvg2c84dxfn92xqj7f3bfawwdinfiyxv-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib/libsai.so.1.0.0
+606 /nix/store/9x31iwa2vwpzdca3xrhiv8wkk87ciqnn-python3-powerpc64-unknown-linux-gnuabielfv2-3.14.10/bin/python3 /nix/store/vfy22lah8lipqmc896kcam0qzzpnryaf-python3.14-sonic-lldp-syncd-0-0cfeda3-powerpc64-unknown-linux-gnuabielfv2/bin/.lldp_syncd-wrapped
+886 /nix/store/711gsdwbz2pihn175k7rjgxsbffkbbgg-sonic-sairedis-sai-openbcm-rs-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c/bin/syncd -p /nix/store/s5bidgb3gcig1drwd1wmzpxfyimd9cfm-sai.profile -u -z redis_sync
+887 /nix/store/69llic5l6rl2lp8p0xkfzayjmxkw9hjc-sonic-swss-powerpc64-unknown-linux-gnuabielfv2-0-d9684cc/bin/portsyncd
+== extphy
+ce24       113  118 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5059
+ce25       117  122 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5065
+ce26       121  126 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        4569
+ce27       125  130 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        4826
+ce28         1    1 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5294
+ce29         5    5 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5096
+ce30         9    9 up    up    no     0x0003       65        0    1     0     203     210     325     2    0        7314
+ce31        13   13 up    up    no     0x0003       65        0    1     0     188     196     317     2    0        7765
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 0, ended 0, expired 0; raw MDIO hold-offs 0; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 0; waits for a library run before a poll 5 (max 68184 us, total 204314 us)
+extphy: MACsec polls skipped during a lease 0; forced reads after 10000 ms 0 (max wait 0 us); MACsec / admin runs that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+32
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 102.9 s
+  run started 2026-11-23 23:06:34 +0000, took 102.9 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 100.3 s (553600 writes, 428576 reads, 17416 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 21 readings, last 44.7 C, 0 failed, longest read 0.13 ms
+openbcm-mdio-script: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: done in 100.3 s: 1058160 of 1058160 operations, 553600 writes, 428576 reads (307099 polls, 17416 re-reads), 0 expected values differed
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 102.9 s
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 0 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+port      lane   hw admin line  fault  value    polls   faults  ups downs last_us  avg_us  max_us hooks fail hook_max_us
+ce0         49   50 up    up    no     0x0003       85        0    1     0     191     200     312     2    0        7389
+ce1         53   54 up    up    no     0x0003       85        0    1     0     188     201     317     2    0        6870
+ce2         57   58 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5078
+ce3         61   62 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5188
+ce4         65   68 down  down  no     0x0000        0        0    0     0       0       0       0     1    0        5451
+# macsec-up-check
+== 2026-11-23T15:09:09-08:00 azkkiphrpmml... up 170.72 s; the start of sonic-syncd: 118.749 s; limit 60 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +9.0 s, secured +14.2 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.0 s, secured +14.2 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +9.3 s, secured +14.7 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.7 s, secured +14.7 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 14.7 s after the start of sonic-syncd (limit 60 s)
+rc=0

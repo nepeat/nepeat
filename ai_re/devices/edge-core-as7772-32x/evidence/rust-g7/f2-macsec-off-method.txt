@@ -1,0 +1,286 @@
+# step 6: 'systemctl stop sonic-macsecmgrd' does NOT turn MACsec off here: orchagent has Upholds=sonic-macsecmgrd.service, systemd restarts it within ~10 ms (and 'mask --runtime' is shadowed by the unit in /etc). Attempts:
+active
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+ce30      17e  egress  on     open   sa  -   -   -   0    4776     0   82288 
+ce30      17e  ingress on     open   sa  -   -   -        4907     0 1005939 
+ce31      17f  egress  on     open   sa  -   -   -   0    4829     0   81589 
+ce31      17f  ingress on     open   sa  -   -   -        5002     0   92881 
+ce0         0  egress  on     open   sa  -   -   -   0    4739     0  136787 
+ce0         0  ingress on     open   sa  -   -   -        4869     0  137861 
+ce1         1  egress  on     open   sa  -   -   -   0    4823     0  124020 
+ce1         1  ingress on     open   sa  -   -   -        4989     0 1019868 
+engines in bypass: 56 of 64
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later         N/A
+Ethernet120       9,10,11,12     100G   9100    N/A  Ethernet31/1  routed      up       up  QSFP28 or later         N/A
+Ethernet124      13,14,15,16     100G   9100    N/A  Ethernet32/1  routed      up       up  QSFP28 or later         N/A
+● sonic-macsecmgrd.service - SONiC macsecmgrd (CONFIG_DB MACSEC_PROFILE / PORT.macsec -> wpa_supplicant per port)
+     Loaded: loaded (/etc/systemd/system/sonic-macsecmgrd.service; enabled; preset: ignored)
+     Active: active (running) since Mon 2026-11-23 16:19:54 PST; 26s ago
+ Invocation: bcdb11bd00074d0a829c1126205dbff2
+   Main PID: 178769 (macsecmgrd)
+         IP: 0B in, 0B out
+      Tasks: 6 (limit: 38366)
+     Memory: 9.5M (peak: 10.4M)
+        CPU: 1.202s
+     CGroup: /system.slice/sonic-macsecmgrd.service
+             ├─178769 /nix/store/69llic5l6rl2lp8p0xkfzayjmxkw9hjc-sonic-swss-powerpc64-unknown-linux-gnuabielfv2-0-d9684cc/bin/macsecmgrd
+             ├─178771 /sbin/wpa_supplicant -s -D macsec_sonic -g /var/run/Ethernet0
+             ├─178787 /sbin/wpa_supplicant -s -D macsec_sonic -g /var/run/Ethernet120
+             ├─178803 /sbin/wpa_supplicant -s -D macsec_sonic -g /var/run/Ethernet124
+             └─178819 /sbin/wpa_supplicant -s -D macsec_sonic -g /var/run/Ethernet4
+2026-11-23T16:20:13-08:00 as7772 wpa_supplicant[178819]: KaY: Update watchdog timer, SAK-USE set
+2026-11-23T16:20:14-08:00 as7772 wpa_supplicant[178787]: KaY: Update watchdog timer, SAK-USE set
+2026-11-23T16:20:14-08:00 as7772 wpa_supplicant[178771]: KaY: Update watchdog timer, SAK-USE set
+2026-11-23T16:20:14-08:00 as7772 wpa_supplicant[178803]: KaY: Update watchdog timer, SAK-USE set
+2026-11-23T16:20:15-08:00 as7772 wpa_supplicant[178819]: KaY: Update watchdog timer, SAK-USE set
+2026-11-23T16:20:16-08:00 as7772 wpa_supplicant[178787]: KaY: Update watchdog timer, SAK-USE set
+2026-11-23T16:20:16-08:00 as7772 wpa_supplicant[178771]: KaY: Update watchdog timer, SAK-USE set
+2026-11-23T16:20:16-08:00 as7772 wpa_supplicant[178803]: KaY: Update watchdog timer, SAK-USE set
+2026-11-23T16:20:17-08:00 as7772 wpa_supplicant[178819]: KaY: Update watchdog timer, SAK-USE set
+2026-11-23T16:20:18-08:00 as7772 wpa_supplicant[178787]: KaY: Update watchdog timer, SAK-USE set
+2026-11-23T16:20:18-08:00 as7772 wpa_supplicant[178771]: KaY: Update watchdog timer, SAK-USE set
+2026-11-23T16:20:18-08:00 as7772 wpa_supplicant[178803]: KaY: Update watchdog timer, SAK-USE set
+2026-11-23T16:20:19-08:00 as7772 wpa_supplicant[178819]: KaY: Update watchdog timer, SAK-USE set
+2026-11-23T16:20:20-08:00 as7772 wpa_supplicant[178787]: KaY: Update watchdog timer, SAK-USE set
+2026-11-23T16:20:20-08:00 as7772 wpa_supplicant[178771]: KaY: Update watchdog timer, SAK-USE set
+BindsTo=sonic-orchagent.service
+PartOf=sonic.target
+WantedBy=sonic.target
+Restart=always
+178771 /sbin/wpa_supplicant -s -D macsec_sonic -g /var/run/Ethernet0
+178787 /sbin/wpa_supplicant -s -D macsec_sonic -g /var/run/Ethernet120
+178803 /sbin/wpa_supplicant -s -D macsec_sonic -g /var/run/Ethernet124
+178819 /sbin/wpa_supplicant -s -D macsec_sonic -g /var/run/Ethernet4
+2026-11-23T16:19:52.292783-08:00 as7772 systemd[1]: Started Session c177 of User root.
+2026-11-23T16:19:52.343402-08:00 as7772 systemd[1]: Stopping SONiC macsecmgrd (CONFIG_DB MACSEC_PROFILE / PORT.macsec -> wpa_supplicant per port)...
+2026-11-23T16:19:54.125334-08:00 as7772 systemd[1]: sonic-macsecmgrd.service: Main process exited, code=exited, status=255/EXCEPTION
+2026-11-23T16:19:54.125637-08:00 as7772 systemd[1]: sonic-macsecmgrd.service: Failed with result 'exit-code'.
+2026-11-23T16:19:54.126900-08:00 as7772 systemd[1]: Stopped SONiC macsecmgrd (CONFIG_DB MACSEC_PROFILE / PORT.macsec -> wpa_supplicant per port).
+2026-11-23T16:19:54.127844-08:00 as7772 systemd[1]: sonic-macsecmgrd.service: Consumed 8.939s CPU time over 44min 45.442s wall clock time, 10.9M memory peak.
+2026-11-23T16:19:54.136261-08:00 as7772 systemd[1]: Started SONiC macsecmgrd (CONFIG_DB MACSEC_PROFILE / PORT.macsec -> wpa_supplicant per port).
+===
+BindsTo=sonic-syncd.service
+Requires=sonic-config-loader.service
+Upholds=sonic-portmgrd.service sonic-intfmgrd.service sonic-vlanmgrd.service sonic-nbrmgrd.service sonic-teammgrd.service sonic-teamsyncd.service sonic-tlm_teamd.service sonic-neighsyncd.service sonic-fdbsyncd.service sonic-coppmgrd.service sonic-bgpcfgd.service sonic-bgpmon.service sonic-fpmsyncd.service sonic-frr-bgpd.service sonic-frr-config.service sonic-frr-mgmtd.service sonic-frr-staticd.service sonic-frr-zebra.service sonic-vrfmgrd.service sonic-bfdsyncd.service sonic-frr-bfdd.service sonic-staticroutebfd.service sonic-macsecmgrd.service
+# /etc/systemd/system/sonic-macsecmgrd.service -> /nix/store/kvdabxbba7jk9iyll5p82vsvcr1y57pn-unit-sonic-macsecmgrd.service/sonic-macsecmgrd.service
+[Unit]
+After=sonic-orchagent.service sonic-config-loader.service sonic-macsec-config.service
+BindsTo=sonic-orchagent.service
+Description=SONiC macsecmgrd (CONFIG_DB MACSEC_PROFILE / PORT.macsec -> wpa_supplicant per port)
+PartOf=sonic.target
+Requires=sonic-config-loader.service
+StartLimitBurst=10
+StartLimitIntervalSec=300
+Wants=sonic-macsec-config.service
+[Service]
+Environment="LOCALE_ARCHIVE=/nix/store/783wv58h0nvv4zg6w7ldw8msm8jpy1ns-glibc-locales-powerpc64-unknown-linux-gnuabielfv2-2.44-57/lib/locale/locale-archive"
+Environment="PATH=/nix/store/pww62wl8m7dnpjmqwxsavh6klakzwsjn-coreutils-powerpc64-unknown-linux-gnuabielfv2-9.12/bin:/nix/store/lw0kxc7pnynb1s0rxdzw27i82m13ik86-findutils-powerpc64-unknown-linux-gnuabielfv2-4.11.0/bin:/nix/store/1mh4d87yr3mf0npmxg8mksrgcr31mr17-gnugrep-powerpc64-unknown-linux-gnuabielfv2-3.12/bin:/nix/store/if9rzxf66kg6agzyryddyklxjqm0h2da-gnused-powerpc64-unknown-linux-gnuabielfv2-4.10/bin:/nix/store/as9g06634ppd90adwxlkal2x039bi62q-systemd-powerpc64-unknown-linux-gnuabielfv2-262/bin:/nix/store/pww62wl8m7dnpjmqwxsavh6klakzwsjn-coreutils-powerpc64-unknown-linux-gnuabielfv2-9.12/sbin:/nix/store/lw0kxc7pnynb1s0rxdzw27i82m13ik86-findutils-powerpc64-unknown-linux-gnuabielfv2-4.11.0/sbin:/nix/store/1mh4d87yr3mf0npmxg8mksrgcr31mr17-gnugrep-powerpc64-unknown-linux-gnuabielfv2-3.12/sbin:/nix/store/if9rzxf66kg6agzyryddyklxjqm0h2da-gnused-powerpc64-unknown-linux-gnuabielfv2-4.10/sbin:/nix/store/as9g06634ppd90adwxlkal2x039bi62q-systemd-powerpc64-unknown-linux-gnuabielfv2-262/sbin"
+Environment="TZDIR=/nix/store/aw86cvbwnn0wclhv9w2pypzqlzfsrvbp-tzdata-powerpc64-unknown-linux-gnuabielfv2-2026f/share/zoneinfo"
+BindReadOnlyPaths=/nix/store/pkx9bzw6hpi53li4b0gnp6fprgnmgazh-sonic-wpa-supplicant-powerpc64-unknown-linux-gnuabielfv2-0-9a7bdfa/bin/wpa_supplicant:/sbin/wpa_supplicant
+BindReadOnlyPaths=/nix/store/pkx9bzw6hpi53li4b0gnp6fprgnmgazh-sonic-wpa-supplicant-powerpc64-unknown-linux-gnuabielfv2-0-9a7bdfa/bin/wpa_cli:/sbin/wpa_cli
+BindReadOnlyPaths=/nix/store/sf6nyczp714kjq64q9y6bcixj932p4xr-source/dockers/docker-macsec/etc/wpa_supplicant.conf:/etc/wpa_supplicant.conf
+ExecStart=/nix/store/69llic5l6rl2lp8p0xkfzayjmxkw9hjc-sonic-swss-powerpc64-unknown-linux-gnuabielfv2-0-d9684cc/bin/macsecmgrd
+KillMode=mixed
+Restart=always
+RestartSec=3
+TemporaryFileSystem=/sbin
+[Install]
+WantedBy=sonic.target
+Created symlink '/run/systemd/system/sonic-macsecmgrd.service' → '/dev/null'.
+active: active
+4
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+ce30      17e  egress  on     open   sa  -   -   -   0    4842     0   82288 
+ce30      17e  ingress on     open   sa  -   -   -        4973     0 1005939 
+ce31      17f  egress  on     open   sa  -   -   -   0    4894     0   81589 
+ce31      17f  ingress on     open   sa  -   -   -        5067     0   92881 
+ce0         0  egress  on     open   sa  -   -   -   0    4805     0  136787 
+ce0         0  ingress on     open   sa  -   -   -        4935     0  137861 
+ce1         1  egress  on     open   sa  -   -   -   0    4888     0  124020 
+ce1         1  ingress on     open   sa  -   -   -        5054     0 1019868 
+engines in bypass: 56 of 64
+4
+Removed '/run/systemd/system/sonic-macsecmgrd.service'.
+ls: cannot access '/run/systemd/system/sonic-macsecmgrd.service': No such file or directory
+active
+2026-11-23T16:20:49.447532-08:00 as7772 systemd[1]: Stopping SONiC macsecmgrd (CONFIG_DB MACSEC_PROFILE / PORT.macsec -> wpa_supplicant per port)...
+2026-11-23T16:20:51.208937-08:00 as7772 systemd[1]: sonic-macsecmgrd.service: Main process exited, code=exited, status=255/EXCEPTION
+2026-11-23T16:20:51.209241-08:00 as7772 systemd[1]: sonic-macsecmgrd.service: Failed with result 'exit-code'.
+2026-11-23T16:20:51.210606-08:00 as7772 systemd[1]: Stopped SONiC macsecmgrd (CONFIG_DB MACSEC_PROFILE / PORT.macsec -> wpa_supplicant per port).
+2026-11-23T16:20:51.211655-08:00 as7772 systemd[1]: sonic-macsecmgrd.service: Consumed 1.390s CPU time over 57.073s wall clock time, 10.5M memory peak.
+2026-11-23T16:20:51.220146-08:00 as7772 systemd[1]: Started SONiC macsecmgrd (CONFIG_DB MACSEC_PROFILE / PORT.macsec -> wpa_supplicant per port).
+Ethernet0 macsec=lab-test
+Ethernet4 macsec=lab-test
+Ethernet120 macsec=lab-test
+Ethernet124 macsec=lab-test
+# used instead: CONFIG_DB PORT|<p> macsec removed and put back (helper below), whole CONFIG_DB compared
+#!/usr/bin/env bash
+# H5 session helper (not in the repo): MACsec off / on for the latency arm without stopping macsecmgrd
+# (orchagent Upholds= macsecmgrd, so systemctl stop restarts it at once). off: CONFIG_DB snapshot, then
+# hdel PORT|<p> macsec on the four DAC ports (macsecmgrd removes SAs / SCs, engines to bypass). on: hset them back,
+# wait for 8 open SAs, compare the whole CONFIG_DB with the snapshot.
+set -u
+. /root/sonic-test-lib.sh
+S=/run/h5-macsec-off.tsv
+case "$1" in
+off)
+  st_dump 4 > "$S"; echo "snapshot $(cut -f1 "$S" | sort -u | wc -l) keys"
+  for p in $P4; do echo "PORT|$p macsec=$(redis-cli -n 4 hget "PORT|$p" macsec)"; redis-cli -n 4 hdel "PORT|$p" macsec > /dev/null; done
+  for i in $(seq 30); do b=$(openbcm-diag extmacsec | grep -o 'bypass: [0-9]* of'); [ "$b" = "bypass: 64 of" ] && break; sleep 1; done
+  echo "after $i s: $(openbcm-diag extmacsec | grep -E 'objects|engines' | tr '\n' ' ')" ;;
+on)
+  for p in $P4; do redis-cli -n 4 hset "PORT|$p" macsec "$(awk -F'\t' -v k="PORT|$p" '$1==k && $2=="macsec" {print $3}' "$S")" > /dev/null; done
+  for i in $(seq 90); do [ "$(openbcm-diag extmacsec | grep -c ' open ')" = 8 ] && break; sleep 1; done
+  echo "MKA: $(openbcm-diag extmacsec | grep -c ' open ') open SAs after $i s; $(openbcm-diag extmacsec | grep -E 'engines')"
+  if diff <(st_dump 4 | grep -v '^CONFIG_DB_INITIALIZED') <(grep -v '^CONFIG_DB_INITIALIZED' "$S"); then echo "CONFIG_DB identical to the snapshot"; else echo "FAIL: CONFIG_DB differs"; exit 1; fi ;;
+esac
+
+# off
+snapshot 142 keys
+PORT|Ethernet0 macsec=lab-test
+PORT|Ethernet4 macsec=lab-test
+PORT|Ethernet120 macsec=lab-test
+PORT|Ethernet124 macsec=lab-test
+after 2 s: extmacsec: 32 ports, 126 sequences; objects: 0 macsec, 0 ports, 0 flows, 0 SCs, 0 SAs, 0 ACL tables, 0 ACL entries engines in bypass: 64 of 64 
+rc=0
+# clear-text check: sonic-traffic-test.sh 300 with MACsec off
+== 2026-11-23T16:21:42-08:00 /nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+== uptime:  16:21:42 up  1:15,  3 users,  load average: 0.98, 1.40, 1.36
+active active active active 
+openbcm-mdio-script: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+openbcm-mdio-script: /var/lib/evora-phy/evora-100g-bypass.mdio: done in 100.3 s: 1058160 of 1058160 operations, 553600 writes, 428576 reads (307099 polls, 17416 re-reads), 0 expected values differed
+== failed units: 0
+  Interface            Lanes    Speed    MTU    FEC         Alias    Vlan    Oper    Admin             Type    Asym PFC
+-----------  ---------------  -------  -----  -----  ------------  ------  ------  -------  ---------------  ----------
+  Ethernet0      49,50,51,52     100G   9100     rs   Ethernet1/1  routed      up       up  QSFP28 or later         N/A
+  Ethernet4      53,54,55,56     100G   9100     rs   Ethernet2/1  routed      up       up  QSFP28 or later         N/A
+Ethernet120       9,10,11,12     100G   9100    N/A  Ethernet31/1  routed      up       up  QSFP28 or later         N/A
+Ethernet124      13,14,15,16     100G   9100    N/A  Ethernet32/1  routed      up       up  QSFP28 or later         N/A
+== snapshot: /run/as7772-tests/vrf-pairs (142 CONFIG_DB keys)
+== setup: VRFs, far ends into them, addresses (CONFIG_DB)
+  redis-cli -n 4 hset VRF\|Vrf-a NULL NULL
+  redis-cli -n 4 hset VRF\|Vrf-b NULL NULL
+  redis-cli -n 4 del INTERFACE\|Ethernet4
+  redis-cli -n 4 hset INTERFACE\|Ethernet4 vrf_name Vrf-a mac_addr 1c:ea:0b:38:2b:d6
+  redis-cli -n 4 del INTERFACE\|Ethernet124
+  redis-cli -n 4 hset INTERFACE\|Ethernet124 vrf_name Vrf-b mac_addr 1c:ea:0b:38:2b:d7
+  redis-cli -n 4 hset INTERFACE\|Ethernet0 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet0\|10.0.1.0/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet4\|10.0.1.1/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet120 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet120\|10.0.31.0/31 NULL NULL
+  redis-cli -n 4 hset INTERFACE\|Ethernet124\|10.0.31.1/31 NULL NULL
+== ping cage 1 -> 2 (300 x 64 B, then 300 x 1400 B, then 200 x 8000 B)
+300 packets transmitted, 300 received, 0% packet loss, time 599ms
+rtt min/avg/max/mdev = 0.107/0.112/0.243/0.010 ms
+300 packets transmitted, 300 received, 0% packet loss, time 599ms
+rtt min/avg/max/mdev = 0.135/0.143/0.266/0.010 ms
+200 packets transmitted, 200 received, 0% packet loss, time 995ms
+rtt min/avg/max/mdev = 0.278/0.290/0.418/0.020 ms
+== ping cage 2 -> 1 (Vrf-a)
+300 packets transmitted, 300 received, 0% packet loss, time 598ms
+rtt min/avg/max/mdev = 0.106/0.110/0.238/0.009 ms
+== ping cage 31 -> 32
+300 packets transmitted, 300 received, 0% packet loss, time 599ms
+rtt min/avg/max/mdev = 0.103/0.108/0.249/0.010 ms
+300 packets transmitted, 300 received, 0% packet loss, time 598ms
+rtt min/avg/max/mdev = 0.131/0.138/0.272/0.010 ms
+200 packets transmitted, 200 received, 0% packet loss, time 994ms
+rtt min/avg/max/mdev = 0.276/0.289/0.431/0.027 ms
+== ping cage 32 -> 31 (Vrf-b)
+300 packets transmitted, 300 received, 0% packet loss, time 598ms
+rtt min/avg/max/mdev = 0.104/0.108/0.218/0.008 ms
+== SONiC counters
+Last cached time was 2026-11-23T16:22:08.393365
+       IFACE    STATE    RX_OK    RX_BPS    RX_UTIL    RX_ERR    RX_DRP    RX_OVR    TX_OK    TX_BPS    TX_UTIL    TX_ERR    TX_DRP    TX_OVR
+------------  -------  -------  --------  ---------  --------  --------  --------  -------  --------  ---------  --------  --------  --------
+ Ethernet1/1        U    1,101       N/A        N/A         0         0       N/A    1,101       N/A        N/A         0         0       N/A
+ Ethernet2/1        U    1,101       N/A        N/A         0         0       N/A    1,101       N/A        N/A         0         0       N/A
+Ethernet31/1        U    1,102       N/A        N/A         0         0       N/A    1,102       N/A        N/A         0         0       N/A
+Ethernet32/1        U    1,102       N/A        N/A         0         0       N/A    1,102       N/A        N/A         0         0       N/A
+== ASIC counters (frames, bytes, errors)
+RPKT.ce0		    :		      1,102		 +1,102
+RBYT.ce0		    :		  2,104,503	     +2,104,503
+TPKT.ce0		    :		      1,102		 +1,102
+TBYT.ce0		    :		  2,104,503	     +2,104,503
+RPKT.ce1		    :		      1,102		 +1,102
+RBYT.ce1		    :		  2,104,503	     +2,104,503
+TPKT.ce1		    :		      1,102		 +1,102
+TBYT.ce1		    :		  2,104,503	     +2,104,503
+RPKT.ce30		    :		      1,102		 +1,102
+RBYT.ce30		    :		  2,104,506	     +2,104,506
+TPKT.ce30		    :		      1,102		 +1,102
+TBYT.ce30		    :		  2,104,506	     +2,104,506
+RPKT.ce31		    :		      1,102		 +1,102
+RBYT.ce31		    :		  2,104,506	     +2,104,506
+TPKT.ce31		    :		      1,102		 +1,102
+TBYT.ce31		    :		  2,104,506	     +2,104,506
+== ASIC port state
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+       ce1( 54)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce30(  9)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+      ce31( 13)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA   CAUI  9130    No      
+AVERAGE_IPG=0x10
+AVERAGE_IPG=0x10
+Interface                = 0x19
+CL74                     = False
+CL91                     = False
+== temperature / fans
+asic 45.7 C; fand failsafe: "failsafe": false
+== lldp
+Capability codes: (R) Router, (B) Bridge, (O) Other
+   LocalPort    RemoteDevice    RemotePortID    Capability    RemotePortDescr
+------------  --------------  --------------  ------------  -----------------
+ Ethernet1/1    as7772          Ethernet2/1     BR            Ethernet4
+ Ethernet2/1    as7772          Ethernet1/1     BR            Ethernet0
+Ethernet31/1  as7772          Ethernet32/1    BR            Ethernet124
+Ethernet32/1  as7772          Ethernet31/1    BR            Ethernet120
+--------------------------------------
+Total entries displayed:  4
+== restore (vrf-pairs; exit status so far 0)
+  -- phase /^INTERFACE[|]Ethernet(0|4|120|124)[|]/: 4 change(s)
+  redis-cli -n 4 del INTERFACE\|Ethernet0\|10.0.1.0/31
+  redis-cli -n 4 del INTERFACE\|Ethernet120\|10.0.31.0/31
+  redis-cli -n 4 del INTERFACE\|Ethernet124\|10.0.31.1/31
+  redis-cli -n 4 del INTERFACE\|Ethernet4\|10.0.1.1/31
+  -- phase /^INTERFACE[|]Ethernet(0|4|120|124)$/: 6 change(s)
+  redis-cli -n 4 del INTERFACE\|Ethernet0
+  redis-cli -n 4 del INTERFACE\|Ethernet120
+  redis-cli -n 4 del INTERFACE\|Ethernet124
+  redis-cli -n 4 del INTERFACE\|Ethernet4
+  redis-cli -n 4 hset INTERFACE\|Ethernet124 mac_addr 1c:ea:0b:38:2b:d7
+  redis-cli -n 4 hset INTERFACE\|Ethernet4 mac_addr 1c:ea:0b:38:2b:d6
+  -- phase /^VRF[|]Vrf-[ab]$/: 2 change(s)
+  redis-cli -n 4 del VRF\|Vrf-a
+  redis-cli -n 4 del VRF\|Vrf-b
+== CONFIG_DB identical to the snapshot: 142 keys, 425 fields
+== kernel state identical to the snapshot
+== RESTORED and verified
+rc=0
+# on
+MKA: 8 open SAs after 7 s; engines in bypass: 56 of 64
+CONFIG_DB identical to the snapshot
+rc=0
+# macsec-up-check after (FAIL only on the 'by itself' criterion: macsecmgrd starts since syncd 9)
+== 2026-11-23T16:25:21-08:00 azkkiphrpmml... up 4742.53 s; the start of sonic-syncd: 118.749 s; limit 60 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +4610.4 s, secured +14.2 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +4611.5 s, secured +14.2 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +4610.8 s, secured +14.7 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +4611.1 s, secured +14.7 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 9; MKA sessions started since: 42; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+macsecmgrd was started 9 times since the start of sonic-syncd: not by itself
+FAIL: MKA is not up by itself on every port within 60 s of the start of sonic-syncd
+4471.876089 wpa_supplicant[178803]: KaY: No CA has a live peer; tearing down the controlled port
+4472.068085 wpa_supplicant[178819]: KaY: No CA has a live peer; tearing down the controlled port
+4522.164179 wpa_supplicant[179119]: KaY: No CA has a live peer; tearing down the controlled port
+4522.388154 wpa_supplicant[179135]: KaY: No CA has a live peer; tearing down the controlled port
+4522.584081 wpa_supplicant[179151]: KaY: No CA has a live peer; tearing down the controlled port
+4522.788093 wpa_supplicant[179167]: KaY: No CA has a live peer; tearing down the controlled port
+rc=1
+# C++ reference condition (evidence/extlink-live-20261122.txt): MACsec/SA lines 0
+Ethernet4        DOWN           1c:ea:0b:38:2b:d5 <BROADCAST,MULTICAST> 
+Ethernet0        DOWN           1c:ea:0b:38:2b:d5 <NO-CARRIER,BROADCAST,MULTICAST,UP> 
+Ethernet4        UP             1c:ea:0b:38:2b:d5 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+Ethernet0        UP             1c:ea:0b:38:2b:d5 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+Ethernet124      DOWN           1c:ea:0b:38:2b:d5 <BROADCAST,MULTICAST>

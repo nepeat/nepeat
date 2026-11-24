@@ -1,0 +1,70 @@
+# step 1: scripts from 3c84eb3 copied to /root (sha256 below, identical on the switch)
+e4a25a59e631ef5443ab6ea9dea4a8dfda542daa51af67947af5374e4ea2ef6c  macsec-up-check.sh
+56f7c63074b1664bb55efc091556d6430a1c334eb9507b9bc6f27c3474984fb3  macsec-traffic-test.sh
+7b29789b078acc8399dfff5e781136de7ab093a78de0fd64012bf9051c9d98b5  macsec-rekey-test.sh
+268c5fc652e1e34a76cdabfbaf788aca768d5978469a3997a1a63a4f8fb3b2e0  macsec-wrongcak-test.sh
+cc734f9722431f6885940060fbd3890759f7c59bf306009bd2322fe727b748bc  macsec-wrap-test.sh
+5162d5313c0eaa6bc59c13ffbbaf3913927b5b35b3a01da39f3abc567601ec8a  macsec-static-test.sh
+cde33405c8bf52528c1e8622b0f4a93430ba0c9ea18164ab7e624d8f01fa2324  macsec-appdb-test.sh
+b0e013d9e4174a039b146b10a1178b0dcdf82b45de885362739bf8bf40652087  macsec-clear-window-test.sh
+ea250b8c6dfe12e5561026812eedbd7ee4460c6b8b58e16babdaed5f0baec428  sonic-traffic-test.sh
+13092518035f7b1ced2b37fbffa82ec0d30b2fbeab77c7491abc9220b8eda8ec  loadtest/sonic-ring.sh
+e3eaa53c048eef19d9ca9765438fbe72552d4eedc52d057893197be231abfe32  loadtest/sonic-test-lib.sh
+
+# bash -l macsec-traffic-test.sh --cleanup --dry-run
+== DRY RUN: the writes are printed, none is made
+== cleanup: no snapshot in /run/as7772-tests/vrf-pairs: restoring the clean state this script knows
+== restore (vrf-pairs; exit status so far 0)
+  (would wait for the kernel state of the snapshot)
+== dry-run: nothing written, nothing verified
+/etc/bash_logout: line 4: __ETC_BASHLOGOUT_SOURCED: unbound variable
+rc=1
+# inner rc check + residual state
+inner=0
+outer=0
+== APPL
+
+INTF_TABLE:Ethernet4
+INTF_TABLE:Ethernet124
+== STATE
+
+INTERFACE_TABLE|Ethernet4
+INTERFACE_TABLE|Ethernet124
+== ip
+Name              Table
+-----------------------
+No VRF has been configured
+    inet 127.0.0.1/8 scope host lo
+    inet 10.60.2.23/24 metric 1024 brd 10.60.2.255 scope global dynamic eth0
+1001:	from all lookup local
+32766:	from all lookup main
+32767:	from all lookup default
+== journal old tests
+== boot
+IDX BOOT ID                          FIRST ENTRY                 LAST ENTRY
+  0 3798d6aab9eb41d2be6ea0a6393c438a Mon 2026-11-23 09:06:18 PST Mon 2026-11-23 15:03:42 PST
+# --cleanup, sonic-ring.sh check
+# /etc/bash_logout: DO NOT EDIT -- this file has been generated automatically.
+
+# Only execute this file once per shell.
+if [ -n "$__ETC_BASHLOGOUT_SOURCED" ] || [ -n "$NOSYSBASHLOGOUT" ]; then return; fi
+__ETC_BASHLOGOUT_SOURCED=1
+
+printf '\e]0;\a'
+
+
+# Read system-wide modifications.
+if test -f /etc/bash_logout.local; then
+    . /etc/bash_logout.local
+fi
+==
+== cleanup: no snapshot in /run/as7772-tests/vrf-pairs: restoring the clean state this script knows
+== restore (vrf-pairs; exit status so far 0)
+== CONFIG_DB identical to the snapshot: 142 keys, 429 fields
+== kernel state identical to the snapshot
+== MKA: 8 SAs open after the restore
+== RESTORED and verified
+/etc/bash_logout: line 4: __ETC_BASHLOGOUT_SOURCED: unbound variable
+rc(bash -l)=1
+CHECK OK: the four DAC ports up and looped to themselves (LLDP), nothing else up, no leftovers
+inner rc=0

@@ -1,0 +1,110 @@
+# step 4.3: phy-status (bare raw reads, implicit leases) rc=0
+# counters before
+2026-11-23T15:25:39-08:00
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 1406 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 1368, ended 1368, expired 0; raw MDIO hold-offs 38; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 281; waits for a library run before a poll 118 (max 74857 us, total 1387618 us)
+extphy: MACsec polls skipped during a lease 165; forced reads after 10000 ms 22 (max wait 53355 us); MACsec / admin runs that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+ce30      17e  egress  on     open   sa  -   -   -   0    1206     0   82100 
+ce30      17e  ingress on     open   sa  -   -   -        1288     0   89458 
+ce31      17f  egress  on     open   sa  -   -   -   0    1243     0   81562 
+ce31      17f  ingress on     open   sa  -   -   -        1345     0   89595 
+ce0         0  egress  on     open   -   sa  -   -   1    1184     0   82184 
+ce0         0  ingress on     open   -   sa  -   -        1261     0   90418 
+ce1         1  egress  on     open   -   sa  -   -   1    1227     0   82083 
+ce1         1  ingress on     open   -   sa  -   -        1320     0   91139 
+engines in bypass: 56 of 64
+# counters after
+2026-11-23T15:25:46-08:00
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 1438 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 1368, ended 1368, expired 0; raw MDIO hold-offs 70; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 326; waits for a library run before a poll 118 (max 74857 us, total 1387618 us)
+extphy: MACsec polls skipped during a lease 189; forced reads after 10000 ms 30 (max wait 53355 us); MACsec / admin runs that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+ce30      17e  egress  on     open   sa  -   -   -   0    1210     0   82100 
+ce30      17e  ingress on     open   sa  -   -   -        1292     0   89458 
+ce31      17f  egress  on     open   sa  -   -   -   0    1247     0   81562 
+ce31      17f  ingress on     open   sa  -   -   -        1349     0   89595 
+ce0         0  egress  on     open   -   sa  -   -   1    1188     0   82184 
+ce0         0  ingress on     open   -   sa  -   -        1265     0   90418 
+ce1         1  egress  on     open   -   sa  -   -   1    1231     0   82083 
+ce1         1  ingress on     open   -   sa  -   -        1324     0   91139 
+engines in bypass: 56 of 64
+# journal
+200
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=32; skipped for=8; waited=0; expired=0; refused=0; 
+2026-11-23T15:25:41.609008-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.609725-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x1: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.610388-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x2: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.611050-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x3: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.611712-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x24: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.612407-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x25: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.613078-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x26: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.613749-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x27: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.614420-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x48: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.615090-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x49: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.615762-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x4a: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.616447-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x4b: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.617122-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x6c: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.617794-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x6d: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.618467-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x6e: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.619139-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x6f: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.619814-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x110: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.620498-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x111: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.621172-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x112: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.621847-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x113: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.622520-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x134: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.623195-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x135: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.623867-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x136: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.624550-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x137: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.625222-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x158: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.625898-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x159: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.626573-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x15a: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.627250-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x15b: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.627920-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x17c: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.628601-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x17d: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.629278-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x17e: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:41.629954-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x17f: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:42.286254-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 9 skipped for 10004 ms, the most allowed: read between two raw MDIO accesses of a diag client without a transaction
+2026-11-23T15:25:42.302737-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 9 skipped for 10004 ms, the most allowed: read between two raw MDIO accesses of a diag client without a transaction
+2026-11-23T15:25:42.318735-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 13 skipped for 10004 ms, the most allowed: read between two raw MDIO accesses of a diag client without a transaction
+2026-11-23T15:25:42.334232-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 13 skipped for 10004 ms, the most allowed: read between two raw MDIO accesses of a diag client without a transaction
+2026-11-23T15:25:42.350733-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.1 on chip port 50 skipped for 10005 ms, the most allowed: read between two raw MDIO accesses of a diag client without a transaction
+2026-11-23T15:25:42.366215-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.1 on chip port 50 skipped for 10004 ms, the most allowed: read between two raw MDIO accesses of a diag client without a transaction
+2026-11-23T15:25:42.382765-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.1 on chip port 54 skipped for 10003 ms, the most allowed: read between two raw MDIO accesses of a diag client without a transaction
+2026-11-23T15:25:42.398215-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.1 on chip port 54 skipped for 10004 ms, the most allowed: read between two raw MDIO accesses of a diag client without a transaction
+
+# phystat.py --txn off (old protocol), rc 0, 10.691 s, stderr: (none)
+# journal
+2427
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=4; skipped for=6; waited=0; expired=0; refused=0; 
+2026-11-23T15:25:47.257189-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:49.802006-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x1: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:52.263576-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x17e: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:25:52.290274-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 9 skipped for 10004 ms, the most allowed: read between two raw MDIO accesses of a diag client without a transaction
+2026-11-23T15:25:52.306764-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 9 skipped for 10004 ms, the most allowed: read between two raw MDIO accesses of a diag client without a transaction
+2026-11-23T15:25:52.354831-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.1 on chip port 50 skipped for 10004 ms, the most allowed: read between two raw MDIO accesses of a diag client without a transaction
+2026-11-23T15:25:52.370344-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.1 on chip port 50 skipped for 10004 ms, the most allowed: read between two raw MDIO accesses of a diag client without a transaction
+2026-11-23T15:25:52.386812-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.1 on chip port 54 skipped for 10005 ms, the most allowed: read between two raw MDIO accesses of a diag client without a transaction
+2026-11-23T15:25:52.402287-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.1 on chip port 54 skipped for 10004 ms, the most allowed: read between two raw MDIO accesses of a diag client without a transaction
+2026-11-23T15:25:54.750268-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x17f: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+# counters after
+2026-11-23T15:26:02-08:00
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 1442 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 1368, ended 1368, expired 0; raw MDIO hold-offs 74; refused: busy 0, void 0
+extphy: link polls answered from the last verdict during a lease 408; waits for a library run before a poll 118 (max 74857 us, total 1387618 us)
+extphy: MACsec polls skipped during a lease 233; forced reads after 10000 ms 36 (max wait 53355 us); MACsec / admin runs that waited for a transaction 0 (max 0 us); extmacsec run refused 0
+ce30      17e  egress  on     open   sa  -   -   -   0    1222     0   82100 
+ce30      17e  ingress on     open   sa  -   -   -        1304     0   89458 
+ce31      17f  egress  on     open   sa  -   -   -   0    1260     0   81562 
+ce31      17f  ingress on     open   sa  -   -   -        1362     0   89595 
+ce0         0  egress  on     open   -   sa  -   -   1    1199     0   82184 
+ce0         0  ingress on     open   -   sa  -   -        1277     0   90418 
+ce1         1  egress  on     open   -   sa  -   -   1    1243     0   82083 
+ce1         1  ingress on     open   -   sa  -   -        1336     0   91139 
+engines in bypass: 56 of 64

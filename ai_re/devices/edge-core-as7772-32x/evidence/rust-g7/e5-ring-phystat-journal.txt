@@ -1,0 +1,75 @@
+probe: stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+p0: stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+p1: stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=4; waited=3; expired=0; refused=0; 
+t+5: stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+t+10.61: stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+t+15.05: stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+t+20.02: stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+t+25.01: stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+t+30.07: stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=4; waited=4; expired=0; refused=0; 
+after: stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+
+### probe
+2876
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+2026-11-23T15:40:26.621449-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:40:35.442272-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 9 skipped for 10004 ms, the most allowed: read after diag transaction 5858 (waited 44 ms)
+2026-11-23T15:40:35.506791-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 9 skipped for 10048 ms, the most allowed: read after diag transaction 5859 (waited 49 ms)
+### p0
+2876
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+2026-11-23T15:40:49.749268-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:40:55.510858-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 54 skipped for 10004 ms, the most allowed: read after diag transaction 6028 (waited 7 ms)
+2026-11-23T15:40:55.578252-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 54 skipped for 10012 ms, the most allowed: read after diag transaction 6029 (waited 50 ms)
+### p1
+2878
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=4; waited=3; expired=0; refused=0; 
+2026-11-23T15:42:05.250499-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:42:05.498243-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 50 skipped for 10005 ms, the most allowed: read between two raw MDIO accesses of a diag client without a transaction
+2026-11-23T15:42:05.558777-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 50 skipped for 10004 ms, the most allowed: read after diag transaction 6151 (waited 43 ms)
+2026-11-23T15:42:15.510803-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 13 skipped for 10004 ms, the most allowed: read after diag transaction 6345 (waited 37 ms)
+2026-11-23T15:42:15.574264-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 13 skipped for 10044 ms, the most allowed: read after diag transaction 6346 (waited 48 ms)
+### t+5
+2876
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+2026-11-23T15:47:52.021386-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:47:55.714780-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 54 skipped for 10004 ms, the most allowed: read after diag transaction 6441 (waited 42 ms)
+2026-11-23T15:47:55.774302-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 54 skipped for 10048 ms, the most allowed: read after diag transaction 6442 (waited 43 ms)
+### t+10.61
+2876
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+2026-11-23T15:53:26.193446-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:53:35.758896-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 13 skipped for 10004 ms, the most allowed: read after diag transaction 7010 (waited 16 ms)
+2026-11-23T15:53:35.818351-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 13 skipped for 10020 ms, the most allowed: read after diag transaction 7011 (waited 43 ms)
+### t+15.05
+2876
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+2026-11-23T15:57:52.609557-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:57:55.910839-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 54 skipped for 10004 ms, the most allowed: read after diag transaction 7121 (waited 0 ms)
+2026-11-23T15:57:55.970264-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 54 skipped for 10004 ms, the most allowed: read after diag transaction 7122 (waited 43 ms)
+### t+20.02
+2876
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+2026-11-23T16:02:51.337302-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T16:02:56.058772-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 54 skipped for 10004 ms, the most allowed: read after diag transaction 7377 (waited 27 ms)
+2026-11-23T16:02:56.126264-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 54 skipped for 10032 ms, the most allowed: read after diag transaction 7378 (waited 49 ms)
+### t+25.01
+2876
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+2026-11-23T16:07:50.736066-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T16:07:56.170780-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 54 skipped for 10003 ms, the most allowed: read after diag transaction 7618 (waited 16 ms)
+2026-11-23T16:07:56.238267-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 54 skipped for 10020 ms, the most allowed: read after diag transaction 7619 (waited 50 ms)
+### t+30.07
+2878
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=4; waited=4; expired=0; refused=0; 
+2026-11-23T16:12:54.230282-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T16:12:56.262441-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 50 skipped for 10005 ms, the most allowed: read after diag transaction 7780 (waited 23 ms)
+2026-11-23T16:12:56.331048-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 50 skipped for 10027 ms, the most allowed: read after diag transaction 7781 (waited 53 ms)
+2026-11-23T16:13:06.254785-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 13 skipped for 10004 ms, the most allowed: read after diag transaction 7967 (waited 44 ms)
+2026-11-23T16:13:06.318253-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 13 skipped for 10048 ms, the most allowed: read after diag transaction 7968 (waited 48 ms)
+### after
+2876
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+2026-11-23T16:13:29.341556-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T16:13:36.202342-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 9 skipped for 10004 ms, the most allowed: read after diag transaction 8103 (waited 10 ms)
+2026-11-23T16:13:36.266796-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 9 skipped for 10016 ms, the most allowed: read after diag transaction 8104 (waited 48 ms)

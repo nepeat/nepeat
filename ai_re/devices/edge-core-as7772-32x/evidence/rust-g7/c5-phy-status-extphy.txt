@@ -1,0 +1,83 @@
+== last run of openbcm-mdio-script.service (/run/openbcm-mdio-script/status.txt) ==
+openbcm-mdio-script: ok: 32 PHYs verified after 1058160 operations in 102.9 s
+  run started 2026-11-23 23:06:34 +0000, took 102.9 s
+  switch chip: BCM56930_B1: init soc + init misc done; external MDIO rate register 0x00010035, hold delay 10 (as configured)
+  /var/lib/evora-phy/evora-100g-bypass.mdio: done, 1058160 of 1058160 operations in 100.3 s (553600 writes, 428576 reads, 17416 re-reads; 0 of the recorded values differed)
+  ASIC temperature published meanwhile: 21 readings, last 44.7 C, 0 failed, longest read 0.13 ms
+  PHY registers read at the end of the script: 32 of 32 PHYs as expected
+name    phy    id      id2     fw      cksum   sides   state
+cage1   0x000  2391    80a0    d00b    600d    000d    ok
+cage2   0x001  2391    80a0    d00b    600d    000d    ok
+cage3   0x002  2391    80a0    d00b    600d    000d    ok
+cage4   0x003  2391    80a0    d00b    600d    000d    ok
+cage5   0x024  2391    80a0    d00b    600d    000d    ok
+cage6   0x025  2391    80a0    d00b    600d    000d    ok
+cage7   0x026  2391    80a0    d00b    600d    000d    ok
+cage8   0x027  2391    80a0    d00b    600d    000d    ok
+cage9   0x048  2391    80a0    d00b    600d    000d    ok
+cage10  0x049  2391    80a0    d00b    600d    000d    ok
+cage11  0x04a  2391    80a0    d00b    600d    000d    ok
+cage12  0x04b  2391    80a0    d00b    600d    000d    ok
+cage13  0x06c  2391    80a0    d00b    600d    000d    ok
+cage14  0x06d  2391    80a0    d00b    600d    000d    ok
+cage15  0x06e  2391    80a0    d00b    600d    000d    ok
+cage16  0x06f  2391    80a0    d00b    600d    000d    ok
+cage17  0x110  2391    80a0    d00b    600d    000d    ok
+cage18  0x111  2391    80a0    d00b    600d    000d    ok
+cage19  0x112  2391    80a0    d00b    600d    000d    ok
+cage20  0x113  2391    80a0    d00b    600d    000d    ok
+cage21  0x134  2391    80a0    d00b    600d    000d    ok
+cage22  0x135  2391    80a0    d00b    600d    000d    ok
+cage23  0x136  2391    80a0    d00b    600d    000d    ok
+cage24  0x137  2391    80a0    d00b    600d    000d    ok
+cage25  0x158  2391    80a0    d00b    600d    000d    ok
+cage26  0x159  2391    80a0    d00b    600d    000d    ok
+cage27  0x15a  2391    80a0    d00b    600d    000d    ok
+cage28  0x15b  2391    80a0    d00b    600d    000d    ok
+cage29  0x17c  2391    80a0    d00b    600d    000d    ok
+cage30  0x17d  2391    80a0    d00b    600d    000d    ok
+cage31  0x17e  2391    80a0    d00b    600d    000d    ok
+cage32  0x17f  2391    80a0    d00b    600d    000d    ok
+
+== the PHYs now (read only) ==
+through syncd (/run/sai-openbcm/diag.sock)
+name    phy    id      id2     fw      cksum   sides   state
+cage1   0x000  2391    80a0    d00b    600d    000d    ok
+cage2   0x001  2391    80a0    d00b    600d    000d    ok
+cage3   0x002  2391    80a0    d00b    600d    000d    ok
+cage4   0x003  2391    80a0    d00b    600d    000d    ok
+cage5   0x024  2391    80a0    d00b    600d    000d    ok
+cage6   0x025  2391    80a0    d00b    600d    000d    ok
+cage7   0x026  2391    80a0    d00b    600d    000d    ok
+cage8   0x027  2391    80a0    d00b    600d    000d    ok
+cage9   0x048  2391    80a0    d00b    600d    000d    ok
+cage10  0x049  2391    80a0    d00b    600d    000d    ok
+cage11  0x04a  2391    80a0    d00b    600d    000d    ok
+cage12  0x04b  2391    80a0    d00b    600d    000d    ok
+cage13  0x06c  2391    80a0    d00b    600d    000d    ok
+cage14  0x06d  2391    80a0    d00b    600d    000d    ok
+cage15  0x06e  2391    80a0    d00b    600d    000d    ok
+cage16  0x06f  2391    80a0    d00b    600d    000d    ok
+cage17  0x110  2391    80a0    d00b    600d    000d    ok
+cage18  0x111  2391    80a0    d00b    600d    000d    ok
+cage19  0x112  2391    80a0    d00b    600d    000d    ok
+cage20  0x113  2391    80a0    d00b    600d    000d    ok
+cage21  0x134  2391    80a0    d00b    600d    000d    ok
+cage22  0x135  2391    80a0    d00b    600d    000d    ok
+cage23  0x136  2391    80a0    d00b    600d    000d    ok
+cage24  0x137  2391    80a0    d00b    600d    000d    ok
+cage25  0x158  2391    80a0    d00b    600d    000d    ok
+cage26  0x159  2391    80a0    d00b    600d    000d    ok
+cage27  0x15a  2391    80a0    d00b    600d    000d    ok
+cage28  0x15b  2391    80a0    d00b    600d    000d    ok
+cage29  0x17c  2391    80a0    d00b    600d    000d    ok
+cage30  0x17d  2391    80a0    d00b    600d    000d    ok
+cage31  0x17e  2391    80a0    d00b    600d    000d    ok
+cage32  0x17f  2391    80a0    d00b    600d    000d    ok
+32 of 32 PHYs as the script expects
+rc=0
+extphy:   raw MDIO hold-off phy 0x15b: 2925 ms left, 5 accesses
+extphy:   raw MDIO hold-off phy 0x17c: 2926 ms left, 5 accesses
+extphy:   raw MDIO hold-off phy 0x17d: 2927 ms left, 5 accesses
+extphy:   raw MDIO hold-off phy 0x17e: 2927 ms left, 5 accesses
+extphy:   raw MDIO hold-off phy 0x17f: 2928 ms left, 5 accesses

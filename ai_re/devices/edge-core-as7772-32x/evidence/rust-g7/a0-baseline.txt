@@ -1,0 +1,119 @@
+# step 0 baseline, gen 31
+2026-11-23T15:01:45-08:00
+2026-11-23T23:01:45+00:00
+/nix/store/na3yx1c2yqyaf5vi1lk7n915aylwp1a1-nixos-system-as7772-26.11.20261111.d4f25a3
+/nix/store/na3yx1c2yqyaf5vi1lk7n915aylwp1a1-nixos-system-as7772-26.11.20261111.d4f25a3
+system-31-link
+lrwxrwxrwx 1 root root   86 Nov 22 00:32 system-5-link -> /nix/store/31vxkvwnzgdk018yynr5xhiiar96c4mx-nixos-system-as7772-26.11.20261111.d4f25a3
+lrwxrwxrwx 1 root root   86 Nov 22 00:42 system-6-link -> /nix/store/7wpwnvbcwm32d71dwsmrxss2bfi1vwxw-nixos-system-as7772-26.11.20261111.d4f25a3
+lrwxrwxrwx 1 root root   86 Nov 22 00:58 system-7-link -> /nix/store/vpr8vsf7qr5sa2ng7s39qz8gy1h87my7-nixos-system-as7772-26.11.20261111.d4f25a3
+lrwxrwxrwx 1 root root   86 Nov 22 03:11 system-8-link -> /nix/store/k5zli92pja14awi49lwcsblrsazclczf-nixos-system-as7772-26.11.20261111.d4f25a3
+lrwxrwxrwx 1 root root   86 Nov 22 03:25 system-9-link -> /nix/store/f0rkbasjllsjhckww7y3ixcpg791lw43-nixos-system-as7772-26.11.20261111.d4f25a3
+Linux as7772 7.3.4 #1-NixOS SMP PREEMPT @1794334210 ppc64 GNU/Linux
+ 15:01:45 up  5:55,  3 users,  load average: 0.67, 0.76, 0.81
+== fan
+as7760_fan             28672  0
+/sys/class/hwmon/hwmon0/name lm75
+/sys/class/hwmon/hwmon1/name lm75
+/sys/class/hwmon/hwmon2/name lm75
+/sys/class/hwmon/hwmon3/name lm75
+/sys/class/hwmon/hwmon4/name lm75
+/sys/class/hwmon/hwmon5/name lm75
+/sys/class/hwmon/hwmon6/name max1617
+/sys/class/hwmon/hwmon7/name as7760_fan
+active
+{
+  "version": "0.1.0",
+  "uptime": 21316.0,
+  "dry_run": false,
+  "ticks": 10659,
+  "failsafe": false,
+  "zones": {
+    "asic": {
+      "state": "normal",
+      "reasons": [],
+      "temperature": 46.7,
+      "smoothed": 46.7,
+      "policy": "curve delta-asic",
+      "profile": "none",
+      "demand": 35.0,
+      "floor": 0.0,
+      "duty": 53.3,
+      "override_duty": null,
+      "override_remaining": null,
+      "waiting": []
+    },
+    "board": {
+      "state": "normal",
+      "reasons": [],
+      "temperature": 35.5,
+      "smoothed": 35.5,
+      "policy": "curve (inline)",
+      "profil
+== failed
+== macsec
+extmacsec: 32 ports, 126 sequences; objects: 2 macsec, 8 ports, 8 flows, 8 SCs, 8 SAs, 8 ACL tables, 16 ACL entries
+port      phy  dir     engine gate   AN0 AN1 AN2 AN3 tx   runs fails  max_us last failure
+ce30      17e  egress  on     open   sa  -   -   -   0   23242     0   81203 
+ce30      17e  ingress on     open   sa  -   -   -       23242     0   88897 
+ce31      17f  egress  on     open   sa  -   -   -   0   23241     0   80755 
+ce31      17f  ingress on     open   sa  -   -   -       23241     0   89540 
+ce0         0  egress  on     open   sa  -   -   -   0   23242     0   81042 
+ce0         0  ingress on     open   sa  -   -   -       23242     0   89690 
+ce1         1  egress  on     open   sa  -   -   -   0   23241     0   82039 
+ce1         1  ingress on     open   sa  -   -   -       23241     0   89632 
+engines in bypass: 56 of 64
+abi-run.sh
+coldboot2-traffic.txt
+fan-snap.sh
+g2
+led-ram.sh
+macsec-appdb-test.sh
+macsec-clear-window-test.sh
+macsec-rekey-test.sh
+macsec-static-test.sh
+macsec-traffic-test.sh
+macsec-up-check.sh
+macsec-wrap-test.sh
+macsec-wrongcak-test.sh
+platform.txt
+reboot1-traffic.txt
+rk-soak
+rk-soak.sh
+rust_ppc64_abi.ko
+soak-rust
+sonic-ring
+sonic-ring.sh
+sonic-traffic-test.sh
+state.sh
+traffic-coldboot1.txt
+traffic-stack-restart.txt
+  28   2026-11-23 03:53:23   
+  29   2026-11-23 04:42:47   
+  30   2026-11-23 08:09:29   
+  31   2026-11-23 08:55:25   (current)
+== vrf
+== addr
+Ethernet0        UP             
+Ethernet4        UP             
+Ethernet120      UP             
+Ethernet124      UP             
+== CONFIG_DB
+INTERFACE|Ethernet124
+INTERFACE|Ethernet4
+
+
+INTERFACE|Ethernet4: mac_addr 1c:ea:0b:38:2b:d6 
+INTERFACE|Ethernet124: mac_addr 1c:ea:0b:38:2b:d7 
+INTERFACE|Ethernet0:  
+INTERFACE|Ethernet120:  
+ls: cannot access '/run/as7772-tests': No such file or directory
+== up-check
+== 2026-11-23T15:01:57-08:00 na3yx1c2yqya... up 21342.78 s; the start of sonic-syncd: 116.859 s; limit 60 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +10.4 s, secured +14.2 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +11.0 s, secured +14.2 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +9.0 s, secured +14.7 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +10.7 s, secured +14.8 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 1; MKA sessions started since: 4; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+PASS: MKA up on 4 ports without intervention, the slowest 14.8 s after the start of sonic-syncd (limit 60 s)
+]0;

@@ -1,0 +1,38 @@
+# sampler unit at stop
+active
+MKA open-SAs=8 failed-units=0 oper-up=4
+KBRIDGE fwd: 17 bridge-tx; fdb entries for d1/d2: 0
+# stop
+  redis-cli -n 4 del VLAN_MEMBER\|Vlan100\|Ethernet0
+  redis-cli -n 4 del VLAN_MEMBER\|Vlan100\|Ethernet120
+  redis-cli -n 4 del VLAN_MEMBER\|Vlan200\|Ethernet4
+  redis-cli -n 4 del VLAN_MEMBER\|Vlan200\|Ethernet124
++-----------+--------------+---------+----------------+-------------+--------------------------+
+|   VLAN ID | IP Address   | Ports   | Port Tagging   | Proxy ARP   | Static Anycast Gateway   |
++===========+==============+=========+================+=============+==========================+
+|       100 |              |         |                | disabled    | disabled                 |
++-----------+--------------+---------+----------------+-------------+--------------------------+
+|       200 |              |         |                | disabled    | disabled                 |
++-----------+--------------+---------+----------------+-------------+--------------------------+
+rc=0
+# down
+  run /nix/store/69llic5l6rl2lp8p0xkfzayjmxkw9hjc-sonic-swss-powerpc64-unknown-linux-gnuabielfv2-0-d9684cc/bin/swssconfig /tmp/tmp.Nusp50KaS0
+== cleanup: restoring the snapshot of an interrupted run (/run/as7772-tests/sonic-ring, taken 2026-11-23T15:42:43-08:00)
+== restore (sonic-ring; exit status so far 0)
+  -- phase /^VLAN[|]Vlan(100|200)$/: 2 change(s)
+  redis-cli -n 4 del VLAN\|Vlan100
+  redis-cli -n 4 del VLAN\|Vlan200
+  -- phase /^INTERFACE[|]Ethernet(0|4|120|124)([|]|$)/: 2 change(s)
+  redis-cli -n 4 hset INTERFACE\|Ethernet124 mac_addr 1c:ea:0b:38:2b:d7
+  redis-cli -n 4 hset INTERFACE\|Ethernet4 mac_addr 1c:ea:0b:38:2b:d6
+  run sysctl -q -w net.ipv6.conf.default.disable_ipv6=0
+  run sysctl -q -w net.ipv6.conf.Bridge.disable_ipv6=0
+  run sysctl -q -w net.ipv6.conf.Ethernet0.disable_ipv6=0
+  run sysctl -q -w net.ipv6.conf.Ethernet4.disable_ipv6=0
+  run sysctl -q -w net.ipv6.conf.Ethernet120.disable_ipv6=0
+  run sysctl -q -w net.ipv6.conf.Ethernet124.disable_ipv6=0
+== CONFIG_DB identical to the snapshot: 142 keys, 429 fields
+== kernel state identical to the snapshot
+== APPL_DB FDB keys as in the snapshot
+== RESTORED and verified
+rc=0

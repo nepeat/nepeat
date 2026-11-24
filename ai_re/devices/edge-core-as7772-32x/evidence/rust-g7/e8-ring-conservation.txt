@@ -1,0 +1,100 @@
+{
+ "asic_final_static": "ce0 {\"RDBGC1\":15,\"TDBGC3\":740,\"RPKT\":32209089483,\"RBYT\":20959895279325,\"TPKT\":32209530679,\"TBYT\":20960207740047,\"UC_PERQ_PKT(0)\":32209530679}\nce1 {\"RPKT\":32209530679,\"RBYT\":20960207740047,\"TPKT\":32209089483,\"TBYT\":20959895279325,\"UC_PERQ_PKT(0)\":32209089483}\nce30 {\"RDBGC1\":15,\"RPKT\":32209530693,\"RBYT\":20960207743568,\"TPKT\":32209088728,\"TBYT\":20959894797324,\"UC_PERQ_PKT(0)\":32209088728}\nce31 {\"RPKT\":32209088728,\"RBYT\":20959894797324,\"TPKT\":32209530693,\"TBYT\":20960207743568,\"UC_PERQ_PKT(0)\":32209530693}",
+ "cable_deltas_first_sample_midtraffic": {
+  "samples": 29,
+  "first": "2026-11-23T23:42:49Z",
+  "last": "2026-11-24T00:13:21Z",
+  "ce0 TPKT d vs ce1 RPKT d": [
+   32194152101,
+   32194146565
+  ],
+  "ce1 TPKT d vs ce0 RPKT d": [
+   32194205384,
+   32194211359
+  ],
+  "ce30 TPKT d vs ce31 RPKT d": [
+   32194268230,
+   32194262799
+  ],
+  "ce31 TPKT d vs ce30 RPKT d": [
+   32194204117,
+   32194210198
+  ],
+  "ce0 TBYT d vs ce1 RBYT d": [
+   20950561274577,
+   20950557669829
+  ],
+  "ce30 TBYT d vs ce31 RBYT d": [
+   20950636834678,
+   20950633244604
+  ],
+  "errKeys": [
+   "RDBGC1",
+   "TDBGC3"
+  ],
+  "asicTemps": [
+   45.7,
+   47.7,
+   46.7,
+   48.1,
+   46.7,
+   46.2,
+   46.2,
+   46.2,
+   45.7,
+   46.7,
+   46.7,
+   46.7,
+   46.7,
+   46.2,
+   46.2,
+   46.2,
+   46.7,
+   46.7,
+   47.2,
+   46.7,
+   47.2,
+   45.7,
+   45.7,
+   46.7,
+   47.7,
+   46.7,
+   47.2,
+   47.2,
+   46.7
+  ],
+  "proc": [
+   "syncd(886) cpu%=11.8 rss=139588k cpus=253; orchagent(888) cpu%=0.4 rss=58596k cpus=9;  load=1.73 1.94 1.73",
+   "syncd(886) cpu%=10.6 rss=139604k cpus=409; orchagent(888) cpu%=0.4 rss=58596k cpus=17;  load=1.14 1.21 1.18"
+  ],
+  "mka": [
+   "open-SAs=8 failed-units=0 oper-up=4"
+  ],
+  "rate": "ce0 92.07 Gb/s, ce1 92.07 Gb/s, ce30 92.07 Gb/s, ce31 92.07 Gb/s"
+ },
+ "phy_line_mib_p1_to_after": [
+  "phy 0 line TPKT d 32209527379 -> phy 1 line RPKT d 32209527379: EQUAL; RFCS 0/0 RERPKT 0/0 RJBR 0/0 TERR 0/0",
+  "phy 1 line TPKT d 32209086167 -> phy 0 line RPKT d 32209086169: DIFF -2; RFCS 0/0 RERPKT 0/0 RJBR 0/0 TERR 0/0",
+  "phy 382 line TPKT d 32209085427 -> phy 383 line RPKT d 32209085427: EQUAL; RFCS 0/0 RERPKT 0/0 RJBR 0/0 TERR 0/0",
+  "phy 383 line TPKT d 32209527377 -> phy 382 line RPKT d 32209527377: EQUAL; RFCS 0/0 RERPKT 0/0 RJBR 0/0 TERR 0/0"
+ ],
+ "macsec_final": [
+  "Ethernet0->Ethernet4 SC 1cea0b382bd50001: encrypted 32209529666 accepted 32209529666 EQUAL ingress-errors 0",
+  "Ethernet4->Ethernet0 SC 1cea0b382bd60001: encrypted 32209088501 accepted 32209088501 EQUAL ingress-errors 0",
+  "Ethernet120->Ethernet124 SC 1cea0b382bd50001: encrypted 32209087716 accepted 32209087716 EQUAL ingress-errors 0",
+  "Ethernet124->Ethernet120 SC 1cea0b382bd70001: encrypted 32209529711 accepted 32209529711 EQUAL ingress-errors 0"
+ ],
+ "drain": "TDBGC3.ce0 740 = SAI OUT_DISCARDS Ethernet0 740; Ethernet0 netdev rx +2184 vs +1444 on the other three = +740",
+ "fec_table": [
+  "| probe | 0/0/0 | 0/0/0 | 0/0/0 | 0/0/0 | 0 | 12.6 |",
+  "| p0 | 0/0/0 | 0/0/0 | 0/0/0 | 0/0/0 | 0 | 12.6 |",
+  "| p1 (idle 60 s) | 0/0/0 | 0/0/0 | 0/0/0 | 0/0/0 | 0 | 12.5 |",
+  "| t+5 min | 0/0/0 | 0/0/0 | 0/0/0 | 0/0/0 | 0 | 12.8 |",
+  "| t+10.61 min | 0/0/0 | 0/0/0 | 0/0/0 | 0/0/0 | 0 | 12.7 |",
+  "| t+15.05 min | 0/0/0 | 0/0/0 | 0/0/0 | 0/0/0 | 0 | 12.6 |",
+  "| t+20.02 min | 0/0/0 | 0/0/0 | 0/0/0 | 0/0/0 | 0 | 12.5 |",
+  "| t+25.01 min | 0/0/0 | 0/0/0 | 0/0/0 | 0/0/0 | 0 | 12.6 |",
+  "| t+30.07 min | 0/0/0 | 0/0/0 | 0/0/0 | 0/0/0 | 0 | 12.9 |",
+  "| after | 0/0/0 | 0/0/0 | 0/0/0 | 0/0/0 | 0 | 12.5 |"
+ ]
+}

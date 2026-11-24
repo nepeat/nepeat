@@ -238,10 +238,17 @@ def yang_validate(cfg):
 
 def atomic_write(path, text):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    tmp = path + ".tmp"
-    with open(tmp, "w") as f:
-        f.write(text)
-    os.replace(tmp, path)
+    # A name of this process's own: sonic-nix-apply and sonic-nix-watch write the same files and
+    # can start in the same second; with one shared ".tmp" one renamed it away under the other
+    # (FileNotFoundError at boot, AS7772 2026-11-23).
+    tmp = "%s.%d.tmp" % (path, os.getpid())
+    try:
+        with open(tmp, "w") as f:
+            f.write(text)
+        os.replace(tmp, path)
+    finally:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
 
 
 def label(c):

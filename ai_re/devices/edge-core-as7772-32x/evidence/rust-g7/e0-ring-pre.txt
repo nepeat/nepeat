@@ -1,0 +1,59 @@
+# booted
+/nix/store/azkkiphrpmml34ml3vi52rffc7m2nxr9-nixos-system-as7772-26.11.20261111.d4f25a3
+2026-11-23T23:40:25+00:00
+# probe phystat rc 0 12.647s
+2876
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+2026-11-23T15:40:26.621449-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:40:35.442272-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 9 skipped for 10004 ms, the most allowed: read after diag transaction 5858 (waited 44 ms)
+2026-11-23T15:40:35.506791-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 9 skipped for 10048 ms, the most allowed: read after diag transaction 5859 (waited 49 ms)
+# macsec-up-check (FAIL only on the 'by itself' criterion: macsecmgrd restarted 7x by steps 3-4; all 4 ports secured)
+== 2026-11-23T15:40:43-08:00 azkkiphrpmml... up 2064.39 s; the start of sonic-syncd: 118.749 s; limit 60 s; ports: Ethernet0 Ethernet4 Ethernet120 Ethernet124
+Ethernet0: secured; MKA session started +1611.4 s, secured +14.2 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet4: secured; MKA session started +1612.5 s, secured +14.2 s; netdev 1c:ea:0b:38:2b:d6 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d6), egress SCI 1cea0b382bd60001
+Ethernet120: secured; MKA session started +1611.8 s, secured +14.7 s; netdev 1c:ea:0b:38:2b:d5, egress SCI 1cea0b382bd50001
+Ethernet124: secured; MKA session started +1612.2 s, secured +14.7 s; netdev 1c:ea:0b:38:2b:d7 (CONFIG_DB mac_addr 1c:ea:0b:38:2b:d7), egress SCI 1cea0b382bd70001
+macsecmgrd starts since: 7; MKA sessions started since: 30; wpa_supplicant 'duplicate MAC' / 'duplicated SCI' messages since: 0
+macsecmgrd was started 7 times since the start of sonic-syncd: not by itself
+FAIL: MKA is not up by itself on every port within 60 s of the start of sonic-syncd
+1711.213459 wpa_supplicant[62551]: KaY: Rekey period
+1711.984982 wpa_supplicant[62650]: KaY: Rekey period
+1728.508145 wpa_supplicant[62551]: KaY: No CA has a live peer; tearing down the controlled port
+1728.928231 wpa_supplicant[62650]: KaY: No CA has a live peer; tearing down the controlled port
+1729.180297 wpa_supplicant[62713]: KaY: No CA has a live peer; tearing down the controlled port
+1729.428187 wpa_supplicant[62797]: KaY: No CA has a live peer; tearing down the controlled port
+rc=1
+# sonic-ring.sh check
+CHECK OK: the four DAC ports up and looped to themselves (LLDP), nothing else up, no leftovers
+rc=0
+# counters
+2026-11-23T15:40:48-08:00
+extphy: 32 ports, poll 500 ms, up after 2 good polls, hold-off 3000 ms (not paused, 6014 so far)
+extphy: table parser and sequence executor: rust (phy-seq)
+extphy: MDIO per PHY; diag transactions: 1000 ms after each access unless asked, at most 2000 ms; raw MDIO without one: hold-off per PHY
+extphy: leases now 0; transactions begun 5919, ended 5917, expired 2; raw MDIO hold-offs 95; refused: busy 0, void 10
+extphy: link polls answered from the last verdict during a lease 1300; waits for a library run before a poll 206 (max 88938 us, total 2763629 us)
+extphy: MACsec polls skipped during a lease 782; forced reads after 10000 ms 93 (max wait 59649 us); MACsec / admin runs that waited for a transaction 63 (max 1007825 us); extmacsec run refused 0
+ce30      17e  egress  on     open   sa  -   -   -   0    2219     0   82288 
+ce30      17e  ingress on     open   sa  -   -   -        2350     0 1005939 
+ce31      17f  egress  on     open   sa  -   -   -   0    2273     0   81589 
+ce31      17f  ingress on     open   sa  -   -   -        2445     0   92881 
+ce0         0  egress  on     open   sa  -   -   -   0    2184     0  136787 
+ce0         0  ingress on     open   sa  -   -   -        2314     0  137861 
+ce1         1  egress  on     open   sa  -   -   -   0    2261     0  124020 
+ce1         1  ingress on     open   sa  -   -   -        2426     0 1019868 
+engines in bypass: 56 of 64
+# p0 journal
+2876
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=2; waited=2; expired=0; refused=0; 
+2026-11-23T15:40:49.749268-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:40:55.510858-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 54 skipped for 10004 ms, the most allowed: read after diag transaction 6028 (waited 7 ms)
+2026-11-23T15:40:55.578252-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 54 skipped for 10012 ms, the most allowed: read after diag transaction 6029 (waited 50 ms)
+# p1 journal
+2878
+stopped=0; read 0x0000=0; collectData: Failed=0; link poll fault=0; Failed to get attr=0; FW Message failure=0; paused: raw MDIO=1; skipped for=4; waited=3; expired=0; refused=0; 
+2026-11-23T15:42:05.250499-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external PHY phy 0x0: link polls and MACsec polls paused: raw MDIO on the diag socket without a transaction (resume 3000 ms after the last one)
+2026-11-23T15:42:05.498243-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 50 skipped for 10005 ms, the most allowed: read between two raw MDIO accesses of a diag client without a transaction
+2026-11-23T15:42:05.558777-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 50 skipped for 10004 ms, the most allowed: read after diag transaction 6151 (waited 43 ms)
+2026-11-23T15:42:15.510803-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.ingress.0 on chip port 13 skipped for 10004 ms, the most allowed: read after diag transaction 6345 (waited 37 ms)
+2026-11-23T15:42:15.574264-08:00 as7772 syncd[886]: sai-openbcm NOTICE api=1: external MACsec poll stats-sa.egress.0 on chip port 13 skipped for 10044 ms, the most allowed: read after diag transaction 6346 (waited 48 ms)

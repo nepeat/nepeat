@@ -1,0 +1,2 @@
+CHECK OK: the four DAC ports up and looped to themselves (LLDP), nothing else up, no leftovers
+rc=0
