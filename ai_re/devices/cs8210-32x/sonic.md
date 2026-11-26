@@ -107,8 +107,10 @@ the whole SoC; [analysis](sai-hw-fpga-stall-20261116.txt)). It turns on the FPGA
   then on a paged module the application whose host lanes and rate fit the cage's ports (1x400G here): Deinit ->
   staged ApSel -> Apply_DataPathInit -> ConfigSuccess -> Deinit cleared + Tx on -> DataPathActivated. The Molex
   1064281405 DR4s power up on app 2 (4 x 100G-FR1) and go to app 1 (400GBASE-DR4) in about 3 s; the DACs need
-  nothing. A module already up (daemon restart, warm reboot) is adopted without a write. xcvrd keeps
-  `--skip_cmis_mgr` (one state machine per module).
+  nothing. A module already up (daemon restart, warm reboot) is adopted without a write. Nothing latches: a
+  failed bring-up is retried every 60 s for ever, and a module that was up and is found out of ModuleReady /
+  DataPathActivated on two monitor reads in a row (10 s apart; not while LPMode is asserted on purpose) is brought
+  up again. xcvrd keeps `--skip_cmis_mgr` (one state machine per module).
 - **SONiC**: `sonic_platform`'s Sfp/Chassis call the daemon's socket (`/run/cs8210-optics/optics.sock`, JSON lines;
   `optics.py`): sideband, optoe flat-offset reads/writes, LPMode, reset. `show interfaces transceiver
   presence|eeprom -d` and the TRANSCEIVER_* tables work ([evidence](evidence/optics-20261125.txt)). xcvrd's
@@ -123,6 +125,11 @@ the whole SoC; [analysis](sai-hw-fpga-stall-20261116.txt)). It turns on the FPGA
 Cage guard (`sonic-cs8210-guard`, before syncd): `cs8210-optics guard --allowed <declared cages>`: the FPGA answers
 and every populated cage is declared, else syncd does not start (house network, PROGRESS 2026-11-11).
 
+**Credo PHY die temperatures**: `cs8210_credo_temperature_celsius{cage}` (cages 1-16) every 60 s, producer
+`cs8210-credo`: the vendor's query `firmware_get_slice_temp slice_id=all` through `phy_shell` in the SDK chroot, so
+phy_server (the MDIO FPGA's one owner) answers it; `phy_shell`'s `cls_phy_cmd_running` flag serialises it with
+cs8210-macsec. 45-52 C idle (2026-11-26). Not a fand input (fan policy is the owner's).
+
 ## LEDs
 
 - **Port LEDs: dark under SONiC.** The two LED CPLDs (MACsec LED 0x63: cages 1-16; switch LED 0x64: cages 17-32)
@@ -136,6 +143,21 @@ and every populated cage is declared, else syncd does not start (house network, 
   bit 7, pic_stream_mode_f bit 11), LED_REFRESH_CLIFF 0x13530, LED_REFRESH_PRECLIFF 0x13538, LED_REFRESH_TMR_CTL
   0x1353c (enable_f bit 1); per-PIC LED_SWCTRL_IB0..6_PIC from 0x13700 (software override, for a per-port walk).
   /dev/ipd allows one opener (syncd), so this has to be a SAI change (open: coordinator).
+- **What is known about the 4 LEDs per cage (2026-11-26):** the owner sees 1 of each cage's 4 LEDs lit under
+  SONiC, with both LED CPLDs in stream mode (0x09 = 0) and none of the vendor's LED writes done, so the ASIC's LED
+  controller emits something from its power-on / libifcs defaults. Not readable while syncd runs (/dev/ipd has
+  one opener, the SAI's diag shell has no register read, sysfs resource0 is claimed by ipd). The vendor material
+  we hold has no per-LED description: diag `leds.yaml` / `cel-led-test` only drive the CPLD-wide test colour,
+  `sys_cpld.ko` only knows led_enable + colour, the SDK has only the five init lines, the DIAGOS release notes
+  only mention front-panel LED behaviour "according to the new sys CPLD", and public sonic-buildimage has no
+  Teralynx LED config (Celestica Midstone-200i included). What the registers imply: LED_CFG streams per-lane state
+  per PIC (lane_enabled / link_up / local / remote fault masks, Rx/Tx activity blink), the per-IB per-PIC
+  LED_SHIFT_MASK / LED_COLOR_MASK are 24 bits (8 lanes x 3 bits) and LED_SWCTRL 16 bits (8 lanes x 2): so 4 LEDs
+  per cage most likely = one per lane pair (= one per 100G sub-port of a 4x100G breakout), and "1 of 4 lit" fits
+  the controller outside PIC stream mode sending one bit per port, shown on the cage's first LED. **Unproven
+  (inference).** To settle it: the vendor stack (`systemctl start cs8210-switch`, which runs the five lines) with
+  the owner at the panel, for a 1x400G link (31 <-> 32), a down port, and a 4x100G breakout; then the SAI
+  reproduces that.
 - **System LED** (sys CPLD 0x20 bits 2:0): `cs8210-leds monitor` (unit `cs8210-leds`) keeps it green while fand
   runs without failsafe and the FPGA is alive, blinking amber otherwise (it was 7, undefined, before).
   PSU and fan LEDs: the CPLD's own (0x21 test-mode bits clear).

@@ -69,9 +69,57 @@ impl Writer {
     }
 }
 
+/// The Credo PHY die temperatures as metrics, from the vendor command
+/// `firmware_get_slice_temp slice_id=all` (`phy_shell`, answered by `phy_server`, the MDIO
+/// FPGA's one owner): lines `slice N temp= T degress`, slice N = cage N (1-16). None when
+/// no line parses.
+#[must_use]
+pub fn credo_temps(text: &str) -> Option<String> {
+    let mut w = Writer::default();
+    let mut n = 0;
+    for line in text.lines() {
+        let Some(rest) = line.trim().strip_prefix("slice ") else {
+            continue;
+        };
+        let Some((slice, t)) = rest.split_once(" temp=") else {
+            continue;
+        };
+        let (Ok(slice), Some(Ok(t))) = (
+            slice.trim().parse::<u8>(),
+            t.split_whitespace().next().map(str::parse::<f64>),
+        ) else {
+            continue;
+        };
+        if !(1..=16).contains(&slice) || !(-40.0..=150.0).contains(&t) {
+            continue;
+        }
+        let s = slice.to_string();
+        w.gauge(
+            "cs8210_credo_temperature_celsius",
+            "Credo CMS50216 MACsec PHY die temperature (firmware slice temperature); slice = cage.",
+            &[("cage", &s)],
+            t,
+        );
+        n += 1;
+    }
+    (n > 0).then(|| w.finish())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn credo_lines() {
+        let t = credo_temps(
+            "slice 1 temp= 51.46 degress\nslice 16 temp= 46.88 degress\njunk\nslice 17 temp= 1.0 degress\n",
+        )
+        .unwrap();
+        assert!(t.contains("cs8210_credo_temperature_celsius{cage=\"1\"} 51.46\n"));
+        assert!(t.contains("{cage=\"16\"} 46.88"));
+        assert!(!t.contains("cage=\"17\""));
+        assert_eq!(credo_temps("phy_server is not running"), None);
+    }
 
     #[test]
     fn grouped_and_escaped() {

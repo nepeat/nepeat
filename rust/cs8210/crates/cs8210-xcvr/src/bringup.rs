@@ -24,10 +24,9 @@ pub const MAX_WAIT_MS: u64 = 60_000;
 pub const IDENTIFY_MS: u64 = 15_000;
 /// Poll interval while a step waits on the module.
 pub const POLL_MS: u64 = 100;
-/// Delay before a failed bring-up is retried from the start.
+/// Delay before a failed bring-up is retried from the start (forever: nothing
+/// latches, a module that becomes usable later, e.g. once a fibre is fixed, comes up).
 pub const RETRY_MS: u64 = 60_000;
-/// Attempts before a failure stays.
-pub const ATTEMPTS: u32 = 3;
 
 /// Register access of one module: `page` None = the lower page (or an unpaged module).
 pub trait ModuleIo {
@@ -102,7 +101,7 @@ pub enum Phase {
         /// description of it
         detail: String,
     },
-    /// gave up (retried after `RETRY_MS`, ATTEMPTS times)
+    /// failed (retried from the start every `RETRY_MS`)
     Failed {
         /// why
         reason: String,
@@ -114,7 +113,7 @@ pub enum Phase {
 pub enum Next {
     /// call `step` again after this many ms
     After(u64),
-    /// nothing to do until the module changes (Ready, or Failed for good)
+    /// nothing to do until the module changes (Ready)
     Idle,
 }
 
@@ -179,11 +178,7 @@ impl Bringup {
     fn fail(&mut self, now: u64, reason: String) -> Next {
         self.phase = Phase::Failed { reason };
         self.deadline = now + RETRY_MS;
-        if self.attempts < ATTEMPTS {
-            Next::After(RETRY_MS)
-        } else {
-            Next::Idle
-        }
+        Next::After(RETRY_MS)
     }
 
     fn wait(&mut self, now: u64, what: &str) -> Next {
@@ -211,15 +206,13 @@ impl Bringup {
             Phase::Activate => self.activate(io, now),
             Phase::Ready { .. } => Ok(Next::Idle),
             Phase::Failed { .. } => {
-                if self.attempts < ATTEMPTS && now >= self.deadline {
-                    let attempts = self.attempts + 1;
+                if now >= self.deadline {
+                    let attempts = self.attempts.saturating_add(1);
                     *self = Self::new(self.mode, now);
                     self.attempts = attempts;
                     Ok(Next::After(0))
-                } else if self.attempts < ATTEMPTS {
-                    Ok(Next::After(self.deadline - now))
                 } else {
-                    Ok(Next::Idle)
+                    Ok(Next::After(self.deadline - now))
                 }
             }
         };
@@ -496,14 +489,15 @@ mod tests {
             matches!(&p, Phase::Failed { reason } if reason.contains("rejected") && reason.contains("code 3")),
             "{p:?}"
         );
-        // retried later, three attempts in all
+        // retried every RETRY_MS, without end (nothing latches)
         let mut now = 1_000_000;
         for _ in 0..50 {
             if let Next::After(ms) = b.step(&mut Io(&mut m), now) {
                 now += ms;
             }
         }
-        assert_eq!(b.attempts(), ATTEMPTS);
+        assert!(b.attempts() > 3, "{}", b.attempts());
+        assert!(matches!(b.step(&mut Io(&mut m), now), Next::After(_)));
     }
 
     #[test]

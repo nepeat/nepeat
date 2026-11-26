@@ -1,29 +1,30 @@
 # CS8210-32X
 
-## Status (2026-11-25)
+## Status (2026-11-26)
 
-- **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-49, from the SSD; a reboot and a cold power cycle
+- **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-52, from the SSD; a reboot and a cold power cycle
   (2026-11-25) came back unattended, 0 failed units. **SONiC at boot** on our C++ `sai-teralynx` (HEAD's frozen
   frontend, first on this box 2026-11-25). Cabling (owner, 2026-11-25): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
   400G-DR4 QSFP-DD optics (MPO loops), 3 <-> 17 TE 2459398-1 400G CR8 DAC; nothing to the house. CONFIG_DB = the Nix
   base: those six ports 1x400G RS FEC, far ends in Vrf-a/b/c with /31s, 26 ports down ([sonic.md](sonic.md) "Running it").
-  **3 <-> 17 and 31 <-> 32 up, ping across + ASIC counters; 1 <-> 2 down: Rx power below the DR4 range (cage 1 lane 4
-  -13 dBm, LOS), the MPO path needs a human** ([links-20261125.txt](evidence/links-20261125.txt)).
+  **3 <-> 17 and 31 <-> 32 up, ping across + ASIC counters; 1 <-> 2 down with good optics since the fibre fix (Rx -4.0 ..
+  -8.2 dBm, no LOS, modules Ready): the Credo PHY + optical module combination** ([links-20261125.txt](evidence/links-20261125.txt)).
 - **Cages:** `cs8210-optics` (`rust/cs8210`) is the one owner of the I2C FPGA: declared cages (= admin-up ports) out of
   reset and brought up (CMIS app select 4x100G -> 400G-DR4), all others held in reset; xcvrd and `show interfaces
   transceiver` through its socket; `switch_optic_*` metrics ([sonic.md](sonic.md) "Optics", [optics](evidence/optics-20261125.txt)).
 - **LEDs:** system LED green (`cs8210-leds monitor`); port LEDs dark until the SAI sets up the ASIC LED stream (sonic.md
-  "LEDs"); `cs8210-leds test|walk` for a human ([leds](evidence/leds-20261125.txt)). Also: fand, node exporter :9100
-  (job `cs8210-32x`), MACsec module (vendor stack only, [macsec.md](macsec.md)), sFlow.
+  "LEDs"); `cs8210-leds test|walk` for a human ([leds](evidence/leds-20261125.txt)). Also: fand (no failsafe phase at boot
+  since 2026-11-26), PSU telemetry (`cs8210-psu`, `switch_psu_*`), Credo die temperatures, board RTC from the initrd,
+  node exporter :9100 (job `cs8210-32x`), MACsec module (vendor stack only, [macsec.md](macsec.md)), sFlow.
 - **Reach:** `sudo ssh root@10.60.2.190` (enp0s1). Console: DMC-12 P1 via consoled, `sudo ssh -t console@10.60.2.10 watch cs8210`
-  (read-only) / `… cs8210` (attach, `^] w` takes write). **Power: lab plug 1** (`direnv exec . lab-power 1 off|on` from ai_re/,
-  only after `systemctl poweroff` printed `reboot: Power down`: it does not cut power).
+  (read-only) / `… cs8210` (attach, `^] w` takes write). **Power: two feeds**, PSU1 = NetBotz 250 outlet `cs8210-psu1`, PSU2 =
+  lab plug 1; `direnv exec . lab-power cs8210 status|cycle` from ai_re/ (both; never target 2 = DMC-12), a cut only after
+  `systemctl poweroff` printed `reboot: Power down`. The NetBotz outlet's normal state is still Off (2026-11-26).
 - **Recover:** `systemctl stop sonic.target`; system-47 from the U-Boot menu (before cs8210-optics: its guard refuses syncd
   with these cages populated); dead I2C FPGA (`/run/cs8210-qsfp.dead`): power cycle. Vendor U-Boot prompt: `123<Enter>`
   within 3 s, then ONIE (`run onie_bootcmd`, RAM only) or **Route R** ([uart-recovery.md](uart-recovery.md), [boot-chain.md](boot-chain.md)).
-- **Open:** the 1 <-> 2 fibre (human: clean / swap the MPO cable); port LEDs (SAI: the vendor `pci write led_*` init);
-  fand holds failsafe (100 %) for the first ~65 s of every boot (ASIC sensor's first reading + 60 s calm); Credo die
-  temperatures not exported; our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
+- **Open:** the 1 <-> 2 link (Credo line side with optics); PSU1 Vout reads 6176 V (generic pmbus driver scaling on
+  PSU1 page 0; PSU2 fine); port LEDs (SAI: the vendor `pci write led_*` init); our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
   ([sai-features.md](sai-features.md)); MACsec under SONiC; CRM panels empty; learn-wedge watch (L0s off, [learn-wedge.md](learn-wedge.md)).
 
 ## Identity
@@ -122,6 +123,26 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-26 — platform round (CS-A2 B1): fan start-up, PSUs, board RTC, Credo temperatures, optics self-heal
+
+- Deployed system-52 (sn9jxa55) = the working tree (nix-diff against the tree with HEAD's flake.lock: only the flake
+  source path differs). Checks on the box ([platform-20261126.txt](evidence/platform-20261126.txt)):
+  - fand starts at 60 %, the ASIC sensor "waiting" (startup grace 60 s) until its first reading 5 s later, then the
+    curve (50 %): the ~65 s failsafe at 100 % on every boot is gone.
+  - Board RTC (DS1339, `rtc-ds1307` in the initrd): the journal starts at the real time, no more March-2026 stamps.
+  - PSUs (`cs8210-psu`, rust/cs8210): both Delta TDPS-1500AB-6 B fed, ~350 W in each, identity from PMBus, generic
+    `pmbus` driver bound, `switch_psu_*`; sonic_platform has 2 bays and the readings. **PSU1 Vout reads 6176 V**
+    (raw 0x1820 with exponent 0; PSU2 the same raw value at -9 = 12.08 V; VOUT_MODE 0x17 on both, reproducible on a
+    plain rebind; PSU1 shows no page-1 status in debugfs): the driver's probe differs on PSU1, open.
+  - Credo die temperatures `cs8210_credo_temperature_celsius{cage}` every 60 s via phy_shell (45-55 C).
+  - xcvrd VDM: each optic fails one freeze (not confirmed in 1 s), sonic_platform then reports no VDM statistics for it:
+    no repeats and no more module writes after 131 s. The CDB firmware query is asked once per module.
+  - cs8210-optics: a failed bring-up retries every 60 s for ever; a module found out of Ready / Activated twice is
+    brought up again; SONiC writes to the bytes the bring-up owns are refused. `credo-spec` picks the Credo line
+    media per cage from the module (DAC copper, optics otherwise; cage 1 and 2 got `optics_1x400G`, 3 `copper`).
+- Checks: cargo fmt / clippy (pedantic, -D warnings) / test green (rust/cs8210, 45 tests), `just test-packages -k
+  cs8210-sonic-platform`, `just test-eval` (226 passed, 19 xfail).
 
 ### 2026-11-25 — new cabling; cs8210-optics (Rust) owns the I2C FPGA; three-loop config; system LED; reboot + cold cycle
 

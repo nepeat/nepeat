@@ -38,6 +38,10 @@ const USAGE: &str = "usage:
   cs8210-optics dump N              lower page + the upper pages the module has, hex
   cs8210-optics write N OFFSET BYTE...
   cs8210-optics lpmode N 0|1 | reset N | retry N
+  cs8210-optics credo-temps < (phy_shell 'firmware_get_slice_temp slice_id=all')
+                                    the Credo die temperatures as Prometheus text (a filter: no FPGA access)
+  cs8210-optics credo-spec --spec SPEC [--wait S]
+                                    the Credo loader's -m spec with each cage's line media from its module
   cs8210-optics guard --allowed LIST [--wait SECONDS]
                                     exit 0 only if the FPGA answers and every populated cage is in LIST
   (client commands: --socket P; the daemon is the only process that touches the FPGA)";
@@ -417,6 +421,32 @@ fn guard(mut a: Vec<String>, socket: &Path) -> Result<(), String> {
     Ok(())
 }
 
+/// The Credo loader's -m spec with each cage's line-side media taken from the module in it
+/// ([`cs8210_optics::credo`]); waits up to --wait seconds for present modules to be identified.
+fn credo_spec(mut a: Vec<String>, socket: &Path) -> Result<(), String> {
+    let spec = last(take_opt(&mut a, "--spec")?).ok_or("--spec SPEC")?;
+    let wait = last(take_opt(&mut a, "--wait")?).map_or(Ok(30), |w| num(&w))?;
+    cs8210_optics::credo::rewrite(&spec, &std::collections::BTreeMap::new())?;
+    let deadline = std::time::Instant::now() + Duration::from_secs(wait);
+    let media = loop {
+        let v = call(socket, &json!({"op": "status"}));
+        let (known, pending) = v.as_ref().map(cs8210_optics::credo::media).unwrap_or_default();
+        if (v.is_ok() && pending.is_empty()) || std::time::Instant::now() > deadline {
+            if !pending.is_empty() || v.is_err() {
+                eprintln!("credo-spec: modules not identified in time (cages {pending:?}): their default kept");
+            }
+            break known;
+        }
+        std::thread::sleep(Duration::from_millis(500));
+    };
+    let (out, notes) = cs8210_optics::credo::rewrite(&spec, &media)?;
+    for n in notes {
+        eprintln!("credo-spec: {n}");
+    }
+    out!("{out}");
+    Ok(())
+}
+
 fn run(argv: Vec<String>) -> Result<(), String> {
     let mut v = argv;
     let socket = last(take_opt(&mut v, "--socket")?).map_or_else(|| PathBuf::from(SOCKET), PathBuf::from);
@@ -480,6 +510,14 @@ fn run(argv: Vec<String>) -> Result<(), String> {
         "reset" => call(&socket, &json!({"op": "reset", "cage": num8(arg(0)?)?})).map(|_| ()),
         "retry" => call(&socket, &json!({"op": "retry", "cage": num8(arg(0)?)?})).map(|_| ()),
         "guard" => guard(a, &socket),
+        "credo-spec" => credo_spec(a, &socket),
+        "credo-temps" => {
+            let mut text = String::new();
+            std::io::Read::read_to_string(&mut std::io::stdin(), &mut text).map_err(|e| e.to_string())?;
+            let prom = cs8210_optics::metrics::credo_temps(&text).ok_or("no \"slice N temp=\" line on stdin")?;
+            out!("{}", prom.trim_end());
+            Ok(())
+        }
         "-h" | "--help" | "help" => {
             out!("{USAGE}");
             Ok(())

@@ -5,12 +5,25 @@ EEPROM as optoe presents it (what sonic_xcvr expects): 0-255 = lower page +
 upper page 0; upper page n at 128 + 128 * n (the daemon selects pages, bank
 0); an SFP's A2h at 256-511. Writes, LPMode (the FPGA pin) and reset (a
 ResetL pulse; the daemon brings the module up again) go to the daemon,
-which refuses them for undeclared cages. Module bring-up (power class, CMIS
-application select) is the daemon's: xcvrd runs with --skip_cmis_mgr.
+which refuses them for undeclared cages and for the bytes its bring-up owns.
+Module bring-up (power class, CMIS application select) is the daemon's: xcvrd
+runs with --skip_cmis_mgr.
+
+Two xcvrd DOM-loop habits, per module (until it is removed or reset):
+  * the CDB firmware query (page 9Fh writes; these Molex modules answer "enter
+    password" and fail) runs once, its answer is kept;
+  * VDM statistics freeze (page 2Fh byte 144 + polling the done bit for 1 s):
+    a module that does not confirm a freeze within the time is reported as having
+    no VDM statistics, so xcvrd stops freezing it every cycle.
 """
+import sys
+import time
+
 from sonic_platform_base.sonic_xcvr.sfp_optoe_base import SfpOptoeBase
 
 from . import optics
+
+VDM_DONE_S = 0.9                                    # xcvrd polls for 1 s
 
 QSFP_IDS = (0x0c, 0x0d, 0x11, 0x18, 0x19, 0x1e)    # SFF-8436/8636 and CMIS
 
@@ -24,9 +37,41 @@ class Sfp(SfpOptoeBase):
     def __init__(self, port):
         SfpOptoeBase.__init__(self)
         self.port = port
+        self._fw_info = None                        # cached CDB firmware answer
+        self._vdm_freeze_broken = False
+        self._vdm_t0 = None
 
     def invalidate(self):
         self._xcvr_api = None
+        self._fw_info = None
+        self._vdm_freeze_broken = False
+        self._vdm_t0 = None
+
+    # ------------------------------------------------------------ xcvrd DOM habits
+    def get_transceiver_info_firmware_versions(self):
+        if self._fw_info is None:
+            self._fw_info = SfpOptoeBase.get_transceiver_info_firmware_versions(self)
+        return self._fw_info
+
+    def is_vdm_statistic_supported(self):
+        if self._vdm_freeze_broken:
+            return False
+        return SfpOptoeBase.is_vdm_statistic_supported(self)
+
+    def freeze_vdm_stats(self):
+        self._vdm_t0 = time.monotonic()
+        return SfpOptoeBase.freeze_vdm_stats(self)
+
+    def get_vdm_freeze_status(self):
+        done = SfpOptoeBase.get_vdm_freeze_status(self)
+        if done:
+            self._vdm_t0 = None
+        elif self._vdm_t0 is not None and time.monotonic() - self._vdm_t0 > VDM_DONE_S:
+            if not self._vdm_freeze_broken:
+                sys.stderr.write("cs8210 sonic_platform: cage %d: module does not confirm a VDM freeze; "
+                                 "VDM statistics off for it\n" % self.port)
+            self._vdm_freeze_broken = True
+        return done
 
     def _bit(self, name):
         sb = sideband()

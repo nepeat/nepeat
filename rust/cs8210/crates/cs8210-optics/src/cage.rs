@@ -58,6 +58,8 @@ pub struct CageState {
     pub last_error: Option<String>,
     /// times the daemon released `ResetL`
     pub releases: u64,
+    /// consecutive monitor reads that found an up module out of its state
+    pub degraded: u32,
 }
 
 impl CageState {
@@ -84,6 +86,7 @@ impl CageState {
             i2c_errors: 0,
             last_error: None,
             releases: 0,
+            degraded: 0,
         }
     }
 

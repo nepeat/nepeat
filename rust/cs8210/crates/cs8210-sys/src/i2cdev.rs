@@ -14,6 +14,8 @@ const I2C_SMBUS: libc::c_ulong = 0x0720;
 const I2C_SMBUS_READ: u8 = 1;
 const I2C_SMBUS_WRITE: u8 = 0;
 const I2C_SMBUS_BYTE_DATA: u32 = 2;
+const I2C_SMBUS_WORD_DATA: u32 = 3;
+const I2C_SMBUS_BLOCK_DATA: u32 = 5;
 
 /// `union i2c_smbus_data` is 34 bytes; the byte member is at offset 0.
 type SmbusData = [u8; 34];
@@ -60,10 +62,14 @@ impl I2cDev {
     }
 
     fn smbus(&self, write: bool, reg: u8, data: &mut SmbusData) -> io::Result<()> {
+        self.smbus_sized(write, reg, I2C_SMBUS_BYTE_DATA, data)
+    }
+
+    fn smbus_sized(&self, write: bool, reg: u8, size: u32, data: &mut SmbusData) -> io::Result<()> {
         let mut args = SmbusIoctlData {
             read_write: if write { I2C_SMBUS_WRITE } else { I2C_SMBUS_READ },
             command: reg,
-            size: I2C_SMBUS_BYTE_DATA,
+            size,
             data: std::ptr::from_mut(data),
         };
         // SAFETY: `args` has the kernel's #[repr(C)] layout and points at a live 34-byte
@@ -81,6 +87,23 @@ impl I2cDev {
         let mut data: SmbusData = [0; 34];
         self.smbus(false, reg, &mut data)?;
         Ok(data[0])
+    }
+
+    /// `SMBus` read word data (little-endian on the wire, as `PMBus` sends it).
+    pub fn read_word_data(&self, addr: u8, reg: u8) -> io::Result<u16> {
+        self.claim(addr)?;
+        let mut data: SmbusData = [0; 34];
+        self.smbus_sized(false, reg, I2C_SMBUS_WORD_DATA, &mut data)?;
+        Ok(u16::from_le_bytes([data[0], data[1]]))
+    }
+
+    /// `SMBus` block read (byte count first, at most 32 bytes).
+    pub fn read_block_data(&self, addr: u8, reg: u8) -> io::Result<Vec<u8>> {
+        self.claim(addr)?;
+        let mut data: SmbusData = [0; 34];
+        self.smbus_sized(false, reg, I2C_SMBUS_BLOCK_DATA, &mut data)?;
+        let n = usize::from(data[0]).min(32);
+        Ok(data.get(1..=n).map(<[u8]>::to_vec).unwrap_or_default())
     }
 
     /// `SMBus` write byte data.

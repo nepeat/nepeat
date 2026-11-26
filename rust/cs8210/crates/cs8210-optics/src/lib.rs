@@ -12,6 +12,7 @@
 
 pub mod bar;
 pub mod cage;
+pub mod credo;
 pub mod daemon;
 pub mod fpga;
 pub mod metrics;

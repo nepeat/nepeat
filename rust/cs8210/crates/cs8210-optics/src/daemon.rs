@@ -20,6 +20,7 @@ use std::time::{Duration, Instant};
 
 use cs8210_xcvr::bringup::{Bringup, Next, Phase, PortMode};
 use cs8210_xcvr::dom;
+use cs8210_xcvr::memory::Kind;
 use serde::Deserialize;
 use serde_json::{Value, json};
 
@@ -109,6 +110,22 @@ fn unhex(s: &str) -> Result<Vec<u8>, String> {
 #[allow(clippy::cast_precision_loss)]
 fn count(x: u64) -> f64 {
     x as f64
+}
+
+/// A write from `SONiC` that would change what the bring-up owns: CMIS module control
+/// (`LowPwrRequestSW`, software reset: lower byte 26) and page 10h's data path
+/// deinit (128-129) and control sets / `Apply_DataPathInit` (143-255). xcvrd runs with
+/// `--skip_cmis_mgr`, so none of these come from `SONiC` normally; Tx disable (page 10h
+/// 130), VDM (2Fh), CDB (9Fh) and the rest stay writable.
+fn reserved(kind: Kind, offset: usize, len: usize) -> Option<String> {
+    if !matches!(kind, Kind::Cmis { .. }) {
+        return None;
+    }
+    let dp = 128 * usize::from(cs8210_xcvr::cmis::reg::PAGE_DP_CONTROL);
+    let owned = |o: usize| o == 26 || (dp + 128..dp + 130).contains(&o) || (dp + 143..dp + 256).contains(&o);
+    (offset..offset + len)
+        .find(|&o| owned(o))
+        .map(|o| format!("flat offset {o} (module control / data path config) belongs to cs8210-optics' bring-up"))
 }
 
 fn utc_now() -> String {
@@ -345,7 +362,9 @@ impl<B: Bar> Daemon<B> {
             };
             st.kind = b.kind().or(st.kind);
             let after = b.phase().clone();
-            if after != before {
+            // A failure retried every minute logs its first attempts and then every 60th.
+            let loud = b.attempts() <= 3 || b.attempts() % 60 == 0;
+            if after != before && loud {
                 match &after {
                     Phase::Failed { reason } => log(&format!(
                         "{}: bring-up failed (attempt {}): {reason}",
@@ -358,10 +377,11 @@ impl<B: Bar> Daemon<B> {
                         serde_json::to_string(p).unwrap_or_default()
                     )),
                 }
-                if matches!(after, Phase::Ready { .. } | Phase::Failed { .. }) {
-                    st.next_dom = now;
-                    st.page0 = None;
-                }
+            }
+            if after != before && matches!(after, Phase::Ready { .. } | Phase::Failed { .. }) {
+                st.next_dom = now;
+                st.page0 = None;
+                st.degraded = 0;
             }
             st.bringup = Some(b);
             if self.fpga.dead().is_some() {
@@ -389,6 +409,26 @@ impl<B: Bar> Daemon<B> {
             .and_then(|()| cage::read_monitors(&mut self.fpga, st));
             if let Err(e) = r {
                 self.fpga_err(i, &e);
+                continue;
+            }
+            // A module that was up and left ModuleReady / DataPathActivated by itself (a
+            // power glitch, an LPMode cycle, firmware) is brought up again; two reads in a
+            // row (one monitor period apart) so a transition in flight is not counted.
+            // Not while LPMode is asserted on purpose.
+            let lp = self.sb.lpmode & st.cage.bit() != 0;
+            let up = st.up();
+            let off_state = st.module_state.as_deref().is_some_and(|s| s != "Ready")
+                || st.datapath.iter().any(|d| d != "Activated");
+            st.degraded = if up && off_state && !lp { st.degraded + 1 } else { 0 };
+            if st.degraded >= 2 {
+                log(&format!(
+                    "{}: module left its state (module {:?}, data path {:?}): bringing it up again",
+                    st.cage, st.module_state, st.datapath
+                ));
+                st.degraded = 0;
+                st.bringup = Some(Bringup::new(st.mode, now));
+                st.next_step = now;
+                st.page = None;
             }
         }
     }
@@ -503,6 +543,9 @@ impl<B: Bar> Daemon<B> {
                 };
                 let k = io.kind(st.kind).map_err(|e| e.to_string())?;
                 st.kind = Some(k);
+                if let Some(why) = reserved(k, offset, bytes.len()) {
+                    return Err(format!("{}: {why}", st.cage));
+                }
                 io.write_flat(k, offset, &bytes)?;
                 log(&format!(
                     "{}: {} byte(s) written at flat offset {offset} on request",
@@ -957,5 +1000,52 @@ mod tests {
         );
         assert_eq!(sim.reset_mask(), releases);
         assert_eq!(d2.cages[0].releases, 0, "adopted, not reset");
+    }
+
+    #[test]
+    fn a_module_that_drops_out_is_brought_up_again() {
+        let mut d = daemon(lab(), &[(1, M400)]);
+        settle(&mut d);
+        d.fpga.bar_mut().module_mut(1).unwrap().glitch();
+        assert!(!d.fpga.bar_ref().module(1).unwrap().dp_activated());
+        for _ in 0..3 {
+            for st in &mut d.cages {
+                st.next_dom = 0;
+            }
+            d.tick();
+        }
+        settle(&mut d);
+        assert!(d.fpga.bar_ref().module(1).unwrap().dp_activated());
+        assert!(d.cages[0].up());
+    }
+
+    #[test]
+    fn lpmode_on_purpose_is_left_alone() {
+        let mut d = daemon(lab(), &[(1, M400)]);
+        settle(&mut d);
+        assert_eq!(d.handle(r#"{"op":"lpmode","cage":1,"on":true}"#)["ok"], true);
+        d.fpga.bar_mut().module_mut(1).unwrap().glitch();
+        for _ in 0..4 {
+            for st in &mut d.cages {
+                st.next_dom = 0;
+            }
+            d.tick();
+        }
+        assert!(
+            !d.fpga.bar_ref().module(1).unwrap().dp_activated(),
+            "no bring-up while LPMode is asserted"
+        );
+    }
+
+    #[test]
+    fn sonic_cannot_write_what_the_bring_up_owns() {
+        let mut d = daemon(lab(), &[(1, M400)]);
+        settle(&mut d);
+        for (off, data) in [(26, "10"), (2176, "ff"), (2176 + 15, "ff"), (2176 + 17, "10")] {
+            let r = d.handle(&format!(r#"{{"op":"write","cage":1,"offset":{off},"data":"{data}"}}"#));
+            assert_eq!(r["ok"], false, "offset {off}: {r}");
+        }
+        let r = d.handle(r#"{"op":"write","cage":1,"offset":2178,"data":"00"}"#);
+        assert_eq!(r["ok"], true, "Tx disable stays writable: {r}");
     }
 }

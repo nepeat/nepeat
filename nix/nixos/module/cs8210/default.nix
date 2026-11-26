@@ -133,6 +133,12 @@ in
     ]
     ++ lib.optional cfg.alEth.enable "al_eth";
 
+    # Board RTC (DS1339 at 0x70:3 0x68, rtc0): the rtc core sets the clock from it
+    # when it registers, so load it in the initrd (the I2C controller and muxes are
+    # built in). From the root filesystem's udev it came at ~12 s and every journal
+    # entry before that was stamped with systemd's build epoch (March 2026).
+    boot.initrd.kernelModules = [ "rtc-ds1307" ];
+
     # The root disk controller is built in; don't let the generic module list
     # ask for drivers this kernel was configured without.
     boot.initrd.includeDefaultModules = false;

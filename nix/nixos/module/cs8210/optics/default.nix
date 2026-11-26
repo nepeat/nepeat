@@ -74,6 +74,11 @@ in
       '';
     };
   };
+  options.hardware.cs8210.psu.enable = mkOption {
+    type = types.bool;
+    default = true;
+    description = "cs8210-psu: PSU identity, the kernel pmbus driver on both PSUs, switch_psu_* metrics (Vin/Iin/Pin, Vout/Iout/Pout, temperatures, fan).";
+  };
   options.hardware.cs8210.leds.enable = mkOption {
     type = types.bool;
     default = true;
@@ -103,6 +108,27 @@ in
         RuntimeDirectory = "cs8210-optics";
         # A restart re-adopts the modules (no reset, no module write): links stay up.
       };
+    };
+
+    # PSUs (Delta TDPS-1500AB-6 B, PMBus 0x59 on mux 0x72 ch1 / ch0): identity read once,
+    # then the generic pmbus hwmon driver; the readings as switch_psu_* (and node_hwmon_*).
+    boot.kernelModules = mkIf config.hardware.cs8210.psu.enable [ "pmbus" ];
+    systemd.services.cs8210-psu-bind = mkIf config.hardware.cs8210.psu.enable {
+      description = "CS8210: PSU PMBus identity and the pmbus driver";
+      wantedBy = [ "multi-user.target" ];
+      after = [ "systemd-modules-load.service" ];
+      path = [ pkgs.kmod ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = "${cfg.package}/bin/cs8210-psu bind";
+      };
+    };
+    monitoring.nodeExporter.textfile.producers.cs8210-psu = mkIf (config.hardware.cs8210.psu.enable && mon.enable) {
+      command = "${cfg.package}/bin/cs8210-psu metrics";
+      interval = 15;
+      timeout = 10;
+      serviceConfig.LogLevelMax = "notice";
     };
 
     systemd.services.cs8210-leds = mkIf lcfg.enable {

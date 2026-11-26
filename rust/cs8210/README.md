@@ -8,9 +8,10 @@ The CS8210-32X platform tools, in safe Rust over a six-block OS rim:
 | `cs8210-xcvr` | pluggable module memory maps as pure functions: CMIS 4.0/5.x and SFF-8636 identity and monitors, optoe flat offsets, the CMIS bring-up state machine (`bringup`), SFF-8024 code tables, a module simulator |
 | `cs8210-optics` | `cs8210-optics`: the one owner of the I2C FPGA (PCI `1d0f:8571`) - daemon + CLI |
 | `cs8210-leds` | `cs8210-leds`: LED CPLD test colours / stream mode, the system LED keeper |
+| `cs8210-psu` | `cs8210-psu`: PSU status (system CPLD), PMBus identity, binds the kernel `pmbus` driver, `switch_psu_*` metrics |
 
 Its own workspace and lock file (like `../consoled`, `../sai`), so nothing here rebuilds fand or
-changes another board's closure. Nix: `nix/package.nix` (one package, both binaries), used by
+changes another board's closure. Nix: `nix/package.nix` (one package, every binary), used by
 `nix/nixos/module/cs8210/optics` (cross-built x86_64 -> aarch64). Device notes:
 `ai_re/devices/cs8210-32x/sonic.md` ("Optics", "LEDs").
 

@@ -1,0 +1,104 @@
+# CS8210 platform check, 2026-11-26 ~09:30 UTC (CS-A2 B1), system sn9jxa55 (= tree, nix-diff: flake source path only), up ~12 min
+## clock (rtc-ds1307 in the initrd)
+2026-11-26T01:18:02-08:00 cs8210 kernel: Booting Linux on physical CPU 0x0000000000 [0x410fd083]
+2026-11-26T01:18:02-08:00 cs8210 kernel: Linux version 7.3.4 (nixbld@localhost) (aarch64-unknown-linux-gnu-gcc (GCC) 16.
+Thu Nov 26 09:30:58 AM UTC 2026
+rtc-ds1307 53-0068
+2026-11-26 01:30:58.395090-08:00
+
+## fand journal from start (no failsafe phase)
+[   11.769431] cs8210 systemd[1]: Starting fand fan control daemon...
+[   11.834135] cs8210 fand[831]: starting: 2 zone(s), 14 sensor(s), 15 output(s), interval 5s, exit duty 100%
+[   11.834840] cs8210 fand[831]: sensor asic: not online yet (waiting for the first reading); not a fault for up to 60s after the start
+[   12.172501] cs8210 fand[831]: zone asic: waiting for asic (not online yet): only its floor meanwhile
+[   12.182092] cs8210 fand[831]: output bottom1: arm register [i2c-mux@74/i2c@3]-0066:0x0c read 0x19, wrote 0x18: armed
+[   12.284308] cs8210 fand[831]: output top1: arm register [i2c-mux@74/i2c@2]-0066:0x0c read 0x19, wrote 0x18: armed
+[   12.346738] cs8210 fand[831]: running: asic -- -> 60% (waiting for asic); board 34.4C -> 60%; bottom1=60% 18600-20300rpm; bottom2=60% 18600-20700rpm; bottom3=60% 18500-20800rpm; bottom4=60% 18700-2
+[   12.360791] cs8210 systemd[1]: Started fand fan control daemon.
+[   16.834370] cs8210 fand[831]: sensor asic: online after 5s, 51.9 C
+[   16.889470] cs8210 fand[831]: zone asic: all sensors online, resuming curve (inline)
+[  311.942946] cs8210 fand[831]: asic 57.2C -> 50%; board 36.9C -> 50%; bottom1=50% 10200-11300rpm; bottom2=50% 10200-11400rpm; bottom3=50% 10200-11500rpm; bottom4=50% 10300-11300rpm; bottom5=50% 1010
+[  616.942537] cs8210 fand[831]: asic 56.6C -> 50%; board 37.1C -> 50%; bottom1=50% 10300-11300rpm; bottom2=50% 10200-11400rpm; bottom3=50% 10200-11400rpm; bottom4=50% 10200-11300rpm; bottom5=50% 1010
+
+## PSUs (cs8210-psu show; PSU1 vout1 6176 V is a pmbus-driver scaling bug on PSU1 page 0, see PROGRESS)
+active
+PSU 1: Some(Status { present: true, input_good: true, output_good: true }) {"bus":15,"model":"TDPS-1500AB-6 B","pmbus_revision":34,"psu":1,"revision":"02","serial":"T2110041404","vendor":"DELTA"}
+  iin           3.007 amperes
+  iout1        27.312 amperes
+  iout2         0.101 amperes
+  fan1       8040.000 rpm
+  fan2         -1.000 rpm
+  fan3         -1.000 rpm
+  vin         116.875 volts
+  vcap         -0.500 volts
+  vout1      6176.000 volts
+  vout2         3.265 volts
+  pin         349.500 watts
+  pout1       329.500 watts
+  pout2         0.312 watts
+  temp1        47.000 celsius
+  temp2        54.000 celsius
+  temp3        54.000 celsius
+PSU 2: Some(Status { present: true, input_good: true, output_good: true }) {"bus":14,"model":"TDPS-1500AB-6 B","pmbus_revision":34,"psu":2,"revision":"02","serial":"T2110041403","vendor":"DELTA"}
+  iin           2.898 amperes
+  iout1        26.062 amperes
+  iout2         0.523 amperes
+  fan1       9376.000 rpm
+  fan2         -1.000 rpm
+  fan3         -1.000 rpm
+  vin         117.750 volts
+  vcap         -0.500 volts
+  vout1        12.078 volts
+  vout2         3.281 volts
+  pin         340.000 watts
+  pout1       314.000 watts
+  pout2         1.688 watts
+  temp1        52.000 celsius
+  temp2        59.000 celsius
+  temp3        56.000 celsius
+
+## Credo loader spec at boot (credo-spec)
+sonic-cs8210-credo: auto_load_user.sh -m 1:optics_1x400G:fec-def;2:optics_1x400G:fec-def;3:copper_1x400G:fec-def;4:optics_1x400G:fec-def;5:optics_1x400G:fec-def;6:optics_1x400G:fec-def;7:optics_1x400G:fec-def;8:optics_1x400G:fec-def;9:optics_1x400G:fec-def;10:optics_1x400G:fec-def;11:optics_1x400G:f
+
+## Credo die temperatures (/run/prometheus-textfile/cs8210-credo.prom, first lines; 18 lines)
+cs8210_credo_temperature_celsius{cage="1"} 55.35
+cs8210_credo_temperature_celsius{cage="2"} 54.25
+cs8210_credo_temperature_celsius{cage="3"} 54.07
+## xcvrd VDM: one failed freeze per optic, then off (no repeats after 131 s)
+[ 119.261336] it [  119.261336] cs8210 xcvrd[4304]: cs8210 sonic_platform: cage 32: module does not confirm a VDM freeze; VDM statistics off for it
+[ 119.409437] 32 [  119.409437] cs8210 DomInfoUpdateTask[4304]: Failed to confirm VDM freeze status for port 32
+[ 119.409514] 32 [  119.409514] cs8210 DomInfoUpdateTask[4304]: Failed to freeze VDM stats in contextmanager for port 32
+[ 119.409589] 32 [  119.409589] cs8210 DomInfoUpdateTask[4304]: Failed to freeze VDM stats for port 32
+[ 131.515775] 1 [  131.515775] cs8210 DomInfoUpdateTask[4304]: Failed to unfreeze VDM stats in contextmanager for port 1
+      5 port 1
+      5 port 2
+      5 port 31
+      5 port 32
+[  117.103774] cs8210 cs8210-optics[898]: cs8210-optics: cage 32: 6 byte(s) written at flat offset 20482 on request
+[  117.127060] cs8210 cs8210-optics[898]: cs8210-optics: cage 32: 2 byte(s) written at flat offset 20480 on request
+[  117.273468] cs8210 cs8210-optics[898]: cs8210-optics: cage 32: 6 byte(s) written at flat offset 20482 on request
+[  130.495701] cs8210 cs8210-optics[898]: cs8210-optics: cage 1: 1 byte(s) written at flat offset 6160 on request
+cs8210 sonic_platform: cage 32: module does not confirm a VDM freeze; VDM statistics off for it
+cs8210 sonic_platform: cage 2: module does not confirm a VDM freeze; VDM statistics off for it
+cs8210 sonic_platform: cage 31: module does not confirm a VDM freeze; VDM statistics off for it
+## ports
+
+  Ethernet0  209,210,211,212,213,214,215,216     400G   9100     rs   Ethernet1/1  routed    down       up  QSFP-DD Double Density 8X Pluggable Transceiver         N/A
+  Ethernet8  217,218,219,220,221,222,223,224     400G   9100     rs   Ethernet2/1  routed    down       up  QSFP-DD Double Density 8X Pluggable Transceiver         N/A
+ Ethernet16  193,194,195,196,197,198,199,200     400G   9100     rs   Ethernet3/1  routed      up       up  QSFP-DD Double Density 8X Pluggable Transceiver         N/A
+Ethernet128  121,122,123,124,125,126,127,128     400G   9100     rs  Ethernet17/1  routed      up       up  QSFP-DD Double Density 8X Pluggable Transceiver         N/A
+Ethernet240          25,26,27,28,29,30,31,32     400G   9100     rs  Ethernet31/1  routed      up       up  QSFP-DD Double Density 8X Pluggable Transceiver         N/A
+Ethernet248          33,34,35,36,37,38,39,40     400G   9100     rs  Ethernet32/1  routed      up       up  QSFP-DD Double Density 8X Pluggable Transceiver         N/A
+## lab-power cs8210 status
+cs8210 (Celestica CS8210-32X (devices/cs8210-32x)): all feeds on
+  feed 1: plug 1 (switch.server_room_lab_plug): on
+    power: no power meter on this target
+  feed cs8210-psu1: cs8210-psu1 (NetBotz 10.60.30.45 switched outlet "Outlet"): on, normal state off
+    power: no power meter on this target (the NetBotz 250 outlet does not meter)
+## cs8210-optics status (head)
+I2C FPGA version 0x0b00 board 0x09
+cage pres rst lp int  decl mode    type     vendor           part             serial            temp C  vcc V  bring-up
+   1 yes  no  no  yes  yes  1x400G  QSFP-DD  MOLEX            1064281405       G21084B2455         36.6  3.361  ready app 1
+   2 yes  no  no  yes  yes  1x400G  QSFP-DD  MOLEX            1064281405       G21466D0520         34.4  3.369  ready app 1
+   3 yes  no  no  no   yes  1x400G  QSFP-DD  TE Connectivity  2459398-1        5E1CPKA25421584        -      -  ready
+  17 yes  no  no  no   yes  1x400G  QSFP-DD  TE Connectivity  2459398-1        5E1CPKA25421584        -      -  ready

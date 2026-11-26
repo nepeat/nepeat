@@ -21,6 +21,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "cs8210-psu"
+version = "0.1.0"
+dependencies = [
+ "cs8210-sys",
+ "serde_json",
+]
+
+[[package]]
 name = "cs8210-sys"
 version = "0.1.0"
 dependencies = [

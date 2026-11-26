@@ -91,13 +91,17 @@ let
   credoUp = pkgs.writeShellScript "sonic-cs8210-credo-up" ''
     set -euo pipefail
     SDK=${sdkDirChroot}
+    # Line side per cage from the module that is in it (cs8210-optics: DAC -> copper with
+    # line link training, optics -> no AN/LT); the Nix spec for empty / unknown cages.
+    spec=$(${optics}/bin/cs8210-optics credo-spec --spec '${credo}' --wait 30) || spec='${credo}'
+    echo "sonic-cs8210-credo: auto_load_user.sh -m $spec"
     cs8210-sdk-chroot /bin/bash -c "
       set -e
       cd $SDK
       # A FIFO left by a phy_server that is gone makes the loader's write to
       # it block forever (open() for writing without a reader; chip 2026-11-16).
       pgrep -x phy_server >/dev/null || rm -f /tmp/cls_phy_fifo
-      ${phyPre}./c-phy/auto_load_user.sh -m '${credo}' -e macsecbypass -l
+      ${phyPre}./c-phy/auto_load_user.sh -m '$spec' -e macsecbypass -l
       # phy_server busy-loops on its FIFO once the last writer is gone;
       # hold one open (same as cs8210-switch-up).
       for _ in 1 2 3 4 5 6 7 8 9 10; do [ -p /tmp/cls_phy_fifo ] && break; sleep 1; done
@@ -297,7 +301,7 @@ in
         requiredBy = [ "sonic-syncd.service" ];
         before = [ "sonic-syncd.service" ];
         inherit (pcieReady) wants;
-        after = pcieReady.after ++ [ "systemd-modules-load.service" ] ++ lib.optional (cfg.allowedCages != null) "sonic-cs8210-guard.service";
+        after = pcieReady.after ++ [ "systemd-modules-load.service" "cs8210-optics.service" ] ++ lib.optional (cfg.allowedCages != null) "sonic-cs8210-guard.service";
         requires = lib.optional (cfg.allowedCages != null) "sonic-cs8210-guard.service";
         partOf = [ "sonic.target" ];
         conflicts = [ "cs8210-switch.service" ];
@@ -353,6 +357,27 @@ in
       interval = 15;
       timeout = 10;
       serviceConfig.LogLevelMax = "notice";
+    };
+
+    # Credo PHY die temperatures (cs8210_credo_temperature_celsius{cage}): the vendor's
+    # read-only query through phy_shell, answered by phy_server (the MDIO FPGA's one
+    # owner; phy_shell's cls_phy_cmd_running flag serialises it with cs8210-macsec).
+    # Fails (file dropped) while phy_server is not running.
+    monitoring.nodeExporter.textfile.producers.cs8210-credo = mkIf mon.enable {
+      command = toString (pkgs.writeShellScript "cs8210-credo-temps" ''
+        set -euo pipefail
+        export PATH=/run/current-system/sw/bin:$PATH   # cs8210-sdk-chroot
+        cs8210-sdk-chroot /bin/bash -c "cd ${sdkDirChroot}/c-phy && ./phy_shell 'firmware_get_slice_temp slice_id=all'" |
+          ${config.hardware.cs8210.optics.package}/bin/cs8210-optics credo-temps
+      '');
+      interval = 60;
+      timeout = 20;
+      serviceConfig = {
+        LogLevelMax = "notice";
+        # cs8210-sdk-chroot writes /run/cs8210-sdk and sets up its mounts
+        ProtectSystem = false;
+        PrivateTmp = false;
+      };
     };
 
     # cs8210-sai-files reads the board version from the system CPLD (i2cget).

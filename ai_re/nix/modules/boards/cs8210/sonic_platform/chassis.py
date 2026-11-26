@@ -1,4 +1,4 @@
-"""CS8210-32X chassis: 14 fan modules (28 rotors), 14 thermals, 4 PSU slots,
+"""CS8210-32X chassis: 14 fan modules (28 rotors), 14 thermals, 2 PSU bays (4 on the 21-inch variant),
 32 QSFP-DD cages (physical index = cage 1..32 = port_config.ini index),
 ONIE syseeprom.
 
@@ -13,7 +13,7 @@ from sonic_platform_base.chassis_base import ChassisBase
 
 from . import fan, thermal
 from .eeprom import Eeprom
-from .psu import Psu
+from .psu import Psu, num_psus
 from .sfp import Sfp, sideband
 
 NAME = "CS8210-32X"
@@ -27,7 +27,7 @@ class Chassis(ChassisBase):
         self._fan_drawer_list = fan.drawers()
         self._fan_list = [f for d in self._fan_drawer_list for f in d.get_all_fans()]
         self._thermal_list = thermal.thermals()
-        self._psu_list = [Psu(i) for i in range(1, 5)]
+        self._psu_list = [Psu(i) for i in range(1, num_psus() + 1)]
         self._sfp_list = [None] + [Sfp(p) for p in range(1, NUM_PORTS + 1)]
         self._eeprom = None
         # Not read here: every pmon daemon builds a Chassis, and only xcvrd

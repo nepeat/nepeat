@@ -239,6 +239,24 @@ in
       default = 95;
       description = "Switch ASIC die temperature (C) at or above which fans run at full speed (vendor PID setpoint 97, limit 105).";
     };
+    asicStartupGrace = lib.mkOption {
+      type = lib.types.str;
+      default = "60s";
+      description = ''
+        fand: how long after its start the ASIC sensor may have no reading yet
+        without that being a fault ("waiting": the board zone drives the fans
+        meanwhile). The ASIC diode is an exec sensor (MCP3425 over I2C,
+        independent of the SDK); its first result lands one interval after
+        fand starts (4.8 s on the 2026-11-25 boots), which without a grace was
+        a failsafe at 100 % plus the 60 s calm period on every boot. After the
+        grace, or once it has read, a missing reading is the usual fault.
+      '';
+    };
+    startupDuty = lib.mkOption {
+      type = lib.types.ints.between 0 100;
+      default = 60;
+      description = "fand: duty (%) every zone starts from before its curve takes over (fand's default: 100). Any fault is still failsafe 100 % at once.";
+    };
     asicCriticalC = lib.mkOption {
       type = lib.types.int;
       default = 100;
@@ -333,6 +351,7 @@ in
         settings = {
           interval = "${toString fan.interval}s";
           calm_period = "60s";
+          startup_duty = fan.startupDuty;
           sensors =
             lib.mapAttrs (_: node: {
               type = "hwmon";
@@ -353,6 +372,7 @@ in
                   130
                 ];
                 critical = fan.asicCriticalC;
+                startup_grace = fan.asicStartupGrace;
               };
             };
           outputs = fanOutputs // {

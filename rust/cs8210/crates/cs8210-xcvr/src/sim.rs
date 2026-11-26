@@ -127,6 +127,13 @@ impl SimModule {
         }
     }
 
+    /// What a power glitch leaves: `ModuleReady` again, every data path deactivated.
+    pub fn glitch(&mut self) {
+        for i in 0..4 {
+            self.set_page_byte(reg::PAGE_DP_STATUS, reg::DP_STATE + i, 0x11);
+        }
+    }
+
     fn offset(&self, addr: u8, reg: u8) -> Result<usize, String> {
         let kind = self.kind();
         match (addr, kind) {
