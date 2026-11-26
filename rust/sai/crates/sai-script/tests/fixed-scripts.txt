@@ -1,0 +1,9 @@
+# The oracle scripts (ai_re/nix/packages/sai-teralynx/oracle/scripts) where the Rust runner's default
+# mode deliberately differs from sai_script.cpp (crate docs: the fixes), and why; tests/differential.rs
+# requires exactly these to show FIX lines (on each libsai), and every other script to be identical.
+#   <stem> TAB <the fix>
+acl	null object of failed creates: 19 removes of ACL entries / tables the mock refused; the C++ stops at the first (unknown value ACTION_PACKET_ACTION)
+qos	null object of a failed create: the set and remove of the refused TC_TO_QUEUE map m_tcq2; the C++ stops at the set (unknown value MAP_TO_VALUE_LIST)
+phasec-recreate	null object of a failed create: the stats of the refused RIF A; the C++ stops there (unknown value IN_PACKETS)
+mirror	GENETLINK of a host interface's TYPE = SAI_HOSTIF_TYPE_GENETLINK (2), not the table-entry channel type (5): the genetlink hostif is created
+hostif-counters	GENETLINK of a host interface's TYPE = SAI_HOSTIF_TYPE_GENETLINK (2), not the table-entry channel type (5): the genetlink hostif is created

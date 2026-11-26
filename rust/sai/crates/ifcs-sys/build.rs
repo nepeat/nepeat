@@ -23,6 +23,9 @@ const UNIONS: &[&str] = &[
 fn main() {
     for v in [
         "IFCS_API_INC",
+        "IFCS_CTYPES",
+        "IFCS_OVERRIDES",
+        "IFCS_API_EXPECT",
         "IFCS_SYS_ABI_CC",
         "IFCS_SYS_ABI_CHECK",
         "TARGET_CC",
@@ -40,12 +43,15 @@ fn main() {
         println!("cargo:rustc-env=IFCS_SYS_ABI_CHECK_RESULT=skipped: no Teralynx SAI for {arch}-{os}");
         return;
     }
-    let inc = PathBuf::from(env::var_os("IFCS_API_INC").unwrap_or_else(|| {
-        panic!(
-            "ifcs-sys: set IFCS_API_INC to the directory with the GENERATED ifcs_api.h and ifcs_api_qos.h \
-             (rust/sai/nix/ifcs-headers.nix; they are never committed)"
-        )
-    }));
+    let inc = match (env::var_os("IFCS_API_INC"), env::var_os("IFCS_CTYPES")) {
+        (Some(dir), _) => PathBuf::from(dir),
+        (None, Some(ctypes)) => generate_headers(&out, Path::new(&ctypes)),
+        (None, None) => panic!(
+            "ifcs-sys: set IFCS_CTYPES to the ctypes file the IFCS headers are generated from (the pinned \
+             ishell 2.0.1 ifcs_ctypes.py: rust/sai/nix/ifcs-headers.nix), or IFCS_API_INC to a directory with \
+             headers generated already; they are never committed"
+        ),
+    };
     for h in ["ifcs_api.h", "ifcs_api_qos.h"] {
         assert!(
             inc.join(h).is_file(),
@@ -159,6 +165,54 @@ fn main() {
     // In the build log on purpose: which compiler confirmed the bindings, for which target.
     println!("cargo:warning=IFCS ABI check: {result} ({} symbols)", symbols.len());
     println!("cargo:include={}", inc.display());
+}
+
+/// Generates `ifcs_api.h` / `ifcs_api_qos.h` into `$OUT_DIR/ifcs-api` with ifcs-gen (our templates,
+/// `IFCS_OVERRIDES`: the overrides file, default ifcs-gen's, empty: none) from the ctypes file; with
+/// `IFCS_API_EXPECT` (a directory of headers, Nix: `nix/ifcs-headers.nix`) each must be equal to its
+/// copy there, byte for byte (the C fixtures compile against those).
+fn generate_headers(out: &Path, ctypes: &Path) -> PathBuf {
+    println!("cargo:rerun-if-changed={}", ctypes.display());
+    let path = ctypes.to_str().expect("IFCS_CTYPES: a UTF-8 path");
+    let bytes = fs::read(ctypes).unwrap_or_else(|e| panic!("ifcs-sys: IFCS_CTYPES={path}: {e}"));
+    let own = env::var("IFCS_OVERRIDES").ok();
+    let text = own.as_deref().filter(|p| !p.is_empty()).map(|p| {
+        println!("cargo:rerun-if-changed={p}");
+        fs::read_to_string(p).unwrap_or_else(|e| panic!("ifcs-sys: IFCS_OVERRIDES={p}: {e}"))
+    });
+    let overrides = match (own.as_deref(), text.as_deref()) {
+        (None, _) => Some(ifcs_gen::templates::OVERRIDES),
+        (Some(p), Some(t)) => Some((p, t)),
+        (Some(_), None) => None,
+    };
+    let g = ifcs_gen::generate(&ifcs_gen::Input {
+        ctypes_path: path,
+        ctypes: &bytes,
+        overrides,
+        source: None,
+        templates: &ifcs_gen::templates::TEMPLATES,
+    })
+    .unwrap_or_else(|e| panic!("ifcs-sys: generating the IFCS headers from {path}: {e}"));
+    assert!(
+        g.errors.is_empty(),
+        "ifcs-sys: generating the IFCS headers from {path}:\n  {}",
+        g.errors.join("\n  ")
+    );
+    let dir = out.join("ifcs-api");
+    fs::create_dir_all(&dir).expect("create ifcs-api");
+    let expect = env::var_os("IFCS_API_EXPECT").map(PathBuf::from);
+    for (name, text) in &g.outputs {
+        fs::write(dir.join(name), text).expect("write a generated header");
+        if let Some(e) = &expect {
+            let want = fs::read(e.join(name)).unwrap_or_else(|err| panic!("ifcs-sys: IFCS_API_EXPECT: {name}: {err}"));
+            assert!(
+                want == text.as_bytes(),
+                "ifcs-sys: the generated {name} differs from IFCS_API_EXPECT={}",
+                e.display()
+            );
+        }
+    }
+    dir
 }
 
 /// Replaces `pub union <u> { ... }` with `pub struct <u> { pub blob: [u8; size] }` of the same

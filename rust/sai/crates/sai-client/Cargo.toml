@@ -1,0 +1,15 @@
+[package]
+name = "sai-client"
+description = "A SAI user's side of the C ABI: loads a libsai.so (dlopen) and calls it through the SAI C API only (sai_api_initialize, the method tables, the profile and notification callbacks), for the Teralynx smoke program and the oracle's script runner. The unsafe rim of those tools"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+sai-sys.workspace = true
+# dlopen / dlsym / dlerror and dup2 (the stderr tee); the workspace's features, nothing added
+libc.workspace = true
+
+[lints]
+workspace = true

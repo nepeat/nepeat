@@ -10,6 +10,8 @@ build = "build.rs"
 
 [build-dependencies]
 bindgen.workspace = true
+# the IFCS header generator (our templates + the ctypes file read as data): IFCS_CTYPES
+ifcs-gen = { path = "../ifcs-gen" }
 
 [lints]
 workspace = true

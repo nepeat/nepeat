@@ -9,8 +9,9 @@
 # without it they skip. The comparisons with deleted C/C++ are goldens in the crates' tests/golden.
 # phySeqTables: optional board tables (the AS7772's generated ext-macsec / ext-phy): phy-seq's
 # goldens of them then run (PHY_SEQ_TABLES); a table the golden does not know is skipped.
-# teralynxSrc: the C++ Teralynx package (ai_re/nix/packages/sai-teralynx), read only: ifcs-sys binds
-# the IFCS headers its generator writes (./ifcs-headers.nix; IFCS_API_INC) on the targets the
+# teralynxSrc: the C++ Teralynx package (ai_re/nix/packages/sai-teralynx), read only: the ctypes file it
+# pins, from which ifcs-sys's build generates the IFCS headers with ifcs-gen (IFCS_CTYPES; equal to
+# ./ifcs-headers.nix's: IFCS_API_EXPECT) on the targets the
 # Teralynx crates are built for (x86_64, aarch64; elsewhere they are empty and need nothing).
 # Source: this workspace only (its own lock file), so edits elsewhere, to READMEs or to
 # these .nix files do not rebuild it. Tests, clippy and the C ABI harness run on native
@@ -56,6 +57,9 @@ rustPlatform.buildRustPackage {
       (ws + "/clippy.toml")
       (ws + "/rustfmt.toml")
       (lib.fileset.fileFilter (f: f.hasExt "rs" || f.hasExt "c" || f.hasExt "cpp" || f.hasExt "h" || f.hasExt "mdio" || f.hasExt "txt" || f.hasExt "ops" || f.hasExt "sh" || f.name == "Cargo.toml") (ws + "/crates"))
+      # ifcs-gen's templates (.h.in) and its synthetic test fixtures (a ctypesgen-shaped .py)
+      (ws + "/crates/ifcs-gen/templates")
+      (ws + "/crates/ifcs-gen/tests/fixtures")
     ];
   };
   cargoLock.lockFile = ws + "/Cargo.lock";
@@ -73,7 +77,8 @@ rustPlatform.buildRustPackage {
   } // lib.optionalAttrs teralynxTarget {
     # ifcs-sys: the generated IFCS headers, checked by the target's C compiler (also the one the
     # Teralynx crates build their C test fixtures with)
-    IFCS_API_INC = "${ifcsHeaders}/include";
+    IFCS_CTYPES = "${ifcsHeaders.ifcsCtypes}";
+    IFCS_API_EXPECT = "${ifcsHeaders}/include";
     IFCS_SYS_ABI_CHECK = "require";
     IFCS_SYS_ABI_CC = "${stdenv.cc}/bin/${stdenv.cc.targetPrefix}cc";
   } // lib.optionalAttrs (cppFrontendSrc != null) { SAI_OPENBCM_SRC = "${cppFrontendSrc}"; }

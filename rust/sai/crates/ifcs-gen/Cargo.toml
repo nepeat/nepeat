@@ -1,0 +1,23 @@
+[package]
+name = "ifcs-gen"
+description = "The IFCS header generator (sai-teralynx's gen_ifcs_api.py in Rust): our templates filled from a ctypesgen file read as data; ifcs-sys's build dependency"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[features]
+# the command-line program (ifcs-gen): built only when asked for (nix/ifcs-gen.nix, or cargo run
+# --features cli), so the workspace build installs nothing new
+cli = []
+
+[[bin]]
+name = "ifcs-gen"
+path = "src/main.rs"
+required-features = ["cli"]
+
+[dev-dependencies]
+proptest.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,2 @@
+MINI_FAIL 7        # verified: the test says so
+MINI_UNKNOWN 1     # an override of a symbol no template uses

@@ -1,7 +1,9 @@
 //! Raw declarations of the IFCS API (the Innovium / Marvell Teralynx 7 SDK, the CS8210's
 //! `libifcs.so` 0.12.41), generated at build time by bindgen from the GENERATED headers
-//! `ifcs_api.h` / `ifcs_api_qos.h` in `$IFCS_API_INC` (`rust/sai/nix/ifcs-headers.nix`: the
-//! sai-teralynx generator over the public ishell 2.0.1 ctypes; README "Teralynx backend"). Nothing
+//! `ifcs_api.h` / `ifcs_api_qos.h`: the build script writes them with `ifcs-gen` (our templates) from
+//! the ctypes file `$IFCS_CTYPES` (the public ishell 2.0.1 one; `$IFCS_OVERRIDES`: another overrides
+//! file, empty for none; `$IFCS_API_EXPECT`: a directory whose headers they must equal, byte for
+//! byte), or takes them from `$IFCS_API_INC` (README "Teralynx backend"). Nothing
 //! here is written by hand and nothing generated is committed: the declarations are derived from
 //! vendor material (the owner's publishing question, open), so they exist only in a build.
 //!

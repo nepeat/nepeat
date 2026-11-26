@@ -1,0 +1,3 @@
+# overrides for the synthetic test (NAME VALUE  # where verified)
+MINI_FAIL 7      # verified: the test says so
+MINI_BUSY 0x10   # verified: hex is read with int(x, 0)

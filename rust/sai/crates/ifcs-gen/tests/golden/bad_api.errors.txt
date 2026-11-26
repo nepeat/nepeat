@@ -1,0 +1,20 @@
+no integer value for MINI_NOPE in mini_ctypes.py
+no integer value for MINI_ALSO_NOPE in mini_ctypes.py
+function mini_nope not in mini_ctypes.py
+mini_value_t is a Union, not a Structure
+mini_nope_t: not a struct/union typedef in mini_ctypes.py
+mini_list_t is a Structure, not a Union
+mini_value_t has no member nope
+@alias mini_pair_t = mini_list_t: field lists differ
+@alias A = B
+typedef mini_nope_t not in mini_ctypes.py
+struct_mini_mixed.a: bitfield
+@as int64_t: not a 4-byte integer type
+@as uint32_t: mini_status_t is not a 4-byte enum type
+@prefix mini_usage_t: current are not its leading fields (max current extra)
+mini_bitmap_holder_t: not a struct/union typedef in mini_ctypes.py
+no integer value for x in mini_ctypes.py
+no integer value for MINI_NOPE2 in mini_ctypes.py
+stray @ in: x = 0 @nope 0
+struct_mini_incomplete has no field list
+overrides not used: MINI_FAIL MINI_UNKNOWN

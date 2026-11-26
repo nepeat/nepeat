@@ -1,0 +1,176 @@
+/* SPDX-License-Identifier: Apache-2.0
+ *
+ * TEMPLATE of ifcs_api_qos.h (filled in like ifcs_api.h.in, same ctypes
+ * file): the IFCS declarations for the QoS / buffers and mirror / sampling
+ * areas of the sai-teralynx backend (src/tl_qos.cpp, src/tl_mirror.cpp):
+ * QoS maps and map groups, queues (scheduling, shaping, AQM / WRED, buffer
+ * thresholds, counters), BAM queues (ingress priority-group counters), AQM
+ * curve groups, duplicate-copy destination ports, collectors and collector
+ * sets, the sysport traffic-monitor policies (mirror, sFlow). Included by
+ * ifcs_api.h (its IFCS_SYMBOLS lists IFCS_SYMBOLS_QOS).
+ *
+ * Attribute value types (the u32 / u64 / handle notes) from the SDK's CLI
+ * python (ifcs_cmds/queue.py, devport.py, sysport.py, collector.py,
+ * aqm_curve_group.py getters). Layout checks below: ifcs_traffic_monitor_policy_s
+ * from innovium.user DWARF (0.12.41: 20 bytes, no actual_sampling_rate
+ * member); the QoS map structs and the queue keys from libifcs 7.0.1 DWARF
+ * (pahole), the same field lists as 0.12.41's pyctypes. Every function below
+ * is exported by the target libifcs.so (nm -D, sha256 388031e7...). Call
+ * forms: what isai 6.2.0 does on this chip (oracle traces,
+ * devices/cs8210-32x/sai-oracle.md "QoS", "Mirror").
+ */
+#ifndef SAI_TERALYNX_IFCS_API_QOS_H
+#define SAI_TERALYNX_IFCS_API_QOS_H
+
+/* ----------------------------------------------------------- QoS maps */
+enum { IFCS_QOS_MAP_ATTR_QOS_MAP_INFO = @ };
+enum {                                 /* ifcs_qos_map_type_e */
+    IFCS_QOS_MAP_TYPE_DOT1P_CFI_TO_TC_DP = @, IFCS_QOS_MAP_TYPE_DSCP_TO_TC_DP = @,
+    IFCS_QOS_MAP_TYPE_TC_DP_TO_DOT1P_CFI = @, IFCS_QOS_MAP_TYPE_TC_DP_TO_DSCP = @,
+};
+enum {                                 /* ifcs_qos_map_group_attr_id_e */
+    IFCS_QOS_MAP_GROUP_ATTR_ACTION_TYPE = @, IFCS_QOS_MAP_GROUP_ATTR_DOT1P_CFI_TO_TC_DP = @,
+    IFCS_QOS_MAP_GROUP_ATTR_DSCP_TO_TC_DP = @, IFCS_QOS_MAP_GROUP_ATTR_TC_DP_TO_DOT1P_CFI = @,
+    IFCS_QOS_MAP_GROUP_ATTR_TC_DP_TO_DSCP = @,
+};
+enum { IFCS_QOS_ACTION_TYPE_MAP = @, IFCS_QOS_ACTION_TYPE_MARK = @ };
+@struct ifcs_qos_tc_dp_t
+@struct ifcs_qos_dot1p_cfi_t
+@union ifcs_qos_map_fields_t
+@struct ifcs_qos_map_t
+@struct ifcs_qos_map_list_t
+@struct ifcs_qos_map_info_t
+
+/* ---------------------------------------------- sysport / devport attributes */
+enum {                                 /* ifcs_sysport_attr_id_e (subset) */
+    IFCS_SYSPORT_ATTR_QOS_DOT1P_CFI_TO_TC_DP_MAP = @, IFCS_SYSPORT_ATTR_QOS_DSCP_TO_TC_DP_MAP = @,
+    IFCS_SYSPORT_ATTR_QOS_TC_DP_TO_DOT1P_CFI_MAP = @, IFCS_SYSPORT_ATTR_QOS_TC_DP_TO_DSCP_MAP = @,
+    IFCS_SYSPORT_ATTR_MIRROR_INGRESS = @, IFCS_SYSPORT_ATTR_MIRROR_EGRESS = @,
+    IFCS_SYSPORT_ATTR_SFLOW_INGRESS = @, IFCS_SYSPORT_ATTR_SFLOW_EGRESS = @, IFCS_SYSPORT_ATTR_DEFAULT_TC = @,
+};
+enum {                                 /* ifcs_devport_attr_id_e (subset); values u32 unless noted */
+    IFCS_DEVPORT_ATTR_PFC_MODE = @, IFCS_DEVPORT_ATTR_PFC0_ENABLE = @, IFCS_DEVPORT_ATTR_PFC0_TX_ENABLE = @,
+    IFCS_DEVPORT_ATTR_PFC0_RX_ENABLE = @, IFCS_DEVPORT_ATTR_MAX_RATE_ENABLE = @,
+    IFCS_DEVPORT_ATTR_MAX_RATE = @ /* u64 */, IFCS_DEVPORT_ATTR_MAX_BURST_SIZE = @,
+    IFCS_DEVPORT_ATTR_ACTUAL_MAX_RATE = @ /* u64 */, IFCS_DEVPORT_ATTR_ACTUAL_MAX_BURST_SIZE = @,
+};
+enum { IFCS_DEVPORT_PFC_MODE_COMBINED = @, IFCS_DEVPORT_PFC_MODE_SEPARATE = @ };
+enum {                                 /* ifcs_node_attr_id_e (subset) */
+    IFCS_NODE_ATTR_EGRESS_SFLOW_ENABLE = @, IFCS_NODE_ATTR_CPU_SYSPORT = @ /* handle */,
+    IFCS_NODE_ATTR_DTM_CELL_SIZE = @ /* u16, bytes (isai reads it) */,
+};
+
+/* --------------------------------------------------------------- queues */
+@struct ifcs_queue_t
+@alias ifcs_bam_queue_t = ifcs_queue_t   /* same fields (devport, queue_id) */
+enum {                                 /* ifcs_queue_attr_id_e; u32 unless noted */
+    IFCS_QUEUE_ATTR_RESERVED_SIZE = @, IFCS_QUEUE_ATTR_THRESHOLD_MODE = @,
+    IFCS_QUEUE_ATTR_UC_STATIC_THRESHOLD_LIMIT = @, IFCS_QUEUE_ATTR_NONUC_STATIC_THRESHOLD_LIMIT = @,
+    IFCS_QUEUE_ATTR_UC_DYNAMIC_THRESHOLD_FACTOR = @, IFCS_QUEUE_ATTR_NONUC_DYNAMIC_THRESHOLD_FACTOR = @,
+    IFCS_QUEUE_ATTR_SCHEDULING_MODE = @, IFCS_QUEUE_ATTR_WDRR_WEIGHT = @,
+    IFCS_QUEUE_ATTR_GUARANTEED_RATE_ENABLE = @, IFCS_QUEUE_ATTR_GUARANTEED_RATE = @ /* u64 */,
+    IFCS_QUEUE_ATTR_GUARANTEED_RATE_BURST_SIZE = @, IFCS_QUEUE_ATTR_MAX_RATE_ENABLE = @,
+    IFCS_QUEUE_ATTR_MAX_RATE = @ /* u64 */, IFCS_QUEUE_ATTR_MAX_RATE_BURST_SIZE = @,
+    IFCS_QUEUE_ATTR_AQM_CURVE_GROUP = @ /* handle */, IFCS_QUEUE_ATTR_WRED_ENABLE = @,
+    IFCS_QUEUE_ATTR_ECN_EXTENSION_ENABLE = @, IFCS_QUEUE_ATTR_AQM_QSIZE_AVERAGING_WEIGHT = @,
+    IFCS_QUEUE_ATTR_FORCE_BYPASS_FLOW_CONTROL = @, IFCS_QUEUE_ATTR_FORCE_DO_NOT_ADMIT = @,
+};
+enum { IFCS_QUEUE_SCHEDULING_MODE_STRICT = @, IFCS_QUEUE_SCHEDULING_MODE_WDRR = @ };
+enum { IFCS_QUEUE_THRESHOLD_MODE_STATIC = @, IFCS_QUEUE_THRESHOLD_MODE_DYNAMIC = @ };
+@typedef ifcs_queue_stats_id_t
+enum {
+    IFCS_QUEUE_STATS_ID_TOTAL_USE_COUNT = @, IFCS_QUEUE_STATS_ID_TOTAL_USE_WATERMARK = @,
+    IFCS_QUEUE_STATS_ID_PACKET_DROP_COUNT = @, IFCS_QUEUE_STATS_ID_CELL_DROP_COUNT = @,
+    IFCS_QUEUE_STATS_ID_PACKET_TX_COUNT = @, IFCS_QUEUE_STATS_ID_BYTE_TX_COUNT = @,
+    IFCS_QUEUE_STATS_ID_PACKET_ECN_MARKED_COUNT = @, IFCS_QUEUE_STATS_ID_BYTE_ECN_MARKED_COUNT = @,
+};
+@typedef ifcs_bam_queue_stats_id_t
+enum {
+    IFCS_BAM_QUEUE_STATS_ID_TOTAL_USE_COUNT = @, IFCS_BAM_QUEUE_STATS_ID_TOTAL_USE_WATERMARK = @,
+    IFCS_BAM_QUEUE_STATS_ID_PACKET_DROP_COUNT = @, IFCS_BAM_QUEUE_STATS_ID_BYTE_DROP_COUNT = @,
+};
+enum {                                 /* ifcs_aqm_curve_group_attr_id_e; u32 (cells, percent) */
+    IFCS_AQM_CURVE_GROUP_ATTR_WRED_GREEN_MIN_THRESHOLD = @, IFCS_AQM_CURVE_GROUP_ATTR_WRED_GREEN_MAX_THRESHOLD = @,
+    IFCS_AQM_CURVE_GROUP_ATTR_WRED_GREEN_MAXP_PERCENTAGE = @, IFCS_AQM_CURVE_GROUP_ATTR_WRED_YELLOW_MIN_THRESHOLD = @,
+    IFCS_AQM_CURVE_GROUP_ATTR_WRED_YELLOW_MAX_THRESHOLD = @, IFCS_AQM_CURVE_GROUP_ATTR_WRED_YELLOW_MAXP_PERCENTAGE = @,
+    IFCS_AQM_CURVE_GROUP_ATTR_WRED_RED_MIN_THRESHOLD = @, IFCS_AQM_CURVE_GROUP_ATTR_WRED_RED_MAX_THRESHOLD = @,
+    IFCS_AQM_CURVE_GROUP_ATTR_WRED_RED_MAXP_PERCENTAGE = @,
+};
+
+/* --------------------------------------------------- mirror / sampling */
+enum { IFCS_DUP_COPY_DEST_PORT_ATTR_SYSPORT = @ };
+enum {                                 /* ifcs_collector_attr_id_e; values per the CLI's collector.py */
+    IFCS_COLLECTOR_ATTR_COLLECTOR_TYPE = @ /* u32 */, IFCS_COLLECTOR_ATTR_DIRECTION = @ /* u32 */,
+    IFCS_COLLECTOR_ATTR_DCDP = @ /* handle */, IFCS_COLLECTOR_ATTR_DEST_MAC = @, IFCS_COLLECTOR_ATTR_SRC_MAC = @,
+    IFCS_COLLECTOR_ATTR_SRC_IP = @ /* ip_addr */, IFCS_COLLECTOR_ATTR_DEST_IP = @, IFCS_COLLECTOR_ATTR_DSCP = @ /* u8 */,
+    IFCS_COLLECTOR_ATTR_TTL = @ /* u8 */, IFCS_COLLECTOR_ATTR_DOT1Q_VLAN = @ /* u16 */,
+    IFCS_COLLECTOR_ATTR_SESSION_ID = @ /* u16 */, IFCS_COLLECTOR_ATTR_TRUNCATE = @ /* u32 */,
+};
+enum {
+    IFCS_COLLECTOR_TYPE_SPAN = @, IFCS_COLLECTOR_TYPE_RSPAN = @, IFCS_COLLECTOR_TYPE_ERSPAN_TYPE_II = @,
+    IFCS_COLLECTOR_TYPE_SFLOW = @,
+};
+enum { IFCS_COLLECTOR_SET_ATTR_COLLECTOR_SET_TYPE = @, IFCS_COLLECTOR_SET_ATTR_DIRECTION = @ };
+enum {
+    IFCS_TRAFFIC_MONITOR_ACTION_ENABLE = @, IFCS_TRAFFIC_MONITOR_ACTION_DISABLE = @,
+    IFCS_TRAFFIC_MONITOR_CONTAINER_0 = @, IFCS_TRAFFIC_MONITOR_CONTAINER_1 = @,
+    IFCS_TRAFFIC_MONITOR_DIRECTION_INGRESS = @, IFCS_TRAFFIC_MONITOR_DIRECTION_EGRESS = @,
+    IFCS_TRAFFIC_MONITOR_TRUNCATE_NO = @, IFCS_TRAFFIC_MONITOR_TRUNCATE_YES = @,
+};
+@struct ifcs_traffic_monitor_policy_t   /* DWARF (innovium.user) size: static_assert below */
+
+/* ------------------------------------------------------- function pointers */
+#define IFCS_FN(ret, name, args) typedef ret(*name##_fn) args;
+@fn ifcs_qos_map_create
+@fn ifcs_qos_map_attr_set
+@fn ifcs_qos_map_delete
+@fn ifcs_qos_map_info_t_init
+@fn ifcs_qos_map_group_create
+@fn ifcs_qos_map_group_attr_set
+@fn ifcs_qos_map_group_delete
+@fn ifcs_sysport_attr_get
+@fn ifcs_queue_t_init
+@fn ifcs_queue_t_devport_set
+@fn ifcs_queue_t_queue_id_set
+@fn ifcs_queue_attr_set
+@fn ifcs_queue_attr_get
+@fn ifcs_queue_stats_get
+@fn ifcs_queue_stats_clear
+@fn ifcs_bam_queue_t_init
+@fn ifcs_bam_queue_stats_get
+@fn ifcs_bam_queue_stats_clear
+@fn ifcs_aqm_curve_group_create
+@fn ifcs_aqm_curve_group_attr_set
+@fn ifcs_aqm_curve_group_delete
+@fn ifcs_dup_copy_dest_port_create
+@fn ifcs_dup_copy_dest_port_delete
+@fn ifcs_collector_create
+@fn ifcs_collector_delete
+@fn ifcs_collector_set_create
+@fn ifcs_collector_set_delete
+@fn ifcs_collector_set_member_add
+@fn ifcs_collector_set_member_remove
+@fn ifcs_traffic_monitor_policy_t_init
+#undef IFCS_FN
+
+#define IFCS_SYMBOLS_QOS(X) \
+    X(ifcs_qos_map_create) X(ifcs_qos_map_attr_set) X(ifcs_qos_map_delete) X(ifcs_qos_map_info_t_init) \
+    X(ifcs_qos_map_group_create) X(ifcs_qos_map_group_attr_set) X(ifcs_qos_map_group_delete) X(ifcs_sysport_attr_get) \
+    X(ifcs_queue_t_init) X(ifcs_queue_t_devport_set) X(ifcs_queue_t_queue_id_set) X(ifcs_queue_attr_set) \
+    X(ifcs_queue_attr_get) X(ifcs_queue_stats_get) X(ifcs_queue_stats_clear) X(ifcs_bam_queue_t_init) \
+    X(ifcs_bam_queue_stats_get) X(ifcs_bam_queue_stats_clear) X(ifcs_aqm_curve_group_create) \
+    X(ifcs_aqm_curve_group_attr_set) X(ifcs_aqm_curve_group_delete) X(ifcs_dup_copy_dest_port_create) \
+    X(ifcs_dup_copy_dest_port_delete) X(ifcs_collector_create) X(ifcs_collector_delete) X(ifcs_collector_set_create) \
+    X(ifcs_collector_set_delete) X(ifcs_collector_set_member_add) X(ifcs_collector_set_member_remove) \
+    X(ifcs_traffic_monitor_policy_t_init)
+
+#ifdef __cplusplus
+static_assert(sizeof(ifcs_traffic_monitor_policy_t) == 20, "ifcs_traffic_monitor_policy_s (DWARF 0.12.41)");
+static_assert(sizeof(ifcs_qos_tc_dp_t) == 12 && sizeof(ifcs_qos_dot1p_cfi_t) == 8 && sizeof(ifcs_qos_map_fields_t) == 12,
+              "qos map fields");
+static_assert(sizeof(ifcs_qos_map_t) == 28 && offsetof(ifcs_qos_map_t, map_value) == 12, "ifcs_qos_map_s");
+static_assert(sizeof(ifcs_qos_map_info_t) == 32 && offsetof(ifcs_qos_map_info_t, list) == 8, "ifcs_qos_map_info_s");
+static_assert(sizeof(ifcs_queue_t) == 16 && offsetof(ifcs_queue_t, queue_id) == 8, "ifcs_queue_s");
+#endif
+
+#endif

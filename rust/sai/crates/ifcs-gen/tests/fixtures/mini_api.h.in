@@ -1,0 +1,36 @@
+/* SPDX-License-Identifier: Apache-2.0
+ * SYNTHETIC template for ifcs-gen's tests: every directive, the comment rules, wrapping.
+ * In a comment @ stays as it is: NAME = @ and @{NAME} are not filled here,
+ * nor on this continued line = @.
+ */
+#ifndef MINI_API_H
+#define MINI_API_H
+
+@typedef mini_status_t mini_handle_t   /* two in one */
+@typedef mini_bool_t mini_mac_t
+@typedef mini_text_t mini_alias_t
+@typedef mini_reason_t
+enum { MINI_OK = @, MINI_FAIL = @, MINI_BUSY = @ };   /* MINI_OK = @ */
+enum {
+    MINI_NEG = @,
+    MINI_DIV=@
+};
+#define MINI_MASK @
+#define MINI_HANDLE_MAX @{MINI_HANDLE_MAX:#x}u
+#define MINI_LONG_HEX @{MINI_LONG:#06x} /* @{MINI_LONG} */
+#define MINI_LONG_PLAIN @{MINI_LONG} @{MINI_LONG:}
+@struct mini_list_t
+@struct mini_pair_t   /* dirty: 1 a, 2 b
+                       * continued comment */
+@alias mini_pair2_t = mini_pair_t
+@union mini_value_t u32 pair   /* padded */
+@as uint32_t mini_kind_t
+@bits mini_bitmap_t
+@struct mini_attr_t
+@prefix mini_usage_t max current   /* the target's is shorter */
+@struct mini_wide_t
+@typedef mini_notify_fn_t
+@fn mini_create mini_register
+@fn mini_name mini_void
+
+#endif

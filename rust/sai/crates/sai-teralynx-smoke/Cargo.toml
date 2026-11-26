@@ -1,0 +1,24 @@
+[package]
+name = "sai-teralynx-smoke"
+description = "sai-teralynx-smoke in Rust: the direct libsai driver of the CS8210 (ai_re/nix/packages/sai-teralynx/tools/sai_smoke.cpp's command line, steps, output and exit codes) and the H1 gate (PASS / FAIL / SKIP steps: the cabled loops, the learn-ring guard, the LED watch registers, temperatures, teardown, --recreate), a SAI C API client of any libsai.so (crate sai-client). No unsafe code"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[features]
+# the program: built only when asked for (nix/sai-teralynx-rs.nix)
+cli = []
+
+[[bin]]
+name = "sai-teralynx-smoke"
+path = "src/main.rs"
+required-features = ["cli"]
+
+[dependencies]
+sai-client = { path = "../sai-client" }
+# SIGINT / SIGTERM end the C++ form's loop early (safe API)
+signal-hook.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,9 @@
+{"name": "exec", "steps": [
+ {"op": "print", "text": "exec steps: the frame tools' interface"},
+ {"op": "exec", "cmd": "$ORACLE/bin/frame-tool Ethernet0 Ethernet120 plain 5 10"},
+ {"op": "exec", "cmd": "${ORACLE}/bin/frame-tool count; echo after"},
+ {"op": "exec", "cmd": "$ORACLE/bin/frame-tool fail", "may_fail": true},
+ {"op": "exec", "cmd": "$ORACLE/bin/frame-tool fail"},
+ {"op": "exec", "cmd": "$ORACLE/bin/frame-toolx not-a-tool-name", "may_fail": true},
+ {"op": "sleep", "ms": 1}
+]}

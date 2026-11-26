@@ -1,0 +1,30 @@
+[package]
+name = "sai-script"
+description = "The oracle's JSON SAI script runner in Rust (ai_re/nix/packages/sai-teralynx/oracle/sai_script.cpp: same script format, output and exit codes), a SAI C API client of any libsai.so (crate sai-client); its name-table gaps fixed as listed differences (--cpp-names: the C++'s resolution). No unsafe code"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[features]
+# the program (sai-script): built only when asked for (nix/sai-teralynx-rs.nix), so the workspace
+# build installs nothing new
+cli = []
+
+[[bin]]
+name = "sai-script"
+path = "src/main.rs"
+required-features = ["cli"]
+
+[dependencies]
+sai-client = { path = "../sai-client" }
+# attribute metadata (an attribute's enum type) and the headers' enumerator names (the fixes)
+sai-meta.workspace = true
+sai-driver = { path = "../sai-driver" }
+
+[dev-dependencies]
+# the oracle stream's step cutting and time masking (the differential against the C++ runner)
+sai-teralynx-parity = { path = "../sai-teralynx-parity" }
+
+[lints]
+workspace = true

@@ -19,6 +19,12 @@
 # local run: sai-teralynx-parity-run --rust-lib target/debug/libsai.so [--parts sections --only l2,lag]
 # from rust/sai, reads that checkout's tests/ lists).
 #   pkgs.callPackage ./teralynx-parity.nix { saiRs = <./package.nix>; cppTeralynx = <sai-teralynx>; }
+# aarch64 (the CS8210's architecture; G3): every program cross-built (the fixtures, the C++ and the Rust
+# libsai, the harness), the same runs in a derivation of system aarch64-linux (binfmt / qemu-user on the
+# build host), the same checks; then its strict report compared with the native one (`reference`, store
+# paths masked): an architecture difference is red. Output: share/sai-rs/teralynx-parity/ (+ arch.txt).
+#   pkgsCross.aarch64-multiplatform.callPackage ./teralynx-parity.nix { saiRs = <./package.nix for it>;
+#     cppTeralynx = <sai-teralynx for it>; runnerPkgs = <nixpkgs, system aarch64-linux>; reference = <native build>; }
 {
   lib,
   stdenv,
@@ -28,6 +34,8 @@
   saiRs,
   cppTeralynx,
   strict ? false,
+  runnerPkgs ? null,
+  reference ? null,
 }:
 let
   tl = saiRs.teralynxSrc;
@@ -62,19 +70,14 @@ let
     meta = old.meta // { description = "the Teralynx parity harness's program"; };
   });
   cppLib = "${cppTeralynx}/lib/libsai.so.1.0.0";
-in
-stdenv.mkDerivation {
-  pname = "sai-teralynx-parity";
-  inherit (saiRs) version;
-  dontUnpack = true;
-  dontConfigure = true;
-  nativeBuildInputs = [ makeWrapper ];
-
-  buildPhase = ''
-    runHook preBuild
-    fx=$PWD/fixtures
+  canRun = stdenv.buildPlatform.canExecute stdenv.hostPlatform;
+  arch = stdenv.hostPlatform.parsed.cpu.name;
+  # the programs into $fx (CC / CXX / NM: the target's)
+  fixturesScript = ''
     CC=${stdenv.cc.targetPrefix}cc CXX=${stdenv.cc.targetPrefix}c++ bash ${crate}/build-fixtures.sh $fx ${tlFiles} \
-      ${saiRs.ifcsHeaders}/include ${saiRs.saiHeaders} ${cppLib} ${nlohmann_json}/include
+      ${saiRs.ifcsHeaders}/include ${saiRs.saiHeaders} ${cppLib} ${nlohmann_json}/include'';
+  # the runs over $fx and the gate (toolBin: the harness's command)
+  checksScript = toolBin: ''
     lists() {
       echo --areas ${lists}/areas.txt --expected ${lists}/test_ifcs-expected.txt \
         --allow ${crate}/tests/parity-allow.txt --pending ${crate}/tests/parity-pending.txt \
@@ -82,7 +85,7 @@ stdenv.mkDerivation {
     }
     run() {   # out-name, extra args
       local name=$1; shift
-      ${tool}/bin/sai-teralynx-parity --fixtures $fx --work $NIX_BUILD_TOP/w-$name --cpp-lib ${cppLib} \
+      ${toolBin} --fixtures $fx --work $NIX_BUILD_TOP/w-$name --cpp-lib ${cppLib} \
         --rust-lib ${rustLib}/lib/libsai.so.1.0.0 $(lists) "$@" > $name.txt 2>&1
     }
     rc=0; run report || rc=$?
@@ -102,7 +105,67 @@ stdenv.mkDerivation {
       grep '^pending areas' report.txt
       echo "progress mode: exit $rc; strict mode: exit $src ($(grep '^== verdict' strict.txt))"
     } > gate.txt
-    cat gate.txt
+    cat gate.txt'';
+  # cross: the programs built here, run in ./emulated
+  fixtures = stdenv.mkDerivation {
+    pname = "sai-teralynx-parity-fixtures-${arch}";
+    inherit (saiRs) version;
+    dontUnpack = true;
+    dontConfigure = true;
+    # built where the native build builds them (no store -L path: no RUNPATH; LD_LIBRARY_PATH picks the libsai);
+    # build-fixtures.sh's plain nm: the target's
+    buildPhase = ''
+      runHook preBuild
+      mkdir -p nm-bin && ln -s ${stdenv.cc.bintools.bintools}/bin/${stdenv.cc.targetPrefix}nm nm-bin/nm
+      export PATH=$PWD/nm-bin:$PATH
+      fx=$PWD/fixtures
+      ${fixturesScript}
+      runHook postBuild
+    '';
+    installPhase = "mkdir -p $out && cp -r fixtures/bin fixtures/mock fixtures/cfg $out/";
+    dontFixup = true;
+  };
+  # the strict report of a run, store paths masked (the libraries' paths differ per architecture)
+  masked = f: "sed -E 's,/nix/store/[a-z0-9]{32}-[^/ ]*,<store>,g' ${f}";
+  emulated = runnerPkgs.runCommand "sai-teralynx-parity-${arch}" { } ''
+    set -euo pipefail
+    fx=$PWD/fixtures
+    cp -r ${fixtures} $fx
+    chmod -R u+w $fx
+    ${checksScript "${tool}/bin/sai-teralynx-parity --timeout 3600"}
+    uname -m > machine
+    ${lib.optionalString (reference != null) ''
+      ${masked "${reference}/share/sai-rs/teralynx-parity/strict.txt"} > strict-ref.txt
+      ${masked "strict.txt"} > strict-here.txt
+      if diff -u strict-ref.txt strict-here.txt > arch.txt; then
+        echo "strict report on $(cat machine) (emulated) equals the native one (${reference}), store paths masked" > arch.txt
+        cat arch.txt
+      else
+        echo "parity: the $(cat machine) strict report differs from the native one:"; cat arch.txt; exit 1
+      fi
+    ''}
+    d=$out/share/sai-rs/teralynx-parity
+    mkdir -p $d
+    cp report.txt strict.txt negative.txt details.txt gate.txt machine $d/
+    ${lib.optionalString (reference != null) "cp arch.txt $d/"}
+  '';
+in
+if !canRun then
+  assert runnerPkgs != null;
+  emulated.overrideAttrs (old: { passthru = { inherit tool rustLib tlFiles fixtures; }; })
+else
+stdenv.mkDerivation {
+  pname = "sai-teralynx-parity";
+  inherit (saiRs) version;
+  dontUnpack = true;
+  dontConfigure = true;
+  nativeBuildInputs = [ makeWrapper ];
+
+  buildPhase = ''
+    runHook preBuild
+    fx=$PWD/fixtures
+    ${fixturesScript}
+    ${checksScript "${tool}/bin/sai-teralynx-parity"}
     runHook postBuild
   '';
 

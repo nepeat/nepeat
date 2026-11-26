@@ -1,0 +1,47 @@
+[package]
+name = "tl-frames"
+description = "Hardware test frame senders and counters for the CS8210 SAI tests (trap-frames, qos-frames, raw-frames, l3-frames, sflow-probe): the Rust ports of tools/{trap,qos,raw,l3}_frames.c and sflow_probe.c, same command lines and output"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[features]
+# the five binaries (a plain workspace build and sai-rs's installed files do not carry them)
+cli = []
+
+[dependencies]
+# socket(2) / ioctl / poll declarations, struct layouts and constants of the target's C library
+libc.workspace = true
+
+[[bin]]
+name = "trap-frames"
+path = "src/bin/trap-frames.rs"
+required-features = ["cli"]
+
+[[bin]]
+name = "qos-frames"
+path = "src/bin/qos-frames.rs"
+required-features = ["cli"]
+
+[[bin]]
+name = "raw-frames"
+path = "src/bin/raw-frames.rs"
+required-features = ["cli"]
+
+[[bin]]
+name = "l3-frames"
+path = "src/bin/l3-frames.rs"
+required-features = ["cli"]
+
+[[bin]]
+name = "sflow-probe"
+path = "src/bin/sflow-probe.rs"
+required-features = ["cli"]
+
+[[test]]
+name = "differential"
+required-features = ["cli"]
+
+[lints]
+workspace = true

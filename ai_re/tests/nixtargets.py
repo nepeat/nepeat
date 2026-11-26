@@ -207,12 +207,27 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     # scripts step by step; green while every difference is allowed or belongs to a pending area, with a
     # negative control; the strict (G2 gate) result in share/sai-rs/teralynx-parity/strict.txt.
     "sai-teralynx-parity": ("packages", 'p.callPackage (saiRsDir + "/teralynx-parity.nix") { saiRs = saiRs p; cppTeralynx = p.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }; }', 0),
+    # the same harness for aarch64 (the CS8210): fixtures, both libsais and the harness cross-built, run as
+    # aarch64-linux (binfmt / qemu-user), the same gate; its strict report must equal the native one
+    "cs8210-sai-teralynx-parity": ("packages", 'let a = p.pkgsCross.aarch64-multiplatform; in a.callPackage (saiRsDir + "/teralynx-parity.nix") { saiRs = a.callPackage (saiRsDir + "/package.nix") { saiSrc = (import (src + "/packages/sonic") { pkgs = a; }).sources.sairedis; inherit glueSrc; }; cppTeralynx = a.callPackage (src + "/packages/sai-teralynx") { sonic = import (src + "/packages/sonic") { pkgs = a; }; }; runnerPkgs = import np { system = "aarch64-linux"; }; reference = p.callPackage (saiRsDir + "/teralynx-parity.nix") { saiRs = saiRs p; cppTeralynx = p.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }; }; }', 0),
+    # The hardware test frame tools in Rust (rust/sai/nix/tl-frames.nix, crate tl-frames): trap-frames qos-frames
+    # raw-frames l3-frames sflow-probe, same command lines and output as ai_re/nix/packages/sai-teralynx/tools/*.c;
+    # native checks incl. the differential against the C tools over veth pairs in a user namespace; aarch64 for the CS8210.
+    "tl-frames": ("packages", 'p.callPackage (saiRsDir + "/tl-frames.nix") { saiRs = saiRs p; }', 0),
+    "cs8210-tl-frames": ("packages", 'let a = p.pkgsCross.aarch64-multiplatform; in a.callPackage (saiRsDir + "/tl-frames.nix") { saiRs = a.callPackage (saiRsDir + "/package.nix") { saiSrc = (import (src + "/packages/sonic") { pkgs = a; }).sources.sairedis; inherit glueSrc; }; }', 0),
     # libsai-teralynx-shim.so in Rust (rust/sai/nix/ifcs-shim.nix): native with the crates' checks, the
     # live differential against the C shim and sai-teralynx's test_ifcs (1047) with the Rust shim in place;
     # aarch64 (the CS8210) cross-built, then under emulation test_ifcs with the C and the Rust shim and the
     # native build's differential scripts replayed against both aarch64 libraries
     "sai-teralynx-shim-rs": ("packages", 'p.callPackage (saiRsDir + "/ifcs-shim.nix") { saiRs = saiRs p; saiTeralynx = p.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }; }', 0),
     "cs8210-sai-teralynx-shim-rs": ("packages", 'let a = p.pkgsCross.aarch64-multiplatform; in a.callPackage (saiRsDir + "/ifcs-shim.nix") { saiRs = saiRs a; saiTeralynx = a.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }; runnerPkgs = import np { system = "aarch64-linux"; }; scriptsFrom = p.callPackage (saiRsDir + "/ifcs-shim.nix") { saiRs = saiRs p; saiTeralynx = p.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }; }; }', 0),
+    # The Rust drop-in for the sai-teralynx package (rust/sai/nix/sai-teralynx-rs.nix: lib/libsai.so{,.1,.1.0.0},
+    # lib/libsai-teralynx-shim.so, bin/openbcm-diag, bin/sai-teralynx-smoke, bin/sai-script): every file of the C++
+    # package has a counterpart, the 17 exports; natively the tools' tests, the oracle runner's differential
+    # against sai_script.cpp on the mock through both libsais, the smoke program on the mock (gate, failure
+    # paths, the C++ form against the C++ program); aarch64 (the CS8210) cross-built.
+    "sai-teralynx-rs": ("packages", 'p.callPackage (saiRsDir + "/sai-teralynx-rs.nix") { saiRs = saiRs p; cppTeralynx = p.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }; }', 0),
+    "cs8210-sai-teralynx-rs": ("packages", 'let a = p.pkgsCross.aarch64-multiplatform; in a.callPackage (saiRsDir + "/sai-teralynx-rs.nix") { saiRs = a.callPackage (saiRsDir + "/package.nix") { saiSrc = (import (src + "/packages/sonic") { pkgs = a; }).sources.sairedis; inherit glueSrc; }; cppTeralynx = a.callPackage (src + "/packages/sai-teralynx") { sonic = import (src + "/packages/sonic") { pkgs = a; }; }; }', 0),
     # qemu-user for Marvell's amd64 SAI on the CS8210 + its offline tests
     # (fetches Marvell's published binaries into the store: unfree).
     "qemu-ipd": ("packages", "qemuIpd", 2),
@@ -252,6 +267,10 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     "vm-sai-rs-privileged": ("vm", 'import (saiRsDir + "/test-privileged.nix") { pkgs = p; saiRs = saiRs p; }', 0),
     # syncd linked against the Rust libsai (virtual backend), its first slice through libsairedis.
     "vm-sai-rs-syncd": ("vm", 'import (saiRsDir + "/test-syncd.nix") { pkgs = p; inherit sonic; libsai = saiRs p; }', 0),
+    # syncd + orchagent on the Rust Teralynx libsai over the mock libifcs, the CS8210 board layer (port map,
+    # IFCS init yaml, sai.profile, cs8210-sai-files) with a stand-in SDK tree; the mock's call log checked
+    # (rust/sai/nix/test-syncd-teralynx.nix); syncd built against the virtual library (same SAI C API)
+    "vm-sai-teralynx-syncd": ("vm", 'import (saiRsDir + "/test-syncd-teralynx.nix") { pkgs = p; inherit sonic; aiReNix = src; saiRs = saiRs p; cppTeralynx = p.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }; sairedis = sonic.sairedis-openbcm (saiRs p); }', 0),
     # the AS7772 / AS7760 systems as the root git flake builds them (with hardware.openbcm.rustSai),
     # from the working tree: path:./nix cannot reach rust/sai (KNOWN_BROKEN there)
     "as7772-system": ("systems", "sys.as7772.config.system.build.toplevel", 0),
@@ -349,7 +368,9 @@ PACKAGE_DIRS: dict[str, list[tuple]] = {
     "sai-openbcm": [("target", r"^extra:as7760-sai-openbcm-rs$"), ("target", r"^extra:sai-openbcm-rs$")],
     "sai-teralynx": [("target", r"^extra:sai-teralynx$"), ("target", r"^extra:cs8210-sdk-config-test$"),
                      # tests/, frontend/tests/driver-scripts, oracle/: the parity harness's programs and scripts
-                     ("target", r"^extra:sai-teralynx-parity$")],
+                     ("target", r"^extra:sai-teralynx-parity$"),
+                     # tools/sai_smoke.cpp, oracle/: the Rust drop-in's references (its smoke and runner differentials)
+                     ("target", r"^extra:sai-teralynx-rs$")],
     "isai-amd64": [("target", r"^extra:qemu-ipd\.libsai$")],
     "qemu-ipd": [("target", r"^extra:qemu-ipd\.qemu-ipd$"), ("target", r"^extra:qemu-ipd\.tests\.")],
     "sonic": [("target", r"^extra:sonic\.swss$"), ("target", r"^path:sonic-swss-common$")],

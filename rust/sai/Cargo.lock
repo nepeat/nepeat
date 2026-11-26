@@ -191,6 +191,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ifcs-gen"
+version = "0.1.0"
+dependencies = [
+ "proptest",
+]
+
+[[package]]
 name = "ifcs-guard"
 version = "0.1.0"
 dependencies = [
@@ -210,6 +217,7 @@ name = "ifcs-sys"
 version = "0.1.0"
 dependencies = [
  "bindgen",
+ "ifcs-gen",
 ]
 
 [[package]]
@@ -447,6 +455,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "sai-client"
+version = "0.1.0"
+dependencies = [
+ "libc",
+ "sai-sys",
+]
+
+[[package]]
 name = "sai-core"
 version = "0.1.0"
 dependencies = [
@@ -537,6 +553,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "sai-script"
+version = "0.1.0"
+dependencies = [
+ "sai-client",
+ "sai-driver",
+ "sai-meta",
+ "sai-teralynx-parity",
+]
+
+[[package]]
 name = "sai-sys"
 version = "0.1.0"
 dependencies = [
@@ -549,6 +575,14 @@ version = "0.1.0"
 dependencies = [
  "regex",
  "sai-driver",
+]
+
+[[package]]
+name = "sai-teralynx-smoke"
+version = "0.1.0"
+dependencies = [
+ "sai-client",
+ "signal-hook",
 ]
 
 [[package]]
@@ -618,6 +652,13 @@ version = "0.1.0"
 dependencies = [
  "libc",
  "proptest",
+]
+
+[[package]]
+name = "tl-frames"
+version = "0.1.0"
+dependencies = [
+ "libc",
 ]
 
 [[package]]

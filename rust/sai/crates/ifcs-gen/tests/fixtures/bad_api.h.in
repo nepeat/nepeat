@@ -1,0 +1,18 @@
+/* SYNTHETIC template whose every directive is wrong (errors collected, as the Python does) */
+enum { MINI_NOPE = @ };
+#define MINI_ALSO_NOPE @
+@fn mini_nope
+@struct mini_value_t mini_nope_t
+@union mini_list_t
+@union mini_value_t u32 nope
+@alias mini_pair_t = mini_list_t
+@alias a b
+@typedef mini_nope_t
+@bits mini_mixed_t
+@struct mini_mixed_t
+@as int64_t mini_kind_t
+@as uint32_t mini_status_t
+@prefix mini_usage_t current
+@struct mini_bitmap_holder_t
+x = @ @nope @{MINI_NOPE2:x}
+@struct mini_incomplete_t
