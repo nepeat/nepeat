@@ -1,0 +1,21 @@
+# the 19 CPython stubs: NULL / -1, one line for the first call only
+py Py_BuildValue
+py PyCallable_Check
+py PyErr_Occurred
+py PyErr_Print
+py Py_Finalize
+py PyGILState_Ensure
+py PyGILState_Release
+py PyImport_Import
+py Py_Initialize
+py PyInt_AsLong
+py PyInt_FromLong
+py PyList_GetItem
+py PyList_New
+py PyList_SetItem
+py PyLong_AsLong
+py PyObject_CallFunctionObjArgs
+py PyObject_CallObject
+py PyObject_GetAttrString
+py PyUnicodeUCS2_FromString
+py Py_BuildValue

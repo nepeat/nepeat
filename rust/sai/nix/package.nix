@@ -9,6 +9,9 @@
 # without it they skip. The comparisons with deleted C/C++ are goldens in the crates' tests/golden.
 # phySeqTables: optional board tables (the AS7772's generated ext-macsec / ext-phy): phy-seq's
 # goldens of them then run (PHY_SEQ_TABLES); a table the golden does not know is skipped.
+# teralynxSrc: the C++ Teralynx package (ai_re/nix/packages/sai-teralynx), read only: ifcs-sys binds
+# the IFCS headers its generator writes (./ifcs-headers.nix; IFCS_API_INC) on the targets the
+# Teralynx crates are built for (x86_64, aarch64; elsewhere they are empty and need nothing).
 # Source: this workspace only (its own lock file), so edits elsewhere, to READMEs or to
 # these .nix files do not rebuild it. Tests, clippy and the C ABI harness run on native
 # builds; a cross build still does both ABI checks of sai-sys (they need no execution).
@@ -23,6 +26,8 @@
   glueSrc ? ../../../ai_re/nix/packages/sai-openbcm/src,
   cppFrontendSrc ? null,
   phySeqTables ? [ ],
+  teralynxSrc ? ../../../ai_re/nix/packages/sai-teralynx,
+  callPackage,
 }:
 let
   ws = ../.;
@@ -35,6 +40,10 @@ let
   canRun = stdenv.buildPlatform.canExecute stdenv.hostPlatform;
   # native checks only (a cross build has no check phase: nothing of valgrind's for the target)
   withValgrind = canRun && lib.meta.availableOn stdenv.buildPlatform valgrind;
+  # the Teralynx crates (ifcs-sys, elf-got, ifcs, sai-backend-teralynx): x86_64 (tests on the
+  # mock) and aarch64 (the CS8210) only
+  teralynxTarget = stdenv.hostPlatform.isx86_64 || stdenv.hostPlatform.isAarch64;
+  ifcsHeaders = callPackage ./ifcs-headers.nix { inherit teralynxSrc saiSrc; };
 in
 rustPlatform.buildRustPackage {
   pname = "sai-rs";
@@ -61,6 +70,12 @@ rustPlatform.buildRustPackage {
     SAI_SYS_ABI_CC = "${stdenv.cc}/bin/${stdenv.cc.targetPrefix}cc";   # the compiler syncd is built with
     # sdk-glue-sys: the glue's header
     SDK_GLUE_INC = "${glue}";
+  } // lib.optionalAttrs teralynxTarget {
+    # ifcs-sys: the generated IFCS headers, checked by the target's C compiler (also the one the
+    # Teralynx crates build their C test fixtures with)
+    IFCS_API_INC = "${ifcsHeaders}/include";
+    IFCS_SYS_ABI_CHECK = "require";
+    IFCS_SYS_ABI_CC = "${stdenv.cc}/bin/${stdenv.cc.targetPrefix}cc";
   } // lib.optionalAttrs (cppFrontendSrc != null) { SAI_OPENBCM_SRC = "${cppFrontendSrc}"; }
     // lib.optionalAttrs (phySeqTables != [ ]) { PHY_SEQ_TABLES = lib.concatStringsSep ":" (map toString phySeqTables); };
 
@@ -103,7 +118,10 @@ rustPlatform.buildRustPackage {
     fi
   '';
 
-  passthru.saiHeaders = "${saiSrc}/SAI/inc";
+  passthru = {
+    saiHeaders = "${saiSrc}/SAI/inc";
+    inherit ifcsHeaders teralynxSrc;
+  };
 
   meta = {
     description = "SAI 1.19 libsai.so in Rust: safe core, virtual backend, small unsafe C-ABI rim (first slice)";

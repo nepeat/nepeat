@@ -1,0 +1,6 @@
+# A post-init register list for the test (tests/test-ifcs.sh, tests/c/create_remove.c): the
+# CS8210's LED stream setup (devices/cs8210-32x/sonic.md "LEDs"), "offset mask value" per line.
+0x13514 0x0000080f 0x00000808   # LED_CFG: sck_rate_f (3:0) = 8, pic_stream_mode_f (11) = 1
+0x13538 0xffffffff 0x0018eec2   # LED_REFRESH_PRECLIFF
+0x13530 0xffffffff 0x00000020   # LED_REFRESH_CLIFF
+0x1353c 0x00000002 0x00000002   # LED_REFRESH_TMR_CTL: enable_f (1)

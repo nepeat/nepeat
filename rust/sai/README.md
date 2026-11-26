@@ -46,6 +46,7 @@ sai-teralynx (`frontend/`), not by any AS77xx build. "On chip" = the AS7772 (G2-
 | temperatures | `sai_temp.cpp`, `temp_files.c`: deleted, frozen | `sai-core::temp`; `sdk-glue::temp` | `test_sai` `test_temperature` | AS7772 G4 | `SAI_OPENBCM_TEMP_FILE`, `_PROM`, `_INTERVAL` |
 | attach-only temperature reader | `asic_temp.c`: deleted 2026-11-23 | `openbcm-asic-temp` | golden: 30 cases; golden tests | in the AS7772 G4 system (the unit runs while syncd is stopped) | default |
 | the package | `ai_re/nix/packages/sai-openbcm` (now the glue + README) | `nix/sai-openbcm-rs.nix`, the names the C++ package had ([Drop-in package](#drop-in-package)) | builds native and ppc64 (libsdk); link checks | AS7772 | `hardware.openbcm.package` (default; `hardware.openbcm.rustSai`) |
+| Teralynx shim (CS8210) | `sai-teralynx/src/shim.c`, `ifcs_guard.c`: stay (the C++ package's) | `ifcs-shim` (rim) + `ifcs-guard` | differential 415 scripts / 95,533 steps equal (x86_64, aarch64 emulated); `test_ifcs` 1047 / 1047 with the Rust shim (x86_64, aarch64 emulated) | never | not yet (`nix/ifcs-shim.nix` builds it; the Teralynx package picks it at H1) |
 | C++-only plugs | `phy-seq-capi`, `sai-macsec-capi` (Rust for the C++): deleted 2026-11-23 | | | (G0) | |
 
 ## Plan: replacing the C++ (accepted 2026-11-23)
@@ -356,6 +357,61 @@ target: `ioctl_numbers_are_the_architectures`; TUNSETIFF = 0x800454ca on ppc64, 
 - `nix/libsai-openbcm.nix`: the library with this backend plus the smoke program. Real glue
   (ppc64): `-z defs`, soname `libsai.so.1`, the same 17 exports as the virtual build; on the AS7772 since G2.
 
+### Teralynx backend (CS8210-32X, G1 of the CS-B plan)
+
+The Teralynx 7 of the CS8210-32X, on the vendor IFCS 0.12.41 SDK (`libifcs.so` `dlopen`ed at run time from
+the switch; nothing vendor linked, built or committed). A port of the C++ IFCS backend of
+`ai_re/nix/packages/sai-teralynx` (which stays the box's SAI until this one is proven on the chip).
+Only for x86_64 (tests on the mock) and aarch64 (the CS8210); on other targets the four crates are empty.
+
+- `ifcs-sys`: bindgen over the GENERATED `ifcs_api.h` / `ifcs_api_qos.h` (`IFCS_API_INC`, required;
+  `nix/ifcs-headers.nix` runs sai-teralynx's generator on the pinned ishell 2.0.1 ctypes, byte-equal to its
+  `build/gen`: `passthru.identity`). Unions are byte blobs (reading a Rust union is unsafe); the
+  `IFCS_SYMBOLS` list (148 entries) as `SYMBOLS` and `for_each_symbol!`. Layout check 2: 652 assertions
+  (sizes, alignments, offsets, every constant, the symbol list) by the target's C compiler
+  (`IFCS_SYS_ABI_CC`, `IFCS_SYS_ABI_CHECK=require` in Nix). `forbid(unsafe_code)`.
+- `elf-got`: the GOT redirect of `ifcs_lib.cpp` (`redirect_cb`). The ELF is read from the object's FILE in
+  safe code (`PT_DYNAMIC`, `DT_JMPREL` / `DT_RELA`, dynsym; `R_X86_64_` / `R_AARCH64_JUMP_SLOT` and
+  `_GLOB_DAT`); a slot is written only if it is mapped, aligned and holds an address the symbol binds to (or
+  the target already); a read-only page gets its protection back. Rim: 6 blocks (`dladdr`, `sysconf`,
+  slot read / write, `mprotect`).
+- `ifcs`: the only unsafe rim for libifcs. The loader step for step as `ifcs_lib_load` (absolute path, the
+  shim `libsai-teralynx-shim.so` next to libsai first, libifcs `RTLD_NOW | RTLD_GLOBAL`, memcpy and the
+  learn-ring guard's GOT redirects and log lines, `SAI_TERALYNX_IFCS_TRACE` with `ifcs_trace_bind`, every
+  symbol or "missing symbol X (wrong libifcs version?)"); one wrapper per C signature (18 call sites, +3
+  callback registrations, for 114 of the 148 functions; the rest are resolved, and wrapped by the G2 areas); `Attrs` (the C++'s
+  zeroed attributes and its three empty forms), `Handle`, `Status` (`map_reason` exactly); callbacks over
+  a keyed registry (`sdk-glue`'s pattern); libifcs' own `node_pci_reg_read32` / `_write32` for the board's
+  register list. 41 blocks: call 20 (18 signatures + the 2 register accessors), shim 8, callback 7, dl 5,
+  table 1 (in the macro over the 148 symbols).
+- `sai-backend-teralynx` (`forbid(unsafe_code)`): one module per C++ file. G1: `core`, `config`, `keys`
+  (every key of sai-teralynx's README table, C++ defaults and C parsing: `strtoul` base 0, `atoi`),
+  `switch` (init / shutdown in the C++ order, init commands, callbacks, temperatures, table usage, chip
+  limits, diag shell), `port`, `counters` (101 ids), and the init-time parts of `l2` / `lag` / `l3` /
+  `hostif` / `sflow` / `acl`; every other operation answers `NotSupported` (`g2.rs`, logged once).
+  Locking: the SAI API lock is the C++ `Core::mu`; outside it only the temperature reader (own mutex) and
+  libifcs' callback threads (no IFCS call, queue to the `EventSink`). Differences from the C++: the crate's
+  `lib.rs`.
+- `sai-ffi` feature `teralynx` (not with `openbcm`: `compile_error!`): `SAI_OPENBCM_BACKEND=openbcm` (the
+  CS8210 profile's), `teralynx` and no key select it; its keys are in `profile_keys()`.
+- `SAI_TERALYNX_POST_INIT_REGS` (Rust only): a file of `offset mask value` lines (hex `0x` or decimal; `#`
+  comments; up to 4096 entries, in order, an offset may repeat), BAR0 read-modify-writes applied after the
+  init commands on every init through libifcs' own `node_pci_reg_read32` / `_write32` (never a second mapping
+  of the BAR): read, `(old & !mask) | value`, read back under the mask. No meaning in the backend: board data
+  (an LED stream setup, per-PIC LED overrides from 0x13700, ...). A malformed file refuses the switch before
+  the SDK starts; a failed access or a read-back mismatch is an error line, counted, and the init goes on.
+- `SAI_TERALYNX_DIAG_REGS` (Rust only): a read-only watch list for the diag shell, `offset` or `first-last`
+  (every 4 bytes) per line, up to 1024 registers. The diag command `regs` (also while syncd runs, under the SAI
+  lock like every IFCS call) prints the post-init list (mask, wanted value, the value read now, ok /
+  DIFFERS) and the watch list's live values. Nothing from the socket names an offset: an MMIO read nothing
+  answers can stall the SoC, so only the board's files decide what is read.
+- `nix/libsai-teralynx.nix`: `libsai.so` (`-z defs`, soname `libsai.so.1`, the virtual build's exports).
+  Native check (`crates/sai-backend-teralynx/tests/test-ifcs.sh`): sai-teralynx's `test_ifcs`, unmodified, on
+  it with the C mock libifcs and the C shim, every FAIL line one of `tests/test_ifcs-expected.txt` (the G2
+  areas; it aborts in `t_hooks` on the unported L3); the create / remove IFCS call log equal to the C++
+  library's on the same mock; the post-init register list on the mock's registers. aarch64: cross build
+  (`cs8210-sai-rs-teralynx`) and its test bundle run as aarch64-linux (`nix/teralynx-target-run.nix`).
+
 ### Drop-in package
 
 `nix/sai-openbcm-rs.nix`: `{ saiSrc, glueSrc, libsdk ? null, saiRs ? <package.nix> }`, the SAI package of
@@ -551,6 +607,47 @@ failure", `ai_re/devices/edge-core-as7772-32x/evidence/rust-g6/` f1, g2).
   `tests/test_tables.h`) through both drivers; every differing operation must be in
   `tests/differential-allow.txt` (empty).
 
+### Teralynx shim: ifcs-shim, ifcs-guard
+
+`libsai-teralynx-shim.so` of the CS8210 in Rust, a drop-in for `ai_re/nix/packages/sai-teralynx/src/shim.c` +
+`ifcs_guard.c` (which stay the C++ package's; not changed): libsai dlopens it from its own directory
+(`RTLD_NOW | RTLD_GLOBAL`) before the vendor `libifcs.so` and points libifcs' GOT entries at it (the GOT
+write stays in libsai's process: `ifcs_lib.cpp`, later crate `ifcs`).
+
+- `ifcs-guard` (forbid unsafe): the learn-ring read guard (`ai_re/devices/cs8210-32x/learn-wedge.md` §2) as a
+  state machine over an `Io` trait (the original accessors, clocks, the 3 ms sleep, the journal, the stats and
+  inject files): validity rules, re-reads, substitution, degraded mode, all-ones counting of other offsets,
+  the `im_malloc` limit, journal text and rate limit, the `.prom` text and its rewrite cadence, the inject
+  hook (`fscanf("%x %u")` as glibc reads it), init / installed, with the C's buffer sizes and truncation.
+  No allocation; a valid guarded read takes no lock (as the C).
+- `ifcs-shim` (cdylib, soname `libsai-teralynx-shim.so`; installed under that name by `nix/ifcs-shim.nix`):
+  the rim: the C library's 26 exports and nothing else (`nm -D` compared), the 19 CPython stubs (the two
+  variadic ones defined with their fixed parameter: sound on AAPCS64, SysV x86_64 and ELFv2, see the
+  module's text), `tl_devmem_memcpy` (volatile accesses, the C's 8 / 4 / 1 width choice), the guard's
+  entry points (`catch_unwind` with a named fallback in each), `tl_ifcs_im_malloc` as a naked tail jump
+  that passes the caller's address (the C's `__builtin_return_address(0)`; x30 / `[rsp]`). stderr through
+  `write(2)` (`std::io::stderr` allocates a thread handle on first use).
+- Evidence (2026-11-25): `ifcs-guard` 26 tests (rules one by one, the C test's learn scenario, a property
+  test: 0x4860 never answered with bits 13..31, the RMW registers never all-ones, at most 3 re-reads and
+  none while degraded, the journal's window); the live differential `ifcs-shim/tests/differential.rs`
+  (C harness `tests/c/guard_harness.c`; the C library compiled from the sources above unmodified; 15 corpus
+  scripts + 400 generated, inputs digest pinned): 95,533 steps, every trace line equal (values, codes,
+  original-accessor calls, sleeps, journal bytes, file versions, stubs, copies), per step the Rust allocates
+  no more than the C (except init: the environment copy), no thread-local destructor registered; the same
+  415 scripts equal on aarch64 under emulation. Drop-in: sai-teralynx's own `test_ifcs` with the Rust
+  library in place: 1047 / 1047 (x86_64; aarch64 emulated, C baseline 1047 too). `tl_devmem_memcpy`'s
+  disassembly: single loads / stores of the chosen width, no SIMD, no pair but the frame record, no call.
+- Found by the port, kept for parity (in both): with the 16 all-ones names in use the counters' text
+  outgrows the C's 4096-byte buffer at a few hundred events per name (`render` returns -1): the file is
+  no longer rewritten and `tl_ifcs_guard_text` answers "" (test `counters_that_do_not_fit_the_buffer_give_no_text`,
+  corpus `allones-other.txt`).
+- Differences from the C, none in the differential's observables: a write-back error at `close` of the
+  stats file is not seen (std does not report it; the C unlinked then); files are opened `O_CLOEXEC`;
+  init copies the inject variable; calls before `tl_ifcs_guard_init` answer -1 (the C called a null
+  pointer); on a target other than aarch64 / x86_64 the im_malloc line says `caller (nil)`.
+- Build and check: `just test-packages -k sai-teralynx-shim` (`sai-teralynx-shim-rs` native,
+  `cs8210-sai-teralynx-shim-rs` aarch64 + emulated runs).
+
 ## Wiring into the C++ libsai (G0, deleted)
 
 For G0 the C++ libsai could take the Rust table engine (`make RUST_PHY_SEQ`, crate `phy-seq-capi`,
@@ -677,6 +774,8 @@ checks ranges; its build prints the count).
 | `sai-ffi` | (workspace lints) | 82: generic 25, convert 20, tables 12, global 10, ptr 6, state 4, notify 4, diag 1; + test_port 3 (feature `test-port` only) | 83 / 273 | 17 `sai_*` (+ `sai_rs_test_query` with `test-port`) | the SAI C ABI; `convert` / `tables` blocks sit in macros |
 | `sdk-glue` | none | 52: real 48, error 2, link 2 | 0 / 1 | | one block per glue call (`real`), `ob_sdk_errmsg`'s pointer, the L2 callback's MAC read |
 | `tap-netdev` | deny; allowed in sys | 9 | | | ioctls (TUNSETIFF, TUNSETCARRIER, SIOCSIFHWADDR), if_nametoindex, socket, bind, setsockopt, poll |
+| `ifcs-shim` | (workspace lints) | 17: the stored accessors as their function types + the calls 4, the copy loop 5, `val` 2, im_malloc (errno, calloc) 3, `write(2)` 1, `clock_gettime` 1, init's string 1; + 2 `#[unsafe(naked)]` (im_malloc, aarch64 / x86_64) | 0 / 0 | 26 (the C shim's) | `libsai-teralynx-shim.so` ([Teralynx shim](#teralynx-shim-ifcs-shim-ifcs-guard)); counted 2026-11-25 |
+| `ifcs-guard` | forbid | 0 | | | the guard's decisions |
 | `sai-sys` (forbid), `sdk-glue-sys` (none) | | 0 | | generated `unsafe extern "C"` blocks; 26 `safe fn` (sdk-glue-sys) | declarations only |
 | the other 15 | forbid | 0 | | | |
 

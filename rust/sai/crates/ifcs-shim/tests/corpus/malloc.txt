@@ -1,0 +1,28 @@
+# im_malloc around the limit; limit 0 = none; the 32 GiB request of the wedge
+init 800 1073741824 file 0
+installed 1
+malloc 0
+malloc 1
+malloc 4096
+malloc 1073741824
+malloc 1073741825
+malloc 34359721992
+malloc 18446744073709551615
+text
+init 800 4096 file 0
+malloc 4096
+malloc 4097
+malloc 8192
+text
+init 800 0 file 0
+malloc 1073741825
+malloc 65536
+text
+init 800 1 file 0
+malloc 1
+malloc 2
+thread 1
+malloc 3
+malloc 1
+thread 0
+text

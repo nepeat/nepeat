@@ -1,0 +1,88 @@
+# all-ones of other offsets: 16 by name (one line each), the rest "other"; counts until the
+# text no longer fits the 4096-byte buffer (both stop writing the file)
+init 800 1073741824 file 0
+installed 1
+set 10000 ffffffff
+rd 10000
+set 11004 ffffffff
+rd 11004
+set 12008 ffffffff
+rd 12008
+set 1300c ffffffff
+rd 1300c
+set 14010 ffffffff
+rd 14010
+set 15014 ffffffff
+rd 15014
+set 16018 ffffffff
+rd 16018
+set 1701c ffffffff
+rd 1701c
+set 18020 ffffffff
+rd 18020
+set 19024 ffffffff
+rd 19024
+set 1a028 ffffffff
+rd 1a028
+set 1b02c ffffffff
+rd 1b02c
+set 1c030 ffffffff
+rd 1c030
+set 1d034 ffffffff
+rd 1d034
+set 1e038 ffffffff
+rd 1e038
+set 1f03c ffffffff
+rd 1f03c
+set 20040 ffffffff
+rd 20040
+set 21044 ffffffff
+rd 21044
+set 22048 ffffffff
+rd 22048
+set 2304c ffffffff
+rd 2304c
+set 2000 7
+rd 2000
+q 2000 0:ffffffff
+rd 2000
+text
+q 4860 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff
+rd 4860
+rd 10000 120
+rd 11004 120
+rd 12008 120
+rd 1300c 120
+rd 14010 120
+rd 15014 120
+rd 16018 120
+rd 1701c 120
+rd 18020 120
+rd 19024 120
+rd 1a028 120
+rd 1b02c 120
+rd 1c030 120
+rd 1d034 120
+rd 1e038 120
+rd 1f03c 120
+rd 20040 120
+rd 21044 120
+rd 22048 120
+rd 2304c 120
+adv 31
+rd 4860
+text
+q 4860 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff
+rd 4860
+text
+installed 0
+text
+# negative offsets
+set -10 ffffffff
+init 800 1073741824 file 0
+set fffffff0 ffffffff
+rd fffffff0
+rd 0
+set 0 ffffffff
+rd 0
+text

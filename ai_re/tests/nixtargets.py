@@ -191,6 +191,22 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     "vm-trial-boot-linux": ("vm", 'import (src + "/modules/profiles/trial-boot/test-linux.nix") { pkgs = p; }', 0),
     # Teralynx 7 libsai (CS8210), native build with its checkPhase.
     "sai-teralynx": ("packages", 'p.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }', 0),
+    # The Rust libsai with the Teralynx backend (rust/sai/nix/libsai-teralynx.nix): native with the Teralynx
+    # crates' tests, test_ifcs (unmodified) on it with the C mock libifcs + C shim against an expected-FAIL
+    # list of the areas not ported yet, and its create_switch / remove_switch IFCS calls equal to the C++
+    # library's; aarch64 cross for the CS8210 (bindings checked by the aarch64 compiler), and its test
+    # bundle run as aarch64-linux (binfmt / qemu-user on the build host) with the C++ aarch64 library's calls.
+    "sai-rs-teralynx": ("packages", 'p.callPackage (saiRsDir + "/libsai-teralynx.nix") { saiRs = saiRs p; cppTeralynx = p.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }; }', 0),
+    # (aarch64: the workspace without the AS7772 PHY tables, which only native checks read: no native
+    # AS77xx build in their closure)
+    "cs8210-sai-rs-teralynx": ("packages", 'let a = p.pkgsCross.aarch64-multiplatform; in a.callPackage (saiRsDir + "/libsai-teralynx.nix") { saiRs = a.callPackage (saiRsDir + "/package.nix") { saiSrc = (import (src + "/packages/sonic") { pkgs = a; }).sources.sairedis; inherit glueSrc; }; }', 0),
+    "cs8210-sai-rs-teralynx-run": ("packages", 'let a = p.pkgsCross.aarch64-multiplatform; in import (saiRsDir + "/teralynx-target-run.nix") { pkgs = import np { system = "aarch64-linux"; }; bundle = (a.callPackage (saiRsDir + "/libsai-teralynx.nix") { saiRs = a.callPackage (saiRsDir + "/package.nix") { saiSrc = (import (src + "/packages/sonic") { pkgs = a; }).sources.sairedis; inherit glueSrc; }; }).testBundle; cppLibsai = "${a.callPackage (src + "/packages/sai-teralynx") { sonic = import (src + "/packages/sonic") { pkgs = a; }; }}/lib/libsai.so.1.0.0"; }', 0),
+    # libsai-teralynx-shim.so in Rust (rust/sai/nix/ifcs-shim.nix): native with the crates' checks, the
+    # live differential against the C shim and sai-teralynx's test_ifcs (1047) with the Rust shim in place;
+    # aarch64 (the CS8210) cross-built, then under emulation test_ifcs with the C and the Rust shim and the
+    # native build's differential scripts replayed against both aarch64 libraries
+    "sai-teralynx-shim-rs": ("packages", 'p.callPackage (saiRsDir + "/ifcs-shim.nix") { saiRs = saiRs p; saiTeralynx = p.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }; }', 0),
+    "cs8210-sai-teralynx-shim-rs": ("packages", 'let a = p.pkgsCross.aarch64-multiplatform; in a.callPackage (saiRsDir + "/ifcs-shim.nix") { saiRs = saiRs a; saiTeralynx = a.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }; runnerPkgs = import np { system = "aarch64-linux"; }; scriptsFrom = p.callPackage (saiRsDir + "/ifcs-shim.nix") { saiRs = saiRs p; saiTeralynx = p.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }; }; }', 0),
     # qemu-user for Marvell's amd64 SAI on the CS8210 + its offline tests
     # (fetches Marvell's published binaries into the store: unfree).
     "qemu-ipd": ("packages", "qemuIpd", 2),

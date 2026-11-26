@@ -1,0 +1,24 @@
+# 0x4864 / 0x485c all-ones: last valid value, 0 before any; degraded; valid again
+init 800 1073741824 file 0
+installed 1
+q 4864 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff
+rd 4864
+q 485c 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff
+rd 485c
+set 4864 a5a01003
+set 485c 300042
+rd 4864
+rd 485c
+q 4864 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff
+rd 4864
+rd 4864
+rd 4864
+rd 4864
+q 485c 0:ffffffff 0:ffffffff 0:ffffffff 0:12345678
+rd 485c
+q 485c 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff
+rd 485c
+rd 485c
+adv 40
+rd 485c
+text

@@ -7,9 +7,35 @@
 //! - `virtual`: the in-memory chip of `sai-core` (always built in).
 //! - `openbcm`: the Broadcom SDK through the C glue (`sai-backend-openbcm`), only in a
 //!   library built with the cargo feature `openbcm`.
-use sai_core::backend::Backend;
-use sai_core::keys::BackendChoice;
+//! - With the cargo feature `teralynx` instead, the hardware backend is the Teralynx 7's
+//!   (`sai-backend-teralynx`, the CS8210-32X): `SAI_OPENBCM_BACKEND=openbcm` (what the CS8210's
+//!   board profile sets, as for the C++ library's "openbcm" slot), `teralynx` and no key all
+//!   select it.
+use sai_core::backend::{Backend, Profile};
+use sai_core::keys::{self, BackendChoice, ChoiceError};
 use sai_core::virt::VirtualBackend;
+
+#[cfg(all(feature = "openbcm", feature = "teralynx"))]
+compile_error!("sai-ffi: the features \"openbcm\" and \"teralynx\" are two hardware backends; a libsai has one");
+
+/// Whether this library has a hardware backend (then no key selects it).
+pub(crate) const HAS_HARDWARE: bool = cfg!(any(feature = "openbcm", feature = "teralynx"));
+
+/// The backend the profile asks for (`keys::backend_choice`); a teralynx library also takes
+/// `teralynx` for its hardware backend. Inlined: without the feature it is the call the rim always
+/// made (`keys::backend_choice(profile, cfg!(feature = "openbcm"))`).
+#[allow(
+    clippy::inline_always,
+    reason = "keeps a build without the feature as it was (AS77xx byte-identity)"
+)]
+#[inline(always)]
+pub(crate) fn choice(profile: &Profile) -> Result<BackendChoice, ChoiceError> {
+    #[cfg(feature = "teralynx")]
+    if profile.get_any(&[keys::RS_BACKEND, keys::BACKEND]) == Some("teralynx") {
+        return Ok(BackendChoice::Openbcm);
+    }
+    keys::backend_choice(profile, HAS_HARDWARE)
+}
 
 /// Every profile key the library asks for one by one besides those the SAI user enumerates:
 /// the C++ list ([`sai_core::keys::EXPLICIT`]) and every key a backend of this build reads.
@@ -20,6 +46,8 @@ pub(crate) fn profile_keys() -> Vec<&'static str> {
     keys.extend(sai_core::virt::PROFILE_KEYS);
     #[cfg(feature = "openbcm")]
     keys.extend(sai_backend_openbcm::PROFILE_KEYS);
+    #[cfg(feature = "teralynx")]
+    keys.extend(sai_backend_teralynx::PROFILE_KEYS);
     keys
 }
 
@@ -31,7 +59,9 @@ pub(crate) fn select(choice: BackendChoice) -> Option<Box<dyn Backend>> {
         BackendChoice::Virtual => Some(Box::new(VirtualBackend::new())),
         #[cfg(feature = "openbcm")]
         BackendChoice::Openbcm => Some(Box::new(sai_backend_openbcm::OpenbcmBackend::new())),
-        #[cfg(not(feature = "openbcm"))]
+        #[cfg(feature = "teralynx")]
+        BackendChoice::Openbcm => Some(Box::new(sai_backend_teralynx::TeralynxBackend::new())),
+        #[cfg(not(any(feature = "openbcm", feature = "teralynx")))]
         BackendChoice::Openbcm => None,
     }
 }

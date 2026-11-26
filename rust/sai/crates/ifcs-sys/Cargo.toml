@@ -1,0 +1,15 @@
+[package]
+name = "ifcs-sys"
+description = "Raw IFCS (Teralynx 7 SDK, libifcs 0.12.41) declarations: bindgen output of the GENERATED ifcs_api.h (never committed), checked against the target's C compiler"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+links = "ifcs-headers"
+build = "build.rs"
+
+[build-dependencies]
+bindgen.workspace = true
+
+[lints]
+workspace = true

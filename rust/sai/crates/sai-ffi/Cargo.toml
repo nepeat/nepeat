@@ -22,6 +22,8 @@ sai-diag.workspace = true
 libc.workspace = true
 # only with the feature "openbcm" (path, not a workspace entry: nothing else depends on it)
 sai-backend-openbcm = { path = "../sai-backend-openbcm", optional = true }
+# only with the feature "teralynx" (path, not a workspace entry: only that library links it)
+sai-backend-teralynx = { path = "../sai-backend-teralynx", optional = true }
 # only with the feature "test-port" (path, not a workspace entry: only the test build uses it)
 sai-test-port = { path = "../sai-test-port", optional = true }
 
@@ -34,6 +36,10 @@ openbcm = ["dep:sai-backend-openbcm"]
 openbcm-real = ["openbcm", "sai-backend-openbcm/real"]
 # the in-memory fake glue: the openbcm code path without a chip (smoke program's self-test)
 openbcm-fake = ["openbcm", "sai-backend-openbcm/fake"]
+# the Teralynx 7 backend (CS8210-32X: libifcs dlopen'ed at run time, crate sai-backend-teralynx, README
+# "Teralynx backend"); its library's one hardware backend: SAI_OPENBCM_BACKEND=openbcm (the board
+# profile's) and no key select it. Not together with "openbcm" (src/backends.rs refuses the build).
+teralynx = ["dep:sai-backend-teralynx"]
 # sai_rs_test_query, the test-only export the C++ suite's test port uses (src/test_port.rs,
 # crate sai-test-port); never in a production library
 test-port = ["dep:sai-test-port", "sai-core/testing"]

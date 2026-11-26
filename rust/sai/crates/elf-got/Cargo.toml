@@ -1,0 +1,15 @@
+[package]
+name = "elf-got"
+description = "GOT redirect of an imported function in a loaded ELF object (the Teralynx loader's memcpy and learn-ring guard redirects): ELF parsed in safe code from the object's file, a tiny rim for dladdr, mprotect and the slot write"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+build = "build.rs"
+
+[dependencies]
+# dladdr, mprotect, sysconf declarations of the target's C library; nothing else
+libc.workspace = true
+
+[lints]
+workspace = true

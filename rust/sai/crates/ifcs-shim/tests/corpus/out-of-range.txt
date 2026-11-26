@@ -1,0 +1,66 @@
+# out-of-range slots and high bits; a ring size that is too small (startup line at the 10th)
+init 400 1073741824 file 0
+installed 1
+q 4860 0:400 0:400 0:400 0:400
+rd 4860
+adv 1
+q 4860 0:7ff 0:7ff 0:7ff 0:7ff
+rd 4860
+adv 1
+q 4860 0:1400 0:1400 0:1400 0:1400
+rd 4860
+adv 1
+q 4860 0:2000 0:2000 0:2000 0:2000
+rd 4860
+adv 1
+q 4860 0:80000010 0:80000010 0:80000010 0:80000010
+rd 4860
+adv 1
+q 4860 0:fffff 0:fffff 0:fffff 0:fffff
+rd 4860
+adv 1
+q 4860 0:3ff 0:3ff 0:3ff 0:3ff
+rd 4860
+adv 1
+q 4860 0:13ff 0:13ff 0:13ff 0:13ff
+rd 4860
+adv 1
+q 4860 0:1000 0:1000 0:1000 0:1000
+rd 4860
+adv 1
+init 400 1073741824 file 0
+set 4860 500
+rd 4860
+adv 1
+rd 4860
+adv 1
+rd 4860
+adv 1
+rd 4860
+adv 1
+rd 4860
+adv 1
+rd 4860
+adv 1
+rd 4860
+adv 1
+rd 4860
+adv 1
+rd 4860
+adv 1
+rd 4860
+adv 1
+rd 4860
+adv 1
+rd 4860
+adv 1
+init 0 1073741824 file 0
+rd 4860
+set 4860 1fff
+rd 4860
+init 1 1073741824 file 0
+set 4860 0
+rd 4860
+set 4860 1
+rd 4860
+text

@@ -1,0 +1,81 @@
+# the inject hook: file read at most once a second, then removed; forms glibc accepts and refuses
+init 800 1073741824 file 1
+installed 1
+set 4860 5
+set 4864 a5a00000
+set 485c 300000
+injectfile 4860 2\n
+rd 4860
+rd 4860
+adv 0.5
+injectfile 4864 3
+rd 4860
+rd 4864
+adv 0.5
+rd 4864
+rd 4864
+rd 4864
+adv 1
+injectfile 0x485c 4
+rd 485c
+rd 485c
+adv 1
+injectfile 0X4860 1
+rd 4860
+adv 1
+injectfile 1234 5
+rd 4860
+adv 1
+injectfile 4860
+rd 4860
+adv 1
+injectfile garbage
+rd 4860
+adv 1
+injectfile 
+rd 4860
+adv 1
+injectfile    \n\t 4860\n\n  6xyz
+rd 4860
+adv 1
+injectfile 100004860 1
+rd 4860
+adv 1
+injectfile -1 1
+rd 4860
+adv 1
+injectfile 0x 1
+rd 4860
+adv 1
+injectfile 4860 -1
+rd 4860
+rd 4860
+adv 1
+injectfile 4860 99999999999999999999
+rd 4860
+adv 1
+injectfile 4860 0
+rd 4860
+adv 1
+injectfile 4860g7
+rd 4860
+adv 1
+injectfile +4860 +2
+rd 4860
+adv 1
+injectfile 4860 0x3
+rd 4860
+adv 1
+injectfile 485c 2
+rd 1234
+rd 4860
+rd 485c
+adv 1
+rd 485c
+text
+# without the hook the file is never read
+init 800 1073741824 file 0
+injectfile 4860 9
+adv 2
+rd 4860
+text

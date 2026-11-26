@@ -1,0 +1,5 @@
+# A diag watch list for the test (tests/test-ifcs.sh): one register, a range, and one the mock has
+# no slot for (its read fails), "offset" or "first-last" per line.
+0x13514
+0x13530-0x13538
+0x13600

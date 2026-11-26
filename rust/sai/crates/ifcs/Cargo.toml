@@ -1,0 +1,19 @@
+[package]
+name = "ifcs"
+description = "The only unsafe rim for libifcs (Teralynx 7 SDK): loader (dlopen, the IFCS_SYMBOLS table, GOT redirects, learn-ring guard install, call tracer), safe wrappers grouped by C signature, attribute builder, handles, status mapping, callback trampolines over a keyed registry"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+build = "build.rs"
+
+[dependencies]
+ifcs-sys = { path = "../ifcs-sys" }
+elf-got = { path = "../elf-got" }
+# the SAI error an IFCS status maps to (tl_core.cpp map_reason)
+sai-core.workspace = true
+# dlopen / dlsym / dlerror declarations of the target's C library; nothing else
+libc.workspace = true
+
+[lints]
+workspace = true

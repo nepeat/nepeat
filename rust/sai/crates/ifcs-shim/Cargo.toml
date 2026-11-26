@@ -1,0 +1,22 @@
+[package]
+name = "ifcs-shim"
+description = "libsai-teralynx-shim.so in Rust: the C ABI rim of ifcs-guard, the CPython stubs and the Device-memory copy libifcs needs (shim.c, ifcs_guard.c)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+build = "build.rs"
+
+[lib]
+# cargo names the file libsai_teralynx_shim.so; the soname (build.rs) and the installed name
+# (nix/ifcs-shim.nix) are libsai-teralynx-shim.so, the name libsai's loader dlopens
+name = "sai_teralynx_shim"
+crate-type = ["cdylib"]
+
+[dependencies]
+ifcs-guard = { path = "../ifcs-guard" }
+# calloc, errno, clock_gettime
+libc.workspace = true
+
+[lints]
+workspace = true

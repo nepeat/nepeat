@@ -1,0 +1,30 @@
+# recover-after-bad: one bad read recovered; bad 3 polls (substituted with the consumer index), valid again; again
+init 800 1073741824 file 0
+installed 1
+wr 4864 a5a01003
+set 4860 9
+q 4860 0:ffffffff
+rd 4860
+q 4860 0:ffffffff 0:ffffffff
+rd 4860
+q 4860 0:ffffffff 0:ffffffff 0:ffffffff
+rd 4860
+q 4860 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff
+rd 4860
+adv 1
+rd 4860
+adv 1
+rd 4860
+adv 1
+rd 4860
+adv 1
+rd 4860
+wr 4864 0
+q 4860 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff
+rd 4860
+rd 4860
+wr 4864 ffffffff
+q 4860 0:ffffffff
+rd 4860
+rd 4860
+text

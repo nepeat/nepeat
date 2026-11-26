@@ -1,0 +1,4 @@
+# a variadic stub first
+py PyObject_CallFunctionObjArgs
+py Py_BuildValue
+py PyErr_Print

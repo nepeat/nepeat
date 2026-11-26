@@ -16,7 +16,7 @@ use sai_sys as sys;
 
 use crate::backends;
 use sai_core::backend::{Backend, Profile};
-use sai_core::keys::{self, BackendChoice, ChoiceError};
+use sai_core::keys::{BackendChoice, ChoiceError};
 
 /// An object type of the core or of the `MACsec` model (its five API types); anything else is
 /// `NOT_IMPLEMENTED`.
@@ -216,7 +216,7 @@ fn only_switch(sai: &Sai<Box<dyn Backend>>) -> Result<(), Status> {
 /// chip is never chosen implicitly: on a real switch a library that "succeeds" without
 /// programming anything must be something the operator asked for.
 fn choose_backend(profile: &Profile) -> Result<Box<dyn Backend>, Status> {
-    let choice = keys::backend_choice(profile, cfg!(feature = "openbcm")).map_err(|e| {
+    let choice = backends::choice(profile).map_err(|e| {
         match &e {
             ChoiceError::NoneAsked => log::emit(
                 sys::SAI_API_SWITCH,

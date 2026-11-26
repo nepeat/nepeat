@@ -1,0 +1,176 @@
+# the reads from another thread (as libifcs' learn thread)
+init 800 1073741824 file 1
+installed 1
+thread 1
+set 4864 a5a00000
+set 485c 300000
+rd 4864
+rd 485c
+q 4860 0:3
+rd 4860
+wr 4864 a5a00003
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:6
+rd 4860
+wr 4864 a5a00006
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:9
+rd 4860
+wr 4864 a5a00009
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:c
+rd 4860
+wr 4864 a5a0000c
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:f
+rd 4860
+wr 4864 a5a0000f
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:12
+rd 4860
+wr 4864 a5a00012
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:15
+rd 4860
+wr 4864 a5a00015
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:18
+rd 4860
+wr 4864 a5a00018
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:1b
+rd 4860
+wr 4864 a5a0001b
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:1e
+rd 4860
+wr 4864 a5a0001e
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:21
+rd 4860
+wr 4864 a5a00021
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:24
+rd 4860
+wr 4864 a5a00024
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:27
+rd 4860
+wr 4864 a5a00027
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:2a
+rd 4860
+wr 4864 a5a0002a
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:2d
+rd 4860
+wr 4864 a5a0002d
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:30
+rd 4860
+wr 4864 a5a00030
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:33
+rd 4860
+wr 4864 a5a00033
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:36
+rd 4860
+wr 4864 a5a00036
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:39
+rd 4860
+wr 4864 a5a00039
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:3c
+rd 4860
+wr 4864 a5a0003c
+wr 485c 300042
+adv 1
+injectfile 4860 6
+adv 1
+rd 4864
+rd 485c
+q 4860 0:3c
+rd 4860
+wr 4864 a5a0003c
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:3c
+rd 4860
+wr 4864 a5a0003c
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:3c
+rd 4860
+wr 4864 a5a0003c
+wr 485c 300042
+adv 1
+malloc 2147483648
+malloc 64
+set 7777 ffffffff
+rd 7777
+thread 0
+rd 7777
+text

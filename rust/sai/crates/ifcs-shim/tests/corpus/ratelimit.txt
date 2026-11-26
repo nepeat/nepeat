@@ -1,0 +1,128 @@
+# rate limit: at most 20 lines per 10 minutes, then the count of the suppressed ones
+init 800 4096 file 0
+installed 1
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+malloc 5000
+adv 10
+adv 400
+malloc 9000
+malloc 9000
+malloc 9000
+adv 600
+q 4860 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff
+rd 4860
+adv 1300
+rd 4860
+adv 1
+set 4860 1
+rd 4860
+set 100 ffffffff
+rd 100
+set 101 ffffffff
+rd 101
+set 102 ffffffff
+rd 102
+set 103 ffffffff
+rd 103
+set 104 ffffffff
+rd 104
+set 105 ffffffff
+rd 105
+set 106 ffffffff
+rd 106
+set 107 ffffffff
+rd 107
+set 108 ffffffff
+rd 108
+set 109 ffffffff
+rd 109
+set 10a ffffffff
+rd 10a
+set 10b ffffffff
+rd 10b
+set 10c ffffffff
+rd 10c
+set 10d ffffffff
+rd 10d
+set 10e ffffffff
+rd 10e
+set 10f ffffffff
+rd 10f
+set 110 ffffffff
+rd 110
+set 111 ffffffff
+rd 111
+set 112 ffffffff
+rd 112
+set 113 ffffffff
+rd 113
+set 114 ffffffff
+rd 114
+set 115 ffffffff
+rd 115
+set 116 ffffffff
+rd 116
+set 117 ffffffff
+rd 117
+set 118 ffffffff
+rd 118
+adv 600
+malloc 4097
+text

@@ -1,0 +1,566 @@
+# normal ring traffic: learn passes with a moving producer index, the 30 s rewrite
+init 800 1073741824 file 0
+installed 1
+set 4864 a5a00000
+set 485c 300000
+rd 4864
+rd 485c
+q 4860 0:0
+rd 4860
+wr 4864 a5a00000
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:1
+rd 4860
+wr 4864 a5a00001
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:3
+rd 4860
+wr 4864 a5a00003
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:6
+rd 4860
+wr 4864 a5a00006
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:a
+rd 4860
+wr 4864 a5a0000a
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:f
+rd 4860
+wr 4864 a5a0000f
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:15
+rd 4860
+wr 4864 a5a00015
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:15
+rd 4860
+wr 4864 a5a00015
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:16
+rd 4860
+wr 4864 a5a00016
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:18
+rd 4860
+wr 4864 a5a00018
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:1b
+rd 4860
+wr 4864 a5a0001b
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:1f
+rd 4860
+wr 4864 a5a0001f
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:24
+rd 4860
+wr 4864 a5a00024
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:2a
+rd 4860
+wr 4864 a5a0002a
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:2a
+rd 4860
+wr 4864 a5a0002a
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:2b
+rd 4860
+wr 4864 a5a0002b
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:2d
+rd 4860
+wr 4864 a5a0002d
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:30
+rd 4860
+wr 4864 a5a00030
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:34
+rd 4860
+wr 4864 a5a00034
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:39
+rd 4860
+wr 4864 a5a00039
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:3f
+rd 4860
+wr 4864 a5a0003f
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:3f
+rd 4860
+wr 4864 a5a0003f
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:40
+rd 4860
+wr 4864 a5a00040
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:42
+rd 4860
+wr 4864 a5a00042
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:45
+rd 4860
+wr 4864 a5a00045
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:49
+rd 4860
+wr 4864 a5a00049
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:4e
+rd 4860
+wr 4864 a5a0004e
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:54
+rd 4860
+wr 4864 a5a00054
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:54
+rd 4860
+wr 4864 a5a00054
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:55
+rd 4860
+wr 4864 a5a00055
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:57
+rd 4860
+wr 4864 a5a00057
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:5a
+rd 4860
+wr 4864 a5a0005a
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:5e
+rd 4860
+wr 4864 a5a0005e
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:63
+rd 4860
+wr 4864 a5a00063
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:69
+rd 4860
+wr 4864 a5a00069
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:69
+rd 4860
+wr 4864 a5a00069
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:6a
+rd 4860
+wr 4864 a5a0006a
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:6c
+rd 4860
+wr 4864 a5a0006c
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:6f
+rd 4860
+wr 4864 a5a0006f
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:73
+rd 4860
+wr 4864 a5a00073
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:78
+rd 4860
+wr 4864 a5a00078
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:7e
+rd 4860
+wr 4864 a5a0007e
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:7e
+rd 4860
+wr 4864 a5a0007e
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:7f
+rd 4860
+wr 4864 a5a0007f
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:81
+rd 4860
+wr 4864 a5a00081
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:84
+rd 4860
+wr 4864 a5a00084
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:88
+rd 4860
+wr 4864 a5a00088
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:8d
+rd 4860
+wr 4864 a5a0008d
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:93
+rd 4860
+wr 4864 a5a00093
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:93
+rd 4860
+wr 4864 a5a00093
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:94
+rd 4860
+wr 4864 a5a00094
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:96
+rd 4860
+wr 4864 a5a00096
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:99
+rd 4860
+wr 4864 a5a00099
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:9d
+rd 4860
+wr 4864 a5a0009d
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:a2
+rd 4860
+wr 4864 a5a000a2
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:a8
+rd 4860
+wr 4864 a5a000a8
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:a8
+rd 4860
+wr 4864 a5a000a8
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:a9
+rd 4860
+wr 4864 a5a000a9
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:ab
+rd 4860
+wr 4864 a5a000ab
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:ae
+rd 4860
+wr 4864 a5a000ae
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:b2
+rd 4860
+wr 4864 a5a000b2
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:b7
+rd 4860
+wr 4864 a5a000b7
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:bd
+rd 4860
+wr 4864 a5a000bd
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:bd
+rd 4860
+wr 4864 a5a000bd
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:be
+rd 4860
+wr 4864 a5a000be
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:c0
+rd 4860
+wr 4864 a5a000c0
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:c3
+rd 4860
+wr 4864 a5a000c3
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:c7
+rd 4860
+wr 4864 a5a000c7
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:cc
+rd 4860
+wr 4864 a5a000cc
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:d2
+rd 4860
+wr 4864 a5a000d2
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:d2
+rd 4860
+wr 4864 a5a000d2
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:d3
+rd 4860
+wr 4864 a5a000d3
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:d5
+rd 4860
+wr 4864 a5a000d5
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:d8
+rd 4860
+wr 4864 a5a000d8
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:dc
+rd 4860
+wr 4864 a5a000dc
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:e1
+rd 4860
+wr 4864 a5a000e1
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:e7
+rd 4860
+wr 4864 a5a000e7
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:e7
+rd 4860
+wr 4864 a5a000e7
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:e8
+rd 4860
+wr 4864 a5a000e8
+wr 485c 300042
+adv 1
+rd 4864
+rd 485c
+q 4860 0:ea
+rd 4860
+wr 4864 a5a000ea
+wr 485c 300042
+adv 1
+text

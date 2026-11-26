@@ -86,7 +86,7 @@ fn answer(text: &str) -> Reply {
         Err(reply) => return reply,
     };
     let context = Context {
-        has_hardware_backend: cfg!(feature = "openbcm"),
+        has_hardware_backend: crate::backends::HAS_HARDWARE,
         events_delivered: notify::EVENTS_DELIVERED.load(Ordering::Acquire),
     };
     // The diag server is the rim's (it must be stopped outside the API lock): `crate::diag`.

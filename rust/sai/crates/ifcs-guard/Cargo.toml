@@ -1,0 +1,13 @@
+[package]
+name = "ifcs-guard"
+description = "The learn-ring read guard of libsai-teralynx-shim.so (ifcs_guard.c) as a safe state machine over injected register I/O"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true
+
+[lints]
+workspace = true

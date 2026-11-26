@@ -1,0 +1,427 @@
+//! Generates the bindings of the IFCS headers and checks them against the target's C compiler.
+//! See `src/lib.rs`.
+// A build script reports a failure by panicking with a message.
+#![allow(clippy::expect_used, clippy::panic, clippy::too_many_lines)]
+
+use std::collections::BTreeSet;
+use std::env;
+use std::fmt::Write as _;
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::process::Command;
+
+/// The unions of the header, made opaque (a blob of their size and alignment): reading a Rust
+/// union is unsafe, a blob is not. A union the header grows stops the build until it is listed.
+const UNIONS: &[&str] = &[
+    "ifcs_attr_value_t",
+    "ifcs_ip_addr_t",
+    "ifcs_l2_entry_key_map_t",
+    "ifcs_route_entry_key_map_t",
+    "ifcs_qos_map_fields_t",
+];
+
+fn main() {
+    for v in [
+        "IFCS_API_INC",
+        "IFCS_SYS_ABI_CC",
+        "IFCS_SYS_ABI_CHECK",
+        "TARGET_CC",
+        "CC",
+    ] {
+        println!("cargo:rerun-if-env-changed={v}");
+    }
+    let out = PathBuf::from(env::var_os("OUT_DIR").expect("OUT_DIR"));
+    let arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
+    let os = env::var("CARGO_CFG_TARGET_OS").unwrap_or_default();
+    if os != "linux" || !matches!(arch.as_str(), "x86_64" | "aarch64") {
+        // src/lib.rs is configured out on this target: nothing to bind, no header needed.
+        fs::write(out.join("bindings.rs"), "").expect("write bindings");
+        fs::write(out.join("symbols.rs"), "").expect("write symbols");
+        println!("cargo:rustc-env=IFCS_SYS_ABI_CHECK_RESULT=skipped: no Teralynx SAI for {arch}-{os}");
+        return;
+    }
+    let inc = PathBuf::from(env::var_os("IFCS_API_INC").unwrap_or_else(|| {
+        panic!(
+            "ifcs-sys: set IFCS_API_INC to the directory with the GENERATED ifcs_api.h and ifcs_api_qos.h \
+             (rust/sai/nix/ifcs-headers.nix; they are never committed)"
+        )
+    }));
+    for h in ["ifcs_api.h", "ifcs_api_qos.h"] {
+        assert!(
+            inc.join(h).is_file(),
+            "ifcs-sys: no {h} in IFCS_API_INC={}",
+            inc.display()
+        );
+        println!("cargo:rerun-if-changed={}", inc.join(h).display());
+    }
+    let header_text = format!(
+        "{}\n{}",
+        fs::read_to_string(inc.join("ifcs_api.h")).expect("read ifcs_api.h"),
+        fs::read_to_string(inc.join("ifcs_api_qos.h")).expect("read ifcs_api_qos.h")
+    );
+    let wrapper_h = out.join("ifcs_sys_wrapper.h");
+    fs::write(&wrapper_h, "#include \"ifcs_api.h\"\n").expect("write wrapper");
+
+    let base = || {
+        bindgen::Builder::default()
+            .header(wrapper_h.to_str().expect("utf-8 OUT_DIR"))
+            .clang_arg(format!("-I{}", inc.display()))
+            .allowlist_item("[iI][fF][cC][sS]_.*")
+            .default_enum_style(bindgen::EnumVariation::Consts)
+            .prepend_enum_name(false)
+            .layout_tests(true)
+            .derive_default(false) // its impls for unions and big arrays are unsafe { zeroed() }: none here
+            .derive_debug(false)
+            .generate_comments(false)
+            .use_core()
+            .formatter(bindgen::Formatter::Prettyplease)
+    };
+    // The unions as clang lays them out, then each turned into a byte blob of the same size and
+    // alignment (bindgen's opaque_type does not take the header's typedef'd anonymous unions):
+    // the union's body and its field offset tests go, its size and alignment tests stay.
+    let mut text = base().generate().expect("bindgen over ifcs_api.h").to_string();
+    for u in UNIONS {
+        text = blobify(&text, u);
+    }
+    let unions: Vec<&str> = text
+        .split("pub union ")
+        .skip(1)
+        .filter_map(|p| p.split_whitespace().next())
+        .collect();
+    assert!(
+        unions.is_empty(),
+        "ifcs-sys: the header has unions that are not in build.rs UNIONS (make them opaque): {unions:?}"
+    );
+    for u in UNIONS {
+        assert!(
+            text.contains(&format!("pub struct {u} {{")),
+            "ifcs-sys: union {u} of build.rs UNIONS is not in the header any more"
+        );
+    }
+    fs::write(out.join("bindings.rs"), &text).expect("write bindings");
+
+    let symbols = symbol_list(&header_text);
+    let flat: String = text.chars().filter(|c| !c.is_whitespace()).collect();
+    for s in &symbols {
+        assert!(
+            flat.contains(&format!("pubtype{s}_fn=")),
+            "ifcs-sys: IFCS_SYMBOLS entry {s} has no {s}_fn typedef in the bindings"
+        );
+    }
+    // Every <name>_fn typedef of the header is an IFCS_SYMBOLS entry (and the other way round).
+    let typedefs: BTreeSet<String> = flat
+        .split("pubtype")
+        .skip(1)
+        .filter_map(|p| p.split_once('=').map(|(n, _)| n.to_owned()))
+        .filter_map(|n| n.strip_suffix("_fn").map(str::to_owned))
+        .collect();
+    let listed: BTreeSet<String> = symbols.iter().cloned().collect();
+    assert!(
+        typedefs == listed,
+        "ifcs-sys: <name>_fn typedefs and IFCS_SYMBOLS differ: only typedef {:?}, only listed {:?}",
+        typedefs.difference(&listed).collect::<Vec<_>>(),
+        listed.difference(&typedefs).collect::<Vec<_>>()
+    );
+    let mut sym = String::new();
+    writeln!(
+        sym,
+        "/// Entries of the header's `IFCS_SYMBOLS` X-macro list (every function libifcs is asked for)."
+    )
+    .expect("w");
+    writeln!(sym, "pub const SYMBOL_COUNT: usize = {};", symbols.len()).expect("w");
+    writeln!(sym, "/// Their names, in the list's order.").expect("w");
+    writeln!(sym, "pub const SYMBOLS: [&str; {}] = [", symbols.len()).expect("w");
+    for s in &symbols {
+        writeln!(sym, "    \"{s}\",").expect("w");
+    }
+    writeln!(sym, "];").expect("w");
+    writeln!(
+        sym,
+        "/// Calls `$m!` with every `IFCS_SYMBOLS` entry as `(name, type)`, the type being its `<name>_fn`."
+    )
+    .expect("w");
+    writeln!(
+        sym,
+        "#[macro_export]\nmacro_rules! for_each_symbol {{\n    ($m:ident) => {{\n        $m! {{"
+    )
+    .expect("w");
+    for s in &symbols {
+        writeln!(sym, "            ({s}, $crate::{s}_fn),").expect("w");
+    }
+    writeln!(sym, "        }}\n    }};\n}}").expect("w");
+    fs::write(out.join("symbols.rs"), sym).expect("write symbols");
+
+    let (c, n) = abi_check_source(&text, &header_text, &symbols);
+    let c_path = out.join("ifcs_abi_check.c");
+    fs::write(&c_path, c).expect("write ifcs_abi_check.c");
+    let result = run_abi_check(&c_path, &inc, n);
+    println!("cargo:rustc-env=IFCS_SYS_ABI_CHECK_RESULT={result}");
+    // In the build log on purpose: which compiler confirmed the bindings, for which target.
+    println!("cargo:warning=IFCS ABI check: {result} ({} symbols)", symbols.len());
+    println!("cargo:include={}", inc.display());
+}
+
+/// Replaces `pub union <u> { ... }` with `pub struct <u> { pub blob: [u8; size] }` of the same
+/// size and alignment (from bindgen's own layout test of the union), and drops the union's field
+/// offset tests (every member is at offset 0).
+fn blobify(text: &str, u: &str) -> String {
+    let flat: String = text
+        .chars()
+        .filter(|c| !c.is_whitespace())
+        .collect::<String>()
+        .replace("\",]", "\"]");
+    let layout = |what: &str, f: &str| -> usize {
+        let key = format!("\"{what}of{u}\"][::core::mem::{f}::<{u}>()-");
+        flat.split_once(&key)
+            .and_then(|(_, r)| r.split_once("usize"))
+            .and_then(|(v, _)| v.parse().ok())
+            .unwrap_or_else(|| panic!("ifcs-sys: no {what} of union {u} in bindgen's layout tests"))
+    };
+    let (size, align) = (layout("Size", "size_of"), layout("Alignment", "align_of"));
+    let head = format!("pub union {u} {{");
+    let start = text
+        .find(&head)
+        .unwrap_or_else(|| panic!("ifcs-sys: no union {u} in the bindings"));
+    let end = start + text[start..].find("\n}").expect("union end") + 2;
+    let attrs = text[..start].rfind("#[repr(C)]").expect("union attributes");
+    let mut out = format!(
+        "{}#[repr(C, align({align}))]\n#[derive(Copy, Clone)]\npub struct {u} {{\n    pub blob: [u8; {size}],\n}}{}",
+        &text[..attrs],
+        &text[end..]
+    );
+    let field = format!("\"Offset of field: {u}::");
+    while let Some(at) = out.find(&field) {
+        let stmt = out[..at].rfind("\n    [").expect("layout test start");
+        let stop = at + out[at..].find("];").expect("layout test end") + 2;
+        out.replace_range(stmt..stop, "");
+    }
+    out
+}
+
+/// The `IFCS_SYMBOLS` list as the header writes it: the X(name) entries of the macro bodies of
+/// `IFCS_SYMBOLS_QOS(X)` and `IFCS_SYMBOLS(X)` (which starts with the former), in order.
+fn symbol_list(header: &str) -> Vec<String> {
+    let body = |name: &str| -> String {
+        let start = format!("#define {name}(X)");
+        let lines = header.lines().skip_while(|l| !l.starts_with(&start));
+        let mut body = String::new();
+        for line in lines {
+            let cont = line.trim_end().ends_with('\\');
+            body.push_str(line.trim_end().trim_end_matches('\\'));
+            body.push(' ');
+            if !cont {
+                break;
+            }
+        }
+        assert!(!body.is_empty(), "ifcs-sys: no {start} in the header");
+        body.trim_start_matches(&start).to_owned()
+    };
+    let entries = |text: &str| -> Vec<String> {
+        text.split("X(")
+            .skip(1)
+            .filter_map(|p| p.split_once(')').map(|(n, _)| n.trim().to_owned()))
+            .filter(|n| !n.is_empty() && n.chars().all(|c| c.is_ascii_alphanumeric() || c == '_'))
+            .collect()
+    };
+    let qos = entries(&body("IFCS_SYMBOLS_QOS"));
+    let main = body("IFCS_SYMBOLS");
+    assert!(
+        main.contains("IFCS_SYMBOLS_QOS(X)"),
+        "ifcs-sys: IFCS_SYMBOLS no longer starts with IFCS_SYMBOLS_QOS(X)"
+    );
+    let mut all = qos;
+    all.extend(entries(&main));
+    let unique: BTreeSet<&String> = all.iter().collect();
+    assert!(unique.len() == all.len(), "ifcs-sys: IFCS_SYMBOLS lists a name twice");
+    assert!(
+        all.len() > 100,
+        "ifcs-sys: only {} IFCS_SYMBOLS entries found: build.rs is stale",
+        all.len()
+    );
+    all
+}
+
+/// The C spelling of a type of the bindings: the header's types are typedefs of anonymous
+/// structs (`typedef struct { ... } name;`); a tagged one would be `struct name`.
+fn c_type(header: &str, bindings_flat: &str, t: &str) -> Option<String> {
+    if t.contains("__bindgen") || t.starts_with("_bindgen") {
+        return None; // anonymous member type: no C spelling
+    }
+    let known = bindings_flat.contains(&format!("pubstruct{t}{{"));
+    if !known {
+        return None;
+    }
+    if header.contains(&format!("}} {t};")) || header.contains(&format!("}}{t};")) {
+        Some(t.to_owned())
+    } else if header.contains(&format!("struct {t} {{")) {
+        Some(format!("struct {t}"))
+    } else if header.contains(&format!(" {t};")) {
+        Some(t.to_owned()) // typedef of another typedef (ifcs_bam_queue_t)
+    } else {
+        None
+    }
+}
+
+/// bindgen's layout assertions, every enumerator / constant (clang's view of the target) and the
+/// symbol list as C static assertions for the target's own C compiler. Returns the source and
+/// the number of assertions.
+fn abi_check_source(bindings: &str, header: &str, symbols: &[String]) -> (String, usize) {
+    // Whitespace-free copy: prettyplease wraps long assertions over several lines.
+    let flat: String = bindings.chars().filter(|c| !c.is_whitespace()).collect();
+    let mut c = String::from("#include <stddef.h>\n#include \"ifcs_api.h\"\n");
+    let mut n = 0usize;
+    let mut check = |c: &mut String, expr: String, value: &str| {
+        writeln!(
+            c,
+            "_Static_assert(({expr}) == {value}, \"{}\");",
+            expr.replace('"', "'")
+        )
+        .expect("write");
+        n += 1;
+    };
+    for (marker, cfn) in [("[\"Sizeof", "sizeof"), ("[\"Alignmentof", "_Alignof")] {
+        for part in flat.split(marker).skip(1) {
+            let Some((ty, rest)) = part.split_once('"') else {
+                continue;
+            };
+            let Some(value) = rest
+                .split_once(">()-")
+                .and_then(|(_, r)| r.split_once("usize"))
+                .map(|(v, _)| v)
+            else {
+                continue;
+            };
+            if let Some(ct) = c_type(header, &flat, ty) {
+                check(&mut c, format!("{cfn}({ct})"), value);
+            }
+        }
+    }
+    for part in flat.split("[\"Offsetoffield:").skip(1) {
+        let Some((path, rest)) = part.split_once('"') else {
+            continue;
+        };
+        let Some((ty, field)) = path.split_once("::") else {
+            continue;
+        };
+        let Some(value) = rest
+            .split_once(")-")
+            .and_then(|(_, r)| r.split_once("usize"))
+            .map(|(v, _)| v)
+        else {
+            continue;
+        };
+        if let Some(ct) = c_type(header, &flat, ty) {
+            check(&mut c, format!("offsetof({ct}, {})", c_field(field)), value);
+        }
+    }
+    // Enumerators and object-like macros: "pub const IFCS_X: <type> = N;".
+    let mut constants = 0usize;
+    for part in flat.split("pubconstIFCS_").skip(1) {
+        let Some((name, rest)) = part.split_once(':') else {
+            continue;
+        };
+        let Some((_ty, rest)) = rest.split_once('=') else {
+            continue;
+        };
+        let Some((value, _)) = rest.split_once(';') else {
+            continue;
+        };
+        if !value.trim_start_matches('-').chars().all(|ch| ch.is_ascii_digit()) || value.is_empty() {
+            continue;
+        }
+        check(&mut c, format!("(long long)(IFCS_{name})"), &format!("{value}LL"));
+        constants += 1;
+    }
+    assert!(
+        constants > 300,
+        "ifcs-sys: only {constants} IFCS_ constants checked: build.rs is stale"
+    );
+    // The symbol list: the preprocessor's count of IFCS_SYMBOLS, each entry one of the names read
+    // here (an entry not read is an undeclared identifier), each with its typedef.
+    for s in symbols {
+        writeln!(c, "enum {{ ifcs_sys_seen_{s} = 1 }};").expect("write");
+        writeln!(c, "typedef {s}_fn ifcs_sys_typedef_{s};").expect("write");
+    }
+    c.push_str("#define IFCS_SYS_ENTRY(name) + ifcs_sys_seen_##name\n");
+    check(
+        &mut c,
+        "0 IFCS_SYMBOLS(IFCS_SYS_ENTRY)".to_owned(),
+        &symbols.len().to_string(),
+    );
+    (c, n)
+}
+
+/// The C name of a field: bindgen appends "_" to names that are Rust keywords or primitive types.
+fn c_field(rust: &str) -> &str {
+    const RENAMED: &[&str] = &[
+        "abstract", "as", "async", "await", "become", "bool", "box", "break", "const", "continue", "crate", "do",
+        "dyn", "else", "enum", "extern", "f32", "f64", "false", "final", "fn", "for", "gen", "i128", "i16", "i32",
+        "i64", "i8", "if", "impl", "in", "isize", "let", "loop", "macro", "match", "mod", "move", "mut", "override",
+        "priv", "pub", "ref", "return", "self", "static", "str", "struct", "super", "trait", "true", "try", "type",
+        "typeof", "u128", "u16", "u32", "u64", "u8", "unsafe", "unsized", "use", "usize", "virtual", "where", "while",
+        "yield",
+    ];
+    let rust = rust.trim_start_matches("r#");
+    match rust.strip_suffix('_') {
+        Some(stem) if RENAMED.contains(&stem) => stem,
+        _ => rust,
+    }
+}
+
+fn run_abi_check(c_path: &Path, inc: &Path, n: usize) -> String {
+    let required = env::var("IFCS_SYS_ABI_CHECK").is_ok_and(|v| v == "require");
+    assert!(
+        n > 400,
+        "ifcs-sys: only {n} ABI assertions were derived from the bindings: the extraction in build.rs is stale"
+    );
+    let target = env::var("TARGET").expect("TARGET");
+    let host = env::var("HOST").expect("HOST");
+    let under = target.replace('-', "_");
+    let cc = [
+        "IFCS_SYS_ABI_CC".to_string(),
+        format!("CC_{under}"),
+        format!("CC_{}", under.to_uppercase()),
+        "TARGET_CC".to_string(),
+    ]
+    .iter()
+    .find_map(|v| {
+        println!("cargo:rerun-if-env-changed={v}");
+        env::var(v).ok().filter(|s| !s.is_empty())
+    })
+    .or_else(|| {
+        (host == target).then(|| {
+            env::var("CC")
+                .ok()
+                .filter(|s| !s.is_empty())
+                .unwrap_or_else(|| "cc".into())
+        })
+    });
+    let Some(cc) = cc else {
+        assert!(
+            !required,
+            "ifcs-sys: IFCS_SYS_ABI_CHECK=require, but no C compiler for {target} (set IFCS_SYS_ABI_CC)"
+        );
+        return format!("skipped: no C compiler for {target} (set IFCS_SYS_ABI_CC or CC_{under})");
+    };
+    let mut words = cc.split_whitespace();
+    let run = Command::new(words.next().expect("compiler"))
+        .args(words)
+        .args(["-std=gnu11", "-fsyntax-only"])
+        .arg(format!("-I{}", inc.display()))
+        .arg(c_path)
+        .output();
+    match run {
+        Ok(o) if o.status.success() => format!("checked {n} assertions with {cc} for {target}"),
+        Ok(o) => panic!(
+            "ifcs-sys: the Rust bindings disagree with {cc} about the IFCS ABI for {target}:\n{}",
+            String::from_utf8_lossy(&o.stderr)
+        ),
+        Err(e) => {
+            assert!(
+                !required,
+                "ifcs-sys: IFCS_SYS_ABI_CHECK=require, but {cc} did not run: {e}"
+            );
+            format!("skipped: {cc} did not run ({e})")
+        }
+    }
+}

@@ -1,0 +1,16 @@
+[package]
+name = "sai-backend-teralynx"
+description = "The Rust SAI's Teralynx 7 backend (CS8210-32X): sai-core's Backend over libifcs 0.12.41 through the ifcs rim, a port of sai-teralynx's C++ IFCS backend. No unsafe code"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+sai-core.workspace = true
+# SAI_PORT_STAT_* (the counter map), SAI_API_* / SAI_LOG_LEVEL_* (log lines)
+sai-sys.workspace = true
+ifcs = { path = "../ifcs" }
+
+[lints]
+workspace = true

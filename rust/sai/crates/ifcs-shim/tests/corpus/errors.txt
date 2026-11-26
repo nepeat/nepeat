@@ -1,0 +1,33 @@
+# error returns of node_pci_reg_read32 (value untouched): invalid_rc_total; an error on every try
+init 800 1073741824 file 0
+installed 1
+set 4860 10
+q 4860 11:0 0:10
+rd 4860
+q 4860 -1:0 -1:0 -1:0 -1:0
+rd 4860
+rd 4860
+q 4864 5:0 5:0 0:7
+rd 4864
+q 485c 3:0 3:0 3:0 3:0
+rd 485c
+# an error that a re-read turns into an all-ones value
+q 4860 2:0 0:ffffffff 0:ffffffff 0:ffffffff
+adv 2
+rd 4860
+# other offsets: errors pass through, nothing counted
+q 1234 9:0
+rd 1234
+set 1234 ffffffff
+q 1234 4:0
+rd 1234
+rd 1234
+rdnull 4860
+rdnull 1234
+wrrc 7
+wr 4864 1fff
+wr 2000 5
+wrrc 0
+q 4860 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff
+rd 4860
+text

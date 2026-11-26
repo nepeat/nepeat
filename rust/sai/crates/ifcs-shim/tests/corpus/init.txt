@@ -1,0 +1,45 @@
+# init: null accessors refused; stats none / empty / unwritable; re-init keeps installed; reads before init
+malloc 1073741825
+text
+init 800 1073741824 file 0 nullrd
+init 800 1073741824 file 0 nullwr
+text
+init 800 1073741824 none 0
+installed 1
+q 4860 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff
+rd 4860
+text
+init 800 1073741824 empty 0
+installed 2
+q 4860 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff
+rd 4860
+text
+init 800 1073741824 baddir 0
+installed 1
+set 4860 4
+rd 4860
+adv 31
+rd 4860
+rd 4860
+q 4860 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff
+rd 4860
+text
+init 800 1073741824 file 0
+text
+rd 4860
+installed 0
+adv 29
+rd 4860
+adv 1
+rd 4860
+adv 30
+rd 4860
+installed -5
+text
+q 4860 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff
+rd 4860
+init 800 1073741824 file 0
+set 4860 ffffffff
+rd 4860
+rd 4860
+text

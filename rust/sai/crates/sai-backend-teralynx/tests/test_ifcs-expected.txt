@@ -1,0 +1,575 @@
+# test_ifcs (unmodified) on the Rust libsai: the FAIL lines expected while the areas are not
+# ported (G1: main()'s refusals, switch init, ports and counters are; t_hostif, t_l2, t_l3, t_lag,
+# t_copp, t_acl, t_qos, t_mirror, t_sflow, t_hooks are G2). tests/test-ifcs.sh compares: a FAIL line
+# not listed here is red, and so is a run that ends otherwise than END says. Two lines of the
+# counters area are listed: the diag shell's copp and acl commands, which belong to the G2 areas
+# (they answer "not ported yet"). Generated from the run, then checked by hand: no line of
+# test_ifcs.cpp, t_switch.cpp or t_port.cpp may be here.
+END aborted: what():  basic_string::substr: __pos (which is 2) > this->size() (which is 0)
+FAIL t_hostif.cpp:19: (ha->create_hostif(&hif, s, 3, h)) == SAI_STATUS_SUCCESS
+FAIL t_hostif.cpp:20: has(m_log(), "ifcs_netdev_create h=") && has(m_log(), "name=Ethernet0 devport=1")
+FAIL t_hostif.cpp:21: has(m_log(), " tag=1")
+FAIL t_hostif.cpp:24: has(m_log(), "ifcs_hostif_trap_attr_set h=0x18200017 id=1 u32=0")
+FAIL t_hostif.cpp:25: has(m_log(), "ifcs_hostif_trap_attr_set h=0x18200010 id=1 u32=0")
+FAIL t_hostif.cpp:26: has(m_log(), "ifcs_hostif_trap_attr_set h=0x18200011 id=1 u32=1")
+FAIL t_hostif.cpp:27: has(m_log(), "ifcs_hostif_trap_attr_set h=0x18200014 id=1 u32=1")
+FAIL t_hostif.cpp:30: (ha->set_hostif_attribute(hif, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l2.cpp:62: (va->create_vlan(&vlan, s, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l2.cpp:63: has(m_log(), "ifcs_l2vni_create vni=100 count=4 stp=0x100")
+FAIL t_l2.cpp:71: member != 0
+FAIL t_l2.cpp:72: m_l2vni_has(100, sp1)
+FAIL t_l2.cpp:73: has(m_log(), "ifcs_mc_dest_create h=0x") && has(m_log(), "dest=0x3e200001")
+FAIL t_l2.cpp:74: has(m_log(), "ifcs_mdg_mc_dest_add mdg=")
+FAIL t_l2.cpp:75: has(m_log(), "ifcs_sysport_attr_set sp=0x3e200001 id=43 u32=100")
+FAIL t_l2.cpp:82: (va->create_vlan(&v101, s, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l2.cpp:85: m2 && m2b && m_l2vni_has(100, sp2) && m_l2vni_has(101, sp2)
+FAIL t_l2.cpp:88: (va->remove_vlan_member(m2b)) == SAI_STATUS_SUCCESS
+FAIL t_l2.cpp:89: !m_l2vni_has(101, sp2) && m_l2vni_has(100, sp2)
+FAIL t_l2.cpp:90: has(m_log(), "ifcs_mdg_mc_dest_remove") && has(m_log(), "ifcs_mc_dest_delete") && has(m_log(), "ifcs_l2vni_member_remove vni=101 n=1 first=0x3e200002")
+FAIL t_l2.cpp:92: (va->remove_vlan(v101)) == SAI_STATUS_SUCCESS
+FAIL t_l2.cpp:93: has(m_log(), "ifcs_l2vni_delete vni=101")
+FAIL t_l2.cpp:103: wait_for([&] { return g_fdb_events.size() >= 2; })
+FAIL t_l2.cpp:106: g_fdb_events.size() >= 2 && g_fdb_events[0].first == SAI_FDB_EVENT_LEARNED && g_fdb_events[0].second.bv_id == vlan && g_fdb_events[1].first == SAI_FDB_EVENT_AGED
+FAIL t_l2.cpp:122: (fa->create_fdb_entry(&fea, 2, fa_)) == SAI_STATUS_SUCCESS
+FAIL t_l2.cpp:123: m_l2_dest(ma, 100) == sp1
+FAIL t_l2.cpp:125: (fa->create_fdb_entry(&fec, 3, fa_)) == SAI_STATUS_SUCCESS
+FAIL t_l2.cpp:126: has(m_log(), "vni=100 count=3 dest=0x3e200001 etype=0")
+FAIL t_l2.cpp:129: (fa->create_fdb_entry(&feb, 2, fa_)) == SAI_STATUS_SUCCESS
+FAIL t_l2.cpp:130: m_l2_dest(mb, 100) == sp2
+FAIL t_l2.cpp:131: m_l2_count() == l2_0 + 3
+FAIL t_l2.cpp:137: (fa->flush_fdb_entries(s, 2, fl)) == SAI_STATUS_SUCCESS
+FAIL t_l2.cpp:138: m_l2_count() == l2_0 + 3
+FAIL t_l2.cpp:140: (fa->flush_fdb_entries(s, 2, fl)) == SAI_STATUS_SUCCESS
+FAIL t_l2.cpp:141: m_l2_count() == l2_0 + 2
+FAIL t_l2.cpp:146: (fa->flush_fdb_entries(s, 2, fl)) == SAI_STATUS_SUCCESS
+FAIL t_l2.cpp:148: (fa->create_fdb_entry(&fea, 2, fa_)) == SAI_STATUS_SUCCESS
+FAIL t_l2.cpp:151: (fa->flush_fdb_entries(s, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l2.cpp:153: (va->remove_vlan_member(m2)) == SAI_STATUS_SUCCESS
+FAIL t_l2.cpp:159: (sw->set_switch_attribute(s, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l2.cpp:160: m_aging() == 600u
+FAIL t_l3.cpp:22: (rta->create_route_entry(&re, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:25: (rta->create_route_entry(&re6, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:26: m_route_count() == 2
+FAIL t_l3.cpp:30: m_route_find((l3vni0 + "/4/00000000/00000000").c_str(), &fwd, &ctc, &nh) && fwd == 1 && ctc == 0
+FAIL t_l3.cpp:31: m_route_find((l3vni0 + "/6/00000000000000000000000000000000/00000000000000000000000000000000").c_str(), &fwd, &ctc, &nh) && fwd == 1
+FAIL t_l3.cpp:46: (ra->create_router_interface(&rif, s, 4, ri)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:47: has(m_log(), "ifcs_intf_create") && has(m_log(), "type=1 fwd=0x26200001")
+FAIL t_l3.cpp:57: (na->create_neighbor_entry(&ne, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:58: has(m_log(), "ifcs_nexthop_create") && has(m_log(), "dest=0x3e200002")
+FAIL t_l3.cpp:59: m_route_find((l3vni0 + "/4/0a000002/ffffffff").c_str(), &fwd, &ctc, &nh) && fwd == 0 && nh != 0
+FAIL t_l3.cpp:68: (nha->create_next_hop(&nhid, s, 3, nhat)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:74: (rta->create_route_entry(&r24, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:75: m_route_find((l3vni0 + "/4/0a010000/ffffff00").c_str(), &fwd, &ctc, &nh) && fwd == 0 && nh != 0
+FAIL t_l3.cpp:84: (rta->create_route_entry(&me, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:85: has(m_log(), "ifcs_hostif_trap_create") && has(m_log(), "queue=0")
+FAIL t_l3.cpp:86: m_route_find((l3vni0 + "/4/0a000001/ffffffff").c_str(), &fwd, &ctc, &nh) && fwd == 1 && ctc == 1
+FAIL t_l3.cpp:92: ttlp((l3vni0 + "/4/0a000001/ffffffff").c_str()) == 1
+FAIL t_l3.cpp:93: ttlp((l3vni0 + "/4/0a000002/ffffffff").c_str()) == 0
+FAIL t_l3.cpp:94: has(m_log(), "ifcs_node_attr_set node=0 count=1 id=107 u32=0")
+FAIL t_l3.cpp:95: has(m_log(), "ifcs_l3vni_create h=0x26200001 count=4 attrs=5=1,7=1,9=1,10=1")
+FAIL t_l3.cpp:100: (rta->set_route_entry_attribute(&r24, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:101: m_route_find((l3vni0 + "/4/0a010000/ffffff00").c_str(), &fwd, &ctc, &nh) && fwd == 1
+FAIL t_l3.cpp:102: (rta->remove_route_entry(&r24)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:195: (la->create_lag(&lag, s, 0, nullptr)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:202: (la->create_lag_member(&lm, s, 2, lma)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:211: (ra->create_router_interface(&rifl, s, 3, rla)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:216: (na->create_neighbor_entry(&nl, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:220: lagh != 0 && m_nh_info(nhl, &lin, lnm, &ldest) && ldest == lagh
+FAIL t_l3.cpp:221: m_route_find(key4(vni0, 0x0a0a0002, 32).c_str(), &fwd, &ctc, &nh) && fwd == 0 && nh == nhl
+FAIL t_l3.cpp:222: (na->remove_neighbor_entry(&nl)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:223: (ra->remove_router_interface(rifl)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:224: (la->remove_lag_member(lm)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:225: (la->remove_lag(lag)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:241: (ra->create_router_interface(&rif3, s, 5, ri)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:244: m_intf_info(ih3, &ty, &fw, &tr, &mtu, mac) && ty == 1 && fw == 0x26200001u && mtu == 9100 && !std::memcmp(mac, rmac, 6)
+FAIL t_l3.cpp:245: (tr >> 25) == 18
+FAIL t_l3.cpp:246: m_intf_count() == intfs0 + 1
+FAIL t_l3.cpp:250: (ra->set_router_interface_attribute(rif3, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:254: (ra->set_router_interface_attribute(rif3, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:255: m_intf_info(ih3, &ty, &fw, &tr, &mtu, mac) && mtu == 1500 && !std::memcmp(mac, rmac2, 6)
+FAIL t_l3.cpp:256: has(m_log(), "ifcs_intf_attr_set h=0x" ) && has(m_log(), "id=24") && has(m_log(), "id=5")
+FAIL t_l3.cpp:263: (na->create_neighbor_entry(&n1, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:266: m_nh_info(nhh1, &nin, nmac, &ndest) && nin == ih3 && ndest == 0x3e200003u && !std::memcmp(nmac, hmac, 6)
+FAIL t_l3.cpp:267: m_route_find(key4(vni0, 0x0a000102, 32).c_str(), &fwd, &ctc, &nh) && fwd == 0 && nh == nhh1
+FAIL t_l3.cpp:275: (na->create_neighbor_entry(&n6, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:276: m_route_find((vni0 + "/6/fc000001000000000000000000000002/ffffffffffffffffffffffffffffffff").c_str(), &fwd, &ctc, &nh) && fwd == 0 && nh != 0 && nh != nhh1
+FAIL t_l3.cpp:281: (na->set_neighbor_entry_attribute(&n1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:282: m_nh_info(nhh1, &nin, nmac, &ndest) && !std::memcmp(nmac, hmac2, 6)
+FAIL t_l3.cpp:283: m_route_find(key4(vni0, 0x0a000102, 32).c_str(), &fwd, &ctc, &nh) && nh == nhh1
+FAIL t_l3.cpp:294: (nha->create_next_hop(&nhA, s, 3, nha_)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:297: (nha->create_next_hop(&nhB, s, 3, nha_)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:301: (rta->create_route_entry(&rB, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:302: m_route_find(key4(vni0, 0x0a060000, 16).c_str(), &fwd, &ctc, &nh) && fwd == 1 && ctc == 1 && nh == 0
+FAIL t_l3.cpp:305: (na->create_neighbor_entry(&n2, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:307: m_route_find(key4(vni0, 0x0a060000, 16).c_str(), &fwd, &ctc, &nh) && fwd == 0 && ctc == 0 && nh == nhh2
+FAIL t_l3.cpp:318: (rta->create_route_entry(&rE, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:319: m_route_find(key4(vni0, 0x0a070000, 16).c_str(), &fwd, &ctc, &nh) && fwd == 1 && nh == 0
+FAIL t_l3.cpp:326: (ga->create_next_hop_group_member(&mA, s, 2, gm)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:327: m_ecmp_count() == ecmps0 + 1
+FAIL t_l3.cpp:329: m_ecmp_members(eh, ml, wl, 64) == 1 && ml[0] == nhh1
+FAIL t_l3.cpp:330: m_route_find(key4(vni0, 0x0a070000, 16).c_str(), &fwd, &ctc, &nh) && fwd == 0 && nh == eh
+FAIL t_l3.cpp:334: (ga->create_next_hop_group_member(&mB, s, 3, gm)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:337: nm == 4 && ml[0] == nhh1 && ml[1] == nhh2 && ml[2] == nhh2 && ml[3] == nhh2
+FAIL t_l3.cpp:338: has(m_log(), "ifcs_ecmp_member_replace ecmp=0x")
+FAIL t_l3.cpp:341: (ga->set_next_hop_group_member_attribute(mB, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:343: nm == 2 && ml[0] == nhh1 && ml[1] == nhh2
+FAIL t_l3.cpp:344: (ga->remove_next_hop_group_member(mA)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:345: m_ecmp_members(eh, ml, wl, 64) == 1 && ml[0] == nhh2
+FAIL t_l3.cpp:346: m_route_find(key4(vni0, 0x0a070000, 16).c_str(), &fwd, &ctc, &nh) && nh == eh
+FAIL t_l3.cpp:347: (ga->remove_next_hop_group_member(mB)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:348: m_route_find(key4(vni0, 0x0a070000, 16).c_str(), &fwd, &ctc, &nh) && fwd == 1 && nh == 0
+FAIL t_l3.cpp:350: (ga->create_next_hop_group_member(&mB, s, 2, gm)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:352: m_route_find(key4(vni0, 0x0a070000, 16).c_str(), &fwd, &ctc, &nh) && fwd == 0 && nh == eh2
+FAIL t_l3.cpp:366: (ra->create_router_interface(&rifv, s, 3, rv)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:368: m_intf_info(ihv, &ty, &fw, &tr, &mtu, mac) && ty == 1 && fw == 0x26200002u && tr == ((18u << 25) | (1u << 21) | 100u)
+FAIL t_l3.cpp:369: has(m_log(), "ifcs_l3vni_create h=0x26200002")
+FAIL t_l3.cpp:373: (rta->create_route_entry(&rL, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:374: m_route_find(key4(vni1, 0x0a080000, 16).c_str(), &fwd, &ctc, &nh) && fwd == 0 && nh == nhh1
+FAIL t_l3.cpp:380: (na->create_neighbor_entry(&nv, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:381: m_route_find(key4(vni1, 0x0a090002, 32).c_str(), &fwd, &ctc, &nh) && fwd == 1 && ctc == 1
+FAIL t_l3.cpp:391: (na->create_neighbor_entry(&nd, 2, na2)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:392: m_route_find(key4(vni0, 0x0a000150, 32).c_str(), &fwd, &ctc, &nh) && fwd == 1 && ctc == 0 && nh == 0
+FAIL t_l3.cpp:395: (na->create_neighbor_entry(&nt, 2, na2)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:396: m_route_find(key4(vni0, 0x0a000151, 32).c_str(), &fwd, &ctc, &nh) && fwd == 1 && ctc == 1
+FAIL t_l3.cpp:404: rta->create_route_entry(&rF, 1, &a) == SAI_STATUS_TABLE_FULL
+FAIL t_l3.cpp:409: (rta->create_route_entry(&rF, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:410: m_route_find(key4(vni0, 0x0b000000, 8).c_str(), &fwd, &ctc, &nh) && nh == nhh1
+FAIL t_l3.cpp:413: (rta->set_route_entry_attribute(&r0, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:414: m_route_find(key4(vni0, 0, 0).c_str(), &fwd, &ctc, &nh) && fwd == 1 && nh == 0
+FAIL t_l3.cpp:417: (rta->set_route_entry_attribute(&r0, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:418: m_route_find(key4(vni0, 0, 0).c_str(), &fwd, &ctc, &nh) && fwd == 0 && nh == nhh1
+FAIL t_l3.cpp:422: (rta->set_route_entry_attribute(&r0, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:423: has(m_log(), "ifcs_route_entry_attr_set key=26200001/4/00000000/00000000") && m_route_find(key4(vni0, 0, 0).c_str(), &fwd, &ctc, &nh) && nh == nhh2
+FAIL t_l3.cpp:427: (rta->set_route_entry_attribute(&r0, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:428: m_route_find(key4(vni0, 0, 0).c_str(), &fwd, &ctc, &nh) && fwd == 1 && nh == 0
+FAIL t_l3.cpp:429: nha->remove_next_hop(nhB) == SAI_STATUS_OBJECT_IN_USE
+FAIL t_l3.cpp:432: (rta->set_route_entry_attribute(&r0, &a)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:435: ra->remove_router_interface(rif3) == SAI_STATUS_OBJECT_IN_USE
+FAIL t_l3.cpp:436: nha->remove_next_hop(nhB) == SAI_STATUS_OBJECT_IN_USE
+FAIL t_l3.cpp:437: vra->remove_virtual_router(vr2) == SAI_STATUS_OBJECT_IN_USE
+FAIL t_l3.cpp:440: (rta->remove_route_entry(&rE)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:441: (rta->remove_route_entry(&rB)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:442: (rta->remove_route_entry(&rL)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:443: (rta->remove_route_entry(&rF)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:444: (ga->remove_next_hop_group_member(mB)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:446: (nha->remove_next_hop(nhA)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:447: (nha->remove_next_hop(nhB)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:448: (na->remove_neighbor_entry(n)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:448: (na->remove_neighbor_entry(n)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:448: (na->remove_neighbor_entry(n)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:448: (na->remove_neighbor_entry(n)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:448: (na->remove_neighbor_entry(n)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:448: (na->remove_neighbor_entry(n)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:449: (ra->remove_router_interface(rif3)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:450: (ra->remove_router_interface(rifv)) == SAI_STATUS_SUCCESS
+FAIL t_l3.cpp:451: (vra->remove_virtual_router(vr2)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:101: (la->create_lag(&lag0, s, 0, nullptr)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:104: (la->remove_lag(lag0)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:110: (va->get_vlan_attribute(vlan, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:111: (va->remove_vlan_member(ms[i])) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:111: (va->remove_vlan_member(ms[i])) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:111: (va->remove_vlan_member(ms[i])) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:111: (va->remove_vlan_member(ms[i])) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:111: (va->remove_vlan_member(ms[i])) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:111: (va->remove_vlan_member(ms[i])) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:111: (va->remove_vlan_member(ms[i])) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:111: (va->remove_vlan_member(ms[i])) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:122: (la->create_lag(&lag, s, 0, nullptr)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:124: lh != 0
+FAIL t_lag.cpp:126: lm1 != 0
+FAIL t_lag.cpp:128: m_lag_members(lh, &first) == 1 && first == sp1
+FAIL t_lag.cpp:129: has(m_log(), "ifcs_lag_member_add lag=0x" ) && has(m_log(), "first=0x3e200001 attrs=0")
+FAIL t_lag.cpp:134: lm3 != 0
+FAIL t_lag.cpp:135: m_lag_members(lh, nullptr) == 1
+FAIL t_lag.cpp:136: has(m_log(), "ifcs_sysport_attr_set sp=0x3e200003 id=28 u32=0")
+FAIL t_lag.cpp:138: (set_bool(la, lm3, SAI_LAG_MEMBER_ATTR_INGRESS_DISABLE, false)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:139: m_lag_members(lh, nullptr) == 2
+FAIL t_lag.cpp:140: (set_bool(la, lm3, SAI_LAG_MEMBER_ATTR_EGRESS_DISABLE, false)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:141: m_lag_members(lh, nullptr) == 2
+FAIL t_lag.cpp:144: (set_bool(la, lm1, SAI_LAG_MEMBER_ATTR_EGRESS_DISABLE, true)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:145: m_lag_members(lh, nullptr) == 2
+FAIL t_lag.cpp:146: (set_bool(la, lm1, SAI_LAG_MEMBER_ATTR_INGRESS_DISABLE, true)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:147: m_lag_members(lh, &first) == 1 && first == sp3
+FAIL t_lag.cpp:148: has(m_log(), "ifcs_lag_member_remove lag=0x") && has(m_log(), "ifcs_sysport_attr_set sp=0x3e200001 id=28 u32=0")
+FAIL t_lag.cpp:149: (set_bool(la, lm1, SAI_LAG_MEMBER_ATTR_INGRESS_DISABLE, false)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:150: (set_bool(la, lm1, SAI_LAG_MEMBER_ATTR_EGRESS_DISABLE, false)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:151: m_lag_members(lh, nullptr) == 2
+FAIL t_lag.cpp:152: has(m_log(), "ifcs_sysport_attr_set sp=0x3e200001 id=28 u32=1")
+FAIL t_lag.cpp:164: (ba->create_bridge_port(&bpl, s, 3, bpa)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:168: (va->create_vlan(&v200, s, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:170: (va->create_vlan(&v300, s, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:173: vm200 != 0
+FAIL t_lag.cpp:174: m_l2vni_has(200, lh) && !m_l2vni_has(200, sp1) && !m_l2vni_has(200, sp3)
+FAIL t_lag.cpp:177: has(m_log(), want)
+FAIL t_lag.cpp:182: vm300 != 0 && m_l2vni_has(300, lh)
+FAIL t_lag.cpp:183: has(m_log(), "ifcs_sysport_attr_set sp=0x3e200001 id=43 u32=300") && has(m_log(), "ifcs_sysport_attr_set sp=0x3e200003 id=43 u32=300")
+FAIL t_lag.cpp:188: (la->set_lag_attribute(lag, &a)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:189: has(m_log(), "ifcs_sysport_attr_set sp=0x3e200001 id=32 u32=300") && has(m_log(), "ifcs_sysport_attr_set sp=0x3e200003 id=32 u32=300")
+FAIL t_lag.cpp:205: (fa->create_fdb_entry(&fe, 2, fa_)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:213: wait_for([&] { return g_fdb_events.size() >= 2; })
+FAIL t_lag.cpp:222: ok && g_fdb_events[0].second.bv_id == v200 && g_fdb_events[1].second.bv_id == v300
+FAIL t_lag.cpp:230: (fa->flush_fdb_entries(s, 2, fl)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:236: (la->remove_lag_member(lm3)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:237: m_l2vni_has(200, lh) && m_l2vni_has(300, lh)
+FAIL t_lag.cpp:238: has(m_log(), "ifcs_sysport_attr_set sp=0x3e200003 id=42 u32=0")
+FAIL t_lag.cpp:241: lm3 != 0 && m_lag_members(lh, nullptr) == 2
+FAIL t_lag.cpp:242: has(m_log(), "ifcs_sysport_attr_set sp=0x3e200003 id=43 u32=300") && has(m_log(), "ifcs_sysport_attr_set sp=0x3e200003 id=32 u32=300")
+FAIL t_lag.cpp:245: (la->remove_lag_member(lm3)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:246: (la->remove_lag_member(lm1)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:248: m_lag_members(lh, nullptr) == 0
+FAIL t_lag.cpp:250: lm1 != 0 && m_l2vni_has(200, lh) && m_l2vni_has(300, lh) && !m_l2vni_has(200, sp1)
+FAIL t_lag.cpp:253: (va->remove_vlan_member(vm200)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:254: (va->remove_vlan_member(vm300)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:256: (ba->remove_bridge_port(bpl)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:257: (va->remove_vlan(v200)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:258: (va->remove_vlan(v300)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:261: (la->set_lag_attribute(lag, &a)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:278: (ra->create_router_interface(&rif, s, 4, ra_)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:288: lag_in_rif_vlan
+FAIL t_lag.cpp:289: (ra->remove_router_interface(rif)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:292: (la->remove_lag_member(lm1)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:293: (la->remove_lag(lag)) == SAI_STATUS_SUCCESS
+FAIL t_lag.cpp:294: has(m_log(), "ifcs_lag_delete h=0x")
+FAIL t_copp.cpp:50: (pol->create_policer(&pid, s, 5, p)) == SAI_STATUS_SUCCESS
+FAIL t_copp.cpp:61: has(log, "ifcs_acl_table_create") && has(log, "scope=1 type=1 size=128")
+FAIL t_copp.cpp:62: count(log, "ifcs_acl_create h=") == 6u
+FAIL t_copp.cpp:63: has(log, "ifcs_acl_create ib=6 refused")
+FAIL t_copp.cpp:64: has(log, "ifcs_acl_table_acl_add table=") && has(log, " n=6")
+FAIL t_copp.cpp:65: has(log, "ifcs_hostif_trap_create h=") && has(log, "queue=4")
+FAIL t_copp.cpp:66: count(log, "ifcs_acl_meter_create") == 6u
+FAIL t_copp.cpp:67: has(log, "ib=0 mode=1 cir=403200 cbs=50400")
+FAIL t_copp.cpp:68: count(log, "type=17 value=0180c200000e") == 6u
+FAIL t_copp.cpp:69: count(log, "type=18 value=88cc") == 18u
+FAIL t_copp.cpp:70: has(log, "type=ctc hostif=0x") && has(log, "green=1 yellow=1 red=0 dirty=f")
+FAIL t_copp.cpp:71: count(log, "type=ctc_override green=0 yellow=0 red=1") == 18u
+FAIL t_copp.cpp:72: count(log, "type=drop green=1 yellow=1 red=1") == 18u
+FAIL t_copp.cpp:73: count(log, "matches=2 actions=5") == 18u
+FAIL t_copp.cpp:74: m_aces() == 18
+FAIL t_copp.cpp:75: m_meters() == 6
+FAIL t_copp.cpp:81: (pol->set_policer_attribute(pid, &a)) == SAI_STATUS_SUCCESS
+FAIL t_copp.cpp:82: count(m_log(), "ifcs_acl_meter_attr_set") >= 6 == true
+FAIL t_copp.cpp:83: has(m_log(), "id=7 u64=6720")
+FAIL t_copp.cpp:84: m_aces() == 18
+FAIL t_copp.cpp:92: count(m_log(), "type=drop green=1") == 18u
+FAIL t_copp.cpp:93: m_aces() == 18
+FAIL t_copp.cpp:106: has(m_log(), "ifcs_hostif_trap_attr_set h=0x18200011 id=0 u32=1")
+FAIL t_copp.cpp:107: has(m_log(), "ifcs_hostif_trap_attr_set h=0x18200011 id=1 u32=1")
+FAIL t_copp.cpp:108: has(m_log(), "type=98 value= object=0x18200011")
+FAIL t_copp.cpp:109: m_aces() == aces + 6
+FAIL t_copp.cpp:110: m_meters() == 6
+FAIL t_copp.cpp:113: has(m_log(), "ifcs_hostif_trap_attr_set h=0x18200017 id=1 u32=1")
+FAIL t_copp.cpp:114: m_aces() == aces + 6
+FAIL t_copp.cpp:121: q != std::string::npos && l2.find("id=0 u32=1", q) != std::string::npos
+FAIL t_copp.cpp:123: has(l2, "type=98 value= object=" + ip2me.substr(0, ip2me.find(' ')))
+FAIL t_copp.cpp:126: count(m_log(), "type=60 value=00b3") == 6u
+FAIL t_copp.cpp:127: count(m_log(), "type=59 value=00b3") == 6u
+FAIL t_copp.cpp:128: count(m_log(), "type=98 value= object=" + ip2me.substr(0, ip2me.find(' '))) == 12u
+FAIL t_copp.cpp:140: m_aces() == aces + 6
+FAIL t_copp.cpp:141: count(m_log(), "type=18 value=0800") == 6u
+FAIL t_copp.cpp:142: count(m_log(), "type=56 value=02") == 6u
+FAIL t_copp.cpp:143: count(m_log(), "type=61 value=11") == 6u
+FAIL t_copp.cpp:146: count(m_log(), "type=61 value=22") == 6u
+FAIL t_copp.cpp:149: count(m_log(), "type=18 value=86dd") == 6u
+FAIL t_copp.cpp:150: count(m_log(), "type=56 value=3a") == 6u
+FAIL t_copp.cpp:151: count(m_log(), "type=61 value=8f") == 6u
+FAIL t_copp.cpp:166: !glean.empty()
+FAIL t_copp.cpp:167: has(l3, "ifcs_hostif_trap_attr_set h=" + glean + " id=0 u32=1")
+FAIL t_copp.cpp:168: count(l3, "type=98 value= object=" + glean) == 6u
+FAIL t_copp.cpp:169: glean != ip2me.substr(0, ip2me.find(' '))
+FAIL t_copp.cpp:172: has(m_log(), "ifcs_hostif_trap_attr_set h=" + glean + " id=0 u32=0")
+FAIL t_copp.cpp:183: has(m_log(), "ifcs_hostif_trap_attr_set") && has(m_log(), "id=0 u32=5")
+FAIL t_copp.cpp:189: m_aces() == aces - 18
+FAIL t_copp.cpp:190: has(m_log(), "ifcs_acl_ace_remove") && has(m_log(), "ifcs_hostif_trap_delete")
+FAIL t_acl.cpp:86: (acl->create_acl_table(&t4, s, (uint32_t)t.size(), t.data())) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:88: has(log, "ifcs_acl_match_profile_create") && has(log, "sharing=1")
+FAIL t_acl.cpp:89: has(log, "list=4,18,27,25,56,28,29,59,60,68")
+FAIL t_acl.cpp:90: has(log, "ifcs_acl_table_create") && has(log, "scope=0 type=9 size=256 prio=15 meters=256")
+FAIL t_acl.cpp:91: has(log, "ifcs_acl_create h=") && has(log, "scope=0 ib=0")
+FAIL t_acl.cpp:92: has(log, "ifcs_acl_table_acl_add table=") && has(log, " n=1")
+FAIL t_acl.cpp:107: (acl->create_acl_table_group_member(&mem, s, 3, gm)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:115: (acl->create_acl_counter(&c1, s, 3, ca)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:124: (acl->create_acl_entry(&e1, s, 7, e1a)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:126: has(log, "ifcs_acl_port_add acl=") && has(log, "sysport=0x3e200001")
+FAIL t_acl.cpp:127: has(log, "type=29 value=0a630001 object=0x0 mask=ffffffff")
+FAIL t_acl.cpp:128: has(log, "type=56 value=06 object=0x0 mask=ff")
+FAIL t_acl.cpp:129: has(log, "type=60 value=00b3 object=0x0 mask=ffff")
+FAIL t_acl.cpp:130: has(log, "type=drop green=1 yellow=1 red=1")
+FAIL t_acl.cpp:131: has(log, "ifcs_acl_counter_create") && has(log, "mode=0")
+FAIL t_acl.cpp:134: has(log, pr)
+FAIL t_acl.cpp:135: m_aces() == aces0 + 1
+FAIL t_acl.cpp:136: m_bound() == 1
+FAIL t_acl.cpp:141: (acl->get_acl_counter_attribute(c1, 2, cg)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:142: cg[0].value.u64 == 42u
+FAIL t_acl.cpp:143: cg[1].value.u64 == 42u * 64
+FAIL t_acl.cpp:153: (acl->create_acl_entry(&e2, s, 5, e2a)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:155: has(log, "type=28 value=0a000000 object=0x0 mask=ff000000")
+FAIL t_acl.cpp:156: has(log, "type=68 value=02 object=0x0 mask=3f")
+FAIL t_acl.cpp:157: has(log, "type=drop green=0 yellow=0 red=0")
+FAIL t_acl.cpp:163: (acl->create_acl_entry(&e3, s, 4, e3a)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:165: has(log, "ifcs_hostif_trap_create h=") && has(log, "queue=0")
+FAIL t_acl.cpp:166: has(log, "type=ctc hostif=0x") && has(log, "green=1 yellow=1 red=1 dirty=f")
+FAIL t_acl.cpp:167: has(log, "type=drop green=1 yellow=1 red=1")
+FAIL t_acl.cpp:173: (acl->create_acl_entry(&e3c, s, 4, e3a)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:176: has(log, "type=ctc hostif=0x") && !has(log, "type=drop")
+FAIL t_acl.cpp:185: (acl->create_acl_entry(&e4, s, 7, e4a)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:187: has(log, "type=59 value=0800 object=0x0 mask=ffff")
+FAIL t_acl.cpp:188: has(log, "type=56 value=01 object=0x0 mask=ff")
+FAIL t_acl.cpp:189: has(log, "type=54 value=2e object=0x0 mask=3f")
+FAIL t_acl.cpp:190: has(log, "type=27 value=04 object=0x0 mask=06")
+FAIL t_acl.cpp:196: (acl->create_acl_entry(&e5, s, 5, e5a)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:198: has(log, "type=21 value=0064 object=0x0 mask=0fff")
+FAIL t_acl.cpp:199: has(log, "type=18 value=0800 object=0x0 mask=ffff")
+FAIL t_acl.cpp:204: (acl->create_acl_entry(&e5b, s, 3, e5a)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:207: has(log, "type=18 value=0806 object=0x0 mask=ffff") && has(log, "type=25 value=0001 object=0x0 mask=ffff")
+FAIL t_acl.cpp:218: m_bound() == 2
+FAIL t_acl.cpp:219: has(m_log(), "sysport=0x3e200002")
+FAIL t_acl.cpp:230: (acl->create_acl_entry(&e6, s, 4, e6a)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:232: has(log, "type=4 value= object=0x3e200001")
+FAIL t_acl.cpp:233: m_aces() == aces1 + 1
+FAIL t_acl.cpp:241: m_aces() == aces2 + 1
+FAIL t_acl.cpp:242: m_bound() == 2
+FAIL t_acl.cpp:252: (e.pola->create_policer(&pol, s, 5, p)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:257: (acl->create_acl_entry(&e8, s, 4, e8a)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:259: has(log, "ifcs_acl_meter_create") && has(log, "ib=99 mode=1 cir=672000 cbs=84000")
+FAIL t_acl.cpp:260: has(log, "type=drop green=0 yellow=0 red=1")
+FAIL t_acl.cpp:261: has(log, "type=0 object=0x")
+FAIL t_acl.cpp:273: (acl->create_acl_table(&tv6, s, (uint32_t)t6.size(), t6.data())) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:274: has(m_log(), "prio=14")
+FAIL t_acl.cpp:279: (acl->create_acl_table_group_member(&mem6, s, 3, gm6)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:286: (acl->create_acl_entry(&e9, s, 5, e9a)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:288: has(log, "type=31 value=20010db8000000000000000000000001 object=0x0 mask=ffffffffffffffffffffffffffffffff")
+FAIL t_acl.cpp:289: has(log, "type=61 value=80 object=0x0 mask=ff") && has(log, "type=56 value=3a object=0x0 mask=ff")
+FAIL t_acl.cpp:290: count(log, "ifcs_ace_create") == 1u
+FAIL t_acl.cpp:293: (acl->remove_acl_entry(x)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:293: (acl->remove_acl_entry(x)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:293: (acl->remove_acl_entry(x)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:293: (acl->remove_acl_entry(x)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:293: (acl->remove_acl_entry(x)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:293: (acl->remove_acl_entry(x)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:293: (acl->remove_acl_entry(x)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:293: (acl->remove_acl_entry(x)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:293: (acl->remove_acl_entry(x)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:293: (acl->remove_acl_entry(x)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:294: m_aces() == aces0 + 1
+FAIL t_acl.cpp:297: (e.pola->remove_policer(pol)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:298: has(m_log(), "ifcs_acl_meter_delete")
+FAIL t_acl.cpp:302: (acl->remove_acl_table_group_member(mem)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:303: (acl->remove_acl_table_group_member(mem6)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:305: (acl->remove_acl_counter(c1)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:307: (acl->remove_acl_table(t4)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:308: (acl->remove_acl_table(tv6)) == SAI_STATUS_SUCCESS
+FAIL t_acl.cpp:310: count(log, "ifcs_acl_table_delete") == 2u
+FAIL t_acl.cpp:311: has(log, "ifcs_acl_table_acl_remove") && has(log, "ifcs_acl_delete")
+FAIL t_qos.cpp:41: (r) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:94: has(m_log(), "ifcs_qos_map_create h=") && has(m_log(), "type=1 count=64 0:0/0") && has(m_log(), " 46:5/0 ")
+FAIL t_qos.cpp:95: m_maps() == 1
+FAIL t_qos.cpp:99: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:101: has(log, "ifcs_qos_map_group_create") && has(log, " 0=0x0 2=0x")
+FAIL t_qos.cpp:102: has(log, "ifcs_sysport_attr_set sp=0x3e200001 id=1 u32=") && has(log, "ifcs_sysport_attr_set sp=0x3e200001 id=0 u32=0")
+FAIL t_qos.cpp:103: m_groups() == 1
+FAIL t_qos.cpp:104: (pa->set_port_attribute(p2, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:105: m_groups() == 1
+FAIL t_qos.cpp:41: (r) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:108: has(m_log(), "type=0 count=8 0:7/0")
+FAIL t_qos.cpp:112: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:113: has(m_log(), " 2=0x") && has(m_log(), " 1=0x")
+FAIL t_qos.cpp:114: m_groups() == 2
+FAIL t_qos.cpp:115: has(m_log(), "ifcs_sysport_attr_set sp=0x3e200001 id=0 u32=") && !has(m_log(), "id=0 u32=0\n")
+FAIL t_qos.cpp:122: (qma->set_qos_map_attribute(md, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:123: has(m_log(), "ifcs_qos_map_attr_set") && has(m_log(), " 46:6/0 ")
+FAIL t_qos.cpp:127: (pa->set_port_attribute(p2, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:128: m_groups() == 1
+FAIL t_qos.cpp:129: qma->remove_qos_map(md) == SAI_STATUS_OBJECT_IN_USE
+FAIL t_qos.cpp:41: (r) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:135: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:41: (r) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:146: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:157: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:158: has(m_log(), "ifcs_sysport_attr_set sp=0x3e200001 id=49 u32=1")
+FAIL t_qos.cpp:162: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:164: has(log, "dp=1 id=82 u32=1") && has(log, "dp=1 id=83 u32=1") && has(log, "dp=1 id=79 u32=0") && has(log, "dp=1 id=86 u32=0")
+FAIL t_qos.cpp:168: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:170: has(log, "dp=1 id=78 u32=1")
+FAIL t_qos.cpp:174: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:176: has(log, "dp=1 id=90 u32=1") && has(log, "dp=1 id=98 u32=0") && !has(log, "id=78")
+FAIL t_qos.cpp:179: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:182: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:185: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:203: (sga->set_scheduler_group_attribute(sgs[3], &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:204: has(m_log(), "ifcs_queue_attr_set dp=1 q=3 n=4 13=1 14=20 16=0 21=0")
+FAIL t_qos.cpp:205: m_qattr(1, 3, Q_WDRR_WEIGHT) == 20u
+FAIL t_qos.cpp:210: has(m_log(), "ifcs_queue_attr_set dp=1 q=3 n=4 13=1 14=50 16=0 21=0")
+FAIL t_qos.cpp:214: (sga->set_scheduler_group_attribute(sgs[5], &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:215: has(m_log(), "ifcs_queue_attr_set dp=1 q=5 n=3 13=0 16=0 21=0")
+FAIL t_qos.cpp:218: (sga->set_scheduler_group_attribute(sgs[5], &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:219: has(m_log(), "ifcs_queue_attr_set dp=1 q=5 n=4 13=1 14=1 16=0 21=0")
+FAIL t_qos.cpp:228: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:230: has(log, "ifcs_devport_attr_set dp=1 id=104 u32=1") && has(log, "dp=1 id=105") && has(log, "dp=1 id=106 u32=65536")
+FAIL t_qos.cpp:231: has(log, "dp=1 id=105 u32=1000000000")
+FAIL t_qos.cpp:234: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:235: has(m_log(), "ifcs_devport_attr_set dp=1 id=104 u32=0")
+FAIL t_qos.cpp:240: (sga->set_scheduler_group_attribute(sgs[1], &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:241: has(m_log(), "ifcs_queue_attr_set dp=1 q=1 n=6 13=1 14=1 16=0 21=1 22=1000000000 23=65536")
+FAIL t_qos.cpp:243: (sga->set_scheduler_group_attribute(sgs[1], &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:244: (sga->set_scheduler_group_attribute(sgs[3], &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:258: (wra->create_wred(&wr, s, 5, w)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:259: has(m_log(), "ifcs_aqm_curve_group_create") && has(m_log(), " 0=440 1=8928 2=5 6=45728 7=45728 8=100 12=45728 13=45728 14=100")
+FAIL t_qos.cpp:260: m_curves() == 1
+FAIL t_qos.cpp:264: (qa->set_queue_attribute(qs[3], &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:266: has(log, "ifcs_queue_attr_set dp=1 q=3 n=1 26=") && has(log, "ifcs_queue_attr_set dp=1 q=3 n=1 28=1") && has(log, "ifcs_queue_attr_set dp=1 q=3 n=1 27=1") && !has(log, " 32=")
+FAIL t_qos.cpp:271: (wra->set_wred_attribute(wr, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:272: has(m_log(), "ifcs_aqm_curve_group_attr_set") && has(m_log(), " 1=13392 ")
+FAIL t_qos.cpp:273: wra->remove_wred(wr) == SAI_STATUS_OBJECT_IN_USE
+FAIL t_qos.cpp:277: (qa->set_queue_attribute(qs[3], &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:278: has(m_log(), "ifcs_queue_attr_set dp=1 q=3 n=1 28=0") && has(m_log(), "ifcs_queue_attr_set dp=1 q=3 n=1 27=0") && has(m_log(), "ifcs_queue_attr_set dp=1 q=3 n=1 26=0")
+FAIL t_qos.cpp:283: (wra->create_wred(&wr2, s, 3, w2)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:286: (qa->set_queue_attribute(qs[3], &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:287: has(m_log(), "n=1 27=1") && !has(m_log(), " 28=")
+FAIL t_qos.cpp:289: (qa->set_queue_attribute(qs[3], &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:291: (wra->remove_wred(wr2)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:292: (wra->remove_wred(wr)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:317: (qa->set_queue_attribute(qs[0], &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:321: down != std::string::npos && set != std::string::npos && up != std::string::npos && adm != std::string::npos
+FAIL t_qos.cpp:322: down < set && set < up && up < adm
+FAIL t_qos.cpp:327: has(m_log(), "ifcs_queue_attr_set dp=1 q=0 n=3 3=1 6=6 9=2") && !has(m_log(), "id=23")
+FAIL t_qos.cpp:331: (qa->set_queue_attribute(qs[0], &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:332: has(m_log(), "ifcs_queue_attr_set dp=1 q=0 n=6 2=14 ")
+FAIL t_qos.cpp:342: (bfa->set_ingress_priority_group_attribute(pgs[3], &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:345: (bfa->set_ingress_priority_group_attribute(pgs[3], &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:363: (qa->get_queue_stats(qs[3], 4, ids, v)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:364: v[0] == 50 && v[1] == 5000 && v[2] == 2 && v[3] == 2240
+FAIL t_qos.cpp:365: count(m_log(), "ifcs_queue_stats_get dp=1 q=3 ids=5,6,3,1,") == 1u
+FAIL t_qos.cpp:366: (qa->get_queue_stats_ext(qs[3], 4, ids, SAI_STATS_MODE_READ_AND_CLEAR, v)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:367: (qa->get_queue_stats(qs[3], 4, ids, v)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:373: (bfa->get_ingress_priority_group_stats(pgs[3], 1, &pid, v)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:374: v[0] == 7u
+FAIL t_qos.cpp:386: cl.count == 8u
+FAIL t_qos.cpp:391: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:393: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:395: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:397: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:399: (qma->remove_qos_map(md)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:400: (qma->remove_qos_map(m1p)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:401: (qma->remove_qos_map(mq)) == SAI_STATUS_SUCCESS
+FAIL t_qos.cpp:402: (qma->remove_qos_map(mpg)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:37: (mia->create_mirror_session(&span, s, 2, ms)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:38: has(m_log(), "ifcs_dup_copy_dest_port_create h=") && has(m_log(), "sysport=0x3e200002")
+FAIL t_mirror.cpp:39: m_dcdps() == 1 && m_collectors() == 0 && m_sets() == 0
+FAIL t_mirror.cpp:45: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:47: has(log, "ifcs_collector_create") && has(log, " n=4 0=0x0 1=0x0 2=0x") && has(log, " 18=0x0")
+FAIL t_mirror.cpp:48: has(log, "ifcs_collector_set_create") && has(log, "type=0 dir=0") && has(log, "ifcs_collector_set_member_add")
+FAIL t_mirror.cpp:49: has(log, "ifcs_sysport_attr_set sp=0x3e200001 id=22 u32=0")
+FAIL t_mirror.cpp:50: m_collectors() == 1 && m_sets() == 1 && m_members() == 1
+FAIL t_mirror.cpp:54: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:55: has(m_log(), " n=3 0=0x0 1=0x1 2=0x") && !has(m_log(), " 18=") && has(m_log(), "type=0 dir=1") && has(m_log(), "id=24 u32=0")
+FAIL t_mirror.cpp:56: m_collectors() == 2 && m_sets() == 2
+FAIL t_mirror.cpp:59: (pa->set_port_attribute(p3, &a)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:60: m_sets() == 2
+FAIL t_mirror.cpp:63: (mia->create_mirror_session(&span2, s, 2, ms)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:64: m_dcdps() == 1
+FAIL t_mirror.cpp:68: pa->set_port_attribute(p1, &a) == SAI_STATUS_ATTR_NOT_SUPPORTED_0
+FAIL t_mirror.cpp:69: (mia->remove_mirror_session(span2)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:74: (mia->set_mirror_session_attribute(span, &a)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:76: has(log, "sysport=0x3e200003") && has(log, "ifcs_collector_set_member_remove") && has(log, "ifcs_dup_copy_dest_port_delete")
+FAIL t_mirror.cpp:78: m_dcdps() == 1 && m_collectors() == 2 && m_sets() == 2 && m_members() == 2
+FAIL t_mirror.cpp:79: mia->remove_mirror_session(span) == SAI_STATUS_OBJECT_IN_USE
+FAIL t_mirror.cpp:84: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:85: has(m_log(), "ifcs_sysport_attr_set sp=0x3e200001 id=22 u32=1")
+FAIL t_mirror.cpp:86: m_sets() == 2
+FAIL t_mirror.cpp:87: (pa->set_port_attribute(p3, &a)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:89: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:91: (mia->remove_mirror_session(span)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:112: (mia->create_mirror_session(&ers, s, 10, er)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:117: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:119: has(log, " 0=0x3 1=0x0 2=0x") && has(log, " 9=202122232425 10=101112131415 11=0a630101 12=0a630102 13=8 14=64 17=0")
+FAIL t_mirror.cpp:121: has(log, "type=3 dir=0")
+FAIL t_mirror.cpp:126: (mia->set_mirror_session_attribute(ers, &a)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:127: has(m_log(), " 12=0a630103 ") && !has(m_log(), "ifcs_dup_copy_dest_port_create")
+FAIL t_mirror.cpp:130: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:131: (mia->remove_mirror_session(ers)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:140: (spa->create_samplepacket(&smp, s, 1, &sp)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:144: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:146: has(log, "sysport=0x3e2003e8") && has(log, " 0=0x5 1=0x0 2=0x") && has(log, " 13=2 14=100 17=111")
+FAIL t_mirror.cpp:147: has(log, "type=5 dir=0") && has(log, "ifcs_sysport_attr_set sp=0x3e200001 id=25 u32=0")
+FAIL t_mirror.cpp:148: (pa->set_port_attribute(p2, &a)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:149: m_collectors() == 1 && m_sets() == 1 && m_dcdps() == 1
+FAIL t_mirror.cpp:152: (spa->set_samplepacket_attribute(smp, &sp)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:153: (int)std::count(m_log(), m_log() + std::strlen(m_log()), '\n') == 2
+FAIL t_mirror.cpp:156: spa->remove_samplepacket(smp) == SAI_STATUS_OBJECT_IN_USE
+FAIL t_mirror.cpp:160: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:161: has(m_log(), "ifcs_sysport_attr_set sp=0x3e200001 id=25 u32=1")
+FAIL t_mirror.cpp:162: (pa->set_port_attribute(p2, &a)) == SAI_STATUS_SUCCESS
+FAIL t_mirror.cpp:164: (spa->remove_samplepacket(smp)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:97: (genl_hostif(e, "psample", "packets", gh)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:99: genl_hostif(e, "psample", "packets", gx) == SAI_STATUS_ITEM_ALREADY_EXISTS
+FAIL t_sflow.cpp:101: (ha->get_hostif_attribute(gh, 1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:102: std::string(a.value.chardata) == "packets"
+FAIL t_sflow.cpp:118: (spa->create_samplepacket(&smp, s, 1, &sp)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:122: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:123: has(m_log(), "ifcs_sysport_attr_set sp=0x3e200001 id=25 u32=0")
+FAIL t_sflow.cpp:129: (table_entry(e, trap, gh, te)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:134: a1 != std::string::npos && a2 != std::string::npos && a3 != std::string::npos
+FAIL t_sflow.cpp:135: a1 < a2 && a2 < a3
+FAIL t_sflow.cpp:136: count(log, "ipd_ioctl") == 3u
+FAIL t_sflow.cpp:141: (spa->set_samplepacket_attribute(smp, &sp)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:142: has(m_log(), "ipd_ioctl SET_NETDEV id=8 sysport=1 rate=500")
+FAIL t_sflow.cpp:144: (pa->set_port_attribute(p2, &a)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:145: has(m_log(), "ipd_ioctl SET_NETDEV id=8 sysport=2 rate=500")
+FAIL t_sflow.cpp:148: (spa->set_samplepacket_attribute(smp, &sp)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:149: count(m_log(), "ipd_ioctl SET_NETDEV id=8") == 2u
+FAIL t_sflow.cpp:150: has(m_log(), "sysport=1 rate=4096") && has(m_log(), "sysport=2 rate=4096")
+FAIL t_sflow.cpp:153: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:154: has(m_log(), "ifcs_sysport_attr_set sp=0x3e200001 id=25 u32=1") && has(m_log(), "ipd_ioctl SET_NETDEV id=8 sysport=1 rate=0")
+FAIL t_sflow.cpp:159: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:160: has(m_log(), "id=25 u32=0") && has(m_log(), "SET_NETDEV id=8 sysport=1 rate=4096")
+FAIL t_sflow.cpp:170: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:172: has(log, "ifcs_collector_create") && has(log, "ifcs_sysport_attr_set sp=0x3e200001 id=26 u32=0")
+FAIL t_sflow.cpp:173: has(log, "ipd_ioctl SET_NETDEV id=9 sysport=1 rate=4096")
+FAIL t_sflow.cpp:176: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:177: has(m_log(), "id=26 u32=1") && has(m_log(), "SET_NETDEV id=9 sysport=1 rate=0") && has(m_log(), "ifcs_collector_delete")
+FAIL t_sflow.cpp:193: table_entry(e, ttl, gh, te2) == SAI_STATUS_NOT_SUPPORTED
+FAIL t_sflow.cpp:195: (genl_hostif(e, "psample2", "packets", gh2)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:197: table_entry(e, trap, gh2, te2) == SAI_STATUS_ITEM_ALREADY_EXISTS
+FAIL t_sflow.cpp:199: ha->remove_hostif(gh) == SAI_STATUS_OBJECT_IN_USE
+FAIL t_sflow.cpp:203: (ha->remove_hostif_table_entry(te)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:204: has(m_log(), "ipd_ioctl DELETE_NETLINK type=16 app=1 name=psample mcgrp=packets")
+FAIL t_sflow.cpp:207: (spa->set_samplepacket_attribute(smp, &sp)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:214: has(m_log(), "CREATE_NETLINK") && !has(m_log(), "SET_NETDEV")
+FAIL t_sflow.cpp:216: (table_entry(e, trap, gh2, te2)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:218: has(log, "CREATE_NETLINK type=16 app=1 name=psample2") && has(log, "SET_NETDEV id=8 sysport=1 rate=2000") && has(log, "SET_NETDEV id=8 sysport=2 rate=2000")
+FAIL t_sflow.cpp:221: (ha->remove_hostif_table_entry(te2)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:223: (ha->remove_hostif(gh2)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:225: (ha->remove_hostif(gh)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:237: (e.pola->create_policer(&pol, s, 5, pp)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:251: has(log, "ifcs_cpu_queue_attr_set q=2 id=28 u32=672")
+FAIL t_sflow.cpp:252: has(log, "ifcs_cpu_queue_attr_set q=2 id=29 u32=84000")
+FAIL t_sflow.cpp:253: has(log, "ifcs_cpu_queue_attr_set q=2 id=27 u32=1")
+FAIL t_sflow.cpp:254: log.find("id=28 u32=672") < log.find("q=2 id=27 u32=1")
+FAIL t_sflow.cpp:259: (e.pola->set_policer_attribute(pol, &pp[2])) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:260: has(m_log(), "ifcs_cpu_queue_attr_set q=2 id=28 u32=1344")
+FAIL t_sflow.cpp:267: has(m_log(), "ifcs_cpu_queue_attr_set q=2 id=27 u32=0") && !has(m_log(), "id=27 u32=1")
+FAIL t_sflow.cpp:271: has(m_log(), "ifcs_cpu_queue_attr_set q=2 id=28 u32=1344") && has(m_log(), "q=2 id=27 u32=1")
+FAIL t_sflow.cpp:278: has(m_log(), std::string(m2c) + "0")
+FAIL t_sflow.cpp:282: has(m_log(), std::string(m2c) + "1")
+FAIL t_sflow.cpp:287: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:290: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:297: has(m_log(), "ifcs_cpu_queue_attr_set q=2 id=27 u32=0") && !has(m_log(), "q=3 ")
+FAIL t_sflow.cpp:301: has(m_log(), "q=2 id=27 u32=1")
+FAIL t_sflow.cpp:306: has(m_log(), "ifcs_cpu_queue_attr_set q=2 id=27 u32=0")
+FAIL t_sflow.cpp:308: (e.pola->remove_policer(pol)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:313: (pa->set_port_attribute(p1, &a)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:314: (pa->set_port_attribute(p2, &a)) == SAI_STATUS_SUCCESS
+FAIL t_sflow.cpp:315: (spa->remove_samplepacket(smp)) == SAI_STATUS_SUCCESS
+FAIL t_hooks.cpp:52: (ra->create_router_interface(&rif, s, 3, ra_)) == SAI_STATUS_SUCCESS
+FAIL t_hooks.cpp:54: !ih.empty()
+FAIL t_hooks.cpp:67: (ra->get_router_interface_stats(rif, 3, ids, v)) == SAI_STATUS_SUCCESS
+FAIL t_hooks.cpp:68: v[0] == 77u
+FAIL t_hooks.cpp:69: v[1] == 11u
+FAIL t_hooks.cpp:71: ra->get_router_interface_stats(rif, 1, &bad, v) == SAI_STATUS_NOT_SUPPORTED
+FAIL t_hooks.cpp:73: (ra->get_router_interface_stats_ext(rif, 1, ids, SAI_STATS_MODE_READ_AND_CLEAR, v)) == SAI_STATUS_SUCCESS
+FAIL t_hooks.cpp:74: has(m_log(), "ifcs_intf_stats_clear")
+FAIL t_hooks.cpp:76: (ra->clear_router_interface_stats(rif, 1, ids)) == SAI_STATUS_SUCCESS
+FAIL t_hooks.cpp:77: has(m_log(), "ifcs_intf_stats_clear")
+FAIL t_hooks.cpp:80: (ra->set_router_interface_attribute(rif, &a)) == SAI_STATUS_SUCCESS
+FAIL t_counters.cpp:92: has(diag(sock, "copp"), "cpu queue 0: tx 100")
+FAIL t_counters.cpp:93: has(diag(sock, "acl"), "ACL: 0 tables, 0 entries")
