@@ -2,6 +2,11 @@
 
 ## Status (2026-11-26)
 
+**POWERED OFF, DO NOT POWER ON (2026-11-26 ~11:10 UTC):** the owner pulled power because the box smelled burnt, about
+35 min after top fan module 5's rear rotor went to 0 rpm (evidence/reboots-20261126.txt). Both feeds are switched off
+(`lab-power cs8210 status`) and the NetBotz outlet's normal state is Off. Source of the smell not yet identified. The
+rest of this block describes the box as it was before.
+
 - **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-54, from the SSD; a cold cycle of both feeds (`lab-power cs8210 cycle`,
   2026-11-26) came back unattended, 0 failed units; either PSU alone carries it under traffic. **SONiC at boot** on our C++ `sai-teralynx` (HEAD's frozen
   frontend, first on this box 2026-11-25). Cabling (owner, 2026-11-25; cage 1 and 2 modules replaced 2026-11-26): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
