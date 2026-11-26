@@ -1,0 +1,92 @@
+# CS8210 B4 (CS-A2), 2026-11-26 13:30-14:40 UTC, system-57/58: reboot series 2 + 35-min line-rate soak (two loops)
+## reboot series 2 (5 x systemctl reboot; fand degraded policy)
+### reboot 1 (2026-11-26T13:30:13.747Z): ssh 67s, the 2 up loops (4 ports) + 6 cages ready at 89s after the reboot command (last 4/6)
+up=85s
+running
+failed=0
+fand_failsafe_lines=0
+degraded_lines=4
+dips=1
+[   16.844273] cs8210 fand[831]: sensor asic: online after 5s, 56.0 C
+cages_ready=6
+links_up=4
+asic=61.5
+leds= 3 "state": "blink" 11 "state": "ok"
+
+### reboot 2 (2026-11-26T13:32:03.949Z): ssh 67s, the 2 up loops (4 ports) + 6 cages ready at nulls after the reboot command (last 2/6)
+up=275s
+running
+failed=0
+fand_failsafe_lines=0
+degraded_lines=4
+dips=1
+[   16.785271] cs8210 fand[828]: sensor asic: online after 5s, 56.0 C
+cages_ready=6
+links_up=2
+asic=61.1
+leds= 3 "state": "blink" 11 "state": "ok"
+
+### reboot 3 (2026-11-26T13:38:26.275Z): ssh 73s, syncd + 6 cages + 3<->17 at 89s (last active/6/up)
+up=105s
+running
+failed=0
+fand_failsafe_lines=0
+degraded_lines=4
+dips=1
+[   16.778882] cs8210 fand[830]: sensor asic: online after 5s, 54.9 C
+cages_ready=6
+links_up=4
+asic=59.6
+leds= 3 "state": "blink" 11 "state": "ok"
+Ethernet16=up Ethernet128=up Ethernet240=up Ethernet248=up
+
+### reboot 4 (2026-11-26T13:40:36.341Z): ssh 73s, syncd + 6 cages + 3<->17 at 99s (last active/6/up)
+up=116s
+running
+failed=0
+fand_failsafe_lines=0
+degraded_lines=4
+dips=1
+[   16.794795] cs8210 fand[830]: sensor asic: online after 5s, 54.3 C
+cages_ready=6
+links_up=4
+asic=59.6
+leds= 3 "state": "blink" 11 "state": "ok"
+Ethernet16=up Ethernet128=up Ethernet240=up Ethernet248=up
+
+### reboot 5 (2026-11-26T13:43:07.489Z): ssh 68s, syncd + 6 cages + 3<->17 at 89s (last active/6/up)
+up=105s
+running
+failed=0
+fand_failsafe_lines=0
+degraded_lines=4
+dips=1
+[   16.716288] cs8210 fand[830]: sensor asic: online after 5s, 54.3 C
+cages_ready=6
+links_up=4
+asic=59.5
+leds= 3 "state": "blink" 11 "state": "ok"
+Ethernet16=up Ethernet128=up Ethernet240=up Ethernet248=up
+
+Notes: 0 failed units and no fand FAILSAFE line in all 5 boots, ASIC online 5 s after fand start (grace holds), 6/6 cages
+ready each time; the two up loops (4 ports) up in 4 of 5 (boot 2: 31 <-> 32 down, cage 32 Rx lane 1 -7.99 dBm + CDR LOL,
+came back on the next boots); 1 <-> 2 down throughout (fibre into cage 1). From boot 2 on, bottom6's FRONT rotor stalls
+at boot and no dip revives it (fand 10 s 0x00 + 5 s 0x30 x3, and by hand 12 s 0x00 + 6 s 0x30 at 14:02): a third module
+with a dead rotor. 3 isolated modules = 6 rotors > degraded_max_failed_rotors 4 -> fand FAILSAFE 100 % since 14:02 (policy).
+## soak: scripts/ring-soak.sh 35 with SONIC_RING_LOOPS=2 (3 <-> 17 DAC + 31 <-> 32 DR4 optics), known unicast ring, 740+740
+## frames injected, fans at 100 % (failsafe already present at the start: not a stop reason, a new one would be)
+first try 13:46 stopped after 1 min: ring-soak read fand_zone_failsafe=1 while fand was only DEGRADED (fand's metric counted
+any state but normal); fixed in fand (degraded is not failsafe, test), system-58, ring torn down and verified first.
+run 14:03:49 -> 14:39:44Z: completed, no stop reason; deltas over 2065 s (first sample after the inject to the last before stop):
+Ethernet16    386.4 Gb/s in  in_ucast 153266746734  out_ucast 145459821223  in_err 0 in_disc 0 out_err 0 out_disc 0  FEC corrected 32168760 uncorrectable 0 symbol 32173803
+Ethernet128   366.7 Gb/s in  in_ucast 145459161156  out_ucast 153266044414  in_err 0 in_disc 0 out_err 0 out_disc 0  FEC corrected 835641 uncorrectable 0 symbol 835665
+Ethernet240   386.4 Gb/s in  in_ucast 153265365723  out_ucast 145458510696  in_err 0 in_disc 0 out_err 0 out_disc 0  FEC corrected 9287980 uncorrectable 0 symbol 9290104
+Ethernet248   366.7 Gb/s in  in_ucast 145458467927  out_ucast 153265314056  in_err 0 in_disc 0 out_err 0 out_disc 0  FEC corrected 11994348102 uncorrectable 0 symbol 12733767432
+ASIC 54..55.9 C; module temperatures max: cage 1 33.1, 2 32.4, 31 38.7, 32 39.1 C;
+Credo die max 57.15 C (cage 1); syncd RSS 232268 -> max 232268 kB (flat); watchdog triggers / restarts /
+alarm and every learn-ring guard counter 0 (guard reads 1133 -> 3244, invalid 0).
+Rx power (dBm) start -> end: cage 31 lanes 1-4 -2.68 -> -2.67, -3.22 -> -3.36, -4.2 -> -4.28, -2.45 -> -2.46;
+cage 32 lanes 1-4 -7.74 -> -7.52, -5.03 -> -5.31, -5.04 -> -4.94, -4.73 -> -4.21 (lane 1 = the thin lane).
+Teardown: == CONFIG_DB identical to the snapshot: 155 keys, 440 fields | == kernel state identical to the snapshot | == APPL_DB FDB keys as in the snapshot | == RESTORED and verified | == end 2026-11-26T14:39:44Z completed
+After: ping Ethernet16 -> 10.0.3.1 and Ethernet240 -> 10.0.31.1 20/20 each, 0 failed units, no VLAN left.
+Full sample log: soak-20261126-samples.txt (one line per source per minute).

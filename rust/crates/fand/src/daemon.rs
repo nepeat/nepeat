@@ -173,11 +173,11 @@ pub fn prometheus(s: &Status) -> String {
     );
     metric(
         "fand_zone_failsafe",
-        "1 if the zone is in failsafe (or recovering)",
+        "1 if the zone is in failsafe (or recovering from it); degraded is not failsafe (fand_zone_degraded)",
         "gauge",
         s.zones
             .iter()
-            .map(|(n, z)| (zl(n), f64::from(u8::from(z.state != "normal"))))
+            .map(|(n, z)| (zl(n), f64::from(u8::from(!matches!(z.state, "normal" | "degraded")))))
             .collect(),
     );
     metric(

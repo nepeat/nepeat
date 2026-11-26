@@ -9,6 +9,8 @@
 !/evidence/power-20261126.txt
 !/evidence/reboots-20261126.txt
 !/evidence/fan-cpld-20261126.txt
+!/evidence/soak-20261126.txt
+!/evidence/soak-20261126-samples.txt
 /photos/
 /analysis/
 __pycache__/

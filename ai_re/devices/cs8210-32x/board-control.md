@@ -125,6 +125,8 @@ against the vendor cplds.yaml / leds.yaml / fans.yaml (no C source in driver.tar
   speed** (failsafe): the inserted module cannot start until fand's next dip.
 - Two modules have a dead REAR rotor (it follows the module through slot swaps; no dip, reseat, CPLD reset or cold
   power cycle revives it): failed hardware, in FAN5 (bottom5) and FAN12 (top5) since the owner's FAN5 / FAN6 swap; FAN12's was the 10:38 stall.
+  A third, FAN6 (bottom6) FRONT, stalls at every boot since 13:32 and no dip (fand's or 12 s + 6 s by hand) revives it.
+  Three isolated modules = 6 rotors, more than `degraded_max_failed_rotors` 4: fand is in failsafe 100 % by policy.
 
 ## cooling implications for bring-up
 

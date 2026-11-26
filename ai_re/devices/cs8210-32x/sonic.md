@@ -136,35 +136,39 @@ cs8210-macsec. 45-52 C idle (2026-11-26). Not a fand input (fan policy is the ow
 
 ## LEDs
 
-- **Port LEDs: dark under SONiC.** The two LED CPLDs (MACsec LED 0x63: cages 1-16; switch LED 0x64: cages 17-32)
-  decode the Teralynx's serial LED stream. The CPU can only force a whole CPLD to one test colour (reg 0x09 bit 0
-  = test, 0x0a bits 2:0 = colour: red 6, green 3, blue 5, white 0, off 7; yellow 2, cyan 1, magenta 4 inferred from
-  the codes being active-low R/B/G bits). Per-port link/activity therefore needs the ASIC's LED controller, which
-  the vendor's init lines set up and our SAI skips (`SAI_TERALYNX_INIT_CMDS` runs only `ifcs set devport` lines):
-  `pci write led_cfg PIC_STREAM_MODE_F 1`, `pci write led_cfg sck_rate_f 0x8`, `pci write led_refresh_precliff
-  0x18eec2`, `pci write led_refresh_cliff 0x020`, `pci write led_refresh_tmr_ctl ENABLE_F 1`. Addresses (BAR0, from
-  the SDK's `ifcs_ctypes` enum and the vendor ishell log): LED_CFG 0x13514 (sck_rate_f bits 3:0, link_up_mask_f
-  bit 7, pic_stream_mode_f bit 11), LED_REFRESH_CLIFF 0x13530, LED_REFRESH_PRECLIFF 0x13538, LED_REFRESH_TMR_CTL
-  0x1353c (enable_f bit 1); per-PIC LED_SWCTRL_IB0..6_PIC from 0x13700 (software override, for a per-port walk).
-  /dev/ipd allows one opener (syncd), so this has to be a SAI change (open: coordinator).
-- **What is known about the 4 LEDs per cage (2026-11-26):** the owner sees 1 of each cage's 4 LEDs lit under
-  SONiC, with both LED CPLDs in stream mode (0x09 = 0) and none of the vendor's LED writes done, so the ASIC's LED
-  controller emits something from its power-on / libifcs defaults. Not readable while syncd runs (/dev/ipd has
-  one opener, the SAI's diag shell has no register read, sysfs resource0 is claimed by ipd). The vendor material
-  we hold has no per-LED description: diag `leds.yaml` / `cel-led-test` only drive the CPLD-wide test colour,
-  `sys_cpld.ko` only knows led_enable + colour, the SDK has only the five init lines, the DIAGOS release notes
-  only mention front-panel LED behaviour "according to the new sys CPLD", and public sonic-buildimage has no
-  Teralynx LED config (Celestica Midstone-200i included). What the registers imply: LED_CFG streams per-lane state
-  per PIC (lane_enabled / link_up / local / remote fault masks, Rx/Tx activity blink), the per-IB per-PIC
-  LED_SHIFT_MASK / LED_COLOR_MASK are 24 bits (8 lanes x 3 bits) and LED_SWCTRL 16 bits (8 lanes x 2): so 4 LEDs
-  per cage most likely = one per lane pair (= one per 100G sub-port of a 4x100G breakout), and "1 of 4 lit" fits
-  the controller outside PIC stream mode sending one bit per port, shown on the cage's first LED. **Unproven
-  (inference).** To settle it: the vendor stack (`systemctl start cs8210-switch`, which runs the five lines) with
-  the owner at the panel, for a 1x400G link (31 <-> 32), a down port, and a 4x100G breakout; then the SAI
-  reproduces that.
+- **Port LEDs under SONiC (owner at the panel, 2026-11-26):** every linked cage (3, 17, 31, 32) shows LED 1 of its
+  four (silkscreen 1-4) lit **magenta**, LEDs 2-4 dark; cages that are down (1, 2) are dark. So the Teralynx LED
+  controller's power-on / libifcs default stream already shows link per port on the first LED, although our SAI runs
+  none of the vendor's LED init lines. The two LED CPLDs (MACsec LED 0x63: cages 1-16; switch LED 0x64: cages 17-32)
+  decode that stream; the CPU can only force a whole CPLD to one test colour (reg 0x09 bit 0 = test, 0x0a bits 2:0 =
+  colour: red 6, green 3, blue 5, white 0, off 7; yellow 2, cyan 1, magenta 4 inferred from the codes being
+  active-low R/B/G bits).
+- **What the vendor init adds** (not run by our SAI): `pci write led_cfg PIC_STREAM_MODE_F 1`, `led_cfg sck_rate_f
+  0x8`, `led_refresh_precliff 0x18eec2`, `led_refresh_cliff 0x020`, `led_refresh_tmr_ctl ENABLE_F 1`. Addresses
+  (BAR0, SDK `ifcs_ctypes` enum + vendor ishell log): LED_CFG 0x13514 (sck_rate_f bits 3:0, link_up_mask_f bit 7,
+  pic_stream_mode_f bit 11), LED_REFRESH_CLIFF 0x13530, LED_REFRESH_PRECLIFF 0x13538, LED_REFRESH_TMR_CTL 0x1353c
+  (enable_f bit 1); per-PIC LED_SWCTRL_IB0..6_PIC from 0x13700 (software override). The registers stream per-lane
+  state per PIC (lane_enabled / link_up / local / remote fault masks, Rx/Tx activity blink); LED_SHIFT_MASK /
+  LED_COLOR_MASK are 24 bits (8 lanes x 3 bits), LED_SWCTRL 16 bits (8 lanes x 2). Inference (unproven): PIC stream
+  mode gives one LED per lane pair = per 100G sub-port of a 4x100G breakout, with per-lane activity and fault
+  colours; the default mode sends one bit per port, which is what lights LED 1. The vendor material we hold has no
+  per-LED description (diag `leds.yaml` / `cel-led-test` drive only the CPLD-wide test colour, `sys_cpld.ko` knows
+  led_enable + colour, DIAGOS release notes only "according to the new sys CPLD"; public sonic-buildimage has no
+  Teralynx LED config). To settle it: the vendor stack (`systemctl start cs8210-switch`) with the owner at the
+  panel for a 1x400G link, a down port and a 4x100G breakout. /dev/ipd allows one opener (syncd): any change is
+  inside the SAI.
+- **Proposal (owner's wish, plan only):** the SAI agent owns the policy inside the SDK owner (LED_SWCTRL per PIC, or
+  PIC stream mode with per-lane masks); this side supplies health inputs it already has: per-lane Rx LOS / CDR LOL /
+  Rx power vs the module's warning thresholds and module state from `cs8210-optics` (its socket and
+  `switch_optic_*`), FEC corrected / uncorrectable deltas per port from the SAI counters. For a 1x400G cage: LED 1 =
+  link (as today, magenta) and lanes 1-2, LEDs 2-4 = lanes 3-4 / 5-6 / 7-8 (dark = fine, amber = Rx power below the
+  module's warning or a high corrected-FEC rate, blinking red = LOS / LOL / uncorrectable FEC), Arista-style; a
+  breakout cage keeps one LED per sub-port with the same colours. Interface: `cs8210-optics` publishes a small
+  per-cage health JSON (lane flags + Rx margin) the SAI polls at its LED refresh; nothing new touches the I2C FPGA.
 - **System LED** (sys CPLD 0x20 bits 2:0): `cs8210-leds monitor` (unit `cs8210-leds`) keeps it green while fand
   runs without failsafe and the FPGA is alive, blinking amber otherwise (it was 7, undefined, before).
-  PSU and fan LEDs: the CPLD's own (0x21 test-mode bits clear).
+  PSU LEDs: the CPLD's own (0x21 test-mode bits clear). Fan tray LEDs: fand (green / blinking red / solid red,
+  board-control.md "Fan CPLD register map").
 - **Tests for a human at the panel** (each write read back by the tool): `cs8210-leds status`; `cs8210-leds test
   red|green|blue|white|off [--cages 1-16|17-32|all] [--seconds 30]` (all 16 cages of a CPLD in one colour, back to
   the stream after); `cs8210-leds walk` (every colour on all 32, then the halves, then the system LED states, ~35 s).

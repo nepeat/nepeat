@@ -2,7 +2,7 @@
 
 ## Status (2026-11-26)
 
-- **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-57, from the SSD; a cold cycle of both feeds (`lab-power cs8210 cycle`,
+- **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-58, from the SSD; a cold cycle of both feeds (`lab-power cs8210 cycle`,
   2026-11-26) came back unattended, 0 failed units; either PSU alone carries it under traffic. **SONiC at boot** on our C++ `sai-teralynx` (HEAD's frozen
   frontend, first on this box 2026-11-25). Cabling (owner, 2026-11-25; cage 1 and 2 modules replaced 2026-11-26): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
   400G-DR4 QSFP-DD optics (MPO loops), 3 <-> 17 TE 2459398-1 400G CR8 DAC; nothing to the house. CONFIG_DB = the Nix
@@ -12,8 +12,8 @@
 - **Cages:** `cs8210-optics` (`rust/cs8210`) is the one owner of the I2C FPGA: declared cages (= admin-up ports) out of
   reset and brought up (CMIS app select 4x100G -> 400G-DR4), all others held in reset; xcvrd and `show interfaces
   transceiver` through its socket; `switch_optic_*` metrics ([sonic.md](sonic.md) "Optics", [optics](evidence/optics-20261125.txt)).
-- **LEDs:** system LED green (`cs8210-leds monitor`); port LEDs dark until the SAI sets up the ASIC LED stream (sonic.md
-  "LEDs"); `cs8210-leds test|walk` for a human ([leds](evidence/leds-20261125.txt)). Also: fand (no failsafe phase at boot
+- **LEDs:** system LED green (`cs8210-leds monitor`); port LEDs: LED 1 of 4 magenta on every linked cage from the ASIC's
+  default stream, health on LEDs 2-4 proposed (sonic.md "LEDs"); fan tray LEDs by fand; `cs8210-leds test|walk` for a human ([leds](evidence/leds-20261125.txt)). Also: fand (no failsafe phase at boot
   since 2026-11-26), PSU telemetry (`cs8210-psu`, `switch_psu_*`), Credo die temperatures, board RTC from the initrd,
   node exporter :9100 (job `cs8210-32x`), MACsec module (vendor stack only, [macsec.md](macsec.md)), sFlow.
 - **Reach:** `sudo ssh root@10.60.2.190` (enp0s1). Console: DMC-12 P1 via consoled, `sudo ssh -t console@10.60.2.10 watch cs8210`
@@ -24,8 +24,9 @@
 - **Recover:** `systemctl stop sonic.target`; system-47 from the U-Boot menu (before cs8210-optics: its guard refuses syncd
   with these cages populated); dead I2C FPGA (`/run/cs8210-qsfp.dead`): power cycle. Vendor U-Boot prompt: `123<Enter>`
   within 3 s, then ONIE (`run onie_bootcmd`, RAM only) or **Route R** ([uart-recovery.md](uart-recovery.md), [boot-chain.md](boot-chain.md)).
-- **Open:** two fan modules with a dead rear rotor (now FAN5 and FAN12, solid red, isolated at duty 0; fand degraded,
-  [board-control.md](board-control.md) "Fan CPLD register map"): replace them; `lab-power cs8210 cycle` once failed with
+- **Open:** **three fan modules with a dead rotor** (FAN5 rear, FAN6 front since 13:32, FAN12 rear; solid red, isolated at
+  duty 0): 6 rotors > `degraded_max_failed_rotors` 4, so fand is in FAILSAFE 100 % by policy until they are replaced (or
+  the owner raises the limit) ([board-control.md](board-control.md) "Fan CPLD register map"); `lab-power cs8210 cycle` once failed with
   NetBotz "E101: Command Not Found" (not reproduced; lab-power now resends once on E101); the 1 <-> 2 fibre into cage 1; port LEDs (SAI: the vendor `pci write led_*` init); our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
   ([sai-features.md](sai-features.md)); MACsec under SONiC; CRM panels empty; learn-wedge watch (L0s off, [learn-wedge.md](learn-wedge.md)).
 
@@ -130,6 +131,17 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-26 (e) — B4: 5 reboots, 35-min line-rate soak on the two up loops
+
+- 5 reboots (fand degraded policy): 0 failed units, no fand failsafe line, ASIC online in 5 s, 6/6 cages ready every time;
+  3 <-> 17 + 31 <-> 32 up in 4 of 5 (31 <-> 32 lost lock once on cage 32's thin lane 1); 1 <-> 2 down throughout.
+- A third fan module stalled at boot (FAN6 front) and no dip revives it: 3 isolated modules -> FAILSAFE 100 % (policy).
+- Soak 35 min, SONIC_RING_LOOPS=2 (sonic-ring.sh now 3 or 2 loops): 386 / 367 Gb/s per direction, 0 port errors / discards,
+  0 uncorrectable FEC (cage 32 lane 1 at -7.5 dBm gives 12e9 corrected codewords, the other ports 0.8-32e6), ASIC <= 55.9 C,
+  modules <= 39 C, Credo <= 57 C, syncd RSS flat, watchdog / learn-ring guard 0; ring torn down, CONFIG_DB identical
+  ([soak-20261126.txt](evidence/soak-20261126.txt)). First try stopped at once on fand reporting degraded as failsafe
+  (metric fixed, system-58).
 
 ### 2026-11-26 (d) — fans: FAN12 rear rotor stall, a burnt-smell scare (false alarm), fan CPLD map
 
@@ -263,90 +275,4 @@ can contain device configuration or secrets. Summarized findings belong here.
   `123`, `echo …` and `version` into the NixOS serial root shell (harmless) and then failed on `lab-power` usage; fixed (plan doc).
 - Linux mtd0 is read-only (flags 0x800): no Linux-side writer or rollback. DMC-12 pins unchanged (d3df4b80, 2b9lljly).
 
-### 2026-11-16/17 — learn-thread wedge: guard in libsai, ASPM L0s on the ASIC link, watchdog escalation (not deployed)
-
-- sai-teralynx shim guards libifcs's learn-ring reads (GOT: node_pci_reg_read32/_write32, im_malloc): all-ones or
-  out-of-range index re-read (3 ms apart), else the poll is skipped and the register not re-read while bad; im_malloc
-  > 1 GiB refused; all-ones of any offset counted. Mock t_learn (1047 checks total) and chip (injected all-ones).
-- First failure on 2026-11-16 was the CPU TX ring (ASIC stopped sending ~16:01; ring exactly full, 341 frames x 3
-  descriptors, at 16:03:45 = the softirq spin; the bad read 2 min later). The ASIC link runs with ASPM L0s on
-  (mainline's DT default, both U-Boots): replay timeouts every second, none with L0s off (A/B). Causation of the
-  wedge: open, crossover soak running (on/off blocks >= 4 h).
-- Watchdog: guard / cpu-tx signals, tx-stall witness, restart -> ipd reload -> alarm, lease/reload hold, root-port
-  AER + LnkSta clear-and-count (dated), state across restarts; `cs8210-asic-aspm`; cs8210-switch MemoryMax 1536 MiB.
-  Independent review: [reviews/2026-11-17-fable-learn-wedge.md](reviews/2026-11-17-fable-learn-wedge.md).
-  [learn-wedge.md](learn-wedge.md), [evidence](sai-hw-learnwedge-20261116.txt). Deploy restarts syncd.
-### 2026-11-16 — syncd OOM at 16:05: root cause; syncd MemoryMax, new IFCS watchdog (not deployed yet)
-
-- Cause (high confidence): libifcs's learn thread read a garbage ring index; its im_malloc is malloc + memset, and
-  under SONiC's vm.overcommit_memory = 1 (nixpkgs redis `vmOverCommit`) the ~32 GiB request succeeds, so the memset
-  OOMed the box in <= 3 s (syncd VmSize +32 GiB to the kB; no `__vm_enough_memory` line, hence no watchdog). The ASIC's
-  CPU path had died at 16:00:55 (BFD, LACP and its port TX counters stopped; ipd softirq on 2 cores from 16:03:45).
-  PMBus/AVS not implicated (last transaction 3 min before, rail nominal throughout). Trigger of the ASIC failure: open.
-  Evidence + timeline: [oom-20261116.txt](oom-20261116.txt).
-- `nixos/module/cs8210/sonic`: syncd MemoryMax (`syncdMemoryMaxMiB`, 2048) + OOMPolicy=stop; `sonic-cs8210-ifcs-watchdog`
-  rewritten in Python (VmSize, RSS, learn-thread CPU, the kernel line, tx-stall of all transmitting ports; 48 checks at
-  build). Box: a 64M transient unit doing the same malloc + memset was memcg-killed in 103 ms, box untouched; the
-  watchdog dry-run on live SONiC stayed silent. [sonic.md](sonic.md), [avs.md](avs.md) (no ad-hoc PMBus surveys).
-- Deploy note: the syncd unit changes (a switch restarts syncd).
-
-### 2026-11-16 — our U-Boot does the vendor board init (standalone build, RAM rehearsal)
-
-- Patches 0029-0031: SoC init from the DT (MUIO, 32 gpio-list lines, SB PLL ch 9, base MAC from the TlvInfo EEPROM),
-  external PCIe RC driver on its own V3 HAL copy (AVG SerDes iCal, vendor fallback), CS8210 DT; `#uboot-cs8210-selfinit`
-  (+ SPI env at 0x38000/0x3c000) and `#uboot-cs8210-stage3app` (1444 B spare in A' slot B). Chainload build unchanged (4bcabba8).
-- From the vendor prompt: every part 0 changed; all three links torn down and trained by our init, then NixOS + SONiC
-  with lspci identical to the vendor boot; PSCI reset ok. Zero SPI writes. Evidence: [uboot-standalone-20261116.txt](uboot-standalone-20261116.txt).
-- U-Boot does not auto-configure the link partners (see 2026-11-17 for the MDIO FPGA BAR). ASIC decode is off at
-  handoff (the vendor's 6 came from its AVS): the AVS oneshot enables the device itself.
-
-### 2026-11-16 — ASIC AVS as a Linux oneshot (not deployed yet)
-
-- `cs8210-asic-avs.service` (`nixos/module/cs8210/avs`): fuse words via sysfs resource0 -> the vendor decode
-  (disassembly-checked: RoV, lot list, table, closest step) -> TPS53688 0x62 VOUT_COMMAND only if it differs, read back,
-  `/run/cs8210-avs.done`, `cs8210_asic_avs_*` metrics. syncd and cs8210-switch `Requires=` it; ipd is now blacklisted for
-  udev and loaded by this unit (IO_STRICT_DEVMEM blocks the BAR mmap while ipd owns it). Design and readings: [avs.md](avs.md).
-- Chip: BAR read = the U-Boot-logged words (RoV 0, lot PS7R09, 800 mV / 0x0333), "already correct", no write; a same-value
-  rewrite proved the write path; SONiC back up (BGP + BFD both VRFs). Regulator power-on default: not readable without a
-  cold boot. Evidence: [avs-chip-20261116.txt](avs-chip-20261116.txt).
-- During read-only work before that test, syncd was OOM-killed at 16:05:48: the learn-thread wedge, not AVS (entry above).
-- Deploy note: the syncd and cs8210-switch units change (a switch restarts syncd); the box already holds the fuse record
-  the late path needs.
-
-### 2026-11-16 (late) — sFlow trap group, egress sFlow, metrics for the CS8210 (not deployed yet)
-
-- isai oracle `sflow-police`: SAMPLEPACKET = system trap MIRROR_TO_CPU + an ACE on the sFlow collector (MIRROR_2) with the
-  group's meter. 0.12.41 refuses a MIRROR match in any ingress profile (adding it to the CoPP profile broke the CoPP table:
-  BGP/BFD down until reverted, then restored). tl_sflow: the trap's ENABLE as isai; samples on CPU queue 2 via the init yaml
-  (`traffic_monitor_cpu_queue`, board default now); the CPU-queue meter as policer did not hold its rate (kept off,
-  `SAI_TERALYNX_SFLOW_METER`). Evidence: [sai-hw-sflow-20261116.txt](sai-hw-sflow-20261116.txt) (22:00Z / 23:02Z sections).
-- Egress sampling works with node EGRESS_SFLOW_ENABLE set before node enable (`SAI_TERALYNX_EGRESS_SFLOW=on`, board default;
-  the yaml key is ignored): 1 in 9.2 at rate 10, oif right; samples cut to 176 B. No side effect seen (ports, LACP, BGP, BFD).
-- Metrics: bgpmon over all VRFs (routing patch 0006, NEIGH_STATE_TABLE|<vrf>|<ip>; bgpcfgd tests 2797 pass, vm-metrics 51/51);
-  sonic-metrics: queues, CRM, sFlow collectors; dashboard rows Queues, CRM, sFlow, MACsec. The SONiC Credo unit now preloads
-  the MACsec shim (next boot) so `cs8210_macsec_*` has data under SONiC. Evidence: [sonic-metrics-20261116.txt](sonic-metrics-20261116.txt).
-
-### 2026-11-16 — upstream U-Boot 2026.10: milestone 1 (offline)
-
-- `#uboot-cs8210` = patches 0024 (`alpine-v3` target), 0025 (read-only SPI NOR also passes the 4-byte reads the 32 MiB flash needs), 0026 (`cs8210` DT + defconfig): console, 4 DRAM banks, timer, SPI NOR read-only, env in RAM, AHCI SSD, booti/extlinux/boot.scr/bootmenu, PSCI reset. Checklist and runbook: [u-boot-port.md](u-boot-port.md).
-- `#uboot-alpine-v3-tests` pass: static checks, QEMU (Cortex-A72, EL2) through the NixOS launcher's boot.scr → bootmenu → booti, MMU-on `go`, PSCI reset. DMC-12 builds unchanged (stage3app `.fimg` d3df4b80, firmware-payloads drv 2b9lljly).
-- Read from Linux (read-only): CNTFRQ_EL0 = 75 MHz (firmware-set), PSCI v0.2 over smc, "started at EL2", SSD on AHCI 00:0b.0 port 3, /dev/mtd0/1/4 crc32 = the 11-15 dumps.
-- Milestone 2 on hardware (14:42-14:59, RAM only, lease `uboot-m2`): vendor prompt → loadx (0 retries) → `booti` → ours at EL2; SPI NOR crc32 mtd0/1/4 = the dumps incl. above 16 MiB; boot.scr → bootmenu → NixOS: SONiC BGP/BFD/LACP up, dmesg/lspci/DT/AVS as on the vendor boot apart from U-Boot leaving 00:06.0/00:10.0 decode on ([uboot-m2-20261116.txt](uboot-m2-20261116.txt)). Harness fixes on the way (banner lookup, autologin prompt). Back on the vendor boot, healthy, lease released.
-
-### 2026-11-16 — SONiC at boot (generation), bgpcfgd local_asn
-
-- Generation: `hardware.cs8210.sonic.enable`, `autoStart` now the default. Boot order: pcie-errors -> cage/FPGA guard -> Credo -> syncd (waits for /dev/ipd). Nix base CONFIG_DB: Ethernet0/120 admin up with RS FEC, the other 30 down. The vendor stack's bond0/vrf-fp are off with SONiC; `cs8210-switch` stays a `Conflicts=` alternative ([sonic.md](sonic.md) "Running it").
-- bgpcfgd: BGP_NEIGHBOR `local_asn` (+ `local_as_no_prepend`/`_replace_as`) at creation and live (patches 0004/0005, not upstream). The loop configs need no vtysh: eBGP on both sides, one-hop BFD, STATIC_ROUTE blackholes advertise the loopback subnets. Tests: bgpcfgd suite 2794 passed (3 upstream BFD-passive cases deselected), vm-bfd 120/120 (local_asn, teamd MAC), chip.
-- Chip, hand-run before the deploy: BGP/BFD/LACP up with no vtysh, local_asn removed and restored live, orchagent kill -> syncd restart in 15 s, reload without a saved file = the Nix base ([evidence](sai-hw-sonic-boot-20261116.txt)).
-- Found and fixed: a teamd respawn reset the PortChannel's mac_addr (routing over it stayed dead); a networkd restart deletes vrfmgrd's local rule, which leaves the host unreachable. I caused a 25 s outage checking that (the hand-run had left the rule at pref 1001); restored over the console.
-- Deployed (5449948, bb38f92, dd0ccb5), two reboots: SONiC up unattended, ssh at ~45 s uptime, guard + Credo + syncd by 51 s, BGP/LACP at ~62 s, BFD at ~64 s, 0 failed units both times. From boot: orchagent kill -> back in 15 s; stop sonic.target leaves fand at 49.8 % with no faults, start again -> BGP in 50 s; a networkd restart keeps the local rule. `sonic-handrun.sh down` now restores the local rule, removes its netdevs and restarts the host lldpd.
-- Found after: teamd's debug "usock: calling method StateDump" was ~124 of ~140 journal messages/min and /var/log/swss *.rec grew on the SSD. Fixed the same day: teammgrd `LogLevelMax=info` (17bc832), records on tmpfs `/run/swss` (22d394d); on the running boot 0 StateDump lines and ~36 journal lines/min.
-
-### 2026-11-16 — SONiC on our own SAI: full stack + 2 h soak on the chip
-
-- Owner decision: native SAI (sai-teralynx), all features ourselves. Phases A–C: [sai-features.md](sai-features.md) (chip/mock/missing per object), evidence `sai-hw-*-20261116.txt`, isai oracle [sai-oracle.md](sai-oracle.md); Marvell isai under qemu kept as a reference ([sai-qemu.md](sai-qemu.md)).
-- SONiC hand-run ([sonic.md](sonic.md), `scripts/sonic-handrun.sh`): VRF eBGP + BFD over the 400G loop on ports and on LACP PortChannels, ACL drop, DSCP->queue, CoPP ARP policer, counters + CRM in COUNTERS_DB. 2 h soak, 11 flaps: BGP/BFD back 1–7 s after each, no loss outside flaps, daemon memory flat ([sai-hw-sonic-soak-20261116.txt](sai-hw-sonic-soak-20261116.txt)).
-- **FPGA stall** ([sai-hw-fpga-stall-20261116.txt](sai-hw-fpga-stall-20261116.txt)): the I2C FPGA (0002:01:00.0) stopped answering (PCIe completion timeouts; each access then stalls the whole SoC for seconds, all-ones made xcvrd see 32 cages). Trigger not found (likely concurrent unserialised reads). Now: every access under one lock, a root-port health check and a dead marker that stops all access until reboot; recovery = power cycle (done 2026-11-16 17:00Z).
-- Each RIF needs its own MAC on the loop. (The vtysh local-as/allowas-in lines are gone: local_asn, entry above.)
-
-Older entries (2026-11-16 MACsec hardware and before): [HISTORY.md](HISTORY.md).
+Older entries (2026-11-16/17 learn-thread wedge and before): [HISTORY.md](HISTORY.md).

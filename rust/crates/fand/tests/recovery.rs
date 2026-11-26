@@ -475,6 +475,8 @@ fn degraded_rides_out_failed_modules_until_too_many_and_adds_per_rotor_duty() {
     assert_eq!(rig.duties()[1], 153);
     let p = fand::daemon::prometheus(&rig.engine.status(rig.t));
     assert!(p.contains("fand_zone_degraded{zone=\"board\"} 1"), "{p}");
+    // degraded is not failsafe for the consumers of the metric (ring-soak, dashboards)
+    assert!(p.contains("fand_zone_failsafe{zone=\"board\"} 0"), "{p}");
     assert!(fand::daemon::summary(&rig.engine.status(rig.t)).contains("DEGRADED"));
     // A second module out: 4 > 2 failed rotors, failsafe.
     rig.cpld.with(|s| s.present[2] = false);
