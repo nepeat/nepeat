@@ -1,9 +1,105 @@
 # CS8210-32X history
 
-Entries moved verbatim from [PROGRESS.md](PROGRESS.md) on 2026-11-16, newest first. Current state, hazards and open
+Entries moved verbatim from [PROGRESS.md](PROGRESS.md) on 2026-11-16 and 2026-11-25, newest first. Current state, hazards and open
 work: PROGRESS.md. References elsewhere to "PROGRESS (n)", "PROGRESS 11-09", "PROGRESS mistakes" etc. mean these entries.
 
 ## log
+
+### 2026-11-16 — MACsec: engine capabilities, hitless rekey, MKA (hardware)
+
+- Capability table of the Credo PHYs' EIP-163/164 engine from the vendor DDK (`libdriver_164_u`) plus the DWARF in Credo's 2026 `libSerdes_owl800`: all four GCM-AES / XPN suites, 4 ANs per receive SC, egress `SecY_SA_Chain` + `SecY_SA_Switch` (hitless), next-PN get/set, 64-bit counters, TCAM rules with EAPOL bypass. The vendor CLI uses a sliver of it: [macsec.md](macsec.md).
+- Why yesterday's key change failed (`sa_set` edits memory only, `flush` = InsertEOP, second rule shadowed). Also: the vendor config sets `ROLLOVER` (PN wrap, I) and replay window 0xffffffff; `scripts/credo_macsec.py` no longer sets `ROLLOVER`. phy_server `system()`s unknown commands: its FIFO is now 0600.
+- New `nix/nixos/module/cs8210/macsec/` (`hardware.cs8210.macsec`; imported and enabled on the machine in 251760c): phy_server shim (LD_PRELOAD, `cmx_*` commands, fail-closed gating, keys via 0600 files), `cs8210-macsec` tool (status, metrics, static keys, rekey, pn), `wpa_supplicant-cs8210` (`-D macsec_cs8210`), offline tests. vendor-sdk: `phyPreload` option.
+- Hardware (cage 1 <-> 16 loop, ~35 min):
+  - XPN-256 at 384.7 Gb/s per direction; hitless rekey with 0 loss (at 203 Gb/s and at line rate).
+  - All four ciphers plus integrity-only interoperate with Linux kernel macsec.
+  - Replay -> Late; wrong key -> NotValid; deleting the last SA fails closed.
+  - MKA: secured in 3.3 s, rekey on natural PN exhaustion with 0 loss; wrong CAK stays closed; port flap recovers in 13 s.
+  - Table + evidence: macsec.md "Hardware results", `analysis/macsec-hw-20261116/`.
+- Bugs found on hardware, fixed in f5fd381 (stub DDK now models them), deployed with the SONiC-at-boot generation:
+  - the `devices` pair layout;
+  - `CfyE_Rule_Remove` leaves the TCAM entry live, which leaked **clear text** after down/up (now disable first);
+  - counters are clear-on-read (now accumulated);
+  - a live egress SA ignores a next-PN set;
+  - the tool held its flock per object (deadlock), now per command.
+- Box left with `cs8210-switch` stopped, drop-in removed, test keys/scripts deleted, cages 1 and 16 only.
+
+### 2026-11-16 — SONiC: our own SAI ran the chip
+
+- [sonic.md](sonic.md): no arm64 Teralynx SAI exists (98 packages checked), so `ai_re/nix/packages/sai-teralynx` = the AS7760's SAI frontend + an IFCS backend that dlopens the vendor libifcs.so from the SDK tree at run time (nothing vendor stored; `ifcs_api.h` = our declarations from the vendor ctypes, cited by sha256). Chip run: init, 32 ports, cage 1<->16 400G loop up in ~4 s, clean teardown (evidence ../sonic-nixos/cs8210-sai-hw-20261116.txt). Needed a Python-2.7 stub and an aligned memcpy for libifcs on PCI memory.
+- `hardware.cs8210.sonic` imported, off (drv diff = flake source only); AS7760 toplevel drv unchanged (z05gsrr0...). Next: first full SONiC run (syncd/orchagent/FRR) by hand, VLAN-1 storm check on the loop first.
+
+### 2026-11-15 — 400G + MACsec on the cage 1 <-> 16 DAC
+
+- Module: one Mellanox CAB-Q400-P1M 1 m passive 400G-CR8 DAC between cages 1 and 16 (both MACsec ports).
+- Credo line side `copper_1x400G` (line LT), runtime drop-in only: link up on every start, RS-544, 0 uncorrectable.
+- ASIC-generated traffic (new `scripts/loop400_fwd.py` + `scripts/l2frames.py`): ~386 Gb/s each way, 0 errors, bypass and MACsec alike (the vendor 48 B IPG sets the rate). CPU path 2.8 Gb/s TCP; **fpp MTU 9462 drops TSO frames >= 9216 B** (use 9000).
+- Static-key MACsec with our own keys (`scripts/credo_macsec.py`, vendor phy_shell SA commands, loaded live): ciphertext + SecTAG seen with one end in bypass; wrong key drops with InPktsNotValid. Rekey needs an SDK restart; MKA blocked on an SA install/delete path.
+- New option `hardware.cs8210.vendorSdk.phyPostLoad` (not set on the box). Box left with cs8210-switch stopped, drop-in removed.
+- Details and evidence: [macsec-400g.md](macsec-400g.md).
+
+### 2026-11-15 — vendor-prompt batch: Route R works, stage3 keys, uC, CPLD live dump
+
+- **Route R proven on hardware:** vendor U-Boot -> `loadx 0x01700000` route-r.bin (crc32 d5ef1e13) -> `go` -> ROM 3.1.0 UART CLI (`>`, boot_device UART CLI). ROM CLI `help` (12 commands), `rd`/`rdr` ok, ROM `xmodem 1800000` 64 KiB 0 retries, words as predicted; `quit` -> `Q`; then power cycle (plug 1 = CS8210 confirmed: /proc/uptime reset; `uptime` misleads, the RTC boots at Mar 17). Byte path: U-Boot `loadx` 64 KiB through consoled, 0 retries, crc32 671f0733. Fixed an argparse dest clash in `scripts/uart_recovery.py` (subcommand vs `--cmd`). Capture: `serial-20261115-vendor-batch.txt` (git-ignored).
+- **Stage3 keys work on V3** when queued from stage2's banner: `p` -> `User request for skipping APCEA!` (sent after `Executing next` they arrive too late).
+- Straps `0xfd8a8110` = 0x377feeef (bits 17:15 = 7 SPI mode 0, bit 18 = 1 debug off), `0xfd8a8278` bit 0 = 0; ROM alias at 0xffff0000 (crc32 d1a98647).
+- uC: bootloader 2.28 / app 2.1.14, `uc_get_recovery` 0, SDR version 1, secure log counters 0.
+- CPLD live dump (sys 254 regs, SWLED/MACLED 256): `analysis/cpld-diff/live-{dump,diff}-20261115.txt`. Differences vs the v13/v1-era expectations: sys 0x05 = 0x40 (fan force-max, normal without fand), sys 0x0d = 0xfa (one VRM status bit low vs 0xfb), SWLED/MACLED 0x01 scratch = 0xff (expected 0xde) and 0x09 = 0xff; 154 registers outside the known map read non-trivial values (mostly 0xcc). Analysis of what v15/v2 changed: open (cpld-diff.md).
+
+### 2026-11-15 — node exporter
+
+- `nixos/module/cs8210/default.nix` imports the shared `ai_re/nix/modules/monitoring/node-exporter.nix` (upstream node_exporter 1.12.1 on :9100, default collector set + systemd, textfile dir `/run/prometheus-textfile`); firewall opens 9100 on enp0s1 only (`openFirewall = false`).
+- fand writes `fand.prom` there (`hardware.cs8210.fan.prometheusFile` now defaults to it; fand ordered after tmpfiles-resetup). Producer `cs8210` (every 15 s, no I2C) republishes fand's readings as `switch_board_info`, `switch_board_temperature_celsius{sensor}` (13 LM75s by position), `switch_asic_temperature{,_max}_celsius` for the switch-thermals dashboard; it fails when fand.prom is older than 30 s. `unmanagedMaxAge = 60` drops a stopped fand's file after a minute.
+- Raw LM75s also come through node_exporter's hwmon collector (14 hwmon chips: 13 lm75b + one `800`).
+- `nix store diff-closures` vs the running ias6p68f…: node_exporter, the producer/cleanup units, `source` (monorepo copy) only; unit diffs: fand (After, ReadWritePaths, config adds `runtime.prometheus_file`), firewall, tmpfiles, a `node-exporter` system user. Deploy restarts fand (brief failsafe to 100 %).
+
+### 2026-11-15 — fand live; UART recovery mapped
+
+- fand deployed (generation 26.11.20261114.2f709fe, also Linux 7.3.4; switch unit unchanged): `fand check --exec` all 14 sensors / 14 outputs ok, curve at PWM 127 after the 60 s first-reading failsafe; `systemctl stop fand` -> PWM 255, both watchdogs armed, sys CPLD force.
+- [uart-recovery.md](uart-recovery.md): the ROM never reads console keys; UART XMODEM / UART CLI only via boot straps (PBS 0xfd8a8110 bits 17:15) or when no valid stage2 is found at any of 16 SPI offsets. A UART stage2 only repairs stage2 (TOC/stage3/U-Boot still come from SPI). Zero-write entry "Route R" (vendor U-Boot -> warm-reset CPU0 into the ROM CLI) designed and emulated, not run. Tools: `scripts/uart_recovery.py`, `scripts/rom_emu.py`.
+- DMC-12 console byte loss (57%, this box's serial output) was the DMC-12's missing EHCI interrupt (IOFIC), fixed there; re-test 2.13 MB nonstop: 0 lost.
+
+### 2026-11-15 — fan control moved to fand (deployed same day)
+
+- `nix/nixos/module/cs8210/fan-control` now configures fand
+  (`rust/crates/fand`, imported from the monorepo; the nepeat/nix flake is
+  `git+file:…?dir=nix`, so `../rust` is in its source). Same curves and floor
+  as fancontrol.py (board 40->55 C, ASIC 70->95 C, PWM 127 floor, 2 C
+  hysteresis), plus: 14 outputs (one per fan slot, PWM 0x?2) with the fan
+  watchdog 0x0c as `arm` (writes 0x18), CPLD version 0x00 = 3 as `expect`,
+  front/rear tachs (x100, min 3000 rpm); the 13 LM75s by devicetree node (all
+  required); the MCP3425 ASIC read as an exec sensor (`i2ctransfer r3@0x68`:
+  an SMBus register read would write the ADC's config byte), critical 100 C;
+  the system CPLD 0x05 bits 7/5 as an exec output (released every tick
+  below 100 %, set at 100 %, RMW). ExecStopPost: `fand failsafe`, then
+  `cs8210-fan-exit` (sys CPLD force, PWM 255, both watchdogs re-armed).
+- The 0x74 mux is a kernel pca9548 (DT), not userspace-controlled: the manual
+  `i2c mw 0x74 …` recipe is U-Boot only. Nothing on NixOS writes a mux by
+  hand (tools, vendor-sdk scripts checked; the SDK chroot does not run the
+  vendor install.sh, whose `-y 8` bus numbers are stock-kernel ones). The
+  kernel locks the parent adapter per transfer, so fand, the lm75 driver and
+  `cs8210-fan` cannot interleave. Mux channels are numbered in probe order,
+  so fand got `bus: {of_node: "i2c-mux@74/i2c@2"}` (additive; tests in
+  `src/i2c.rs`, `src/config.rs`) instead of DT `i2cN` aliases, which would
+  renumber every bus and need a reboot.
+- Checks: `cargo test -p fand` (and the aarch64 build's tests under
+  emulation) pass; the rendered config passes `fand check --syntax-only` at
+  build time; an offline run against a fake sysfs/CPLD tree (startup, SDK
+  force-max, ASIC read failure, stalled rotor, watchdog re-armed, CPLD version
+  change, SIGTERM, `fand failsafe`) behaved as intended. System built:
+  `nix store diff-closures` vs master shows only the fan changes; the
+  `cs8210-switch` unit, kernel, initrd and DTB are unchanged vs master.
+- Open: tach scale x100 and the rotor maxima come from one fan sample; 7th
+  slot populated on every board is assumed (`hardware.cs8210.fan.slots`).
+
+### 2026-11-15 — boot chain dissected; boot ROM dumped; vendor U-Boot checklist
+
+- [boot-chain.md](boot-chain.md): no signatures anywhere (stage2 unsigned, stage3/U-Boot byte sums only); recommended SPI scheme A' = second TOC at 0x20000 + BOOT_MODE + new app, factory TOC and UBOOT 0 untouched. General V3 notes: [../../alpine-v3-boot-chain.md](../../alpine-v3-boot-chain.md).
+- [vendor-uboot.md](vendor-uboot.md): 27-item checklist for a replacement; new vs the DMC-12: **ASIC AVS** (Teralynx fuses -> 0.8 V on the regulator at I2C 0x62, VOUT 0x0333), SPI mux flip in do_bootm_states, external PCIe link-up; SerDes is stage3's job. Its read-only checks all matched on the box: [vendor-uboot-checks-20261115.txt](vendor-uboot-checks-20261115.txt).
+- **Boot ROM dumped** at the vendor prompt: 0xfbff0000, 64 KiB, crc32 d1a98647 = U-Boot's `crc32`, sha256 7e1ec7ef55d1b851… (`analysis/boot-rom/`, git-ignored). Has `_stage2Load_loadToSramFromUart` / `xmodemReceive`. A single 64 KiB `md.l` lost ~57% of lines over the DMC-12 console (sustained output; consoled's ring too), so it was read in 1 KiB chunks, each checked against `crc32`.
+- SRAM handoff words as predicted (`0xfbfe0000` = 0, `0xfbfe00f8` = 0x01100000). Stage3 `p` key test inconclusive: the keys (sent after `Executing next` via tmux) arrived after stage3's single poll; retry by sending from stage2's banner.
+
+Older entries (2026-11-15 secure boot back to 2026-10-17, incl. the lettered 2026-11-10/11 entries (a)-(ab) other files cite as "PROGRESS (x)"): [HISTORY.md](HISTORY.md).
 
 ### 2026-11-15 — secure boot is OFF (OTP read at the vendor prompt)
 

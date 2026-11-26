@@ -1,0 +1,44 @@
+# CS8210-32X LEDs, 2026-11-26T06:54Z (system-49): cs8210-leds on the live box
+# Every write below is read back by the tool (write_checked); what the LEDs show only a human can see.
+
+2026-11-26T06:54:31Z
+macsec-led-cpld  cages 1-16  version 0x01  0x09=0x00 0x0a=0x07  ASIC LED stream
+switch-led-cpld  cages 17-32 version 0x02  0x09=0x00 0x0a=0x07  ASIC LED stream
+system-cpld      0x20=0x7e 0x21=0x4f  system LED green
+                 PWR1 LED automatic, PWR2 LED automatic, fan LED automatic (test-mode bits 0x21 b4/b5/b7)
+== walk
+all 32 cages: red
+all 32 cages: green
+all 32 cages: blue
+all 32 cages: white
+all 32 cages: yellow (inferred code)
+all 32 cages: cyan (inferred code)
+all 32 cages: magenta (inferred code)
+all 32 cages: off
+cages 1-16: red, cages 17-32: green
+cages 1-16: green, cages 17-32: red
+cages 1-16: blue, cages 17-32: off
+cages 1-16: off, cages 17-32: blue
+system LED: green
+system LED: amber
+system LED: red
+system LED: blink-green
+system LED: blink-amber
+system LED: blink-red
+system LED: off
+end: port LEDs on the ASIC stream, system LED back to green
+== after
+macsec-led-cpld  cages 1-16  version 0x01  0x09=0x00 0x0a=0x07  ASIC LED stream
+switch-led-cpld  cages 17-32 version 0x02  0x09=0x00 0x0a=0x07  ASIC LED stream
+system-cpld      0x20=0x7e 0x21=0x4f  system LED green
+                 PWR1 LED automatic, PWR2 LED automatic, fan LED automatic (test-mode bits 0x21 b4/b5/b7)
+
+## system LED keeper (cs8210-leds monitor, journal of the cold boot)
+blink-amber at 12 s ("fand in failsafe": fand's boot-time failsafe, see links-20261125.txt), green at 82 s.
+Before this change the system LED field was 7 (0x20 = 0x7f, no vendor meaning: nothing set it under NixOS).
+
+## port LEDs following link: not possible from the CPU
+LED CPLDs 0x63/0x64 decode the ASIC's serial LED stream; the CPU can only force a whole CPLD (16 cages) to a test
+colour (0x09 bit 0, colour 0x0a). The stream needs the vendor init lines the SAI does not run
+(pci write led_cfg PIC_STREAM_MODE_F 1 / sck_rate_f 0x8, led_refresh_precliff 0x18eec2, led_refresh_cliff 0x020,
+led_refresh_tmr_ctl ENABLE_F 1): sonic.md "LEDs".

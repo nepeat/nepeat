@@ -7,6 +7,7 @@ Run by the package's passthru.tests.unit.
 import json
 import os
 import shutil
+import socket
 import struct
 import sys
 import tempfile
@@ -16,14 +17,13 @@ import unittest
 
 ROOT = tempfile.mkdtemp(prefix="cs8210-fake-")
 os.environ["CS8210_PLATFORM_ROOT"] = ROOT
-os.environ.pop("CS8210_QSFP_PREPARE", None)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import fake_board  # noqa: E402
 
 fake_board.build(ROOT)
 
 import sonic_platform.platform  # noqa: E402
-from sonic_platform import fpga, hw  # noqa: E402
+from sonic_platform import hw, optics  # noqa: E402
 
 
 def fake(rel):
@@ -40,11 +40,11 @@ def wr(p, s):
         f.write(s)
 
 
-def writes():
-    """BAR0 writes so far: [(offset, value)], and clear the log."""
-    p = fake("/fpga/writes.txt")
+def calls():
+    """write / lpmode / reset requests made so far (fake cs8210-optics), and clear the log."""
+    p = fake("/fpga/calls.txt")
     try:
-        out = [tuple(int(x, 16) for x in line.split()) for line in rd(p).splitlines()]
+        out = [json.loads(line) for line in rd(p).splitlines()]
     except OSError:
         out = []
     if os.path.exists(p):
@@ -58,9 +58,7 @@ class Board(unittest.TestCase):
         cls.chassis = sonic_platform.platform.Platform().get_chassis()
 
     def setUp(self):
-        hw.QSFP_PREPARE = False
-        fpga.SIDEBAND_TTL = 0                              # every call reads the FPGA
-        writes()
+        calls()
 
     def test_inventory(self):
         c = self.chassis
@@ -204,45 +202,46 @@ class Board(unittest.TestCase):
         self.assertEqual(info["model"].strip(), "FAKE-QDD-DR4")
         self.assertEqual(info["serial"].strip(), "FAKESN0001")
         self.assertIn("QSFP-DD", info["type"])
-        self.assertEqual(info["hardware_rev"], "1.0")      # upper page 1 through page select
-        self.assertEqual(rd(fake("/fpga/port1.bin"), "rb")[127], 0)   # page 0 again
+        self.assertEqual(info["hardware_rev"], "1.0")      # upper page 1 at flat offset 256
         self.assertAlmostEqual(float(s.get_temperature()), 35.25, places=2)
-        w = writes()
-        self.assertTrue(w)
-        for off, val in w:                                 # only cmd/start/write buffer
-            self.assertTrue(fpga.allowed(off, True), hex(off))
-            if fpga.WBUF <= off < fpga.RBUF:
-                self.assertLess(val, 0x100)                # one byte: a page number
-        self.assertIsNone(s.read_eeprom(128 * 0x30, 1))    # page the module lacks: NACK
+        self.assertEqual(calls(), [])                      # reads only
+        self.assertIsNone(s.read_eeprom(128 * 0x30, 1))    # page the module lacks
 
     def test_sfp_cmis_flat_dac(self):
         s = self.chassis.get_sfp(16)
         info = s.get_transceiver_info()
         self.assertEqual(info["model"].strip(), "FAKE-QDD-DAC1M")
         self.assertIsNone(s.read_eeprom(256, 1))           # flat: no page 1
-        self.assertEqual([o for o, _ in writes() if fpga.WBUF <= o < fpga.RBUF], [])   # no page select
 
-    def test_sfp_read_only(self):
-        c = self.chassis
-        before = {p: rd(fake("/fpga/port%d.bin" % p), "rb") for p in (1, 16, 17, 20)}
-        sb = rd(fake("/fpga/sideband.json"))
-        for p in (1, 16, 17, 20):
-            s = c.get_sfp(p)
-            self.assertFalse(s.set_lpmode(True))
-            self.assertFalse(s.reset())
-            self.assertFalse(s.write_eeprom(0, 1, bytearray(b"\x00")))
-            self.assertFalse(s.tx_disable(True))
-        for p, img in before.items():
-            self.assertEqual(rd(fake("/fpga/port%d.bin" % p), "rb"), img)
-        self.assertEqual(rd(fake("/fpga/sideband.json")), sb)
-        self.assertFalse(any(o < fpga.CH_BASE for o, _ in writes()))  # no global register written
+    def test_sfp_writes_go_to_the_daemon(self):
+        s = self.chassis.get_sfp(1)
+        before = rd(fake("/fpga/port1.bin"), "rb")
+        try:
+            self.assertTrue(s.write_eeprom(26, 1, bytearray(b"\x10")))
+            self.assertTrue(s.set_lpmode(True))
+            self.assertTrue(s.get_lpmode())
+            self.assertTrue(s.set_lpmode(False))
+            self.assertTrue(s.reset())
+            self.assertEqual(calls(), [{"op": "write", "cage": 1, "offset": 26, "data": "10"},
+                                       {"op": "lpmode", "cage": 1, "on": True},
+                                       {"op": "lpmode", "cage": 1, "on": False},
+                                       {"op": "reset", "cage": 1}])
+            self.assertEqual(rd(fake("/fpga/port1.bin"), "rb")[26], 0x10)
+        finally:
+            wr(fake("/fpga/port1.bin"), before)
+        self.assertFalse(self.chassis.get_sfp(5).reset())  # empty cage: refused
 
     def test_sfp_qsa(self):
         s = self.chassis.get_sfp(20)
         info = s.get_transceiver_info()
         self.assertEqual(info["model"].strip(), "SFP-H10GB-CU3M")
-        self.assertEqual(s.read_eeprom(256, 4), bytearray(b"\xff" * 4))   # A2h at 0x51
+        self.assertEqual(s.read_eeprom(256, 4), bytearray(b"\xff" * 4))   # A2h
         self.assertFalse(s.get_lpmode())
+
+    def test_sfp_qsfp28(self):
+        s = self.chassis.get_sfp(17)
+        self.assertEqual(s.read_eeprom(0, 1), bytearray(b"\x11"))
+        self.assertEqual(s.get_transceiver_info()["model"].strip(), "QSFP-4SFP25-CU3M")
 
     def test_sfp_in_reset_and_empty(self):
         c = self.chassis
@@ -256,52 +255,19 @@ class Board(unittest.TestCase):
         self.assertIsNone(e.read_eeprom(0, 1))
         self.assertIsNone(e.get_transceiver_info())
 
-    def test_sfp_channel_init_gate(self):
-        s = self.chassis.get_sfp(17)                       # channel at power-up values
-        s.invalidate()
-        self.assertIsNone(s.read_eeprom(0, 1))
-        self.assertEqual(writes(), [])                     # refused before any write
-        hw.QSFP_PREPARE = True
-        self.assertEqual(s.read_eeprom(0, 1), bytearray(b"\x11"))
-        cb = fpga.chb(17)
-        w = writes()
-        self.assertEqual(w[:3], [(cb + fpga.C_MRESET, 0x80000000), (cb + fpga.C_PROFSEL, 0),
-                                 (cb + fpga.C_PROFILE, fpga.PROBE_PROFILE)])
-        self.assertEqual(s.get_transceiver_info()["model"].strip(), "QSFP-4SFP25-CU3M")
-
-    def test_pci_decode_gate(self):
-        c = self.chassis
-        f = fpga.fpga()
-        cfgp = fake("/sys/bus/pci/devices/0002:01:00.0/config")
-        orig = rd(cfgp, "rb")
-        b = bytearray(orig)
-        b[4] = 0x00                                        # decode off, as after U-Boot
-        wr(cfgp, bytes(b))
-        en = fake("/sys/bus/pci/devices/0002:01:00.0/enable")
-        wr(en, "0\n")
+    def test_fpga_unavailable(self):
+        sbp = fake("/fpga/sideband.json")
+        orig = rd(sbp)
+        sb = json.loads(orig)
+        sb["dead"] = "status reads 0xffffffff"
+        wr(sbp, json.dumps(sb))
         try:
-            self.assertFalse(c.get_sfp(1).get_presence())  # nothing read, nothing claimed
-            self.assertIn("memory decode is off", f.problem)
-            self.assertEqual(rd(en), "0\n")               # and enable not written
-            hw.QSFP_PREPARE = True
-            self.assertTrue(c.get_sfp(1).get_presence())
-            self.assertEqual(rd(en), "1")
-            self.assertIsNone(f.problem)
+            c = self.chassis
+            self.assertIsNone(c._presence())
+            self.assertFalse(c.get_sfp(1).get_presence())
+            self.assertIsNone(c.get_sfp(1).read_eeprom(0, 1))
         finally:
-            wr(cfgp, orig)
-            wr(en, "1\n")
-
-    def test_allowlist(self):
-        self.assertTrue(fpga.allowed(fpga.R_PRESENT, False))
-        for off in (fpga.R_LPMODE, fpga.R_RESET, 0x168, 0x150, fpga.R_VERSION):
-            self.assertFalse(fpga.allowed(off, True), hex(off))
-        cb = fpga.chb(1)
-        self.assertTrue(fpga.allowed(cb + fpga.C_START, True))
-        self.assertFalse(fpga.allowed(cb + fpga.C_PROFILE, True))
-        self.assertTrue(fpga.allowed(cb + fpga.C_PROFILE, True, prepare=True))
-        self.assertFalse(fpga.allowed(cb + fpga.C_STATUS, True, prepare=True))
-        self.assertFalse(fpga.allowed(fpga.WBUF + fpga.BUF_MAX, True))
-        self.assertFalse(fpga.allowed(fpga.R_PRESENT + 2, False))
+            wr(sbp, orig)
 
     def test_change_event(self):
         c = self.chassis
@@ -319,134 +285,55 @@ class Board(unittest.TestCase):
         self.assertEqual(c.get_port_or_cage_type(1), 0x800)    # QSFP-DD
 
 
-RP_CFG = "/sys/devices/platform/soc/fb700000.pcie/pci0002:00/0002:00:00.0/config"
+class Client(unittest.TestCase):
+    """optics.Client against a socket that answers as cs8210-optics does."""
 
+    def serve(self, answers):
+        path = os.path.join(ROOT, "optics-%d.sock" % len(answers))
+        srv = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        srv.bind(path)
+        srv.listen(8)
+        got = []
 
-class FpgaSafety(unittest.TestCase):
-    """The 2026-11-16 stall: the I2C FPGA stopped answering, every access then
-    stalled the SoC, and xcvrd (32 cages "present", all ones) kept reading."""
+        def run():
+            for a in answers:
+                conn, _ = srv.accept()
+                with conn:
+                    got.append(json.loads(conn.makefile().readline()))
+                    conn.sendall((json.dumps(a) + "\n").encode())
+            srv.close()
 
-    def setUp(self):
-        hw.QSFP_PREPARE = False
-        fpga.SIDEBAND_TTL = 0
-        self.dead = fake(fpga.DEAD_FILE)
-        self.rp = fake(RP_CFG)
-        self.rp_orig = rd(self.rp, "rb")
-        self.sbf = fake("/fpga/sideband.json")
-        self.sb_orig = rd(self.sbf)
-        fpga._fpga = None                                  # a fresh process
-        writes()
+        t = threading.Thread(target=run, daemon=True)
+        t.start()
+        return optics.Client(path), got, t
 
-    def tearDown(self):
-        wr(self.rp, self.rp_orig)
-        wr(self.sbf, self.sb_orig)
-        if os.path.exists(self.dead):
-            os.remove(self.dead)
-        fpga._fpga = None
+    def test_requests_and_replies(self):
+        cl, got, t = self.serve([
+            {"ok": True, "present": 5, "reset": 4, "lpmode": 0, "interrupt": 1, "dead": None},
+            {"ok": True, "data": "1840"},
+            {"ok": False, "error": "cage 2: no module"},
+            {"ok": True},
+        ])
+        self.assertEqual(cl.sideband(), {"present": 5, "reset": 4, "lpmode": 0, "interrupt": 1})
+        self.assertEqual(cl.read(1, 0, 2), b"\x18\x40")
+        with self.assertRaises(OSError):
+            cl.read(2, 0, 1)
+        cl.write(1, 2178, b"\x00")
+        t.join(5)
+        self.assertEqual(got, [{"op": "sideband"}, {"op": "read", "cage": 1, "offset": 0, "len": 2},
+                               {"op": "read", "cage": 2, "offset": 0, "len": 1},
+                               {"op": "write", "cage": 1, "offset": 2178, "data": "00"}])
 
-    def chassis(self):
-        return sonic_platform.platform.Platform().get_chassis()
-
-    def reads(self):
-        bar = fpga.fpga().v32
-        return 0 if bar is None else bar.reads
-
-    def set_rp(self, off, fmt, val):
-        b = bytearray(self.rp_orig)
-        b[off:off + struct.calcsize(fmt)] = struct.pack(fmt, val)
-        wr(self.rp, bytes(b))
-
-    def kill(self):
-        sb = json.loads(self.sb_orig)
-        sb["dead"] = True
-        wr(self.sbf, json.dumps(sb))
-
-    def test_chassis_init_reads_nothing(self):
-        self.chassis()                                     # what psud/thermalctld/syseepromd do
-        self.assertIsNone(fpga._fpga)
-
-    def test_every_access_under_the_lock(self):
-        c = self.chassis()
-        errs = []
-
-        def work(p):
-            try:
-                for _ in range(5):
-                    s = c.get_sfp(p)
-                    s.invalidate()
-                    if s.get_transceiver_info() is None:
-                        errs.append(p)
-                    c._presence()
-            except Exception as e:                         # noqa: BLE001
-                errs.append(repr(e))
-        ts = [threading.Thread(target=work, args=(p,)) for p in (1, 16, 17, 20)]
-        for t in ts:
-            t.start()
-        for t in ts:
-            t.join()
-        self.assertEqual(errs, [17] * 5)                   # 17: channel not initialised (no prepare)
-        self.assertGreater(self.reads(), 100)
-        self.assertEqual(fpga.fpga().v32.unlocked, [])
-
-    def test_sideband_snapshot_reused(self):
-        fpga.SIDEBAND_TTL = 60
-        c = self.chassis()
-        self.assertEqual(sum(c.get_sfp(p).get_presence() for p in range(1, 33)), 5)
-        self.assertEqual(self.reads(), 5)                  # version + 4 masks, once
-
-    def test_root_port_completion_timeout(self):
-        self.set_rp(0x7a, "<H", 0x0002)                    # DevSta NonFatalErr
-        c = self.chassis()
-        self.assertFalse(c.get_sfp(1).get_presence())
-        self.assertIsNone(c._presence())
-        self.assertIsNone(c.get_sfp(16).read_eeprom(0, 1))
-        self.assertIsNone(fpga.fpga().v32)                 # BAR0 never mapped
-        self.assertIn("non-fatal", rd(self.dead))
-        wr(self.rp, self.rp_orig)                          # bits cleared by hand: the marker holds
-        fpga._fpga = None
-        self.assertFalse(c.get_sfp(1).get_presence())
-        self.assertIsNone(fpga.fpga().v32)
-        self.assertIn("marked dead", fpga.fpga().problem)
-        os.remove(self.dead)
-        self.set_rp(0x104, "<I", 1 << 14)                  # AER CmpltTO alone
-        fpga._fpga = None
-        self.assertFalse(c.get_sfp(1).get_presence())
-        self.assertIn("completion timeout", rd(self.dead))
-
-    def test_link_down(self):
-        self.set_rp(0x82, "<H", 0x1012)                    # DLLLA clear
-        self.assertFalse(self.chassis().get_sfp(1).get_presence())
-        self.assertIn("data link down", rd(self.dead))
-        self.assertIsNone(fpga.fpga().v32)
-
-    def test_all_ones_stops_after_one_read(self):
-        self.kill()
-        c = self.chassis()
-        for _ in range(20):                                # xcvrd's loops
-            self.assertIsNone(c._presence())
-            for p in (1, 5, 16):
-                s = c.get_sfp(p)
-                s.invalidate()
-                self.assertFalse(s.get_presence())
-                self.assertIsNone(s.read_eeprom(0, 1))
-        self.assertEqual(self.reads(), 1)                  # the version register, once
-        self.assertIn("version", rd(self.dead))
-        self.assertEqual(writes(), [])
-
-    def test_dies_mid_session(self):
-        fpga.SIDEBAND_TTL = 60
-        c = self.chassis()
-        s = c.get_sfp(1)
-        s.invalidate()
-        self.assertTrue(s.get_presence())                  # snapshot while alive
-        self.kill()
-        self.assertIsNone(s.read_eeprom(0, 1))             # first transfer read: all ones
-        n = self.reads()
-        self.assertLessEqual(n, 7)
-        self.assertIn("clock profile", rd(self.dead))
-        for p in (1, 16):
-            self.assertIsNone(c.get_sfp(p).read_eeprom(0, 1))
-        self.assertEqual(self.reads(), n)                  # nothing more
+    def test_dead_and_down(self):
+        cl, _, t = self.serve([{"ok": True, "present": 0, "reset": 0, "lpmode": 0, "interrupt": 0,
+                                "dead": "root port LnkSta 0x1012 (data link down)"}])
+        self.assertIsNone(cl.sideband())
+        self.assertIn("data link down", cl.problem)
+        t.join(5)
+        down = optics.Client(os.path.join(ROOT, "nobody.sock"))
+        self.assertIsNone(down.sideband())
+        with self.assertRaises(OSError):
+            down.read(1, 0, 1)
 
 
 if __name__ == "__main__":

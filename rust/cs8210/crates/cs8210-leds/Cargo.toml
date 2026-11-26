@@ -1,0 +1,18 @@
+[package]
+name = "cs8210-leds"
+description = "CS8210-32X LEDs: the two port LED CPLDs (test colours, stream mode) and the system LED"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "cs8210-leds"
+path = "src/main.rs"
+
+[dependencies]
+cs8210-sys.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true

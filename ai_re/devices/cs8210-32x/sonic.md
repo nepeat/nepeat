@@ -2,8 +2,11 @@
 
 Cross-device notes and the stack itself: [sonic-nixos](../sonic-nixos/PROGRESS.md).
 
-## Status (2026-11-16)
+## Status (2026-11-25)
 
+- **New cabling (2026-11-25):** 1 <-> 2 and 31 <-> 32 400G-DR4 optics, 3 <-> 17 400G CR8 DAC; Nix-base config of the
+  three loops ("Running it"); 3 <-> 17 and 31 <-> 32 up with ping across, 1 <-> 2 down on Rx power (PROGRESS).
+  Cages: cs8210-optics ("Optics"); LEDs: "LEDs".
 - **Our SAI runs the chip** (`sai-teralynx`: sai-openbcm's frontend + an IFCS backend dlopen()ing the
   vendor `libifcs.so` 0.12.41): every phase B/C feature passes its sai-script chip test on the 400G
   cage 1 <-> 16 loop ([sai-features.md](sai-features.md), [sai-hw-integration-20261116.txt](sai-hw-integration-20261116.txt)).
@@ -15,24 +18,29 @@ Cross-device notes and the stack itself: [sonic-nixos](../sonic-nixos/PROGRESS.m
   ([evidence](sai-hw-sonic-20261116.txt)). 2 h soak with 11 link/LAG flaps: BGP + BFD back 1-7 s after each, no loss outside the flaps, daemon RSS flat, I2C FPGA healthy throughout.
 - **The 08:13 stall was a dead I2C FPGA** (0002:01:00.0 stopped answering while SONiC started; each
   access then stalls the whole SoC and xcvrd kept reading 32 all-ones "present" cages). Trigger not
-  found; the platform now serialises all FPGA access, only xcvrd touches it, and the root port's own
+  found; since 2026-11-25 one process owns the FPGA (cs8210-optics, "Optics"), and the root port's own
   status (or all-ones) marks it dead for every process ([analysis](sai-hw-fpga-stall-20261116.txt)).
 - **Recover:** `systemctl stop sonic.target` (or `systemctl start cs8210-switch`, which stops syncd), boot
   an older generation from the U-Boot menu, or `autoStart = false`. A dead FPGA (`/run/cs8210-qsfp.dead`, or the
   cage guard refusing) took a power cycle on 2026-11-16 (PCIe remove/rescan not tried).
 - **Code:** [packages/sai-teralynx](../../nix/packages/sai-teralynx/README.md), [boards/cs8210](../../nix/modules/boards/cs8210/sonic.nix)
   (ports, IFCS yaml, sai.profile incl. the diag socket, buffermgrd, pmon), `nepeat/nix`
-  `nixos/module/cs8210/sonic` (cross build, Credo unit, guard, watchdog).
+  `nixos/module/cs8210/sonic` (cross build, Credo unit, guard, watchdog), `nixos/module/cs8210/optics` + `rust/cs8210`
+  (cages, LEDs).
 
 ## Running it
 
 **At boot** (machine `cs8210`: `hardware.cs8210.sonic.enable`, `autoStart` is the default): sonic.target from
-multi-user.target. Order: `cs8210-pcie-errors` (all-ones reads) -> `sonic-cs8210-guard` (every populated cage in
-`allowedCages` = 1, 16; I2C FPGA alive, else syncd does not start) -> `sonic-cs8210-credo` (MACsec bypass) and
-`cs8210-sai-files` -> syncd (waits for /dev/ipd) -> orchagent, managers, FRR; xcvrd after the guard and Credo.
-CONFIG_DB = the Nix base (Ethernet0/120 admin up, RS FEC; the other 30 down; LLDP, CoPP, PORT counters) + the
-saved file `/var/lib/sonic/config_db.json` (`config save`; on this box a copy of a sonic-loop config).
-`sonic-nix reload` without a saved file loads the base. Recovery as on the AS7760 (shared recovery.nix):
+multi-user.target. Order: `cs8210-pcie-errors` (all-ones reads) -> `cs8210-optics` (cages, ~21 s from power-up to
+the last module up) -> `sonic-cs8210-guard` (FPGA alive, every populated cage declared) -> `sonic-cs8210-credo`
+(MACsec bypass, ~39 s) and `cs8210-sai-files` -> syncd (~51 s) -> orchagent, managers, FRR; xcvrd after the guard
+and Credo. CONFIG_DB = the Nix base (machine `cs8210`, since 2026-11-25): the three loops' six ports at 1x400G RS
+FEC, Ethernet0/16/240 in the default VRF (10.0.1.0/31, 10.0.3.0/31, 10.0.31.0/31), the far ends Ethernet8/128/248
+in Vrf-a/b/c (.1/31, MACs 0e:48:c6:7a:55:cf/d0/d1); the other 26 ports down; LLDP, CoPP, PORT counters. No saved
+file (`/var/lib/sonic/config_db.json` of the old cage 1 <-> 16 loop moved to `config_db.json.cage1-16-loop-20261116`);
+`config save` would make one. Test: `ping -I Ethernet16 10.0.3.1`, `ping -I Ethernet240 10.0.31.1`
+([evidence](evidence/links-20261125.txt)). Credo line side: cage 3 copper (the DAC), 1 and 2 optics; ASIC side:
+cage 17 copper, 31/32 optics (`lineMedia`, `media`). `sonic-nix reload` without a saved file loads the base. Recovery as on the AS7760 (shared recovery.nix):
 orchagent crash -> syncd restart, teamd respawn, reload ([evidence](sai-hw-sonic-boot-20261116.txt)).
 Vendor stack instead: `systemctl start cs8210-switch` (Conflicts= stops syncd and the Credo unit); back:
 `systemctl start sonic.target`. Diag: `openbcm-diag -s /run/sai-teralynx/diag.sock copp|acl|counters <devport>|devport <n>`.
@@ -53,7 +61,7 @@ otherwise). `down` also puts vrfmgrd's local rule back at pref 0 (left at 1001, 
 off: sai-hw-sonic-boot-20261116.txt, section 2), deletes the Loopback/Bridge/dummy netdevs the run added and
 restarts the host lldpd once SONiC's is gone.
 
-Test configs in [sonic-loop/](sonic-loop/): `config-a-vrf-bgp.json` (Ethernet0 in Vrf-a 10.0.0.0/31,
+Test configs of the old cage 1 <-> 16 DAC loop (2026-11-16) in [sonic-loop/](sonic-loop/): `config-a-vrf-bgp.json` (Ethernet0 in Vrf-a 10.0.0.0/31,
 Ethernet120 in Vrf-b 10.0.0.1/31) and `config-b-vrf-bgp-lag.json` (the same over PortChannel1/2,
 10.0.1.0/31, plus Loopback1/2 10.66.1.1 / 10.66.2.1 in the VRFs, advertised as STATIC_ROUTE blackholes
 10.66.x.0/24); both with BGP + BFD, an L3 ACL, AZURE-style DSCP/TC maps, schedulers, lossy buffers, flex
@@ -82,18 +90,59 @@ ending in /bin (cs8210-qsfp not found), a stale /tmp/cls_phy_fifo hanging the Cr
 stack's bond0/vrf-fp (off with SONiC), networkd deleting vrfmgrd's local rule on a restart, teamd respawn
 resetting a PortChannel's mac_addr. Notes from the AS7760 runs: [sonic-nixos](../sonic-nixos/PROGRESS.md).
 
-## xcvrd and the I2C FPGA
+## Optics: cs8210-optics (the I2C FPGA's one owner)
 
-The cages' management FPGA (PCI 1d0f:8571 behind root port 0002:00:00.0) is read by mmap of its BAR0
-(`boards/cs8210/sonic_platform/fpga.py`). When it stops answering, every BAR or config access is a PCIe
-completion timeout that stalls the whole SoC for seconds (SSH, fand's I2C, journald all time out; hard-IRQ
-time rises on all CPUs); nothing reaches the kernel log (no AER: external-PCIe INTx is not delivered).
-Since 2026-11-16: all access under cs8210-qsfp's flock (one at a time, any process), Chassis() reads
-nothing (only xcvrd uses the cages), sideband snapshots reused 0.25 s, and before each session the root
-port's DevSta/LnkSta/AER (on the SoC, never stalls) or an all-ones register read marks it dead in
-`/run/cs8210-qsfp.dead`; then no process touches it until a reboot. The cage guard checks the same and
-refuses syncd. xcvrd starts after the Credo bring-up. Modules stay in reset (read-only platform), so the
-DAC loop's EEPROMs are not read: xcvrd reports presence only.
+`cs8210-optics` (Rust, monorepo `rust/cs8210`; NixOS `nixos/module/cs8210/optics`, unit `cs8210-optics`) is the
+only process that touches the cages' FPGA (PCI 1d0f:8571 behind root port 0002:00:00.0). It holds the flock
+`/run/lock/cs8210-qsfp.lock` for its life, checks the root port (link, DevSta, AER CmpltTO; on the SoC, never stalls)
+before every poll and request, treats all-ones or a changed version register as a dead FPGA and then writes
+`/run/cs8210-qsfp.dead` and touches nothing until a reboot (the 2026-11-16 stall: each access to a dead FPGA stalls
+the whole SoC; [analysis](sai-hw-fpga-stall-20261116.txt)). It turns on the FPGA's PCI memory decode (off after U-Boot).
+
+- **Declared cages** = the cages of the admin-up ports in the Nix base (`hardware.cs8210.optics.cages`, derived in
+  `nixos/module/cs8210/sonic`): channel probed (400 kHz), ResetL released, the module brought up. Every other cage,
+  and an emptied one, is held in ResetL (a module plugged into an undeclared cage stays dark; the cage guard then
+  refuses syncd). LPMode is left deasserted (FPGA 0x170 = 0, so modules reach high power by the pin).
+- **Bring-up** (`cs8210-xcvr` `bringup`): SFF-8636 high-power class enable; CMIS LowPwrRequestSW cleared, ModuleReady,
+  then on a paged module the application whose host lanes and rate fit the cage's ports (1x400G here): Deinit ->
+  staged ApSel -> Apply_DataPathInit -> ConfigSuccess -> Deinit cleared + Tx on -> DataPathActivated. The Molex
+  1064281405 DR4s power up on app 2 (4 x 100G-FR1) and go to app 1 (400GBASE-DR4) in about 3 s; the DACs need
+  nothing. A module already up (daemon restart, warm reboot) is adopted without a write. xcvrd keeps
+  `--skip_cmis_mgr` (one state machine per module).
+- **SONiC**: `sonic_platform`'s Sfp/Chassis call the daemon's socket (`/run/cs8210-optics/optics.sock`, JSON lines;
+  `optics.py`): sideband, optoe flat-offset reads/writes, LPMode, reset. `show interfaces transceiver
+  presence|eeprom -d` and the TRANSCEIVER_* tables work ([evidence](evidence/optics-20261125.txt)). xcvrd's
+  periodic VDM freeze / CDB firmware queries fail on these modules (log noise, harmless).
+- **Metrics**: `/run/prometheus-textfile/cs8210-optics.prom`, the board-neutral `switch_optic_*` of the AS7760
+  (info, temperature, Vcc, per-lane Rx/Tx power and bias: Grafana "switch optics") + `cs8210_optics_*` (fpga_up,
+  module_ready, bringup_failed, reset_held, i2c errors, Rx LOS / Tx fault, Rx dBm). Refreshed every 10 s.
+- **CLI**: `cs8210-optics status [N]` (lanes with N), `json`, `sideband`, `dump N` (all pages, hex), `read N OFF LEN`,
+  `write`, `lpmode N 0|1`, `reset N` (ResetL pulse, then a fresh bring-up), `retry N`, `guard --allowed LIST`.
+  Without the daemon nothing can reach the FPGA (`systemctl start cs8210-optics`).
+
+Cage guard (`sonic-cs8210-guard`, before syncd): `cs8210-optics guard --allowed <declared cages>`: the FPGA answers
+and every populated cage is declared, else syncd does not start (house network, PROGRESS 2026-11-11).
+
+## LEDs
+
+- **Port LEDs: dark under SONiC.** The two LED CPLDs (MACsec LED 0x63: cages 1-16; switch LED 0x64: cages 17-32)
+  decode the Teralynx's serial LED stream. The CPU can only force a whole CPLD to one test colour (reg 0x09 bit 0
+  = test, 0x0a bits 2:0 = colour: red 6, green 3, blue 5, white 0, off 7; yellow 2, cyan 1, magenta 4 inferred from
+  the codes being active-low R/B/G bits). Per-port link/activity therefore needs the ASIC's LED controller, which
+  the vendor's init lines set up and our SAI skips (`SAI_TERALYNX_INIT_CMDS` runs only `ifcs set devport` lines):
+  `pci write led_cfg PIC_STREAM_MODE_F 1`, `pci write led_cfg sck_rate_f 0x8`, `pci write led_refresh_precliff
+  0x18eec2`, `pci write led_refresh_cliff 0x020`, `pci write led_refresh_tmr_ctl ENABLE_F 1`. Addresses (BAR0, from
+  the SDK's `ifcs_ctypes` enum and the vendor ishell log): LED_CFG 0x13514 (sck_rate_f bits 3:0, link_up_mask_f
+  bit 7, pic_stream_mode_f bit 11), LED_REFRESH_CLIFF 0x13530, LED_REFRESH_PRECLIFF 0x13538, LED_REFRESH_TMR_CTL
+  0x1353c (enable_f bit 1); per-PIC LED_SWCTRL_IB0..6_PIC from 0x13700 (software override, for a per-port walk).
+  /dev/ipd allows one opener (syncd), so this has to be a SAI change (open: coordinator).
+- **System LED** (sys CPLD 0x20 bits 2:0): `cs8210-leds monitor` (unit `cs8210-leds`) keeps it green while fand
+  runs without failsafe and the FPGA is alive, blinking amber otherwise (it was 7, undefined, before).
+  PSU and fan LEDs: the CPLD's own (0x21 test-mode bits clear).
+- **Tests for a human at the panel** (each write read back by the tool): `cs8210-leds status`; `cs8210-leds test
+  red|green|blue|white|off [--cages 1-16|17-32|all] [--seconds 30]` (all 16 cages of a CPLD in one colour, back to
+  the stream after); `cs8210-leds walk` (every colour on all 32, then the halves, then the system LED states, ~35 s).
+  [evidence](evidence/leds-20261125.txt).
 
 ## SAI source: our own, on the vendor IFCS SDK
 
@@ -128,9 +177,9 @@ the public sonic-buildimage `innovium.77700_A` (byte-identical to the SDK's `inn
 - Generated IFCS yaml, pre-emphasis and link-training lines equal the vendor's `dynamic_config.sh`
   output for 32x400, the lab 4x10G layout and every mode ([check](sonic-sdk-config-20261115.txt),
   [script](scripts/sonic_sdk_config_check.py)).
-- pmon (read-only): fans/LM75/ASIC from fand, PSUs from the sys CPLD, cages through the I2C FPGA,
+- pmon: fans/LM75/ASIC from fand, PSUs from the sys CPLD, cages through cs8210-optics,
   syseeprom from the TLV EEPROM ([tests](sonic-platform-test-20261115.txt)). PSU slot 2-4 presence
-  bits look wrong (only PSU 1 fitted, but 2-4 decode as present); xcvrd runs `--skip_cmis_mgr`.
+  bits look wrong (only PSU 1 fitted, but 2-4 decode as present); xcvrd runs `--skip_cmis_mgr` (cs8210-optics does CMIS).
 - `asic_type` = `marvell-teralynx` (upstream's value; differences from `broadcom` in the pinned
   orchagent: combined V4V6 ACL tables allowed, PFC watchdog handler, no DNAT tracking).
 
@@ -148,8 +197,5 @@ the public sonic-buildimage `innovium.77700_A` (byte-identical to the SDK's `inn
 
 ## Board notes for SONiC
 
-- LEDs: the vendor's `pci write led_*` lines are not applied (LEDs dark); devport 129 (AUX to
-  `enp0s3`) stays down.
+- devport 129 (AUX to `enp0s3`) stays down. LEDs: "LEDs" above.
 - The frontend's fake-backend guard only knows Broadcom devices: never set `SAI_OPENBCM_BACKEND=fake` here.
-- Cage modules are held in reset at power-up (FPGA reg 0x178); the read-only platform does not release
-  them, so their EEPROMs stay unread (`cs8210-qsfp --reset P 0` by hand).

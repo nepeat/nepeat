@@ -182,22 +182,51 @@
 
   # SONiC on our sai-teralynx (nix/nixos/module/cs8210/sonic), started at boot
   # (2026-11-16). The vendor stack stays installed: systemctl start
-  # cs8210-switch stops SONiC's syncd (Conflicts=). Only cages 1 and 16 hold
-  # modules, a 400G CR8 DAC loop between them (allowedCages: syncd refuses to
-  # start if any other cage is populated).
+  # cs8210-switch stops SONiC's syncd (Conflicts=).
   # sairedis/swss records on tmpfs (SSD wear; they grow with every change).
   services.sonic.recordDir = "/run/swss";
 
+  # Front-panel cabling (owner, 2026-11-25), every module read by cs8210-optics
+  # (ai_re/devices/cs8210-32x/evidence/optics-20261125.txt):
+  #   cages 1 <-> 2    Molex 1064281405 400G-DR4 QSFP-DD optics, MPO loop (both behind Credo PHYs)
+  #   cages 31 <-> 32  the same optics, MPO loop (direct to the ASIC)
+  #   cages 3 <-> 17   TE 2459398-1 1.8 m 400G CR8 passive DAC (Credo PHY side -> direct side)
+  # Nothing goes to the house network; the cage guard refuses syncd if any other
+  # cage holds a module (allowedCages = the admin-up ports' cages).
   hardware.cs8210.sonic = {
     enable = true;
     macAddress = "0e:48:c6:7a:55:ce";
-    lineMedia = { "1" = "copper"; "16" = "copper"; };
+    # Credo line side: the DAC in cage 3 (line link training); 1 and 2 are optics (the default).
+    lineMedia = { "3" = "copper"; };
+    # ASIC side of the direct cages: cage 17 is the DAC's other end; 31/32 optics (the default).
+    media = { "17" = "copper"; };
   };
-  # Nix base for CONFIG_DB (seeded: config + config save win): the two loop
-  # ports up (RS FEC: 400G PAM4), the other 30 stay down. Routing, VRFs and
-  # QoS are the saved file's (ai_re/devices/cs8210-32x/sonic-loop/).
-  services.sonic.settings.PORT = lib.genAttrs [ "Ethernet0" "Ethernet120" ] (_: {
-    admin_status = "up";
-    fec = "rs";
-  });
+
+  # Nix base for CONFIG_DB (seeded: config + config save win over it; the saved file
+  # /var/lib/sonic/config_db.json of the old cage 1 <-> 16 loop was moved aside on
+  # 2026-11-25). The three loops at 1x400G with RS FEC (400G PAM4), each far end in its
+  # own VRF with its own router MAC (one box is both ends: SA = DA otherwise), /31s;
+  # the 26 other ports stay down. Test: ping -I Ethernet0 10.0.1.1 (and 10.0.3.1,
+  # 10.0.31.1) from the default VRF.
+  services.sonic.settings = {
+    PORT = lib.genAttrs [ "Ethernet0" "Ethernet8" "Ethernet16" "Ethernet128" "Ethernet240" "Ethernet248" ] (_: {
+      admin_status = "up";
+      fec = "rs";
+    });
+    VRF = lib.genAttrs [ "Vrf-a" "Vrf-b" "Vrf-c" ] (_: { });
+    INTERFACE = {
+      Ethernet0 = { };
+      "Ethernet0|10.0.1.0/31" = { };
+      Ethernet8 = { vrf_name = "Vrf-a"; mac_addr = "0e:48:c6:7a:55:cf"; };
+      "Ethernet8|10.0.1.1/31" = { };
+      Ethernet16 = { };
+      "Ethernet16|10.0.3.0/31" = { };
+      Ethernet128 = { vrf_name = "Vrf-b"; mac_addr = "0e:48:c6:7a:55:d0"; };
+      "Ethernet128|10.0.3.1/31" = { };
+      Ethernet240 = { };
+      "Ethernet240|10.0.31.0/31" = { };
+      Ethernet248 = { vrf_name = "Vrf-c"; mac_addr = "0e:48:c6:7a:55:d1"; };
+      "Ethernet248|10.0.31.1/31" = { };
+    };
+  };
 }

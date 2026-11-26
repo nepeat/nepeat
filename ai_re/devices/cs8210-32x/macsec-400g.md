@@ -20,8 +20,8 @@ state ModuleReady). Application 1: host 1Dh **400G CR8**, 8 lanes
 (53G PAM4, RS-544); also 200GBASE-CR4 and 100GBASE-CR4 (x2), 50GBASE-CR and
 25GBASE-CR CA-L (x8), IB EDR / HDR. Codes decoded with the SFF-8024 table
 in sonic-platform-common. Dump: `qsfp-info-1-16.txt` (sha256 64b7b861…).
-Reading it needs `cs8210-qsfp --enable` (after a power cycle), `--reset P 0`
-and `--init P` (what the vendor probe does) on the two cages.
+Read then with the Python `cs8210-qsfp` (`--enable`, `--reset P 0`, `--init P`); since 2026-11-25 `cs8210-optics
+status P` / `dump P` (the daemon releases declared cages itself, sonic.md "Optics").
 
 ## Bring-up (bypass)
 

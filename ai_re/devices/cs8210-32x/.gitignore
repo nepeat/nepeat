@@ -1,5 +1,9 @@
 /images/
-/evidence/
+/evidence/*
+# the 2026-11-25 transcripts (the rest of evidence/ is the SSD acquisition record and console logs)
+!/evidence/optics-20261125.txt
+!/evidence/links-20261125.txt
+!/evidence/leds-20261125.txt
 /photos/
 /analysis/
 __pycache__/

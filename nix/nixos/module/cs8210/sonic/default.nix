@@ -17,8 +17,10 @@
 #   * Started at boot (autoStart, the default), after the PCIe all-ones setup;
 #     autoStart = false leaves it to systemctl start sonic.target. Before
 #     syncd starts, a guard refuses to run unless the populated cages are a
-#     subset of allowedCages and the I2C FPGA answers (house network, PROGRESS
-#     2026-11-11; FPGA stall 2026-11-16).
+#     subset of allowedCages (default: the admin-up ports' cages) and the I2C
+#     FPGA answers (house network, PROGRESS 2026-11-11; FPGA stall 2026-11-16).
+#   * The cages are cs8210-optics' (../optics): declared cages = the admin-up
+#     ports' cages, each in its ports' mode (e.g. 1x400).
 {
   config,
   lib,
@@ -64,55 +66,22 @@ let
     lib.concatMapStringsSep ";" one (lib.range 1 16);
   credo = if cfg.credoPorts != null then cfg.credoPorts else credoSpec;
 
-  allowed = lib.concatMapStringsSep " " toString cfg.allowedCages;
-  guard = pkgs.writeShellScript "sonic-cs8210-cage-guard" ''
-    set -eu
-    # A dead I2C FPGA (2026-11-16) turns every access into a PCIe completion
-    # timeout that stalls the whole SoC for seconds. Its root port's config
-    # space is on the SoC (never stalls): data link down, DevSta
-    # NonFatal/Fatal or AER CmpltTO there, or the platform's marker
-    # (ai_re/nix/modules/boards/cs8210/sonic_platform/fpga.py), and the
-    # FPGA is left alone.
-    dead=/run/cs8210-qsfp.dead
-    if [ -e $dead ]; then
-      echo "cage guard: I2C FPGA marked dead ($dead: $(cat $dead)); not starting syncd" >&2
-      exit 1
-    fi
-    ep=""
-    for d in /sys/bus/pci/devices/*; do
-      if [ "$(cat $d/vendor)" = 0x1d0f ] && [ "$(cat $d/device)" = 0x8571 ]; then ep=$d; fi
-    done
-    [ -n "$ep" ] || { echo "cage guard: no I2C FPGA (1d0f:8571) on PCI" >&2; exit 1; }
-    rp=$(basename "$(dirname "$(readlink -f "$ep")")")
-    read -r devsta lnkcap lnksta uesta <<< "$(setpci -s "$rp" CAP_EXP+0x0a.w CAP_EXP+0x0c.l CAP_EXP+0x12.w ECAP_AER+0x04.l | tr '\n' ' ')"
-    if (( 0x$devsta & 0x6 )) || (( 0x$uesta & 0x4000 )) || { (( 0x$lnkcap & 0x100000 )) && ! (( 0x$lnksta & 0x2000 )); }; then
-      msg="root port $rp DevSta=$devsta LnkSta=$lnksta AER UESta=$uesta (cage guard)"
-      echo "$(date +%Y-%m-%dT%H:%M:%S) $(basename "$ep"): $msg" > $dead
-      echo "cage guard: I2C FPGA not answering: $msg; not starting syncd" >&2
-      exit 1
-    fi
-    # cs8210-qsfp --enable only turns on PCI memory decode of the I2C FPGA
-    # (sysfs enable); the status table is MMIO reads. It refuses while
-    # xcvrd holds the shared flock for a transfer: retry.
-    out=""
-    for _ in 1 2 3 4 5 6 7 8 9 10; do
-      out=$(cs8210-qsfp --enable 2>&1) && break
-      sleep 0.5
-    done
-    raw=$(printf '%s\n' "$out" | sed -n 's/^raw: present=\([0-9a-f]*\) .*/\1/p')
-    [ -n "$raw" ] || { echo "cage guard: cannot read cage presence" >&2; exit 1; }
-    bad=""
-    for c in $(seq 1 32); do
-      if (( (0x$raw >> (c - 1)) & 1 )); then
-        case " ${allowed} " in *" $c "*) ;; *) bad="$bad $c" ;; esac
-      fi
-    done
-    if [ -n "$bad" ]; then
-      echo "cage guard: modules in cages$bad, allowed only: ${allowed}; not starting syncd" >&2
-      exit 1
-    fi
-    echo "cage guard: present mask 0x$raw within allowed cages (${allowed})"
-  '';
+  # Declared cages: the cages of the admin-up ports of the Nix base CONFIG_DB
+  # (services.sonic.settings.PORT, by name or alias). Their modules are brought up by
+  # cs8210-optics in the mode the cage's ports need (ports x speed); the cage guard
+  # refuses syncd while any other cage holds a module (house network, PROGRESS
+  # 2026-11-11).
+  portSettings = config.services.sonic.settings.PORT or { };
+  adminUp = p: ((portSettings.${p.name} or portSettings.${p.alias} or { }).admin_status or "down") == "up";
+  declaredCages = lib.unique (map (p: p.cage) (lib.filter adminUp ports));
+  cageMode =
+    c:
+    let
+      ps = lib.filter (p: p.cage == c) ports;
+    in
+    "${toString (lib.length ps)}x${toString ((lib.head ps).speed / 1000)}";
+  optics = config.hardware.cs8210.optics.package;
+  allowed = if cfg.allowedCages == [ ] then "none" else lib.concatMapStringsSep "," toString cfg.allowedCages;
 
   # The MACsec shim (hardware.cs8210.macsec: vendorSdk.phyPreload) in phy_server, as
   # cs8210-switch-up does: cs8210-sdk-chroot binds $CS8210_PHY_PRELOAD in at this path.
@@ -217,11 +186,12 @@ in
     };
     allowedCages = mkOption {
       type = types.nullOr (types.listOf (types.ints.between 1 32));
-      default = [ 1 16 ];
+      default = declaredCages;
+      defaultText = lib.literalMD "the cages of the admin-up ports in `services.sonic.settings.PORT`";
       description = ''
-        syncd only starts while every populated cage is one of these
-        (read with cs8210-qsfp right before syncd starts). null: no check.
-        Default: the cage 1 <-> 16 400G loop, nothing cabled to the house.
+        syncd only starts while every populated cage is one of these (asked
+        of cs8210-optics right before syncd starts) and the I2C FPGA answers.
+        null: no check. Default: the declared (admin-up) ports' cages.
       '';
     };
     lineMedia = mkOption {
@@ -295,26 +265,32 @@ in
 
     systemd.targets.sonic.wantedBy = mkIf (!cfg.autoStart) (mkForce [ ]);
 
+    hardware.cs8210.optics.cages = mkDefault (
+      lib.listToAttrs (map (c: lib.nameValuePair (toString c) (cageMode c)) declaredCages)
+    );
+
     systemd.services = {
+      # Asks cs8210-optics (the FPGA's owner; it checks the root port and the
+      # FPGA itself): FPGA alive and every populated cage declared, else syncd
+      # does not start.
       sonic-cs8210-guard = mkIf (cfg.allowedCages != null) {
-        description = "CS8210: refuse SONiC unless only the allowed cages are populated";
+        description = "CS8210: refuse SONiC unless only the declared cages are populated";
         requiredBy = [ "sonic-syncd.service" ];
         before = [ "sonic-syncd.service" ];
-        inherit (pcieReady) wants after;
+        wants = pcieReady.wants ++ [ "cs8210-optics.service" ];
+        after = pcieReady.after ++ [ "cs8210-optics.service" ];
+        requires = [ "cs8210-optics.service" ];
         partOf = [ "sonic.target" ];
-        path = [ pkgs.gnused pkgs.coreutils pkgs.pciutils runtimePath ];
         serviceConfig = {
           Type = "oneshot";
-          ExecStart = guard;
+          ExecStart = "${optics}/bin/cs8210-optics guard --allowed ${allowed} --wait 30";
         };
       };
-      # xcvrd is the one FPGA user under SONiC; it starts once the guard and
-      # the Credo bring-up are done, so nothing else on the box is busy with
-      # PCIe/MDIO when it first reads the cages (the 2026-11-16 FPGA loss
-      # happened while all three ran at once).
+      # xcvrd reads the cages through cs8210-optics (the one FPGA user); it
+      # starts once the guard and the Credo bring-up are done.
       sonic-xcvrd = mkIf (lib.elem "xcvrd" config.services.sonic.pmon.daemons) {
-        inherit (pcieReady) wants;
-        after = pcieReady.after ++ [ "sonic-cs8210-credo.service" ] ++ lib.optional (cfg.allowedCages != null) "sonic-cs8210-guard.service";
+        wants = pcieReady.wants ++ [ "cs8210-optics.service" ];
+        after = pcieReady.after ++ [ "cs8210-optics.service" "sonic-cs8210-credo.service" ] ++ lib.optional (cfg.allowedCages != null) "sonic-cs8210-guard.service";
       };
       sonic-cs8210-credo = {
         description = "CS8210: Credo MACsec PHYs (cages 1-16) in MACsec bypass for SONiC";

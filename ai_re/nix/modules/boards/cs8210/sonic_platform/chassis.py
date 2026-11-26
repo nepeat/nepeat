@@ -4,8 +4,8 @@ ONIE syseeprom.
 
 No thermal manager: get_thermal_manager() returns None, so thermalctld
 only publishes FAN_INFO / TEMPERATURE_INFO and never runs a fan policy
-(fand owns the fans). No LEDs are driven (system CPLD 0x20/0x21, the LED
-CPLDs and the ASIC's LED path are left alone).
+(fand owns the fans). LEDs are cs8210-leds' (system LED) and the ASIC's
+(port LEDs); nothing here drives them.
 """
 import time
 
@@ -31,8 +31,8 @@ class Chassis(ChassisBase):
         self._sfp_list = [None] + [Sfp(p) for p in range(1, NUM_PORTS + 1)]
         self._eeprom = None
         # Not read here: every pmon daemon builds a Chassis, and only xcvrd
-        # uses the cages (fpga.py: one FPGA user at a time). get_change_event
-        # takes its baseline on the first poll.
+        # uses the cages (through cs8210-optics). get_change_event takes its
+        # baseline on the first poll.
         self._present = None
 
     # ------------------------------------------------------------ identity
@@ -104,7 +104,7 @@ class Chassis(ChassisBase):
         return {p: bool(sb["present"] >> (p - 1) & 1) for p in range(1, NUM_PORTS + 1)}
 
     def get_change_event(self, timeout=0):
-        """Poll the FPGA presence register; {'sfp': {'<port>': '1' inserted / '0' removed}}."""
+        """Poll the cages' presence (cs8210-optics); {'sfp': {'<port>': '1' inserted / '0' removed}}."""
         deadline = None if not timeout else time.monotonic() + timeout / 1000.0
         while True:
             now = self._presence()

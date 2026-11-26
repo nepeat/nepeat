@@ -13,13 +13,12 @@ alpine-v3-cs8210.dts in the monorepo; topology devices/cs8210-32x/board-control.
 
 Environment (all optional):
   CS8210_PLATFORM_ROOT     fake board root: prefixes every path, I2C and the
-                           I2C FPGA come from fake.py (fake_board.py builds it)
+                           cages come from fake.py (fake_board.py builds it)
   CS8210_FAND_STATE_FILE   fand's runtime.state_file (default /run/fand/state.json)
   CS8210_FAND_MAX_AGE      seconds after which that file counts as stale (30)
   CS8210_ASIC_TEMP_FILE    ASIC temperature file syncd writes (SAI_OPENBCM_TEMP_FILE;
                            default /run/asic/temperature)
-  CS8210_QSFP_PREPARE      1: the cage path may do what `cs8210-qsfp --enable
-                           --init P` does (fpga.py); default 0: it never does
+  CS8210_OPTICS_SOCKET     cs8210-optics' socket (optics.py)
 """
 import ctypes
 import errno
@@ -33,7 +32,6 @@ ROOT = os.environ.get("CS8210_PLATFORM_ROOT", "")
 FAND_STATE_FILE = os.environ.get("CS8210_FAND_STATE_FILE", "/run/fand/state.json")
 FAND_MAX_AGE = float(os.environ.get("CS8210_FAND_MAX_AGE", "30"))
 ASIC_TEMP_FILE = os.environ.get("CS8210_ASIC_TEMP_FILE", "/run/asic/temperature")
-QSFP_PREPARE = os.environ.get("CS8210_QSFP_PREPARE", "0") == "1"
 
 SYS_CPLD, FAN_CPLD = 0x60, 0x66
 I2C_DEVICES = {                                   # name: (adapter of_node tail, address)

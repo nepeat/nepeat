@@ -21,8 +21,10 @@ up)
   [ -x "$top/activate" ] || die "$top is not a system closure"
   [ -r "$cfg" ] || die "no config $cfg"
   [ -e $ST/top ] && die "already up ($(cat $ST/top)); down first"
-  q=$(cs8210-qsfp --enable 2>&1) || die "cs8210-qsfp failed"
-  [[ $q == *"present=00008001 "* ]] || die "cages: not exactly 1 and 16 populated"
+  # cages declared for the hand-run: the populated mask must be exactly this (cs8210-optics owns the FPGA)
+  want=${CAGES_PRESENT:-c0010007}
+  q=$(cs8210-optics sideband 2>&1) || die "cs8210-optics failed: $q"
+  [[ $q == *"present=$want "* ]] || die "cages: populated mask is not $want ($q)"
   ! systemctl is-active -q cs8210-switch || die "cs8210-switch is active"
   # /etc/systemd/system wins over /run/systemd/system: a generation with
   # SONiC would run its own units, not the closure's.

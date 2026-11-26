@@ -71,6 +71,7 @@ in
     ./uboot-menu
     ./fan-control # hardware.cs8210.fan: fand (default) or services.cs8210-fancontrol
     ./macsec # hardware.cs8210.macsec (default off): engine shim, cs8210-macsec, MKA driver
+    ./optics # hardware.cs8210.optics / .leds: the I2C FPGA's owner (Rust), the system LED
     ./tools # services.cs8210-tools
     ./avs # hardware.cs8210.asicAvs: ASIC core voltage from its fuses (vendor U-Boot's AVS step)
     ./vendor-sdk # hardware.cs8210.vendorSdk

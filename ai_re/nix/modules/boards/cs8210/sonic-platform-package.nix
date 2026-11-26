@@ -1,6 +1,6 @@
 # The CS8210-32X sonic_platform (SONiC platform API 2.0, ./sonic_platform) as
 # a Python package. Standard library only on top of sonic-platform-common
-# (I2C via i2c-dev ioctls, the I2C FPGA via mmap of its BAR0).
+# (I2C via i2c-dev ioctls; the cages through cs8210-optics' socket).
 #   pkgs.callPackage ./sonic-platform-package.nix { sonic = import ../../../packages/sonic { inherit pkgs; }; }
 # passthru.tests.unit: ./sonic_platform_test.py on the fake board
 # (./fake_board.py; sonic_platform/fake.py is the fake hardware); build host only.

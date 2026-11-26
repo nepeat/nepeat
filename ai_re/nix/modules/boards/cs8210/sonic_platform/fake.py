@@ -1,25 +1,21 @@
 """The fake board's hardware (CS8210_PLATFORM_ROOT=<root>, built by
-fake_board.py): files instead of I2C devices and an I2C FPGA simulator that
-answers fpga.py's register protocol, so the tests run the real code paths.
+fake_board.py): files instead of I2C devices, and what cs8210-optics would
+answer for the cages, so the tests run the real code paths above them.
 
   <root>/i2c/<dev>.bin        256 register bytes of sys_cpld / fan_top / fan_bottom;
                               missing file = device absent (ENXIO)
-  <root>/fpga/port<N>.bin     module EEPROM in cage N (present while it exists):
-                              bytes 0-255 = 0x50 lower + upper page 0, then upper
-                              pages 1, 2, ... (byte 127 = selected page); an SFP
-                              (byte 0 = 0x03, e.g. in a QSA) has A2h (0x51) at 256-511
+  <root>/fpga/port<N>.bin     module in cage N (present while it exists), optoe
+                              layout: bytes 0-255 lower + upper page 0, then upper
+                              pages 1, 2, ...; an SFP (byte 0 = 0x03) has A2h at 256-511
   <root>/fpga/sideband.json   {"reset": mask, "lpmode": mask, "int": mask,
-                              "uninit": [cages whose channel is at power-up values],
-                              "dead": true: every read 0xffffffff, as a PCIe
-                              completion timeout returns here}
-  <root>/fpga/writes.txt      every BAR0 write, "offset value" (hex), appended
+                              "dead": "why": the daemon reports the FPGA unavailable}
+  <root>/fpga/calls.txt       every write / lpmode / reset request, one JSON per line
+The same files drive the daemon's own simulator (cs8210-optics daemon --simulate <root>/fpga).
 """
 import errno
-import fcntl
 import json
-import os
 
-from . import fpga as F
+from .optics import OpticsError
 
 
 class FakeI2c:
@@ -35,133 +31,84 @@ class FakeI2c:
         return regs[reg]
 
 
-def fake_pci_enabled(devdir):
-    """What the kernel does on "echo 1 > enable": PCI_COMMAND_MEMORY on."""
-    with open(devdir + "/config", "r+b") as f:
-        c = bytearray(f.read())
-        c[4] |= 0x02
-        f.seek(0)
-        f.write(c)
-
-
-class FakeBar:
-    VERSION = 0x010b0009
-    POWER_UP_PROFILE = 0x00081766
-
+class FakeOptics:
     def __init__(self, root):
         self.dir = root + "/fpga"
-        n = F.NCH
-        self.ch = {}                    # (channel, reg) -> value
-        self.wbuf = [bytearray(F.BUF_MAX) for _ in range(n)]
-        self.rbuf = [bytearray(F.BUF_MAX) for _ in range(n)]
-        self.reads = 0                  # BAR0 reads so far
-        self.unlocked = []              # accesses made without cs8210-qsfp's flock
+        self.problem = None
 
-    def _check_lock(self, off):
-        """fpga.py must hold the flock for every access: a second open file
-        description of the lock file must not get it."""
-        fd = os.open(F.lock_path(), os.O_RDWR | os.O_CREAT, 0o600)
-        try:
-            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            self.unlocked.append(off)
-        except BlockingIOError:
-            pass
-        finally:
-            os.close(fd)
-
-    # ------------------------------------------------------------ state files
-    def _sb(self):
+    def _sbfile(self):
         try:
             with open(self.dir + "/sideband.json") as f:
                 return json.load(f)
         except (OSError, ValueError):
             return {}
 
-    def _img_path(self, port):
-        return "%s/port%d.bin" % (self.dir, port)
+    def _log(self, **call):
+        with open(self.dir + "/calls.txt", "a") as f:
+            f.write(json.dumps(call, sort_keys=True) + "\n")
 
-    def _present(self):
-        return sum(1 << (p - 1) for p in range(1, F.NCH + 1) if os.path.exists(self._img_path(p)))
-
-    def _chreg(self, ch, reg):
-        if (ch, reg) in self.ch:
-            return self.ch[(ch, reg)]
-        if reg == F.C_PROFILE:
-            return self.POWER_UP_PROFILE if ch + 1 in self._sb().get("uninit", []) else F.PROBE_PROFILE
-        return 0
-
-    # ------------------------------------------------------------ word access
-    def __getitem__(self, idx):
-        off = idx * 4
-        self.reads += 1
-        self._check_lock(off)
-        if self._sb().get("dead"):
-            return F.ALL_ONES
-        if off < F.CH_BASE:
-            sb = self._sb()
-            return {F.R_VERSION: self.VERSION, F.R_PRESENT: self._present(), F.R_RESET: sb.get("reset", 0),
-                    F.R_LPMODE: sb.get("lpmode", 0), F.R_INT: sb.get("int", 0)}.get(off, 0)
-        if off < F.CH_BASE + F.NCH * F.CH_STRIDE:
-            ch, reg = divmod(off - F.CH_BASE, F.CH_STRIDE)
-            return self._chreg(ch, reg)
-        if F.RBUF <= off < F.RBUF + F.NCH * F.BUF_STRIDE:
-            ch, i = divmod(off - F.RBUF, F.BUF_STRIDE)
-            return int.from_bytes(self.rbuf[ch][i:i + 4], "little")
-        raise OSError(errno.EFAULT, "fake BAR0+%#x: nothing there" % off)
-
-    def __setitem__(self, idx, val):
-        off = idx * 4
-        self._check_lock(off)
-        with open(self.dir + "/writes.txt", "a") as f:
-            f.write("%#x %#x\n" % (off, val))
-        if self._sb().get("dead"):
-            return                                  # posted write into the void
-        if F.WBUF <= off < F.WBUF + F.NCH * F.BUF_STRIDE:
-            ch, i = divmod(off - F.WBUF, F.BUF_STRIDE)
-            self.wbuf[ch][i:i + 4] = val.to_bytes(4, "little")
-            return
-        if not F.CH_BASE <= off < F.CH_BASE + F.NCH * F.CH_STRIDE:
-            raise OSError(errno.EFAULT, "fake BAR0+%#x: global register written" % off)
-        ch, reg = divmod(off - F.CH_BASE, F.CH_STRIDE)
-        if reg == F.C_MRESET:
-            val &= ~(1 << 31)                       # self-clearing soft reset
-        if reg == F.C_START and val & F.START_BUSY:
-            self.ch[(ch, F.C_STATUS)] = self._run(ch, val & 0xff)
-            val &= ~F.START_BUSY                    # done at once
-        self.ch[(ch, reg)] = val
-
-    # ------------------------------------------------------------ engine
-    def _run(self, ch, off):
-        port, cmd = ch + 1, self._chreg(ch, F.C_CMD)
-        addr, n, read = (cmd >> 8) & 0x7f, cmd & 0xff, bool(cmd & F.CMD_READ)
-        if (self._chreg(ch, F.C_PROFILE) != F.PROBE_PROFILE or self._chreg(ch, F.C_MRESET) & 1
-                or self._sb().get("reset", 0) >> ch & 1):
-            return F.STATUS_ERR
+    def _img(self, cage):
         try:
-            with open(self._img_path(port), "rb") as f:
-                img = bytearray(f.read())
+            with open("%s/port%d.bin" % (self.dir, cage), "rb") as f:
+                return bytearray(f.read())
         except OSError:
-            return F.STATUS_ERR                     # empty cage: NACK
-        sfp = img[0] == 0x03
-        if addr == 0x51 and sfp:
-            base = 256
-        elif addr == 0x50:
-            base = 0
-        else:
-            return F.STATUS_ERR
+            return None
 
-        def lin(o):
-            if base or o < 128 or sfp:
-                return base + o
-            return o + 128 * img[127]
+    def sideband(self):
+        sb = self._sbfile()
+        if sb.get("dead"):
+            self.problem = "I2C FPGA unavailable: %s" % sb["dead"]
+            return None
+        present = sum(1 << (c - 1) for c in range(1, 33) if self._img(c) is not None)
+        return {"present": present, "reset": sb.get("reset", 0), "lpmode": sb.get("lpmode", 0),
+                "interrupt": sb.get("int", 0)}
 
-        if read:
-            if lin(off) + n > len(img):
-                return F.STATUS_ERR
-            self.rbuf[ch][:n] = img[lin(off):lin(off) + n]
-        else:
-            for i in range(n):
-                img[lin(off + i)] = self.wbuf[ch][i]
-            with open(self._img_path(port), "wb") as f:
-                f.write(img)
-        return 0
+    def _usable(self, cage):
+        sb = self.sideband()
+        if sb is None:
+            raise OpticsError(errno.EIO, self.problem)
+        img = self._img(cage)
+        if img is None:
+            raise OpticsError(errno.EIO, "cage %d: no module" % cage)
+        if sb["reset"] >> (cage - 1) & 1:
+            raise OpticsError(errno.EIO, "cage %d: module held in reset" % cage)
+        return img
+
+    @staticmethod
+    def _limit(img):
+        """End of the module's memory in the flat layout (what the daemon refuses beyond)."""
+        if img[0] == 0x03:
+            return 512
+        flat = img[2] & (0x80 if img[0] >= 0x18 else 0x04)
+        return 256 if flat else len(img)
+
+    def read(self, cage, offset, n):
+        img = self._usable(cage)
+        if offset + n > min(self._limit(img), len(img)):
+            raise OpticsError(errno.EIO, "offset %d beyond the module's memory" % (offset + n - 1))
+        return bytes(img[offset:offset + n])
+
+    def write(self, cage, offset, data):
+        img = self._usable(cage)
+        if offset + len(data) > min(self._limit(img), len(img)):
+            raise OpticsError(errno.EIO, "beyond the module's memory")
+        self._log(op="write", cage=cage, offset=offset, data=bytes(data).hex())
+        img[offset:offset + len(data)] = data
+        with open("%s/port%d.bin" % (self.dir, cage), "wb") as f:
+            f.write(img)
+
+    def _set(self, key, cage, on):
+        sb = self._sbfile()
+        m = sb.get(key, 0)
+        sb[key] = (m | 1 << (cage - 1)) if on else (m & ~(1 << (cage - 1)))
+        with open(self.dir + "/sideband.json", "w") as f:
+            json.dump(sb, f)
+
+    def set_lpmode(self, cage, on):
+        self._usable(cage)
+        self._log(op="lpmode", cage=cage, on=bool(on))
+        self._set("lpmode", cage, on)
+
+    def reset(self, cage):
+        self._usable(cage)
+        self._log(op="reset", cage=cage)

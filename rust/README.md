@@ -61,3 +61,4 @@ Their own Cargo workspace and lock file each, so that they do not rebuild fand:
 |---|---|
 | [consoled](consoled/) | serial console server (consoled + line) |
 | [sai](sai/) | a SAI (`libsai.so`) in Rust: safe core, virtual backend, small unsafe C-ABI rim; first slice |
+| [cs8210](cs8210/) | CS8210-32X platform: the I2C FPGA's owner (cages, CMIS bring-up, optics for SONiC and Prometheus), LED tool |

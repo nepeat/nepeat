@@ -20,7 +20,8 @@ txfull() { awk '$1=="TX-3"{print $6}' /sys/devices/ipd/ring_stat 2>/dev/null || 
 wdj() { [ -r $WDS ] && tr -d '\n' < $WDS | cut -c1-800 || echo "no-watchdog-state"; }
 lease() { local n; for n in $(seq 120); do if mkdir /run/asic-lease 2>/dev/null; then echo "learn-wedge(force) $(date +%s)" > /run/asic-lease/owner; return 0; fi; [ $n = 1 ] && log "waiting for the ASIC lease ($(cat /run/asic-lease/owner 2>/dev/null))"; sleep 30; done; return 1; }
 unlease() { rm -rf /run/asic-lease; }
-cages() { local n q; for n in $(seq 10); do q=$(cs8210-qsfp --enable 2>&1) && break; sleep 0.5; done; case "$q" in *"present=00008001 "*) return 0;; *) log "CAGES NOT 1+16: $q"; return 1;; esac; }
+# 2026-11-17 experiment on the cage 1+16 loop; since 2026-11-25 the populated mask is c0010007 (cs8210-optics)
+cages() { local n q; for n in $(seq 10); do q=$(cs8210-optics sideband 2>&1) && break; sleep 0.5; done; case "$q" in *"present=${CAGES_PRESENT:-c0010007} "*) return 0;; *) log "CAGES CHANGED: $q"; return 1;; esac; }
 es() { setpci -s $RP CAP_EXP+0x10.w=$1:0080; }   # 0080 set, 0000 clear
 lnk() { echo "rpLnkCtl=$(setpci -s $RP CAP_EXP+0x10.w) epLnkCtl=$(setpci -s $EP CAP_EXP+0x10.w) rpLnkSta=$(setpci -s $RP CAP_EXP+0x12.w)"; }
 stress() {  # bursts of 20-219 pings, 0.5 ms apart, 56-8055 B, 10-90 ms gaps; both directions

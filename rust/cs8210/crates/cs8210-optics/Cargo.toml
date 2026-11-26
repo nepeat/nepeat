@@ -1,0 +1,20 @@
+[package]
+name = "cs8210-optics"
+description = "The one owner of the CS8210-32X I2C FPGA: cage sideband, module bring-up (CMIS / SFF-8636), EEPROM and monitors for SONiC (socket) and Prometheus"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "cs8210-optics"
+path = "src/main.rs"
+
+[dependencies]
+cs8210-sys.workspace = true
+cs8210-xcvr.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,452 @@
+# CS8210-32X optics, 2026-11-25/26: the six lab modules read by the Rust owner (cs8210-optics)
+# Box: NixOS generation system-9 (SONiC at boot, old cage 1<->16 config); xcvrd stopped for the test;
+# test binary /nix/store/sigb0z7ylqaswl9y6arjj322nsaa18v1-cs8210-platform-aarch64-unknown-linux-gnu-0.1.0 then /nix/store/lsawkciay9wjf8k5s498ym56mrpmvmld-cs8210-platform-aarch64-unknown-linux-gnu-0.1.0 (rust/cs8210, run as a transient unit cs8210-optics-test).
+# Before: all cages in ResetL from power-up except cage 1 (released by the coordinator earlier
+# today); 2,3,17,31,32 released with the Python cs8210-qsfp (--init P, --reset P 0) at 05:43Z
+# to read them first (--info P, --read P 0x50 128 128 --page 0x10/0x11).
+
+## 1. Python cs8210-qsfp --info (05:43Z), decoded
+cage 1  QSFP-DD CMIS 4.0 paged  MOLEX 1064281405 rev 11 SN G21084B2455 date 210225  32.1 C
+cage 2  QSFP-DD CMIS 4.0 paged  MOLEX 1064281405 rev 11 SN G21466D0520 date 211120  21.9 C
+cage 3  QSFP-DD CMIS 4.0 flat   TE Connectivity 2459398-1 rev 5 SN 5E1CPKA25421584 date 251018 (no monitor)
+cage 17 QSFP-DD CMIS 4.0 flat   TE Connectivity 2459398-1 rev 5 SN 5E1CPKA25421584 (same cable: one DAC 3<->17)
+cage 31 QSFP-DD CMIS 4.0 paged  MOLEX 1064281405 rev 11 SN G21394D0401 date 210930  22.0 C
+cage 32 QSFP-DD CMIS 4.0 paged  MOLEX 1064281405 rev 11 SN G21403D0159 date 211006  21.6 C
+Molex: media SMF, MPO 1x12, power class 6, max 12.0 W; apps: 1 = 400GAUI-8 C2M / 400GBASE-DR4 (8 host x 4 media
+lanes), 2 = 100GAUI-2 C2M / 100G-FR1 (2x1, data paths on host lanes 1,3,5,7). Default (active control set and
+staged set 0, page 11h 206-213 / page 10h 145-152): app 2 on all lanes = 4 x 100G. Data path Activated on all lanes.
+TE: passive copper, 1.8 m (byte 202 = 0x12), power class 1, apps 400G CR8 (8x8), 200GBASE-CR4, 100GBASE-CR2, ...
+All modules reached ModuleReady by themselves on ResetL release: the FPGA's LPMode pins are deasserted (reg 0x170 = 0)
+and byte 26 = 0x40 (LowPwrAllowRequestHW, LowPwrRequestSW clear). FPGA IntL bit = module byte 3 bit 0 clear
+(interrupt asserted): 0x160 bit 1 = asserted (cage 1).
+
+## 2. Rust owner, read only (no --cage modes: no application change), 06:15:51Z
+$ cs8210-optics status N   (that test build showed one lane for app 2: fixed, lanes = media lanes x data paths)
+2026-11-26T06:15:51Z
+1 yes  no  no  yes  yes  -       QSFP-DD  MOLEX            1064281405       G21084B2455         32.2  3.367  ready
+     application 1: host 0x11 media 0x1c 8x4 lanes
+     application 2: host 0x0d media 0x15 2x1 lanes
+     module state Ready  data path ["Activated","Activated","Activated","Activated","Activated","Activated","Activated","Activated"]  active ApSel [32,32,36,36,40,40,44,44]
+     lane 1  tx 1.7919 mW (2.53 dBm)  rx 0.1289 mW (-8.90 dBm)  bias 130.60 mA  rx_los false  tx_fault false
+     i2c errors 0  last error null
+2 yes  no  no  yes  yes  -       QSFP-DD  MOLEX            1064281405       G21466D0520         29.9  3.375  ready
+     application 1: host 0x11 media 0x1c 8x4 lanes
+     application 2: host 0x0d media 0x15 2x1 lanes
+     module state Ready  data path ["Activated","Activated","Activated","Activated","Activated","Activated","Activated","Activated"]  active ApSel [32,32,36,36,40,40,44,44]
+     lane 1  tx 1.7521 mW (2.44 dBm)  rx 0.1769 mW (-7.52 dBm)  bias 152.11 mA  rx_los false  tx_fault false
+     i2c errors 0  last error null
+3 yes  no  no  no   yes  -       QSFP-DD  TE Connectivity  2459398-1        5E1CPKA25421584        -      -  ready
+     application 1: host 0x1d media 0x01 8x8 lanes
+     application 2: host 0x1c media 0x01 4x4 lanes
+     application 3: host 0x1b media 0x01 2x2 lanes
+     application 4: host 0x18 media 0x01 1x1 lanes
+     application 5: host 0x1a media 0x01 4x4 lanes
+     application 6: host 0x43 media 0x01 2x2 lanes
+     application 7: host 0x14 media 0x01 1x1 lanes
+     module state Ready  data path []  active ApSel []
+     i2c errors 0  last error null
+17 yes  no  no  no   yes  -       QSFP-DD  TE Connectivity  2459398-1        5E1CPKA25421584        -      -  ready
+     application 1: host 0x1d media 0x01 8x8 lanes
+     application 2: host 0x1c media 0x01 4x4 lanes
+     application 3: host 0x1b media 0x01 2x2 lanes
+     application 4: host 0x18 media 0x01 1x1 lanes
+     application 5: host 0x1a media 0x01 4x4 lanes
+     application 6: host 0x43 media 0x01 2x2 lanes
+     application 7: host 0x14 media 0x01 1x1 lanes
+     module state Ready  data path []  active ApSel []
+     i2c errors 0  last error null
+31 yes  no  no  yes  yes  -       QSFP-DD  MOLEX            1064281405       G21394D0401         31.8  3.374  ready
+     application 1: host 0x11 media 0x1c 8x4 lanes
+     application 2: host 0x0d media 0x15 2x1 lanes
+     module state Ready  data path ["Activated","Activated","Activated","Activated","Activated","Activated","Activated","Activated"]  active ApSel [32,32,36,36,40,40,44,44]
+     lane 1  tx 1.9121 mW (2.82 dBm)  rx 0.5405 mW (-2.67 dBm)  bias 106.53 mA  rx_los false  tx_fault false
+     i2c errors 0  last error null
+32 yes  no  no  yes  yes  -       QSFP-DD  MOLEX            1064281405       G21403D0159         32.0  3.369  ready
+     application 1: host 0x11 media 0x1c 8x4 lanes
+     application 2: host 0x0d media 0x15 2x1 lanes
+     module state Ready  data path ["Activated","Activated","Activated","Activated","Activated","Activated","Activated","Activated"]  active ApSel [32,32,36,36,40,40,44,44]
+     lane 1  tx 1.7844 mW (2.51 dBm)  rx 0.3747 mW (-4.26 dBm)  bias 142.16 mA  rx_los false  tx_fault false
+     i2c errors 0  last error null
+
+Rust vs Python bytes, lower page + upper page 00h: cage 1 differs only at byte 8 (latched module flags, cleared by
+the first read), 15 and 17 (temperature / Vcc LSBs) and 127 (page select left at 11h by the Rust reads);
+cage 3 (flat) identical. Prometheus textfile (switch_optic_* as the AS7760 schema, + cs8210_optics_*):
+cs8210_optics_fpga_up 1
+switch_optic_info{port="1",type="QSFP-DD",vendor="MOLEX",part="1064281405",rev="11",serial="G21084B2455",compliance="100GAUI-2 C2M (Annex 135G) / 100G-FR/100GBASE-FR1 (Cl 140), 2x1",media="optical SMF"} 1
+switch_optic_info{port="2",type="QSFP-DD",vendor="MOLEX",part="1064281405",rev="11",serial="G21466D0520",compliance="100GAUI-2 C2M (Annex 135G) / 100G-FR/100GBASE-FR1 (Cl 140), 2x1",media="optical SMF"} 1
+switch_optic_info{port="3",type="QSFP-DD",vendor="TE Connectivity",part="2459398-1",rev="5",serial="5E1CPKA25421584",compliance="400G CR8 / Copper cable, 8x8",media="passive copper"} 1
+switch_optic_info{port="17",type="QSFP-DD",vendor="TE Connectivity",part="2459398-1",rev="5",serial="5E1CPKA25421584",compliance="400G CR8 / Copper cable, 8x8",media="passive copper"} 1
+switch_optic_info{port="31",type="QSFP-DD",vendor="MOLEX",part="1064281405",rev="11",serial="G21394D0401",compliance="100GAUI-2 C2M (Annex 135G) / 100G-FR/100GBASE-FR1 (Cl 140), 2x1",media="optical SMF"} 1
+switch_optic_info{port="32",type="QSFP-DD",vendor="MOLEX",part="1064281405",rev="11",serial="G21403D0159",compliance="100GAUI-2 C2M (Annex 135G) / 100G-FR/100GBASE-FR1 (Cl 140), 2x1",media="optical SMF"} 1
+switch_optic_temperature_celsius{port="1"} 32.2265625
+switch_optic_temperature_celsius{port="2"} 29.8984375
+switch_optic_temperature_celsius{port="31"} 31.80078125
+switch_optic_temperature_celsius{port="32"} 31.9921875
+switch_optic_supply_voltage_volts{port="1"} 3.3671
+switch_optic_supply_voltage_volts{port="2"} 3.3752
+switch_optic_supply_voltage_volts{port="31"} 3.3736
+switch_optic_supply_voltage_volts{port="32"} 3.3687
+switch_optic_rx_power_watts{port="1",lane="1"} 0.0001289
+switch_optic_rx_power_watts{port="2",lane="1"} 0.00017690000000000002
+switch_optic_rx_power_watts{port="31",lane="1"} 0.0005405
+switch_optic_rx_power_watts{port="32",lane="1"} 0.0003747
+
+## 3. Rust owner with the cage modes (--cage N:1x400): CMIS application select, 06:16:27Z
+cs8210-optics: owner of the I2C FPGA (/run/lock/cs8210-qsfp.lock); declared cages: 1:1x400G 2:1x400G 3:1x400G 17:1x400G 31:1x400G 32:1x400G
+cs8210-optics: cage 1: module inserted
+cs8210-optics: cage 1: module already out of reset: adopting it
+cs8210-optics: cage 2: module inserted
+cs8210-optics: cage 2: module already out of reset: adopting it
+cs8210-optics: cage 3: module inserted
+cs8210-optics: cage 3: module already out of reset: adopting it
+cs8210-optics: cage 17: module inserted
+cs8210-optics: cage 17: module already out of reset: adopting it
+cs8210-optics: cage 31: module inserted
+cs8210-optics: cage 31: module already out of reset: adopting it
+cs8210-optics: cage 32: module inserted
+cs8210-optics: cage 32: module already out of reset: adopting it
+cs8210-optics: cage 1: {"phase":"wait_ready"}
+cs8210-optics: cage 2: {"phase":"wait_ready"}
+cs8210-optics: cage 3: {"phase":"wait_ready"}
+cs8210-optics: cage 17: {"phase":"wait_ready"}
+cs8210-optics: cage 31: {"phase":"wait_ready"}
+cs8210-optics: cage 32: {"phase":"wait_ready"}
+cs8210-optics: cage 1: {"phase":"deinit"}
+cs8210-optics: cage 2: {"phase":"deinit"}
+cs8210-optics: cage 3: {"phase":"ready","app":null,"detail":"ModuleReady"}
+cs8210-optics: cage 17: {"phase":"ready","app":null,"detail":"ModuleReady"}
+cs8210-optics: cage 31: {"phase":"deinit"}
+cs8210-optics: cage 32: {"phase":"deinit"}
+cs8210-optics: cage 1: {"phase":"apply"}
+cs8210-optics: cage 2: {"phase":"apply"}
+cs8210-optics: cage 31: {"phase":"apply"}
+cs8210-optics: cage 32: {"phase":"apply"}
+cs8210-optics: cage 1: {"phase":"activate"}
+cs8210-optics: cage 2: {"phase":"activate"}
+cs8210-optics: cage 31: {"phase":"activate"}
+cs8210-optics: cage 32: {"phase":"activate"}
+cs8210-optics: cage 1: {"phase":"ready","app":1,"detail":"400GAUI-8 C2M (Annex 120E) / 400GBASE-DR4 (Cl 124), 8x4"}
+cs8210-optics: cage 2: {"phase":"ready","app":1,"detail":"400GAUI-8 C2M (Annex 120E) / 400GBASE-DR4 (Cl 124), 8x4"}
+cs8210-optics: cage 31: {"phase":"ready","app":1,"detail":"400GAUI-8 C2M (Annex 120E) / 400GBASE-DR4 (Cl 124), 8x4"}
+cs8210-optics: cage 32: {"phase":"ready","app":1,"detail":"400GAUI-8 C2M (Annex 120E) / 400GBASE-DR4 (Cl 124), 8x4"}
+
+$ cs8210-optics status N  (06:16:42Z, ~15 s after Tx re-enable)
+   1 yes  no  no  yes  yes  1x400G  QSFP-DD  MOLEX            1064281405       G21084B2455         31.5  3.372  ready app 1
+     application 1: host 0x11 media 0x1c 8x4 lanes
+     application 2: host 0x0d media 0x15 2x1 lanes
+     module state Ready  data path ["Activated","Activated","Activated","Activated","Activated","Activated","Activated","Activated"]  active ApSel [16,16,16,16,16,16,16,16]
+     lane 1  tx 1.0311 mW (0.13 dBm)  rx 0.1265 mW (-8.98 dBm)  bias 76.47 mA  rx_los true  tx_fault false
+     lane 2  tx 0.9298 mW (-0.32 dBm)  rx 0.3410 mW (-4.67 dBm)  bias 72.55 mA  rx_los true  tx_fault false
+     lane 3  tx 0.8981 mW (-0.47 dBm)  rx 0.1489 mW (-8.27 dBm)  bias 74.44 mA  rx_los true  tx_fault false
+     lane 4  tx 0.5446 mW (-2.64 dBm)  rx 0.0462 mW (-13.35 dBm)  bias 68.33 mA  rx_los true  tx_fault false
+     i2c errors 0  last error null
+   2 yes  no  no  yes  yes  1x400G  QSFP-DD  MOLEX            1064281405       G21466D0520         29.9  3.374  ready app 1
+     application 1: host 0x11 media 0x1c 8x4 lanes
+     application 2: host 0x0d media 0x15 2x1 lanes
+     module state Ready  data path ["Activated","Activated","Activated","Activated","Activated","Activated","Activated","Activated"]  active ApSel [16,16,16,16,16,16,16,16]
+     lane 1  tx 1.7409 mW (2.41 dBm)  rx 0.0972 mW (-10.12 dBm)  bias 152.11 mA  rx_los false  tx_fault false
+     lane 2  tx 1.8758 mW (2.73 dBm)  rx 0.1308 mW (-8.83 dBm)  bias 156.16 mA  rx_los false  tx_fault false
+     lane 3  tx 1.7711 mW (2.48 dBm)  rx 0.1407 mW (-8.52 dBm)  bias 174.75 mA  rx_los false  tx_fault false
+     lane 4  tx 1.6740 mW (2.24 dBm)  rx 0.1469 mW (-8.33 dBm)  bias 140.62 mA  rx_los false  tx_fault false
+     i2c errors 0  last error null
+   3 yes  no  no  no   yes  1x400G  QSFP-DD  TE Connectivity  2459398-1        5E1CPKA25421584        -      -  ready
+     application 1: host 0x1d media 0x01 8x8 lanes
+     application 2: host 0x1c media 0x01 4x4 lanes
+     application 3: host 0x1b media 0x01 2x2 lanes
+     application 4: host 0x18 media 0x01 1x1 lanes
+     application 5: host 0x1a media 0x01 4x4 lanes
+     application 6: host 0x43 media 0x01 2x2 lanes
+     application 7: host 0x14 media 0x01 1x1 lanes
+     module state Ready  data path []  active ApSel []
+     i2c errors 0  last error null
+  17 yes  no  no  no   yes  1x400G  QSFP-DD  TE Connectivity  2459398-1        5E1CPKA25421584        -      -  ready
+     application 1: host 0x1d media 0x01 8x8 lanes
+     application 2: host 0x1c media 0x01 4x4 lanes
+     application 3: host 0x1b media 0x01 2x2 lanes
+     application 4: host 0x18 media 0x01 1x1 lanes
+     application 5: host 0x1a media 0x01 4x4 lanes
+     application 6: host 0x43 media 0x01 2x2 lanes
+     application 7: host 0x14 media 0x01 1x1 lanes
+     module state Ready  data path []  active ApSel []
+     i2c errors 0  last error null
+  31 yes  no  no  yes  yes  1x400G  QSFP-DD  MOLEX            1064281405       G21394D0401         32.2  3.374  ready app 1
+     application 1: host 0x11 media 0x1c 8x4 lanes
+     application 2: host 0x0d media 0x15 2x1 lanes
+     module state Ready  data path ["Activated","Activated","Activated","Activated","Activated","Activated","Activated","Activated"]  active ApSel [16,16,16,16,16,16,16,16]
+     lane 1  tx 1.9080 mW (2.81 dBm)  rx 0.5399 mW (-2.68 dBm)  bias 106.07 mA  rx_los false  tx_fault false
+     lane 2  tx 1.9928 mW (2.99 dBm)  rx 0.4796 mW (-3.19 dBm)  bias 93.81 mA  rx_los false  tx_fault false
+     lane 3  tx 2.1062 mW (3.23 dBm)  rx 0.6440 mW (-1.91 dBm)  bias 97.87 mA  rx_los false  tx_fault false
+     lane 4  tx 2.5106 mW (4.00 dBm)  rx 0.4516 mW (-3.45 dBm)  bias 103.82 mA  rx_los false  tx_fault false
+     i2c errors 0  last error null
+  32 yes  no  no  yes  yes  1x400G  QSFP-DD  MOLEX            1064281405       G21403D0159         32.0  3.367  ready app 1
+     application 1: host 0x11 media 0x1c 8x4 lanes
+     application 2: host 0x0d media 0x15 2x1 lanes
+     module state Ready  data path ["Activated","Activated","Activated","Activated","Activated","Activated","Activated","Activated"]  active ApSel [16,16,16,16,16,16,16,16]
+     lane 1  tx 1.7775 mW (2.50 dBm)  rx 0.3684 mW (-4.34 dBm)  bias 141.00 mA  rx_los false  tx_fault false
+     lane 2  tx 1.7510 mW (2.43 dBm)  rx 0.4362 mW (-3.60 dBm)  bias 154.14 mA  rx_los false  tx_fault false
+     lane 3  tx 1.6854 mW (2.27 dBm)  rx 0.3806 mW (-4.20 dBm)  bias 153.75 mA  rx_los false  tx_fault false
+     lane 4  tx 1.7867 mW (2.52 dBm)  rx 0.6371 mW (-1.96 dBm)  bias 149.95 mA  rx_los false  tx_fault false
+     i2c errors 0  last error null
+
+Reading: the four DR4 modules went 4x100G-FR1 (app 2) -> 400G-DR4 (app 1): Deinit -> staged ApSel 0x10 x8 ->
+Apply_DataPathInit -> ConfigSuccess -> Deinit cleared + Tx on -> DataPathActivated, ~1 s each. The DACs need nothing.
+Rx power: cages 31/32 -1.9..-4.3 dBm (in the 400GBASE-DR4 receive range); cages 1/2 -8.3..-13.4 dBm, below
+400GBASE-DR4's minimum average receive power (-5.9 dBm per lane): the 1<->2 fibre path loses ~10 dB (cage 1 lane 4
+~16 dB); its Rx LOS flags were set on cage 1. A dirty or wrong MPO cable / connector: only a human can clean or swap it.
+
+## 4. Deployed (system-48/49), after the cold power cycle, 06:54Z: all six from power-up
+Bring-up from the FPGA's power-up state (decode off, channels at power-up values, every cage in reset): decode
+enabled, channels probed, ResetL released at 12.1 s; DACs ModuleReady at 13.7 s; DR4 ModuleReady ~18 s, then
+4x100G -> 400G-DR4 (ready 20.9-21.1 s). Full log: links-20261125.txt.
+I2C FPGA version 0x0b00 board 0x09
+cage pres rst lp int  decl mode    type     vendor           part             serial            temp C  vcc V  bring-up
+   1 yes  no  no  yes  yes  1x400G  QSFP-DD  MOLEX            1064281405       G21084B2455         32.4  3.367  ready app 1
+   2 yes  no  no  yes  yes  1x400G  QSFP-DD  MOLEX            1064281405       G21466D0520         31.1  3.374  ready app 1
+   3 yes  no  no  no   yes  1x400G  QSFP-DD  TE Connectivity  2459398-1        5E1CPKA25421584        -      -  ready
+  17 yes  no  no  no   yes  1x400G  QSFP-DD  TE Connectivity  2459398-1        5E1CPKA25421584        -      -  ready
+  31 yes  no  no  no   yes  1x400G  QSFP-DD  MOLEX            1064281405       G21394D0401         34.0  3.365  ready app 1
+  32 yes  no  no  no   yes  1x400G  QSFP-DD  MOLEX            1064281405       G21403D0159         34.1  3.361  ready app 1
+     application 1: host 0x11 media 0x1c 8x4 lanes
+     application 2: host 0x0d media 0x15 2x1 lanes
+     module state Ready  data path ["Activated","Activated","Activated","Activated","Activated","Activated","Activated","Activated"]  active ApSel [16,16,16,16,16,16,16,16]
+     lane 1  tx 1.7836 mW (2.51 dBm)  rx 0.1129 mW (-9.47 dBm)  bias 131.84 mA  rx_los false  tx_fault false
+     lane 2  tx 1.7907 mW (2.53 dBm)  rx 0.3600 mW (-4.44 dBm)  bias 137.40 mA  rx_los false  tx_fault false
+     lane 3  tx 1.6364 mW (2.14 dBm)  rx 0.1425 mW (-8.46 dBm)  bias 138.38 mA  rx_los false  tx_fault false
+     lane 4  tx 1.1110 mW (0.46 dBm)  rx 0.0504 mW (-12.98 dBm)  bias 141.69 mA  rx_los true  tx_fault false
+     application 1: host 0x11 media 0x1c 8x4 lanes
+     application 2: host 0x0d media 0x15 2x1 lanes
+     module state Ready  data path ["Activated","Activated","Activated","Activated","Activated","Activated","Activated","Activated"]  active ApSel [16,16,16,16,16,16,16,16]
+     lane 1  tx 1.7550 mW (2.44 dBm)  rx 0.1733 mW (-7.61 dBm)  bias 154.12 mA  rx_los false  tx_fault false
+     lane 2  tx 1.8988 mW (2.78 dBm)  rx 0.2349 mW (-6.29 dBm)  bias 158.50 mA  rx_los false  tx_fault false
+     lane 3  tx 1.7736 mW (2.49 dBm)  rx 0.2664 mW (-5.74 dBm)  bias 175.49 mA  rx_los false  tx_fault false
+     lane 4  tx 1.6947 mW (2.29 dBm)  rx 0.2951 mW (-5.30 dBm)  bias 141.65 mA  rx_los false  tx_fault false
+     application 1: host 0x1d media 0x01 8x8 lanes
+     application 2: host 0x1c media 0x01 4x4 lanes
+     application 3: host 0x1b media 0x01 2x2 lanes
+     application 4: host 0x18 media 0x01 1x1 lanes
+     application 5: host 0x1a media 0x01 4x4 lanes
+     application 6: host 0x43 media 0x01 2x2 lanes
+     application 7: host 0x14 media 0x01 1x1 lanes
+     module state Ready  data path []  active ApSel []
+     application 1: host 0x1d media 0x01 8x8 lanes
+     application 2: host 0x1c media 0x01 4x4 lanes
+     application 3: host 0x1b media 0x01 2x2 lanes
+     application 4: host 0x18 media 0x01 1x1 lanes
+     application 5: host 0x1a media 0x01 4x4 lanes
+     application 6: host 0x43 media 0x01 2x2 lanes
+     application 7: host 0x14 media 0x01 1x1 lanes
+     module state Ready  data path []  active ApSel []
+     application 1: host 0x11 media 0x1c 8x4 lanes
+     application 2: host 0x0d media 0x15 2x1 lanes
+     module state Ready  data path ["Activated","Activated","Activated","Activated","Activated","Activated","Activated","Activated"]  active ApSel [16,16,16,16,16,16,16,16]
+     lane 1  tx 1.9106 mW (2.81 dBm)  rx 0.5070 mW (-2.95 dBm)  bias 108.71 mA  rx_los false  tx_fault false
+     lane 2  tx 1.9257 mW (2.85 dBm)  rx 0.4708 mW (-3.27 dBm)  bias 92.50 mA  rx_los false  tx_fault false
+     lane 3  tx 1.9199 mW (2.83 dBm)  rx 0.6586 mW (-1.81 dBm)  bias 91.09 mA  rx_los false  tx_fault false
+     lane 4  tx 1.9189 mW (2.83 dBm)  rx 0.4479 mW (-3.49 dBm)  bias 82.88 mA  rx_los false  tx_fault false
+     application 1: host 0x11 media 0x1c 8x4 lanes
+     application 2: host 0x0d media 0x15 2x1 lanes
+     module state Ready  data path ["Activated","Activated","Activated","Activated","Activated","Activated","Activated","Activated"]  active ApSel [16,16,16,16,16,16,16,16]
+     lane 1  tx 1.7487 mW (2.43 dBm)  rx 0.3785 mW (-4.22 dBm)  bias 148.20 mA  rx_los false  tx_fault false
+     lane 2  tx 1.7511 mW (2.43 dBm)  rx 0.4311 mW (-3.65 dBm)  bias 161.22 mA  rx_los false  tx_fault false
+     lane 3  tx 1.6863 mW (2.27 dBm)  rx 0.3327 mW (-4.78 dBm)  bias 159.24 mA  rx_los false  tx_fault false
+     lane 4  tx 1.7891 mW (2.53 dBm)  rx 0.4982 mW (-3.03 dBm)  bias 151.90 mA  rx_los false  tx_fault false
+
+$ show interfaces transceiver presence   (SONiC CLI; xcvrd through sonic_platform -> the daemon's socket)
+Ethernet1/1    Present
+Ethernet2/1    Present
+Ethernet3/1   Present
+Ethernet17/1  Present
+Ethernet31/1  Present
+Ethernet32/1  Present
+
+$ show interfaces transceiver eeprom -d Ethernet31/1 ; show interfaces transceiver eeprom Ethernet3/1
+Ethernet240: SFP EEPROM detected
+        Active Firmware: 3.4.2
+        Active application selected code assigned to host lane 1: 1
+        Active application selected code assigned to host lane 2: 1
+        Active application selected code assigned to host lane 3: 1
+        Active application selected code assigned to host lane 4: 1
+        Active application selected code assigned to host lane 5: 1
+        Active application selected code assigned to host lane 6: 1
+        Active application selected code assigned to host lane 7: 1
+        Active application selected code assigned to host lane 8: 1
+        Application Advertisement: 400GAUI-8 C2M (Annex 120E) - Host Assign (0x1) - 400GBASE-DR4 (Cl 124) - Media Assign (0x1)
+                                   100GAUI-2 C2M (Annex 135G) - Host Assign (0x55) - 100G-FR/100GBASE-FR1 (Cl 140) - Media Assign (0xf)
+        CMIS Rev: 4.0
+        Connector: MPO 1x12
+        Encoding: N/A
+        Extended Identifier: Power Class 6 (12.0W Max)
+        Extended RateSelect Compliance: N/A
+        Host Lane Count: 8
+        Identifier: QSFP-DD Double Density 8X Pluggable Transceiver
+        Inactive Firmware: 3.2.3
+        Length Cable Assembly(m): 0.0
+        Media Interface Technology: 1310 nm DFB
+        Media Lane Count: 4
+        Module Hardware Rev: 1.2
+        Nominal Bit Rate(100Mbs): N/A
+        Specification compliance: sm_media_interface
+        Vendor Date Code(YYYY-MM-DD Lot): 2021-09-30
+        Vendor Name: MOLEX
+        Vendor OUI: 00-09-3a
+        Vendor PN: 1064281405
+        Vendor Rev: 11
+        Vendor SN: G21394D0401
+        is_replaceable: True
+        type_abbrv_name: QSFP-DD
+        vdm_supported: True
+        ChannelMonitorValues:
+                RX1Power: -2.7120000000000002dBm
+                RX2Power: -3.238dBm
+                RX3Power: -1.7130000000000001dBm
+                RX4Power: -3.4670000000000001dBm
+                RX5Power: -infdBm
+                RX6Power: -infdBm
+                RX7Power: -infdBm
+                RX8Power: -infdBm
+                TX1Bias: 107.76000000000001mA
+                TX1Power: 2.819dBm
+                TX2Bias: 91.463999999999999mA
+                TX2Power: 2.8570000000000002dBm
+                TX3Bias: 90.447999999999993mA
+                TX3Power: 2.8180000000000001dBm
+                TX4Bias: 82.128mA
+                TX4Power: 2.8100000000000001dBm
+                TX5Bias: 0.0mA
+                TX5Power: -infdBm
+                TX6Bias: 0.0mA
+                TX6Power: -infdBm
+                TX7Bias: 0.0mA
+                TX7Power: -infdBm
+                TX8Bias: 0.0mA
+                TX8Power: -infdBm
+        ChannelThresholdValues:
+                RxPowerHighAlarm  : 5.0dBm
+                RxPowerHighWarning: 4.5dBm
+                RxPowerLowAlarm   : -8.9009999999999998dBm
+                RxPowerLowWarning : -6.899dBm
+                TxBiasHighAlarm   : 380.0mA
+                TxBiasHighWarning : 352.0mA
+                TxBiasLowAlarm    : 32.0mA
+                TxBiasLowWarning  : 40.0mA
+                TxPowerHighAlarm  : 5.0dBm
+                TxPowerHighWarning: 4.5dBm
+                TxPowerLowAlarm   : -3.4009999999999998dBm
+                TxPowerLowWarning : -2.9009999999999998dBm
+        ModuleMonitorValues:
+                Temperature: 32.777000000000001C
+                Vcc: 3.3650000000000002Volts
+        ModuleThresholdValues:
+                TempHighAlarm  : 75.0C
+                TempHighWarning: 72.0C
+                TempLowAlarm   : -5.0C
+                TempLowWarning : -2.0C
+                VccHighAlarm   : 3.5099999999999998Volts
+                VccHighWarning : 3.4950000000000001Volts
+                VccLowAlarm    : 3.1000000000000001Volts
+                VccLowWarning  : 3.1150000000000002Volts
+
+====
+Ethernet16: SFP EEPROM detected
+        Active Firmware: 0.0
+        Active application selected code assigned to host lane 1: N/A
+        Active application selected code assigned to host lane 2: N/A
+        Active application selected code assigned to host lane 3: N/A
+        Active application selected code assigned to host lane 4: N/A
+        Active application selected code assigned to host lane 5: N/A
+        Active application selected code assigned to host lane 6: N/A
+        Active application selected code assigned to host lane 7: N/A
+        Active application selected code assigned to host lane 8: N/A
+        Application Advertisement: 400G CR8 - Host Assign (0x1) - Copper cable - Media Assign (Unknown)
+                                   200GBASE-CR4 (Clause 136) - Host Assign (0x11) - Copper cable - Media Assign (Unknown)
+                                   100GBASE-CR2 (Clause 136) - Host Assign (0x55) - Copper cable - Media Assign (Unknown)
+                                   50GBASE-CR (Clause 126) - Host Assign (0xff) - Copper cable - Media Assign (Unknown)
+                                   100GBASE-CR4 (Clause 92) - Host Assign (0x11) - Copper cable - Media Assign (Unknown)
+                                   50GBASE-CR2 (Ethernet Technology Consortium) with RS(528,514) (Clause 91) FEC - Host Assign (0x55) - Copper cable - Media Assign (Unknown)
+                                   25GBASE-CR CA-L (Clause 110) - Host Assign (0xff) - Copper cable - Media Assign (Unknown)
+        CMIS Rev: 4.0
+        Connector: No separable connector
+        Encoding: N/A
+        Extended Identifier: Power Class 1 (0.25W Max)
+        Extended RateSelect Compliance: N/A
+        Host Lane Count: 8
+        Identifier: QSFP-DD Double Density 8X Pluggable Transceiver
+        Inactive Firmware: N/A
+        Length Cable Assembly(m): 1.8
+        Media Interface Technology: Copper cable unequalized
+        Media Lane Count: 0
+        Module Hardware Rev: 0.0
+        Nominal Bit Rate(100Mbs): N/A
+        Specification compliance: passive_copper_media_interface
+        Vendor Date Code(YYYY-MM-DD Lot): 2025-10-18
+        Vendor Name: TE Connectivity
+        Vendor OUI: 00-22-a7
+        Vendor PN: 2459398-1
+        Vendor Rev: 5
+        Vendor SN: 5E1CPKA25421584
+        is_replaceable: True
+        type_abbrv_name: QSFP-DD
+        vdm_supported: False
+
+Prometheus (node exporter :9100, 95 switch_optic_* samples):
+cs8210_optics_fpga_up 1
+cs8210_optics_module_ready{port="1"} 1
+cs8210_optics_module_ready{port="2"} 1
+cs8210_optics_module_ready{port="3"} 1
+cs8210_optics_module_ready{port="17"} 1
+cs8210_optics_module_ready{port="31"} 1
+cs8210_optics_module_ready{port="32"} 1
+cs8210_optics_bringup_failed{port="1"} 0
+cs8210_optics_bringup_failed{port="2"} 0
+cs8210_optics_bringup_failed{port="3"} 0
+cs8210_optics_bringup_failed{port="17"} 0
+cs8210_optics_bringup_failed{port="31"} 0
+cs8210_optics_bringup_failed{port="32"} 0
+switch_optic_info{port="1",type="QSFP-DD",vendor="MOLEX",part="1064281405",rev="11",serial="G21084B2455",compliance="400GAUI-8 C2M (Annex 120E) / 400GBASE-DR4 (Cl 124), 8x4",media="optical SMF"} 1
+switch_optic_info{port="2",type="QSFP-DD",vendor="MOLEX",part="1064281405",rev="11",serial="G21466D0520",compliance="400GAUI-8 C2M (Annex 120E) / 400GBASE-DR4 (Cl 124), 8x4",media="optical SMF"} 1
+switch_optic_info{port="3",type="QSFP-DD",vendor="TE Connectivity",part="2459398-1",rev="5",serial="5E1CPKA25421584",compliance="400G CR8 / Copper cable, 8x8",media="passive copper"} 1
+switch_optic_info{port="17",type="QSFP-DD",vendor="TE Connectivity",part="2459398-1",rev="5",serial="5E1CPKA25421584",compliance="400G CR8 / Copper cable, 8x8",media="passive copper"} 1
+switch_optic_info{port="31",type="QSFP-DD",vendor="MOLEX",part="1064281405",rev="11",serial="G21394D0401",compliance="400GAUI-8 C2M (Annex 120E) / 400GBASE-DR4 (Cl 124), 8x4",media="optical SMF"} 1
+switch_optic_info{port="32",type="QSFP-DD",vendor="MOLEX",part="1064281405",rev="11",serial="G21403D0159",compliance="400GAUI-8 C2M (Annex 120E) / 400GBASE-DR4 (Cl 124), 8x4",media="optical SMF"} 1
+switch_optic_temperature_celsius{port="1"} 32.5
+switch_optic_temperature_celsius{port="2"} 30.9609375
+switch_optic_temperature_celsius{port="31"} 34.14453125
+switch_optic_temperature_celsius{port="32"} 34.12109375
+switch_optic_supply_voltage_volts{port="1"} 3.3655
+switch_optic_supply_voltage_volts{port="2"} 3.3736
+switch_optic_supply_voltage_volts{port="31"} 3.3639
+switch_optic_supply_voltage_volts{port="32"} 3.3591
+switch_optic_rx_power_watts{port="1",lane="1"} 0.0001113
+switch_optic_rx_power_watts{port="1",lane="2"} 0.00036980000000000004
+switch_optic_rx_power_watts{port="1",lane="3"} 0.00014299999999999998
+switch_optic_rx_power_watts{port="1",lane="4"} 0.0000505
+switch_optic_rx_power_watts{port="2",lane="1"} 0.000171
+switch_optic_rx_power_watts{port="2",lane="2"} 0.00022689999999999999
+switch_optic_rx_power_watts{port="2",lane="3"} 0.0002641
+switch_optic_rx_power_watts{port="2",lane="4"} 0.0002841
+switch_optic_rx_power_watts{port="31",lane="1"} 0.0005157
+switch_optic_rx_power_watts{port="31",lane="2"} 0.0004645
+switch_optic_rx_power_watts{port="31",lane="3"} 0.0006726
+switch_optic_rx_power_watts{port="31",lane="4"} 0.0004605
+switch_optic_rx_power_watts{port="32",lane="1"} 0.00037319999999999996
+switch_optic_rx_power_watts{port="32",lane="2"} 0.0004254
+switch_optic_rx_power_watts{port="32",lane="3"} 0.0003227
+switch_optic_rx_power_watts{port="32",lane="4"} 0.0005042
+switch_optic_tx_power_watts{port="1",lane="1"} 0.0017813000000000002
+switch_optic_tx_power_watts{port="1",lane="2"} 0.0017902
+switch_optic_tx_power_watts{port="1",lane="3"} 0.0016351
+switch_optic_tx_power_watts{port="1",lane="4"} 0.0011121000000000002
+switch_optic_tx_power_watts{port="2",lane="1"} 0.0017591000000000002
+switch_optic_tx_power_watts{port="2",lane="2"} 0.0018986
+switch_optic_tx_power_watts{port="2",lane="3"} 0.0017720000000000001
+switch_optic_tx_power_watts{port="2",lane="4"} 0.0016955
+switch_optic_tx_power_watts{port="31",lane="1"} 0.0019127
+switch_optic_tx_power_watts{port="31",lane="2"} 0.0019257
+switch_optic_tx_power_watts{port="31",lane="3"} 0.0019167000000000001
+switch_optic_tx_power_watts{port="31",lane="4"} 0.0019081999999999999
+switch_optic_tx_power_watts{port="32",lane="1"} 0.0017493
+switch_optic_tx_power_watts{port="32",lane="2"} 0.0017518
+switch_optic_tx_power_watts{port="32",lane="3"} 0.0016870000000000001
+switch_optic_tx_power_watts{port="32",lane="4"} 0.0017878000000000002
+switch_optic_tx_bias_amperes{port="1",lane="1"} 0.13182400000000002
+95

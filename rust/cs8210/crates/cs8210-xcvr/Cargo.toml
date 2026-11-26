@@ -1,0 +1,13 @@
+[package]
+name = "cs8210-xcvr"
+description = "Pluggable module memory maps: CMIS (QSFP-DD/OSFP) and SFF-8636 (QSFP28) identity, monitors, application select, optoe flat offsets"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+
+[lints]
+workspace = true

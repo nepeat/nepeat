@@ -6,8 +6,8 @@
 #   onieeeprom    ONIE TlvInfo parser (unchanged from dmc12-nixos)
 #   cs8210-pci-probe  identify the two FPGAs, the Innovium ASIC and (with
 #                 --phy-id) the 16 Credo CMS50216 MACsec ports from userspace
-#   cs8210-qsfp   QSFP-DD cages via the I2C FPGA: presence/reset/lpmode, module
-#                 EEPROM reads and decode (--info P), cage init/reset release
+# The cages (I2C FPGA) are cs8210-optics' (../optics), the one process that
+# touches that FPGA.
 {
   config,
   lib,
@@ -39,8 +39,7 @@ let
         install -D -m 0755 ${./cs8210-show} $out/libexec/cs8210-show
         install -D -m 0755 ${./onieeeprom} $out/bin/onieeeprom
         install -D -m 0755 ${./cs8210-pci-probe} $out/bin/cs8210-pci-probe
-        install -D -m 0755 ${./cs8210-qsfp} $out/bin/cs8210-qsfp
-        sed -i '1s|.*|#!${pkgs.python3}/bin/python3|' $out/bin/onieeeprom $out/bin/cs8210-pci-probe $out/bin/cs8210-qsfp
+        sed -i '1s|.*|#!${pkgs.python3}/bin/python3|' $out/bin/onieeeprom $out/bin/cs8210-pci-probe
         patchShebangs $out/libexec
         for t in cs8210-fan cs8210-show; do
           makeWrapper $out/libexec/$t $out/bin/$t --prefix PATH : ${runtimePath}:$out/bin

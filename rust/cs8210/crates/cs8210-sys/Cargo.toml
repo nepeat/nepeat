@@ -1,0 +1,13 @@
+[package]
+name = "cs8210-sys"
+description = "The OS rim of the CS8210 tools: a mapped PCI BAR and i2c-dev SMBus byte access (the only unsafe code)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+libc.workspace = true
+
+[lints]
+workspace = true

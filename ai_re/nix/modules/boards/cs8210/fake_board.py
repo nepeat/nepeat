@@ -11,10 +11,10 @@
   ASIC file            /run/asic/temperature (what syncd's publisher writes)
   I2C                  i2c/sys_cpld.bin with 0x08 = 0x45 and 0xa8 = 0x00 (the
                        live values of 2026-11-15), fan CPLDs (v3, PWM 127)
-  I2C FPGA             PCI 0002:01:00.0 (1d0f:8571, decode on) and cages:
+  cages (fpga/)        what cs8210-optics serves (sonic_platform/fake.py), modules:
                          1  QSFP-DD CMIS 5.0, paged (400G-DR4 optic)
                         16  QSFP-DD CMIS, flat memory (passive DAC)
-                        17  QSFP28 SFF-8636, channel left at power-up values
+                        17  QSFP28 SFF-8636 (flat, DAC)
                         20  SFP+ DAC in a QSA (A0h + A2h)
                         30  QSFP-DD present but held in reset
 The syseeprom TLV carries the identity fields of devices/cs8210-32x/PROGRESS.md
@@ -43,24 +43,6 @@ def link(root, rel_link, rel_target):
     lp = os.path.join(root, rel_link.lstrip("/"))
     os.makedirs(os.path.dirname(lp), exist_ok=True)
     os.symlink(t, lp)
-
-
-def root_port_config():
-    """4 KiB config space of the I2C FPGA's root port (0002:00:00.0, live
-    2026-11-16): capability list -> PM at 0x40 -> MSI 0x50 -> PCIe at 0x70
-    (DevSta 0x7a = 0, LnkCap 0x7c DLLLA reporting, LnkSta 0x82 = 0x3012,
-    data link active); AER at 0x100 (UESta 0x104 = 0)."""
-    c = bytearray(4096)
-    c[0:4] = struct.pack("<HH", 0x1c36, 0x0031)
-    c[6] = 0x10                                              # status: capability list
-    c[0x34] = 0x40
-    c[0x40:0x42] = bytes([0x01, 0x50])
-    c[0x50:0x52] = bytes([0x05, 0x70])
-    c[0x70:0x72] = bytes([0x10, 0x00])
-    c[0x7c:0x80] = struct.pack("<I", 0x00736c12)
-    c[0x82:0x84] = struct.pack("<H", 0x3012)
-    c[0x100:0x104] = struct.pack("<I", 0x0001 | 2 << 16 | 0x148 << 20)
-    return bytes(c)
 
 
 def tlv():
@@ -210,31 +192,13 @@ def build(root):
             b = 0x10 + 0x10 * n
             r[b], r[b + 1], r[b + 2] = front, rear, 127
         put(root, "/i2c/fan_%s.bin" % board, bytes(r))
-    # I2C FPGA on PCI, behind its root port (as in sysfs: the bus entry is a
-    # link into the device tree, the parent directory is the root port)
-    rp = "/sys/devices/platform/soc/fb700000.pcie/pci0002:00/0002:00:00.0"
-    pci = rp + "/0002:01:00.0"
-    put(root, rp + "/config", root_port_config())
-    put(root, rp + "/vendor", "0x1c36\n")
-    put(root, rp + "/device", "0x0031\n")
-    link(root, "/sys/bus/pci/devices/0002:00:00.0", rp)
-    link(root, "/sys/bus/pci/devices/0002:01:00.0", pci)
-    cfg = bytearray(64)
-    cfg[0:4] = struct.pack("<HH", 0x1d0f, 0x8571)
-    cfg[4] = 0x06                                            # memory decode + bus master on
-    put(root, pci + "/config", bytes(cfg))
-    put(root, pci + "/vendor", "0x1d0f\n")
-    put(root, pci + "/device", "0x8571\n")
-    put(root, pci + "/enable", "1\n")
-    put(root, pci + "/resource", "0x000000fe00000000 0x000000fe0000ffff 0x0000000000040200\n")
-    put(root, pci + "/resource0", b"")
-    os.makedirs(os.path.join(root, "run/lock"), exist_ok=True)
+    # cages: what cs8210-optics answers (sonic_platform/fake.py; also its --simulate input)
     put(root, "/fpga/port1.bin", cmis(False, "FAKE-QDD-DR4", "FAKESN0001", 0x02, 0x1c, 0x84, 0x0c))
     put(root, "/fpga/port16.bin", cmis(True, "FAKE-QDD-DAC1M", "FAKESN0016", 0x03, 0x01, 0x88, 0x23))
     put(root, "/fpga/port17.bin", qsfp28_sff8636())
     put(root, "/fpga/port20.bin", sfp_dac())
     put(root, "/fpga/port30.bin", cmis(True, "FAKE-QDD-INRESET", "FAKESN0030", 0x03, 0x01, 0x88, 0x23))
-    put(root, "/fpga/sideband.json", json.dumps({"reset": 1 << 29, "lpmode": 0, "int": 0, "uninit": [17]}))
+    put(root, "/fpga/sideband.json", json.dumps({"reset": 1 << 29, "lpmode": 0, "int": 0}))
 
 
 if __name__ == "__main__":
