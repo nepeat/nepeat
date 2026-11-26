@@ -470,7 +470,7 @@ libsdk), `bin/sai-openbcm-smoke`, `share/sai-openbcm/backends` (`fake openbcm` /
 
 `nix/sai-teralynx-rs.nix`: `{ saiRs, cppTeralynx }`, the CS8210's (the `sai-teralynx` package's names):
 `lib/libsai.so` (`.so.1`, `.so.1.0.0`: `libsai-teralynx.nix`), `lib/libsai-teralynx-shim.so` (`ifcs-shim.nix`),
-`bin/openbcm-diag`, `bin/sai-teralynx-smoke`, `bin/sai-script` ([Teralynx tools](#teralynx-tools-sai-client-sai-script-sai-teralynx-smoke)),
+`bin/openbcm-diag`, `bin/sai-teralynx-smoke`, `bin/sai-script` (the last two wrappers around `libexec/`, host libstdc++ on `LD_LIBRARY_PATH`; [Teralynx tools](#teralynx-tools-sai-client-sai-script-sai-teralynx-smoke)),
 `share/sai-rs/` (the parts' reports, `drop-in.txt`). Checked: every file of the C++ package has a
 counterpart, 17 exports (the C++'s 15 + `sai_bulk_get_attribute`, `sai_query_object_stage`). Targets:
 `sai-teralynx-rs` (native, the mock checks), `cs8210-sai-teralynx-rs` (aarch64). Not selected by any
@@ -814,7 +814,7 @@ workspace build installs nothing new); package: `nix/sai-teralynx-rs.nix` (below
   (`$P` = `cs8210-sai-teralynx-rs`'s output; the LED defaults are the `regs:` lines when the profile names
   `SAI_TERALYNX_DIAG_REGS`, no post-init list on the first run), a second run with `--recreate`; the oracle's
   `hw:*` scripts with `$P/bin/sai-script --libsai $P/lib/libsai.so.1 <profile> <script>` (`--tool` for the
-  tl-frames programs). Untested on hardware: everything of this section.
+  tl-frames programs). `bin/sai-teralynx-smoke` and `bin/sai-script` are wrappers that put the host libstdc++ on `LD_LIBRARY_PATH` (the vendor libifcs.so needs it outside syncd; the real programs are in `libexec/`; the package checks the wrapper's path holds a `libstdc++.so.6` of the target machine). H1 passed 2026-11-26 (log (h) in the device PROGRESS); H2/H3 untested.
 
 ## Wiring into the C++ libsai (G0, deleted)
 

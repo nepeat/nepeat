@@ -118,6 +118,13 @@ layout static_asserts) with the values, field lists and signatures of a ctypes
 file, read as data by `tools/ifcs_ctypes_model.py`. Directives and rules: the
 generator's docstring. Outside Nix: `make IFCS_CTYPES=<ifcs_ctypes.py>`.
 
+The Rust SAI (`rust/sai`) has its own copy of the templates and overrides in
+`rust/sai/crates/ifcs-gen/templates` and its own generator (crate `ifcs-gen`, the Rust port of
+`tools/gen_ifcs_api.py` + `ifcs_ctypes_model.py`). Until this package is deleted (CS-B H5) the copies
+must stay equal to `src/`: `rust/sai/nix/ifcs-headers.nix` fails otherwise, and also checks that both
+generators write the same bytes (`build/gen`) and read the same model. Change a template here and
+there in the same commit.
+
 The input is the public ishell 2.0.1 ctypes above, not the box's 0.12.41 one.
 Checked 2026-11-17 ([evidence](../../../devices/cs8210-32x/ifcs-ctypes-public-20261117.txt)):
 

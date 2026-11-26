@@ -5,6 +5,22 @@ work: PROGRESS.md. References elsewhere to "PROGRESS (n)", "PROGRESS 11-09", "PR
 
 ## log
 
+### 2026-11-16 (late) — scheme A' flasher: built, verified, rehearsed; zero SPI writes
+
+- Tools: `scripts/spi_upgrade.py` (model = verified mtd0 dump + journal, gates, echo-checked writes body-then-header, TOC2 last),
+  `scripts/bootchain_emu.py` (factory stage2 + stage3 in Unicorn), `nix/packages/alboot/alboot3.py`, patches 0027/0028
+  (`#uboot-cs8210-installer`: SPI writable only in TOC2/BOOT_MODE/env/slot A/slot B). Layout and safety case: [spi-upgrade-plan.md](spi-upgrade-plan.md).
+- Slot B moved to 0x280000 (1 MiB; the 0x2f9000 hole left 1444 B for the standalone build); our env 0x38000+0x8000 erased by install.
+- Evidence: 213/213 emulated flash states (every cut state factory or ours, `u` → factory; the BOOT_MODE trap hangs even with `u`)
+  [spi-upgrade-verify-20261116.txt](spi-upgrade-verify-20261116.txt); sandbox install/update/switch/rollback + 11 refusals + 32 power cuts
+  [spi-upgrade-rehearse-20261116.txt](spi-upgrade-rehearse-20261116.txt); `#uboot-alpine-v3-tests` installer-window.
+- Two independent reviews: 17 findings fixed (kill page before erasing a live header, magic written last, no power cycle after
+  a failed write, rollback without NixOS, ...); list in the plan's "Reviews". Gates (review, payload, recovery, owner_go) still null.
+- Hardware, read-only (lease spi-flasher): /dev/mtd0ro == model; dry runs 17:07 and (final code) 18:38: installer at EL2,
+  flash == model, upload ok, writes printed only, power cycle, NixOS + SONiC (BGP 2/2, BFD 2/2), lease released. A first attempt (17:04) matched the consoled scrollback replay: it typed
+  `123`, `echo …` and `version` into the NixOS serial root shell (harmless) and then failed on `lab-power` usage; fixed (plan doc).
+- Linux mtd0 is read-only (flags 0x800): no Linux-side writer or rollback. DMC-12 pins unchanged (d3df4b80, 2b9lljly).
+
 ### 2026-11-16/17 — learn-thread wedge: guard in libsai, ASPM L0s on the ASIC link, watchdog escalation (not deployed)
 
 - sai-teralynx shim guards libifcs's learn-ring reads (GOT: node_pci_reg_read32/_write32, im_malloc): all-ones or

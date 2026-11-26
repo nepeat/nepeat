@@ -30,6 +30,7 @@
   lib,
   stdenv,
   callPackage,
+  makeWrapper,
   saiRs,
   cppTeralynx,
 }:
@@ -88,6 +89,7 @@ stdenv.mkDerivation {
   dontBuild = true;
   # copies of finished binaries
   dontFixup = true;
+  nativeBuildInputs = [ makeWrapper ];
 
   installPhase = ''
     runHook preInstall
@@ -97,8 +99,14 @@ stdenv.mkDerivation {
     ln -s libsai.so.1 $out/lib/libsai.so
     cp ${shim}/lib/libsai-teralynx-shim.so $out/lib/
     install -m755 ${saiRs}/bin/openbcm-diag-rs $out/bin/openbcm-diag
-    install -m755 ${tools}/bin/sai-teralynx-smoke $out/bin/sai-teralynx-smoke
-    install -m755 ${tools}/bin/sai-script $out/bin/sai-script
+    # the two tools dlopen the vendor libifcs.so outside syncd, which needs libstdc++.so.6 (the Rust libsai does
+    # not link it): wrapped with the HOST platform's libstdc++ on LD_LIBRARY_PATH; the real programs sit in
+    # libexec/ so that "lib/ beside bin/" (sai-client's default library) still finds $out/lib
+    mkdir -p $out/libexec
+    for t in sai-teralynx-smoke sai-script; do
+      install -m755 ${tools}/bin/$t $out/libexec/$t
+      makeWrapper $out/libexec/$t $out/bin/$t --prefix LD_LIBRARY_PATH : ${stdenv.cc.cc.lib}/lib
+    done
     cp -r ${libsai}/share/sai-rs/. ${tools}/share/sai-rs/. $out/share/sai-rs/
     cp ${shim}/share/sai-rs/*.txt $out/share/sai-rs/
     chmod -R u+w $out/share/sai-rs
@@ -130,6 +138,15 @@ stdenv.mkDerivation {
     if [ -n "$(comm -13 exports.rust exports.cpp)" ]; then echo "drop-in: the C++ library exports more"; exit 1; fi
     ${bin}readelf -d $out/lib/libsai.so.1.0.0 | grep -q 'SONAME.*\[libsai.so.1\]' || { echo "drop-in: wrong soname"; exit 1; }
     ${bin}readelf -d $out/lib/libsai-teralynx-shim.so | grep -q 'SONAME.*\[libsai-teralynx-shim.so\]' || { echo "drop-in: wrong shim soname"; exit 1; }
+    # the wrappers' LD_LIBRARY_PATH holds a libstdc++.so.6 of the host platform's machine type
+    machine() { ${bin}readelf -h "$1" | awk -F: '/Machine:/ { gsub(/^ +/, "", $2); print $2 }'; }
+    want=$(machine $out/lib/libsai.so.1.0.0)
+    for t in sai-teralynx-smoke sai-script; do
+      dir=$(grep -o '/nix/store/[^:" ]*-lib/lib' $out/bin/$t | grep -F gcc | head -n1 || true)
+      [ -n "$dir" ] && [ -e "$dir/libstdc++.so.6" ] || { echo "drop-in: bin/$t: no libstdc++.so.6 on its LD_LIBRARY_PATH ($dir)"; exit 1; }
+      [ "$(machine "$dir/libstdc++.so.6")" = "$want" ] || { echo "drop-in: bin/$t: libstdc++.so.6 is not for $want"; exit 1; }
+      echo "bin/$t: LD_LIBRARY_PATH $dir (libstdc++.so.6, $want)" >> $report
+    done
     runHook postInstall
   '';
 

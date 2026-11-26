@@ -4,7 +4,7 @@
 
 - **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-59, from the SSD; a cold cycle of both feeds (`lab-power cs8210 cycle`,
   2026-11-26) came back unattended, 0 failed units; either PSU alone carries it under traffic. **SONiC at boot** on our C++ `sai-teralynx` (HEAD's frozen
-  frontend, first on this box 2026-11-25). Cabling (owner, 2026-11-25; cage 1 and 2 modules replaced 2026-11-26): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
+  frontend, first on this box 2026-11-25); its Rust replacement is at parity offline and passed H1 on the chip (Rust libsai with SONiC stopped, then a short SONiC run on generation system-60; box back on system-59 / C++; log 2026-11-26 (h)). Cabling (owner, 2026-11-25; cage 1 and 2 modules replaced 2026-11-26): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
   400G-DR4 QSFP-DD optics (MPO loops), 3 <-> 17 TE 2459398-1 400G CR8 DAC; nothing to the house. CONFIG_DB = the Nix
   base: those six ports 1x400G RS FEC, far ends in Vrf-a/b/c with /31s, 26 ports down ([sonic.md](sonic.md) "Running it").
   **3 <-> 17 and 31 <-> 32 up; 1 <-> 2 was up 10:09-10:27 (cat fur on the fibre / optic faces, both modules replaced)
@@ -12,8 +12,8 @@
 - **Cages:** `cs8210-optics` (`rust/cs8210`) is the one owner of the I2C FPGA: declared cages (= admin-up ports) out of
   reset and brought up (CMIS app select 4x100G -> 400G-DR4), all others held in reset; xcvrd and `show interfaces
   transceiver` through its socket; `switch_optic_*` metrics ([sonic.md](sonic.md) "Optics", [optics](evidence/optics-20261125.txt)).
-- **LEDs:** system LED green (`cs8210-leds monitor`); port LEDs: LED 1 of 4 magenta on every linked cage from the ASIC's
-  default stream, health on LEDs 2-4 proposed (sonic.md "LEDs"); fan tray LEDs by fand; `cs8210-leds test|walk` for a human ([leds](evidence/leds-20261125.txt)). Also: fand (no failsafe phase at boot
+- **LEDs:** system LED green (`cs8210-leds monitor`); port LEDs: LED 1 of 4 magenta on every linked cage from libifcs' own LED
+  stream (it sets it up at node create, V), health on LEDs 2-4 proposed (I; sonic.md "LEDs"); fan tray LEDs by fand; `cs8210-leds test|walk` for a human ([leds](evidence/leds-20261125.txt)). Also: fand (no failsafe phase at boot
   since 2026-11-26), PSU telemetry (`cs8210-psu`, `switch_psu_*`), Credo die temperatures, board RTC from the initrd,
   node exporter :9100 (job `cs8210-32x`), MACsec module (vendor stack only, [macsec.md](macsec.md)), sFlow.
 - **Reach:** `sudo ssh root@10.60.2.190` (enp0s1). Console: DMC-12 P1 via consoled, `sudo ssh -t console@10.60.2.10 watch cs8210`
@@ -27,7 +27,7 @@
 - **Open:** **three fan modules with a dead rotor** (FAN5 rear, FAN6 front, FAN12 rear; LED solid red, still following the
   zone duty): 3 failed rotors <= 4, fand degraded on its curve (~52 %, ASIC ~63 C); replace them, then `fand release`
   the slot if it was swapped while off ([board-control.md](board-control.md) "Fan CPLD register map"); `lab-power cs8210 cycle` once failed with
-  NetBotz "E101: Command Not Found" (not reproduced; lab-power now resends once on E101); the 1 <-> 2 fibre into cage 1; port LEDs (SAI: the vendor `pci write led_*` init); our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
+  NetBotz "E101: Command Not Found" (not reproduced; lab-power now resends once on E101); the 1 <-> 2 fibre into cage 1; port LEDs 2-4 (slot codes and colours unknown, I; LED block read at H1 (R1: constant over link/admin changes), next reversible writes with the owner at the panel; sonic.md "LEDs"; H1 read LED_CFG = 0x805: libifcs' LEARN_MSG-based read-modify-write left no junk in bits 4-10, V); our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
   ([sai-features.md](sai-features.md)); MACsec under SONiC; CRM panels empty; learn-wedge watch (L0s off, [learn-wedge.md](learn-wedge.md)).
 
 ## Identity
@@ -113,7 +113,7 @@ earlier offline work: [ssd-analysis.md](ssd-analysis.md), [kernel-review.md](ker
 2. Aux SPI flash gating (the i2cfpga flash reads all ones on mainline); what CPLD v15/v2 changed ([cpld-diff.md](cpld-diff.md)).
 3. Credo slice temperatures and the ASC10 voltage/temperature monitors; optics as a fand input (owner: fan policy).
 4. Populate `/var/lib/cs8210-sdk/root` reproducibly (from the `onie` MTD on the box) instead of by hand.
-5. Port LEDs: the ASIC LED stream init in the SAI (sonic.md "LEDs"); a kernel driver for the MDIO FPGA.
+5. Port LEDs 2-4: read the LED registers under the Rust SAI (`SAI_TERALYNX_DIAG_REGS`, sonic.md "LEDs"), then single reversible writes at the panel (the stream itself already runs, V); a kernel driver for the MDIO FPGA.
 
 ## artifacts
 
@@ -132,6 +132,29 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-26 (h) — H1: the Rust SAI on the chip
+
+- SONiC stopped, Credo alone: Rust libsai `sai-teralynx-smoke --sonic-is-stopped` SMOKE_OK (3<->17, 31<->32, `--recreate`), guard 1/1/1; IFCS trace equal to the C++ libsai's call for call (only live temperatures differ) ([rust-h1/12-trace-diff.txt](evidence/rust-h1/12-trace-diff.txt)).
+- LED registers read (R1): LED_CFG 0x805, refresh 0x15e / 0x18eec2 enabled, blink timer off, SHIFT/COLOR masks 0xffffff, SWCTRL 0 on all 33 PICs, constant over link and admin changes; the predicted LED_CFG junk bits from libifcs' LEARN_MSG-based RMW are NOT present on the chip ([13-led-r1-table.txt](evidence/rust-h1/13-led-r1-table.txt)).
+- `hardware.cs8210.sonic.saiImplementation` ("cpp" default; with FLAKE pinned the default toplevel drv is unchanged): system-60 = SONiC on the Rust libsai, ports up, ASIC_DB as on C++ (909 keys), then back to system-59 (C++). 31<->32 sometimes needs >60 s to link after an SDK restart (cage 32 lane 1).
+- Open: the drop-in's tools need libstdc++ for libifcs outside syncd (fixed in the package, see rust/sai README); `sai_api_query` answers -5 vs the C++ -15 for API ids beyond the table (a listed deliberate difference); the guard's one all-ones read of 0x104 is seen only on C++ inits (counted only).
+
+### 2026-11-26 (g) — SAI in Rust: the Teralynx backend at parity with the C++ on the mock (offline, not on the box)
+
+- `rust/sai` has the CS8210's libsai in Rust (`sai-backend-teralynx` over the `ifcs` rim, `ifcs-sys` bindings
+  generated at build, `elf-got`) and its shim (`ifcs-shim` + `ifcs-guard`): 44467af (scaffold), eb9a34c (every area).
+- On the mock libifcs: sai-teralynx's `test_ifcs` 1047 / 1047 on the Rust libsai; parity harness strict green (IFCS
+  calls of all 17 sections equal, driver scripts 376 / 376 ops, oracle scripts 25 / 27 equal + 2 allowed: the runner's
+  genetlink name clash). The Rust shim is a drop-in for the C one (416-script differential, x86_64 + aarch64
+  emulated; one deliberate fix: the guard's counters buffer). Per feature: [sai-features.md](sai-features.md) "Rust" column.
+- Rust only: a board register list after every init and a read-only register watch (diag `regs`), for the LEDs.
+  [sonic.md](sonic.md) "LEDs" corrected: libifcs sets up the LED stream itself; a linked cage lights LED 1.
+- G5: IFCS header generator in Rust (`rust/sai/crates/ifcs-gen`), byte-equal to `gen_ifcs_api.py` on ishell 2.0.1
+  (headers sha256 6353998884fc... / c7c75f397eca...), checked live by `rust/sai/nix/ifcs-headers.nix` until the C++
+  package is deleted; nothing changes on the box.
+- Nothing deployed: the box runs the C++ SAI. Next on the box: a smoke with SONiC stopped, then the hw:* scripts and
+  SONiC on Rust. Details: [rust/sai README](../../../rust/sai/README.md) "Teralynx backend", "Parity".
 
 ### 2026-11-26 (f) — fans: given-up rotors keep running, state across reboots
 
@@ -270,20 +293,4 @@ can contain device configuration or secrets. Summarized findings belong here.
 - Deviation, stopped there: MDIO FPGA 0004:01:00.0 without BARs ("libMdio: resource0 not available"), cages 1/16 down, BGP/BFD/LACP down.
   Standalone U-Boot work item; the `u` escape test and the boot back into ours are pending.
 
-### 2026-11-16 (late) — scheme A' flasher: built, verified, rehearsed; zero SPI writes
-
-- Tools: `scripts/spi_upgrade.py` (model = verified mtd0 dump + journal, gates, echo-checked writes body-then-header, TOC2 last),
-  `scripts/bootchain_emu.py` (factory stage2 + stage3 in Unicorn), `nix/packages/alboot/alboot3.py`, patches 0027/0028
-  (`#uboot-cs8210-installer`: SPI writable only in TOC2/BOOT_MODE/env/slot A/slot B). Layout and safety case: [spi-upgrade-plan.md](spi-upgrade-plan.md).
-- Slot B moved to 0x280000 (1 MiB; the 0x2f9000 hole left 1444 B for the standalone build); our env 0x38000+0x8000 erased by install.
-- Evidence: 213/213 emulated flash states (every cut state factory or ours, `u` → factory; the BOOT_MODE trap hangs even with `u`)
-  [spi-upgrade-verify-20261116.txt](spi-upgrade-verify-20261116.txt); sandbox install/update/switch/rollback + 11 refusals + 32 power cuts
-  [spi-upgrade-rehearse-20261116.txt](spi-upgrade-rehearse-20261116.txt); `#uboot-alpine-v3-tests` installer-window.
-- Two independent reviews: 17 findings fixed (kill page before erasing a live header, magic written last, no power cycle after
-  a failed write, rollback without NixOS, ...); list in the plan's "Reviews". Gates (review, payload, recovery, owner_go) still null.
-- Hardware, read-only (lease spi-flasher): /dev/mtd0ro == model; dry runs 17:07 and (final code) 18:38: installer at EL2,
-  flash == model, upload ok, writes printed only, power cycle, NixOS + SONiC (BGP 2/2, BFD 2/2), lease released. A first attempt (17:04) matched the consoled scrollback replay: it typed
-  `123`, `echo …` and `version` into the NixOS serial root shell (harmless) and then failed on `lab-power` usage; fixed (plan doc).
-- Linux mtd0 is read-only (flags 0x800): no Linux-side writer or rollback. DMC-12 pins unchanged (d3df4b80, 2b9lljly).
-
-Older entries (2026-11-16/17 learn-thread wedge and before): [HISTORY.md](HISTORY.md).
+Older entries (2026-11-16 (late) scheme A' flasher and before): [HISTORY.md](HISTORY.md).

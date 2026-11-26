@@ -46,7 +46,22 @@ let
         inherit (config.nixpkgs) overlays;
       };
   sonic = import (aiRe + "/packages/sonic") { pkgs = spkgs; };
-  sai = spkgs.callPackage (aiRe + "/packages/sai-teralynx") { inherit sonic; };
+  # The libsai syncd links (option saiImplementation). The Rust drop-in has the C++ package's
+  # lib/ and bin/ layout, so everything below uses ${sai} either way. rust/sai is outside
+  # ai_re's path:./nix: a "rust" system builds from the root git flake (new files: git add -N).
+  rustSai = ../../../../../rust/sai;
+  saiCpp = spkgs.callPackage (aiRe + "/packages/sai-teralynx") { inherit sonic; };
+  sai =
+    if cfg.saiImplementation == "rust" then
+      spkgs.callPackage (rustSai + "/nix/sai-teralynx-rs.nix") {
+        saiRs = spkgs.callPackage (rustSai + "/nix/package.nix") {
+          saiSrc = sonic.sources.sairedis;
+          glueSrc = aiRe + "/packages/sai-openbcm/src";
+        };
+        cppTeralynx = saiCpp; # read only: the file-list / export checks
+      }
+    else
+      saiCpp;
   sdkRoot = "/var/lib/cs8210-sdk/root";
   sdkDir = config.hardware.cs8210.sonic.sdkDir; # host path, under sdkRoot
   # the same directory as seen inside the SDK chroot (the Credo tools run there)
@@ -221,6 +236,17 @@ in
         global OOM killer taking the box's memory (2026-11-16). The IFCS
         watchdog restarts syncd at 3/4 of it. Raise it for large route
         tables; null: no limit.
+      '';
+    };
+    saiImplementation = mkOption {
+      type = types.enum [ "cpp" "rust" ];
+      default = "cpp";
+      description = ''
+        The libsai syncd links: "cpp" = ai_re/nix/packages/sai-teralynx (the C++ IFCS
+        backend), "rust" = rust/sai/nix/sai-teralynx-rs.nix (the Rust drop-in: the same
+        lib/, bin/ layout, the same exports + 2, the same profile keys; adds
+        SAI_TERALYNX_POST_INIT_REGS / SAI_TERALYNX_DIAG_REGS). Rollback: "cpp" or the
+        previous generation.
       '';
     };
     macAddress = mkOption {

@@ -136,27 +136,40 @@ cs8210-macsec. 45-52 C idle (2026-11-26). Not a fand input (fan policy is the ow
 
 ## LEDs
 
-- **Port LEDs under SONiC (owner at the panel, 2026-11-26):** every linked cage (3, 17, 31, 32) shows LED 1 of its
-  four (silkscreen 1-4) lit **magenta**, LEDs 2-4 dark; cages that are down (1, 2) are dark. So the Teralynx LED
-  controller's power-on / libifcs default stream already shows link per port on the first LED, although our SAI runs
-  none of the vendor's LED init lines. The two LED CPLDs (MACsec LED 0x63: cages 1-16; switch LED 0x64: cages 17-32)
-  decode that stream; the CPU can only force a whole CPLD to one test colour (reg 0x09 bit 0 = test, 0x0a bits 2:0 =
-  colour: red 6, green 3, blue 5, white 0, off 7; yellow 2, cyan 1, magenta 4 inferred from the codes being
-  active-low R/B/G bits).
-- **What the vendor init adds** (not run by our SAI): `pci write led_cfg PIC_STREAM_MODE_F 1`, `led_cfg sck_rate_f
-  0x8`, `led_refresh_precliff 0x18eec2`, `led_refresh_cliff 0x020`, `led_refresh_tmr_ctl ENABLE_F 1`. Addresses
-  (BAR0, SDK `ifcs_ctypes` enum + vendor ishell log): LED_CFG 0x13514 (sck_rate_f bits 3:0, link_up_mask_f bit 7,
-  pic_stream_mode_f bit 11), LED_REFRESH_CLIFF 0x13530, LED_REFRESH_PRECLIFF 0x13538, LED_REFRESH_TMR_CTL 0x1353c
-  (enable_f bit 1); per-PIC LED_SWCTRL_IB0..6_PIC from 0x13700 (software override). The registers stream per-lane
-  state per PIC (lane_enabled / link_up / local / remote fault masks, Rx/Tx activity blink); LED_SHIFT_MASK /
-  LED_COLOR_MASK are 24 bits (8 lanes x 3 bits), LED_SWCTRL 16 bits (8 lanes x 2). Inference (unproven): PIC stream
-  mode gives one LED per lane pair = per 100G sub-port of a 4x100G breakout, with per-lane activity and fault
-  colours; the default mode sends one bit per port, which is what lights LED 1. The vendor material we hold has no
-  per-LED description (diag `leds.yaml` / `cel-led-test` drive only the CPLD-wide test colour, `sys_cpld.ko` knows
-  led_enable + colour, DIAGOS release notes only "according to the new sys CPLD"; public sonic-buildimage has no
-  Teralynx LED config). To settle it: the vendor stack (`systemctl start cs8210-switch`) with the owner at the
-  panel for a 1x400G link, a down port and a 4x100G breakout. /dev/ipd allows one opener (syncd): any change is
-  inside the SAI.
+- **Port LEDs: the ASIC's LED stream, which libifcs sets up itself (corrected 2026-11-26; V / I as tagged).** The
+  two LED CPLDs (MACsec LED 0x63: cages 1-16; switch LED 0x64: cages 17-32) decode the Teralynx's serial LED stream;
+  the CPU can only force a whole CPLD to one test colour (reg 0x09 bit 0 = test, 0x0a bits 2:0 = colour: red 6,
+  green 3, blue 5, white 0, off 7; yellow 2, cyan 1, magenta 4 inferred from the codes being active-low R/B/G bits).
+  libifcs 0.12.41 programs the stream at node create, under any SAI: LED_CFG sck_rate 5 + pic_stream_mode 1,
+  LED_REFRESH_PRECLIFF 0x18eec2, LED_REFRESH_CLIFF 0x15e, LED_REFRESH_TMR_CTL enable (V: the box's
+  `analysis/onie-live-2026-11-10/sdk/R3181-J0001-01_V0.1.7_Briggs_SDK/libifcs.so` 0x110bd48-0x110be24, called from
+  `ii_node_mod_create_impl`). Its LED_CFG read-modify-write takes LEARN_MSG 0x48bc as the base, not LED_CFG, so
+  LED_CFG bits 4-10 (activity blink, lane / link / fault masks, sdo polarity) were predicted to hold LEARN_MSG's bits (V: 0x110bd68;
+  libifcs 6.2.0 reads 0x13514); **refuted by H1 (V, 2026-11-26): the chip's LED_CFG reads 0x805, bits 4-10 zero** ([R1 table](evidence/rust-h1/13-led-r1-table.txt)). The vendor init lines our SAI skips
+  (`SAI_TERALYNX_INIT_CMDS` runs only `ifcs set devport` lines) only retune it: `pci write led_cfg sck_rate_f 0x8`
+  (5 -> 8) and `led_refresh_cliff 0x020` (0x15e -> 0x20); their PIC_STREAM_MODE_F 1, precliff 0x18eec2 and
+  ENABLE_F 1 are libifcs' own values (V: `analysis/sai-teralynx/vendor012/cel_cmds/misc_config.cmd` 35-39).
+  Addresses (BAR0, from the SDK's `ifcs_ctypes` enum and the vendor ishell log): LED_CFG 0x13514 (sck_rate_f bits
+  3:0, link_up_mask_f bit 7, pic_stream_mode_f bit 11), LED_REFRESH_CLIFF 0x13530, LED_REFRESH_PRECLIFF 0x13538,
+  LED_REFRESH_TMR_CTL 0x1353c (enable_f bit 1); per-PIC LED_SHIFT_MASK from 0x13540, LED_COLOR_MASK from 0x13620,
+  LED_SWCTRL (software override) from 0x13700, stride 0x20 per IB. No libifcs code touches the per-PIC registers or
+  the LED_BLINK timers by immediate address (V: scan of both libifcs versions; I: computed addresses not excluded).
+  /dev/ipd allows one opener (syncd), so any LED write is a SAI change: the Rust SAI has a board register list
+  applied after every init (`SAI_TERALYNX_POST_INIT_REGS`) and a read-only watch list in its diag `regs`
+  (rust/sai README "Teralynx backend"); the read side ran at H1 (LED_CFG 0x805, refresh 0x15e / 0x18eec2, SHIFT/COLOR masks 0xffffff, SWCTRL 0 on all 33 PICs); no LED write has run on the box.
+- **What the 4 LEDs per cage show (owner at the panel, 2026-11-26, C++ SAI, no LED writes; V):** cage 3 up at
+  1x400G = LED 1 magenta, LEDs 2-4 dark; cages 1 and 2 down = dark. Reading (I): 1x400G is one port at lane 0, so
+  slot 0 of its PIC, shown on LED 1; magenta is the colour the reset COLOR_MASK gives (the predicted stray LED_CFG bits are not there, H1)
+  a link-up slot. LED_SHIFT_MASK / LED_COLOR_MASK are 24 bits and LED_SWCTRL 16 bits per PIC: 8 slots (ports per
+  PIC) x 3 / x 2 bits (I), so the 4 LEDs most likely show the sub-ports of a 4x100G breakout (I). Not readable
+  while syncd runs except through the SAI (/dev/ipd has one opener, sysfs resource0 is claimed by ipd; the C++
+  SAI's diag shell has no register read). The vendor material we hold has no per-LED description: diag
+  `leds.yaml` / `cel-led-test` only drive the CPLD-wide test colour, `sys_cpld.ko` only knows led_enable +
+  colour, the DIAGOS release notes only mention front-panel LED behaviour "according to the new sys CPLD", and
+  public sonic-buildimage has no Teralynx LED config (Celestica Midstone-200i included). To settle the slot codes
+  and colours: read the LED block under the SAI (diag `regs`), then single reversible writes with the owner at
+  the panel; for comparison the vendor stack (`systemctl start cs8210-switch`, its retuned sck_rate / cliff) on a
+  1x400G link, a down port and a 4x100G breakout.
 - **Proposal (owner's wish, plan only):** the SAI agent owns the policy inside the SDK owner (LED_SWCTRL per PIC, or
   PIC stream mode with per-lane masks); this side supplies health inputs it already has: per-lane Rx LOS / CDR LOL /
   Rx power vs the module's warning thresholds and module state from `cs8210-optics` (its socket and

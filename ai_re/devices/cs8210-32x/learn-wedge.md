@@ -36,6 +36,7 @@ written outside its lock); counters in `/run/sai-teralynx/ifcs-guard.prom` (`sai
 reads also by error return: `invalid_rc_total`). Profile keys and the test
 hook: [README](../../nix/packages/sai-teralynx/README.md). Vendor stack: not guarded (innovium.user is the vendor's
 binary; an LD_PRELOAD build of the same code would interpose the PLT calls, not written).
+Rust drop-in (not deployed): crates `ifcs-shim` + `ifcs-guard` ([rust/sai README](../../../rust/sai/README.md) "Teralynx shim"), proven offline: `test_ifcs` 1047 / 1047 with the C++ libsai, differential against this C on 416 scripts (x86_64 and aarch64 emulated), one deliberate difference: the counters' text buffer is sized for the worst case (the C's 4096 bytes overflow with all 16 all-ones names in use, and the `.prom` file then stops updating).
 
 ## 3. What dies first (2026-11-16, V from VictoriaMetrics, I where marked)
 

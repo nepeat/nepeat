@@ -42,3 +42,10 @@ LED CPLDs 0x63/0x64 decode the ASIC's serial LED stream; the CPU can only force 
 colour (0x09 bit 0, colour 0x0a). The stream needs the vendor init lines the SAI does not run
 (pci write led_cfg PIC_STREAM_MODE_F 1 / sck_rate_f 0x8, led_refresh_precliff 0x18eec2, led_refresh_cliff 0x020,
 led_refresh_tmr_ctl ENABLE_F 1): sonic.md "LEDs".
+
+## Correction (2026-11-26, after this capture; the capture above is unchanged)
+"The stream needs the vendor init lines the SAI does not run" is wrong: libifcs 0.12.41 sets up the LED stream
+itself at node create (LED_CFG sck_rate 5 + pic_stream_mode 1, refresh precliff 0x18eec2, cliff 0x15e, refresh
+on; V: disassembly of the box's libifcs); the vendor lines only change sck_rate 5 -> 8 and cliff 0x15e -> 0x20.
+Owner at the panel (C++ SAI, no LED writes): cage 3 up = LED 1 magenta, cages 1 / 2 down = dark (V). Port LEDs
+do follow link per cage on LED 1. Details: sonic.md "LEDs".
