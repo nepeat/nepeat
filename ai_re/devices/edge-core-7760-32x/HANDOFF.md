@@ -31,7 +31,7 @@ operation, tests and debugging: [sonic-nixos PROGRESS](../sonic-nixos/PROGRESS.m
   is now **DMC-12 port 48**, which the DMC-12 does not serve yet. Use it
   read-only and ask the DMC-12 session first. Until it is live: no U-Boot
   work, no reboots that might need a prompt.
-- Power: plug 1, `lab-power 1 status|on|off` (`tools/lab_power.py`, HA entity
+- Power: plug 1, `lab-power 1 status|on|off` (tools/README.md, HA entity
   `switch.server_room_lab_plug`; credentials from the environment, never
   written down). Plug 2 is the DMC-12: don't touch it from here.
 - Front panel: only the lab loop: a QSFP28 4x25G breakout from cage 1, leg 1

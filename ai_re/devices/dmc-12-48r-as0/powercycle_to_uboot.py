@@ -13,7 +13,7 @@ ROOT = pathlib.Path(__file__).resolve().parent
 SESSION = "serial-dmc12"
 # Lab plug (default 2 = u01's); `--plug N` for other units.
 PLUG = sys.argv[sys.argv.index("--plug") + 1] if "--plug" in sys.argv else "2"
-POWER = [sys.executable, str(ROOT.parents[1] / "tools" / "lab_power.py"), PLUG]
+POWER = ["lab-power", PLUG]   # the devshell's lab-power (tools/README.md)
 AUTOBOOT = b"Hit any key to stop autoboot"
 
 

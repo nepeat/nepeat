@@ -33,7 +33,7 @@ ap.add_argument("--plug", type=int, required=True)
 ap.add_argument("--key", required=True)
 ap.add_argument("--off", type=int, default=8, help="seconds powered off")
 a = ap.parse_args()
-power = [sys.executable, str(ROOT.parents[1] / "tools" / "lab_power.py"), str(a.plug)]
+power = ["lab-power", str(a.plug)]
 subprocess.run(power + ["off"], check=True, capture_output=True)
 time.sleep(a.off)
 subprocess.run(["tmux", "clear-history", "-t", S], check=True)

@@ -1,0 +1,30 @@
+{
+  "_comment": "lab-power targets (tools/README.md in ai_re). A target is one switchable feed; a device lists its feeds. Paths to secrets are never here: a netbotz target names the environment variables that hold them.",
+  "targets": {
+    "1": {
+      "backend": "home-assistant",
+      "entity": "switch.server_room_lab_plug",
+      "feeds": "cs8210-32x (its PSU that is not on the NetBotz outlet)"
+    },
+    "2": {
+      "backend": "home-assistant",
+      "entity": "switch.server_room_lab_plug_2",
+      "feeds": "dmc-12-48r-as0 console server"
+    },
+    "cs8210-psu1": {
+      "backend": "netbotz",
+      "host": "10.60.30.45",
+      "credentials_env": "LAB_POWER_NETBOTZ_CREDENTIALS",
+      "known_hosts_env": "LAB_POWER_NETBOTZ_KNOWN_HOSTS",
+      "host_key_algorithms": "+ssh-rsa",
+      "note": "AP9538 NMC2, AOS 7.0.8: SSH host key ssh-rsa only; one switched outlet, no current/power metering",
+      "feeds": "cs8210-32x PSU1"
+    }
+  },
+  "devices": {
+    "cs8210": {
+      "description": "Celestica CS8210-32X (devices/cs8210-32x)",
+      "feeds": ["1", "cs8210-psu1"]
+    }
+  }
+}

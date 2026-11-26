@@ -66,7 +66,7 @@ GATES = DEV / "spi-upgrade-gates.json"
 GATE_NAMES = ("review", "payload", "recovery", "owner_go")
 INSTALLER_PROMPT, VENDOR_PROMPT = "cs8210-installer> ", "ALPINE_DB> "
 CONSOLE, PORT, HOST = "console@10.60.2.10", "cs8210", "root@10.60.2.190"
-PLUG = "switch.server_room_lab_plug"   # lab plug 1 = the CS8210 (tools/README.md)
+PLUG = "1"   # lab plug 1 = one CS8210 feed; the other is the NetBotz outlet (lab-power cs8210 = both; tools/README.md)
 DONT_POWER_OFF = ("do NOT power off: the installer is still running; rollback --write from its prompt "
                   "(erase 0x20000) or re-run the step")
 
@@ -857,7 +857,7 @@ def lease(a, take=True):
 
 
 def power(state):
-    r = subprocess.run(["lab-power", "--entity", PLUG, state], capture_output=True, text=True, timeout=60)
+    r = subprocess.run(["lab-power", PLUG, state], capture_output=True, text=True, timeout=60)
     if r.returncode:
         raise Fail(f"lab-power {PLUG} {state}: {r.stdout}{r.stderr}")
 

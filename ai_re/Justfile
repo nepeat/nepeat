@@ -56,9 +56,10 @@ test-deploy *args:
 test-vm *args:
     @tests/run-pytest.sh "{{jobs}}" tests -m vm "$@"
 
-# unit tests of tools/ (lab-power, ai-re-images); no nix builds
+# unit tests of tools/ (ai-re-images) and lab-power (rust/lab-power: fmt, clippy and its tests run in its nix build)
 test-tools *args:
     @tests/run-pytest.sh 1 tools/tests "$@"
+    nix build --no-link {{nix_args}} .#lab-power
 
 # list the targets without running anything
 test-list *args:

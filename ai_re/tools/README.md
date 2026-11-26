@@ -1,46 +1,78 @@
 # RE toolkit helpers
 
-`lab-power` reads or switches a Home Assistant power outlet. Enter the nix
-devshell (reload direnv after pulling changes) to put it on PATH. The helper
-uses Python's standard library; no pip install is needed.
+## lab-power: lab power feeds
 
-Keep `HA_BASE` (the server URL, without `/api`) and `HA_KEY` (a long-lived access
-token) in your local environment: put them in the untracked `.envrc.local`,
-which `.envrc` sources through direnv. Plain
-`nix develop` does not load `.envrc` exports; use direnv or export them yourself.
-Never commit tokens or paste them into CLI arguments.
+`lab-power` reads or switches a lab power feed: a Home Assistant smart plug or the
+NetBotz 250's switched outlet. It is the Rust CLI in
+[rust/lab-power](../../rust/lab-power/) (targets are data: `targets.json` there), on
+PATH in the devshell (reload direnv after pulling changes).
 
-Every call names the plug; there is no default, so `lab-power off` alone
-is refused before anything reaches HA.
+Its environment lives in the untracked `.envrc.local`, which `.envrc` sources through
+direnv (plain `nix develop` does not load it):
 
-| plug | HA entity | device on it |
-| --- | --- | --- |
-| 1 | `switch.server_room_lab_plug` | whichever lab switch is in bring-up (another agent is using it) |
-| 2 | `switch.server_room_lab_plug_2` | `dmc-12-48r-as0` console server |
+- `HA_BASE` (the server's `http://` URL without `/api`; https is not supported) and
+  `HA_KEY` (a long-lived access token): the Home Assistant targets.
+- `LAB_POWER_NETBOTZ_CREDENTIALS`, `LAB_POWER_NETBOTZ_KNOWN_HOSTS`: absolute paths of
+  the NetBotz credentials JSON (`username`, `password`) and its pinned `known_hosts`
+  (both in the git-ignored `devices/apc-general/snapshots/lab/`). Files that group or
+  others can read are refused.
+
+Never commit these or put a secret in an argument. Every call names its target: there is
+no default, so `lab-power off` alone is refused before anything is contacted.
+
+| target | backend | feeds | power meter |
+| --- | --- | --- | --- |
+| `1` | HA `switch.server_room_lab_plug` (Onvis S4) | CS8210-32X, its PSU not on the NetBotz (PSU 2 per `psushow`, 2026-11-26) | none |
+| `2` | HA `switch.server_room_lab_plug_2` (Onvis S4) | `dmc-12-48r-as0` console server | none |
+| `cs8210-psu1` | NetBotz 250 `10.60.30.45`, its one switched outlet (`nboutlet`) | CS8210-32X PSU 1 | none |
+| `cs8210` (device) | all feeds: `1` + `cs8210-psu1` | the CS8210-32X | none |
 
 ```sh
 lab-power 2 status
-lab-power 2 off
-lab-power 2 on
-lab-power 1 status --json
+lab-power 2 off; lab-power 2 on
+lab-power 1 cycle --off-time 15
+lab-power cs8210-psu1 status --json
+lab-power cs8210 status          # every feed
+lab-power cs8210 cycle           # true cold cycle: all feeds off, wait, all on
+lab-power cs8210 power           # watts where a feed has a meter
+lab-power --list
 ```
 
-To add a plug, add it to `PLUGS` in `lab_power.py` and to this table.
+- `status` only reads. `on`/`off` read first, switch, then read back until the feed
+  reports the new state (`--wait`, default 5 s). Exit 1 on failure, 2 on usage. HA's
+  `unknown`/`unavailable` are shown by `status` and refused by `on`/`off`. A reported
+  state is not an independent measurement of mains power.
+- `cycle`: off (verified), `--off-time` (default the target's `cycle_off_seconds`, 10 s),
+  on (verified). `off` and `cycle` print what the target feeds first (stderr); there is
+  no prompt.
+- Devices act on all their feeds. Every feed is read first; if one cannot be read,
+  nothing is switched. If a feed does not turn off during `cycle`, the cycle is aborted,
+  every feed is switched back on, and the error names the feed.
+- `power [--watch S [--count N]]`: watts from a target's HA `power_sensor` (W or kW),
+  else `no power meter on this target`. None of today's targets has one: the Onvis S4
+  plugs expose only switch/firmware/identify/power-on-behavior entities in HA, and the
+  NetBotz outlet does not measure current. The PSUs' PMBus telemetry is the CS8210's own
+  (`psushow`; devices/cs8210-32x).
+- `--json`: one object per call (HA targets carry the entity as `home_assistant`).
+  `--timeout` is per HTTP request or SSH prompt (default 10 s).
+- NetBotz: the system `ssh -tt` with `-F /dev/null`, password auth only (the password
+  reaches ssh through `SSH_ASKPASS`, which is lab-power itself reading the credentials
+  file), the pinned `known_hosts` with `StrictHostKeyChecking=yes`, and
+  `HostKeyAlgorithms=+ssh-rsa` (the AP9538 NMC2 offers only `ssh-rsa`). One session per
+  read or switch (about 2.5 s), always closed with `bye`. The NMC allows few sessions,
+  so do not run several at once. Errors say unreachable, authentication failed, host key
+  changed or not verified, session limit, or unexpected CLI output; ssh's own messages
+  are never printed (they carry key fingerprints). `nboutlet -ns` (the normal state,
+  now `Off`) is never sent.
 
-`status` only reads. `on` and `off` first check the entity, call the switch
-service, then poll until HA reports the requested state. Failure returns a
-nonzero exit code; `unknown` and `unavailable` are shown as-is by `status`.
-`--timeout` controls each request's timeout (default 10 seconds); `--wait`
-controls the polling window (default 5 seconds, plus any in-flight request).
-HA's reported state is not an independent measurement of physical mains power.
+To add a target, add it to `targets.json` (backends `home-assistant`, `netbotz`) and to
+this table. API reference: [Home Assistant REST API](https://developers.home-assistant.io/docs/api/rest/).
 
-API reference: [Home Assistant REST API](https://developers.home-assistant.io/docs/api/rest/).
-
-Run the isolated tests (lab-power and ai-re-images; no hardware, no real dumps):
+Tests (no hardware, no real dumps):
 
 ```sh
-just test-tools                                  # pytest, from ai_re/
-python3 -m unittest discover -s tools/tests -v   # the same without pytest
+just test-tools    # pytest for ai-re-images, then nix build .#lab-power: fmt, clippy and its
+                   # tests (fake HA server, fake ssh replaying the recorded nboutlet transcript)
 ```
 
 `just test` also test-builds everything under `nix/` (U-Boot variants,

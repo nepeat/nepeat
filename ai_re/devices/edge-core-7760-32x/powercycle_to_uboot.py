@@ -13,7 +13,7 @@ from pathlib import Path
 
 capture = Path(__file__).resolve().parent / "ram-probe-boot-20261114.txt"
 start = capture.stat().st_size
-power = ["lab-power", "--entity", "switch.server_room_lab_plug"]
+power = ["lab-power", "1"]   # lab plug 1 (tools/README.md)
 subprocess.run(power + ["off"], check=True)
 time.sleep(2)
 subprocess.run(power + ["on"], check=True)

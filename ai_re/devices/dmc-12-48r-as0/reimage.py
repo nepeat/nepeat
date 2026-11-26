@@ -431,10 +431,10 @@ def step_setenv(args, st):
         if "ip" in st:
             ssh(st, "sync; systemctl reboot", timeout=30)   # CPLD board reset
         else:
-            subprocess.run([sys.executable, str(AIRE / "tools" / "lab_power.py"), str(args.plug), "off"],
+            subprocess.run(["lab-power", str(args.plug), "off"],
                            check=True, capture_output=True)
             time.sleep(12)
-            subprocess.run([sys.executable, str(AIRE / "tools" / "lab_power.py"), str(args.plug), "on"],
+            subprocess.run(["lab-power", str(args.plug), "on"],
                            check=True, capture_output=True)
         st["setenv"] = "not needed (standard boot)"
         return

@@ -288,9 +288,9 @@ def power(a, state):
             run(reimage.SSH + [f"root@{a.ip}", "sync"], 15)
         except subprocess.TimeoutExpired:
             pass
-    r = run([sys.executable, str(ROOT.parents[1] / "tools" / "lab_power.py"), str(a.plug), state], 30)
+    r = run(["lab-power", str(a.plug), state], 30)
     if r.returncode:
-        raise Fail(f"lab_power {a.plug} {state} failed: {r.stdout[-200:]}{r.stderr[-200:]}")
+        raise Fail(f"lab-power {a.plug} {state} failed: {r.stdout[-200:]}{r.stderr[-200:]}")
 
 
 def counts(pats):

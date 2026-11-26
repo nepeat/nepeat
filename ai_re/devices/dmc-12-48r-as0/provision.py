@@ -26,7 +26,7 @@ Steps:
             CPLD flash readback, uC, TPM, SSD, USB/PCI) -> inventory/<unit>/firmware.json + blobs
   summary   print the units.md column values from what the steps collected
 
-Needs: the unit on a switchable lab plug (`tools/lab_power.py`; spi-upgrade power-cycles with
+Needs: the unit on a switchable lab plug (`lab-power`, tools/README.md; spi-upgrade power-cycles with
 exact timing, so --plug is required), its front console on the FTDI in tmux `serial-dmc12`, mgmt
 port on the lab LAN, and the builds of reimage.md "Before the first unit" (checked first).
 Plugs with a known owner (PLUG_OWNERS) are refused unless --plug-free says it was moved.
@@ -45,7 +45,7 @@ SMALL = [  # (box path, dumps/<unit>/ name)
     ("/sys/bus/i2c/devices/0-0057/eeprom", "spd-0-0057.bin"),
     ("/proc/config.gz", "vendor-config.gz"),
 ]
-# Lab plugs that power something else (tools/lab_power.py). A new unit goes on a free plug;
+# Lab plugs that power something else (lab-power, tools/README.md). A new unit goes on a free plug;
 # --plug-free REASON overrides (e.g. "u01 moved off plug 2").
 PLUG_OWNERS = {"1": "the CS8210 (another session's switch)", "2": "u01, the lab console server"}
 BUILDS = ["nixos-build/result-netboot/uImage", "nixos-build/result-disk-standard/disk.img.zst",
@@ -346,7 +346,7 @@ def step_summary(a, st):
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--unit", required=True)
-    p.add_argument("--plug", required=True, help="lab-power plug of this unit (tools/lab_power.py)")
+    p.add_argument("--plug", required=True, help="lab-power plug of this unit (tools/README.md)")
     p.add_argument("--from", dest="start", choices=STEPS, help="default: the first step not done")
     p.add_argument("--to", dest="stop", choices=STEPS, default=STEPS[-1])
     p.add_argument("--ip", help="the box's lab address (resume without redoing capture)")

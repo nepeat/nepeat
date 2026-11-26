@@ -1,0 +1,42 @@
+# lab-power: the lab's power feeds (Home Assistant plugs, the NetBotz 250 switched outlet) behind
+# one CLI. Its own workspace on purpose (like ../cs8210 and ../sai): a crate in ../crates would
+# share fand's lock file and package source, so every edit here would rebuild fand.
+[workspace]
+
+[package]
+name = "lab-power"
+description = "Lab power control: Home Assistant plugs and the NetBotz 250 switched outlet, one CLI"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+rust-version = "1.89"
+publish = false
+
+[[bin]]
+name = "lab-power"
+path = "src/main.rs"
+
+[dependencies]
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"
+unused_must_use = "deny"
+missing_docs = "warn"
+unreachable_pub = "warn"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+unwrap_used = "warn"
+expect_used = "warn"
+panic = "warn"
+indexing_slicing = "warn"
+module_name_repetitions = "allow"
+missing_errors_doc = "allow"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true

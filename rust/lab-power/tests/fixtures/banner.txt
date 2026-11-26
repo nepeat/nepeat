@@ -1,0 +1,27 @@
+
+
+Schneider Electric                      Network Management Card AOS      v7.0.8
+(c) Copyright 2022 All Rights Reserved  NETBOTZ 250 APP                  v7.0.8
+-------------------------------------------------------------------------------
+Name      : netbotz-lab                           Date :  01/01/2026
+Contact   : Unknown                                   Time :  00:00:00
+Location  : lab                                       User : Super User
+Up Time   :  1 Days 0 Hours 0 Minutes                Stat : P+ N4+ N6+ A+
+-------------------------------------------------------------------------------
+IPv4               : Enabled            IPv6               : Enabled
+Ping Response      : Enabled
+-------------------------------------------------------------------------------
+HTTP               : Enabled            HTTPS              : Enabled
+FTP                : Disabled           Telnet             : Disabled
+SSH/SCP            : Enabled            SNMPv1             : Read-Only
+SNMPv3             : Disabled
+-------------------------------------------------------------------------------
+Super User         : Enabled            RADIUS             : Disabled
+Administrator      : Disabled           Device User        : Disabled
+Read-Only User     : Disabled           Network-Only User  : Disabled
+
+
+Type ? for command listing
+Use tcpip command for IP address(-i), subnet(-s), and gateway(-g)
+
+apc>

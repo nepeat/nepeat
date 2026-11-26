@@ -29,7 +29,7 @@ def pane():
 
 
 def power(plug, state):
-    subprocess.run([sys.executable, str(ROOT.parents[1] / "tools" / "lab_power.py"), str(plug), state],
+    subprocess.run(["lab-power", str(plug), state],
                    check=True, capture_output=True)
 
 

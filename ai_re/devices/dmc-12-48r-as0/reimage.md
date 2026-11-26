@@ -20,7 +20,7 @@ The default `--image` is the standard build (needs `spi-upgrade.py install` on t
 script checks); pass `--image nixos-build/result-disk-chainload` otherwise.
 - Console: one logged tio in tmux `serial-dmc12` (PROGRESS Status). The FTDI
   cable goes to the unit's front console port, 115200 8N1.
-- Power: the unit's lab plug in `tools/lab_power.py` (`--plug N`), or reset it
+- Power: the unit's lab plug (`lab-power N`, [tools/README.md](../../tools/README.md); `--plug N`), or reset it
   by hand and use `--no-power`.
 - TFTP: atftpd serves `/srv/tftpboot`. The script stages into `dmc12/` (public
   build artefacts only; no keys, no dumps).

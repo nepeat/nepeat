@@ -99,6 +99,6 @@ factory validator first). `slots` reads the model (`--live` also proves the runn
   slot is the real test.
 
 ## Reuse
-Console + prompt handling: `console.py`; power: `tools/lab_power.py`; stage3 keys: `stage3keys.py`
+Console + prompt handling: `console.py`; power: `lab-power` (tools/README.md); stage3 keys: `stage3keys.py`
 logic; payload/BOOT_MODE builder: `uartboot.py` `obj()` + `alboot.py`; smoke: `smoke.py`. Same shape as
 `reimage.py` (steps, `--from`, `--json`, `--yes`, gates), so the two can share a module later.

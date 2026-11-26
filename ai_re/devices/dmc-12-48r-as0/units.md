@@ -47,7 +47,7 @@ build host/date). The real changes between OS 457 and 526 are in userspace (see 
   41 d: serial byte loss under sustained output; fix = 494d188).
 
 ## New units
-1. Hands: unit id sticker; the box on a switchable lab plug (`tools/lab_power.py`; plug 1 = CS8210,
+1. Hands: unit id sticker; the box on a switchable lab plug (`lab-power`, tools/README.md; plug 1 = CS8210,
    plug 2 = u01, so a new unit needs a third plug or u01 off its plug); the FTDI console cable
    on its front console port (tmux `serial-dmc12`); mgmt port on the lab LAN.
 2. `./provision.py --unit u02 --plug N` (resumable, `--yes` for agents; steps in its docstring):

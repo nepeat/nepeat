@@ -117,6 +117,8 @@
           '';
           meta.mainProgram = "pyghidra-mcp";
         };
+        # rust/lab-power: tests run in its build (just test-tools builds it).
+        labPower = pkgs.callPackage ../rust/lab-power/nix/package.nix { };
         # python with pyghidra for tools/ghidra/*.py (project seeding scripts).
         ghidraPy = pkgs.writeShellApplication {
           name = "ghidra-py";
@@ -132,6 +134,7 @@
         # noise on stdout, which would corrupt the MCP stdio stream).
         packages = pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
           pyghidra-mcp = pyghidraMcp;
+          lab-power = labPower;
         };
 
         devShells.default = pkgs.mkShell {
@@ -156,12 +159,9 @@
               text = ''exec python3 ${./tools/metrics.py} "$@"'';
             })
 
-            # Home Assistant outlet control; credentials stay in the environment.
-            (writeShellApplication {
-              name = "lab-power";
-              runtimeInputs = [ python3 ];
-              text = ''exec python3 ${./tools/lab_power.py} "$@"'';
-            })
+            # Lab power feeds (rust/lab-power): Home Assistant plugs (HA_BASE/HA_KEY from the
+            # environment) and the NetBotz 250 switched outlet over SSH (tools/README.md).
+            labPower
 
             # Read-only catalog of device dumps: tags, verify, inspect, dupes,
             # zstd-qcow2 export (tools/images.py, tools/README.md).
