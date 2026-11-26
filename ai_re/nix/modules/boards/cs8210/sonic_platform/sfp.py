@@ -12,9 +12,11 @@ runs with --skip_cmis_mgr.
 Two xcvrd DOM-loop habits, per module (until it is removed or reset):
   * the CDB firmware query (page 9Fh writes; these Molex modules answer "enter
     password" and fail) runs once, its answer is kept;
-  * VDM statistics freeze (page 2Fh byte 144 + polling the done bit for 1 s):
-    a module that does not confirm a freeze within the time is reported as having
-    no VDM statistics, so xcvrd stops freezing it every cycle.
+  * VDM statistics: only reported for a module that has page 2Fh (VDM control,
+    the freeze), whatever page 01h advertises: the Molex 1064281405 DR4s (CMIS 4.0)
+    advertise VDM and have pages 20h.. but refuse a select of 2Fh (the daemon
+    answers such a read with an error); a module whose freeze is not confirmed
+    within the time is reported as having none too, so xcvrd stops freezing it.
 """
 import sys
 import time
@@ -24,6 +26,7 @@ from sonic_platform_base.sonic_xcvr.sfp_optoe_base import SfpOptoeBase
 from . import optics
 
 VDM_DONE_S = 0.9                                    # xcvrd polls for 1 s
+VDM_CONTROL = 128 + 128 * 0x2f                      # page 2Fh byte 128, optoe flat
 
 QSFP_IDS = (0x0c, 0x0d, 0x11, 0x18, 0x19, 0x1e)    # SFF-8436/8636 and CMIS
 
@@ -39,12 +42,14 @@ class Sfp(SfpOptoeBase):
         self.port = port
         self._fw_info = None                        # cached CDB firmware answer
         self._vdm_freeze_broken = False
+        self._vdm_page = None                       # page 2Fh readable (None: not asked)
         self._vdm_t0 = None
 
     def invalidate(self):
         self._xcvr_api = None
         self._fw_info = None
         self._vdm_freeze_broken = False
+        self._vdm_page = None
         self._vdm_t0 = None
 
     # ------------------------------------------------------------ xcvrd DOM habits
@@ -54,9 +59,14 @@ class Sfp(SfpOptoeBase):
         return self._fw_info
 
     def is_vdm_statistic_supported(self):
-        if self._vdm_freeze_broken:
+        if self._vdm_freeze_broken or not SfpOptoeBase.is_vdm_statistic_supported(self):
             return False
-        return SfpOptoeBase.is_vdm_statistic_supported(self)
+        if self._vdm_page is None:
+            self._vdm_page = self.read_eeprom(VDM_CONTROL, 1) is not None
+            if not self._vdm_page:
+                sys.stderr.write("cs8210 sonic_platform: cage %d: module advertises VDM but has no page 2Fh; "
+                                 "VDM statistics off for it\n" % self.port)
+        return self._vdm_page
 
     def freeze_vdm_stats(self):
         self._vdm_t0 = time.monotonic()

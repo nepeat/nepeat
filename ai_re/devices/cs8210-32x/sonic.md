@@ -5,7 +5,8 @@ Cross-device notes and the stack itself: [sonic-nixos](../sonic-nixos/PROGRESS.m
 ## Status (2026-11-25)
 
 - **New cabling (2026-11-25):** 1 <-> 2 and 31 <-> 32 400G-DR4 optics, 3 <-> 17 400G CR8 DAC; Nix-base config of the
-  three loops ("Running it"); 3 <-> 17 and 31 <-> 32 up with ping across, 1 <-> 2 down on Rx power (PROGRESS).
+  three loops ("Running it"); 3 <-> 17 and 31 <-> 32 up with ping across, 1 <-> 2 down: lane 4 optical (Rx CDR loss
+  of lock in both modules), the electrical path through the Credo PHYs proven with a module loopback (PROGRESS 2026-11-26).
   Cages: cs8210-optics ("Optics"); LEDs: "LEDs".
 - **Our SAI runs the chip** (`sai-teralynx`: sai-openbcm's frontend + an IFCS backend dlopen()ing the
   vendor `libifcs.so` 0.12.41): every phase B/C feature passes its sai-script chip test on the 400G
@@ -40,7 +41,8 @@ in Vrf-a/b/c (.1/31, MACs 0e:48:c6:7a:55:cf/d0/d1); the other 26 ports down; LLD
 file (`/var/lib/sonic/config_db.json` of the old cage 1 <-> 16 loop moved to `config_db.json.cage1-16-loop-20261116`);
 `config save` would make one. Test: `ping -I Ethernet16 10.0.3.1`, `ping -I Ethernet240 10.0.31.1`
 ([evidence](evidence/links-20261125.txt)). Credo line side: cage 3 copper (the DAC), 1 and 2 optics; ASIC side:
-cage 17 copper, 31/32 optics (`lineMedia`, `media`). `sonic-nix reload` without a saved file loads the base. Recovery as on the AS7760 (shared recovery.nix):
+cage 17 copper, 31/32 optics (`lineMedia`, `media`); at boot `cs8210-optics credo-spec` overrides the Credo media per
+cage from the module in it (passive copper media type 03h -> `copper_*`, line AN/LT; anything else -> `optics_*`, none). `sonic-nix reload` without a saved file loads the base. Recovery as on the AS7760 (shared recovery.nix):
 orchagent crash -> syncd restart, teamd respawn, reload ([evidence](sai-hw-sonic-boot-20261116.txt)).
 Vendor stack instead: `systemctl start cs8210-switch` (Conflicts= stops syncd and the Credo unit); back:
 `systemctl start sonic.target`. Diag: `openbcm-diag -s /run/sai-teralynx/diag.sock copp|acl|counters <devport>|devport <n>`.
@@ -113,8 +115,10 @@ the whole SoC; [analysis](sai-hw-fpga-stall-20261116.txt)). It turns on the FPGA
   up again. xcvrd keeps `--skip_cmis_mgr` (one state machine per module).
 - **SONiC**: `sonic_platform`'s Sfp/Chassis call the daemon's socket (`/run/cs8210-optics/optics.sock`, JSON lines;
   `optics.py`): sideband, optoe flat-offset reads/writes, LPMode, reset. `show interfaces transceiver
-  presence|eeprom -d` and the TRANSCEIVER_* tables work ([evidence](evidence/optics-20261125.txt)). xcvrd's
-  periodic VDM freeze / CDB firmware queries fail on these modules (log noise, harmless).
+  presence|eeprom -d` and the TRANSCEIVER_* tables work ([evidence](evidence/optics-20261125.txt)). Every page select is
+  read back: a page the module does not have is an error, not page 00h's bytes. The Molex DR4s advertise VDM but
+  refuse page 2Fh (VDM control / freeze), so sonic_platform reports no VDM statistics for them and xcvrd never
+  freezes; its CDB firmware query (page 9Fh, "enter password" here) runs once per module ([evidence](evidence/links-20261126.txt)).
 - **Metrics**: `/run/prometheus-textfile/cs8210-optics.prom`, the board-neutral `switch_optic_*` of the AS7760
   (info, temperature, Vcc, per-lane Rx/Tx power and bias: Grafana "switch optics") + `cs8210_optics_*` (fpga_up,
   module_ready, bringup_failed, reset_held, i2c errors, Rx LOS / Tx fault, Rx dBm). Refreshed every 10 s.
@@ -200,8 +204,8 @@ the public sonic-buildimage `innovium.77700_A` (byte-identical to the SDK's `inn
   output for 32x400, the lab 4x10G layout and every mode ([check](sonic-sdk-config-20261115.txt),
   [script](scripts/sonic_sdk_config_check.py)).
 - pmon: fans/LM75/ASIC from fand, PSUs from the sys CPLD, cages through cs8210-optics,
-  syseeprom from the TLV EEPROM ([tests](sonic-platform-test-20261115.txt)). PSU slot 2-4 presence
-  bits look wrong (only PSU 1 fitted, but 2-4 decode as present); xcvrd runs `--skip_cmis_mgr` (cs8210-optics does CMIS).
+  syseeprom from the TLV EEPROM ([tests](sonic-platform-test-20261115.txt)). PSUs: 2 bays (sys CPLD 0x08), PMBus
+  readings through `cs8210-psu` (PROGRESS 2026-11-26); xcvrd runs `--skip_cmis_mgr` (cs8210-optics does CMIS).
 - `asic_type` = `marvell-teralynx` (upstream's value; differences from `broadcom` in the pinned
   orchagent: combined V4V6 ACL tables allowed, PFC watchdog handler, no DNAT tracking).
 

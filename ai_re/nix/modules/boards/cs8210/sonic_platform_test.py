@@ -258,6 +258,11 @@ class Board(unittest.TestCase):
             S.SfpOptoeBase.get_vdm_freeze_status = lambda self: False
             S.SfpOptoeBase.is_vdm_statistic_supported = lambda self: True
             S.SfpOptoeBase.get_transceiver_info_firmware_versions = lambda self: calls.append(1) or {"fw": "x"}
+            # no page 2Fh (the Molex DR4s): not supported, nothing frozen
+            s.read_eeprom = lambda off, n: None
+            self.assertFalse(s.is_vdm_statistic_supported())
+            s.invalidate()
+            s.read_eeprom = lambda off, n: bytearray(n) if off == S.VDM_CONTROL else None
             self.assertTrue(s.is_vdm_statistic_supported())
             S.VDM_DONE_S = 0.05
             s.freeze_vdm_stats()
@@ -270,6 +275,7 @@ class Board(unittest.TestCase):
             self.assertEqual(len(calls), 1)                  # asked once per module
             s.invalidate()
             self.assertTrue(s.is_vdm_statistic_supported())  # a new module is asked again
+            del s.read_eeprom
         finally:
             (S.SfpOptoeBase.freeze_vdm_stats, S.SfpOptoeBase.get_vdm_freeze_status,
              S.SfpOptoeBase.is_vdm_statistic_supported, S.SfpOptoeBase.get_transceiver_info_firmware_versions) = orig

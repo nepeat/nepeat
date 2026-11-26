@@ -1038,6 +1038,20 @@ mod tests {
     }
 
     #[test]
+    fn a_page_the_module_does_not_have_is_an_error_not_page_0() {
+        let mut d = daemon(lab(), &[(1, M400)]);
+        settle(&mut d);
+        d.fpga.bar_mut().module_mut(1).unwrap().without_page(0x2f);
+        let r = d.handle(r#"{"op":"read","cage":1,"offset":6144,"len":1}"#);
+        assert_eq!(r["ok"], false, "{r}");
+        assert!(r.to_string().contains("no page 2fh"), "{r}");
+        let r = d.handle(r#"{"op":"write","cage":1,"offset":6160,"data":"80"}"#);
+        assert_eq!(r["ok"], false, "{r}");
+        let r = d.handle(r#"{"op":"read","cage":1,"offset":2304,"len":4}"#);
+        assert_eq!(r["ok"], true, "page 11h still reads: {r}");
+    }
+
+    #[test]
     fn sonic_cannot_write_what_the_bring_up_owns() {
         let mut d = daemon(lab(), &[(1, M400)]);
         settle(&mut d);

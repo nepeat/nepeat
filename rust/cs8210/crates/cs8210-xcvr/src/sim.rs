@@ -14,6 +14,7 @@ pub struct SimModule {
     nack: bool,
     reject: Option<u8>,
     writes: u64,
+    missing_pages: Vec<u8>,
 }
 
 impl SimModule {
@@ -26,7 +27,14 @@ impl SimModule {
             nack: false,
             reject: None,
             writes: 0,
+            missing_pages: Vec::new(),
         }
+    }
+
+    /// Make the module refuse a page select of `page` the way the Molex 1064281405 refuses
+    /// 2Fh: byte 127 reads back 00h afterwards (lower page + upper page 00h).
+    pub fn without_page(&mut self, page: u8) {
+        self.missing_pages.push(page);
     }
 
     /// The cage 1 module of the lab (Molex 400G-DR4, CMIS 4.0, on its 4x100G default).
@@ -180,6 +188,11 @@ impl SimModule {
             if r == PAGE_SELECT && !self.kind().paged() {
                 continue;
             }
+            let v = if r == PAGE_SELECT && self.missing_pages.contains(&v) {
+                0
+            } else {
+                v
+            };
             let at = self.offset(addr, r)?;
             *self.image.get_mut(at).ok_or("beyond the image: NACK")? = v;
             if matches!(self.kind(), Kind::Cmis { .. }) {

@@ -1,0 +1,156 @@
+# CS8210 1<->2 link diagnosis + VDM, 2026-11-26 09:40-09:52 UTC (CS-A2 B2)
+## Credo loader config at boot (c-phy/dynamic_config.txt): line side optics for 1/2 (no line AN/LT), copper ANLT for 3
+71:firmware_configure_port slice_id=1 lport=0 line_start=12 host_start=0 line_num=8 host_num=8 line_fec=RS_544 host_fec=RS_544 speed=400000 mode=MacsecBypass connect=Retimer flag=PORT_SYS_SIDE_LT
+73:firmware_configure_port slice_id=2 lport=0 line_start=12 host_start=0 line_num=8 host_num=8 line_fec=RS_544 host_fec=RS_544 speed=400000 mode=MacsecBypass connect=Retimer flag=PORT_SYS_SIDE_LT
+75:firmware_configure_port slice_id=3 lport=0 line_start=12 host_start=0 line_num=8 host_num=8 line_fec=RS_544 host_fec=RS_544 speed=400000 mode=MacsecBypass connect=Retimer flag=PORT_LINE_SIDE_ANLT+P
+## Credo lane_ready_status (lanes 0-7 host side, 12-19 line side)
+### lane_ready_status slice_id=1 lane_mask=0xff0ff
+lane 0 : status 1
+lane 1 : status 1
+lane 2 : status 1
+lane 3 : status 1
+lane 4 : status 1
+lane 5 : status 1
+lane 6 : status 1
+lane 7 : status 1
+lane 12 : status 0
+lane 13 : status 0
+lane 14 : status 0
+lane 15 : status 0
+lane 16 : status 0
+lane 17 : status 0
+lane 18 : status 0
+lane 19 : status 0
+sleep
+### lane_ready_status slice_id=2 lane_mask=0xff0ff
+lane 0 : status 1
+lane 1 : status 1
+lane 2 : status 1
+lane 3 : status 1
+lane 4 : status 1
+lane 5 : status 1
+lane 6 : status 1
+lane 7 : status 1
+lane 12 : status 0
+lane 13 : status 0
+lane 14 : status 0
+lane 15 : status 0
+lane 16 : status 0
+lane 17 : status 0
+lane 18 : status 0
+lane 19 : status 0
+### lane_ready_status slice_id=3 lane_mask=0xff0ff
+lane 0 : status 1
+lane 1 : status 1
+lane 2 : status 1
+lane 3 : status 1
+lane 4 : status 1
+lane 5 : status 1
+lane 6 : status 1
+lane 7 : status 1
+lane 12 : status 1
+lane 13 : status 1
+lane 14 : status 1
+lane 15 : status 1
+lane 16 : status 1
+lane 17 : status 1
+lane 18 : status 1
+lane 19 : status 1
+
+## Modules: per-lane Tx/Rx power (cs8210-optics status N); 400GBASE-DR4 min average Rx power is -5.9 dBm
+I2C FPGA version 0x0b00 board 0x09
+cage pres rst lp int  decl mode    type     vendor           part             serial            temp C  vcc V  bring-up
+   1 yes  no  no  yes  yes  1x400G  QSFP-DD  MOLEX            1064281405       G21084B2455         36.3  3.365  ready app 1
+     application 1: host 0x11 media 0x1c 8x4 lanes
+     application 2: host 0x0d media 0x15 2x1 lanes
+     module state Ready  data path ["Activated","Activated","Activated","Activated","Activated","Activated","Activated","Activated"]  active ApSel [16,16,16,16,16,16,16,16]
+     lane 1  tx 1.7791 mW (2.50 dBm)  rx 0.2751 mW (-5.61 dBm)  bias 137.34 mA  rx_los false  tx_fault false
+     lane 2  tx 1.7776 mW (2.50 dBm)  rx 0.2526 mW (-5.98 dBm)  bias 141.66 mA  rx_los false  tx_fault false
+     lane 3  tx 1.6493 mW (2.17 dBm)  rx 0.2429 mW (-6.15 dBm)  bias 143.75 mA  rx_los false  tx_fault false
+     lane 4  tx 1.1097 mW (0.45 dBm)  rx 0.1469 mW (-8.33 dBm)  bias 149.45 mA  rx_los false  tx_fault false
+     i2c errors 0  last error null
+I2C FPGA version 0x0b00 board 0x09
+cage pres rst lp int  decl mode    type     vendor           part             serial            temp C  vcc V  bring-up
+   2 yes  no  no  yes  yes  1x400G  QSFP-DD  MOLEX            1064281405       G21466D0520         34.3  3.370  ready app 1
+     application 1: host 0x11 media 0x1c 8x4 lanes
+     application 2: host 0x0d media 0x15 2x1 lanes
+     module state Ready  data path ["Activated","Activated","Activated","Activated","Activated","Activated","Activated","Activated"]  active ApSel [16,16,16,16,16,16,16,16]
+     lane 1  tx 1.7496 mW (2.43 dBm)  rx 0.4453 mW (-3.51 dBm)  bias 156.87 mA  rx_los false  tx_fault false
+     lane 2  tx 1.8952 mW (2.78 dBm)  rx 0.3336 mW (-4.77 dBm)  bias 165.48 mA  rx_los false  tx_fault false
+     lane 3  tx 1.7674 mW (2.47 dBm)  rx 0.2483 mW (-6.05 dBm)  bias 178.20 mA  rx_los false  tx_fault false
+     lane 4  tx 1.6817 mW (2.26 dBm)  rx 0.1852 mW (-7.32 dBm)  bias 152.01 mA  rx_los false  tx_fault false
+     i2c errors 0  last error null
+I2C FPGA version 0x0b00 board 0x09
+cage pres rst lp int  decl mode    type     vendor           part             serial            temp C  vcc V  bring-up
+  31 yes  no  no  no   yes  1x400G  QSFP-DD  MOLEX            1064281405       G21394D0401         38.7  3.362  ready app 1
+     application 1: host 0x11 media 0x1c 8x4 lanes
+     application 2: host 0x0d media 0x15 2x1 lanes
+     module state Ready  data path ["Activated","Activated","Activated","Activated","Activated","Activated","Activated","Activated"]  active ApSel [16,16,16,16,16,16,16,16]
+     lane 1  tx 1.9048 mW (2.80 dBm)  rx 0.5381 mW (-2.69 dBm)  bias 113.39 mA  rx_los false  tx_fault false
+     lane 2  tx 1.9219 mW (2.84 dBm)  rx 0.3531 mW (-4.52 dBm)  bias 97.04 mA  rx_los false  tx_fault false
+     lane 3  tx 1.9144 mW (2.82 dBm)  rx 0.3812 mW (-4.19 dBm)  bias 96.58 mA  rx_los false  tx_fault false
+     lane 4  tx 1.9224 mW (2.84 dBm)  rx 0.4779 mW (-3.21 dBm)  bias 88.46 mA  rx_los false  tx_fault false
+     i2c errors 0  last error null
+## CMIS page 11h bytes 128-153 (flat 2304, 26 bytes), read twice (latched flags clear on read): byte 148 (L-RxCDRLOL) = 0x08 = lane 4 and byte 152 (L-RxPowerLowWarn) = 0x08 on cages 1 and 2, persistent; cage 31 clean
+== 1
+0900: 44 44 44 44 00 00 00 00 00 00 00 00 00 00 00 00  DDDD............
+0910: 00 00 00 00 08 00 00 00 08 00                    ..........
+0900: 44 44 44 44 00 00 00 00 00 00 00 00 00 00 00 00  DDDD............
+0910: 00 00 00 00 08 00 00 00 08 00                    ..........
+0008: 00 00 00 00 00 00                                ......
+== 2
+0900: 44 44 44 44 00 00 00 00 00 00 00 00 00 00 00 00  DDDD............
+0910: 00 00 00 00 08 00 00 00 08 00                    ..........
+0900: 44 44 44 44 00 00 00 00 00 00 00 00 00 00 00 00  DDDD............
+0910: 00 00 00 00 08 00 00 00 08 00                    ..........
+0008: 00 00 00 00 00 00                                ......
+== 31
+0900: 44 44 44 44 00 00 00 00 00 00 00 00 00 00 00 00  DDDD............
+0910: 00 00 00 00 00 00 00 00 00 00                    ..........
+0900: 44 44 44 44 00 00 00 00 00 00 00 00 00 00 00 00  DDDD............
+0910: 00 00 00 00 00 00 00 00 00 00                    ..........
+0008: 00 00 00 00 00 00                                ......
+## Decisive test: module host-side input loopback on cage 1 (page 13h byte 183 = flat 2615; 13h:128 = 0x7f, every loopback supported)
+write 0xff -> Credo slice 1 line lanes:
+### lane_ready_status slice_id=1 lane_mask=0xff000
+lane 12 : status 1
+lane 13 : status 1
+lane 14 : status 1
+lane 15 : status 1
+lane 16 : status 1
+lane 17 : status 1
+lane 18 : status 1
+lane 19 : status 1
+SONiC during the loopback:
+  Ethernet0  209,210,211,212,213,214,215,216     400G   9100     rs   Ethernet1/1  routed      up       up  QSFP-DD Double Density 8X Pluggable Transceiver         N/A
+  Ethernet8  217,218,219,220,221,222,223,224     400G   9100     rs   Ethernet2/1  routed    down       up  QSFP-DD Double Density 8X Pluggable Transceiver         N/A
+
+up
+write 0x00 -> back to:
+### lane_ready_status slice_id=1 lane_mask=0xff000
+lane 12 : status 0
+lane 13 : status 0
+lane 14 : status 0
+lane 15 : status 0
+lane 16 : status 0
+lane 17 : status 0
+lane 18 : status 0
+lane 19 : status 0
+=> ASIC <-> Credo (host LT) <-> Credo line side (optics mode) <-> module electrical is good; Ethernet0 comes up over it.
+   The failing piece is optical: Rx CDR loss of lock on lane 4 in both modules (Rx -8.3 / -7.3 dBm), cage 1's lane 4 Tx
+   2 dB below its other lanes (0.45 dBm at 149 mA bias).
+## VDM: the Molex 1064281405 (CMIS 4.0, 01h:142 = 0x64 advertises VDM) has page 20h but refuses a select of 2Fh
+read 2Fh:128 (flat 6144), then byte 127; read 20h:128 (flat 4224), then byte 127; read 11h, byte 127
+1800: 18                                               .
+007f: 00                                               .
+1080: 00 05 01 05                                      ....
+007f: 20                                                
+0900: 44                                               D
+007f: 11                                               .
+0180: 4b 00 fb 00 48 00 fe 00                          K...H...
+010e: 64                                               d
+(before the fix the daemon returned page 00h bytes for 2Fh reads; the freeze write to 2Fh:144 never reached a 2Fh)
+## after the deploy (808pa9pv, switch 09:48): page selects read back, xcvrd: no VDM freeze writes, 16 module writes in all
+## (the once-per-module CDB firmware queries on page 9Fh, which the module has), links unchanged
+Ethernet0 down Ethernet8 down Ethernet16 up Ethernet128 up Ethernet240 up Ethernet248 up 
+writes since the switch (on request / at 6160): 16 / 0

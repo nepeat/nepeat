@@ -167,7 +167,22 @@ impl<B: Bar> CageIo<'_, B> {
         {
             *self.page = None;
             self.fpga.i2c_write(self.cage, ADDR_A0, PAGE_SELECT, &[p])?;
-            *self.page = Some(p);
+            // A module ignores a select of a page it does not have (the Molex DR4s fall back
+            // to 00h on 2Fh): read the select back so such a read cannot return another
+            // page's bytes, nor a write land on another page.
+            let got = self
+                .fpga
+                .i2c_read(self.cage, ADDR_A0, PAGE_SELECT, 1)?
+                .first()
+                .copied()
+                .unwrap_or(0);
+            *self.page = Some(got);
+            if got != p {
+                return Err(FpgaError::Refused(format!(
+                    "{}: the module has no page {p:02x}h (its page select reads back {got:02x}h)",
+                    self.cage
+                )));
+            }
         }
         Ok(())
     }
