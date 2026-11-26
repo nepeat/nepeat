@@ -11,10 +11,10 @@
 //! with the SAI lock held or from the temperature reader (`sai-backend-teralynx`'s locking rules);
 //! libifcs serialises them itself (its API lock).
 //!
-//! Not wrapped yet (G2: their areas are not ported): the route / L2 entry key accessors and
-//! entry calls, the IP prefix accessors, the queue / BAM queue / `QoS` map / traffic monitor
-//! calls, `ifcs_l2_entry_get_all` (its callback), `ifcs_status_to_string`. Their table entries are
-//! resolved at load all the same.
+//! The route / L2 entry keys, the IP prefix accessors, the entry calls and the walk of
+//! `ifcs_l2_entry_get_all` (its callback) are `entry.rs`'s (G2 package C); the queue / BAM queue keys and calls, the `QoS` map info and
+//! the traffic-monitor policy values are `qos.rs`'s (G2 package E). Not wrapped (no caller):
+//! `ifcs_status_to_string`; its table entry is resolved at load all the same.
 #![allow(unsafe_code)]
 
 use core::ffi::{CStr, c_int};

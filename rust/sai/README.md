@@ -125,6 +125,7 @@ header; `ai_re/tests/nixtargets.py` wires them up ([Build and test](#build-and-t
 
  openbcm-mdio-script-rs: mdio-tool -- mdio-report -- mdio-script;  feature sdk: -- sdk-glue
  openbcm-diag: the diag socket client (openbcm_diag.c);  sai-driver: op-script driver (differential)
+ sai-teralynx-parity: C++ vs Rust Teralynx libsai on the mock libifcs (G2 harness) -- sai-driver (compare)
  openbcm-asic-temp: attach-only temperature reader (asic_temp.c) -- sdk-glue (Attached) + sai-core::temp
 ```
 
@@ -383,7 +384,15 @@ Only for x86_64 (tests on the mock) and aarch64 (the CS8210); on other targets t
   zeroed attributes and its three empty forms), `Handle`, `Status` (`map_reason` exactly); callbacks over
   a keyed registry (`sdk-glue`'s pattern); libifcs' own `node_pci_reg_read32` / `_write32` for the board's
   register list. 41 blocks: call 20 (18 signatures + the 2 register accessors), shim 8, callback 7, dl 5,
-  table 1 (in the macro over the 148 symbols).
+  table 1 (in the macro over the 148 symbols). G2 package D: `netdev` (3 blocks: `socket`, its descriptor,
+  one `ioctl` call site for `SIOCGIFFLAGS` / `SIOCSIFFLAGS` / `SIOCSIFNAME` / `SIOCSIFHWADDR`: the adopt
+  mode's rename of the SDK's `inno_0_<sysport>` netdevs, `tl_hostif.cpp` `rename_netdev`), `Attrs::bytes`
+  (a value struct copied in: the ACL action values), no new IFCS signature. G2 package C: `entry`
+  (10 blocks: the L2 / route entry keys, IP prefix accessors and entry calls, one call site per signature
+  shape generic over the key type (`(K*)`, `(K*, int)`, `(K*, handle)`, `(K*, V*)`, `(K*, V)`, `(node, K*,
+  count, attr*)`, `(node, K*)`, `(node, K*, count, attr*, u32*)`: 21 functions), the walk of
+  `ifcs_l2_entry_get_all` and its callback's key read (its `user` a walk number of a keyed table, never
+  dereferenced, as `callback.rs`).
 - `sai-backend-teralynx` (`forbid(unsafe_code)`): one module per C++ file. G1: `core`, `config`, `keys`
   (every key of sai-teralynx's README table, C++ defaults and C parsing: `strtoul` base 0, `atoi`),
   `switch` (init / shutdown in the C++ order, init commands, callbacks, temperatures, table usage, chip
@@ -391,7 +400,41 @@ Only for x86_64 (tests on the mock) and aarch64 (the CS8210); on other targets t
   `hostif` / `sflow` / `acl`; every other operation answers `NotSupported` (`g2.rs`, logged once).
   Locking: the SAI API lock is the C++ `Core::mu`; outside it only the temperature reader (own mutex) and
   libifcs' callback threads (no IFCS call, queue to the `EventSink`). Differences from the C++: the crate's
-  `lib.rs`.
+  `lib.rs`. G2 package D (2026-11-26): `hostif` (`tl_hostif.cpp`: netdevs in create and adopt mode,
+  `trap_program` with the trap -> `CoPP` rule table, IGMP / MLD / `NEIGHBOR_MISS`, the system traps, CPU queue
+  counters, the diag `copp`) and `acl` (`tl_acl.cpp`: policers, the `CoPP` table, SAI ACL tables with
+  ranges / egress / `OUT_PORTS` / REDIRECT / `SET_TC` / MIRROR, `fp_entry_update` in place, `fp_entry_enable`,
+  `fp_group_free`, storm control, the diag `acl`), line by line; MIRROR asks the mirror area's collector sets
+  through `acl::MirrorSets` (`NoMirror` until package E lands: the C++ answer for an unknown session), the
+  SAMPLEPACKET trap and the sample policer go to `sflow` (`trap_program` / `policer_changed`: package E). On the
+  mock: `t_hostif`, `t_copp`, `t_acl`, their `t_counters` / `t_hooks` checks pass (all but the 6 `t_hooks`
+  lines of the mirror session, package E); the IFCS call log of the `hostif`, `copp`, `acl`, `counters`
+  sections equal to the C++ library's, `hooks` too but for the mirror entry, line for line once handle
+  numbers are canonical; with package E in the tree every test_ifcs section's call log is identical to the
+  C++'s, raw (a by-hand run on the mock, 2026-11-26; `tests/test-ifcs.sh` compares create / remove only). G2 package C
+  (2026-11-26): `l2` (`tl_l2.cpp`: VLANs as L2VNI + flood group + per-member `mc_dest`, LAG members joining
+  as their LAG, untagged egress per sysport, FDB add / delete / flush by walk, aging, the flood control
+  state machine, L2 events), `lag` (`tl_lag.cpp`: LAGs, members out of the IFCS LAG while egress and
+  ingress are disabled, `LagArea::dest_handle` for the other areas, the hash objects and the profile
+  hash) and `l3` (`tl_l3.cpp`: VRFs, interfaces, stations, next hops in place, hosts, routes with the
+  ip2me / glean traps of `hostif`, ECMP by repeats and `member_replace`, RIF counters, admin state,
+  `L3Area::nexthop_handle` for the ACL redirect), line by line. On the mock: `t_l2`, `t_l3`, `t_lag` and
+  their `t_hooks` checks pass; the IFCS call log of the `l2`, `l3`, `lag` sections and of `hooks_l3` /
+  the hash and flood checks equal to the C++ library's once handle numbers are canonical.
+  G2 package E (2026-11-26): `qos` (`tl_qos.cpp`: `QoS` maps as IFCS maps + map groups shared per (DSCP, DOT1P)
+  pair on the sysports, the TC -> queue identity rule, PFC, default TC, queue schedulers / port shaper in bits/s,
+  WRED curve groups with 0.12.41's `WRED_ENABLE` / ECN refusals and the rollback, queue buffer thresholds with
+  `RESERVED_SIZE` refused once and for all, PG profiles kept, queue / PG / PFC counters and the capability
+  probes), `mirror` (`tl_mirror.cpp`: SPAN / ERSPAN sessions on one shared DCDP per monitor sysport, collector
+  sets per direction, port mirroring, the session update inside the sets, `acl::MirrorSets` for the ACL MIRROR
+  action, samplers and the `sFlow` collectors toward the CPU) and `sflow` (`tl_sflow.cpp`: genetlink host
+  interfaces over the ipd driver's netlink ioctls, the SAMPLEPACKET trap as system trap `MIRROR_TO_CPU` and its
+  CPU-queue meter with `SAI_TERALYNX_SFLOW_METER=on`, per-port sample rates), line by line. `ifcs` gained `qos`
+  (queue / BAM queue keys and counter calls, the `QoS` map info and traffic-monitor policy values; 2 blocks) and
+  `ipd` (the ipd ioctls on libifcs' `/dev/ipd`, found through `/proc/self/fd`, or the mock's `tl_ipd_ioctl`;
+  layouts with compile-time size checks; 3 blocks). On the mock: `test_ifcs` 1047 / 1047, the expected-FAIL list
+  empty; the parity harness strict: green (sections 17 / 17, driver 01-09 376 / 376 ops, oracle 25 equal + 2
+  allowed: `tests/parity-allow.txt`, a sai-script name clash that makes the scripts' genetlink hostif type 5).
 - `sai-ffi` feature `teralynx` (not with `openbcm`: `compile_error!`): `SAI_OPENBCM_BACKEND=openbcm` (the
   CS8210 profile's), `teralynx` and no key select it; its keys are in `profile_keys()`.
 - `SAI_TERALYNX_POST_INIT_REGS` (Rust only): a file of `offset mask value` lines (hex `0x` or decimal; `#`
@@ -408,9 +451,14 @@ Only for x86_64 (tests on the mock) and aarch64 (the CS8210); on other targets t
 - `nix/libsai-teralynx.nix`: `libsai.so` (`-z defs`, soname `libsai.so.1`, the virtual build's exports).
   Native check (`crates/sai-backend-teralynx/tests/test-ifcs.sh`): sai-teralynx's `test_ifcs`, unmodified, on
   it with the C mock libifcs and the C shim, every FAIL line one of `tests/test_ifcs-expected.txt` (the G2
-  areas; it aborts in `t_hooks` on the unported L3); the create / remove IFCS call log equal to the C++
+  areas); the create / remove IFCS call log equal to the C++
   library's on the same mock; the post-init register list on the mock's registers. aarch64: cross build
   (`cs8210-sai-rs-teralynx`) and its test bundle run as aarch64-linux (`nix/teralynx-target-run.nix`).
+- Areas (`crates/sai-backend-teralynx/tests/areas.txt`): which area (C++ `tl_<area>.cpp`, G2 group) owns
+  each `test_ifcs` check (file / line range), section, driver op and oracle script. `test-ifcs.sh` prints the
+  FAIL lines per area (now / expected); an expected line may end in `# needs <area>` (it fails because
+  ANOTHER area is not ported yet); `REGEN_AREA=<area>[,...] bash tests/test-ifcs.sh ...` rewrites exactly
+  those areas' lines from the run (marked lines stay while they fail), every other line untouched.
 
 ### Drop-in package
 
@@ -606,6 +654,24 @@ failure", `ai_re/devices/edge-core-as7772-32x/evidence/rust-g6/` f1, g2).
   crate's own (`tests/driver-scripts`: external PHY, MACsec with key material, on the tables of
   `tests/test_tables.h`) through both drivers; every differing operation must be in
   `tests/differential-allow.txt` (empty).
+- `sai-teralynx-parity` (G2 / G3 of the CS-B plan; nix target `sai-teralynx-parity`): the C++ and the Rust
+  Teralynx libsai, each on the SAME mock libifcs, under the same unmodified programs, in the same
+  directories: `test_ifcs` (checks per section: "Rust passes N of 1047", every FAIL line with its area),
+  its IFCS calls per section (`TEST_IFCS_DUMP=1` + `c/tap.c`, which streams every mock line past the
+  tests' log clears; `c/sections.cpp` marks the areas through `-Wl,--wrap`), the frontend's driver-scripts
+  01-09 through `frontend_driver.cpp` as a plain SAI client (`c/tl_port.cpp`: the test port over the
+  mock's hooks, the op's IFCS lines as its `be` lines) and the oracle's JSON scripts through
+  `sai_script.cpp` (`c/oracle_prep.cpp`: `exec` steps dropped, sleeps 0); host interfaces in
+  `SAI_TERALYNX_NETDEV=create` mode (the build host has no netdevs to adopt). A difference is allowed
+  (`tests/parity-allow.txt`, empty), pending (its area still has lines in
+  `sai-backend-teralynx/tests/test_ifcs-expected.txt`, or a `tests/parity-pending.txt` entry gives it to
+  such an area), downstream of a pending one in the same run, or red; `--strict` (the G2 gate): only
+  allowed ones pass. The C++ must pass 1047 / 1047 and repeat itself; a negative control (`--mutate`: one
+  Rust call line changed) must be red. An area owner's run from `rust/sai`:
+  `nix build --impure --expr ...sai-teralynx-parity` (`ai_re/tests/nixtargets.py`), then
+  `result/bin/sai-teralynx-parity-run --rust-lib target/debug/libsai.so --parts sections,checks --only l2,lag`
+  (report: `<work>/out/report.txt`, every differing unit in `details.txt`, both sides' outputs beside it);
+  or without Nix: `build-fixtures.sh` (its header) and `cargo run -p sai-teralynx-parity --features cli`.
 
 ### Teralynx shim: ifcs-shim, ifcs-guard
 
@@ -618,7 +684,8 @@ write stays in libsai's process: `ifcs_lib.cpp`, later crate `ifcs`).
   state machine over an `Io` trait (the original accessors, clocks, the 3 ms sleep, the journal, the stats and
   inject files): validity rules, re-reads, substitution, degraded mode, all-ones counting of other offsets,
   the `im_malloc` limit, journal text and rate limit, the `.prom` text and its rewrite cadence, the inject
-  hook (`fscanf("%x %u")` as glibc reads it), init / installed, with the C's buffer sizes and truncation.
+  hook (`fscanf("%x %u")` as glibc reads it), init / installed, with the C's buffer sizes and truncation
+  (but the counters' text buffer: the deliberate difference below).
   No allocation; a valid guarded read takes no lock (as the C).
 - `ifcs-shim` (cdylib, soname `libsai-teralynx-shim.so`; installed under that name by `nix/ifcs-shim.nix`):
   the rim: the C library's 26 exports and nothing else (`nm -D` compared), the 19 CPython stubs (the two
@@ -627,20 +694,27 @@ write stays in libsai's process: `ifcs_lib.cpp`, later crate `ifcs`).
   entry points (`catch_unwind` with a named fallback in each), `tl_ifcs_im_malloc` as a naked tail jump
   that passes the caller's address (the C's `__builtin_return_address(0)`; x30 / `[rsp]`). stderr through
   `write(2)` (`std::io::stderr` allocates a thread handle on first use).
-- Evidence (2026-11-25): `ifcs-guard` 26 tests (rules one by one, the C test's learn scenario, a property
+- Evidence (2026-11-25, numbers of 2026-11-26): `ifcs-guard` 27 tests (rules one by one, the C test's learn scenario, a property
   test: 0x4860 never answered with bits 13..31, the RMW registers never all-ones, at most 3 re-reads and
   none while degraded, the journal's window); the live differential `ifcs-shim/tests/differential.rs`
-  (C harness `tests/c/guard_harness.c`; the C library compiled from the sources above unmodified; 15 corpus
-  scripts + 400 generated, inputs digest pinned): 95,533 steps, every trace line equal (values, codes,
+  (C harness `tests/c/guard_harness.c`; the C library compiled from the sources above unmodified; 16 corpus
+  scripts + 400 generated, inputs digest pinned): 95,582 steps, every trace line equal but the 6 of the
+  deliberate difference below (values, codes,
   original-accessor calls, sleeps, journal bytes, file versions, stubs, copies), per step the Rust allocates
   no more than the C (except init: the environment copy), no thread-local destructor registered; the same
-  415 scripts equal on aarch64 under emulation. Drop-in: sai-teralynx's own `test_ifcs` with the Rust
+  416 scripts equal on aarch64 under emulation (the same allow rule). Drop-in: sai-teralynx's own `test_ifcs` with the Rust
   library in place: 1047 / 1047 (x86_64; aarch64 emulated, C baseline 1047 too). `tl_devmem_memcpy`'s
   disassembly: single loads / stores of the chosen width, no SIMD, no pair but the frame record, no call.
-- Found by the port, kept for parity (in both): with the 16 all-ones names in use the counters' text
-  outgrows the C's 4096-byte buffer at a few hundred events per name (`render` returns -1): the file is
-  no longer rewritten and `tl_ifcs_guard_text` answers "" (test `counters_that_do_not_fit_the_buffer_give_no_text`,
-  corpus `allones-other.txt`).
+- Deliberate difference (found by the port; fixed in Rust 2026-11-26, coordinator decision; the C keeps
+  it until it goes at H5): with the 16 all-ones names in use the counters' text outgrows the C's 4096-byte
+  buffer at a few hundred events per name (`render` returns -1): the C no longer rewrites the file and
+  `tl_ifcs_guard_text` answers "", exactly in the dead-chip case the file is for. The Rust buffer
+  (`TEXT_CAP`, 5120 bytes) holds the worst case, 4720 bytes (every counter at `u64::MAX`, the 16 names at
+  0xffffffff, `installed` at `i32::MIN`, both timestamps at -2^63 s: test
+  `the_worst_case_counters_fit_the_buffer`; `counters_beyond_the_c_buffer_are_written`). The differential
+  allows exactly that and nothing else (`compare_allowing_text_cap`: a `prom` / `text` line of at least
+  4096 bytes on the Rust side only, where the C's text is empty; corpus `allones-overflow.txt`: 6 lines; the
+  emulated aarch64 replay in `nix/ifcs-shim.nix` applies the same rule).
 - Differences from the C, none in the differential's observables: a write-back error at `close` of the
   stats file is not seen (std does not report it; the C unlinked then); files are opened `O_CLOEXEC`;
   init copies the inject variable; calls before `tl_ifcs_guard_init` answer -1 (the C called a null
@@ -707,6 +781,7 @@ comparison is one of two kinds:
 | `openbcm-diag` client (`openbcm-diag --test differential`) | live | frozen `openbcm_diag.c` | 29 command lines |
 | diag server (`sai-core/tests/diag.rs`, `SAI_DIAG_CPP_ORACLE`) | live, by hand | a program over the frozen `sai_diag.cpp` (not built by any check) | |
 | glue calls (`sai-backend-openbcm --test glue_differential`) | golden | `openbcm_backend.cpp` + the C++ frontend over a glue stub replaying the Rust fake's answers | 12 scripts, 469 / 482 ops identical (1 entry), 1008 / 1008 glue lines |
+| Teralynx libsai: C++ vs Rust on the mock libifcs (`nix/teralynx-parity.nix`, `crates/sai-teralynx-parity`) | live | `ai_re/nix/packages/sai-teralynx`: its C++ libsai, `test_ifcs`, the frozen frontend's `frontend_driver.cpp`, the oracle's `sai_script.cpp`, all unmodified, on the same mock | 2026-11-26 (G2 package E), strict: green: `test_ifcs` Rust 1047 / 1047 (C++ 1047 / 1047); sections 17 / 17 equal; driver 01-09: 376 / 376 ops identical; oracle 25 / 27 scripts equal, 2 allowed (`tests/parity-allow.txt`: 3 steps, sai-core's metadata check of a hostif type the script names wrongly) |
 | error table (`sai-backend-openbcm --test parity`) | golden | `map_rv` of `openbcm_backend.cpp` | 19 codes |
 | MDIO interpreter (`mdio-script --test differential`) | golden | `mdio_script.c` | 5053 corpus + 2200 generated |
 | MDIO tool (`mdio-tool --test differential`) | golden | `mdio_script_main.c`, `mdio_report.c` on `tests/c/mdio_stub.c` | 159 runs (44 fake chip, 75 without, 40 diag socket) |
@@ -775,6 +850,8 @@ checks ranges; its build prints the count).
 | `sdk-glue` | none | 52: real 48, error 2, link 2 | 0 / 1 | | one block per glue call (`real`), `ob_sdk_errmsg`'s pointer, the L2 callback's MAC read |
 | `tap-netdev` | deny; allowed in sys | 9 | | | ioctls (TUNSETIFF, TUNSETCARRIER, SIOCSIFHWADDR), if_nametoindex, socket, bind, setsockopt, poll |
 | `ifcs-shim` | (workspace lints) | 17: the stored accessors as their function types + the calls 4, the copy loop 5, `val` 2, im_malloc (errno, calloc) 3, `write(2)` 1, `clock_gettime` 1, init's string 1; + 2 `#[unsafe(naked)]` (im_malloc, aarch64 / x86_64) | 0 / 0 | 26 (the C shim's) | `libsai-teralynx-shim.so` ([Teralynx shim](#teralynx-shim-ifcs-shim-ifcs-guard)); counted 2026-11-25 |
+| `ifcs` | deny; allowed in named modules | 59: call 20, entry 10, shim 8, callback 7, dl 5, ipd 3, netdev 3, qos 2, table 1 | 0 / 0 | | libifcs (crate docs, Unsafe); counted 2026-11-26 after G2 package E (+5: `qos` 2, `ipd` 3) |
+| `elf-got` | rim module | 6 | 0 / 4 | | the GOT redirect (`dladdr`, `sysconf`, slot read / write, `mprotect`) |
 | `ifcs-guard` | forbid | 0 | | | the guard's decisions |
 | `sai-sys` (forbid), `sdk-glue-sys` (none) | | 0 | | generated `unsafe extern "C"` blocks; 26 `safe fn` (sdk-glue-sys) | declarations only |
 | the other 15 | forbid | 0 | | | |

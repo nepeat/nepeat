@@ -1,5 +1,5 @@
-# all-ones of other offsets: 16 by name (one line each), the rest "other"; counts until the
-# text no longer fits the 4096-byte buffer (both stop writing the file)
+# all-ones of other offsets: 16 by name (one line each), the rest "other"; counts up to just below
+# the C's 4096-byte text buffer (allones-overflow.txt goes beyond it: the one deliberate difference)
 init 800 1073741824 file 0
 installed 1
 set 10000 ffffffff

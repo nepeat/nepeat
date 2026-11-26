@@ -1,0 +1,17 @@
+# the area functions test_ifcs.cpp main() calls (harness.h), as sections.cpp wraps them
+_Z16test_switch_initR3Env
+_Z10test_portsR3Env
+_Z11test_hostifR3Env
+_Z7test_l2R3Env
+_Z7test_l3R3Env
+_Z8test_lagR3Env
+_Z9test_coppR3Env
+_Z8test_aclR3Env
+_Z8test_qosR3Env
+_Z11test_mirrorR3Env
+_Z10test_sflowR3Env
+_Z13test_countersR3Env
+_Z10test_hooksR3Env
+_Z16test_learn_guardR3Env
+_Z16test_switch_miscR3Env
+_Z18test_switch_removeR3Env

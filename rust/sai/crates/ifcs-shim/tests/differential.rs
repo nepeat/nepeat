@@ -1,7 +1,10 @@
 //! The Rust `libsai-teralynx-shim.so` against the C one, live: `tests/c/guard_harness.c` runs each
 //! script (the corpus in `tests/corpus` and fixed-seed generated ones) once with the C library,
 //! built here from `ai_re/nix/packages/sai-teralynx/src/{shim.c,ifcs_guard.c}` unmodified with the
-//! Makefile's flags, and once with this crate's cdylib; the two traces must be equal line for line:
+//! Makefile's flags, and once with this crate's cdylib; the two traces must be equal line for line
+//! (but for the one deliberate difference, [`compare_allowing_text_cap`]: a counters' text the C's
+//! 4096-byte buffer cannot hold is written and answered by the Rust guard; corpus
+//! `allones-overflow.txt`):
 //! every return code and value, every original-accessor call (the re-reads), every sleep, every
 //! stderr byte, every version of the counters' file, the inject file's removal, the text, the
 //! `CPython` stubs' answers and the copy loop's results. Beside the traces, per step: the Rust
@@ -266,6 +269,77 @@ fn run(harness: &Path, lib: &Path, script: &Path, work: &Path) -> Run {
     }
 }
 
+/// The C's counters' text buffer (`ifcs_guard.c` `render`: `char b[4096]`).
+const C_TEXT_CAP: usize = ifcs_guard::C_TEXT_CAP;
+
+/// The length of a trace line's payload after its tag, unescaped (`print_escaped`: `\\n`, `\\\\`,
+/// `\\xNN` are one byte each).
+fn unescaped_len(s: &str) -> usize {
+    let b = s.as_bytes();
+    let (mut i, mut n) = (0, 0);
+    while i < b.len() {
+        i += match (b[i], b.get(i + 1)) {
+            (b'\\', Some(b'x')) => 4,
+            (b'\\', Some(_)) => 2,
+            _ => 1,
+        };
+        n += 1;
+    }
+    n
+}
+
+/// A counters' text the C cannot hold: a `  prom ` or `  text ` line of at least `C_TEXT_CAP` bytes.
+fn beyond_c_cap(line: &str, tag: &str) -> bool {
+    line.strip_prefix(tag).is_some_and(|t| unescaped_len(t) >= C_TEXT_CAP)
+}
+
+/// The traces equal but for the one deliberate difference (README "Teralynx shim"): where the C's
+/// counters' text outgrows its 4096-byte buffer, the Rust guard still writes the file (an extra
+/// `  prom <text>` line, the text at least `C_TEXT_CAP` bytes long) and `tl_ifcs_guard_text`
+/// answers the text (`  text <text>` where the C has `  text `, empty). Nothing else may differ.
+/// `Ok(n)`: the lines allowed; `Err((c, rust))`: the first lines that differ otherwise.
+fn compare_allowing_text_cap(c_trace: &[&str], rust_trace: &[&str]) -> Result<usize, (usize, usize)> {
+    let (mut ci, mut ri, mut allowed) = (0, 0, 0);
+    while ci < c_trace.len() || ri < rust_trace.len() {
+        match (c_trace.get(ci), rust_trace.get(ri)) {
+            (Some(cl), Some(rl)) if cl == rl => {
+                ci += 1;
+                ri += 1;
+            }
+            (Some(&"  text "), Some(rl)) if beyond_c_cap(rl, "  text ") => {
+                ci += 1;
+                ri += 1;
+                allowed += 1;
+            }
+            (_, Some(rl)) if beyond_c_cap(rl, "  prom ") => {
+                ri += 1;
+                allowed += 1;
+            }
+            _ => return Err((ci, ri)),
+        }
+    }
+    Ok(allowed)
+}
+
+#[test]
+fn the_allow_rule_is_exactly_the_text_cap() {
+    let long = "x".repeat(C_TEXT_CAP);
+    let short = "x".repeat(C_TEXT_CAP - 1);
+    let (prom, text) = (format!("  prom {long}"), format!("  text {long}"));
+    assert_eq!(compare_allowing_text_cap(&["a", "b"], &["a", "b"]), Ok(0));
+    assert_eq!(
+        compare_allowing_text_cap(&["a", "  text ", "b"], &["a", &prom, &text, "b"]),
+        Ok(2)
+    );
+    // a shorter text, a C text that is not empty, anything else: a difference
+    let sp = format!("  prom {short}");
+    assert_eq!(compare_allowing_text_cap(&["a"], &["a", &sp]), Err((1, 1)));
+    assert_eq!(compare_allowing_text_cap(&["  text x"], &[&text]), Err((0, 0)));
+    assert_eq!(compare_allowing_text_cap(&["a", "c"], &["a", "b"]), Err((1, 1)));
+    assert_eq!(compare_allowing_text_cap(&["a", "x"], &["a", &prom]), Err((1, 2)));
+    assert_eq!(unescaped_len("a\\nb\\\\c\\x1f"), 6);
+}
+
 #[test]
 fn rust_shim_equals_the_c_shim() {
     let Some(src) = c_src() else {
@@ -363,6 +437,7 @@ fn rust_shim_equals_the_c_shim() {
     }
 
     let (mut steps, mut lines, mut logs, mut proms, mut reads) = (0_usize, 0_usize, 0_usize, 0_usize, 0_usize);
+    let mut allowed = 0_usize;
     let (mut alloc_c, mut alloc_r, mut tls) = (0_u64, 0_u64, 0_u64);
     let mut failures = Vec::new();
     for (name, path) in &scripts {
@@ -370,19 +445,21 @@ fn rust_shim_equals_the_c_shim() {
         let r = run(&harness, &rust, path, &dir.join("work-rust"));
         if c.trace != r.trace {
             let (cl, rl): (Vec<&str>, Vec<&str>) = (c.trace.lines().collect(), r.trace.lines().collect());
-            let k = cl
-                .iter()
-                .zip(&rl)
-                .position(|(a, b)| a != b)
-                .unwrap_or(cl.len().min(rl.len()));
-            let ctx = |v: &[&str]| v[k.saturating_sub(3)..(k + 3).min(v.len())].join("\n");
-            failures.push(format!(
-                "{name}: traces differ at line {}\n--- C\n{}\n--- Rust\n{}",
-                k + 1,
-                ctx(&cl),
-                ctx(&rl)
-            ));
-            continue;
+            match compare_allowing_text_cap(&cl, &rl) {
+                Ok(n) => allowed += n,
+                Err((k, j)) => {
+                    let ctx =
+                        |v: &[&str], k: usize| v[k.saturating_sub(3).min(v.len())..(k + 3).min(v.len())].join("\n");
+                    failures.push(format!(
+                        "{name}: traces differ at line {} (C) / {} (Rust)\n--- C\n{}\n--- Rust\n{}",
+                        k + 1,
+                        j + 1,
+                        ctx(&cl, k),
+                        ctx(&rl, j)
+                    ));
+                    continue;
+                }
+            }
         }
         assert!(c.trace.contains("\nend: "), "{name}: no end line");
         steps += c
@@ -433,6 +510,10 @@ fn rust_shim_equals_the_c_shim() {
         failures.join("\n\n")
     );
     assert_eq!(tls, 0, "a thread-local destructor was registered");
+    eprintln!(
+        "ifcs-shim differential: {allowed} trace lines differ by the one deliberate difference (counters' text of at least \
+         {C_TEXT_CAP} bytes: written / answered by Rust, not by the C)"
+    );
     eprintln!(
         "ifcs-shim differential: {} scripts ({} corpus + {GENERATED} generated), {steps} steps, {lines} trace lines equal \
          ({reads} original-accessor reads, {logs} journal lines, {proms} file versions); allocations in steps: C {alloc_c}, \

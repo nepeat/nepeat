@@ -49,7 +49,16 @@ enum Value {
     U32List(Vec<u32>),
     /// `value.string`: chars, no NUL.
     Str(Vec<u8>),
+    /// A struct's bytes copied into the value at offset 0 (`std::memcpy(&a.value, &s, sizeof s)`).
+    Bytes(Vec<u8>),
     HandleList(Vec<Handle>),
+    /// `value` = an `ifcs_qos_map_info_t`: its `type` and `dirty`, its list = these words (whole
+    /// `ifcs_qos_map_t`s, `qos.rs`).
+    QosMapInfo {
+        kind: i32,
+        dirty: u8,
+        words: Vec<u32>,
+    },
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -255,10 +264,31 @@ impl Attrs {
     pub fn string(self, id: u32, s: &str) -> Self {
         self.with(id, Value::Str(s.as_bytes().to_vec()))
     }
+    /// A struct copied into the value (its bytes at offset 0, the rest zero; at most the value's
+    /// 120 bytes): the C++'s `std::memcpy(&a.value, &action, sizeof action)` of the ACL action
+    /// values (`tl_acl.cpp`).
+    #[must_use]
+    pub fn bytes(self, id: u32, v: Vec<u8>) -> Self {
+        self.with(id, Value::Bytes(v))
+    }
     /// `value.handle_list`.
     #[must_use]
     pub fn handle_list(self, id: u32, v: Vec<Handle>) -> Self {
         self.with(id, Value::HandleList(v))
+    }
+    /// An `ifcs_qos_map_info_t` copied into the value (`tl_qos.cpp` `map_info`): `info` as
+    /// `ifcs_qos_map_info_t_init` left it with its `type`, `list` = `entries` (owned by this list, so
+    /// the pointer is valid for the call).
+    #[must_use]
+    pub fn qos_map_info(self, id: u32, info: &crate::qos::QosMapInfo, entries: &crate::qos::QosMapList) -> Self {
+        self.with(
+            id,
+            Value::QosMapInfo {
+                kind: info.kind(),
+                dirty: info.dirty(),
+                words: entries.words(),
+            },
+        )
     }
 
     /// The number of attributes sent.
@@ -345,6 +375,7 @@ fn encode(blob: &mut [u8; VALUE], v: &mut Value) {
         }
         Value::Handle(h) => put(blob, 0, &h.0.to_ne_bytes()),
         Value::Mac(m) => put(blob, 0, m),
+        Value::Bytes(b) => put(blob, 0, b.get(..VALUE).unwrap_or(b)),
         Value::Fwd(a) => put(blob, offset_of!(sys::ifcs_fwd_policy_t, fwd_action), &a.to_ne_bytes()),
         Value::Ctc(a, h) => {
             put(blob, offset_of!(sys::ifcs_ctc_policy_t, ctc_action), &a.to_ne_bytes());
@@ -412,6 +443,18 @@ fn encode(blob: &mut [u8; VALUE], v: &mut Value) {
             offset_of!(sys::ifcs_handle_list_t, list),
             list_ptr(l),
         ),
+        Value::QosMapInfo { kind, dirty, words } => {
+            type I = sys::ifcs_qos_map_info_t;
+            put(blob, offset_of!(I, type_), &kind.to_ne_bytes());
+            put_list(
+                blob,
+                words.len() / crate::qos::QOS_MAP_WORDS,
+                offset_of!(I, list) + offset_of!(sys::ifcs_qos_map_list_t, count),
+                offset_of!(I, list) + offset_of!(sys::ifcs_qos_map_list_t, arr),
+                list_ptr(words),
+            );
+            put(blob, offset_of!(I, dirty), &[*dirty]);
+        }
     }
 }
 
@@ -427,6 +470,8 @@ fn list_ptr<T>(l: &mut [T]) -> usize {
 
 /// `Handle` is `#[repr(Rust)]` over a `u32`; a handle list is sent as the `u32`s.
 const _: () = assert!(size_of::<Handle>() == size_of::<sys::ifcs_handle_t>());
+/// An `ifcs_qos_map_info_t` fits the value.
+const _: () = assert!(size_of::<sys::ifcs_qos_map_info_t>() <= VALUE);
 
 #[cfg(test)]
 mod tests {
@@ -459,6 +504,15 @@ mod tests {
     }
 
     #[test]
+    fn bytes_are_copied_to_the_value_start() {
+        let mut a = Attrs::new().bytes(2, vec![1, 2, 3]).bytes(3, vec![7; VALUE + 8]);
+        a.args();
+        assert_eq!(a.raw()[0].value.blob[..4], [1, 2, 3, 0]);
+        assert!(a.raw()[0].value.blob[3..].iter().all(|b| *b == 0));
+        assert!(a.raw()[1].value.blob.iter().all(|b| *b == 7)); // cut to the value's size
+    }
+
+    #[test]
     fn lists_point_at_their_buffers() {
         let mut a = Attrs::new()
             .i8_list(43, vec![2, -2])
@@ -473,6 +527,23 @@ mod tests {
             usize::from_ne_bytes(a.raw()[2].value.blob[8..16].try_into().unwrap()),
             0
         );
+    }
+
+    #[test]
+    fn a_qos_map_info_points_at_its_entries() {
+        let mut info = crate::qos::QosMapInfo::zeroed();
+        info.set_type(sys::IFCS_QOS_MAP_TYPE_DSCP_TO_TC_DP);
+        let mut l = crate::qos::QosMapList::new();
+        l.push(crate::qos::QosMapSrc::Dscp(46), 5, 0);
+        let mut a = Attrs::new().qos_map_info(0, &info, &l);
+        a.args();
+        let b = &a.raw()[0].value.blob;
+        assert_eq!(b[0..4], 1i32.to_ne_bytes());
+        let lo = offset_of!(sys::ifcs_qos_map_info_t, list);
+        assert_eq!(b[lo..lo + 4], 1u32.to_ne_bytes());
+        let p = usize::from_ne_bytes(b[lo + 8..lo + 16].try_into().unwrap());
+        assert_ne!(p, 0);
+        assert_eq!(p % 4, 0);
     }
 
     #[test]

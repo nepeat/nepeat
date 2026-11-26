@@ -1306,15 +1306,20 @@ fn callbacks_child(dir: &Path) {
     stats(&sw, 2, 1, 1, 11);
 
     // 8 C threads calling the link callback while it is replaced 200 times: every call that found
-    // the pointer ran exactly one closure (an old or the new one); none was lost or doubled
+    // the pointer ran exactly one closure (an old or the new one); none was lost or doubled. A
+    // counting closure is in place before the storm starts: the C threads may call before the
+    // loop's first replacement, and the panicking closure registered above counts no run (it
+    // made the assertion below race: runs fell short of found by the calls that came first).
     let runs = Arc::new(AtomicU64::new(0));
+    let counting = |r: Arc<AtomicU64>| {
+        move |_, _| {
+            r.fetch_add(1, Ordering::Relaxed);
+        }
+    };
+    sw.set_link_callback(counting(Arc::clone(&runs))).unwrap();
     let storm = std::thread::spawn(|| stub::glue_stub_fire_link_storm(8, 2000, 4));
     for _ in 0..200 {
-        let r = Arc::clone(&runs);
-        sw.set_link_callback(move |_, _| {
-            r.fetch_add(1, Ordering::Relaxed);
-        })
-        .unwrap();
+        sw.set_link_callback(counting(Arc::clone(&runs))).unwrap();
     }
     let found = storm.join().unwrap();
     assert!(found > 0, "{found}");

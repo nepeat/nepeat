@@ -201,6 +201,12 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     # AS77xx build in their closure)
     "cs8210-sai-rs-teralynx": ("packages", 'let a = p.pkgsCross.aarch64-multiplatform; in a.callPackage (saiRsDir + "/libsai-teralynx.nix") { saiRs = a.callPackage (saiRsDir + "/package.nix") { saiSrc = (import (src + "/packages/sonic") { pkgs = a; }).sources.sairedis; inherit glueSrc; }; }', 0),
     "cs8210-sai-rs-teralynx-run": ("packages", 'let a = p.pkgsCross.aarch64-multiplatform; in import (saiRsDir + "/teralynx-target-run.nix") { pkgs = import np { system = "aarch64-linux"; }; bundle = (a.callPackage (saiRsDir + "/libsai-teralynx.nix") { saiRs = a.callPackage (saiRsDir + "/package.nix") { saiSrc = (import (src + "/packages/sonic") { pkgs = a; }).sources.sairedis; inherit glueSrc; }; }).testBundle; cppLibsai = "${a.callPackage (src + "/packages/sai-teralynx") { sonic = import (src + "/packages/sonic") { pkgs = a; }; }}/lib/libsai.so.1.0.0"; }', 0),
+    # The G2 parity harness (rust/sai/nix/teralynx-parity.nix, crates/sai-teralynx-parity): the C++ and the
+    # Rust Teralynx libsai on the same mock libifcs, the same unmodified programs: test_ifcs (Rust passes N
+    # of 1047), its IFCS calls per section, the frontend's driver-scripts op by op, the oracle's JSON
+    # scripts step by step; green while every difference is allowed or belongs to a pending area, with a
+    # negative control; the strict (G2 gate) result in share/sai-rs/teralynx-parity/strict.txt.
+    "sai-teralynx-parity": ("packages", 'p.callPackage (saiRsDir + "/teralynx-parity.nix") { saiRs = saiRs p; cppTeralynx = p.callPackage (src + "/packages/sai-teralynx") { inherit sonic; }; }', 0),
     # libsai-teralynx-shim.so in Rust (rust/sai/nix/ifcs-shim.nix): native with the crates' checks, the
     # live differential against the C shim and sai-teralynx's test_ifcs (1047) with the Rust shim in place;
     # aarch64 (the CS8210) cross-built, then under emulation test_ifcs with the C and the Rust shim and the
@@ -341,7 +347,9 @@ PACKAGE_DIRS: dict[str, list[tuple]] = {
                 ("target", r"^extra:as7760-sdk-config-test$"), ("target", r"^extra:as7772-sdk-config-test$")],
     # src/sdk_glue.{c,h}: compiled into the Rust SAI with libsdk (ppc64), its header bound natively
     "sai-openbcm": [("target", r"^extra:as7760-sai-openbcm-rs$"), ("target", r"^extra:sai-openbcm-rs$")],
-    "sai-teralynx": [("target", r"^extra:sai-teralynx$"), ("target", r"^extra:cs8210-sdk-config-test$")],
+    "sai-teralynx": [("target", r"^extra:sai-teralynx$"), ("target", r"^extra:cs8210-sdk-config-test$"),
+                     # tests/, frontend/tests/driver-scripts, oracle/: the parity harness's programs and scripts
+                     ("target", r"^extra:sai-teralynx-parity$")],
     "isai-amd64": [("target", r"^extra:qemu-ipd\.libsai$")],
     "qemu-ipd": [("target", r"^extra:qemu-ipd\.qemu-ipd$"), ("target", r"^extra:qemu-ipd\.tests\.")],
     "sonic": [("target", r"^extra:sonic\.swss$"), ("target", r"^path:sonic-swss-common$")],

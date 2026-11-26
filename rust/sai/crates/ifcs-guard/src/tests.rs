@@ -15,7 +15,7 @@ use std::collections::{HashMap, VecDeque};
 
 use proptest::prelude::*;
 
-use super::{ALL_ONES, Guard, Io, Scan, TEXT_CAP, scan_inject};
+use super::{ALL_ONES, C_TEXT_CAP, Guard, Io, Scan, TEXT_CAP, scan_inject};
 
 /// Registers with scripted answers, a settable clock, and everything the guard did.
 #[derive(Default)]
@@ -530,21 +530,43 @@ fn widest(v: u64) -> (Fake, Guard) {
     (io, g)
 }
 
+/// The widest values the counters' text can hold: every counter at `u64::MAX` (20 digits), the 16
+/// names at 0xffffffff, `installed` at `i32::MIN`, both timestamps at -2^63 s (the most negative
+/// `CLOCK_REALTIME` a `timespec` gives: 24 characters with the 3 decimals).
 #[test]
-fn counters_that_do_not_fit_the_buffer_give_no_text() {
-    // Found by the port (a property of the C kept for parity, not fixed here): with all 16 all-ones
-    // names in use (here the widest, 0xffffffff) the text needs ~4050 bytes at one-digit counters,
-    // so three-digit counters already overflow the C's 4096-byte buffer: render() fails, the file
-    // is no longer rewritten and tl_ifcs_guard_text answers "".
+fn the_worst_case_counters_fit_the_buffer() {
+    let (io, g) = widest(u64::MAX);
+    g.lock().last_invalid = -9_223_372_036_854_775_808.0;
+    io.real.set(-9_223_372_036_854_775_808.0);
+    let t = g.text(&io);
+    assert_eq!(t.len(), WORST_TEXT, "{}", String::from_utf8_lossy(&t));
+    assert!(t.len() < TEXT_CAP);
+    let writes = io.stats_writes.get();
+    g.installed(&io, i32::MIN);
+    assert_eq!(io.stats_writes.get(), writes + 1, "written");
+    assert_eq!(io.prom().len(), WORST_TEXT);
+}
+
+/// The worst case's length (measured; the buffer holds it with room to spare).
+const WORST_TEXT: usize = 4720;
+
+#[test]
+fn counters_beyond_the_c_buffer_are_written() {
+    // Found by the port, fixed in Rust as a deliberate difference (README "Teralynx shim"): with all
+    // 16 all-ones names in use (here the widest, 0xffffffff) the text needs ~4050 bytes at one-digit
+    // counters, so three-digit counters overflow the C's 4096-byte buffer; the C then no longer
+    // rewrites the file and tl_ifcs_guard_text answers "". The Rust guard writes and answers it.
     let (io, g) = widest(9);
     assert_eq!(g.text(&io).len(), 4054);
     let (io, g) = widest(99);
-    assert_eq!(g.text(&io).len(), 4088);
+    assert_eq!(g.text(&io).len(), 4088); // below the C's limit: the same text in both
     let (io, g) = widest(999);
-    assert!(g.text(&io).is_empty());
+    let t = g.text(&io);
+    assert!(t.len() >= C_TEXT_CAP && t.len() < TEXT_CAP, "{}", t.len());
     let writes = io.stats_writes.get();
     g.installed(&io, 1);
-    assert_eq!(io.stats_writes.get(), writes, "not written");
+    assert_eq!(io.stats_writes.get(), writes + 1, "written");
+    assert!(io.prom().len() >= C_TEXT_CAP);
 }
 
 /// The mock libifcs' learn pass (`tests/mock/mock_learn_thread.c`) over the guard.

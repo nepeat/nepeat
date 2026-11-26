@@ -29,7 +29,9 @@
 //! Equal to the C in every observable (returned values and codes, re-reads, sleeps, journal text,
 //! the file's content and when it is written; `ifcs-shim`'s differential runs both): the same
 //! fields under the same lock, the same lock-free fields (atomics where the C used `__atomic`), the
-//! same buffer sizes and `snprintf` truncation, the same rate limit. The C's bookkeeping quirks are
+//! same buffer sizes and `snprintf` truncation, the same rate limit. One deliberate difference: the
+//! counters' text buffer holds the worst case ([`TEXT_CAP`]; the C's 4096 bytes stop the file's
+//! rewrites once the 16 all-ones names count in the hundreds). The C's bookkeeping quirks are
 //! kept (they are what the deployed guard does): `tl_ifcs_guard_init` resets the counters but not
 //! `installed`, the rate limiter, the stats timer or the inject timer; re-reads are not counted in
 //! `reads_total`. No allocation, and a valid read of a guarded register takes no lock (unless the
@@ -61,9 +63,18 @@ pub const RETRIES: u32 = 3;
 pub const RETRY_SLEEP_MS: u32 = 3;
 /// The test hook's environment variable (read by the C ABI's init).
 pub const INJECT_ENV: &str = "SAI_TERALYNX_IFCS_GUARD_INJECT";
-/// Size of the counters' text buffer (`render`'s `char b[4096]`): a text this long or longer is
-/// not written (and `tl_ifcs_guard_text` answers "").
-pub const TEXT_CAP: usize = 4096;
+/// Size of the counters' text buffer: the worst case fits (every counter at `u64::MAX`, all 16
+/// all-ones offsets named, `installed` at `i32::MIN`, both timestamps at -2^63 s: test
+/// `the_worst_case_counters_fit_the_buffer`), so the text is always written. A deliberate
+/// difference from the C (coordinator decision, 2026-11-26): its `render` buffer is
+/// `char b[4096]` ([`C_TEXT_CAP`]), which three-digit counts with the 16 names in use overflow,
+/// and the C then stops rewriting the file and `tl_ifcs_guard_text` answers "" (exactly in the
+/// dead-chip case the file is for). The check below stays (a text this long or longer is not
+/// written), it cannot trigger.
+pub const TEXT_CAP: usize = 5120;
+/// The C's buffer (`ifcs_guard.c` `render`): the one place the Rust guard answers differently
+/// (`ifcs-shim`'s differential allows exactly texts at least this long).
+pub const C_TEXT_CAP: usize = 4096;
 
 /// Other offsets counted by name.
 const NALL: usize = 16;

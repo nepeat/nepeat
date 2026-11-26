@@ -119,6 +119,7 @@ let
         -o $out/create_remove ${../crates/sai-backend-teralynx/tests/c/create_remove.c} -ldl
       cp ${../crates/sai-backend-teralynx/tests/test-ifcs.sh} $out/test-ifcs.sh
       cp ${../crates/sai-backend-teralynx/tests/test_ifcs-expected.txt} $out/test_ifcs-expected.txt
+      cp ${../crates/sai-backend-teralynx/tests/areas.txt} $out/areas.txt
       cp ${../crates/sai-backend-teralynx/tests/post-init-regs.txt} $out/post-init-regs.txt
       cp ${../crates/sai-backend-teralynx/tests/diag-regs.txt} $out/diag-regs.txt
     '';

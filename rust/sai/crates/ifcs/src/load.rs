@@ -10,7 +10,7 @@ use std::sync::{Arc, Mutex, PoisonError};
 
 use crate::dl::{self, Library};
 use crate::table::Table;
-use crate::{Ifcs, Inner, shim};
+use crate::{Ifcs, Inner, ipd, shim};
 
 /// The learn-ring read guard's settings (`ifcs_lib.h` `GuardOptions`; profile keys
 /// `SAI_TERALYNX_IFCS_GUARD`, `_LEARN_RING_SIZE`, `_IM_MALLOC_LIMIT_MIB`).
@@ -149,7 +149,7 @@ pub fn load(path: &str, trace: &str, guard: &GuardOptions) -> Result<Ifcs, Strin
     })
     .map_err(|missing| format!("{path}: missing symbol {missing} (wrong libifcs version?)"))?;
     // tl_sflow.cpp's test hook (the mock's ipd ioctl stand-in), libifcs' own scope only
-    let ipd_ioctl_hook = sym(&h, "tl_ipd_ioctl").is_some();
+    let ipd_hook = sym(&h, "tl_ipd_ioctl").map(ipd::hook_fn);
     // libifcs' own BAR register accessors (exported; the learn thread's PLT targets), for the
     // board's post-init register list: called directly, never through the GOT the guard took
     let regs = match (sym(&h, "node_pci_reg_read32"), sym(&h, "node_pci_reg_write32")) {
@@ -159,7 +159,7 @@ pub fn load(path: &str, trace: &str, guard: &GuardOptions) -> Result<Ifcs, Strin
     Ok(Ifcs(Arc::new(Inner {
         t: table,
         path: PathBuf::from(path),
-        ipd_ioctl_hook,
+        ipd_hook,
         regs,
     })))
 }

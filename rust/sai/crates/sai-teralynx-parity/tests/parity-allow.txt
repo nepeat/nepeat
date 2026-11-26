@@ -1,0 +1,9 @@
+# DELIBERATE differences between the C++ and the Rust libsai of the CS8210 on the mock libifcs that
+# the parity harness accepts (crate sai-teralynx-parity, src/lists.rs). Empty by default; an entry needs
+# a reason a reviewer can check, and one that covers no difference fails the run (stale).
+#   <scope> TAB <regex on the unit> TAB <reason>
+# scope: a driver script stem (01-switch), test_ifcs (units: sections), test_ifcs-check (units: the
+# normalised FAIL lines), oracle/<stem> (units: step tags), or *.
+oracle/mirror	^0\.25 create genetlink psample$	sai-core's metadata check (README Parity, deliberate differences: values of the wrong kind): the script's TYPE "GENETLINK" resolves in sai_script.cpp's name table to SAI_HOSTIF_TABLE_ENTRY_CHANNEL_TYPE_GENETLINK (5), not SAI_HOSTIF_TYPE_GENETLINK (2): C++ answers ATTR_NOT_SUPPORTED_0 ("hostif type 5 not supported"), Rust INVALID_ATTR_VALUE_0 (5 is no sai_hostif_type_t); neither reaches the backend (no IFCS line on either side)
+oracle/hostif-counters	^0\.23 create genetlink psample hostif$	sai-core's metadata check (README Parity, deliberate differences: values of the wrong kind): the script's TYPE "GENETLINK" resolves in sai_script.cpp's name table to SAI_HOSTIF_TABLE_ENTRY_CHANNEL_TYPE_GENETLINK (5), not SAI_HOSTIF_TYPE_GENETLINK (2): C++ answers ATTR_NOT_SUPPORTED_0 ("hostif type 5 not supported"), Rust INVALID_ATTR_VALUE_0 (5 is no sai_hostif_type_t); neither reaches the backend (no IFCS line on either side)
+oracle/mirror	^0\.28 create trap -> genetlink$	downstream of the failed genetlink create above (HOST_IF = the null oid sai-script keeps for it): sai-core's metadata refuses a null HOST_IF (INVALID_ATTR_VALUE_3), the C++ frontend INVALID_PARAMETER; no backend call on either side

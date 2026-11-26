@@ -1,0 +1,155 @@
+# The areas of the Teralynx backend and what each owns in the comparisons: test_ifcs checks (file and
+# line), test_ifcs sections, frontend driver ops, oracle scripts. Read by tests/test-ifcs.sh (area,
+# check: the FAIL lines per area, REGEN_AREA) and by the parity harness (crates/sai-teralynx-parity,
+# src/areas.rs: the record format). An area is pending while tests/test_ifcs-expected.txt names a FAIL
+# line of it (its check record below, or a "# needs <area>" mark at the end of the line).
+#
+# area <name> <group> <C++ sources>: group g1 = ported in G1 (never pending); the others are the
+# G2 area groups of the plan (L2+LAG, L3, hostif+CoPP+ACL+policer, QoS+mirror+sample+sFlow)
+area switch   g1               tl_switch.cpp tl_core.cpp ifcs_backend.cpp ifcs_config.cpp ifcs_lib.cpp
+area port     g1               tl_port.cpp
+area counters g1               tl_counters.cpp
+area shim     g1               shim.c ifcs_guard.c
+area l2       l2-lag           tl_l2.cpp
+area lag      l2-lag           tl_lag.cpp
+area l3       l3               tl_l3.cpp
+area hostif   hostif-copp-acl  tl_hostif.cpp
+area copp     hostif-copp-acl  tl_hostif.cpp tl_acl.cpp
+area acl      hostif-copp-acl  tl_acl.cpp
+area qos      qos-mirror-sflow tl_qos.cpp
+area mirror   qos-mirror-sflow tl_mirror.cpp
+area sflow    qos-mirror-sflow tl_sflow.cpp
+
+# check <test file>[:<first>[-<last>]] <area>: the last matching record wins
+check test_ifcs.cpp       switch
+check t_switch.cpp        switch
+check t_port.cpp          port
+check t_counters.cpp      counters
+check t_counters.cpp:92   copp       # the diag shell's copp command (CPU queues)
+check t_counters.cpp:93   acl        # the diag shell's acl command
+check t_hostif.cpp        hostif
+check t_l2.cpp            l2
+check t_lag.cpp           lag
+check t_l3.cpp            l3
+check t_copp.cpp          copp
+check t_acl.cpp           acl
+check t_qos.cpp           qos
+check t_mirror.cpp        mirror
+check t_sflow.cpp         sflow
+check t_learn.cpp         shim
+check t_hooks.cpp         l3         # hooks_l3 (RIF counters, admin state) and test_hooks itself
+check t_hooks.cpp:91-112  hostif     # glean
+check t_hooks.cpp:113-131 counters   # port counters by SAI id
+check t_hooks.cpp:132-154 lag        # hash objects
+check t_hooks.cpp:155-178 l2         # VLAN flood control
+check t_hooks.cpp:179-361 acl        # storm control, ACL ranges / extra actions / egress tables
+check t_hooks.cpp:294-309 mirror     # the ACL MIRROR_INGRESS action's session (tl_mirror)
+
+# section <test_ifcs section> <areas>: what the section's IFCS calls belong to
+section main          switch
+section switch_init   switch
+section ports         port
+section hostif        hostif
+section l2            l2
+section l3            l3
+section lag           lag
+section copp          copp
+section acl           acl
+section qos           qos
+section mirror        mirror
+section sflow         sflow
+section counters      counters,copp,acl
+section hooks         l3,hostif,counters,lag,l2,acl
+section learn_guard   shim
+section switch_misc   switch
+section switch_remove switch
+section uninit        switch
+
+# object <driver op key> <area>: the object type of create / remove / set / get; stats:<type>,
+# clear:<type>, inject:<kind>; the op word otherwise; * for the rest
+object *                       switch
+object port                    port
+object stats:port              counters
+object clear:port              counters
+object inject:link             port
+object inject:stat             counters
+object inject:fdb              l2
+object linkscan                port
+object mdio                    port
+object flush                   l2
+object vlan                    l2
+object vlan_member             l2
+object bridge                  l2
+object bridge_port             l2
+object stp                     l2
+object fdb_entry               l2
+object lag                     lag
+object lag_member              lag
+object hash                    lag
+object virtual_router          l3
+object router_interface        l3
+object stats:router_interface  l3
+object clear:router_interface  l3
+object next_hop                l3
+object next_hop_group          l3
+object next_hop_group_member   l3
+object neighbor_entry          l3
+object route_entry             l3
+object hostif                  hostif
+object hostif_table_entry      hostif
+object hostif_trap             copp
+object hostif_trap_group       copp
+object policer                 copp
+object stats:policer           copp
+object acl_table               acl
+object acl_entry               acl
+object acl_counter             acl
+object acl_range               acl
+object acl_table_group         acl
+object acl_table_group_member  acl
+object qos_map                 qos
+object scheduler               qos
+object scheduler_group         qos
+object wred                    qos
+object buffer_pool             qos
+object buffer_profile          qos
+object ingress_priority_group  qos
+object queue                   qos
+object stats:queue             qos
+object clear:queue             qos
+object stats:ingress_priority_group qos
+object stats:buffer_pool       qos
+object mirror_session          mirror
+object samplepacket            mirror
+
+# oracle <script stem> <areas>
+oracle acl              acl
+oracle acl-hw           acl,copp
+oracle acl-hw2          acl,copp
+oracle hostif-counters  hostif,copp,counters
+oracle hostif-create    hostif
+oracle l2lag-hw         l2,lag
+oracle lag-l2           l2,lag,l3
+oracle l3-basic         l3,acl
+oracle l3-ecmpw         l3,acl
+oracle l3-ns            l3,acl
+oracle l3-scale         l3
+oracle l3-scale-isai    l3
+oracle l3-vrf           l3,acl
+oracle mirror           mirror
+oracle perf             port,counters
+oracle phasec-hw        l3,hostif,lag,l2,acl
+oracle phasec-recreate  l3,hostif,lag,l2,acl
+oracle qos              qos
+oracle qos-hw           qos,mirror,sflow,acl
+oracle sflow-genetlink  sflow
+oracle sflow-genl       sflow
+oracle sflow-police     sflow,copp
+oracle sflow-rate       sflow
+oracle sflow-rate2      sflow
+oracle temperature      switch
+oracle traps            copp
+oracle traps-hw         copp,hostif
+
+# step <oracle step op> <area>: steps of that op belong to the area, whatever the script's
+step qstats             qos

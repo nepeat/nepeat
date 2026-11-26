@@ -1,0 +1,72 @@
+# the counters' text beyond the C's 4096-byte buffer (the one deliberate difference, README
+# "Teralynx shim"): 16 all-ones names of the widest form (0xfff0xxxx) counted into four digits; the C
+# then stops rewriting the file and its text answers "", the Rust guard writes and answers the text
+# (tests/differential.rs allows exactly that); below the C's limit again after a new init
+t 1000 99999999999.999
+init 800 1073741824 file 0
+installed 1
+malloc 18446744073709551615
+set fff00000 ffffffff
+rd fff00000
+set fff01004 ffffffff
+rd fff01004
+set fff02008 ffffffff
+rd fff02008
+set fff0300c ffffffff
+rd fff0300c
+set fff04010 ffffffff
+rd fff04010
+set fff05014 ffffffff
+rd fff05014
+set fff06018 ffffffff
+rd fff06018
+set fff0701c ffffffff
+rd fff0701c
+set fff08020 ffffffff
+rd fff08020
+set fff09024 ffffffff
+rd fff09024
+set fff0a028 ffffffff
+rd fff0a028
+set fff0b02c ffffffff
+rd fff0b02c
+set fff0c030 ffffffff
+rd fff0c030
+set fff0d034 ffffffff
+rd fff0d034
+set fff0e038 ffffffff
+rd fff0e038
+set fff0f03c ffffffff
+rd fff0f03c
+text
+rd fff00000 100000
+rd fff01004 100000
+rd fff02008 100000
+rd fff0300c 100000
+rd fff04010 100000
+rd fff05014 100000
+rd fff06018 100000
+rd fff0701c 100000
+rd fff08020 100000
+rd fff09024 100000
+rd fff0a028 100000
+rd fff0b02c 100000
+rd fff0c030 100000
+rd fff0d034 100000
+rd fff0e038 100000
+rd fff0f03c 100000
+text
+rd 4860 100000
+rd 4864 100000
+rd 485c 100000
+adv 31
+rd 4860
+text
+q 4860 0:ffffffff 0:ffffffff 0:ffffffff 0:ffffffff
+rd 4860
+installed 0
+text
+init 800 1073741824 file 0
+installed 1
+rd 4860
+text

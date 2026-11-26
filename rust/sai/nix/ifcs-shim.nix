@@ -188,7 +188,7 @@ let
       cp test_ifcs-$which.txt $out/share/sai-rs/test_ifcs-${arch}-$which-shim.txt
     done
     ${lib.optionalString (scriptsFrom != null) ''
-      n=0; lines=0
+      n=0; lines=0; allowed=0
       for s in ${scriptsFrom}/share/sai-rs/ifcs-shim-scripts/*.txt; do
         for which in c rust; do
           lib=${crossTests}/test/libsai-teralynx-shim-c.so
@@ -196,13 +196,23 @@ let
           rm -rf w-$which; mkdir w-$which
           ${crossTests}/test/guard_harness $lib $s w-$which > trace-$which.txt
         done
-        if ! cmp -s trace-c.txt trace-rust.txt; then
+        # the one deliberate difference (README "Teralynx shim", tests/differential.rs
+        # compare_allowing_text_cap): a counters' text of 4096 bytes or more (unescaped) is written
+        # (a "  prom" line) and answered ("  text") by the Rust guard only, the C's text is then ""
+        awk '
+          function ulen(s,  t) { t = s; gsub(/\\x[0-9a-f][0-9a-f]/, "X", t); gsub(/\\./, "X", t); return length(t) }
+          /^  prom / && ulen(substr($0, 8)) >= 4096 { a++; next }
+          /^  text / && ulen(substr($0, 8)) >= 4096 { print "  text "; a++; next }
+          { print }
+          END { print a + 0 > "allowed.txt" }' trace-rust.txt > trace-rust-c-cap.txt
+        allowed=$((allowed + $(cat allowed.txt)))
+        if ! cmp -s trace-c.txt trace-rust-c-cap.txt; then
           echo "differential (${arch}): $(basename $s) differs"; diff trace-c.txt trace-rust.txt | head -40; exit 1
         fi
         if grep -qE 'NOT in do_malloc|NOT ZEROED|WRONG|OTHER' trace-c.txt; then echo "harness check failed in $s"; exit 1; fi
         n=$((n + 1)); lines=$((lines + $(wc -l < trace-c.txt)))
       done
-      echo "ifcs-shim differential (${arch}, emulated): $n scripts, $lines trace lines equal" | tee $out/share/sai-rs/differential-${arch}.txt
+      echo "ifcs-shim differential (${arch}, emulated): $n scripts, $lines trace lines equal; $allowed lines differ by the one deliberate difference (counters' text of 4096 bytes or more: Rust only)" | tee $out/share/sai-rs/differential-${arch}.txt
     ''}
   '';
 in

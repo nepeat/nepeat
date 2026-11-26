@@ -544,6 +544,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "sai-teralynx-parity"
+version = "0.1.0"
+dependencies = [
+ "regex",
+ "sai-driver",
+]
+
+[[package]]
 name = "sai-test-port"
 version = "0.1.0"
 dependencies = [

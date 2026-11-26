@@ -31,7 +31,9 @@ use crate::keys::Settings;
 use crate::l2::{self, L2Area};
 use crate::l3::L3Area;
 use crate::lag::LagArea;
+use crate::mirror::MirrorArea;
 use crate::port::PortArea;
+use crate::qos::QosArea;
 use crate::sflow::SflowArea;
 
 /// The diag shell's `help` (the C++ text, `regs` added).
@@ -66,11 +68,16 @@ pub struct Up {
     pub hostif: HostifArea,
     /// `sFlow`.
     pub sflow: SflowArea,
+    /// `QoS` and buffers.
+    pub qos: QosArea,
+    /// Mirror sessions and samplers.
+    pub mirror: MirrorArea,
     /// ACL / `CoPP`.
     pub acl: AclArea,
     /// Temperatures (shared with the publisher's reader).
     pub temps: Arc<Temps>,
-    limits: Mutex<Option<ChipLimits>>,
+    /// The chip limits, read once (`limits_`; [`chip_limits_of`]).
+    pub limits: Mutex<Option<ChipLimits>>,
     /// The board's post-init register list (`SAI_TERALYNX_POST_INIT_REGS`).
     pub regs: Vec<config::RegWrite>,
     /// What applying it did at this init.
@@ -194,6 +201,37 @@ pub fn log_level(level: i32) -> ssys::sai_log_level_t {
     }
 }
 
+/// `SwitchArea::chip_limits` over its cache: node ACL priority range and ECMP groups, read once
+/// (the ACL area's `copp_prio` reads them at the C++'s moment: `c_.sw_limits`).
+pub fn chip_limits_of(core: &Core, cache: &Mutex<Option<ChipLimits>>) -> Result<ChipLimits> {
+    let mut cached = cache.lock().unwrap_or_else(PoisonError::into_inner);
+    if let Some(l) = *cached {
+        return Ok(l);
+    }
+    let mut l = ChipLimits::default();
+    let mut a = Attrs::new()
+        .of(sys::IFCS_NODE_ATTR_ACL_ENTRY_MINIMUM_PRIORITY)
+        .of(sys::IFCS_NODE_ATTR_ACL_ENTRY_MAXIMUM_PRIORITY)
+        .of(sys::IFCS_NODE_ATTR_NUMBER_OF_ECMP_GROUPS);
+    let (rc, _) = core.lib.ifcs_node_attr_get(NODE, &mut a);
+    if rc.is_success() {
+        l.acl_prio_min = a.u32_at(0);
+        l.acl_prio_max = a.u32_at(1);
+        l.ecmp_groups = a.u32_at(2);
+    } else {
+        log::warn(
+            ssys::SAI_API_SWITCH,
+            format_args!("node limits (ACL priority, ECMP groups) unreadable; reporting 0"),
+        );
+    }
+    l.ecmp_paths = ECMP_PATHS;
+    l.ecmp_members = l.ecmp_groups.wrapping_mul(ECMP_PATHS);
+    l.vrf_max = VRF_MAX;
+    l.buffer_bytes = 0; // not known from this SDK: SWITCH TOTAL_BUFFER_SIZE reads 0
+    *cached = Some(l);
+    Ok(l)
+}
+
 impl Up {
     /// `SwitchArea::init`: everything the C++ does at `create_switch`, in its order. On an error
     /// the SDK is deinitialised again where the C++ does it (and nothing is left registered here).
@@ -207,6 +245,8 @@ impl Up {
             l3: L3Area::default(),
             hostif: HostifArea::default(),
             sflow: SflowArea::default(),
+            qos: QosArea::default(),
+            mirror: MirrorArea::default(),
             acl: AclArea::default(),
             temps: Arc::new(Temps::new(None, 15, 5)),
             limits: Mutex::new(None),
@@ -520,14 +560,14 @@ impl Up {
     /// (a dead or half-torn-down SDK must not leave links up), callbacks off, netdevs, the ACL
     /// state, `ifcs_deinit(COLD)` (or not, with `SAI_TERALYNX_SHUTDOWN=ports-down`).
     pub fn shutdown(&mut self) {
-        self.sflow.shutdown();
+        self.sflow.shutdown(&self.core);
         if !self.sdk_running {
             return;
         }
         PortArea::all_down(&self.core);
         let _ = self.core.lib.ifcs_linkscan_event_unregister_notify(NODE);
         let _ = self.core.lib.ifcs_l2_event_unregister_notify(NODE);
-        self.hostif.teardown_all();
+        self.hostif.teardown_all(&self.core);
         self.acl.forget();
         self.event_cb = None; // c_.link = c_.fdb = nullptr
         if self.core.settings.deinit_on_shutdown {
@@ -586,32 +626,7 @@ impl Up {
 
     /// `SwitchArea::chip_limits`: node ACL priority range and ECMP groups, read once.
     pub fn chip_limits(&self) -> Result<ChipLimits> {
-        let mut cached = self.limits.lock().unwrap_or_else(PoisonError::into_inner);
-        if let Some(l) = *cached {
-            return Ok(l);
-        }
-        let mut l = ChipLimits::default();
-        let mut a = Attrs::new()
-            .of(sys::IFCS_NODE_ATTR_ACL_ENTRY_MINIMUM_PRIORITY)
-            .of(sys::IFCS_NODE_ATTR_ACL_ENTRY_MAXIMUM_PRIORITY)
-            .of(sys::IFCS_NODE_ATTR_NUMBER_OF_ECMP_GROUPS);
-        let (rc, _) = self.core.lib.ifcs_node_attr_get(NODE, &mut a);
-        if rc.is_success() {
-            l.acl_prio_min = a.u32_at(0);
-            l.acl_prio_max = a.u32_at(1);
-            l.ecmp_groups = a.u32_at(2);
-        } else {
-            log::warn(
-                ssys::SAI_API_SWITCH,
-                format_args!("node limits (ACL priority, ECMP groups) unreadable; reporting 0"),
-            );
-        }
-        l.ecmp_paths = ECMP_PATHS;
-        l.ecmp_members = l.ecmp_groups.wrapping_mul(ECMP_PATHS);
-        l.vrf_max = VRF_MAX;
-        l.buffer_bytes = 0; // not known from this SDK: SWITCH TOTAL_BUFFER_SIZE reads 0
-        *cached = Some(l);
-        Ok(l)
+        chip_limits_of(&self.core, &self.limits)
     }
 
     /// `SwitchArea::shell`: the read-only diag commands; those of areas not ported yet say so.
@@ -639,13 +654,9 @@ impl Up {
                     (Ok(()), out)
                 }
             },
-            (Some(w @ ("copp" | "acl")), _) => (
-                Err(Error::NotSupported),
-                format!(
-                    "{w}: not ported yet (G2: the {} area of sai-backend-teralynx)\n",
-                    if w == "copp" { "host interface" } else { "ACL" }
-                ),
-            ),
+            (Some("copp"), _) => (Ok(()), self.hostif.trap_report(&self.core, &self.acl)),
+            // SAI ACL tables (tl_acl.cpp)
+            (Some("acl"), _) => (Ok(()), self.acl.report(&self.core)),
             (Some("regs"), 1) => {
                 let s = &self.reg_stats;
                 let mut out = format!(

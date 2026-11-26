@@ -1,0 +1,4 @@
+# Differences the parity harness sees in a unit of one area that belong to ANOTHER area still pending
+# (crate sai-teralynx-parity, src/lists.rs): inactive once that area is no longer pending (the
+# difference is then the unit's own: red); an entry that covers nothing is reported for removal.
+#   <scope> TAB <regex on the unit> TAB <area> TAB <why>

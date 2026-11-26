@@ -1,0 +1,25 @@
+[package]
+name = "sai-teralynx-parity"
+description = "The G2 parity harness of the Teralynx backend: the C++ and the Rust libsai of the CS8210 on the same mock libifcs, compared op by op (frontend driver scripts), section by section (test_ifcs) and step by step (oracle JSON scripts). No unsafe code"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[features]
+# the command-line program (sai-teralynx-parity): built only when asked for (nix/teralynx-parity.nix,
+# or cargo run --features cli), so the workspace build installs nothing new
+cli = []
+
+[[bin]]
+name = "sai-teralynx-parity"
+path = "src/main.rs"
+required-features = ["cli"]
+
+[dependencies]
+# the op-block comparison and the allow-list format of the frontend differential (compare.rs)
+sai-driver = { path = "../sai-driver" }
+regex = { workspace = true }
+
+[lints]
+workspace = true
