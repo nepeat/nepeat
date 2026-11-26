@@ -7,8 +7,8 @@
   frontend, first on this box 2026-11-25). Cabling (owner, 2026-11-25; cage 1 and 2 modules replaced 2026-11-26): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
   400G-DR4 QSFP-DD optics (MPO loops), 3 <-> 17 TE 2459398-1 400G CR8 DAC; nothing to the house. CONFIG_DB = the Nix
   base: those six ports 1x400G RS FEC, far ends in Vrf-a/b/c with /31s, 26 ports down ([sonic.md](sonic.md) "Running it").
-  **All three loops up at 400G, ping across + matching ASIC counters** (1 <-> 2 since 2026-11-26: cat fur on the fibre /
-  optic faces; thin lanes: cage 2 Rx 1-2 -5.4 / -5.9 dBm, cage 32 Rx 1 -7.3 dBm) ([power-20261126.txt](evidence/power-20261126.txt)).
+  **3 <-> 17 and 31 <-> 32 up; 1 <-> 2 was up 10:09-10:27 (cat fur on the fibre / optic faces, both modules replaced)
+  and is down again after the reboots: cage 1 Rx lane 3 -7.4 dBm + CDR loss of lock** ([reboots-20261126.txt](evidence/reboots-20261126.txt)).
 - **Cages:** `cs8210-optics` (`rust/cs8210`) is the one owner of the I2C FPGA: declared cages (= admin-up ports) out of
   reset and brought up (CMIS app select 4x100G -> 400G-DR4), all others held in reset; xcvrd and `show interfaces
   transceiver` through its socket; `switch_optic_*` metrics ([sonic.md](sonic.md) "Optics", [optics](evidence/optics-20261125.txt)).
@@ -24,7 +24,8 @@
 - **Recover:** `systemctl stop sonic.target`; system-47 from the U-Boot menu (before cs8210-optics: its guard refuses syncd
   with these cages populated); dead I2C FPGA (`/run/cs8210-qsfp.dead`): power cycle. Vendor U-Boot prompt: `123<Enter>`
   within 3 s, then ONIE (`run onie_bootcmd`, RAM only) or **Route R** ([uart-recovery.md](uart-recovery.md), [boot-chain.md](boot-chain.md)).
-- **Open:** port LEDs (SAI: the vendor `pci write led_*` init); our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
+- **Open:** **top fan module 5 rear rotor reads 0 rpm since the 10:38 boot: fand failsafe, all fans 100 % (loud) until
+  a human checks the module**; the 1 <-> 2 fibre into cage 1; port LEDs (SAI: the vendor `pci write led_*` init); our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
   ([sai-features.md](sai-features.md)); MACsec under SONiC; CRM panels empty; learn-wedge watch (L0s off, [learn-wedge.md](learn-wedge.md)).
 
 ## Identity

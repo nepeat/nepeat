@@ -1,0 +1,60 @@
+# CS8210 B4 reboot series, 2026-11-26 10:27-10:48 UTC (CS-A2 B4), system-54; STOPPED after 4 of 5 (red check: a fan rotor)
+### reboot 1: ssh 48s, 6 links+6 cages at nulls after the reboot command (last 4/6)
+running
+failed=0
+fand_failsafe_lines=0
+[   12.111462] cs8210 fand[824]: running: asic -- -> 60% (waiting for asic); board 35.6C -> 60%; bottom1=60% 18700-20500
+[   16.753837] cs8210 fand[824]: sensor asic: online after 5s, 51.9 C
+[   16.807721] cs8210 fand[824]: zone asic: all sensors online, resuming curve (inline)
+cages_ready=6
+links_up=4
+first_journal=2026-11-26T02:28:05-08:00
+syncd=active
+
+### reboot 2: ssh 67s, 6 links+6 cages at nulls after the reboot command (last 4/6)
+running
+failed=0
+fand_failsafe_lines=0
+[   12.114359] cs8210 fand[832]: running: asic -- -> 60% (waiting for asic); board 35.4C -> 60%; bottom1=60% 18700-20500
+[   16.740584] cs8210 fand[832]: sensor asic: online after 5s, 51.9 C
+[   16.795745] cs8210 fand[832]: zone asic: all sensors online, resuming curve (inline)
+cages_ready=6
+links_up=4
+first_journal=2026-11-26T02:33:06-08:00
+syncd=active
+
+### reboot 3: ssh 67s, 6 links+6 cages at nulls after the reboot command (last 4/6)
+running
+failed=0
+fand_failsafe_lines=4
+[   12.122294] cs8210 fand[831]: running: asic -- -> 60% (waiting for asic); board 35.4C -> 60%; bottom1=60% 18700-20500
+[   16.788264] cs8210 fand[831]: sensor asic: online after 5s, 51.4 C
+[   16.840951] cs8210 fand[831]: zone asic: all sensors online, resuming curve (inline)
+cages_ready=6
+links_up=4
+first_journal=2026-11-26T02:38:40-08:00
+syncd=active
+
+### reboot 4: ssh 67s, 6 links+6 cages at nulls after the reboot command (last 2/6)
+running
+failed=0
+fand_failsafe_lines=4
+[   12.135080] cs8210 fand[831]: running: asic -- -> 60% (waiting for asic); board 34.1C -> 60%; bottom1=60% 18700-20500
+[   16.823975] cs8210 fand[831]: sensor asic: online after 5s, 50.8 C
+[   16.878930] cs8210 fand[831]: zone asic: all sensors online, resuming curve (inline)
+cages_ready=6
+links_up=2
+first_journal=2026-11-26T02:43:39-08:00
+syncd=active
+
+## why the series stopped (after reboot 4, 10:48)
+fand journal (boot of 10:43; the same 4 lines in the boot of 10:38, none in the two before):
+[   16.873044] fand: output top5: rear: 0 rpm is below the minimum 3000 rpm at 60%
+[   16.878984] fand: zone asic: FAILSAFE (100%): output top5: rear: 0 rpm is below the minimum 3000 rpm at 60%
+[   16.878984] fand: zone board: FAILSAFE (100%): output top5: rear: 0 rpm ...
+[   41.879060] fand: output top5: rear: 0 rpm, expected about 21000 rpm at 100% (not following its command)
+cs8210-fan status (fan CPLD tach, top board i2c-31): fan5: pwm 255 (100%)  front 19000 rpm (raw 190)  rear     0 rpm (raw   0); every other rotor 18400-21100 rpm
+=> top fan module 5's rear rotor reads 0 rpm from the boot at 10:38 on; fand holds all fans at 100 % (failsafe, as designed).
+## 1 <-> 2 after the reboots (up at 10:19 after the cold cycle)
+cage 1 Rx: -5.81 / -4.68 / -7.38 / -1.50 dBm, Rx CDR LOL lane 3 (11h:148 = 0x04); cage 2 Rx -4.90 / -5.79 / -4.91 / -1.74 dBm, no flags;
+Tx +2.45..+2.78 dBm on all lanes of both: the loss moved from lane 4 to lane 3 of the path into cage 1 (fibre handling at the rack?)
