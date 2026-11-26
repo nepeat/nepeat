@@ -14,8 +14,9 @@
 
 use crate::calibration::{Calibration, OutputCal, RotorModel};
 use crate::config::{
-    Aggregate, Config, DEFAULT_KD, DEFAULT_KI, DEFAULT_KP, DutySpec, FaultAction, HwmonSelector, OutputConfig,
-    OutputKind, Profile, ProfileDuties, RawMap, Readback, SensorConfig, SensorKind, ZoneConfig,
+    Aggregate, Config, DEFAULT_DEGRADED_MAX_FAILED, DEFAULT_KD, DEFAULT_KI, DEFAULT_KP, DutySpec, FaultAction,
+    HwmonSelector, LedConfig, OutputConfig, OutputKind, Profile, ProfileDuties, RawMap, Readback, RotorFaultPolicy,
+    SensorConfig, SensorKind, ZoneConfig,
 };
 use crate::control::{Ema, FailGuard, Hysteresis, Pid, Ramp, Transition};
 use crate::curves::Curve;
@@ -528,6 +529,122 @@ struct I2cSink {
     bus: Arc<dyn Bus>,
     arm: Option<Arm>,
     expect: Vec<Expect>,
+    present: Option<Presence>,
+    led: Option<Led>,
+}
+
+/// `present`: the module is present iff (register & mask) == value.
+struct Presence {
+    reg: i2c::Reg,
+    mask: u32,
+    value: u32,
+    /// The last reading: None before the first one and while it fails.
+    state: Option<bool>,
+    /// The last successful reading (edges are between known states).
+    known: Option<bool>,
+    error: Option<String>,
+}
+
+/// What a module's LED shows.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LedState {
+    /// Present, rotors healthy (green).
+    Ok,
+    /// fand is handling the module (a recovery, a rotor that should come up
+    /// after an insertion, the start or a release): `fault` blinking.
+    Blink,
+    /// A rotor fault fand is not (or no longer) handling: solid `fault`.
+    Fault,
+    Absent,
+}
+
+impl LedState {
+    pub fn name(self) -> &'static str {
+        match self {
+            LedState::Ok => "ok",
+            LedState::Blink => "blink",
+            LedState::Fault => "fault",
+            LedState::Absent => "absent",
+        }
+    }
+}
+
+/// Ticks between readbacks of an LED register that should not have changed.
+pub const LED_READBACK_TICKS: u32 = 12;
+
+/// `led`: written when the wanted state changes, and again when a periodic
+/// readback differs (read-modify-write under a partial mask).
+struct Led {
+    reg: i2c::Reg,
+    mask: u32,
+    ok: u32,
+    fault: u32,
+    absent: u32,
+    exit: Option<u32>,
+    /// `blink`: (off value, period s).
+    blink: Option<(u32, f64)>,
+    want: Option<LedState>,
+    /// The state and value last written successfully.
+    written: Option<(LedState, u32)>,
+    ticks_since_check: u32,
+    error: Option<String>,
+}
+
+impl Led {
+    /// The value of a state (blink: its `fault` phase).
+    fn value(&self, s: LedState) -> u32 {
+        match s {
+            LedState::Ok => self.ok,
+            LedState::Blink | LedState::Fault => self.fault,
+            LedState::Absent => self.absent,
+        }
+    }
+
+    /// What the register should hold at `now`: blink alternates `fault` and
+    /// `off` every half period (one clock for every LED, so they blink together).
+    fn shown(&self, s: LedState, now: f64) -> u32 {
+        match (s, self.blink) {
+            (LedState::Blink, Some((off, period))) => {
+                if ((now / (period / 2.0)).floor() as i64).rem_euclid(2) == 0 {
+                    self.fault
+                } else {
+                    off
+                }
+            }
+            _ => self.value(s),
+        }
+    }
+
+    fn describe(&self, s: LedState) -> String {
+        match (s, self.blink) {
+            (LedState::Blink, Some((off, p))) => format!("0x{:02x}/0x{off:02x} every {}s", self.fault, p / 2.0),
+            _ => format!("0x{:02x}", self.value(s)),
+        }
+    }
+
+    fn holds(&self, cur: u32, v: u32) -> bool {
+        cur & self.mask == v & self.mask
+    }
+
+    /// Write `v` under the mask (read-modify-write unless it covers every bit).
+    fn put(&self, bus: &dyn Bus, v: u32) -> std::result::Result<(), String> {
+        let new = if self.mask == self.reg.width.max() {
+            v
+        } else {
+            (self.reg.read_raw(bus)? & !self.mask) | (v & self.mask)
+        };
+        self.reg.write(bus, new)
+    }
+}
+
+/// `isolate_on_rotor_fault`: a latched "this module is switched off".
+struct Isolation {
+    raw: u32,
+    since: Option<f64>,
+    reason: String,
+    /// Released, but its rotors have not been checked at a running duty yet
+    /// (it was at the isolation value): its LED stays "fault" until then.
+    proving: bool,
 }
 
 /// `arm`: a register that must hold `value` (under `mask`) for the duty
@@ -661,12 +778,51 @@ impl I2cSink {
                 })
             })
             .collect::<std::result::Result<Vec<_>, String>>()?;
+        let present = match &c.present {
+            None => None,
+            Some(p) => Some(Presence {
+                reg: p.to_reg(Some(base))?,
+                mask: p.mask_or_all(),
+                value: p.value.map_or(0, |v| v.0 as u32),
+                state: None,
+                known: None,
+                error: None,
+            }),
+        };
+        let led = match &c.led {
+            None => None,
+            Some(l) => Some(Self::led(l, base)?),
+        };
         Ok(Some(I2cSink {
             reg,
             bus: bus.clone(),
             arm,
             expect,
+            present,
+            led,
         }))
+    }
+
+    fn led(l: &LedConfig, base: &crate::config::I2cRegConfig) -> std::result::Result<Led, String> {
+        let rc = l.reg_config();
+        Ok(Led {
+            reg: rc.to_reg(Some(base))?,
+            mask: rc.mask_or_all(),
+            ok: l.ok.0 as u32,
+            fault: l.fault.0 as u32,
+            absent: l.absent.unwrap_or(l.fault).0 as u32,
+            exit: l.exit.map(|v| v.0 as u32),
+            blink: l.blink.as_ref().map(|b| (b.off.0 as u32, b.period.0)),
+            want: None,
+            written: None,
+            ticks_since_check: 0,
+            error: None,
+        })
+    }
+
+    /// Every `expect` holds (nothing is written to the device otherwise).
+    fn identity_ok(&self) -> bool {
+        self.expect.iter().all(|x| x.check(self.bus.as_ref()).is_ok())
     }
 }
 
@@ -914,6 +1070,53 @@ pub struct OutputRt {
     pub demand: Option<f64>,
     /// The request is below the hardware minimum and was raised to it.
     pub clamped: bool,
+    /// The module's presence (`present`): None without it or while unreadable.
+    pub present: Option<bool>,
+    isolation: Option<Isolation>,
+    /// `isolation_max_duty`.
+    isolation_cap: Option<f64>,
+    /// The cap is applied this tick (for its log lines).
+    pub isolation_capped: bool,
+    /// `isolate_grace`: after the start, a reinsertion or a release, a rotor
+    /// fault neither isolates nor starts a recovery before `grace_until`.
+    grace_s: f64,
+    grace_until: Option<f64>,
+    /// This tick's rotor faults and warnings (none while absent or in a dip).
+    tach_faults: Vec<Fault>,
+    /// Set by the engine during a recovery's dip: rotor checks are void.
+    suppress_rotors: bool,
+    /// Set by the engine while a recovery works on this output.
+    pub recovering: bool,
+    /// `stall_recovery` bookkeeping, for outputs of its group.
+    rec: Option<RecState>,
+    /// The last absent -> present edge (cleared once an attempt starts).
+    inserted_at: Option<f64>,
+    /// Its rotor faults are being handled (grace, a pending or running
+    /// recovery): they do not count as failed rotors.
+    pub pending: bool,
+}
+
+/// Per output of the `stall_recovery` group.
+struct RecState {
+    attempts: u32,
+    max: u32,
+    /// Attempts exhausted: the reason.
+    failed: Option<String>,
+    /// No further attempt for this stall before this (`interval`).
+    next_try: Option<f64>,
+}
+
+/// Rotor fault keys that isolate (`isolate_on_rotor_fault`): a measured
+/// problem of the rotor, not a read error (a dead bus is not a dead fan).
+fn isolating(f: &Fault) -> bool {
+    ["/min_rpm", "/follow", "/fault"].iter().any(|s| f.key.ends_with(s))
+}
+
+/// Output fault keys a `rotor_fault_policy: degraded` zone rides out: a
+/// rotor problem or a module that is out (absent, isolated). Read and write
+/// errors are not among them.
+fn rotor_class(key: &str) -> bool {
+    matches!(key, "absent" | "isolated") || ["/min_rpm", "/follow", "/fault"].iter().any(|s| key.ends_with(s))
 }
 
 impl OutputRt {
@@ -1007,7 +1210,372 @@ impl OutputRt {
             min_desc: hwmin::describe(c),
             demand: None,
             clamped: false,
+            present: None,
+            grace_s: c.isolate_grace(),
+            grace_until: None,
+            tach_faults: Vec::new(),
+            suppress_rotors: false,
+            recovering: false,
+            rec: None,
+            inserted_at: None,
+            pending: false,
+            isolation: c.isolate_on_rotor_fault.then(|| Isolation {
+                raw: c.isolate_raw.unwrap_or(0),
+                since: None,
+                reason: String::new(),
+                proving: false,
+            }),
+            isolation_cap: c.isolation_max_duty.map(|p| p.0),
+            isolation_capped: false,
         })
+    }
+
+    /// `present`: Some(the state, None while unreadable), None without it.
+    pub fn presence(&self) -> Option<Option<bool>> {
+        match &self.sink {
+            Sink::I2c(x) if x.present.is_some() => Some(self.present),
+            _ => None,
+        }
+    }
+
+    /// Isolated (`isolate_on_rotor_fault`): since when and why.
+    pub fn isolated(&self) -> Option<(f64, &str)> {
+        let i = self.isolation.as_ref()?;
+        i.since.map(|s| (s, i.reason.as_str()))
+    }
+
+    /// The LED: (wanted state, the value it shows now, written, last error).
+    pub fn led(&self) -> Option<(LedState, u32, bool, Option<&str>)> {
+        let Sink::I2c(x) = &self.sink else { return None };
+        let l = x.led.as_ref()?;
+        let w = l.want?;
+        let (applied, v) = match l.written {
+            Some((s, v)) if s == w => (true, v),
+            _ => (false, l.value(w)),
+        };
+        Some((w, v, applied, l.error.as_deref()))
+    }
+
+    /// The LED blinks (the daemon's LED timer needs to run).
+    pub fn led_blinking(&self) -> bool {
+        matches!(&self.sink, Sink::I2c(x) if x.led.as_ref().is_some_and(|l| l.want == Some(LedState::Blink) && l.blink.is_some()))
+    }
+
+    /// Stall recovery: (failed attempts so far, given up: why).
+    pub fn recovery(&self) -> Option<(u32, Option<&str>)> {
+        self.rec.as_ref().map(|r| (r.attempts, r.failed.as_deref()))
+    }
+
+    /// Rotors below \`min_rpm\` this tick (a stall), with the messages.
+    fn stall_msgs(&self) -> Vec<&str> {
+        self.tach_faults
+            .iter()
+            .filter(|f| f.key.ends_with("/min_rpm"))
+            .map(|f| f.msg.as_str())
+            .collect()
+    }
+
+    /// Labels and readings of rotors below \`min_rpm\` now ("rear 0 rpm").
+    fn stalled_rotors(&self) -> Vec<String> {
+        let Some(t) = &self.tach else { return Vec::new() };
+        let min = t.min_rpm.unwrap_or(0.0);
+        t.rotors
+            .iter()
+            .filter(|r| r.rpm.is_none_or(|v| v < min))
+            .map(|r| match r.rpm {
+                Some(v) => format!("{} {v:.0} rpm", r.label),
+                None => format!("{} unreadable", r.label),
+            })
+            .collect()
+    }
+
+    fn rotor_readings(&self) -> String {
+        self.tach
+            .as_ref()
+            .map(|t| {
+                t.rotors
+                    .iter()
+                    .map(|r| format!("{} {}", r.label, r.rpm.map_or("?".into(), |v| format!("{v:.0} rpm"))))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            })
+            .unwrap_or_default()
+    }
+
+    fn in_grace(&self, now: f64) -> bool {
+        self.grace_until.is_some_and(|u| now < u)
+    }
+
+    /// Rotors out of service for \`degraded_max_failed_rotors\`: every rotor of
+    /// an absent or isolated module, else those with a rotor fault.
+    pub fn failed_rotors(&self) -> usize {
+        if self.present == Some(false) || self.isolated().is_some() {
+            return self.tach.as_ref().map_or(1, |t| t.rotors.len().max(1));
+        }
+        if self.pending {
+            return 0;
+        }
+        let mut labels: Vec<&str> = self
+            .faults
+            .iter()
+            .chain(&self.warnings)
+            .filter(|f| isolating(f))
+            .filter_map(|f| f.key.split('/').next())
+            .collect();
+        labels.sort_unstable();
+        labels.dedup();
+        labels.len()
+    }
+
+    /// Isolate now (recovery attempts exhausted).
+    fn isolate(&mut self, now: f64, reason: String) -> bool {
+        let name = &self.name;
+        let Some(i) = self.isolation.as_mut() else { return false };
+        if i.since.is_some() {
+            return true;
+        }
+        i.since = Some(now);
+        i.reason = reason;
+        log_error!(
+            "output {name}: ISOLATED: {}; writing raw {} to it instead of any zone or failsafe duty until it is reinserted, released (fand release {name}) or fand restarts",
+            i.reason,
+            i.raw
+        );
+        true
+    }
+
+    /// End an isolation, or a given-up recovery, by hand (\`fand release\`);
+    /// the module gets the grace again to prove itself.
+    pub fn release(&mut self, now: f64, why: &str) -> std::result::Result<(), String> {
+        let name = self.name.clone();
+        let failed = self.rec.as_ref().is_some_and(|r| r.failed.is_some());
+        if self.isolation.is_none() && self.rec.is_none() {
+            return Err(format!(
+                "output {name} has no isolate_on_rotor_fault and is not in stall_recovery"
+            ));
+        }
+        let was_isolated = self.isolation.as_mut().is_some_and(|i| i.since.take().is_some());
+        if !was_isolated && !failed {
+            return Err(format!("output {name} is not isolated"));
+        }
+        if let Some(r) = self.rec.as_mut() {
+            r.attempts = 0;
+            r.failed = None;
+        }
+        if let Some(i) = self.isolation.as_mut() {
+            i.proving = was_isolated;
+        }
+        self.grace_until = Some(now + self.grace_s);
+        log_notice!(
+            "output {name}: {} released ({why}); back under zone control, {:.0}s grace before a rotor fault is acted on again",
+            if was_isolated { "isolation" } else { "given-up recovery" },
+            self.grace_s
+        );
+        Ok(())
+    }
+
+    /// Read \`present\` (i2c outputs with one). Logs transitions; an
+    /// absent -> present edge is a reinsertion: it releases an isolation,
+    /// resets recovery attempts and restarts the grace and the follow check.
+    /// Returns the state (None = no \`present\` or unreadable).
+    fn update_presence(&mut self, now: f64) -> Option<bool> {
+        let name = &self.name;
+        let Sink::I2c(x) = &mut self.sink else { return None };
+        let p = x.present.as_mut()?;
+        match p.reg.read_raw(x.bus.as_ref()) {
+            Ok(v) => {
+                let present = v & p.mask == p.value & p.mask;
+                if p.error.take().is_some() {
+                    log_info!(
+                        "output {name}: presence readable again: {}",
+                        if present { "present" } else { "absent" }
+                    );
+                }
+                let prev = p.known;
+                p.state = Some(present);
+                p.known = Some(present);
+                match (prev, present) {
+                    (Some(true) | None, false) => log_warn!("output {name}: module absent ({} = 0x{v:02x})", p.reg),
+                    (Some(false), true) => {
+                        log_notice!("output {name}: module present again ({} = 0x{v:02x})", p.reg);
+                        self.last_change = now;
+                        self.grace_until = Some(now + self.grace_s);
+                        self.inserted_at = Some(now);
+                        if let Some(r) = self.rec.as_mut() {
+                            r.attempts = 0;
+                            r.failed = None;
+                            r.next_try = None;
+                        }
+                        if let Some(i) = self.isolation.as_mut() {
+                            if i.since.take().is_some() {
+                                i.proving = true;
+                                log_notice!(
+                                    "output {name}: isolation released (module reinserted); {:.0}s grace before a rotor fault is acted on again",
+                                    self.grace_s
+                                );
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            Err(e) => {
+                if p.error.as_ref() != Some(&e) {
+                    log_warn!("output {name}: presence unknown (rotors are checked as if present): {e}");
+                }
+                p.error = Some(e);
+                p.state = None;
+            }
+        }
+        p.state
+    }
+
+    /// Isolate on a rotor fault of this output (see \`isolating\`), unless
+    /// absent, within the grace, in a recovery's hands, or a stall that
+    /// \`stall_recovery\` will try first.
+    fn update_isolation(&mut self, now: f64, rotor_faults: &[Fault], absent: bool) {
+        if self.isolated().is_some() || absent || self.in_grace(now) || self.recovering || self.suppress_rotors {
+            return;
+        }
+        if self.rec.is_some() && rotor_faults.iter().any(|f| f.key.ends_with("/min_rpm")) {
+            return;
+        }
+        let hits: Vec<&str> = rotor_faults
+            .iter()
+            .filter(|f| isolating(f))
+            .map(|f| f.msg.as_str())
+            .collect();
+        if hits.is_empty() {
+            return;
+        }
+        let reason = hits.join("; ");
+        self.isolate(now, reason);
+    }
+
+    /// Work out the LED state for this tick (logged on a change):
+    /// absent -> absent; isolated or given up -> solid fault; being handled
+    /// (a recovery on it, a stall a recovery will try, a rotor fault within
+    /// the grace, released and not yet checked) -> blink; any other rotor
+    /// fault -> solid fault; else ok.
+    fn want_led(&mut self, now: f64) {
+        let absent = self.present == Some(false);
+        let failed = self.rec.as_ref().is_some_and(|r| r.failed.is_some());
+        let isolated = self.isolated().is_some();
+        let proving = self.isolation.as_ref().is_some_and(|i| i.proving);
+        let trouble = !self.tach_faults.is_empty();
+        let pending = self
+            .rec
+            .as_ref()
+            .is_some_and(|r| r.failed.is_none() && r.attempts < r.max && !self.stall_msgs().is_empty());
+        let want = if absent {
+            LedState::Absent
+        } else if isolated || failed {
+            LedState::Fault
+        } else if self.recovering || pending || proving || (trouble && self.in_grace(now)) {
+            LedState::Blink
+        } else if trouble {
+            LedState::Fault
+        } else {
+            LedState::Ok
+        };
+        let name = &self.name;
+        let Sink::I2c(x) = &mut self.sink else { return };
+        let Some(l) = x.led.as_mut() else { return };
+        if l.want != Some(want) {
+            // The first state is logged only if it is not "ok" (a quiet start).
+            if l.want.is_some() || want != LedState::Ok {
+                log_info!(
+                    "output {name}: LED {} -> {} ({})",
+                    l.want.map_or("unset", LedState::name),
+                    want.name(),
+                    l.describe(want)
+                );
+            }
+            l.want = Some(want);
+        }
+    }
+
+    /// Drive the LED (never in a dry run, never past a failing \`expect\`).
+    /// Writes when the value it should show changes (a new state, a blink
+    /// phase); from a tick, a steady LED is also read back every
+    /// LED_READBACK_TICKS and rewritten if it differs. A failing LED write is
+    /// logged, retried, and not a fault.
+    fn drive_led(&mut self, now: f64, dry_run: bool, from_tick: bool) {
+        let name = &self.name;
+        let Sink::I2c(x) = &mut self.sink else { return };
+        let Some((want, v, steady)) = x.led.as_ref().and_then(|l| {
+            l.want
+                .map(|w| (w, l.shown(w, now), l.written == Some((w, l.shown(w, now)))))
+        }) else {
+            return;
+        };
+        // Between ticks (the blink timer) nothing touches the bus unless the
+        // blink phase changed.
+        if dry_run || (steady && !from_tick) || !x.identity_ok() {
+            return;
+        }
+        let bus = x.bus.clone();
+        let Some(l) = x.led.as_mut() else { return };
+        let bus = bus.as_ref();
+        if l.written == Some((want, v)) {
+            if !from_tick || want == LedState::Blink {
+                return;
+            }
+            l.ticks_since_check += 1;
+            if l.ticks_since_check < LED_READBACK_TICKS {
+                return;
+            }
+            l.ticks_since_check = 0;
+            match l.reg.read_raw(bus) {
+                Ok(cur) if l.holds(cur, v) => return,
+                Ok(cur) => log_notice!(
+                    "output {name}: LED register {} reads 0x{cur:02x}, want 0x{v:02x} ({}) under mask 0x{:02x}: writing it again",
+                    l.reg,
+                    want.name(),
+                    l.mask
+                ),
+                Err(e) => {
+                    if l.error.as_ref() != Some(&e) {
+                        log_warn!("output {name}: LED: {e}");
+                    }
+                    l.error = Some(e);
+                    return;
+                }
+            }
+        }
+        match l.put(bus, v) {
+            Ok(()) => {
+                l.written = Some((want, v));
+                l.ticks_since_check = 0;
+                if l.error.take().is_some() {
+                    log_info!("output {name}: LED writes work again");
+                }
+            }
+            Err(e) => {
+                l.written = None;
+                if l.error.as_ref() != Some(&e) {
+                    log_warn!("output {name}: LED: {e}");
+                }
+                l.error = Some(e);
+            }
+        }
+    }
+
+    /// On exit (not in a dry run): the LED's \`exit\` value if configured, else
+    /// a blinking LED goes solid \`fault\` (nobody handles the module any
+    /// more); the others stay as they are.
+    fn exit_led(&mut self) -> std::result::Result<(), String> {
+        let Sink::I2c(x) = &self.sink else { return Ok(()) };
+        let Some(l) = x.led.as_ref() else { return Ok(()) };
+        let v = match (l.exit, l.want) {
+            (Some(v), _) => v,
+            (None, Some(LedState::Blink)) => l.fault,
+            _ => return Ok(()),
+        };
+        if !x.identity_ok() {
+            return Err("LED exit value not written: an expect check fails".into());
+        }
+        l.put(x.bus.as_ref(), v)
     }
 
     /// Is a demand below the hardware minimum (so the clamp raises it)?
@@ -1137,6 +1705,31 @@ impl OutputRt {
             out.push(match ex.check(bus) {
                 Ok(v) => (true, format!("expect {} = 0x{v:02x} (ok: {})", ex.reg, ex.desc())),
                 Err(e) => (false, format!("ERROR {e}")),
+            });
+        }
+        if let Some(p) = &x.present {
+            out.push(match p.reg.read_raw(bus) {
+                Ok(v) if v & p.mask == p.value & p.mask => (true, format!("present {} = 0x{v:02x} (present)", p.reg)),
+                Ok(v) => (false, format!("present {} = 0x{v:02x} (ABSENT: a fault)", p.reg)),
+                Err(e) => (true, format!("present: unreadable ({e}), checked as present")),
+            });
+        }
+        if let Some(l) = &x.led {
+            out.push(match l.reg.read_raw(bus) {
+                Ok(v) => {
+                    let shows = [LedState::Ok, LedState::Fault, LedState::Absent]
+                        .into_iter()
+                        .filter(|s| l.holds(v, l.value(*s)))
+                        .map(LedState::name)
+                        .collect::<Vec<_>>();
+                    let shows = if shows.is_empty() {
+                        "none of ok/fault/absent".to_string()
+                    } else {
+                        shows.join("/")
+                    };
+                    (true, format!("led {} = 0x{v:02x} ({shows})", l.reg))
+                }
+                Err(e) => (true, format!("led: unreadable ({e})")),
             });
         }
         if let Some(a) = &x.arm {
@@ -1283,6 +1876,9 @@ impl OutputRt {
                 Err(e) => faults.push(Fault::new("i2c", e)),
             }
         }
+        self.grace_until.get_or_insert(now + self.grace_s);
+        self.present = self.update_presence(now);
+        let absent = self.present == Some(false);
         let commanded = if dry_run {
             self.observed_raw.map(|r| self.raw_to_duty(r))
         } else {
@@ -1290,20 +1886,85 @@ impl OutputRt {
         };
         let since = now - self.last_change;
         let mut warnings = Vec::new();
+        let mut rotor_faults = Vec::new();
+        let suppress = self.suppress_rotors;
         if let Some(t) = &mut self.tach {
             let tf = t.check(now, root, commanded, since);
-            match t.on_fault {
-                FaultAction::Failsafe => faults.extend(tf),
-                FaultAction::Warn => warnings.extend(tf),
+            if absent {
+                // Nothing to check in an empty slot.
+                for r in &mut t.rotors {
+                    r.expected = None;
+                }
+            } else {
+                // In a recovery's dip the duty is not the zones': only read
+                // errors count.
+                let tf: Vec<Fault> = if suppress {
+                    tf.into_iter().filter(|f| !isolating(f)).collect()
+                } else {
+                    tf
+                };
+                rotor_faults.clone_from(&tf);
+                match t.on_fault {
+                    FaultAction::Failsafe => faults.extend(tf),
+                    FaultAction::Warn => warnings.extend(tf),
+                }
             }
         }
+        if absent {
+            faults.push(Fault::new("absent", "module absent"));
+        }
+        self.update_isolation(now, &rotor_faults, absent);
+        if let Some(i) = self.isolation.as_mut() {
+            if i.proving && commanded.is_some_and(|d| d > 0.0) {
+                i.proving = false;
+            }
+        }
+        let isolated = self.isolated().map(|(_, r)| r.to_string());
+        if let Some(r) = &isolated {
+            faults.push(Fault::new("isolated", format!("isolated: {r}")));
+        }
+        // A module whose rotors run again on their own (or after a manual
+        // fix) starts from zero attempts.
+        let healthy = !absent
+            && !suppress
+            && !self.recovering
+            && isolated.is_none()
+            && rotor_faults.is_empty()
+            && commanded.is_some_and(|d| d > 0.0);
+        if healthy {
+            self.inserted_at = None;
+        }
+        if let Some(r) = self.rec.as_mut() {
+            if healthy && (r.attempts > 0 || r.failed.is_some()) {
+                r.attempts = 0;
+                r.failed = None;
+                r.next_try = None;
+                log_notice!(
+                    "output {}: rotors running again, stall recovery attempts reset",
+                    self.name
+                );
+            }
+        }
+        // Rotors fand is still working on (just inserted or started, a
+        // recovery pending or running) are not "failed" yet; they are once
+        // the recovery gives up.
+        let stalled = rotor_faults.iter().any(|f| f.key.ends_with("/min_rpm"));
+        let in_grace = self.in_grace(now);
+        self.pending = !absent
+            && isolated.is_none()
+            && self.rec.as_ref().is_some_and(|r| {
+                r.failed.is_none() && (self.recovering || (r.attempts < r.max && (stalled || in_grace)))
+            });
+        self.tach_faults = rotor_faults;
+        // "write" is logged where it happens; absent/isolated by their own lines.
+        let quiet = |k: &str| matches!(k, "write" | "absent" | "isolated");
         for f in faults.iter().chain(&warnings) {
-            if !self.faults.iter().chain(&self.warnings).any(|o| o.key == f.key) && f.key != "write" {
+            if !self.faults.iter().chain(&self.warnings).any(|o| o.key == f.key) && !quiet(&f.key) {
                 log_warn!("output {}: {}", self.name, f.msg);
             }
         }
         for o in self.faults.iter().chain(&self.warnings) {
-            if !faults.iter().chain(&warnings).any(|f| f.key == o.key) && o.key != "write" {
+            if !faults.iter().chain(&warnings).any(|f| f.key == o.key) && !quiet(&o.key) {
                 log_info!("output {}: cleared: {}", self.name, o.msg);
             }
         }
@@ -1315,6 +1976,10 @@ impl OutputRt {
     /// reassert interval is due. On failure the failsafe duty is attempted
     /// at once and the error becomes a fault for the next tick.
     fn apply(&mut self, demand: f64, now: f64, root: &Path, dry_run: bool, failsafe_duty: f64) {
+        if let Some(raw) = self.isolation.as_ref().filter(|i| i.since.is_some()).map(|i| i.raw) {
+            self.apply_fixed_raw(raw, now, root, dry_run);
+            return;
+        }
         let duty = self.clamp(demand);
         let raw = self.to_raw(duty);
         if self.raw != Some(raw) && !dry_run {
@@ -1353,6 +2018,36 @@ impl OutputRt {
                 }
             }
         }
+    }
+
+    /// A fixed raw value (isolated, or a recovery's dip), whatever the zones
+    /// ask; a failed write is retried but never replaced by the failsafe duty.
+    fn apply_fixed_raw(&mut self, raw: u32, now: f64, root: &Path, dry_run: bool) {
+        let duty = self.raw_to_duty(raw);
+        if self.raw != Some(raw) && !dry_run {
+            self.last_change = now;
+        }
+        let due = self.raw != Some(raw)
+            || self.write_error.is_some()
+            || self.last_write.is_none_or(|t| now - t >= self.reassert);
+        if !dry_run && due {
+            self.last_write = Some(now);
+            match self.write_raw(raw, duty, now, root) {
+                Ok(()) => {
+                    if self.write_error.take().is_some() {
+                        log_info!("output {}: writes work again", self.name);
+                    }
+                }
+                Err(e) => {
+                    if self.write_error.as_ref() != Some(&e) {
+                        log_error!("output {}: {e}", self.name);
+                    }
+                    self.write_error = Some(e);
+                }
+            }
+        }
+        self.duty = Some(duty);
+        self.raw = Some(raw);
     }
 
     /// Write a duty now, bypassing zones (exit, failsafe command, calibration).
@@ -1441,6 +2136,19 @@ pub struct ZoneRt {
     waiting_duty: Option<f64>,
     /// Sensors of this zone that are not online yet (`startup_grace`).
     pub waiting: Vec<String>,
+    pub rotor_policy: RotorFaultPolicy,
+    degraded_min: Option<f64>,
+    per_rotor: f64,
+    max_failed: usize,
+    /// degraded: the rotor faults ridden out this tick.
+    pub degraded: Vec<String>,
+    degraded_keys: Vec<String>,
+    /// Failed rotors on the zone's outputs (see `OutputRt::failed_rotors`).
+    pub failed_rotors: usize,
+    /// Hottest sensor value (with its zone offset) this tick.
+    pub hottest: Option<f64>,
+    /// This tick's sensor and critical faults (a stall recovery waits for none).
+    hard_faults: Vec<String>,
 }
 
 /// "zones board 45%, asic 45% override": the zones driving output `i`.
@@ -1561,6 +2269,15 @@ impl ZoneRt {
             started: false,
             waiting_duty: z.waiting_duty.map(|p| p.0),
             waiting: Vec::new(),
+            rotor_policy: cfg.rotor_fault_policy(z),
+            degraded_min: z.degraded_min_duty.map(|p| p.0),
+            per_rotor: z.degraded_duty_per_rotor.unwrap_or(0.0),
+            max_failed: z.degraded_max_failed_rotors.unwrap_or(DEFAULT_DEGRADED_MAX_FAILED),
+            degraded: Vec::new(),
+            degraded_keys: Vec::new(),
+            failed_rotors: 0,
+            hottest: None,
+            hard_faults: Vec::new(),
         })
     }
 
@@ -1647,14 +2364,33 @@ impl ZoneRt {
                 ),
             ));
         }
+        self.hottest = vals.iter().map(|(v, _)| *v).reduce(f64::max);
+        let degraded_policy = self.rotor_policy == RotorFaultPolicy::Degraded;
+        let mut degraded: Vec<Fault> = Vec::new();
         for &oi in &self.outputs {
             let o = &outputs[oi];
             for f in &o.faults {
-                faults.push(Fault::new(
+                let zf = Fault::new(
                     format!("output/{}/{}", o.name, f.key),
                     format!("output {}: {}", o.name, f.msg),
-                ));
+                );
+                if degraded_policy && rotor_class(&f.key) {
+                    degraded.push(zf);
+                } else {
+                    faults.push(zf);
+                }
             }
+        }
+        self.failed_rotors = self.outputs.iter().map(|&o| outputs[o].failed_rotors()).sum();
+        if degraded_policy && self.failed_rotors > self.max_failed {
+            faults.push(Fault::new(
+                "rotors",
+                format!(
+                    "{} failed rotors, more than degraded_max_failed_rotors {}",
+                    self.failed_rotors, self.max_failed
+                ),
+            ));
+            faults.append(&mut degraded);
         }
         self.temperature = exec::aggregate_weighted(&vals, self.aggregate);
         if let (Some(t), Some(c)) = (self.temperature, self.critical) {
@@ -1665,6 +2401,13 @@ impl ZoneRt {
                 ));
             }
         }
+        // Only these hold off a stall recovery; a failsafe for other reasons
+        // (rotors, write errors) does not.
+        self.hard_faults = faults
+            .iter()
+            .filter(|f| f.key.starts_with("sensor") || f.key == "critical")
+            .map(|f| f.msg.clone())
+            .collect();
         self.smoothed = match self.temperature {
             Some(t) => Some(self.ema.update(t, dt)),
             None => {
@@ -1696,6 +2439,26 @@ impl ZoneRt {
             }
         }
         self.fault_keys = keys;
+        let dkeys: Vec<String> = degraded.iter().map(|f| f.key.clone()).collect();
+        let dmsgs: Vec<String> = degraded.iter().map(|f| f.msg.clone()).collect();
+        if !self.guard.active() && dkeys != self.degraded_keys {
+            let n = self.failed_rotors;
+            if self.degraded_keys.is_empty() {
+                log_warn!(
+                    "zone {}: DEGRADED ({n} failed rotor{}): {}; keeping {} with the remaining fans",
+                    self.name,
+                    if n == 1 { "" } else { "s" },
+                    dmsgs.join("; "),
+                    self.policy_desc
+                );
+            } else if dkeys.is_empty() {
+                log_notice!("zone {}: no longer degraded", self.name);
+            } else {
+                log_warn!("zone {}: still degraded ({n} failed): {}", self.name, dmsgs.join("; "));
+            }
+        }
+        self.degraded_keys = if self.guard.active() { Vec::new() } else { dkeys };
+        self.degraded = if self.guard.active() { Vec::new() } else { dmsgs };
 
         let floor_spec = self.profile.floor(table);
         self.floor = self.pct(floor_spec, outputs);
@@ -1756,7 +2519,12 @@ impl ZoneRt {
                 return;
             }
         }
-        let target = demand.max(lo);
+        let mut target = demand.max(lo);
+        if !self.degraded.is_empty() {
+            target = (target + self.per_rotor * self.failed_rotors as f64)
+                .max(self.degraded_min.unwrap_or(0.0))
+                .min(100.0);
+        }
         self.duty = self.ramp.step(self.duty, target, now, dt);
     }
 
@@ -1773,6 +2541,85 @@ impl ZoneRt {
     }
 }
 
+// ---------------------------------------------------------------- stall recovery
+
+/// The fixed duties of a recovery's dip, for \`apply_outputs\`.
+struct Dip {
+    raw: u32,
+    group: Vec<usize>,
+    release: Vec<usize>,
+}
+
+struct Run {
+    targets: Vec<usize>,
+    attempt: u32,
+    /// 0 = hold, 1..=ramp.len() = ramp steps, then settle (normal control).
+    step: usize,
+    until: f64,
+    started: f64,
+}
+
+/// \`stall_recovery\` at run time: one recovery at a time.
+struct Recovery {
+    group: Vec<usize>,
+    release: Vec<usize>,
+    hold_raw: u32,
+    hold: f64,
+    ramp: Vec<(u32, f64)>,
+    settle: f64,
+    max_attempts: u32,
+    interval: f64,
+    min_gap: f64,
+    insert_delay: f64,
+    /// Zone name -> limit for its hottest sensor.
+    limits: BTreeMap<String, f64>,
+    run: Option<Run>,
+    last_end: Option<f64>,
+    last_result: Option<String>,
+    /// The last "postponed" reason logged (one line per new reason).
+    postponed: Option<String>,
+    file: Option<PathBuf>,
+    /// The state last written to \`file\`.
+    saved: Option<String>,
+}
+
+impl Recovery {
+    fn dipping(&self) -> bool {
+        self.run.as_ref().is_some_and(|r| r.step <= self.ramp.len())
+    }
+
+    fn dip(&self) -> Option<Dip> {
+        let r = self.run.as_ref()?;
+        let raw = match r.step {
+            0 => self.hold_raw,
+            s if s <= self.ramp.len() => self.ramp[s - 1].0,
+            _ => return None,
+        };
+        Some(Dip {
+            raw,
+            group: self.group.clone(),
+            release: self.release.clone(),
+        })
+    }
+
+    fn phase(&self) -> Option<&'static str> {
+        let r = self.run.as_ref()?;
+        Some(match r.step {
+            0 => "hold",
+            s if s <= self.ramp.len() => "ramp",
+            _ => "settle",
+        })
+    }
+}
+
+/// Persistent recovery state of one output (\`runtime.recovery_file\`).
+#[derive(Debug, Serialize, serde::Deserialize, PartialEq)]
+struct SavedRec {
+    attempts: u32,
+    #[serde(default)]
+    failed: Option<String>,
+}
+
 // ---------------------------------------------------------------- engine
 
 pub struct Engine {
@@ -1785,6 +2632,7 @@ pub struct Engine {
     pub zones: Vec<ZoneRt>,
     last_tick: Option<f64>,
     pub ticks: u64,
+    recovery: Option<Recovery>,
 }
 
 impl Engine {
@@ -1821,6 +2669,70 @@ impl Engine {
                 }
             }
         }
+        let recovery = match &cfg.stall_recovery {
+            None => None,
+            Some(r) => {
+                let idx = |names: &[String]| -> Result<Vec<usize>> {
+                    names
+                        .iter()
+                        .map(|n| {
+                            output_idx
+                                .get(n)
+                                .copied()
+                                .ok_or_else(|| Error(format!("stall_recovery: unknown output {n}")))
+                        })
+                        .collect()
+                };
+                let group = idx(&cfg.recovery_outputs())?;
+                let release = idx(&r.release)?;
+                let limits = cfg
+                    .recovery_limits()
+                    .map_err(|z| Error(format!("stall_recovery.max_temp: no limit for {}", z.join(", "))))?;
+                let file = cfg.recovery_file();
+                let saved: BTreeMap<String, SavedRec> = file
+                    .as_ref()
+                    .and_then(|p| std::fs::read_to_string(p).ok())
+                    .and_then(|s| serde_json::from_str(&s).ok())
+                    .unwrap_or_default();
+                for &i in &group {
+                    let o = &mut outputs[i];
+                    let s = saved.get(&o.name);
+                    o.rec = Some(RecState {
+                        attempts: s.map_or(0, |s| s.attempts),
+                        max: r.max_attempts,
+                        failed: s.and_then(|s| s.failed.clone()),
+                        next_try: None,
+                    });
+                    if let Some(s) = s {
+                        log_notice!(
+                            "output {}: stall recovery state from before the restart: {} attempt(s){}",
+                            o.name,
+                            s.attempts,
+                            s.failed.as_ref().map_or(String::new(), |f| format!(", given up ({f})"))
+                        );
+                    }
+                }
+                Some(Recovery {
+                    group,
+                    release,
+                    hold_raw: r.hold_raw.0 as u32,
+                    hold: r.hold.0,
+                    ramp: r.ramp.iter().map(|s| (s.raw.0 as u32, s.duration.0)).collect(),
+                    settle: r.settle.0,
+                    max_attempts: r.max_attempts,
+                    interval: r.interval.0,
+                    min_gap: r.min_gap.0,
+                    insert_delay: r.insert_delay.0,
+                    limits,
+                    run: None,
+                    last_end: None,
+                    last_result: None,
+                    postponed: None,
+                    saved: file.as_ref().and_then(|p| std::fs::read_to_string(p).ok()),
+                    file,
+                })
+            }
+        };
         Ok(Engine {
             root: opts.root,
             dry_run: opts.dry_run,
@@ -1831,6 +2743,7 @@ impl Engine {
             cfg,
             last_tick: None,
             ticks: 0,
+            recovery,
         })
     }
 
@@ -1862,28 +2775,438 @@ impl Engine {
         let dt = self.last_tick.map_or(self.cfg.interval.0, |t| (now - t).max(0.0));
         self.last_tick = Some(now);
         self.ticks += 1;
+        // Recovery steps that fell due since the last call (the daemon's
+        // timer usually does them on time).
+        self.recovery_timer(now);
         self.read_sensors(now);
+        self.sync_recovery_flags();
         for o in &mut self.outputs {
             o.feedback(now, &self.root, self.dry_run);
         }
         for z in &mut self.zones {
             z.update(now, dt, &self.sensors, &self.outputs, &self.cfg.profiles);
         }
+        if let Some(mut rec) = self.recovery.take() {
+            self.recovery_tick(&mut rec, now);
+            self.recovery = Some(rec);
+        }
+        self.sync_recovery_flags();
+        let dip = self.recovery.as_ref().and_then(Recovery::dip);
+        self.apply_outputs(now, dip.as_ref());
+        for o in &mut self.outputs {
+            o.want_led(now);
+            o.drive_led(now, self.dry_run, true);
+        }
+        for z in &mut self.zones {
+            z.track(&self.outputs);
+        }
+        self.save_recovery();
+    }
+
+    /// Between ticks (the daemon calls this every few tens of ms): recovery
+    /// steps that are due, and blinking LEDs. Does nothing when neither runs.
+    pub fn timers(&mut self, now: f64) {
+        self.recovery_timer(now);
+        if self.dry_run {
+            return;
+        }
+        for o in &mut self.outputs {
+            if o.led_blinking() {
+                o.drive_led(now, false, false);
+            }
+        }
+    }
+
+    /// Every output's duty from the zones (with the isolation cap), or the
+    /// dip's raw value for a recovery's group and 0 % for its \`release\`.
+    fn apply_outputs(&mut self, now: f64, dip: Option<&Dip>) {
         let failsafe = self.cfg.failsafe_duty.0;
         let zones = &self.zones;
+        let isolated: Vec<String> = self
+            .outputs
+            .iter()
+            .filter(|o| o.isolated().is_some())
+            .map(|o| o.name.clone())
+            .collect();
         for (i, o) in self.outputs.iter_mut().enumerate() {
-            let demand = zones
+            let mut demand = zones
                 .iter()
                 .filter(|z| z.outputs.contains(&i))
                 .map(|z| z.duty)
                 .reduce(f64::max)
                 .unwrap_or(failsafe);
+            let cap = o.isolation_cap.filter(|_| !isolated.is_empty());
+            if cap.is_some() != o.isolation_capped {
+                o.isolation_capped = cap.is_some();
+                match cap {
+                    Some(c) => log_warn!(
+                        "output {}: at most {} while {} {} isolated (isolation_max_duty)",
+                        o.name,
+                        hwmin::pct(c),
+                        isolated.join(", "),
+                        if isolated.len() > 1 { "are" } else { "is" }
+                    ),
+                    None => log_notice!(
+                        "output {}: no output isolated, isolation_max_duty no longer applies",
+                        o.name
+                    ),
+                }
+            }
+            if let Some(c) = cap {
+                demand = demand.min(c);
+            }
+            let released = dip.is_some_and(|d| d.release.contains(&i));
+            if released {
+                demand = 0.0;
+            }
             o.track_min(demand, || requesters(zones, i));
-            o.apply(demand, now, &self.root, self.dry_run, failsafe);
+            match dip.filter(|d| d.group.contains(&i) && o.isolated().is_none()) {
+                Some(d) => o.apply_fixed_raw(d.raw, now, &self.root, self.dry_run),
+                None => o.apply(demand, now, &self.root, self.dry_run, failsafe),
+            }
         }
-        for z in &mut self.zones {
-            z.track(&self.outputs);
+    }
+
+    fn sync_recovery_flags(&mut self) {
+        let (dipping, group, targets) = match &self.recovery {
+            Some(r) => (
+                r.dipping(),
+                r.group.clone(),
+                r.run.as_ref().map(|x| x.targets.clone()).unwrap_or_default(),
+            ),
+            None => (false, Vec::new(), Vec::new()),
+        };
+        for (i, o) in self.outputs.iter_mut().enumerate() {
+            o.suppress_rotors = dipping && group.contains(&i);
+            o.recovering = targets.contains(&i);
         }
+    }
+
+    fn names(&self, idx: &[usize]) -> String {
+        idx.iter()
+            .map(|&i| self.outputs[i].name.as_str())
+            .collect::<Vec<_>>()
+            .join(", ")
+    }
+
+    /// Why a recovery may not run now (None: it may).
+    fn recovery_guard(&self, rec: &Recovery) -> Option<String> {
+        if let Some(s) = self.sensors.iter().find(|s| s.required && s.value.is_none()) {
+            return Some(format!("sensor {} has no reading", s.name));
+        }
+        for z in &self.zones {
+            if let Some(f) = z.hard_faults.first() {
+                return Some(format!("zone {} has a fault: {f}", z.name));
+            }
+            if let (Some(h), Some(lim)) = (z.hottest, rec.limits.get(&z.name)) {
+                if h >= *lim {
+                    return Some(format!(
+                        "zone {}: hottest sensor at {h:.1} C, at or above the limit {lim} C",
+                        z.name
+                    ));
+                }
+            }
+        }
+        None
+    }
+
+    /// A tick's part: isolate given-up modules, abort a dip whose guard
+    /// fails, judge the result after the settle time, or start a recovery.
+    fn recovery_tick(&mut self, rec: &mut Recovery, now: f64) {
+        for &i in &rec.group {
+            let o = &mut self.outputs[i];
+            if o.present == Some(false) || o.isolated().is_some() {
+                continue;
+            }
+            if let Some(f) = o.rec.as_ref().and_then(|r| r.failed.clone()) {
+                o.isolate(now, format!("stall recovery gave up: {f}"));
+            }
+        }
+        if let Some(run) = &rec.run {
+            if rec.dipping() {
+                if let Some(why) = self.recovery_guard(rec) {
+                    self.recovery_abort(rec, now, &why, false);
+                }
+            } else if now >= run.until {
+                self.recovery_finish(rec, now);
+            }
+            return;
+        }
+        if rec.last_end.is_some_and(|t| now - t < rec.min_gap) {
+            return;
+        }
+        // Eligible: present, not given up or isolated, a rotor below
+        // min_rpm, and either just reinserted (after insert_delay, whatever
+        // the grace and interval) or past its grace and its interval.
+        let cands: Vec<usize> = rec
+            .group
+            .iter()
+            .copied()
+            .filter(|&i| {
+                let o = &self.outputs[i];
+                let fresh = o.inserted_at.is_some_and(|t| now - t >= rec.insert_delay);
+                o.present != Some(false)
+                    && o.isolated().is_none()
+                    && o.rec.as_ref().is_some_and(|r| {
+                        r.failed.is_none()
+                            && r.attempts < r.max
+                            && (fresh || (!o.in_grace(now) && r.next_try.is_none_or(|t| now >= t)))
+                    })
+                    && !o.stall_msgs().is_empty()
+            })
+            .collect();
+        if cands.is_empty() {
+            rec.postponed = None;
+            return;
+        }
+        let names = self.names(&cands);
+        if self.dry_run {
+            log_notice!("dry run: would start a stall recovery for {names}");
+            rec.last_end = Some(now);
+            return;
+        }
+        if let Some(why) = self.recovery_guard(rec) {
+            if rec.postponed.as_ref() != Some(&why) {
+                log_warn!("stall recovery for {names} postponed: {why}");
+                rec.postponed = Some(why);
+            }
+            return;
+        }
+        rec.postponed = None;
+        let mut attempt = 0;
+        let mut why = Vec::new();
+        for &i in &cands {
+            let o = &mut self.outputs[i];
+            why.push(format!("{}: {}", o.name, o.stall_msgs().join("; ")));
+            o.inserted_at = None;
+            if let Some(r) = o.rec.as_mut() {
+                r.attempts += 1;
+                attempt = attempt.max(r.attempts);
+            }
+        }
+        let ramp: Vec<String> = rec
+            .ramp
+            .iter()
+            .map(|(raw, d)| format!("0x{raw:02x} for {d}s"))
+            .collect();
+        log_warn!(
+            "stall recovery attempt {attempt}/{} for {names} ({}): {}{} fan outputs to raw 0x{:02x} for {}s{}, then normal control and a check after {}s",
+            rec.max_attempts,
+            why.join("; "),
+            if rec.release.is_empty() {
+                String::new()
+            } else {
+                format!("releasing {} first, ", self.names(&rec.release))
+            },
+            rec.group.len(),
+            rec.hold_raw,
+            rec.hold,
+            if ramp.is_empty() {
+                String::new()
+            } else {
+                format!(", then {}", ramp.join(", "))
+            },
+            rec.settle
+        );
+        rec.run = Some(Run {
+            targets: cands,
+            attempt,
+            step: 0,
+            until: now + rec.hold,
+            started: now,
+        });
+        self.recovery_write(rec, now);
+    }
+
+    /// Write the dip: the \`release\` outputs first (a force-to-max would void
+    /// it), then the group; a duty register that does not read back what was
+    /// written (still forced) aborts.
+    fn recovery_write(&mut self, rec: &mut Recovery, now: f64) {
+        self.sync_recovery_flags_with(rec);
+        let Some(dip) = rec.dip() else { return };
+        let failsafe = self.cfg.failsafe_duty.0;
+        for &i in &dip.release {
+            let o = &mut self.outputs[i];
+            o.track_min(0.0, String::new);
+            o.apply(0.0, now, &self.root, self.dry_run, failsafe);
+            if let Some(e) = &o.write_error {
+                let why = format!("releasing output {} failed: {e}", o.name);
+                self.recovery_abort(rec, now, &why, false);
+                return;
+            }
+        }
+        for &i in &dip.group {
+            let o = &mut self.outputs[i];
+            if o.isolated().is_some() {
+                continue;
+            }
+            o.apply_fixed_raw(dip.raw, now, &self.root, self.dry_run);
+            // A write error is the bus, not the module: not counted. A duty
+            // register that reads back otherwise is a dip that cannot be
+            // made (a force still on): counted, so it ends.
+            let bad = match (&o.write_error, o.observed_raw) {
+                (Some(e), _) => Some((format!("output {}: {e}", o.name), false)),
+                (None, Some(got)) if o.readback != Readback::Off && got != dip.raw => Some((
+                    format!(
+                        "output {} reads raw {got} after writing {} (is a force-to-max still on?)",
+                        o.name, dip.raw
+                    ),
+                    true,
+                )),
+                _ => None,
+            };
+            if let Some((why, counted)) = bad {
+                self.recovery_abort(rec, now, &why, counted);
+                return;
+            }
+        }
+    }
+
+    fn sync_recovery_flags_with(&mut self, rec: &Recovery) {
+        let targets = rec.run.as_ref().map(|x| x.targets.clone()).unwrap_or_default();
+        for (i, o) in self.outputs.iter_mut().enumerate() {
+            o.suppress_rotors = rec.dipping() && rec.group.contains(&i);
+            o.recovering = targets.contains(&i);
+        }
+    }
+
+    /// Stop a recovery and go back to normal control at once. \`counted\`:
+    /// the attempt counts (the dip could not be made); a guard abort does not.
+    fn recovery_abort(&mut self, rec: &mut Recovery, now: f64, why: &str, counted: bool) {
+        let Some(run) = rec.run.take() else { return };
+        for &i in &run.targets {
+            if let Some(r) = self.outputs[i].rec.as_mut() {
+                if counted {
+                    r.next_try = Some(now + rec.interval);
+                } else {
+                    r.attempts = r.attempts.saturating_sub(1);
+                }
+            }
+        }
+        log_warn!(
+            "stall recovery attempt {} for {} aborted after {:.0}s: {why}; back to normal control{}",
+            run.attempt,
+            self.names(&run.targets),
+            now - run.started,
+            if counted { "" } else { " (the attempt does not count)" }
+        );
+        rec.last_result = Some(format!("aborted: {why}"));
+        rec.last_end = Some(now);
+        self.sync_recovery_flags_with(rec);
+        self.apply_outputs(now, None);
+    }
+
+    /// After the settle time: each target recovered, still stalled (another
+    /// attempt after \`interval\`), or given up after \`max_attempts\`.
+    fn recovery_finish(&mut self, rec: &mut Recovery, now: f64) {
+        let Some(run) = rec.run.take() else { return };
+        let mut results = Vec::new();
+        for &i in &run.targets {
+            let o = &mut self.outputs[i];
+            let name = o.name.clone();
+            if o.present == Some(false) {
+                results.push(format!("{name} absent"));
+                continue;
+            }
+            let stalled = o.stalled_rotors();
+            let readings = o.rotor_readings();
+            let Some(r) = o.rec.as_mut() else { continue };
+            if stalled.is_empty() {
+                r.attempts = 0;
+                r.next_try = None;
+                log_notice!(
+                    "stall recovery: output {name} recovered after attempt {} ({readings})",
+                    run.attempt
+                );
+                results.push(format!("{name} recovered"));
+            } else if r.attempts >= r.max {
+                let f = format!("{} after {} attempts", stalled.join(", "), r.attempts);
+                r.failed = Some(f.clone());
+                let iso = o.isolation.is_some();
+                log_error!(
+                    "stall recovery: output {name} GIVEN UP ({f}); {}",
+                    if iso {
+                        "isolating it"
+                    } else {
+                        "its LED stays solid fault"
+                    }
+                );
+                o.isolate(now, format!("stall recovery gave up: {f}"));
+                results.push(format!("{name} given up"));
+            } else {
+                r.next_try = Some(now + rec.interval);
+                log_warn!(
+                    "stall recovery: output {name} still stalled after attempt {}/{} ({}); next attempt in {}s at the earliest",
+                    r.attempts,
+                    r.max,
+                    stalled.join(", "),
+                    rec.interval
+                );
+                results.push(format!("{name} still stalled"));
+            }
+        }
+        rec.last_result = Some(results.join(", "));
+        rec.last_end = Some(now);
+    }
+
+    /// Advance a running recovery's dip by the clock.
+    fn recovery_timer(&mut self, now: f64) {
+        let Some(mut rec) = self.recovery.take() else { return };
+        while let Some(run) = rec.run.as_mut() {
+            if run.step > rec.ramp.len() || now < run.until {
+                break;
+            }
+            run.step += 1;
+            if run.step <= rec.ramp.len() {
+                let (raw, d) = rec.ramp[run.step - 1];
+                run.until += d;
+                log_info!("stall recovery: raw 0x{raw:02x} for {d}s");
+                self.recovery_write(&mut rec, now);
+            } else {
+                run.until = now + rec.settle;
+                let t = self.names(&run.targets);
+                log_info!(
+                    "stall recovery: dip over, back to normal control; checking {t} in {}s",
+                    rec.settle
+                );
+                self.sync_recovery_flags_with(&rec);
+                self.apply_outputs(now, None);
+            }
+        }
+        self.recovery = Some(rec);
+    }
+
+    /// Keep attempts and given-up modules in \`runtime.recovery_file\` (so a
+    /// restart does not start over with modules that are known dead).
+    fn save_recovery(&mut self) {
+        let Some(rec) = self.recovery.as_mut() else { return };
+        let Some(p) = rec.file.clone() else { return };
+        let map: BTreeMap<&str, SavedRec> = rec
+            .group
+            .iter()
+            .filter_map(|&i| {
+                let o = &self.outputs[i];
+                let r = o.rec.as_ref()?;
+                (r.attempts > 0 || r.failed.is_some()).then(|| {
+                    (
+                        o.name.as_str(),
+                        SavedRec {
+                            attempts: r.attempts,
+                            failed: r.failed.clone(),
+                        },
+                    )
+                })
+            })
+            .collect();
+        let text = serde_json::to_string_pretty(&map).unwrap_or_default() + "\n";
+        if rec.saved.as_deref() == Some(text.as_str()) || self.dry_run {
+            return;
+        }
+        if let Err(e) = crate::daemon::write_atomic(&p, text.as_bytes()) {
+            // Logged once per change of the state; a restart then starts over.
+            log_warn!("stall recovery state not saved: {e}");
+        }
+        rec.saved = Some(text);
     }
 
     /// Any zone in failsafe?
@@ -1891,12 +3214,30 @@ impl Engine {
         self.zones.iter().any(|z| z.guard.active())
     }
 
-    /// Write `duty` to every output (then exit_enable). Returns the errors.
+    /// Write `duty` to every output (then exit_enable and the LED's `exit`
+    /// value); an isolated output keeps its isolation raw value. Returns the errors.
     pub fn shutdown(&mut self, duty: f64, now: f64) -> Vec<String> {
         let mut errs = Vec::new();
         for o in &mut self.outputs {
             if self.dry_run {
                 log_info!("output {}: dry run, would set {duty}%", o.name);
+                continue;
+            }
+            if let Err(e) = o.exit_led() {
+                log_error!("output {}: {e}", o.name);
+                errs.push(format!("{}: {e}", o.name));
+            }
+            if let Some(raw) = o.isolation.as_ref().filter(|i| i.since.is_some()).map(|i| i.raw) {
+                match o.write_raw(raw, o.raw_to_duty(raw), now, &self.root) {
+                    Ok(()) => log_warn!(
+                        "output {}: isolated, left at raw {raw} instead of the exit duty",
+                        o.name
+                    ),
+                    Err(e) => {
+                        log_error!("output {}: could not write its isolation value: {e}", o.name);
+                        errs.push(format!("{}: {e}", o.name));
+                    }
+                }
                 continue;
             }
             match o.force(duty, now, &self.root) {
@@ -1994,6 +3335,17 @@ impl Engine {
         Ok(msg)
     }
 
+    /// `fand release OUTPUT`: end an isolation by hand.
+    pub fn release(&mut self, output: &str, now: f64) -> Result<String> {
+        let o = self
+            .outputs
+            .iter_mut()
+            .find(|o| o.name == output)
+            .ok_or_else(|| Error(format!("unknown output {output:?}")))?;
+        o.release(now, "fand release").map_err(Error)?;
+        Ok(format!("output {output}: isolation released"))
+    }
+
     pub fn zone(&self, name: &str) -> Option<&ZoneRt> {
         self.zones.iter().find(|z| z.name == name)
     }
@@ -2012,6 +3364,11 @@ impl Engine {
                     Some(s) if s.calm_since.is_some() => ("recovering", s.reasons.clone()),
                     Some(s) => ("failsafe", s.reasons.clone()),
                 };
+                let (state, reasons) = if state == "normal" && !z.degraded.is_empty() {
+                    ("degraded", z.degraded.clone())
+                } else {
+                    (state, reasons)
+                };
                 (
                     z.name.clone(),
                     ZoneStatus {
@@ -2027,6 +3384,7 @@ impl Engine {
                         override_duty: z.override_.map(|o| o.duty.to_string()),
                         override_remaining: z.override_.map(|o| (o.until - now).max(0.0).round()),
                         waiting: z.waiting.clone(),
+                        failed_rotors: (z.rotor_policy == RotorFaultPolicy::Degraded).then_some(z.failed_rotors),
                     },
                 )
             })
@@ -2089,12 +3447,40 @@ impl Engine {
                         faults: o.faults.iter().map(|f| f.msg.clone()).collect(),
                         warnings: o.warnings.iter().map(|f| f.msg.clone()).collect(),
                         rotors,
+                        present: o.presence(),
+                        led: o.led().map(|(s, raw, applied, err)| LedStatus {
+                            state: s.name(),
+                            raw,
+                            applied,
+                            error: err.map(str::to_string),
+                        }),
+                        isolated: o.isolation.as_ref().map(|i| i.since.is_some()),
+                        isolated_reason: o.isolated().map(|(_, r)| r.to_string()),
+                        isolated_since: o.isolated().map(|(s, _)| r1(s)),
+                        recovering: o.recovery().map(|_| o.recovering),
+                        recovery_attempts: o.recovery().map(|(a, _)| a),
+                        recovery_given_up: o.recovery().and_then(|(_, f)| f.map(str::to_string)),
                     },
                 )
             })
             .collect();
+        let recovery = self.recovery.as_ref().map(|r| RecoveryStatus {
+            active: r.run.is_some(),
+            phase: r.phase(),
+            attempt: r.run.as_ref().map(|x| x.attempt),
+            targets: r
+                .run
+                .as_ref()
+                .map(|x| x.targets.iter().map(|&i| self.outputs[i].name.clone()).collect())
+                .unwrap_or_default(),
+            since: r.run.as_ref().map(|x| r1(x.started)),
+            next_allowed: r.last_end.map(|t| r1(t + r.interval)),
+            last_result: r.last_result.clone(),
+            postponed: r.postponed.clone(),
+        });
         Status {
             version: env!("CARGO_PKG_VERSION"),
+            recovery,
             uptime: r1(now),
             dry_run: self.dry_run,
             ticks: self.ticks,
@@ -2164,6 +3550,9 @@ mod tests {
 #[derive(Debug, Serialize)]
 pub struct Status {
     pub version: &'static str,
+    /// `stall_recovery` (left out without it).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub recovery: Option<RecoveryStatus>,
     pub uptime: f64,
     pub dry_run: bool,
     pub ticks: u64,
@@ -2189,6 +3578,25 @@ pub struct ZoneStatus {
     /// Sensors of the zone that are not online yet (`startup_grace`); the
     /// zone is "normal" meanwhile and asks for its floor or `waiting_duty`.
     pub waiting: Vec<String>,
+    /// `rotor_fault_policy: degraded`: failed rotors on the zone's outputs.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub failed_rotors: Option<usize>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct RecoveryStatus {
+    pub active: bool,
+    /// "hold", "ramp" or "settle" while active.
+    pub phase: Option<&'static str>,
+    pub attempt: Option<u32>,
+    pub targets: Vec<String>,
+    /// Uptime (s) at which it started.
+    pub since: Option<f64>,
+    /// No new recovery before this uptime (s).
+    pub next_allowed: Option<f64>,
+    pub last_result: Option<String>,
+    /// Why a wanted recovery waits (a guard).
+    pub postponed: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -2218,6 +3626,39 @@ pub struct OutputStatus {
     pub faults: Vec<String>,
     pub warnings: Vec<String>,
     pub rotors: Vec<RotorStatus>,
+    /// `present`: the module is present (null: unreadable). Left out without it.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub present: Option<Option<bool>>,
+    /// `led`: the state fand shows. Left out without it.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub led: Option<LedStatus>,
+    /// `isolate_on_rotor_fault`: isolated now. Left out without it.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub isolated: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub isolated_reason: Option<String>,
+    /// Uptime (s) at which the isolation began.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub isolated_since: Option<f64>,
+    /// `stall_recovery` (outputs of its group only): a recovery works on it,
+    /// failed attempts so far, given up (why).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub recovering: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub recovery_attempts: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub recovery_given_up: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct LedStatus {
+    /// "ok", "blink", "fault" or "absent".
+    pub state: &'static str,
+    /// The value for that state (under the LED's mask).
+    pub raw: u32,
+    /// The register holds it (written successfully).
+    pub applied: bool,
+    pub error: Option<String>,
 }
 
 #[derive(Debug, Serialize)]

@@ -4,7 +4,8 @@
 # Off when absent), password (what askpass must answer); it records argv, env and every CLI
 # command (log). The outlet table is the recorded transcript fixtures/nboutlet-off.txt, with the
 # State and Normal State columns rewritten for On. -s writes state, -ns writes normal, both kept
-# between invocations; scenario stuck accepts -s without changing, ns-stuck the same for -ns.
+# between invocations; scenario stuck accepts -s without changing, ns-stuck the same for -ns; first-e101
+# answers the first command of the first session E101 (its first character lost).
 d="$FAKE_SSH_DIR"
 sc=$(cat "$d/scenario")
 printf '%s\n' "$*" > "$d/argv"
@@ -39,6 +40,12 @@ table() {
 while IFS= read -r line; do
   line=$(printf '%s' "$line" | tr -d '\r')
   echo "cmd $line" >> "$d/log"
+  # first-e101: the very first command the fake ever gets arrives without its first character
+  if [ "$sc" = first-e101 ] && [ ! -e "$d/e101done" ]; then
+    : > "$d/e101done"
+    printf '%s\r\nE101: Command Not Found\r\n\r\napc>' "${line#?}"
+    continue
+  fi
   case "$line" in
     bye) printf '%s\r\nBye.\r\n' "$line"; echo "Connection to 10.0.0.9 closed." >&2; exit 0 ;;
     nboutlet)

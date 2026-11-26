@@ -76,9 +76,10 @@ class Board(unittest.TestCase):
     def test_fans_from_fand(self):
         c = self.chassis
         names = [f.get_name() for f in c.get_all_fans()]
-        self.assertEqual(names[:2], ["Fan top1 front", "Fan top1 rear"])
-        self.assertEqual(names[-1], "Fan bottom7 rear")
-        self.assertEqual(c.get_fan_drawer(7).get_name(), "FanTray bottom1")
+        self.assertEqual(names[:2], ["FAN8 front", "FAN8 rear"])     # top1 = chassis FAN8
+        self.assertEqual(names[-1], "FAN7 rear")                     # bottom7 = FAN7
+        self.assertEqual(c.get_fan_drawer(7).get_name(), "FAN1")
+        self.assertEqual(c.get_fan_drawer(7).get_position_in_parent(), 1)
         front, rear = c.get_fan_drawer(0).get_all_fans()
         self.assertEqual(front.source(), "fand")
         self.assertEqual(front.get_speed(), 59)            # 11200 / 19000
@@ -103,20 +104,45 @@ class Board(unittest.TestCase):
         try:
             d = c.get_fan_drawer(9)                        # bottom3
             front, rear = d.get_all_fans()
-            self.assertFalse(rear.get_presence())
+            self.assertTrue(rear.get_presence())           # the module is present (CPLD +6 bit 0 = 0)
             self.assertFalse(rear.get_status())
-            self.assertTrue(d.get_presence())              # front still turns
+            self.assertTrue(d.get_presence())
             self.assertFalse(d.get_status())
             old = time.time() - 120                        # fand stopped 2 min ago
             os.utime(s, (old, old))
             self.assertEqual(rear.source(), "cpld")        # stale: fan CPLD read directly
-            self.assertEqual(rear.get_speed(), 58)         # raw 121 x 100 / 21000
+            self.assertEqual(rear.get_speed(), 58)         # raw 121 x 150 / 31500
             self.assertTrue(rear.get_status())
             self.assertEqual(rear.get_target_speed(), 50)  # PWM 127 / 255
         finally:
             wr(s, orig)
         cpld = rd(fake("/i2c/fan_top.bin"), "rb")
         self.assertEqual(cpld[0x22], 127)                  # nothing wrote the PWM
+
+    def test_fan_presence_led_isolation_from_fand(self):
+        c = self.chassis
+        s = fake("/run/fand/state.json")
+        orig = rd(s)
+        st = json.loads(orig)
+        st["outputs"]["top5"].update(present=True, isolated=True, led={"state": "fault", "raw": 2})
+        st["outputs"]["bottom6"].update(present=False, led={"state": "absent", "raw": 2})
+        st["outputs"]["bottom5"].update(present=True, led={"state": "blink", "raw": 2})
+        st["outputs"]["bottom4"].update(present=True, led={"state": "ok", "raw": 1})
+        wr(s, json.dumps(st))
+        try:
+            top5, b6, b5, b4 = c.get_fan_drawer(4), c.get_fan_drawer(12), c.get_fan_drawer(11), c.get_fan_drawer(10)
+            self.assertEqual([x.get_name() for x in (top5, b6, b5, b4)], ["FAN12", "FAN6", "FAN5", "FAN4"])
+            self.assertTrue(top5.get_presence())
+            self.assertFalse(top5.get_status())            # isolated by fand
+            self.assertEqual(top5.get_status_led(), top5.STATUS_LED_COLOR_RED)
+            self.assertFalse(b6.get_presence())            # fand: absent, though the fixture's tach turns
+            self.assertFalse(b6.get_all_fans()[0].get_presence())
+            self.assertEqual(b6.get_status_led(), b6.STATUS_LED_COLOR_RED)
+            self.assertEqual(b5.get_status_led(), "red_blink")
+            self.assertEqual(b4.get_status_led(), b4.STATUS_LED_COLOR_GREEN)
+            self.assertFalse(b4.set_status_led(b4.STATUS_LED_COLOR_RED))
+        finally:
+            wr(s, orig)
 
     def test_thermals(self):
         t = {x.get_name(): x for x in self.chassis.get_all_thermals()}

@@ -116,6 +116,7 @@ let
     echo "${cfg.hwsku}" > $d/default_sku
     cp ${portConfigIni} $d/${cfg.hwsku}/port_config.ini
     cp ${saiProfile} $d/${cfg.hwsku}/sai.profile
+    ${lib.optionalString (cfg.platformJson != null) "cp ${pkgs.writeText "platform.json" (builtins.toJSON cfg.platformJson)} $d/platform.json"}
     ${lib.optionalString vs "cp ${laneMap} $d/${cfg.hwsku}/lanemap.ini"}
     ln -s ${spy.config-engine}/share/sonic/templates $out/templates
     ln -s device/${cfg.platform} $out/platform
@@ -191,6 +192,12 @@ in {
     };
     platform = mkOption { type = types.str; example = "x86_64-accton_as7712_32x-r0"; description = "SONiC platform string (DEVICE_METADATA platform, /usr/share/sonic/device/<platform>)."; };
     hwsku = mkOption { type = types.str; example = "Accton-AS7712-32X"; description = "SONiC hwsku (DEVICE_METADATA hwsku)."; };
+    platformJson = mkOption {
+      type = types.nullOr (types.attrsOf types.anything);
+      default = null;
+      example = { chassis.fan_drawers = [ { polling_interval = "5"; } ]; };
+      description = "device/<platform>/platform.json (null: none). pmon's thermalctld takes per-component polling intervals from it (fan_drawers[0] / psus[0] entries without a name, thermals[*]); its default is 60 s.";
+    };
     macAddress = mkOption { type = types.strMatching "([0-9a-f]{2}:){5}[0-9a-f]{2}"; description = "Switch MAC (DEVICE_METADATA mac, orchagent -m); lower case."; };
     asicType = mkOption {
       type = types.str;

@@ -520,6 +520,22 @@ fn nb_status_reads_the_recorded_table_and_logs_out() {
 }
 
 #[test]
+fn nb_first_command_e101_is_sent_once_more() {
+    // 2026-11-26: a cycle failed with "E101: Command Not Found" on its first nboutlet.
+    let nb = FakeNb::new("first-e101", "On");
+    let (code, out, err) = run(&all_env(None), Some(&nb), &["nb", "status"]);
+    assert_eq!(code, 0, "{err}");
+    assert!(out.contains("): on, normal state off"), "{out}");
+    assert!(err.contains("answered E101") && err.contains("\"boutlet\""), "{err}");
+    assert_eq!(nb.commands(), ["nboutlet", "nboutlet", "bye"]);
+    // later sessions are unaffected, and a switch through the retry path still verifies
+    fs::write(nb.dir.join("log"), "").unwrap();
+    let (code, _, err) = run(&all_env(None), Some(&nb), &["nb", "off"]);
+    assert_eq!(code, 0, "{err}");
+    assert_eq!(nb.state(), "Off");
+}
+
+#[test]
 fn nb_on_off_verified_by_read_back() {
     let nb = FakeNb::new("ok", "Off");
     let (code, out, err) = run(&all_env(None), Some(&nb), &["nb", "on"]);

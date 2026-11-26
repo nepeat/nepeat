@@ -202,3 +202,168 @@ impl crate::i2c::Bus for FakeCpld {
         })
     }
 }
+
+/// A simulated fan-board CPLD in the style of the Celestica CS8210-32X's
+/// (I2C 0x66 on one mux channel), for `present`, `led` and isolation tests.
+/// Slot `n` (1-based) has its registers at `0x20 + 0x10 * (n - 1)`:
+///
+/// - `+0` / `+1` front / rear tach, RPM / 100, following `+2` linearly up
+///   to `full_rpm` at 255, times the rotor's factor (0 = stalled); 0 while
+///   the slot is empty;
+/// - `+2` duty, raw 0..255;
+/// - `+4` LED, bits 1:0 (1 green, 2 red, 3 off), the other bits kept;
+/// - `+6` presence, bit 0: 0 = present.
+///
+/// `0x00` is the version (3); `0x05` a "force every fan to full speed"
+/// register (0xff = forced: every duty register reads and acts 0xff;
+/// `force_stuck` ignores writes to it). Any other register reads 0xcc.
+/// Slots whose `present_unreadable` is set NACK their presence register;
+/// every write is logged in `writes`.
+///
+/// A `stuck` rotor reads 0 (windmilled backwards by the others' backdraft)
+/// until every slot has run at or below `unstick_raw` for `unstick_secs`
+/// (by `now`, which the test advances). A rotor with factor 0 is dead.
+pub struct FakeFanCpld {
+    pub state: std::sync::Mutex<FanCpldState>,
+}
+
+pub struct FanCpldState {
+    pub bus: u32,
+    pub address: u16,
+    pub version: u8,
+    pub full_rpm: f64,
+    pub duty: Vec<u8>,
+    pub led: Vec<u8>,
+    pub present: Vec<bool>,
+    pub present_unreadable: Vec<bool>,
+    /// Per slot: [front, rear] speed factors.
+    pub factor: Vec<[f64; 2]>,
+    pub writes: Vec<(u8, u16)>,
+    pub now: f64,
+    pub stuck: Vec<[bool; 2]>,
+    pub unstick_raw: u8,
+    pub unstick_secs: f64,
+    low_since: Option<f64>,
+    pub force: u8,
+    pub force_stuck: bool,
+    /// Register reads so far.
+    pub reads: usize,
+}
+
+impl FakeFanCpld {
+    /// `slots` present modules at full speed, LEDs off with the upper bits set (0xf3).
+    pub fn new(bus: u32, address: u16, slots: usize) -> FakeFanCpld {
+        FakeFanCpld {
+            state: std::sync::Mutex::new(FanCpldState {
+                bus,
+                address,
+                version: 3,
+                full_rpm: 19000.0,
+                duty: vec![0xff; slots],
+                led: vec![0xf3; slots],
+                present: vec![true; slots],
+                present_unreadable: vec![false; slots],
+                factor: vec![[1.0, 1.0]; slots],
+                writes: Vec::new(),
+                now: 0.0,
+                stuck: vec![[false, false]; slots],
+                unstick_raw: 0x10,
+                unstick_secs: 8.0,
+                low_since: None,
+                force: 0,
+                force_stuck: false,
+                reads: 0,
+            }),
+        }
+    }
+
+    pub fn with<R>(&self, f: impl FnOnce(&mut FanCpldState) -> R) -> R {
+        f(&mut self.state.lock().unwrap_or_else(|p| p.into_inner()))
+    }
+}
+
+impl FanCpldState {
+    /// Slot index (0-based) and register offset of a register, if in a slot.
+    fn slot(&self, reg: u8) -> Option<(usize, u8)> {
+        let r = usize::from(reg);
+        if r < 0x20 {
+            return None;
+        }
+        let s = (r - 0x20) / 0x10;
+        (s < self.duty.len()).then_some((s, reg & 0x0f))
+    }
+
+    pub fn forced(&self) -> bool {
+        self.force == 0xff
+    }
+
+    /// The duty a slot runs at (0xff while forced).
+    pub fn effective(&self, slot: usize) -> u8 {
+        if self.forced() { 0xff } else { self.duty[slot] }
+    }
+
+    /// Unstick rotors after a long enough calm (called on every access).
+    pub fn advance(&mut self) {
+        let low = (0..self.duty.len()).all(|s| self.effective(s) <= self.unstick_raw);
+        if !low {
+            self.low_since = None;
+            return;
+        }
+        let since = *self.low_since.get_or_insert(self.now);
+        if self.now - since >= self.unstick_secs {
+            self.stuck.fill([false, false]);
+        }
+    }
+
+    pub fn rpm(&self, slot: usize, rotor: usize) -> f64 {
+        if !self.present[slot] || self.stuck[slot][rotor] {
+            return 0.0;
+        }
+        let f = self.factor[slot][rotor];
+        (self.full_rpm * f64::from(self.effective(slot)) / 255.0 * f / 100.0).round() * 100.0
+    }
+}
+
+impl crate::i2c::Bus for FakeFanCpld {
+    fn read(&self, t: crate::i2c::Target, reg: u8, _w: crate::i2c::Width) -> Result<u16, String> {
+        self.with(|s| {
+            if t.bus != s.bus || t.address != s.address {
+                return Err("Remote I/O error (os error 121)".into());
+            }
+            s.advance();
+            s.reads += 1;
+            if reg == 0 {
+                return Ok(u16::from(s.version));
+            }
+            if reg == 5 {
+                return Ok(u16::from(s.force));
+            }
+            Ok(match s.slot(reg) {
+                Some((n, 0)) => (s.rpm(n, 0) / 100.0) as u16,
+                Some((n, 1)) => (s.rpm(n, 1) / 100.0) as u16,
+                Some((n, 2)) => u16::from(s.effective(n)),
+                Some((n, 4)) => u16::from(s.led[n]),
+                Some((n, 6)) if s.present_unreadable[n] => return Err("Remote I/O error (os error 121)".into()),
+                Some((n, 6)) => u16::from(!s.present[n]) | 0x02,
+                _ => 0xcc,
+            })
+        })
+    }
+
+    fn write(&self, t: crate::i2c::Target, reg: u8, _w: crate::i2c::Width, v: u16) -> Result<(), String> {
+        self.with(|s| {
+            if t.bus != s.bus || t.address != s.address {
+                return Err("Remote I/O error (os error 121)".into());
+            }
+            s.writes.push((reg, v));
+            match s.slot(reg) {
+                Some((n, 2)) => s.duty[n] = v as u8,
+                Some((n, 4)) => s.led[n] = v as u8,
+                _ if reg == 5 && !s.force_stuck => s.force = v as u8,
+                _ => {}
+            }
+            s.advance();
+            Ok(())
+        })
+    }
+}

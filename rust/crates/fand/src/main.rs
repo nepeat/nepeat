@@ -24,6 +24,8 @@ commands:
   set DUTY    manual override, e.g. 80%, 60 or 12000rpm; \"set clear\" ends it
                 --zone NAME          (default: all zones)
                 --for DURATION       (default 10m, capped by max_override)
+  release OUT end an output's isolation (isolate_on_rotor_fault) by hand
+                --socket PATH        (default: from the config)
   calibrate   step duties and record per-rotor RPM into calibration_file
                 --output NAME        (repeatable; default: every output with a tach)
                 --steps 100,80,60    duties to visit
@@ -219,6 +221,22 @@ fn real_main() -> Result<i32> {
                 serde_json::json!({"cmd": "set", "zone": zone, "duty": what, "seconds": dur})
             };
             let v = daemon::request(&sock, &req)?;
+            if v["ok"] == true {
+                println!("{}", v["message"].as_str().unwrap_or("ok"));
+                Ok(0)
+            } else {
+                Err(Error(format!("daemon: {}", v["error"].as_str().unwrap_or("error"))))
+            }
+        }
+        "release" => {
+            let out = extra
+                .first()
+                .ok_or_else(|| Error("usage: fand release <output>".into()))?;
+            if extra.len() > 1 {
+                return Err(Error(format!("unexpected argument {:?}", extra[1])));
+            }
+            let (sock, _) = args.socket()?;
+            let v = daemon::request(&sock, &serde_json::json!({"cmd": "release", "output": out}))?;
             if v["ok"] == true {
                 println!("{}", v["message"].as_str().unwrap_or("ok"));
                 Ok(0)

@@ -38,6 +38,7 @@ the cases the process cannot handle itself. See [Safety model](#safety-model).
 | `fand status` | the running daemon's state as JSON (control socket; falls back to the state file) |
 | `fand set 80% [--zone Z] [--for 10m]` | manual override through the daemon (also `60`, `12000rpm`); `fand set clear` ends it. Failsafe still wins; capped by `max_override`; a duty below an output's hardware minimum is accepted and raised to it, and the reply says so |
 | `fand calibrate [--output O] [--steps 100,80,60] [--settle 8s] [--samples 3] [--max-temp 70] [--write PATH\|-] [--force]` | step an output's duty, record every rotor's RPM, write the calibration file. Refuses to run while the daemon's socket answers |
+| `fand release OUTPUT` | end an output's [isolation](#fan-modules-presence-led-recovery-isolation-degraded) by hand (through the daemon); it gets `isolate_grace` again to prove itself |
 | `fand failsafe [--duty N]` | set every output to the exit duty now (the systemd `ExecStopPost` safety net). Touches no sensor |
 | `fand curves` | print the built-in curves |
 
@@ -73,6 +74,9 @@ output through its RPM model.
 | `runtime.prometheus_file` | none | Prometheus text file (node_exporter textfile collector) |
 | `runtime.calibration_file` | `/var/lib/fand/calibration.json` | written by `fand calibrate`, read at start |
 | `runtime.log_interval` | `5m` | period of the summary log line |
+| `runtime.recovery_file` | `recovery.json` next to `state_file` | `stall_recovery` attempts and given-up modules, kept across restarts |
+| `rotor_fault_policy` | `failsafe` | or `degraded`: what rotor faults do to zones, see [Fan modules](#fan-modules-presence-led-recovery-isolation-degraded) |
+| `stall_recovery` | none | stalled-rotor "calm restart", same section |
 | `sensors`, `outputs`, `zones` | required | below |
 
 ### Sensors (`sensors.<name>`)
@@ -138,6 +142,10 @@ picked up; until then they are faults.
 | `tach` | none | RPM feedback, below |
 | `i2c` | – | i2c: the duty register, see [I2C registers](#i2c-registers) |
 | `map`, `arm`, `expect` | none | i2c only, see [I2C registers](#i2c-registers) |
+| `present`, `led` | none | i2c only: fan module presence and tray LED, see [Fan modules](#fan-modules-presence-led-recovery-isolation-degraded) |
+| `isolate_on_rotor_fault` | `false` | switch this output to `isolate_raw` when one of its own rotors faults, see [Fan modules](#fan-modules-presence-led-recovery-isolation-degraded). Only for an output that drives one fan module |
+| `isolate_raw`, `isolate_grace` | `0`, `15s` | the raw value of an isolated output; for `isolate_grace` after the start, a reinsertion or `fand release`, a rotor fault neither isolates nor starts a stall recovery (at most 600 s) |
+| `isolation_max_duty` | none | while any output is isolated, this one runs at most this duty (for an output that forces every fan to full speed at 100 %) |
 
 Percent → raw rounds *up* (never less air than asked for) and is clamped to
 `[raw_min, raw_max]` (or to a `map`).
@@ -215,13 +223,147 @@ Output keys:
   arm, the duty is still written and the output stays faulted.
 - `expect: [{register, value | min, max, mask}]`: identity checks (a
   version or ID register). Read before every write; while one fails nothing
-  at all is written to the device, not even `arm`, so the hardware's own
-  failsafe stays in charge, and the output is faulted.
+  at all is written to the device, not even `arm` or `led`, so the
+  hardware's own failsafe stays in charge, and the output is faulted.
+- `present: {register, value, mask}`: the fan module is present iff
+  (register & mask) == value, read every tick (one byte read).
+- `led: {register, ok, fault, absent, exit, mask}`: the module's tray LED, a
+  byte register; the values are under `mask` (default all bits; a partial
+  mask is read-modify-write). `absent` defaults to `fault`, `exit` to "leave
+  it as it is".
 
 Readback (`readback`, default `at_least`) re-reads the duty register. In a
 test root (`sysfs_root` not `/`), a *directory* `<root>/dev/i2c-N` stands in
 for the bus: `0x68/0x50` under it is register 0x50 of address 0x68, holding
 a number; a missing file is a NACK.
+
+### Fan modules: presence, LED, recovery, isolation, degraded
+
+For chassis with one output per hot-swap fan module (a duty register per
+slot, typically two rotors on it). All of it is opt-in; a config without
+these keys behaves exactly as before.
+
+```yaml
+rotor_fault_policy: degraded                 # zones ride out fan problems (below)
+stall_recovery:                              # "calm restart" of a stalled rotor
+  release: [cpld_force]                      # driven to 0 % first and during the dip
+  hold_raw: 0                                # every group output at this ...
+  hold: 10s                                  # ... for this long,
+  ramp: [{ raw: "0x30", for: 5s }]           # then these steps, then normal control;
+  settle: 15s                                # then the stalled rotors are checked
+  max_attempts: 3                            # given up after this many (isolated)
+  interval: 5m                               # least time between two attempts for one stall
+  min_gap: 30s                               # least time between any two dips
+  insert_delay: 5s                           # a reinserted module at 0 rpm: an attempt this soon
+  max_temp: { board: 45, asic: 70 }          # hottest sensor of a zone; skip / abort at or above
+outputs:
+  top5:
+    type: i2c
+    i2c: { bus: { of_node: "i2c-mux@74/i2c@2" }, address: "0x66", register: "0x62" }
+    tach: { i2c: [{ register: "0x60", label: front }, { register: "0x61", label: rear }], scale: 150, min_rpm: 3000 }
+    present: { register: "0x66", mask: "0x01", value: 0 }       # bit 0 clear = present
+    led: { register: "0x64", mask: "0x03", ok: "0x01", fault: "0x02", absent: "0x02",
+           blink: { off: "0x03", period: 1s } }
+    isolate_on_rotor_fault: true                                 # isolate_raw: 0, isolate_grace: 15s
+  cpld_force: { type: exec, command: [force-max, "{percent}"], isolation_max_duty: 99 }
+```
+
+- **Presence.** An absent module is a fault of its output (`module absent`),
+  its rotors are not checked (no stall faults from an empty slot). A
+  presence read that fails is "unknown" (`present: null`), logged once per
+  transition and not a fault by itself: the rotors are checked as if present
+  (a dead bus faults through them and the duty register). Absent -> present
+  is a reinsertion: it releases an isolation, resets the recovery attempts,
+  and restarts `isolate_grace` and the follow check.
+- **LED**, decided every tick from that tick's readings (so at the start from
+  the first observation, never the hardware's power-on state):
+  - `absent` value: the module is absent;
+  - solid `fault`: isolated, recovery given up, or a rotor fault fand does
+    not handle (not following, flagged, unreadable, after the grace);
+  - blinking (`fault` / `blink.off`, one cycle per `blink.period`): fand is
+    handling it: a recovery works on it, a stalled rotor waits for one (a
+    guard or the interval), a rotor fault within `isolate_grace` after the
+    start, a reinsertion or a release, or a released module not yet checked
+    at a running duty. Without `blink` this shows solid `fault`;
+  - `ok`: present and all rotors healthy.
+
+  Written when the value changes; the blink runs on the daemon's sub-tick
+  timer (every LED on one clock; between ticks it touches the bus only when
+  the phase changes), a steady LED is read back every 12 ticks and
+  rewritten if it differs. Never in a dry run, never past a failing
+  `expect`; a failing LED write is logged and retried, not a fault. On exit:
+  `exit` if set, else a blinking LED goes solid `fault` (nobody handles the
+  module any more) and the others stay as they are.
+- **Stall recovery** (`stall_recovery`, top level). A rotor that stopped in a
+  running chassis is windmilled backwards by the others' backdraft and
+  cannot start; slowing every fan together lets it. When a present module of
+  the group (default: every output with a tach, except `release`) has a
+  rotor below `min_rpm` after its `isolate_grace` (and `interval` after its
+  last failed attempt), or was reinserted `insert_delay` ago and reads below
+  `min_rpm` (no grace, no `interval`: hot-swapped modules can come up
+  unpowered), and `min_gap` has passed since the last dip, fand: (1) drives the `release` outputs to 0 %
+  (a "force every fan to full speed" control would void the dip); (2) writes
+  `hold_raw` to every group output and checks it reads back (a duty
+  register that still reads 0xff aborts: the force is still on); (3) the
+  `ramp` steps; (4) normal control; (5) after `settle`, checks the stalled
+  rotors: running -> recovered (attempts reset); still stalled -> another
+  attempt after `interval`; after `max_attempts` -> given up: isolated if
+  the output has `isolate_on_rotor_fault`, LED solid `fault`. One recovery
+  at a time (all stalled modules together). The dip runs on the daemon's
+  timer, independent of `interval`. Hold plus ramp is capped at 30 s.
+  A zone in failsafe does not block it (the dip overrides the failsafe duty
+  and releases the force for its length; then failsafe resumes). **Guards**:
+  no recovery, and a running dip is aborted at the next tick (back to normal
+  control, the attempt does not count; nor does a write error), while a
+  required sensor has no reading, a zone has a sensor or critical fault, or
+  the hottest sensor of a zone (with its zone offset) is at or above its
+  `max_temp` (a number for every zone, or per zone; default: the zone
+  curve's first point, or its target, plus `max_temp_margin` 5). Rotor
+  checks of the group are void during the dip (the duty is not the zones').
+  Attempts and given-up modules are kept in `runtime.recovery_file` (default
+  `recovery.json` next to `state_file`), so a restart does not dip again for
+  a module known dead; a reinsertion, `fand release`, or the rotor running
+  again on its own clears them (the NixOS module then keeps `/run/fand` across
+  stops: `RuntimeDirectoryPreserve=yes`, so only a reboot forgets). Dry run:
+  logs "would start", writes nothing.
+- **Isolation** (`isolate_on_rotor_fault`). With no per-slot power control,
+  a module with a dead rotor would otherwise run at whatever the others
+  need (100 % in failsafe). When one of the output's own rotors is not
+  following or flagged, or below `min_rpm` on an output without stall
+  recovery (with it: once the recovery gave up), while the module is
+  present (or presence unknown) and past `isolate_grace` (not on a read
+  error: a dead bus is not a dead fan), the output is **isolated**: it gets
+  `isolate_raw` (default 0) whatever the zones, failsafe or the exit duty
+  would give. The isolation is a fault of the output (a `failsafe` zone stays
+  in failsafe, a `degraded` one counts the module's rotors as failed). It
+  latches (at duty 0 a module reads 0 rpm) until the module is reinserted,
+  `fand release OUTPUT`, or fand restarts (a given-up recovery is
+  remembered across restarts). A write failure on an isolated output is
+  retried, never replaced by the failsafe duty. **Only for outputs that
+  drive one module**: isolating a shared duty would stop every fan on it.
+- `isolation_max_duty` caps another output while anything is isolated, for
+  a "force all fans to full speed" control that would override the isolated
+  module's duty register (only matters when a zone asks for 100 %, e.g. in
+  failsafe). The other modules still get that duty through their own
+  registers.
+- **Degraded** (`rotor_fault_policy: degraded`, top level or per zone; default
+  `failsafe`). A rotor fault (below `min_rpm`, not following, flagged) or a
+  module that is out (absent, isolated, given up) no longer puts the zone in
+  failsafe: it keeps its policy with the remaining fans (state `degraded`,
+  one WARN line on entry and on change, NOTICE on leaving), its duty raised
+  by `degraded_duty_per_rotor` per failed rotor (default 0) and to at least
+  `degraded_min_duty` (default none). Failsafe stays for everything else
+  (sensor loss after its grace, critical temperatures, read, write and
+  readback errors) and for more than `degraded_max_failed_rotors` (default 4)
+  failed rotors on the zone's outputs (an absent or isolated module counts
+  all its rotors). Rotors fand is still working on are *pending*, not failed:
+  a module of the `stall_recovery` group within its grace after the start or
+  a reinsertion, with a recovery running on it, or with a stall and attempts
+  left; they count once it is given up.
+- The ExecStopPost safety net (`fand failsafe`) runs a fresh engine with no
+  isolation state and sets every output to the exit duty, isolated ones
+  included, until the daemon is back and has isolated them again (at once
+  for given-up modules from `recovery_file`, else after `isolate_grace`).
 
 ### Zones (`zones.<name>`)
 
@@ -240,6 +382,8 @@ a number; a missing file is a NACK.
 | `failsafe_duty`, `calm_period` | global | per-zone overrides |
 | `min_sensors` | `1` (0 without sensors) | fewer usable sensors is a fault. Set `0` for a zone of optional sensors that may all be absent: it then asks only for its floor |
 | `waiting_duty` | none | lowest duty (percent) the zone asks for while one of its sensors is not online yet (`startup_grace`); without it the zone asks only for its floor meanwhile |
+| `rotor_fault_policy` | global | `failsafe` or `degraded` |
+| `degraded_min_duty`, `degraded_duty_per_rotor`, `degraded_max_failed_rotors` | none, `0`, `4` | `degraded` only: lowest duty while degraded, percent added per failed rotor, more failed rotors than this is failsafe |
 
 Policies:
 
@@ -304,7 +448,9 @@ Fail safe, never fail silent. A zone enters **failsafe** (its
   above `check_above_duty`, or a rotor not following its command (below the
   expected RPM by more than `follow_tolerance`, after `follow_grace`); for
   `type: i2c`, any I2C error, a failed `expect`, an `arm` register that will
-  not arm or had to be re-armed (see [I2C registers](#i2c-registers)).
+  not arm or had to be re-armed (see [I2C registers](#i2c-registers)), an
+  absent module (`present`) or an isolated output (see
+  [Fan modules](#fan-modules-presence-led-recovery-isolation-degraded)).
 
 **Sensor grace.** With `grace` set, a failed reading (any of the first
 bullet) keeps the last good value for up to `grace` after that value was
@@ -489,7 +635,37 @@ is added to `ReadWritePaths` automatically.
   demand, floor, duty, override), sensor (value, error, path, age, in_grace) and
   output (duty, demand before the clamp, hardware_min, clamped, raw
   written/observed, faults, rotors with rpm, expected rpm, max rpm, percent
-  of max, calibrated, fault).
+  of max, calibrated, fault). Outputs with `present` add `present`
+  (true/false, null while unreadable); with `led`, `led: {state: ok|fault|absent,
+  raw, applied, error}`; with `isolate_on_rotor_fault`, `isolated` and, while
+  isolated, `isolated_reason` and `isolated_since` (uptime, s). The summary
+  line tags such outputs `ABSENT` / `ISOLATED`.
+- Fan module lines: `output top5: module absent (...)` (WARN), `module present
+  again` (NOTICE), `presence unknown ...` (WARN, once), `LED ok -> blink
+  (0x02/0x03 every 0.5s)` (INFO; the first state only if not ok), `LED
+  register ... reads 0x.., want ...: writing it again` (NOTICE), `ISOLATED:
+  <reason>; writing raw 0 ...` (ERROR), `isolation released (module
+  reinserted | fand release)` (NOTICE), `output cpld_force: at most 99% while
+  top5 is isolated` (WARN) and its end.
+- Stall recovery lines: `stall recovery attempt 1/3 for top5 (top5: rear: 0
+  rpm is below ...): releasing cpld_force first, 14 fan outputs to raw 0x00
+  for 10s, then 0x30 for 5s, then normal control and a check after 15s`
+  (WARN), `stall recovery: raw 0x30 for 5s`, `stall recovery: dip over, back
+  to normal control; checking top5 in 15s` (INFO), then `output top5
+  recovered after attempt 1 (front 16800 rpm, rear 18150 rpm)` (NOTICE),
+  `still stalled after attempt 1/3 (rear 0 rpm); next attempt in 300s at the
+  earliest` (WARN) or `GIVEN UP (rear 0 rpm after 3 attempts); isolating it`
+  (ERROR); `stall recovery for top5 postponed: <guard>` (WARN, once per
+  reason), `... aborted after 5s: <why>; back to normal control` (WARN).
+- Degraded lines: `zone board: DEGRADED (2 failed rotors): <faults>; keeping
+  <policy> with the remaining fans` (WARN), `still degraded ...` (WARN on a
+  change), `no longer degraded` (NOTICE).
+- Status JSON: `recovery: {active, phase (hold|ramp|settle), attempt,
+  targets, since, next_allowed, last_result, postponed}` with
+  `stall_recovery`; per group output `recovering`, `recovery_attempts`,
+  `recovery_given_up`; zones with the degraded policy `failed_rotors` and
+  the state `degraded` (reasons: the ridden-out faults); `led.state` may be
+  `blink`.
 - `runtime.state_file`: the same JSON, rewritten atomically every tick.
 - `runtime.prometheus_file`: `fand_zone_duty_percent`,
   `fand_zone_temperature_celsius`, `fand_zone_failsafe`,
@@ -498,7 +674,10 @@ is added to `ReadWritePaths` automatically.
   `fand_output_duty_percent`, `fand_output_demand_percent` (requested,
   before the hardware limits), `fand_output_clamped` (1 while raised to the
   hardware minimum), `fand_output_raw`, `fand_output_faults`,
-  `fand_fan_rpm`, `fand_fan_expected_rpm`, `fand_fan_fault`, `fand_up`.
+  `fand_fan_rpm`, `fand_fan_expected_rpm`, `fand_fan_fault`, `fand_up`, and
+  only when configured, `fand_output_present`, `fand_output_isolated`,
+  `fand_output_led_fault` (fault, blink or absent), `fand_zone_degraded`,
+  `fand_recovery_active`, `fand_output_recovery_attempts`.
 
 ## Building, testing, cross compiling
 

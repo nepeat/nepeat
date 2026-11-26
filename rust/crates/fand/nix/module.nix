@@ -187,6 +187,12 @@ in
         TimeoutStopSec = "15s";
         RuntimeDirectory = "fand";
         RuntimeDirectoryMode = "0750";
+      }
+      # stall_recovery keeps attempts and given-up modules in
+      # /run/fand/recovery.json: keep it across stops and restarts (a deploy),
+      # so a module known dead is not dipped for again; a reboot clears it.
+      // lib.optionalAttrs (cfg.settings ? stall_recovery) { RuntimeDirectoryPreserve = "yes"; }
+      // {
         StateDirectory = "fand";
         OOMScoreAdjust = -900;
       }

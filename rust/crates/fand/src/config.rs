@@ -89,7 +89,7 @@ impl fmt::Display for DutySpec {
 }
 
 /// A non-negative integer, decimal or "0x" hex (register numbers, addresses).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub struct Int(pub u64);
 
 /// A percentage only (no rpm), "80" or "80%".
@@ -269,6 +269,11 @@ pub struct Config {
     /// Named user curves, usable like the built-in ones.
     #[serde(default)]
     pub curves: BTreeMap<String, CurveDef>,
+    /// Default `rotor_fault_policy` of every zone.
+    #[serde(default)]
+    pub rotor_fault_policy: RotorFaultPolicy,
+    /// Stalled-rotor recovery (off without it).
+    pub stall_recovery: Option<StallRecoveryConfig>,
     pub sensors: BTreeMap<String, SensorConfig>,
     pub outputs: BTreeMap<String, OutputConfig>,
     pub zones: BTreeMap<String, ZoneConfig>,
@@ -339,6 +344,9 @@ pub struct RuntimeConfig {
     /// Period of the summary log line.
     #[serde(default = "d_log_interval")]
     pub log_interval: Secs,
+    /// stall_recovery: attempts and given-up modules, kept across restarts
+    /// (default: recovery.json next to state_file; null without one).
+    pub recovery_file: Option<PathBuf>,
 }
 
 fn d_state_file() -> Option<PathBuf> {
@@ -362,6 +370,7 @@ impl Default for RuntimeConfig {
             prometheus_file: None,
             calibration_file: d_calibration(),
             log_interval: d_log_interval(),
+            recovery_file: None,
         }
     }
 }
@@ -654,7 +663,241 @@ pub struct OutputConfig {
     /// i2c: identity checks (e.g. a version register) before any write.
     #[serde(default)]
     pub expect: Vec<I2cRegConfig>,
+    /// i2c: the fan module's presence: present iff (register & mask) ==
+    /// value. An absent module is a fault of the output (zones go failsafe);
+    /// its rotors are not checked.
+    pub present: Option<I2cRegConfig>,
+    /// i2c: the module's status LED, driven from presence and rotor faults.
+    pub led: Option<LedConfig>,
+    /// When one of this output's own rotors faults (below min_rpm, not
+    /// following, fault flag), write `isolate_raw` to it instead of any zone
+    /// or failsafe duty, until the module is reinserted (`present`), `fand
+    /// release` or a restart. Only for an output that drives one fan module.
+    #[serde(default)]
+    pub isolate_on_rotor_fault: bool,
+    /// Raw value written to an isolated output (default 0).
+    pub isolate_raw: Option<u32>,
+    /// After the start and after a reinsertion, a rotor fault does not
+    /// isolate for this long (default 15s): a module may prove itself.
+    pub isolate_grace: Option<Secs>,
+    /// While any output is isolated, this output runs at most this duty
+    /// (an output that would drive every fan at full speed, such as a CPLD
+    /// force bit, must stay below that or it would run the isolated one too).
+    pub isolation_max_duty: Option<Pct>,
 }
+
+/// `led` of an i2c output: a byte register (bus/address default to the
+/// output's `i2c`); `ok`, `fault`, `absent` (default `fault`) and
+/// `exit` are values under `mask` (default all bits).
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct LedConfig {
+    pub bus: Option<BusSpec>,
+    pub address: Option<Int>,
+    pub register: Int,
+    pub force: Option<bool>,
+    pub mask: Option<Int>,
+    pub ok: Int,
+    pub fault: Int,
+    pub absent: Option<Int>,
+    /// Written on exit (and by `fand failsafe`); default: a blinking LED
+    /// goes solid `fault`, the others are left as they are.
+    pub exit: Option<Int>,
+    /// "fand is handling this module" blinks between `fault` and `off`
+    /// (without it that state shows solid `fault`).
+    pub blink: Option<BlinkConfig>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct BlinkConfig {
+    /// The value between the `fault` flashes (e.g. the LED off).
+    pub off: Int,
+    /// One on + off cycle (default 1s).
+    #[serde(default = "d_blink")]
+    pub period: Secs,
+}
+
+fn d_blink() -> Secs {
+    Secs(1.0)
+}
+
+// ---------------------------------------------------------------- stall recovery
+
+/// `stall_recovery`: a "calm restart" for a rotor below `min_rpm`. A
+/// stopped rotor in a running chassis is windmilled backwards by the others'
+/// backdraft and cannot start; with every fan of the group slowed down
+/// together it can.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct StallRecoveryConfig {
+    /// The outputs slowed down together (default: every output with a tach,
+    /// except `release`).
+    pub outputs: Option<Vec<String>>,
+    /// Outputs driven to 0 % first and during the dip (e.g. a "force every fan
+    /// to full speed" control that would void it).
+    #[serde(default)]
+    pub release: Vec<String>,
+    /// Raw duty of the dip (default 0).
+    #[serde(default)]
+    pub hold_raw: Int,
+    #[serde(default = "d_hold")]
+    pub hold: Secs,
+    /// Steps after the hold, each a raw duty held for a while.
+    #[serde(default = "d_ramp_steps")]
+    pub ramp: Vec<RecoveryStep>,
+    /// Normal control for this long, then the stalled rotors are checked.
+    #[serde(default = "d_settle")]
+    pub settle: Secs,
+    /// Failed attempts before the module is given up (isolated if it has
+    /// `isolate_on_rotor_fault`).
+    #[serde(default = "d_attempts")]
+    pub max_attempts: u32,
+    /// Least time between two attempts for the same stalled module.
+    #[serde(default = "d_rec_interval")]
+    pub interval: Secs,
+    /// Least time between the end of one dip and the start of any next.
+    #[serde(default = "d_min_gap")]
+    pub min_gap: Secs,
+    /// A reinserted module whose rotors read below min_rpm this long after
+    /// the presence edge gets an attempt at once (no `interval`, no
+    /// `isolate_grace`; `min_gap` and the guards still apply).
+    #[serde(default = "d_insert_delay")]
+    pub insert_delay: Secs,
+    /// No recovery (and an abort of a running one) while the hottest sensor
+    /// of a zone is at or above this: one number for every zone or `{zone:
+    /// C}`. Default per zone: its curve's first point (a target zone: its
+    /// target) plus `max_temp_margin`.
+    pub max_temp: Option<MaxTemp>,
+    #[serde(default = "d_margin")]
+    pub max_temp_margin: f64,
+}
+
+fn d_margin() -> f64 {
+    5.0
+}
+
+/// Longest allowed hold plus ramp of a stall recovery (s): the fans are
+/// slow for that long.
+pub const MAX_RECOVERY_DIP: f64 = 30.0;
+
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RecoveryStep {
+    pub raw: Int,
+    #[serde(rename = "for")]
+    pub duration: Secs,
+}
+
+/// `max_temp`: one limit for every zone, or one per zone.
+#[derive(Debug, Clone, PartialEq)]
+pub enum MaxTemp {
+    All(f64),
+    Zones(BTreeMap<String, f64>),
+}
+
+impl MaxTemp {
+    pub fn for_zone(&self, z: &str) -> Option<f64> {
+        match self {
+            MaxTemp::All(t) => Some(*t),
+            MaxTemp::Zones(m) => m.get(z).copied(),
+        }
+    }
+}
+
+struct MaxTempVisitor;
+
+impl<'de> Visitor<'de> for MaxTempVisitor {
+    type Value = MaxTemp;
+    fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("a temperature (C) or {zone: C}")
+    }
+    fn visit_f64<E: de::Error>(self, v: f64) -> std::result::Result<MaxTemp, E> {
+        Ok(MaxTemp::All(v))
+    }
+    fn visit_i64<E: de::Error>(self, v: i64) -> std::result::Result<MaxTemp, E> {
+        Ok(MaxTemp::All(v as f64))
+    }
+    fn visit_u64<E: de::Error>(self, v: u64) -> std::result::Result<MaxTemp, E> {
+        Ok(MaxTemp::All(v as f64))
+    }
+    fn visit_map<A: MapAccess<'de>>(self, map: A) -> std::result::Result<MaxTemp, A::Error> {
+        BTreeMap::<String, f64>::deserialize(de::value::MapAccessDeserializer::new(map)).map(MaxTemp::Zones)
+    }
+}
+
+impl<'de> Deserialize<'de> for MaxTemp {
+    fn deserialize<D: Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
+        d.deserialize_any(MaxTempVisitor)
+    }
+}
+
+fn d_hold() -> Secs {
+    Secs(10.0)
+}
+fn d_ramp_steps() -> Vec<RecoveryStep> {
+    vec![RecoveryStep {
+        raw: Int(0x30),
+        duration: Secs(5.0),
+    }]
+}
+fn d_settle() -> Secs {
+    Secs(15.0)
+}
+fn d_attempts() -> u32 {
+    3
+}
+fn d_rec_interval() -> Secs {
+    Secs(300.0)
+}
+fn d_min_gap() -> Secs {
+    Secs(30.0)
+}
+fn d_insert_delay() -> Secs {
+    Secs(5.0)
+}
+
+/// What a rotor fault (stalled, slow, flagged, isolated, an absent module)
+/// does to a zone.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum RotorFaultPolicy {
+    /// The zone goes failsafe (as every other fault).
+    #[default]
+    Failsafe,
+    /// The zone keeps its policy with the remaining fans (state "degraded"),
+    /// until more than `degraded_max_failed_rotors` rotors are out.
+    Degraded,
+}
+
+/// Default `degraded_max_failed_rotors`.
+pub const DEFAULT_DEGRADED_MAX_FAILED: usize = 4;
+
+impl LedConfig {
+    /// The register as an [`I2cRegConfig`] (for `to_reg` and `check`).
+    pub fn reg_config(&self) -> I2cRegConfig {
+        I2cRegConfig {
+            bus: self.bus.clone(),
+            address: self.address,
+            register: self.register,
+            width: I2cWidth::Byte,
+            byte_order: ByteOrder::Little,
+            signed: false,
+            force: self.force,
+            label: None,
+            mask: self.mask,
+            value: None,
+            write: None,
+            min: None,
+            max: None,
+        }
+    }
+}
+
+/// Default `isolate_grace` (s).
+pub const DEFAULT_ISOLATE_GRACE: f64 = 15.0;
+/// Longest allowed `isolate_grace` (s).
+pub const MAX_ISOLATE_GRACE: f64 = 600.0;
 
 fn d_raw_max() -> u32 {
     255
@@ -685,6 +928,9 @@ impl OutputConfig {
     pub fn reassert(&self) -> f64 {
         self.reassert
             .map_or(if self.kind == OutputKind::Exec { 60.0 } else { 0.0 }, |s| s.0)
+    }
+    pub fn isolate_grace(&self) -> f64 {
+        self.isolate_grace.map_or(DEFAULT_ISOLATE_GRACE, |s| s.0)
     }
 }
 
@@ -1195,6 +1441,14 @@ pub struct ZoneConfig {
     /// Lowest duty the zone asks for while one of its sensors is not online
     /// yet (`startup_grace`); default: only its floor.
     pub waiting_duty: Option<Pct>,
+    /// Overrides the global `rotor_fault_policy`.
+    pub rotor_fault_policy: Option<RotorFaultPolicy>,
+    /// degraded: lowest duty while degraded.
+    pub degraded_min_duty: Option<Pct>,
+    /// degraded: added to the duty per failed rotor (percent).
+    pub degraded_duty_per_rotor: Option<f64>,
+    /// degraded: more failed rotors than this is failsafe (default 4).
+    pub degraded_max_failed_rotors: Option<usize>,
 }
 
 impl ZoneConfig {
@@ -1234,6 +1488,74 @@ impl Config {
     /// Grace of a sensor: its own, else the global default.
     pub fn sensor_grace(&self, s: &SensorConfig) -> f64 {
         s.grace.unwrap_or(self.sensor_grace).0
+    }
+
+    /// The outputs of `stall_recovery` (empty without it).
+    pub fn recovery_outputs(&self) -> Vec<String> {
+        let Some(r) = &self.stall_recovery else {
+            return Vec::new();
+        };
+        match &r.outputs {
+            Some(v) => v.clone(),
+            None => self
+                .outputs
+                .iter()
+                .filter(|(n, o)| o.tach.is_some() && !r.release.contains(n))
+                .map(|(n, _)| n.clone())
+                .collect(),
+        }
+    }
+
+    /// stall_recovery: the temperature limit of every zone with sensors
+    /// (explicit, else its curve's first point or its target plus the
+    /// margin). Err: the zones without one.
+    pub fn recovery_limits(&self) -> std::result::Result<BTreeMap<String, f64>, Vec<String>> {
+        let Some(r) = &self.stall_recovery else {
+            return Ok(BTreeMap::new());
+        };
+        let mut out = BTreeMap::new();
+        let mut missing = Vec::new();
+        for (name, z) in &self.zones {
+            if z.sensors.is_empty() {
+                continue;
+            }
+            let derived = || {
+                if let Some(t) = z.policy.target {
+                    return Some(t);
+                }
+                let c = z.policy.curve.as_ref().and_then(|c| self.curve(c))?;
+                c.points.first().map(|p| p.0)
+            };
+            match r.max_temp.as_ref().and_then(|m| m.for_zone(name)) {
+                Some(t) => {
+                    out.insert(name.clone(), t);
+                }
+                None => match derived() {
+                    Some(t) => {
+                        out.insert(name.clone(), t + r.max_temp_margin);
+                    }
+                    None => missing.push(name.clone()),
+                },
+            }
+        }
+        if missing.is_empty() { Ok(out) } else { Err(missing) }
+    }
+
+    /// Where stall recovery state is kept (see `RuntimeConfig::recovery_file`).
+    pub fn recovery_file(&self) -> Option<PathBuf> {
+        self.stall_recovery.as_ref()?;
+        self.runtime.recovery_file.clone().or_else(|| {
+            self.runtime
+                .state_file
+                .as_ref()
+                .and_then(|p| p.parent())
+                .map(|d| d.join("recovery.json"))
+        })
+    }
+
+    /// A zone's `rotor_fault_policy` (its own, else the global one).
+    pub fn rotor_fault_policy(&self, z: &ZoneConfig) -> RotorFaultPolicy {
+        z.rotor_fault_policy.unwrap_or(self.rotor_fault_policy)
     }
 
     pub fn startup_duty(&self) -> f64 {
@@ -1464,6 +1786,30 @@ impl Config {
             } else if o.i2c.is_some() || o.map.is_some() || o.arm.is_some() || !o.expect.is_empty() {
                 e(format!("{p}: 'i2c'/'map'/'arm'/'expect' are only valid for type i2c"));
             }
+            if o.kind != OutputKind::I2c && (o.present.is_some() || o.led.is_some()) {
+                e(format!("{p}: 'present'/'led' are only valid for type i2c"));
+            }
+            {
+                let mut local = Vec::new();
+                validate_isolation(&p, o, self.recovery_outputs().contains(name), &mut local);
+                for m in local {
+                    e(m);
+                }
+            }
+            if o.isolation_max_duty.is_some() && !self.outputs.values().any(|x| x.isolate_on_rotor_fault) {
+                e(format!(
+                    "{p}: isolation_max_duty has no effect: no output has isolate_on_rotor_fault"
+                ));
+            }
+            if let Some(c) = o.isolation_max_duty {
+                if c.0 < o.min_duty() {
+                    e(format!(
+                        "{p}: isolation_max_duty {}% is below the output's hardware minimum {:.1}%",
+                        c.0,
+                        o.min_duty()
+                    ));
+                }
+            }
             if o.kind != OutputKind::Exec && o.timeout.is_some() {
                 e(format!("{p}: 'timeout' is only valid for type exec"));
             }
@@ -1630,6 +1976,97 @@ impl Config {
         if self.zones.is_empty() {
             e("no zones configured".into());
         }
+        for (name, z) in &self.zones {
+            let p = format!("zones.{name}");
+            if self.rotor_fault_policy(z) != RotorFaultPolicy::Degraded
+                && (z.degraded_min_duty.is_some()
+                    || z.degraded_duty_per_rotor.is_some()
+                    || z.degraded_max_failed_rotors.is_some())
+            {
+                e(format!("{p}: degraded_* keys need rotor_fault_policy: degraded"));
+            }
+            if let Some(d) = z.degraded_duty_per_rotor {
+                if !(d.is_finite() && (0.0..=100.0).contains(&d)) {
+                    e(format!("{p}: degraded_duty_per_rotor must be within 0..100"));
+                }
+            }
+        }
+        if let Some(r) = &self.stall_recovery {
+            let group = self.recovery_outputs();
+            if group.is_empty() {
+                e("stall_recovery: no outputs (none has a tach)".into());
+            }
+            for n in &group {
+                match self.outputs.get(n) {
+                    None => e(format!("stall_recovery.outputs: unknown output '{n}'")),
+                    Some(o) => {
+                        if o.tach.as_ref().and_then(|t| t.min_rpm).is_none() {
+                            e(format!(
+                                "stall_recovery: output {n} needs a tach with min_rpm (that is what a stall is)"
+                            ));
+                        }
+                        let top = match (o.kind, &o.i2c) {
+                            (OutputKind::I2c, Some(reg)) => reg.width_max(),
+                            _ => u64::from(o.raw_max),
+                        };
+                        for (k, v) in std::iter::once(("hold_raw", r.hold_raw.0))
+                            .chain(r.ramp.iter().map(|s| ("ramp raw", s.raw.0)))
+                        {
+                            if v > top {
+                                e(format!("stall_recovery: {k} {v} does not fit output {n} (max {top})"));
+                            }
+                        }
+                    }
+                }
+                if r.release.contains(n) {
+                    e(format!("stall_recovery: output {n} is in both 'outputs' and 'release'"));
+                }
+            }
+            for n in &r.release {
+                if !self.outputs.contains_key(n) {
+                    e(format!("stall_recovery.release: unknown output '{n}'"));
+                }
+            }
+            if r.max_attempts == 0 {
+                e("stall_recovery: max_attempts must be >= 1".into());
+            }
+            if r.hold.0 <= 0.0 || r.ramp.iter().any(|s| s.duration.0 <= 0.0) || r.settle.0 <= 0.0 {
+                e("stall_recovery: hold, ramp durations and settle must be > 0".into());
+            }
+            let dip = r.hold.0 + r.ramp.iter().map(|s| s.duration.0).sum::<f64>();
+            if dip > MAX_RECOVERY_DIP {
+                e(format!(
+                    "stall_recovery: hold plus ramp is {dip}s, above {MAX_RECOVERY_DIP}s (the fans are slow all that time)"
+                ));
+            }
+            if r.insert_delay.0 > 60.0 {
+                e(format!(
+                    "stall_recovery: insert_delay {}s is above 60s",
+                    r.insert_delay.0
+                ));
+            }
+            if !(r.max_temp_margin.is_finite() && r.max_temp_margin >= 0.0) {
+                e("stall_recovery.max_temp_margin must be >= 0".into());
+            }
+            match &r.max_temp {
+                Some(MaxTemp::All(t)) if !t.is_finite() => e("stall_recovery.max_temp must be a number".into()),
+                Some(MaxTemp::Zones(m)) => {
+                    for k in m.keys() {
+                        if !self.zones.contains_key(k) {
+                            e(format!("stall_recovery.max_temp: unknown zone '{k}'"));
+                        }
+                    }
+                }
+                _ => {}
+            }
+            if let Err(zs) = self.recovery_limits() {
+                for zn in zs {
+                    e(format!(
+                        "stall_recovery.max_temp: zone {zn} needs a limit (a fixed policy has no point to derive it from)"
+                    ));
+                }
+            }
+        }
 
         if errs.is_empty() {
             Ok(())
@@ -1683,6 +2120,43 @@ fn validate_i2c_output(p: &str, o: &OutputConfig, errs: &mut Vec<String>) {
             errs.push(format!("{p}.arm: needs 'value' (the armed state)"));
         }
     }
+    if let Some(x) = &o.present {
+        let q = format!("{p}.present");
+        x.check(&q, &["mask", "value"], Some(reg), errs);
+        if x.value.is_none() {
+            errs.push(format!("{q}: needs 'value' (the present state under 'mask')"));
+        }
+    }
+    if let Some(l) = &o.led {
+        let q = format!("{p}.led");
+        let r = l.reg_config();
+        r.check(&q, &["mask"], Some(reg), errs);
+        let mask = r.mask_or_all();
+        for (k, v) in [
+            ("ok", Some(l.ok)),
+            ("fault", Some(l.fault)),
+            ("absent", l.absent),
+            ("exit", l.exit),
+            ("blink.off", l.blink.as_ref().map(|b| b.off)),
+        ] {
+            if let Some(v) = v {
+                if v.0 > u64::from(mask) || (v.0 as u32) & !mask != 0 {
+                    errs.push(format!("{q}: {k} 0x{:02x} has bits outside the mask 0x{mask:02x}", v.0));
+                }
+            }
+        }
+        if l.ok == l.fault {
+            errs.push(format!("{q}: 'ok' and 'fault' are the same value"));
+        }
+        if let Some(b) = &l.blink {
+            if b.off == l.fault {
+                errs.push(format!("{q}: blink.off is the 'fault' value (it would not blink)"));
+            }
+            if !(0.2..=10.0).contains(&b.period.0) {
+                errs.push(format!("{q}: blink.period {}s is outside 0.2..10s", b.period.0));
+            }
+        }
+    }
     for (i, x) in o.expect.iter().enumerate() {
         let q = format!("{p}.expect[{i}]");
         x.check(&q, &["mask", "value", "min", "max"], Some(reg), errs);
@@ -1692,6 +2166,41 @@ fn validate_i2c_output(p: &str, o: &OutputConfig, errs: &mut Vec<String>) {
         if x.value.is_some() && (x.min.is_some() || x.max.is_some()) {
             errs.push(format!("{q}: give 'value' or 'min'/'max', not both"));
         }
+    }
+}
+
+/// Checks of `isolate_on_rotor_fault` and its keys.
+fn validate_isolation(p: &str, o: &OutputConfig, in_recovery: bool, errs: &mut Vec<String>) {
+    if !o.isolate_on_rotor_fault {
+        if o.isolate_raw.is_some() {
+            errs.push(format!("{p}: 'isolate_raw' needs 'isolate_on_rotor_fault: true'"));
+        }
+        if o.isolate_grace.is_some() && !in_recovery {
+            errs.push(format!(
+                "{p}: 'isolate_grace' needs 'isolate_on_rotor_fault: true' or the output in stall_recovery"
+            ));
+        }
+        return;
+    }
+    if o.tach.is_none() {
+        errs.push(format!(
+            "{p}: isolate_on_rotor_fault needs a 'tach' (it acts on this output's rotor faults)"
+        ));
+    }
+    if let Some(r) = o.isolate_raw {
+        let top = match (o.kind, &o.i2c) {
+            (OutputKind::I2c, Some(reg)) => reg.width_max(),
+            _ => u64::from(o.raw_max),
+        };
+        if u64::from(r) > top {
+            errs.push(format!("{p}: isolate_raw {r} is above {top}"));
+        }
+    }
+    if o.isolate_grace() > MAX_ISOLATE_GRACE {
+        errs.push(format!(
+            "{p}: isolate_grace {}s is above {MAX_ISOLATE_GRACE}s",
+            o.isolate_grace()
+        ));
     }
 }
 
@@ -2079,5 +2588,172 @@ zones:
         ] {
             assert!(err.contains(needle), "missing {needle:?} in:\n{err}");
         }
+    }
+    #[test]
+    fn presence_led_and_isolation_parse() {
+        let y = I2C.replace(
+            "    tach: {",
+            "    present: { register: 0x36, mask: 0x01, value: 0 }\n    led: { register: 0x34, mask: 0x03, ok: 1, fault: 2 }\n    isolate_on_rotor_fault: true\n    tach: {",
+        );
+        let c = Config::parse(&y).unwrap();
+        let o = &c.outputs["fans"];
+        let p = o.present.as_ref().unwrap();
+        assert_eq!(
+            p.to_reg(o.i2c.as_ref()).unwrap().to_string(),
+            "4-0068:0x36",
+            "bus/address inherited"
+        );
+        let l = o.led.as_ref().unwrap();
+        assert_eq!((l.ok.0, l.fault.0, l.absent, l.exit), (1, 2, None, None));
+        assert_eq!(l.reg_config().mask_or_all(), 3);
+        assert!(o.isolate_on_rotor_fault);
+        assert_eq!((o.isolate_raw, o.isolate_grace()), (None, DEFAULT_ISOLATE_GRACE));
+        // Without the keys nothing changes.
+        let c = Config::parse(I2C).unwrap();
+        let o = &c.outputs["fans"];
+        assert!(o.present.is_none() && o.led.is_none() && !o.isolate_on_rotor_fault);
+    }
+
+    #[test]
+    fn presence_led_and_isolation_misuse_is_reported() {
+        let y = r#"
+sensors:
+  t: { type: file, path: /t }
+outputs:
+  a:
+    type: i2c
+    i2c: { bus: 4, address: 0x66, register: 0x22 }
+    present: { register: 0x26, mask: 1, label: x }
+    led: { register: 0x24, mask: 0x03, ok: 0x05, fault: 2, absent: 0x100, exit: 2 }
+    isolate_raw: 300
+  b:
+    type: i2c
+    i2c: { bus: 4, address: 0x66, register: 0x32 }
+    led: { register: 0x34, ok: 1, fault: 1 }
+    isolate_on_rotor_fault: true
+    isolate_grace: 20m
+  c: { type: file, path: /c, present: { register: 1, value: 0 }, isolation_max_duty: 10, raw_min: 128 }
+zones:
+  z: { outputs: [a, b, c], sensors: [t], policy: { fixed: 50 } }
+"#;
+        let err = Config::parse(y).unwrap_err().0;
+        for needle in [
+            "outputs.a.present: 'label' is not valid here",
+            "outputs.a.present: needs 'value'",
+            "outputs.a.led: ok 0x05 has bits outside the mask 0x03",
+            "outputs.a.led: absent 0x100 has bits outside the mask 0x03",
+            "outputs.a: 'isolate_raw' needs 'isolate_on_rotor_fault: true'",
+            "outputs.b.led: 'ok' and 'fault' are the same value",
+            "outputs.b: isolate_on_rotor_fault needs a 'tach'",
+            "outputs.b: isolate_grace 1200s is above 600s",
+            "outputs.c: 'present'/'led' are only valid for type i2c",
+            "outputs.c: isolation_max_duty 10% is below the output's hardware minimum 50.2%",
+        ] {
+            assert!(err.contains(needle), "missing {needle:?} in:\n{err}");
+        }
+        assert!(!err.contains("isolation_max_duty has no effect"), "b isolates:\n{err}");
+        let lone = I2C.replace("    tach: {", "    isolation_max_duty: 99\n    tach: {");
+        let err = Config::parse(&lone).unwrap_err().0;
+        assert!(err.contains("outputs.fans: isolation_max_duty has no effect"), "{err}");
+        let big = I2C.replace(
+            "    tach: {",
+            "    isolate_on_rotor_fault: true\n    isolate_raw: 256\n    tach: {",
+        );
+        let err = Config::parse(&big).unwrap_err().0;
+        assert!(err.contains("outputs.fans: isolate_raw 256 is above 255"), "{err}");
+    }
+    #[test]
+    fn stall_recovery_and_degraded_parse_and_misuse() {
+        let base = format!("rotor_fault_policy: degraded\nstall_recovery: {{ max_temp_margin: 3 }}\n{MINIMAL}");
+        let c = Config::parse(&base);
+        // MINIMAL's output has no tach with min_rpm: an error that names it.
+        let err = c.unwrap_err().0;
+        assert!(err.contains("stall_recovery: no outputs (none has a tach)"), "{err}");
+        let y = format!("stall_recovery: {{}}\n{I2C}").replace("max_rpm: 14400 }", "max_rpm: 14400, min_rpm: 1000 }");
+        let c = Config::parse(&y).unwrap();
+        assert_eq!(c.recovery_limits().unwrap()["z"], 50.0, "derived: target 45 + margin 5");
+        let y = format!("stall_recovery: {{ max_temp: {{ z: 50 }} }}\n{I2C}")
+            .replace("max_rpm: 14400 }", "max_rpm: 14400, min_rpm: 1000 }");
+        let c = Config::parse(&y).unwrap();
+        let r = c.stall_recovery.as_ref().unwrap();
+        assert_eq!(
+            (r.hold.0, r.ramp[0].raw.0, r.ramp[0].duration.0, r.settle.0),
+            (10.0, 0x30, 5.0, 15.0)
+        );
+        assert_eq!((r.max_attempts, r.interval.0), (3, 300.0));
+        assert_eq!(c.recovery_outputs(), vec!["fans".to_string()]);
+        assert_eq!(c.recovery_limits().unwrap()["z"], 50.0);
+        assert_eq!(c.recovery_file(), Some(PathBuf::from("/run/fand/recovery.json")));
+        // Derived limit: a target zone's target plus the margin.
+        let d = y.replace("max_temp: { z: 50 }", "max_temp_margin: 2");
+        assert_eq!(Config::parse(&d).unwrap().recovery_limits().unwrap()["z"], 47.0);
+        for (from, to, needle) in [
+            (
+                "max_temp: { z: 50 }",
+                "max_temp: 50, hold: 20s, ramp: [{ raw: 1, for: 11s }]",
+                "hold plus ramp is 31s, above 30s",
+            ),
+            (
+                "max_temp: { z: 50 }",
+                "max_temp: 50, outputs: [nope]",
+                "stall_recovery.outputs: unknown output 'nope'",
+            ),
+            (
+                "max_temp: { z: 50 }",
+                "max_temp: 50, outputs: [fans], release: [fans]",
+                "output fans is in both 'outputs' and 'release'",
+            ),
+            (
+                "max_temp: { z: 50 }",
+                "max_temp: { y: 1 }",
+                "stall_recovery.max_temp: unknown zone 'y'",
+            ),
+            (
+                "max_temp: { z: 50 }",
+                "max_temp: 50, hold_raw: 300",
+                "hold_raw 300 does not fit output fans",
+            ),
+            (
+                "max_temp: { z: 50 }",
+                "max_temp: 50, max_attempts: 0",
+                "max_attempts must be >= 1",
+            ),
+        ] {
+            let e = Config::parse(&y.replace(from, to)).unwrap_err().0;
+            assert!(e.contains(needle), "{to}: {e}");
+        }
+        let fixed = y
+            .replace("policy: { target: 45 }", "policy: { fixed: 50 }")
+            .replace("max_temp: { z: 50 }", "hold: 5s");
+        let e = Config::parse(&fixed).unwrap_err().0;
+        assert!(e.contains("zone z needs a limit"), "{e}");
+        let deg = I2C.replace(
+            "policy: { target: 45 } }",
+            "policy: { target: 45 }, degraded_max_failed_rotors: 2 }",
+        );
+        let e = Config::parse(&deg).unwrap_err().0;
+        assert!(
+            e.contains("zones.z: degraded_* keys need rotor_fault_policy: degraded"),
+            "{e}"
+        );
+        let ok = deg.replace(
+            "degraded_max_failed_rotors: 2",
+            "rotor_fault_policy: degraded, degraded_max_failed_rotors: 2",
+        );
+        assert!(Config::parse(&ok).is_ok());
+        let blink = I2C.replace(
+            "    tach: {",
+            "    led: { register: 0x34, mask: 3, ok: 1, fault: 2, blink: { off: 2 } }\n    tach: {",
+        );
+        let e = Config::parse(&blink).unwrap_err().0;
+        assert!(e.contains("blink.off is the 'fault' value"), "{e}");
+        let grace = I2C.replace("    tach: {", "    isolate_grace: 20s\n    tach: {");
+        assert!(Config::parse(&grace).unwrap_err().0.contains("'isolate_grace' needs"));
+        let grace_ok = format!("stall_recovery: {{ max_temp: 50 }}\n{grace}")
+            .replace("max_rpm: 14400 }", "max_rpm: 14400, min_rpm: 1000 }");
+        assert!(
+            Config::parse(&grace_ok).is_ok(),
+            "isolate_grace is the recovery grace too"
+        );
     }
 }

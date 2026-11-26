@@ -87,6 +87,45 @@ captured binary's offsets; it must be re-audited for another module version.
   (idle, three loops up: ~349 + 343 W in, ~330 + 310 W out); one feed alone carries ~701 W in, ~642 W out. A PSU
   without AC still answers PMBus (standby from the other), STATUS_WORD 0x2849, Vin 0 ([power-20261126.txt](evidence/power-20261126.txt)).
 
+## Fan CPLD register map (fan_cpld.ko 1.3.0, 2026-11-26)
+
+Both fan boards: CPLD 0x66 (top = FAN8..14 = Linux bus 31, bottom = FAN1..7 = bus 40; chassis silkscreen FAN1..7 =
+bottom slots 1..7, FAN8..14 = top slots 1..7, confirmed by pulls). From the driver's disassembly + DWARF names, checked
+against the vendor cplds.yaml / leds.yaml / fans.yaml (no C source in driver.tar.xz). Slot n base = 0x20 + 0x10 (n-1).
+
+| reg | vendor name | meaning |
+| --- | --- | --- |
+| base+0 / +1 | fanN_input | front / rear tach, raw x 150 rpm (driver; vendor fans.yaml NIDEC max 28000 / 31000 rpm vs our raw 189-191 / 207-211 at PWM 255) |
+| base+2 | pwmN ("fan_ctrl_reg") | duty 0..255 for both rotors of the module; nothing else |
+| base+4 | fanN_led | bits 1:0: 1 green, 2 red, 3 off (0 "undefined", maybe both = amber, untested); software only, no CPLD auto mode, nothing in the vendor stack drives it (a dead module stays green) |
+| base+5 | fanN_eeprom_protect | module FRU EEPROM write protect |
+| base+6 | fanN_present / direction | bit 0 = 1 absent (0 present), bit 1 = airflow (0 F2B) |
+| (none) | fanN_fault | computed by the driver: absent or tach 0; no fault register |
+| 0x00 | cpld_version | 0x03 here |
+| 0x09 | fan_board_eeprom_protect | |
+| 0x0c | watchdog | bit 0 enable, bits 7:1 seconds / 5 (above) |
+| 0x17 | fan_mux_reset | fan-board PCA9548 reset (the driver writes the inverse of the sysfs value) |
+| 0x19 | fan_eeprom_power | bit 0: module FRU EEPROM power (not the motors) |
+| 0x10 | (unnamed) | bit n-1 set for exactly the slots that were hot-pulled; no vendor code reads, acks or clears it |
+| 0x04 / 0x06 / 0x07 / 0x08 / 0x0f | yaml only | scratch / INT STA (bit 0) / INT PRT / HW rev / MISC STA (default 0x1f) |
+
+- No per-slot power enable, reset or ack exists in the driver or the vendor userland (`cel-fan-test` only reads present
+  / tach and writes PWM; `install.sh` arms the watchdogs; ONIE `disable_fcs.sh` writes PWM 127). The only larger lever:
+  the sys CPLD fan CPLD resets (0x03 bit 3 `fan_reset`, 0x04 bit 5 `fan2_reset`, active low; which board is which: open).
+- Reg 0x10 is a latched rotor-stall flag (bit n-1): the fan CPLD reset clears it and it comes back with the stall.
+  `fan2_reset` (sys CPLD bus 8 0x60 reg 0x04 bit 5, active low) resets the BOTTOM fan CPLD (LEDs back to green, PWM
+  0x3c / 0x4b until fand rewrites it); it revives nothing. 0x19 (FRU EEPROM power) does nothing for the motors.
+- **Stalled rotors, 2026-11-26** ([fan-cpld-20261126.txt](evidence/fan-cpld-20261126.txt)): a module hot-swapped into a
+  running chassis, or a rotor that stopped, does not start: the other fans' backdraft windmills it backwards (tach 0/0,
+  "unpowered" to the eye). What starts it: every fan low together ("calm and restart": all 14 PWM 0x00 ~10 s, 0x30 ~5 s,
+  then normal; the sys CPLD force-max (0x05) must be released first or every duty register reads and acts 0xff); 5 of 5
+  stalled rotors came back. Low duty heats the ASIC fast (~2 min took it to 82.9 C): keep dips short and guarded. fand
+  does this itself now (`stall_recovery`, guards ASIC 70 C / board 45 C, 3 attempts, then the module is isolated at
+  duty 0, LED solid red; zones stay degraded on their curve). **Do not hot-swap fan modules while the fans run at full
+  speed** (failsafe): the inserted module cannot start until fand's next dip.
+- Two modules have a dead REAR rotor (it follows the module through slot swaps; no dip, reseat, CPLD reset or cold
+  power cycle revives it): failed hardware, in FAN5 (bottom5) and FAN12 (top5) since the owner's FAN5 / FAN6 swap; FAN12's was the 10:38 stall.
+
 ## cooling implications for bring-up
 
 Stock startup enables both fan watchdogs, disables the system watchdog, sets

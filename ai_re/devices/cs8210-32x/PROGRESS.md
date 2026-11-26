@@ -2,12 +2,7 @@
 
 ## Status (2026-11-26)
 
-**POWERED OFF, DO NOT POWER ON (2026-11-26 ~11:10 UTC):** the owner pulled power because the box smelled burnt, about
-35 min after top fan module 5's rear rotor went to 0 rpm (evidence/reboots-20261126.txt). Both feeds are switched off
-(`lab-power cs8210 status`) and the NetBotz outlet's normal state is Off. Source of the smell not yet identified. The
-rest of this block describes the box as it was before.
-
-- **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-54, from the SSD; a cold cycle of both feeds (`lab-power cs8210 cycle`,
+- **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-57, from the SSD; a cold cycle of both feeds (`lab-power cs8210 cycle`,
   2026-11-26) came back unattended, 0 failed units; either PSU alone carries it under traffic. **SONiC at boot** on our C++ `sai-teralynx` (HEAD's frozen
   frontend, first on this box 2026-11-25). Cabling (owner, 2026-11-25; cage 1 and 2 modules replaced 2026-11-26): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
   400G-DR4 QSFP-DD optics (MPO loops), 3 <-> 17 TE 2459398-1 400G CR8 DAC; nothing to the house. CONFIG_DB = the Nix
@@ -29,8 +24,9 @@ rest of this block describes the box as it was before.
 - **Recover:** `systemctl stop sonic.target`; system-47 from the U-Boot menu (before cs8210-optics: its guard refuses syncd
   with these cages populated); dead I2C FPGA (`/run/cs8210-qsfp.dead`): power cycle. Vendor U-Boot prompt: `123<Enter>`
   within 3 s, then ONIE (`run onie_bootcmd`, RAM only) or **Route R** ([uart-recovery.md](uart-recovery.md), [boot-chain.md](boot-chain.md)).
-- **Open:** **top fan module 5 rear rotor reads 0 rpm since the 10:38 boot: fand failsafe, all fans 100 % (loud) until
-  a human checks the module**; the 1 <-> 2 fibre into cage 1; port LEDs (SAI: the vendor `pci write led_*` init); our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
+- **Open:** two fan modules with a dead rear rotor (now FAN5 and FAN12, solid red, isolated at duty 0; fand degraded,
+  [board-control.md](board-control.md) "Fan CPLD register map"): replace them; `lab-power cs8210 cycle` once failed with
+  NetBotz "E101: Command Not Found" (not reproduced; lab-power now resends once on E101); the 1 <-> 2 fibre into cage 1; port LEDs (SAI: the vendor `pci write led_*` init); our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
   ([sai-features.md](sai-features.md)); MACsec under SONiC; CRM panels empty; learn-wedge watch (L0s off, [learn-wedge.md](learn-wedge.md)).
 
 ## Identity
@@ -81,11 +77,16 @@ rest of this block describes the box as it was before.
 - Vendor stack only: ASIC traps unicast to the CPU only for SDK-programmed MACs ((t)); `double_CRC` must be off in
   MACsec bypass ((x)).
 
-**Fans** (user request 2026-11-09: keep them quiet). fand holds PWM 127 (~50 %, ~11k rpm) until the hottest LM75 passes
-40 C or the ASIC die 70 C, full speed at 55 / 95 C; a fault or stop forces full speed and re-arms the fan watchdog.
+**Fans** (user request 2026-11-09: keep them quiet). Chassis labels: FAN1..7 = bottom slots 1..7, FAN8..14 = top slots
+1..7 (silkscreen, confirmed by pulls). fand holds PWM 127 (~50 %, ~17k rpm) until the hottest LM75 passes 40 C or the ASIC
+die 70 C, full speed at 55 / 95 C. A stalled rotor first gets a short temperature-guarded "calm restart" (all fans low
+together, then up); a module that stays dead is isolated at duty 0; the zones stay on their curve (degraded) and only
+sensor loss, critical temperature or more than 4 failed rotors force full speed. Tray LEDs: green ok, blinking red =
+fand handling it, solid red = failed or absent ([board-control.md](board-control.md) "Fan CPLD register map").
+A stop forces full speed and re-arms the fan watchdog.
 `fand status`, `fand set 80% --for 10m`; `cs8210-fan status|set|quiet|max|watchdog` when no daemon runs;
 `hardware.cs8210.fan.controller = "python"` is the old fallback. Code: `nix/nixos/module/cs8210/{fan-control,tools}`.
-Tach x100 and the rotor maxima come from one fan sample. **Still loud from power-on until NixOS userspace (~40 s):** the
+Tach x150 (vendor driver and fans.yaml). **Still loud from power-on until NixOS userspace (~40 s):** the
 vendor U-Boot never touches the fans; untried U-Boot recipe `i2c dev 3; i2c mw 0x74 0.0 0x04` (top; `0x08` = bottom,
 but vendor-uboot.md item 12 has U-Boot's labels the other way round), then `i2c mw 0x66 0x0c 0x18` and
 `i2c mw 0x66 0x22 0x7f` ... `0x82`.
@@ -129,6 +130,12 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-26 (d) — fans: FAN12 rear rotor stall, a burnt-smell scare (false alarm), fan CPLD map
+
+- Top fan 5 (FAN12) rear rotor read 0 rpm from the 10:38 boot; fand failsafe 100 %. ~11:10 the owner cut power for a burnt
+  smell; it was a false alarm (warm electronics), both feeds back on, NetBotz normal state On.
+- Hot-pulled and reinserted fan modules stay unpowered; fan CPLD map from the vendor driver in board-control.md; work open.
 
 ### 2026-11-26 (c) — power: NetBotz normal state On, PSU telemetry without the kernel driver, redundancy, cold cycle
 

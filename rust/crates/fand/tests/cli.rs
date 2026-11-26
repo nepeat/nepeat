@@ -286,9 +286,25 @@ fn daemon_notifies_serves_overrides_and_sets_exit_duty_on_sigterm() {
     let (code, _, _) = fand(&["set", "clear", "--config", cfg.to_str().unwrap()]);
     assert_eq!(code, 0);
     wait_for("override to clear", Duration::from_secs(5), || pwm(&fan) == "128");
+    // "fand release" reaches the daemon; this output does not isolate.
+    let (code, _, err) = fand(&["release", "fans", "--config", cfg.to_str().unwrap()]);
+    assert_eq!(code, 1);
+    assert!(
+        err.contains("daemon: output fans has no isolate_on_rotor_fault"),
+        "{err}"
+    );
+    let (code, _, err) = fand(&["release", "--config", cfg.to_str().unwrap()]);
+    assert_eq!(code, 1);
+    assert!(err.contains("usage: fand release <output>"), "{err}");
 
     let state = std::fs::read_to_string(fs.root.join("run/state.json")).unwrap();
     assert!(state.contains("\"board\""));
+    for key in ["present", "led", "isolated"] {
+        assert!(
+            !state.contains(&format!("\"{key}\"")),
+            "no {key} without the config: {state}"
+        );
+    }
     let prom = std::fs::read_to_string(fs.root.join("run/metrics.prom")).unwrap();
     assert!(
         prom.contains("fand_fan_rpm{output=\"fans\",rotor=\"fan1_front\"} 21000"),

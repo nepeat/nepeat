@@ -34,7 +34,7 @@ let
     bottom = "i2c-mux@74/i2c@3";
   };
   slots = lib.range 1 fan.slots;
-  slotBase = n: 16 + 16 * n; # 0x20, 0x30 .. 0x80: +0 front tach, +1 rear tach, +2 PWM
+  slotBase = n: 16 + 16 * n; # 0x20, 0x30 .. 0x80: +0 front tach, +1 rear tach, +2 PWM, +4 LED, +6 presence
   minPct = fan.minPwm * 100.0 / 255;
 
   tools = lib.makeBinPath [
@@ -161,15 +161,56 @@ let
           label = "rear";
         }
       ];
-      # raw x 100 rpm (assumed scale, see PROGRESS). One fan, 2026-11-09:
-      # raw 189/208 at PWM 255, 112/123 at 127.
-      scale = 100;
+      # raw x 150 rpm: the vendor fan_cpld.ko fan_show_value multiplies by
+      # 150 (mov w2,#0x96 at 0x9fc); vendor fans.yaml: NIDEC R3181-FN047-010AD
+      # max front 28000 / panel 31000 rpm (AVC 24919 / 30814). Ours at PWM
+      # 255: raw 189-191 front / 207-211 rear = 28.5k / 31.5k rpm.
+      scale = 150;
       max_rpm_by_label = {
-        front = 19000;
-        rear = 21000;
+        front = 28500;
+        rear = 31500;
       };
       min_rpm = fan.minRpm;
     };
+    # Module presence, base+6 bit 0: 0 present, 1 absent (bit 1 is the airflow
+    # direction). Vendor fan_cpld.ko disassembly, board-control.md "Fan CPLD
+    # register map". Absent = a fault of this output (failsafe for the rest),
+    # its rotors are not checked.
+    present = {
+      register = hex (slotBase n + 6);
+      mask = "0x01";
+      value = 0;
+    };
+    # Tray LED, base+4 bits 1:0: 1 green, 2 red, 3 off; software-driven only
+    # (no CPLD auto mode, nothing else in the vendor stack sets it), same
+    # sources. fand (owner's policy): green = present, both rotors fine;
+    # blinking red (red / off, 1 s) = fand is handling it (a stall recovery,
+    # a rotor that should come up after an insertion, the start or a
+    # release); solid red = given up / isolated, another rotor fault, or
+    # absent. On exit a blinking LED goes solid red, the others stay.
+    # Read-modify-write: the other bits are kept.
+    led = {
+      register = hex (slotBase n + 4);
+      mask = "0x03";
+      ok = "0x01";
+      fault = "0x02";
+      absent = "0x02";
+      blink = {
+        off = "0x03";
+        period = "1s";
+      };
+    };
+    # No per-slot power control exists, and the duty drives both rotors. A
+    # stalled rotor (below min_rpm) first gets stall_recovery (below); when
+    # that gives up, or for a rotor that is not following / flagged, the
+    # module gets duty 0 (after the 15 s grace from start / reinsertion)
+    # instead of any zone or failsafe duty. Latched until reinserted, "fand
+    # release <slot>" or a restart (given-up modules are remembered in
+    # /run/fand/recovery.json across restarts). After the 2026-11-26
+    # incident (a stalled rear rotor driven at 100 % for 35 min until it
+    # smelt burnt).
+    isolate_on_rotor_fault = true;
+    isolate_raw = 0;
   };
   fanOutputs = lib.concatMapAttrs (
     board: node: lib.listToAttrs (map (n: lib.nameValuePair "${board}${toString n}" (slotOutput node n)) slots)
@@ -281,6 +322,53 @@ in
       default = 7;
       description = "fand: fan slots per fan board it drives and checks (7 on this chassis, 14 dual fans).";
     };
+    stallRecovery = lib.mkOption {
+      type = lib.types.attrsOf lib.types.anything;
+      default = {
+        hold_raw = "0x00";
+        hold = "10s";
+        ramp = [
+          {
+            raw = "0x30";
+            for = "5s";
+          }
+        ];
+        settle = "15s";
+        max_attempts = 3;
+        # Between attempts for one stall; any two dips are min_gap apart; a
+        # hot-swapped module that comes up at 0 rpm gets one insert_delay
+        # after its presence edge (2026-11-26: two reinserted modules came up
+        # unpowered and sat in failsafe until a manual dip).
+        interval = "5m";
+        min_gap = "30s";
+        insert_delay = "5s";
+        max_temp = {
+          board = 45;
+          asic = 70;
+        };
+      };
+      description = ''
+        fand stall_recovery ("calm restart"), merged per key: a rotor that
+        stopped in a running chassis is windmilled backwards by the others'
+        backdraft and cannot start; every fan at hold_raw for hold, then the
+        ramp, lets it (coordinator, live: 5 of 5 with ~12 s at 0 then 0x30
+        for 6 s; ~2 min of low duty took the ASIC to 82.9 C, hence the short
+        dip, the 5 min interval and the guards: board >= 45 C or ASIC >= 70 C
+        skips or aborts it). cpld_force is released first (its force bits
+        would hold every fan at 0xff). Gives up after max_attempts (isolated,
+        solid red).
+      '';
+    };
+    degradedMaxFailedRotors = lib.mkOption {
+      type = lib.types.ints.unsigned;
+      default = 4;
+      description = ''
+        fand rotor_fault_policy degraded: stalled, isolated or absent rotors
+        keep the zones on their curves with the remaining fans; more failed
+        rotors than this (an isolated or absent module counts both) is
+        failsafe 100 %. Two given-up modules are 4.
+      '';
+    };
     minRpm = lib.mkOption {
       type = lib.types.int;
       default = 3000;
@@ -352,6 +440,13 @@ in
           interval = "${toString fan.interval}s";
           calm_period = "60s";
           startup_duty = fan.startupDuty;
+          # Fan problems: keep temperature control with the remaining fans
+          # (owner, 2026-11-26); sensor loss, critical temperatures, write
+          # errors and too many failed rotors stay failsafe.
+          rotor_fault_policy = "degraded";
+          stall_recovery = fan.stallRecovery // {
+            release = [ "cpld_force" ];
+          };
           sensors =
             lib.mapAttrs (_: node: {
               type = "hwmon";
@@ -385,6 +480,10 @@ in
               timeout = "3s";
               # Every tick: releases the CPLD's force soon after an SDK start.
               reassert = "${toString fan.interval}s";
+              # At 100 % this forces every fan to full speed, whatever its PWM
+              # register says, the isolated module too: below 100 while any
+              # slot is isolated (the others still get 0xff through their PWM).
+              isolation_max_duty = 99;
             };
           };
           # As fancontrol.py: linear from (low, minPwm) to (high, 255) on the
@@ -393,6 +492,7 @@ in
             board = {
               outputs = outputNames;
               sensors = lib.attrNames lm75;
+              degraded_max_failed_rotors = fan.degradedMaxFailedRotors;
               policy.curve = {
                 points = [
                   [ fan.lowTemp minPct ]
@@ -404,6 +504,7 @@ in
             asic = {
               outputs = outputNames;
               sensors = [ "asic" ];
+              degraded_max_failed_rotors = fan.degradedMaxFailedRotors;
               policy.curve = {
                 points = [
                   [ fan.asicLowTemp minPct ]

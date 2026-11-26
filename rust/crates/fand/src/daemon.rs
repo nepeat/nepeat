@@ -136,7 +136,12 @@ pub fn summary(s: &Status) -> String {
                     rpm.iter().cloned().fold(0.0, f64::max)
                 )
             };
-            parts.push(format!("{name}={d:.0}%{rpm}"));
+            let tag = match (o.present, o.isolated) {
+                (Some(Some(false)), _) => " ABSENT",
+                (_, Some(true)) => " ISOLATED",
+                _ => "",
+            };
+            parts.push(format!("{name}={d:.0}%{rpm}{tag}"));
         }
     }
     parts.join("; ")
@@ -270,6 +275,77 @@ pub fn prometheus(s: &Status) -> String {
         "gauge",
         s.outputs.iter().map(|(n, o)| (ol(n), o.faults.len() as f64)).collect(),
     );
+    // Only with outputs that have them (other configs' files stay as they were).
+    let present: Vec<(String, f64)> = s
+        .outputs
+        .iter()
+        .filter_map(|(n, o)| o.present.flatten().map(|p| (ol(n), f64::from(u8::from(p)))))
+        .collect();
+    if !present.is_empty() {
+        metric(
+            "fand_output_present",
+            "1 if the fan module is present",
+            "gauge",
+            present,
+        );
+    }
+    let isolated: Vec<(String, f64)> = s
+        .outputs
+        .iter()
+        .filter_map(|(n, o)| o.isolated.map(|i| (ol(n), f64::from(u8::from(i)))))
+        .collect();
+    if !isolated.is_empty() {
+        metric(
+            "fand_output_isolated",
+            "1 while the output is isolated after a rotor fault",
+            "gauge",
+            isolated,
+        );
+    }
+    let led: Vec<(String, f64)> = s
+        .outputs
+        .iter()
+        .filter_map(|(n, o)| o.led.as_ref().map(|l| (ol(n), f64::from(u8::from(l.state != "ok")))))
+        .collect();
+    if !led.is_empty() {
+        metric(
+            "fand_output_led_fault",
+            "1 while the module LED shows fault, blink or absent",
+            "gauge",
+            led,
+        );
+    }
+    let degraded: Vec<(String, f64)> = s
+        .zones
+        .iter()
+        .filter(|(_, z)| z.failed_rotors.is_some())
+        .map(|(n, z)| (zl(n), f64::from(u8::from(z.state == "degraded"))))
+        .collect();
+    if !degraded.is_empty() {
+        metric(
+            "fand_zone_degraded",
+            "1 while the zone rides out rotor faults on its remaining fans (rotor_fault_policy: degraded)",
+            "gauge",
+            degraded,
+        );
+    }
+    if let Some(r) = &s.recovery {
+        metric(
+            "fand_recovery_active",
+            "1 while a stall recovery runs",
+            "gauge",
+            vec![(String::new(), f64::from(u8::from(r.active)))],
+        );
+        metric(
+            "fand_output_recovery_attempts",
+            "failed stall recovery attempts of the output",
+            "gauge",
+            s.outputs
+                .iter()
+                .filter_map(|(n, o)| o.recovery_attempts.map(|a| (ol(n), f64::from(a))))
+                .collect(),
+        );
+    }
     let rl = |n: &str, r: &str| format!("output=\"{}\",rotor=\"{}\"", esc(n), esc(r));
     let rotors = || s.outputs.iter().flat_map(|(n, o)| o.rotors.iter().map(move |r| (n, r)));
     metric(
@@ -313,6 +389,9 @@ pub enum Request {
     Clear {
         zone: Option<String>,
     },
+    Release {
+        output: String,
+    },
 }
 
 fn bind_socket(path: &Path) -> Result<UnixListener> {
@@ -346,6 +425,7 @@ fn respond(engine: &mut Engine, line: &str) -> serde_json::Value {
             .map_err(Error)
             .and_then(|d| engine.set_override(zone.as_deref(), d, seconds, now)),
         Request::Clear { zone } => engine.clear_override(zone.as_deref()),
+        Request::Release { output } => engine.release(&output, now),
     };
     match result {
         Ok(msg) => serde_json::json!({"ok": true, "message": msg}),
@@ -499,6 +579,8 @@ pub fn run(cfg: Config, force_dry_run: bool) -> Result<i32> {
                 serve(l, &mut guard.engine);
             }
             let now = guard.engine.now();
+            // Recovery steps and blinking LEDs run between the ticks.
+            guard.engine.timers(now);
             if now >= next {
                 break;
             }
@@ -523,6 +605,7 @@ mod tests {
     fn prometheus_escapes_and_has_types() {
         let mut s = Status {
             version: "0",
+            recovery: None,
             uptime: 1.0,
             dry_run: false,
             ticks: 1,

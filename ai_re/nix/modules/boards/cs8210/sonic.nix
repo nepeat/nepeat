@@ -54,6 +54,15 @@ in {
     services.sonic = {
       platform = mkDefault "arm64-celestica_cs8210-r0";
       hwsku = mkDefault "Celestica-CS8210-32X";
+      # thermalctld polls fans / PSUs / thermals every 60 s by default, so `show platform fan`
+      # showed a pulled module as spinning for up to a minute (2026-11-26); fand's state file is
+      # fresh every 5 s, so poll it at that pace.
+      platformJson = mkDefault {
+        chassis = {
+          fan_drawers = [ { polling_interval = "5"; } ];
+          psus = [ { polling_interval = "10"; } ];
+        };
+      };
       asicType = mkDefault "marvell-teralynx";
       cages = mkDefault (import ../../switch/sonic/port-maps/celestica-cs8210-32x.nix);
       defaultSpeed = mkDefault 400000;

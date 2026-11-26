@@ -177,7 +177,23 @@ impl Session {
     }
 
     /// Runs one CLI command and returns its output without the echo and the prompt.
+    /// An `E101: Command Not Found` answer means the CLI did not get the command as sent (seen
+    /// once on 2026-11-26 on the first command of a session, `lab-power cs8210 cycle`): nothing
+    /// ran, so it is sent once more; a second E101 is returned to the caller.
     pub(crate) fn command(&mut self, command: &str) -> Result<String, String> {
+        let out = self.send(command)?;
+        if !not_found(&out) {
+            return Ok(out);
+        }
+        eprintln!(
+            "lab-power: NetBotz {}: {command:?} answered E101 Command Not Found (the CLI received {:?}); sending it once more",
+            self.host,
+            first_line(&out)
+        );
+        self.send(command)
+    }
+
+    fn send(&mut self, command: &str) -> Result<String, String> {
         let stdin = self.stdin.as_mut().ok_or("the SSH session is closed")?;
         stdin
             .write_all(format!("{command}\n").as_bytes())
@@ -361,6 +377,23 @@ fn strip_echo_and_prompt(raw: &str, command: &str) -> String {
         lines.drain(..=i);
     }
     lines.join("\n")
+}
+
+/// The command output holds the CLI's `E101: Command Not Found`.
+fn not_found(out: &str) -> bool {
+    out.lines().map(str::trim).any(|l| l.starts_with("E101:"))
+}
+
+/// The first non-empty line of a command's output (what the CLI echoed when the echo did not
+/// match the command), at most 60 characters.
+fn first_line(out: &str) -> String {
+    out.lines()
+        .map(str::trim)
+        .find(|l| !l.is_empty())
+        .unwrap_or_default()
+        .chars()
+        .take(60)
+        .collect()
 }
 
 fn is_code_line(l: &str) -> bool {
