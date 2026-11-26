@@ -2,7 +2,7 @@
 
 ## Status (2026-11-26)
 
-- **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-58, from the SSD; a cold cycle of both feeds (`lab-power cs8210 cycle`,
+- **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-59, from the SSD; a cold cycle of both feeds (`lab-power cs8210 cycle`,
   2026-11-26) came back unattended, 0 failed units; either PSU alone carries it under traffic. **SONiC at boot** on our C++ `sai-teralynx` (HEAD's frozen
   frontend, first on this box 2026-11-25). Cabling (owner, 2026-11-25; cage 1 and 2 modules replaced 2026-11-26): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
   400G-DR4 QSFP-DD optics (MPO loops), 3 <-> 17 TE 2459398-1 400G CR8 DAC; nothing to the house. CONFIG_DB = the Nix
@@ -24,9 +24,9 @@
 - **Recover:** `systemctl stop sonic.target`; system-47 from the U-Boot menu (before cs8210-optics: its guard refuses syncd
   with these cages populated); dead I2C FPGA (`/run/cs8210-qsfp.dead`): power cycle. Vendor U-Boot prompt: `123<Enter>`
   within 3 s, then ONIE (`run onie_bootcmd`, RAM only) or **Route R** ([uart-recovery.md](uart-recovery.md), [boot-chain.md](boot-chain.md)).
-- **Open:** **three fan modules with a dead rotor** (FAN5 rear, FAN6 front since 13:32, FAN12 rear; solid red, isolated at
-  duty 0): 6 rotors > `degraded_max_failed_rotors` 4, so fand is in FAILSAFE 100 % by policy until they are replaced (or
-  the owner raises the limit) ([board-control.md](board-control.md) "Fan CPLD register map"); `lab-power cs8210 cycle` once failed with
+- **Open:** **three fan modules with a dead rotor** (FAN5 rear, FAN6 front, FAN12 rear; LED solid red, still following the
+  zone duty): 3 failed rotors <= 4, fand degraded on its curve (~52 %, ASIC ~63 C); replace them, then `fand release`
+  the slot if it was swapped while off ([board-control.md](board-control.md) "Fan CPLD register map"); `lab-power cs8210 cycle` once failed with
   NetBotz "E101: Command Not Found" (not reproduced; lab-power now resends once on E101); the 1 <-> 2 fibre into cage 1; port LEDs (SAI: the vendor `pci write led_*` init); our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
   ([sai-features.md](sai-features.md)); MACsec under SONiC; CRM panels empty; learn-wedge watch (L0s off, [learn-wedge.md](learn-wedge.md)).
 
@@ -81,8 +81,9 @@
 **Fans** (user request 2026-11-09: keep them quiet). Chassis labels: FAN1..7 = bottom slots 1..7, FAN8..14 = top slots
 1..7 (silkscreen, confirmed by pulls). fand holds PWM 127 (~50 %, ~17k rpm) until the hottest LM75 passes 40 C or the ASIC
 die 70 C, full speed at 55 / 95 C. A stalled rotor first gets a short temperature-guarded "calm restart" (all fans low
-together, then up); a module that stays dead is isolated at duty 0; the zones stay on their curve (degraded) and only
-sensor loss, critical temperature or more than 4 failed rotors force full speed. Tray LEDs: green ok, blinking red =
+together, then up); one that stays dead is given up (solid red, its module keeps the zone duty, remembered across
+reboots); the zones stay on their curve (degraded) and only sensor loss, critical temperature or more than 4 failed
+rotors force full speed. Tray LEDs: green ok, blinking red =
 fand handling it, solid red = failed or absent ([board-control.md](board-control.md) "Fan CPLD register map").
 A stop forces full speed and re-arms the fan watchdog.
 `fand status`, `fand set 80% --for 10m`; `cs8210-fan status|set|quiet|max|watchdog` when no daemon runs;
@@ -131,6 +132,16 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-26 (f) — fans: given-up rotors keep running, state across reboots
+
+- Owner policy: a module with one dead rotor is not stopped (half a module of airflow); fand `stall_recovery.given_up:
+  follow` (CS8210 only; other boards keep `isolate`), no duty-0 isolation, given-up rotors persisted in
+  /var/lib/fand/recovery.json (migrated from /run once). Live switch to system-59: zones from FAILSAFE back to degraded
+  (3 failed rotors), LEDs solid red on FAN5 / FAN6 / FAN12; 5 min after: duty 52 %, ASIC 62.6 C, board zone 40.4 C.
+  Caveat (subagent, owner's call): in a true failsafe the dead rotors are driven at 100 % again.
+- Two of the three rotor losses came with a reboot; trace and a gentler start/stop proposal in board-control.md
+  "Fans at reboot" (not built).
 
 ### 2026-11-26 (e) — B4: 5 reboots, 35-min line-rate soak on the two up loops
 

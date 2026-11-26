@@ -771,6 +771,21 @@ pub struct StallRecoveryConfig {
     pub max_temp: Option<MaxTemp>,
     #[serde(default = "d_margin")]
     pub max_temp_margin: f64,
+    /// What a module whose recovery gave up gets: `isolate` (default: duty
+    /// `isolate_raw` if it has `isolate_on_rotor_fault`, else its LED only)
+    /// or `follow` (it keeps the zone duty, its healthy rotor still moves
+    /// air; LED solid fault, no more dips, only its dead rotors count as
+    /// failed).
+    #[serde(default)]
+    pub given_up: GivenUp,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum GivenUp {
+    #[default]
+    Isolate,
+    Follow,
 }
 
 fn d_margin() -> f64 {
@@ -1539,6 +1554,15 @@ impl Config {
             }
         }
         if missing.is_empty() { Ok(out) } else { Err(missing) }
+    }
+
+    /// The default recovery file (next to `state_file`) when `recovery_file`
+    /// is set elsewhere: read once if that one does not exist yet (migration).
+    pub fn recovery_file_fallback(&self) -> Option<PathBuf> {
+        self.stall_recovery.as_ref()?;
+        let explicit = self.runtime.recovery_file.as_ref()?;
+        let d = self.runtime.state_file.as_ref()?.parent()?.join("recovery.json");
+        (&d != explicit).then_some(d)
     }
 
     /// Where stall recovery state is kept (see `RuntimeConfig::recovery_file`).
@@ -2681,6 +2705,25 @@ zones:
             (10.0, 0x30, 5.0, 15.0)
         );
         assert_eq!((r.max_attempts, r.interval.0), (3, 300.0));
+        assert_eq!(r.given_up, GivenUp::Isolate, "the default is unchanged");
+        assert_eq!(
+            c.recovery_file_fallback(),
+            None,
+            "no explicit recovery_file: nothing to migrate"
+        );
+        let f = format!(
+            "runtime: {{ recovery_file: /var/lib/fand/recovery.json }}
+{}",
+            y.replace("max_temp: { z: 50 } }", "max_temp: { z: 50 }, given_up: follow }")
+        );
+        let c2 = Config::parse(&f).unwrap();
+        assert_eq!(c2.stall_recovery.as_ref().unwrap().given_up, GivenUp::Follow);
+        assert_eq!(c2.recovery_file(), Some(PathBuf::from("/var/lib/fand/recovery.json")));
+        assert_eq!(
+            c2.recovery_file_fallback(),
+            Some(PathBuf::from("/run/fand/recovery.json"))
+        );
+        assert!(Config::parse(&y.replace("max_temp: { z: 50 } }", "max_temp: { z: 50 }, given_up: drop }")).is_err());
         assert_eq!(c.recovery_outputs(), vec!["fans".to_string()]);
         assert_eq!(c.recovery_limits().unwrap()["z"], 50.0);
         assert_eq!(c.recovery_file(), Some(PathBuf::from("/run/fand/recovery.json")));

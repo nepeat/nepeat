@@ -21,6 +21,9 @@ struct Opts {
     recovery: bool,
     file: Option<PathBuf>,
     slots: usize,
+    /// given_up: follow, and no isolation anywhere (the CS8210 setup).
+    follow: bool,
+    state_file: Option<PathBuf>,
 }
 
 impl Default for Opts {
@@ -32,6 +35,8 @@ impl Default for Opts {
             recovery: true,
             file: None,
             slots: SLOTS,
+            follow: false,
+            state_file: None,
         }
     }
 }
@@ -62,6 +67,16 @@ fn slot(n: usize) -> String {
 }
 
 fn config(o: &Opts, root: &str) -> String {
+    let c = config_text(o, root);
+    if o.follow {
+        c.replace("    isolate_on_rotor_fault: true\n", "")
+            .replace("    isolation_max_duty: 99\n", "")
+    } else {
+        c
+    }
+}
+
+fn config_text(o: &Opts, root: &str) -> String {
     let slots: String = (1..=o.slots).map(slot).collect();
     let names = (1..=o.slots).map(|n| format!("top{n}")).collect::<Vec<_>>().join(", ");
     let file = o
@@ -69,10 +84,17 @@ fn config(o: &Opts, root: &str) -> String {
         .as_ref()
         .map_or("null".to_string(), |p| format!("\"{}\"", p.display()));
     let rec = if o.recovery {
-        "stall_recovery: { release: [force], hold_raw: 0, hold: 10s, ramp: [{ raw: \"0x30\", for: 5s }], settle: 15s, max_attempts: 3, interval: 60s, max_temp: 45 }\n"
+        format!(
+            "stall_recovery: {{ release: [force], hold_raw: 0, hold: 10s, ramp: [{{ raw: \"0x30\", for: 5s }}], settle: 15s, max_attempts: 3, interval: 60s, max_temp: 45{} }}\n",
+            if o.follow { ", given_up: follow" } else { "" }
+        )
     } else {
-        ""
+        String::new()
     };
+    let state = o
+        .state_file
+        .as_ref()
+        .map_or("null".to_string(), |p| format!("\"{}\"", p.display()));
     let degraded = if o.policy == "degraded" {
         format!(
             "
@@ -91,7 +113,7 @@ profile: none
 calm_period: 20s
 startup_duty: 60
 rotor_fault_policy: {}
-runtime: {{ state_file: null, socket: null, calibration_file: null, recovery_file: {file} }}
+runtime: {{ state_file: {state}, socket: null, calibration_file: null, recovery_file: {file} }}
 {rec}sensors:
   board: {{ type: hwmon, hwmon: {{ name: lm75, device: "5-0048" }}, plausible: [-10, 110] }}
 outputs:{slots}
@@ -196,7 +218,7 @@ impl Rig {
         self.status()["zones"]["board"]["state"].as_str().unwrap().to_string()
     }
 
-    /// LED values seen over \`secs\` of clock.
+    /// LED values seen over `secs` of clock.
     fn led_values(&mut self, slot: usize, secs: f64) -> Vec<u8> {
         let mut seen = Vec::new();
         let end = self.t + secs;
@@ -752,4 +774,174 @@ fn a_hot_chassis_blocks_the_insertion_dip() {
     rig.set_temp(30.0);
     rig.ticks(2);
     assert!(all().contains("stall recovery attempt 1/3 for top2, top3"));
+}
+
+fn follow(file: Option<PathBuf>, max_failed: usize) -> Opts {
+    Opts {
+        follow: true,
+        file,
+        max_failed,
+        ..Opts::default()
+    }
+}
+
+#[test]
+fn given_up_follow_keeps_the_zone_duty_counts_its_dead_rotor_and_a_later_one_starts_over() {
+    fand::log::capture();
+    let mut rig = Rig::new(follow(None, 1));
+    rig.ticks(6);
+    rig.cpld.with(|s| s.factor[1][1] = 0.0); // top2 rear dead
+    rig.advance(300.0);
+    let cap = fand::log::captured();
+    let msgs: Vec<&str> = cap.iter().map(|(_, m)| m.as_str()).collect();
+    assert_eq!(
+        msgs.iter().filter(|m| m.starts_with("stall recovery attempt ")).count(),
+        3
+    );
+    assert!(
+        msgs.iter().any(|m| m.contains(
+            "stall recovery: output top2 GIVEN UP (rear 0 rpm after 3 attempts); it keeps following the zone duty (given_up: follow)"
+        )),
+        "{msgs:#?}"
+    );
+    assert!(!msgs.iter().any(|m| m.contains("ISOLATED")));
+    assert_eq!(rig.duties(), vec![127, 127, 127], "it follows the zone duty");
+    assert_eq!(rig.led_values(1, 2.0), vec![0xf2], "solid red");
+    assert_eq!(failed_rotors(&rig), 1, "only its dead rotor");
+    assert_eq!(rig.zone(), "degraded", "1 <= degraded_max_failed_rotors 1");
+    let st = rig.status();
+    assert!(
+        st["outputs"]["top2"]["recovery_given_up"]
+            .as_str()
+            .unwrap()
+            .contains("rear 0 rpm")
+    );
+    assert_eq!(st["outputs"]["top2"]["recovery_attempts"], 0);
+    assert!(
+        st["outputs"]["top2"].get("isolated").is_none(),
+        "no isolation configured"
+    );
+    // No more dips for it.
+    rig.advance(900.0);
+    assert!(!all().contains("stall recovery attempt"));
+    // Its front fails later: a new stall with attempts of its own.
+    rig.cpld.with(|s| s.factor[1][0] = 0.0);
+    rig.advance(30.0);
+    let l = all();
+    assert!(
+        l.contains("stall recovery attempt 1/3 for top2 (top2: front: 0 rpm"),
+        "{l}"
+    );
+    assert_eq!(failed_rotors(&rig), 1, "the new stall is pending, not failed");
+    rig.advance(300.0);
+    assert_eq!(failed_rotors(&rig), 2);
+    assert_eq!(rig.zone(), "failsafe", "2 > 1");
+    assert_eq!(rig.duties(), vec![255, 255, 255]);
+}
+
+#[test]
+fn given_up_rotors_survive_a_restart_and_a_reinsertion_clears_them() {
+    fand::log::capture();
+    let dir = FakeSys::new("follow-file");
+    let file = dir.root.join("var/lib/fand/recovery.json");
+    let mut rig = Rig::new(follow(Some(file.clone()), 2));
+    rig.ticks(6);
+    rig.cpld.with(|s| s.factor[1][1] = 0.0);
+    rig.advance(300.0);
+    let saved: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(&file).unwrap()).unwrap();
+    assert!(
+        saved["top2"]["dead"]["rear"]
+            .as_str()
+            .unwrap()
+            .contains("after 3 attempts"),
+        "{saved}"
+    );
+    // Restart (a reboot, as far as fand knows): still given up, no dips.
+    let (fs, cpld) = (rig.fs, rig.cpld);
+    drop(rig.engine);
+    all();
+    let mut rig = Rig::with(follow(Some(file.clone()), 2), fs, cpld);
+    rig.advance(600.0);
+    let l = all();
+    assert!(
+        l.contains("output top2: stall recovery state from before the restart: 0 attempt(s), given up rotor(s) rear"),
+        "{l}"
+    );
+    assert!(!l.contains("stall recovery attempt"), "{l}");
+    assert_eq!(rig.led(1), 0xf2);
+    assert_eq!(rig.duties()[1], 127);
+    assert_eq!(failed_rotors(&rig), 1);
+    // A replaced module: presence edge, retried, and forgotten when healthy.
+    rig.cpld.with(|s| s.present[1] = false);
+    rig.ticks(1);
+    rig.cpld.with(|s| {
+        s.present[1] = true;
+        s.factor[1][1] = 1.0;
+    });
+    rig.ticks(6);
+    assert_eq!(rig.led(1), 0xf1);
+    assert_eq!(failed_rotors(&rig), 0);
+    assert_eq!(std::fs::read_to_string(&file).unwrap().trim(), "{}");
+    // `fand release` clears one as well.
+    rig.cpld.with(|s| s.factor[1][1] = 0.0);
+    rig.advance(400.0);
+    assert!(rig.status()["outputs"]["top2"]["recovery_given_up"].is_string());
+    let t = rig.t;
+    rig.engine.release("top2", t).unwrap();
+    assert!(rig.status()["outputs"]["top2"].get("recovery_given_up").is_none());
+}
+
+#[test]
+fn a_corrupt_recovery_file_is_tolerated_and_replaced() {
+    fand::log::capture();
+    let dir = FakeSys::new("corrupt");
+    let file = dir.root.join("recovery.json");
+    std::fs::write(&file, "{ not json").unwrap();
+    let mut rig = Rig::new(follow(Some(file.clone()), 2));
+    rig.ticks(6);
+    assert!(
+        log(Level::Warn).iter().any(|l| l.contains("recovery.json: unreadable")),
+        "warned"
+    );
+    assert_eq!(rig.zone(), "normal");
+    rig.cpld.with(|s| s.stuck[0][0] = true);
+    rig.ticks(1);
+    let saved: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(&file).unwrap()).unwrap();
+    assert_eq!(saved["top1"]["attempts"], 1, "rewritten atomically: {saved}");
+}
+
+#[test]
+fn the_old_runtime_file_is_migrated_once() {
+    fand::log::capture();
+    let dir = FakeSys::new("migrate");
+    let old = dir.root.join("run/fand/recovery.json");
+    let new = dir.root.join("var/lib/fand/recovery.json");
+    std::fs::create_dir_all(old.parent().unwrap()).unwrap();
+    // What given_up: isolate wrote on the live box.
+    std::fs::write(
+        &old,
+        r#"{ "top1": { "attempts": 3, "failed": "rear 0 rpm after 3 attempts" } }"#,
+    )
+    .unwrap();
+    let mut rig = Rig::new(Opts {
+        state_file: Some(dir.root.join("run/fand/state.json")),
+        ..follow(Some(new.clone()), 2)
+    });
+    rig.cpld.with(|s| s.factor[0][1] = 0.0);
+    rig.advance(400.0);
+    let l = all();
+    assert!(l.contains("does not exist yet, taking it from"), "{l}");
+    assert!(
+        l.contains(
+            "output top1: stall recovery state from the old recovery file: 3 attempt(s), given up rotor(s) rear"
+        ),
+        "{l}"
+    );
+    assert!(!l.contains("stall recovery attempt"), "known dead: no dips: {l}");
+    assert!(!l.contains("ISOLATED"));
+    assert_eq!(rig.duties(), vec![127, 127, 127]);
+    assert_eq!(failed_rotors(&rig), 1);
+    assert_eq!(rig.zone(), "degraded");
+    let saved: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(&new).unwrap()).unwrap();
+    assert!(saved["top1"]["dead"]["rear"].is_string(), "{saved}");
 }

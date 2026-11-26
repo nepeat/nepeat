@@ -14,7 +14,7 @@
 
 use crate::calibration::{Calibration, OutputCal, RotorModel};
 use crate::config::{
-    Aggregate, Config, DEFAULT_DEGRADED_MAX_FAILED, DEFAULT_KD, DEFAULT_KI, DEFAULT_KP, DutySpec, FaultAction,
+    Aggregate, Config, DEFAULT_DEGRADED_MAX_FAILED, DEFAULT_KD, DEFAULT_KI, DEFAULT_KP, DutySpec, FaultAction, GivenUp,
     HwmonSelector, LedConfig, OutputConfig, OutputKind, Profile, ProfileDuties, RawMap, Readback, RotorFaultPolicy,
     SensorConfig, SensorKind, ZoneConfig,
 };
@@ -1100,8 +1100,13 @@ pub struct OutputRt {
 struct RecState {
     attempts: u32,
     max: u32,
-    /// Attempts exhausted: the reason.
+    /// Attempts exhausted (`given_up: isolate`): the reason. The whole
+    /// module is given up.
     failed: Option<String>,
+    /// `given_up: follow`: rotor label -> why it was given up. The module
+    /// keeps the zone duty; only these rotors are out.
+    dead: BTreeMap<String, String>,
+    follow: bool,
     /// No further attempt for this stall before this (`interval`).
     next_try: Option<f64>,
 }
@@ -1110,6 +1115,11 @@ struct RecState {
 /// problem of the rotor, not a read error (a dead bus is not a dead fan).
 fn isolating(f: &Fault) -> bool {
     ["/min_rpm", "/follow", "/fault"].iter().any(|s| f.key.ends_with(s))
+}
+
+/// The rotor label of a rotor fault ("rear" of "rear/min_rpm").
+fn rotor_of(f: &Fault) -> &str {
+    f.key.split('/').next().unwrap_or("")
 }
 
 /// Output fault keys a `rotor_fault_policy: degraded` zone rides out: a
@@ -1262,26 +1272,39 @@ impl OutputRt {
     }
 
     /// Stall recovery: (failed attempts so far, given up: why).
-    pub fn recovery(&self) -> Option<(u32, Option<&str>)> {
-        self.rec.as_ref().map(|r| (r.attempts, r.failed.as_deref()))
+    pub fn recovery(&self) -> Option<(u32, Option<String>)> {
+        self.rec.as_ref().map(|r| {
+            let why = match (&r.failed, r.dead.is_empty()) {
+                (Some(f), _) => Some(f.clone()),
+                (None, false) => Some(r.dead.values().cloned().collect::<Vec<_>>().join("; ")),
+                (None, true) => None,
+            };
+            (r.attempts, why)
+        })
     }
 
-    /// Rotors below \`min_rpm\` this tick (a stall), with the messages.
+    /// Is this rotor label given up (`given_up: follow`)?
+    fn dead(&self, label: &str) -> bool {
+        self.rec.as_ref().is_some_and(|r| r.dead.contains_key(label))
+    }
+
+    /// Rotors below `min_rpm` this tick (a stall), with the messages;
+    /// given-up rotors are not a new stall.
     fn stall_msgs(&self) -> Vec<&str> {
         self.tach_faults
             .iter()
-            .filter(|f| f.key.ends_with("/min_rpm"))
+            .filter(|f| f.key.ends_with("/min_rpm") && !self.dead(rotor_of(f)))
             .map(|f| f.msg.as_str())
             .collect()
     }
 
-    /// Labels and readings of rotors below \`min_rpm\` now ("rear 0 rpm").
+    /// Labels and readings of rotors below `min_rpm` now ("rear 0 rpm").
     fn stalled_rotors(&self) -> Vec<String> {
         let Some(t) = &self.tach else { return Vec::new() };
         let min = t.min_rpm.unwrap_or(0.0);
         t.rotors
             .iter()
-            .filter(|r| r.rpm.is_none_or(|v| v < min))
+            .filter(|r| r.rpm.is_none_or(|v| v < min) && !self.dead(&r.label))
             .map(|r| match r.rpm {
                 Some(v) => format!("{} {v:.0} rpm", r.label),
                 None => format!("{} unreadable", r.label),
@@ -1306,24 +1329,27 @@ impl OutputRt {
         self.grace_until.is_some_and(|u| now < u)
     }
 
-    /// Rotors out of service for \`degraded_max_failed_rotors\`: every rotor of
+    /// Rotors out of service for `degraded_max_failed_rotors`: every rotor of
     /// an absent or isolated module, else those with a rotor fault.
     pub fn failed_rotors(&self) -> usize {
         if self.present == Some(false) || self.isolated().is_some() {
             return self.tach.as_ref().map_or(1, |t| t.rotors.len().max(1));
         }
-        if self.pending {
-            return 0;
+        // Given-up rotors (follow) always count; others unless pending.
+        let mut labels: std::collections::BTreeSet<&str> = self
+            .rec
+            .as_ref()
+            .map(|r| r.dead.keys().map(String::as_str).collect())
+            .unwrap_or_default();
+        if !self.pending {
+            labels.extend(
+                self.faults
+                    .iter()
+                    .chain(&self.warnings)
+                    .filter(|f| isolating(f))
+                    .map(rotor_of),
+            );
         }
-        let mut labels: Vec<&str> = self
-            .faults
-            .iter()
-            .chain(&self.warnings)
-            .filter(|f| isolating(f))
-            .filter_map(|f| f.key.split('/').next())
-            .collect();
-        labels.sort_unstable();
-        labels.dedup();
         labels.len()
     }
 
@@ -1344,11 +1370,14 @@ impl OutputRt {
         true
     }
 
-    /// End an isolation, or a given-up recovery, by hand (\`fand release\`);
+    /// End an isolation, or a given-up recovery, by hand (`fand release`);
     /// the module gets the grace again to prove itself.
     pub fn release(&mut self, now: f64, why: &str) -> std::result::Result<(), String> {
         let name = self.name.clone();
-        let failed = self.rec.as_ref().is_some_and(|r| r.failed.is_some());
+        let failed = self
+            .rec
+            .as_ref()
+            .is_some_and(|r| r.failed.is_some() || !r.dead.is_empty());
         if self.isolation.is_none() && self.rec.is_none() {
             return Err(format!(
                 "output {name} has no isolate_on_rotor_fault and is not in stall_recovery"
@@ -1361,6 +1390,7 @@ impl OutputRt {
         if let Some(r) = self.rec.as_mut() {
             r.attempts = 0;
             r.failed = None;
+            r.dead.clear();
         }
         if let Some(i) = self.isolation.as_mut() {
             i.proving = was_isolated;
@@ -1374,10 +1404,10 @@ impl OutputRt {
         Ok(())
     }
 
-    /// Read \`present\` (i2c outputs with one). Logs transitions; an
+    /// Read `present` (i2c outputs with one). Logs transitions; an
     /// absent -> present edge is a reinsertion: it releases an isolation,
     /// resets recovery attempts and restarts the grace and the follow check.
-    /// Returns the state (None = no \`present\` or unreadable).
+    /// Returns the state (None = no `present` or unreadable).
     fn update_presence(&mut self, now: f64) -> Option<bool> {
         let name = &self.name;
         let Sink::I2c(x) = &mut self.sink else { return None };
@@ -1404,6 +1434,7 @@ impl OutputRt {
                         if let Some(r) = self.rec.as_mut() {
                             r.attempts = 0;
                             r.failed = None;
+                            r.dead.clear();
                             r.next_try = None;
                         }
                         if let Some(i) = self.isolation.as_mut() {
@@ -1430,9 +1461,9 @@ impl OutputRt {
         p.state
     }
 
-    /// Isolate on a rotor fault of this output (see \`isolating\`), unless
+    /// Isolate on a rotor fault of this output (see `isolating`), unless
     /// absent, within the grace, in a recovery's hands, or a stall that
-    /// \`stall_recovery\` will try first.
+    /// `stall_recovery` will try first.
     fn update_isolation(&mut self, now: f64, rotor_faults: &[Fault], absent: bool) {
         if self.isolated().is_some() || absent || self.in_grace(now) || self.recovering || self.suppress_rotors {
             return;
@@ -1462,7 +1493,9 @@ impl OutputRt {
         let failed = self.rec.as_ref().is_some_and(|r| r.failed.is_some());
         let isolated = self.isolated().is_some();
         let proving = self.isolation.as_ref().is_some_and(|i| i.proving);
-        let trouble = !self.tach_faults.is_empty();
+        // Faults of rotors that are not given up (follow).
+        let trouble = self.tach_faults.iter().any(|f| !self.dead(rotor_of(f)));
+        let dead = self.rec.as_ref().is_some_and(|r| !r.dead.is_empty());
         let pending = self
             .rec
             .as_ref()
@@ -1473,7 +1506,7 @@ impl OutputRt {
             LedState::Fault
         } else if self.recovering || pending || proving || (trouble && self.in_grace(now)) {
             LedState::Blink
-        } else if trouble {
+        } else if trouble || dead {
             LedState::Fault
         } else {
             LedState::Ok
@@ -1495,7 +1528,7 @@ impl OutputRt {
         }
     }
 
-    /// Drive the LED (never in a dry run, never past a failing \`expect\`).
+    /// Drive the LED (never in a dry run, never past a failing `expect`).
     /// Writes when the value it should show changes (a new state, a blink
     /// phase); from a tick, a steady LED is also read back every
     /// LED_READBACK_TICKS and rewritten if it differs. A failing LED write is
@@ -1561,8 +1594,8 @@ impl OutputRt {
         }
     }
 
-    /// On exit (not in a dry run): the LED's \`exit\` value if configured, else
-    /// a blinking LED goes solid \`fault\` (nobody handles the module any
+    /// On exit (not in a dry run): the LED's `exit` value if configured, else
+    /// a blinking LED goes solid `fault` (nobody handles the module any
     /// more); the others stay as they are.
     fn exit_led(&mut self) -> std::result::Result<(), String> {
         let Sink::I2c(x) = &self.sink else { return Ok(()) };
@@ -1935,9 +1968,10 @@ impl OutputRt {
             self.inserted_at = None;
         }
         if let Some(r) = self.rec.as_mut() {
-            if healthy && (r.attempts > 0 || r.failed.is_some()) {
+            if healthy && (r.attempts > 0 || r.failed.is_some() || !r.dead.is_empty()) {
                 r.attempts = 0;
                 r.failed = None;
+                r.dead.clear();
                 r.next_try = None;
                 log_notice!(
                     "output {}: rotors running again, stall recovery attempts reset",
@@ -1948,7 +1982,9 @@ impl OutputRt {
         // Rotors fand is still working on (just inserted or started, a
         // recovery pending or running) are not "failed" yet; they are once
         // the recovery gives up.
-        let stalled = rotor_faults.iter().any(|f| f.key.ends_with("/min_rpm"));
+        let stalled = rotor_faults
+            .iter()
+            .any(|f| f.key.ends_with("/min_rpm") && !self.dead(rotor_of(f)));
         let in_grace = self.in_grace(now);
         self.pending = !absent
             && isolated.is_none()
@@ -2543,7 +2579,7 @@ impl ZoneRt {
 
 // ---------------------------------------------------------------- stall recovery
 
-/// The fixed duties of a recovery's dip, for \`apply_outputs\`.
+/// The fixed duties of a recovery's dip, for `apply_outputs`.
 struct Dip {
     raw: u32,
     group: Vec<usize>,
@@ -2559,7 +2595,7 @@ struct Run {
     started: f64,
 }
 
-/// \`stall_recovery\` at run time: one recovery at a time.
+/// `stall_recovery` at run time: one recovery at a time.
 struct Recovery {
     group: Vec<usize>,
     release: Vec<usize>,
@@ -2579,7 +2615,7 @@ struct Recovery {
     /// The last "postponed" reason logged (one line per new reason).
     postponed: Option<String>,
     file: Option<PathBuf>,
-    /// The state last written to \`file\`.
+    /// The state last written to `file`.
     saved: Option<String>,
 }
 
@@ -2612,12 +2648,80 @@ impl Recovery {
     }
 }
 
-/// Persistent recovery state of one output (\`runtime.recovery_file\`).
+/// Read the recovery file (or, if it does not exist, the old default one:
+/// a migration). Missing or unreadable: empty, with a line for a corrupt one.
+/// Returns the state and whether it came from the fallback.
+fn load_recovery(file: Option<&Path>, fallback: Option<&Path>) -> (BTreeMap<String, SavedRec>, bool) {
+    let read = |p: &Path| -> Option<BTreeMap<String, SavedRec>> {
+        let text = std::fs::read_to_string(p).ok()?;
+        match serde_json::from_str(&text) {
+            Ok(m) => Some(m),
+            Err(e) => {
+                log_warn!(
+                    "stall recovery state {}: unreadable ({e}); starting from none",
+                    p.display()
+                );
+                Some(BTreeMap::new())
+            }
+        }
+    };
+    let Some(f) = file else { return (BTreeMap::new(), false) };
+    if f.exists() {
+        return (read(f).unwrap_or_default(), false);
+    }
+    match fallback.filter(|p| p.exists()).and_then(|p| read(p).map(|m| (p, m))) {
+        Some((p, m)) => {
+            log_notice!(
+                "stall recovery state: {} does not exist yet, taking it from {} once",
+                f.display(),
+                p.display()
+            );
+            (m, true)
+        }
+        None => (BTreeMap::new(), false),
+    }
+}
+
+/// A saved entry in the current mode: (failed, dead rotors). A
+/// whole-module "failed" from `given_up: isolate` becomes its rotors for
+/// `follow` (the labels at the start of its parts: "rear 0 rpm after 3
+/// attempts"; all rotors if none is named), and the other way round.
+fn convert_saved(s: &SavedRec, follow: bool, labels: &[String]) -> (Option<String>, BTreeMap<String, String>) {
+    if follow {
+        let mut dead = s.dead.clone();
+        if let Some(f) = &s.failed {
+            let named: Vec<&String> = labels
+                .iter()
+                .filter(|l| f.split(", ").any(|part| part.split(' ').next() == Some(l.as_str())))
+                .collect();
+            let named = if named.is_empty() {
+                labels.iter().collect()
+            } else {
+                named
+            };
+            for l in named {
+                dead.entry(l.clone()).or_insert_with(|| f.clone());
+            }
+        }
+        (None, dead)
+    } else {
+        let failed = s
+            .failed
+            .clone()
+            .or_else(|| (!s.dead.is_empty()).then(|| s.dead.values().cloned().collect::<Vec<_>>().join("; ")));
+        (failed, BTreeMap::new())
+    }
+}
+
+/// Persistent recovery state of one output (`runtime.recovery_file`).
 #[derive(Debug, Serialize, serde::Deserialize, PartialEq)]
 struct SavedRec {
     attempts: u32,
     #[serde(default)]
     failed: Option<String>,
+    /// `given_up: follow`: rotor label -> why.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    dead: BTreeMap<String, String>,
 }
 
 // ---------------------------------------------------------------- engine
@@ -2689,28 +2793,49 @@ impl Engine {
                     .recovery_limits()
                     .map_err(|z| Error(format!("stall_recovery.max_temp: no limit for {}", z.join(", "))))?;
                 let file = cfg.recovery_file();
-                let saved: BTreeMap<String, SavedRec> = file
-                    .as_ref()
-                    .and_then(|p| std::fs::read_to_string(p).ok())
-                    .and_then(|s| serde_json::from_str(&s).ok())
-                    .unwrap_or_default();
+                let (saved, migrated) = load_recovery(file.as_deref(), cfg.recovery_file_fallback().as_deref());
+                let follow = r.given_up == GivenUp::Follow;
                 for &i in &group {
                     let o = &mut outputs[i];
                     let s = saved.get(&o.name);
+                    let labels: Vec<String> = o
+                        .tach
+                        .as_ref()
+                        .map(|t| t.rotors.iter().map(|r| r.label.clone()).collect())
+                        .unwrap_or_default();
+                    let (failed, dead) = match s {
+                        None => (None, BTreeMap::new()),
+                        Some(s) => convert_saved(s, follow, &labels),
+                    };
+                    if let Some(s) = s {
+                        log_notice!(
+                            "output {}: stall recovery state from {}: {} attempt(s){}{}",
+                            o.name,
+                            if migrated {
+                                "the old recovery file"
+                            } else {
+                                "before the restart"
+                            },
+                            s.attempts,
+                            failed.as_ref().map_or(String::new(), |f| format!(", given up ({f})")),
+                            if dead.is_empty() {
+                                String::new()
+                            } else {
+                                format!(
+                                    ", given up rotor(s) {} (it keeps following the zone duty)",
+                                    dead.keys().cloned().collect::<Vec<_>>().join(", ")
+                                )
+                            }
+                        );
+                    }
                     o.rec = Some(RecState {
                         attempts: s.map_or(0, |s| s.attempts),
                         max: r.max_attempts,
-                        failed: s.and_then(|s| s.failed.clone()),
+                        failed,
+                        dead,
+                        follow,
                         next_try: None,
                     });
-                    if let Some(s) = s {
-                        log_notice!(
-                            "output {}: stall recovery state from before the restart: {} attempt(s){}",
-                            o.name,
-                            s.attempts,
-                            s.failed.as_ref().map_or(String::new(), |f| format!(", given up ({f})"))
-                        );
-                    }
                 }
                 Some(Recovery {
                     group,
@@ -2728,7 +2853,12 @@ impl Engine {
                     last_end: None,
                     last_result: None,
                     postponed: None,
-                    saved: file.as_ref().and_then(|p| std::fs::read_to_string(p).ok()),
+                    // After a migration the new file is written at the first tick.
+                    saved: if migrated {
+                        None
+                    } else {
+                        file.as_ref().and_then(|p| std::fs::read_to_string(p).ok())
+                    },
                     file,
                 })
             }
@@ -2818,7 +2948,7 @@ impl Engine {
     }
 
     /// Every output's duty from the zones (with the isolation cap), or the
-    /// dip's raw value for a recovery's group and 0 % for its \`release\`.
+    /// dip's raw value for a recovery's group and 0 % for its `release`.
     fn apply_outputs(&mut self, now: f64, dip: Option<&Dip>) {
         let failsafe = self.cfg.failsafe_duty.0;
         let zones = &self.zones;
@@ -3018,7 +3148,7 @@ impl Engine {
         self.recovery_write(rec, now);
     }
 
-    /// Write the dip: the \`release\` outputs first (a force-to-max would void
+    /// Write the dip: the `release` outputs first (a force-to-max would void
     /// it), then the group; a duty register that does not read back what was
     /// written (still forced) aborts.
     fn recovery_write(&mut self, rec: &mut Recovery, now: f64) {
@@ -3070,7 +3200,7 @@ impl Engine {
         }
     }
 
-    /// Stop a recovery and go back to normal control at once. \`counted\`:
+    /// Stop a recovery and go back to normal control at once. `counted`:
     /// the attempt counts (the dip could not be made); a guard abort does not.
     fn recovery_abort(&mut self, rec: &mut Recovery, now: f64, why: &str, counted: bool) {
         let Some(run) = rec.run.take() else { return };
@@ -3097,7 +3227,7 @@ impl Engine {
     }
 
     /// After the settle time: each target recovered, still stalled (another
-    /// attempt after \`interval\`), or given up after \`max_attempts\`.
+    /// attempt after `interval`), or given up after `max_attempts`.
     fn recovery_finish(&mut self, rec: &mut Recovery, now: f64) {
         let Some(run) = rec.run.take() else { return };
         let mut results = Vec::new();
@@ -3119,6 +3249,19 @@ impl Engine {
                     run.attempt
                 );
                 results.push(format!("{name} recovered"));
+            } else if r.attempts >= r.max && r.follow {
+                let f = format!("{} after {} attempts", stalled.join(", "), r.attempts);
+                for s in &stalled {
+                    let label = s.split(' ').next().unwrap_or(s).to_string();
+                    r.dead.insert(label, f.clone());
+                }
+                // A rotor that fails later gets attempts of its own.
+                r.attempts = 0;
+                r.next_try = None;
+                log_error!(
+                    "stall recovery: output {name} GIVEN UP ({f}); it keeps following the zone duty (given_up: follow), LED solid fault, no more dips for it"
+                );
+                results.push(format!("{name} given up"));
             } else if r.attempts >= r.max {
                 let f = format!("{} after {} attempts", stalled.join(", "), r.attempts);
                 r.failed = Some(f.clone());
@@ -3176,7 +3319,7 @@ impl Engine {
         self.recovery = Some(rec);
     }
 
-    /// Keep attempts and given-up modules in \`runtime.recovery_file\` (so a
+    /// Keep attempts and given-up modules in `runtime.recovery_file` (so a
     /// restart does not start over with modules that are known dead).
     fn save_recovery(&mut self) {
         let Some(rec) = self.recovery.as_mut() else { return };
@@ -3187,12 +3330,13 @@ impl Engine {
             .filter_map(|&i| {
                 let o = &self.outputs[i];
                 let r = o.rec.as_ref()?;
-                (r.attempts > 0 || r.failed.is_some()).then(|| {
+                (r.attempts > 0 || r.failed.is_some() || !r.dead.is_empty()).then(|| {
                     (
                         o.name.as_str(),
                         SavedRec {
                             attempts: r.attempts,
                             failed: r.failed.clone(),
+                            dead: r.dead.clone(),
                         },
                     )
                 })
@@ -3459,7 +3603,7 @@ impl Engine {
                         isolated_since: o.isolated().map(|(s, _)| r1(s)),
                         recovering: o.recovery().map(|_| o.recovering),
                         recovery_attempts: o.recovery().map(|(a, _)| a),
-                        recovery_given_up: o.recovery().and_then(|(_, f)| f.map(str::to_string)),
+                        recovery_given_up: o.recovery().and_then(|(_, f)| f),
                     },
                 )
             })

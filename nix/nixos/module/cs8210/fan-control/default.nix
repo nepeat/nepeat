@@ -186,8 +186,8 @@ let
     # sources. fand (owner's policy): green = present, both rotors fine;
     # blinking red (red / off, 1 s) = fand is handling it (a stall recovery,
     # a rotor that should come up after an insertion, the start or a
-    # release); solid red = given up / isolated, another rotor fault, or
-    # absent. On exit a blinking LED goes solid red, the others stay.
+    # release); solid red = given up (it keeps running on its healthy
+    # rotor), another rotor fault, or absent. On exit a blinking LED goes solid red, the others stay.
     # Read-modify-write: the other bits are kept.
     led = {
       register = hex (slotBase n + 4);
@@ -200,17 +200,16 @@ let
         period = "1s";
       };
     };
-    # No per-slot power control exists, and the duty drives both rotors. A
-    # stalled rotor (below min_rpm) first gets stall_recovery (below); when
-    # that gives up, or for a rotor that is not following / flagged, the
-    # module gets duty 0 (after the 15 s grace from start / reinsertion)
-    # instead of any zone or failsafe duty. Latched until reinserted, "fand
-    # release <slot>" or a restart (given-up modules are remembered in
-    # /run/fand/recovery.json across restarts). After the 2026-11-26
-    # incident (a stalled rear rotor driven at 100 % for 35 min until it
-    # smelt burnt).
-    isolate_on_rotor_fault = true;
-    isolate_raw = 0;
+    # No per-slot power control exists, and the duty drives both rotors.
+    # No duty-0 isolation (owner, 2026-11-26: "leaving them in beats empty
+    # slots"): a stalled rotor gets stall_recovery (below); when that gives
+    # up (given_up = follow) the module keeps following the zone duty with
+    # its healthy rotor, LED solid red, no more dips, and counts only its dead
+    # rotor(s) toward degraded_max_failed_rotors. A "not following" / flagged
+    # rotor just counts as a failed rotor. Given-up rotors are kept in
+    # /var/lib/fand/recovery.json across reboots, cleared for a slot by a
+    # reinsertion or "fand release <slot>" (a module swapped while the box is
+    # off is not noticed: release it by hand).
   };
   fanOutputs = lib.concatMapAttrs (
     board: node: lib.listToAttrs (map (n: lib.nameValuePair "${board}${toString n}" (slotOutput node n)) slots)
@@ -446,6 +445,7 @@ in
           rotor_fault_policy = "degraded";
           stall_recovery = fan.stallRecovery // {
             release = [ "cpld_force" ];
+            given_up = "follow";
           };
           sensors =
             lib.mapAttrs (_: node: {
@@ -481,9 +481,8 @@ in
               # Every tick: releases the CPLD's force soon after an SDK start.
               reassert = "${toString fan.interval}s";
               # At 100 % this forces every fan to full speed, whatever its PWM
-              # register says, the isolated module too: below 100 while any
-              # slot is isolated (the others still get 0xff through their PWM).
-              isolation_max_duty = 99;
+              # register says (true failsafe; nothing is isolated any more).
+              # stall_recovery releases it for its dips.
             };
           };
           # As fancontrol.py: linear from (low, minPwm) to (high, 255) on the
@@ -515,7 +514,14 @@ in
             };
           };
         }
-        // lib.optionalAttrs (fan.prometheusFile != null) { runtime.prometheus_file = fan.prometheusFile; };
+        // {
+          runtime = {
+            # Given-up rotors survive reboots (StateDirectory); read once
+            # from the old /run/fand/recovery.json if this does not exist yet.
+            recovery_file = "/var/lib/fand/recovery.json";
+          }
+          // lib.optionalAttrs (fan.prometheusFile != null) { prometheus_file = fan.prometheusFile; };
+        };
       };
 
       # The textfile directory (tmpfiles) must exist before fand's namespace

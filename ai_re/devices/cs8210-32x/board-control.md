@@ -120,13 +120,45 @@ against the vendor cplds.yaml / leds.yaml / fans.yaml (no C source in driver.tar
   "unpowered" to the eye). What starts it: every fan low together ("calm and restart": all 14 PWM 0x00 ~10 s, 0x30 ~5 s,
   then normal; the sys CPLD force-max (0x05) must be released first or every duty register reads and acts 0xff); 5 of 5
   stalled rotors came back. Low duty heats the ASIC fast (~2 min took it to 82.9 C): keep dips short and guarded. fand
-  does this itself now (`stall_recovery`, guards ASIC 70 C / board 45 C, 3 attempts, then the module is isolated at
-  duty 0, LED solid red; zones stay degraded on their curve). **Do not hot-swap fan modules while the fans run at full
+  does this itself now (`stall_recovery`, guards ASIC 70 C / board 45 C, 3 attempts; then the rotor is given up: LED
+  solid red, no more dips, the module keeps following the zone duty (its other rotor is half a module of airflow; owner
+  2026-11-26) and counts as one failed rotor; zones stay degraded on their curve). Given-up rotors persist in
+  /var/lib/fand/recovery.json per slot, cleared by a reinsertion or `fand release <slot>` (a module swapped while the
+  box is off is not noticed: release it). **Do not hot-swap fan modules while the fans run at full
   speed** (failsafe): the inserted module cannot start until fand's next dip.
 - Two modules have a dead REAR rotor (it follows the module through slot swaps; no dip, reseat, CPLD reset or cold
   power cycle revives it): failed hardware, in FAN5 (bottom5) and FAN12 (top5) since the owner's FAN5 / FAN6 swap; FAN12's was the 10:38 stall.
   A third, FAN6 (bottom6) FRONT, stalls at every boot since 13:32 and no dip (fand's or 12 s + 6 s by hand) revives it.
-  Three isolated modules = 6 rotors, more than `degraded_max_failed_rotors` 4: fand is in failsafe 100 % by policy.
+  3 given-up rotors <= `degraded_max_failed_rotors` 4: fand runs degraded on its curve (~52 %, ASIC ~63 C, 2026-11-26).
+
+### Fans at reboot (2026-11-26 trace, offline from the journals; no experiments)
+
+Two of the three rotor losses came with a reboot, and neither rotor came back with any dip afterwards:
+- **FAN12 rear** (top5): 10,400-11,500 rpm at 50 % in the last fand summary of the 10:33 boot, 0 rpm in fand's first
+  reading of the 10:38 boot (12.1 s after the kernel start, the same tick as fand's first write). So it stopped inside
+  the reboot window, not under fand's control.
+- **FAN6 front** (bottom6): ran in fand's first reading of the 13:30 boot (27,750 rpm at 60 %, 12.2 s) and read 0 at
+  26.9 s, with no dip in between (the first dip of that boot started at 26.9 s): it stopped within 15 s of fand's first
+  write, at 55-60 %.
+
+What the fans see in that window (warm reboot; the fan board CPLDs keep power, so no CPLD reset):
+1. fand stop at 50 %: `fand failsafe` writes 0xff to all 14 slots, then `cs8210-fan-exit` clears the system CPLD's
+   force-max bits (0x05 bits 7/5: the CPLD drives every fan at full speed regardless of PWM), writes 0xff again and
+   re-arms the fan watchdogs (60 s): an abrupt 50 -> 100 % step plus a switch of the PWM source to the CPLD force.
+2. Reset, U-Boot (does not touch the fans), kernel: ~30 s at forced full speed.
+3. fand start (~12 s after the kernel): releases the force (exec `cpld_force` below 100 %) and writes the startup
+   duty 60 % in the same tick: an abrupt 100 -> 60 % step together with a switch of the source back to the PWM
+   registers; 5 s later the curve (~50-55 %).
+(After a cold power-on instead: the CPLD resets to PWM 0x3c / 0x4b, watchdog armed, until fand: no force there.)
+
+Suspects (unproven): a glitch on the fan PWM when the system CPLD's force is switched on or off (a stopped rotor in a
+running chassis does not restart against the backdraft: see "Stalled rotors"), and the abrupt full-speed steps on worn
+motors. These three modules may also simply be failing (3 of 28 rotors in one day, after many hot-swaps).
+**Proposal** (not built): (a) exit path writes 0xff through the PWM registers only and leaves the CPLD force for
+fand's true failsafe (the watchdog stays as the fallback if fand dies); (b) fand ramps duty changes at start and
+stop (e.g. at most 10 %/s, starting from the duty it reads back rather than from 100 % or a fixed 60 %); (c) at start,
+release the CPLD force only after the PWM registers already hold the duty the fans run at (0xff), then ramp down;
+(d) log every rotor below min rpm with the duty step that preceded it, so the next loss can be tied to a transition.
 
 ## cooling implications for bring-up
 

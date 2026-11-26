@@ -255,6 +255,7 @@ stall_recovery:                              # "calm restart" of a stalled rotor
   interval: 5m                               # least time between two attempts for one stall
   min_gap: 30s                               # least time between any two dips
   insert_delay: 5s                           # a reinserted module at 0 rpm: an attempt this soon
+  given_up: follow                           # or isolate (default): what a given-up module gets
   max_temp: { board: 45, asic: 70 }          # hottest sensor of a zone; skip / abort at or above
 outputs:
   top5:
@@ -307,8 +308,14 @@ outputs:
   register that still reads 0xff aborts: the force is still on); (3) the
   `ramp` steps; (4) normal control; (5) after `settle`, checks the stalled
   rotors: running -> recovered (attempts reset); still stalled -> another
-  attempt after `interval`; after `max_attempts` -> given up: isolated if
-  the output has `isolate_on_rotor_fault`, LED solid `fault`. One recovery
+  attempt after `interval`; after `max_attempts` -> given up. What a given-up
+  module gets is `given_up`: `isolate` (default) isolates it if the output
+  has `isolate_on_rotor_fault` (else only its LED), and every rotor of an
+  isolated module counts as failed; `follow` gives up only the stalled
+  rotor(s): the module keeps following the zone duty (its healthy rotor
+  still moves air), its LED is solid `fault`, it gets no more dips for them,
+  and only those rotors count as failed. A rotor of it that fails later is a
+  new stall with attempts of its own. One recovery
   at a time (all stalled modules together). The dip runs on the daemon's
   timer, independent of `interval`. Hold plus ramp is capped at 30 s.
   A zone in failsafe does not block it (the dip overrides the failsafe duty
@@ -320,11 +327,17 @@ outputs:
   `max_temp` (a number for every zone, or per zone; default: the zone
   curve's first point, or its target, plus `max_temp_margin` 5). Rotor
   checks of the group are void during the dip (the duty is not the zones').
-  Attempts and given-up modules are kept in `runtime.recovery_file` (default
-  `recovery.json` next to `state_file`), so a restart does not dip again for
-  a module known dead; a reinsertion, `fand release`, or the rotor running
-  again on its own clears them (the NixOS module then keeps `/run/fand` across
-  stops: `RuntimeDirectoryPreserve=yes`, so only a reboot forgets). Dry run:
+  Attempts and given-up rotors are kept in `runtime.recovery_file`, keyed by
+  output name (default `recovery.json` next to `state_file`, i.e. per boot;
+  the NixOS module keeps `/run/fand` across stops for it; set it to e.g.
+  `/var/lib/fand/recovery.json`, the module's `StateDirectory`, to keep them
+  across reboots). Written atomically (temporary file and rename); a missing
+  file is "nothing known", a corrupt one is logged and replaced. If an
+  explicit `recovery_file` does not exist yet, the default one is read once
+  (a migration). A restart does not dip again for a module known dead; a
+  reinsertion (presence edge), `fand release`, or the rotor running again on
+  its own clears an output's entry. **Limitation**: a module swapped while
+  the box is off is not noticed (no presence edge); `fand release OUTPUT` it. Dry run:
   logs "would start", writes nothing.
 - **Isolation** (`isolate_on_rotor_fault`). With no per-slot power control,
   a module with a dead rotor would otherwise run at whatever the others
