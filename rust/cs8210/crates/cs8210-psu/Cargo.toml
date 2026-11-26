@@ -1,6 +1,6 @@
 [package]
 name = "cs8210-psu"
-description = "CS8210-32X PSUs: presence / input / output good from the system CPLD, PMBus identity, the kernel pmbus driver bound, Prometheus text"
+description = "CS8210-32X PSUs: presence / input / output good from the system CPLD, PMBus identity and readings (no kernel driver), state files, Prometheus text"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

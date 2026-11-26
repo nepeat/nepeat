@@ -1,8 +1,10 @@
 #!/bin/sh
 # A stand-in for ssh in the integration tests (tests/cli.rs puts it on PATH as "ssh").
-# FAKE_SSH_DIR holds: scenario (one word), state (On|Off), password (what askpass must answer);
-# it records argv, env and every CLI command (log). The outlet table is the recorded transcript
-# fixtures/nboutlet-off.txt, with the state column rewritten for On.
+# FAKE_SSH_DIR holds: scenario (one word), state (On|Off), normal (On|Off, the "Normal State";
+# Off when absent), password (what askpass must answer); it records argv, env and every CLI
+# command (log). The outlet table is the recorded transcript fixtures/nboutlet-off.txt, with the
+# State and Normal State columns rewritten for On. -s writes state, -ns writes normal, both kept
+# between invocations; scenario stuck accepts -s without changing, ns-stuck the same for -ns.
 d="$FAKE_SSH_DIR"
 sc=$(cat "$d/scenario")
 printf '%s\n' "$*" > "$d/argv"
@@ -27,11 +29,12 @@ echo "authenticated" >> "$d/log"
 [ "$sc" = hang ] && exec sleep 30
 cat "$FAKE_SSH_FIXTURES/banner.txt"
 table() {
-  if [ "$(cat "$d/state")" = On ]; then
-    sed 's/Unknown              Off                  /Unknown              On                   /' "$FAKE_SSH_FIXTURES/nboutlet-off.txt"
-  else
-    cat "$FAKE_SSH_FIXTURES/nboutlet-off.txt"
-  fi
+  s='s/x/x/'; ns='s/x/x/'
+  [ "$(cat "$d/state")" = On ] &&
+    s='s/Unknown              Off                  /Unknown              On                   /'
+  [ "$(cat "$d/normal" 2>/dev/null)" = On ] &&
+    ns='s/^\(Outlet               Unknown              [A-Za-z]*  *\)Off/\1On /'
+  sed -e "$s" -e "$ns" "$FAKE_SSH_FIXTURES/nboutlet-off.txt"
 }
 while IFS= read -r line; do
   line=$(printf '%s' "$line" | tr -d '\r')
@@ -47,6 +50,13 @@ while IFS= read -r line; do
       if [ "$sc" = cli-error ]; then printf 'E102: Parameter Error\r\n'
       else
         [ "$sc" = stuck ] || echo "${line##* }" > "$d/state"
+        printf 'E000: Success\r\n'
+      fi ;;
+    "nboutlet -ns On"|"nboutlet -ns Off")
+      printf '%s\r\n' "$line"
+      if [ "$sc" = cli-error ]; then printf 'E102: Parameter Error\r\n'
+      else
+        [ "$sc" = ns-stuck ] || echo "${line##* }" > "$d/normal"
         printf 'E000: Success\r\n'
       fi ;;
     *) printf '%s\r\nE101: Command Not Found\r\n' "$line" ;;

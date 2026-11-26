@@ -189,6 +189,16 @@ impl FakeNb {
     fn state(&self) -> String {
         self.read("state").trim().to_owned()
     }
+
+    /// The fake's "Normal State" (Off when never set).
+    fn normal(&self) -> String {
+        let n = self.read("normal").trim().to_owned();
+        if n.is_empty() { "Off".to_owned() } else { n }
+    }
+
+    fn clear_log(&self) {
+        fs::write(self.dir.join("log"), "").unwrap();
+    }
 }
 
 const TEST_CONFIG: &str = r#"{
@@ -567,6 +577,116 @@ fn nb_failures_are_named_without_ssh_text() {
     assert_eq!(code, 1);
     assert!(err.contains("accepted but the outlet still reads off"), "{err}");
     assert_eq!(nb.commands().last().map(String::as_str), Some("bye"));
+}
+
+#[test]
+fn nb_normal_state_set_and_read_back() {
+    let nb = FakeNb::new("ok", "Off");
+    let (code, out, err) = run(&all_env(None), Some(&nb), &["nb", "normal-state", "on"]);
+    assert_eq!(code, 0, "{err}");
+    assert_eq!(
+        out,
+        "nb (NetBotz 10.0.0.9 switched outlet \"Outlet\"): off, normal state on\n  power: no power meter on this \
+         target (the NetBotz 250 outlet does not meter)\n"
+    );
+    assert!(err.contains("normal state set to on"), "{err}");
+    assert_eq!(nb.commands(), ["nboutlet", "nboutlet -ns On", "nboutlet", "bye"]);
+    assert_eq!(
+        (nb.normal().as_str(), nb.state().as_str()),
+        ("On", "Off"),
+        "current state untouched"
+    );
+    // the fake persists it: status now shows it, with the current state still read separately
+    nb.clear_log();
+    let (_, out, _) = run(&all_env(None), Some(&nb), &["nb", "status"]);
+    assert!(out.contains("): off, normal state on\n"), "{out}");
+    fs::write(nb.dir.join("state"), "On\n").unwrap();
+    let (_, out, _) = run(&all_env(None), Some(&nb), &["nb", "status"]);
+    assert!(out.contains("): on, normal state on\n"), "{out}");
+    // and back off, as JSON
+    nb.clear_log();
+    let (code, out, err) = run(&all_env(None), Some(&nb), &["nb", "normal-state", "off", "--json"]);
+    assert_eq!(code, 0, "{err}");
+    let v: Value = serde_json::from_str(&out).unwrap();
+    assert_eq!(
+        (
+            v["action"].as_str(),
+            v["state"].as_str(),
+            v["normal_state"].as_str(),
+            v["changed"].as_bool()
+        ),
+        (Some("normal-state"), Some("on"), Some("off"), Some(true))
+    );
+    assert_eq!(nb.commands(), ["nboutlet", "nboutlet -ns Off", "nboutlet", "bye"]);
+    assert_eq!((nb.normal().as_str(), nb.state().as_str()), ("Off", "On"));
+}
+
+#[test]
+fn nb_normal_state_already_set_sends_nothing() {
+    let nb = FakeNb::new("ok", "On");
+    fs::write(nb.dir.join("normal"), "On\n").unwrap();
+    let (code, out, err) = run(&all_env(None), Some(&nb), &["nb", "normal-state", "on"]);
+    assert_eq!(code, 0, "{err}");
+    assert!(
+        out.starts_with("nb (NetBotz 10.0.0.9 switched outlet \"Outlet\"): on, normal state on\n"),
+        "{out}"
+    );
+    assert!(err.contains("normal state is already on; nothing set"), "{err}");
+    assert_eq!(nb.commands(), ["nboutlet", "bye"]);
+    let (code, out, _) = run(&all_env(None), Some(&nb), &["nb", "normal-state", "on", "--json"]);
+    assert_eq!(code, 0);
+    let v: Value = serde_json::from_str(&out).unwrap();
+    assert_eq!(v["changed"], false);
+    assert!(!nb.read("log").contains("-ns"));
+}
+
+#[test]
+fn nb_normal_state_refused_or_not_followed() {
+    let nb = FakeNb::new("ns-stuck", "Off");
+    let (code, out, err) = run(&all_env(None), Some(&nb), &["nb", "normal-state", "on", "--wait", "1"]);
+    assert_eq!(code, 1);
+    assert!(out.is_empty(), "{out}");
+    assert!(
+        err.contains("nboutlet -ns On was accepted but the normal state still reads off"),
+        "{err}"
+    );
+    let cmds = nb.commands();
+    assert_eq!(cmds[..2], ["nboutlet", "nboutlet -ns On"]);
+    assert_eq!(cmds.last().map(String::as_str), Some("bye"), "logs out after the error");
+    assert!(cmds[2..cmds.len() - 1].iter().all(|c| c == "nboutlet"), "{cmds:?}");
+
+    let nb = FakeNb::new("cli-error", "Off");
+    let (code, _, err) = run(&all_env(None), Some(&nb), &["nb", "normal-state", "on"]);
+    assert_eq!(code, 1);
+    assert!(err.contains("nboutlet -ns On: CLI error E102"), "{err}");
+    assert_eq!(nb.commands(), ["nboutlet", "nboutlet -ns On", "bye"]);
+    assert_eq!(nb.normal(), "Off");
+}
+
+#[test]
+fn normal_state_only_on_netbotz_targets() {
+    let ha = FakeHa::start();
+    let nb = FakeNb::new("ok", "Off");
+    let (code, out, err) = run(&all_env(Some(&ha)), Some(&nb), &["1", "normal-state", "on"]);
+    assert_eq!(code, 1);
+    assert!(out.is_empty(), "{out}");
+    assert!(
+        err.contains("normal-state is for NetBotz outlets; 1 is a Home Assistant plug"),
+        "{err}"
+    );
+    let (code, _, err) = run(&all_env(Some(&ha)), Some(&nb), &["sw", "normal-state", "off"]);
+    assert_eq!(code, 1);
+    assert!(err.contains("not a device"), "{err}");
+    assert!(err.contains("name its NetBotz feed instead (nb)"), "{err}");
+    // nothing contacted: no HTTP request, no ssh
+    assert_eq!(ha.calls().len(), 0);
+    assert!(nb.read("argv").is_empty(), "ssh must not run");
+    // a bad value is a usage error before anything
+    for argv in [&["nb", "normal-state"][..], &["nb", "normal-state", "maybe"]] {
+        let (code, _, err) = run(&all_env(Some(&ha)), Some(&nb), argv);
+        assert_eq!(code, 2, "{argv:?}: {err}");
+    }
+    assert!(nb.read("argv").is_empty(), "ssh must not run");
 }
 
 #[test]

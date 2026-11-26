@@ -37,6 +37,7 @@ let
   defaultPackage = bpkgs.callPackage ../../../../../rust/cs8210/nix/package.nix { };
   mon = config.monitoring.nodeExporter;
   metricsFile = if mon.enable or false then "${mon.textfile.directory}/cs8210-optics.prom" else null;
+  psuMetrics = if mon.enable or false then "${mon.textfile.directory}/cs8210-psu.prom" else "";
   cageArgs = lib.concatStringsSep " " (
     lib.mapAttrsToList (c: m: "--cage ${c}${lib.optionalString (m != null) ":${m}"}") cfg.cages
   );
@@ -77,7 +78,7 @@ in
   options.hardware.cs8210.psu.enable = mkOption {
     type = types.bool;
     default = true;
-    description = "cs8210-psu: PSU identity, the kernel pmbus driver on both PSUs, switch_psu_* metrics (Vin/Iin/Pin, Vout/Iout/Pout, temperatures, fan).";
+    description = "cs8210-psu monitor: PSU status, PMBus identity and readings (/run/cs8210-psu/psuN.json for sonic_platform), switch_psu_* metrics (Vin/Iin/Pin, Vout/Iout/Pout, temperatures, fan).";
   };
   options.hardware.cs8210.leds.enable = mkOption {
     type = types.bool;
@@ -110,25 +111,23 @@ in
       };
     };
 
-    # PSUs (Delta TDPS-1500AB-6 B, PMBus 0x59 on mux 0x72 ch1 / ch0): identity read once,
-    # then the generic pmbus hwmon driver; the readings as switch_psu_* (and node_hwmon_*).
-    boot.kernelModules = mkIf config.hardware.cs8210.psu.enable [ "pmbus" ];
-    systemd.services.cs8210-psu-bind = mkIf config.hardware.cs8210.psu.enable {
-      description = "CS8210: PSU PMBus identity and the pmbus driver";
+    # PSUs (Delta TDPS-1500AB-6 B, PMBus 0x59 on mux 0x72 ch1 / ch0): cs8210-psu is the one
+    # PMBus reader (no kernel pmbus driver: its probe got PSU1's VOUT exponent wrong). Every
+    # 15 s: state files for sonic_platform (kept across restarts) and switch_psu_*.
+    systemd.services.cs8210-psu = mkIf config.hardware.cs8210.psu.enable {
+      description = "CS8210: PSU status and PMBus readings (state files, switch_psu_* metrics)";
       wantedBy = [ "multi-user.target" ];
-      after = [ "systemd-modules-load.service" ];
-      path = [ pkgs.kmod ];
+      after = [
+        "systemd-modules-load.service"
+        "systemd-tmpfiles-resetup.service"
+      ];
       serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        ExecStart = "${cfg.package}/bin/cs8210-psu bind";
+        ExecStart = "${cfg.package}/bin/cs8210-psu monitor --metrics ${lib.escapeShellArg psuMetrics}";
+        Restart = "always";
+        RestartSec = 5;
+        RuntimeDirectory = "cs8210-psu";
+        RuntimeDirectoryPreserve = true;
       };
-    };
-    monitoring.nodeExporter.textfile.producers.cs8210-psu = mkIf (config.hardware.cs8210.psu.enable && mon.enable) {
-      command = "${cfg.package}/bin/cs8210-psu metrics";
-      interval = 15;
-      timeout = 10;
-      serviceConfig.LogLevelMax = "notice";
     };
 
     systemd.services.cs8210-leds = mkIf lcfg.enable {

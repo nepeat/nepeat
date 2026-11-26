@@ -338,8 +338,45 @@ fn on_target(t: &Target, args: &Args) -> Result<(), String> {
                 &[("action", json!("cycle")), ("off_seconds", json!(off.as_secs_f64()))],
             );
         }
+        "normal-state" => normal_state(t, args)?,
         _ => power(std::slice::from_ref(t), args)?,
     }
+    Ok(())
+}
+
+/// `normal-state on|off`: the `NetBotz` outlet's state after the `NetBotz` itself restarts. Reads
+/// first and sends `nboutlet -ns` only when it differs; the current state is left alone.
+fn normal_state(t: &Target, args: &Args) -> Result<(), String> {
+    let on = args.normal.ok_or("normal-state needs on or off")?;
+    let word = netbotz::on_off(on);
+    let Backend::NetBotz(cfg) = &t.backend else {
+        return Err(format!(
+            "normal-state is for NetBotz outlets; {} is a Home Assistant plug (no normal state): nothing contacted",
+            t.name
+        ));
+    };
+    let mut session = Session::open(cfg, args.timeout)?;
+    let before = session.outlet()?;
+    let changed = before.normal_on != on;
+    let after = if changed {
+        session.set_normal(on, args.wait)?
+    } else {
+        before
+    };
+    session.close();
+    if changed {
+        eprintln!(
+            "lab-power: {}: normal state set to {word} (the state after the NetBotz restarts)",
+            t.name
+        );
+    } else {
+        eprintln!("lab-power: {}: normal state is already {word}; nothing set", t.name);
+    }
+    emit(
+        &nb_reading(t, &cfg.host, &after),
+        args,
+        &[("action", json!("normal-state")), ("changed", json!(changed))],
+    );
     Ok(())
 }
 
@@ -400,6 +437,22 @@ fn power(targets: &[Target], args: &Args) -> Result<(), String> {
 
 fn on_device(config: &Config, d: &Device, args: &Args) -> Result<(), String> {
     let feeds: Vec<Target> = d.feeds.iter().filter_map(|f| config.targets.get(f).cloned()).collect();
+    if args.action == "normal-state" {
+        let outlets: Vec<&str> = feeds
+            .iter()
+            .filter(|t| matches!(t.backend, Backend::NetBotz(_)))
+            .map(|t| t.name.as_str())
+            .collect();
+        let hint = if outlets.is_empty() {
+            "it has no NetBotz feed".to_owned()
+        } else {
+            format!("name its NetBotz feed instead ({})", outlets.join(", "))
+        };
+        return Err(format!(
+            "normal-state is for one NetBotz outlet, not a device: {} has several feeds; {hint}; nothing contacted",
+            d.name
+        ));
+    }
     if args.action == "power" {
         return power(&feeds, args);
     }

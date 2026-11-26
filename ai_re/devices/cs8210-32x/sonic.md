@@ -5,8 +5,8 @@ Cross-device notes and the stack itself: [sonic-nixos](../sonic-nixos/PROGRESS.m
 ## Status (2026-11-25)
 
 - **New cabling (2026-11-25):** 1 <-> 2 and 31 <-> 32 400G-DR4 optics, 3 <-> 17 400G CR8 DAC; Nix-base config of the
-  three loops ("Running it"); 3 <-> 17 and 31 <-> 32 up with ping across, 1 <-> 2 down: lane 4 optical (Rx CDR loss
-  of lock in both modules), the electrical path through the Credo PHYs proven with a module loopback (PROGRESS 2026-11-26).
+  three loops ("Running it"); all three loops up with ping across since 2026-11-26 (1 <-> 2 had been down on lane 4:
+  cat fur on the fibre / optic faces, both modules replaced by the owner; PROGRESS 2026-11-26).
   Cages: cs8210-optics ("Optics"); LEDs: "LEDs".
 - **Our SAI runs the chip** (`sai-teralynx`: sai-openbcm's frontend + an IFCS backend dlopen()ing the
   vendor `libifcs.so` 0.12.41): every phase B/C feature passes its sai-script chip test on the 400G
@@ -205,7 +205,7 @@ the public sonic-buildimage `innovium.77700_A` (byte-identical to the SDK's `inn
   [script](scripts/sonic_sdk_config_check.py)).
 - pmon: fans/LM75/ASIC from fand, PSUs from the sys CPLD, cages through cs8210-optics,
   syseeprom from the TLV EEPROM ([tests](sonic-platform-test-20261115.txt)). PSUs: 2 bays (sys CPLD 0x08), PMBus
-  readings through `cs8210-psu` (PROGRESS 2026-11-26); xcvrd runs `--skip_cmis_mgr` (cs8210-optics does CMIS).
+  readings from `cs8210-psu` ([board-control.md](board-control.md) "PSUs"); xcvrd runs `--skip_cmis_mgr` (cs8210-optics does CMIS).
 - `asic_type` = `marvell-teralynx` (upstream's value; differences from `broadcom` in the pinned
   orchagent: combined V4V6 ACL tables allowed, PFC watchdog handler, no DNAT tracking).
 

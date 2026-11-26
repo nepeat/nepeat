@@ -176,21 +176,34 @@ class Board(unittest.TestCase):
         finally:
             os.rename(cpld + ".off", cpld)
         self.assertFalse(p[0].set_status_led("green"))
-        # PMBus identity and readings (cs8210-psu's file, the pmbus driver's hwmon)
+        # PMBus identity and readings: cs8210-psu's state file (fan1 not read: absent)
         os.makedirs(fake("/run/cs8210-psu"), exist_ok=True)
-        wr(fake("/run/cs8210-psu/psu1.json"), json.dumps({"bus": 15, "model": "TDPS-1500AB-6 B", "serial": "T1", "revision": "02"}))
-        hw_ = fake("/sys/bus/i2c/devices/15-0059/hwmon/hwmon99")
-        os.makedirs(hw_, exist_ok=True)
-        for n, lab, v in (("in1", "vin", 116750), ("power2", "pout1", 642000000), ("curr2", "iout1", 53250), ("temp1", "temp1", 37000)):
-            wr(hw_ + "/%s_label" % n, lab + "\n")
-            wr(hw_ + "/%s_input" % n, "%d\n" % v)
+        state = {"psu": 1, "bus": 15, "vendor": "DELTA", "model": "TDPS-1500AB-6 B", "revision": "02", "serial": "T1",
+                 "pmbus_revision": 34, "status": {"present": True, "input_good": True, "output_good": True},
+                 "readings": {"vin": 116.75, "iin": 3.0, "pout": 642.0, "iout": 53.25, "vout": 12.0625, "temp1": 37.0,
+                              "vout_sb": 3.296875},
+                 "status_word": 0, "updated": int(time.time())}
+        wr(fake("/run/cs8210-psu/psu1.json"), json.dumps(state))
         self.assertEqual(p[0].get_model(), "TDPS-1500AB-6 B")
+        self.assertEqual(p[0].get_serial(), "T1")
         self.assertAlmostEqual(p[0].get_input_voltage(), 116.75)
+        self.assertAlmostEqual(p[0].get_input_current(), 3.0)
+        self.assertAlmostEqual(p[0].get_voltage(), 12.0625)
         self.assertAlmostEqual(p[0].get_power(), 642.0)
         self.assertAlmostEqual(p[0].get_current(), 53.25)
         self.assertAlmostEqual(p[0].get_temperature(), 37.0)
         self.assertEqual(p[1].get_model(), "N/A")
         self.assertIsNone(p[1].get_power())
+        del state["readings"]["temp1"]                     # not read this poll
+        state["updated"] = int(time.time()) - 5
+        wr(fake("/run/cs8210-psu/psu1.json"), json.dumps(state))
+        self.assertIsNone(p[0].get_temperature())
+        self.assertAlmostEqual(p[0].get_power(), 642.0)
+        state["updated"] = int(time.time()) - 120          # cs8210-psu stopped: stale
+        wr(fake("/run/cs8210-psu/psu1.json"), json.dumps(state))
+        self.assertIsNone(p[0].get_power())
+        self.assertEqual(p[0].get_model(), "TDPS-1500AB-6 B")   # identity stays
+        os.remove(fake("/run/cs8210-psu/psu1.json"))
 
     def test_syseeprom(self):
         c = self.chassis

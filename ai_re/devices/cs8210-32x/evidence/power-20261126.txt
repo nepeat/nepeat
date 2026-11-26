@@ -1,0 +1,141 @@
+# CS8210 power, 2026-11-26 09:57-10:22 UTC (CS-A2 B3)
+## NetBotz outlet normal state (lab-power normal-state, new verb; read back by the tool and by status)
+lab-power: cs8210-psu1: normal state set to on (the state after the NetBotz restarts)
+cs8210-psu1 (NetBotz 10.60.30.45 switched outlet "Outlet"): on, normal state on
+## PSU telemetry (cs8210-psu monitor, direct PMBus, no kernel driver), both fed, idle, 3 loops up
+PSU1 vin 117.0 V iin 3.00 A pin 349 W | vout1 12.06 V iout1 27.31 A pout1 329.5 W | 52/65/62 C fan 12032 rpm | 3.3 V sb 0.28 W
+PSU2 vin 118.0 V iin 2.92 A pin 343.5 W | vout1 12.09 V iout1 25.66 A pout1 310 W | 52/65/64 C fan 10800 rpm | 3.3 V sb 1.78 W
+show platform psustatus: PSU 1 12.06 V 27.19 A 327.50 W OK; PSU 2 12.09 V 25.72 A 311.00 W OK
+Total draw = the sum: each PSU meters its own input; one feed alone carries ~701 W in (642 W out) = 351.5 + 341 W shared.
+
+# redundancy: drop PSU1 (NetBotz outlet cs8210-psu1), under traffic (started 2026-11-26T10:12:10.434Z)
+## 2026-11-26T10:12:10.434Z traffic started; counters before
+Running as unit: ping-a.service; invocation ID: d26d4e3f11344b318f77276ddc7ed0b1
+Running as unit: ping-b.service; invocation ID: d9c5a442768d4f31b7644469e9fa4352
+Running as unit: ping-c.service; invocation ID: ce686fc388c94bb08948604540f4fc42
+PING 10.0.1.1 (10.0.1.1) from 10.0.1.0 Ethernet0: 56(84) bytes of data.
+64 bytes from 10.0.1.1: icmp_seq=1 ttl=64 time=0.237 ms
+IFACE STATE RX_OK RX_ERR RX_DRP RX_OVR TX_OK TX_ERR TX_DRP
+## 2026-11-26T10:12:33.467Z lab-power cs8210-psu1 off
+lab-power: off cs8210-psu1: it feeds cs8210-32x PSU1
+cs8210-psu1 (NetBotz 10.60.30.45 switched outlet "Outlet"): off, normal state on
+  power: no power meter on this target (the NetBotz 250 outlet does not meter)
+## 2026-11-26T10:13:10.786Z one feed only
+02:13:08  up  0:55,  2 users,  load average: 0.20, 0.38, 0.34
+PSU 1 (i2c-15): present=1 input_good=0 output_good=0; PMBus up
+  STATUS_WORD 0x2849
+  vin         0.000 V
+  pin         0.000 W
+  iout1       0.000 A
+  pout1       0.000 W
+PSU 2 (i2c-14): present=1 input_good=1 output_good=1; PMBus up
+  STATUS_WORD 0x0000
+  vin       118.000 V
+  pin       701.000 W
+  iout1      53.250 A
+  pout1     642.000 W
+PSU 1  TDPS-1500AB-6 B  T2110041404        02           0.00           0.00         0.00  NOT OK    off
+PSU 2  TDPS-1500AB-6 B  T2110041403        02          12.06          53.19       641.00  OK        green
+2026-11-26T02:12:47-08:00 cs8210 cs8210-psu[53488]: PSU 1: input_good 1 -> 0
+2026-11-26T02:12:47-08:00 cs8210 cs8210-psu[53488]: PSU 1: output_good 1 -> 0
+## 2026-11-26T10:13:13.650Z lab-power cs8210-psu1 on
+cs8210-psu1 (NetBotz 10.60.30.45 switched outlet "Outlet"): on, normal state on
+  power: no power meter on this target (the NetBotz 250 outlet does not meter)
+## 2026-11-26T10:13:55.947Z restored
+PSU 1 (i2c-15): present=1 input_good=1 output_good=1; PMBus up
+  pin       352.000 W
+PSU 2 (i2c-14): present=1 input_good=1 output_good=1; PMBus up
+  pin       341.000 W
+PSU 1  TDPS-1500AB-6 B  T2110041404        02          12.06          27.41       330.50  OK        green
+PSU 2  TDPS-1500AB-6 B  T2110041403        02          12.07          25.88       312.50  OK        green
+2026-11-26T02:13:17-08:00 cs8210 cs8210-psu[53488]: PSU 1: input_good 0 -> 1
+2026-11-26T02:13:17-08:00 cs8210 cs8210-psu[53488]: PSU 1: output_good 0 -> 1
+## 2026-11-26T10:14:51.748Z traffic: 20 pps ping per loop (Ethernet0->10.0.1.1, Ethernet16->10.0.3.1, Ethernet240->10.0.31.1), 140 s across the drop; counters after
+2466 packets transmitted, 2466 received, 0% packet loss, time 139959ms
+rtt min/avg/max/mdev = 0.064/0.089/0.333/0.024 ms
+2469 packets transmitted, 2469 received, 0% packet loss, time 140000ms
+rtt min/avg/max/mdev = 0.064/0.090/0.224/0.023 ms
+2464 packets transmitted, 2464 received, 0% packet loss, time 139978ms
+rtt min/avg/max/mdev = 0.064/0.088/0.233/0.023 ms
+IFACE STATE RX_OK RX_ERR RX_DRP RX_OVR TX_OK TX_ERR TX_DRP
+ 02:14:51  up  0:56,  2 users,  load average: 0.04, 0.27, 0.30
+
+# redundancy: drop PSU2 (Home Assistant lab plug 1), under traffic (started 2026-11-26T10:15:19.241Z)
+## 2026-11-26T10:15:19.241Z traffic started; counters before
+Running as unit: ping-a.service; invocation ID: 711da8e491c64d78890d0f3d7712e4e5
+Running as unit: ping-b.service; invocation ID: 2dc763647d9645e3bc3568a8b34b508e
+Running as unit: ping-c.service; invocation ID: bcc37dc145af4f8bbe6ba6075bfe7a6b
+IFACE STATE RX_OK RX_ERR RX_DRP RX_OVR TX_OK TX_ERR TX_DRP
+Ethernet1/1 U 2,580 0 0 0 2,579 0 0
+Ethernet2/1 U 2,564 0 0 0 2,565 0 0
+Ethernet3/1 U 27,059,034,235 0 0 0 25,683,576,560 0 0
+Ethernet17/1 U 25,683,576,560 0 0 0 27,059,034,235 0 0
+Ethernet31/1 U 27,059,033,507 0 0 0 25,683,575,831 0 0
+Ethernet32/1 U 25,683,575,831 0 0 0 27,059,033,507 0 0
+## 2026-11-26T10:15:38.519Z lab-power 1 off
+lab-power: off 1: it feeds cs8210-32x (its PSU that is not on the NetBotz outlet)
+plug 1 (switch.server_room_lab_plug): off
+  power: no power meter on this target
+## 2026-11-26T10:16:15.822Z one feed only
+02:16:13  up  0:58,  2 users,  load average: 0.19, 0.27, 0.30
+PSU 1 (i2c-15): present=1 input_good=1 output_good=1; PMBus up
+  STATUS_WORD 0x0000
+  vin       114.625 V
+  pin       702.000 W
+  iout1      53.875 A
+  pout1     650.000 W
+PSU 2 (i2c-14): present=1 input_good=0 output_good=0; PMBus up
+  STATUS_WORD 0x2849
+  vin         0.000 V
+  pin         0.000 W
+  iout1       0.000 A
+  pout1       0.000 W
+PSU 1  TDPS-1500AB-6 B  T2110041404        02          12.06          53.56       646.00  OK        green
+PSU 2  TDPS-1500AB-6 B  T2110041403        02           0.00           0.00         0.00  NOT OK    off
+2026-11-26T02:15:47-08:00 cs8210 cs8210-psu[53488]: PSU 2: input_good 1 -> 0
+2026-11-26T02:15:47-08:00 cs8210 cs8210-psu[53488]: PSU 2: output_good 1 -> 0
+## 2026-11-26T10:16:16.271Z lab-power 1 on
+plug 1 (switch.server_room_lab_plug): on
+  power: no power meter on this target
+## 2026-11-26T10:16:58.572Z restored
+PSU 1 (i2c-15): present=1 input_good=1 output_good=1; PMBus up
+  pin       346.000 W
+PSU 2 (i2c-14): present=1 input_good=1 output_good=1; PMBus up
+  pin       348.000 W
+PSU 1  TDPS-1500AB-6 B  T2110041404        02          12.06          26.28       317.00  OK        green
+PSU 2  TDPS-1500AB-6 B  T2110041403        02          12.07          26.94       325.00  OK        green
+2026-11-26T02:16:17-08:00 cs8210 cs8210-psu[53488]: PSU 2: input_good 0 -> 1
+2026-11-26T02:16:32-08:00 cs8210 cs8210-psu[53488]: PSU 2: output_good 0 -> 1
+## 2026-11-26T10:17:54.290Z traffic: 20 pps ping per loop (Ethernet0->10.0.1.1, Ethernet16->10.0.3.1, Ethernet240->10.0.31.1), 140 s across the drop; counters after
+2479 packets transmitted, 2479 received, 0% packet loss, time 139961ms
+rtt min/avg/max/mdev = 0.064/0.081/0.180/0.017 ms
+2478 packets transmitted, 2478 received, 0% packet loss, time 139960ms
+rtt min/avg/max/mdev = 0.064/0.081/0.175/0.017 ms
+2474 packets transmitted, 2474 received, 0% packet loss, time 139963ms
+rtt min/avg/max/mdev = 0.064/0.080/0.193/0.016 ms
+IFACE STATE RX_OK RX_ERR RX_DRP RX_OVR TX_OK TX_ERR TX_DRP
+Ethernet1/1 U 5,025 0 0 0 5,024 0 0
+Ethernet2/1 U 5,009 0 0 0 5,010 0 0
+Ethernet3/1 U 27,059,036,680 0 0 0 25,683,579,005 0 0
+Ethernet17/1 U 25,683,579,005 0 0 0 27,059,036,680 0 0
+Ethernet31/1 U 27,059,035,947 0 0 0 25,683,578,271 0 0
+Ethernet32/1 U 25,683,578,271 0 0 0 27,059,035,947 0 0
+ 02:17:54  up  0:59,  2 users,  load average: 0.20, 0.25, 0.28
+
+# cold cycle
+10:18:21 console (DMC-12 watch): "[ 3620.564934] reboot: Power down" after systemctl poweroff
+lab-power cs8210 cycle: all feeds off; on again in 10.0 s; all feeds on (normal state on)
+console: U-Boot 2026.10-cs8210-selfinit -> Starting kernel ... -> Welcome to NixOS -> cs8210 login (automatic)
+ssh back ~64 s after the cycle; 2 min later: system running, 0 failed units, sonic.target / fand / cs8210-optics / cs8210-psu / sonic-syncd active
+journal starts 2026-11-26T02:19:06-08:00 (RTC); fand: 60 % start, asic online after 5 s, curve (no failsafe)
+all six cages ready (1: G21444D0649, 2: G22077B0312 new modules), Ethernet0/8/16/128/240/248 up
+100 packets transmitted, 100 received, 0% packet loss, time 1627ms
+100 packets transmitted, 100 received, 0% packet loss, time 1613ms
+100 packets transmitted, 100 received, 0% packet loss, time 1669ms
+Ethernet1/1 U 120 0 0 0 119 0 0
+Ethernet2/1 U 119 0 0 0 120 0 0
+Ethernet3/1 U 119 0 0 0 119 0 0
+Ethernet17/1 U 119 0 0 0 119 0 0
+Ethernet31/1 U 119 0 0 0 119 0 0
+Ethernet32/1 U 119 0 0 0 119 0 0
+grep: /tmp/claude-1001/-home-erin-nepeat-ai-re/b4c21b2a-7e1e-489f-a54f-86f370e990b2/scratchpad/b3-console-cycle.txt: No such file or directory

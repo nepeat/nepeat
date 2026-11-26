@@ -8,12 +8,15 @@ analysis/cpld-diff/sys_cpld_psu_attrs.json; table in cpld-diff.md):
   reg 0xa8: the same for PSU3 / PSU4 (21-inch variant only; reads 0 here)
 Confirmed 2026-11-26 with two Delta TDPS-1500AB-6 B fitted, one fed: 0x08 =
 0x4a = both present, PSU2 input + output good, PSU1 neither (its PMBus Vin 0).
-PMBus (0x59, mux 0x72 ch1 = PSU1, ch0 = PSU2): cs8210-psu (rust/cs8210) reads the
-identity into /run/cs8210-psu/psuN.json and binds the kernel pmbus driver; the
-readings here come from that hwmon device. No LEDs written (the CPLD drives them).
+PMBus (0x59, mux 0x72 ch1 = PSU1, ch0 = PSU2): the cs8210-psu service (rust/cs8210)
+is its one reader (no kernel pmbus driver: its probe got PSU1's VOUT exponent wrong)
+and writes /run/cs8210-psu/psuN.json every 15 s: identity, "readings" (vin, iin,
+pin, vout, iout, pout, temp1..3, fan1, *_sb = standby rail; SI units, a reading it
+could not get is absent) and "updated" (unix time). A missing reading or a file
+older than STALE seconds reads as None. No LEDs written (the CPLD drives them).
 """
-import glob
 import json
+import time
 
 from sonic_platform_base.psu_base import PsuBase
 
@@ -22,6 +25,7 @@ from . import hw
 # index: (register, present bit, input-good bit, output-good bit)
 BITS = {1: (0x08, 4, 2, 0), 2: (0x08, 5, 3, 1), 3: (0xa8, 4, 2, 0), 4: (0xa8, 5, 3, 1)}
 RUN = "/run/cs8210-psu"
+STALE = 60                                            # s: 4 missed polls of cs8210-psu
 
 
 def num_psus():
@@ -49,20 +53,15 @@ class Psu(PsuBase):
         except (OSError, ValueError):
             return {}
 
-    def _hwmon(self, label):
-        """A reading of the bound pmbus device by hwmon label (vin, iout1, pout1, temp1...), SI units."""
-        bus = self._id().get("bus")
-        if bus is None:
+    def _reading(self, key):
+        """A reading from cs8210-psu's state file (vin, vout, iout, pout, temp1...), SI units;
+        None if absent or the file is stale."""
+        s = self._id()
+        updated = s.get("updated")
+        if not isinstance(updated, (int, float)) or time.time() - updated > STALE:
             return None
-        for lab in glob.glob(hw.path("/sys/bus/i2c/devices/%d-0059/hwmon/hwmon*/*_label" % bus)):
-            if hw.read_text(lab[len(hw.ROOT):]) != label:
-                continue
-            v = hw.read_float(lab[len(hw.ROOT):].replace("_label", "_input"))
-            if v is None:
-                return None
-            kind = lab.rsplit("/", 1)[1].split("_")[0].rstrip("0123456789")
-            return v / ({"power": 1e6, "fan": 1.0}.get(kind, 1e3))
-        return None
+        v = s.get("readings", {}).get(key)
+        return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
 
     def get_name(self):
         return "PSU %d" % self.index
@@ -93,22 +92,22 @@ class Psu(PsuBase):
         return self._id().get("revision") or "N/A"
 
     def get_voltage(self):
-        return self._hwmon("vout1")
+        return self._reading("vout")
 
     def get_current(self):
-        return self._hwmon("iout1")
+        return self._reading("iout")
 
     def get_power(self):
-        return self._hwmon("pout1")
+        return self._reading("pout")
 
     def get_input_voltage(self):
-        return self._hwmon("vin")
+        return self._reading("vin")
 
     def get_input_current(self):
-        return self._hwmon("iin")
+        return self._reading("iin")
 
     def get_temperature(self):
-        return self._hwmon("temp1")
+        return self._reading("temp1")
 
     def get_position_in_parent(self):
         return self.index

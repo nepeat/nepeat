@@ -32,6 +32,7 @@ lab-power 2 status
 lab-power 2 off; lab-power 2 on
 lab-power 1 cycle --off-time 15
 lab-power cs8210-psu1 status --json
+lab-power cs8210-psu1 normal-state on   # NetBotz only: the state after the NetBotz itself restarts (read back)
 lab-power cs8210 status          # every feed
 lab-power cs8210 cycle           # true cold cycle: all feeds off, wait, all on
 lab-power cs8210 power           # watts where a feed has a meter

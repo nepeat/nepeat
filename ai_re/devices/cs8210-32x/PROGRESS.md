@@ -2,14 +2,13 @@
 
 ## Status (2026-11-26)
 
-- **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-53, from the SSD; a reboot and a cold power cycle
-  (2026-11-25) came back unattended, 0 failed units. **SONiC at boot** on our C++ `sai-teralynx` (HEAD's frozen
-  frontend, first on this box 2026-11-25). Cabling (owner, 2026-11-25): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
+- **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-54, from the SSD; a cold cycle of both feeds (`lab-power cs8210 cycle`,
+  2026-11-26) came back unattended, 0 failed units; either PSU alone carries it under traffic. **SONiC at boot** on our C++ `sai-teralynx` (HEAD's frozen
+  frontend, first on this box 2026-11-25). Cabling (owner, 2026-11-25; cage 1 and 2 modules replaced 2026-11-26): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
   400G-DR4 QSFP-DD optics (MPO loops), 3 <-> 17 TE 2459398-1 400G CR8 DAC; nothing to the house. CONFIG_DB = the Nix
   base: those six ports 1x400G RS FEC, far ends in Vrf-a/b/c with /31s, 26 ports down ([sonic.md](sonic.md) "Running it").
-  **3 <-> 17 and 31 <-> 32 up, ping across + ASIC counters; 1 <-> 2 down: lane 4 optical, Rx CDR loss of lock in both
-  modules (Rx -8.3 / -7.3 dBm, below the DR4 -5.9 dBm minimum); the electrical path through the Credo PHYs comes up
-  on a module loopback** ([links-20261126.txt](evidence/links-20261126.txt)).
+  **All three loops up at 400G, ping across + matching ASIC counters** (1 <-> 2 since 2026-11-26: cat fur on the fibre /
+  optic faces; thin lanes: cage 2 Rx 1-2 -5.4 / -5.9 dBm, cage 32 Rx 1 -7.3 dBm) ([power-20261126.txt](evidence/power-20261126.txt)).
 - **Cages:** `cs8210-optics` (`rust/cs8210`) is the one owner of the I2C FPGA: declared cages (= admin-up ports) out of
   reset and brought up (CMIS app select 4x100G -> 400G-DR4), all others held in reset; xcvrd and `show interfaces
   transceiver` through its socket; `switch_optic_*` metrics ([sonic.md](sonic.md) "Optics", [optics](evidence/optics-20261125.txt)).
@@ -20,12 +19,12 @@
 - **Reach:** `sudo ssh root@10.60.2.190` (enp0s1). Console: DMC-12 P1 via consoled, `sudo ssh -t console@10.60.2.10 watch cs8210`
   (read-only) / `… cs8210` (attach, `^] w` takes write). **Power: two feeds**, PSU1 = NetBotz 250 outlet `cs8210-psu1`, PSU2 =
   lab plug 1; `direnv exec . lab-power cs8210 status|cycle` from ai_re/ (both; never target 2 = DMC-12), a cut only after
-  `systemctl poweroff` printed `reboot: Power down`. The NetBotz outlet's normal state is still Off (2026-11-26).
+  `systemctl poweroff` printed `reboot: Power down`. The NetBotz outlet's normal state is On (`lab-power cs8210-psu1
+  normal-state on|off`); PSUs in [board-control.md](board-control.md) "PSUs" (total draw = sum of both Pin, ~690 W idle).
 - **Recover:** `systemctl stop sonic.target`; system-47 from the U-Boot menu (before cs8210-optics: its guard refuses syncd
   with these cages populated); dead I2C FPGA (`/run/cs8210-qsfp.dead`): power cycle. Vendor U-Boot prompt: `123<Enter>`
   within 3 s, then ONIE (`run onie_bootcmd`, RAM only) or **Route R** ([uart-recovery.md](uart-recovery.md), [boot-chain.md](boot-chain.md)).
-- **Open:** the 1 <-> 2 lane 4 fibre / module (human: clean the MPO ends, then swap modules or cable); PSU1 Vout reads 6176 V (generic pmbus driver scaling on
-  PSU1 page 0; PSU2 fine); port LEDs (SAI: the vendor `pci write led_*` init); our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
+- **Open:** port LEDs (SAI: the vendor `pci write led_*` init); our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
   ([sai-features.md](sai-features.md)); MACsec under SONiC; CRM panels empty; learn-wedge watch (L0s off, [learn-wedge.md](learn-wedge.md)).
 
 ## Identity
@@ -124,6 +123,19 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-26 (c) — power: NetBotz normal state On, PSU telemetry without the kernel driver, redundancy, cold cycle
+
+- `lab-power <netbotz> normal-state on|off` (`nboutlet -ns`, read back; fake-ssh tests); cs8210-psu1 set On.
+- `cs8210-psu monitor` reads the PSUs' PMBus itself (PAGE its only write) and feeds `switch_psu_*` and sonic_platform:
+  PSU1 Vout 12.06 V (the generic pmbus driver's probe had it at exponent 0, 6176 V), no more -1 rpm / vcap entries.
+  Total draw = sum of both Pin (~349 + 343 W idle; one PSU alone ~701 W in).
+- Redundancy under traffic (20 pps ping on all three loops): PSU1 off, then PSU2 off, each ~37 s: box up, the dead PSU
+  NOT OK in `show platform psustatus` and logged by cs8210-psu, 0 % loss, 0 port errors; both restored.
+- Clean poweroff + `lab-power cs8210 cycle`: back unattended (ssh ~64 s), 0 failed units, all six cages ready, three loops
+  up, fand without failsafe. 1 <-> 2 came up at ~10:09 after the owner replaced both modules (cat fur on the faces).
+- lab-power's `power` reading for cs8210 not wired: neither feed meters, and the PSU Pin lives on the switch (metrics).
+  Evidence: [power-20261126.txt](evidence/power-20261126.txt).
 
 ### 2026-11-26 (b) — 1 <-> 2: lane 4 optical, not the Credo PHYs; page selects verified; xcvrd VDM settled
 

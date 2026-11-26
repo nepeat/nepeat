@@ -3,7 +3,10 @@
 use std::time::Duration;
 
 /// The verbs; a target or device name may not be one of them.
-pub(crate) const ACTIONS: &[&str] = &["status", "on", "off", "cycle", "power"];
+pub(crate) const ACTIONS: &[&str] = &["status", "on", "off", "cycle", "power", "normal-state"];
+
+/// The verbs as the error messages list them.
+const VERBS: &str = "status, on, off, cycle, power or normal-state on|off";
 
 /// What the command line asked for.
 #[derive(Debug)]
@@ -23,14 +26,19 @@ pub(crate) struct Args {
     pub(crate) count: Option<u64>,
     pub(crate) target: String,
     pub(crate) action: String,
+    /// `normal-state on|off`: the outlet's state after the `NetBotz` itself restarts.
+    pub(crate) normal: Option<bool>,
 }
 
 pub(crate) const USAGE: &str = "usage: lab-power <target|device> status|on|off|cycle|power [options]
+       lab-power <netbotz-target> normal-state on|off [options]
        lab-power --list
+normal-state sets the NetBotz outlet's normal state: the state it takes after the NetBotz itself
+restarts (nboutlet -ns); the outlet's current state is left as it is.
 options:
   --json             machine-readable output (one JSON object; one per sample with --watch)
   --timeout SECONDS  per HTTP request or SSH prompt (default 10)
-  --wait SECONDS     how long a switched feed may take to report the new state (default 5)
+  --wait SECONDS     how long a switched feed (or normal state) may take to read back (default 5)
   --off-time SECONDS cycle: time off (default: the target's cycle_off_seconds, 10)
   --watch SECONDS    power: sample repeatedly; --count N stops after N samples
 There is no default target: every call names one.";
@@ -48,6 +56,7 @@ pub(crate) fn parse(words: &[String]) -> Result<Args, String> {
         count: None,
         target: String::new(),
         action: String::new(),
+        normal: None,
     };
     let mut positional = Vec::new();
     let mut it = words.iter();
@@ -105,17 +114,18 @@ pub(crate) fn parse(words: &[String]) -> Result<Args, String> {
         return Err("--list and --help take no target".to_owned());
     }
     let mut words = positional.into_iter();
-    match (words.next(), words.next(), words.next()) {
+    match (words.next(), words.next(), words.next(), words.next()) {
         (None, ..) => Err("name a target and an action".to_owned()),
-        (Some(first), None, _) if ACTIONS.contains(&first.as_str()) => Err(format!(
+        (Some(first), None, ..) if ACTIONS.contains(&first.as_str()) => Err(format!(
             "no default target: name one first, e.g. \"lab-power 2 {first}\" (lab-power --list)"
         )),
-        (Some(_), None, _) => Err("missing the action (status, on, off, cycle or power)".to_owned()),
-        (Some(_), Some(_), Some(extra)) => Err(format!("unexpected argument {extra:?}")),
-        (Some(target), Some(action), None) => {
+        (Some(_), None, ..) => Err(format!("missing the action ({VERBS})")),
+        (Some(_), Some(_), _, Some(extra)) => Err(format!("unexpected argument {extra:?}")),
+        (Some(target), Some(action), value, None) => {
             if !ACTIONS.contains(&action.as_str()) {
-                return Err(format!("unknown action {action:?} (status, on, off, cycle or power)"));
+                return Err(format!("unknown action {action:?} ({VERBS})"));
             }
+            args.normal = normal_value(&action, value.as_deref())?;
             if args.off_time.is_some() && action != "cycle" {
                 return Err("--off-time is for cycle".to_owned());
             }
@@ -129,6 +139,18 @@ pub(crate) fn parse(words: &[String]) -> Result<Args, String> {
             args.action = action;
             Ok(args)
         }
+    }
+}
+
+/// The third word: only `normal-state` takes one (on or off), and needs it.
+fn normal_value(action: &str, value: Option<&str>) -> Result<Option<bool>, String> {
+    match (action, value) {
+        ("normal-state", Some("on")) => Ok(Some(true)),
+        ("normal-state", Some("off")) => Ok(Some(false)),
+        ("normal-state", Some(v)) => Err(format!("normal-state takes on or off, not {v:?}")),
+        ("normal-state", None) => Err("normal-state needs on or off".to_owned()),
+        (_, Some(extra)) => Err(format!("unexpected argument {extra:?}")),
+        (_, None) => Ok(None),
     }
 }
 
@@ -191,5 +213,26 @@ mod tests {
         let w = p(&["1", "power", "--watch", "2", "--count", "3"]).unwrap();
         assert_eq!((w.watch, w.count), (Some(Duration::from_secs(2)), Some(3)));
         assert!(p(&["--list"]).unwrap().list);
+    }
+
+    #[test]
+    fn normal_state_takes_on_or_off() {
+        let a = p(&["nb", "normal-state", "on", "--json"]).unwrap();
+        assert_eq!(
+            (a.action.as_str(), a.normal, a.json),
+            ("normal-state", Some(true), true)
+        );
+        assert_eq!(p(&["nb", "normal-state", "off"]).unwrap().normal, Some(false));
+        assert_eq!(p(&["nb", "status"]).unwrap().normal, None);
+        for bad in [
+            &["nb", "normal-state"][..],
+            &["nb", "normal-state", "On"],
+            &["nb", "normal-state", "toggle"],
+            &["nb", "normal-state", "on", "x"],
+            &["nb", "on", "on"],
+            &["nb", "normal-state", "on", "--off-time", "3"],
+        ] {
+            assert!(p(bad).is_err(), "{bad:?}");
+        }
     }
 }

@@ -2,7 +2,8 @@
 //!
 //! The NMC runs no SSH exec channel (it closes without output), so this drives an interactive
 //! session: `ssh -tt` with password authentication through askpass, a pinned `known_hosts` and
-//! strict host-key checking, then `nboutlet` / `nboutlet -s On|Off` at the `apc>` prompt and
+//! strict host-key checking, then `nboutlet` / `nboutlet -s On|Off` (current state) /
+//! `nboutlet -ns On|Off` (normal state: the one after the `NetBotz` restarts) at the `apc>` prompt and
 //! always `bye` at the end (the NMC allows few sessions). Outlet state is read from the table:
 //!
 //! ```text
@@ -193,20 +194,37 @@ impl Session {
 
     /// `nboutlet -s On|Off`, then reads the outlet back until it follows (or `wait` passes).
     pub(crate) fn set_outlet(&mut self, on: bool, wait: Duration) -> Result<Outlet, String> {
+        self.set_and_follow("-s", "the outlet", |o| o.on, on, wait)
+    }
+
+    /// `nboutlet -ns On|Off` (the state after the `NetBotz` restarts), then reads the "Normal State"
+    /// column back until it follows (or `wait` passes). The current state is not touched.
+    pub(crate) fn set_normal(&mut self, on: bool, wait: Duration) -> Result<Outlet, String> {
+        self.set_and_follow("-ns", "the normal state", |o| o.normal_on, on, wait)
+    }
+
+    fn set_and_follow(
+        &mut self,
+        flag: &str,
+        what: &str,
+        field: fn(&Outlet) -> bool,
+        on: bool,
+        wait: Duration,
+    ) -> Result<Outlet, String> {
         let word = if on { "On" } else { "Off" };
-        let out = self.command(&format!("nboutlet -s {word}"))?;
-        status_code(&out).map_err(|e| format!("NetBotz {}: nboutlet -s {word}: {e}", self.host))?;
+        let out = self.command(&format!("nboutlet {flag} {word}"))?;
+        status_code(&out).map_err(|e| format!("NetBotz {}: nboutlet {flag} {word}: {e}", self.host))?;
         let deadline = Instant::now() + wait;
         loop {
             let outlet = self.outlet()?;
-            if outlet.on == on {
+            if field(&outlet) == on {
                 return Ok(outlet);
             }
             if Instant::now() >= deadline {
                 return Err(format!(
-                    "NetBotz {}: nboutlet -s {word} was accepted but the outlet still reads {}",
+                    "NetBotz {}: nboutlet {flag} {word} was accepted but {what} still reads {}",
                     self.host,
-                    on_off(outlet.on)
+                    on_off(field(&outlet))
                 ));
             }
             thread::sleep(Duration::from_millis(500));

@@ -74,6 +74,19 @@ return values: `analysis/research/cpld-setter-traces.json`. Full disassemblies
 and selected DWARF types are adjacent. This script deliberately targets the
 captured binary's offsets; it must be re-audited for another module version.
 
+## PSUs (live, 2026-11-26)
+
+- Two bays (sys CPLD 0x09 bit 0 = 1: the 19-inch variant), two Delta TDPS-1500AB-6 B. Status: sys CPLD 0x60 reg 0x08
+  (present b4/b5 active low, input good b2/b3, output good b0/b1). PMBus 0x59 behind mux 0x72: ch1 = PSU1, ch0 = PSU2.
+- Feeds: PSU1 = NetBotz 250 outlet `cs8210-psu1` (normal state On since 2026-11-26), PSU2 = lab plug 1.
+- `cs8210-psu monitor` (rust/cs8210) is the one PMBus reader: PAGE is its only write; Vin/Iin/Pin, Vout/Iout/Pout of
+  the 12 V rail (page 0, VOUT_MODE exponent -9) and the 3.3 V standby (page 1, -7), three temperatures, one fan,
+  STATUS_WORD -> `switch_psu_*` + /run/cs8210-psu/psuN.json (sonic_platform's source). No kernel `pmbus` driver: its
+  probe of PSU1 came out with exponent 0 (12 V shown as 6176 V) and a varying page count while raw reads were clean.
+- **Total draw is the sum of the two Pin readings**: each PSU meters its own input and they share the load
+  (idle, three loops up: ~349 + 343 W in, ~330 + 310 W out); one feed alone carries ~701 W in, ~642 W out. A PSU
+  without AC still answers PMBus (standby from the other), STATUS_WORD 0x2849, Vin 0 ([power-20261126.txt](evidence/power-20261126.txt)).
+
 ## cooling implications for bring-up
 
 Stock startup enables both fan watchdogs, disables the system watchdog, sets
