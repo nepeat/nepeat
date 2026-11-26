@@ -24,9 +24,9 @@ Status, stated plainly:
   (`test_sai` 3014 / 3014 through the test port, the op-script differential, the MACsec differentials, the
   `openbcm-diag` client); golden files captured at commit 50a6aa7 from the deleted C / C++ (the MDIO
   interpreter and tool, `openbcm-asic-temp`, the table checkers, the glue-call differential, the error table).
-- **CS8210 (Teralynx 7): offline only.** The Rust Teralynx libsai and shim are at parity with the C++
-  `sai-teralynx` on the mock libifcs ([Parity](#parity)); never run on the chip: the box keeps the C++ until
-  the Rust one is proven there.
+- **CS8210 (Teralynx 7): H1 and H2 passed on the chip, H3 next.** The Rust Teralynx libsai and shim are at parity with the C++
+  `sai-teralynx` on the mock libifcs ([Parity](#parity)) and passed the chip's smoke (H1) and feature matrix (H2); the box
+  keeps the C++ as its default until H3 (SONiC under load on the Rust libsai).
 
 ## Migration status
 
@@ -49,12 +49,12 @@ sai-teralynx (`frontend/`), not by any AS77xx build. "On chip" = the AS7772 (G2-
 | temperatures | `sai_temp.cpp`, `temp_files.c`: deleted, frozen | `sai-core::temp`; `sdk-glue::temp` | `test_sai` `test_temperature` | AS7772 G4 | `SAI_OPENBCM_TEMP_FILE`, `_PROM`, `_INTERVAL` |
 | attach-only temperature reader | `asic_temp.c`: deleted 2026-11-23 | `openbcm-asic-temp` | golden: 30 cases; golden tests | in the AS7772 G4 system (the unit runs while syncd is stopped) | default |
 | the package | `ai_re/nix/packages/sai-openbcm` (now the glue + README) | `nix/sai-openbcm-rs.nix`, the names the C++ package had ([Drop-in package](#drop-in-package)) | builds native and ppc64 (libsdk); link checks | AS7772 | `hardware.openbcm.package` (default; `hardware.openbcm.rustSai`) |
-| Teralynx backend (CS8210) | `sai-teralynx/src`: `ifcs_backend.cpp`, `tl_*.cpp`, `ifcs_config.cpp`: stay (the box's SAI) | `sai-backend-teralynx` (every area of the C++) under `sai-ffi` feature `teralynx` ([Teralynx backend](#teralynx-backend-cs8210-32x)) | `test_ifcs` 1047 / 1047; parity harness strict green ([Parity](#parity)) | never: offline-proven, hardware pending | not yet (`nix/libsai-teralynx.nix`: `sai-rs-teralynx`, aarch64 `cs8210-sai-rs-teralynx`) |
-| libifcs loader + bindings (CS8210) | `ifcs_lib.cpp` (dlopen, 148 symbols, GOT redirects); `ifcs_api.h` from `tools/gen_ifcs_api.py`: stay | `ifcs` (rim), `elf-got` (GOT redirect), `ifcs-sys` (bindgen of the generated header; built, never committed) | layout check: 652 assertions by the target's C compiler (x86_64, aarch64); `test_ifcs` through it | never: hardware pending | with the backend |
-| Teralynx shim (CS8210) | `sai-teralynx/src/shim.c`, `ifcs_guard.c`: stay (the C++ package's) | `ifcs-shim` (rim) + `ifcs-guard` | differential 416 scripts / 95,582 steps equal but the one deliberate difference (x86_64; aarch64 emulated: 416); `test_ifcs` 1047 / 1047 with the Rust shim (x86_64, aarch64 emulated) | never: hardware pending | not yet (`nix/ifcs-shim.nix` builds it) |
+| Teralynx backend (CS8210) | `sai-teralynx/src`: `ifcs_backend.cpp`, `tl_*.cpp`, `ifcs_config.cpp`: stay (the box's SAI) | `sai-backend-teralynx` (every area of the C++) under `sai-ffi` feature `teralynx` ([Teralynx backend](#teralynx-backend-cs8210-32x)) | `test_ifcs` 1047 / 1047; parity harness strict green ([Parity](#parity)) | never: H1 + H2 passed on the chip, H3 pending | not yet (`nix/libsai-teralynx.nix`: `sai-rs-teralynx`, aarch64 `cs8210-sai-rs-teralynx`) |
+| libifcs loader + bindings (CS8210) | `ifcs_lib.cpp` (dlopen, 148 symbols, GOT redirects); `ifcs_api.h` from `tools/gen_ifcs_api.py`: stay | `ifcs` (rim), `elf-got` (GOT redirect), `ifcs-sys` (bindgen of the generated header; built, never committed) | layout check: 652 assertions by the target's C compiler (x86_64, aarch64); `test_ifcs` through it | never: H1 + H2 passed on the chip, H3 pending | with the backend |
+| Teralynx shim (CS8210) | `sai-teralynx/src/shim.c`, `ifcs_guard.c`: stay (the C++ package's) | `ifcs-shim` (rim) + `ifcs-guard` | differential 416 scripts / 95,582 steps equal but the one deliberate difference (x86_64; aarch64 emulated: 416); `test_ifcs` 1047 / 1047 with the Rust shim (x86_64, aarch64 emulated) | never: H1 + H2 passed on the chip, H3 pending | not yet (`nix/ifcs-shim.nix` builds it) |
 | Teralynx parity harness | (the C++ side: sai-teralynx's libsai, `test_ifcs`, `frontend_driver.cpp`, `oracle/sai_script.cpp`, unmodified) | `sai-teralynx-parity` | is the evidence of the rows above ([Parity](#parity)) | n/a (mock libifcs) | target `sai-teralynx-parity` |
-| Teralynx tools (CS8210) | `tools/sai_smoke.cpp`, `trap_frames.c`, `qos_frames.c`, `raw_frames.c`, `l3_frames.c`, `sflow_probe.c`; the header generator `gen_ifcs_api.py`: stay, not ported | | | | |
-| Teralynx oracle (CS8210) | runner `oracle/sai_script.cpp`: stays, not ported (the parity harness runs it on both libsais); tracer `trace_rt.c` / `gen_tracer.py`: stays (it traces the vendor isai) | | | | |
+| Teralynx tools (CS8210) | `tools/sai_smoke.cpp`, `trap_frames.c`, `qos_frames.c`, `raw_frames.c`, `l3_frames.c`, `sflow_probe.c`, `oracle/sai_script.cpp`; the header generator `gen_ifcs_api.py`: still in sai-teralynx until H5 | `sai-teralynx-smoke`, `tl-frames`, `sai-script` (over `sai-client`), `ifcs-gen` | smoke C++ form identical; tl-frames veth differential; sai-script `--cpp-names` identical on 27 scripts; ifcs-gen byte-equal headers | CS8210 H1 (smoke), H2 (sai-script + tl-frames, 37 scripts) | default in the drop-in `sai-teralynx-rs.nix` |
+| Teralynx oracle (CS8210) | runner `oracle/sai_script.cpp`: kept until H5 as the parity reference (ported: `sai-script`, row above); tracer `trace_rt.c` / `gen_tracer.py`: stays (it traces the vendor isai) | | | | |
 | C++-only plugs | `phy-seq-capi`, `sai-macsec-capi` (Rust for the C++): deleted 2026-11-23 | | | (G0) | |
 
 ## Plan: replacing the C++ (accepted 2026-11-23)
@@ -387,7 +387,11 @@ Only for x86_64 (tests on the mock) and aarch64 (the CS8210); on other targets t
 - `ifcs-sys`: bindgen over the GENERATED `ifcs_api.h` / `ifcs_api_qos.h`: its build script generates them
   with `ifcs-gen` from `IFCS_CTYPES` (Nix: the pinned ishell 2.0.1 ctypes; `IFCS_API_EXPECT`: equal to
   `nix/ifcs-headers.nix`'s) or takes `IFCS_API_INC`. Unions are byte blobs (reading a Rust union is unsafe); the
-  `IFCS_SYMBOLS` list (148 entries) as `SYMBOLS` and `for_each_symbol!`. Layout check 2: 652 assertions
+  `IFCS_SYMBOLS` list (148 entries) as `SYMBOLS` and `for_each_symbol!`. Every struct has a byte twin
+  `<struct>_bytes` (`CBytes`: its size and alignment, `[u8; N]`), and the two by-value struct parameters
+  (`ifcs_l2_entry_key_t_mac_l2vni_set`, `ifcs_route_entry_key_t_ip_dest_l3vni_set`: `BY_VALUE_ARGS`) are
+  declared as their twins; the build refuses a by-value struct with a float member, an alignment above 8 or
+  in a callback (the ABI argument: the crate docs, "By-value structs"). Layout check 2: 652 assertions
   (sizes, alignments, offsets, every constant, the symbol list) by the target's C compiler
   (`IFCS_SYS_ABI_CC`, `IFCS_SYS_ABI_CHECK=require` in Nix). `forbid(unsafe_code)`.
 - `elf-got`: the GOT redirect of `ifcs_lib.cpp` (`redirect_cb`). The ELF is read from the object's FILE in
@@ -401,13 +405,19 @@ Only for x86_64 (tests on the mock) and aarch64 (the CS8210); on other targets t
   symbol or "missing symbol X (wrong libifcs version?)"); one safe method per IFCS function over one private
   wrapper per C signature (shape), for 147 of the 148 functions (all but `ifcs_status_to_string`, which nothing
   calls): `call`, `entry` (the L2 / route entry keys, IP prefix accessors and entry calls, generic over the key
-  type; the `ifcs_l2_entry_get_all` walk, its `user` a walk number, never dereferenced), `qos` (queue / BAM
+  type; the `ifcs_l2_entry_get_all` walk, its `user` a walk number, never dereferenced; the walk's keys copied as bytes), `qos` (queue / BAM
   queue keys and counters); `Attrs` (the C++'s zeroed attributes, its three empty forms, `Attrs::bytes` for
   value structs), `Handle`, `Status` (`map_reason` exactly); callbacks over a keyed registry (`sdk-glue`'s
   pattern); `netdev` (`SIOCGIFFLAGS` / `SIOCSIFFLAGS` / `SIOCSIFNAME` / `SIOCSIFHWADDR`: the adopt mode's rename
   of the SDK's `inno_0_<sysport>` netdevs); `ipd` (the ipd ioctls on libifcs' `/dev/ipd`, found through
   `/proc/self/fd`, or the mock's `tl_ipd_ioctl`; layouts with compile-time size checks); libifcs' own
-  `node_pci_reg_read32` / `_write32` for the board's register list. 59 blocks ([Unsafe](#unsafe)).
+  `node_pci_reg_read32` / `_write32` for the board's register list. Every struct it hands libifcs (keys, the IP prefix,
+  the by-value key members, attributes, queue keys, the QoS map info, the traffic-monitor policy, table usage) is its
+  byte twin, zeroed and written field by field at the compiler's offsets (`bytes.rs`): no padding byte is undefined
+  and copies keep every byte (H2-R1, 2026-11-26: libifcs compares raw key bytes; Rust struct values with undefined
+  padding made the chip answer NOTFOUND to route / FDB deletes). `tests/abi.rs`: C callees with the real signatures
+  (`tests/c/abi_fixture.c`) check every byte they get through the crate's call sites, after 64 KiB of 0xa5 on the
+  stack; natively and in the aarch64 bundle. 59 blocks ([Unsafe](#unsafe)).
 - `sai-backend-teralynx` (`forbid(unsafe_code)`): one module per C++ file, line by line: `core`, `config`,
   `keys` (every key of sai-teralynx's README table, C++ defaults and C parsing: `strtoul` base 0, `atoi`),
   `switch` (init / shutdown in the C++ order, init commands, callbacks, temperatures, table usage, chip limits,
@@ -814,7 +824,7 @@ workspace build installs nothing new); package: `nix/sai-teralynx-rs.nix` (below
   (`$P` = `cs8210-sai-teralynx-rs`'s output; the LED defaults are the `regs:` lines when the profile names
   `SAI_TERALYNX_DIAG_REGS`, no post-init list on the first run), a second run with `--recreate`; the oracle's
   `hw:*` scripts with `$P/bin/sai-script --libsai $P/lib/libsai.so.1 <profile> <script>` (`--tool` for the
-  tl-frames programs). `bin/sai-teralynx-smoke` and `bin/sai-script` are wrappers that put the host libstdc++ on `LD_LIBRARY_PATH` (the vendor libifcs.so needs it outside syncd; the real programs are in `libexec/`; the package checks the wrapper's path holds a `libstdc++.so.6` of the target machine). H1 passed 2026-11-26 (log (h) in the device PROGRESS); H2/H3 untested.
+  tl-frames programs). `bin/sai-teralynx-smoke` and `bin/sai-script` are wrappers that put the host libstdc++ on `LD_LIBRARY_PATH` (the vendor libifcs.so needs it outside syncd; the real programs are in `libexec/`; the package checks the wrapper's path holds a `libstdc++.so.6` of the target machine). H1 and H2 passed 2026-11-26 (logs (h), (i) in the device PROGRESS); H3 untested.
 
 ## Wiring into the C++ libsai (G0, deleted)
 
@@ -875,7 +885,7 @@ comparison is one of two kinds:
 | `openbcm-diag` client (`openbcm-diag --test differential`) | live | frozen `openbcm_diag.c` | 29 command lines |
 | diag server (`sai-core/tests/diag.rs`, `SAI_DIAG_CPP_ORACLE`) | live, by hand | a program over the frozen `sai_diag.cpp` (not built by any check) | |
 | glue calls (`sai-backend-openbcm --test glue_differential`) | golden | `openbcm_backend.cpp` + the C++ frontend over a glue stub replaying the Rust fake's answers | 12 scripts, 469 / 482 ops identical (1 entry), 1008 / 1008 glue lines |
-| Teralynx libsai: C++ vs Rust on the mock libifcs (`nix/teralynx-parity.nix`, `crates/sai-teralynx-parity`) | live | `ai_re/nix/packages/sai-teralynx`: its C++ libsai, `test_ifcs`, the frozen frontend's `frontend_driver.cpp`, the oracle's `sai_script.cpp`, all unmodified, on the same mock | 2026-11-26, strict: green: `test_ifcs` Rust 1047 / 1047 (C++ 1047 / 1047); sections 17 / 17 equal; driver 9 scripts (01-09), 376 / 376 ops identical; oracle 27 scripts: 25 equal, 2 allowed (`crates/sai-teralynx-parity/tests/parity-allow.txt`, 3 steps: the runner resolves the scripts' genetlink TYPE to another enum's value, which sai-core's metadata check refuses otherwise than the C++); negative control (one Rust call line changed): red. aarch64 (target `cs8210-sai-teralynx-parity`: everything cross-built, run under binfmt / qemu-user): the same strict report as native, store paths masked |
+| Teralynx libsai: C++ vs Rust on the mock libifcs (`nix/teralynx-parity.nix`, `crates/sai-teralynx-parity`) | live | `ai_re/nix/packages/sai-teralynx`: its C++ libsai, `test_ifcs`, the frozen frontend's `frontend_driver.cpp`, the oracle's `sai_script.cpp`, all unmodified, on the same mock | 2026-11-26, strict: green: `test_ifcs` Rust 1047 / 1047 (C++ 1047 / 1047); sections 17 / 17 equal; driver 9 scripts (01-09), 376 / 376 ops identical; oracle 27 scripts: 25 equal, 2 allowed (`crates/sai-teralynx-parity/tests/parity-allow.txt`, 3 steps: the runner resolves the scripts' genetlink TYPE to another enum's value, which sai-core's metadata check refuses otherwise than the C++); negative control (one Rust call line changed): red. aarch64 (target `cs8210-sai-teralynx-parity`: everything cross-built, run under binfmt / qemu-user): the same strict report as native, store paths masked. Byte tap (H2-R1, 2026-11-26): every IFCS call's struct and attribute arguments as ALL their bytes (`@B` lines, `c/bytes_rt.c` over the oracle tracer's wrappers, `SAI_TERALYNX_IFCS_TRACE`) in every part: equal on all (test_ifcs 3766 lines, driver 3999; the driver part counts 385 ops with it: the tap's profile line is one op per script); byte negative control (`IFCS_POISON_PADDING=1`: the key members' tail padding 0xa5): red on the setters' `@B` lines while test_ifcs stays 1047 / 1047; the library before the fix (581449b): red in 13 of 17 sections, 127 driver ops, 27 of 27 oracle scripts (attribute padding after `id`, the key members' and `ifcs_usage_t`'s padding) |
 | Teralynx shim (`ifcs-shim --test differential`, `nix/ifcs-shim.nix`) | live | sai-teralynx's `shim.c` + `ifcs_guard.c`, compiled unmodified, on the same read sequences | 2026-11-26: 416 scripts (16 corpus + 400 generated), 95,582 steps, equal but the 6 lines of the one deliberate difference ([Teralynx shim](#teralynx-shim-ifcs-shim-ifcs-guard)); the same 416 on aarch64 emulated; `test_ifcs` 1047 / 1047 with the Rust shim |
 | oracle runner: Rust `sai-script` vs `sai_script.cpp` (`crates/sai-script/tests/differential.rs`, in `nix/sai-teralynx-rs.nix`) | live | the oracle's `sai_script.cpp` on the mock, through the C++ and the Rust libsai | 2026-11-26: 27 scripts x 2 libsais: `--cpp-names` identical on all; fixed mode 22 identical, 5 deliberately fixed (`tests/fixed-scripts.txt`); exec / `--tool` identical |
 | smoke: Rust `sai-teralynx-smoke` vs `tools/sai_smoke.cpp` (`crates/sai-teralynx-smoke/tests/mock-smoke.sh`) | live | the C++ program on the mock, through both libsais | 2026-11-26: 3 argument sets x 2 libsais identical (stdout, exit), usage |
@@ -941,7 +951,8 @@ allow it in named modules only. Every block has a `// SAFETY:` comment and one u
 operation (clippy `undocumented_unsafe_blocks`, `multiple_unsafe_ops_per_block` are errors).
 No `static mut` and no `unsafe impl` in hand-written code.
 
-Counted 2026-11-26 with `tests/unsafe-count.sh` (from `rust/sai`): per file of `crates/*/src`, the
+Counted 2026-11-26 (H2-R1 changed no count: the byte twins are safe code, the walk's key copy is the same one
+read) with `tests/unsafe-count.sh` (from `rust/sai`): per file of `crates/*/src`, the
 `unsafe {` blocks before the file's `#[cfg(test)]` module (comment lines excluded); after it and in
 `tests/` they are counted apart. Exports: the `.dynsym` set `sai-ffi/tests/exports.rs` checks.
 `safe fn` declarations: `sdk-glue-sys`'s generated bindings (26, all-scalar glue calls whose C side
@@ -1055,6 +1066,12 @@ verbatim copy of `sai-openbcm/src` at 50a6aa7, where the CS8210's libsai still h
 - The diag socket file stays behind when its setup fails after `bind`; a client that never reads
   its answer holds the SAI lock, then `remove_switch`, for ever (no write timeout; `sai_diag.cpp`).
 
+In Rust, fixed (Teralynx, H2-R1, 2026-11-26): **R1**, found on the CS8210 (evidence
+`ai_re/devices/cs8210-32x/evidence/rust-h2/06-ifcs-key-padding.txt`): the `ifcs` rim built the C structs it hands
+libifcs as Rust struct values, whose padding is undefined; libifcs copies the by-value key members into its keys and
+compares the raw bytes, so route / FDB deletes and replaces answered NOTFOUND and objects stayed busy. The mock
+compares fields: invisible offline until the parity harness's byte tap. Now byte twins (Teralynx backend).
+
 In Rust, fixed: `sdk-glue`'s `Claim::take` (eager `then_some`) let a refused second bring-up
 release the live handle's claim; the first slice's MDIO label round trip; the removed
 `sai-ffi/src/macsec.rs` decoded read-only `MACsec` attributes (list pointers included) before the
@@ -1067,10 +1084,12 @@ model refused them (now a placeholder, never read); the workspace build gave the
   sai.profile, LED / rc program, port_config.ini, hwsku tree) are unchanged by the migration (the same
   store paths as the C++ system at 50a6aa7) and pinned in `boards/as7760/sdk-config-test.nix`. No VM test
   runs its 4x25G break-out on the virtual backend (`SAI_RS_VIRTUAL_PORT_MAP` exists for it).
-- The CS8210 still runs the C++ `sai-teralynx`; the Rust Teralynx libsai and shim ran on the mock libifcs only
-  (x86_64 and aarch64 emulated). Only the chip shows: the real libifcs 0.12.41 under them (GOT slots, the learn
-  guard, the ipd ioctls), adopt-mode netdevs (the parity runs create mode), the board's post-init register
-  list, traffic. The tools (smoke, frame senders) and the oracle runner are still the C++ package's.
+- The CS8210's default SAI is still the C++ `sai-teralynx` (`hardware.cs8210.sonic.saiImplementation`). The Rust Teralynx
+  libsai and shim passed H1 (smoke, a short SONiC run) and H2 on the chip (2026-11-26, device PROGRESS logs (h), (i)): the
+  37 feature scripts, Rust vs C++ equal step for step with the same tools, learn-ring guard injection equal; H2 found R1
+  (above), fixed. H3 is next: a soak and reboots with SONiC on the Rust libsai, the watchdog's guard signal on it, the LED
+  panel replay (owner), and the call to switch the default; the C++ stays until then.
+  Still unproven on the chip: the board's post-init register list beyond the register-level LED walk (the panel effect).
 - `sdk-glue`'s FFI module `real.rs` runs off-target on the glue stub (x86_64, valgrind), not in the
   ppc64 bundle; with the real glue on a chip only (the AS7772 since G2). The glue-call
   golden holds the C++ to the Rust fake's answers (replay): it shows equal calls for equal answers, not

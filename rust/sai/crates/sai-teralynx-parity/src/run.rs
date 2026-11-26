@@ -10,6 +10,14 @@
 //! - **oracle**: the oracle's JSON scripts (their SAI steps: `c/oracle_prep.cpp`) through its runner
 //!   `sai-script` (unmodified) on both, step by step.
 //!
+//! **Argument bytes** (`bytes`, on unless `--no-bytes`): every run has the byte tap
+//! (`bin/libparity-bytes.so`, `c/bytes_rt.c`) as `SAI_TERALYNX_IFCS_TRACE`, so the stream holds an
+//! `@B` line per IFCS call with ALL the bytes of every struct argument (padding and union bytes
+//! included) and of every attribute: the sections and oracle comparisons compare them with the mock's
+//! lines, the driver part compares each script's `@B` lines besides its op blocks. The mock compares
+//! fields, libifcs compares bytes (evidence rust-h2/06-ifcs-key-padding.txt): this is what catches
+//! a padding byte the C++ has zero and the Rust has not.
+//!
 //! A difference is **allowed** (`tests/parity-allow.txt`, deliberate), **pending** (its area, or the
 //! area a `tests/parity-pending.txt` entry names, is still pending: [`crate::areas`]),
 //! **downstream** (after a pending difference in the same run: state the unported area left
@@ -96,6 +104,8 @@ pub struct Config {
     pub mutate: Option<String>,
     /// Run the C++ reference twice and require equal outputs.
     pub repeat_reference: bool,
+    /// The byte tap in every run (`bin/libparity-bytes.so` as `SAI_TERALYNX_IFCS_TRACE`).
+    pub bytes: bool,
     /// Per program run.
     pub timeout: Duration,
 }
@@ -220,6 +230,11 @@ impl Ctx<'_> {
         self.cfg.fixtures.join(rel)
     }
 
+    /// The byte tap of the runs, if on.
+    fn bytes_tap(&self) -> Option<PathBuf> {
+        self.cfg.bytes.then(|| self.fixture("bin/libparity-bytes.so"))
+    }
+
     fn out_dir(&self, rel: &str) -> Result<PathBuf, String> {
         let d = self.cfg.work.join("out").join(rel);
         fs::create_dir_all(&d).map_err(|e| format!("{}: {e}", d.display()))?;
@@ -267,7 +282,12 @@ impl Ctx<'_> {
             .env("LD_PRELOAD", self.fixture("bin/libparity-tap.so"))
             .env("PARITY_TAP_FILE", tap)
             .env("PARITY_MOCK", self.fixture("mock/libifcs.so"))
-            .env_remove("PARITY_TAP_MUTATE");
+            .env_remove("PARITY_TAP_MUTATE")
+            .env_remove("PARITY_PROFILE_ADD");
+        if let Some(t) = self.bytes_tap() {
+            // test_ifcs's fixed profile gets the key through sections.cpp's sai_api_initialize wrap
+            c.env("PARITY_PROFILE_ADD", format!("SAI_TERALYNX_IFCS_TRACE={}", t.display()));
+        }
         if let (Side::Rust, Some(m)) = (side, &self.cfg.mutate) {
             c.env("PARITY_TAP_MUTATE", m);
         }
@@ -525,6 +545,18 @@ fn run_test_ifcs(x: &Ctx<'_>, side: Side, tag: &str) -> Result<IfcsRun, String> 
     })
 }
 
+/// The byte tap's line prefix (`c/bytes_rt.c`).
+const BYTES: &str = "@B ";
+
+/// The byte tap's lines of a stream.
+fn bytes_lines(stream: &str) -> Vec<String> {
+    stream
+        .lines()
+        .filter(|l| l.starts_with(BYTES))
+        .map(str::to_owned)
+        .collect()
+}
+
 /// The tap's check: the final `TEST_IFCS_DUMP` (the mock's own buffer since its last clear) is the
 /// tail of the stream before `switch_remove`: the lines in common at the end.
 fn dump_tail(run: &IfcsRun) -> usize {
@@ -532,7 +564,7 @@ fn dump_tail(run: &IfcsRun) -> usize {
         .tap
         .lines()
         .take_while(|l| *l != "@@ begin switch_remove")
-        .filter(|l| !l.starts_with("@@ "))
+        .filter(|l| !l.starts_with("@@ ") && !l.starts_with(BYTES))
         .collect();
     let err: Vec<&str> = run
         .stderr
@@ -573,6 +605,15 @@ fn test_ifcs(x: &mut Ctx<'_>) -> Result<Option<(u32, u32)>, String> {
     ));
     if tail == 0 {
         x.redden("tap check: the stream does not end as the mock's own log (the tap misses lines)".to_owned());
+    }
+    if x.cfg.bytes {
+        let (cb, rb) = (bytes_lines(&cpp.tap).len(), bytes_lines(&rust.tap).len());
+        x.line(format!(
+            "   byte tap: {cb} C++ / {rb} Rust @B lines (every IFCS call's argument bytes, compared in the sections)"
+        ));
+        if cb == 0 || rb == 0 {
+            x.redden("byte tap: a side's stream has no @B lines (SAI_TERALYNX_IFCS_TRACE not taken)".to_owned());
+        }
     }
     if x.cfg.repeat_reference {
         let again = run_test_ifcs(x, Side::Cpp, "cpp-again")?;
@@ -784,11 +825,13 @@ fn driver_profile(x: &Ctx<'_>, dir: &Path) -> String {
         // the host interfaces as netdevs the library creates (test_ifcs's mode): the build host has no
         // Ethernet<n> to adopt (the box's default), so adopt would only compare the refusal
         "profile SAI_TERALYNX_NETDEV=create\n".to_owned(),
+        x.bytes_tap()
+            .map_or_else(String::new, |t| key("SAI_TERALYNX_IFCS_TRACE", &t)),
     ]
     .concat()
 }
 
-fn run_driver(x: &Ctx<'_>, side: Side, script: &Path, tag: &str) -> Result<(String, String), String> {
+fn run_driver(x: &Ctx<'_>, side: Side, script: &Path, tag: &str) -> Result<(String, String, String), String> {
     let dir = x.cfg.work.join("d");
     fresh(&dir)?;
     let text = driver_profile(x, &dir) + &read(script)?;
@@ -805,10 +848,41 @@ fn run_driver(x: &Ctx<'_>, side: Side, script: &Path, tag: &str) -> Result<(Stri
     let name = stem(script);
     fs::write(keep.join(format!("{name}.{tag}.txt")), &r.stdout).map_err(|e| e.to_string())?;
     fs::write(keep.join(format!("{name}.{tag}.stderr.txt")), &r.stderr).map_err(|e| e.to_string())?;
+    let tap = fs::read_to_string(dir.join("tap.txt")).unwrap_or_default();
+    fs::write(keep.join(format!("{name}.{tag}.tap.txt")), &tap).map_err(|e| e.to_string())?;
     let status = r.status();
-    Ok((r.stdout, status))
+    Ok((r.stdout, status, tap))
 }
 
+/// The driver part's byte check of one script: the `@B` lines of the two taps, whole script.
+/// Answers (C++ lines, differ, red); a difference goes into `lines` (and, red, into the red list).
+fn driver_bytes(
+    x: &mut Ctx<'_>,
+    name: &str,
+    cpp_tap: &str,
+    rust_tap: &str,
+    lines: &mut Vec<(String, bool)>,
+) -> (usize, bool, bool) {
+    let (cb, rb) = (bytes_lines(cpp_tap), bytes_lines(rust_tap));
+    if cb.is_empty() {
+        x.redden(format!("driver {name}: the byte tap wrote no @B lines"));
+        return (0, false, true);
+    }
+    let d = stream::diff_lines(&cb, &rb);
+    if d.raw_equal {
+        return (cb.len(), false, false);
+    }
+    let j = x.judge(name, "@B", &[], false);
+    let text = format!("argument bytes ({} @B lines): {}", cb.len(), stream::describe(&d));
+    let red = j == Judged::Red;
+    if red {
+        x.red.push(format!("driver {name}: {text}"));
+    }
+    lines.push((format!("      {text}  [{}]", j.text(&x.allow)), red));
+    (cb.len(), true, red)
+}
+
+#[allow(clippy::too_many_lines, reason = "one part's report, in order")]
 fn driver(x: &mut Ctx<'_>) -> Result<(), String> {
     let scripts = ops_files(&x.cfg.driver_scripts, "ops")?;
     if scripts.is_empty() {
@@ -818,16 +892,17 @@ fn driver(x: &mut Ctx<'_>) -> Result<(), String> {
     let mut differing = 0;
     let mut rows = Vec::new();
     let mut kinds: BTreeMap<&'static str, usize> = BTreeMap::new();
+    let (mut bytes_total, mut bytes_differ) = (0usize, 0usize);
     for script in &scripts {
         let name = stem(script);
-        let (cpp, cpp_st) = run_driver(x, Side::Cpp, script, "cpp")?;
-        let (rust, rust_st) = run_driver(x, Side::Rust, script, "rust")?;
+        let (cpp, cpp_st, cpp_tap) = run_driver(x, Side::Cpp, script, "cpp")?;
+        let (rust, rust_st, rust_tap) = run_driver(x, Side::Rust, script, "rust")?;
         if cpp_st != "exit 0" {
             x.redden(format!("driver {name}: the C++ reference run ended {cpp_st}"));
         }
         if x.cfg.repeat_reference {
-            let (again, _) = run_driver(x, Side::Cpp, script, "cpp-again")?;
-            if again != cpp {
+            let (again, _, again_tap) = run_driver(x, Side::Cpp, script, "cpp-again")?;
+            if again != cpp || bytes_lines(&again_tap) != bytes_lines(&cpp_tap) {
                 x.redden(format!(
                     "driver {name}: the C++ reference is not deterministic (two runs differ)"
                 ));
@@ -874,6 +949,12 @@ fn driver(x: &mut Ctx<'_>) -> Result<(), String> {
                 j == Judged::Red,
             ));
         }
+        if x.cfg.bytes {
+            let (n, differs, red) = driver_bytes(x, &name, &cpp_tap, &rust_tap, &mut lines);
+            bytes_total += n;
+            bytes_differ += usize::from(differs);
+            red_here += usize::from(red);
+        }
         rows.push((name, c.blocks, c.diffs.len(), red_here, rust_st, lines));
     }
     let k: Vec<String> = kinds.iter().map(|(k, n)| format!("{n} {k}")).collect();
@@ -883,6 +964,12 @@ fn driver(x: &mut Ctx<'_>) -> Result<(), String> {
         total - differing,
         if k.is_empty() { String::new() } else { format!(" ({})", k.join(", ")) }
     ));
+    if x.cfg.bytes {
+        x.line(format!(
+            "   argument bytes (@B lines of the byte tap, whole script): {bytes_total} lines, {} scripts equal, {bytes_differ} differ",
+            scripts.len() - bytes_differ
+        ));
+    }
     for (name, blocks, diffs, red_here, rust_st, lines) in rows {
         x.line(format!(
             "   {name}: {blocks} ops, {} identical, {diffs} differ{} (Rust run: {rust_st})",
@@ -907,14 +994,18 @@ fn driver(x: &mut Ctx<'_>) -> Result<(), String> {
 // ============================================================== oracle scripts
 
 fn oracle_profile(x: &Ctx<'_>, dir: &Path) -> String {
-    format!(
-        "SAI_OPENBCM_BACKEND=openbcm\nSAI_TERALYNX_NETDEV=create\nSAI_TERALYNX_LIBIFCS={}\nSAI_TERALYNX_PORT_MAP={}\nSAI_INIT_CONFIG_FILE={}\nSAI_TERALYNX_RUN_DIR={}\nSAI_OPENBCM_DIAG_SOCKET={}\n",
-        x.fixture("mock/libifcs.so").display(),
-        x.fixture("cfg/ports32.map").display(),
-        x.fixture("cfg/init.yaml").display(),
-        dir.join("run").display(),
-        dir.join("diag.sock").display()
-    )
+    let bytes = x
+        .bytes_tap()
+        .map_or_else(String::new, |t| format!("SAI_TERALYNX_IFCS_TRACE={}\n", t.display()));
+    bytes
+        + &format!(
+            "SAI_OPENBCM_BACKEND=openbcm\nSAI_TERALYNX_NETDEV=create\nSAI_TERALYNX_LIBIFCS={}\nSAI_TERALYNX_PORT_MAP={}\nSAI_INIT_CONFIG_FILE={}\nSAI_TERALYNX_RUN_DIR={}\nSAI_OPENBCM_DIAG_SOCKET={}\n",
+            x.fixture("mock/libifcs.so").display(),
+            x.fixture("cfg/ports32.map").display(),
+            x.fixture("cfg/init.yaml").display(),
+            dir.join("run").display(),
+            dir.join("diag.sock").display()
+        )
 }
 
 struct OracleRun {
@@ -1118,6 +1209,7 @@ mod tests {
             only: Vec::new(),
             mutate: None,
             repeat_reference: false,
+            bytes: false,
             timeout: Duration::from_secs(1),
         }
     }

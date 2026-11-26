@@ -104,9 +104,13 @@ fn main() {
             "ifcs-sys: union {u} of build.rs UNIONS is not in the header any more"
         );
     }
+    let symbols = symbol_list(&header_text);
+    // Every struct gets a byte twin, and the by-value struct parameters of the IFCS functions take
+    // it (src/lib.rs, "By-value structs"): written after the union check, so the twins (structs)
+    // are not mistaken for unions.
+    let text = twins(&text, &symbols);
     fs::write(out.join("bindings.rs"), &text).expect("write bindings");
 
-    let symbols = symbol_list(&header_text);
     let flat: String = text.chars().filter(|c| !c.is_whitespace()).collect();
     for s in &symbols {
         assert!(
@@ -213,6 +217,184 @@ fn generate_headers(out: &Path, ctypes: &Path) -> PathBuf {
         }
     }
     dir
+}
+
+/// bindgen's layout test value `what` (`Size` / `Alignment`) of `ty` in the whitespace-free bindings.
+fn layout_of(flat: &str, ty: &str, what: &str, f: &str) -> Option<usize> {
+    let key = format!("\"{what}of{ty}\"][::core::mem::{f}::<{ty}>()-");
+    flat.split_once(&key)
+        .and_then(|(_, r)| r.split_once("usize"))
+        .and_then(|(v, _)| v.parse().ok())
+}
+
+/// The field types of `pub struct <name> { ... }` in the bindings (prettyplease's form: one
+/// `pub field: type,` per line).
+fn field_types<'a>(text: &'a str, name: &str) -> Vec<&'a str> {
+    let head = format!("pub struct {name} {{");
+    let Some(start) = text.find(&head) else {
+        return Vec::new();
+    };
+    let body = &text[start + head.len()..];
+    let body = &body[..body.find("\n}").unwrap_or(body.len())];
+    body.lines()
+        .filter_map(|l| l.trim().strip_prefix("pub "))
+        .filter_map(|l| l.split_once(": ").map(|(_, t)| t.trim_end_matches(',').trim()))
+        .collect()
+}
+
+/// Whether a type of the bindings is or holds a floating-point value (directly, in an array, or
+/// in a struct it holds): such a struct is classified otherwise than its bytes (`SysV` SSE class,
+/// AAPCS64 HFA), so it cannot be passed as a byte twin.
+fn has_float(text: &str, structs: &BTreeSet<String>, ty: &str, depth: usize) -> bool {
+    let t = ty.trim();
+    if ["f32", "f64", "c_float", "c_double"].iter().any(|f| t.ends_with(f)) {
+        return true;
+    }
+    if let Some(inner) = t.strip_prefix('[').and_then(|r| r.rsplit_once(';')).map(|(e, _)| e) {
+        return has_float(text, structs, inner, depth);
+    }
+    if depth < 8 && structs.contains(t) {
+        return field_types(text, t)
+            .iter()
+            .any(|f| has_float(text, structs, f, depth + 1));
+    }
+    false
+}
+
+/// The byte twins (`<struct>_bytes`, src/lib.rs "By-value structs") of every struct of the
+/// bindings (the union blobs and bindgen's anonymous types aside), and the by-value struct
+/// parameters of the IFCS functions' `<name>_fn` typedefs rewritten to them, listed in
+/// `BY_VALUE_ARGS`. Refused (build failure): a by-value struct parameter of a struct with a
+/// floating-point member or an alignment above 8 (another argument class than its bytes'), a
+/// by-value struct anywhere else (a callback's parameter, a return value).
+fn twins(text: &str, symbols: &[String]) -> String {
+    let flat: String = text
+        .chars()
+        .filter(|c| !c.is_whitespace())
+        .collect::<String>()
+        .replace("\",]", "\"]");
+    let structs: BTreeSet<String> = text
+        .split("pub struct ")
+        .skip(1)
+        .filter_map(|p| p.split_whitespace().next())
+        .filter(|n| !n.starts_with("_bindgen") && !n.contains("__bindgen") && !UNIONS.contains(n))
+        .map(str::to_owned)
+        .collect();
+    let mut out = String::with_capacity(text.len() + structs.len() * 600);
+    let mut rewritten: Vec<(String, usize, String)> = Vec::new();
+    let mut rest = text;
+    let fn_head = "unsafe extern \"C\" fn(";
+    while let Some(at) = rest.find(fn_head) {
+        let open = at + fn_head.len();
+        out.push_str(&rest[..open]);
+        // the typedef this function type is the whole of (`pub type <name> = Option<fn(..)>`), if any
+        let owner = out
+            .rfind("pub type ")
+            .map(|p| &out[p + "pub type ".len()..])
+            .and_then(|s| {
+                let flat: String = s.chars().filter(|c| !c.is_whitespace()).collect();
+                let (name, rhs) = flat.split_once('=')?;
+                (rhs == "::core::option::Option<unsafeextern\"C\"fn(").then(|| name.to_owned())
+            })
+            .unwrap_or_default();
+        let mut depth = 1usize;
+        let mut close = open;
+        let mut prev = ' ';
+        for (i, ch) in rest[open..].char_indices() {
+            match ch {
+                '(' | '<' | '[' => depth += 1,
+                '>' if prev == '-' => {}
+                ')' | '>' | ']' => depth -= 1,
+                _ => {}
+            }
+            prev = ch;
+            if depth == 0 {
+                close = open + i;
+                break;
+            }
+        }
+        let params = &rest[open..close];
+        let sym = owner.strip_suffix("_fn").filter(|s| symbols.iter().any(|x| x == s));
+        let mut new_params = String::new();
+        for (i, p) in split_top(params).into_iter().enumerate() {
+            let ty = p.split_once(':').map(|(_, t)| t.trim());
+            match ty.filter(|t| structs.contains(*t)) {
+                Some(t) => {
+                    let s = sym.unwrap_or_else(|| {
+                        panic!("ifcs-sys: {owner} takes struct {t} by value (only IFCS functions may: build.rs twins)")
+                    });
+                    let align = layout_of(&flat, t, "Alignment", "align_of").unwrap_or(usize::MAX);
+                    assert!(
+                        align <= 8 && !has_float(text, &structs, t, 0),
+                        "ifcs-sys: {s} takes {t} by value, which has a floating-point member or alignment {align}: \
+                         its byte twin would be passed otherwise (src/lib.rs, \"By-value structs\")"
+                    );
+                    new_params.push_str(&p.replacen(t, &format!("{t}_bytes"), 1));
+                    rewritten.push((s.to_owned(), i, t.to_owned()));
+                }
+                None => new_params.push_str(p),
+            }
+            new_params.push(',');
+        }
+        new_params.pop();
+        out.push_str(&new_params);
+        rest = &rest[close..];
+        // the return type, up to the end of the type: no struct by value
+        let ret_end = rest.find(['\n', ';']).unwrap_or(rest.len());
+        if let Some((_, r)) = rest[..ret_end].split_once("->") {
+            let r = r.trim().trim_end_matches(',');
+            assert!(!structs.contains(r), "ifcs-sys: {owner} returns struct {r} by value");
+        }
+    }
+    out.push_str(rest);
+    out.push_str("\n// ---- byte twins (build.rs twins) ----\n");
+    for s in &structs {
+        let size = layout_of(&flat, s, "Size", "size_of")
+            .unwrap_or_else(|| panic!("ifcs-sys: no size of struct {s} in bindgen's layout tests"));
+        let align = layout_of(&flat, s, "Alignment", "align_of")
+            .unwrap_or_else(|| panic!("ifcs-sys: no alignment of struct {s} in bindgen's layout tests"));
+        let _ = write!(
+            out,
+            "/// The bytes of a [`{s}`]: its size and alignment, every byte a `u8` (no padding).\n\
+             #[repr(C, align({align}))]\n#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]\n\
+             pub struct {s}_bytes(pub [u8; {size}]);\n\
+             const _: () = assert!(::core::mem::size_of::<{s}_bytes>() == ::core::mem::size_of::<{s}>());\n\
+             const _: () = assert!(::core::mem::align_of::<{s}_bytes>() == ::core::mem::align_of::<{s}>());\n\
+             impl crate::CBytes for {s}_bytes {{\n    type C = {s};\n    const ZERO: Self = Self([0; {size}]);\n\
+             fn as_bytes(&self) -> &[u8] {{\n        &self.0\n    }}\n\
+             fn as_bytes_mut(&mut self) -> &mut [u8] {{\n        &mut self.0\n    }}\n}}\n"
+        );
+    }
+    out.push_str(
+        "/// The by-value struct parameters of the IFCS functions, each declared as the struct's byte twin\n\
+         /// in its `<name>_fn` typedef: (function, parameter index from 0, struct).\n\
+         pub const BY_VALUE_ARGS: &[(&str, usize, &str)] = &[\n",
+    );
+    for (f, i, t) in &rewritten {
+        let _ = writeln!(out, "    (\"{f}\", {i}, \"{t}\"),");
+    }
+    out.push_str("];\n");
+    out
+}
+
+/// `s` split at its commas outside brackets.
+fn split_top(s: &str) -> Vec<&str> {
+    let (mut out, mut depth, mut start, mut prev) = (Vec::new(), 0usize, 0usize, ' ');
+    for (i, ch) in s.char_indices() {
+        match ch {
+            '(' | '<' | '[' => depth += 1,
+            '>' if prev == '-' => {}
+            ')' | '>' | ']' => depth = depth.saturating_sub(1),
+            ',' if depth == 0 => {
+                out.push(&s[start..i]);
+                start = i + 1;
+            }
+            _ => {}
+        }
+        prev = ch;
+    }
+    out.push(&s[start..]);
+    out
 }
 
 /// Replaces `pub union <u> { ... }` with `pub struct <u> { pub blob: [u8; size] }` of the same

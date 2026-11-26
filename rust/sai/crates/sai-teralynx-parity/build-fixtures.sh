@@ -8,6 +8,9 @@
 #   OUT/mock/libifcs.so          the mock libifcs, as sai-teralynx's Makefile builds it
 #   OUT/bin/libsai-teralynx-shim.so   the C shim, as the Makefile builds it (put next to each libsai)
 #   OUT/bin/libparity-tap.so     c/tap.c (LD_PRELOAD: every mock line into one stream)
+#   OUT/bin/libparity-bytes.so   the byte tap: oracle/gen_tracer.py's wrappers over the generated header with
+#                                c/bytes_rt.c (SAI_TERALYNX_IFCS_TRACE: every IFCS call's argument bytes into
+#                                the same stream; PYTHON: the build platform's python3)
 #   OUT/bin/test_ifcs-sections   test_ifcs.cpp + t_*.cpp (the Makefile's flags) + c/sections.cpp,
 #                                -Wl,--wrap for each area main() calls (c/wrap-symbols.txt)
 #   OUT/bin/tl-frontend-driver   frontend_driver.cpp + c/tl_port.cpp, a SAI C API client of any libsai.so.1
@@ -29,10 +32,13 @@ $cc -std=gnu11 -fPIC -shared $warn -Werror=incompatible-pointer-types -O2 -g -I"
   -Wl,--no-undefined -o "$out/mock/libifcs.so" "$tl"/tests/mock/*.c -lpthread
 $cc -std=gnu11 -fPIC -shared -Wall -Wextra -Werror -O2 -g -Wl,-soname,libparity-tap.so \
   -o "$out/bin/libparity-tap.so" "$here/c/tap.c" -ldl -lpthread
+${PYTHON:-python3} -I -B "$tl/oracle/gen_tracer.py" --header "$gen/ifcs_api.h" --abi parity-bytes -o "$out/obj/bytes_gen.c"
+$cc -std=gnu11 -fPIC -shared -Wall -Werror -O2 -g -I"$tl/oracle" -I"$gen" -Wl,-soname,libparity-bytes.so \
+  -o "$out/bin/libparity-bytes.so" "$out/obj/bytes_gen.c" "$here/c/bytes_rt.c" -ldl -lpthread
 wraps=$(grep -v '^#' "$here/c/wrap-symbols.txt" | sed 's/^/-Wl,--wrap=/' | tr '\n' ' ')
 # shellcheck disable=SC2086
 $cxx -std=c++17 $warn -O2 -g -I"$sai" -I"$sai/../experimental" -I"$tl/tests" -o "$out/bin/test_ifcs-sections" \
-  "$tl/tests/test_ifcs.cpp" "$tl"/tests/t_*.cpp "$here/c/sections.cpp" $wraps -L"$out/link" -l:libsai.so.1 -ldl -lpthread
+  "$tl/tests/test_ifcs.cpp" "$tl"/tests/t_*.cpp "$here/c/sections.cpp" $wraps -Wl,--wrap=sai_api_initialize -L"$out/link" -l:libsai.so.1 -ldl -lpthread
 # every wrapped area must exist (a renamed area would silently lose its section)
 for s in $(grep -v '^#' "$here/c/wrap-symbols.txt"); do
   nm "$out/bin/test_ifcs-sections" | grep -q " T $s\$" || { echo "build-fixtures: $s is not an area of test_ifcs" >&2; exit 1; }

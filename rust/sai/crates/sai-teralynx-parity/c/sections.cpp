@@ -9,6 +9,9 @@
 // the last one (sai_api_uninitialize) "uninit". A run that dies inside an area (std::terminate,
 // SIGSEGV, ...) still leaves that area's counts so far, marked "incomplete".
 //   counts file lines: "section <name> checks <n> failed <n>[ incomplete]"
+// It also wraps sai_api_initialize (-Wl,--wrap=sai_api_initialize): with PARITY_PROFILE_ADD=<key>=<value>
+// in the environment, the profile test_ifcs.cpp hands the library answers that key too (the byte
+// tap's SAI_TERALYNX_IFCS_TRACE: test_ifcs.cpp's own profile is fixed), every other key as before.
 #include "harness.h"
 
 #include <csignal>
@@ -87,6 +90,46 @@ void leave(const char* name)
 }
 
 } // namespace
+
+// ---------------------------------------------------------------- the profile key added
+namespace {
+const sai_service_method_table_t* g_services = nullptr;
+std::string g_add_key, g_add_value;
+bool g_add_listed = false;
+
+const char* add_get(sai_switch_profile_id_t id, const char* k)
+{
+    if (k && !g_add_key.empty() && g_add_key == k) return g_add_value.c_str();
+    return g_services && g_services->profile_get_value ? g_services->profile_get_value(id, k) : nullptr;
+}
+
+int add_next(sai_switch_profile_id_t id, const char** k, const char** v)
+{
+    if (!k || !v) g_add_listed = false;   // a restart of the iteration
+    int r = g_services && g_services->profile_get_next_value ? g_services->profile_get_next_value(id, k, v) : -1;
+    if (r == -1 && k && v && !g_add_key.empty() && !g_add_listed) {
+        g_add_listed = true;
+        *k = g_add_key.c_str();
+        *v = g_add_value.c_str();
+        return 0;
+    }
+    return r;
+}
+
+sai_service_method_table_t g_add_table = {add_get, add_next};
+} // namespace
+
+extern "C" sai_status_t __real_sai_api_initialize(uint64_t flags, const sai_service_method_table_t* services);
+extern "C" sai_status_t __wrap_sai_api_initialize(uint64_t flags, const sai_service_method_table_t* services)
+{
+    const char* add = std::getenv("PARITY_PROFILE_ADD");
+    const char* eq = add ? std::strchr(add, '=') : nullptr;
+    if (!eq || !services) return __real_sai_api_initialize(flags, services);
+    g_services = services;
+    g_add_key.assign(add, (size_t)(eq - add));
+    g_add_value.assign(eq + 1);
+    return __real_sai_api_initialize(flags, &g_add_table);
+}
 
 #define W(sym, name)                                     \
     extern "C" void __real_##sym(Env& e);                \

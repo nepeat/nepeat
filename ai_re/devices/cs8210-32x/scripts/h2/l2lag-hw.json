@@ -1,0 +1,866 @@
+{
+ "name": "l2lag-hw: CPU out of flood groups, learning/aging/flush on the loop, LAGs + teamd LACP between PortChannel1 (cage 31) and PortChannel2 (cage 32), member down/up [h2: cage 31 <-> 32]",
+ "steps": [
+  {
+   "op": "create_switch",
+   "attrs": [
+    [
+     "INIT_SWITCH",
+     "bool",
+     true
+    ],
+    [
+     "PORT_STATE_CHANGE_NOTIFY",
+     "ptr",
+     "port_state"
+    ],
+    [
+     "FDB_EVENT_NOTIFY",
+     "ptr",
+     "fdb"
+    ],
+    [
+     "SWITCH_SHUTDOWN_REQUEST_NOTIFY",
+     "ptr",
+     "shutdown"
+    ]
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "ports"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_1Q_BRIDGE_ID",
+    "oid"
+   ],
+   "as": "bridge"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_VLAN_ID",
+    "oid"
+   ],
+   "as": "vlan1"
+  },
+  {
+   "op": "get",
+   "obj": "$vlan1",
+   "desc": "VLAN 1 members",
+   "attr": [
+    "MEMBER_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "vmembers"
+  },
+  {
+   "op": "foreach",
+   "list": "vmembers",
+   "as": "m",
+   "steps": [
+    {
+     "op": "remove",
+     "obj": "$m",
+     "desc": "VLAN 1 member",
+     "may_fail": true
+    }
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "$bridge",
+   "desc": "default bridge ports",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    128
+   ],
+   "as": "bports"
+  },
+  {
+   "op": "foreach",
+   "list": "bports",
+   "as": "b",
+   "steps": [
+    {
+     "op": "remove",
+     "obj": "$b",
+     "desc": "default bridge port",
+     "may_fail": true
+    }
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "switch",
+   "desc": "aging 10 s",
+   "attr": [
+    "FDB_AGING_TIME",
+    "u32",
+    10
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "desc": "mtu",
+   "attr": [
+    "MTU",
+    "u32",
+    9100
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "desc": "fec rs",
+   "attr": [
+    "FEC_MODE",
+    "s32",
+    "RS"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif0",
+   "desc": "Ethernet240",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[30]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet240"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[31]",
+   "desc": "mtu",
+   "attr": [
+    "MTU",
+    "u32",
+    9100
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[31]",
+   "desc": "fec rs",
+   "attr": [
+    "FEC_MODE",
+    "s32",
+    "RS"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[31]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif15",
+   "desc": "Ethernet248",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[31]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet248"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "g_q4",
+   "desc": "queue 4",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_lacp",
+   "desc": "LACP",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "LACP"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q4"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_arp",
+   "desc": "ARP_REQUEST copy",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "ARP_REQUEST"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "COPY"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q4"
+    ]
+   ]
+  },
+  {
+   "op": "sleep",
+   "ms": 10000
+  },
+  {
+   "op": "get",
+   "obj": "$ports[30]",
+   "desc": "oper Ethernet240",
+   "attr": [
+    "OPER_STATUS",
+    "s32"
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "$ports[31]",
+   "desc": "oper Ethernet248",
+   "attr": [
+    "OPER_STATUS",
+    "s32"
+   ]
+  },
+  {
+   "op": "print",
+   "text": "PHASE 1: ports in no VLAN, CPU in no flood group"
+  },
+  {
+   "op": "exec",
+   "desc": "plain into cage 32 (no VLAN): expect rx 0",
+   "cmd": "$ORACLE/bin/trap-frames Ethernet240 Ethernet248 plain 50 100"
+  },
+  {
+   "op": "exec",
+   "desc": "arp into cage 32 (ARP COPY): expect rx 50",
+   "cmd": "$ORACLE/bin/trap-frames Ethernet240 Ethernet248 arp 50 100"
+  },
+  {
+   "op": "print",
+   "text": "PHASE 2: Ethernet240 untagged in VLAN 100: learning, flood, aging, static, flush"
+  },
+  {
+   "op": "create",
+   "type": "BRIDGE_PORT",
+   "as": "bp0",
+   "desc": "bridge port Ethernet240",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "PORT"
+    ],
+    [
+     "PORT_ID",
+     "oid",
+     "$ports[30]"
+    ],
+    [
+     "ADMIN_STATE",
+     "bool",
+     true
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "VLAN",
+   "as": "vlan100",
+   "attrs": [
+    [
+     "VLAN_ID",
+     "u16",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "VLAN_MEMBER",
+   "as": "vm0",
+   "desc": "Ethernet240 untagged in 100",
+   "attrs": [
+    [
+     "VLAN_ID",
+     "oid",
+     "$vlan100"
+    ],
+    [
+     "BRIDGE_PORT_ID",
+     "oid",
+     "$bp0"
+    ],
+    [
+     "VLAN_TAGGING_MODE",
+     "s32",
+     "UNTAGGED"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "desc": "pvid 100",
+   "attr": [
+    "PORT_VLAN_ID",
+    "u16",
+    100
+   ]
+  },
+  {
+   "op": "exec",
+   "desc": "unknown unicast into VLAN 100: learn, expect rx 0 (no CPU flood)",
+   "cmd": "$ORACLE/bin/trap-frames Ethernet248 Ethernet240 plain 50 100"
+  },
+  {
+   "op": "exec",
+   "desc": "arp into VLAN 100: expect rx 50",
+   "cmd": "$ORACLE/bin/trap-frames Ethernet248 Ethernet240 arp 50 100"
+  },
+  {
+   "op": "sleep",
+   "ms": 3000
+  },
+  {
+   "op": "print",
+   "text": "waiting 30 s for aging (10 s)"
+  },
+  {
+   "op": "sleep",
+   "ms": 30000
+  },
+  {
+   "op": "create_fdb",
+   "desc": "static on Ethernet240",
+   "vlan": "$vlan100",
+   "mac": "02:00:00:00:aa:01",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "STATIC"
+    ],
+    [
+     "BRIDGE_PORT_ID",
+     "oid",
+     "$bp0"
+    ]
+   ]
+  },
+  {
+   "op": "create_fdb",
+   "desc": "drop entry on Ethernet240",
+   "vlan": "$vlan100",
+   "mac": "02:00:00:00:aa:02",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "STATIC"
+    ],
+    [
+     "BRIDGE_PORT_ID",
+     "oid",
+     "$bp0"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "flush_fdb",
+   "desc": "bp0 static",
+   "attrs": [
+    [
+     "BRIDGE_PORT_ID",
+     "oid",
+     "$bp0"
+    ],
+    [
+     "ENTRY_TYPE",
+     "s32",
+     "STATIC"
+    ]
+   ]
+  },
+  {
+   "op": "remove_fdb",
+   "desc": "gone after the flush",
+   "vlan": "$vlan100",
+   "mac": "02:00:00:00:aa:01",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$vm0"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "desc": "pvid 1",
+   "attr": [
+    "PORT_VLAN_ID",
+    "u16",
+    1
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$bp0"
+  },
+  {
+   "op": "print",
+   "text": "PHASE 3: PortChannel1 = {Ethernet240} untagged in VLAN 100, PortChannel2 = {Ethernet248}, teamd LACP"
+  },
+  {
+   "op": "create",
+   "type": "LAG",
+   "as": "lag1",
+   "desc": "PortChannel1"
+  },
+  {
+   "op": "create",
+   "type": "LAG",
+   "as": "lag2",
+   "desc": "PortChannel2"
+  },
+  {
+   "op": "create",
+   "type": "LAG_MEMBER",
+   "as": "lm1",
+   "desc": "lag1 + Ethernet240",
+   "attrs": [
+    [
+     "LAG_ID",
+     "oid",
+     "$lag1"
+    ],
+    [
+     "PORT_ID",
+     "oid",
+     "$ports[30]"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "LAG_MEMBER",
+   "as": "lm2",
+   "desc": "lag2 + Ethernet248",
+   "attrs": [
+    [
+     "LAG_ID",
+     "oid",
+     "$lag2"
+    ],
+    [
+     "PORT_ID",
+     "oid",
+     "$ports[31]"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "BRIDGE_PORT",
+   "as": "bpl1",
+   "desc": "bridge port on lag1",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "PORT"
+    ],
+    [
+     "PORT_ID",
+     "oid",
+     "$lag1"
+    ],
+    [
+     "ADMIN_STATE",
+     "bool",
+     true
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "VLAN_MEMBER",
+   "as": "vml",
+   "desc": "lag1 untagged in 100",
+   "attrs": [
+    [
+     "VLAN_ID",
+     "oid",
+     "$vlan100"
+    ],
+    [
+     "BRIDGE_PORT_ID",
+     "oid",
+     "$bpl1"
+    ],
+    [
+     "VLAN_TAGGING_MODE",
+     "s32",
+     "UNTAGGED"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$lag1",
+   "desc": "lag1 pvid 100",
+   "attr": [
+    "PORT_VLAN_ID",
+    "u16",
+    100
+   ]
+  },
+  {
+   "op": "exec",
+   "desc": "teamd PortChannel1/2",
+   "cmd": "/run/current-system/sw/bin/bash /run/l2lag/l2lag-teamd.sh up"
+  },
+  {
+   "op": "exec",
+   "desc": "LACP sync",
+   "cmd": "/run/current-system/sw/bin/bash /run/l2lag/l2lag-teamd.sh wait-sync 40",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "unknown unicast into lag1 (VLAN 100): learned on lag1, expect rx 0",
+   "cmd": "$ORACLE/bin/trap-frames Ethernet248 Ethernet240 plain 20 100"
+  },
+  {
+   "op": "sleep",
+   "ms": 2000
+  },
+  {
+   "op": "print",
+   "text": "member down: Ethernet240 admin down (both loop ends lose link)"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "desc": "Ethernet240 admin down",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "sleep",
+   "ms": 4000
+  },
+  {
+   "op": "get",
+   "obj": "$ports[31]",
+   "desc": "oper Ethernet248",
+   "attr": [
+    "OPER_STATUS",
+    "s32"
+   ]
+  },
+  {
+   "op": "exec",
+   "desc": "teamd after link down",
+   "cmd": "/run/current-system/sw/bin/bash /run/l2lag/l2lag-teamd.sh state"
+  },
+  {
+   "op": "set",
+   "obj": "$lm1",
+   "desc": "lm1 egress disable (orchagent on deselect)",
+   "attr": [
+    "EGRESS_DISABLE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$lm1",
+   "desc": "lm1 ingress disable",
+   "attr": [
+    "INGRESS_DISABLE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$lm2",
+   "desc": "lm2 egress disable",
+   "attr": [
+    "EGRESS_DISABLE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$lm2",
+   "desc": "lm2 ingress disable",
+   "attr": [
+    "INGRESS_DISABLE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "desc": "Ethernet240 admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "sleep",
+   "ms": 8000
+  },
+  {
+   "op": "get",
+   "obj": "$ports[30]",
+   "desc": "oper Ethernet240",
+   "attr": [
+    "OPER_STATUS",
+    "s32"
+   ]
+  },
+  {
+   "op": "exec",
+   "desc": "LACP back (members still disabled: LACPDUs are trapped)",
+   "cmd": "/run/current-system/sw/bin/bash /run/l2lag/l2lag-teamd.sh wait-sync 30",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$lm1",
+   "desc": "lm1 ingress enable (orchagent on select)",
+   "attr": [
+    "INGRESS_DISABLE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$lm1",
+   "desc": "lm1 egress enable",
+   "attr": [
+    "EGRESS_DISABLE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$lm2",
+   "desc": "lm2 ingress enable",
+   "attr": [
+    "INGRESS_DISABLE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$lm2",
+   "desc": "lm2 egress enable",
+   "attr": [
+    "EGRESS_DISABLE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "exec",
+   "desc": "LACP after re-enable",
+   "cmd": "/run/current-system/sw/bin/bash /run/l2lag/l2lag-teamd.sh wait-sync 20",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "unknown unicast into lag1 again: expect rx 0",
+   "cmd": "$ORACLE/bin/trap-frames Ethernet248 Ethernet240 plain 20 100"
+  },
+  {
+   "op": "exec",
+   "desc": "teamd down",
+   "cmd": "/run/current-system/sw/bin/bash /run/l2lag/l2lag-teamd.sh down"
+  },
+  {
+   "op": "flush_fdb",
+   "desc": "all",
+   "attrs": [
+    [
+     "ENTRY_TYPE",
+     "s32",
+     "ALL"
+    ]
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$vml"
+  },
+  {
+   "op": "set",
+   "obj": "$lag1",
+   "desc": "lag1 pvid 1",
+   "attr": [
+    "PORT_VLAN_ID",
+    "u16",
+    1
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$bpl1"
+  },
+  {
+   "op": "remove",
+   "obj": "$vlan100"
+  },
+  {
+   "op": "remove",
+   "obj": "$lm1"
+  },
+  {
+   "op": "remove",
+   "obj": "$lm2"
+  },
+  {
+   "op": "remove",
+   "obj": "$lag1"
+  },
+  {
+   "op": "remove",
+   "obj": "$lag2"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_lacp"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_arp"
+  },
+  {
+   "op": "remove",
+   "obj": "$hif0"
+  },
+  {
+   "op": "remove",
+   "obj": "$hif15"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "desc": "admin down",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[31]",
+   "desc": "admin down",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "remove_switch"
+  }
+ ]
+}

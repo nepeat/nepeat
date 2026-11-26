@@ -13,8 +13,12 @@
 //! The C and C++ beside them (`c/`, built by `build-fixtures.sh`): `tap.c` (every mock line into one
 //! stream, also across the tests' log clears), `sections.cpp` (`test_ifcs`'s areas marked and counted
 //! through `-Wl,--wrap`), `tl_port.cpp` (the driver's test port over the mock's hooks),
-//! `oracle_prep.cpp` (a JSON script without its frame-sender steps). Nothing of the compared
-//! programs or the mock is changed. [`run`] runs and judges; [`areas`] says what is pending.
+//! `oracle_prep.cpp` (a JSON script without its frame-sender steps), `bytes_rt.c` (the byte tap: the
+//! oracle tracer's generated wrappers, `oracle/gen_tracer.py`, over a runtime that writes ALL bytes of
+//! every struct and attribute argument of every IFCS call into the stream as `@B` lines; loaded as
+//! `SAI_TERALYNX_IFCS_TRACE` by both libsais, so the parts compare what libifcs receives byte for byte,
+//! padding included, where the mock compares fields). Nothing of the compared programs or the mock is
+//! changed. [`run`] runs and judges; [`areas`] says what is pending.
 #![forbid(unsafe_code)]
 
 pub mod areas;

@@ -156,7 +156,8 @@ cs8210-macsec. 45-52 C idle (2026-11-26). Not a fand input (fan policy is the ow
   the LED_BLINK timers by immediate address (V: scan of both libifcs versions; I: computed addresses not excluded).
   /dev/ipd allows one opener (syncd), so any LED write is a SAI change: the Rust SAI has a board register list
   applied after every init (`SAI_TERALYNX_POST_INIT_REGS`) and a read-only watch list in its diag `regs`
-  (rust/sai README "Teralynx backend"); the read side ran at H1 (LED_CFG 0x805, refresh 0x15e / 0x18eec2, SHIFT/COLOR masks 0xffffff, SWCTRL 0 on all 33 PICs); no LED write has run on the box.
+  (rust/sai README "Teralynx backend"); the read side ran at H1 (LED_CFG 0x805, refresh 0x15e / 0x18eec2, SHIFT/COLOR masks 0xffffff, SWCTRL 0 on all 33 PICs).
+  **H2 register walk (V, 2026-11-26, Rust libsai through `SAI_TERALYNX_POST_INIT_REGS`, SONiC stopped, owner not at the panel; [evidence](evidence/rust-h2/01-led-walk.txt))**: every LED register tried is plain read/write at its declared width (92 steps: SWCTRL bits of cage 31's and cage 3's PIC, COLOR / SHIFT mask bits 0-23, LED_CFG sck_rate and bits 4-10, REFRESH_CLIFF, BLINK_TMR_CTL; 0 read-back mismatches) and no write moved any of the other 111 watched registers; the per-PIC words and the blink timer **survive a libifcs deinit + init** (libifcs re-programs only LED_CFG and the LED_REFRESH registers at node create), so an override outlives syncd until something writes it back (cold power cycle not tested); a hardware blink time base exists and is off after init (BLINK_TMR_CTL enable counts LED_BLINK to 250 and its prescaler to 10^6; which SWCTRL code blinks with it: panel only); every register was restored to R1 after each step. What the LEDs show for any of it: not observed, [led-panel-checklist.md](led-panel-checklist.md) (owner replay, ~25 steps).
 - **What the 4 LEDs per cage show (owner at the panel, 2026-11-26, C++ SAI, no LED writes; V):** cage 3 up at
   1x400G = LED 1 magenta, LEDs 2-4 dark; cages 1 and 2 down = dark. Reading (I): 1x400G is one port at lane 0, so
   slot 0 of its PIC, shown on LED 1; magenta is the colour the reset COLOR_MASK gives (the predicted stray LED_CFG bits are not there, H1)
@@ -167,8 +168,7 @@ cs8210-macsec. 45-52 C idle (2026-11-26). Not a fand input (fan policy is the ow
   `leds.yaml` / `cel-led-test` only drive the CPLD-wide test colour, `sys_cpld.ko` only knows led_enable +
   colour, the DIAGOS release notes only mention front-panel LED behaviour "according to the new sys CPLD", and
   public sonic-buildimage has no Teralynx LED config (Celestica Midstone-200i included). To settle the slot codes
-  and colours: read the LED block under the SAI (diag `regs`), then single reversible writes with the owner at
-  the panel; for comparison the vendor stack (`systemctl start cs8210-switch`, its retuned sck_rate / cliff) on a
+  and colours: the owner replays the H2 register walk at the panel ([led-panel-checklist.md](led-panel-checklist.md)); for comparison the vendor stack (`systemctl start cs8210-switch`, its retuned sck_rate / cliff) on a
   1x400G link, a down port and a 4x100G breakout.
 - **Proposal (owner's wish, plan only):** the SAI agent owns the policy inside the SDK owner (LED_SWCTRL per PIC, or
   PIC stream mode with per-lane masks); this side supplies health inputs it already has: per-lane Rx LOS / CDR LOL /

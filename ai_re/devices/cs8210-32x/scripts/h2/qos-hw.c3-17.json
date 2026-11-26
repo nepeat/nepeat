@@ -1,0 +1,2640 @@
+{
+ "name": "qos-hw: DSCP -> queue on the 400G loop (L3 hairpin on Ethernet128), port shaper, DWRR / strict under the shaper, WRED/ECN, PFC frames, SPAN / ERSPAN copies, sFlow sampling (ours; VLAN 10 / 20 single-port VLANs flood frames to the CPU) [h2: cage 3 <-> 17, cage 3 behind the Credo PHY]",
+ "steps": [
+  {
+   "op": "create_switch",
+   "attrs": [
+    [
+     "INIT_SWITCH",
+     "bool",
+     true
+    ],
+    [
+     "PORT_STATE_CHANGE_NOTIFY",
+     "ptr",
+     "port_state"
+    ],
+    [
+     "SWITCH_SHUTDOWN_REQUEST_NOTIFY",
+     "ptr",
+     "shutdown"
+    ]
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "ports"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_VIRTUAL_ROUTER_ID",
+    "oid"
+   ],
+   "as": "vr"
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif0",
+   "desc": "Ethernet16",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[2]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet16"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif1",
+   "desc": "Ethernet128",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[16]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet128"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[2]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "sleep",
+   "ms": 8000
+  },
+  {
+   "op": "get",
+   "obj": "$ports[2]",
+   "attr": [
+    "QOS_QUEUE_LIST",
+    "oidlist",
+    16
+   ],
+   "as": "q0"
+  },
+  {
+   "op": "get",
+   "obj": "$ports[16]",
+   "attr": [
+    "QOS_QUEUE_LIST",
+    "oidlist",
+    16
+   ],
+   "as": "q15"
+  },
+  {
+   "op": "get",
+   "obj": "$ports[16]",
+   "attr": [
+    "QOS_SCHEDULER_GROUP_LIST",
+    "oidlist",
+    16
+   ],
+   "as": "sg15"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_1Q_BRIDGE_ID",
+    "oid"
+   ],
+   "as": "br"
+  },
+  {
+   "op": "get",
+   "obj": "$br",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "bps"
+  },
+  {
+   "op": "get",
+   "obj": "$bps[0]",
+   "attr": [
+    "PORT_ID",
+    "oid"
+   ],
+   "desc": "bps[0] port (expect ports[0])"
+  },
+  {
+   "op": "get",
+   "obj": "$bps[15]",
+   "attr": [
+    "PORT_ID",
+    "oid"
+   ],
+   "desc": "bps[15] port (expect ports[15])"
+  },
+  {
+   "op": "create",
+   "type": "VLAN",
+   "as": "v10",
+   "desc": "VLAN 10: Ethernet16 only (floods reach the CPU)",
+   "attrs": [
+    [
+     "VLAN_ID",
+     "u16",
+     10
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "VLAN_MEMBER",
+   "as": "vm10",
+   "attrs": [
+    [
+     "VLAN_ID",
+     "oid",
+     "$v10"
+    ],
+    [
+     "BRIDGE_PORT_ID",
+     "oid",
+     "$bps[0]"
+    ],
+    [
+     "VLAN_TAGGING_MODE",
+     "s32",
+     "UNTAGGED"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[2]",
+   "attr": [
+    "PORT_VLAN_ID",
+    "u16",
+    10
+   ]
+  },
+  {
+   "op": "create",
+   "type": "VLAN",
+   "as": "v20",
+   "desc": "VLAN 20: Ethernet128 only",
+   "attrs": [
+    [
+     "VLAN_ID",
+     "u16",
+     20
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "VLAN_MEMBER",
+   "as": "vm20",
+   "attrs": [
+    [
+     "VLAN_ID",
+     "oid",
+     "$v20"
+    ],
+    [
+     "BRIDGE_PORT_ID",
+     "oid",
+     "$bps[15]"
+    ],
+    [
+     "VLAN_TAGGING_MODE",
+     "s32",
+     "UNTAGGED"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "PORT_VLAN_ID",
+    "u16",
+    20
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== B: control: plain frames Ethernet16 -> Ethernet128 (VLAN 20 floods them to the CPU)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/qos-frames Ethernet16 Ethernet16,Ethernet128 1000 1000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2 0"
+  },
+  {
+   "op": "print",
+   "text": "== C: CPU TX out Ethernet16 (plain L2, DSCP 0/10/46): Ethernet16 queue counters before / after"
+  },
+  {
+   "op": "sleep",
+   "ms": 2500
+  },
+  {
+   "op": "foreach",
+   "list": "q0",
+   "as": "qq",
+   "steps": [
+    {
+     "op": "qstats",
+     "obj": "$qq",
+     "desc": "q0 before",
+     "ids": [
+      "PACKETS",
+      "BYTES",
+      "DROPPED_PACKETS",
+      "WATERMARK_BYTES"
+     ],
+     "may_fail": true
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/qos-frames Ethernet16 Ethernet128 3000 3000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2 0,10,46"
+  },
+  {
+   "op": "sleep",
+   "ms": 2500
+  },
+  {
+   "op": "foreach",
+   "list": "q0",
+   "as": "qq",
+   "steps": [
+    {
+     "op": "qstats",
+     "obj": "$qq",
+     "desc": "q0 after",
+     "ids": [
+      "PACKETS",
+      "BYTES",
+      "DROPPED_PACKETS",
+      "WATERMARK_BYTES"
+     ],
+     "may_fail": true
+    }
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== J2: SPAN ingress Ethernet128 -> monitor Ethernet128 (copies counted as Ethernet16 IN)"
+  },
+  {
+   "op": "sleep",
+   "ms": 1500
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[2]",
+   "desc": "Ethernet16 before",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_IN_OCTETS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[16]",
+   "desc": "Ethernet128 before",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_IN_OCTETS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "MIRROR_SESSION",
+   "as": "span",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "LOCAL"
+    ],
+    [
+     "MONITOR_PORT",
+     "oid",
+     "$ports[16]"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_MIRROR_SESSION",
+    "oids",
+    [
+     "$span"
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/qos-frames Ethernet16 Ethernet128 1000 1000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2 0"
+  },
+  {
+   "op": "sleep",
+   "ms": 1500
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[2]",
+   "desc": "Ethernet16 ingress span",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_IN_OCTETS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[16]",
+   "desc": "Ethernet128 ingress span",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_IN_OCTETS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_MIRROR_SESSION",
+    "oids",
+    []
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "print",
+   "text": "== J3: ERSPAN ingress Ethernet128 -> Ethernet128 (Ethernet16 IN octets per copy = 260 + encapsulation)"
+  },
+  {
+   "op": "create",
+   "type": "MIRROR_SESSION",
+   "as": "erspan",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "ENHANCED_REMOTE"
+    ],
+    [
+     "MONITOR_PORT",
+     "oid",
+     "$ports[16]"
+    ],
+    [
+     "ERSPAN_ENCAPSULATION_TYPE",
+     "s32",
+     "MIRROR_L3_GRE_TUNNEL"
+    ],
+    [
+     "IPHDR_VERSION",
+     "u8",
+     4
+    ],
+    [
+     "TOS",
+     "u8",
+     32
+    ],
+    [
+     "TTL",
+     "u8",
+     64
+    ],
+    [
+     "SRC_IP_ADDRESS",
+     "ip",
+     "10.99.1.1"
+    ],
+    [
+     "DST_IP_ADDRESS",
+     "ip",
+     "10.99.1.2"
+    ],
+    [
+     "SRC_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:01:20"
+    ],
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:05:05"
+    ],
+    [
+     "GRE_PROTOCOL_TYPE",
+     "u16",
+     35006
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_MIRROR_SESSION",
+    "oids",
+    [
+     "$erspan"
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/qos-frames Ethernet16 Ethernet128 1000 1000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2 0"
+  },
+  {
+   "op": "sleep",
+   "ms": 1500
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[2]",
+   "desc": "Ethernet16 ingress erspan",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_IN_OCTETS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[16]",
+   "desc": "Ethernet128 ingress erspan",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_IN_OCTETS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_MIRROR_SESSION",
+    "oids",
+    []
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "print",
+   "text": "== K: SAMPLEPACKET 1 in 100 then 1 in 1000 on Ethernet128 ingress (samples = rx beyond sent)"
+  },
+  {
+   "op": "create",
+   "type": "SAMPLEPACKET",
+   "as": "smp",
+   "attrs": [
+    [
+     "SAMPLE_RATE",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "$smp"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/qos-frames Ethernet16 Ethernet128 10000 5000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2 0"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    1000
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/qos-frames Ethernet16 Ethernet128 10000 5000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2 0"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/qos-frames Ethernet16 Ethernet128 10000 5000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2 0"
+  },
+  {
+   "op": "remove",
+   "obj": "$smp",
+   "may_fail": true
+  },
+  {
+   "op": "print",
+   "text": "== phase 2: Ethernet128 leaves VLAN 20 (a port RIF there next)"
+  },
+  {
+   "op": "remove",
+   "obj": "$vm20"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "PORT_VLAN_ID",
+    "u16",
+    1
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$v20"
+  },
+  {
+   "op": "print",
+   "text": "== D: routed hairpin on Ethernet128, DSCP_TO_TC 10->1 46->5 on Ethernet128"
+  },
+  {
+   "op": "create",
+   "type": "ROUTER_INTERFACE",
+   "as": "rif",
+   "desc": "port RIF on Ethernet128",
+   "attrs": [
+    [
+     "VIRTUAL_ROUTER_ID",
+     "oid",
+     "$vr"
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PORT"
+    ],
+    [
+     "PORT_ID",
+     "oid",
+     "$ports[16]"
+    ],
+    [
+     "SRC_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:01:20"
+    ]
+   ]
+  },
+  {
+   "op": "create_neighbor",
+   "rif": "$rif",
+   "ip": "10.99.2.2",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:02:02"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP",
+   "as": "nh",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "IP"
+    ],
+    [
+     "IP",
+     "ip",
+     "10.99.2.2"
+    ],
+    [
+     "ROUTER_INTERFACE_ID",
+     "oid",
+     "$rif"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "vr": "$vr",
+   "prefix": "10.99.3.0/24",
+   "desc": "-> 10.99.2.2 out Ethernet128",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "QOS_MAP",
+   "as": "mdscp",
+   "desc": "DSCP_TO_TC 10->1 46->5",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "DSCP_TO_TC"
+    ],
+    [
+     "MAP_TO_VALUE_LIST",
+     "qosmap",
+     [
+      [
+       "dscp",
+       0,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       1,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       2,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       3,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       4,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       5,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       6,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       7,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       8,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       9,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       10,
+       "tc",
+       1
+      ],
+      [
+       "dscp",
+       11,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       12,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       13,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       14,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       15,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       16,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       17,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       18,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       19,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       20,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       21,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       22,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       23,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       24,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       25,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       26,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       27,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       28,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       29,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       30,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       31,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       32,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       33,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       34,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       35,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       36,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       37,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       38,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       39,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       40,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       41,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       42,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       43,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       44,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       45,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       46,
+       "tc",
+       5
+      ],
+      [
+       "dscp",
+       47,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       48,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       49,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       50,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       51,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       52,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       53,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       54,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       55,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       56,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       57,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       58,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       59,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       60,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       61,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       62,
+       "tc",
+       0
+      ],
+      [
+       "dscp",
+       63,
+       "tc",
+       0
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "QOS_MAP",
+   "as": "mtcq",
+   "desc": "TC_TO_QUEUE identity",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "TC_TO_QUEUE"
+    ],
+    [
+     "MAP_TO_VALUE_LIST",
+     "qosmap",
+     [
+      [
+       "tc",
+       0,
+       "queue",
+       0
+      ],
+      [
+       "tc",
+       1,
+       "queue",
+       1
+      ],
+      [
+       "tc",
+       2,
+       "queue",
+       2
+      ],
+      [
+       "tc",
+       3,
+       "queue",
+       3
+      ],
+      [
+       "tc",
+       4,
+       "queue",
+       4
+      ],
+      [
+       "tc",
+       5,
+       "queue",
+       5
+      ],
+      [
+       "tc",
+       6,
+       "queue",
+       6
+      ],
+      [
+       "tc",
+       7,
+       "queue",
+       7
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "QOS_TC_TO_QUEUE_MAP",
+    "oid",
+    "$mtcq"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "QOS_DSCP_TO_TC_MAP",
+    "oid",
+    "$mdscp"
+   ]
+  },
+  {
+   "op": "sleep",
+   "ms": 2500
+  },
+  {
+   "op": "foreach",
+   "list": "q15",
+   "as": "qq",
+   "steps": [
+    {
+     "op": "qstats",
+     "obj": "$qq",
+     "desc": "q15 before",
+     "ids": [
+      "PACKETS",
+      "BYTES",
+      "DROPPED_PACKETS",
+      "WATERMARK_BYTES"
+     ],
+     "may_fail": true
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/qos-frames Ethernet16 Ethernet16,Ethernet128 3000 3000 256 02:00:00:00:01:20 10.99.9.1 10.99.3.1 0,10,46"
+  },
+  {
+   "op": "sleep",
+   "ms": 2500
+  },
+  {
+   "op": "foreach",
+   "list": "q15",
+   "as": "qq",
+   "steps": [
+    {
+     "op": "qstats",
+     "obj": "$qq",
+     "desc": "q15 after",
+     "ids": [
+      "PACKETS",
+      "BYTES",
+      "DROPPED_PACKETS",
+      "WATERMARK_BYTES"
+     ],
+     "may_fail": true
+    }
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$mdscp",
+   "desc": "map change: 10 -> 3",
+   "attr": [
+    "MAP_TO_VALUE_LIST",
+    "qosmap",
+    [
+     [
+      "dscp",
+      0,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      1,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      2,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      3,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      4,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      5,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      6,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      7,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      8,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      9,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      10,
+      "tc",
+      3
+     ],
+     [
+      "dscp",
+      11,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      12,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      13,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      14,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      15,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      16,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      17,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      18,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      19,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      20,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      21,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      22,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      23,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      24,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      25,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      26,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      27,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      28,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      29,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      30,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      31,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      32,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      33,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      34,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      35,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      36,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      37,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      38,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      39,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      40,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      41,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      42,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      43,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      44,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      45,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      46,
+      "tc",
+      5
+     ],
+     [
+      "dscp",
+      47,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      48,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      49,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      50,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      51,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      52,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      53,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      54,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      55,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      56,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      57,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      58,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      59,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      60,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      61,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      62,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      63,
+      "tc",
+      0
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/qos-frames Ethernet16 Ethernet16 3000 3000 256 02:00:00:00:01:20 10.99.9.1 10.99.3.1 0,10,46"
+  },
+  {
+   "op": "sleep",
+   "ms": 2500
+  },
+  {
+   "op": "foreach",
+   "list": "q15",
+   "as": "qq",
+   "steps": [
+    {
+     "op": "qstats",
+     "obj": "$qq",
+     "desc": "q15 after map change",
+     "ids": [
+      "PACKETS",
+      "BYTES",
+      "DROPPED_PACKETS",
+      "WATERMARK_BYTES"
+     ],
+     "may_fail": true
+    }
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$mdscp",
+   "desc": "map back: 10 -> 1",
+   "attr": [
+    "MAP_TO_VALUE_LIST",
+    "qosmap",
+    [
+     [
+      "dscp",
+      0,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      1,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      2,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      3,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      4,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      5,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      6,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      7,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      8,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      9,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      10,
+      "tc",
+      1
+     ],
+     [
+      "dscp",
+      11,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      12,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      13,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      14,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      15,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      16,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      17,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      18,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      19,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      20,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      21,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      22,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      23,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      24,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      25,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      26,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      27,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      28,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      29,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      30,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      31,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      32,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      33,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      34,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      35,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      36,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      37,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      38,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      39,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      40,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      41,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      42,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      43,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      44,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      45,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      46,
+      "tc",
+      5
+     ],
+     [
+      "dscp",
+      47,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      48,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      49,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      50,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      51,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      52,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      53,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      54,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      55,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      56,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      57,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      58,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      59,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      60,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      61,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      62,
+      "tc",
+      0
+     ],
+     [
+      "dscp",
+      63,
+      "tc",
+      0
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== J4: egress SPAN / ERSPAN on Ethernet128 for routed frames (monitor Ethernet128): Ethernet16 IN = originals + copies"
+  },
+  {
+   "op": "sleep",
+   "ms": 1500
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[2]",
+   "desc": "Ethernet16 before egress mirror",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_IN_OCTETS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[16]",
+   "desc": "Ethernet128 before egress mirror",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_IN_OCTETS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/qos-frames Ethernet16 Ethernet16 1000 1000 256 02:00:00:00:01:20 10.99.9.1 10.99.3.1 0"
+  },
+  {
+   "op": "sleep",
+   "ms": 1500
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[2]",
+   "desc": "Ethernet16 routed, no mirror",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_IN_OCTETS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[16]",
+   "desc": "Ethernet128 routed, no mirror",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_IN_OCTETS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "EGRESS_MIRROR_SESSION",
+    "oids",
+    [
+     "$span"
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/qos-frames Ethernet16 Ethernet16 1000 1000 256 02:00:00:00:01:20 10.99.9.1 10.99.3.1 0"
+  },
+  {
+   "op": "sleep",
+   "ms": 1500
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[2]",
+   "desc": "Ethernet16 routed, egress span",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_IN_OCTETS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[16]",
+   "desc": "Ethernet128 routed, egress span",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_IN_OCTETS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "EGRESS_MIRROR_SESSION",
+    "oids",
+    [
+     "$erspan"
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/qos-frames Ethernet16 Ethernet16 1000 1000 256 02:00:00:00:01:20 10.99.9.1 10.99.3.1 0"
+  },
+  {
+   "op": "sleep",
+   "ms": 1500
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[2]",
+   "desc": "Ethernet16 routed, egress erspan",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_IN_OCTETS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[16]",
+   "desc": "Ethernet128 routed, egress erspan",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_IN_OCTETS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "EGRESS_MIRROR_SESSION",
+    "oids",
+    []
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$erspan",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$span",
+   "may_fail": true
+  },
+  {
+   "op": "print",
+   "text": "== E2: port shaper 12500000 B/s (x8 = 100 Mbit/s): queue 0 occupancy drain"
+  },
+  {
+   "op": "create",
+   "type": "SCHEDULER",
+   "as": "shaper",
+   "desc": "DWRR 1",
+   "attrs": [
+    [
+     "SCHEDULING_TYPE",
+     "s32",
+     "DWRR"
+    ],
+    [
+     "SCHEDULING_WEIGHT",
+     "u8",
+     1
+    ],
+    [
+     "METER_TYPE",
+     "s32",
+     "BYTES"
+    ],
+    [
+     "MAX_BANDWIDTH_RATE",
+     "u64",
+     12500000
+    ],
+    [
+     "MAX_BANDWIDTH_BURST_RATE",
+     "u64",
+     65536
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "QOS_SCHEDULER_PROFILE_ID",
+    "oid",
+    "$shaper"
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/qos-frames Ethernet16 Ethernet16 20000 0 1000 02:00:00:00:01:20 10.99.9.1 10.99.3.1 0"
+  },
+  {
+   "op": "qstats",
+   "obj": "$q15[0]",
+   "desc": "t+0",
+   "ids": [
+    "CURR_OCCUPANCY_BYTES",
+    "PACKETS",
+    "DROPPED_PACKETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "sleep",
+   "ms": 100
+  },
+  {
+   "op": "qstats",
+   "obj": "$q15[0]",
+   "desc": "t+0.1",
+   "ids": [
+    "CURR_OCCUPANCY_BYTES",
+    "PACKETS",
+    "DROPPED_PACKETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "sleep",
+   "ms": 100
+  },
+  {
+   "op": "qstats",
+   "obj": "$q15[0]",
+   "desc": "t+0.2",
+   "ids": [
+    "CURR_OCCUPANCY_BYTES",
+    "PACKETS",
+    "DROPPED_PACKETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "sleep",
+   "ms": 2000
+  },
+  {
+   "op": "qstats",
+   "obj": "$q15[0]",
+   "desc": "t+2.2",
+   "ids": [
+    "CURR_OCCUPANCY_BYTES",
+    "PACKETS",
+    "DROPPED_PACKETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "QOS_SCHEDULER_PROFILE_ID",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== E3: queue shaper 6250000 B/s (50 Mbit/s) on q15[0] via its scheduler group"
+  },
+  {
+   "op": "create",
+   "type": "SCHEDULER",
+   "as": "qshaper",
+   "desc": "DWRR 1",
+   "attrs": [
+    [
+     "SCHEDULING_TYPE",
+     "s32",
+     "DWRR"
+    ],
+    [
+     "SCHEDULING_WEIGHT",
+     "u8",
+     1
+    ],
+    [
+     "METER_TYPE",
+     "s32",
+     "BYTES"
+    ],
+    [
+     "MAX_BANDWIDTH_RATE",
+     "u64",
+     6250000
+    ],
+    [
+     "MAX_BANDWIDTH_BURST_RATE",
+     "u64",
+     65536
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$sg15[0]",
+   "attr": [
+    "SCHEDULER_PROFILE_ID",
+    "oid",
+    "$qshaper"
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/qos-frames Ethernet16 Ethernet16 20000 0 1000 02:00:00:00:01:20 10.99.9.1 10.99.3.1 0"
+  },
+  {
+   "op": "qstats",
+   "obj": "$q15[0]",
+   "desc": "t+0",
+   "ids": [
+    "CURR_OCCUPANCY_BYTES",
+    "PACKETS",
+    "DROPPED_PACKETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "sleep",
+   "ms": 200
+  },
+  {
+   "op": "qstats",
+   "obj": "$q15[0]",
+   "desc": "t+0.2",
+   "ids": [
+    "CURR_OCCUPANCY_BYTES",
+    "PACKETS",
+    "DROPPED_PACKETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "sleep",
+   "ms": 200
+  },
+  {
+   "op": "qstats",
+   "obj": "$q15[0]",
+   "desc": "t+0.4",
+   "ids": [
+    "CURR_OCCUPANCY_BYTES",
+    "PACKETS",
+    "DROPPED_PACKETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "sleep",
+   "ms": 2000
+  },
+  {
+   "op": "qstats",
+   "obj": "$q15[0]",
+   "desc": "t+2.4",
+   "ids": [
+    "CURR_OCCUPANCY_BYTES",
+    "PACKETS",
+    "DROPPED_PACKETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$sg15[0]",
+   "attr": [
+    "SCHEDULER_PROFILE_ID",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$qshaper",
+   "may_fail": true
+  },
+  {
+   "op": "print",
+   "text": "== G2: WRED attach (expected: refused as NOT_SUPPORTED)"
+  },
+  {
+   "op": "create",
+   "type": "WRED",
+   "as": "wred",
+   "attrs": [
+    [
+     "GREEN_ENABLE",
+     "bool",
+     true
+    ],
+    [
+     "GREEN_MIN_THRESHOLD",
+     "u32",
+     20000
+    ],
+    [
+     "GREEN_MAX_THRESHOLD",
+     "u32",
+     200000
+    ],
+    [
+     "GREEN_DROP_PROBABILITY",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$q15[1]",
+   "attr": [
+    "WRED_PROFILE_ID",
+    "oid",
+    "$wred"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$wred",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$vm10",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[2]",
+   "attr": [
+    "PORT_VLAN_ID",
+    "u16",
+    1
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$v10",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$shaper",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$w10",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$w40",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$sp",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "QOS_DSCP_TO_TC_MAP",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "QOS_TC_TO_QUEUE_MAP",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$mdscp",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$mtcq",
+   "may_fail": true
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "10.99.3.0/24",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$nh",
+   "may_fail": true
+  },
+  {
+   "op": "remove_neighbor",
+   "rif": "$rif",
+   "ip": "10.99.2.2",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$rif",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[2]",
+   "desc": "admin down",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "desc": "admin down",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "remove_switch"
+  }
+ ]
+}

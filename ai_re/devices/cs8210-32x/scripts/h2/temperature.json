@@ -1,0 +1,64 @@
+{
+ "name": "temperature: one SAI temperature read per 3 s, 4 times, with SAI port calls in between [h2: cage 31 <-> 32]",
+ "steps": [
+  {
+   "op": "create_switch",
+   "attrs": [
+    [
+     "INIT_SWITCH",
+     "bool",
+     true
+    ]
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "ports"
+  },
+  {
+   "op": "repeat",
+   "n": 4,
+   "steps": [
+    {
+     "op": "get",
+     "obj": "switch",
+     "desc": "max temp",
+     "attr": [
+      "MAX_TEMP",
+      "s32"
+     ]
+    },
+    {
+     "op": "foreach",
+     "list": "ports",
+     "as": "p",
+     "max": 4,
+     "steps": [
+      {
+       "op": "get",
+       "obj": "$p",
+       "desc": "speed",
+       "attr": [
+        "SPEED",
+        "u32"
+       ]
+      }
+     ]
+    },
+    {
+     "op": "sleep",
+     "ms": 3000
+    }
+   ]
+  },
+  {
+   "op": "remove_switch"
+  }
+ ]
+}

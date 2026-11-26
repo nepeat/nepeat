@@ -1,15 +1,32 @@
 //! Builds the loader's test fixtures (`tests/c/*.c`) for the target into `$OUT_DIR/target-tests/`,
 //! as sai-ffi builds its C test helper (test executables never compile C): a stand-in libifcs that
 //! exports every `IFCS_SYMBOLS` entry (from the generated header ifcs-sys binds:
-//! `DEP_IFCS_HEADERS_INCLUDE`), the same with `ifcs_deinit` missing, and a call tracer
-//! (`ifcs_trace_bind` + one traced function). Compiler and skip rules as elf-got's `build.rs`.
+//! `DEP_IFCS_HEADERS_INCLUDE`), the same with `ifcs_deinit` missing, a call tracer
+//! (`ifcs_trace_bind` + one traced function), and the ABI fixture of `tests/abi.rs` (the key and
+//! attribute functions with their real C signatures, checking every byte they receive). Compiler and
+//! skip rules as elf-got's `build.rs`.
 #![allow(clippy::expect_used, clippy::panic)]
 
 use std::path::Path;
 use std::process::Command;
 
 fn main() {
-    for f in ["tests/c/libifcs_stub.c", "tests/c/trace_stub.c"] {
+    // The parity harness's negative control (sai-teralynx-parity, nix/teralynx-parity.nix): a TEST
+    // build with IFCS_POISON_PADDING=1 gives the by-value key members non-zero padding (entry.rs
+    // `poison`), as the bug did; never set for a product build.
+    println!("cargo::rustc-check-cfg=cfg(ifcs_poison_padding)");
+    println!("cargo:rerun-if-env-changed=IFCS_POISON_PADDING");
+    if std::env::var("IFCS_POISON_PADDING").is_ok_and(|v| v == "1") {
+        println!("cargo:rustc-cfg=ifcs_poison_padding");
+        println!(
+            "cargo:warning=ifcs: IFCS_POISON_PADDING=1: the key members' padding is poisoned (the parity harness's negative control; a test build, never the product)"
+        );
+    }
+    for f in [
+        "tests/c/libifcs_stub.c",
+        "tests/c/trace_stub.c",
+        "tests/c/abi_fixture.c",
+    ] {
         println!("cargo:rerun-if-changed={f}");
     }
     for var in [
@@ -66,6 +83,12 @@ fn main() {
         &["-DOMIT_DEINIT"],
     );
     build("IFCS_TRACE_STUB", "libifcs_trace_stub.so", "tests/c/trace_stub.c", &[]);
+    build(
+        "IFCS_ABI_FIXTURE",
+        "libifcs_abi_fixture.so",
+        "tests/c/abi_fixture.c",
+        &[],
+    );
     build(
         "IFCS_TRACE_NOBIND",
         "libifcs_trace_nobind.so",

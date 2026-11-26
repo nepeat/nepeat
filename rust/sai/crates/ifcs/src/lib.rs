@@ -44,6 +44,7 @@
 #![cfg(all(target_os = "linux", any(target_arch = "x86_64", target_arch = "aarch64")))]
 
 pub mod attr;
+mod bytes;
 mod call;
 mod callback;
 mod dl;
@@ -60,7 +61,8 @@ mod table;
 use std::path::Path;
 use std::sync::Arc;
 
-pub use attr::Attrs;
+pub use attr::{Attr, Attrs};
+pub use call::Usage;
 pub use callback::{Callbacks, Handlers, L2Event, LinkEvent, callback_panics};
 pub use entry::{IpPrefix, L2Key, RouteKey};
 pub use handle::Handle;

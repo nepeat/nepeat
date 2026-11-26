@@ -2,8 +2,10 @@
 //!
 //! An attribute is an id, a 120-byte value union (opaque in `ifcs-sys`: a blob; every member is
 //! at offset 0) and a bitmap. The C++ builds them zeroed with the member assigned directly, bitmap
-//! 0 (`tl_core.h` `attr_of`, `attr_u32`, ...: the vendor CLI's form); so does [`Attrs`]. Members
-//! are written as their bytes at the offsets of their (checked) structs; list members point at
+//! 0 (`tl_core.h` `attr_of`, `attr_u32`, ...: the vendor CLI's form); so does [`Attrs`]. Each
+//! [`Attr`] is the attribute's bytes (`ifcs-sys`'s byte twin: the 4 padding bytes after `id` are
+//! zero, not undefined; `bytes.rs`), and members are written as their bytes at the offsets of their
+//! (checked) structs; list members point at
 //! buffers [`Attrs`] owns, filled in by [`Attrs::args`] right before a call, so no pointer
 //! outlives the borrow it came from.
 //!
@@ -15,9 +17,12 @@
 use core::mem::{offset_of, size_of};
 use ifcs_sys as sys;
 
+use crate::bytes::{CBytes, get_field, put_field};
 use crate::handle::Handle;
 
 const VALUE: usize = size_of::<sys::ifcs_attr_value_t>();
+/// Where the value union starts.
+const VALUE_OFF: usize = offset_of!(sys::ifcs_attr_t, value);
 
 /// What an attribute's value is (the union member the C++ assigns).
 #[derive(Clone, Debug, PartialEq)]
@@ -73,30 +78,67 @@ enum Form {
 pub struct Attrs {
     form: Form,
     items: Vec<(u32, Value)>,
-    raw: Vec<sys::ifcs_attr_t>,
+    raw: Vec<Attr>,
 }
 
-/// A zeroed attribute with `id` (C++ `attr_of`).
-pub const fn zeroed(id: u32) -> sys::ifcs_attr_t {
-    sys::ifcs_attr_t {
-        id,
-        value: sys::ifcs_attr_value_t { blob: [0; VALUE] },
-        bitmap: 0,
+/// One `ifcs_attr_t`, as its bytes (an array of them is the C array: same size and alignment).
+#[repr(transparent)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Attr(sys::ifcs_attr_t_bytes);
+
+impl Attr {
+    /// `id`.
+    pub fn id(&self) -> u32 {
+        get_field!(self.0.as_bytes(), 0, sys::ifcs_attr_t, id)
+    }
+
+    /// The value union's bytes.
+    pub fn value(&self) -> &[u8] {
+        self.0.as_bytes().get(VALUE_OFF..VALUE_OFF + VALUE).unwrap_or(&[])
+    }
+
+    fn value_mut(&mut self) -> &mut [u8] {
+        self.0
+            .as_bytes_mut()
+            .get_mut(VALUE_OFF..VALUE_OFF + VALUE)
+            .unwrap_or(&mut [])
+    }
+
+    /// `bitmap`.
+    pub fn bitmap(&self) -> u64 {
+        get_field!(self.0.as_bytes(), 0, sys::ifcs_attr_t, bitmap)
+    }
+
+    /// The attribute's bytes as libifcs sees them.
+    pub fn bytes(&self) -> &[u8] {
+        self.0.as_bytes()
+    }
+
+    /// A pointer to it as the C struct (for the vendor accessors `ifcs_attr_t_init` etc.).
+    pub(crate) fn ptr(&mut self) -> *mut sys::ifcs_attr_t {
+        self.0.c_ptr()
     }
 }
 
-fn put(blob: &mut [u8; VALUE], off: usize, bytes: &[u8]) {
+/// A zeroed attribute with `id` (C++ `attr_of`): every byte zero, then `id`.
+pub fn zeroed(id: u32) -> Attr {
+    let mut a = Attr(sys::ifcs_attr_t_bytes::ZERO);
+    put_field!(a.0.as_bytes_mut(), 0, sys::ifcs_attr_t, id, id);
+    a
+}
+
+fn put(blob: &mut [u8], off: usize, bytes: &[u8]) {
     if let Some(dst) = blob.get_mut(off..off + bytes.len()) {
         dst.copy_from_slice(bytes);
     }
 }
 
-fn put_list(blob: &mut [u8; VALUE], count: usize, count_off: usize, ptr_off: usize, ptr: usize) {
+fn put_list(blob: &mut [u8], count: usize, count_off: usize, ptr_off: usize, ptr: usize) {
     put(blob, count_off, &u32::try_from(count).unwrap_or(u32::MAX).to_ne_bytes());
     put(blob, ptr_off, &ptr.to_ne_bytes());
 }
 
-fn get<const N: usize>(blob: &[u8; VALUE], off: usize) -> [u8; N] {
+fn get<const N: usize>(blob: &[u8], off: usize) -> [u8; N] {
     let mut out = [0u8; N];
     if let Some(src) = blob.get(off..off + N) {
         out.copy_from_slice(src);
@@ -109,7 +151,7 @@ impl core::fmt::Debug for Attrs {
         f.debug_struct("Attrs")
             .field("form", &self.form)
             .field("items", &self.items)
-            .field("raw_ids", &self.raw.iter().map(|a| a.id).collect::<Vec<_>>())
+            .field("raw_ids", &self.raw.iter().map(Attr::id).collect::<Vec<_>>())
             .finish()
     }
 }
@@ -152,7 +194,7 @@ impl Attrs {
 
     /// One attribute as the vendor accessors built it (`ifcs_attr_t_init` / `_id_set` /
     /// `_value_data_set`): sent as it is.
-    pub fn from_raw(attr: sys::ifcs_attr_t) -> Self {
+    pub fn from_raw(attr: Attr) -> Self {
         Self {
             form: Form::List,
             items: Vec::new(),
@@ -313,26 +355,29 @@ impl Attrs {
             let mut raw = Vec::with_capacity(self.items.len());
             for (id, v) in &mut self.items {
                 let mut a = zeroed(*id);
-                encode(&mut a.value.blob, v);
+                encode(a.value_mut(), v);
                 raw.push(a);
             }
             self.raw = raw;
         }
         match self.form {
             Form::Null => (0, core::ptr::null_mut()),
-            Form::None => (0, self.raw.as_mut_ptr()),
+            Form::None => (0, self.raw.as_mut_ptr().cast()),
             Form::List if self.raw.is_empty() => (0, core::ptr::null_mut()),
-            Form::List => (u32::try_from(self.raw.len()).unwrap_or(u32::MAX), self.raw.as_mut_ptr()),
+            Form::List => (
+                u32::try_from(self.raw.len()).unwrap_or(u32::MAX),
+                self.raw.as_mut_ptr().cast(),
+            ),
         }
     }
 
     /// The attributes as sent / as the callee left them.
-    pub fn raw(&self) -> &[sys::ifcs_attr_t] {
+    pub fn raw(&self) -> &[Attr] {
         &self.raw
     }
 
-    fn blob(&self, i: usize) -> Option<&[u8; VALUE]> {
-        self.raw.get(i).map(|a| &a.value.blob)
+    fn blob(&self, i: usize) -> Option<&[u8]> {
+        self.raw.get(i).map(Attr::value)
     }
 
     /// `value.u32` of attribute `i` after a call (0 if there is none).
@@ -361,8 +406,9 @@ impl Attrs {
     }
 }
 
-/// Writes a value into a zeroed blob (member offsets from the bindings, checked by the compiler).
-fn encode(blob: &mut [u8; VALUE], v: &mut Value) {
+/// Writes a value into a zeroed value union's bytes (member offsets from the bindings, checked by
+/// the compiler).
+fn encode(blob: &mut [u8], v: &mut Value) {
     match v {
         Value::Zero => {}
         Value::U64(x) => put(blob, 0, &x.to_ne_bytes()),
@@ -491,25 +537,28 @@ mod tests {
         assert_eq!(n, 7);
         assert!(!p.is_null());
         assert_eq!(a.u32_at(0), 7);
-        assert_eq!(a.raw()[0].id, 23);
+        assert_eq!(a.raw()[0].id(), 23);
         assert_eq!(a.u16_at(1), 9122);
         assert_eq!(a.data_at(2), 1);
         assert_eq!(a.handle_at(3), Handle(0x100));
-        assert_eq!(a.raw()[4].value.blob[..6], [1, 2, 3, 4, 5, 6]);
+        assert_eq!(a.raw()[4].value()[..6], [1, 2, 3, 4, 5, 6]);
         assert_eq!(a.u32_at(5), 0); // counter_mode
-        assert_eq!(a.raw()[5].value.blob[8..12], 4096u32.to_ne_bytes());
-        assert_eq!(a.raw()[5].value.blob[12], 7);
-        assert_eq!(a.raw()[6].value.blob[4..8], 0x55u32.to_ne_bytes());
-        assert!(a.raw().iter().all(|r| r.bitmap == 0));
+        assert_eq!(a.raw()[5].value()[8..12], 4096u32.to_ne_bytes());
+        assert_eq!(a.raw()[5].value()[12], 7);
+        assert_eq!(a.raw()[6].value()[4..8], 0x55u32.to_ne_bytes());
+        assert!(a.raw().iter().all(|r| r.bitmap() == 0));
+        // every byte that is no field is zero: the padding after id, the value past its member
+        assert!(a.raw().iter().all(|r| r.bytes()[4..8] == [0; 4]));
+        assert!(a.raw()[0].value()[4..].iter().all(|b| *b == 0));
     }
 
     #[test]
     fn bytes_are_copied_to_the_value_start() {
         let mut a = Attrs::new().bytes(2, vec![1, 2, 3]).bytes(3, vec![7; VALUE + 8]);
         a.args();
-        assert_eq!(a.raw()[0].value.blob[..4], [1, 2, 3, 0]);
-        assert!(a.raw()[0].value.blob[3..].iter().all(|b| *b == 0));
-        assert!(a.raw()[1].value.blob.iter().all(|b| *b == 7)); // cut to the value's size
+        assert_eq!(a.raw()[0].value()[..4], [1, 2, 3, 0]);
+        assert!(a.raw()[0].value()[3..].iter().all(|b| *b == 0));
+        assert!(a.raw()[1].value().iter().all(|b| *b == 7)); // cut to the value's size
     }
 
     #[test]
@@ -519,14 +568,11 @@ mod tests {
             .u32_list(53, vec![5])
             .u8_list(50, Vec::new());
         a.args();
-        let count = u32::from_ne_bytes(a.raw()[0].value.blob[0..4].try_into().unwrap());
-        let ptr = usize::from_ne_bytes(a.raw()[0].value.blob[8..16].try_into().unwrap());
+        let count = u32::from_ne_bytes(a.raw()[0].value()[0..4].try_into().unwrap());
+        let ptr = usize::from_ne_bytes(a.raw()[0].value()[8..16].try_into().unwrap());
         assert_eq!(count, 2);
         assert_ne!(ptr, 0);
-        assert_eq!(
-            usize::from_ne_bytes(a.raw()[2].value.blob[8..16].try_into().unwrap()),
-            0
-        );
+        assert_eq!(usize::from_ne_bytes(a.raw()[2].value()[8..16].try_into().unwrap()), 0);
     }
 
     #[test]
@@ -537,7 +583,7 @@ mod tests {
         l.push(crate::qos::QosMapSrc::Dscp(46), 5, 0);
         let mut a = Attrs::new().qos_map_info(0, &info, &l);
         a.args();
-        let b = &a.raw()[0].value.blob;
+        let b = a.raw()[0].value();
         assert_eq!(b[0..4], 1i32.to_ne_bytes());
         let lo = offset_of!(sys::ifcs_qos_map_info_t, list);
         assert_eq!(b[lo..lo + 4], 1u32.to_ne_bytes());
@@ -554,7 +600,7 @@ mod tests {
         let (n, p) = none.args();
         assert_eq!((n, p.is_null()), (0, false));
         assert_eq!(none.raw().len(), 1);
-        assert_eq!(none.raw()[0].id, 0);
+        assert_eq!(none.raw()[0].id(), 0);
         let mut raw = Attrs::from_raw(zeroed(5));
         assert_eq!(raw.args().0, 1);
         assert!(Attrs::new().is_empty() && Attrs::none().is_empty() && !raw.is_empty());

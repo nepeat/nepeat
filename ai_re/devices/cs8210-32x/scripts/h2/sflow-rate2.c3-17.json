@@ -1,0 +1,467 @@
+{
+ "name": "sflow-rate2: SAMPLEPACKET 1 in 100 / 256: fresh enables vs a running sampler, send-rate dependence, the chip's sample / packet counters [h2: cage 3 <-> 17, cage 3 behind the Credo PHY]",
+ "steps": [
+  {
+   "op": "create_switch",
+   "attrs": [
+    [
+     "INIT_SWITCH",
+     "bool",
+     true
+    ],
+    [
+     "PORT_STATE_CHANGE_NOTIFY",
+     "ptr",
+     "port_state"
+    ],
+    [
+     "SWITCH_SHUTDOWN_REQUEST_NOTIFY",
+     "ptr",
+     "shutdown"
+    ]
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "ports"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_VIRTUAL_ROUTER_ID",
+    "oid"
+   ],
+   "as": "vr"
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif0",
+   "desc": "Ethernet16",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[2]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet16"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif1",
+   "desc": "Ethernet128",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[16]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet128"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[2]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "sleep",
+   "ms": 8000
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_1Q_BRIDGE_ID",
+    "oid"
+   ],
+   "as": "br"
+  },
+  {
+   "op": "get",
+   "obj": "$br",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "bps"
+  },
+  {
+   "op": "create",
+   "type": "VLAN",
+   "as": "v20",
+   "desc": "VLAN 20: Ethernet128 only (frames from Ethernet16 end there)",
+   "attrs": [
+    [
+     "VLAN_ID",
+     "u16",
+     20
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "VLAN_MEMBER",
+   "as": "vm20",
+   "attrs": [
+    [
+     "VLAN_ID",
+     "oid",
+     "$v20"
+    ],
+    [
+     "BRIDGE_PORT_ID",
+     "oid",
+     "$bps[15]"
+    ],
+    [
+     "VLAN_TAGGING_MODE",
+     "s32",
+     "UNTAGGED"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "PORT_VLAN_ID",
+    "u16",
+    20
+   ]
+  },
+  {
+   "op": "create",
+   "type": "SAMPLEPACKET",
+   "as": "smp",
+   "attrs": [
+    [
+     "SAMPLE_RATE",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "$smp"
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== fresh enable #0, rate 100, 10000 x 256 B at 5000 pps"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 10000 5000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "$smp"
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== fresh enable #1, rate 100, 10000 x 256 B at 5000 pps"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 10000 5000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "$smp"
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== fresh enable #2, rate 100, 10000 x 256 B at 5000 pps"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 10000 5000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "$smp"
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== fresh enable #3, rate 100, 10000 x 256 B at 5000 pps"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 10000 5000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "$smp"
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== continuing, rate 100, 50000 x 256 B at 1000 pps (#0)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 20000 1000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "print",
+   "text": "== continuing, rate 100, 50000 x 256 B at 1000 pps (#1)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 20000 1000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "print",
+   "text": "== continuing, rate 100, 50000 x 256 B at 2000 pps (#0)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 50000 2000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "print",
+   "text": "== continuing, rate 100, 50000 x 256 B at 2000 pps (#1)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 50000 2000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "print",
+   "text": "== continuing, rate 100, 50000 x 256 B at 5000 pps (#0)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 50000 5000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "print",
+   "text": "== continuing, rate 100, 50000 x 256 B at 5000 pps (#1)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 50000 5000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "print",
+   "text": "== continuing, rate 100, 50000 x 256 B at 20000 pps (#0)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 50000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "print",
+   "text": "== continuing, rate 100, 50000 x 256 B at 20000 pps (#1)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 50000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "print",
+   "text": "== continuing, rate 100, 50000 x 256 B at 0 pps (#0)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 50000 0 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "print",
+   "text": "== continuing, rate 100, 50000 x 256 B at 0 pps (#1)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 50000 0 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    256
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== rate 256, 100000 x 256 B at 20000 pps (#0)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 100000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "print",
+   "text": "== rate 256, 100000 x 256 B at 20000 pps (#1)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 100000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "print",
+   "text": "== rate 256, 100000 x 256 B at 20000 pps (#2)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 100000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$smp"
+  },
+  {
+   "op": "remove",
+   "obj": "$vm20"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "PORT_VLAN_ID",
+    "u16",
+    1
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$v20",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[2]",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "remove_switch"
+  }
+ ]
+}

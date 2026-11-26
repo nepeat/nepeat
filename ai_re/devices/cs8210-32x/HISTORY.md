@@ -5,6 +5,39 @@ work: PROGRESS.md. References elsewhere to "PROGRESS (n)", "PROGRESS 11-09", "PR
 
 ## log
 
+### 2026-11-17 — A' slot A rewritten with the fixed build; BOOT_MODE → slot A
+
+- Same update path (plan 7676df81…; verify 133/133 from the installed model, sandbox rehearse): slot A (kill page over the old
+  build, erase, body, header, magic last) + BOOT_MODE → 0x110, read back == model. Cold boot + warm reboot via slot A: all checks
+  pass (FPGA BAR, Credo, BGP/BFD/LACP 2/2, AVS, fand, mtd0ro == model). Both slots now hold 58e4a4f0….
+  [spi-upgrade-slotA-20261117.txt](spi-upgrade-slotA-20261117.txt).
+
+### 2026-11-17 — A' update: slot B with the MDIO-FPGA BAR fix, BOOT_MODE flipped
+
+- `spi_upgrade.py update --write` (plan 7364ea78…; verify 125/125 from the installed model, sandbox rehearse of the payload): slot B
+  + BOOT_MODE (kill page, then body, header, magic last) read back == model. Reached the vendor prompt via `u` ("User request for loading U-Boot!").
+- Cold boot and one warm reboot via slot B (stage3 loads 422752 B): MDIO FPGA BAR 0 assigned, Credo config done, BGP 2/2, BFD 2/2,
+  LACP up, AVS active (ASIC COMMAND 0x0406, VOUT 0x0333), fand. [spi-upgrade-update-20261117.txt](spi-upgrade-update-20261117.txt).
+
+### 2026-11-17 — MDIO FPGA BAR on a cold boot via our U-Boot: root cause, fix, rescue proven
+
+- Cause: the MDIO FPGA's BAR 0 keeps only bits 31:29 and 21 and resets to 0xe0200000 = its sizing read-back, which Linux
+  rejects ("can't size"); the vendor U-Boot writes e0000000 first. Fix (0030/0031): our U-Boot writes the vendor's partner
+  BARs once the link is up; RAM-tested from the forced cold value: NixOS, Credo, BGP/BFD/LACP as on the vendor boot.
+  Fixed `#uboot-cs8210-stage3app` (.fimg 58e4a4f0…) is for the slot B update; slot A still holds the old one.
+- Rescue: power cycle + `u` from stage2's banner → factory U-Boot, three times; warm reset + `u` likewise.
+- Hazard: repeated `alpcie reinit 4` wedges the MDIO FPGA link until a power cycle (the factory U-Boot too). Ports
+  without a link are now disabled in the OS DTB (Linux panicked on one). Evidence: [uboot-standalone-20261117.txt](uboot-standalone-20261117.txt).
+
+### 2026-11-17 — scheme A' installed in SPI (our U-Boot as stage3's app)
+
+- `spi_upgrade.py install --write` (owner go): env, slot A, BOOT_MODE, TOC2 written and read back == model; cold boot:
+  "Loading application to 08000000", "U-Boot 2026.10-cs8210-selfinit", EL2, x0=0; NixOS from it; mtd0ro == new model;
+  AVS oneshot enabled the ASIC (COMMAND 0 -> 0x0406, VOUT 0x0333); fand running.
+  [spi-upgrade-install-20261117.txt](spi-upgrade-install-20261117.txt).
+- Deviation, stopped there: MDIO FPGA 0004:01:00.0 without BARs ("libMdio: resource0 not available"), cages 1/16 down, BGP/BFD/LACP down.
+  Standalone U-Boot work item; the `u` escape test and the boot back into ours are pending.
+
 ### 2026-11-16 (late) — scheme A' flasher: built, verified, rehearsed; zero SPI writes
 
 - Tools: `scripts/spi_upgrade.py` (model = verified mtd0 dump + journal, gates, echo-checked writes body-then-header, TOC2 last),

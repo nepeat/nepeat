@@ -1,6 +1,8 @@
 //! Queues and BAM queues, the `QoS` map list and the traffic-monitor policy (`tl_qos.cpp`,
 //! `tl_mirror.cpp`): the keys and value structs as the C++ builds them (zeroed, the vendor's `_init`,
-//! then the members), the queue attribute and counter calls.
+//! then the members), the queue attribute and counter calls. Each struct is kept as its bytes
+//! (`ifcs-sys`'s byte twin, `bytes.rs`): zeroed, then its fields, so no padding byte libifcs
+//! receives (a queue key it looks up, a policy copied into an attribute) is undefined.
 //!
 //! The key initialisers and setters and the queue attribute calls have the signature shapes of
 //! `entry.rs` and go through its wrappers (`(K*)`, `(K*, u32)`, `(node, K*, count, attr*)`,
@@ -18,6 +20,7 @@ use ifcs_sys as sys;
 
 use crate::Ifcs;
 use crate::attr::Attrs;
+use crate::bytes::{CBytes, get_field, put_field};
 use crate::entry::{entry_attrs, entry_attrs_get, key_handle, key_only};
 use crate::handle::Handle;
 use crate::status::Status;
@@ -26,16 +29,20 @@ use crate::status::Status;
 /// entry or fails): `IFCS_UNINIT`.
 const MISSING: Status = Status(sys::IFCS_UNINIT.cast_signed());
 
-/// An `ifcs_queue_t` (also an `ifcs_bam_queue_t`: the header's typedef).
-#[derive(Clone, Copy)]
-pub struct QueueKey(sys::ifcs_queue_t);
+type Queue = sys::ifcs_queue_t;
+type MapInfo = sys::ifcs_qos_map_info_t;
+type Policy = sys::ifcs_traffic_monitor_policy_t;
+
+/// An `ifcs_queue_t` (also an `ifcs_bam_queue_t`: the header's typedef), as its bytes.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub struct QueueKey(sys::ifcs_queue_t_bytes);
 
 impl core::fmt::Debug for QueueKey {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("QueueKey")
-            .field("devport", &self.0.devport)
-            .field("queue_id", &self.0.queue_id)
-            .field("dirty", &self.0.dirty)
+            .field("devport", &self.devport())
+            .field("queue_id", &self.queue_id())
+            .field("dirty", &self.dirty())
             .finish_non_exhaustive()
     }
 }
@@ -49,49 +56,60 @@ impl Default for QueueKey {
 impl QueueKey {
     /// All zero (the C++ `memset`).
     pub const fn zeroed() -> Self {
-        Self(sys::ifcs_queue_t {
-            _base_key: 0,
-            devport: 0,
-            queue_id: 0,
-            dirty: 0,
-        })
+        Self(sys::ifcs_queue_t_bytes::ZERO)
     }
 
     /// `k.devport = devport` (the C++ sets the BAM queue key's members directly).
-    pub const fn set_devport(&mut self, devport: u32) {
-        self.0.devport = devport;
+    pub fn set_devport(&mut self, devport: u32) {
+        put_field!(self.0.as_bytes_mut(), 0, Queue, devport, devport);
     }
 
     /// `k.queue_id = id`.
-    pub const fn set_queue_id(&mut self, id: u32) {
-        self.0.queue_id = id;
+    pub fn set_queue_id(&mut self, id: u32) {
+        put_field!(self.0.as_bytes_mut(), 0, Queue, queue_id, id);
     }
 
     /// `k.dirty = bits`.
-    pub const fn set_dirty(&mut self, bits: u8) {
-        self.0.dirty = bits;
+    pub fn set_dirty(&mut self, bits: u8) {
+        put_field!(self.0.as_bytes_mut(), 0, Queue, dirty, bits);
     }
 
-    /// The key as libifcs sees it.
-    pub const fn raw(&self) -> &sys::ifcs_queue_t {
-        &self.0
+    /// `devport`.
+    pub fn devport(&self) -> u32 {
+        get_field!(self.0.as_bytes(), 0, Queue, devport)
     }
 
-    fn ptr(&mut self) -> *mut sys::ifcs_queue_t {
-        &raw mut self.0
+    /// `queue_id`.
+    pub fn queue_id(&self) -> u32 {
+        get_field!(self.0.as_bytes(), 0, Queue, queue_id)
+    }
+
+    /// `dirty`.
+    pub fn dirty(&self) -> u8 {
+        get_field!(self.0.as_bytes(), 0, Queue, dirty)
+    }
+
+    /// The key's bytes as libifcs sees them.
+    pub fn bytes(&self) -> &[u8] {
+        self.0.as_bytes()
+    }
+
+    fn ptr(&mut self) -> *mut Queue {
+        self.0.c_ptr()
     }
 }
 
-/// An `ifcs_qos_map_info_t` (`tl_qos.cpp` `map_info`): zeroed, `ifcs_qos_map_info_t_init`, its
-/// `type`; its list is given to [`Attrs::qos_map_info`] (which owns the entries for the call).
-#[derive(Clone, Copy)]
-pub struct QosMapInfo(sys::ifcs_qos_map_info_t);
+/// An `ifcs_qos_map_info_t` (`tl_qos.cpp` `map_info`), as its bytes: zeroed,
+/// `ifcs_qos_map_info_t_init`, its `type`; its list is given to [`Attrs::qos_map_info`] (which owns
+/// the entries for the call).
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub struct QosMapInfo(sys::ifcs_qos_map_info_t_bytes);
 
 impl core::fmt::Debug for QosMapInfo {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("QosMapInfo")
-            .field("type", &self.0.type_)
-            .field("dirty", &self.0.dirty)
+            .field("type", &self.kind())
+            .field("dirty", &self.dirty())
             .finish_non_exhaustive()
     }
 }
@@ -105,33 +123,26 @@ impl Default for QosMapInfo {
 impl QosMapInfo {
     /// All zero (the C++ `memset`).
     pub const fn zeroed() -> Self {
-        Self(sys::ifcs_qos_map_info_t {
-            type_: 0,
-            list: sys::ifcs_qos_map_list_t {
-                count: 0,
-                arr: core::ptr::null_mut(),
-            },
-            dirty: 0,
-        })
+        Self(sys::ifcs_qos_map_info_t_bytes::ZERO)
     }
 
     /// `info.type = t` (`IFCS_QOS_MAP_TYPE_*`).
-    pub const fn set_type(&mut self, t: u32) {
-        self.0.type_ = t.cast_signed();
+    pub fn set_type(&mut self, t: u32) {
+        put_field!(self.0.as_bytes_mut(), 0, MapInfo, type_, t.cast_signed());
     }
 
     /// `type`.
-    pub const fn kind(&self) -> i32 {
-        self.0.type_
+    pub fn kind(&self) -> i32 {
+        get_field!(self.0.as_bytes(), 0, MapInfo, type_)
     }
 
     /// `dirty` (as `_init` left it).
-    pub const fn dirty(&self) -> u8 {
-        self.0.dirty
+    pub fn dirty(&self) -> u8 {
+        get_field!(self.0.as_bytes(), 0, MapInfo, dirty)
     }
 
-    fn ptr(&mut self) -> *mut sys::ifcs_qos_map_info_t {
-        &raw mut self.0
+    fn ptr(&mut self) -> *mut MapInfo {
+        self.0.c_ptr()
     }
 }
 
@@ -217,20 +228,26 @@ impl QosMapList {
     }
 }
 
-/// An `ifcs_traffic_monitor_policy_t` (`tl_mirror.cpp` `policy_set`): zeroed,
+/// An `ifcs_traffic_monitor_policy_t` (`tl_mirror.cpp` `policy_set`), as its bytes: zeroed,
 /// `ifcs_traffic_monitor_policy_t_init`, then its members; sent copied into the attribute's value
 /// ([`MonitorPolicy::bytes`] with [`Attrs::bytes`]).
-#[derive(Clone, Copy)]
-pub struct MonitorPolicy(sys::ifcs_traffic_monitor_policy_t);
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub struct MonitorPolicy(sys::ifcs_traffic_monitor_policy_t_bytes);
 
 impl core::fmt::Debug for MonitorPolicy {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let b = self.0.as_bytes();
+        let action: i32 = get_field!(b, 0, Policy, traffic_monitor_action);
+        let set: u32 = get_field!(b, 0, Policy, collector_set);
+        let container: i32 = get_field!(b, 0, Policy, traffic_monitor_container);
+        let rate: u32 = get_field!(b, 0, Policy, sampling_rate);
+        let dirty: u8 = get_field!(b, 0, Policy, dirty);
         f.debug_struct("MonitorPolicy")
-            .field("action", &self.0.traffic_monitor_action)
-            .field("collector_set", &self.0.collector_set)
-            .field("container", &self.0.traffic_monitor_container)
-            .field("sampling_rate", &self.0.sampling_rate)
-            .field("dirty", &self.0.dirty)
+            .field("action", &action)
+            .field("collector_set", &set)
+            .field("container", &container)
+            .field("sampling_rate", &rate)
+            .field("dirty", &dirty)
             .finish()
     }
 }
@@ -244,46 +261,26 @@ impl Default for MonitorPolicy {
 impl MonitorPolicy {
     /// All zero (the C++ `memset`).
     pub const fn zeroed() -> Self {
-        Self(sys::ifcs_traffic_monitor_policy_t {
-            traffic_monitor_action: 0,
-            collector_set: 0,
-            traffic_monitor_container: 0,
-            sampling_rate: 0,
-            dirty: 0,
-        })
+        Self(sys::ifcs_traffic_monitor_policy_t_bytes::ZERO)
     }
 
     /// The members the C++ assigns after `_init`.
-    pub const fn set(&mut self, action: u32, set: Handle, container: u32, rate: u32) {
-        self.0.traffic_monitor_action = action.cast_signed();
-        self.0.collector_set = set.0;
-        self.0.traffic_monitor_container = container.cast_signed();
-        self.0.sampling_rate = rate;
+    pub fn set(&mut self, action: u32, set: Handle, container: u32, rate: u32) {
+        let b = self.0.as_bytes_mut();
+        put_field!(b, 0, Policy, traffic_monitor_action, action.cast_signed());
+        put_field!(b, 0, Policy, collector_set, set.0);
+        put_field!(b, 0, Policy, traffic_monitor_container, container.cast_signed());
+        put_field!(b, 0, Policy, sampling_rate, rate);
     }
 
-    /// The struct's bytes (`std::memcpy(&a.value, &p, sizeof p)`; padding zero).
+    /// The struct's bytes (`std::memcpy(&a.value, &p, sizeof p)`), every one: the policy as
+    /// `_init` and [`MonitorPolicy::set`] left it, padding zero.
     pub fn bytes(&self) -> Vec<u8> {
-        type P = sys::ifcs_traffic_monitor_policy_t;
-        let p = &self.0;
-        let mut b = vec![0u8; size_of::<P>()];
-        put(
-            &mut b,
-            offset_of!(P, traffic_monitor_action),
-            &p.traffic_monitor_action.to_ne_bytes(),
-        );
-        put(&mut b, offset_of!(P, collector_set), &p.collector_set.to_ne_bytes());
-        put(
-            &mut b,
-            offset_of!(P, traffic_monitor_container),
-            &p.traffic_monitor_container.to_ne_bytes(),
-        );
-        put(&mut b, offset_of!(P, sampling_rate), &p.sampling_rate.to_ne_bytes());
-        put(&mut b, offset_of!(P, dirty), &[p.dirty]);
-        b
+        self.0.as_bytes().to_vec()
     }
 
-    fn ptr(&mut self) -> *mut sys::ifcs_traffic_monitor_policy_t {
-        &raw mut self.0
+    fn ptr(&mut self) -> *mut Policy {
+        self.0.c_ptr()
     }
 }
 const _: () = assert!(size_of::<sys::ifcs_traffic_monitor_policy_t>() <= size_of::<sys::ifcs_attr_value_t>());
@@ -439,7 +436,8 @@ mod tests {
         k.set_devport(3);
         k.set_queue_id(7);
         k.set_dirty(3);
-        assert_eq!((k.raw().devport, k.raw().queue_id, k.raw().dirty), (3, 7, 3));
+        assert_eq!((k.devport(), k.queue_id(), k.dirty()), (3, 7, 3));
+        assert_eq!(k.bytes()[13..], [0; 3]); // the padding after dirty
         let mut i = QosMapInfo::zeroed();
         i.set_type(sys::IFCS_QOS_MAP_TYPE_DSCP_TO_TC_DP);
         assert_eq!((i.kind(), i.dirty()), (1, 0));

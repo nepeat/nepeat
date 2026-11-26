@@ -21,13 +21,40 @@ use core::ffi::{CStr, c_int};
 use ifcs_sys as sys;
 
 use crate::Ifcs;
-use crate::attr::Attrs;
+use crate::attr::{Attr, Attrs};
+use crate::bytes::{CBytes, get_field};
 use crate::handle::Handle;
 use crate::status::Status;
 
 /// The status answered for a table entry that is `None` (never: `Table::resolve` fills every
 /// entry or fails): `IFCS_UNINIT`.
 const MISSING: Status = Status(sys::IFCS_UNINIT.cast_signed());
+
+/// An `ifcs_usage_t` (a table's usage, which libifcs writes), as its bytes: zeroed before the call.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Usage(sys::ifcs_usage_t_bytes);
+
+impl Default for Usage {
+    fn default() -> Self {
+        Self(sys::ifcs_usage_t_bytes::ZERO)
+    }
+}
+
+impl Usage {
+    /// `max`.
+    pub fn max(&self) -> u32 {
+        get_field!(self.0.as_bytes(), 0, sys::ifcs_usage_t, max)
+    }
+
+    /// `current`.
+    pub fn current(&self) -> u32 {
+        get_field!(self.0.as_bytes(), 0, sys::ifcs_usage_t, current)
+    }
+
+    fn ptr(&mut self) -> *mut sys::ifcs_usage_t {
+        self.0.c_ptr()
+    }
+}
 
 /// `(node, u32 object, u32 count, ifcs_attr_t*)`: object attribute sets.
 fn obj_attrs(f: sys::ifcs_sysport_attr_set_fn, node: u32, obj: u32, attrs: &mut Attrs) -> Status {
@@ -141,19 +168,22 @@ fn node_only(f: sys::ifcs_l2_event_unregister_notify_fn, node: u32) -> Status {
 }
 
 /// `(node, u32 count, ifcs_attr_t*, ifcs_usage_t*)`: table usage.
-fn usage(f: sys::ifcs_ecmp_usage_get_fn, node: u32, attrs: &mut Attrs, out: &mut sys::ifcs_usage_t) -> Status {
+fn usage(f: sys::ifcs_ecmp_usage_get_fn, node: u32, attrs: &mut Attrs, out: &mut Usage) -> Status {
     let Some(f) = f else { return MISSING };
     let (n, p) = attrs.args();
-    // SAFETY: the module's contract; libifcs writes `out`.
+    let out = out.ptr();
+    // SAFETY: the module's contract; libifcs writes the usage at `out` (a zeroed byte twin of
+    // ifcs_usage_t, borrowed for the call).
     Status(unsafe { f(node, n, p, out) })
 }
 
 /// `(node, ifcs_l2_entry_key_t*, u32 count, ifcs_attr_t*, ifcs_usage_t*)` with a `NULL` key: the
 /// whole table (`ifcs_l2_entry_usage_get`), the only form the C++ uses.
-fn l2_usage(f: sys::ifcs_l2_entry_usage_get_fn, node: u32, attrs: &mut Attrs, out: &mut sys::ifcs_usage_t) -> Status {
+fn l2_usage(f: sys::ifcs_l2_entry_usage_get_fn, node: u32, attrs: &mut Attrs, out: &mut Usage) -> Status {
     let Some(f) = f else { return MISSING };
     let (n, p) = attrs.args();
-    // SAFETY: the module's contract; a NULL key asks for the whole table (tl_switch.cpp).
+    let out = out.ptr();
+    // SAFETY: as `usage`; the module's contract; a NULL key asks for the whole table (tl_switch.cpp).
     Status(unsafe { f(node, core::ptr::null_mut(), n, p, out) })
 }
 
@@ -205,9 +235,9 @@ methods!(members_remove(node: u32, obj: Handle, members: &mut [Handle]) -> (Stat
 methods!(stats_clear(node: u32, obj: u32, ids: &mut [c_int]) -> (Status):
     ifcs_devport_stats_clear, ifcs_intf_stats_clear, ifcs_acl_counter_stats_clear);
 methods!(node_only(node: u32) -> (Status): ifcs_linkscan_event_unregister_notify, ifcs_l2_event_unregister_notify);
-methods!(usage(node: u32, attrs: &mut Attrs, out: &mut sys::ifcs_usage_t) -> (Status):
+methods!(usage(node: u32, attrs: &mut Attrs, out: &mut Usage) -> (Status):
     ifcs_nexthop_usage_get, ifcs_ecmp_usage_get);
-methods!(l2_usage(node: u32, attrs: &mut Attrs, out: &mut sys::ifcs_usage_t) -> (Status): ifcs_l2_entry_usage_get);
+methods!(l2_usage(node: u32, attrs: &mut Attrs, out: &mut Usage) -> (Status): ifcs_l2_entry_usage_get);
 
 impl Ifcs {
     /// `ifcs_devport_stats_get` / `ifcs_hostif_trap_stats_get` / `ifcs_acl_counter_stats_get` /
@@ -344,28 +374,32 @@ impl Ifcs {
     }
 
     /// `ifcs_attr_t_init(&attr)` (the vendor accessor sequence of `innovium.user`).
-    pub fn ifcs_attr_t_init(&self, attr: &mut sys::ifcs_attr_t) -> Status {
+    pub fn ifcs_attr_t_init(&self, attr: &mut Attr) -> Status {
         let Some(f) = self.t().ifcs_attr_t_init else {
             return MISSING;
         };
-        // SAFETY: the module's contract; one attribute libifcs initialises.
+        let attr = attr.ptr();
+        // SAFETY: the module's contract; one attribute (its byte twin, borrowed for the call) libifcs
+        // initialises.
         Status(unsafe { f(attr) })
     }
 
     /// `ifcs_attr_t_id_set(&attr, id)`.
-    pub fn ifcs_attr_t_id_set(&self, attr: &mut sys::ifcs_attr_t, id: u32) -> Status {
+    pub fn ifcs_attr_t_id_set(&self, attr: &mut Attr, id: u32) -> Status {
         let Some(f) = self.t().ifcs_attr_t_id_set else {
             return MISSING;
         };
+        let attr = attr.ptr();
         // SAFETY: as `ifcs_attr_t_init`.
         Status(unsafe { f(attr, id) })
     }
 
     /// `ifcs_attr_t_value_data_set(&attr, value)`.
-    pub fn ifcs_attr_t_value_data_set(&self, attr: &mut sys::ifcs_attr_t, value: bool) -> Status {
+    pub fn ifcs_attr_t_value_data_set(&self, attr: &mut Attr, value: bool) -> Status {
         let Some(f) = self.t().ifcs_attr_t_value_data_set else {
             return MISSING;
         };
+        let attr = attr.ptr();
         let v = if value {
             sys::IFCS_BOOL_TRUE
         } else {

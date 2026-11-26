@@ -14,7 +14,9 @@
 #     of create_switch / remove_switch equal to the C++ library's (test_ifcs.txt, create_remove.diff)
 #   - a cross build: the bindings' layout checks for the target (ifcs-sys's build, the target's cc);
 #     passthru.testBundle has this library, the mock, the shim, test_ifcs and the call-log driver built
-#     for the target, to run under binfmt (./teralynx-target-run.nix)
+#     for the target, to run under binfmt (./teralynx-target-run.nix), and the ifcs crate's ABI test
+#     (crates/ifcs/tests/abi.rs with its C fixture: the byte twins passed as the target's C passes the
+#     structs, every byte libifcs receives defined)
 {
   lib,
   stdenv,
@@ -89,12 +91,31 @@ let
     ''}
   '';
 
-  passthru = (old.passthru or { }) // { inherit cppTeralynx tlFiles; testBundle = bundle; };
+  passthru = (old.passthru or { }) // { inherit cppTeralynx tlFiles ifcsTests; testBundle = bundle; };
 
   meta = old.meta // {
     description = "Rust libsai.so with the Teralynx 7 backend (libifcs loaded at run time) for the CS8210-32X";
   };
 });
+
+  # the ifcs crate's ABI test program and its C fixture built for the target (tests/abi.rs: the byte
+  # twins of by-value structs on the target's calling convention, the keys' and attributes' padding),
+  # for the bundle (./teralynx-target-run.nix runs it with IFCS_ABI_FIXTURE)
+  ifcsTests = saiRs.overrideAttrs (old: {
+    pname = "sai-rs-ifcs-abi-test";
+    cargoBuildFlags = [ "-p" "ifcs" "--tests" ];
+    doCheck = false;
+    installPhase = ''
+      runHook preInstall
+      mkdir -p $out/ifcs
+      exe=$(ls -t target/${triple}/$cargoBuildType/deps/abi-* | grep -v '\.d$' | head -1)
+      install -m755 "$exe" $out/ifcs/abi
+      install -m755 target/${triple}/$cargoBuildType/build/ifcs-*/out/target-tests/libifcs_abi_fixture.so $out/ifcs/
+      runHook postInstall
+    '';
+    postInstall = "";
+    meta = old.meta // { description = "the ifcs crate's ABI test (tests/abi.rs) and its C fixture, built for the target"; };
+  });
 
   # this library and the C test programs built for the target, to run where the target executes
   # (./teralynx-target-run.nix: binfmt); the same programs test-ifcs.sh builds natively
@@ -122,6 +143,7 @@ let
       cp ${../crates/sai-backend-teralynx/tests/areas.txt} $out/areas.txt
       cp ${../crates/sai-backend-teralynx/tests/post-init-regs.txt} $out/post-init-regs.txt
       cp ${../crates/sai-backend-teralynx/tests/diag-regs.txt} $out/diag-regs.txt
+      cp -r ${ifcsTests}/ifcs $out/ifcs
     '';
     installPhase = "true";
   };

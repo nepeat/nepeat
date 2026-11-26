@@ -591,25 +591,13 @@ impl Up {
         let used = n.v4_prefixes.saturating_add(n.v6_prefixes.saturating_mul(2));
         let v4_routes_free = CAP_V4_PREFIX.saturating_sub(used);
         let hused = n.v4_hosts.saturating_add(n.v6_hosts.saturating_mul(2));
-        let mut us = sys::ifcs_usage_t {
-            max: 0,
-            current: 0,
-            dirty: 0,
-        };
+        let mut us = ifcs::Usage::default();
         let rc = c.lib.ifcs_nexthop_usage_get(NODE, &mut Attrs::null(), &mut us);
         let egress_free = c.usage_free(rc, &us, 0, "nexthop");
-        let mut us = sys::ifcs_usage_t {
-            max: 0,
-            current: 0,
-            dirty: 0,
-        };
+        let mut us = ifcs::Usage::default();
         let rc = c.lib.ifcs_l2_entry_usage_get(NODE, &mut Attrs::null(), &mut us);
         let fdb_free = c.usage_free(rc, &us, CAP_MAC, "l2_entry");
-        let mut us = sys::ifcs_usage_t {
-            max: 0,
-            current: 0,
-            dirty: 0,
-        };
+        let mut us = ifcs::Usage::default();
         let rc = c.lib.ifcs_ecmp_usage_get(NODE, &mut Attrs::null(), &mut us);
         let ecmp_groups_free = c.usage_free(rc, &us, 0, "ecmp");
         let l = self.chip_limits()?;

@@ -1,0 +1,2362 @@
+{
+ "name": "phasec-hw: integration features on the loop (RIF counters/admin/re-create, glean, IPv4 options, hash object, ACL ranges/redirect/TC/DSCP/mirror/egress/admin/update, storm, flood control) [h2: cage 3 <-> 17, cage 3 behind the Credo PHY]",
+ "steps": [
+  {
+   "op": "create_switch",
+   "attrs": [
+    [
+     "INIT_SWITCH",
+     "bool",
+     true
+    ],
+    [
+     "PORT_STATE_CHANGE_NOTIFY",
+     "ptr",
+     "port_state"
+    ],
+    [
+     "SWITCH_SHUTDOWN_REQUEST_NOTIFY",
+     "ptr",
+     "shutdown"
+    ]
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "ports"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "CPU_PORT",
+    "oid"
+   ],
+   "as": "cpu"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_VIRTUAL_ROUTER_ID",
+    "oid"
+   ],
+   "as": "vr"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_VLAN_ID",
+    "oid"
+   ],
+   "as": "vlan1"
+  },
+  {
+   "op": "get",
+   "obj": "$vlan1",
+   "desc": "VLAN 1 members",
+   "attr": [
+    "MEMBER_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "vmembers"
+  },
+  {
+   "op": "foreach",
+   "list": "vmembers",
+   "as": "m",
+   "steps": [
+    {
+     "op": "remove",
+     "obj": "$m",
+     "desc": "VLAN 1 member"
+    }
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[2]",
+   "desc": "mtu",
+   "attr": [
+    "MTU",
+    "u32",
+    9100
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[2]",
+   "desc": "fec rs",
+   "attr": [
+    "FEC_MODE",
+    "s32",
+    "RS"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[2]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "desc": "mtu",
+   "attr": [
+    "MTU",
+    "u32",
+    9100
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "desc": "fec rs",
+   "attr": [
+    "FEC_MODE",
+    "s32",
+    "RS"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif0",
+   "desc": "Ethernet16",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[2]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet16"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif1",
+   "desc": "Ethernet128",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[16]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet128"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "g_q4",
+   "desc": "queue 4",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "g_q1",
+   "desc": "queue 1",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     1
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_arpq",
+   "desc": "ARP_REQUEST",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "ARP_REQUEST"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "COPY"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q4"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_arpr",
+   "desc": "ARP_RESPONSE",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "ARP_RESPONSE"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "COPY"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q4"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_nd",
+   "desc": "IPV6_NEIGHBOR_DISCOVERY",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "IPV6_NEIGHBOR_DISCOVERY"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "COPY"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q4"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_ip2me",
+   "desc": "IP2ME",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "IP2ME"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q1"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_ttl",
+   "desc": "TTL_ERROR",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "TTL_ERROR"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q1"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_mtu",
+   "desc": "L3_MTU_ERROR",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "L3_MTU_ERROR"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q1"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "default v4 DROP",
+   "vr": "$vr",
+   "prefix": "0.0.0.0/0",
+   "attrs": [
+    [
+     "PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "default v6 DROP",
+   "vr": "$vr",
+   "prefix": "::/0",
+   "attrs": [
+    [
+     "PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "g_q6",
+   "desc": "queue 6 (glean)",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     6
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_nm",
+   "desc": "NEIGHBOR_MISS",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "NEIGHBOR_MISS"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q6"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ROUTER_INTERFACE",
+   "as": "rifA",
+   "desc": "RIF A on Ethernet16",
+   "attrs": [
+    [
+     "VIRTUAL_ROUTER_ID",
+     "oid",
+     "$vr"
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PORT"
+    ],
+    [
+     "PORT_ID",
+     "oid",
+     "$ports[2]"
+    ],
+    [
+     "SRC_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:01:0a"
+    ],
+    [
+     "MTU",
+     "u32",
+     9100
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ROUTER_INTERFACE",
+   "as": "rifB",
+   "desc": "RIF B on Ethernet128",
+   "attrs": [
+    [
+     "VIRTUAL_ROUTER_ID",
+     "oid",
+     "$vr"
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PORT"
+    ],
+    [
+     "PORT_ID",
+     "oid",
+     "$ports[16]"
+    ],
+    [
+     "SRC_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:01:0b"
+    ],
+    [
+     "MTU",
+     "u32",
+     9100
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE",
+   "as": "obs",
+   "desc": "loop observer: frames to the far hosts' MACs (02:00:00:00:0a/0b:xx) to the CPU",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "FIELD_DST_MAC",
+     "bool",
+     true
+    ],
+    [
+     "ACL_ACTION_TYPE_LIST",
+     "s32list",
+     [
+      "PACKET_ACTION"
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP",
+   "as": "obs_g0",
+   "desc": "observer group Ethernet16",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PARALLEL"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP",
+   "as": "obs_g15",
+   "desc": "observer group Ethernet128",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PARALLEL"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP_MEMBER",
+   "as": "obs_m0",
+   "attrs": [
+    [
+     "ACL_TABLE_GROUP_ID",
+     "oid",
+     "$obs_g0"
+    ],
+    [
+     "ACL_TABLE_ID",
+     "oid",
+     "$obs"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP_MEMBER",
+   "as": "obs_m15",
+   "attrs": [
+    [
+     "ACL_TABLE_GROUP_ID",
+     "oid",
+     "$obs_g15"
+    ],
+    [
+     "ACL_TABLE_ID",
+     "oid",
+     "$obs"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[2]",
+   "desc": "Ethernet16 INGRESS_ACL observer",
+   "attr": [
+    "INGRESS_ACL",
+    "oid",
+    "$obs_g0"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "desc": "Ethernet128 INGRESS_ACL observer",
+   "attr": [
+    "INGRESS_ACL",
+    "oid",
+    "$obs_g15"
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "obs_e",
+   "desc": "DST_MAC 02:00:00:00:0a:00/ff:ff:ff:ff:fe:00 TRAP",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$obs"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     10
+    ],
+    [
+     "FIELD_DST_MAC",
+     "aclfield",
+     {
+      "mac": "02:00:00:00:0a:00",
+      "mask": "ff:ff:ff:ff:fe:00"
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "TRAP"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE",
+   "as": "obs2",
+   "desc": "observer 2 (Ethernet128 only): DMAC = RIF A MAC -> CPU (mirror copies)",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "FIELD_DST_MAC",
+     "bool",
+     true
+    ],
+    [
+     "ACL_ACTION_TYPE_LIST",
+     "s32list",
+     [
+      "PACKET_ACTION"
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP_MEMBER",
+   "as": "obs2_m15",
+   "desc": "obs2 in g15",
+   "attrs": [
+    [
+     "ACL_TABLE_GROUP_ID",
+     "oid",
+     "$obs_g15"
+    ],
+    [
+     "ACL_TABLE_ID",
+     "oid",
+     "$obs2"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     90
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "obs2_e",
+   "desc": "DST_MAC 02:00:00:00:01:0a TRAP",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$obs2"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     10
+    ],
+    [
+     "FIELD_DST_MAC",
+     "aclfield",
+     {
+      "mac": "02:00:00:00:01:0a"
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "TRAP"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "ip2me 10.1.0.1",
+   "vr": "$vr",
+   "prefix": "10.1.0.1/32",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$cpu"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "ip2me 10.2.0.1",
+   "vr": "$vr",
+   "prefix": "10.2.0.1/32",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$cpu"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "connected 10.1.0.0/24 (glean)",
+   "vr": "$vr",
+   "prefix": "10.1.0.0/24",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$rifA"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "connected 10.2.0.0/24 (glean)",
+   "vr": "$vr",
+   "prefix": "10.2.0.0/24",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$rifB"
+    ]
+   ]
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "10.1.0.2 H1",
+   "rif": "$rifA",
+   "ip": "10.1.0.2",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0a:02"
+    ]
+   ]
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "10.1.0.3 H3 (not observed)",
+   "rif": "$rifA",
+   "ip": "10.1.0.3",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0c:02"
+    ]
+   ]
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "10.2.0.2 H2",
+   "rif": "$rifB",
+   "ip": "10.2.0.2",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0b:02"
+    ]
+   ]
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "fc00:2::2 H2",
+   "rif": "$rifB",
+   "ip": "fc00:2::2",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0b:02"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP",
+   "as": "nh1",
+   "desc": "10.1.0.2",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "IP"
+    ],
+    [
+     "IP",
+     "ip",
+     "10.1.0.2"
+    ],
+    [
+     "ROUTER_INTERFACE_ID",
+     "oid",
+     "$rifA"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP",
+   "as": "nh3",
+   "desc": "10.1.0.3",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "IP"
+    ],
+    [
+     "IP",
+     "ip",
+     "10.1.0.3"
+    ],
+    [
+     "ROUTER_INTERFACE_ID",
+     "oid",
+     "$rifA"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP",
+   "as": "nh2",
+   "desc": "10.2.0.2",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "IP"
+    ],
+    [
+     "IP",
+     "ip",
+     "10.2.0.2"
+    ],
+    [
+     "ROUTER_INTERFACE_ID",
+     "oid",
+     "$rifB"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP",
+   "as": "nh2v6",
+   "desc": "fc00:2::2",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "IP"
+    ],
+    [
+     "IP",
+     "ip",
+     "fc00:2::2"
+    ],
+    [
+     "ROUTER_INTERFACE_ID",
+     "oid",
+     "$rifB"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "10.20.0.0/16 -> nh2",
+   "vr": "$vr",
+   "prefix": "10.20.0.0/16",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh2"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "10.99.0.0/16 -> nh3 (unobserved)",
+   "vr": "$vr",
+   "prefix": "10.99.0.0/16",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh3"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "2001:db8:20::/48 -> nh2v6",
+   "vr": "$vr",
+   "prefix": "2001:db8:20::/48",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh2v6"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "fc00:2::/64 connected",
+   "vr": "$vr",
+   "prefix": "fc00:2::/64",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$rifB"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP_GROUP",
+   "as": "nhg",
+   "desc": "ECMP",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "ECMP"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP_GROUP_MEMBER",
+   "as": "m1",
+   "desc": "nh1",
+   "attrs": [
+    [
+     "NEXT_HOP_GROUP_ID",
+     "oid",
+     "$nhg"
+    ],
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh1"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP_GROUP_MEMBER",
+   "as": "m2",
+   "desc": "nh2",
+   "attrs": [
+    [
+     "NEXT_HOP_GROUP_ID",
+     "oid",
+     "$nhg"
+    ],
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh2"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "10.30.0.0/16 -> ECMP",
+   "vr": "$vr",
+   "prefix": "10.30.0.0/16",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nhg"
+    ]
+   ]
+  },
+  {
+   "op": "sleep",
+   "ms": 12000
+  },
+  {
+   "op": "get",
+   "obj": "$ports[2]",
+   "desc": "oper Ethernet16",
+   "attr": [
+    "OPER_STATUS",
+    "s32"
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "$ports[16]",
+   "desc": "oper Ethernet128",
+   "attr": [
+    "OPER_STATUS",
+    "s32"
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "$ports[16]",
+   "attr": [
+    "QOS_QUEUE_LIST",
+    "oidlist",
+    16
+   ],
+   "as": "q15"
+  },
+  {
+   "op": "sleep",
+   "ms": 1,
+   "desc": "==== A forwarding + RIF counters + port counters by id"
+  },
+  {
+   "op": "stats",
+   "obj": "$rifA",
+   "desc": "RIF A before",
+   "ids": [
+    "IN_PACKETS",
+    "IN_OCTETS",
+    "OUT_PACKETS",
+    "OUT_OCTETS"
+   ]
+  },
+  {
+   "op": "stats",
+   "obj": "$rifB",
+   "desc": "RIF B before",
+   "ids": [
+    "IN_PACKETS",
+    "IN_OCTETS",
+    "OUT_PACKETS",
+    "OUT_OCTETS"
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.20.1.1 count=100 pps=1000"
+  },
+  {
+   "op": "sleep",
+   "ms": 2500
+  },
+  {
+   "op": "stats",
+   "obj": "$rifA",
+   "desc": "RIF A after (+100 in)",
+   "ids": [
+    "IN_PACKETS",
+    "IN_OCTETS",
+    "OUT_PACKETS",
+    "OUT_OCTETS"
+   ]
+  },
+  {
+   "op": "stats",
+   "obj": "$rifB",
+   "desc": "RIF B after (+100 out)",
+   "ids": [
+    "IN_PACKETS",
+    "IN_OCTETS",
+    "OUT_PACKETS",
+    "OUT_OCTETS"
+   ]
+  },
+  {
+   "op": "stats_cap",
+   "type": "ROUTER_INTERFACE",
+   "desc": "RIF stat ids"
+  },
+  {
+   "op": "stats_cap",
+   "type": "PORT",
+   "desc": "port stat ids"
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[2]",
+   "desc": "Ethernet16 by id: IN_OCTETS, IN_UCAST, ETHER_STATS_128_255, FEC corrected / not corrected, ETHER_IN_128_255",
+   "ids": [
+    "IF_IN_OCTETS",
+    "IF_IN_UCAST_PKTS",
+    24,
+    178,
+    179,
+    73
+   ]
+  },
+  {
+   "op": "sleep",
+   "ms": 1,
+   "desc": "==== B RIF admin state"
+  },
+  {
+   "op": "set",
+   "obj": "$rifA",
+   "desc": "RIF A ADMIN_V4_STATE false",
+   "attr": [
+    "ADMIN_V4_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.20.1.1 count=100 pps=1000"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=fc00:1::2 dst=fc00:2::2 count=100 pps=1000"
+  },
+  {
+   "op": "set",
+   "obj": "$rifA",
+   "desc": "RIF A ADMIN_V4_STATE true",
+   "attr": [
+    "ADMIN_V4_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.20.1.1 count=100 pps=1000"
+  },
+  {
+   "op": "sleep",
+   "ms": 1,
+   "desc": "==== C glean (NEIGHBOR_MISS queue 6) and IPv4 options"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.2.0.77 count=50 pps=500"
+  },
+  {
+   "op": "sleep",
+   "ms": 2000
+  },
+  {
+   "op": "diag",
+   "cmd": "copp"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.99.0.5 count=50 pps=500"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.99.0.5 count=50 pps=500 opts=1"
+  },
+  {
+   "op": "sleep",
+   "ms": 1,
+   "desc": "==== D ECMP hash object"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.30.0.1 count=1024 pps=2000 flows=256"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "ECMP_HASH",
+    "oid"
+   ],
+   "as": "eh"
+  },
+  {
+   "op": "set",
+   "obj": "$eh",
+   "desc": "ECMP hash = DST_IP only",
+   "attr": [
+    "NATIVE_HASH_FIELD_LIST",
+    "s32list",
+    [
+     1
+    ]
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.30.0.1 count=1024 pps=2000 flows=256"
+  },
+  {
+   "op": "set",
+   "obj": "$eh",
+   "desc": "ECMP hash = SRC_IP DST_IP PROTO L4 ports",
+   "attr": [
+    "NATIVE_HASH_FIELD_LIST",
+    "s32list",
+    [
+     0,
+     1,
+     5,
+     7,
+     8
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "switch",
+   "desc": "ECMP seed 12345",
+   "attr": [
+    "ECMP_DEFAULT_HASH_SEED",
+    "u32",
+    12345
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.30.0.1 count=1024 pps=2000 flows=256"
+  },
+  {
+   "op": "set",
+   "obj": "$eh",
+   "desc": "inner field refused",
+   "attr": [
+    "NATIVE_HASH_FIELD_LIST",
+    "s32list",
+    [
+     2
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "sleep",
+   "ms": 1,
+   "desc": "==== E ACL extras (table x on Ethernet16 ingress)"
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE",
+   "as": "x",
+   "desc": "extras: ranges, redirect, TC, mirror",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "FIELD_DST_IP",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_DST_MAC",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_IP_PROTOCOL",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_ACL_RANGE_TYPE",
+     "s32list",
+     [
+      "L4_DST_PORT_RANGE"
+     ]
+    ],
+    [
+     "ACL_ACTION_TYPE_LIST",
+     "s32list",
+     [
+      "PACKET_ACTION",
+      "COUNTER",
+      "REDIRECT",
+      "SET_TC",
+      "MIRROR_INGRESS"
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "$x",
+   "desc": "AVAILABLE_ACL_ENTRY empty",
+   "attr": [
+    "AVAILABLE_ACL_ENTRY",
+    "u32"
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP_MEMBER",
+   "as": "x_m0",
+   "desc": "x in g0",
+   "attrs": [
+    [
+     "ACL_TABLE_GROUP_ID",
+     "oid",
+     "$obs_g0"
+    ],
+    [
+     "ACL_TABLE_ID",
+     "oid",
+     "$x"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     80
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_RANGE",
+   "as": "r1",
+   "desc": "dst port 1000-2000",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "L4_DST_PORT_RANGE"
+    ],
+    [
+     "LIMIT",
+     "u32range",
+     [
+      1000,
+      2000
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_COUNTER",
+   "as": "c1",
+   "desc": "counter X1",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$x"
+    ],
+    [
+     "ENABLE_PACKET_COUNT",
+     "bool",
+     true
+    ],
+    [
+     "ENABLE_BYTE_COUNT",
+     "bool",
+     true
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "x1",
+   "desc": "X1 10.20.1.0/24 dport 1000-2000 DROP",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$x"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ],
+    [
+     "FIELD_DST_IP",
+     "aclfield",
+     {
+      "ip4": "10.20.1.0",
+      "mask": "255.255.255.0"
+     }
+    ],
+    [
+     "FIELD_ACL_RANGE_TYPE",
+     "aclfield",
+     {
+      "oids": [
+       "$r1"
+      ]
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "DROP"
+     }
+    ],
+    [
+     "ACTION_COUNTER",
+     "aclaction",
+     {
+      "oid": "$c1"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.20.1.1 count=100 pps=1000 dport=1500"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.20.1.1 count=100 pps=1000 dport=3000"
+  },
+  {
+   "op": "set",
+   "obj": "$x1",
+   "desc": "X1 priority 150 right after a batch (in place: counter kept)",
+   "attr": [
+    "PRIORITY",
+    "u32",
+    150
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.20.1.1 count=100 pps=1000 dport=1999"
+  },
+  {
+   "op": "set",
+   "obj": "$x1",
+   "desc": "X1 priority 160 at once",
+   "attr": [
+    "PRIORITY",
+    "u32",
+    160
+   ]
+  },
+  {
+   "op": "sleep",
+   "ms": 2000
+  },
+  {
+   "op": "get",
+   "obj": "$c1",
+   "desc": "X1 counter (200 expected)",
+   "attrs": [
+    [
+     "PACKETS",
+     "u64"
+    ],
+    [
+     "BYTES",
+     "u64"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$x1",
+   "desc": "X1 admin down",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.20.1.1 count=100 pps=1000 dport=1500"
+  },
+  {
+   "op": "set",
+   "obj": "$x1",
+   "desc": "X1 admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.20.1.1 count=100 pps=1000 dport=1500"
+  },
+  {
+   "op": "sleep",
+   "ms": 2000
+  },
+  {
+   "op": "get",
+   "obj": "$c1",
+   "desc": "X1 counter (300 expected)",
+   "attrs": [
+    [
+     "PACKETS",
+     "u64"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "x2",
+   "desc": "X2 SET_DSCP refused (not in the table: 0.12.41 has no SET_DSCP action)",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$x"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ],
+    [
+     "FIELD_DST_IP",
+     "aclfield",
+     {
+      "ip4": "10.20.2.0",
+      "mask": "255.255.255.0"
+     }
+    ],
+    [
+     "ACTION_SET_DSCP",
+     "aclaction",
+     {
+      "u8": 46
+     }
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "x3",
+   "desc": "X3 10.20.3.0/24 SET_TC 5",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$x"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ],
+    [
+     "FIELD_DST_IP",
+     "aclfield",
+     {
+      "ip4": "10.20.3.0",
+      "mask": "255.255.255.0"
+     }
+    ],
+    [
+     "ACTION_SET_TC",
+     "aclaction",
+     {
+      "u8": 5
+     }
+    ]
+   ]
+  },
+  {
+   "op": "qstats",
+   "obj": "$q15[5]",
+   "desc": "Ethernet128 queue 5 before",
+   "ids": [
+    "PACKETS"
+   ]
+  },
+  {
+   "op": "qstats",
+   "obj": "$q15[0]",
+   "desc": "Ethernet128 queue 0 before",
+   "ids": [
+    "PACKETS"
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.20.3.1 count=100 pps=1000"
+  },
+  {
+   "op": "sleep",
+   "ms": 3000
+  },
+  {
+   "op": "qstats",
+   "obj": "$q15[5]",
+   "desc": "Ethernet128 queue 5 after (+100)",
+   "ids": [
+    "PACKETS"
+   ]
+  },
+  {
+   "op": "qstats",
+   "obj": "$q15[0]",
+   "desc": "Ethernet128 queue 0 after",
+   "ids": [
+    "PACKETS"
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "10.95.0.0/16 -> nh3 (unobserved): only a redirect makes it visible",
+   "vr": "$vr",
+   "prefix": "10.95.0.0/16",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh3"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "x4",
+   "desc": "X4 10.95.0.0/16 + DMAC RIF A -> REDIRECT nh2",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$x"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ],
+    [
+     "FIELD_DST_IP",
+     "aclfield",
+     {
+      "ip4": "10.95.0.0",
+      "mask": "255.255.0.0"
+     }
+    ],
+    [
+     "FIELD_DST_MAC",
+     "aclfield",
+     {
+      "mac": "02:00:00:00:01:0a"
+     }
+    ],
+    [
+     "ACTION_REDIRECT",
+     "aclaction",
+     {
+      "oid": "$nh2"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.95.0.1 count=100 pps=1000"
+  },
+  {
+   "op": "create",
+   "type": "MIRROR_SESSION",
+   "as": "span0",
+   "desc": "SPAN to Ethernet16",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "LOCAL"
+    ],
+    [
+     "MONITOR_PORT",
+     "oid",
+     "$ports[2]"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "x5",
+   "desc": "X5 10.96.0.0/16 MIRROR_INGRESS span0",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$x"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ],
+    [
+     "FIELD_DST_IP",
+     "aclfield",
+     {
+      "ip4": "10.96.0.0",
+      "mask": "255.255.0.0"
+     }
+    ],
+    [
+     "ACTION_MIRROR_INGRESS",
+     "aclaction",
+     {
+      "oids": [
+       "$span0"
+      ]
+     }
+    ]
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.96.0.1 count=100 pps=1000"
+  },
+  {
+   "op": "get",
+   "obj": "$x",
+   "desc": "AVAILABLE_ACL_ENTRY with 5 entries",
+   "attr": [
+    "AVAILABLE_ACL_ENTRY",
+    "u32"
+   ]
+  },
+  {
+   "op": "diag",
+   "cmd": "acl"
+  },
+  {
+   "op": "remove",
+   "obj": "$x5"
+  },
+  {
+   "op": "remove",
+   "obj": "$x4"
+  },
+  {
+   "op": "remove",
+   "obj": "$x3"
+  },
+  {
+   "op": "remove",
+   "obj": "$x1"
+  },
+  {
+   "op": "remove",
+   "obj": "$span0"
+  },
+  {
+   "op": "remove",
+   "obj": "$c1"
+  },
+  {
+   "op": "remove",
+   "obj": "$r1"
+  },
+  {
+   "op": "remove",
+   "obj": "$x_m0"
+  },
+  {
+   "op": "remove",
+   "obj": "$x"
+  },
+  {
+   "op": "sleep",
+   "ms": 1,
+   "desc": "==== F egress ACL with OUT_PORTS"
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE",
+   "as": "ex",
+   "desc": "egress table",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "EGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "FIELD_DST_IP",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_OUT_PORTS",
+     "bool",
+     true
+    ],
+    [
+     "ACL_ACTION_TYPE_LIST",
+     "s32list",
+     [
+      "PACKET_ACTION",
+      "COUNTER"
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP",
+   "as": "eg",
+   "desc": "egress group",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "EGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PARALLEL"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP_MEMBER",
+   "as": "ex_m",
+   "desc": "ex in eg",
+   "attrs": [
+    [
+     "ACL_TABLE_GROUP_ID",
+     "oid",
+     "$eg"
+    ],
+    [
+     "ACL_TABLE_ID",
+     "oid",
+     "$ex"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "desc": "Ethernet128 EGRESS_ACL",
+   "attr": [
+    "EGRESS_ACL",
+    "oid",
+    "$eg"
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "ee",
+   "desc": "10.20.4.0/24 out Ethernet128 DROP",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$ex"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ],
+    [
+     "FIELD_DST_IP",
+     "aclfield",
+     {
+      "ip4": "10.20.4.0",
+      "mask": "255.255.255.0"
+     }
+    ],
+    [
+     "FIELD_OUT_PORTS",
+     "aclfield",
+     {
+      "oids": [
+       "$ports[16]"
+      ]
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "DROP"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.20.4.1 count=100 pps=1000"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.20.5.1 count=100 pps=1000"
+  },
+  {
+   "op": "remove",
+   "obj": "$ee"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "desc": "Ethernet128 EGRESS_ACL off",
+   "attr": [
+    "EGRESS_ACL",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$ex_m"
+  },
+  {
+   "op": "remove",
+   "obj": "$eg"
+  },
+  {
+   "op": "remove",
+   "obj": "$ex"
+  },
+  {
+   "op": "sleep",
+   "ms": 1,
+   "desc": "==== G storm control (broadcast into Ethernet16, 100 pps policer)"
+  },
+  {
+   "op": "create",
+   "type": "POLICER",
+   "as": "sp",
+   "desc": "100 pps",
+   "attrs": [
+    [
+     "METER_TYPE",
+     "s32",
+     "PACKETS"
+    ],
+    [
+     "MODE",
+     "s32",
+     "SR_TCM"
+    ],
+    [
+     "CIR",
+     "u64",
+     100
+    ],
+    [
+     "CBS",
+     "u64",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[2]",
+   "desc": "Ethernet16 broadcast storm policer",
+   "attr": [
+    "BROADCAST_STORM_CONTROL_POLICER_ID",
+    "oid",
+    "$sp"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[2]",
+   "desc": "Ethernet16 unknown unicast storm policer",
+   "attr": [
+    "FLOOD_STORM_CONTROL_POLICER_ID",
+    "oid",
+    "$sp"
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/trap-frames Ethernet128 Ethernet16 arp 1000 1000"
+  },
+  {
+   "op": "diag",
+   "cmd": "acl"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[2]",
+   "desc": "broadcast storm off",
+   "attr": [
+    "BROADCAST_STORM_CONTROL_POLICER_ID",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[2]",
+   "desc": "flood storm off",
+   "attr": [
+    "FLOOD_STORM_CONTROL_POLICER_ID",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$sp"
+  },
+  {
+   "op": "sleep",
+   "ms": 1,
+   "desc": "==== H VLAN flood control (VLAN 300, no members: accepted only)"
+  },
+  {
+   "op": "create",
+   "type": "VLAN",
+   "as": "v300",
+   "desc": "VLAN 300",
+   "attrs": [
+    [
+     "VLAN_ID",
+     "u16",
+     300
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$v300",
+   "desc": "UNKNOWN_UNICAST_FLOOD_CONTROL_TYPE NONE",
+   "attr": [
+    "UNKNOWN_UNICAST_FLOOD_CONTROL_TYPE",
+    "s32",
+    1
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$v300",
+   "desc": "UNKNOWN_MULTICAST_FLOOD_CONTROL_TYPE NONE",
+   "attr": [
+    "UNKNOWN_MULTICAST_FLOOD_CONTROL_TYPE",
+    "s32",
+    1
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$v300",
+   "desc": "BROADCAST_FLOOD_CONTROL_TYPE NONE",
+   "attr": [
+    "BROADCAST_FLOOD_CONTROL_TYPE",
+    "s32",
+    1
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$v300",
+   "desc": "UNKNOWN_UNICAST_FLOOD_CONTROL_TYPE ALL",
+   "attr": [
+    "UNKNOWN_UNICAST_FLOOD_CONTROL_TYPE",
+    "s32",
+    0
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$v300",
+   "desc": "UNKNOWN_MULTICAST_FLOOD_CONTROL_TYPE ALL",
+   "attr": [
+    "UNKNOWN_MULTICAST_FLOOD_CONTROL_TYPE",
+    "s32",
+    0
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$v300",
+   "desc": "BROADCAST_FLOOD_CONTROL_TYPE ALL",
+   "attr": [
+    "BROADCAST_FLOOD_CONTROL_TYPE",
+    "s32",
+    0
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$v300"
+  },
+  {
+   "op": "sleep",
+   "ms": 1,
+   "desc": "==== I RIF B removed and re-created (internal VLAN delete, then forwarding again)"
+  },
+  {
+   "op": "remove",
+   "obj": "$m2"
+  },
+  {
+   "op": "remove",
+   "obj": "$m1"
+  },
+  {
+   "op": "remove_route",
+   "desc": "",
+   "vr": "$vr",
+   "prefix": "10.30.0.0/16"
+  },
+  {
+   "op": "remove",
+   "obj": "$nhg"
+  },
+  {
+   "op": "remove_route",
+   "desc": "",
+   "vr": "$vr",
+   "prefix": "10.20.0.0/16"
+  },
+  {
+   "op": "remove_route",
+   "desc": "",
+   "vr": "$vr",
+   "prefix": "2001:db8:20::/48"
+  },
+  {
+   "op": "remove_route",
+   "desc": "",
+   "vr": "$vr",
+   "prefix": "fc00:2::/64"
+  },
+  {
+   "op": "remove_route",
+   "desc": "",
+   "vr": "$vr",
+   "prefix": "10.2.0.0/24"
+  },
+  {
+   "op": "remove",
+   "obj": "$nh2"
+  },
+  {
+   "op": "remove",
+   "obj": "$nh2v6"
+  },
+  {
+   "op": "remove_neighbor",
+   "desc": "",
+   "rif": "$rifB",
+   "ip": "10.2.0.2"
+  },
+  {
+   "op": "remove_neighbor",
+   "desc": "",
+   "rif": "$rifB",
+   "ip": "fc00:2::2"
+  },
+  {
+   "op": "remove",
+   "obj": "$rifB",
+   "desc": "RIF B remove"
+  },
+  {
+   "op": "create",
+   "type": "ROUTER_INTERFACE",
+   "as": "rifB2",
+   "desc": "RIF B again on Ethernet128",
+   "attrs": [
+    [
+     "VIRTUAL_ROUTER_ID",
+     "oid",
+     "$vr"
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PORT"
+    ],
+    [
+     "PORT_ID",
+     "oid",
+     "$ports[16]"
+    ],
+    [
+     "SRC_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:01:0b"
+    ],
+    [
+     "MTU",
+     "u32",
+     9100
+    ]
+   ]
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "10.2.0.2 H2 again",
+   "rif": "$rifB2",
+   "ip": "10.2.0.2",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0b:02"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP",
+   "as": "nh2b",
+   "desc": "10.2.0.2",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "IP"
+    ],
+    [
+     "IP",
+     "ip",
+     "10.2.0.2"
+    ],
+    [
+     "ROUTER_INTERFACE_ID",
+     "oid",
+     "$rifB2"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "10.20.0.0/16 -> nh2 again",
+   "vr": "$vr",
+   "prefix": "10.20.0.0/16",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh2b"
+    ]
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet128 rx=Ethernet16,Ethernet128 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.20.1.1 count=100 pps=1000"
+  },
+  {
+   "op": "remove_switch"
+  }
+ ]
+}

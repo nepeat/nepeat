@@ -1,0 +1,606 @@
+{
+ "name": "sflow-rate: SAMPLEPACKET rate sweep on Ethernet248 ingress (samples counted on the netdev with sequence numbers: 1-in-N estimate and gap statistics), frame size and rate dependence, sample header [h2: cage 31 <-> 32]",
+ "steps": [
+  {
+   "op": "create_switch",
+   "attrs": [
+    [
+     "INIT_SWITCH",
+     "bool",
+     true
+    ],
+    [
+     "PORT_STATE_CHANGE_NOTIFY",
+     "ptr",
+     "port_state"
+    ],
+    [
+     "SWITCH_SHUTDOWN_REQUEST_NOTIFY",
+     "ptr",
+     "shutdown"
+    ]
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "ports"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_VIRTUAL_ROUTER_ID",
+    "oid"
+   ],
+   "as": "vr"
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif0",
+   "desc": "Ethernet240",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[30]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet240"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif1",
+   "desc": "Ethernet248",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[31]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet248"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[31]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "sleep",
+   "ms": 8000
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_1Q_BRIDGE_ID",
+    "oid"
+   ],
+   "as": "br"
+  },
+  {
+   "op": "get",
+   "obj": "$br",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "bps"
+  },
+  {
+   "op": "create",
+   "type": "VLAN",
+   "as": "v20",
+   "desc": "VLAN 20: Ethernet248 only (frames from Ethernet240 end there)",
+   "attrs": [
+    [
+     "VLAN_ID",
+     "u16",
+     20
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "VLAN_MEMBER",
+   "as": "vm20",
+   "attrs": [
+    [
+     "VLAN_ID",
+     "oid",
+     "$v20"
+    ],
+    [
+     "BRIDGE_PORT_ID",
+     "oid",
+     "$bps[15]"
+    ],
+    [
+     "VLAN_TAGGING_MODE",
+     "s32",
+     "UNTAGGED"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[31]",
+   "attr": [
+    "PORT_VLAN_ID",
+    "u16",
+    20
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== control: no sampling, 20000 frames (expect 0 samples)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 20000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "create",
+   "type": "SAMPLEPACKET",
+   "as": "smp",
+   "attrs": [
+    [
+     "SAMPLE_RATE",
+     "u32",
+     1
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[31]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "$smp"
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== rate 1: 20000 x 256 B"
+  },
+  {
+   "op": "diag",
+   "cmd": "mirror",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 20000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    2
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== rate 2: 20000 x 256 B"
+  },
+  {
+   "op": "diag",
+   "cmd": "mirror",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 20000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    4
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== rate 4: 20000 x 256 B"
+  },
+  {
+   "op": "diag",
+   "cmd": "mirror",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 20000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    10
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== rate 10: 20000 x 256 B"
+  },
+  {
+   "op": "diag",
+   "cmd": "mirror",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 20000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    32
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== rate 32: 30000 x 256 B"
+  },
+  {
+   "op": "diag",
+   "cmd": "mirror",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 30000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    64
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== rate 64: 50000 x 256 B"
+  },
+  {
+   "op": "diag",
+   "cmd": "mirror",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 50000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    100
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== rate 100: 50000 x 256 B"
+  },
+  {
+   "op": "diag",
+   "cmd": "mirror",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 50000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    128
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== rate 128: 50000 x 256 B"
+  },
+  {
+   "op": "diag",
+   "cmd": "mirror",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 50000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    200
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== rate 200: 60000 x 256 B"
+  },
+  {
+   "op": "diag",
+   "cmd": "mirror",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 60000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    256
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== rate 256: 80000 x 256 B"
+  },
+  {
+   "op": "diag",
+   "cmd": "mirror",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 80000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    512
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== rate 512: 150000 x 256 B"
+  },
+  {
+   "op": "diag",
+   "cmd": "mirror",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 150000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    1000
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== rate 1000: 300000 x 256 B"
+  },
+  {
+   "op": "diag",
+   "cmd": "mirror",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 300000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    1024
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== rate 1024: 300000 x 256 B"
+  },
+  {
+   "op": "diag",
+   "cmd": "mirror",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 300000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    4096
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== rate 4096: 600000 x 256 B"
+  },
+  {
+   "op": "diag",
+   "cmd": "mirror",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 600000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    100
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== rate 100, 64 B frames"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 50000 20000 64 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "print",
+   "text": "== rate 100, 1500 B frames"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 50000 20000 1500 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "print",
+   "text": "== rate 100, 256 B frames at 2000 pps (rate dependence)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 20000 2000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "print",
+   "text": "== header dump of one sample (rate 100)"
+  },
+  {
+   "op": "exec",
+   "cmd": "HEX=1 $ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 500 2000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[31]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== disabled again (expect 0)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet240 Ethernet248 20000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "remove",
+   "obj": "$smp"
+  },
+  {
+   "op": "remove",
+   "obj": "$vm20"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[31]",
+   "attr": [
+    "PORT_VLAN_ID",
+    "u16",
+    1
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$v20",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[31]",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "remove_switch"
+  }
+ ]
+}

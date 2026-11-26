@@ -1,0 +1,505 @@
+{
+ "name": "sflow-genl: SAMPLEPACKET to psample through the GENETLINK hostif + table entry (tl_sflow: ipd sFlow netlink), metadata checked with sflow-probe [h2: cage 3 <-> 17, cage 3 behind the Credo PHY]",
+ "steps": [
+  {
+   "op": "create_switch",
+   "attrs": [
+    [
+     "INIT_SWITCH",
+     "bool",
+     true
+    ],
+    [
+     "PORT_STATE_CHANGE_NOTIFY",
+     "ptr",
+     "port_state"
+    ],
+    [
+     "SWITCH_SHUTDOWN_REQUEST_NOTIFY",
+     "ptr",
+     "shutdown"
+    ]
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "ports"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_VIRTUAL_ROUTER_ID",
+    "oid"
+   ],
+   "as": "vr"
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif0",
+   "desc": "Ethernet16",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[2]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet16"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif1",
+   "desc": "Ethernet128",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[16]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet128"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[2]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "sleep",
+   "ms": 8000
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_1Q_BRIDGE_ID",
+    "oid"
+   ],
+   "as": "br"
+  },
+  {
+   "op": "get",
+   "obj": "$br",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "bps"
+  },
+  {
+   "op": "create",
+   "type": "VLAN",
+   "as": "v20",
+   "desc": "VLAN 20: Ethernet128 only (frames from Ethernet16 end there)",
+   "attrs": [
+    [
+     "VLAN_ID",
+     "u16",
+     20
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "VLAN_MEMBER",
+   "as": "vm20",
+   "attrs": [
+    [
+     "VLAN_ID",
+     "oid",
+     "$v20"
+    ],
+    [
+     "BRIDGE_PORT_ID",
+     "oid",
+     "$bps[15]"
+    ],
+    [
+     "VLAN_TAGGING_MODE",
+     "s32",
+     "UNTAGGED"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "PORT_VLAN_ID",
+    "u16",
+    20
+   ]
+  },
+  {
+   "op": "exec",
+   "cmd": "echo ipd psample=$(cat /sys/module/ipd/parameters/psample 2>/dev/null || echo absent); grep -E '^(ipd|psample) ' /proc/modules | cut -d' ' -f1-3"
+  },
+  {
+   "op": "create",
+   "type": "SAMPLEPACKET",
+   "as": "smp0",
+   "desc": "1 in 100 (control, before any sflow object)",
+   "attrs": [
+    [
+     "SAMPLE_RATE",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "$smp0"
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== 0: control, no genetlink objects yet: samples on the netdev"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 50000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$smp0"
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "gnl",
+   "desc": "genetlink psample / packets",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     2
+    ],
+    [
+     "NAME",
+     "chardata",
+     "psample"
+    ],
+    [
+     "GENETLINK_MCGRP_NAME",
+     "chardata",
+     "packets"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "tg",
+   "desc": "sflow group queue 2",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     2
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "trap",
+   "desc": "SAMPLEPACKET",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "SAMPLEPACKET"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$tg"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "SAMPLEPACKET",
+   "as": "smp",
+   "desc": "1 in 100",
+   "attrs": [
+    [
+     "SAMPLE_RATE",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "$smp"
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== A: before the table entry: samples on the Ethernet128 netdev (rate 100, 50000 x 256 B)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 50000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TABLE_ENTRY",
+   "as": "te",
+   "desc": "SAMPLEPACKET -> genetlink",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "TRAP_ID"
+    ],
+    [
+     "TRAP_ID",
+     "oid",
+     "$trap"
+    ],
+    [
+     "CHANNEL_TYPE",
+     "s32",
+     5
+    ],
+    [
+     "HOST_IF",
+     "oid",
+     "$gnl"
+    ]
+   ]
+  },
+  {
+   "op": "diag",
+   "cmd": "mirror",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "cmd": "dmesg | grep -i -E 'netlink|sflow|psample' | tail -5"
+  },
+  {
+   "op": "print",
+   "text": "== B: with the entry: no samples on the netdev any more"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 50000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "print",
+   "text": "== C: psample, rate 100, 50000 x 256 B (expect ~500, iif Ethernet128, rate 100, origsize 256)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe psample Ethernet16 0 50000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    1000
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== D: psample, rate 1000, 300000 x 256 B (expect ~300, rate 1000)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe psample Ethernet16 0 300000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    10
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== E: psample, rate 10, 100000 x 256 B at 50000 pps (expect ~10000)"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe psample Ethernet16 0 100000 50000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$smp",
+   "attr": [
+    "SAMPLE_RATE",
+    "u32",
+    256
+   ]
+  },
+  {
+   "op": "print",
+   "text": "== F: psample, rate 256, 1500 B frames, 100000 (origsize 1500)"
+  },
+  {
+   "op": "exec",
+   "cmd": "HEX=1 $ORACLE/bin/sflow-probe psample Ethernet16 0 100000 20000 1500 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "print",
+   "text": "== G: psample group filter 1 (ingress group), rate 256, 50000 x 128 B"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe psample Ethernet16 1 50000 20000 128 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "remove",
+   "obj": "$te"
+  },
+  {
+   "op": "print",
+   "text": "== H: entry removed: samples back on the netdev, none on psample"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe netdev Ethernet16 Ethernet128 50000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "exec",
+   "cmd": "$ORACLE/bin/sflow-probe psample Ethernet16 0 20000 20000 256 02:99:99:99:99:99 10.99.9.1 10.99.9.2"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$smp"
+  },
+  {
+   "op": "remove",
+   "obj": "$trap"
+  },
+  {
+   "op": "remove",
+   "obj": "$tg"
+  },
+  {
+   "op": "remove",
+   "obj": "$gnl"
+  },
+  {
+   "op": "remove",
+   "obj": "$vm20"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "PORT_VLAN_ID",
+    "u16",
+    1
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$v20",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[2]",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[16]",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "remove_switch"
+  }
+ ]
+}

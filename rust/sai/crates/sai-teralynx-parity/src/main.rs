@@ -3,12 +3,13 @@
 //! ```text
 //! sai-teralynx-parity --fixtures DIR --work DIR --cpp-lib FILE --rust-lib FILE
 //!     [--parts checks,sections,driver,oracle] [--only NAME,...] [--strict] [--mutate TEXT]
-//!     [--no-repeat] [--timeout SECONDS] [--driver-scripts DIR] [--oracle-scripts DIR|none]
+//!     [--no-repeat] [--no-bytes] [--timeout SECONDS] [--driver-scripts DIR] [--oracle-scripts DIR|none]
 //!     [--areas FILE] [--expected FILE] [--allow FILE] [--pending FILE]
 //! ```
 //!
 //! Exit 0: green; 1: red (the report says why); 2: the harness could not run. `--mutate` is the
 //! negative control: the Rust side's IFCS lines containing TEXT are marked, the run must be red.
+//! `--no-bytes`: without the byte tap (`bin/libparity-bytes.so`, the runs' argument bytes).
 //! Paths default to this checkout (the crate's and sai-backend-teralynx's `tests/`, the
 //! frontend's and the oracle's scripts in ai_re/nix/packages/sai-teralynx).
 #![forbid(unsafe_code)]
@@ -26,7 +27,7 @@ fn here(rel: &str) -> PathBuf {
 fn usage(msg: &str) -> ExitCode {
     eprintln!("sai-teralynx-parity: {msg}");
     eprintln!(
-        "usage: sai-teralynx-parity --fixtures DIR --work DIR --cpp-lib FILE --rust-lib FILE [--parts LIST] [--only LIST] [--strict] [--mutate TEXT] [--no-repeat] [--timeout S] [--driver-scripts DIR] [--oracle-scripts DIR|none] [--areas F] [--expected F] [--allow F] [--pending F]"
+        "usage: sai-teralynx-parity --fixtures DIR --work DIR --cpp-lib FILE --rust-lib FILE [--parts LIST] [--only LIST] [--strict] [--mutate TEXT] [--no-repeat] [--no-bytes] [--timeout S] [--driver-scripts DIR] [--oracle-scripts DIR|none] [--areas F] [--expected F] [--allow F] [--pending F]"
     );
     ExitCode::from(2)
 }
@@ -49,6 +50,7 @@ fn main() -> ExitCode {
         only: Vec::new(),
         mutate: None,
         repeat_reference: true,
+        bytes: true,
         timeout: Duration::from_secs(300),
     };
     let mut args = std::env::args().skip(1);
@@ -71,6 +73,7 @@ fn main() -> ExitCode {
                 }
                 "--strict" => cfg.strict = true,
                 "--no-repeat" => cfg.repeat_reference = false,
+                "--no-bytes" => cfg.bytes = false,
                 "--mutate" => cfg.mutate = Some(val()?),
                 "--timeout" => {
                     cfg.timeout = Duration::from_secs(val()?.parse().map_err(|_| "--timeout: seconds".to_owned())?);

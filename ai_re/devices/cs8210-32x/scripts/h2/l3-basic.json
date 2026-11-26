@@ -1,0 +1,1520 @@
+{
+ "name": "l3-basic: port RIFs on the loop ports, neighbors, next hops, routes v4/v6, ECMP, glean, TTL/MTU, default route [h2: cage 31 <-> 32]",
+ "steps": [
+  {
+   "op": "create_switch",
+   "attrs": [
+    [
+     "INIT_SWITCH",
+     "bool",
+     true
+    ],
+    [
+     "PORT_STATE_CHANGE_NOTIFY",
+     "ptr",
+     "port_state"
+    ],
+    [
+     "SWITCH_SHUTDOWN_REQUEST_NOTIFY",
+     "ptr",
+     "shutdown"
+    ]
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "ports"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "CPU_PORT",
+    "oid"
+   ],
+   "as": "cpu"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_VIRTUAL_ROUTER_ID",
+    "oid"
+   ],
+   "as": "vr"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_VLAN_ID",
+    "oid"
+   ],
+   "as": "vlan1"
+  },
+  {
+   "op": "get",
+   "obj": "$vlan1",
+   "desc": "VLAN 1 members",
+   "attr": [
+    "MEMBER_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "vmembers"
+  },
+  {
+   "op": "foreach",
+   "list": "vmembers",
+   "as": "m",
+   "steps": [
+    {
+     "op": "remove",
+     "obj": "$m",
+     "desc": "VLAN 1 member"
+    }
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "desc": "mtu",
+   "attr": [
+    "MTU",
+    "u32",
+    9100
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "desc": "fec rs",
+   "attr": [
+    "FEC_MODE",
+    "s32",
+    "RS"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[31]",
+   "desc": "mtu",
+   "attr": [
+    "MTU",
+    "u32",
+    9100
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[31]",
+   "desc": "fec rs",
+   "attr": [
+    "FEC_MODE",
+    "s32",
+    "RS"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[31]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif0",
+   "desc": "Ethernet240",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[30]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet240"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif1",
+   "desc": "Ethernet248",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[31]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet248"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "g_q4",
+   "desc": "queue 4",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "g_q1",
+   "desc": "queue 1",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     1
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_arpq",
+   "desc": "ARP_REQUEST",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "ARP_REQUEST"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "COPY"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q4"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_arpr",
+   "desc": "ARP_RESPONSE",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "ARP_RESPONSE"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "COPY"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q4"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_nd",
+   "desc": "IPV6_NEIGHBOR_DISCOVERY",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "IPV6_NEIGHBOR_DISCOVERY"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "COPY"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q4"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_ip2me",
+   "desc": "IP2ME",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "IP2ME"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q1"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_ttl",
+   "desc": "TTL_ERROR",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "TTL_ERROR"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q1"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_mtu",
+   "desc": "L3_MTU_ERROR",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "L3_MTU_ERROR"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q1"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "default v4 DROP",
+   "vr": "$vr",
+   "prefix": "0.0.0.0/0",
+   "attrs": [
+    [
+     "PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "default v6 DROP",
+   "vr": "$vr",
+   "prefix": "::/0",
+   "attrs": [
+    [
+     "PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ROUTER_INTERFACE",
+   "as": "rifA",
+   "desc": "RIF A on Ethernet240 (cage 31)",
+   "attrs": [
+    [
+     "VIRTUAL_ROUTER_ID",
+     "oid",
+     "$vr"
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PORT"
+    ],
+    [
+     "PORT_ID",
+     "oid",
+     "$ports[30]"
+    ],
+    [
+     "SRC_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:01:0a"
+    ],
+    [
+     "MTU",
+     "u32",
+     9100
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ROUTER_INTERFACE",
+   "as": "rifB",
+   "desc": "RIF B on Ethernet248 (cage 32)",
+   "attrs": [
+    [
+     "VIRTUAL_ROUTER_ID",
+     "oid",
+     "$vr"
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PORT"
+    ],
+    [
+     "PORT_ID",
+     "oid",
+     "$ports[31]"
+    ],
+    [
+     "SRC_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:01:0b"
+    ],
+    [
+     "MTU",
+     "u32",
+     9100
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE",
+   "as": "obs",
+   "desc": "loop observer: frames to the far hosts' MACs (02:00:00:00:0a/0b:xx) to the CPU",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "FIELD_DST_MAC",
+     "bool",
+     true
+    ],
+    [
+     "ACL_ACTION_TYPE_LIST",
+     "s32list",
+     [
+      "PACKET_ACTION"
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP",
+   "as": "obs_g0",
+   "desc": "observer group Ethernet240",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PARALLEL"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP",
+   "as": "obs_g15",
+   "desc": "observer group Ethernet248",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PARALLEL"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP_MEMBER",
+   "as": "obs_m0",
+   "attrs": [
+    [
+     "ACL_TABLE_GROUP_ID",
+     "oid",
+     "$obs_g0"
+    ],
+    [
+     "ACL_TABLE_ID",
+     "oid",
+     "$obs"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP_MEMBER",
+   "as": "obs_m15",
+   "attrs": [
+    [
+     "ACL_TABLE_GROUP_ID",
+     "oid",
+     "$obs_g15"
+    ],
+    [
+     "ACL_TABLE_ID",
+     "oid",
+     "$obs"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "desc": "Ethernet240 INGRESS_ACL observer",
+   "attr": [
+    "INGRESS_ACL",
+    "oid",
+    "$obs_g0"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[31]",
+   "desc": "Ethernet248 INGRESS_ACL observer",
+   "attr": [
+    "INGRESS_ACL",
+    "oid",
+    "$obs_g15"
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "obs_e",
+   "desc": "DST_MAC 02:00:00:00:0a:00/ff:ff:ff:ff:fe:00 TRAP",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$obs"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     10
+    ],
+    [
+     "FIELD_DST_MAC",
+     "aclfield",
+     {
+      "mac": "02:00:00:00:0a:00",
+      "mask": "ff:ff:ff:ff:fe:00"
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "TRAP"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "ip2me 10.1.0.1",
+   "vr": "$vr",
+   "prefix": "10.1.0.1/32",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$cpu"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "ip2me 10.2.0.1",
+   "vr": "$vr",
+   "prefix": "10.2.0.1/32",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$cpu"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "ip2me fc00:1::1",
+   "vr": "$vr",
+   "prefix": "fc00:1::1/128",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$cpu"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "connected 10.1.0.0/24 (glean)",
+   "vr": "$vr",
+   "prefix": "10.1.0.0/24",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$rifA"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "connected 10.2.0.0/24 (glean)",
+   "vr": "$vr",
+   "prefix": "10.2.0.0/24",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$rifB"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "connected fc00:2::/64 (glean)",
+   "vr": "$vr",
+   "prefix": "fc00:2::/64",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$rifB"
+    ]
+   ]
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "10.1.0.2 H1",
+   "rif": "$rifA",
+   "ip": "10.1.0.2",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0a:02"
+    ]
+   ]
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "10.2.0.2 H2",
+   "rif": "$rifB",
+   "ip": "10.2.0.2",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0b:02"
+    ]
+   ]
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "fc00:1::2 H1",
+   "rif": "$rifA",
+   "ip": "fc00:1::2",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0a:02"
+    ]
+   ]
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "fc00:2::2 H2",
+   "rif": "$rifB",
+   "ip": "fc00:2::2",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0b:02"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP",
+   "as": "nh1",
+   "desc": "10.1.0.2",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "IP"
+    ],
+    [
+     "IP",
+     "ip",
+     "10.1.0.2"
+    ],
+    [
+     "ROUTER_INTERFACE_ID",
+     "oid",
+     "$rifA"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP",
+   "as": "nh2",
+   "desc": "10.2.0.2",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "IP"
+    ],
+    [
+     "IP",
+     "ip",
+     "10.2.0.2"
+    ],
+    [
+     "ROUTER_INTERFACE_ID",
+     "oid",
+     "$rifB"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP",
+   "as": "nh1v6",
+   "desc": "fc00:1::2",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "IP"
+    ],
+    [
+     "IP",
+     "ip",
+     "fc00:1::2"
+    ],
+    [
+     "ROUTER_INTERFACE_ID",
+     "oid",
+     "$rifA"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP",
+   "as": "nh2v6",
+   "desc": "fc00:2::2",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "IP"
+    ],
+    [
+     "IP",
+     "ip",
+     "fc00:2::2"
+    ],
+    [
+     "ROUTER_INTERFACE_ID",
+     "oid",
+     "$rifB"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "10.10.0.0/16 -> nh1",
+   "vr": "$vr",
+   "prefix": "10.10.0.0/16",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh1"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "10.20.0.0/16 -> nh2",
+   "vr": "$vr",
+   "prefix": "10.20.0.0/16",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh2"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "2001:db8:20::/48 -> nh2v6",
+   "vr": "$vr",
+   "prefix": "2001:db8:20::/48",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh2v6"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP_GROUP",
+   "as": "nhg",
+   "desc": "ECMP",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "ECMP"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP_GROUP_MEMBER",
+   "as": "m1",
+   "desc": "nh1",
+   "attrs": [
+    [
+     "NEXT_HOP_GROUP_ID",
+     "oid",
+     "$nhg"
+    ],
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh1"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP_GROUP_MEMBER",
+   "as": "m2",
+   "desc": "nh2",
+   "attrs": [
+    [
+     "NEXT_HOP_GROUP_ID",
+     "oid",
+     "$nhg"
+    ],
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh2"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "10.30.0.0/16 -> ECMP",
+   "vr": "$vr",
+   "prefix": "10.30.0.0/16",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nhg"
+    ]
+   ]
+  },
+  {
+   "op": "sleep",
+   "ms": 12000
+  },
+  {
+   "op": "get",
+   "obj": "$ports[30]",
+   "desc": "oper Ethernet240",
+   "attr": [
+    "OPER_STATUS",
+    "s32"
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "$ports[31]",
+   "desc": "oper Ethernet248",
+   "attr": [
+    "OPER_STATUS",
+    "s32"
+   ]
+  },
+  {
+   "op": "stats",
+   "obj": "$rifA",
+   "desc": "RIF A before",
+   "ids": [
+    "IN_PACKETS",
+    "IN_OCTETS",
+    "OUT_PACKETS",
+    "OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "stats",
+   "obj": "$rifB",
+   "desc": "RIF B before",
+   "ids": [
+    "IN_PACKETS",
+    "IN_OCTETS",
+    "OUT_PACKETS",
+    "OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "control: to RIF A MAC, host route 10.2.0.2 (expect Ethernet240, dmac H2, ttl 63)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.2.0.2 count=100 pps=1000",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "route /16 via nh1 from RIF B (expect Ethernet248, dmac H1)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet240 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0b smac=02:00:00:00:0b:02 src=10.2.0.2 dst=10.10.0.5 count=100 pps=1000",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "route /16 via nh2 (expect Ethernet240)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.20.1.1 count=100 pps=1000",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "v6 host fc00:2::2",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=fc00:1::2 dst=fc00:2::2 count=100 pps=1000",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "v6 route 2001:db8:20::/48",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=fc00:1::2 dst=2001:db8:20::77 count=100 pps=1000",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "ECMP 10.30/16, 256 flows from RIF A",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.30.0.1 count=1024 pps=2000 flows=256",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "ECMP 10.30/16, 256 dst from RIF B",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet240 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0b smac=02:00:00:00:0b:02 src=10.2.0.2 dst=10.30.0.1 count=1024 pps=2000 dst_n=256",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "TTL 2 (expect forwarded ttl 1)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.2.0.2 count=50 pps=500 ttl=2",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "TTL 1 routed (expect not forwarded; copied to the CPU on Ethernet240 by TTL_ERROR)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.2.0.2 count=50 pps=500 ttl=1",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "TTL 1 to ip2me 10.2.0.1 (expect CPU: TTL check profile 1)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.2.0.1 count=50 pps=500 ttl=1",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "TTL 1 v6 routed fc00:2::2 (expect CPU copy, not forwarded)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=fc00:1::2 dst=fc00:2::2 count=50 pps=500 ttl=1",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "glean 10.2.0.77 (no neighbor: expect CPU)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.2.0.77 count=50 pps=500",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "ip2me 10.2.0.1",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.2.0.1 count=50 pps=500",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "default route DROP 192.0.2.1",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=192.0.2.1 count=50 pps=500",
+   "may_fail": true
+  },
+  {
+   "op": "diag",
+   "cmd": "copp"
+  },
+  {
+   "op": "set",
+   "obj": "$rifB",
+   "desc": "RIF B MTU 1500",
+   "attr": [
+    "MTU",
+    "u32",
+    1500
+   ]
+  },
+  {
+   "op": "exec",
+   "desc": "1400 B to RIF B (fits)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.2.0.2 count=50 pps=500 size=1400",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "1514 B frame = IP 1500 to RIF B MTU 1500 (fits if MTU is the IP MTU)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.2.0.2 count=50 pps=500 size=1514",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "1515 B frame = IP 1501 (exceeds)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.2.0.2 count=50 pps=500 size=1515",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "1518 B frame = IP 1504 (exceeds)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.2.0.2 count=50 pps=500 size=1518",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "2000 B to RIF B (MTU exceeded)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.2.0.2 count=50 pps=500 size=2000",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$rifB",
+   "desc": "RIF B MTU 9100",
+   "attr": [
+    "MTU",
+    "u32",
+    9100
+   ]
+  },
+  {
+   "op": "exec",
+   "desc": "2000 B to RIF B after MTU 9100",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.2.0.2 count=50 pps=500 size=2000",
+   "may_fail": true
+  },
+  {
+   "op": "diag",
+   "cmd": "copp"
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "10.2.0.77 resolved",
+   "rif": "$rifB",
+   "ip": "10.2.0.77",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0b:02"
+    ]
+   ]
+  },
+  {
+   "op": "exec",
+   "desc": "10.2.0.77 after neighbor (expect Ethernet240)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.2.0.77 count=50 pps=500",
+   "may_fail": true
+  },
+  {
+   "op": "set_neighbor",
+   "desc": "10.2.0.2 MAC change",
+   "rif": "$rifB",
+   "ip": "10.2.0.2",
+   "attr": [
+    "DST_MAC_ADDRESS",
+    "mac",
+    "02:00:00:00:0b:09"
+   ]
+  },
+  {
+   "op": "exec",
+   "desc": "10.2.0.2 after MAC change (expect dmac ..0b:09)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.2.0.2 count=50 pps=500",
+   "may_fail": true
+  },
+  {
+   "op": "set_route",
+   "desc": "default v4 -> nh2",
+   "vr": "$vr",
+   "prefix": "0.0.0.0/0",
+   "attr": [
+    "NEXT_HOP_ID",
+    "oid",
+    "$nh2"
+   ]
+  },
+  {
+   "op": "set_route",
+   "desc": "default v4 FORWARD",
+   "vr": "$vr",
+   "prefix": "0.0.0.0/0",
+   "attr": [
+    "PACKET_ACTION",
+    "s32",
+    "FORWARD"
+   ]
+  },
+  {
+   "op": "exec",
+   "desc": "default route -> nh2 192.0.2.1",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=192.0.2.1 count=50 pps=500",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$m2",
+   "desc": "ECMP member nh2 removed"
+  },
+  {
+   "op": "exec",
+   "desc": "ECMP with nh1 only",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.30.0.1 count=256 pps=2000 flows=64",
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "NEXT_HOP_GROUP_MEMBER",
+   "as": "m2b",
+   "desc": "nh2 back",
+   "attrs": [
+    [
+     "NEXT_HOP_GROUP_ID",
+     "oid",
+     "$nhg"
+    ],
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$nh2"
+    ]
+   ]
+  },
+  {
+   "op": "exec",
+   "desc": "ECMP with both again",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.30.0.1 count=1024 pps=2000 flows=256",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$m1",
+   "desc": "nh1 weight 3",
+   "attr": [
+    "WEIGHT",
+    "u32",
+    3
+   ]
+  },
+  {
+   "op": "exec",
+   "desc": "ECMP nh1 weight 3, nh2 weight 1 (expect ~3:1)",
+   "cmd": "$ORACLE/bin/l3-frames tx=Ethernet248 rx=Ethernet240,Ethernet248 dmac=02:00:00:00:01:0a smac=02:00:00:00:0a:02 src=10.1.0.2 dst=10.30.0.1 count=2048 pps=2000 flows=1024",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$m1",
+   "desc": "nh1 weight 1",
+   "attr": [
+    "WEIGHT",
+    "u32",
+    1
+   ]
+  },
+  {
+   "op": "stats",
+   "obj": "$rifA",
+   "desc": "RIF A after",
+   "ids": [
+    "IN_PACKETS",
+    "IN_OCTETS",
+    "OUT_PACKETS",
+    "OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "stats",
+   "obj": "$rifB",
+   "desc": "RIF B after",
+   "ids": [
+    "IN_PACKETS",
+    "IN_OCTETS",
+    "OUT_PACKETS",
+    "OUT_OCTETS"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[30]",
+   "desc": "Ethernet240",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_IN_DISCARDS",
+    "IF_OUT_DISCARDS"
+   ]
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[31]",
+   "desc": "Ethernet248",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_IN_DISCARDS",
+    "IF_OUT_DISCARDS"
+   ]
+  },
+  {
+   "op": "set_route",
+   "desc": "default v4 DROP",
+   "vr": "$vr",
+   "prefix": "0.0.0.0/0",
+   "attr": [
+    "PACKET_ACTION",
+    "s32",
+    "DROP"
+   ]
+  },
+  {
+   "op": "set_route",
+   "desc": "default v4 no next hop",
+   "vr": "$vr",
+   "prefix": "0.0.0.0/0",
+   "attr": [
+    "NEXT_HOP_ID",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "10.30.0.0/16"
+  },
+  {
+   "op": "remove",
+   "obj": "$m1"
+  },
+  {
+   "op": "remove",
+   "obj": "$m2b"
+  },
+  {
+   "op": "remove",
+   "obj": "$nhg"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "10.10.0.0/16"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "10.20.0.0/16"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "2001:db8:20::/48"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "10.1.0.1/32"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "10.2.0.1/32"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "fc00:1::1/128"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "10.1.0.0/24"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "10.2.0.0/24"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "fc00:2::/64"
+  },
+  {
+   "op": "remove",
+   "obj": "$nh1"
+  },
+  {
+   "op": "remove",
+   "obj": "$nh2"
+  },
+  {
+   "op": "remove",
+   "obj": "$nh1v6"
+  },
+  {
+   "op": "remove",
+   "obj": "$nh2v6"
+  },
+  {
+   "op": "remove_neighbor",
+   "rif": "$rifA",
+   "ip": "10.1.0.2"
+  },
+  {
+   "op": "remove_neighbor",
+   "rif": "$rifB",
+   "ip": "10.2.0.2"
+  },
+  {
+   "op": "remove_neighbor",
+   "rif": "$rifA",
+   "ip": "fc00:1::2"
+  },
+  {
+   "op": "remove_neighbor",
+   "rif": "$rifB",
+   "ip": "fc00:2::2"
+  },
+  {
+   "op": "remove_neighbor",
+   "rif": "$rifB",
+   "ip": "10.2.0.77"
+  },
+  {
+   "op": "remove",
+   "obj": "$rifA"
+  },
+  {
+   "op": "remove",
+   "obj": "$rifB"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "0.0.0.0/0"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "::/0"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_arpq"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_arpr"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_nd"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_ip2me"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_ttl"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_mtu"
+  },
+  {
+   "op": "remove",
+   "obj": "$g_q4"
+  },
+  {
+   "op": "remove",
+   "obj": "$g_q1"
+  },
+  {
+   "op": "remove",
+   "obj": "$hif0"
+  },
+  {
+   "op": "remove",
+   "obj": "$hif1"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "desc": "admin down",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[31]",
+   "desc": "admin down",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "remove_switch"
+  }
+ ]
+}

@@ -6,6 +6,9 @@
 #   sections  the same runs' IFCS calls (TEST_IFCS_DUMP=1, the tap), test_ifcs section by section
 #   driver    the frozen frontend's driver-scripts 01-09 through frontend_driver.cpp, op by op
 #   oracle    the oracle's JSON scripts (their SAI steps) through sai_script.cpp, step by step
+#   bytes     in every run, the byte tap (c/bytes_rt.c over oracle/gen_tracer.py's wrappers, as
+#             SAI_TERALYNX_IFCS_TRACE): ALL bytes of every struct and attribute argument of every IFCS
+#             call in the stream, compared with the rest (the mock compares fields, libifcs bytes)
 # Checked at build time (native only: it runs them):
 #   - progress mode green: every difference allowed (crates/sai-teralynx-parity/tests/parity-allow.txt),
 #     pending (its area still has lines in crates/sai-backend-teralynx/tests/test_ifcs-expected.txt, or a
@@ -13,6 +16,9 @@
 #     reference passes every check and gives the same output twice; the tap's own check;
 #   - the negative control: the Rust side's create_switch IFCS line marked (PARITY_TAP_MUTATE) must
 #     make the run red;
+#   - the byte negative control: a Rust libsai built with IFCS_POISON_PADDING=1 (the key members' tail
+#     padding 0xa5, as the bug left it) must make the run red on an @B line with those bytes, while
+#     test_ifcs still passes on it (the mock cannot see padding);
 #   - strict mode (the G2 gate) is run and reported, not required (strict = true: required).
 # $out/share/sai-rs/teralynx-parity/: report.txt (progress), strict.txt, negative.txt, details.txt,
 # gate.txt; $out/bin/sai-teralynx-parity-run: the harness over another Rust libsai (an area owner's
@@ -31,6 +37,7 @@
   callPackage,
   makeWrapper,
   nlohmann_json,
+  buildPackages,
   saiRs,
   cppTeralynx,
   strict ? false,
@@ -50,7 +57,7 @@ let
         under = d: lib.hasPrefix (d + "/") rel;
       in
       builtins.elem rel [ "src" "tests" "frontend" "frontend/src" "frontend/tests" "frontend/tests/driver-scripts" "oracle" "oracle/scripts" ]
-      || builtins.elem rel [ "src/shim.c" "src/ifcs_guard.c" "oracle/sai_script.cpp" ]
+      || builtins.elem rel [ "src/shim.c" "src/ifcs_guard.c" "oracle/sai_script.cpp" "oracle/gen_tracer.py" "oracle/trace_rt.h" ]
       || (under "src" && lib.hasSuffix ".h" rel)
       || under "tests"
       || (under "frontend/src" && lib.hasSuffix ".h" rel)
@@ -61,6 +68,16 @@ let
   crate = ../crates/sai-teralynx-parity;
   lists = ../crates/sai-backend-teralynx/tests;
   rustLib = callPackage ./libsai-teralynx.nix { inherit saiRs cppTeralynx; };
+  # the byte negative control's libsai: the key members' padding poisoned (ifcs build.rs,
+  # IFCS_POISON_PADDING); a test build only, no checks (crates/ifcs/tests/abi.rs would refuse it)
+  rustLibPoisoned = rustLib.overrideAttrs (old: {
+    pname = "sai-rs-libsai-teralynx-poisoned";
+    env = (old.env or { }) // { IFCS_POISON_PADDING = "1"; };
+    doCheck = false;
+    postInstall = ''
+      if [ -e $out/lib/libsai.so ] && [ ! -L $out/lib/libsai.so ]; then mv $out/lib/libsai.so $out/lib/libsai.so.1.0.0; fi
+    '';
+  });
   # the harness's program (feature cli: not part of the workspace build's outputs)
   tool = saiRs.overrideAttrs (old: {
     pname = "sai-teralynx-parity-tool";
@@ -74,7 +91,7 @@ let
   arch = stdenv.hostPlatform.parsed.cpu.name;
   # the programs into $fx (CC / CXX / NM: the target's)
   fixturesScript = ''
-    CC=${stdenv.cc.targetPrefix}cc CXX=${stdenv.cc.targetPrefix}c++ bash ${crate}/build-fixtures.sh $fx ${tlFiles} \
+    PYTHON=${buildPackages.python3}/bin/python3 CC=${stdenv.cc.targetPrefix}cc CXX=${stdenv.cc.targetPrefix}c++ bash ${crate}/build-fixtures.sh $fx ${tlFiles} \
       ${saiRs.ifcsHeaders}/include ${saiRs.saiHeaders} ${cppLib} ${nlohmann_json}/include'';
   # the runs over $fx and the gate (toolBin: the harness's command)
   checksScript = toolBin: ''
@@ -100,6 +117,12 @@ let
       echo "negative control: a changed Rust call line was NOT reported (exit $nrc)"; cat negative.txt; exit 1
     fi
     echo "negative control: the changed Rust call line made the run red, as it must"
+    brc=0; run negative-bytes --parts checks,sections,driver --no-repeat --rust-lib ${rustLibPoisoned}/lib/libsai.so.1.0.0 || brc=$?
+    if [ $brc -ne 1 ] || ! grep -q "^== checks: Rust passes 1047 of 1047" negative-bytes.txt \
+        || ! grep -q "Rust '@B ifcs_[a-z0-9_]*_set({[0-9a-f]*a5a5a5" negative-bytes.txt; then
+      echo "byte negative control: poisoned key padding was NOT reported on an @B line (exit $brc)"; cat negative-bytes.txt; exit 1
+    fi
+    echo "byte negative control: the poisoned key padding made the run red on its @B lines (test_ifcs still 1047 / 1047), as it must"
     {
       grep '^== checks' report.txt
       grep '^pending areas' report.txt
@@ -146,13 +169,13 @@ let
     ''}
     d=$out/share/sai-rs/teralynx-parity
     mkdir -p $d
-    cp report.txt strict.txt negative.txt details.txt gate.txt machine $d/
+    cp report.txt strict.txt negative.txt negative-bytes.txt details.txt gate.txt machine $d/
     ${lib.optionalString (reference != null) "cp arch.txt $d/"}
   '';
 in
 if !canRun then
   assert runnerPkgs != null;
-  emulated.overrideAttrs (old: { passthru = { inherit tool rustLib tlFiles fixtures; }; })
+  emulated.overrideAttrs (old: { passthru = { inherit tool rustLib rustLibPoisoned tlFiles fixtures; }; })
 else
 stdenv.mkDerivation {
   pname = "sai-teralynx-parity";
@@ -173,7 +196,7 @@ stdenv.mkDerivation {
     runHook preInstall
     d=$out/share/sai-rs/teralynx-parity
     mkdir -p $d $out/bin $out/libexec/sai-teralynx-parity
-    cp report.txt strict.txt negative.txt details.txt gate.txt $d/
+    cp report.txt strict.txt negative.txt negative-bytes.txt details.txt gate.txt $d/
     cp -r fixtures/bin fixtures/mock fixtures/cfg $out/libexec/sai-teralynx-parity/
     cp ${tool}/bin/sai-teralynx-parity $out/bin/
     # an area owner's run from a checkout of rust/sai: that tree's lists, the store's fixtures and C++
@@ -186,7 +209,7 @@ stdenv.mkDerivation {
   '';
 
   dontStrip = true;
-  passthru = { inherit tool rustLib tlFiles; };
+  passthru = { inherit tool rustLib rustLibPoisoned tlFiles; };
 
   meta = {
     description = "Parity of the Rust and the C++ Teralynx libsai on the mock libifcs (test_ifcs, call streams, driver and oracle scripts)";

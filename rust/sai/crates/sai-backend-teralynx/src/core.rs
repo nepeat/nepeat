@@ -116,9 +116,9 @@ impl Core {
     }
 
     /// `Core::usage_free`: `max - current` (0 if not more), or `fallback` with a notice once.
-    pub fn usage_free(&self, rc: Status, u: &sys::ifcs_usage_t, fallback: u32, what: &str) -> u32 {
+    pub fn usage_free(&self, rc: Status, u: &ifcs::Usage, fallback: u32, what: &str) -> u32 {
         if rc.is_success() {
-            return u.max.saturating_sub(u.current);
+            return u.max().saturating_sub(u.current());
         }
         self.log_once(
             &format!("usage:{what}"),

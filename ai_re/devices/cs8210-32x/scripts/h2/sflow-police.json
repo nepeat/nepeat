@@ -1,0 +1,332 @@
+{
+ "name": "sflow-police: SONiC's sflow trap group (queue 2, 1000 pps sr_tcm policer) on SAMPLEPACKET + genetlink + table entry; policer update, group policer off/on (isai behaviour) [h2: cage 31 <-> 32]",
+ "steps": [
+  {
+   "op": "create_switch",
+   "attrs": [
+    [
+     "INIT_SWITCH",
+     "bool",
+     true
+    ],
+    [
+     "PORT_STATE_CHANGE_NOTIFY",
+     "ptr",
+     "port_state"
+    ],
+    [
+     "SWITCH_SHUTDOWN_REQUEST_NOTIFY",
+     "ptr",
+     "shutdown"
+    ]
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "ports"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "tg",
+   "desc": "sflow group queue 2",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     2
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "POLICER",
+   "as": "pol",
+   "desc": "1000 pps sr_tcm",
+   "attrs": [
+    [
+     "METER_TYPE",
+     "s32",
+     "PACKETS"
+    ],
+    [
+     "MODE",
+     "s32",
+     "SR_TCM"
+    ],
+    [
+     "CIR",
+     "u64",
+     1000
+    ],
+    [
+     "CBS",
+     "u64",
+     1000
+    ],
+    [
+     "RED_PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$tg",
+   "desc": "group policer",
+   "attr": [
+    "POLICER",
+    "oid",
+    "$pol"
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "gnl",
+   "desc": "genetlink psample",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     2
+    ],
+    [
+     "NAME",
+     "chardata",
+     "psample"
+    ],
+    [
+     "GENETLINK_MCGRP_NAME",
+     "chardata",
+     "packets"
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "trap",
+   "desc": "SAMPLEPACKET in the policed group",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "SAMPLEPACKET"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$tg"
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TABLE_ENTRY",
+   "as": "te",
+   "desc": "trap -> genetlink",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "TRAP_ID"
+    ],
+    [
+     "TRAP_ID",
+     "oid",
+     "$trap"
+    ],
+    [
+     "CHANNEL_TYPE",
+     "s32",
+     5
+    ],
+    [
+     "HOST_IF",
+     "oid",
+     "$gnl"
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "SAMPLEPACKET",
+   "as": "sp",
+   "desc": "1 in 1000",
+   "attrs": [
+    [
+     "SAMPLE_RATE",
+     "u32",
+     1000
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "desc": "sample port 0",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "$sp"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$pol",
+   "desc": "policer CIR 2000",
+   "attr": [
+    "CIR",
+    "u64",
+    2000
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$tg",
+   "desc": "group queue 3",
+   "attr": [
+    "QUEUE",
+    "u32",
+    3
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$tg",
+   "desc": "group policer off",
+   "attr": [
+    "POLICER",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$tg",
+   "desc": "group policer on",
+   "attr": [
+    "POLICER",
+    "oid",
+    "$pol"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$trap",
+   "desc": "trap action DROP",
+   "attr": [
+    "PACKET_ACTION",
+    "s32",
+    "DROP"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$trap",
+   "desc": "trap action TRAP",
+   "attr": [
+    "PACKET_ACTION",
+    "s32",
+    "TRAP"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "desc": "unsample port 0",
+   "attr": [
+    "INGRESS_SAMPLEPACKET_ENABLE",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$sp",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$te",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$trap",
+   "desc": "trap",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$tg",
+   "desc": "group policer off before removal",
+   "attr": [
+    "POLICER",
+    "oid",
+    "null"
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$pol",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$tg",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$gnl",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[30]",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "remove_switch"
+  }
+ ]
+}

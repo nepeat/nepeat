@@ -4,7 +4,7 @@
 
 - **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-59, from the SSD; a cold cycle of both feeds (`lab-power cs8210 cycle`,
   2026-11-26) came back unattended, 0 failed units; either PSU alone carries it under traffic. **SONiC at boot** on our C++ `sai-teralynx` (HEAD's frozen
-  frontend, first on this box 2026-11-25); its Rust replacement is at parity offline and passed H1 on the chip (Rust libsai with SONiC stopped, then a short SONiC run on generation system-60; box back on system-59 / C++; log 2026-11-26 (h)). Cabling (owner, 2026-11-25; cage 1 and 2 modules replaced 2026-11-26): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
+  frontend, first on this box 2026-11-25); its Rust replacement is at parity offline and passed H1 and H2 on the chip (H1: smoke + a short SONiC run on generation system-60; H2: 37 feature scripts Rust = C++ with SONiC stopped; box back on system-59 / C++; logs 2026-11-26 (h), (i)); H3 (SONiC under load on Rust) is next. Cabling (owner, 2026-11-25; cage 1 and 2 modules replaced 2026-11-26): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
   400G-DR4 QSFP-DD optics (MPO loops), 3 <-> 17 TE 2459398-1 400G CR8 DAC; nothing to the house. CONFIG_DB = the Nix
   base: those six ports 1x400G RS FEC, far ends in Vrf-a/b/c with /31s, 26 ports down ([sonic.md](sonic.md) "Running it").
   **3 <-> 17 and 31 <-> 32 up; 1 <-> 2 was up 10:09-10:27 (cat fur on the fibre / optic faces, both modules replaced)
@@ -27,7 +27,7 @@
 - **Open:** **three fan modules with a dead rotor** (FAN5 rear, FAN6 front, FAN12 rear; LED solid red, still following the
   zone duty): 3 failed rotors <= 4, fand degraded on its curve (~52 %, ASIC ~63 C); replace them, then `fand release`
   the slot if it was swapped while off ([board-control.md](board-control.md) "Fan CPLD register map"); `lab-power cs8210 cycle` once failed with
-  NetBotz "E101: Command Not Found" (not reproduced; lab-power now resends once on E101); the 1 <-> 2 fibre into cage 1; port LEDs 2-4 (slot codes and colours unknown, I; LED block read at H1 (R1: constant over link/admin changes), next reversible writes with the owner at the panel; sonic.md "LEDs"; H1 read LED_CFG = 0x805: libifcs' LEARN_MSG-based read-modify-write left no junk in bits 4-10, V); our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
+  NetBotz "E101: Command Not Found" (not reproduced; lab-power now resends once on E101); the 1 <-> 2 fibre into cage 1; port LEDs 2-4 (slot codes and colours unknown, I; all LED registers proven R/W at H2 and restored, V; the panel effect needs the owner's replay of [led-panel-checklist.md](led-panel-checklist.md); H1 read LED_CFG = 0x805: libifcs' LEARN_MSG-based read-modify-write left no junk in bits 4-10, V); Rust SAI: R1 (IFCS key padding) found at H2 and fixed (byte twins, ABI fixture, byte-level parity tap); H3 next (soak and reboots on Rust, the watchdog's guard signal on it, the default switch); our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
   ([sai-features.md](sai-features.md)); MACsec under SONiC; CRM panels empty; learn-wedge watch (L0s off, [learn-wedge.md](learn-wedge.md)).
 
 ## Identity
@@ -113,7 +113,7 @@ earlier offline work: [ssd-analysis.md](ssd-analysis.md), [kernel-review.md](ker
 2. Aux SPI flash gating (the i2cfpga flash reads all ones on mainline); what CPLD v15/v2 changed ([cpld-diff.md](cpld-diff.md)).
 3. Credo slice temperatures and the ASC10 voltage/temperature monitors; optics as a fand input (owner: fan policy).
 4. Populate `/var/lib/cs8210-sdk/root` reproducibly (from the `onie` MTD on the box) instead of by hand.
-5. Port LEDs 2-4: read the LED registers under the Rust SAI (`SAI_TERALYNX_DIAG_REGS`, sonic.md "LEDs"), then single reversible writes at the panel (the stream itself already runs, V); a kernel driver for the MDIO FPGA.
+5. Port LEDs 2-4: the owner replays the register walk at the panel ([led-panel-checklist.md](led-panel-checklist.md); all LED registers are R/W, H2, sonic.md "LEDs"); a kernel driver for the MDIO FPGA.
 
 ## artifacts
 
@@ -132,6 +132,15 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-26 (i) — H2: the feature matrix on the chip with the Rust SAI
+
+- 37 adapted oracle scripts ([scripts/h2/](scripts/h2/); loops 31 &lt;-&gt; 32 primary, 3 &lt;-&gt; 17 variants) run on the box with SONiC stopped, Rust libsai vs the C++ libsai, the same Rust `sai-script` and `tl-frames` on both: statuses, values, frame results, diag lines and libifcs error lines compared per step ([04-feature-scripts.txt](evidence/rust-h2/04-feature-scripts.txt)).
+- First pass: 17 PASS, 5 feature-PASS with a cleanup leak, 14 FAIL, 1 inconclusive. One root cause, **R1**: the Rust rim passed by-value IFCS key structs (route / FDB keys) with uninitialised padding, libifcs compares raw key bytes, so route / FDB delete and replace answered NOTFOUND on the chip (some SAI statuses 0 = leaked entries, others -7 / -17, next hops / RIFs / VLANs then BUSY). The mock compares fields, so offline parity missed it ([06-ifcs-key-padding.txt](evidence/rust-h2/06-ifcs-key-padding.txt)).
+- Fix: byte-twin types in `ifcs-sys`, an ABI proof fixture (x86_64 + aarch64), a byte-level tap in the parity harness with a poison negative control; 0 unsafe blocks added ([12-offline-proof.txt](evidence/rust-h2/12-offline-proof.txt)). Re-run of the 20 affected scripts: **all 20 PASS**, so all 37 PASS; no route / FDB NOTFOUND, BUSY or -17 in 60 re-runs (30 Rust, 30 C++) ([13-feature-rerun.txt](evidence/rust-h2/13-feature-rerun.txt)). Deliberate non-differences: the /32 count with the prefix table full varies run to run on both libsais (hash placement); counters differ by a few frames of timing.
+- Learn-ring guard injection (all-ones reads of 0x4860 / 0x4864 / 0x485c) on the Rust shim = the C shim: 15 journal lines byte-identical, `.prom` counters identical, VmSize flat ([03-guard-inject.txt](evidence/rust-h2/03-guard-inject.txt)). The watchdog's guard signal under SONiC on Rust is not re-proven (H3).
+- LED registers (Rust libsai post-init list, 92 steps, owner not at the panel): all R/W; per-PIC words and the blink timer persist across libifcs deinit/init (only LED_CFG and the refresh registers are re-programmed at init); a blink time base exists (off after init); everything restored to R1 ([01-led-walk.txt](evidence/rust-h2/01-led-walk.txt)). What the LEDs show: pending, owner replay [led-panel-checklist.md](led-panel-checklist.md).
+- Cage 32 (DR4, marginal lane 1): link missing or late in 13 of the 60 re-runs on either libsai; the verdicts use a pair where both sides had link. 3 &lt;-&gt; 17 had link in every run. [sai-features.md](sai-features.md) Rust column: `hw H2` rows.
 
 ### 2026-11-26 (h) — H1: the Rust SAI on the chip
 
@@ -260,37 +269,4 @@ can contain device configuration or secrets. Summarized findings belong here.
   (hard LOCKUP 10 s later; same open PSCI item). Plug 1 off. Open: fix al_eth close/remove on shutdown.
   [shutdown-lockup-20261118.txt](shutdown-lockup-20261118.txt) (sha256 2595cd38aa3300a4…).
 
-### 2026-11-17 — A' slot A rewritten with the fixed build; BOOT_MODE → slot A
-
-- Same update path (plan 7676df81…; verify 133/133 from the installed model, sandbox rehearse): slot A (kill page over the old
-  build, erase, body, header, magic last) + BOOT_MODE → 0x110, read back == model. Cold boot + warm reboot via slot A: all checks
-  pass (FPGA BAR, Credo, BGP/BFD/LACP 2/2, AVS, fand, mtd0ro == model). Both slots now hold 58e4a4f0….
-  [spi-upgrade-slotA-20261117.txt](spi-upgrade-slotA-20261117.txt).
-
-### 2026-11-17 — A' update: slot B with the MDIO-FPGA BAR fix, BOOT_MODE flipped
-
-- `spi_upgrade.py update --write` (plan 7364ea78…; verify 125/125 from the installed model, sandbox rehearse of the payload): slot B
-  + BOOT_MODE (kill page, then body, header, magic last) read back == model. Reached the vendor prompt via `u` ("User request for loading U-Boot!").
-- Cold boot and one warm reboot via slot B (stage3 loads 422752 B): MDIO FPGA BAR 0 assigned, Credo config done, BGP 2/2, BFD 2/2,
-  LACP up, AVS active (ASIC COMMAND 0x0406, VOUT 0x0333), fand. [spi-upgrade-update-20261117.txt](spi-upgrade-update-20261117.txt).
-
-### 2026-11-17 — MDIO FPGA BAR on a cold boot via our U-Boot: root cause, fix, rescue proven
-
-- Cause: the MDIO FPGA's BAR 0 keeps only bits 31:29 and 21 and resets to 0xe0200000 = its sizing read-back, which Linux
-  rejects ("can't size"); the vendor U-Boot writes e0000000 first. Fix (0030/0031): our U-Boot writes the vendor's partner
-  BARs once the link is up; RAM-tested from the forced cold value: NixOS, Credo, BGP/BFD/LACP as on the vendor boot.
-  Fixed `#uboot-cs8210-stage3app` (.fimg 58e4a4f0…) is for the slot B update; slot A still holds the old one.
-- Rescue: power cycle + `u` from stage2's banner → factory U-Boot, three times; warm reset + `u` likewise.
-- Hazard: repeated `alpcie reinit 4` wedges the MDIO FPGA link until a power cycle (the factory U-Boot too). Ports
-  without a link are now disabled in the OS DTB (Linux panicked on one). Evidence: [uboot-standalone-20261117.txt](uboot-standalone-20261117.txt).
-
-### 2026-11-17 — scheme A' installed in SPI (our U-Boot as stage3's app)
-
-- `spi_upgrade.py install --write` (owner go): env, slot A, BOOT_MODE, TOC2 written and read back == model; cold boot:
-  "Loading application to 08000000", "U-Boot 2026.10-cs8210-selfinit", EL2, x0=0; NixOS from it; mtd0ro == new model;
-  AVS oneshot enabled the ASIC (COMMAND 0 -> 0x0406, VOUT 0x0333); fand running.
-  [spi-upgrade-install-20261117.txt](spi-upgrade-install-20261117.txt).
-- Deviation, stopped there: MDIO FPGA 0004:01:00.0 without BARs ("libMdio: resource0 not available"), cages 1/16 down, BGP/BFD/LACP down.
-  Standalone U-Boot work item; the `u` escape test and the boot back into ours are pending.
-
-Older entries (2026-11-16 (late) scheme A' flasher and before): [HISTORY.md](HISTORY.md).
+Older entries (2026-11-17 scheme A' install, update and MDIO FPGA BAR entries and before): [HISTORY.md](HISTORY.md).
