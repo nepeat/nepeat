@@ -174,6 +174,13 @@ let
       RestartSec = 3;
     };
   } extra;
+  # sai.renamesNetdevs: an ExecStart prefix that waits for this syncd run's
+  # PortInitDone (every port netdev under its final name), then execs the daemon
+  afterPortInit = pkgs.writeShellScript "sonic-after-port-init" ''
+    echo "waiting for APPL_DB PORT_TABLE:PortInitDone (the ports' netdevs under their SONiC names)"
+    until [ "$(${sonic.swss-common}/bin/sonic-db-cli APPL_DB EXISTS PORT_TABLE:PortInitDone 2>/dev/null)" = 1 ]; do sleep 1; done
+    exec "$@"
+  '';
   # tlm_teamd: teamd state -> STATE_DB LAG_TABLE (runner.active, ...), which
   # "show interfaces portchannel" reads.
   managers = [ "portmgrd" "intfmgrd" "vlanmgrd" "nbrmgrd" "teammgrd" "teamsyncd" "tlm_teamd" "neighsyncd" "fdbsyncd" ]
@@ -320,6 +327,19 @@ in {
         description = "Units to start again when syncd stays stopped (checked 10 s after it stops, so restarts of syncd are left alone), e.g. the ASIC temperature reader it displaced.";
       };
       vs.interfaces = mkOption { type = types.attrsOf types.str; default = { }; example = { "Ethernet5/1" = "eth1"; }; description = "vs only: kernel interface carrying a port's packets (alias -> ifname); other ports get dummy interfaces."; };
+      renamesNetdevs = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          The SAI gives the ports netdevs that already existed under another name: it renames
+          them (the Teralynx SAI's adopt mode: inno_0_<sysport> -> EthernetN). neighsyncd and
+          fpmsyncd map ifindex -> name through a libnl link cache that refills only on a miss,
+          so a cache filled before a rename keeps the old name for good: neighbors and routes
+          land in APPL_DB under inno_0_* and are never programmed. On: both start only once
+          portsyncd has seen every port netdev under its SONiC name (APPL_DB
+          PORT_TABLE:PortInitDone, which every syncd start flushes).
+        '';
+      };
     };
     syncdArgs = mkOption { type = types.listOf types.str; default = [ "-u" "-z" "redis_sync" ]; description = "syncd arguments besides -p <profile>."; };
     recordDir = mkOption { type = types.str; default = "/var/log/swss"; description = "orchagent -d: where sairedis.rec/swss.rec go. /var/log/swss (persistent) or a path under /run/ (tmpfs: no flash wear, lost on reboot)."; };
@@ -343,7 +363,7 @@ in {
     system.build.sonic = {
       base = validatedBase;
       modes = modesJson;
-      inherit saiProfile portConfigIni dbConfig shareSonic laneMap coppCfg sonicNix sdkConfig;
+      inherit saiProfile portConfigIni dbConfig shareSonic laneMap coppCfg sonicNix sdkConfig afterPortInit;
       ports = P.ports;
     };
 
@@ -490,11 +510,14 @@ in {
       };
     } // listToAttrs (map (n: nameValuePair "sonic-${n}" (daemon {
       description = "SONiC ${n}";
-      exec = "${swss}/bin/${n}" + lib.optionalString (n == "buffermgrd" && cfg.buffers.pgProfileLookup != null)
+      exec = lib.optionalString (n == "neighsyncd" && cfg.sai.renamesNetdevs) "${afterPortInit} "
+        + "${swss}/bin/${n}" + lib.optionalString (n == "buffermgrd" && cfg.buffers.pgProfileLookup != null)
         " -l ${cfg.buffers.pgProfileLookup}";
       bindsTo = unit "orchagent";
       after = optional (n == "teamsyncd" || n == "tlm_teamd") (unit "teammgrd");
-      extra = optionalAttrs (n == "teammgrd") {
+      # behind afterPortInit (sai.renamesNetdevs) its journal lines keep the daemon's name
+      extra = optionalAttrs (n == "neighsyncd" && cfg.sai.renamesNetdevs) { serviceConfig.SyslogIdentifier = n; }
+        // optionalAttrs (n == "teammgrd") {
         # teamd instances run in this unit's cgroup (stopped with it).
         serviceConfig.RuntimeDirectory = "teamd";
         # teamd logs every 1 s usock StateDump poll at debug (~60 lines/min per

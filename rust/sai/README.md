@@ -966,7 +966,13 @@ comparison at 50a6aa7). Also:
   whose libifcs is the C mock, the Rust shim next to the Rust libsai, dummy `inno_0_<sysport>` netdevs adopted;
   the mock's call log (parity tap) checked for create_switch, 32 ports, admin / link up, a VLAN, RIF +
   neighbor + route, an ACL table and rule, CoPP. 2026-11-26: 38 checks pass (on eb9a34c's workspace).
-  Refused as the C++ refuses: `PORT_SERDES_ID` gets, `VLAN_TAG` keep on an adopted netdev.
+  Refused as the C++ refuses: `PORT_SERDES_ID` gets, `VLAN_TAG` keep on an adopted netdev (the
+  `SAI_COMMON_API_SET failed ... NOT_IMPLEMENTED` line in every run). 2026-11-27: its flake under host load
+  (neighbor + route timeouts) was not the libsai (the C++ the same): neighsyncd's link cache, filled before
+  the adopted netdevs' renames, kept `inno_0_*` names; fixed by `services.sonic.sai.renamesNetdevs`
+  (boards/cs8210). Two checks added (no `inno_0_*` key in APPL_DB, neighsyncd after the last rename), with a
+  management-port neighbor stand-in so neighsyncd fills its cache at start as on the box: 40 checks; 20 / 20
+  under load (2 CPUs shared with 16 stress workers), the C++ libsai 5 / 5; without the fix 3 / 3 fail, both libsais.
 - **seqcheck** on the five real recordings (`0x5000` ingress write, before G6): C++ tool,
   `openbcm-ext-macsec-rs`, the C++ library on the Rust engine and the build with both agree (s1-s3: 40
   sequences / 4602 operations; s4-s5: 4 / 1952). Soaks before G6 (2026-11-23): sai-macsec 50,000 seeds

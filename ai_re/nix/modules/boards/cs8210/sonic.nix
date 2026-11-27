@@ -74,6 +74,10 @@ in {
         sonic = sonic.packages;
         inherit (cfg) media;
       });
+      # The SAI's default netdev mode (adopt) renames the SDK's inno_0_<sysport>
+      # netdevs to the port names at hostif create: neighsyncd/fpmsyncd start after
+      # PortInitDone, else their link caches can keep the old names (vm-sai-teralynx-syncd).
+      sai.renamesNetdevs = mkDefault true;
       # One process on the ASIC: the vendor bring-up stops while syncd runs.
       sai.conflicts = mkDefault [ "cs8210-switch.service" ];
       # BGP/BFD stay closed on the management port and on the CPU card's

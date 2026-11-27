@@ -97,9 +97,13 @@ let
     # FPM server (TCP 127.0.0.1:2620); zebra's dplane_fpm_nl connects and retries.
     fpmsyncd = svc {
       description = "SONiC fpmsyncd (zebra FPM -> APPL_DB ROUTE_TABLE)";
-      exec = "${cfg.packages.swss}/bin/fpmsyncd";
+      # sai.renamesNetdevs: its link cache (ifindex -> name) is filled at start
+      exec = lib.optionalString cfg.sai.renamesNetdevs "${config.system.build.sonic.afterPortInit} "
+        + "${cfg.packages.swss}/bin/fpmsyncd";
       after = [ (unit "frr-bgpd") ];
-      extra.environment = { platform = cfg.asicType; };
+      extra = {
+        environment = { platform = cfg.asicType; };
+      } // lib.optionalAttrs cfg.sai.renamesNetdevs { serviceConfig.SyslogIdentifier = "fpmsyncd"; };
     };
     bgpcfgd = svc {
       description = "SONiC bgpcfgd (CONFIG_DB -> FRR)";

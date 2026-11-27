@@ -170,7 +170,11 @@ was deleted on 2026-11-23), its tools and boot-time MDIO tool included),
 `sai.conflicts` (default: openbcm-asic-temp when enabled; one SDK process
 per unit) and starts after them. `sai.restartOnStop` units are started
 again 10 s after syncd stops, unless syncd is back, queued or a
-`sonic-nix reload` runs.
+`sonic-nix reload` runs. `sai.renamesNetdevs` (boards/cs8210: the Teralynx SAI's adopt mode renames
+the SDK's `inno_0_<sysport>` netdevs at hostif create): neighsyncd and fpmsyncd start only after this
+syncd run's PortInitDone. Their libnl link cache refills only on a miss, so one filled before the
+renames kept the old names: neighbors (and routes) under `inno_0_*` in APPL_DB, never programmed
+(vm-sai-teralynx-syncd under load, 2026-11-27).
 
 ## routing (FRR)
 

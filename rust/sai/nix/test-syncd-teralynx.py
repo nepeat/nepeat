@@ -76,7 +76,17 @@ maps = sh("cat /proc/$(systemctl show -p MainPID --value sonic-syncd.service)/ma
 check("syncd runs the Rust libsai with the Rust shim next to it",
       LIBDIR + "/libsai.so.1.0.0" in maps and LIBDIR + "/libsai-teralynx-shim.so" in maps and SDK + "/libifcs.so" in maps,
       [l for l in maps.split("\n") if "libsai" in l or "libifcs" in l])
-c = calls().split("\n")
+# The call log is written by the tap in the syncd process, asynchronously to this test: a read made the moment
+# the unit is up can be SHORT (the last lines of the init sequence not in the file yet), which showed as a
+# spurious failure of the checks below. So wait, bounded (60 s), until the whole init sequence the checks
+# need is there (node enable, the 32 admin-down devports, the 32 preemphasis lines), then read it once more.
+def init_complete():
+    c = calls().split("\n")
+    if (has(c, r"^ifcs_node_attr_set node=0 count=1 id=0 u32=1$") and len(dps(has(c, r"^ifcs_devport_attr_set dp=(\d+) id=23 u32=0$"))) >= 32
+            and len(has(c, r"^ifcs_devport_attr_set dp=\d+ id=\d+ .*\[1,2,3,4,5,6,7,8\]$")) >= 32):
+        return c
+    return None
+c = wait("the call log holds the whole init sequence", init_complete, 60) or calls().split("\n")
 print("CALL LOG (head)")
 print("\n".join(c[:60]))
 init = has(c, r"^ifcs_init cfg=")
@@ -143,6 +153,15 @@ if not n:
     print("DIAG neighbor:", sh("ip -d link show Ethernet0; ip neigh show dev Ethernet0; ip -4 addr show Ethernet0")[1])
     print("DIAG APPL_DB:", db(0, "keys 'NEIGH_TABLE*'"), db(0, "hgetall PORT_TABLE:Ethernet0"), db(6, "hgetall 'PORT_TABLE|Ethernet0'"))
     print("DIAG neighsyncd / orchagent:", "\n".join([x for x in (journal("sonic-neighsyncd") + journal("sonic-orchagent")).split("\n") if re.search(r"(?i)neigh|10\.0\.0|Ethernet0\b", x)][-30:]))
+neighs = db(0, "keys 'NEIGH_TABLE:*'")
+check("APPL_DB: neighbors under the netdevs' SONiC names, none under an SDK name (inno_0_*)",
+      "NEIGH_TABLE:Ethernet0:10.0.0.1" in neighs and "NEIGH_TABLE:mgmt-standin:192.0.2.1" in neighs and "inno_0_" not in neighs, neighs)
+mono = lambda rx, text: [float(m.group(1)) for m in re.finditer(r"^\[\s*([0-9.]+)\] \S+ " + rx, text, re.M)]
+kern = sh("journalctl -b --no-pager -o short-monotonic -k")[1]
+renames = mono(r"kernel: Ethernet\d+: renamed from inno_0_", kern)
+listen = mono(r"\S+: Listens to neigh messages", sh("journalctl -b --no-pager -o short-monotonic -u sonic-neighsyncd")[1])
+check("neighsyncd started after the last netdev rename (sai.renamesNetdevs)", len(renames) == 32 and listen and min(listen) > max(renames),
+      (len(renames), renames[-1:], listen))
 switch.succeed("cat > /tmp/r.json << 'EOF'\n" + json.dumps([{"ROUTE_TABLE:198.51.100.0/24": {"nexthop": "10.0.0.1", "ifname": "Ethernet0"}, "OP": "SET"}]) + "\nEOF")
 rc, out = sh("swssconfig /tmp/r.json 2>&1")
 check("swssconfig ROUTE_TABLE 198.51.100.0/24 via 10.0.0.1", rc == 0, out)
@@ -178,7 +197,14 @@ l = since()
 check("rule and table removed -> ace delete, acl table delete", has(l, r"^ifcs_ace_delete") and has(l, r"^ifcs_acl_table_delete"), has(l, r"delete|remove"))
 
 # ------------------------------------------------------------ CoPP (coppmgrd / CoppOrch at start)
-c = calls().split("\n")
+# the same short-read guard (see the init sequence above): the CoPP lines are written after ASIC_DB shows them
+def copp_complete():
+    c = calls().split("\n")
+    if (len(has(c, r"^ifcs_hostif_trap_create h=")) >= 3 and len(has(c, r"^ifcs_acl_meter_create")) >= 4
+            and len(has(c, r"^ifcs_ace_create")) >= 3 and has(c, r"^ifcs_acl_table_create .*scope=1 ")):
+        return c
+    return None
+c = wait("the call log holds the CoPP sequence", copp_complete, 60) or calls().split("\n")
 traps = asic_keys("HOSTIF_TRAP")
 pols = asic_keys("POLICER")
 check("ASIC_DB: CoPP traps (>= 5) and policers (>= 4)", len(traps) >= 5 and len(pols) >= 4, (len(traps), len(pols)))

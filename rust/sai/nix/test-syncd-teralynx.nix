@@ -3,7 +3,9 @@
 # yaml and its sidecars, sai.profile, cs8210-sai-files.service) with a stand-in vendor SDK tree whose
 # libifcs.so is sai-teralynx's C mock (tests/mock, as the parity harness builds it), the Rust
 # libsai-teralynx-shim.so next to the Rust libsai, and the SDK's inno_0_<sysport> netdevs (made by
-# libifcs' ipd driver on the box) stood in for by dummies, so the default netdev mode (adopt) runs. The
+# libifcs' ipd driver on the box) stood in for by dummies, so the default netdev mode (adopt) runs (a
+# permanent neighbor on one more dummy stands in for the management port's: neighsyncd fills its link
+# cache at its start, as on the box). The
 # mock's call log is streamed to a file by the parity tap (LD_PRELOAD into syncd) and read by the test
 # (./test-syncd-teralynx.py): create_switch, the 32 ports in ASIC_DB and their adopted netdevs, then
 # orchagent-driven basics (ports admin up, link up through the mock's link-scan callback (a test hook
@@ -124,6 +126,23 @@ pkgs.testers.runNixOSTest {
           n=$(printf 'inno_0_%04d' $i)
           ip link show $n >/dev/null 2>&1 || ip link show $(printf 'Ethernet%d' $(( (i - 1) * 8 ))) >/dev/null 2>&1 || { ip link add $n type dummy && ip link set $n arp on; }   # ARP: neighbors as on an ipd netdev
         done
+      '';
+    };
+    # the box's management port always has neighbors when neighsyncd starts, so neighsyncd fills its
+    # ifindex -> name link cache at once; with the SDK's netdevs already there (here from boot), a cache
+    # filled before their renames to Ethernet* kept the inno_0_* names: services.sonic.sai.renamesNetdevs
+    networking.dhcpcd.denyInterfaces = [ "mgmt-standin" ];   # a down/up by dhcpcd flushed the neighbor
+    systemd.services.mgmt-neighbor-standin = {
+      description = "A management-port neighbor in neighsyncd's first dump";
+      before = [ "sonic-syncd.service" ];
+      requiredBy = [ "sonic-syncd.service" ];
+      path = [ pkgs.iproute2 ];
+      serviceConfig = { Type = "oneshot"; RemainAfterExit = true; };
+      script = ''
+        # a MAC of its own: udev's MACAddressPolicy=persistent changed a random one later, flushing the neighbor
+        ip link show mgmt-standin >/dev/null 2>&1 || ip link add mgmt-standin address 02:00:00:00:00:fe type dummy
+        ip link set mgmt-standin arp on up
+        ip neigh replace 192.0.2.1 lladdr 02:00:00:00:00:01 dev mgmt-standin nud permanent
       '';
     };
     # the mock's call log, every line (the mock keeps it only in memory)
