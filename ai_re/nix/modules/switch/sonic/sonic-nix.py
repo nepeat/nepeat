@@ -13,7 +13,7 @@ environment of the wrapper:
 Commands:
   load [--user-file F] [--no-validate]   boot: merge, validate, flush+write CONFIG_DB
   reload [--user-file F] [--no-service-restart]
-                                         "config reload": stop sonic.target, load, start
+                                         "config reload": stop sonic.target and its units, load, start
   apply                                  nixos-rebuild switch: write changed enforce/seed keys live
   diff [--json] [--all]                  Nix vs running CONFIG_DB vs saved file
   watch                                  keep conflicts.json, /etc/issue and motd current
@@ -374,13 +374,23 @@ def systemctl(*a):
     subprocess.run(["systemctl"] + list(a), check=True)
 
 
+def stop_target():
+    # "systemctl stop sonic.target" returns once the target's own stop job is done: a target is ordered after
+    # the units it wants, so their (PartOf) stop jobs run after it, still queued, and the start below would
+    # replace them: only the units that stopped fast restart around the CONFIG_DB flush (vrfmgrd and
+    # intfmgrd race the VRFs; tests/vm-reload.nix). Named on the command line, systemctl waits for them all.
+    units = subprocess.run(["systemctl", "show", "-p", "ConsistsOf", "--value", "sonic.target"],
+                           check=True, capture_output=True, text=True).stdout.split()
+    systemctl("stop", "sonic.target", *units)
+
+
 def cmd_reload(args):
     # syncd's restartOnStop helper leaves the units alone while this exists.
     flag = os.path.join(RUN, "reloading")
     atomic_write(flag, "%d\n" % os.getpid())
     try:
         if not args.no_service_restart:
-            systemctl("stop", "sonic.target")
+            stop_target()
         cmd_load(args)
         if not args.no_service_restart:
             systemctl("start", "sonic.target")

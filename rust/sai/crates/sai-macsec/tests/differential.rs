@@ -1,6 +1,7 @@
 //! Differential test against the C++ frontend (`sai_macsec.cpp` on its fake backend; frozen since
 //! 2026-11-23 in `ai_re/nix/packages/sai-teralynx/frontend/src`, which the CS8210's libsai still
-//! compiles: a live comparison, no golden).
+//! compiles: a live comparison, and since 2026-11-26 also a golden: `golden/differential-*.txt`, the
+//! C++ side's output for a fixed corpus, which the Rust model is held to without the C++).
 //!
 //! A script of MACsec object operations runs on both implementations over the same made-up
 //! PHY table; per operation the SAI status, the values read and every access of the MDIO bus
@@ -43,6 +44,8 @@
 )]
 
 mod common;
+#[path = "common/golden.rs"]
+mod golden;
 #[path = "cpp/listed_fixes.rs"]
 mod listed_fixes;
 #[path = "common/seeded.rs"]
@@ -912,33 +915,117 @@ fn script() -> impl Strategy<Value = String> {
         })
 }
 
-// ------------------------------------------------------------------ tests
-
-/// The Rust side alone, always: the interpreter of this file runs the backbone and the
-/// model's invariants hold after every line (so the script format cannot rot unnoticed
-/// where the C++ is not around).
-#[test]
-fn the_script_interpreter_runs_the_backbone() {
-    let script = format!("{HEAD}{}\nstatus\n", skeleton(0, 0, 3, false).join("\n"));
-    let out = rust_output(&fault_table(true, true, false), &script);
-    assert!(out.contains("sa a0 0 c0 0 7 0 => 0\n"), "{out}"); // kept: its flow is not bound yet
-    assert!(out.contains("eflow e0 f0 => 0 W10.1.200=130"), "{out}"); // installed as the first, then the gate
-    assert!(out.contains("active c0 => 0 active=a8"), "{out}");
-    assert!(!out.contains("skip"), "{out}");
+/// D9, a flow switch (`d9_a_flow_switch_against_the_cpp`).
+fn d9_script() -> String {
+    format!(
+        "{HEAD}mport p0 0 0
+flow f0 0
+flow f2 0
+table t0 0
+bind 0 0 t0
+entry e0 t0 1 f0 1 0
+         sc c0 0 f0 0 0 0 0
+sc c2 0 f2 0 0 0 2
+sa a0 0 c0 0 1 0
+eflow e0 f2
+sa a2 0 c2 0 1 2
+status
+"
+    )
 }
 
-/// MACsecOrch's order on every table variant, every (port, direction), every cipher.
-#[test]
-fn backbones_agree_with_the_cpp() {
-    let Some(driver) = driver() else { return };
-    let mut compared = 0;
+/// D10, a cipher change under a waiting SA (`d10_cipher_change_under_waiting_sas_against_the_cpp`).
+fn d10_script() -> String {
+    format!(
+        "{HEAD}mport p0 0 0
+flow f0 0
+table t0 0
+bind 0 0 t0
+entry e0 t0 0 f0 1 0
+sc c0 0 f0 1 0 0 0
+         sa a0 0 c0 0 1 0
+scset c0 cipher 0
+eadmin e0 1
+status
+"
+    )
+}
+
+/// D1, a flow moved to another port (`where_a_flow_moved_the_cpp_leaves_the_key_in_the_phy`).
+fn d1_script() -> String {
+    format!(
+        "{HEAD}mport p0 0 0\nmport p1 0 1\nflow f0 0\ntable t0 0\ntable t1 0\nbind 0 0 t0\nbind 1 0 t1\n\
+         entry e0 t0 1 f0 1 0\nsc c0 0 f0 0 0 0 0\nsa a0 0 c0 0 1 0\neadmin e0 0\nentry e1 t1 1 f0 1 0\n\
+         sa a1 0 c0 1 1 1\nrm sa a0\nstatus\n"
+    )
+}
+
+/// D9, another entry takes over after the entry was disabled (`d9_another_entry_takes_over_after_the_entry_was_disabled`).
+const D9_TAKEOVER: &str = "reg 10 20f 1\nreg 10 21f 1\nreg 11 20f 1\nreg 11 21f 1\nmacsec m0 0\nmacsec m1 1\nflow f5 1\ntable t0 0\n\
+                  mport p3 1 1\nflow f3 1\ntable t3 1\nbind 1 1 t3\nentry e3 t3 1 - 1 0\nsc c3 1 f3 0 0 1234 3\n\
+                  sa a3 1 c3 0 7 3\neflow e3 f3\neadmin e3 0\nsa a7 1 c3 1 1 7\nentry e1 t3 1 f5 0 0\nsapn a3\nsastat a7\n\
+                  flowstat f3\nstatus\nrm sa a3\nsa a11 1 c3 2 100000002 11\nactive c3\n";
+/// D9 followed by a changed association number (`a_difference_beside_a_listed_one_is_refused`).
+const BESIDE_LISTED: &str = "reg 10 20f 1\nreg 10 21f 1\nreg 11 20f 1\nreg 11 21f 1\nmacsec m0 0\nmacsec m1 1\nflow f5 1\nmport p3 1 1\n\
+                  flow f3 1\ntable t3 1\nbind 1 1 t3\nentry e3 t3 1 - 1 0\nsc c3 1 f3 0 0 1234 3\nsa a3 1 c3 0 7 3\n\
+                  eflow e3 f3\neadmin e3 0\nsa a7 1 c3 1 1 7\nentry e1 t3 1 f5 0 0\nstatus\nrm entry e1\neadmin e3 1\nstatus\n";
+/// D9 with a failing SA removal (`a_d9_flow_switch_whose_sa_removal_fails_at_once`).
+const D9_REMOVAL_FAILS: &str = "reg 10 20f 1\nreg 10 21f 1\nreg 11 20f 1\nreg 11 21f 1\nmacsec m0 0\nmacsec m1 1\nmport p1 0 1\nflow f1 0\ntable t1 0\nbind 1 0 t1\nentry e1 t1 1 - 1 0\nsc c1 0 f1 0 0 1234 1\nsa a1 0 c1 0 7 1\neflow e1 f1\nsa a5 0 c1 1 1 5\nrm entry e1\nflow f3 0\nentry e3 t1 1 - 0 0\nreg 11 1f2 1\nsapn a1\nsastat a5\nflowstat f1\nstatus\nrm sa a1\nsa a9 0 c1 2 100000002 9\nactive c1\nmport p0 0 0\nflow f0 0\ntable t0 0\nbind 0 0 t0\nentry e0 t0 1 - 1 0\neflow e3 f3\nsc c0 0 f0 0 0 1234 0\nsa a0 0 c0 0 7 0\neflow e0 f0\nsa a4 0 c0 1 1 4\nsapn a0\nsastat a4\nflowstat f0\nstatus\nrm sa a0\nsa a8 0 c0 2 100000002 8\nactive c0\n";
+// ------------------------------------------------------------------ the golden C++ side (H5-0)
+//
+// The C++ side is also held in files captured from it (2026-11-26, header of the files): the
+// scripts below with their tables ('golden/differential-inputs.txt') and, per script, the
+// normalised output of the unmodified C++ and of the C++ with D9 / D10 as digests, plus the full
+// text of the small named cases ('golden/differential-cpp.txt'). The Rust model is held to them
+// without the C++ ('rust_agrees_with_the_golden_cpp'); with the C++ around, the golden is held to
+// it ('the_golden_equals_the_live_cpp').
+
+const GOLDEN_INPUTS: &str = include_str!("golden/differential-inputs.txt");
+const GOLDEN_CPP: &str = include_str!("golden/differential-cpp.txt");
+/// The seeds of the golden's random scripts: GOLDEN_FIRST_SEED .. + GOLDEN_RANDOM.
+const GOLDEN_FIRST_SEED: u64 = 20_261_126;
+const GOLDEN_RANDOM: u64 = 300;
+/// The cases whose full outputs the golden keeps (the named ones and one backbone).
+const GOLDEN_TEXT: &[&str] = &[
+    "bb-g1p1a0-c3",
+    "named-lane",
+    "named-d9",
+    "named-d10",
+    "named-d1",
+    "named-d9-removal-fails",
+    "named-d9-takeover",
+    "named-beside-listed",
+];
+
+/// One script of the corpus: id, the tag of its table, the script.
+struct Input {
+    id: String,
+    tag: String,
+    script: String,
+}
+
+/// `g<gates>p<probe>a<absolute>` for the table of `fault_table`.
+fn table_tag(gates: bool, probe: bool, absolute: bool) -> String {
+    format!("g{}p{}a{}", u8::from(gates), u8::from(probe), u8::from(absolute))
+}
+
+/// The table of a tag (`lane`: the one that names a lane no port starts at).
+fn table_of(tag: &str) -> String {
+    if tag == "lane" {
+        return "ext-macsec 1\nport 3 10\n".to_owned();
+    }
+    let on = |i: usize| tag.as_bytes().get(i) == Some(&b'1');
+    fault_table(on(1), on(3), on(5))
+}
+
+fn backbone_inputs() -> Vec<Input> {
+    let mut out = Vec::new();
     for (gates, probe, absolute) in [
         (true, true, false),
         (false, true, false),
         (true, false, true),
         (false, false, true),
     ] {
-        let table = fault_table(gates, probe, absolute);
         for cipher in 0..4 {
             let mut lines = Vec::new();
             for (q, d) in [(0, 0), (0, 1), (1, 0), (1, 1)] {
@@ -967,23 +1054,19 @@ fn backbones_agree_with_the_cpp() {
                 "rm macsec m1".to_owned(),
                 "status".to_owned(),
             ]);
-            let script = format!("{HEAD}{}\n", lines.join("\n"));
-            compare(driver, &table, &script).unwrap_or_else(|why| panic!("{why}"));
-            compared += 1;
+            let tag = table_tag(gates, probe, absolute);
+            out.push(Input {
+                id: format!("bb-{tag}-c{cipher}"),
+                tag,
+                script: format!("{HEAD}{}\n", lines.join("\n")),
+            });
         }
     }
-    summary!(
-        "differential: {compared} backbone scripts agree with the C++ ({} comparisons so far in this run)",
-        COMPARISONS.load(Ordering::Relaxed)
-    );
+    out
 }
 
-/// Sequences that fail, one kind at a time, at every point of the backbone.
-#[test]
-fn failing_sequences_agree_with_the_cpp() {
-    let Some(driver) = driver() else { return };
-    let table = fault_table(true, true, false);
-    let mut compared = 0;
+fn failing_inputs() -> Vec<Input> {
+    let mut out = Vec::new();
     for d in 0..2 {
         let backbone = skeleton(0, d, 3, true);
         for fault in ["20f", "21f", "1f1", "1f2", "1f3", "1f4", "1f5", "1f6"] {
@@ -1005,11 +1088,407 @@ fn failing_sequences_agree_with_the_cpp() {
                 lines.push(format!("reg 10 {fault} {}", u8::from(fault.starts_with('2'))));
                 lines.extend(skeleton(0, d, 1, false));
                 lines.push("status".to_owned());
-                let script = format!("{HEAD}{}\n", lines.join("\n"));
-                compare(driver, &table, &script).unwrap_or_else(|why| panic!("{why}"));
-                compared += 1;
+                out.push(Input {
+                    id: format!("fail-d{d}-f{fault}-{at}"),
+                    tag: table_tag(true, true, false),
+                    script: format!("{HEAD}{}\n", lines.join("\n")),
+                });
             }
         }
+    }
+    out
+}
+
+/// The named scripts of the tests; `true`: the Rust differs from the C++ there by design (D1).
+fn named_inputs() -> Vec<(Input, bool)> {
+    let named = |id: &str, tag: &str, script: String| Input {
+        id: format!("named-{id}"),
+        tag: tag.to_owned(),
+        script,
+    };
+    vec![
+        (named("lane", "lane", "status\n".to_owned()), false),
+        (named("d9", "g1p1a0", d9_script()), false),
+        (named("d10", "g1p1a0", d10_script()), false),
+        (named("d1", "g1p1a0", d1_script()), true),
+        (named("d9-removal-fails", "g0p0a0", D9_REMOVAL_FAILS.to_owned()), false),
+        (named("d9-takeover", "g1p0a0", D9_TAKEOVER.to_owned()), false),
+        (named("beside-listed", "g1p0a0", BESIDE_LISTED.to_owned()), false),
+    ]
+}
+
+fn random_strategy() -> impl Strategy<Value = (String, (bool, bool, bool))> {
+    (script(), (any::<bool>(), any::<bool>(), any::<bool>()))
+}
+
+fn random_inputs() -> Vec<Input> {
+    let strategy = random_strategy();
+    (0..GOLDEN_RANDOM)
+        .map(|i| {
+            let seed = GOLDEN_FIRST_SEED + i;
+            let (script, (gates, probe, absolute)) = seeded::value(&strategy, seed);
+            Input {
+                id: format!("rnd-{seed}"),
+                tag: table_tag(gates, probe, absolute),
+                script,
+            }
+        })
+        .collect()
+}
+
+/// The whole corpus: 16 backbones, 272 failing sequences, the named scripts, 300 random ones.
+fn corpus() -> Vec<(Input, bool)> {
+    let plain = |v: Vec<Input>| v.into_iter().map(|i| (i, false));
+    plain(backbone_inputs())
+        .chain(plain(failing_inputs()))
+        .chain(named_inputs())
+        .chain(plain(random_inputs()))
+        .collect()
+}
+
+fn golden_files() -> (golden::Golden, golden::Inputs) {
+    (
+        golden::parse_golden(GOLDEN_CPP).unwrap_or_else(|e| panic!("golden/differential-cpp.txt: {e}")),
+        golden::parse_inputs(GOLDEN_INPUTS).unwrap_or_else(|e| panic!("golden/differential-inputs.txt: {e}")),
+    )
+}
+
+/// The golden's script of a case and its table, as stored.
+fn golden_script<'a>(inputs: &'a golden::Inputs, case: &golden::Case) -> (&'a str, &'a str) {
+    let script = inputs
+        .scripts
+        .iter()
+        .find(|(id, ..)| *id == case.id)
+        .unwrap_or_else(|| panic!("no stored script for case {}", case.id));
+    let table = inputs
+        .tables
+        .get(&case.tag)
+        .unwrap_or_else(|| panic!("no stored table {}", case.tag));
+    (table, &script.2)
+}
+
+/// "none", "D9@<line>" or "D10@<line>": where the two C++ first differ.
+fn listed_text(cpp: &str, fixed: &str) -> String {
+    listed_at(cpp, fixed).map_or_else(|| "none".to_owned(), |(at, which)| format!("{which:?}@{at}"))
+}
+
+/// What the capture wrote (and 'the_golden_equals_the_live_cpp' checks): both C++ drivers' normalised outputs.
+fn capture_case(driver: &Driver, table: &str, input: &Input, differs: bool) -> (golden::Case, String, String) {
+    let (plain, fixed) = (
+        normalise(&driver.cpp_output(table, &input.script)),
+        normalise(&driver.fixed_output(table, &input.script)),
+    );
+    let case = golden::Case {
+        id: input.id.clone(),
+        tag: input.tag.clone(),
+        rust_differs: differs,
+        plain: golden::Digest::of(&plain),
+        fixed: golden::Digest::of(&fixed),
+        listed: listed_text(&plain, &fixed),
+    };
+    (case, plain, fixed)
+}
+
+/// Capture (ignored: it needs the C++): writes `differential-inputs.txt` and `differential-cpp.txt` (the
+/// records without their header comments) to the directory `$SAI_MACSEC_CAPTURE_DIR` from the C++ drivers' own
+/// output. The Rust output never enters the golden: only the scripts (inputs) come from this file.
+///   SAI_MACSEC_CAPTURE_DIR=<dir> cargo test -p sai-macsec --test differential -- --ignored capture_golden_from_the_cpp
+#[test]
+#[ignore = "writes the golden from the C++ (needs the C++ and SAI_MACSEC_CAPTURE_DIR)"]
+fn capture_golden_from_the_cpp() {
+    let driver = driver().expect("the C++ driver is needed to capture");
+    let dir = PathBuf::from(std::env::var_os("SAI_MACSEC_CAPTURE_DIR").expect("SAI_MACSEC_CAPTURE_DIR"));
+    let (mut inputs, mut golden) = (golden::Inputs::default(), golden::Golden::default());
+    for (input, differs) in corpus() {
+        let table = table_of(&input.tag);
+        inputs.tables.insert(input.tag.clone(), table.clone());
+        let (case, plain, fixed) = capture_case(driver, &table, &input, differs);
+        if GOLDEN_TEXT.contains(&input.id.as_str()) {
+            if plain != fixed {
+                golden.texts.insert((input.id.clone(), "plain".to_owned()), plain);
+            }
+            golden.texts.insert((input.id.clone(), "fixed".to_owned()), fixed);
+        }
+        golden.cases.push(case);
+        inputs.scripts.push((input.id, input.tag, input.script));
+    }
+    let (inputs_text, golden_text) = (golden::emit_inputs(&inputs), golden::emit_golden(&golden));
+    assert_eq!(
+        golden::parse_inputs(&inputs_text).as_ref(),
+        Ok(&inputs),
+        "inputs round trip"
+    );
+    assert_eq!(
+        golden::parse_golden(&golden_text).as_ref(),
+        Ok(&golden),
+        "golden round trip"
+    );
+    std::fs::write(dir.join("differential-inputs.txt"), inputs_text).unwrap();
+    std::fs::write(dir.join("differential-cpp.txt"), golden_text).unwrap();
+}
+
+/// The stored inputs are what the generators of this file make for the fixed seeds (the corpus
+/// is reproducible, and the golden is not about some other scripts).
+#[test]
+fn the_golden_inputs_are_the_fixed_corpus() {
+    let (golden, inputs) = golden_files();
+    let corpus = corpus();
+    assert_eq!(inputs.scripts.len(), corpus.len());
+    assert_eq!(golden.cases.len(), corpus.len());
+    for ((input, differs), (id, tag, script)) in corpus.iter().zip(&inputs.scripts) {
+        assert_eq!((&input.id, &input.tag, &input.script), (id, tag, script));
+        assert_eq!(inputs.tables.get(tag), Some(&table_of(tag)), "table {tag}");
+        let case = golden.cases.iter().find(|c| c.id == *id).unwrap();
+        assert_eq!((case.tag.as_str(), case.rust_differs), (tag.as_str(), *differs), "{id}");
+    }
+    assert_eq!(corpus.len(), 16 + 272 + 7 + 300);
+}
+
+/// The Rust model against the golden C++ (the C++ is not needed): every script's output equals
+/// the C++ with D9 / D10, to the end; where that differs from the unmodified C++ the script
+/// reached D9 / D10, as recorded. For the cases whose texts are kept, `classify` (the live
+/// comparison's own classifier) is run on the texts as well.
+#[test]
+fn rust_agrees_with_the_golden_cpp() {
+    let (golden, inputs) = golden_files();
+    let (mut compared, mut ops, mut d9, mut d10) = (0, 0, 0, 0);
+    for case in &golden.cases {
+        let (table, script) = golden_script(&inputs, case);
+        let rust = normalise(&rust_output(table, script));
+        match golden::rust_vs_golden(&golden, case, &rust).unwrap_or_else(|why| panic!("{why}\n--- script\n{script}")) {
+            Some(k) if k == "D9" => d9 += 1,
+            Some(_) => d10 += 1,
+            None => {}
+        }
+        if !case.rust_differs {
+            compared += 1;
+            ops += rust.lines().filter(|l| l.contains(" => ")).count();
+            if let (Some(plain), Some(fixed)) = (golden.text(case, "plain"), golden.text(case, "fixed")) {
+                let listed = classify(plain, fixed, &rust).unwrap_or_else(|why| panic!("{}: {why}", case.id));
+                let want = case.listed.split('@').next().unwrap();
+                assert_eq!(
+                    listed.map_or_else(|| "none".to_owned(), |l| format!("{l:?}")),
+                    want,
+                    "{}",
+                    case.id
+                );
+            }
+        }
+    }
+    summary!(
+        "differential: the Rust model equals the golden C++ (with D9 / D10) on {compared} scripts, {ops} operations; \
+         D9 reached by {d9}, D10 by {d10}"
+    );
+    assert!(d9 > 0 && d10 > 0);
+}
+
+/// The named cases keep what the live tests of the same names assert about the unmodified C++
+/// (its lines are the golden's) and the Rust model.
+#[test]
+fn the_golden_keeps_the_documented_differences() {
+    let (golden, inputs) = golden_files();
+    let get = |id: &str| {
+        let case = golden.cases.iter().find(|c| c.id == id).unwrap();
+        let (table, script) = golden_script(&inputs, case);
+        let text = |kind: &str| golden.text(case, kind).unwrap().to_owned();
+        (normalise(&rust_output(table, script)), text("plain"), text("fixed"))
+    };
+    let line = |text: &str, start: &str| text.lines().find(|l| l.starts_with(start)).unwrap().to_owned();
+    // D9: a flow switch
+    let (rust, cpp, fixed) = get("named-d9");
+    let until = |text: &str| {
+        text.lines()
+            .take_while(|l| !l.starts_with("eflow"))
+            .collect::<Vec<_>>()
+            .join("\n")
+    };
+    assert_eq!(until(&cpp), until(&rust));
+    assert_eq!(line(&cpp, "eflow e0 f2"), "eflow e0 f2 => 0");
+    assert_eq!(
+        line(&rust, "eflow e0 f2"),
+        "eflow e0 f2 => 0 R10.1.1f3=0 W10.1.120=0 R10.1.1f2=0 W10.1.300=8001"
+    );
+    assert!(line(&cpp, "sa a2").starts_with(&format!(
+        "sa a2 0 c2 0 1 2 => {}",
+        sai_core::Error::InsufficientResources.status()
+    )));
+    assert!(line(&rust, "sa a2").contains("W10.1.200=100"));
+    assert_eq!(line(&fixed, "eflow e0 f2"), line(&rust, "eflow e0 f2"));
+    assert_eq!(classify(&cpp, &fixed, &rust), Ok(Some(Listed::D9)));
+    // D10: a cipher change under a waiting SA
+    let (rust, cpp, fixed) = get("named-d10");
+    assert_eq!(line(&cpp, "scset"), "scset c0 cipher 0 => 0");
+    assert_eq!(
+        line(&rust, "scset"),
+        format!("scset c0 cipher 0 => {}", sai_core::Error::ObjectInUse.status())
+    );
+    assert!(line(&cpp, "eadmin").contains("W10.1.200=100"));
+    assert!(line(&rust, "eadmin").contains("W10.1.200=110"));
+    assert_eq!(line(&fixed, "scset"), line(&rust, "scset"));
+    assert_eq!(classify(&cpp, &fixed, &rust), Ok(Some(Listed::D10)));
+    // D1: the key stays in the PHY of the first port in the C++ (the Rust differs by design)
+    let (rust, cpp, _) = get("named-d1");
+    assert_eq!(line(&cpp, "sa a0"), line(&rust, "sa a0"));
+    assert!(line(&cpp, "sa a0").contains("W10.1.200=100"));
+    assert_eq!(line(&cpp, "sa a1"), line(&rust, "sa a1"));
+    assert!(line(&cpp, "sa a1").contains("W11.1.200=101"));
+    assert_eq!(line(&cpp, "rm sa a0"), "rm sa a0 => 0");
+    assert_eq!(line(&rust, "rm sa a0"), "rm sa a0 => 0 R10.1.1f2=0 W10.1.300=8001");
+    assert!(line(&cpp, "| ce0").contains("closed sa  -   -   -"), "{cpp}");
+    assert!(line(&rust, "| ce0").contains("closed -   -   -   -"), "{rust}");
+    // D9, another entry takes over after the entry was disabled
+    let (rust, cpp, fixed) = get("named-d9-takeover");
+    assert_eq!(line(&cpp, "eadmin e3 0"), "eadmin e3 0 => 0 R11.1.1f3=0 W11.1.121=0");
+    assert_eq!(line(&rust, "eadmin e3 0"), line(&cpp, "eadmin e3 0"));
+    assert_eq!(
+        line(&cpp, "entry e1"),
+        "entry e1 t3 1 f5 0 0 => 0 R11.1.1f3=0 W11.1.121=1"
+    );
+    assert_eq!(
+        line(&rust, "entry e1"),
+        "entry e1 t3 1 f5 0 0 => 0 R11.1.1f2=0 W11.1.310=8001"
+    );
+    assert_eq!(classify(&cpp, &fixed, &rust), Ok(Some(Listed::D9)));
+    // a difference beside a listed one is refused
+    let (rust, cpp, fixed) = get("named-beside-listed");
+    assert_eq!(classify(&cpp, &fixed, &rust), Ok(Some(Listed::D9)));
+    let after = rust.replacen("W11.1.210=101", "W11.1.210=102", 1);
+    assert_ne!(after, rust, "{rust}");
+    assert!(classify(&cpp, &fixed, &after).is_err());
+    let before = rust.replacen("W11.1.121=1", "W11.1.121=0", 1);
+    assert!(classify(&cpp, &fixed, &before).is_err());
+    assert!(classify(&cpp, &fixed, &cpp).is_err());
+    // the refused D9 flow switch whose SA removal fails at once reaches D9
+    let (rust, cpp, fixed) = get("named-d9-removal-fails");
+    assert_eq!(classify(&cpp, &fixed, &rust), Ok(Some(Listed::D9)));
+    // an unknown lane: both refuse to start with the same status
+    let (rust, cpp, fixed) = get("named-lane");
+    assert_eq!((&cpp, &fixed), (&rust, &rust));
+}
+
+/// The golden is what the live C++ prints (the proof that it was captured from this C++): every
+/// script of the golden on both drivers, digests and, where kept, texts, and where the two
+/// C++ first differ. Skipped (said on stderr) without the C++.
+#[test]
+fn the_golden_equals_the_live_cpp() {
+    let Some(driver) = driver() else { return };
+    let (golden, inputs) = golden_files();
+    for case in &golden.cases {
+        let (table, script) = golden_script(&inputs, case);
+        let (plain, fixed) = (
+            normalise(&driver.cpp_output(table, script)),
+            normalise(&driver.fixed_output(table, script)),
+        );
+        golden::live_vs_golden(&golden, case, &plain, &fixed, &listed_text(&plain, &fixed))
+            .unwrap_or_else(|why| panic!("{why}"));
+    }
+    summary!(
+        "differential: the golden equals the live C++ on {} scripts ({} with full texts)",
+        golden.cases.len(),
+        golden.kept()
+    );
+}
+
+/// Negative controls of the golden: a changed byte, digest, count or class, or a changed input,
+/// is reported by the comparison (so it does not pass vacuously).
+#[test]
+fn the_golden_notices_a_change() {
+    let (golden, inputs) = golden_files();
+    let find = |id: &str| golden.cases.iter().find(|c| c.id == id).unwrap().clone();
+    let rust_of = |id: &str, inputs: &golden::Inputs| {
+        let case = find(id);
+        let (table, script) = golden_script(inputs, &case);
+        normalise(&rust_output(table, script))
+    };
+    // untouched: ok
+    for id in ["named-d9", "rnd-20261126"] {
+        let rust = rust_of(id, &inputs);
+        assert!(golden::rust_vs_golden(&golden, &find(id), &rust).is_ok(), "{id}");
+    }
+    // a changed byte of a kept text
+    let mut changed = golden.clone();
+    let key = ("named-d9".to_owned(), "fixed".to_owned());
+    let text = changed.texts.get_mut(&key).unwrap();
+    let at = text.find("W10.1.300=8001").unwrap();
+    text.replace_range(at + 13..at + 14, "2"); // 8001 -> 8002
+    assert_ne!(changed.texts[&key], golden.texts[&key]);
+    let rust = rust_of("named-d9", &inputs);
+    assert!(golden::rust_vs_golden(&changed, &find("named-d9"), &rust).is_err());
+    // a changed digest of a digest-only case
+    let rnd = find("rnd-20261126");
+    let rust = rust_of("rnd-20261126", &inputs);
+    let mut bad = rnd.clone();
+    bad.fixed.fnv ^= 1;
+    assert!(golden::rust_vs_golden(&golden, &bad, &rust).is_err());
+    // a changed line count
+    let mut bad = rnd.clone();
+    bad.fixed.lines += 1;
+    assert!(golden::rust_vs_golden(&golden, &bad, &rust).is_err());
+    // a changed class (D9 recorded as none)
+    let d9 = find("named-d9");
+    assert_ne!(d9.listed, "none");
+    let mut bad = d9.clone();
+    bad.listed = "none".to_owned();
+    let rust = rust_of("named-d9", &inputs);
+    assert!(golden::rust_vs_golden(&golden, &bad, &rust).is_err());
+    // a changed input: another association number in the script of a digest-only case
+    let mut other = inputs.clone();
+    let script = other.scripts.iter_mut().find(|(id, ..)| id == "bb-g1p1a0-c3").unwrap();
+    assert!(script.2.contains("sa a4 0 c0 1 1 4"));
+    script.2 = script.2.replacen("sa a4 0 c0 1 1 4", "sa a4 0 c0 3 1 4", 1);
+    let rust = rust_of("bb-g1p1a0-c3", &other);
+    assert!(golden::rust_vs_golden(&golden, &find("bb-g1p1a0-c3"), &rust).is_err());
+    // the golden against the live C++: a changed byte of the output the C++ printed is seen
+    let (plain, fixed) = (
+        golden.texts[&("named-d9".to_owned(), "plain".to_owned())].clone(),
+        golden.texts[&("named-d9".to_owned(), "fixed".to_owned())].clone(),
+    );
+    let d9 = find("named-d9");
+    assert!(golden::live_vs_golden(&golden, &d9, &plain, &fixed, &d9.listed).is_ok());
+    let tampered = plain.replacen("eflow e0 f2 => 0", "eflow e0 f2 => 1", 1);
+    assert_ne!(tampered, plain);
+    assert!(golden::live_vs_golden(&golden, &d9, &tampered, &fixed, &d9.listed).is_err());
+    assert!(golden::live_vs_golden(&golden, &d9, &plain, &fixed, "none").is_err());
+}
+
+// ------------------------------------------------------------------ tests
+
+/// The Rust side alone, always: the interpreter of this file runs the backbone and the
+/// model's invariants hold after every line (so the script format cannot rot unnoticed
+/// where the C++ is not around).
+#[test]
+fn the_script_interpreter_runs_the_backbone() {
+    let script = format!("{HEAD}{}\nstatus\n", skeleton(0, 0, 3, false).join("\n"));
+    let out = rust_output(&fault_table(true, true, false), &script);
+    assert!(out.contains("sa a0 0 c0 0 7 0 => 0\n"), "{out}"); // kept: its flow is not bound yet
+    assert!(out.contains("eflow e0 f0 => 0 W10.1.200=130"), "{out}"); // installed as the first, then the gate
+    assert!(out.contains("active c0 => 0 active=a8"), "{out}");
+    assert!(!out.contains("skip"), "{out}");
+}
+
+/// MACsecOrch's order on every table variant, every (port, direction), every cipher.
+#[test]
+fn backbones_agree_with_the_cpp() {
+    let Some(driver) = driver() else { return };
+    let mut compared = 0;
+    for input in backbone_inputs() {
+        compare(driver, &table_of(&input.tag), &input.script).unwrap_or_else(|why| panic!("{why}"));
+        compared += 1;
+    }
+    summary!(
+        "differential: {compared} backbone scripts agree with the C++ ({} comparisons so far in this run)",
+        COMPARISONS.load(Ordering::Relaxed)
+    );
+}
+
+/// Sequences that fail, one kind at a time, at every point of the backbone.
+#[test]
+fn failing_sequences_agree_with_the_cpp() {
+    let Some(driver) = driver() else { return };
+    let mut compared = 0;
+    for input in failing_inputs() {
+        compare(driver, &table_of(&input.tag), &input.script).unwrap_or_else(|why| panic!("{why}"));
+        compared += 1;
     }
     summary!(
         "differential: {compared} scripts with a failing sequence agree with the C++ ({} comparisons so far in this run)",
@@ -1040,21 +1519,7 @@ fn the_comparison_notices_a_difference() {
 fn d9_a_flow_switch_against_the_cpp() {
     let Some(driver) = driver() else { return };
     let table = fault_table(true, true, false);
-    let script = format!(
-        "{HEAD}mport p0 0 0
-flow f0 0
-flow f2 0
-table t0 0
-bind 0 0 t0
-entry e0 t0 1 f0 1 0
-         sc c0 0 f0 0 0 0 0
-sc c2 0 f2 0 0 0 2
-sa a0 0 c0 0 1 0
-eflow e0 f2
-sa a2 0 c2 0 1 2
-status
-"
-    );
+    let script = d9_script();
     let (cpp, rust) = (driver.cpp_output(&table, &script), rust_output(&table, &script));
     let line = |text: &str, start: &str| text.lines().find(|l| l.starts_with(start)).unwrap().to_owned();
     let until = |text: &str| {
@@ -1096,19 +1561,7 @@ status
 fn d10_cipher_change_under_waiting_sas_against_the_cpp() {
     let Some(driver) = driver() else { return };
     let table = fault_table(true, true, false);
-    let script = format!(
-        "{HEAD}mport p0 0 0
-flow f0 0
-table t0 0
-bind 0 0 t0
-entry e0 t0 0 f0 1 0
-sc c0 0 f0 1 0 0 0
-         sa a0 0 c0 0 1 0
-scset c0 cipher 0
-eadmin e0 1
-status
-"
-    );
+    let script = d10_script();
     let (cpp, rust) = (driver.cpp_output(&table, &script), rust_output(&table, &script));
     let line = |text: &str, start: &str| text.lines().find(|l| l.starts_with(start)).unwrap().to_owned();
     assert_eq!(line(&cpp, "scset"), "scset c0 cipher 0 => 0");
@@ -1143,11 +1596,7 @@ status
 fn where_a_flow_moved_the_cpp_leaves_the_key_in_the_phy() {
     let Some(driver) = driver() else { return };
     let table = fault_table(true, true, false);
-    let script = format!(
-        "{HEAD}mport p0 0 0\nmport p1 0 1\nflow f0 0\ntable t0 0\ntable t1 0\nbind 0 0 t0\nbind 1 0 t1\n\
-         entry e0 t0 1 f0 1 0\nsc c0 0 f0 0 0 0 0\nsa a0 0 c0 0 1 0\neadmin e0 0\nentry e1 t1 1 f0 1 0\n\
-         sa a1 0 c0 1 1 1\nrm sa a0\nstatus\n"
-    );
+    let script = d1_script();
     let (cpp, rust) = (driver.cpp_output(&table, &script), rust_output(&table, &script));
     let line = |text: &str, start: &str| text.lines().find(|l| l.starts_with(start)).unwrap().to_owned();
     // both installed a0 on PHY 0x10 and a1 on PHY 0x11
@@ -1235,7 +1684,7 @@ fn a_seed_replays_its_script() {
 fn a_d9_flow_switch_whose_sa_removal_fails_at_once() {
     let Some(driver) = driver() else { return };
     let before = D9_SEEN.load(Ordering::Relaxed);
-    compare(driver, &fault_table(false, false, false), "reg 10 20f 1\nreg 10 21f 1\nreg 11 20f 1\nreg 11 21f 1\nmacsec m0 0\nmacsec m1 1\nmport p1 0 1\nflow f1 0\ntable t1 0\nbind 1 0 t1\nentry e1 t1 1 - 1 0\nsc c1 0 f1 0 0 1234 1\nsa a1 0 c1 0 7 1\neflow e1 f1\nsa a5 0 c1 1 1 5\nrm entry e1\nflow f3 0\nentry e3 t1 1 - 0 0\nreg 11 1f2 1\nsapn a1\nsastat a5\nflowstat f1\nstatus\nrm sa a1\nsa a9 0 c1 2 100000002 9\nactive c1\nmport p0 0 0\nflow f0 0\ntable t0 0\nbind 0 0 t0\nentry e0 t0 1 - 1 0\neflow e3 f3\nsc c0 0 f0 0 0 1234 0\nsa a0 0 c0 0 7 0\neflow e0 f0\nsa a4 0 c0 1 1 4\nsapn a0\nsastat a4\nflowstat f0\nstatus\nrm sa a0\nsa a8 0 c0 2 100000002 8\nactive c0\n").unwrap();
+    compare(driver, &fault_table(false, false, false), D9_REMOVAL_FAILS).unwrap();
     assert!(D9_SEEN.load(Ordering::Relaxed) > before, "the script reaches D9");
 }
 
@@ -1252,10 +1701,7 @@ fn a_d9_flow_switch_whose_sa_removal_fails_at_once() {
 fn d9_another_entry_takes_over_after_the_entry_was_disabled() {
     let Some(driver) = driver() else { return };
     let table = fault_table(true, false, false);
-    let script = "reg 10 20f 1\nreg 10 21f 1\nreg 11 20f 1\nreg 11 21f 1\nmacsec m0 0\nmacsec m1 1\nflow f5 1\ntable t0 0\n\
-                  mport p3 1 1\nflow f3 1\ntable t3 1\nbind 1 1 t3\nentry e3 t3 1 - 1 0\nsc c3 1 f3 0 0 1234 3\n\
-                  sa a3 1 c3 0 7 3\neflow e3 f3\neadmin e3 0\nsa a7 1 c3 1 1 7\nentry e1 t3 1 f5 0 0\nsapn a3\nsastat a7\n\
-                  flowstat f3\nstatus\nrm sa a3\nsa a11 1 c3 2 100000002 11\nactive c3\n";
+    let script = D9_TAKEOVER;
     let (cpp, rust) = (driver.cpp_output(&table, script), rust_output(&table, script));
     let line = |text: &str, start: &str| text.lines().find(|l| l.starts_with(start)).unwrap().to_owned();
     assert_eq!(line(&cpp, "eadmin e3 0"), "eadmin e3 0 => 0 R11.1.1f3=0 W11.1.121=0");
@@ -1279,9 +1725,7 @@ fn d9_another_entry_takes_over_after_the_entry_was_disabled() {
 fn a_difference_beside_a_listed_one_is_refused() {
     let Some(driver) = driver() else { return };
     let table = fault_table(true, false, false);
-    let script = "reg 10 20f 1\nreg 10 21f 1\nreg 11 20f 1\nreg 11 21f 1\nmacsec m0 0\nmacsec m1 1\nflow f5 1\nmport p3 1 1\n\
-                  flow f3 1\ntable t3 1\nbind 1 1 t3\nentry e3 t3 1 - 1 0\nsc c3 1 f3 0 0 1234 3\nsa a3 1 c3 0 7 3\n\
-                  eflow e3 f3\neadmin e3 0\nsa a7 1 c3 1 1 7\nentry e1 t3 1 f5 0 0\nstatus\nrm entry e1\neadmin e3 1\nstatus\n";
+    let script = BESIDE_LISTED;
     let (cpp, fixed, rust) = (
         normalise(&driver.cpp_output(&table, script)),
         normalise(&driver.fixed_output(&table, script)),

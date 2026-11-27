@@ -1,0 +1,29 @@
+# ifcs-gen golden on the pinned public ishell 2.0.1 ctypes (H5-0, captured 2026-11-26 at f900ea0)
+#
+# Captured from the PYTHON generator and model, not from ifcs-gen:
+#   ai_re/nix/packages/sai-teralynx/tools/gen_ifcs_api.py       fc01eadca36a0e7fad6a0b6d4357cdd62b4cc9a28e585bcf6894c05c555ac32e
+#   ai_re/nix/packages/sai-teralynx/tools/ifcs_ctypes_model.py  02939c62c6175ab00d4995a2f8bf3da283d6f3da0745551ba23f513316e62fca
+#   inputs (templates and overrides, equal to crates/ifcs-gen/templates; nix/ifcs-headers.nix compares them):
+#   ai_re/nix/packages/sai-teralynx/src/ifcs_api.h.in           e709325ebcf434503e40cb6ee4e18624b8360f6d125a961a40296d8898a69cbf
+#   ai_re/nix/packages/sai-teralynx/src/ifcs_api_qos.h.in       e479cc2ee0b1762fc56dd382b3869f3f75a1969cdfb473c7c038a11b07cc4d42
+#   ai_re/nix/packages/sai-teralynx/src/ifcs_overrides.txt      f3ae0c412f34f516b4607fd6eaefb26780cdc729a17ced4ac50a3affd1536b07
+#   the pinned ctypes (nix/ifcs-ctypes.nix, ishell 2.0.1 ifcs_ctypes.py, vendor content, never committed):
+#   sha256 5a4547fb452a2b4fe85c449ed7089033f81d133f07646168ce01eac2a2843069
+#
+# NOT to be regenerated from the Rust output. Capture (python 3.14, from the package directory, as its Makefile rule):
+#   python3 -I -B tools/gen_ifcs_api.py --ctypes $IFCS_CTYPES --overrides src/ifcs_overrides.txt -o OUT \
+#       src/ifcs_api.h.in src/ifcs_api_qos.h.in ; sha256sum OUT/ifcs_api.h OUT/ifcs_api_qos.h
+#   python3 -I -B -W ignore DUMP.py tools $IFCS_CTYPES > model-facts.txt     (DUMP.py = the modelDump script of
+#       nix/ifcs-headers.nix: for each sorted assigned name "v NAME VALUE|ERR", each aggregate "a NAME KIND SIZE ALIGN|ERR",
+#       each function "f NAME NARGS HAS_RESTYPE"; the same format as `ifcs-gen --dump-model`)
+# The vendor-derived headers and the fact list themselves are never committed: only these digests.
+# The two header digests equal ishell-2.0.1.sha256 (the nix build's check; unchanged); a test compares them.
+#
+# Columns: sha256, name, number of lines (0 = a whole file digest). model-facts.txt is all 43268 facts (1440235 bytes);
+# the v / a / f lines are its groups (values, layouts, functions), digested apart so a mismatch says which kind.
+6353998884fc35a7d1c98252fcb44b8ed1adc01496f2ee0a3c869bf5c8605618  ifcs_api.h  0
+c7c75f397eca4cc416957055f8bc3ffa535ecfb16a2c43a4fb04d5b57227c431  ifcs_api_qos.h  0
+4ac7676952ce6ea12b001d9511c5e3d0ce420cdf7f12280edcde1ccdc74702c0  model-facts.txt  43268
+e1c2655105072d5d629d6df56d97cbf9da14603d66828ac0f2ce0028d61449b1  model-facts-v  33343
+fb1a8bc5ce305e09db0edc64513b6456b4ffcf999049fe3667e363024cbc4a8d  model-facts-a  6565
+3ab70d0db92c0a29975eb3abb0ab72ecdca9ba938f952be048bd1075ad92200f  model-facts-f  3360

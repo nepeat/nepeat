@@ -1,0 +1,1695 @@
+# Golden C++ side of the Teralynx parity harness, part driver (the frontend driver scripts 01-09) (crates/sai-teralynx-parity, README "Parity", kind golden).
+# the frontend_driver.cpp (through c/tl_port.cpp) on the C++ libsai, per script 01-09 of crates/sai-driver/tests/driver-scripts: how it ended, the sha256 of the script (the INPUT, so a changed script is reported), per op block its echo line, line count, sha256 and head, and the byte tap lines of the whole script.
+# The C++ libsai of ai_re/nix/packages/sai-teralynx (the CS8210's libsai, built as its Makefile does) and the
+# harness's programs (unmodified test_ifcs, frontend_driver.cpp, sai_script.cpp; build-fixtures.sh) ran on the SAME
+# mock libifcs; the harness (sai-teralynx-parity --capture) rendered the C++ side's output below, normalised.
+# Captured 2026-11-26 from these files at HEAD f900ea0 (the sai-teralynx package unmodified in the working tree):
+#   9846dbbc33351e96e90eef8449ad09cec33240e39c095eed9d4a7991aa8e73d5  <store>-sai-teralynx-0.1.0/lib/libsai.so.1.0.0 (the C++ libsai that ran)
+#   984beec441a88830fe394c72a436a53872d5e9953ced43fa3520b8ee3d25699f  tests/golden/cpp-sources-sha256.txt (every source and input file, sha256 each: 158 files)
+# the files this part is made of (more in that list):
+#   e6f2899368a1a8fc5cd0a8a81c2beb0a76761260735eea23f9357cce5704500f  ai_re/nix/packages/sai-teralynx/frontend/tests/driver_names.awk
+#   0dd92a38e717f9897e3cbf7673d5aba4fbf60cbb883aace581205cdc0939f29f  ai_re/nix/packages/sai-teralynx/frontend/tests/frontend_driver.cpp
+#   cf1c94e604ff7e2533ca9ad3a52f47430b0f929424542053f957814765601bad  ai_re/nix/packages/sai-teralynx/frontend/tests/test_port.h
+#   0d2b9da31905ba0e19620127f5de63d9c3448f28c5955c89e626c3b4311d2212  ai_re/nix/packages/sai-teralynx/src/tl_port.cpp
+#   cb4824af97fe8f1110cb6a06ebbef2c966b07792427401d5f99e9a84e0b889a3  ai_re/nix/packages/sai-teralynx/src/tl_port.h
+#   540af26430cea69852129b4b8bbc5f0945adf990cf6a327f933aea658f54e53f  rust/sai/crates/sai-driver/tests/driver-scripts/01-switch.ops
+#   854857f0e265cbd5b2117e77fb60c82b48f1078035311f237a2104bee11db61b  rust/sai/crates/sai-driver/tests/driver-scripts/02-ports.ops
+#   9b2ff93592f13804d24474a9757e41c78e86c01fb44c64b745cd7425ed4e7ea6  rust/sai/crates/sai-driver/tests/driver-scripts/03-vlan-fdb.ops
+#   0b971a1d9d3ad2f30dde1d9b0dbb47ba44d007cbee6e278d505f360c00d95f39  rust/sai/crates/sai-driver/tests/driver-scripts/04-lag.ops
+#   cfc2b56fe535e196b2c6e33d67edb255b570385451579a14a71ef000b3e7cf69  rust/sai/crates/sai-driver/tests/driver-scripts/05-hostif-traps.ops
+#   14a9e8956e2f2e3318af1141adf548fa209d103298f86a1adb6e173405174044  rust/sai/crates/sai-driver/tests/driver-scripts/06-l3.ops
+#   ad50839914664d98dcb38d2a5ae9284f7649e994a78700fe031eb2eead235213  rust/sai/crates/sai-driver/tests/driver-scripts/07-acl-copp.ops
+#   e6d27e84887dce407e6fe707650d56826f1bdf4ca0eb362da26f98f15e8b7654  rust/sai/crates/sai-driver/tests/driver-scripts/08-qos.ops
+#   8648824bd4bc7e30178882da8f8ecb3dd6c54997fcfbcbd90d17d29ae4ea0fa9  rust/sai/crates/sai-driver/tests/driver-scripts/09-mirror-sample-hash.ops
+#   b4db0e0115012eacb36bafbece38bc113010a117c34f7dbf55ded110a8a0a8ca  rust/sai/crates/sai-teralynx-parity/c/bytes_rt.c
+#   064792b892ca1ab1d296a4e192befb4bf19ed3dd65b987518415200475a2a814  rust/sai/crates/sai-teralynx-parity/c/tap.c
+#   7c9de1490a250ebc731628aabfa1b43d4a1a62c4676a50cd529be6dec1f974af  rust/sai/crates/sai-teralynx-parity/c/tl_port.cpp
+#   50e912b446809549a035163117332dc1f7956f8dcd8225a8a82790ec8c6f281c  rust/sai/tests/teralynx-mock/mock.h
+# Command (the fixtures: rust/sai/crates/sai-teralynx-parity/build-fixtures.sh FX <tests+frontend files> <ifcs-api-headers>/include
+# <sairedis SAI/inc> <C++ libsai> <nlohmann_json>/include, MOCK_LIBIFCS = the mock built from rust/sai/tests/teralynx-mock):
+#   sai-teralynx-parity --fixtures FX --work /tmp/claude-1001/p2 --cpp-lib <C++ libsai> --areas crates/sai-backend-teralynx/tests/areas.txt \
+#     --expected crates/sai-backend-teralynx/tests/test_ifcs-expected.txt --allow crates/sai-teralynx-parity/tests/parity-allow.txt \
+#     --pending crates/sai-teralynx-parity/tests/parity-pending.txt --capture <dir>      (then this header over the records)
+# Seeds: none (nothing is random); the capture runs the C++ side twice and requires equal records.
+# Normalised: the work directory is <work>, the fixtures directory <fixtures>, nix store paths <store>; oracle times are ms=*.
+# Records (tab-separated; '|' lines are the head of the record above):
+#   script NAME STATUS INPUT-SHA256 BLOCKS    one per script
+#   block LINES SHA256 OP                     one per op block (the op line and every line up to the next op), + its head
+#   bytes LINES SHA256                        the script's @B lines (byte tap), + their head
+# A digest is the sha256 of the unit's lines, each followed by a newline; it decides. The head is the unit's first 4 lines,
+# each cut to 160 characters, so a difference can be named; a difference beyond the head is reported by its counts and digest.
+# NOT to be regenerated from the Rust output: the records are the C++ side's, and only the C++ side may write them
+# (sai-teralynx-parity --capture, run on the C++ libsai). A deliberate change of behaviour of the Rust libsai edits the
+# affected records by hand, or adds an entry to tests/parity-allow.txt, with a reason.
+# Live == golden at capture: sai-teralynx-parity --fixtures FX --work <w> --cpp-lib <C++ libsai> <lists> --check-golden crates/sai-teralynx-parity/tests/golden: GREEN, the live C++ renders to these records byte for byte (a unit test of the crate, tests/golden.rs, shows a changed byte fails).
+script	01-switch	exit 0	540af26430cea69852129b4b8bbc5f0945adf990cf6a327f933aea658f54e53f	28
+block	2	4937cc2180446f254c0a5a00cb45f20cdcdd0d11376afb502f9bfd1654227f3c	profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|> profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|= SUCCESS
+block	2	60aa022238cbd6371b4700ae26935fc4af809d5c9d6de89c54269ea9bda2c2ca	profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|> profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|= SUCCESS
+block	2	096e146ebf26e11aaf9fc8184b061c5c08f4ba330f994cc8071f8bc514f79d8c	profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|> profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|= SUCCESS
+block	2	b913f9872e91c3c2028ab472579e8bddf4072cbff317e2e32731ccf21f408bcf	profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|> profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|= SUCCESS
+block	2	0057066edb546561c11d42134e7af80438788c980854499c247b22a0a75f303f	profile SAI_TERALYNX_NETDEV=create
+|> profile SAI_TERALYNX_NETDEV=create
+|= SUCCESS
+block	2	b0e48f15ecdfe7c459bac53d2bc7113e7c3b732f31f4918efd1a100f429febc5	profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|> profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|= SUCCESS
+block	2	ae2c297d83701886708eb3b0c480a9870987aef876c61083414dd3dbe34e3ce6	profile SAI_OPENBCM_FAKE_PORTS=4
+|> profile SAI_OPENBCM_FAKE_PORTS=4
+|= SUCCESS
+block	105	9a93a55c20e54d52624d5253b65eae309332aeda436489debed6791d411b2ce8	switch SRC_MAC_ADDRESS=02:11:22:33:44:55 FDB_AGING_TIME=300
+|> switch SRC_MAC_ADDRESS=02:11:22:33:44:55 FDB_AGING_TIME=300
+|= SUCCESS
+|  be ifcs_init cfg=<work>/d/run/config.yaml log=sai-teralynx boot=0 first=# generated init config
+|  be @B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+block	8	98511b12a72e31a16ac91aa0b8060fab15cfbbc5a6f7186b81f6c70b167994af	get switch switch PORT_NUMBER CPU_PORT PORT_LIST DEFAULT_VLAN_ID DEFAULT_VIRTUAL_ROUTER_ID DEFAULT_1Q_BRIDGE_ID
+|> get switch switch PORT_NUMBER CPU_PORT PORT_LIST DEFAULT_VLAN_ID DEFAULT_VIRTUAL_ROUTER_ID DEFAULT_1Q_BRIDGE_ID
+|= SUCCESS
+|  PORT_NUMBER=8
+|  CPU_PORT=cpu
+block	6	dc07def28000d14adcf473801dd37fa286ab0d90785e4985b4984f079668054f	get switch switch DEFAULT_STP_INST_ID DEFAULT_TRAP_GROUP SRC_MAC_ADDRESS FDB_AGING_TIME
+|> get switch switch DEFAULT_STP_INST_ID DEFAULT_TRAP_GROUP SRC_MAC_ADDRESS FDB_AGING_TIME
+|= SUCCESS
+|  DEFAULT_STP_INST_ID=stp0
+|  DEFAULT_TRAP_GROUP=trapgroup0
+block	3	4c11241259f992d693a51add12bc2665c7c5d96d1cb27c567738c9103ce3f489	get switch switch PORT_LIST
+|> get switch switch PORT_LIST
+|= SUCCESS
+|  PORT_LIST=[port0,port1,port2,port3,port4,port5,port6,port7]
+block	2	d5c17efc881872226c2a2af83ec9adf266233ec088d55f03067f4530c0f029fe	set switch switch SRC_MAC_ADDRESS=02:00:00:00:aa:01
+|> set switch switch SRC_MAC_ADDRESS=02:00:00:00:aa:01
+|= SUCCESS
+block	3	c96395ee5a62072625d1bc0343d9294e55665692953274c76c09eb92fce53fe9	get switch switch SRC_MAC_ADDRESS
+|> get switch switch SRC_MAC_ADDRESS
+|= SUCCESS
+|  SRC_MAC_ADDRESS=02:00:00:00:aa:01
+block	4	10dce337bd3f911e3374490bad50f45d13dd0b181605409008e577ef663868f5	set switch switch FDB_AGING_TIME=600
+|> set switch switch FDB_AGING_TIME=600
+|= SUCCESS
+|  be ifcs_node_attr_set node=0 count=1 id=55 u32=600
+|  be @B ifcs_node_attr_set(0, 1, [{3700000000000000|580200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	3	baf234ec8de076c6a431faf0c72cc12499628db015102796fe7dd6e9acf68820	get switch switch FDB_AGING_TIME
+|> get switch switch FDB_AGING_TIME
+|= SUCCESS
+|  FDB_AGING_TIME=600
+block	4	cb73d8dc3fabc7d343fa087a2fe5f6c7c2df3c2fc3297b6621825f4536e7893c	set switch switch ECMP_DEFAULT_HASH_SEED=1234
+|> set switch switch ECMP_DEFAULT_HASH_SEED=1234
+|= SUCCESS
+|  be ifcs_node_attr_set node=0 count=1 id=35 u32=1234
+|  be @B ifcs_node_attr_set(0, 1, [{2300000000000000|d20400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	3	c7cc454eaafe62edc86daecd4f2a76404d31481102805f35dfefbedb031f4375	get switch switch ECMP_DEFAULT_HASH_SEED
+|> get switch switch ECMP_DEFAULT_HASH_SEED
+|= SUCCESS
+|  ECMP_DEFAULT_HASH_SEED=1234
+block	3	b50e819527d258c880137cba230e5f4197e91e0683466d159c28865c1e5f0d44	get switch switch ECMP_HASH
+|> get switch switch ECMP_HASH
+|= SUCCESS
+|  ECMP_HASH=hash#1
+block	6	2aedce70757674a4a4194fe8330b90d7841aa4696f1749804b132b651514da35	get switch switch ACL_ENTRY_MINIMUM_PRIORITY ACL_ENTRY_MAXIMUM_PRIORITY MAX_ACL_ACTION_COUNT
+|> get switch switch ACL_ENTRY_MINIMUM_PRIORITY ACL_ENTRY_MAXIMUM_PRIORITY MAX_ACL_ACTION_COUNT
+|= SUCCESS
+|  ACL_ENTRY_MINIMUM_PRIORITY=1
+|  ACL_ENTRY_MAXIMUM_PRIORITY=4096
+block	6	8dcf7a29f189c1332289c752b4066e1f39f0115dbbdac399898b8c4db9893386	get switch switch NUMBER_OF_ECMP_GROUPS ECMP_MEMBERS MAX_ECMP_MEMBER_COUNT TOTAL_BUFFER_SIZE
+|> get switch switch NUMBER_OF_ECMP_GROUPS ECMP_MEMBERS MAX_ECMP_MEMBER_COUNT TOTAL_BUFFER_SIZE
+|= SUCCESS
+|  NUMBER_OF_ECMP_GROUPS=512
+|  ECMP_MEMBERS=64
+block	18	532126d0812c43c67129896b32ece452440e58f3ee0808c4d01b25398c12f6de	get switch switch AVAILABLE_IPV4_ROUTE_ENTRY AVAILABLE_IPV6_ROUTE_ENTRY AVAILABLE_IPV4_NEXTHOP_ENTRY AVAILABLE_FDB_ENTRY
+|> get switch switch AVAILABLE_IPV4_ROUTE_ENTRY AVAILABLE_IPV6_ROUTE_ENTRY AVAILABLE_IPV4_NEXTHOP_ENTRY AVAILABLE_FDB_ENTRY
+|= SUCCESS
+|  AVAILABLE_IPV4_ROUTE_ENTRY=24576
+|  AVAILABLE_IPV6_ROUTE_ENTRY=12288
+block	14	6da05b7e2e446041fa7fd8ecbe76b7b6eba79cfc6a197ef9d0c92aa8b23374b8	get switch switch AVAILABLE_IPV4_NEIGHBOR_ENTRY AVAILABLE_IPV6_NEIGHBOR_ENTRY AVAILABLE_NEXT_HOP_GROUP_ENTRY
+|> get switch switch AVAILABLE_IPV4_NEIGHBOR_ENTRY AVAILABLE_IPV6_NEIGHBOR_ENTRY AVAILABLE_NEXT_HOP_GROUP_ENTRY
+|= SUCCESS
+|  AVAILABLE_IPV4_NEIGHBOR_ENTRY=32765
+|  AVAILABLE_IPV6_NEIGHBOR_ENTRY=32765
+block	10	693e4910a0949a1ae3291bc734e0dbb6d385c004dd3a16cd8edf62a52bf6ad0d	get switch switch MAX_NUMBER_OF_TEMP_SENSORS TEMP_LIST MAX_TEMP AVERAGE_TEMP
+|> get switch switch MAX_NUMBER_OF_TEMP_SENSORS TEMP_LIST MAX_TEMP AVERAGE_TEMP
+|= SUCCESS
+|  MAX_NUMBER_OF_TEMP_SENSORS=1
+|  TEMP_LIST=[56,54]
+block	2	29f083215eaffc50ca2b8bbc8b0a1773d7e50215b38c1cccc159d0c83284a999	set switch switch MAX_TEMP=1
+|> set switch switch MAX_TEMP=1
+|= ATTR_NOT_SUPPORTED_0
+block	24	6ce510965824ced6bf938bd728971524baac8454e793a6aa88e15b1c207788ab	remove_switch
+|> remove_switch
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=1 id=23 u32=0
+|  be @B ifcs_devport_attr_set(0, 1, 1, [{1700000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	105	d1321a9985895587a47a66110eeb48bfb90d7cb69be78bf01ceca361755b28ec	switch
+|> switch
+|= SUCCESS
+|  be ifcs_init cfg=<work>/d/run/config.yaml log=sai-teralynx boot=0 first=# generated init config
+|  be @B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+block	3	67ad460ed2c71091f5157054a5a4880b9f17b24d6326c33c5412cccdb9671c27	get switch switch NUMBER_OF_ACTIVE_PORTS
+|> get switch switch NUMBER_OF_ACTIVE_PORTS
+|= SUCCESS
+|  NUMBER_OF_ACTIVE_PORTS=8
+block	24	6ce510965824ced6bf938bd728971524baac8454e793a6aa88e15b1c207788ab	remove_switch
+|> remove_switch
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=1 id=23 u32=0
+|  be @B ifcs_devport_attr_set(0, 1, 1, [{1700000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+bytes	186	c6c44fa2efb237d4f6c11f0e28ac2208ad6914a8665ea2f83e1d3672f88b3f17
+|@B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+|@B ifcs_log_function_register(fn, ptr) = SUCCESS
+|@B ifcs_node_create(0, 0, null) = SUCCESS
+|@B ifcs_node_attr_set(0, 1, [{5200000000000000|01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+script	02-ports	exit 0	854857f0e265cbd5b2117e77fb60c82b48f1078035311f237a2104bee11db61b	38
+block	2	4937cc2180446f254c0a5a00cb45f20cdcdd0d11376afb502f9bfd1654227f3c	profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|> profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|= SUCCESS
+block	2	60aa022238cbd6371b4700ae26935fc4af809d5c9d6de89c54269ea9bda2c2ca	profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|> profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|= SUCCESS
+block	2	096e146ebf26e11aaf9fc8184b061c5c08f4ba330f994cc8071f8bc514f79d8c	profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|> profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|= SUCCESS
+block	2	b913f9872e91c3c2028ab472579e8bddf4072cbff317e2e32731ccf21f408bcf	profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|> profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|= SUCCESS
+block	2	0057066edb546561c11d42134e7af80438788c980854499c247b22a0a75f303f	profile SAI_TERALYNX_NETDEV=create
+|> profile SAI_TERALYNX_NETDEV=create
+|= SUCCESS
+block	2	b0e48f15ecdfe7c459bac53d2bc7113e7c3b732f31f4918efd1a100f429febc5	profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|> profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|= SUCCESS
+block	103	5defceedf55b1833dedd790c5c9369dd0931538817bf747a491ac901e7c019aa	switch
+|> switch
+|= SUCCESS
+|  be ifcs_init cfg=<work>/d/run/config.yaml log=sai-teralynx boot=0 first=# generated init config
+|  be @B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+block	11	d4a30cf4526d4a25647f67fe48b6d721b08fc9c747c2a43037b08ecc239b3bda	get port port0 HW_LANE_LIST SPEED SUPPORTED_SPEED ADMIN_STATE OPER_STATUS MTU
+|> get port port0 HW_LANE_LIST SPEED SUPPORTED_SPEED ADMIN_STATE OPER_STATUS MTU
+|= SUCCESS
+|  HW_LANE_LIST=[1,2,3,4]
+|  SPEED=400000
+block	3	6158386f00c9fc88f640a2ef7835a443bbe139056d3e6a30bff9b2e205889053	set port port0 SPEED=40000
+|> set port port0 SPEED=40000
+|= ATTR_NOT_SUPPORTED_0
+|  be @B ifcs_devport_attr_get(0, 1, 1, [{0800000000000000|070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	4	96e30f523ba8ca51bef362afd78604ae889afb8976737333cdc0ea1b73b527a7	get port port0 SPEED
+|> get port port0 SPEED
+|= SUCCESS
+|  SPEED=400000
+|  be @B ifcs_devport_attr_get(0, 1, 1, [{0800000000000000|070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	3	627a715433e30b6d0288850fafda80a1e0a41f8e7e94a6c6d49038c08738fb5d	set port port0 SPEED=25000
+|> set port port0 SPEED=25000
+|= ATTR_NOT_SUPPORTED_0
+|  be @B ifcs_devport_attr_get(0, 1, 1, [{0800000000000000|070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	3	935a7a89fd5ac0776ed94f61d95243bc0cc36b5ec693b8d39a014f60a2bc8e13	set port port0 SPEED=100000
+|> set port port0 SPEED=100000
+|= ATTR_NOT_SUPPORTED_0
+|  be @B ifcs_devport_attr_get(0, 1, 1, [{0800000000000000|070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	4	537c59dc91a024ce64bb8428264a6bbab0d7cfe1dbd5e388c953ca30a75370ee	set port port0 MTU=9100
+|> set port port0 MTU=9100
+|= SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200001 id=51 u32=9122
+|  be @B ifcs_sysport_attr_set(0, 0x3e200001, 1, [{3300000000000000|a22300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	2	f98b379fa8c63f96a98c2724595ce38b324e2d5708a5ed3c384a65d9fd4fbb39	set port port0 MTU=20000
+|> set port port0 MTU=20000
+|= INVALID_ATTR_VALUE_0
+block	3	9f47ea5a1203588c838777bb7b1cee23b5f741cd42542a8c51cb26c80c2407af	set port port0 FEC_MODE=RS
+|> set port port0 FEC_MODE=RS
+|= SUCCESS
+|  be @B ifcs_devport_attr_get(0, 1, 1, [{0e00000000000000|020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	3	a8954ba9431640fd8d5bcd76f691b76b7b4d1c11208570b9b2a054eb4227775f	get port port0 FEC_MODE
+|> get port port0 FEC_MODE
+|= SUCCESS
+|  FEC_MODE=RS
+block	5	804c1f008d2cf32ed35981fa2b12a2f1d78488577b1e118868a48bef39c3a17c	set port port0 AUTO_NEG_MODE=true
+|> set port port0 AUTO_NEG_MODE=true
+|= SUCCESS
+|  be @B ifcs_devport_attr_get(0, 1, 1, [{1000000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|  be ifcs_devport_attr_set dp=1 id=16 u32=1
+block	4	656ca1056caadeab10bc01b2896f360298063553adccf67aa4106b6c6a4ba9f9	set port port0 ADMIN_STATE=true
+|> set port port0 ADMIN_STATE=true
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=1 id=23 u32=1
+|  be @B ifcs_devport_attr_set(0, 1, 1, [{1700000000000000|010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	4	a395b786d38be29238469dcd60578be32853db07a3f76bf61ea5e70d41dc2646	get port port0 OPER_STATUS
+|> get port port0 OPER_STATUS
+|= SUCCESS
+|  OPER_STATUS=DOWN
+|  be @B ifcs_devport_attr_get(0, 1, 1, [{0900000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	2	d546635fb21bd93baa7c55af5ab0f791b9fda06dd9d2f4c5d758ea8c804abed6	inject link port0 down
+|> inject link port0 down
+|= SUCCESS
+block	4	a395b786d38be29238469dcd60578be32853db07a3f76bf61ea5e70d41dc2646	get port port0 OPER_STATUS
+|> get port port0 OPER_STATUS
+|= SUCCESS
+|  OPER_STATUS=DOWN
+|  be @B ifcs_devport_attr_get(0, 1, 1, [{0900000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	2	6cac499204961b9f84777fa07e76fad9a1c6ce76bed0e4d8599c5b4991909c3c	linkscan
+|> linkscan
+|= SUCCESS
+block	4	69b6aebbd7cda4eac4eda8226623d35fd99b19f8767d143f85a53f22ac5f8375	set port port0 ADMIN_STATE=false
+|> set port port0 ADMIN_STATE=false
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=1 id=23 u32=0
+|  be @B ifcs_devport_attr_set(0, 1, 1, [{1700000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	4	c411c1cdcafe3e4498cc1b740ff7fa09ba571ef469cdefb032109dbdff985584	set port port1 LOOPBACK_MODE=MAC
+|> set port port1 LOOPBACK_MODE=MAC
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=2 id=15 u32=1
+|  be @B ifcs_devport_attr_set(0, 2, 1, [{0f00000000000000|010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	4	e9a053009db412ef481a6d60d5e64b22daca8bb9f7f95b2116661cf311867879	set port port1 ADMIN_STATE=true
+|> set port port1 ADMIN_STATE=true
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=2 id=23 u32=1
+|  be @B ifcs_devport_attr_set(0, 2, 1, [{1700000000000000|010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	5	0b2834d47264615919c0577a6b3cdfac808e0583e77e2e77e14a44f500e2f2b7	get port port1 OPER_STATUS LOOPBACK_MODE
+|> get port port1 OPER_STATUS LOOPBACK_MODE
+|= SUCCESS
+|  OPER_STATUS=DOWN
+|  LOOPBACK_MODE=MAC
+block	4	c96ba311a21124b728b97dce768947861e4079a7b8f80530825e345b5c5461ce	set port port1 ADMIN_STATE=false
+|> set port port1 ADMIN_STATE=false
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=2 id=23 u32=0
+|  be @B ifcs_devport_attr_set(0, 2, 1, [{1700000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	3	c501fec3af49fb258b95fbce7fe2fd4f39ffeec925a8f336d52afd8c6393a359	get port cpu TYPE
+|> get port cpu TYPE
+|= SUCCESS
+|  TYPE=CPU
+block	2	82fe0090570a9bb8ac6894718c9c45b785e5c10890af76f0cf1dcbcb1e9314b2	set port cpu ADMIN_STATE=false
+|> set port cpu ADMIN_STATE=false
+|= ATTR_NOT_SUPPORTED_0
+block	4	bf61f94e7859f67a9af3b9581afa7c40d7931ea47fe2d64c6260698a1f17f933	get port port0 QOS_NUMBER_OF_QUEUES QOS_QUEUE_LIST
+|> get port port0 QOS_NUMBER_OF_QUEUES QOS_QUEUE_LIST
+|= SUCCESS
+|  QOS_NUMBER_OF_QUEUES=8
+|  QOS_QUEUE_LIST=[queue#1,queue#2,queue#3,queue#4,queue#5,queue#6,queue#7,queue#8]
+block	5	67263ea69df7bd84f342c4b12319600b59b9d10d03151670c728cdb4e76dab5a	get queue queue#3 PORT INDEX TYPE
+|> get queue queue#3 PORT INDEX TYPE
+|= SUCCESS
+|  PORT=port0
+|  INDEX=2
+block	2	461e144951fabd16a07193b49cf6a67bb0c8c771553b12a2a95777274a969b73	inject stat port0 IF_IN_OCTETS 1000
+|> inject stat port0 IF_IN_OCTETS 1000
+|= SUCCESS
+block	2	4319f1f78132eb02cada0d7ac04bcd327cc0b642aac881c00eddeb289c2e11e5	inject stat port0 IF_OUT_UCAST_PKTS 7
+|> inject stat port0 IF_OUT_UCAST_PKTS 7
+|= SUCCESS
+block	6	c59b7a8c5a60725596ef4699b1ab7eb10b764d71d263c8ca00883ae8dc478ea5	stats port port0 IF_IN_OCTETS IF_OUT_UCAST_PKTS
+|> stats port port0 IF_IN_OCTETS IF_OUT_UCAST_PKTS
+|= SUCCESS
+|  IF_IN_OCTETS=1000
+|  IF_OUT_UCAST_PKTS=7
+block	5	ddb15c7369043b2223b39777e62248d2dc8448feba9bf2dd97d2632094ab1523	stats port port0 PFC_0_RX_PKTS
+|> stats port port0 PFC_0_RX_PKTS
+|= SUCCESS
+|  PFC_0_RX_PKTS=0
+|  be ifcs_devport_stats_get dp=1 count=1
+block	2	404060953c593577e0df07c7b14756230f0e45e4c74588f2a76e0ea614cb112d	clear port port0 IF_IN_OCTETS
+|> clear port port0 IF_IN_OCTETS
+|= NOT_SUPPORTED
+block	2	871642f6a9717ff55d9722b0f045ae868b7e1bebe5c78ac66e6fb93befe57a64	set port port0 PORT_VLAN_ID=4095
+|> set port port0 PORT_VLAN_ID=4095
+|= INVALID_ATTR_VALUE_0
+block	24	6ce510965824ced6bf938bd728971524baac8454e793a6aa88e15b1c207788ab	remove_switch
+|> remove_switch
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=1 id=23 u32=0
+|  be @B ifcs_devport_attr_set(0, 1, 1, [{1700000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+bytes	99	feaf41e156bf7e85ac3b18513674db9ae7166a7601f1da41ffa29c9f4acbb892
+|@B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+|@B ifcs_log_function_register(fn, ptr) = SUCCESS
+|@B ifcs_node_create(0, 0, null) = SUCCESS
+|@B ifcs_node_attr_set(0, 1, [{5200000000000000|01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+script	03-vlan-fdb	exit 0	9b2ff93592f13804d24474a9757e41c78e86c01fb44c64b745cd7425ed4e7ea6	42
+block	2	4937cc2180446f254c0a5a00cb45f20cdcdd0d11376afb502f9bfd1654227f3c	profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|> profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|= SUCCESS
+block	2	60aa022238cbd6371b4700ae26935fc4af809d5c9d6de89c54269ea9bda2c2ca	profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|> profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|= SUCCESS
+block	2	096e146ebf26e11aaf9fc8184b061c5c08f4ba330f994cc8071f8bc514f79d8c	profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|> profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|= SUCCESS
+block	2	b913f9872e91c3c2028ab472579e8bddf4072cbff317e2e32731ccf21f408bcf	profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|> profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|= SUCCESS
+block	2	0057066edb546561c11d42134e7af80438788c980854499c247b22a0a75f303f	profile SAI_TERALYNX_NETDEV=create
+|> profile SAI_TERALYNX_NETDEV=create
+|= SUCCESS
+block	2	b0e48f15ecdfe7c459bac53d2bc7113e7c3b732f31f4918efd1a100f429febc5	profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|> profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|= SUCCESS
+block	103	5defceedf55b1833dedd790c5c9369dd0931538817bf747a491ac901e7c019aa	switch
+|> switch
+|= SUCCESS
+|  be ifcs_init cfg=<work>/d/run/config.yaml log=sai-teralynx boot=0 first=# generated init config
+|  be @B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+block	4	27b2909d11bd2b0f783b7e454e060e9ab357132b3da54fced17463177cafc3c7	get vlan vlan1 VLAN_ID MEMBER_LIST
+|> get vlan vlan1 VLAN_ID MEMBER_LIST
+|= SUCCESS
+|  VLAN_ID=1
+|  MEMBER_LIST=[]
+block	4	3ea6097f034d26fd1ad9b40833291ed05c890d859aae6c68ef8c71c1426d7e1b	get bridge bridge TYPE PORT_LIST
+|> get bridge bridge TYPE PORT_LIST
+|= SUCCESS
+|  TYPE=1Q
+|  PORT_LIST=[bport0,bport1,bport2,bport3,bport4,bport5,bport6,bport7]
+block	2	58e2e282bfaac5d480a8c35d66c36db451cf27c338d94bf3b8e492ce4d83f959	get vlan_member vlan_member#1 VLAN_ID BRIDGE_PORT_ID VLAN_TAGGING_MODE
+|> get vlan_member vlan_member#1 VLAN_ID BRIDGE_PORT_ID VLAN_TAGGING_MODE
+|= PARSE_ERROR unknown name 'vlan_member#1'
+block	4	9db2d4f07df7b09b84bf7c7e94360d4453ba4062b70b8fb46ed8164d21d4f49a	remove bridge_port bport0
+|> remove bridge_port bport0
+|= SUCCESS
+|  be ifcs_l2_entry_get_all
+|  be @B ifcs_l2_entry_get_all(0, null, 0, null, fn, ptr, *0) = SUCCESS
+block	2	e75152f2433c45a17194c0dd9120f87cbb454a28eef9e80952695908ab671288	remove vlan_member vlan_member#1
+|> remove vlan_member vlan_member#1
+|= PARSE_ERROR unknown name 'vlan_member#1'
+block	2	861d3e29c5e6960ce7d908e33011ef478e0d4da29fc571b4c672592102fb4182	remove bridge_port bport0
+|> remove bridge_port bport0
+|= INVALID_OBJECT_ID
+block	4	b0ab707d9503016850b2ac7802fba70fbe8cb5e62e25ece4ce152fc215ddce3c	create bridge_port bp0 TYPE=PORT PORT_ID=port0 ADMIN_STATE=true FDB_LEARNING_MODE=DISABLE
+|> create bridge_port bp0 TYPE=PORT PORT_ID=port0 ADMIN_STATE=true FDB_LEARNING_MODE=DISABLE
+|= SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200001 id=28 u32=0
+|  be @B ifcs_sysport_attr_set(0, 0x3e200001, 1, [{1c00000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	2	b6bb6074f5152c6e83e8590dddcdc913c444ca713b723ca1b425a10f96588381	create bridge_port bpx TYPE=PORT PORT_ID=port0 ADMIN_STATE=true
+|> create bridge_port bpx TYPE=PORT PORT_ID=port0 ADMIN_STATE=true
+|= ITEM_ALREADY_EXISTS
+block	6	e599282095c9fcd9917a0831db58227ceb7bfd6c7410e4e413e6a6f6ef410e21	create vlan v100 VLAN_ID=100
+|> create vlan v100 VLAN_ID=100
+|= SUCCESS
+|  be ifcs_mdg_create h=0x102 count=0
+|  be @B ifcs_mdg_create(0, *0x102, 0, []) = SUCCESS
+block	2	99a7129d10eed2336c6a6adcbbc5319996dadd4b804bd691d92777779d53abce	create vlan v100b VLAN_ID=100
+|> create vlan v100b VLAN_ID=100
+|= ITEM_ALREADY_EXISTS
+block	2	e6cb78cc2425cf073e2c15dca9aa2e83fedee580d022e3ca483049bc92686cd8	create vlan bad VLAN_ID=4095
+|> create vlan bad VLAN_ID=4095
+|= INVALID_ATTR_VALUE_0
+block	8	82a11c463b931a8c5e5fa7150c2753f465c5ff1aa29625162c91006c9ea9039c	create vlan_member m100 VLAN_ID=v100 BRIDGE_PORT_ID=bp0 VLAN_TAGGING_MODE=TAGGED
+|> create vlan_member m100 VLAN_ID=v100 BRIDGE_PORT_ID=bp0 VLAN_TAGGING_MODE=TAGGED
+|= SUCCESS
+|  be ifcs_l2vni_member_add vni=100 n=1 first=0x3e200001
+|  be @B ifcs_l2vni_member_add(0, 0x24200064, 1, [0x3e200001], 0, []) = SUCCESS
+block	5	0112174119827f84df33de8a1e2514478908c159be3a9996bd550a97abd36dd1	set vlan_member m100 VLAN_TAGGING_MODE=UNTAGGED
+|> set vlan_member m100 VLAN_TAGGING_MODE=UNTAGGED
+|= SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200001 id=43 u32=100
+|  be ifcs_sysport_attr_set sp=0x3e200001 id=42 u32=1
+block	4	ed16b9a769e5ed1d3074366261f02af2e5524846bd2fb2d6fe4e35aae66803a8	set port port0 PORT_VLAN_ID=100
+|> set port port0 PORT_VLAN_ID=100
+|= SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200001 id=32 u32=100
+|  be @B ifcs_sysport_attr_set(0, 0x3e200001, 1, [{2000000000000000|640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	3	994f1ef3f34652f41ef1b9f5876a437228cd5599d1e20c059d9909207b8d6403	get vlan v100 MEMBER_LIST
+|> get vlan v100 MEMBER_LIST
+|= SUCCESS
+|  MEMBER_LIST=[m100]
+block	3	5ec82f2f4823da3f89b20bd71920c278d2238129fc82ba8c41f340f7931f2b94	get stp stp0 VLAN_LIST
+|> get stp stp0 VLAN_LIST
+|= SUCCESS
+|  VLAN_LIST=[1,100]
+block	9	5fa82946f616e73e7d66cd60ecb577af5d2471b9bb5806e54272567410927ee8	create fdb_entry 00:11:22:33:44:55@vlan1 TYPE=STATIC BRIDGE_PORT_ID=bport1 PACKET_ACTION=FORWARD
+|> create fdb_entry 00:11:22:33:44:55@vlan1 TYPE=STATIC BRIDGE_PORT_ID=bport1 PACKET_ACTION=FORWARD
+|= SUCCESS
+|  be @B ifcs_l2_entry_key_t_init({5eb400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|  be @B ifcs_l2_entry_key_t_key_type_set({5eb4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	2	c4c58febc7c3fb477dbd7616af19900c56bacfbdd0f52f00a60969c777b1e095	create fdb_entry 00:11:22:33:44:55@vlan1 TYPE=STATIC BRIDGE_PORT_ID=bport1
+|> create fdb_entry 00:11:22:33:44:55@vlan1 TYPE=STATIC BRIDGE_PORT_ID=bport1
+|= ITEM_ALREADY_EXISTS
+block	9	19dcf283167440c7713b263c639584f1d8a634b8b73b1bcb22684b2cead9eef2	create fdb_entry 00:11:22:33:44:66@vlan1 TYPE=DYNAMIC BRIDGE_PORT_ID=bport1
+|> create fdb_entry 00:11:22:33:44:66@vlan1 TYPE=DYNAMIC BRIDGE_PORT_ID=bport1
+|= SUCCESS
+|  be @B ifcs_l2_entry_key_t_init({5eb400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|  be @B ifcs_l2_entry_key_t_key_type_set({5eb4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	5	589474ddf31833e10af6c305e170d928a7f12b78a380ae307b5c892fe02a6aca	get fdb_entry 00:11:22:33:44:55@vlan1 TYPE BRIDGE_PORT_ID PACKET_ACTION
+|> get fdb_entry 00:11:22:33:44:55@vlan1 TYPE BRIDGE_PORT_ID PACKET_ACTION
+|= SUCCESS
+|  TYPE=STATIC
+|  BRIDGE_PORT_ID=bport1
+block	8	3ea3321696b0947e2b9b5a1a2dd277fdc6cd90ec5904676d6ebab49a7668401c	flush BRIDGE_PORT_ID=bport1 ENTRY_TYPE=DYNAMIC
+|> flush BRIDGE_PORT_ID=bport1 ENTRY_TYPE=DYNAMIC
+|= SUCCESS
+|  be ifcs_l2_entry_get_all
+|  be @B ifcs_l2_entry_get_all(0, null, 0, null, fn, ptr, *2) = SUCCESS
+block	2	803300fbbc986a86ffc0bf86656cbdd348c2db93646ee180319851bd9591eab9	get fdb_entry 00:11:22:33:44:66@vlan1 TYPE
+|> get fdb_entry 00:11:22:33:44:66@vlan1 TYPE
+|= ITEM_NOT_FOUND
+block	3	7564b6aac3dca546777f262aa6ee48b5845abc75ecca2cbd061e767cca7c9170	inject fdb learned 00:aa:bb:cc:dd:01 1 port2
+|> inject fdb learned 00:aa:bb:cc:dd:01 1 port2
+|= SUCCESS
+|  notify fdb LEARNED 00:aa:bb:cc:dd:01@vlan1 bridge_port=bport2
+block	4	702925fbed50d0eb2a8ffa881f383a4681444c6e7dee3dd1e7b38963f509ba41	get fdb_entry 00:aa:bb:cc:dd:01@vlan1 TYPE BRIDGE_PORT_ID
+|> get fdb_entry 00:aa:bb:cc:dd:01@vlan1 TYPE BRIDGE_PORT_ID
+|= SUCCESS
+|  TYPE=DYNAMIC
+|  BRIDGE_PORT_ID=bport2
+block	3	c3b2e6c97f9dce6061d54ffa3657a16f809e1265925c04e19103a18c3e90199c	inject fdb aged 00:aa:bb:cc:dd:01 1 port2
+|> inject fdb aged 00:aa:bb:cc:dd:01 1 port2
+|= SUCCESS
+|  notify fdb AGED 00:aa:bb:cc:dd:01@vlan1 bridge_port=bport2
+block	9	a7245943269a62c2cd251def898bf7693fa167a5875bac11f1bd09d37b354277	create fdb_entry 00:11:22:33:44:77@vlan1 TYPE=DYNAMIC BRIDGE_PORT_ID=bport1
+|> create fdb_entry 00:11:22:33:44:77@vlan1 TYPE=DYNAMIC BRIDGE_PORT_ID=bport1
+|= SUCCESS
+|  be @B ifcs_l2_entry_key_t_init({5eb400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|  be @B ifcs_l2_entry_key_t_key_type_set({5eb4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	2	32fc9e59990929f7ab2f3a4846fc1006f6a558a26f15ad68cc777de96ca029d8	inject fdb learned 00:11:22:33:44:77 1 port1
+|> inject fdb learned 00:11:22:33:44:77 1 port1
+|= SUCCESS
+block	3	82f33bed8159a24aaa827c2fa0525915281a28555778fdd113cd8209784379d3	inject fdb learned 00:11:22:33:44:77 1 port2
+|> inject fdb learned 00:11:22:33:44:77 1 port2
+|= SUCCESS
+|  notify fdb MOVE 00:11:22:33:44:77@vlan1 bridge_port=bport2
+block	9	a0a151d5c53e00343e5ed186f238e7bfb4d9e5b86abe87faa360a9690aa6eaf5	remove fdb_entry 00:11:22:33:44:55@vlan1
+|> remove fdb_entry 00:11:22:33:44:55@vlan1
+|= SUCCESS
+|  be @B ifcs_l2_entry_key_t_init({5eb400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|  be @B ifcs_l2_entry_key_t_key_type_set({5eb4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	2	20042eed4d4c3ad0e12456a79da739d535e37a8b9dbbe7638dca65cf13d40304	remove fdb_entry 00:11:22:33:44:55@vlan1
+|> remove fdb_entry 00:11:22:33:44:55@vlan1
+|= ITEM_NOT_FOUND
+block	7	e43400b0bbb79ef9b607aa6c7ce8da43b9a082f383278a6c3965ac7ce7119786	flush
+|> flush
+|= SUCCESS
+|  be ifcs_l2_entry_get_all
+|  be @B ifcs_l2_entry_get_all(0, null, 0, null, fn, ptr, *1) = SUCCESS
+block	2	6b24e397fd52c06e61a913967347fa7f6b031e3bf85f7c95f921cbb7e8a040d7	remove vlan v100
+|> remove vlan v100
+|= OBJECT_IN_USE
+block	10	ddd2fc92b92f0479b7f9ae5dbe008590a2f4a7fdad9f5699d168909e907431de	remove vlan_member m100
+|> remove vlan_member m100
+|= SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200001 id=42 u32=0
+|  be @B ifcs_sysport_attr_set(0, 0x3e200001, 1, [{2a00000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	8	b0e1ec87f3966b6dda9491ee1eb91b407bf641dd2f01069d8aa234a98d2703b8	remove vlan v100
+|> remove vlan v100
+|= SUCCESS
+|  be ifcs_l2_entry_get_all
+|  be @B ifcs_l2_entry_get_all(0, null, 0, null, fn, ptr, *0) = SUCCESS
+block	24	6ce510965824ced6bf938bd728971524baac8454e793a6aa88e15b1c207788ab	remove_switch
+|> remove_switch
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=1 id=23 u32=0
+|  be @B ifcs_devport_attr_set(0, 1, 1, [{1700000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+bytes	125	0a2e5171596d525b9f2dc80eda14c75251f9d39b90e1904e67a1578811661668
+|@B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+|@B ifcs_log_function_register(fn, ptr) = SUCCESS
+|@B ifcs_node_create(0, 0, null) = SUCCESS
+|@B ifcs_node_attr_set(0, 1, [{5200000000000000|01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+script	04-lag	exit 0	0b971a1d9d3ad2f30dde1d9b0dbb47ba44d007cbee6e278d505f360c00d95f39	47
+block	2	4937cc2180446f254c0a5a00cb45f20cdcdd0d11376afb502f9bfd1654227f3c	profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|> profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|= SUCCESS
+block	2	60aa022238cbd6371b4700ae26935fc4af809d5c9d6de89c54269ea9bda2c2ca	profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|> profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|= SUCCESS
+block	2	096e146ebf26e11aaf9fc8184b061c5c08f4ba330f994cc8071f8bc514f79d8c	profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|> profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|= SUCCESS
+block	2	b913f9872e91c3c2028ab472579e8bddf4072cbff317e2e32731ccf21f408bcf	profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|> profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|= SUCCESS
+block	2	0057066edb546561c11d42134e7af80438788c980854499c247b22a0a75f303f	profile SAI_TERALYNX_NETDEV=create
+|> profile SAI_TERALYNX_NETDEV=create
+|= SUCCESS
+block	2	b0e48f15ecdfe7c459bac53d2bc7113e7c3b732f31f4918efd1a100f429febc5	profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|> profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|= SUCCESS
+block	103	5defceedf55b1833dedd790c5c9369dd0931538817bf747a491ac901e7c019aa	switch
+|> switch
+|= SUCCESS
+|  be ifcs_init cfg=<work>/d/run/config.yaml log=sai-teralynx boot=0 first=# generated init config
+|  be @B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+block	3	9b5862824c11fd7f2920ef2cb8843bf61d53362900fe131950422497fce72001	get vlan vlan1 MEMBER_LIST
+|> get vlan vlan1 MEMBER_LIST
+|= SUCCESS
+|  MEMBER_LIST=[]
+block	2	82e9dd0b050bda81e7a2a6aae77e50f2adce0a028789c49163c8186dbe1ad4c5	remove vlan_member vlan_member#5
+|> remove vlan_member vlan_member#5
+|= PARSE_ERROR unknown name 'vlan_member#5'
+block	4	2687119e087969ab7a60c015f02bad814449ca79962f1ef319bbd4788975fb28	remove bridge_port bport4
+|> remove bridge_port bport4
+|= SUCCESS
+|  be ifcs_l2_entry_get_all
+|  be @B ifcs_l2_entry_get_all(0, null, 0, null, fn, ptr, *0) = SUCCESS
+block	2	565d429b15f506d7be06e4067c56dbd65bf8e0e18f7a66e98ccdae566fe20159	remove vlan_member vlan_member#6
+|> remove vlan_member vlan_member#6
+|= PARSE_ERROR unknown name 'vlan_member#6'
+block	4	fc7685d5e299276fed829d7045679879246642ca89a55e06f6093854f989c413	remove bridge_port bport5
+|> remove bridge_port bport5
+|= SUCCESS
+|  be ifcs_l2_entry_get_all
+|  be @B ifcs_l2_entry_get_all(0, null, 0, null, fn, ptr, *0) = SUCCESS
+block	2	53bf0ee3020896840077f97c76ef17a15ab1e2a785fe7c20ba8f4e1d4e3fa4e0	remove vlan_member vlan_member#7
+|> remove vlan_member vlan_member#7
+|= PARSE_ERROR unknown name 'vlan_member#7'
+block	4	ca1be17612a481a4b644e1b577c2d404d16ad7c2829f702ecee3cc61bb744ee0	remove bridge_port bport6
+|> remove bridge_port bport6
+|= SUCCESS
+|  be ifcs_l2_entry_get_all
+|  be @B ifcs_l2_entry_get_all(0, null, 0, null, fn, ptr, *0) = SUCCESS
+block	4	53798b807d71690e9bacdfd4514e887a16ca6428c473bdf4e35274d40950f632	create lag lag1
+|> create lag lag1
+|= SUCCESS
+|  be ifcs_lag_create h=0x28200102 count=0
+|  be @B ifcs_lag_create(0, *0x28200102, 0, null) = SUCCESS
+block	5	857f26e6b7acbcc62f5227f78f2bcb86eb61b9e182fe1d005d4cafbc9744014e	get lag lag1 PORT_VLAN_ID TPID PORT_LIST
+|> get lag lag1 PORT_VLAN_ID TPID PORT_LIST
+|= SUCCESS
+|  PORT_VLAN_ID=1
+|  TPID=33024
+block	6	cf54822dbc0d8dfda9721c929667419e874599b31fae0120a8c31e7e8ebe9284	create lag_member lm4 LAG_ID=lag1 PORT_ID=port4 EGRESS_DISABLE=true INGRESS_DISABLE=true
+|> create lag_member lm4 LAG_ID=lag1 PORT_ID=port4 EGRESS_DISABLE=true INGRESS_DISABLE=true
+|= SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200005 id=28 u32=0
+|  be @B ifcs_sysport_attr_set(0, 0x3e200005, 1, [{1c00000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	8	83e37eb4dbdcb6d30fc0ecb6b7f35f8a11a2b9083b2b44dbc3f232f251594f88	set lag_member lm4 INGRESS_DISABLE=false
+|> set lag_member lm4 INGRESS_DISABLE=false
+|= SUCCESS
+|  be ifcs_l2_entry_get_all
+|  be @B ifcs_l2_entry_get_all(0, null, 0, null, fn, ptr, *0) = SUCCESS
+block	2	12435f3efcd3f3b7aa1eb94a9bc023d62ee02e7e3c5ed0188ac8f99d3a36b7fe	set lag_member lm4 EGRESS_DISABLE=false
+|> set lag_member lm4 EGRESS_DISABLE=false
+|= SUCCESS
+block	10	5885b284e86e4bc59f16775eeb24d7eeedea72bfd0fefa56561082369eef6ec1	create lag_member lm5 LAG_ID=lag1 PORT_ID=port5
+|> create lag_member lm5 LAG_ID=lag1 PORT_ID=port5
+|= SUCCESS
+|  be ifcs_l2_entry_get_all
+|  be @B ifcs_l2_entry_get_all(0, null, 0, null, fn, ptr, *0) = SUCCESS
+block	2	9a8bbc7b978e60abcd4387e0f9aa16bb0884fea7fc0c030a2fe9dc23dfc56312	create lag_member lmx LAG_ID=lag1 PORT_ID=port7
+|> create lag_member lmx LAG_ID=lag1 PORT_ID=port7
+|= OBJECT_IN_USE
+block	3	5009eb4112a6e2fa8d857aa5354a42b91c2477e34e40431326f3d8a730647c59	get lag lag1 PORT_LIST
+|> get lag lag1 PORT_LIST
+|= SUCCESS
+|  PORT_LIST=[lm4,lm5]
+block	6	fa28076ea8ccd698048c900a7f09c2a0df37ff455aa31ac64b982e1312c5931e	set lag lag1 PORT_VLAN_ID=300
+|> set lag lag1 PORT_VLAN_ID=300
+|= SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200005 id=32 u32=300
+|  be @B ifcs_sysport_attr_set(0, 0x3e200005, 1, [{2000000000000000|2c0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	6	8c010044b9457cfce853a9ce2bb584f4fca4eb41f0217b4d8143bf9cdaa1fa00	create bridge_port lbp TYPE=PORT PORT_ID=lag1 FDB_LEARNING_MODE=DISABLE
+|> create bridge_port lbp TYPE=PORT PORT_ID=lag1 FDB_LEARNING_MODE=DISABLE
+|= SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200005 id=28 u32=0
+|  be @B ifcs_sysport_attr_set(0, 0x3e200005, 1, [{1c00000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	6	77f7fa6dd15f8899ea1a09552c9c48d50467d6b6271625e87351705d6e712a3d	set bridge_port lbp FDB_LEARNING_MODE=HW
+|> set bridge_port lbp FDB_LEARNING_MODE=HW
+|= SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200005 id=28 u32=1
+|  be @B ifcs_sysport_attr_set(0, 0x3e200005, 1, [{1c00000000000000|010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	6	b67a0659fd2b66933e784c42e3c4396ffa2ab136ab96cc5deb37ad139352a538	create vlan v300 VLAN_ID=300
+|> create vlan v300 VLAN_ID=300
+|= SUCCESS
+|  be ifcs_mdg_create h=0x103 count=0
+|  be @B ifcs_mdg_create(0, *0x103, 0, []) = SUCCESS
+block	8	c132504f73ea74997548ea1194d323bbeceb04b10d2fd540da3cf5b2bd89c421	create vlan_member vm VLAN_ID=v300 BRIDGE_PORT_ID=lbp VLAN_TAGGING_MODE=TAGGED
+|> create vlan_member vm VLAN_ID=v300 BRIDGE_PORT_ID=lbp VLAN_TAGGING_MODE=TAGGED
+|= SUCCESS
+|  be ifcs_l2vni_member_add vni=300 n=1 first=0x28200102
+|  be @B ifcs_l2vni_member_add(0, 0x2420012c, 1, [0x28200102], 0, []) = SUCCESS
+block	8	5a22fa5be57f339b54ff97f03ebedd7843f1b508ddad7f46b61cabd00ebc9d65	set vlan_member vm VLAN_TAGGING_MODE=UNTAGGED
+|> set vlan_member vm VLAN_TAGGING_MODE=UNTAGGED
+|= SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200005 id=43 u32=300
+|  be ifcs_sysport_attr_set sp=0x3e200005 id=42 u32=1
+block	15	9a7abfc184558e5f58f6070a52ba36a3fceaa666efb622dc729ab5c364a91516	create lag_member lm6 LAG_ID=lag1 PORT_ID=port6
+|> create lag_member lm6 LAG_ID=lag1 PORT_ID=port6
+|= SUCCESS
+|  be ifcs_l2_entry_get_all
+|  be @B ifcs_l2_entry_get_all(0, null, 0, null, fn, ptr, *0) = SUCCESS
+block	10	f8b8aaab40275eee47a8e8c3eea681992689d930b55ba659e2af014919c0ed09	remove lag_member lm6
+|> remove lag_member lm6
+|= SUCCESS
+|  be ifcs_lag_member_remove lag=0x28200102 n=1 first=0x3e200007
+|  be @B ifcs_lag_member_remove(0, 0x28200102, 1, [0x3e200007]) = SUCCESS
+block	9	9774c7d3f546564e55ca8a1e51da97bc8c2b9c906baf51d6778a9a093ceda819	create fdb_entry 00:11:22:33:44:91@v300 TYPE=STATIC BRIDGE_PORT_ID=lbp
+|> create fdb_entry 00:11:22:33:44:91@v300 TYPE=STATIC BRIDGE_PORT_ID=lbp
+|= SUCCESS
+|  be @B ifcs_l2_entry_key_t_init({5eb400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|  be @B ifcs_l2_entry_key_t_key_type_set({5eb4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	3	a2a291a9e26fac8a4cb248f97fbcd17c63a9fa6efcb29efcad5c946d67d4b6bf	inject fdb learned 00:aa:bb:cc:dd:92 300 lag1
+|> inject fdb learned 00:aa:bb:cc:dd:92 300 lag1
+|= SUCCESS
+|  notify fdb LEARNED 00:aa:bb:cc:dd:92@v300 bridge_port=lbp
+block	5	04b1aca8bb0f1d0017d9d42f6e00fe4a286a09dfe9c3a39b04c1a3d2d7ab7174	flush BRIDGE_PORT_ID=lbp ENTRY_TYPE=DYNAMIC
+|> flush BRIDGE_PORT_ID=lbp ENTRY_TYPE=DYNAMIC
+|= SUCCESS
+|  be ifcs_l2_entry_get_all
+|  be @B ifcs_l2_entry_get_all(0, null, 0, null, fn, ptr, *1) = SUCCESS
+block	9	8c815c7a35599a6d37eae6cdbe916a2a5d86b0daeb50856e9ee2ad1c95dcdea6	remove fdb_entry 00:11:22:33:44:91@v300
+|> remove fdb_entry 00:11:22:33:44:91@v300
+|= SUCCESS
+|  be @B ifcs_l2_entry_key_t_init({5eb400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|  be @B ifcs_l2_entry_key_t_key_type_set({5eb4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	12	a07b8230d268026f6297c45d7d4f043049214bb7610c721f05fd169cc315ae08	remove vlan_member vm
+|> remove vlan_member vm
+|= SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200005 id=42 u32=0
+|  be @B ifcs_sysport_attr_set(0, 0x3e200005, 1, [{2a00000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	8	4aae1b56d626c3f30a7eefb8ec0130b4723782491a42d73c010553a7b5e147e1	remove vlan v300
+|> remove vlan v300
+|= SUCCESS
+|  be ifcs_l2_entry_get_all
+|  be @B ifcs_l2_entry_get_all(0, null, 0, null, fn, ptr, *0) = SUCCESS
+block	4	c6b101de9bbce0e4869406b2dba6526e9f5afbc7bf2da7a7eed37edc26940fcd	remove bridge_port lbp
+|> remove bridge_port lbp
+|= SUCCESS
+|  be ifcs_l2_entry_get_all
+|  be @B ifcs_l2_entry_get_all(0, null, 0, null, fn, ptr, *0) = SUCCESS
+block	28	2bf679e2eb5b1dae82cf8af97e4a59a3bab9e2d5ced2528915c28818830b8e9e	create router_interface lrif VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=lag1
+|> create router_interface lrif VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=lag1
+|= SUCCESS
+|  be ifcs_mdg_create h=0x105 count=0
+|  be @B ifcs_mdg_create(0, *0x105, 0, []) = SUCCESS
+block	3	243d916d55524a5a2f24ae9d4deca930da2f9dc3db02e56fe0036655e95c7e1a	get lag lag1 PORT_VLAN_ID
+|> get lag lag1 PORT_VLAN_ID
+|= SUCCESS
+|  PORT_VLAN_ID=4094
+block	15	d187b30e317b83857befd79628d84d3079417115b92ea4afb0dc8a23258b43dc	create neighbor_entry 10.1.0.2@lrif DST_MAC_ADDRESS=00:00:5e:00:53:07
+|> create neighbor_entry 10.1.0.2@lrif DST_MAC_ADDRESS=00:00:5e:00:53:07
+|= SUCCESS
+|  be ifcs_nexthop_create h=0x108 count=3 intf=0x107 dest=0x28200102
+|  be @B ifcs_nexthop_create(0, *0x108, 3, [{0200000000000000|070100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	2	9298ac83428d1a3e743a40ee8df413e5a81e66552a15db7609467b847eaaf6d6	remove lag lag1
+|> remove lag lag1
+|= OBJECT_IN_USE
+block	15	bb00110f53388d06bd71caf7f1001e9dda74314d10c14a2d24d55e71f676d3a5	remove neighbor_entry 10.1.0.2@lrif
+|> remove neighbor_entry 10.1.0.2@lrif
+|= SUCCESS
+|  be @B ifcs_ip_prefix_t_init({00000000000000000000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be @B ifcs_ip_prefix_t_addr_family_set({00000000000000000000000000000000000000000000000000000000000000000000000000000000}, 0) = SUCCESS
+block	24	14cc65c9b6cafd3c396f3c430414e267da620907ab3a5c755f11a5eec8fd32d3	remove router_interface lrif
+|> remove router_interface lrif
+|= SUCCESS
+|  be ifcs_intf_delete h=0x107 found=1
+|  be @B ifcs_intf_delete(0, 0x107) = SUCCESS
+block	6	0fd66cab461ff754a144dfa4f3aa3250eeb71aa3834e54123dbc930f800bb6c9	remove lag_member lm4
+|> remove lag_member lm4
+|= SUCCESS
+|  be ifcs_lag_member_remove lag=0x28200102 n=1 first=0x3e200005
+|  be @B ifcs_lag_member_remove(0, 0x28200102, 1, [0x3e200005]) = SUCCESS
+block	6	2ae0523ea3581aab3c5f653ab35149a7a438ac3c872969d56cc7ff02671a1d95	remove lag_member lm5
+|> remove lag_member lm5
+|= SUCCESS
+|  be ifcs_lag_member_remove lag=0x28200102 n=1 first=0x3e200006
+|  be @B ifcs_lag_member_remove(0, 0x28200102, 1, [0x3e200006]) = SUCCESS
+block	4	295e335ce78d5f46e44af84775be5ba0215bdd1801c976bb313cc0913dbdf7e1	remove lag lag1
+|> remove lag lag1
+|= SUCCESS
+|  be ifcs_lag_delete h=0x28200102
+|  be @B ifcs_lag_delete(0, 0x28200102) = SUCCESS
+block	24	6ce510965824ced6bf938bd728971524baac8454e793a6aa88e15b1c207788ab	remove_switch
+|> remove_switch
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=1 id=23 u32=0
+|  be @B ifcs_devport_attr_set(0, 1, 1, [{1700000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+bytes	187	979f22fe3124f29db288312d597f0dd2b815d69730906a1d054bb375721eaf2a
+|@B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+|@B ifcs_log_function_register(fn, ptr) = SUCCESS
+|@B ifcs_node_create(0, 0, null) = SUCCESS
+|@B ifcs_node_attr_set(0, 1, [{5200000000000000|01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+script	05-hostif-traps	exit 0	cfc2b56fe535e196b2c6e33d67edb255b570385451579a14a71ef000b3e7cf69	33
+block	2	4937cc2180446f254c0a5a00cb45f20cdcdd0d11376afb502f9bfd1654227f3c	profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|> profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|= SUCCESS
+block	2	60aa022238cbd6371b4700ae26935fc4af809d5c9d6de89c54269ea9bda2c2ca	profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|> profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|= SUCCESS
+block	2	096e146ebf26e11aaf9fc8184b061c5c08f4ba330f994cc8071f8bc514f79d8c	profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|> profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|= SUCCESS
+block	2	b913f9872e91c3c2028ab472579e8bddf4072cbff317e2e32731ccf21f408bcf	profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|> profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|= SUCCESS
+block	2	0057066edb546561c11d42134e7af80438788c980854499c247b22a0a75f303f	profile SAI_TERALYNX_NETDEV=create
+|> profile SAI_TERALYNX_NETDEV=create
+|= SUCCESS
+block	2	b0e48f15ecdfe7c459bac53d2bc7113e7c3b732f31f4918efd1a100f429febc5	profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|> profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|= SUCCESS
+block	103	5defceedf55b1833dedd790c5c9369dd0931538817bf747a491ac901e7c019aa	switch
+|> switch
+|= SUCCESS
+|  be ifcs_init cfg=<work>/d/run/config.yaml log=sai-teralynx boot=0 first=# generated init config
+|  be @B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+block	21	286f2274dcefc8a4a50402e829e3d33da2e000e4bda4b0c4a5c404004b8ab411	create hostif h0 TYPE=NETDEV OBJ_ID=port0 NAME=Ethernet0
+|> create hostif h0 TYPE=NETDEV OBJ_ID=port0 NAME=Ethernet0
+|= SUCCESS
+|  be ifcs_hostif_trap_attr_set h=0x18200017 id=0 u32=0
+|  be ifcs_hostif_trap_attr_set h=0x18200017 id=1 u32=1
+block	2	6871a42ade27327bf60d45448e0531d859d5e630f9f7f52d6784e3ba29763234	create hostif hdup TYPE=NETDEV OBJ_ID=port0 NAME=Ethernet0
+|> create hostif hdup TYPE=NETDEV OBJ_ID=port0 NAME=Ethernet0
+|= ITEM_ALREADY_EXISTS
+block	2	a57ea1a79b8c27138f4cb6dd90ffe86c3c89cb7147569f4c55f94a8e4b4653cf	create hostif hcpu TYPE=NETDEV OBJ_ID=cpu NAME=cpu
+|> create hostif hcpu TYPE=NETDEV OBJ_ID=cpu NAME=cpu
+|= NOT_SUPPORTED
+block	2	c30441bf3a84b762ed997ca15f3f714a21e4a2ecf769d1da5fa8f59671ab0cf5	set hostif h0 OPER_STATUS=true
+|> set hostif h0 OPER_STATUS=true
+|= SUCCESS
+block	4	3ec306b513c58bc498f3d930437dce0acd23ceb8e8e76d658dba1d1c1e6086e6	set hostif h0 VLAN_TAG=KEEP
+|> set hostif h0 VLAN_TAG=KEEP
+|= SUCCESS
+|  be ifcs_netdev_attr_set h=0x102 count=1 id=4 u32=0
+|  be @B ifcs_netdev_attr_set(0, 0x102, 1, [{0400000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	7	03535279e5202a436d62fd2c196773d07234a4c4aea6b9a886800ef6611726c5	get hostif h0 NAME TYPE OBJ_ID OPER_STATUS VLAN_TAG
+|> get hostif h0 NAME TYPE OBJ_ID OPER_STATUS VLAN_TAG
+|= SUCCESS
+|  NAME="Ethernet0"
+|  TYPE=NETDEV
+block	2	ea17eef70791365ddf028a9a0dff6331550a71d641cb03d772e6f5a31821bde0	create hostif_trap_group grp QUEUE=4
+|> create hostif_trap_group grp QUEUE=4
+|= SUCCESS
+block	113	0d4a0bcfa169c9163930f9e00d8f1d483469d243edba9c31c94b9b26c9e42c37	create hostif_trap t_arp TRAP_TYPE=ARP_REQUEST PACKET_ACTION=COPY TRAP_GROUP=grp
+|> create hostif_trap t_arp TRAP_TYPE=ARP_REQUEST PACKET_ACTION=COPY TRAP_GROUP=grp
+|= SUCCESS
+|  be ifcs_hostif_trap_create h=0x103 count=1 queue=0
+|  be @B ifcs_hostif_trap_create(0, *0x103, 1, [{0000000000000000|00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	2	a01a2c359a40d024ae5bae96536cd969733be9e109137a011c87a3932a9bb191	create hostif_trap t_arp2 TRAP_TYPE=ARP_REQUEST PACKET_ACTION=COPY TRAP_GROUP=grp
+|> create hostif_trap t_arp2 TRAP_TYPE=ARP_REQUEST PACKET_ACTION=COPY TRAP_GROUP=grp
+|= ITEM_ALREADY_EXISTS
+block	220	4b19a8c848fd126bb869ca50c8f604d3e021ac79ac07b028f3840c7f22cecd2d	create hostif_trap t_bgp TRAP_TYPE=BGP PACKET_ACTION=TRAP TRAP_GROUP=grp
+|> create hostif_trap t_bgp TRAP_TYPE=BGP PACKET_ACTION=TRAP TRAP_GROUP=grp
+|= SUCCESS
+|  be ifcs_hostif_trap_create h=0x132 count=1 queue=4
+|  be @B ifcs_hostif_trap_create(0, *0x132, 1, [{0000000000000000|04000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	100	df3b7df61110d8eb4209462c7d6efac043203e73d7b1bc5201625054bc332b9f	create hostif_trap t_lacp TRAP_TYPE=LACP PACKET_ACTION=TRAP
+|> create hostif_trap t_lacp TRAP_TYPE=LACP PACKET_ACTION=TRAP
+|= SUCCESS
+|  be ifcs_hostif_trap_create h=0x199 count=1 queue=0
+|  be @B ifcs_hostif_trap_create(0, *0x199, 1, [{0000000000000000|00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	244	b36de8a28ed36c549122349b7dab04e787eecc6ead55a3c33b3e94d78fb322d1	create hostif_trap t_lldp TRAP_TYPE=LLDP PACKET_ACTION=TRAP
+|> create hostif_trap t_lldp TRAP_TYPE=LLDP PACKET_ACTION=TRAP
+|= SUCCESS
+|  be ifcs_hostif_trap_create h=0x1c4 count=1 queue=0
+|  be @B ifcs_hostif_trap_create(0, *0x1c4, 1, [{0000000000000000|00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	2	107ad23fd2fb155c806be090b4bef3786bb77009d2a4a4118ac16f0cd2880d12	remove hostif_trap_group grp
+|> remove hostif_trap_group grp
+|= OBJECT_IN_USE
+block	170	b92794f5dfec57bc66722ed261ed27e4a5527ea46cb73c636d4a9ceb0c9e9ff2	set hostif_trap t_arp PACKET_ACTION=DROP
+|> set hostif_trap t_arp PACKET_ACTION=DROP
+|= SUCCESS
+|  be ifcs_acl_ace_remove acl=0x108 n=1
+|  be @B ifcs_acl_ace_remove(0, 0x108, 1, [0x113]) = SUCCESS
+block	5	60b41f6bc119ce6cd5ce68bb75c4ef696ebb221a9edeebe4bf086e27d4f52448	get hostif_trap t_arp TRAP_TYPE PACKET_ACTION TRAP_GROUP
+|> get hostif_trap t_arp TRAP_TYPE PACKET_ACTION TRAP_GROUP
+|= SUCCESS
+|  TRAP_TYPE=ARP_REQUEST
+|  PACKET_ACTION=DROP
+block	2	c760f85fe90ae9d7928fb33a6ccf7fa5918bf3079d7da951036198e2dd2bb555	create hostif_table_entry te TYPE=WILDCARD CHANNEL_TYPE=NETDEV_PHYSICAL_PORT
+|> create hostif_table_entry te TYPE=WILDCARD CHANNEL_TYPE=NETDEV_PHYSICAL_PORT
+|= SUCCESS
+block	2	7cc761ac1172016c705df3ee7a1750236218a1050dc09a70a37ee57b15f11b7f	remove hostif_table_entry te
+|> remove hostif_table_entry te
+|= SUCCESS
+block	88	86dd93cdb1d1b961532f6c33a09e300b8eb398194ca03b289775a9272eb428be	remove hostif_trap t_arp
+|> remove hostif_trap t_arp
+|= SUCCESS
+|  be ifcs_acl_ace_remove acl=0x108 n=1
+|  be @B ifcs_acl_ace_remove(0, 0x108, 1, [0x23c]) = SUCCESS
+block	220	d3b9cd1e379f7b7340c3f367fc035f4b4faaad05e00c82ad6563e515f173d0cd	remove hostif_trap t_bgp
+|> remove hostif_trap t_bgp
+|= SUCCESS
+|  be ifcs_acl_ace_remove acl=0x108 n=2
+|  be @B ifcs_acl_ace_remove(0, 0x108, 2, [0x13b,0x143]) = SUCCESS
+block	100	2c353cd2301fce6c9e0536e212f96e48b2a1fbbf5780812ad5836a3f560cccb6	remove hostif_trap t_lacp
+|> remove hostif_trap t_lacp
+|= SUCCESS
+|  be ifcs_acl_ace_remove acl=0x108 n=1
+|  be @B ifcs_acl_ace_remove(0, 0x108, 1, [0x1a0]) = SUCCESS
+block	244	961db8474eceea3cde469a567a14214bda7961988d55c7326a0c57c04199be04	remove hostif_trap t_lldp
+|> remove hostif_trap t_lldp
+|= SUCCESS
+|  be ifcs_acl_ace_remove acl=0x108 n=3
+|  be @B ifcs_acl_ace_remove(0, 0x108, 3, [0x1cb,0x1d1,0x1d7]) = SUCCESS
+block	2	a6e68b10312c0de1aaea1ae7e8e1c9fffaac231d8034d4175b7bd1d8163ac5bd	remove hostif_trap_group grp
+|> remove hostif_trap_group grp
+|= SUCCESS
+block	2	178c86f78c809079f0976914187756cc762610c26caa24542c61c650e80dc3e7	remove hostif_trap_group trapgroup0
+|> remove hostif_trap_group trapgroup0
+|= OBJECT_IN_USE
+block	4	28d84b5ab4793902791cf48f3ee586959f840572200244bfcd8d01274456fccd	remove hostif h0
+|> remove hostif h0
+|= SUCCESS
+|  be ifcs_netdev_delete h=0x102
+|  be @B ifcs_netdev_delete(0, 0x102) = SUCCESS
+block	2	d1aa5ddfb3e306cf89e56e42769246d22d9342b9725e786249eef0ba0b99769d	remove hostif h0
+|> remove hostif h0
+|= INVALID_OBJECT_ID
+block	24	6ce510965824ced6bf938bd728971524baac8454e793a6aa88e15b1c207788ab	remove_switch
+|> remove_switch
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=1 id=23 u32=0
+|  be @B ifcs_devport_attr_set(0, 1, 1, [{1700000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+bytes	829	ac7b84859c74d060a7d43064ccbcf8fea52763cf8620f1b36f8946eeda5e0cda
+|@B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+|@B ifcs_log_function_register(fn, ptr) = SUCCESS
+|@B ifcs_node_create(0, 0, null) = SUCCESS
+|@B ifcs_node_attr_set(0, 1, [{5200000000000000|01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+script	06-l3	exit 0	14a9e8956e2f2e3318af1141adf548fa209d103298f86a1adb6e173405174044	62
+block	2	4937cc2180446f254c0a5a00cb45f20cdcdd0d11376afb502f9bfd1654227f3c	profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|> profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|= SUCCESS
+block	2	60aa022238cbd6371b4700ae26935fc4af809d5c9d6de89c54269ea9bda2c2ca	profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|> profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|= SUCCESS
+block	2	096e146ebf26e11aaf9fc8184b061c5c08f4ba330f994cc8071f8bc514f79d8c	profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|> profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|= SUCCESS
+block	2	b913f9872e91c3c2028ab472579e8bddf4072cbff317e2e32731ccf21f408bcf	profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|> profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|= SUCCESS
+block	2	0057066edb546561c11d42134e7af80438788c980854499c247b22a0a75f303f	profile SAI_TERALYNX_NETDEV=create
+|> profile SAI_TERALYNX_NETDEV=create
+|= SUCCESS
+block	2	b0e48f15ecdfe7c459bac53d2bc7113e7c3b732f31f4918efd1a100f429febc5	profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|> profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|= SUCCESS
+block	103	5defceedf55b1833dedd790c5c9369dd0931538817bf747a491ac901e7c019aa	switch
+|> switch
+|= SUCCESS
+|  be ifcs_init cfg=<work>/d/run/config.yaml log=sai-teralynx boot=0 first=# generated init config
+|  be @B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+block	23	236731254a25a693ba42da7f105a3d7d5397383f0b0b7173e3fb485c728d3d2f	create router_interface rif3 VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=port3
+|> create router_interface rif3 VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=port3
+|= SUCCESS
+|  be ifcs_mdg_create h=0x102 count=0
+|  be @B ifcs_mdg_create(0, *0x102, 0, []) = SUCCESS
+block	2	2cc8e6dadef2324de623dac5b01e760a63f08d892274ca6379b0f7ccd29b1181	create router_interface rifdup VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=port3
+|> create router_interface rifdup VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=port3
+|= ITEM_ALREADY_EXISTS
+block	2	35a124355dacb48a1573622b1b8ac24810808c188c6ad15dbb339746192572d1	create next_hop nh1 TYPE=IP IP=10.0.0.2 ROUTER_INTERFACE_ID=rif3
+|> create next_hop nh1 TYPE=IP IP=10.0.0.2 ROUTER_INTERFACE_ID=rif3
+|= SUCCESS
+block	15	0688479f3c0eebf20616733ce3a52a0258baf19e6247c727f5a5470f0384ff4e	create route_entry 192.168.0.0/24@vr0 NEXT_HOP_ID=nh1
+|> create route_entry 192.168.0.0/24@vr0 NEXT_HOP_ID=nh1
+|= SUCCESS
+|  be ifcs_hostif_trap_create h=0x105 count=1 queue=0
+|  be @B ifcs_hostif_trap_create(0, *0x105, 1, [{0000000000000000|00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	28	eef84b7c9f04137b2d9f6cee4767aa905384b3da58727cd758f7cfba70d1e41f	create neighbor_entry 10.0.0.2@rif3 DST_MAC_ADDRESS=00:00:5e:00:53:01
+|> create neighbor_entry 10.0.0.2@rif3 DST_MAC_ADDRESS=00:00:5e:00:53:01
+|= SUCCESS
+|  be ifcs_nexthop_create h=0x106 count=3 intf=0x104 dest=0x3e200004
+|  be @B ifcs_nexthop_create(0, *0x106, 3, [{0200000000000000|040100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	15	d9d6548deccb1d41c8d0c6edc8807587d5840da4c4a3f304d0e10ef69b4349e6	create route_entry 10.0.0.1/32@vr0 NEXT_HOP_ID=cpu
+|> create route_entry 10.0.0.1/32@vr0 NEXT_HOP_ID=cpu
+|= SUCCESS
+|  be ifcs_hostif_trap_create h=0x107 count=1 queue=0
+|  be @B ifcs_hostif_trap_create(0, *0x107, 1, [{0000000000000000|00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	13	f597ab1d90c7a9bc9585eceff8eef6af1b0e44b3bda1e587db5c306bd115fe49	create route_entry 0.0.0.0/0@vr0 PACKET_ACTION=DROP
+|> create route_entry 0.0.0.0/0@vr0 PACKET_ACTION=DROP
+|= SUCCESS
+|  be @B ifcs_ip_prefix_t_init({00000000000000000000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be @B ifcs_ip_prefix_t_addr_family_set({00000000000000000000000000000000000000000000000000000000000000000000000000000000}, 0) = SUCCESS
+block	4	87f5db1146fe7f85e943c0e0b89a3bccbca33d32e5e746c451c3e1804881c400	get route_entry 192.168.0.77/24@vr0 NEXT_HOP_ID PACKET_ACTION
+|> get route_entry 192.168.0.77/24@vr0 NEXT_HOP_ID PACKET_ACTION
+|= SUCCESS
+|  NEXT_HOP_ID=nh1
+|  PACKET_ACTION=FORWARD
+block	3	2f6be61c131a77f66cdf994661a2ecf9473d11494e4e0c0379c99a9882be6892	create virtual_router vr1 SRC_MAC_ADDRESS=02:00:00:00:0a:01
+|> create virtual_router vr1 SRC_MAC_ADDRESS=02:00:00:00:0a:01
+|= SUCCESS
+|  be @B ifcs_node_attr_get(0, 3, [{3a00000000000000|010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	3	b0bea751679e8fe650a2cdf326c4b78abc260e73d05b3487b830bfa96cc90ea1	get virtual_router vr1 SRC_MAC_ADDRESS
+|> get virtual_router vr1 SRC_MAC_ADDRESS
+|= SUCCESS
+|  SRC_MAC_ADDRESS=02:00:00:00:0a:01
+block	21	d5b755a57fc1882f1d554ef4458810f0a01f86a126078898128b562a6fb686ef	create router_interface rif6 VIRTUAL_ROUTER_ID=vr1 TYPE=PORT PORT_ID=port6
+|> create router_interface rif6 VIRTUAL_ROUTER_ID=vr1 TYPE=PORT PORT_ID=port6
+|= SUCCESS
+|  be ifcs_mdg_create h=0x108 count=0
+|  be @B ifcs_mdg_create(0, *0x108, 0, []) = SUCCESS
+block	19	22ae02adda0bf49684df0586d67ba598bd54fc83fb4f045e8a45e4d717ee8f89	create router_interface rif7 VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=port7
+|> create router_interface rif7 VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=port7
+|= SUCCESS
+|  be ifcs_mdg_create h=0x10b count=0
+|  be @B ifcs_mdg_create(0, *0x10b, 0, []) = SUCCESS
+block	4	6afe75397b9e42b7c25341e09c106592bc438de74b5c5c8e02d3fecb31f65165	set router_interface rif6 MTU=9100
+|> set router_interface rif6 MTU=9100
+|= SUCCESS
+|  be ifcs_intf_attr_set h=0x10a count=1 id=24
+|  be @B ifcs_intf_attr_set(0, 0x10a, 1, [{1800000000000000|8c230000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	15	318659acb0aedb1bd2e2b0b116ce13dddf7384f12c82a70043ccfb0b04c24d63	create neighbor_entry 10.9.0.1@rif6 DST_MAC_ADDRESS=00:00:5e:00:53:11
+|> create neighbor_entry 10.9.0.1@rif6 DST_MAC_ADDRESS=00:00:5e:00:53:11
+|= SUCCESS
+|  be ifcs_nexthop_create h=0x10e count=3 intf=0x10a dest=0x3e200007
+|  be @B ifcs_nexthop_create(0, *0x10e, 3, [{0200000000000000|0a0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	15	d718a15af060497668d31f108260609e86c89144d184917285fc2f8624730458	create neighbor_entry 10.9.0.1@rif7 DST_MAC_ADDRESS=00:00:5e:00:53:12
+|> create neighbor_entry 10.9.0.1@rif7 DST_MAC_ADDRESS=00:00:5e:00:53:12
+|= SUCCESS
+|  be ifcs_nexthop_create h=0x10f count=3 intf=0x10d dest=0x3e200008
+|  be @B ifcs_nexthop_create(0, *0x10f, 3, [{0200000000000000|0d0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	2	027ad634968fc918d74c8a35aa7883e6849c2d4bd491df184bf2694e8cf0447c	create next_hop nh6 TYPE=IP IP=10.9.0.1 ROUTER_INTERFACE_ID=rif6
+|> create next_hop nh6 TYPE=IP IP=10.9.0.1 ROUTER_INTERFACE_ID=rif6
+|= SUCCESS
+block	2	b403b36df0a069173a17f431ab8d405f080275dcab47b7ef3113ee097e4e84f2	create next_hop nh7 TYPE=IP IP=10.9.0.1 ROUTER_INTERFACE_ID=rif7
+|> create next_hop nh7 TYPE=IP IP=10.9.0.1 ROUTER_INTERFACE_ID=rif7
+|= SUCCESS
+block	13	51929f73e1dc630d00561e82ee66151bfe736902601c8f7d38474b18f1eaa8f9	create route_entry 198.51.100.0/24@vr1 NEXT_HOP_ID=nh6
+|> create route_entry 198.51.100.0/24@vr1 NEXT_HOP_ID=nh6
+|= SUCCESS
+|  be @B ifcs_ip_prefix_t_init({00000000000000000000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be @B ifcs_ip_prefix_t_addr_family_set({00000000000000000000000000000000000000000000000000000000000000000000000000000000}, 0) = SUCCESS
+block	13	40df1254741b693884ace286c51988ba8c8c9ed66ec5e6965032ace99bd73a10	create route_entry 203.0.113.0/24@vr1 NEXT_HOP_ID=nh7
+|> create route_entry 203.0.113.0/24@vr1 NEXT_HOP_ID=nh7
+|= SUCCESS
+|  be @B ifcs_ip_prefix_t_init({00000000000000000000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be @B ifcs_ip_prefix_t_addr_family_set({00000000000000000000000000000000000000000000000000000000000000000000000000000000}, 0) = SUCCESS
+block	2	3e710ba2e2d1e12085c8b2c28f17351d0aea5b859f656d39097ea1f0c4d29ae3	create next_hop nhb TYPE=IP IP=10.8.1.1 ROUTER_INTERFACE_ID=rif7
+|> create next_hop nhb TYPE=IP IP=10.8.1.1 ROUTER_INTERFACE_ID=rif7
+|= SUCCESS
+block	2	4a2101a6fabe56aa96dca47d87122a838616a4cf39ae2a7a2f1bc29d6752724f	create next_hop_group grp TYPE=ECMP
+|> create next_hop_group grp TYPE=ECMP
+|= SUCCESS
+block	13	f9016470a1f5f77225517e61f96efb087536e607d8763f8b3613f819b3383fd3	create route_entry 192.0.2.0/24@vr0 NEXT_HOP_ID=grp
+|> create route_entry 192.0.2.0/24@vr0 NEXT_HOP_ID=grp
+|= SUCCESS
+|  be @B ifcs_ip_prefix_t_init({00000000000000000000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be @B ifcs_ip_prefix_t_addr_family_set({00000000000000000000000000000000000000000000000000000000000000000000000000000000}, 0) = SUCCESS
+block	19	5c5dd86e4fe64d3dd8d5512fd06cbdc88808dd2fcb7ef5e3d82d490b88d3ea3a	create next_hop_group_member ma NEXT_HOP_GROUP_ID=grp NEXT_HOP_ID=nh7
+|> create next_hop_group_member ma NEXT_HOP_GROUP_ID=grp NEXT_HOP_ID=nh7
+|= SUCCESS
+|  be ifcs_ecmp_create h=0x110 count=0
+|  be @B ifcs_ecmp_create(0, *0x110, 0, []) = SUCCESS
+block	2	bd62374625b7c9572663d341a4bfd75910abfedfc09e557f744cdde87c10f51e	create next_hop_group_member mb NEXT_HOP_GROUP_ID=grp NEXT_HOP_ID=nhb WEIGHT=2
+|> create next_hop_group_member mb NEXT_HOP_GROUP_ID=grp NEXT_HOP_ID=nhb WEIGHT=2
+|= SUCCESS
+block	17	ce5dbca56b880597efee0ec119ac5ffd0e386a8db78d540afe68b5eda9fbe392	create neighbor_entry 10.8.1.1@rif7 DST_MAC_ADDRESS=00:00:5e:00:53:22
+|> create neighbor_entry 10.8.1.1@rif7 DST_MAC_ADDRESS=00:00:5e:00:53:22
+|= SUCCESS
+|  be ifcs_nexthop_create h=0x111 count=3 intf=0x10d dest=0x3e200008
+|  be @B ifcs_nexthop_create(0, *0x111, 3, [{0200000000000000|0d0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	4	8a0018eb88791e73d0f1d5505bfde14b8c8c1b7e071d57fcc012237f14b8c046	set next_hop_group_member ma WEIGHT=3
+|> set next_hop_group_member ma WEIGHT=3
+|= SUCCESS
+|  be ifcs_ecmp_member_replace ecmp=0x110 n=5 first=0x10f
+|  be @B ifcs_ecmp_member_replace(0, 0x110, 5, [0x10f,0x10f,0x10f,0x111,0x111], 0, null) = SUCCESS
+block	4	bb1b10e8ef5d2109837faf10dc04095647d862c63b56cd79486c748965e347de	get next_hop_group grp NEXT_HOP_COUNT NEXT_HOP_MEMBER_LIST
+|> get next_hop_group grp NEXT_HOP_COUNT NEXT_HOP_MEMBER_LIST
+|= SUCCESS
+|  NEXT_HOP_COUNT=2
+|  NEXT_HOP_MEMBER_LIST=[ma,mb]
+block	10	16f3949aab05df86c471785051f8a1eb2a4e5afc2ed27ea7dcd71722b31f46b5	get switch switch AVAILABLE_NEXT_HOP_GROUP_ENTRY AVAILABLE_NEXT_HOP_GROUP_MEMBER_ENTRY
+|> get switch switch AVAILABLE_NEXT_HOP_GROUP_ENTRY AVAILABLE_NEXT_HOP_GROUP_MEMBER_ENTRY
+|= SUCCESS
+|  AVAILABLE_NEXT_HOP_GROUP_ENTRY=512
+|  AVAILABLE_NEXT_HOP_GROUP_MEMBER_ENTRY=32763
+block	2	7631246d29e6df88dc8b3a3958d5fb2c90959b57dbf7e71b3c4fbae2442072cd	remove next_hop nh7
+|> remove next_hop nh7
+|= OBJECT_IN_USE
+block	4	7ac01d2a0ec79b473571b6665f9ce336be005911b596d328f1e1683073ecc2bf	remove next_hop_group_member ma
+|> remove next_hop_group_member ma
+|= SUCCESS
+|  be ifcs_ecmp_member_replace ecmp=0x110 n=2 first=0x111
+|  be @B ifcs_ecmp_member_replace(0, 0x110, 2, [0x111,0x111], 0, null) = SUCCESS
+block	19	c5548621712aad960b7f218ce93cc1beac842d1a8f91880a4028af5bbe0325b0	remove next_hop_group_member mb
+|> remove next_hop_group_member mb
+|= SUCCESS
+|  be @B ifcs_ip_prefix_t_init({00000000000000000000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be @B ifcs_ip_prefix_t_addr_family_set({00000000000000000000000000000000000000000000000000000000000000000000000000000000}, 0) = SUCCESS
+block	13	37bb61f643bbe7ab9fa822de12ad745778cbb4a7532bfca903109d25e7ddc10b	remove route_entry 192.0.2.0/24@vr0
+|> remove route_entry 192.0.2.0/24@vr0
+|= SUCCESS
+|  be @B ifcs_ip_prefix_t_init({00000000000000000000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be @B ifcs_ip_prefix_t_addr_family_set({00000000000000000000000000000000000000000000000000000000000000000000000000000000}, 0) = SUCCESS
+block	2	18ac0297f699c3ebe2ead28b4a9ef3ffbb51895cf0600a116e28a756dc3135fe	remove next_hop_group grp
+|> remove next_hop_group grp
+|= SUCCESS
+block	13	1d506df20a0dee0aaf603bb70df88e7188dbd046ed262491f7befbaea0d6b67b	remove route_entry 198.51.100.0/24@vr1
+|> remove route_entry 198.51.100.0/24@vr1
+|= SUCCESS
+|  be @B ifcs_ip_prefix_t_init({00000000000000000000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be @B ifcs_ip_prefix_t_addr_family_set({00000000000000000000000000000000000000000000000000000000000000000000000000000000}, 0) = SUCCESS
+block	13	ee48428fb133a5867761098208ecab112a6de3016e2d37f2dcae9a66bdaa5491	remove route_entry 203.0.113.0/24@vr1
+|> remove route_entry 203.0.113.0/24@vr1
+|= SUCCESS
+|  be @B ifcs_ip_prefix_t_init({00000000000000000000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be @B ifcs_ip_prefix_t_addr_family_set({00000000000000000000000000000000000000000000000000000000000000000000000000000000}, 0) = SUCCESS
+block	2	58aae8d5b49e4727ef664287dc1402fee843c0b72b17f5fe57e4141d593af9c2	remove next_hop nh6
+|> remove next_hop nh6
+|= SUCCESS
+block	2	8098e3b1a0f90e8dbfcc4088e0026d8145861564bd0445146242927b00a612bf	remove next_hop nh7
+|> remove next_hop nh7
+|= SUCCESS
+block	2	2f00ead0ba875a213789f4ef76f8d48bf3eb7c21c024173a9ff03ca3d85de745	remove next_hop nhb
+|> remove next_hop nhb
+|= SUCCESS
+block	15	22c385ff6dea89c35ed2079f6b7c134b27c898d9841e9f8cedc5d5300170db1c	remove neighbor_entry 10.9.0.1@rif6
+|> remove neighbor_entry 10.9.0.1@rif6
+|= SUCCESS
+|  be @B ifcs_ip_prefix_t_init({00000000000000000000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be @B ifcs_ip_prefix_t_addr_family_set({00000000000000000000000000000000000000000000000000000000000000000000000000000000}, 0) = SUCCESS
+block	15	584ecebc0293b8d1017eef5f81b6964c600734669e66c151611c591a2b2067c0	remove neighbor_entry 10.9.0.1@rif7
+|> remove neighbor_entry 10.9.0.1@rif7
+|= SUCCESS
+|  be @B ifcs_ip_prefix_t_init({00000000000000000000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be @B ifcs_ip_prefix_t_addr_family_set({00000000000000000000000000000000000000000000000000000000000000000000000000000000}, 0) = SUCCESS
+block	15	2e7d5811d0f9a99da9244e9fd84dcc32932082aa508d9ca25934966497543836	remove neighbor_entry 10.8.1.1@rif7
+|> remove neighbor_entry 10.8.1.1@rif7
+|= SUCCESS
+|  be @B ifcs_ip_prefix_t_init({00000000000000000000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be @B ifcs_ip_prefix_t_addr_family_set({00000000000000000000000000000000000000000000000000000000000000000000000000000000}, 0) = SUCCESS
+block	20	4f91e2ca737905eafd57aac58d6f9a57a4e26e249fa9f0dd470d0b8adeb7f143	remove router_interface rif6
+|> remove router_interface rif6
+|= SUCCESS
+|  be ifcs_intf_delete h=0x10a found=1
+|  be @B ifcs_intf_delete(0, 0x10a) = SUCCESS
+block	20	a9449e8170241323cf43ada76ee9ccb023a7dca0b054d7c99f4894d604c8eeb1	remove router_interface rif7
+|> remove router_interface rif7
+|= SUCCESS
+|  be ifcs_intf_delete h=0x10d found=1
+|  be @B ifcs_intf_delete(0, 0x10d) = SUCCESS
+block	2	c1382b9c702a897a2237d488541ad8d60866e4b36ca623e5347fa4d6084ceb08	remove virtual_router vr1
+|> remove virtual_router vr1
+|= SUCCESS
+block	13	17ef75b61963d89f27c30f886f541a57711230ff7bbdee34eaa0bac4f34ac020	remove route_entry 192.168.0.0/24@vr0
+|> remove route_entry 192.168.0.0/24@vr0
+|= SUCCESS
+|  be @B ifcs_ip_prefix_t_init({00000000000000000000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be @B ifcs_ip_prefix_t_addr_family_set({00000000000000000000000000000000000000000000000000000000000000000000000000000000}, 0) = SUCCESS
+block	2	80dbaa2455e17943b983e4dd9cc2a1dbc90b5d8b592d906126a060a30ba399ff	remove next_hop nh1
+|> remove next_hop nh1
+|= SUCCESS
+block	15	81f40d1962a21e2cca75816ce44addddf8e559b6ff83a0d8fb6472957c229bf4	remove neighbor_entry 10.0.0.2@rif3
+|> remove neighbor_entry 10.0.0.2@rif3
+|= SUCCESS
+|  be @B ifcs_ip_prefix_t_init({00000000000000000000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be @B ifcs_ip_prefix_t_addr_family_set({00000000000000000000000000000000000000000000000000000000000000000000000000000000}, 0) = SUCCESS
+block	13	93b3aca00e944bc0122c840daf54f5b9de1a0bc7966b5943e6368238bcb679fe	remove route_entry 10.0.0.1/32@vr0
+|> remove route_entry 10.0.0.1/32@vr0
+|= SUCCESS
+|  be @B ifcs_ip_prefix_t_init({00000000000000000000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be @B ifcs_ip_prefix_t_addr_family_set({00000000000000000000000000000000000000000000000000000000000000000000000000000000}, 0) = SUCCESS
+block	13	d6331ee605345926f3cea948f9c0c548057fad9f4fb7e610f0a2bfa5a3438723	remove route_entry 0.0.0.0/0@vr0
+|> remove route_entry 0.0.0.0/0@vr0
+|= SUCCESS
+|  be @B ifcs_ip_prefix_t_init({00000000000000000000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be @B ifcs_ip_prefix_t_addr_family_set({00000000000000000000000000000000000000000000000000000000000000000000000000000000}, 0) = SUCCESS
+block	20	0ec08a798c2b811484bab7e5117c433fbfed2d637babb172af00dc8b2005e340	remove router_interface rif3
+|> remove router_interface rif3
+|= SUCCESS
+|  be ifcs_intf_delete h=0x104 found=1
+|  be @B ifcs_intf_delete(0, 0x104) = SUCCESS
+block	6	9ad1cf88ea7c75f91210b4c07de535303913b642147d4d6788c68c3dc4573577	create vlan v200 VLAN_ID=200
+|> create vlan v200 VLAN_ID=200
+|= SUCCESS
+|  be ifcs_mdg_create h=0x112 count=0
+|  be @B ifcs_mdg_create(0, *0x112, 0, []) = SUCCESS
+block	4	69a15536ea7bbad56a4788fc7541ca92ece6740e85a867313c5d0cecf1cff43c	create router_interface vrif VIRTUAL_ROUTER_ID=vr0 TYPE=VLAN VLAN_ID=v200
+|> create router_interface vrif VIRTUAL_ROUTER_ID=vr0 TYPE=VLAN VLAN_ID=v200
+|= SUCCESS
+|  be ifcs_intf_create h=0x113 count=7 type=1 fwd=0x26200001 transport=0x242000c8
+|  be @B ifcs_intf_create(0, *0x113, 7, [{0000000000000000|010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	4	dd8548ccd09572c5078231b6ec60d0102c58214167374e11e0536e55e4aa6dda	remove router_interface vrif
+|> remove router_interface vrif
+|= SUCCESS
+|  be ifcs_intf_delete h=0x113 found=1
+|  be @B ifcs_intf_delete(0, 0x113) = SUCCESS
+block	8	8d0466dbb6f2c8a020e6987a4e4e37301d2a203587a5fcfc5154a76dfea77e9f	remove vlan v200
+|> remove vlan v200
+|= SUCCESS
+|  be ifcs_l2_entry_get_all
+|  be @B ifcs_l2_entry_get_all(0, null, 0, null, fn, ptr, *0) = SUCCESS
+block	24	6ce510965824ced6bf938bd728971524baac8454e793a6aa88e15b1c207788ab	remove_switch
+|> remove_switch
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=1 id=23 u32=0
+|  be @B ifcs_devport_attr_set(0, 1, 1, [{1700000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+bytes	397	114dee2ee4c881a014736b9f7b9ad9f556924befcb0a9c2f423578485a215fba
+|@B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+|@B ifcs_log_function_register(fn, ptr) = SUCCESS
+|@B ifcs_node_create(0, 0, null) = SUCCESS
+|@B ifcs_node_attr_set(0, 1, [{5200000000000000|01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+script	07-acl-copp	exit 0	ad50839914664d98dcb38d2a5ae9284f7649e994a78700fe031eb2eead235213	45
+block	2	4937cc2180446f254c0a5a00cb45f20cdcdd0d11376afb502f9bfd1654227f3c	profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|> profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|= SUCCESS
+block	2	60aa022238cbd6371b4700ae26935fc4af809d5c9d6de89c54269ea9bda2c2ca	profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|> profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|= SUCCESS
+block	2	096e146ebf26e11aaf9fc8184b061c5c08f4ba330f994cc8071f8bc514f79d8c	profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|> profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|= SUCCESS
+block	2	b913f9872e91c3c2028ab472579e8bddf4072cbff317e2e32731ccf21f408bcf	profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|> profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|= SUCCESS
+block	2	0057066edb546561c11d42134e7af80438788c980854499c247b22a0a75f303f	profile SAI_TERALYNX_NETDEV=create
+|> profile SAI_TERALYNX_NETDEV=create
+|= SUCCESS
+block	2	b0e48f15ecdfe7c459bac53d2bc7113e7c3b732f31f4918efd1a100f429febc5	profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|> profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|= SUCCESS
+block	103	5defceedf55b1833dedd790c5c9369dd0931538817bf747a491ac901e7c019aa	switch
+|> switch
+|= SUCCESS
+|  be ifcs_init cfg=<work>/d/run/config.yaml log=sai-teralynx boot=0 first=# generated init config
+|  be @B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+block	2	f21d8e8f6b28d4b491368b968264fec39e519647e475030132aa85f8d75478d8	create policer pol METER_TYPE=PACKETS MODE=SR_TCM CIR=600 CBS=600 RED_PACKET_ACTION=DROP
+|> create policer pol METER_TYPE=PACKETS MODE=SR_TCM CIR=600 CBS=600 RED_PACKET_ACTION=DROP
+|= SUCCESS
+block	5	7117e3f99470446edd8108b2ff764e97a47aede2434cb42e9144430c78cc9fa8	get policer pol CIR RED_PACKET_ACTION COLOR_SOURCE
+|> get policer pol CIR RED_PACKET_ACTION COLOR_SOURCE
+|= SUCCESS
+|  CIR=600
+|  RED_PACKET_ACTION=DROP
+block	2	791db11a1c2f08398955168fdf06fb27675ab26fafb545678ce9055f66b6049a	set policer pol CIR=1000
+|> set policer pol CIR=1000
+|= SUCCESS
+block	2	ad7a98b9132b1830e218879367787be12b31b04fc6cd2b464185e41368fc7559	create hostif_trap_group grp QUEUE=4 POLICER=pol
+|> create hostif_trap_group grp QUEUE=4 POLICER=pol
+|= SUCCESS
+block	166	3e35a7e3ad94e2909d91cc1e66cfdf172bb90bf7d8a13ed526d7a7146db4c565	create hostif_trap t_arp TRAP_TYPE=ARP_REQUEST PACKET_ACTION=COPY TRAP_GROUP=grp
+|> create hostif_trap t_arp TRAP_TYPE=ARP_REQUEST PACKET_ACTION=COPY TRAP_GROUP=grp
+|= SUCCESS
+|  be ifcs_hostif_trap_attr_set h=0x18200017 id=0 u32=0
+|  be ifcs_hostif_trap_attr_set h=0x18200017 id=1 u32=1
+block	124	1d48e4268a05ebcce226831c9514c4db5c9cc2845883cbd748d9e64bd91aabf6	create hostif_trap t_lacp TRAP_TYPE=LACP PACKET_ACTION=TRAP TRAP_GROUP=grp
+|> create hostif_trap t_lacp TRAP_TYPE=LACP PACKET_ACTION=TRAP TRAP_GROUP=grp
+|= SUCCESS
+|  be ifcs_hostif_trap_create h=0x143 count=1 queue=4
+|  be @B ifcs_hostif_trap_create(0, *0x143, 1, [{0000000000000000|04000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	268	2a2f95568db0e431e1b8e9f809ce7c0215d81fec0585e52d4e5e6f52f58d458d	create hostif_trap t_bgp TRAP_TYPE=BGP PACKET_ACTION=TRAP TRAP_GROUP=grp
+|> create hostif_trap t_bgp TRAP_TYPE=BGP PACKET_ACTION=TRAP TRAP_GROUP=grp
+|= SUCCESS
+|  be ifcs_hostif_trap_create h=0x17a count=1 queue=4
+|  be @B ifcs_hostif_trap_create(0, *0x17a, 1, [{0000000000000000|04000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	112	ab23319cf7253b9db5fdcd4699c70c18ec4374cda13c4cc693e3f6903234cdd4	create hostif_trap t_ip2me TRAP_TYPE=IP2ME PACKET_ACTION=TRAP TRAP_GROUP=grp
+|> create hostif_trap t_ip2me TRAP_TYPE=IP2ME PACKET_ACTION=TRAP TRAP_GROUP=grp
+|= SUCCESS
+|  be ifcs_hostif_trap_attr_set h=0x102 id=0 u32=4
+|  be @B ifcs_hostif_trap_attr_set(0, 0x102, 1, [{0000000000000000|0400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	1178	3354655c79a05ba4c67ec12bc261416027876cb6aa34ad38ec0055dcc793b28e	set policer pol RED_PACKET_ACTION=FORWARD
+|> set policer pol RED_PACKET_ACTION=FORWARD
+|= SUCCESS
+|  be ifcs_acl_meter_attr_set h=0x10e id=7 u64=672000
+|  be @B ifcs_acl_meter_attr_set(0, 0x10e, 1, [{0700000000000000|00410a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	194	b1b4def3132af00df63ff77a7052aaa7c028cecee598cf6cb2042fdf6d8fdcd6	set hostif_trap t_lacp PACKET_ACTION=DROP
+|> set hostif_trap t_lacp PACKET_ACTION=DROP
+|= SUCCESS
+|  be ifcs_acl_ace_remove acl=0x107 n=1
+|  be @B ifcs_acl_ace_remove(0, 0x107, 1, [0x25a]) = SUCCESS
+block	986	31048447f422c882c5b84c118026b321fa1f9b52528b7acb4ba1f10a96680b7f	set hostif_trap_group grp POLICER=null
+|> set hostif_trap_group grp POLICER=null
+|= SUCCESS
+|  be ifcs_acl_ace_remove acl=0x107 n=1
+|  be @B ifcs_acl_ace_remove(0, 0x107, 1, [0x22f]) = SUCCESS
+block	88	ae29d28f9548831ff21688b7e41dff62bdbec189a6eaccb5fc8e4745d0713d99	remove hostif_trap t_arp
+|> remove hostif_trap t_arp
+|= SUCCESS
+|  be ifcs_acl_ace_remove acl=0x107 n=1
+|  be @B ifcs_acl_ace_remove(0, 0x107, 1, [0x348]) = SUCCESS
+block	88	f0344993b0dc5611c0040bb264182214d2b6b8c7e2d88a3971a3bfdb7dd45e16	remove hostif_trap t_lacp
+|> remove hostif_trap t_lacp
+|= SUCCESS
+|  be ifcs_acl_ace_remove acl=0x107 n=1
+|  be @B ifcs_acl_ace_remove(0, 0x107, 1, [0x36c]) = SUCCESS
+block	220	a21dec19942dcdeba39e8781da3b6634facfa96436df8fd0512730dbb6d0c1e0	remove hostif_trap t_bgp
+|> remove hostif_trap t_bgp
+|= SUCCESS
+|  be ifcs_acl_ace_remove acl=0x107 n=2
+|  be @B ifcs_acl_ace_remove(0, 0x107, 2, [0x393,0x39b]) = SUCCESS
+block	88	0b365b8d9d39f953d62005576f4d87d2a416c5a3ec63fd395eb89b4472ff6241	remove hostif_trap t_ip2me
+|> remove hostif_trap t_ip2me
+|= SUCCESS
+|  be ifcs_acl_ace_remove acl=0x107 n=1
+|  be @B ifcs_acl_ace_remove(0, 0x107, 1, [0x3f6]) = SUCCESS
+block	2	a6e68b10312c0de1aaea1ae7e8e1c9fffaac231d8034d4175b7bd1d8163ac5bd	remove hostif_trap_group grp
+|> remove hostif_trap_group grp
+|= SUCCESS
+block	12	3f24e6d43a9e90810f8349419745cd97ea42f83e8d0d5d7a1741a96cc3115dd9	create acl_table t ACL_STAGE=INGRESS ACL_BIND_POINT_TYPE_LIST=[PORT,LAG] FIELD_ETHER_TYPE=true FIELD_DST_IP=true FIELD_L4_DST_PORT=true FIELD_ACL_RANGE_TYPE=[L4_SRC_PORT_RANGE,L4_DST_PORT_RANGE]
+|> create acl_table t ACL_STAGE=INGRESS ACL_BIND_POINT_TYPE_LIST=[PORT,LAG] FIELD_ETHER_TYPE=true FIELD_DST_IP=true FIELD_L4_DST_PORT=true FIELD_ACL_RANGE_TYPE=[
+|= SUCCESS
+|  be ifcs_acl_match_profile_create h=0x415 types=4 width=160 sharing=1 list=4,18,29,60
+|  be @B ifcs_acl_match_profile_create(0, *0x415, 6, [{0900000000000000|00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	2	ea42e98bc322b54c82de4b59dc179d8f91d21719e79cf303e08fd09963ad0fe1	create acl_counter k TABLE_ID=t ENABLE_PACKET_COUNT=true ENABLE_BYTE_COUNT=true
+|> create acl_counter k TABLE_ID=t ENABLE_PACKET_COUNT=true ENABLE_BYTE_COUNT=true
+|= SUCCESS
+block	2	b6ab002e694b9ac72ee0f53a0cb7d29216a24e9f7d83dcce2c8f0a49ee434d42	create acl_entry e TABLE_ID=t PRIORITY=9000 ADMIN_STATE=true ACTION_COUNTER=k FIELD_DST_IP=10.0.0.1/255.255.255.255 ACTION_PACKET_ACTION=DROP
+|> create acl_entry e TABLE_ID=t PRIORITY=9000 ADMIN_STATE=true ACTION_COUNTER=k FIELD_DST_IP=10.0.0.1/255.255.255.255 ACTION_PACKET_ACTION=DROP
+|= INVALID_ATTR_VALUE_1
+block	2	60e21a42d5a5f93dd1c162318ea2780dc001fef72379f6dcd784f6b22dfda22b	create acl_table_group g ACL_STAGE=INGRESS ACL_BIND_POINT_TYPE_LIST=[PORT] TYPE=PARALLEL
+|> create acl_table_group g ACL_STAGE=INGRESS ACL_BIND_POINT_TYPE_LIST=[PORT] TYPE=PARALLEL
+|= SUCCESS
+block	2	bbaba01af320178b0e9a00c827f85a27536d849fa9cd5350db05ef7e0d68b016	set port port2 INGRESS_ACL=g
+|> set port port2 INGRESS_ACL=g
+|= SUCCESS
+block	2	a1eb346a70cf0b0976649d12daeaaec4c4be0d699d4c600e766ef57359531130	create acl_table_group_member gm ACL_TABLE_GROUP_ID=g ACL_TABLE_ID=t PRIORITY=100
+|> create acl_table_group_member gm ACL_TABLE_GROUP_ID=g ACL_TABLE_ID=t PRIORITY=100
+|= SUCCESS
+block	2	6ff0bfcc1f324d6160f001c1d032d7eb9ca69d9555d34317d22381ab172a6e49	set port port3 INGRESS_ACL=g
+|> set port port3 INGRESS_ACL=g
+|= SUCCESS
+block	4	65aa46fa20f7d66e4835a4813c2662f56c2c590b7c8b3e00099725d3816697b8	get acl_counter k PACKETS BYTES
+|> get acl_counter k PACKETS BYTES
+|= SUCCESS
+|  PACKETS=0
+|  BYTES=0
+block	2	46cce37a9d16d01934ea06ee5a0cd159c2360addae53b395746b6df5b9847f61	set acl_entry e ACTION_PACKET_ACTION=FORWARD
+|> set acl_entry e ACTION_PACKET_ACTION=FORWARD
+|= PARSE_ERROR unknown name 'e'
+block	2	b59e9270ba6519f7e72b977e152e5a491639b1603a0600efa43fb2a9cbbacae6	set acl_entry e ADMIN_STATE=false
+|> set acl_entry e ADMIN_STATE=false
+|= PARSE_ERROR unknown name 'e'
+block	2	db6272d62a3b2e68b585bde7b0880ec830645eaf9d66c73e12b591cdeef826cc	set acl_entry e ADMIN_STATE=true
+|> set acl_entry e ADMIN_STATE=true
+|= PARSE_ERROR unknown name 'e'
+block	2	2a6a65780763f7e8c6b142797dbe1ae14745ce4e0f1549759f238f436d24beb4	get acl_entry e PRIORITY FIELD_DST_IP ACTION_PACKET_ACTION
+|> get acl_entry e PRIORITY FIELD_DST_IP ACTION_PACKET_ACTION
+|= PARSE_ERROR unknown name 'e'
+block	2	0b6c26e7149b57b1dec6c795fa5dbc1f424b1454a15b404cb0ca8f20a431f83b	remove acl_table t
+|> remove acl_table t
+|= OBJECT_IN_USE
+block	2	4e89f4fe3a55b780ad208c4fb1cc11c2c5e89cf212215ef5e1c0e836e468d012	remove acl_entry e
+|> remove acl_entry e
+|= PARSE_ERROR unknown name 'e'
+block	2	800bb45d1760633ce720c98133483513e6f3a80deb233d7ff6ffddaef6dc2387	remove acl_counter k
+|> remove acl_counter k
+|= SUCCESS
+block	2	e6771ff87b4d4d37765af5582cbd50d6e53e50cf14a53201481bd8be2884529c	remove acl_table_group_member gm
+|> remove acl_table_group_member gm
+|= SUCCESS
+block	2	0da838c463e78013d87ae68912645136c444ccaf9f862f467ef9750a8cb09395	set port port2 INGRESS_ACL=null
+|> set port port2 INGRESS_ACL=null
+|= SUCCESS
+block	2	ea3a467b6039ed5d7d53a5e5fb3059eaf4abc125b32f21c9f847817148af65a9	set port port3 INGRESS_ACL=null
+|> set port port3 INGRESS_ACL=null
+|= SUCCESS
+block	2	caa8dc94e2a2d48c26223002c0fc351fdf35168725ba410d8cc9abb31a0dcc6f	remove acl_table_group g
+|> remove acl_table_group g
+|= SUCCESS
+block	12	dd59150e74a11a194564781f502ad9ee93ecadbc83413bff1adc597a1bfa608d	remove acl_table t
+|> remove acl_table t
+|= SUCCESS
+|  be ifcs_acl_table_acl_remove table=0x417 n=1
+|  be @B ifcs_acl_table_acl_remove(0, 0x417, 1, [0x418]) = SUCCESS
+block	14	d9a5fab8464a74cada17bec6d3d45fe548c98506ce41a8999d5a921e55b27f24	remove policer pol
+|> remove policer pol
+|= SUCCESS
+|  be ifcs_acl_meter_delete h=0x10e
+|  be @B ifcs_acl_meter_delete(0, 0x10e) = SUCCESS
+block	24	6ce510965824ced6bf938bd728971524baac8454e793a6aa88e15b1c207788ab	remove_switch
+|> remove_switch
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=1 id=23 u32=0
+|  be @B ifcs_devport_attr_set(0, 1, 1, [{1700000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+bytes	1838	bc76d5dd100f270b5b93043693a4ce94794f9465bb68db3ddb24cd20ec16a035
+|@B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+|@B ifcs_log_function_register(fn, ptr) = SUCCESS
+|@B ifcs_node_create(0, 0, null) = SUCCESS
+|@B ifcs_node_attr_set(0, 1, [{5200000000000000|01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+script	08-qos	exit 0	e6d27e84887dce407e6fe707650d56826f1bdf4ca0eb362da26f98f15e8b7654	48
+block	2	4937cc2180446f254c0a5a00cb45f20cdcdd0d11376afb502f9bfd1654227f3c	profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|> profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|= SUCCESS
+block	2	60aa022238cbd6371b4700ae26935fc4af809d5c9d6de89c54269ea9bda2c2ca	profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|> profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|= SUCCESS
+block	2	096e146ebf26e11aaf9fc8184b061c5c08f4ba330f994cc8071f8bc514f79d8c	profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|> profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|= SUCCESS
+block	2	b913f9872e91c3c2028ab472579e8bddf4072cbff317e2e32731ccf21f408bcf	profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|> profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|= SUCCESS
+block	2	0057066edb546561c11d42134e7af80438788c980854499c247b22a0a75f303f	profile SAI_TERALYNX_NETDEV=create
+|> profile SAI_TERALYNX_NETDEV=create
+|= SUCCESS
+block	2	b0e48f15ecdfe7c459bac53d2bc7113e7c3b732f31f4918efd1a100f429febc5	profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|> profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|= SUCCESS
+block	103	5defceedf55b1833dedd790c5c9369dd0931538817bf747a491ac901e7c019aa	switch
+|> switch
+|= SUCCESS
+|  be ifcs_init cfg=<work>/d/run/config.yaml log=sai-teralynx boot=0 first=# generated init config
+|  be @B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+block	5	c971b36fb4407a332bc0c1004f8320cd9009ef3154a0f61a7870ac27bfeacd3c	create qos_map m0 TYPE=DSCP_TO_TC MAP_TO_VALUE_LIST=[dscp:46=tc:5]
+|> create qos_map m0 TYPE=DSCP_TO_TC MAP_TO_VALUE_LIST=[dscp:46=tc:5]
+|= SUCCESS
+|  be @B ifcs_qos_map_info_t_init({0000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be ifcs_qos_map_create h=0x102 type=1 count=64 0:0/0 1:0/0 2:0/0 3:0/0 4:0/0 5:0/0 6:0/0 7:0/0 8:0/0 9:0/0 10:0/0 11:0/0 12:0/0 13:0/0 14:0/0 15:0/0 16:0/0 17
+block	8	fce910c8e7e22221a83f8c3bb590734d89f212069368650d7bd5b713abf49dab	set port port1 QOS_DSCP_TO_TC_MAP=m0
+|> set port port1 QOS_DSCP_TO_TC_MAP=m0
+|= SUCCESS
+|  be ifcs_qos_map_group_create h=0x103 0=0x0 2=0x102
+|  be @B ifcs_qos_map_group_create(0, *0x103, 2, [{0000000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	8	eed877798979cc7bba6fe1e54ebcb4e0edc319e6b2a9bd147fee57ca841ef840	set port port1 QOS_DSCP_TO_TC_MAP=null
+|> set port port1 QOS_DSCP_TO_TC_MAP=null
+|= SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200002 id=1 u32=0
+|  be @B ifcs_sysport_attr_set(0, 0x3e200002, 1, [{0100000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	4	da9b0120ab2f7890982a82b1a571302da122580b53506208069b7c62f8da6f2b	remove qos_map m0
+|> remove qos_map m0
+|= SUCCESS
+|  be ifcs_qos_map_delete h=0x102
+|  be @B ifcs_qos_map_delete(0, 0x102) = SUCCESS
+block	2	d706ee8208d189a46bf6a2bad524daf8a1a126e2092c4da2e017833e5d41b744	feature qos on
+|> feature qos on
+|= SUCCESS
+block	5	5db39909269eeb5593efd811518941c19d7f742fbd13be1017778ebb53935fcb	get port port1 QOS_NUMBER_OF_SCHEDULER_GROUPS QOS_SCHEDULER_GROUP_LIST QOS_QUEUE_LIST
+|> get port port1 QOS_NUMBER_OF_SCHEDULER_GROUPS QOS_SCHEDULER_GROUP_LIST QOS_QUEUE_LIST
+|= SUCCESS
+|  QOS_NUMBER_OF_SCHEDULER_GROUPS=8
+|  QOS_SCHEDULER_GROUP_LIST=[scheduler_group#1,scheduler_group#2,scheduler_group#3,scheduler_group#4,scheduler_group#5,scheduler_group#6,scheduler_group#7,schedu
+block	5	fc959d123b593ea64ed614f999bb70781f639bad1015e716d3e800f0ac569485	create qos_map m1 TYPE=DSCP_TO_TC MAP_TO_VALUE_LIST=[dscp:46=tc:5,dscp:8=tc:1]
+|> create qos_map m1 TYPE=DSCP_TO_TC MAP_TO_VALUE_LIST=[dscp:46=tc:5,dscp:8=tc:1]
+|= SUCCESS
+|  be @B ifcs_qos_map_info_t_init({0000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be ifcs_qos_map_create h=0x104 type=1 count=64 0:0/0 1:0/0 2:0/0 3:0/0 4:0/0 5:0/0 6:0/0 7:0/0 8:1/0 9:0/0 10:0/0 11:0/0 12:0/0 13:0/0 14:0/0 15:0/0 16:0/0 17
+block	8	70f7040d064ebf6db10e04adea67a863cfd24dd0c5d24bb8b347ded7c8fb76f1	set port port1 QOS_DSCP_TO_TC_MAP=m1
+|> set port port1 QOS_DSCP_TO_TC_MAP=m1
+|= SUCCESS
+|  be ifcs_qos_map_group_create h=0x105 0=0x0 2=0x104
+|  be @B ifcs_qos_map_group_create(0, *0x105, 2, [{0000000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	5	5c22cfb10c4ee4dc061d8fb906d536f9663eb30b5df180959949bf076a90efb2	create qos_map md TYPE=DOT1P_TO_TC MAP_TO_VALUE_LIST=[dot1p:5=tc:3]
+|> create qos_map md TYPE=DOT1P_TO_TC MAP_TO_VALUE_LIST=[dot1p:5=tc:3]
+|= SUCCESS
+|  be @B ifcs_qos_map_info_t_init({0000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be ifcs_qos_map_create h=0x106 type=0 count=8 0:0/0 1:0/0 2:0/0 3:0/0 4:0/0 5:3/0 6:0/0 7:0/0
+block	2	16f1980b0dc6b7dd8efa845489e0da209220910018a71dff4fb086aa61fcac15	set port port1 QOS_DSCP_TO_TC_MAP=md
+|> set port port1 QOS_DSCP_TO_TC_MAP=md
+|= INVALID_ATTR_VALUE_0
+block	5	42e9c181e9d7b811d18348f197b0aedea743bd1afd0716b1c5978bc8250ddc4d	set qos_map m1 MAP_TO_VALUE_LIST=[dscp:46=tc:7]
+|> set qos_map m1 MAP_TO_VALUE_LIST=[dscp:46=tc:7]
+|= SUCCESS
+|  be @B ifcs_qos_map_info_t_init({0000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|  be ifcs_qos_map_attr_set h=0x104 type=1 count=64 0:0/0 1:0/0 2:0/0 3:0/0 4:0/0 5:0/0 6:0/0 7:0/0 8:0/0 9:0/0 10:0/0 11:0/0 12:0/0 13:0/0 14:0/0 15:0/0 16:0/0 
+block	4	74f0833278c1528f312f1a01841eccf061c2cc65d3a1c95079f4faccfe4c936e	get qos_map md TYPE MAP_TO_VALUE_LIST
+|> get qos_map md TYPE MAP_TO_VALUE_LIST
+|= SUCCESS
+|  TYPE=DOT1P_TO_TC
+|  MAP_TO_VALUE_LIST=[0.0.5.0.0.0.0.0.0=3.0.0.0.0.0.0.0.0]
+block	4	164a27f415aea3c6504684a88445d2f5c158792103612a7ac11256279f2d83a7	set port port1 QOS_DEFAULT_TC=3
+|> set port port1 QOS_DEFAULT_TC=3
+|= SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200002 id=49 u32=3
+|  be @B ifcs_sysport_attr_set(0, 0x3e200002, 1, [{3100000000000000|030000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	12	2c8f0aa69fc73d4cf3bcc8eb62840a03c936f49c8f7b757e34ca5fb14d4efae3	set port port1 PRIORITY_FLOW_CONTROL=0x18
+|> set port port1 PRIORITY_FLOW_CONTROL=0x18
+|= SUCCESS
+|  be @B ifcs_devport_attr_get(0, 2, 1, [{4e00000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|  be ifcs_devport_attr_set dp=2 id=79 u32=0
+block	2	94a806a7109833fe75ce15f300b7271467128b7132d3b2cf188bfe0106f3b5f3	create scheduler sd SCHEDULING_TYPE=DWRR SCHEDULING_WEIGHT=20
+|> create scheduler sd SCHEDULING_TYPE=DWRR SCHEDULING_WEIGHT=20
+|= SUCCESS
+block	2	e229dd02c2a75e998c4437432eaa38d5847848e7423f632a62098427f9ac3615	create scheduler sh SCHEDULING_TYPE=DWRR SCHEDULING_WEIGHT=1 MAX_BANDWIDTH_RATE=125000000 MAX_BANDWIDTH_BURST_RATE=65536
+|> create scheduler sh SCHEDULING_TYPE=DWRR SCHEDULING_WEIGHT=1 MAX_BANDWIDTH_RATE=125000000 MAX_BANDWIDTH_BURST_RATE=65536
+|= SUCCESS
+block	7	45e93bf0f08bd515751965f8c930f3cde86be600ece79e90feeaba777c9f684d	set scheduler_group scheduler_group#4 SCHEDULER_PROFILE_ID=sd
+|> set scheduler_group scheduler_group#4 SCHEDULER_PROFILE_ID=sd
+|= SUCCESS
+|  be @B ifcs_queue_t_init({00002038000000000000000000000000}) = SUCCESS
+|  be @B ifcs_queue_t_devport_set({00002038020000000000000001000000}, 2) = SUCCESS
+block	7	2f961f7f9bcc409f31be5b142a0cc1745344a6084d6e83501e1d49caf3862053	set scheduler sd SCHEDULING_WEIGHT=50
+|> set scheduler sd SCHEDULING_WEIGHT=50
+|= SUCCESS
+|  be @B ifcs_queue_t_init({00002038000000000000000000000000}) = SUCCESS
+|  be @B ifcs_queue_t_devport_set({00002038020000000000000001000000}, 2) = SUCCESS
+block	6	5215dccb9429c2dfa1ef0db6a37c5d59785a6934f13f55184700d9beb353c8a6	set port port1 QOS_SCHEDULER_PROFILE_ID=sh
+|> set port port1 QOS_SCHEDULER_PROFILE_ID=sh
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=2 id=104 u32=1
+|  be ifcs_devport_attr_set dp=2 id=105 u32=1000000000
+block	5	c41ce96b79ee70dc75ea8b7f495ce964eee637b62ea7c953d0658a3ecebf77d0	create wred w GREEN_ENABLE=true GREEN_MIN_THRESHOLD=100000 GREEN_MAX_THRESHOLD=2000000 GREEN_DROP_PROBABILITY=5 ECN_MARK_MODE=GREEN
+|> create wred w GREEN_ENABLE=true GREEN_MIN_THRESHOLD=100000 GREEN_MAX_THRESHOLD=2000000 GREEN_DROP_PROBABILITY=5 ECN_MARK_MODE=GREEN
+|= SUCCESS
+|  be @B ifcs_node_attr_get(0, 1, [{1700000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|  be ifcs_aqm_curve_group_create h=0x107 0=440 1=8928 2=5 6=45728 7=45728 8=100 12=45728 13=45728 14=100
+block	17	815abe4af8a6460cfec1117a697470ef8fc5f58d30d943e9ea7e101a3b1d97a1	set queue queue#4 WRED_PROFILE_ID=w
+|> set queue queue#4 WRED_PROFILE_ID=w
+|= SUCCESS
+|  be @B ifcs_queue_t_init({00002038000000000000000000000000}) = SUCCESS
+|  be @B ifcs_queue_t_devport_set({00002038020000000000000001000000}, 2) = SUCCESS
+block	2	76ce51fb1a9380ee85c7b28c0398a5e2cfe800eae500df294ee5be6a3f3eeacb	create buffer_pool pin TYPE=INGRESS SIZE=20000000 THRESHOLD_MODE=DYNAMIC
+|> create buffer_pool pin TYPE=INGRESS SIZE=20000000 THRESHOLD_MODE=DYNAMIC
+|= SUCCESS
+block	2	ce237037992d5042e8608272bf21e7d753da10257bd552ce62d3575f5c6d43a3	create buffer_pool peg TYPE=EGRESS SIZE=10000000 THRESHOLD_MODE=DYNAMIC
+|> create buffer_pool peg TYPE=EGRESS SIZE=10000000 THRESHOLD_MODE=DYNAMIC
+|= SUCCESS
+block	2	fab60f6d236951424d6ad6665e41d84645df2d67c485f911d9099fbef64f1f8d	create buffer_profile bq POOL_ID=peg RESERVED_BUFFER_SIZE=1518 SHARED_DYNAMIC_TH=3
+|> create buffer_profile bq POOL_ID=peg RESERVED_BUFFER_SIZE=1518 SHARED_DYNAMIC_TH=3
+|= SUCCESS
+block	18	4f17ae6380dfca78a9de77c6d3a139a6b52359614b1c14bad62d13a4927a9511	set queue queue#1 BUFFER_PROFILE_ID=bq
+|> set queue queue#1 BUFFER_PROFILE_ID=bq
+|= SUCCESS
+|  be @B ifcs_queue_t_init({00002038000000000000000000000000}) = SUCCESS
+|  be @B ifcs_queue_t_devport_set({00002038020000000000000001000000}, 2) = SUCCESS
+block	9	d1a142c6cab9306ff7a13257c5a0caec56f0f55de9af35d6fb49daefbf003ec0	stats queue queue#4 PACKETS BYTES
+|> stats queue queue#4 PACKETS BYTES
+|= SUCCESS
+|  PACKETS=0
+|  BYTES=0
+block	13	eb223173982e35414f1a61d5b29948216a83fd1bcd6cdc6501da3e5f3a0124cc	set queue queue#1 BUFFER_PROFILE_ID=null
+|> set queue queue#1 BUFFER_PROFILE_ID=null
+|= SUCCESS
+|  be @B ifcs_devport_attr_get(0, 2, 1, [{1700000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|  be @B ifcs_queue_t_init({00002038000000000000000000000000}) = SUCCESS
+block	17	2e9fb0fb6be8be3f4c1ae9cdda15b55ac765c9b32f0cb4061e9c403bbecfcdba	set queue queue#4 WRED_PROFILE_ID=null
+|> set queue queue#4 WRED_PROFILE_ID=null
+|= SUCCESS
+|  be @B ifcs_queue_t_init({00002038000000000000000000000000}) = SUCCESS
+|  be @B ifcs_queue_t_devport_set({00002038020000000000000001000000}, 2) = SUCCESS
+block	4	bd2900fa1b6c10e9ffa5f765ab5e282c188c4943229776b5690e78f5122184ef	set port port1 QOS_SCHEDULER_PROFILE_ID=null
+|> set port port1 QOS_SCHEDULER_PROFILE_ID=null
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=2 id=104 u32=0
+|  be @B ifcs_devport_attr_set(0, 2, 1, [{6800000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	7	5ad5ac170c9ddc90898f7852760c5fca3202c1b369329e6a4a204d3a7d64d384	set scheduler_group scheduler_group#4 SCHEDULER_PROFILE_ID=null
+|> set scheduler_group scheduler_group#4 SCHEDULER_PROFILE_ID=null
+|= SUCCESS
+|  be @B ifcs_queue_t_init({00002038000000000000000000000000}) = SUCCESS
+|  be @B ifcs_queue_t_devport_set({00002038020000000000000001000000}, 2) = SUCCESS
+block	8	5d5b3655bf2a54889042ae73c231e5ac8c309eb108c9fd7dccdaeab57e73ea40	set port port1 QOS_DSCP_TO_TC_MAP=null
+|> set port port1 QOS_DSCP_TO_TC_MAP=null
+|= SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200002 id=1 u32=0
+|  be @B ifcs_sysport_attr_set(0, 0x3e200002, 1, [{0100000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	2	cd7fdd6be6c8a1b08b4b35ab1d6446310e7a5118a9ed47b70a7a201e9812c44e	remove buffer_profile bq
+|> remove buffer_profile bq
+|= SUCCESS
+block	2	3f93e412abcb39d796cf23933f32821779e8a17536b9b3bc2bceacff28eb46d6	remove buffer_pool pin
+|> remove buffer_pool pin
+|= SUCCESS
+block	2	c0b2563a12518c89dd7c67080e8824fe745e4fb5d52a4fb21c277a29e7c9dbc4	remove buffer_pool peg
+|> remove buffer_pool peg
+|= SUCCESS
+block	4	54503fd4abafd80d52ee3af3b7ef542f5d290e499591303c78621c6020aff5c8	remove wred w
+|> remove wred w
+|= SUCCESS
+|  be ifcs_aqm_curve_group_delete h=0x107
+|  be @B ifcs_aqm_curve_group_delete(0, 0x107) = SUCCESS
+block	2	318f3926e61f866daed0b267e9827fcddaa093dc0260a1114e970f9035e3a8c6	remove scheduler sd
+|> remove scheduler sd
+|= SUCCESS
+block	2	bcc427f88a503df6412dde57943a04a2ee03338844a21a9032ce752f66ef8cac	remove scheduler sh
+|> remove scheduler sh
+|= SUCCESS
+block	4	98c4a2a9bdb873dd6359fe8fae5141622e12b9ebf086f74bf7554b088d49e015	remove qos_map m1
+|> remove qos_map m1
+|= SUCCESS
+|  be ifcs_qos_map_delete h=0x104
+|  be @B ifcs_qos_map_delete(0, 0x104) = SUCCESS
+block	4	6d247f7117fd7e5dfeccb60584d709468e72482ab9b88f50a0bbe76bd28646ae	remove qos_map md
+|> remove qos_map md
+|= SUCCESS
+|  be ifcs_qos_map_delete h=0x106
+|  be @B ifcs_qos_map_delete(0, 0x106) = SUCCESS
+block	2	79eba323b1081cb01ea5700517fc66da4e81b2b9bd4beaeca925063c8f72ef20	feature qos off
+|> feature qos off
+|= SUCCESS
+block	24	6ce510965824ced6bf938bd728971524baac8454e793a6aa88e15b1c207788ab	remove_switch
+|> remove_switch
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=1 id=23 u32=0
+|  be @B ifcs_devport_attr_set(0, 1, 1, [{1700000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+bytes	171	199e7a9b91025ae63e821c5cac5632d018161a467db99ef017774914bc98c666
+|@B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+|@B ifcs_log_function_register(fn, ptr) = SUCCESS
+|@B ifcs_node_create(0, 0, null) = SUCCESS
+|@B ifcs_node_attr_set(0, 1, [{5200000000000000|01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+script	09-mirror-sample-hash	exit 0	8648824bd4bc7e30178882da8f8ecb3dd6c54997fcfbcbd90d17d29ae4ea0fa9	42
+block	2	4937cc2180446f254c0a5a00cb45f20cdcdd0d11376afb502f9bfd1654227f3c	profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|> profile SAI_TERALYNX_LIBIFCS=<fixtures>/mock/libifcs.so
+|= SUCCESS
+block	2	60aa022238cbd6371b4700ae26935fc4af809d5c9d6de89c54269ea9bda2c2ca	profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|> profile SAI_TERALYNX_PORT_MAP=<fixtures>/cfg/ports8.map
+|= SUCCESS
+block	2	096e146ebf26e11aaf9fc8184b061c5c08f4ba330f994cc8071f8bc514f79d8c	profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|> profile SAI_INIT_CONFIG_FILE=<fixtures>/cfg/init.yaml
+|= SUCCESS
+block	2	b913f9872e91c3c2028ab472579e8bddf4072cbff317e2e32731ccf21f408bcf	profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|> profile SAI_TERALYNX_RUN_DIR=<work>/d/run
+|= SUCCESS
+block	2	0057066edb546561c11d42134e7af80438788c980854499c247b22a0a75f303f	profile SAI_TERALYNX_NETDEV=create
+|> profile SAI_TERALYNX_NETDEV=create
+|= SUCCESS
+block	2	b0e48f15ecdfe7c459bac53d2bc7113e7c3b732f31f4918efd1a100f429febc5	profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|> profile SAI_TERALYNX_IFCS_TRACE=<fixtures>/bin/libparity-bytes.so
+|= SUCCESS
+block	103	5defceedf55b1833dedd790c5c9369dd0931538817bf747a491ac901e7c019aa	switch
+|> switch
+|= SUCCESS
+|  be ifcs_init cfg=<work>/d/run/config.yaml log=sai-teralynx boot=0 first=# generated init config
+|  be @B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+block	2	2029f46d74e01d8086aa6a4cb2fcaa8d56ca60d830f5365385a8e0c386e81389	feature mirror on
+|> feature mirror on
+|= SUCCESS
+block	4	8657f928751eddd0b672e9ff70392e12b0e5b0ad872ec70655218fa7d05037a1	create mirror_session span TYPE=LOCAL MONITOR_PORT=port2
+|> create mirror_session span TYPE=LOCAL MONITOR_PORT=port2
+|= SUCCESS
+|  be ifcs_dup_copy_dest_port_create h=0x102 sysport=0x3e200003
+|  be @B ifcs_dup_copy_dest_port_create(0, *0x102, 1, [{0000000000000000|0300203e00000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	11	a94a16ae5475fea1b1cefa366a7b0563204d45f51b9ea49798d07a47fadcf2ce	set port port1 INGRESS_MIRROR_SESSION=[span]
+|> set port port1 INGRESS_MIRROR_SESSION=[span]
+|= SUCCESS
+|  be ifcs_collector_create h=0x103 n=4 0=0x0 1=0x0 2=0x102 18=0x0
+|  be @B ifcs_collector_create(0, *0x103, 4, [{0000000000000000|0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	11	6c6536f7a32128cbc6a67fabc9863619ef63fa52ae75de724cd41cf3896776e0	set port port1 EGRESS_MIRROR_SESSION=[span]
+|> set port port1 EGRESS_MIRROR_SESSION=[span]
+|= SUCCESS
+|  be ifcs_collector_create h=0x105 n=3 0=0x0 1=0x1 2=0x102
+|  be @B ifcs_collector_create(0, *0x105, 3, [{0000000000000000|0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	3	81c8ee08068d3db1657027b0c9e63997c183bd72d4d46882bd387d6c4628c61d	get port port1 INGRESS_MIRROR_SESSION
+|> get port port1 INGRESS_MIRROR_SESSION
+|= SUCCESS
+|  INGRESS_MIRROR_SESSION=[span]
+block	22	a68e8d81716d97bf36341814126775bf0182e62173012c26eaf7630279749f33	set mirror_session span MONITOR_PORT=port3
+|> set mirror_session span MONITOR_PORT=port3
+|= SUCCESS
+|  be ifcs_collector_set_member_remove set=0x104 member=0x103
+|  be @B ifcs_collector_set_member_remove(0, 0x104, 1, [0x103]) = SUCCESS
+block	4	61c357a9093acc89091d8aa1e2be1607b08a799daa8a588fcf7513512dfaa863	create mirror_session er TYPE=ENHANCED_REMOTE MONITOR_PORT=port2 ERSPAN_ENCAPSULATION_TYPE=MIRROR_L3_GRE_TUNNEL IPHDR_VERSION=4 TOS=32 TTL=64 SRC_IP_ADDRESS=10.99.1.1 DST_IP_ADDRESS=10.99.1.2 SRC_MAC_ADDRESS=10:11:12:13:14:15 DST_MAC_ADDRESS=20:21:22:23:24:25 GRE_PROTOCOL_TYPE=0x88be
+|> create mirror_session er TYPE=ENHANCED_REMOTE MONITOR_PORT=port2 ERSPAN_ENCAPSULATION_TYPE=MIRROR_L3_GRE_TUNNEL IPHDR_VERSION=4 TOS=32 TTL=64 SRC_IP_ADDRESS=1
+|= SUCCESS
+|  be ifcs_dup_copy_dest_port_create h=0x10a sysport=0x3e200003
+|  be @B ifcs_dup_copy_dest_port_create(0, *0x10a, 1, [{0000000000000000|0300203e00000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	2	647438f80d5ccce0907490ea168c0aabfb9b8c320b1d7a5b3c025a25fdd1e33e	set mirror_session er DST_IP_ADDRESS=10.99.1.3
+|> set mirror_session er DST_IP_ADDRESS=10.99.1.3
+|= SUCCESS
+block	11	eba94bc827d4b89c22e8aaea903a94eee3754208b8c76bdca7345bd231483888	set port port1 INGRESS_MIRROR_SESSION=[]
+|> set port port1 INGRESS_MIRROR_SESSION=[]
+|= SUCCESS
+|  be @B ifcs_traffic_monitor_policy_t_init({0000000000000000000000000000000000000000}) = SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200002 id=22 u32=1
+block	11	73c5bfba78055d29ebc11196c20efb80c9655c075dc5d5fb21dcabcda73757d7	set port port1 EGRESS_MIRROR_SESSION=[]
+|> set port port1 EGRESS_MIRROR_SESSION=[]
+|= SUCCESS
+|  be @B ifcs_traffic_monitor_policy_t_init({0000000000000000000000000000000000000000}) = SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200002 id=24 u32=1
+block	4	a7704cc8b4add55c5d082d925b728c75f7e8f96b438e696584a308879f9ff9eb	remove mirror_session er
+|> remove mirror_session er
+|= SUCCESS
+|  be ifcs_dup_copy_dest_port_delete h=0x10a
+|  be @B ifcs_dup_copy_dest_port_delete(0, 0x10a) = SUCCESS
+block	4	48d9ea422aa49d6d32897efd4a903fd1a1dda12096ab380974b1971248a40de1	remove mirror_session span
+|> remove mirror_session span
+|= SUCCESS
+|  be ifcs_dup_copy_dest_port_delete h=0x107
+|  be @B ifcs_dup_copy_dest_port_delete(0, 0x107) = SUCCESS
+block	2	e378556939451cc5871c3ba73657899722706961224cdc29f948329aad093453	create samplepacket smp SAMPLE_RATE=1000
+|> create samplepacket smp SAMPLE_RATE=1000
+|= SUCCESS
+block	14	4521e232e38613fc5887f710e0f2f5413fafc82b869fd85cd8051432a01e71ca	set port port1 INGRESS_SAMPLEPACKET_ENABLE=smp
+|> set port port1 INGRESS_SAMPLEPACKET_ENABLE=smp
+|= SUCCESS
+|  be @B ifcs_node_attr_get(0, 1, [{1600000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|  be ifcs_dup_copy_dest_port_create h=0x10b sysport=0x3e2003e8
+block	5	997e6f2802a2f7fce998124c034cf26b82c635be471a9c68a055453a922799fe	set samplepacket smp SAMPLE_RATE=500
+|> set samplepacket smp SAMPLE_RATE=500
+|= SUCCESS
+|  be @B ifcs_traffic_monitor_policy_t_init({0000000000000000000000000000000000000000}) = SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200002 id=25 u32=0
+block	2	5d43d7d58036f45b9c55d2c4705f768e86146311305d8130282768809d809e08	remove samplepacket smp
+|> remove samplepacket smp
+|= OBJECT_IN_USE
+block	13	5ddb3fad6fe827ba5ce4e89f178297cd3ecbdc95dda7c5db753e52bb4ecd7bc9	set port port1 INGRESS_SAMPLEPACKET_ENABLE=null
+|> set port port1 INGRESS_SAMPLEPACKET_ENABLE=null
+|= SUCCESS
+|  be @B ifcs_traffic_monitor_policy_t_init({0000000000000000000000000000000000000000}) = SUCCESS
+|  be ifcs_sysport_attr_set sp=0x3e200002 id=25 u32=1
+block	2	39cc1f57b95f34a2109aae01b004b3203ec3034de544d3d037d02663507cd9e1	remove samplepacket smp
+|> remove samplepacket smp
+|= SUCCESS
+block	2	d071197bbcbeb2489ef8246a12b0974b4aae5795cf9ba97255135a113db41071	feature mirror off
+|> feature mirror off
+|= SUCCESS
+block	3	bbca3ba667e6db43a0d580aec5dd387b4fbd1589fe9b09a5a7e93e7c2632d3f7	get switch switch LAG_HASH
+|> get switch switch LAG_HASH
+|= SUCCESS
+|  LAG_HASH=hash#1
+block	2	ee4a740ca281c95a321104a9f801f529ec317e2c1a38ce5b1fd46ccb8f1568bc	feature l2 on
+|> feature l2 on
+|= SUCCESS
+block	4	ab6b9281311011ab260ef0291bdd94d6972ac663fd853134f244f1f3c1a25607	get switch switch LAG_HASH ECMP_HASH
+|> get switch switch LAG_HASH ECMP_HASH
+|= SUCCESS
+|  LAG_HASH=hash#1
+|  ECMP_HASH=hash#2
+block	18	349a1825a54802078a7c1a5eb630928b88102cd4bb062527c1fef4f3a32327b9	set hash hash#2 NATIVE_HASH_FIELD_LIST=[SRC_IP,DST_IP,L4_SRC_PORT]
+|> set hash hash#2 NATIVE_HASH_FIELD_LIST=[SRC_IP,DST_IP,L4_SRC_PORT]
+|= SUCCESS
+|  be ifcs_extended_field_list_create h=0xe20010e elements=6,5,12
+|  be @B ifcs_extended_field_list_create(0, *0xe20010e, 1, [{0000000000000000|0300000000000000<p>0000000000000000000000000000000000000000000000000000000000000000
+block	3	66fee95b00dc4eca24c859ca6dd11ac284ca81a387390ee86a3c24ff4f0c8963	get hash hash#2 NATIVE_HASH_FIELD_LIST
+|> get hash hash#2 NATIVE_HASH_FIELD_LIST
+|= SUCCESS
+|  NATIVE_HASH_FIELD_LIST=[SRC_IP,DST_IP,L4_SRC_PORT]
+block	4	b443ef6d31ba18aecec9895644411ff9922842d4eb85859f23f39ada43abbeb5	set switch switch LAG_DEFAULT_HASH_SEED=77
+|> set switch switch LAG_DEFAULT_HASH_SEED=77
+|= SUCCESS
+|  be ifcs_node_attr_set node=0 count=1 id=35 u32=77
+|  be @B ifcs_node_attr_set(0, 1, [{2300000000000000|4d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	2	643a9b68178a4b21a709cecf8133189669410be8bb7ee222c578efb228472854	create policer sp METER_TYPE=PACKETS MODE=SR_TCM CIR=1000 CBS=1000
+|> create policer sp METER_TYPE=PACKETS MODE=SR_TCM CIR=1000 CBS=1000
+|= SUCCESS
+block	32	2598fb77fb525f427872792fd7f760ce3f345bd274d2cb1b87781cb0f4932be6	set port port1 FLOOD_STORM_CONTROL_POLICER_ID=sp
+|> set port port1 FLOOD_STORM_CONTROL_POLICER_ID=sp
+|= SUCCESS
+|  be ifcs_acl_match_profile_create h=0x112 types=3 width=80 sharing=1 list=4,17,82
+|  be @B ifcs_acl_match_profile_create(0, *0x112, 4, [{0900000000000000|00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	6	bcca02dba3cb47a813b6a50b925bf7cb7d66ae17f6abb9ea291f24602d3d4bb9	create vlan v300 VLAN_ID=300
+|> create vlan v300 VLAN_ID=300
+|= SUCCESS
+|  be ifcs_mdg_create h=0x11e count=0
+|  be @B ifcs_mdg_create(0, *0x11e, 0, []) = SUCCESS
+block	2	963b4b7c0eacc105b9094529a6c6a5d77b2e3f635db7ecda4121da59d4cc25ac	set vlan v300 BROADCAST_FLOOD_CONTROL_TYPE=NONE
+|> set vlan v300 BROADCAST_FLOOD_CONTROL_TYPE=NONE
+|= SUCCESS
+block	4	c47b657d21344e341ad06844d9ecd3a4bfbdbac60112e1e47427cb87968b6b84	set vlan v300 BROADCAST_FLOOD_CONTROL_TYPE=ALL
+|> set vlan v300 BROADCAST_FLOOD_CONTROL_TYPE=ALL
+|= SUCCESS
+|  be ifcs_l2vni_attr_set vni=300 count=1
+|  be @B ifcs_l2vni_attr_set(0, 0x2420012c, 1, [{0600000000000000|1e010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+block	20	10264492fdf799246898a25d4dca6a5a36a29024a9808b9c94bea31d26d91c7f	set port port1 FLOOD_STORM_CONTROL_POLICER_ID=null
+|> set port port1 FLOOD_STORM_CONTROL_POLICER_ID=null
+|= SUCCESS
+|  be ifcs_acl_ace_remove acl=0x115 n=1
+|  be @B ifcs_acl_ace_remove(0, 0x115, 1, [0x11d]) = SUCCESS
+block	4	6c4f4c654cd9242237d45860f9d1b379be2fe9f9468ff72df3ba7d3a6c528145	remove policer sp
+|> remove policer sp
+|= SUCCESS
+|  be ifcs_acl_meter_delete h=0x117
+|  be @B ifcs_acl_meter_delete(0, 0x117) = SUCCESS
+block	8	82ec723505f9241041230de518079eedc1f67a1522eedcc1e1ca0981e8c995a5	remove vlan v300
+|> remove vlan v300
+|= SUCCESS
+|  be ifcs_l2_entry_get_all
+|  be @B ifcs_l2_entry_get_all(0, null, 0, null, fn, ptr, *0) = SUCCESS
+block	2	8ec0ca8f8e1de763e06980dc04204a3eb990a47ef933205ef1d953abc479b055	feature l2 off
+|> feature l2 off
+|= SUCCESS
+block	24	6ce510965824ced6bf938bd728971524baac8454e793a6aa88e15b1c207788ab	remove_switch
+|> remove_switch
+|= SUCCESS
+|  be ifcs_devport_attr_set dp=1 id=23 u32=0
+|  be @B ifcs_devport_attr_set(0, 1, 1, [{1700000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+bytes	167	91a198824018cfd78cb0ed717e91dd3279ac9214e047cfbcacfbade02d0c5ef2
+|@B ifcs_init("<work>/d/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+|@B ifcs_log_function_register(fn, ptr) = SUCCESS
+|@B ifcs_node_create(0, 0, null) = SUCCESS
+|@B ifcs_node_attr_set(0, 1, [{5200000000000000|01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

@@ -340,44 +340,9 @@ fn the_allow_rule_is_exactly_the_text_cap() {
     assert_eq!(unescaped_len("a\\nb\\\\c\\x1f"), 6);
 }
 
-#[test]
-fn rust_shim_equals_the_c_shim() {
-    let Some(src) = c_src() else {
-        return skip("no ifcs_guard.c / shim.c (IFCS_SHIM_C_SRC)");
-    };
-    let Some(rust) = rust_lib() else {
-        return skip("no Rust libsai_teralynx_shim.so (IFCS_SHIM_LIB)");
-    };
-    let dir = std::env::temp_dir().join(format!("ifcs-shim-diff-{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let c_lib = dir.join("c/libsai-teralynx-shim.so");
-    std::fs::create_dir_all(c_lib.parent().unwrap()).unwrap();
-    // exactly the Makefile's rule for build/libsai-teralynx-shim.so (CFLAGS -O2 -g)
-    let built = cc(&[
-        "-std=gnu11",
-        "-fPIC",
-        "-shared",
-        "-Wall",
-        "-fno-builtin",
-        "-fno-tree-loop-distribute-patterns",
-        "-O2",
-        "-g",
-        "-Wl,-soname,libsai-teralynx-shim.so",
-        "-o",
-    ]
-    .map(std::ffi::OsStr::new)
-    .iter()
-    .copied()
-    .chain([
-        c_lib.as_os_str(),
-        src.join("shim.c").as_os_str(),
-        src.join("ifcs_guard.c").as_os_str(),
-        std::ffi::OsStr::new("-lpthread"),
-    ])
-    .collect::<Vec<_>>());
-    if !built {
-        return skip("the C shim does not compile (CC)");
-    }
+/// Compiles the harness and lays out every script of the comparison: the corpus (sorted by name)
+/// and the `GENERATED` seeded ones, in a directory under `dir`.
+fn harness_and_scripts(dir: &Path) -> (PathBuf, Vec<(String, PathBuf)>) {
     let harness = dir.join("guard_harness");
     let hsrc = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/c/guard_harness.c");
     assert!(
@@ -435,14 +400,249 @@ fn rust_shim_equals_the_c_shim() {
             "the generator changed: pin the new digest deliberately"
         );
     }
+    (harness, scripts)
+}
+
+/// The golden of the C guard's traces (tests/golden/guard-traces-cpp.txt), captured from the C
+/// library `shim.c` + `ifcs_guard.c` with the harness, never from the Rust output.
+const GOLDEN: &str = include_str!("golden/guard-traces-cpp.txt");
+
+/// One script of the golden: the script's digest and the C trace's size and digest; the full
+/// trace (without line ends) only where the Rust one differs by the allowed difference.
+struct Entry {
+    name: String,
+    input: u64,
+    lines: usize,
+    bytes: usize,
+    digest: u64,
+    full: Option<Vec<String>>,
+}
+
+fn parse_golden(text: &str) -> Vec<Entry> {
+    let mut out: Vec<Entry> = Vec::new();
+    for line in text.lines().filter(|l| !l.starts_with('#')) {
+        if let Some(l) = line.strip_prefix('|') {
+            let e = out.last_mut().unwrap();
+            e.full.get_or_insert_with(Vec::new).push(l.to_owned());
+        } else if let Some(rest) = line.strip_prefix("script ") {
+            let w: Vec<&str> = rest.split_whitespace().collect();
+            let hex = |s: &str| u64::from_str_radix(s, 16).unwrap();
+            out.push(Entry {
+                name: w[0].to_owned(),
+                input: hex(w[2]),
+                lines: w[4].parse().unwrap(),
+                bytes: w[6].parse().unwrap(),
+                digest: hex(w[8]),
+                full: None,
+            });
+        }
+    }
+    out
+}
+
+fn entry_text(name: &str, input: &str, trace: &str, full: bool) -> String {
+    let mut s = format!(
+        "script {name} input {:016x} lines {} bytes {} fnv64 {:016x}\n",
+        fnv(input.as_bytes(), 0xcbf2_9ce4_8422_2325),
+        trace.lines().count(),
+        trace.len(),
+        fnv(trace.as_bytes(), 0xcbf2_9ce4_8422_2325)
+    );
+    if full {
+        for l in trace.lines() {
+            let _ = writeln!(s, "|{l}");
+        }
+    }
+    s
+}
+
+fn same_trace(e: &Entry, trace: &str) -> bool {
+    e.lines == trace.lines().count()
+        && e.bytes == trace.len()
+        && e.digest == fnv(trace.as_bytes(), 0xcbf2_9ce4_8422_2325)
+}
+
+/// The golden's entry for a script against the script's own digest: the inputs are the pinned ones.
+fn entry_for<'a>(golden: &'a [Entry], name: &str, input: &str) -> Result<&'a Entry, String> {
+    let e = golden
+        .iter()
+        .find(|e| e.name == name)
+        .ok_or(format!("{name}: not in the golden"))?;
+    if e.input == fnv(input.as_bytes(), 0xcbf2_9ce4_8422_2325) {
+        Ok(e)
+    } else {
+        Err(format!("{name}: the script differs from the golden's input digest"))
+    }
+}
+
+/// The C library's live trace against the golden: equal in every byte (digest, and the full text
+/// where stored).
+fn golden_equals_c(e: &Entry, trace: &str) -> Result<(), String> {
+    if !same_trace(e, trace) {
+        return Err(format!(
+            "{}: the C trace differs from the golden (size or digest)",
+            e.name
+        ));
+    }
+    match &e.full {
+        Some(f) if f.iter().map(String::as_str).ne(trace.lines()) => {
+            Err(format!("{}: the C trace differs from the golden's text", e.name))
+        }
+        _ => Ok(()),
+    }
+}
+
+/// A Rust trace against the golden: the same, or the same but for the one allowed difference
+/// (the golden then holds the full text). `Ok(n)`: lines allowed.
+fn golden_vs_rust(e: &Entry, trace: &str) -> Result<usize, String> {
+    if same_trace(e, trace) {
+        return Ok(0);
+    }
+    let Some(full) = &e.full else {
+        return Err(format!(
+            "{}: the Rust trace differs from the golden and the golden has no text to allow against",
+            e.name
+        ));
+    };
+    let g: Vec<&str> = full.iter().map(String::as_str).collect();
+    let r: Vec<&str> = trace.lines().collect();
+    compare_allowing_text_cap(&g, &r)
+        .map_err(|(c, j)| format!("{}: differs at golden line {} / Rust line {}", e.name, c + 1, j + 1))
+}
+
+#[test]
+fn rust_shim_equals_the_golden_of_the_c_guard() {
+    let Some(rust) = rust_lib() else {
+        return skip("no Rust libsai_teralynx_shim.so (IFCS_SHIM_LIB)");
+    };
+    let dir = std::env::temp_dir().join(format!("ifcs-shim-gold-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let (harness, scripts) = harness_and_scripts(&dir);
+    let golden = parse_golden(GOLDEN);
+    assert_eq!(golden.len(), scripts.len(), "the golden covers every script");
+    let (mut allowed, mut full) = (0, 0);
+    for (name, path) in &scripts {
+        let e = entry_for(&golden, name, &std::fs::read_to_string(path).unwrap()).unwrap();
+        let r = run(&harness, &rust, path, &dir.join("work-rust"));
+        allowed += golden_vs_rust(e, &r.trace).unwrap();
+        full += usize::from(e.full.is_some());
+    }
+    let _ = std::fs::remove_dir_all(&dir);
+    assert_eq!(allowed, ALLOWED_LINES, "the one deliberate difference: its lines");
+    eprintln!(
+        "ifcs-shim golden: {} scripts, the Rust traces equal the C guard's golden ({full} with full text; {allowed} lines by the one deliberate difference)",
+        scripts.len()
+    );
+}
+
+/// Negative control: a changed digest, a changed byte of a stored trace, a missing entry and a
+/// changed input are each reported; the allow rule does not cover them.
+#[test]
+fn the_guard_golden_comparison_reports_a_changed_golden() {
+    let golden = parse_golden(GOLDEN);
+    assert!(golden.len() > 400, "the golden has the scripts");
+    let with_text = golden
+        .iter()
+        .find(|e| e.full.is_some())
+        .expect("a script with stored text");
+    let trace = with_text.full.as_ref().unwrap().join("\n") + "\n";
+    assert!(golden_equals_c(with_text, &trace).is_ok(), "the golden equals itself");
+    // one byte of the trace changed
+    let bad = trace.replacen("rc ", "rd ", 1).replacen("end: ", "enD: ", 1);
+    assert_ne!(bad, trace);
+    assert!(golden_equals_c(with_text, &bad).is_err());
+    assert!(golden_vs_rust(with_text, &bad).is_err());
+    // a changed digest in the golden
+    let plain = golden.iter().find(|e| e.full.is_none()).unwrap();
+    let flipped = Entry {
+        name: plain.name.clone(),
+        input: plain.input,
+        lines: plain.lines,
+        bytes: plain.bytes,
+        digest: plain.digest ^ 1,
+        full: None,
+    };
+    let other = "x\n";
+    assert!(golden_vs_rust(&flipped, other).is_err());
+    assert!(entry_for(&golden, "gen-000", "not the script").is_err());
+    assert!(entry_for(&golden, "no-such-script", "").is_err());
+}
+
+/// The lines of the one deliberate difference in the whole corpus (see the golden's header).
+const ALLOWED_LINES: usize = 6;
+
+#[test]
+fn rust_shim_equals_the_c_shim() {
+    let Some(src) = c_src() else {
+        return skip("no ifcs_guard.c / shim.c (IFCS_SHIM_C_SRC)");
+    };
+    let Some(rust) = rust_lib() else {
+        return skip("no Rust libsai_teralynx_shim.so (IFCS_SHIM_LIB)");
+    };
+    let dir = std::env::temp_dir().join(format!("ifcs-shim-diff-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let c_lib = dir.join("c/libsai-teralynx-shim.so");
+    std::fs::create_dir_all(c_lib.parent().unwrap()).unwrap();
+    // exactly the Makefile's rule for build/libsai-teralynx-shim.so (CFLAGS -O2 -g)
+    let built = cc(&[
+        "-std=gnu11",
+        "-fPIC",
+        "-shared",
+        "-Wall",
+        "-fno-builtin",
+        "-fno-tree-loop-distribute-patterns",
+        "-O2",
+        "-g",
+        "-Wl,-soname,libsai-teralynx-shim.so",
+        "-o",
+    ]
+    .map(std::ffi::OsStr::new)
+    .iter()
+    .copied()
+    .chain([
+        c_lib.as_os_str(),
+        src.join("shim.c").as_os_str(),
+        src.join("ifcs_guard.c").as_os_str(),
+        std::ffi::OsStr::new("-lpthread"),
+    ])
+    .collect::<Vec<_>>());
+    if !built {
+        return skip("the C shim does not compile (CC)");
+    }
+    let (harness, scripts) = harness_and_scripts(&dir);
 
     let (mut steps, mut lines, mut logs, mut proms, mut reads) = (0_usize, 0_usize, 0_usize, 0_usize, 0_usize);
     let mut allowed = 0_usize;
     let (mut alloc_c, mut alloc_r, mut tls) = (0_u64, 0_u64, 0_u64);
     let mut failures = Vec::new();
+    let golden = parse_golden(GOLDEN);
+    let capture = std::env::var_os("IFCS_SHIM_CAPTURE").map(PathBuf::from);
+    assert!(
+        capture.is_some() || golden.len() == scripts.len(),
+        "the golden covers every script"
+    );
+    let capture_all = std::env::var_os("IFCS_SHIM_CAPTURE_ALL").is_some();
+    let mut captured = String::new();
+    let mut golden_allowed = 0;
     for (name, path) in &scripts {
         let c = run(&harness, &c_lib, path, &dir.join("work-c"));
         let r = run(&harness, &rust, path, &dir.join("work-rust"));
+        let input = std::fs::read_to_string(path).unwrap();
+        if capture.is_some() {
+            // the C trace only; the text is kept for the corpus and where the Rust trace differs
+            captured += &entry_text(
+                name,
+                &input,
+                &c.trace,
+                capture_all || !name.starts_with("gen-") || c.trace != r.trace,
+            );
+        }
+        // live == golden: the C library's trace equals the golden, and the Rust one agrees with it
+        if capture.is_none() {
+            let entry = entry_for(&golden, name, &input).unwrap();
+            golden_equals_c(entry, &c.trace).unwrap();
+            golden_allowed += golden_vs_rust(entry, &r.trace).unwrap();
+        }
         if c.trace != r.trace {
             let (cl, rl): (Vec<&str>, Vec<&str>) = (c.trace.lines().collect(), r.trace.lines().collect());
             match compare_allowing_text_cap(&cl, &rl) {
@@ -510,6 +710,15 @@ fn rust_shim_equals_the_c_shim() {
         failures.join("\n\n")
     );
     assert_eq!(tls, 0, "a thread-local destructor was registered");
+    if let Some(out) = capture {
+        std::fs::write(out, captured).unwrap();
+    } else {
+        assert_eq!(golden_allowed, ALLOWED_LINES, "the golden's allowed lines");
+        eprintln!(
+            "ifcs-shim live == golden: {} C traces equal the golden, the Rust ones agree with it ({golden_allowed} allowed lines)",
+            scripts.len()
+        );
+    }
     eprintln!(
         "ifcs-shim differential: {allowed} trace lines differ by the one deliberate difference (counters' text of at least \
          {C_TEXT_CAP} bytes: written / answered by Rust, not by the C)"

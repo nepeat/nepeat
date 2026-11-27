@@ -1,0 +1,1416 @@
+{
+ "name": "acl: SONiC aclorch-style L3 / L3V6 tables, groups, port binding, entries (match fields, actions), counters, ranges, egress",
+ "steps": [
+  {
+   "op": "create_switch",
+   "attrs": [
+    [
+     "INIT_SWITCH",
+     "bool",
+     true
+    ],
+    [
+     "PORT_STATE_CHANGE_NOTIFY",
+     "ptr",
+     "port_state"
+    ],
+    [
+     "SWITCH_SHUTDOWN_REQUEST_NOTIFY",
+     "ptr",
+     "shutdown"
+    ]
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "ports"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "CPU_PORT",
+    "oid"
+   ],
+   "as": "cpu"
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE",
+   "as": "t4",
+   "desc": "L3 table (aclorch)",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT",
+      "LAG"
+     ]
+    ],
+    [
+     "FIELD_ETHER_TYPE",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_OUTER_VLAN_ID",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_ACL_IP_TYPE",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_SRC_IP",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_DST_IP",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_IP_PROTOCOL",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_L4_SRC_PORT",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_L4_DST_PORT",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_TCP_FLAGS",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_ICMP_TYPE",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_ICMP_CODE",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_DSCP",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_IN_PORTS",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_ACL_RANGE_TYPE",
+     "s32list",
+     [
+      "L4_SRC_PORT_RANGE",
+      "L4_DST_PORT_RANGE"
+     ]
+    ],
+    [
+     "ACL_ACTION_TYPE_LIST",
+     "s32list",
+     [
+      "PACKET_ACTION",
+      "COUNTER"
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE",
+   "as": "t6",
+   "desc": "L3V6 table (aclorch)",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT",
+      "LAG"
+     ]
+    ],
+    [
+     "FIELD_ETHER_TYPE",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_ACL_IP_TYPE",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_SRC_IPV6",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_DST_IPV6",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_IPV6_NEXT_HEADER",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_L4_SRC_PORT",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_L4_DST_PORT",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_TCP_FLAGS",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_ICMPV6_TYPE",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_ICMPV6_CODE",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_DSCP",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_IN_PORTS",
+     "bool",
+     true
+    ],
+    [
+     "ACL_ACTION_TYPE_LIST",
+     "s32list",
+     [
+      "PACKET_ACTION",
+      "COUNTER"
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP",
+   "as": "g0",
+   "desc": "ingress group Ethernet0",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PARALLEL"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP",
+   "as": "g15",
+   "desc": "ingress group Ethernet120",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PARALLEL"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "desc": "Ethernet0 INGRESS_ACL = group",
+   "attr": [
+    "INGRESS_ACL",
+    "oid",
+    "$g0"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[15]",
+   "desc": "Ethernet120 INGRESS_ACL = group",
+   "attr": [
+    "INGRESS_ACL",
+    "oid",
+    "$g15"
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP_MEMBER",
+   "as": "m0_4",
+   "desc": "t4 in g0",
+   "attrs": [
+    [
+     "ACL_TABLE_GROUP_ID",
+     "oid",
+     "$g0"
+    ],
+    [
+     "ACL_TABLE_ID",
+     "oid",
+     "$t4"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP_MEMBER",
+   "as": "m15_4",
+   "desc": "t4 in g15",
+   "attrs": [
+    [
+     "ACL_TABLE_GROUP_ID",
+     "oid",
+     "$g15"
+    ],
+    [
+     "ACL_TABLE_ID",
+     "oid",
+     "$t4"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP_MEMBER",
+   "as": "m15_6",
+   "desc": "t6 in g15",
+   "attrs": [
+    [
+     "ACL_TABLE_GROUP_ID",
+     "oid",
+     "$g15"
+    ],
+    [
+     "ACL_TABLE_ID",
+     "oid",
+     "$t6"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     200
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_COUNTER",
+   "as": "c1",
+   "desc": "counter 1",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$t4"
+    ],
+    [
+     "ENABLE_PACKET_COUNT",
+     "bool",
+     true
+    ],
+    [
+     "ENABLE_BYTE_COUNT",
+     "bool",
+     true
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "e1",
+   "desc": "drop dst 10.99.0.1 tcp/179",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$t4"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     9999
+    ],
+    [
+     "ADMIN_STATE",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_DST_IP",
+     "aclfield",
+     {
+      "ip4": "10.99.0.1"
+     }
+    ],
+    [
+     "FIELD_IP_PROTOCOL",
+     "aclfield",
+     {
+      "u8": 6
+     }
+    ],
+    [
+     "FIELD_L4_DST_PORT",
+     "aclfield",
+     {
+      "u16": 179
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "DROP"
+     }
+    ],
+    [
+     "ACTION_COUNTER",
+     "aclaction",
+     {
+      "oid": "$c1"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_COUNTER",
+   "as": "c2",
+   "desc": "counter 2",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$t4"
+    ],
+    [
+     "ENABLE_PACKET_COUNT",
+     "bool",
+     true
+    ],
+    [
+     "ENABLE_BYTE_COUNT",
+     "bool",
+     true
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "e2",
+   "desc": "forward src 10/8 SYN",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$t4"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     9000
+    ],
+    [
+     "FIELD_SRC_IP",
+     "aclfield",
+     {
+      "ip4": "10.0.0.0",
+      "mask": "255.0.0.0"
+     }
+    ],
+    [
+     "FIELD_TCP_FLAGS",
+     "aclfield",
+     {
+      "u8": 2,
+      "mask": 63
+     }
+    ],
+    [
+     "FIELD_ETHER_TYPE",
+     "aclfield",
+     {
+      "u16": 2048
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "FORWARD"
+     }
+    ],
+    [
+     "ACTION_COUNTER",
+     "aclaction",
+     {
+      "oid": "$c2"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "e3",
+   "desc": "drop icmp echo on in_ports, dscp 46, vlan 100, l4 src 5000",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$t4"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     8000
+    ],
+    [
+     "FIELD_ICMP_TYPE",
+     "aclfield",
+     {
+      "u8": 8
+     }
+    ],
+    [
+     "FIELD_ICMP_CODE",
+     "aclfield",
+     {
+      "u8": 0
+     }
+    ],
+    [
+     "FIELD_IN_PORTS",
+     "aclfield",
+     {
+      "oids": [
+       "$ports[0]",
+       "$ports[15]"
+      ]
+     }
+    ],
+    [
+     "FIELD_DSCP",
+     "aclfield",
+     {
+      "u8": 46,
+      "mask": 63
+     }
+    ],
+    [
+     "FIELD_ACL_IP_TYPE",
+     "aclfield",
+     {
+      "s32": "IPV4ANY"
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "DROP"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "e3b",
+   "desc": "vlan 100 + l4 src port 5000 drop",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$t4"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     7900
+    ],
+    [
+     "FIELD_OUTER_VLAN_ID",
+     "aclfield",
+     {
+      "u16": 100,
+      "mask": 4095
+     }
+    ],
+    [
+     "FIELD_L4_SRC_PORT",
+     "aclfield",
+     {
+      "u16": 5000
+     }
+    ],
+    [
+     "FIELD_IP_PROTOCOL",
+     "aclfield",
+     {
+      "u8": 17
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "DROP"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_RANGE",
+   "as": "r1",
+   "desc": "L4 dst range 1000-2000",
+   "may_fail": true,
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "L4_DST_PORT_RANGE"
+    ],
+    [
+     "LIMIT",
+     "u32range",
+     [
+      1000,
+      2000
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "e4",
+   "desc": "drop L4 dst range",
+   "may_fail": true,
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$t4"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     7000
+    ],
+    [
+     "FIELD_ACL_RANGE_TYPE",
+     "aclfield",
+     {
+      "oids": [
+       "$r1"
+      ]
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "DROP"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "e5",
+   "desc": "trap to cpu (TRAP) udp 9999",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$t4"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     6000
+    ],
+    [
+     "FIELD_IP_PROTOCOL",
+     "aclfield",
+     {
+      "u8": 17
+     }
+    ],
+    [
+     "FIELD_L4_DST_PORT",
+     "aclfield",
+     {
+      "u16": 9999
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "TRAP"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "e5b",
+   "desc": "copy to cpu (COPY) udp 9998",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$t4"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     5990
+    ],
+    [
+     "FIELD_IP_PROTOCOL",
+     "aclfield",
+     {
+      "u8": 17
+     }
+    ],
+    [
+     "FIELD_L4_DST_PORT",
+     "aclfield",
+     {
+      "u16": 9998
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "COPY"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "e6",
+   "desc": "v6 drop dst 2001:db8::1",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$t6"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     9999
+    ],
+    [
+     "FIELD_DST_IPV6",
+     "aclfield",
+     {
+      "ip6": "2001:db8::1"
+     }
+    ],
+    [
+     "FIELD_IPV6_NEXT_HEADER",
+     "aclfield",
+     {
+      "u8": 58
+     }
+    ],
+    [
+     "FIELD_ICMPV6_TYPE",
+     "aclfield",
+     {
+      "u8": 128
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "DROP"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "e6b",
+   "desc": "v6 src prefix 2001:db8:1::/48 tcp 22",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$t6"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     9000
+    ],
+    [
+     "FIELD_SRC_IPV6",
+     "aclfield",
+     {
+      "ip6": "2001:db8:1::",
+      "mask": "ffff:ffff:ffff::"
+     }
+    ],
+    [
+     "FIELD_IPV6_NEXT_HEADER",
+     "aclfield",
+     {
+      "u8": 6
+     }
+    ],
+    [
+     "FIELD_L4_DST_PORT",
+     "aclfield",
+     {
+      "u16": 22
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "FORWARD"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "$c1",
+   "desc": "counter 1",
+   "attrs": [
+    [
+     "PACKETS",
+     "u64"
+    ],
+    [
+     "BYTES",
+     "u64"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$e1",
+   "desc": "e1 -> FORWARD",
+   "attr": [
+    "ACTION_PACKET_ACTION",
+    "aclaction",
+    {
+     "s32": "FORWARD"
+    }
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$e1",
+   "desc": "e1 dst ip change",
+   "attr": [
+    "FIELD_DST_IP",
+    "aclfield",
+    {
+     "ip4": "10.99.0.2"
+    }
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$e1",
+   "desc": "e1 admin down",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$e1",
+   "desc": "e1 admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$e2",
+   "desc": "e2 priority",
+   "attr": [
+    "PRIORITY",
+    "u32",
+    9500
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$c1",
+   "desc": "counter 1 clear",
+   "attr": [
+    "PACKETS",
+    "u64",
+    0
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE",
+   "as": "tx",
+   "desc": "L3 table with redirect/set_tc/set_dscp actions",
+   "may_fail": true,
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "FIELD_DST_IP",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_ETHER_TYPE",
+     "bool",
+     true
+    ],
+    [
+     "ACL_ACTION_TYPE_LIST",
+     "s32list",
+     [
+      "PACKET_ACTION",
+      "COUNTER",
+      "REDIRECT",
+      "SET_TC",
+      "SET_DSCP"
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "ex1",
+   "desc": "redirect to Ethernet120",
+   "may_fail": true,
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$tx"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ],
+    [
+     "FIELD_DST_IP",
+     "aclfield",
+     {
+      "ip4": "10.98.0.1"
+     }
+    ],
+    [
+     "ACTION_REDIRECT",
+     "aclaction",
+     {
+      "oid": "$ports[15]"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "ex2",
+   "desc": "set tc 5",
+   "may_fail": true,
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$tx"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     90
+    ],
+    [
+     "FIELD_DST_IP",
+     "aclfield",
+     {
+      "ip4": "10.98.0.2"
+     }
+    ],
+    [
+     "ACTION_SET_TC",
+     "aclaction",
+     {
+      "u8": 5
+     }
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "ex3",
+   "desc": "set dscp 10",
+   "may_fail": true,
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$tx"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     80
+    ],
+    [
+     "FIELD_DST_IP",
+     "aclfield",
+     {
+      "ip4": "10.98.0.3"
+     }
+    ],
+    [
+     "ACTION_SET_DSCP",
+     "aclaction",
+     {
+      "u8": 10
+     }
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP_MEMBER",
+   "as": "m0_x",
+   "desc": "tx in g0",
+   "may_fail": true,
+   "attrs": [
+    [
+     "ACL_TABLE_GROUP_ID",
+     "oid",
+     "$g0"
+    ],
+    [
+     "ACL_TABLE_ID",
+     "oid",
+     "$tx"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     300
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE",
+   "as": "te",
+   "desc": "egress L3 table",
+   "may_fail": true,
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "EGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "FIELD_DST_IP",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_ETHER_TYPE",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_IP_PROTOCOL",
+     "bool",
+     true
+    ],
+    [
+     "FIELD_L4_DST_PORT",
+     "bool",
+     true
+    ],
+    [
+     "ACL_ACTION_TYPE_LIST",
+     "s32list",
+     [
+      "PACKET_ACTION",
+      "COUNTER"
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "ee1",
+   "desc": "egress drop dst 10.97.0.1",
+   "may_fail": true,
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$te"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ],
+    [
+     "FIELD_DST_IP",
+     "aclfield",
+     {
+      "ip4": "10.97.0.1"
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "DROP"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP",
+   "as": "ge",
+   "desc": "egress group Ethernet120",
+   "may_fail": true,
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "EGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PARALLEL"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP_MEMBER",
+   "as": "me",
+   "desc": "te in ge",
+   "may_fail": true,
+   "attrs": [
+    [
+     "ACL_TABLE_GROUP_ID",
+     "oid",
+     "$ge"
+    ],
+    [
+     "ACL_TABLE_ID",
+     "oid",
+     "$te"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[15]",
+   "desc": "Ethernet120 EGRESS_ACL = group",
+   "may_fail": true,
+   "attr": [
+    "EGRESS_ACL",
+    "oid",
+    "$ge"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[15]",
+   "desc": "Ethernet120 EGRESS_ACL off",
+   "may_fail": true,
+   "attr": [
+    "EGRESS_ACL",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$me",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$ge",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$ee1",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$te",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$m0_x",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$ex1",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$ex2",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$ex3",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$tx",
+   "may_fail": true
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "desc": "Ethernet0 INGRESS_ACL off",
+   "attr": [
+    "INGRESS_ACL",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[15]",
+   "desc": "Ethernet120 INGRESS_ACL off",
+   "attr": [
+    "INGRESS_ACL",
+    "oid",
+    "null"
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$e1"
+  },
+  {
+   "op": "remove",
+   "obj": "$e2"
+  },
+  {
+   "op": "remove",
+   "obj": "$e3"
+  },
+  {
+   "op": "remove",
+   "obj": "$e3b"
+  },
+  {
+   "op": "remove",
+   "obj": "$e4",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$r1",
+   "may_fail": true
+  },
+  {
+   "op": "remove",
+   "obj": "$e5"
+  },
+  {
+   "op": "remove",
+   "obj": "$e5b"
+  },
+  {
+   "op": "remove",
+   "obj": "$e6"
+  },
+  {
+   "op": "remove",
+   "obj": "$e6b"
+  },
+  {
+   "op": "remove",
+   "obj": "$c1"
+  },
+  {
+   "op": "remove",
+   "obj": "$c2"
+  },
+  {
+   "op": "remove",
+   "obj": "$m0_4"
+  },
+  {
+   "op": "remove",
+   "obj": "$m15_4"
+  },
+  {
+   "op": "remove",
+   "obj": "$m15_6"
+  },
+  {
+   "op": "remove",
+   "obj": "$g0"
+  },
+  {
+   "op": "remove",
+   "obj": "$g15"
+  },
+  {
+   "op": "remove",
+   "obj": "$t4"
+  },
+  {
+   "op": "remove",
+   "obj": "$t6"
+  },
+  {
+   "op": "remove_switch"
+  }
+ ]
+}

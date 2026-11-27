@@ -10,6 +10,7 @@
 #![allow(clippy::unwrap_used, clippy::panic, clippy::indexing_slicing, missing_docs)]
 
 use std::ffi::OsString;
+use std::fmt::Write as _;
 use std::io::{Read, Write};
 use std::os::unix::ffi::OsStringExt;
 use std::os::unix::net::UnixListener;
@@ -144,46 +145,127 @@ fn run(exe: &Path, args: &[OsString], env: Option<&OsString>, fake: &Fake) -> Ru
     }
 }
 
-#[test]
-fn the_rust_client_behaves_like_openbcm_diag_c() {
-    let Some((c, rust)) = tools() else {
-        summary(
-            "openbcm-diag differential: the C client was not built (SAI_OPENBCM_SRC at build time, or SAI_RS_TEST_BIN): SKIPPED",
-        );
-        return;
+/// The golden transcript of the C client (tests/golden/diag-client-cpp.txt), captured from the C
+/// client `openbcm_diag.c`, never from this crate's binary.
+const GOLDEN: &str = include_str!("golden/diag-client-cpp.txt");
+
+fn fnv64(bytes: &[u8]) -> u64 {
+    bytes.iter().fold(0xcbf2_9ce4_8422_2325, |h, b| {
+        (h ^ u64::from(*b)).wrapping_mul(0x0000_0100_0000_01b3)
+    })
+}
+
+fn replace_bytes(hay: &[u8], from: &[u8], to: &[u8]) -> Vec<u8> {
+    let mut out = Vec::with_capacity(hay.len());
+    let mut i = 0;
+    while i < hay.len() {
+        if hay[i..].starts_with(from) {
+            out.extend_from_slice(to);
+            i += from.len();
+        } else {
+            out.push(hay[i]);
+            i += 1;
+        }
+    }
+    out
+}
+
+/// A byte string as one line: escaped text up to 300 bytes, else its length and FNV-1a 64 (plus
+/// the head, for reading).
+fn show(raw: &[u8], sock: &str) -> String {
+    // the per-run socket path is replaced first, so lengths and digests do not depend on it
+    let bytes = &replace_bytes(raw, sock.as_bytes(), b"<sock>");
+    let text = |b: &[u8]| String::from_utf8_lossy(&b.escape_ascii().collect::<Vec<u8>>()).into_owned();
+    if bytes.len() <= 300 {
+        format!("{} bytes {}", bytes.len(), text(bytes))
+    } else {
+        format!(
+            "{} bytes fnv64 {:016x} head {}",
+            bytes.len(),
+            fnv64(bytes),
+            text(&bytes[..40])
+        )
+    }
+}
+
+/// One case's block of the transcript.
+fn block(n: usize, args: &[OsString], env: Option<&OsString>, r: &Run, sock: &str) -> String {
+    let word = |a: &OsString| show(a.as_encoded_bytes(), sock);
+    let mut s = format!("case {n}\n");
+    for a in args {
+        let _ = writeln!(s, "  arg {}", word(a));
+    }
+    match env {
+        Some(e) => {
+            let _ = writeln!(s, "  env OPENBCM_DIAG_SOCKET {}", word(e));
+        }
+        None => s.push_str("  env OPENBCM_DIAG_SOCKET unset\n"),
+    }
+    let _ = writeln!(s, "  exit {:?}", r.code);
+    let _ = writeln!(s, "  stdout {}", show(&r.stdout, sock));
+    let _ = writeln!(s, "  stderr {}", show(&r.stderr, sock));
+    let _ = writeln!(s, "  received {}", r.received.len());
+    for q in &r.received {
+        let _ = writeln!(s, "    {}", show(q, sock));
+    }
+    s
+}
+
+/// The comparison of a transcript with the golden: the first differing line, or Ok.
+fn compare(golden: &str, actual: &str) -> Result<(), String> {
+    let body = |t: &str| {
+        t.lines()
+            .filter(|l| !l.starts_with('#'))
+            .map(str::to_owned)
+            .collect::<Vec<_>>()
     };
-    let base = std::env::var_os("SAI_RS_TEST_TMPDIR").map_or_else(std::env::temp_dir, PathBuf::from);
-    let dir = base.join(format!("obd-{}", std::process::id()));
-    let _ = std::fs::remove_dir_all(&dir);
-    std::fs::create_dir_all(&dir).unwrap();
-    let sock = dir.join("d.sock");
-    let s = sock.to_str().unwrap().to_owned();
-    let fake = Fake::start(&sock);
-    let os = |w: &[&str]| -> Vec<OsString> { w.iter().map(|a| OsString::from(a.replace("{s}", &s))).collect() };
+    let (g, a) = (body(golden), body(actual));
+    for (i, (x, y)) in g.iter().zip(&a).enumerate() {
+        if x != y {
+            return Err(format!("line {}: golden {x:?}, actual {y:?}", i + 1));
+        }
+    }
+    if g.len() == a.len() {
+        Ok(())
+    } else {
+        Err(format!("golden has {} lines, actual {}", g.len(), a.len()))
+    }
+}
+
+/// The 29 command lines, with the environment each one runs under.
+fn cases(
+    s: &str,
+    env_sock: &OsString,
+    env_empty: &OsString,
+    env_missing: &OsString,
+) -> Vec<(Vec<OsString>, Option<OsString>)> {
+    let os = |w: &[&str]| -> Vec<OsString> { w.iter().map(|a| OsString::from(a.replace("{s}", s))).collect() };
     let long_path = format!("/{}", "p".repeat(107));
     let x1021 = "x".repeat(1021);
     let x1022 = "x".repeat(1022);
     let (a500, b521, b522) = ("a".repeat(500), "b".repeat(521), "b".repeat(522));
-    let env_sock = OsString::from(&s);
-    let env_empty = OsString::new();
-    let env_missing = OsString::from("/nonexistent/diag.sock");
-    let mut cases: Vec<(Vec<OsString>, Option<&OsString>)> = vec![
+    let (e, m, q) = (
+        Some(env_sock.clone()),
+        Some(env_missing.clone()),
+        Some(env_empty.clone()),
+    );
+    let mut cases: Vec<(Vec<OsString>, Option<OsString>)> = vec![
         (os(&[]), None),
-        (os(&[]), Some(&env_sock)),
-        (os(&["-s"]), Some(&env_sock)),
+        (os(&[]), e.clone()),
+        (os(&["-s"]), e.clone()),
         (os(&["-s", "{s}"]), None),
         (os(&["-s", "{s}", "l2", "station", "show"]), None),
-        (os(&["l2", "show"]), Some(&env_sock)),
-        (os(&["l2", "show"]), Some(&env_missing)),
-        (os(&["l2", "show"]), Some(&env_empty)),
-        (os(&["-s", "{s}", "ps"]), Some(&env_missing)),
-        (os(&["-s", "/nonexistent/x.sock", "ps"]), Some(&env_sock)),
+        (os(&["l2", "show"]), e.clone()),
+        (os(&["l2", "show"]), m.clone()),
+        (os(&["l2", "show"]), q),
+        (os(&["-s", "{s}", "ps"]), m),
+        (os(&["-s", "/nonexistent/x.sock", "ps"]), e.clone()),
         (os(&["-s", &long_path, "ps"]), None),
         (os(&["-s", "", "ps"]), None),
         (os(&["-s", "{s}", "", "ps"]), None),
         (os(&["-s", "{s}", "ps", "", "x"]), None),
         (os(&["-s", "{s}", "a", "-s", "b"]), None),
-        (os(&["--", "ps"]), Some(&env_sock)),
+        (os(&["--", "ps"]), e),
         (os(&["-s", "{s}", &x1021]), None),
         (os(&["-s", "{s}", &x1022]), None),
         (os(&["-s", "{s}", &a500, &b521]), None),
@@ -200,10 +282,104 @@ fn the_rust_client_behaves_like_openbcm_diag_c() {
     let mut odd = os(&["-s", "{s}"]);
     odd.push(OsString::from_vec(vec![b'u', 0xff, 0xfe, b'v']));
     cases.push((odd, None));
+    cases
+}
+
+/// Runs every case with `exe` and renders the transcript (the header lines are the golden's own).
+fn transcript(exe: &Path, tag: &str) -> (String, usize) {
+    let base = std::env::var_os("SAI_RS_TEST_TMPDIR").map_or_else(std::env::temp_dir, PathBuf::from);
+    let dir = base.join(format!("obd-{tag}-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    let sock = dir.join("d.sock");
+    let s = sock.to_str().unwrap().to_owned();
+    let fake = Fake::start(&sock);
+    let (env_sock, env_empty, env_missing) = (
+        OsString::from(&s),
+        OsString::new(),
+        OsString::from("/nonexistent/diag.sock"),
+    );
+    let list = cases(&s, &env_sock, &env_empty, &env_missing);
+    let mut out = String::new();
+    for (n, (args, env)) in list.iter().enumerate() {
+        let r = run(exe, args, env.as_ref(), &fake);
+        out += &block(n + 1, args, env.as_ref(), &r, &s);
+    }
+    drop(fake);
+    std::fs::remove_dir_all(&dir).unwrap();
+    (out, list.len())
+}
+
+#[test]
+fn the_rust_client_matches_the_golden_transcript() {
+    let rust = PathBuf::from(std::env::var_os("SAI_RS_TEST_BIN").map_or_else(
+        || env!("CARGO_BIN_EXE_openbcm-diag-rs").into(),
+        |d| PathBuf::from(d).join("openbcm-diag-rs").into_os_string(),
+    ));
+    let (got, n) = transcript(&rust, "gold");
+    compare(GOLDEN, &got).unwrap();
+    summary(&format!(
+        "openbcm-diag golden: {n} command lines of the Rust client equal the golden transcript of openbcm_diag.c"
+    ));
+}
+
+/// Negative control: a changed byte, a dropped line and an added line in the golden are reported.
+#[test]
+fn the_golden_comparison_reports_a_changed_transcript() {
+    assert!(
+        GOLDEN.lines().any(|l| l.starts_with("case ")),
+        "the golden has no cases"
+    );
+    compare(GOLDEN, GOLDEN).unwrap();
+    let flipped = GOLDEN.replacen("  exit Some(0)", "  exit Some(1)", 1);
+    assert_ne!(flipped, GOLDEN);
+    assert!(compare(&flipped, GOLDEN).is_err());
+    let dropped = GOLDEN
+        .lines()
+        .filter(|l| !l.starts_with("case 7"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    assert!(compare(&dropped, GOLDEN).is_err());
+    assert!(compare(&format!("{GOLDEN}extra\n"), GOLDEN).is_err());
+}
+
+/// Writes a golden body from the C client (`OPENBCM_DIAG_CAPTURE=<file>`; the C client only).
+#[test]
+fn capture_the_c_transcript_when_asked() {
+    let (Some(out), Some((c, _))) = (std::env::var_os("OPENBCM_DIAG_CAPTURE"), tools()) else {
+        return;
+    };
+    std::fs::write(out, transcript(&c, "cap").0).unwrap();
+}
+
+#[test]
+fn the_rust_client_behaves_like_openbcm_diag_c() {
+    let Some((c, rust)) = tools() else {
+        summary(
+            "openbcm-diag differential: the C client was not built (SAI_OPENBCM_SRC at build time, or SAI_RS_TEST_BIN): SKIPPED",
+        );
+        return;
+    };
+    let (live, _) = transcript(&c, "live");
+    compare(GOLDEN, &live).unwrap();
+    summary("openbcm-diag live == golden: the live C client's transcript equals the golden");
+    let base = std::env::var_os("SAI_RS_TEST_TMPDIR").map_or_else(std::env::temp_dir, PathBuf::from);
+    let dir = base.join(format!("obd-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    let sock = dir.join("d.sock");
+    let s = sock.to_str().unwrap().to_owned();
+    let fake = Fake::start(&sock);
+    let (env_sock, env_empty, env_missing) = (
+        OsString::from(&s),
+        OsString::new(),
+        OsString::from("/nonexistent/diag.sock"),
+    );
+    let cases = cases(&s, &env_sock, &env_empty, &env_missing);
     let mut n = 0;
     for (args, env) in &cases {
-        let expected = run(&c, args, *env, &fake);
-        let got = run(&rust, args, *env, &fake);
+        let expected = run(&c, args, env.as_ref(), &fake);
+        let got = run(&rust, args, env.as_ref(), &fake);
         assert_eq!(got, expected, "args {args:?}, OPENBCM_DIAG_SOCKET {env:?}");
         n += 1;
     }

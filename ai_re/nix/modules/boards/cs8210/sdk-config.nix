@@ -1,5 +1,5 @@
 # CS8210-32X IFCS init config (config.yaml) for services.sonic.sai.sdkConfig:
-# the devports of the SONiC ports (packages/sai-teralynx/configs, rules and
+# the devports of the SONiC ports (./teralynx7, rules and
 # vendor sources there) with the board values of the vendor's knet bring-up
 # (Briggs SDK V0.1.7: auto_load_user.sh -k, cel_configs/common_PAM4_400G_32_nd.yaml
 # sha256 66fc02f8...; dynamic_config.sh 805eef45...). Checked against that
@@ -28,7 +28,7 @@
 #                32 lane 0) to the CPU card's second NIC, type "mgmt 0", fec NONE.
 # Pre-emphasis and the isg (lane swap/polarity) section are vendor tuning data
 # and come from the SDK tree at runtime (./sai-files.py), not from here.
-{ pkgs, sonic, media ? { }, teralynx ? import ../../../packages/sai-teralynx/configs { inherit pkgs; } }:
+{ pkgs, sonic, media ? { }, teralynx ? import ./teralynx7 { inherit pkgs; } }:
 { ports, settings ? { } }:
 let
   inherit (pkgs) lib;

@@ -122,7 +122,9 @@ generated device/hwsku tree (port_config.ini, sai.profile, lanemap.ini),
 `/run/redis/sonic-db/database_config.json` (no chassis instance; redis has
 20 databases), `/etc/sonic/{sonic_version.yml,copp_cfg.json}`, `/zmq_swss`
 (orchagent's ZMQ endpoints). CLI: `SONIC_CLI_IFACE_MODE=alias` for login
-shells and kept by sudo; `config reload` calls `sonic-nix reload`; alias
+shells and kept by sudo; `config reload` calls `sonic-nix reload` (stops sonic.target *and names its
+units*, so systemctl waits until every one is down: a bare `systemctl stop sonic.target` returns
+before its PartOf units stop and the start then cancels their queued stops; fixed 2026-11-27); alias
 ranges `Ethernet1/1-4` and `Ethernet1/3-3/1` (missing subports are gaps) in
 `config interface startup/shutdown`.
 
@@ -135,6 +137,8 @@ nix build -L --impure --expr 'let f = builtins.getFlake "path:'$PWD'/nix"; pkgs 
 # same with tests/vm.nix: two VMs (switch 3 GB + LACP peer 1 GB), ~8 min
 # tests/vm-openbcm-fake.nix: vm.nix's checks on our SAI's fake (virtual) backend
 # tests/vm-openbcm-fake-l3.nix: one VM on that fake: VRF, ECMP group, flex counters, CLI lists
+# tests/vm-reload.nix: one VM (3 GB, vs): every sonic.target unit down across the CONFIG_DB write of sonic-nix reload /
+#   config reload, a saved VRF binding back; control: the pre-fix stop-load-start leaves syncd/orchagent up, ~4 min
 # tests/vm-macsec.nix: MACsec start-up on the virtual SAI (MKA between two ports of the switch, sessions follow the port address)
 # tests/vm-openbcm-fake-acl.nix: CoPP policers + an L3 ACL through orchagent on the fake
 #   the three vm-openbcm-fake* need openbcm = { rustSai = <monorepo>/rust/sai/nix; } (hardware.openbcm,

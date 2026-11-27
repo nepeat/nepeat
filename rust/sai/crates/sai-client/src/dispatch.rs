@@ -2,7 +2,7 @@
 //! `do_get` and the stats calls of both C programs dispatch (the same object types, nothing more).
 #![forbid(unsafe_code)]
 
-use crate::ffi::{self, CreateFn, GetFn, Key, Lib, RemoveFn, SetFn, StatsFn};
+use crate::ffi::{self, ClearStatsFn, CreateFn, GetFn, Key, Lib, RemoveFn, SetFn, StatsExtFn, StatsFn};
 use crate::value::Encoded;
 use crate::{Api, Entry, EntryOp, NOT_IMPLEMENTED, Status, sys};
 
@@ -240,6 +240,46 @@ impl Tables {
             sys::SAI_OBJECT_TYPE_BUFFER_POOL => self.buffer.and_then(|a| a.get_buffer_pool_stats),
             _ => return Slot::Missing,
         })
+    }
+
+    pub(crate) fn stats_ext(&self, t: sys::sai_object_type_t) -> Slot<StatsExtFn> {
+        slot(match t {
+            sys::SAI_OBJECT_TYPE_PORT => self.port.and_then(|a| a.get_port_stats_ext),
+            sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE => self.rif.and_then(|a| a.get_router_interface_stats_ext),
+            sys::SAI_OBJECT_TYPE_QUEUE => self.queue.and_then(|a| a.get_queue_stats_ext),
+            _ => return Slot::Missing,
+        })
+    }
+
+    pub(crate) fn clear_stats(&self, t: sys::sai_object_type_t) -> Slot<ClearStatsFn> {
+        slot(match t {
+            sys::SAI_OBJECT_TYPE_PORT => self.port.and_then(|a| a.clear_port_stats),
+            sys::SAI_OBJECT_TYPE_ROUTER_INTERFACE => self.rif.and_then(|a| a.clear_router_interface_stats),
+            sys::SAI_OBJECT_TYPE_QUEUE => self.queue.and_then(|a| a.clear_queue_stats),
+            _ => return Slot::Missing,
+        })
+    }
+
+    pub(crate) fn clear_port_all_stats(&self) -> Slot<RemoveFn> {
+        slot(self.port.and_then(|a| a.clear_port_all_stats))
+    }
+
+    /// `get_<entry>_attribute` of a route / neighbour / FDB entry.
+    pub(crate) fn entry_get(&self, switch: sys::sai_object_id_t, k: &Entry, e: &mut Encoded) -> Status {
+        match ffi::key(switch, k) {
+            Key::Route(key) => self
+                .route
+                .and_then(|t| t.get_route_entry_attribute)
+                .map_or(NOT_IMPLEMENTED, |f| ffi::entry_get(f, &key, e)),
+            Key::Neighbor(key) => self
+                .neighbor
+                .and_then(|t| t.get_neighbor_entry_attribute)
+                .map_or(NOT_IMPLEMENTED, |f| ffi::entry_get(f, &key, e)),
+            Key::Fdb(key) => self
+                .fdb
+                .and_then(|t| t.get_fdb_entry_attribute)
+                .map_or(NOT_IMPLEMENTED, |f| ffi::entry_get(f, &key, e)),
+        }
     }
 
     pub(crate) fn entry(&self, op: EntryOp, switch: sys::sai_object_id_t, k: &Entry, e: &Encoded) -> Status {

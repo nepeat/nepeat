@@ -60,6 +60,8 @@ rustPlatform.buildRustPackage {
       # ifcs-gen's templates (.h.in) and its synthetic test fixtures (a ctypesgen-shaped .py)
       (ws + "/crates/ifcs-gen/templates")
       (ws + "/crates/ifcs-gen/tests/fixtures")
+      # ifcs-gen's goldens (header digests, model-fact digest: .sha256 files, H5-0)
+      (ws + "/crates/ifcs-gen/tests/golden")
     ];
   };
   cargoLock.lockFile = ws + "/Cargo.lock";

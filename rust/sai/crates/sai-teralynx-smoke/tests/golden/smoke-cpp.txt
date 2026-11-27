@@ -1,0 +1,165 @@
+# Golden C++ side of the smoke program's C++ form (crates/sai-teralynx-smoke/tests/mock-smoke.sh): what the C++ program
+# tools/sai_smoke.cpp (sai-teralynx-smoke PROFILE SECONDS [FIRST_LANE[:IFNAME] ...]) prints and exits with, linked to the
+# C++ libsai (ai_re/nix/packages/sai-teralynx) over the mock libifcs (the parity fixtures' mock/libifcs.so, port map of
+# 32 ports, no cables; the profile as the script writes it), for the three argument sets of the script and its usage:
+#   "case <args> exit <rc>" then the stdout, each line prefixed "|"; the usage case (no PROFILE/SECONDS: the C++ program
+#   prints "usage: <argv0> PROFILE SECONDS [FIRST_LANE[:IFNAME] ...]" on stderr) is its exit code only.
+# The Rust program on the Rust libsai gives exactly this (checked by the script), and so does the C++ program on the C++
+# library (live == golden). NOT to be regenerated from the Rust output.
+# Captured 2026-11-26 from these files (sha256; the C++ program and libsai are the nix build of the sai-teralynx package):
+#   c5e9a8bea670f520580c6de200a798c8158351a01d363725158d0a4db86b87b2  ai_re/nix/packages/sai-teralynx/tools/sai_smoke.cpp
+#   b1459f3ab08d91b7c5e1d25807f8c1e693bf8ceb5361488abc64ed3cf8fa5b1b  rust/sai/crates/sai-teralynx-smoke/tests/mock-smoke.sh
+#   61236fe3c249cbef6c6fc9eefc5b335eb48fbf374c6e143a85b58e23de3e99e6  rust/sai/crates/sai-teralynx-smoke/tests/c/mock_wire.c
+#   9ec83b2e7073dcd9245e0ac3cc8e029c4cb17b35521ec657d1b32f2f8bb2f2f1  rust/sai/crates/sai-teralynx-parity/build-fixtures.sh
+#   c847208aba8dad4bdeac395f6cfa115b38ce54d935d4b90f11a825d1a63337dc  /nix/store/mfdysqp9vhssi6x2kiwpw4qyj4zm0an0-sai-teralynx-0.1.0/bin/sai-teralynx-smoke
+#   9846dbbc33351e96e90eef8449ad09cec33240e39c095eed9d4a7991aa8e73d5  /nix/store/mfdysqp9vhssi6x2kiwpw4qyj4zm0an0-sai-teralynx-0.1.0/lib/libsai.so.1.0.0
+# Command (C++ program on the C++ library; no seeds, the argument sets are fixed in the script; CC for the wire fixture):
+#   SAI_RS_TEST_TMPDIR=<short dir> SMOKE_CAPTURE=<file> bash crates/sai-teralynx-smoke/tests/mock-smoke.sh WORK <Rust smoke> \
+#     <Rust lib dir> <fixtures> crates/sai-backend-teralynx/tests <C++ bin/sai-teralynx-smoke> <C++ lib/>
+# Live == golden and negative control: the script's lines "live == golden" and "negative control" (same script, no SMOKE_CAPTURE).
+case 4 1:smoke0 9 exit 0
+|sai_api_initialize           0
+|query switch                 0
+|query port                   0
+|query hostif                 0
+|create_switch                0
+|get port list                0
+|ports 32
+|port 0x100000000000001 st 0 speed 400000 lanes 1 2 3 4 5 6 7 8
+|port 0x100000000000002 st 0 speed 400000 lanes 9 10 11 12 13 14 15 16
+|port 0x100000000000003 st 0 speed 400000 lanes 17 18 19 20 21 22 23 24
+|port 0x100000000000004 st 0 speed 400000 lanes 25 26 27 28 29 30 31 32
+|port 0x100000000000005 st 0 speed 400000 lanes 33 34 35 36 37 38 39 40
+|port 0x100000000000006 st 0 speed 400000 lanes 41 42 43 44 45 46 47 48
+|port 0x100000000000007 st 0 speed 400000 lanes 49 50 51 52 53 54 55 56
+|port 0x100000000000008 st 0 speed 400000 lanes 57 58 59 60 61 62 63 64
+|port 0x100000000000009 st 0 speed 400000 lanes 65 66 67 68 69 70 71 72
+|port 0x10000000000000a st 0 speed 400000 lanes 73 74 75 76 77 78 79 80
+|port 0x10000000000000b st 0 speed 400000 lanes 81 82 83 84 85 86 87 88
+|port 0x10000000000000c st 0 speed 400000 lanes 89 90 91 92 93 94 95 96
+|port 0x10000000000000d st 0 speed 400000 lanes 97 98 99 100 101 102 103 104
+|port 0x10000000000000e st 0 speed 400000 lanes 105 106 107 108 109 110 111 112
+|port 0x10000000000000f st 0 speed 400000 lanes 113 114 115 116 117 118 119 120
+|port 0x100000000000010 st 0 speed 400000 lanes 121 122 123 124 125 126 127 128
+|port 0x100000000000011 st 0 speed 400000 lanes 129 130 131 132 133 134 135 136
+|port 0x100000000000012 st 0 speed 400000 lanes 137 138 139 140 141 142 143 144
+|port 0x100000000000013 st 0 speed 400000 lanes 145 146 147 148 149 150 151 152
+|port 0x100000000000014 st 0 speed 400000 lanes 153 154 155 156 157 158 159 160
+|port 0x100000000000015 st 0 speed 400000 lanes 161 162 163 164 165 166 167 168
+|port 0x100000000000016 st 0 speed 400000 lanes 169 170 171 172 173 174 175 176
+|port 0x100000000000017 st 0 speed 400000 lanes 177 178 179 180 181 182 183 184
+|port 0x100000000000018 st 0 speed 400000 lanes 185 186 187 188 189 190 191 192
+|port 0x100000000000019 st 0 speed 400000 lanes 193 194 195 196 197 198 199 200
+|port 0x10000000000001a st 0 speed 400000 lanes 201 202 203 204 205 206 207 208
+|port 0x10000000000001b st 0 speed 400000 lanes 209 210 211 212 213 214 215 216
+|port 0x10000000000001c st 0 speed 400000 lanes 217 218 219 220 221 222 223 224
+|port 0x10000000000001d st 0 speed 400000 lanes 225 226 227 228 229 230 231 232
+|port 0x10000000000001e st 0 speed 400000 lanes 233 234 235 236 237 238 239 240
+|port 0x10000000000001f st 0 speed 400000 lanes 241 242 243 244 245 246 247 248
+|port 0x100000000000020 st 0 speed 400000 lanes 249 250 251 252 253 254 255 256
+|set mtu 9100                 0
+|hostif smoke0                0
+|admin up                     0
+|set mtu 9100                 0
+|admin up                     0
+|t=0 temp st 0 56 C | lane 1 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 9 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+|t=2 temp st 0 56 C | lane 1 oper 2 stats(0) in 0 out 0 err 0 nonuc 0 | lane 9 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+|admin down                   0
+|remove hostif                0
+|admin down                   0
+|remove_switch                0
+|sai_api_uninitialize         0
+case 2 1 999 exit 1
+|sai_api_initialize           0
+|query switch                 0
+|query port                   0
+|query hostif                 0
+|create_switch                0
+|get port list                0
+|ports 32
+|port 0x100000000000001 st 0 speed 400000 lanes 1 2 3 4 5 6 7 8
+|port 0x100000000000002 st 0 speed 400000 lanes 9 10 11 12 13 14 15 16
+|port 0x100000000000003 st 0 speed 400000 lanes 17 18 19 20 21 22 23 24
+|port 0x100000000000004 st 0 speed 400000 lanes 25 26 27 28 29 30 31 32
+|port 0x100000000000005 st 0 speed 400000 lanes 33 34 35 36 37 38 39 40
+|port 0x100000000000006 st 0 speed 400000 lanes 41 42 43 44 45 46 47 48
+|port 0x100000000000007 st 0 speed 400000 lanes 49 50 51 52 53 54 55 56
+|port 0x100000000000008 st 0 speed 400000 lanes 57 58 59 60 61 62 63 64
+|port 0x100000000000009 st 0 speed 400000 lanes 65 66 67 68 69 70 71 72
+|port 0x10000000000000a st 0 speed 400000 lanes 73 74 75 76 77 78 79 80
+|port 0x10000000000000b st 0 speed 400000 lanes 81 82 83 84 85 86 87 88
+|port 0x10000000000000c st 0 speed 400000 lanes 89 90 91 92 93 94 95 96
+|port 0x10000000000000d st 0 speed 400000 lanes 97 98 99 100 101 102 103 104
+|port 0x10000000000000e st 0 speed 400000 lanes 105 106 107 108 109 110 111 112
+|port 0x10000000000000f st 0 speed 400000 lanes 113 114 115 116 117 118 119 120
+|port 0x100000000000010 st 0 speed 400000 lanes 121 122 123 124 125 126 127 128
+|port 0x100000000000011 st 0 speed 400000 lanes 129 130 131 132 133 134 135 136
+|port 0x100000000000012 st 0 speed 400000 lanes 137 138 139 140 141 142 143 144
+|port 0x100000000000013 st 0 speed 400000 lanes 145 146 147 148 149 150 151 152
+|port 0x100000000000014 st 0 speed 400000 lanes 153 154 155 156 157 158 159 160
+|port 0x100000000000015 st 0 speed 400000 lanes 161 162 163 164 165 166 167 168
+|port 0x100000000000016 st 0 speed 400000 lanes 169 170 171 172 173 174 175 176
+|port 0x100000000000017 st 0 speed 400000 lanes 177 178 179 180 181 182 183 184
+|port 0x100000000000018 st 0 speed 400000 lanes 185 186 187 188 189 190 191 192
+|port 0x100000000000019 st 0 speed 400000 lanes 193 194 195 196 197 198 199 200
+|port 0x10000000000001a st 0 speed 400000 lanes 201 202 203 204 205 206 207 208
+|port 0x10000000000001b st 0 speed 400000 lanes 209 210 211 212 213 214 215 216
+|port 0x10000000000001c st 0 speed 400000 lanes 217 218 219 220 221 222 223 224
+|port 0x10000000000001d st 0 speed 400000 lanes 225 226 227 228 229 230 231 232
+|port 0x10000000000001e st 0 speed 400000 lanes 233 234 235 236 237 238 239 240
+|port 0x10000000000001f st 0 speed 400000 lanes 241 242 243 244 245 246 247 248
+|port 0x100000000000020 st 0 speed 400000 lanes 249 250 251 252 253 254 255 256
+|set mtu 9100                 0
+|admin up                     0
+|no port with first lane 999
+|t=0 temp st 0 56 C | lane 1 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+|admin down                   0
+|remove_switch                0
+|sai_api_uninitialize         0
+case 2 0x41 exit 0
+|sai_api_initialize           0
+|query switch                 0
+|query port                   0
+|query hostif                 0
+|create_switch                0
+|get port list                0
+|ports 32
+|port 0x100000000000001 st 0 speed 400000 lanes 1 2 3 4 5 6 7 8
+|port 0x100000000000002 st 0 speed 400000 lanes 9 10 11 12 13 14 15 16
+|port 0x100000000000003 st 0 speed 400000 lanes 17 18 19 20 21 22 23 24
+|port 0x100000000000004 st 0 speed 400000 lanes 25 26 27 28 29 30 31 32
+|port 0x100000000000005 st 0 speed 400000 lanes 33 34 35 36 37 38 39 40
+|port 0x100000000000006 st 0 speed 400000 lanes 41 42 43 44 45 46 47 48
+|port 0x100000000000007 st 0 speed 400000 lanes 49 50 51 52 53 54 55 56
+|port 0x100000000000008 st 0 speed 400000 lanes 57 58 59 60 61 62 63 64
+|port 0x100000000000009 st 0 speed 400000 lanes 65 66 67 68 69 70 71 72
+|port 0x10000000000000a st 0 speed 400000 lanes 73 74 75 76 77 78 79 80
+|port 0x10000000000000b st 0 speed 400000 lanes 81 82 83 84 85 86 87 88
+|port 0x10000000000000c st 0 speed 400000 lanes 89 90 91 92 93 94 95 96
+|port 0x10000000000000d st 0 speed 400000 lanes 97 98 99 100 101 102 103 104
+|port 0x10000000000000e st 0 speed 400000 lanes 105 106 107 108 109 110 111 112
+|port 0x10000000000000f st 0 speed 400000 lanes 113 114 115 116 117 118 119 120
+|port 0x100000000000010 st 0 speed 400000 lanes 121 122 123 124 125 126 127 128
+|port 0x100000000000011 st 0 speed 400000 lanes 129 130 131 132 133 134 135 136
+|port 0x100000000000012 st 0 speed 400000 lanes 137 138 139 140 141 142 143 144
+|port 0x100000000000013 st 0 speed 400000 lanes 145 146 147 148 149 150 151 152
+|port 0x100000000000014 st 0 speed 400000 lanes 153 154 155 156 157 158 159 160
+|port 0x100000000000015 st 0 speed 400000 lanes 161 162 163 164 165 166 167 168
+|port 0x100000000000016 st 0 speed 400000 lanes 169 170 171 172 173 174 175 176
+|port 0x100000000000017 st 0 speed 400000 lanes 177 178 179 180 181 182 183 184
+|port 0x100000000000018 st 0 speed 400000 lanes 185 186 187 188 189 190 191 192
+|port 0x100000000000019 st 0 speed 400000 lanes 193 194 195 196 197 198 199 200
+|port 0x10000000000001a st 0 speed 400000 lanes 201 202 203 204 205 206 207 208
+|port 0x10000000000001b st 0 speed 400000 lanes 209 210 211 212 213 214 215 216
+|port 0x10000000000001c st 0 speed 400000 lanes 217 218 219 220 221 222 223 224
+|port 0x10000000000001d st 0 speed 400000 lanes 225 226 227 228 229 230 231 232
+|port 0x10000000000001e st 0 speed 400000 lanes 233 234 235 236 237 238 239 240
+|port 0x10000000000001f st 0 speed 400000 lanes 241 242 243 244 245 246 247 248
+|port 0x100000000000020 st 0 speed 400000 lanes 249 250 251 252 253 254 255 256
+|set mtu 9100                 0
+|admin up                     0
+|t=0 temp st 0 56 C | lane 65 oper 2 stats(0) in 0 out 0 err 0 nonuc 0
+|admin down                   0
+|remove_switch                0
+|sai_api_uninitialize         0
+case usage exit 2

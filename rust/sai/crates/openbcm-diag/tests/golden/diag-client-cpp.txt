@@ -1,0 +1,291 @@
+# Golden transcript of the C client openbcm_diag.c (crates/openbcm-diag/tests/differential.rs): the 29 command
+# lines of that test with their environment (OPENBCM_DIAG_SOCKET), against its fake syncd (answers by first word;
+# see answer() in the test): per case exit code, stdout, stderr and the requests the fake received, byte strings
+# escaped (escape_ascii) with the per-run socket path shown as <sock>; strings over 300 bytes as length + FNV-1a 64
+# + the first 40 bytes. NOT to be regenerated from the Rust output.
+# Captured 2026-11-26 from this C file (sha256), built by crates/openbcm-diag/build.rs (cc -std=gnu11 -O1 -Wall):
+#   e0e377938d0a20cddbc307ba152f4f76e207daae80550f8d6f436cb64cb44b03  ai_re/nix/packages/sai-teralynx/frontend/src/openbcm_diag.c
+# Command (C client only; no seeds, the cases are fixed in the test):
+#   rust/sai: devenv cargo test -p openbcm-diag --test differential capture_the_c_transcript_when_asked
+#     with OPENBCM_DIAG_C_PARITY=require OPENBCM_DIAG_CAPTURE=<file>   (writes the body below)
+# Proof live == golden: the test the_rust_client_behaves_like_openbcm_diag_c renders the live C client's run the same
+# way and asserts it equals this file; the Rust client is compared to it in the_rust_client_matches_the_golden_transcript;
+# negative control: the_golden_comparison_reports_a_changed_transcript.
+case 1
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(2)
+  stdout 0 bytes 
+  stderr 79 bytes usage: openbcm-diag [-s SOCKET] COMMAND...   e.g. openbcm-diag l2 station show\n
+  received 0
+case 2
+  env OPENBCM_DIAG_SOCKET 6 bytes <sock>
+  exit Some(2)
+  stdout 0 bytes 
+  stderr 79 bytes usage: openbcm-diag [-s SOCKET] COMMAND...   e.g. openbcm-diag l2 station show\n
+  received 0
+case 3
+  arg 2 bytes -s
+  env OPENBCM_DIAG_SOCKET 6 bytes <sock>
+  exit Some(0)
+  stdout 9 bytes fake: -s\n
+  stderr 0 bytes 
+  received 1
+    3 bytes -s\n
+case 4
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(2)
+  stdout 0 bytes 
+  stderr 79 bytes usage: openbcm-diag [-s SOCKET] COMMAND...   e.g. openbcm-diag l2 station show\n
+  received 0
+case 5
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 2 bytes l2
+  arg 7 bytes station
+  arg 4 bytes show
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(0)
+  stdout 22 bytes fake: l2 station show\n
+  stderr 0 bytes 
+  received 1
+    16 bytes l2 station show\n
+case 6
+  arg 2 bytes l2
+  arg 4 bytes show
+  env OPENBCM_DIAG_SOCKET 6 bytes <sock>
+  exit Some(0)
+  stdout 14 bytes fake: l2 show\n
+  stderr 0 bytes 
+  received 1
+    8 bytes l2 show\n
+case 7
+  arg 2 bytes l2
+  arg 4 bytes show
+  env OPENBCM_DIAG_SOCKET 22 bytes /nonexistent/diag.sock
+  exit Some(2)
+  stdout 0 bytes 
+  stderr 105 bytes openbcm-diag: /nonexistent/diag.sock: no syncd diag socket (SAI_OPENBCM_DIAG_SOCKET set? syncd running?)\n
+  received 0
+case 8
+  arg 2 bytes l2
+  arg 4 bytes show
+  env OPENBCM_DIAG_SOCKET 0 bytes 
+  exit Some(2)
+  stdout 0 bytes 
+  stderr 109 bytes openbcm-diag: /run/sai-openbcm/diag.sock: no syncd diag socket (SAI_OPENBCM_DIAG_SOCKET set? syncd running?)\n
+  received 0
+case 9
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 2 bytes ps
+  env OPENBCM_DIAG_SOCKET 22 bytes /nonexistent/diag.sock
+  exit Some(0)
+  stdout 9 bytes fake: ps\n
+  stderr 0 bytes 
+  received 1
+    3 bytes ps\n
+case 10
+  arg 2 bytes -s
+  arg 19 bytes /nonexistent/x.sock
+  arg 2 bytes ps
+  env OPENBCM_DIAG_SOCKET 6 bytes <sock>
+  exit Some(2)
+  stdout 0 bytes 
+  stderr 102 bytes openbcm-diag: /nonexistent/x.sock: no syncd diag socket (SAI_OPENBCM_DIAG_SOCKET set? syncd running?)\n
+  received 0
+case 11
+  arg 2 bytes -s
+  arg 108 bytes /ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp
+  arg 2 bytes ps
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(2)
+  stdout 0 bytes 
+  stderr 0 bytes 
+  received 0
+case 12
+  arg 2 bytes -s
+  arg 0 bytes 
+  arg 2 bytes ps
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(2)
+  stdout 0 bytes 
+  stderr 83 bytes openbcm-diag: : no syncd diag socket (SAI_OPENBCM_DIAG_SOCKET set? syncd running?)\n
+  received 0
+case 13
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 0 bytes 
+  arg 2 bytes ps
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(0)
+  stdout 9 bytes fake: ps\n
+  stderr 0 bytes 
+  received 1
+    3 bytes ps\n
+case 14
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 2 bytes ps
+  arg 0 bytes 
+  arg 1 bytes x
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(0)
+  stdout 12 bytes fake: ps  x\n
+  stderr 0 bytes 
+  received 1
+    6 bytes ps  x\n
+case 15
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 1 bytes a
+  arg 2 bytes -s
+  arg 1 bytes b
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(0)
+  stdout 13 bytes fake: a -s b\n
+  stderr 0 bytes 
+  received 1
+    7 bytes a -s b\n
+case 16
+  arg 2 bytes --
+  arg 2 bytes ps
+  env OPENBCM_DIAG_SOCKET 6 bytes <sock>
+  exit Some(0)
+  stdout 12 bytes fake: -- ps\n
+  stderr 0 bytes 
+  received 1
+    6 bytes -- ps\n
+case 17
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 1021 bytes fnv64 7f6b46dcc39020b7 head xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(0)
+  stdout 1028 bytes fnv64 8a22bfa175491bc8 head fake: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  stderr 0 bytes 
+  received 1
+    1022 bytes fnv64 136a26204de7a127 head xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+case 18
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 1022 bytes fnv64 136a38204de7bfbd head xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(2)
+  stdout 0 bytes 
+  stderr 31 bytes openbcm-diag: command too long\n
+  received 0
+case 19
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 500 bytes fnv64 67481e160935e909 head aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  arg 521 bytes fnv64 04bd230fb28a69a5 head bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(0)
+  stdout 1029 bytes fnv64 d7bf6add4716f34a head fake: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  stderr 0 bytes 
+  received 1
+    1023 bytes fnv64 4b00c9f15f08ab33 head aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+case 20
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 500 bytes fnv64 67481e160935e909 head aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  arg 522 bytes fnv64 97cc5aac6131bd25 head bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(2)
+  stdout 0 bytes 
+  stderr 31 bytes openbcm-diag: command too long\n
+  received 0
+case 21
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 4 bytes fail
+  arg 1 bytes x
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(1)
+  stdout 46 bytes some output\nopenbcm-diag: command failed (-1)\n
+  stderr 0 bytes 
+  received 1
+    7 bytes fail x\n
+case 22
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 6 bytes refuse
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(1)
+  stdout 81 bytes openbcm-diag: refused (would end or re-init the SDK, or chains commands): refuse\n
+  stderr 0 bytes 
+  received 1
+    7 bytes refuse\n
+case 23
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 5 bytes split
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(0)
+  stdout 20 bytes xx openbcm-diag: yy\n
+  stderr 0 bytes 
+  received 1
+    6 bytes split\n
+case 24
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 4 bytes late
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(1)
+  stdout 33 bytes line one\nopenbcm-diag: no switch\n
+  stderr 0 bytes 
+  received 1
+    5 bytes late\n
+case 25
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 3 bytes big
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(0)
+  stdout 200000 bytes fnv64 9847080b8443222f head abcdefghij\nabcdefghij\nabcdefghij\nabcdefg
+  stderr 0 bytes 
+  received 1
+    4 bytes big\n
+case 26
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 5 bytes empty
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(0)
+  stdout 0 bytes 
+  stderr 0 bytes 
+  received 1
+    6 bytes empty\n
+case 27
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 27 bytes phy raw c45 0x10 0x1 0x8b00
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(0)
+  stdout 34 bytes fake: phy raw c45 0x10 0x1 0x8b00\n
+  stderr 0 bytes 
+  received 1
+    28 bytes phy raw c45 0x10 0x1 0x8b00\n
+case 28
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 6 bytes show\tc
+  arg 4 bytes ce0\n
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(0)
+  stdout 17 bytes fake: show\tc ce0\n
+  stderr 0 bytes 
+  received 1
+    12 bytes show\tc ce0\n\n
+case 29
+  arg 2 bytes -s
+  arg 6 bytes <sock>
+  arg 4 bytes u\xff\xfev
+  env OPENBCM_DIAG_SOCKET unset
+  exit Some(0)
+  stdout 15 bytes fake: u\xef\xbf\xbd\xef\xbf\xbdv\n
+  stderr 0 bytes 
+  received 1
+    5 bytes u\xff\xfev\n

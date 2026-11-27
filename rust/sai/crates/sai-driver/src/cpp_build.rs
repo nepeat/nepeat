@@ -5,7 +5,9 @@
 //! over `$SAI_INC/sai*.h`). Shared by `build.rs` (the prebuilt copy for a target without a
 //! compiler) and `tests/differential.rs` (a native build at test time). The C++ is the frontend
 //! frozen on 2026-11-23 in `ai_re/nix/packages/sai-teralynx/frontend/{src,tests}` (the CS8210's
-//! libsai still compiles it): the comparison stays live, no golden.
+//! libsai still compiles it): the comparison stays live, beside a golden of its output
+//! (`tests/golden/differential-cpp.txt`) that the test also checks. The op scripts are this crate's
+//! own (`tests/driver-scripts`), not the frontend's.
 #![allow(dead_code, reason = "shared by build.rs and tests/differential.rs; each uses a part")]
 
 use std::env;
@@ -43,7 +45,7 @@ const CPP: &[&str] = &[
 pub(crate) struct Sources {
     /// The frozen frontend's `src`.
     pub(crate) src: PathBuf,
-    /// The frozen frontend's `tests` (`frontend_driver.cpp`, `driver-scripts/`).
+    /// The frozen frontend's `tests` (`frontend_driver.cpp`, the test port, the tables).
     pub(crate) tests: PathBuf,
 }
 
@@ -57,8 +59,10 @@ pub(crate) fn find_sources() -> Result<Sources, String> {
     let tests = var("SAI_OPENBCM_TESTS")
         .map(PathBuf::from)
         .or_else(|| var("SAI_OPENBCM_SRC").map(|s| Path::new(&s).join("../tests")))
-        .filter(|t| t.join("frontend_driver.cpp").is_file() && t.join("driver-scripts").is_dir())
-        .ok_or("no C++ frontend tests directory with frontend_driver.cpp and driver-scripts/ (SAI_OPENBCM_TESTS, or SAI_OPENBCM_SRC/../tests)")?;
+        .filter(|t| t.join("frontend_driver.cpp").is_file())
+        .ok_or(
+            "no C++ frontend tests directory with frontend_driver.cpp (SAI_OPENBCM_TESTS, or SAI_OPENBCM_SRC/../tests)",
+        )?;
     let src = var("SAI_OPENBCM_SRC").map_or_else(|| tests.join("../src"), PathBuf::from);
     if !src.join("recording_backend.cpp").is_file() {
         return Err(format!(
@@ -348,6 +352,9 @@ pub(crate) fn prebuild_variant(
     };
     println!("cargo:rerun-if-changed={}", s.src.display());
     println!("cargo:rerun-if-changed={}", s.tests.display());
+    if let Some(m) = var("CARGO_MANIFEST_DIR") {
+        println!("cargo:rerun-if-changed={m}/tests/driver-scripts");
+    }
     let v = variant(&s);
     for (_, path, _) in &v.cpp {
         println!("cargo:rerun-if-changed={}", path.display());
@@ -367,12 +374,18 @@ pub(crate) fn prebuild_variant(
     let scripts_out = data.join("driver-scripts");
     fs::create_dir_all(&scripts_out).map_err(|e| e.to_string())?;
     fs::copy(&exe, bin.join(&v.exe)).map_err(|e| e.to_string())?;
-    for script in scripts(&s.tests.join("driver-scripts"))? {
+    // the crate's own scripts (01-09 are the frontend's, moved here unchanged); the ones that name a
+    // table token need the C++ tables at run time and stay out of the bundle, as before
+    let manifest = var("CARGO_MANIFEST_DIR").ok_or("CARGO_MANIFEST_DIR is not set")?;
+    for script in scripts(&Path::new(&manifest).join("tests/driver-scripts"))? {
+        let text = fs::read_to_string(&script).map_err(|e| format!("{}: {e}", script.display()))?;
+        if text.contains("@EXT_PHY_TABLE@") || text.contains("@EXT_MACSEC_TABLE@") {
+            continue;
+        }
         if let Some(name) = script.file_name() {
             fs::copy(&script, scripts_out.join(name)).map_err(|e| e.to_string())?;
         }
     }
-    let manifest = var("CARGO_MANIFEST_DIR").ok_or("CARGO_MANIFEST_DIR is not set")?;
     let allow = Path::new(&manifest).join("tests").join(p.allow);
     println!("cargo:rerun-if-changed={}", allow.display());
     if allow.is_file() {

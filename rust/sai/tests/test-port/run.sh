@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
-# The UNMODIFIED C++ suite (tests/test_sai.cpp + its .inc files of the C++ frontend, frozen since
-# 2026-11-23 in ai_re/nix/packages/sai-teralynx/frontend) against the Rust libsai through the test
+# The UNMODIFIED C++ suite (cpp/test_sai.cpp + its .inc files and headers, the C++ frontend's tests, frozen
+# since 2026-11-23 and moved here unchanged by H5-1) against the Rust libsai through the test
 # port (test_port_rust.cpp here, over sai_rs_test_query), with a per-section progress table. See
 # README.md.
 #
-#   run.sh [--strict] [--no-cpp-ref]
+#   run.sh [--strict] [--no-cpp-ref] [--self-test]
 # Environment (all optional except SAI_INC):
 #   SAI_INC            dir with sai.h (its ../experimental is added too)              required
 #   LIBSAI             a prebuilt libsai.so with the test port (else: cargo build -p sai-ffi --features test-port)
-#   SAI_OPENBCM_TESTS  the frozen frontend's tests dir   default: the repo's ai_re/nix/packages/sai-teralynx/frontend/tests
+#   SAI_OPENBCM_TESTS  the frozen frontend's tests dir (the C++ reference run only: test_port_cpp.cpp and
+#                      ../src)  default: the repo's ai_re/nix/packages/sai-teralynx/frontend/tests
 #   SAI_RS_TEST_INC    dir with sai_rs_test.h      default: the repo's crates/sai-test-port/include
 #   CXX, CXXFLAGS, CC  default c++, "-O2 -g" (the C++ Makefile's default), cc
 #   BUILD_DIR          build + run dir             default: a new mktemp dir (the source tree stays read-only)
@@ -19,17 +20,26 @@
 #   TEST_TIMEOUT       seconds per test run        default 900
 #   TRACE=0            run untraced (as when ptrace is refused): FAIL-line attribution only
 #   HARNESS_STRICT=1   like --strict: exit 1 on any failure, crash or non-zero test exit
+#   GOLDEN             the C++ reference's per-section results, captured once from the C++ side
+#                      (default: golden/test_sai-cpp-reference.txt here). The Rust run is ALWAYS compared
+#                      with it ("golden: N sections equal"), also with CPP_REF=none; with a live C++
+#                      reference the golden is checked against the live table too (live == golden).
+#                      --strict: a difference in either comparison exits 1.
+#   --self-test        negative controls: a copy of the golden with one number changed, and one with a
+#                      row dropped, must each be reported as different from the run(s); exit 1 if not.
 # Exit: 0 when the harness built and ran the suite (whatever the suite's result), 1 with --strict
 # on any failure, 2 when the harness itself could not build or run.
 set -eu
 
 strict=${HARNESS_STRICT:-0}
+self_test=0
 cpp_ref=${CPP_REF:-}
 for a in "$@"; do
     case $a in
     --strict) strict=1 ;;
     --no-cpp-ref) cpp_ref=none ;;
-    -h | --help) sed -n '2,25p' "$0"; exit 0 ;;
+    --self-test) self_test=1 ;;
+    -h | --help) sed -n '2,32p' "$0"; exit 0 ;;
     *) echo "run.sh: unknown argument $a" >&2; exit 2 ;;
     esac
 done
@@ -38,10 +48,15 @@ die() { echo "run.sh: $*" >&2; exit 2; }
 here=$(cd "$(dirname "$0")" && pwd)
 ws=$(cd "$here/../.." && pwd)   # rust/sai
 : "${SAI_INC:?run.sh: SAI_INC must name the dir with sai.h}"
-tests=${SAI_OPENBCM_TESTS:-$ws/../../ai_re/nix/packages/sai-teralynx/frontend/tests}
-[ -f "$tests/test_sai.cpp" ] || die "no test_sai.cpp in $tests (set SAI_OPENBCM_TESTS)"
+# the suite's own sources: cpp/ here
+tests=$here/cpp
+[ -f "$tests/test_sai.cpp" ] || die "no test_sai.cpp in $tests"
 [ -f "$here/test_port_rust.cpp" ] || die "no test_port_rust.cpp in $here"
-tests=$(cd "$tests" && pwd)
+# the frozen frontend's tests and src: only for the C++ reference run (a missing tree: no reference)
+fe_tests=${SAI_OPENBCM_TESTS:-$ws/../../ai_re/nix/packages/sai-teralynx/frontend/tests}
+[ -d "$fe_tests" ] && fe_tests=$(cd "$fe_tests" && pwd)
+golden=${GOLDEN:-$here/golden/test_sai-cpp-reference.txt}
+[ -f "$golden" ] || die "no golden $golden"
 rs_inc=${SAI_RS_TEST_INC:-$ws/crates/sai-test-port/include}
 CXX=${CXX:-c++}
 CC=${CC:-cc}
@@ -52,7 +67,7 @@ BUILD_DIR=$(cd "$BUILD_DIR" && pwd)
 SUMMARY=${SUMMARY:-$BUILD_DIR/summary.txt}
 timeout_s=${TEST_TIMEOUT:-900}
 if [ -z "$cpp_ref" ]; then
-    if [ -f "$tests/../src/sai_api.cpp" ]; then cpp_ref=build; else cpp_ref=none; fi
+    if [ -f "$fe_tests/test_port_cpp.cpp" ] && [ -f "$fe_tests/../src/sai_api.cpp" ]; then cpp_ref=build; else cpp_ref=none; fi
 fi
 
 # The C++ Makefile's flags for test_sai.o (sai-teralynx's, as sai-openbcm's were), plus -fno-inline: every test_* function keeps
@@ -107,7 +122,7 @@ if [ "$cpp_ref" = build ]; then
     log "building the C++ reference (CPP_REF=none skips it)"
     # as the C++ Makefile builds them: every frontend .cpp but the test-only recording backend
     # into libsai.a with temp_files.c, the fake backend only (no SDK backend: a null factory)
-    src=$(cd "$tests/../src" && pwd) r=$B/cpp-ref
+    src=$(cd "$fe_tests/../src" && pwd) r=$B/cpp-ref
     rm -rf "$r"
     mkdir -p "$r"
     printf '#include "backend.h"\nnamespace ob { Backend* make_openbcm_backend() { return nullptr; } }\n' >"$r/backend_none.cpp"
@@ -116,7 +131,7 @@ if [ "$cpp_ref" = build ]; then
         flags="-std=c++17 -fPIC $WARN $CXXFLAGS -I$SAI_INC -I$SAI_INC/../experimental -I$src"
         for c in "$src"/*.cpp "$r/backend_none.cpp"; do $CXX $flags -c "$c" -o "$r/$(basename "$c" .cpp).o"; done
         $CC -std=gnu11 -fPIC $WARN -O2 -g -I"$src" -c "$src/temp_files.c" -o "$r/temp_files.o"
-        $CXX $flags -I"$tests" -c "$tests/test_port_cpp.cpp" -o "$r/test_port_cpp.o"
+        $CXX $flags -I"$fe_tests" -c "$fe_tests/test_port_cpp.cpp" -o "$r/test_port_cpp.o"
         ar rcs "$r/libsai.a" $(ls "$r"/*.o | grep -v -e /recording_backend.o -e /test_port_cpp.o)
        ) >"$B/cpp-ref.build.txt" 2>&1; then
         cpp_ref=$r
@@ -209,7 +224,54 @@ run rust "$B/test_sai_rust"
 } >"$SUMMARY"
 cat "$SUMMARY"
 
+# ---- e. the golden: the C++ reference's per-section rows (section, checks, fails, state, first FAIL)
+# golden_diff <golden> <tsv>: the golden's data rows (no '#' lines) against a run's sections.tsv; prints the
+# difference, status 0 = equal. The comparison is whole-line, so a changed number, name, row or state differs.
+golden_diff() { grep -v '^#' "$1" | diff -u --label golden --label "$3" - "$2"; }
+golden_ok=1 live_ok=1
+if grep -q '[?]' "$B/run-rust/sections.tsv"; then
+    echo "golden: not compared (untraced run: checks per section unknown)"
+elif golden_diff "$golden" "$B/run-rust/sections.tsv" rust >"$B/golden-rust.diff"; then
+    n=$(grep -vc -e '^#' -e '^TOTAL' "$golden")
+    echo "golden: $n sections equal (rust run == $(basename "$golden"), $(awk -F'\t' '$1 == "TOTAL" { print $2 }' "$golden") checks)"
+else
+    echo "golden: rust run DIFFERENT from $golden:"
+    cat "$B/golden-rust.diff"
+    golden_ok=0
+fi
+if [ -n "$ref_bin" ]; then
+    if golden_diff "$golden" "$B/run-cpp/sections.tsv" cpp-live >"$B/golden-live.diff"; then
+        echo "golden: live C++ reference == golden ($(grep -vc '^#' "$golden") rows)"
+    else
+        echo "golden: live C++ reference DIFFERENT from the golden:"
+        cat "$B/golden-live.diff"
+        live_ok=0
+    fi
+fi
+if [ "$self_test" = 1 ]; then
+    # negative controls on temp copies of the golden: a changed number, a dropped row
+    st=0
+    awk 'BEGIN { FS = OFS = "\t" } !/^#/ && !d && $1 != "TOTAL" { $2 = $2 + 1; d = 1 } { print }' "$golden" >"$B/golden-mut-number.txt"
+    awk '!/^#/ && !d && !/^TOTAL/ { d = 1; next } { print }' "$golden" >"$B/golden-mut-row.txt"
+    for m in number row; do
+        if grep -q '[?]' "$B/run-rust/sections.tsv"; then echo "golden self-test: skipped (untraced run)"; break; fi
+        if golden_diff "$B/golden-mut-$m.txt" "$B/run-rust/sections.tsv" rust >/dev/null; then
+            echo "golden self-test: FAILED, a golden with a changed $m is not reported as different" >&2; st=1
+        else
+            echo "golden self-test: ok (a golden with a changed $m is reported as different from the rust run)"
+        fi
+        if [ -n "$ref_bin" ] && golden_diff "$B/golden-mut-$m.txt" "$B/run-cpp/sections.tsv" cpp-live >/dev/null; then
+            echo "golden self-test: FAILED, a golden with a changed $m is not reported as different from the live C++" >&2; st=1
+        fi
+    done
+    [ "$st" = 0 ] || exit 1
+fi
+
 if [ "$strict" = 1 ]; then
+    if [ "$golden_ok" != 1 ] || [ "$live_ok" != 1 ]; then
+        echo "run.sh: --strict: the golden comparison differs (see above)" >&2
+        exit 1
+    fi
     fails=$(awk -F'\t' '$1 == "TOTAL" { print $3 }' "$B/run-rust/sections.tsv")
     state=$(awk -F'\t' '$1 == "TOTAL" { print $4 }' "$B/run-rust/sections.tsv")
     # shellcheck disable=SC2154

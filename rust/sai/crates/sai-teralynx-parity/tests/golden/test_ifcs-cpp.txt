@@ -1,0 +1,156 @@
+# Golden C++ side of the Teralynx parity harness, part test_ifcs (checks and sections) (crates/sai-teralynx-parity, README "Parity", kind golden).
+# test_ifcs (1047 checks, 17 sections) on the C++ libsai: how it ended, the checks per section, and per section the IFCS call lines the mock logged (tap, TEST_IFCS_DUMP=1) with the byte tap (@B lines, every call's argument bytes).
+# The C++ libsai of ai_re/nix/packages/sai-teralynx (the CS8210's libsai, built as its Makefile does) and the
+# harness's programs (unmodified test_ifcs, frontend_driver.cpp, sai_script.cpp; build-fixtures.sh) ran on the SAME
+# mock libifcs; the harness (sai-teralynx-parity --capture) rendered the C++ side's output below, normalised.
+# Captured 2026-11-26 from these files at HEAD f900ea0 (the sai-teralynx package unmodified in the working tree):
+#   9846dbbc33351e96e90eef8449ad09cec33240e39c095eed9d4a7991aa8e73d5  <store>-sai-teralynx-0.1.0/lib/libsai.so.1.0.0 (the C++ libsai that ran)
+#   984beec441a88830fe394c72a436a53872d5e9953ced43fa3520b8ee3d25699f  tests/golden/cpp-sources-sha256.txt (every source and input file, sha256 each: 158 files)
+# the files this part is made of (more in that list):
+#   cff9818df28e431190ea0b6f2523170c41d87997c84aa5692658cb52f0612936  ai_re/nix/packages/ifcs-oracle/gen_tracer.py
+#   bd0ec2b958fd963f2d65d75f112806a90f1ad97355a2d19dfd4d6a3263827e4b  ai_re/nix/packages/ifcs-oracle/trace_rt.h
+#   e709325ebcf434503e40cb6ee4e18624b8360f6d125a961a40296d8898a69cbf  ai_re/nix/packages/sai-teralynx/src/ifcs_api.h.in
+#   e479cc2ee0b1762fc56dd382b3869f3f75a1969cdfb473c7c038a11b07cc4d42  ai_re/nix/packages/sai-teralynx/src/ifcs_api_qos.h.in
+#   61abb2df9dfbdc909235a391475f4d63af7ab458268b9534c6cd1bd160bd2b54  ai_re/nix/packages/sai-teralynx/src/ifcs_backend.cpp
+#   ad7c7cf42160d039a02cdc0679b330638c6a048a9b3e23f1209276abccdd46b8  ai_re/nix/packages/sai-teralynx/src/ifcs_config.cpp
+#   c79f72abb62cb6b18185594b1e1681b25d26c0c2be7ff79c50d0a9ebe37f909a  ai_re/nix/packages/sai-teralynx/src/ifcs_config.h
+#   17ba238fafcb2181b9e7c9399b9ce966e0cb09d55b377eeb935c5b958c2ed2fb  ai_re/nix/packages/sai-teralynx/src/ifcs_guard.c
+#   4710babba01b6ca374575e9e475110c5bb3c920939c6765722281ba32627d2ee  ai_re/nix/packages/sai-teralynx/src/ifcs_lib.cpp
+#   4d83effe378a04dae3103eea81101e815586d18baa4605a3db2c46c1ed3d340d  ai_re/nix/packages/sai-teralynx/src/ifcs_lib.h
+#   f3ae0c412f34f516b4607fd6eaefb26780cdc729a17ced4ac50a3affd1536b07  ai_re/nix/packages/sai-teralynx/src/ifcs_overrides.txt
+#   68dd7d923dd809179d58402c980b7c7a0196aefeb75a047fb9934ec2362f594f  ai_re/nix/packages/sai-teralynx/tests/harness.h
+#   958818499655f797fbb234dfff07a1727fcd0d22b5305c81fc204a6be51eea57  ai_re/nix/packages/sai-teralynx/tests/t_acl.cpp
+#   bf69b224a12d474e0eeedbd65dd5e0a364abf1853fee9dd706ab93bb327fece5  ai_re/nix/packages/sai-teralynx/tests/t_copp.cpp
+#   6644df4315ca4aedd32fb3dbc1cf7c8fa7409a1e4bb8d80be054a72f1cb38d92  ai_re/nix/packages/sai-teralynx/tests/t_counters.cpp
+#   1b3ec3dbd648813f132a1a747f22f64345a674630751a2ab502c886e8c3d3b98  ai_re/nix/packages/sai-teralynx/tests/t_hooks.cpp
+#   c5c4f423cf4d78d5082e459e9ea54eeac8a4744dc8eae523bf5f60b0d769e4c8  ai_re/nix/packages/sai-teralynx/tests/t_hostif.cpp
+#   5c37eb277d0aff3a035558fb67a347d00aa54896cd25121d357602b6a1cfeb67  ai_re/nix/packages/sai-teralynx/tests/t_l2.cpp
+#   e2fb3e6d8fa5f6d5eb91e74838ff1c44fbc74f05fc6fbf547e2d741a545a6443  ai_re/nix/packages/sai-teralynx/tests/t_l3.cpp
+#   e7b324f1449ae980b02d14b29b2086e8af2ba460914995062383c193199c6290  ai_re/nix/packages/sai-teralynx/tests/t_lag.cpp
+#   34df49f37b0941fcfbb15708029000067b8b71bee4a5cc661206c6dfdb70c0c0  ai_re/nix/packages/sai-teralynx/tests/t_learn.cpp
+#   6c5b16a72f13f019c395e2a9c4bb6c3a8c7f2aa4238e19a58ea1bfb83434e15e  ai_re/nix/packages/sai-teralynx/tests/t_mirror.cpp
+#   690083e9906b1b39367849f0e589172ff85c9b11c6af3589be323e7b39b75352  ai_re/nix/packages/sai-teralynx/tests/t_port.cpp
+#   c688ec6e3465011c49d44de23d8f745a2d851db37e4ba59efe0699041747400c  ai_re/nix/packages/sai-teralynx/tests/t_qos.cpp
+#   b9719bcb5f7911367a5a1cf67dc7158f867ad91fc17db739abcef8c202fce266  ai_re/nix/packages/sai-teralynx/tests/t_sflow.cpp
+#   701198d51243d5cf06c0c46f3a72ca778c9fef1215dbf86bdf133bac008898d1  ai_re/nix/packages/sai-teralynx/tests/t_switch.cpp
+#   493ba3e34c2e23bf6e664555de5f05368d86b2111ecc58d06240c246ec9f1662  ai_re/nix/packages/sai-teralynx/tests/test_ifcs.cpp
+#   b4db0e0115012eacb36bafbece38bc113010a117c34f7dbf55ded110a8a0a8ca  rust/sai/crates/sai-teralynx-parity/c/bytes_rt.c
+#   693d560ae168aaefeccf113f784ab34f6b6d30a2f50b0386b404f8054460e2ea  rust/sai/crates/sai-teralynx-parity/c/sections.cpp
+#   064792b892ca1ab1d296a4e192befb4bf19ed3dd65b987518415200475a2a814  rust/sai/crates/sai-teralynx-parity/c/tap.c
+#   50e912b446809549a035163117332dc1f7956f8dcd8225a8a82790ec8c6f281c  rust/sai/tests/teralynx-mock/mock.h
+# Command (the fixtures: rust/sai/crates/sai-teralynx-parity/build-fixtures.sh FX <tests+frontend files> <ifcs-api-headers>/include
+# <sairedis SAI/inc> <C++ libsai> <nlohmann_json>/include, MOCK_LIBIFCS = the mock built from rust/sai/tests/teralynx-mock):
+#   sai-teralynx-parity --fixtures FX --work /tmp/claude-1001/p2 --cpp-lib <C++ libsai> --areas crates/sai-backend-teralynx/tests/areas.txt \
+#     --expected crates/sai-backend-teralynx/tests/test_ifcs-expected.txt --allow crates/sai-teralynx-parity/tests/parity-allow.txt \
+#     --pending crates/sai-teralynx-parity/tests/parity-pending.txt --capture <dir>      (then this header over the records)
+# Seeds: none (nothing is random); the capture runs the C++ side twice and requires equal records.
+# Normalised: the work directory is <work>, the fixtures directory <fixtures>, nix store paths <store>; oracle times are ms=*.
+# Records (tab-separated; '|' lines are the head of the record above):
+#   status / stdout-last   how test_ifcs ended and its last stdout line
+#   bytes                  @B lines in the whole stream
+#   count NAME CHECKS FAILED INCOMPLETE      checks per section (c/sections.cpp's counts file)
+#   section LINES SHA256 DIED NAME           one per stream section (main, one per area, uninit) + its head
+# A digest is the sha256 of the unit's lines, each followed by a newline; it decides. The head is the unit's first 4 lines,
+# each cut to 160 characters, so a difference can be named; a difference beyond the head is reported by its counts and digest.
+# NOT to be regenerated from the Rust output: the records are the C++ side's, and only the C++ side may write them
+# (sai-teralynx-parity --capture, run on the C++ libsai). A deliberate change of behaviour of the Rust libsai edits the
+# affected records by hand, or adds an entry to tests/parity-allow.txt, with a reason.
+# Live == golden at capture: sai-teralynx-parity --fixtures FX --work <w> --cpp-lib <C++ libsai> <lists> --check-golden crates/sai-teralynx-parity/tests/golden: GREEN, the live C++ renders to these records byte for byte (a unit test of the crate, tests/golden.rs, shows a changed byte fails).
+status	exit 0
+stdout-last	test_ifcs: 1047 checks, 0 failed
+bytes	3766
+count	main	20	0	0
+count	switch_init	27	0	0
+count	ports	50	0	0
+count	hostif	8	0	0
+count	l2	42	0	0
+count	l3	139	0	0
+count	lag	72	0	0
+count	copp	74	0	0
+count	acl	91	0	0
+count	qos	135	0	0
+count	mirror	58	0	0
+count	sflow	91	0	0
+count	counters	22	0	0
+count	hooks	119	0	0
+count	learn_guard	80	0	0
+count	switch_misc	14	0	0
+count	switch_remove	4	0	0
+count	uninit	1	0	0
+section	90	f9493b7dcb4972215739c67f4529c5650b07a1bd678c2b9a7585f4aa358287bf	0	main
+|ifcs_init cfg=<work>/t/ct/run/config.yaml log=sai-teralynx boot=0 first=# generated init config
+|@B ifcs_init("<work>/t/ct/run/config.yaml", "sai-teralynx", 0, *1) = SUCCESS
+|ifcs_log_function_register
+|@B ifcs_log_function_register(fn, ptr) = SUCCESS
+section	0	e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855	0	switch_init
+section	29	1c6ccad979883495697d976399e0d4f9b430d347f11a22f0d740fa881065efb4	0	ports
+|@B ifcs_devport_attr_get(0, 1, 1, [{0800000000000000|07000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|@B ifcs_devport_attr_get(0, 1, 1, [{0800000000000000|07000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|@B ifcs_devport_attr_get(0, 1, 1, [{0800000000000000|07000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|ifcs_devport_attr_set dp=1 id=23 u32=1
+section	19	ab7adc322b1ea114fc12f2139ba1801a63f1e47012344fafadfe3db911b25e01	0	hostif
+|ifcs_hostif_trap_attr_set h=0x18200017 id=0 u32=0
+|ifcs_hostif_trap_attr_set h=0x18200017 id=1 u32=1
+|@B ifcs_hostif_trap_attr_set(0, 0x18200017, 2, [{0000000000000000|0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|ifcs_hostif_trap_attr_set h=0x18200017 id=1 u32=0
+section	102	8cd94f4852b7aec1eabc664df58f4d6c6466df04d8fbcf83e209b6fd3fa466d9	0	l2
+|ifcs_mdg_create h=0x108 count=0
+|@B ifcs_mdg_create(0, *0x108, 0, []) = SUCCESS
+|ifcs_l2vni_create vni=100 count=4 stp=0x100 flood=0x108
+|@B ifcs_l2vni_create(0, *0x24200064, 4, [{0000000000000000|00010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+section	613	9400f96cb7de495e10f5aff19ab616911d51ed37ec336bd6c6d9e3e89c494c9a	0	l3
+|ifcs_l3vni_create h=0x26200001 count=4 attrs=5=1,7=1,9=1,10=1
+|@B ifcs_l3vni_create(0, *0x26200001, 4, [{0500000000000000|01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|ifcs_node_attr_set node=0 count=1 id=107 u32=0
+|@B ifcs_node_attr_set(0, 1, [{6b00000000000000|00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+section	235	842d09974c80cfe3ec0c9446cb258ce6e29f908b4f9a8b167ab45057dea6aba9	0	lag
+|ifcs_lag_create h=0x28200121 count=0
+|@B ifcs_lag_create(0, *0x28200121, 0, null) = SUCCESS
+|ifcs_lag_delete h=0x28200121
+|@B ifcs_lag_delete(0, 0x28200121) = SUCCESS
+section	4053	84e2eacef701478202e03672822519083fd21263eb6575b45703e7991a10507a	0	copp
+|ifcs_hostif_trap_create h=0x12c count=1 queue=4
+|@B ifcs_hostif_trap_create(0, *0x12c, 1, [{0000000000000000|0400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|ifcs_acl_match_profile_create h=0x12d types=7 width=320 sharing=0 list=17,18,56,59,60,61,98
+|@B ifcs_acl_match_profile_create(0, *0x12d, 3, [{0000000000000000|0700000000000000<p>000000000000000000000000000000000000000000000000000000000000000000000000000
+section	587	e28121af050589b1c95d96964099097c2923bbef1ff1fb7c603872725cc64c6d	0	acl
+|ifcs_acl_match_profile_create h=0x58b types=13 width=320 sharing=1 list=4,18,27,25,56,28,29,59,60,68,54,55,21
+|@B ifcs_acl_match_profile_create(0, *0x58b, 4, [{0900000000000000|0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|ifcs_acl_action_profile_create h=0x58c types=5
+|@B ifcs_acl_action_profile_create(0, *0x58c, 2, [{0200000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+section	355	0916a90a26ff4d95cf71dd0b36b372b100e43f1c9605e4b21de90100601dedea	0	qos
+|@B ifcs_qos_map_info_t_init({0000000000000000000000000000000000000000000000000000000000000000}) = SUCCESS
+|ifcs_qos_map_create h=0x602 type=1 count=64 0:0/0 1:0/0 2:0/0 3:0/0 4:0/0 5:0/0 6:0/0 7:0/0 8:1/0 9:1/0 10:1/0 11:1/0 12:1/0 13:1/0 14:1/0 15:1/0 16:2/0 17:2/0 
+|@B ifcs_qos_map_create(0, *0x602, 1, [{0000000000000000|01000000000000004000000000000000<p>000000000000000000000000000000000000000000000000000000000000000000000
+|ifcs_qos_map_group_create h=0x603 0=0x0 2=0x602
+section	132	b98315375af1a1cb1bc58a12dab8351cf2d93305c5a86c40ddc4cdd11be048d8	0	mirror
+|ifcs_dup_copy_dest_port_create h=0x609 sysport=0x3e200002
+|@B ifcs_dup_copy_dest_port_create(0, *0x609, 1, [{0000000000000000|0200203e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|ifcs_collector_create h=0x60a n=4 0=0x0 1=0x0 2=0x609 18=0x0
+|@B ifcs_collector_create(0, *0x60a, 4, [{0000000000000000|000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+section	129	28232ed0e7078f3ec0be137698f9c5fc1eab7358fa581fd18f077fabc86f6e24	0	sflow
+|@B ifcs_node_attr_get(0, 1, [{1600000000000000|00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|ifcs_dup_copy_dest_port_create h=0x618 sysport=0x3e2003e8
+|@B ifcs_dup_copy_dest_port_create(0, *0x618, 1, [{0000000000000000|e803203e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|ifcs_collector_create h=0x619 n=10 0=0x5 1=0x0 2=0x618 10=00020406080a 11=00000000 9=000103050709 12=00000000 13=2 14=100 17=111
+section	128	3a81bfe323f19a5a6542931b7f7c252ba5b38c0265f9aff2c4d15254bceafb89	0	counters
+|ifcs_devport_stats_clear dp=1 count=111
+|@B ifcs_devport_stats_clear(0, 1, 111, *0) = SUCCESS
+|ifcs_devport_stats_get dp=1 count=2
+|@B ifcs_devport_stats_get(0, 1, 2, [107,47], [7777,5555], *2) = SUCCESS
+section	414	62117b104869f71e39c219aa7ff62f1162d6f62319c7d4c8990336df5dc0141b	0	hooks
+|ifcs_mdg_create h=0x61d count=0
+|@B ifcs_mdg_create(0, *0x61d, 0, []) = SUCCESS
+|ifcs_l2vni_create vni=4093 count=4 stp=0x100 flood=0x61d
+|@B ifcs_l2vni_create(0, *0x24200ffd, 4, [{0000000000000000|00010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+section	0	e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855	0	learn_guard
+section	8	221b9855c70a039734a30830caddf4678f813c2b8899ba387fa5b013989e6e0f	0	switch_misc
+|@B ifcs_node_attr_get(0, 1, [{4a00000000000000|00005e42000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|@B ifcs_node_attr_get(0, 1, [{4b00000000000000|00005842000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|@B ifcs_node_attr_get(0, 1, [{4c00000000000000|00005642000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+|@B ifcs_node_attr_get(0, 1, [{4d00000000000000|000096c3000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+section	14	17938064b81c68f8b910517468db9dc7ed4e17949fce16610b1f4246ec5a409e	0	switch_remove
+|ifcs_netdev_delete h=0x107
+|@B ifcs_netdev_delete(0, 0x107) = SUCCESS
+|ifcs_devport_attr_set dp=1 id=23 u32=0
+|@B ifcs_devport_attr_set(0, 1, 1, [{1700000000000000|00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

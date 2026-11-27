@@ -12,5 +12,9 @@ sai-core.workspace = true
 sai-sys.workspace = true
 ifcs = { path = "../ifcs" }
 
+[dev-dependencies]
+# tests/ifcs_e2e: the built libsai driven through its C ABI (the rim crate of the tools)
+sai-client = { path = "../sai-client" }
+
 [lints]
 workspace = true

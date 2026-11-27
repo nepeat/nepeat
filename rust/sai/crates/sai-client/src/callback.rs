@@ -5,7 +5,7 @@
 use core::ffi::{CStr, c_char, c_int, c_void};
 use std::ffi::CString;
 use std::panic::{AssertUnwindSafe, catch_unwind};
-use std::sync::{Arc, Mutex, OnceLock, PoisonError};
+use std::sync::{Arc, Mutex, PoisonError};
 
 use crate::raw;
 use crate::sys;
@@ -36,8 +36,9 @@ pub enum Event {
     Shutdown,
 }
 
-/// The profile: `(key, value)` in the order `profile_get_next_value` serves them.
-static PROFILE: OnceLock<Vec<(CString, CString)>> = OnceLock::new();
+/// The profile: `(key, value)` in the order `profile_get_next_value` serves them. Every profile
+/// ever set is leaked (a library may keep a value's address), so the references live for the process.
+static PROFILE: Mutex<Option<&'static [(CString, CString)]>> = Mutex::new(None);
 static NEXT: Mutex<usize> = Mutex::new(0);
 
 type Sink = Arc<dyn Fn(&Event) + Send + Sync>;
@@ -46,11 +47,26 @@ static SINK: Mutex<Option<Sink>> = Mutex::new(None);
 /// The profile the library will be served (once per process; a later call is refused). Keys or
 /// values with a NUL byte are dropped.
 pub fn set_profile(pairs: Vec<(String, String)>) -> Result<(), String> {
+    if current_profile().is_some() {
+        return Err("the profile is set already".to_owned());
+    }
+    replace_profile(pairs);
+    Ok(())
+}
+
+/// The profile the library is served from now on (the end-to-end test changes it between its
+/// refusals and the switch it creates). The previous one stays alive: a library may keep its values.
+pub fn replace_profile(pairs: Vec<(String, String)>) {
     let c: Vec<(CString, CString)> = pairs
         .into_iter()
         .filter_map(|(k, v)| Some((CString::new(k).ok()?, CString::new(v).ok()?)))
         .collect();
-    PROFILE.set(c).map_err(|_| "the profile is set already".to_owned())
+    let leaked: &'static [(CString, CString)] = Box::leak(c.into_boxed_slice());
+    *PROFILE.lock().unwrap_or_else(PoisonError::into_inner) = Some(leaked);
+}
+
+fn current_profile() -> Option<&'static [(CString, CString)]> {
+    *PROFILE.lock().unwrap_or_else(PoisonError::into_inner)
 }
 
 /// Where notifications go (replaces the previous sink). The sink runs on the library's threads.
@@ -75,8 +91,7 @@ unsafe extern "C" fn get_value(_profile: sys::sai_switch_profile_id_t, variable:
     }
     // SAFETY: non-null: the library passes a NUL-terminated key (the header's contract).
     let key = unsafe { CStr::from_ptr(variable) };
-    PROFILE
-        .get()
+    current_profile()
         .and_then(|p| p.iter().rev().find(|(k, _)| k.as_c_str() == key))
         .map_or(core::ptr::null(), |(_, v)| v.as_ptr())
 }
@@ -94,7 +109,7 @@ unsafe extern "C" fn get_next_value(
         *next = 0;
         return 0;
     }
-    let Some((k, v)) = PROFILE.get().and_then(|p| p.get(*next)) else {
+    let Some((k, v)) = current_profile().and_then(|p| p.get(*next)) else {
         return -1;
     };
     *next += 1;

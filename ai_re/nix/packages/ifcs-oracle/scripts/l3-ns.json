@@ -1,0 +1,991 @@
+{
+ "name": "l3-ns: Linux hosts in netns on the loop netdevs; ARP/ND resolution through the traps, IP2ME pings, routed pings between two subnets",
+ "steps": [
+  {
+   "op": "create_switch",
+   "attrs": [
+    [
+     "INIT_SWITCH",
+     "bool",
+     true
+    ],
+    [
+     "PORT_STATE_CHANGE_NOTIFY",
+     "ptr",
+     "port_state"
+    ],
+    [
+     "SWITCH_SHUTDOWN_REQUEST_NOTIFY",
+     "ptr",
+     "shutdown"
+    ]
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "ports"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "CPU_PORT",
+    "oid"
+   ],
+   "as": "cpu"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_VIRTUAL_ROUTER_ID",
+    "oid"
+   ],
+   "as": "vr"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_VLAN_ID",
+    "oid"
+   ],
+   "as": "vlan1"
+  },
+  {
+   "op": "get",
+   "obj": "$vlan1",
+   "desc": "VLAN 1 members",
+   "attr": [
+    "MEMBER_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "vmembers"
+  },
+  {
+   "op": "foreach",
+   "list": "vmembers",
+   "as": "m",
+   "steps": [
+    {
+     "op": "remove",
+     "obj": "$m",
+     "desc": "VLAN 1 member"
+    }
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "desc": "mtu",
+   "attr": [
+    "MTU",
+    "u32",
+    9100
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "desc": "fec rs",
+   "attr": [
+    "FEC_MODE",
+    "s32",
+    "RS"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[15]",
+   "desc": "mtu",
+   "attr": [
+    "MTU",
+    "u32",
+    9100
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[15]",
+   "desc": "fec rs",
+   "attr": [
+    "FEC_MODE",
+    "s32",
+    "RS"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[15]",
+   "desc": "admin up",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    true
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif0",
+   "desc": "Ethernet0",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[0]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet0"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif1",
+   "desc": "Ethernet120",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[15]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet120"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "g_q4",
+   "desc": "queue 4",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "g_q1",
+   "desc": "queue 1",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     1
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_arpq",
+   "desc": "ARP_REQUEST",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "ARP_REQUEST"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "COPY"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q4"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_arpr",
+   "desc": "ARP_RESPONSE",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "ARP_RESPONSE"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "COPY"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q4"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_nd",
+   "desc": "IPV6_NEIGHBOR_DISCOVERY",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "IPV6_NEIGHBOR_DISCOVERY"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "COPY"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q4"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_ip2me",
+   "desc": "IP2ME",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "IP2ME"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q1"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_ttl",
+   "desc": "TTL_ERROR",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "TTL_ERROR"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q1"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_mtu",
+   "desc": "L3_MTU_ERROR",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "L3_MTU_ERROR"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$g_q1"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "default v4 DROP",
+   "vr": "$vr",
+   "prefix": "0.0.0.0/0",
+   "attrs": [
+    [
+     "PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "default v6 DROP",
+   "vr": "$vr",
+   "prefix": "::/0",
+   "attrs": [
+    [
+     "PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ROUTER_INTERFACE",
+   "as": "rifA",
+   "desc": "RIF A on Ethernet0",
+   "attrs": [
+    [
+     "VIRTUAL_ROUTER_ID",
+     "oid",
+     "$vr"
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PORT"
+    ],
+    [
+     "PORT_ID",
+     "oid",
+     "$ports[0]"
+    ],
+    [
+     "SRC_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:01:0a"
+    ],
+    [
+     "MTU",
+     "u32",
+     9100
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ROUTER_INTERFACE",
+   "as": "rifB",
+   "desc": "RIF B on Ethernet120",
+   "attrs": [
+    [
+     "VIRTUAL_ROUTER_ID",
+     "oid",
+     "$vr"
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PORT"
+    ],
+    [
+     "PORT_ID",
+     "oid",
+     "$ports[15]"
+    ],
+    [
+     "SRC_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:01:0b"
+    ],
+    [
+     "MTU",
+     "u32",
+     9100
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE",
+   "as": "obs",
+   "desc": "loop observer: frames to the far hosts' MACs (02:00:00:00:0a/0b:xx) to the CPU",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "FIELD_DST_MAC",
+     "bool",
+     true
+    ],
+    [
+     "ACL_ACTION_TYPE_LIST",
+     "s32list",
+     [
+      "PACKET_ACTION"
+     ]
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP",
+   "as": "obs_g0",
+   "desc": "observer group Ethernet0",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PARALLEL"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP",
+   "as": "obs_g15",
+   "desc": "observer group Ethernet120",
+   "attrs": [
+    [
+     "ACL_STAGE",
+     "s32",
+     "INGRESS"
+    ],
+    [
+     "ACL_BIND_POINT_TYPE_LIST",
+     "s32list",
+     [
+      "PORT"
+     ]
+    ],
+    [
+     "TYPE",
+     "s32",
+     "PARALLEL"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP_MEMBER",
+   "as": "obs_m0",
+   "attrs": [
+    [
+     "ACL_TABLE_GROUP_ID",
+     "oid",
+     "$obs_g0"
+    ],
+    [
+     "ACL_TABLE_ID",
+     "oid",
+     "$obs"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_TABLE_GROUP_MEMBER",
+   "as": "obs_m15",
+   "attrs": [
+    [
+     "ACL_TABLE_GROUP_ID",
+     "oid",
+     "$obs_g15"
+    ],
+    [
+     "ACL_TABLE_ID",
+     "oid",
+     "$obs"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     100
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "desc": "Ethernet0 INGRESS_ACL observer",
+   "attr": [
+    "INGRESS_ACL",
+    "oid",
+    "$obs_g0"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[15]",
+   "desc": "Ethernet120 INGRESS_ACL observer",
+   "attr": [
+    "INGRESS_ACL",
+    "oid",
+    "$obs_g15"
+   ]
+  },
+  {
+   "op": "create",
+   "type": "ACL_ENTRY",
+   "as": "obs_e",
+   "desc": "DST_MAC 02:00:00:00:0a:00/ff:ff:ff:ff:fe:00 TRAP",
+   "attrs": [
+    [
+     "TABLE_ID",
+     "oid",
+     "$obs"
+    ],
+    [
+     "PRIORITY",
+     "u32",
+     10
+    ],
+    [
+     "FIELD_DST_MAC",
+     "aclfield",
+     {
+      "mac": "02:00:00:00:0a:00",
+      "mask": "ff:ff:ff:ff:fe:00"
+     }
+    ],
+    [
+     "ACTION_PACKET_ACTION",
+     "aclaction",
+     {
+      "s32": "TRAP"
+     }
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "ip2me 10.1.0.1",
+   "vr": "$vr",
+   "prefix": "10.1.0.1/32",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$cpu"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "ip2me fc00:1::1",
+   "vr": "$vr",
+   "prefix": "fc00:1::1/128",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$cpu"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "connected 10.1.0.0/24",
+   "vr": "$vr",
+   "prefix": "10.1.0.0/24",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$rifA"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "connected fc00:1::/64",
+   "vr": "$vr",
+   "prefix": "fc00:1::/64",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$rifA"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "connected 10.2.0.0/24",
+   "vr": "$vr",
+   "prefix": "10.2.0.0/24",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$rifB"
+    ]
+   ]
+  },
+  {
+   "op": "create_route",
+   "desc": "connected fc00:2::/64",
+   "vr": "$vr",
+   "prefix": "fc00:2::/64",
+   "attrs": [
+    [
+     "NEXT_HOP_ID",
+     "oid",
+     "$rifB"
+    ]
+   ]
+  },
+  {
+   "op": "sleep",
+   "ms": 12000
+  },
+  {
+   "op": "exec",
+   "desc": "netns h1 = Ethernet120 (10.1.0.2, fc00:1::2); Ethernet0 = 10.1.0.1 / fc00:1::1 with the RIF MAC",
+   "cmd": "export PATH=/run/current-system/sw/bin:$PATH; ip netns add l3h1 || echo \"FAILED: ip netns add l3h1\"; ip link set Ethernet120 netns l3h1 || echo \"FAILED: ip link set Ethernet120 netns l3h1\"; ip -n l3h1 link set Ethernet120 address 02:00:00:00:0a:02 || echo \"FAILED: ip -n l3h1 link set Ethernet120 address 02:00:00:00:0a:02\"; ip -n l3h1 link set Ethernet120 mtu 9100 up || echo \"FAILED: ip -n l3h1 link set Ethernet120 mtu 9100 up\"; ip -n l3h1 link set lo up || echo \"FAILED: ip -n l3h1 link set lo up\"; ip -n l3h1 addr add 10.1.0.2/24 dev Ethernet120 || echo \"FAILED: ip -n l3h1 addr add 10.1.0.2/24 dev Ethernet120\"; ip -n l3h1 -6 addr add fc00:1::2/64 dev Ethernet120 nodad || echo \"FAILED: ip -n l3h1 -6 addr add fc00:1::2/64 dev Ethernet120 nodad\"; ip link set Ethernet0 address 02:00:00:00:01:0a || echo \"FAILED: ip link set Ethernet0 address 02:00:00:00:01:0a\"; ip link set Ethernet0 mtu 9100 up || echo \"FAILED: ip link set Ethernet0 mtu 9100 up\"; ip addr add 10.1.0.1/24 dev Ethernet0 || echo \"FAILED: ip addr add 10.1.0.1/24 dev Ethernet0\"; sysctl -qw net.ipv6.conf.Ethernet0.disable_ipv6=0 || echo \"FAILED: sysctl disable_ipv6\"; ip -6 addr add fc00:1::1/64 dev Ethernet0 nodad || echo \"FAILED: ip -6 addr add fc00:1::1/64 dev Ethernet0 nodad\"; ip neigh flush dev Ethernet0 || echo \"FAILED: ip neigh flush dev Ethernet0\"; ip -n l3h1 neigh flush dev Ethernet120 || echo \"FAILED: ip -n l3h1 neigh flush dev Ethernet120\"; ip -br addr show dev Ethernet0 || echo \"FAILED: ip -br addr show dev Ethernet0\"; ip -n l3h1 -br addr || echo \"FAILED: ip -n l3h1 -br addr\"; echo done",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "h1 ping 10.1.0.1 (ARP through the ARP traps both ways, ICMP through IP2ME)",
+   "cmd": "export PATH=/run/current-system/sw/bin:$PATH; ip netns exec l3h1 ping -c 10 -i 0.2 -W 1 10.1.0.1; ip -n l3h1 neigh show; ip neigh show dev Ethernet0",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "h1 ping -6 fc00:1::1 (ND through the ND trap)",
+   "cmd": "export PATH=/run/current-system/sw/bin:$PATH; ip netns exec l3h1 ping -6 -c 10 -i 0.2 -W 1 fc00:1::1; ip -n l3h1 -6 neigh show; ip -6 neigh show dev Ethernet0",
+   "may_fail": true
+  },
+  {
+   "op": "diag",
+   "cmd": "copp"
+  },
+  {
+   "op": "exec",
+   "desc": "the kernel learnt 10.1.0.2 and fc00:1::2 on Ethernet0 (what neighsyncd turns into SAI neighbors)",
+   "cmd": "export PATH=/run/current-system/sw/bin:$PATH; ip neigh show 10.1.0.2 dev Ethernet0; ip -6 neigh show fc00:1::2 dev Ethernet0",
+   "may_fail": true
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "10.1.0.2 (from the kernel entry)",
+   "rif": "$rifA",
+   "ip": "10.1.0.2",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0a:02"
+    ]
+   ]
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "fc00:1::2",
+   "rif": "$rifA",
+   "ip": "fc00:1::2",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0a:02"
+    ]
+   ]
+  },
+  {
+   "op": "exec",
+   "desc": "h1 ping again with the SAI neighbors",
+   "cmd": "export PATH=/run/current-system/sw/bin:$PATH; ip netns exec l3h1 ping -c 10 -i 0.2 -W 1 10.1.0.1; ip netns exec l3h1 ping -6 -c 10 -i 0.2 -W 1 fc00:1::1",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "netns h2 = Ethernet0 (10.2.0.2 gw 10.2.0.1), h1 gw 10.1.0.1, static gateway MACs",
+   "cmd": "export PATH=/run/current-system/sw/bin:$PATH; ip addr flush dev Ethernet0 || echo \"FAILED: ip addr flush dev Ethernet0\"; ip netns add l3h2 || echo \"FAILED: ip netns add l3h2\"; ip link set Ethernet0 netns l3h2 || echo \"FAILED: ip link set Ethernet0 netns l3h2\"; ip -n l3h2 link set Ethernet0 address 02:00:00:00:0b:02 || echo \"FAILED: ip -n l3h2 link set Ethernet0 address 02:00:00:00:0b:02\"; ip -n l3h2 link set Ethernet0 mtu 9100 up || echo \"FAILED: ip -n l3h2 link set Ethernet0 mtu 9100 up\"; ip -n l3h2 link set lo up || echo \"FAILED: ip -n l3h2 link set lo up\"; ip -n l3h2 addr add 10.2.0.2/24 dev Ethernet0 || echo \"FAILED: ip -n l3h2 addr add 10.2.0.2/24 dev Ethernet0\"; ip -n l3h2 -6 addr add fc00:2::2/64 dev Ethernet0 nodad || echo \"FAILED: ip -n l3h2 -6 addr add fc00:2::2/64 dev Ethernet0 nodad\"; ip -n l3h1 route add default via 10.1.0.1 || echo \"FAILED: ip -n l3h1 route add default via 10.1.0.1\"; ip -n l3h2 route add default via 10.2.0.1 || echo \"FAILED: ip -n l3h2 route add default via 10.2.0.1\"; ip -n l3h1 -6 route add default via fc00:1::1 || echo \"FAILED: ip -n l3h1 -6 route add default via fc00:1::1\"; ip -n l3h2 -6 route add default via fc00:2::1 || echo \"FAILED: ip -n l3h2 -6 route add default via fc00:2::1\"; ip -n l3h1 neigh replace 10.1.0.1 lladdr 02:00:00:00:01:0a dev Ethernet120 || echo \"FAILED: ip -n l3h1 neigh replace 10.1.0.1 lladdr 02:00:00:00:01:0a dev Ethernet120\"; ip -n l3h2 neigh replace 10.2.0.1 lladdr 02:00:00:00:01:0b dev Ethernet0 || echo \"FAILED: ip -n l3h2 neigh replace 10.2.0.1 lladdr 02:00:00:00:01:0b dev Ethernet0\"; ip -n l3h1 neigh replace fc00:1::1 lladdr 02:00:00:00:01:0a dev Ethernet120 || echo \"FAILED: ip -n l3h1 neigh replace fc00:1::1 lladdr 02:00:00:00:01:0a dev Ethernet120\"; ip -n l3h2 neigh replace fc00:2::1 lladdr 02:00:00:00:01:0b dev Ethernet0 || echo \"FAILED: ip -n l3h2 neigh replace fc00:2::1 lladdr 02:00:00:00:01:0b dev Ethernet0\"; echo done",
+   "may_fail": true
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "10.2.0.2 H2",
+   "rif": "$rifB",
+   "ip": "10.2.0.2",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0b:02"
+    ]
+   ]
+  },
+  {
+   "op": "create_neighbor",
+   "desc": "fc00:2::2 H2",
+   "rif": "$rifB",
+   "ip": "fc00:2::2",
+   "attrs": [
+    [
+     "DST_MAC_ADDRESS",
+     "mac",
+     "02:00:00:00:0b:02"
+    ]
+   ]
+  },
+  {
+   "op": "exec",
+   "desc": "h1 -> h2 ping (routed both ways)",
+   "cmd": "export PATH=/run/current-system/sw/bin:$PATH; ip netns exec l3h1 ping -c 20 -i 0.1 -W 1 10.2.0.2",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "h1 -> h2 ping -6",
+   "cmd": "export PATH=/run/current-system/sw/bin:$PATH; ip netns exec l3h1 ping -6 -c 20 -i 0.1 -W 1 fc00:2::2",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "h1 -> h2 ping 8000 B, DF (RIF MTU 9100)",
+   "cmd": "export PATH=/run/current-system/sw/bin:$PATH; ip netns exec l3h1 ping -c 5 -i 0.2 -W 1 -s 8000 -M do 10.2.0.2",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "h1 -> h2 traceroute-style TTL 1 (expect no reply from h2)",
+   "cmd": "export PATH=/run/current-system/sw/bin:$PATH; ip netns exec l3h1 ping -c 3 -i 0.2 -W 1 -t 1 10.2.0.2",
+   "may_fail": true
+  },
+  {
+   "op": "exec",
+   "desc": "h1 -> h2 flood ping 2000",
+   "cmd": "export PATH=/run/current-system/sw/bin:$PATH; ip netns exec l3h1 ping -f -c 2000 -W 1 10.2.0.2 | tail -3",
+   "may_fail": true
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[0]",
+   "desc": "Ethernet0",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_IN_DISCARDS"
+   ]
+  },
+  {
+   "op": "stats",
+   "obj": "$ports[15]",
+   "desc": "Ethernet120",
+   "ids": [
+    "IF_IN_UCAST_PKTS",
+    "IF_OUT_UCAST_PKTS",
+    "IF_IN_DISCARDS"
+   ]
+  },
+  {
+   "op": "diag",
+   "cmd": "copp"
+  },
+  {
+   "op": "exec",
+   "desc": "netdevs back to the root namespace",
+   "cmd": "export PATH=/run/current-system/sw/bin:$PATH; ip -n l3h1 link set Ethernet120 netns 1 || echo \"FAILED: ip -n l3h1 link set Ethernet120 netns 1\"; ip -n l3h2 link set Ethernet0 netns 1 || echo \"FAILED: ip -n l3h2 link set Ethernet0 netns 1\"; ip netns del l3h1 || echo \"FAILED: ip netns del l3h1\"; ip netns del l3h2 || echo \"FAILED: ip netns del l3h2\"; ip -br link show Ethernet0 || echo \"FAILED: ip -br link show Ethernet0\"; ip -br link show Ethernet120 || echo \"FAILED: ip -br link show Ethernet120\"; echo done",
+   "may_fail": false
+  },
+  {
+   "op": "remove_neighbor",
+   "rif": "$rifA",
+   "ip": "10.1.0.2"
+  },
+  {
+   "op": "remove_neighbor",
+   "rif": "$rifA",
+   "ip": "fc00:1::2"
+  },
+  {
+   "op": "remove_neighbor",
+   "rif": "$rifB",
+   "ip": "10.2.0.2"
+  },
+  {
+   "op": "remove_neighbor",
+   "rif": "$rifB",
+   "ip": "fc00:2::2"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "10.1.0.1/32"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "fc00:1::1/128"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "10.1.0.0/24"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "fc00:1::/64"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "10.2.0.0/24"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "fc00:2::/64"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "0.0.0.0/0"
+  },
+  {
+   "op": "remove_route",
+   "vr": "$vr",
+   "prefix": "::/0"
+  },
+  {
+   "op": "remove",
+   "obj": "$rifA"
+  },
+  {
+   "op": "remove",
+   "obj": "$rifB"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_arpq"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_arpr"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_nd"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_ip2me"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_ttl"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_mtu"
+  },
+  {
+   "op": "remove",
+   "obj": "$g_q4"
+  },
+  {
+   "op": "remove",
+   "obj": "$g_q1"
+  },
+  {
+   "op": "remove",
+   "obj": "$hif0"
+  },
+  {
+   "op": "remove",
+   "obj": "$hif1"
+  },
+  {
+   "op": "set",
+   "obj": "$ports[0]",
+   "desc": "admin down",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$ports[15]",
+   "desc": "admin down",
+   "attr": [
+    "ADMIN_STATE",
+    "bool",
+    false
+   ]
+  },
+  {
+   "op": "remove_switch"
+  }
+ ]
+}

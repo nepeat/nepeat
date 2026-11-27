@@ -458,8 +458,10 @@ Only for x86_64 (tests on the mock) and aarch64 (the CS8210); on other targets t
   Native check (`crates/sai-backend-teralynx/tests/test-ifcs.sh`): sai-teralynx's `test_ifcs`, unmodified, on
   it with the C mock libifcs and the C shim, every FAIL line one of `tests/test_ifcs-expected.txt` (none
   since 2026-11-26: 1047 / 1047); the create / remove IFCS call log equal to the C++
-  library's on the same mock; the post-init register list on the mock's registers. aarch64: cross build
-  (`cs8210-sai-rs-teralynx`) and its test bundle run as aarch64-linux (`nix/teralynx-target-run.nix`).
+  library's on the same mock; the post-init register list on the mock's registers. Then the same test in Rust
+  (H5-2, `crates/sai-backend-teralynx/tests/ifcs_e2e`, [Parity](#parity)): the built libsai through `sai-client`
+  on the same mock and shim. aarch64: cross build (`cs8210-sai-rs-teralynx`) and its test bundle run as
+  aarch64-linux (`nix/teralynx-target-run.nix`; the bundle has the Rust test's binary and golden too).
 - Areas (`crates/sai-backend-teralynx/tests/areas.txt`): which area (C++ `tl_<area>.cpp`, G2 group) owns
   each `test_ifcs` check (file / line range), section, driver op and oracle script. `test-ifcs.sh` prints the
   FAIL lines per area (now / expected); an expected line may end in `# needs <area>` (it fails because
@@ -668,6 +670,19 @@ failure", `ai_re/devices/edge-core-as7772-32x/evidence/rust-g6/` f1, g2).
   crate's own (`tests/driver-scripts`: external PHY, MACsec with key material, on the tables of
   `tests/test_tables.h`) through both drivers; every differing operation must be in
   `tests/differential-allow.txt` (empty).
+- `tests/ifcs_e2e` of `sai-backend-teralynx` (H5-2): `test_ifcs` ported to Rust, 3,560 lines of C++ and its 1047
+  checks. The BUILT Rust libsai (`IFCS_E2E_LIBSAI`, its shim beside it) is driven through its C ABI by `sai-client`
+  on the mock libifcs (`IFCS_E2E_MOCK`; the mock's hooks are `sai_client::Mock`, `dlsym`'d by name as the C++ does):
+  same profile files, areas in the same order on one switch. `CHECK-MAP.txt` lists each C++ check site
+  (`file:line` of the `CHECK` / `CHECK_EQ` / `OK`: 983 rows, one never taken: `t_sflow.cpp:317`, `if (own_trap)`)
+  with its Rust assertion and executions (the sum is 1047); the test requires its rows to equal the run's and, while
+  the C++ sources are in the tree, every check site found there to be a row. `golden/test_ifcs-checks-cpp.txt` is the
+  C++ test's own sequence of checks (its macros instrumented to print file:line and outcome, run on the C++ libsai
+  9846dbbc): the Rust run must make exactly those checks in that order, all passing, with the same checks per section.
+  The same binary-for-binary Rust test passes on the C++ libsai too (the port is of the test, not of the library);
+  a changed expectation is red (negative control: one `CHECK_EQ` value). `IFCS_E2E_REQUIRE=1` (the Nix checks:
+  `libsai-teralynx.nix` native, the aarch64 bundle under `teralynx-target-run.nix`) makes a missing library an error;
+  without the inputs `cargo test` skips it with a line. The C++ `test_ifcs` stays live until H5-5.
 - `sai-teralynx-parity` (nix target `sai-teralynx-parity`): the C++ and the Rust
   Teralynx libsai, each on the SAME mock libifcs, under the same unmodified programs, in the same
   directories: `test_ifcs` (checks per section: "Rust passes N of 1047", every FAIL line with its area),
@@ -793,7 +808,11 @@ workspace build installs nothing new); package: `nix/sai-teralynx-rs.nix` (below
   `sai_query_stats_capability`; attributes as owned values, encoded into zeroed `sai_attribute_t` arrays
   (lists point into storage the call owns; empty lists NULL, as an empty `std::vector`), a get decoded from
   the bytes the library wrote; notifications as events to one sink; `tee`: stderr through a pipe (the
-  loader's guard lines are stderr in both libsais).
+  loader's guard lines are stderr in both libsais). H5-2 added for the Rust `test_ifcs` (`tests/ifcs_e2e`):
+  `replace_profile` (the profile changes between create_switch refusals), `get_entry`, `stats_ext`,
+  `clear_stats`, `clear_port_all_stats`, ACL-field object-list gets, and `mock`: the mock libifcs's
+  `mock_*` test hooks as safe methods (`dlopen(RTLD_NOLOAD)` of the library the libsai loaded; 50 scalar
+  hooks from one macro, 13 pointer hooks written out, the shim's guard text / init).
 - `sai-script`: `oracle/sai_script.cpp` (the README's "Script format"), its tables generated from the C++
   ones entry for entry, its outputs, markers, error texts (nlohmann's accessor messages) and exit codes.
   Fixed, each said on stderr as `sai-script: FIX <step>: ...`, all off with `--cpp-names`: a step on the
@@ -879,23 +898,32 @@ comparison is one of two kinds:
 
 | comparison | kind | reference | size (2026-11-23) |
 |---|---|---|---|
-| `test_sai` through the test port (`tests/test-port/run.sh --strict`, `nix/parity-harness.nix`) | live | frozen `test_sai.cpp` + `.inc`; the frozen C++ on its fake as the reference run | 3014 / 3014 |
-| op-script differential (`sai-driver --test differential`) | live | frozen `frontend_driver.cpp` on the C++ fake | 11 scripts, 455 / 455 ops, allow-list empty |
-| MACsec model differential (`sai-macsec --test differential`) | live | frozen `sai_macsec.cpp` (+ the D9 / D10 edit, `tests/cpp/listed_fixes.rs`) | 16 backbone + 272 failure-injection + 300 random scripts per run |
-| MACsec end to end at MDIO level (`sai-macsec-phy --test e2e`) | live | frozen `sai_macsec.cpp` + `sai_extmacsec.cpp` | 4 backbones + 64 synthetic (+ 48 AS7772 with `SAI_MACSEC_E2E_TABLE`) per run |
-| `openbcm-diag` client (`openbcm-diag --test differential`) | live | frozen `openbcm_diag.c` | 29 command lines |
+| `test_sai` through the test port (`tests/test-port/run.sh --strict`, `nix/parity-harness.nix`) | live + golden (H5-0: `tests/test-port/golden/test_sai-cpp-reference.txt`, 23 sections, 6 KB) | frozen `test_sai.cpp` + `.inc`; the frozen C++ on its fake as the reference run | 3014 / 3014 |
+| op-script differential (`sai-driver --test differential`) | live + golden (H5-0: `crates/sai-driver/tests/golden/`, 143 KB) | frozen `frontend_driver.cpp` on the C++ fake | 11 scripts, 455 / 455 ops, allow-list empty |
+| MACsec model differential (`sai-macsec --test differential`) | live + golden (H5-0: `crates/sai-macsec/tests/golden/`, 823 KB, fixed seeds 20261126..20261425) | frozen `sai_macsec.cpp` (+ the D9 / D10 edit, `tests/cpp/listed_fixes.rs`) | 16 backbone + 272 failure-injection + 300 random scripts per run |
+| MACsec end to end at MDIO level (`sai-macsec-phy --test e2e`) | live + golden (H5-0: `crates/sai-macsec-phy/tests/golden/`, 1.29 MB) | frozen `sai_macsec.cpp` + `sai_extmacsec.cpp` | 4 backbones + 64 synthetic (+ 48 AS7772 with `SAI_MACSEC_E2E_TABLE`) per run |
+| `openbcm-diag` client (`openbcm-diag --test differential`) | live + golden (H5-0: `crates/openbcm-diag/tests/golden/`, 8 KB) | frozen `openbcm_diag.c` | 29 command lines |
 | diag server (`sai-core/tests/diag.rs`, `SAI_DIAG_CPP_ORACLE`) | live, by hand | a program over the frozen `sai_diag.cpp` (not built by any check) | |
 | glue calls (`sai-backend-openbcm --test glue_differential`) | golden | `openbcm_backend.cpp` + the C++ frontend over a glue stub replaying the Rust fake's answers | 12 scripts, 469 / 482 ops identical (1 entry), 1008 / 1008 glue lines |
-| Teralynx libsai: C++ vs Rust on the mock libifcs (`nix/teralynx-parity.nix`, `crates/sai-teralynx-parity`) | live | `ai_re/nix/packages/sai-teralynx`: its C++ libsai, `test_ifcs`, the frozen frontend's `frontend_driver.cpp`, the oracle's `sai_script.cpp`, all unmodified, on the same mock | 2026-11-26, strict: green: `test_ifcs` Rust 1047 / 1047 (C++ 1047 / 1047); sections 17 / 17 equal; driver 9 scripts (01-09), 376 / 376 ops identical; oracle 27 scripts: 25 equal, 2 allowed (`crates/sai-teralynx-parity/tests/parity-allow.txt`, 3 steps: the runner resolves the scripts' genetlink TYPE to another enum's value, which sai-core's metadata check refuses otherwise than the C++); negative control (one Rust call line changed): red. aarch64 (target `cs8210-sai-teralynx-parity`: everything cross-built, run under binfmt / qemu-user): the same strict report as native, store paths masked. Byte tap (H2-R1, 2026-11-26): every IFCS call's struct and attribute arguments as ALL their bytes (`@B` lines, `c/bytes_rt.c` over the oracle tracer's wrappers, `SAI_TERALYNX_IFCS_TRACE`) in every part: equal on all (test_ifcs 3766 lines, driver 3999; the driver part counts 385 ops with it: the tap's profile line is one op per script); byte negative control (`IFCS_POISON_PADDING=1`: the key members' tail padding 0xa5): red on the setters' `@B` lines while test_ifcs stays 1047 / 1047; the library before the fix (581449b): red in 13 of 17 sections, 127 driver ops, 27 of 27 oracle scripts (attribute padding after `id`, the key members' and `ifcs_usage_t`'s padding) |
-| Teralynx shim (`ifcs-shim --test differential`, `nix/ifcs-shim.nix`) | live | sai-teralynx's `shim.c` + `ifcs_guard.c`, compiled unmodified, on the same read sequences | 2026-11-26: 416 scripts (16 corpus + 400 generated), 95,582 steps, equal but the 6 lines of the one deliberate difference ([Teralynx shim](#teralynx-shim-ifcs-shim-ifcs-guard)); the same 416 on aarch64 emulated; `test_ifcs` 1047 / 1047 with the Rust shim |
-| oracle runner: Rust `sai-script` vs `sai_script.cpp` (`crates/sai-script/tests/differential.rs`, in `nix/sai-teralynx-rs.nix`) | live | the oracle's `sai_script.cpp` on the mock, through the C++ and the Rust libsai | 2026-11-26: 27 scripts x 2 libsais: `--cpp-names` identical on all; fixed mode 22 identical, 5 deliberately fixed (`tests/fixed-scripts.txt`); exec / `--tool` identical |
-| smoke: Rust `sai-teralynx-smoke` vs `tools/sai_smoke.cpp` (`crates/sai-teralynx-smoke/tests/mock-smoke.sh`) | live | the C++ program on the mock, through both libsais | 2026-11-26: 3 argument sets x 2 libsais identical (stdout, exit), usage |
+| Teralynx libsai: C++ vs Rust on the mock libifcs (`nix/teralynx-parity.nix`, `crates/sai-teralynx-parity`) | live + golden (H5-0: `crates/sai-teralynx-parity/tests/golden/`, 0.94 MB: digests + heads; `--golden DIR` runs the Rust side alone) | `ai_re/nix/packages/sai-teralynx`: its C++ libsai, `test_ifcs`, the frozen frontend's `frontend_driver.cpp`, the oracle's `sai_script.cpp`, all unmodified, on the same mock | 2026-11-26, strict: green: `test_ifcs` Rust 1047 / 1047 (C++ 1047 / 1047); sections 17 / 17 equal; driver 9 scripts (01-09), 376 / 376 ops identical; oracle 27 scripts: 25 equal, 2 allowed (`crates/sai-teralynx-parity/tests/parity-allow.txt`, 3 steps: the runner resolves the scripts' genetlink TYPE to another enum's value, which sai-core's metadata check refuses otherwise than the C++); negative control (one Rust call line changed): red. aarch64 (target `cs8210-sai-teralynx-parity`: everything cross-built, run under binfmt / qemu-user): the same strict report as native, store paths masked. Byte tap (H2-R1, 2026-11-26): every IFCS call's struct and attribute arguments as ALL their bytes (`@B` lines, `c/bytes_rt.c` over the oracle tracer's wrappers, `SAI_TERALYNX_IFCS_TRACE`) in every part: equal on all (test_ifcs 3766 lines, driver 3999; the driver part counts 385 ops with it: the tap's profile line is one op per script); byte negative control (`IFCS_POISON_PADDING=1`: the key members' tail padding 0xa5): red on the setters' `@B` lines while test_ifcs stays 1047 / 1047; the library before the fix (581449b): red in 13 of 17 sections, 127 driver ops, 27 of 27 oracle scripts (attribute padding after `id`, the key members' and `ifcs_usage_t`'s padding) |
+| Teralynx shim (`ifcs-shim --test differential`, `nix/ifcs-shim.nix`) | live + golden (H5-0: `crates/ifcs-shim/tests/golden/`, 792 KB: 416 trace digests, 16 corpus traces in full) | sai-teralynx's `shim.c` + `ifcs_guard.c`, compiled unmodified, on the same read sequences | 2026-11-26: 416 scripts (16 corpus + 400 generated), 95,582 steps, equal but the 6 lines of the one deliberate difference ([Teralynx shim](#teralynx-shim-ifcs-shim-ifcs-guard)); the same 416 on aarch64 emulated; `test_ifcs` 1047 / 1047 with the Rust shim |
+| oracle runner: Rust `sai-script` vs `sai_script.cpp` (`crates/sai-script/tests/differential.rs`, in `nix/sai-teralynx-rs.nix`) | live + golden (H5-0: `crates/sai-script/tests/golden/`, 308 KB) | the oracle's `sai_script.cpp` on the mock, through the C++ and the Rust libsai | 2026-11-26: 27 scripts x 2 libsais: `--cpp-names` identical on all; fixed mode 22 identical, 5 deliberately fixed (`tests/fixed-scripts.txt`); exec / `--tool` identical |
+| smoke: Rust `sai-teralynx-smoke` vs `tools/sai_smoke.cpp` (`crates/sai-teralynx-smoke/tests/mock-smoke.sh`) | live + golden (H5-0: `crates/sai-teralynx-smoke/tests/golden/`, 11 KB) | the C++ program on the mock, through both libsais | 2026-11-26: 3 argument sets x 2 libsais identical (stdout, exit), usage |
 | error table (`sai-backend-openbcm --test parity`) | golden | `map_rv` of `openbcm_backend.cpp` | 19 codes |
 | MDIO interpreter (`mdio-script --test differential`) | golden | `mdio_script.c` | 5053 corpus + 2200 generated |
 | MDIO tool (`mdio-tool --test differential`) | golden | `mdio_script_main.c`, `mdio_report.c` on `tests/c/mdio_stub.c` | 159 runs (44 fake chip, 75 without, 40 diag socket) |
 | `openbcm-asic-temp` (`openbcm-asic-temp --test differential`) | golden | `asic_temp.c` + `temp_files.c` on a glue stub | 30 cases |
 | table checkers (`phy-seq --test differential`) | golden | `ext_*_check.cpp` over `sai_extphy.cpp` / `sai_extmacsec.cpp` | 683 corpus + 42,770 generated runs; AS7772 tables 631 + 1 (`PHY_SEQ_TABLES`) |
 | C harness (`sai-ffi/tests/harness.c`) | its expectations | the C++ library's answers, checked by hand against the C++ `libsai.so` before G6 | 374 checks |
+
+H5-0 (2026-11-26, before the C++ package goes at H5-5): the comparisons marked "live + golden" also have a golden of their C / C++ side
+(`tests/golden` of the crate, `include_str!`; header with the sha256 of the C / C++ sources, the capture command and seeds; digests where the text
+is large; a "live == golden" check where the C++ is present; a negative control each); about 4.6 MB in all. Also in H5-0: ifcs-gen's model-fact digest
+(`crates/ifcs-gen/tests/golden/ishell-2.0.1.model.sha256`) and the C frame tools (`crates/tl-frames/tests/golden/frames-cpp.txt`, 235 KB).
+H5-1 moved, unchanged and copied (the C++ package keeps its copies until H5-5): the mock libifcs to `tests/teralynx-mock` (one derivation,
+`nix/teralynx-mock.nix`), the ctypes fetch to `nix/ifcs-ctypes.nix`, driver scripts 01-09 to `crates/sai-driver/tests/driver-scripts`, `test_sai.cpp` +
+`.inc` + headers to `tests/test-port/cpp`, the oracle to `ai_re/nix/packages/ifcs-oracle`, the board config generator to
+`ai_re/nix/modules/boards/cs8210/teralynx7`.
 
 The live counts before each capture equalled the golden counts above (C / C++ and Rust agreed on every
 comparison at 50a6aa7). Also:
@@ -968,7 +996,7 @@ checks ranges; its build prints the count).
 | `ifcs` | deny; allowed in named modules | 59: call 20, entry 10, shim 8, callback 7, dl 5, ipd 3, netdev 3, qos 2, table 1 | 0 / 0 | | libifcs (crate docs, Unsafe); counted 2026-11-26 after G2 package E (+5: `qos` 2, `ipd` 3) |
 | `elf-got` | rim module | 6 | 0 / 4 | | the GOT redirect (`dladdr`, `sysconf`, slot read / write, `mprotect`) |
 | `tl-frames` | deny; allowed in `os` | 12: socket 2, bind 1, setsockopt 1, sendto 1, recvfrom 1, send 1, recv 1, poll 1, if_nametoindex 1, if_indextoname 1, ioctl 1 | 0 / 0 | | the hardware test frame tools ([tl-frames](#tl-frames-the-hardware-test-frame-tools)); counted 2026-11-26 |
-| `sai-client` | deny; allowed in named modules | 31: ffi 16 (one call site per C signature, the method table read), callback 6, dl 5, raw 3 (zeroed C structs, a value union's bytes, an FDB event's oid), tee 1 (`dup2`) | 0 / 0 | | the tools' side of the SAI C ABI ([Teralynx tools](#teralynx-tools-sai-client-sai-script-sai-teralynx-smoke)); counted 2026-11-26 |
+| `sai-client` | deny; allowed in named modules | 57 (H5-2: +26): ffi 19 (one call site per C signature, the method table read; +3: ext stats, clear stats, entry get), mock 20 (new: one macro block that expands to 50 scalar-only hook calls, 19 written-out blocks for the pointer hooks, the guard and `im_malloc`), callback 6, dl 8 (+3: `RTLD_NOLOAD` attach, global-scope `dlsym`, its cast), raw 3 (zeroed C structs, a value union's bytes, an FDB event's oid), tee 1 (`dup2`) | 0 / 0 | | the tools' side of the SAI C ABI ([Teralynx tools](#teralynx-tools-sai-client-sai-script-sai-teralynx-smoke)); counted 2026-11-26 |
 | `ifcs-guard` | forbid | 0 | | | the guard's decisions |
 | `sai-sys` (forbid), `sdk-glue-sys` (none) | | 0 | | generated `unsafe extern "C"` blocks; 26 `safe fn` (sdk-glue-sys) | declarations only |
 | the other 20 | forbid | 0 | | | |
@@ -976,7 +1004,8 @@ checks ranges; its build prints the count).
 Total 225 blocks in six crates (+3 behind `test-port`), 2026-11-26 after the Teralynx backend reached
 parity with the C++: +82 in the three Teralynx rims (`ifcs` 59, `ifcs-shim` 17, `elf-got` 6; 64 when the
 scaffold landed, then `ifcs` +18: `entry` 10, `netdev` 3, `ipd` 3, `qos` 2); the AS77xx crates unchanged.
-`sai-client` (G4 tools, 2026-11-26): +31, not in the total above (also `tl-frames`' 12).
+`sai-client` (G4 tools, 2026-11-26): +31, not in the total above (also `tl-frames`' 12); H5-2 (2026-11-26): +26 (57; the test
+files themselves have none: `tests/ifcs_e2e` is safe code over the rim).
 143 blocks in three crates (+3 behind `test-port`), 2026-11-23 after G6: -88 with the two crates
 that plugged Rust into the C++ (`phy-seq-capi` 28 + 10 in-file tests + 26 in `tests/`, `sai-macsec-capi` 60
 + 35 in `tests/`), deleted with it; nothing else changed (`sdk-glue/tests` 1: a test added during G6 by

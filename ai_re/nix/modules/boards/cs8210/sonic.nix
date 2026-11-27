@@ -16,7 +16,7 @@ let
   inherit (lib) mkOption mkDefault mkIf types concatStringsSep;
   cfg = config.hardware.cs8210.sonic;
   sonic = config.services.sonic;
-  teralynx = import ../../../packages/sai-teralynx/configs { inherit pkgs; };
+  teralynx = import ./teralynx7 { inherit pkgs; };
   # The generator's file for the current ports (null without a generator).
   sdk = config.system.build.sonic.sdkConfig;
   python = sonic.packages.python.python3;

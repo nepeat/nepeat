@@ -5,7 +5,16 @@
 //!     [--parts checks,sections,driver,oracle] [--only NAME,...] [--strict] [--mutate TEXT]
 //!     [--no-repeat] [--no-bytes] [--timeout SECONDS] [--driver-scripts DIR] [--oracle-scripts DIR|none]
 //!     [--areas FILE] [--expected FILE] [--allow FILE] [--pending FILE]
+//! sai-teralynx-parity --fixtures DIR --work DIR --rust-lib FILE --golden DIR [...]   # no C++ needed
+//! sai-teralynx-parity --fixtures DIR --work DIR --cpp-lib FILE --check-golden DIR   # live C++ == golden
+//! sai-teralynx-parity --fixtures DIR --work DIR --cpp-lib FILE --capture DIR        # writes the records
 //! ```
+//!
+//! `--golden DIR` judges the Rust side against the C++ side's captured output (`tests/golden`, module
+//! `golden`) instead of a live C++ libsai: the same parts, report and strictness. `--check-golden`
+//! runs the live C++ side and requires it to render to the golden's records exactly (the proof that
+//! the golden is what the C++ gives); `--capture` writes those records (H5-0; the file headers are
+//! written by hand over them).
 //!
 //! Exit 0: green; 1: red (the report says why); 2: the harness could not run. `--mutate` is the
 //! negative control: the Rust side's IFCS lines containing TEXT are marked, the run must be red.
@@ -14,7 +23,7 @@
 //! frontend's and the oracle's scripts in ai_re/nix/packages/sai-teralynx).
 #![forbid(unsafe_code)]
 
-use sai_teralynx_parity::run::{self, Config, Part};
+use sai_teralynx_parity::run::{self, Config, Mode, Part};
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
@@ -27,14 +36,41 @@ fn here(rel: &str) -> PathBuf {
 fn usage(msg: &str) -> ExitCode {
     eprintln!("sai-teralynx-parity: {msg}");
     eprintln!(
-        "usage: sai-teralynx-parity --fixtures DIR --work DIR --cpp-lib FILE --rust-lib FILE [--parts LIST] [--only LIST] [--strict] [--mutate TEXT] [--no-repeat] [--no-bytes] [--timeout S] [--driver-scripts DIR] [--oracle-scripts DIR|none] [--areas F] [--expected F] [--allow F] [--pending F]"
+        "usage: sai-teralynx-parity --fixtures DIR --work DIR (--cpp-lib FILE --rust-lib FILE | --rust-lib FILE --golden DIR | --cpp-lib FILE --check-golden DIR | --cpp-lib FILE --capture DIR) [--parts LIST] [--only LIST] [--strict] [--mutate TEXT] [--no-repeat] [--no-bytes] [--timeout S] [--driver-scripts DIR] [--oracle-scripts DIR|none] [--areas F] [--expected F] [--allow F] [--pending F]"
     );
     ExitCode::from(2)
 }
 
+/// The first path the mode needs and the command line did not give.
+fn missing(cfg: &Config) -> Option<&'static str> {
+    let needs: &[(&'static str, &PathBuf)] = match cfg.mode {
+        Mode::Live => &[
+            ("--fixtures", &cfg.fixtures),
+            ("--work", &cfg.work),
+            ("--cpp-lib", &cfg.cpp_lib),
+            ("--rust-lib", &cfg.rust_lib),
+        ],
+        Mode::Golden => &[
+            ("--fixtures", &cfg.fixtures),
+            ("--work", &cfg.work),
+            ("--rust-lib", &cfg.rust_lib),
+        ],
+        Mode::CheckGolden | Mode::Capture => &[
+            ("--fixtures", &cfg.fixtures),
+            ("--work", &cfg.work),
+            ("--cpp-lib", &cfg.cpp_lib),
+        ],
+    };
+    needs
+        .iter()
+        .find(|(_, p)| p.as_os_str().is_empty())
+        .map(|(what, _)| *what)
+}
+
 fn main() -> ExitCode {
-    let tl = here("../../../../ai_re/nix/packages/sai-teralynx");
     let mut cfg = Config {
+        mode: Mode::Live,
+        golden: None,
         fixtures: PathBuf::new(),
         work: PathBuf::new(),
         cpp_lib: PathBuf::new(),
@@ -43,8 +79,8 @@ fn main() -> ExitCode {
         expected: here("../sai-backend-teralynx/tests/test_ifcs-expected.txt"),
         allow: here("tests/parity-allow.txt"),
         pending: here("tests/parity-pending.txt"),
-        driver_scripts: tl.join("frontend/tests/driver-scripts"),
-        oracle_scripts: Some(tl.join("oracle/scripts")),
+        driver_scripts: here("../sai-driver/tests/driver-scripts"),
+        oracle_scripts: Some(here("../../../../ai_re/nix/packages/ifcs-oracle/scripts")),
         strict: false,
         parts: Part::ALL.into_iter().collect(),
         only: Vec::new(),
@@ -62,6 +98,17 @@ fn main() -> ExitCode {
                 "--work" => cfg.work = val()?.into(),
                 "--cpp-lib" => cfg.cpp_lib = val()?.into(),
                 "--rust-lib" => cfg.rust_lib = val()?.into(),
+                "--golden" | "--check-golden" | "--capture" => {
+                    if cfg.golden.is_some() {
+                        return Err("one of --golden, --check-golden, --capture".to_owned());
+                    }
+                    cfg.mode = match a.as_str() {
+                        "--golden" => Mode::Golden,
+                        "--check-golden" => Mode::CheckGolden,
+                        _ => Mode::Capture,
+                    };
+                    cfg.golden = Some(val()?.into());
+                }
                 "--areas" => cfg.areas = val()?.into(),
                 "--expected" => cfg.expected = val()?.into(),
                 "--allow" => cfg.allow = val()?.into(),
@@ -94,15 +141,8 @@ fn main() -> ExitCode {
             return usage(&e);
         }
     }
-    for (what, p) in [
-        ("--fixtures", &cfg.fixtures),
-        ("--work", &cfg.work),
-        ("--cpp-lib", &cfg.cpp_lib),
-        ("--rust-lib", &cfg.rust_lib),
-    ] {
-        if p.as_os_str().is_empty() {
-            return usage(&format!("{what} is required"));
-        }
+    if let Some(what) = missing(&cfg) {
+        return usage(&format!("{what} is required"));
     }
     match run::run(&cfg) {
         Ok(o) => {

@@ -91,7 +91,11 @@ let
   # the SDK glue (C), and the C++ frontend frozen for the CS8210 that live parity tests compare with
   glueSrc = src + "/packages/sai-openbcm/src";
   cppFrontendSrc = builtins.path { path = src + "/packages/sai-teralynx/frontend/src"; name = "sai-cpp-frontend-src"; };
-  qemuIpd = import (src + "/packages/qemu-ipd") { pkgs = pu; };
+  # ifcsHeaders: rust/sai's ifcs-headers.nix (outside path:./nix) for the oracle's "ours" variant
+  qemuIpd = import (src + "/packages/qemu-ipd") {
+    pkgs = pu;
+    ifcsHeaders = { pkgs, saiSrc }: pkgs.callPackage (saiRsDir + "/ifcs-headers.nix") { teralynxSrc = src + "/packages/sai-teralynx"; inherit saiSrc; };
+  };
   uboots = import (src + "/packages/uboot") { pkgs = p; };
   vmTest = name: import (src + "/modules/switch/sonic/tests/" + name) { pkgs = p; };
   vmTestWith = name: args: import (src + "/modules/switch/sonic/tests/" + name) ({ pkgs = p; } // args);
@@ -252,6 +256,8 @@ EXTRAS: dict[str, tuple[str, str, int]] = {
     "vm-openbcm-mdio-units": ("vm", 'import (saiRsDir + "/test-mdio-units.nix") { pkgs = p; aiReNix = src; }', 0),
     "vm-sonic-macsec": ("vm", 'vmTest "vm-macsec.nix"', 0),
     "vm-sonic-platform": ("vm", 'vmTest "vm-platform.nix"', 0),
+    # sonic-nix reload: every sonic.target unit down across the CONFIG_DB write (with the pre-fix sequence as control)
+    "vm-sonic-reload": ("vm", 'vmTest "vm-reload.nix"', 0),
     # the SONiC fake-backend tests on the SAI the boards run (hardware.openbcm: the Rust package, no SDK)
     "vm-sonic-openbcm-fake": ("vm", 'vmTestWith "vm-openbcm-fake.nix" { openbcm = rustSai { }; }', 0),
     "vm-sonic-openbcm-fake-acl": ("vm", 'vmTestWith "vm-openbcm-fake-acl.nix" { openbcm = rustSai { }; }', 0),
@@ -371,6 +377,8 @@ PACKAGE_DIRS: dict[str, list[tuple]] = {
                      ("target", r"^extra:sai-teralynx-parity$"),
                      # tools/sai_smoke.cpp, oracle/: the Rust drop-in's references (its smoke and runner differentials)
                      ("target", r"^extra:sai-teralynx-rs$")],
+    # the libifcs call tracer and SAI script runner (moved from sai-teralynx/oracle): both ABIs; its tools/ are built too
+    "ifcs-oracle": [("target", r"^extra:qemu-ipd\.oracle-isai$"), ("target", r"^extra:qemu-ipd\.oracle-ours$")],
     "isai-amd64": [("target", r"^extra:qemu-ipd\.libsai$")],
     "qemu-ipd": [("target", r"^extra:qemu-ipd\.qemu-ipd$"), ("target", r"^extra:qemu-ipd\.tests\.")],
     "sonic": [("target", r"^extra:sonic\.swss$"), ("target", r"^path:sonic-swss-common$")],

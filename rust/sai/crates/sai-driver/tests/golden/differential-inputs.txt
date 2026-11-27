@@ -1,0 +1,1470 @@
+# Inputs of the golden C++ output golden/differential-cpp.txt: the 11 op scripts of
+# tests/driver-scripts as captured (tokens @EXT_PHY_TABLE@ / @EXT_MACSEC_TABLE@ unreplaced) and the
+# two table files the tokens name, from tests/test_tables.h of the frozen frontend (sha256 in the
+# header of differential-cpp.txt). The test fails with "script changed since the golden" when a
+# script of tests/driver-scripts differs from its copy here (the golden output is of the captured text).
+# Not to be regenerated from Rust output; a script change needs a new capture from the C++ or a hand edit.
+@@@@ script 01-switch
+# Switch bring-up: create with attributes, what orchagent reads at init, set/get, capacity
+# attributes, temperatures, remove and create again.
+profile SAI_OPENBCM_FAKE_PORTS=4
+switch SRC_MAC_ADDRESS=02:11:22:33:44:55 FDB_AGING_TIME=300
+get switch switch PORT_NUMBER CPU_PORT PORT_LIST DEFAULT_VLAN_ID DEFAULT_VIRTUAL_ROUTER_ID DEFAULT_1Q_BRIDGE_ID
+get switch switch DEFAULT_STP_INST_ID DEFAULT_TRAP_GROUP SRC_MAC_ADDRESS FDB_AGING_TIME
+get switch switch PORT_LIST
+set switch switch SRC_MAC_ADDRESS=02:00:00:00:aa:01
+get switch switch SRC_MAC_ADDRESS
+set switch switch FDB_AGING_TIME=600
+get switch switch FDB_AGING_TIME
+set switch switch ECMP_DEFAULT_HASH_SEED=1234
+get switch switch ECMP_DEFAULT_HASH_SEED
+get switch switch ECMP_HASH
+get switch switch ACL_ENTRY_MINIMUM_PRIORITY ACL_ENTRY_MAXIMUM_PRIORITY MAX_ACL_ACTION_COUNT
+get switch switch NUMBER_OF_ECMP_GROUPS ECMP_MEMBERS MAX_ECMP_MEMBER_COUNT TOTAL_BUFFER_SIZE
+get switch switch AVAILABLE_IPV4_ROUTE_ENTRY AVAILABLE_IPV6_ROUTE_ENTRY AVAILABLE_IPV4_NEXTHOP_ENTRY AVAILABLE_FDB_ENTRY
+get switch switch AVAILABLE_IPV4_NEIGHBOR_ENTRY AVAILABLE_IPV6_NEIGHBOR_ENTRY AVAILABLE_NEXT_HOP_GROUP_ENTRY
+get switch switch MAX_NUMBER_OF_TEMP_SENSORS TEMP_LIST MAX_TEMP AVERAGE_TEMP
+set switch switch MAX_TEMP=1
+remove_switch
+switch
+get switch switch NUMBER_OF_ACTIVE_PORTS
+remove_switch
+@@@@ script 02-ports
+# Ports: lanes, speeds, MTU, FEC, autoneg, admin state and link, loopback, counters, queues,
+# link events from the backend, bad values.
+switch
+get port port0 HW_LANE_LIST SPEED SUPPORTED_SPEED ADMIN_STATE OPER_STATUS MTU
+set port port0 SPEED=40000
+get port port0 SPEED
+set port port0 SPEED=25000
+set port port0 SPEED=100000
+set port port0 MTU=9100
+set port port0 MTU=20000
+set port port0 FEC_MODE=RS
+get port port0 FEC_MODE
+set port port0 AUTO_NEG_MODE=true
+set port port0 ADMIN_STATE=true
+get port port0 OPER_STATUS
+inject link port0 down
+get port port0 OPER_STATUS
+linkscan
+set port port0 ADMIN_STATE=false
+set port port1 LOOPBACK_MODE=MAC
+set port port1 ADMIN_STATE=true
+get port port1 OPER_STATUS LOOPBACK_MODE
+set port port1 ADMIN_STATE=false
+get port cpu TYPE
+set port cpu ADMIN_STATE=false
+get port port0 QOS_NUMBER_OF_QUEUES QOS_QUEUE_LIST
+get queue queue#3 PORT INDEX TYPE
+inject stat port0 IF_IN_OCTETS 1000
+inject stat port0 IF_OUT_UCAST_PKTS 7
+stats port port0 IF_IN_OCTETS IF_OUT_UCAST_PKTS
+stats port port0 PFC_0_RX_PKTS
+clear port port0 IF_IN_OCTETS
+set port port0 PORT_VLAN_ID=4095
+remove_switch
+@@@@ script 03-vlan-fdb
+# VLANs, bridge ports, STP, FDB: static / dynamic entries, flush, hardware learning, ageing and
+# moves reported as FDB events.
+switch
+get vlan vlan1 VLAN_ID MEMBER_LIST
+get bridge bridge TYPE PORT_LIST
+get vlan_member vlan_member#1 VLAN_ID BRIDGE_PORT_ID VLAN_TAGGING_MODE
+remove bridge_port bport0
+remove vlan_member vlan_member#1
+remove bridge_port bport0
+create bridge_port bp0 TYPE=PORT PORT_ID=port0 ADMIN_STATE=true FDB_LEARNING_MODE=DISABLE
+create bridge_port bpx TYPE=PORT PORT_ID=port0 ADMIN_STATE=true
+create vlan v100 VLAN_ID=100
+create vlan v100b VLAN_ID=100
+create vlan bad VLAN_ID=4095
+create vlan_member m100 VLAN_ID=v100 BRIDGE_PORT_ID=bp0 VLAN_TAGGING_MODE=TAGGED
+set vlan_member m100 VLAN_TAGGING_MODE=UNTAGGED
+set port port0 PORT_VLAN_ID=100
+get vlan v100 MEMBER_LIST
+get stp stp0 VLAN_LIST
+create fdb_entry 00:11:22:33:44:55@vlan1 TYPE=STATIC BRIDGE_PORT_ID=bport1 PACKET_ACTION=FORWARD
+create fdb_entry 00:11:22:33:44:55@vlan1 TYPE=STATIC BRIDGE_PORT_ID=bport1
+create fdb_entry 00:11:22:33:44:66@vlan1 TYPE=DYNAMIC BRIDGE_PORT_ID=bport1
+get fdb_entry 00:11:22:33:44:55@vlan1 TYPE BRIDGE_PORT_ID PACKET_ACTION
+flush BRIDGE_PORT_ID=bport1 ENTRY_TYPE=DYNAMIC
+get fdb_entry 00:11:22:33:44:66@vlan1 TYPE
+inject fdb learned 00:aa:bb:cc:dd:01 1 port2
+get fdb_entry 00:aa:bb:cc:dd:01@vlan1 TYPE BRIDGE_PORT_ID
+inject fdb aged 00:aa:bb:cc:dd:01 1 port2
+create fdb_entry 00:11:22:33:44:77@vlan1 TYPE=DYNAMIC BRIDGE_PORT_ID=bport1
+inject fdb learned 00:11:22:33:44:77 1 port1
+inject fdb learned 00:11:22:33:44:77 1 port2
+remove fdb_entry 00:11:22:33:44:55@vlan1
+remove fdb_entry 00:11:22:33:44:55@vlan1
+flush
+remove vlan v100
+remove vlan_member m100
+remove vlan v100
+remove_switch
+@@@@ script 04-lag
+# LAG: members (created disabled, then collecting / distributing), PVID, a bridge port and a
+# VLAN on the LAG applied to every member, a member joining later, FDB on the trunk, a router
+# interface on the LAG, teardown.
+switch
+get vlan vlan1 MEMBER_LIST
+remove vlan_member vlan_member#5
+remove bridge_port bport4
+remove vlan_member vlan_member#6
+remove bridge_port bport5
+remove vlan_member vlan_member#7
+remove bridge_port bport6
+create lag lag1
+get lag lag1 PORT_VLAN_ID TPID PORT_LIST
+create lag_member lm4 LAG_ID=lag1 PORT_ID=port4 EGRESS_DISABLE=true INGRESS_DISABLE=true
+set lag_member lm4 INGRESS_DISABLE=false
+set lag_member lm4 EGRESS_DISABLE=false
+create lag_member lm5 LAG_ID=lag1 PORT_ID=port5
+create lag_member lmx LAG_ID=lag1 PORT_ID=port7
+get lag lag1 PORT_LIST
+set lag lag1 PORT_VLAN_ID=300
+create bridge_port lbp TYPE=PORT PORT_ID=lag1 FDB_LEARNING_MODE=DISABLE
+set bridge_port lbp FDB_LEARNING_MODE=HW
+create vlan v300 VLAN_ID=300
+create vlan_member vm VLAN_ID=v300 BRIDGE_PORT_ID=lbp VLAN_TAGGING_MODE=TAGGED
+set vlan_member vm VLAN_TAGGING_MODE=UNTAGGED
+create lag_member lm6 LAG_ID=lag1 PORT_ID=port6
+remove lag_member lm6
+create fdb_entry 00:11:22:33:44:91@v300 TYPE=STATIC BRIDGE_PORT_ID=lbp
+inject fdb learned 00:aa:bb:cc:dd:92 300 lag1
+flush BRIDGE_PORT_ID=lbp ENTRY_TYPE=DYNAMIC
+remove fdb_entry 00:11:22:33:44:91@v300
+remove vlan_member vm
+remove vlan v300
+remove bridge_port lbp
+create router_interface lrif VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=lag1
+get lag lag1 PORT_VLAN_ID
+create neighbor_entry 10.1.0.2@lrif DST_MAC_ADDRESS=00:00:5e:00:53:07
+remove lag lag1
+remove neighbor_entry 10.1.0.2@lrif
+remove router_interface lrif
+remove lag_member lm4
+remove lag_member lm5
+remove lag lag1
+remove_switch
+@@@@ script 05-hostif-traps
+# Host interfaces (KNET netdevs), trap groups, traps (programmed and kept-only), the wildcard
+# table entry orchagent creates.
+switch
+create hostif h0 TYPE=NETDEV OBJ_ID=port0 NAME=Ethernet0
+create hostif hdup TYPE=NETDEV OBJ_ID=port0 NAME=Ethernet0
+create hostif hcpu TYPE=NETDEV OBJ_ID=cpu NAME=cpu
+set hostif h0 OPER_STATUS=true
+set hostif h0 VLAN_TAG=KEEP
+get hostif h0 NAME TYPE OBJ_ID OPER_STATUS VLAN_TAG
+create hostif_trap_group grp QUEUE=4
+create hostif_trap t_arp TRAP_TYPE=ARP_REQUEST PACKET_ACTION=COPY TRAP_GROUP=grp
+create hostif_trap t_arp2 TRAP_TYPE=ARP_REQUEST PACKET_ACTION=COPY TRAP_GROUP=grp
+create hostif_trap t_bgp TRAP_TYPE=BGP PACKET_ACTION=TRAP TRAP_GROUP=grp
+create hostif_trap t_lacp TRAP_TYPE=LACP PACKET_ACTION=TRAP
+create hostif_trap t_lldp TRAP_TYPE=LLDP PACKET_ACTION=TRAP
+remove hostif_trap_group grp
+set hostif_trap t_arp PACKET_ACTION=DROP
+get hostif_trap t_arp TRAP_TYPE PACKET_ACTION TRAP_GROUP
+create hostif_table_entry te TYPE=WILDCARD CHANNEL_TYPE=NETDEV_PHYSICAL_PORT
+remove hostif_table_entry te
+remove hostif_trap t_arp
+remove hostif_trap t_bgp
+remove hostif_trap t_lacp
+remove hostif_trap t_lldp
+remove hostif_trap_group grp
+remove hostif_trap_group trapgroup0
+remove hostif h0
+remove hostif h0
+remove_switch
+@@@@ script 06-l3
+# L3: port / VLAN / loopback router interfaces, a VRF, neighbors, next hops (resolved and
+# not), IP2ME / drop / leaked routes, a next-hop group with weights, teardown.
+switch
+create router_interface rif3 VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=port3
+create router_interface rifdup VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=port3
+create next_hop nh1 TYPE=IP IP=10.0.0.2 ROUTER_INTERFACE_ID=rif3
+create route_entry 192.168.0.0/24@vr0 NEXT_HOP_ID=nh1
+create neighbor_entry 10.0.0.2@rif3 DST_MAC_ADDRESS=00:00:5e:00:53:01
+create route_entry 10.0.0.1/32@vr0 NEXT_HOP_ID=cpu
+create route_entry 0.0.0.0/0@vr0 PACKET_ACTION=DROP
+get route_entry 192.168.0.77/24@vr0 NEXT_HOP_ID PACKET_ACTION
+create virtual_router vr1 SRC_MAC_ADDRESS=02:00:00:00:0a:01
+get virtual_router vr1 SRC_MAC_ADDRESS
+create router_interface rif6 VIRTUAL_ROUTER_ID=vr1 TYPE=PORT PORT_ID=port6
+create router_interface rif7 VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=port7
+set router_interface rif6 MTU=9100
+create neighbor_entry 10.9.0.1@rif6 DST_MAC_ADDRESS=00:00:5e:00:53:11
+create neighbor_entry 10.9.0.1@rif7 DST_MAC_ADDRESS=00:00:5e:00:53:12
+create next_hop nh6 TYPE=IP IP=10.9.0.1 ROUTER_INTERFACE_ID=rif6
+create next_hop nh7 TYPE=IP IP=10.9.0.1 ROUTER_INTERFACE_ID=rif7
+create route_entry 198.51.100.0/24@vr1 NEXT_HOP_ID=nh6
+create route_entry 203.0.113.0/24@vr1 NEXT_HOP_ID=nh7
+create next_hop nhb TYPE=IP IP=10.8.1.1 ROUTER_INTERFACE_ID=rif7
+create next_hop_group grp TYPE=ECMP
+create route_entry 192.0.2.0/24@vr0 NEXT_HOP_ID=grp
+create next_hop_group_member ma NEXT_HOP_GROUP_ID=grp NEXT_HOP_ID=nh7
+create next_hop_group_member mb NEXT_HOP_GROUP_ID=grp NEXT_HOP_ID=nhb WEIGHT=2
+create neighbor_entry 10.8.1.1@rif7 DST_MAC_ADDRESS=00:00:5e:00:53:22
+set next_hop_group_member ma WEIGHT=3
+get next_hop_group grp NEXT_HOP_COUNT NEXT_HOP_MEMBER_LIST
+get switch switch AVAILABLE_NEXT_HOP_GROUP_ENTRY AVAILABLE_NEXT_HOP_GROUP_MEMBER_ENTRY
+remove next_hop nh7
+remove next_hop_group_member ma
+remove next_hop_group_member mb
+remove route_entry 192.0.2.0/24@vr0
+remove next_hop_group grp
+remove route_entry 198.51.100.0/24@vr1
+remove route_entry 203.0.113.0/24@vr1
+remove next_hop nh6
+remove next_hop nh7
+remove next_hop nhb
+remove neighbor_entry 10.9.0.1@rif6
+remove neighbor_entry 10.9.0.1@rif7
+remove neighbor_entry 10.8.1.1@rif7
+remove router_interface rif6
+remove router_interface rif7
+remove virtual_router vr1
+remove route_entry 192.168.0.0/24@vr0
+remove next_hop nh1
+remove neighbor_entry 10.0.0.2@rif3
+remove route_entry 10.0.0.1/32@vr0
+remove route_entry 0.0.0.0/0@vr0
+remove router_interface rif3
+create vlan v200 VLAN_ID=200
+create router_interface vrif VIRTUAL_ROUTER_ID=vr0 TYPE=VLAN VLAN_ID=v200
+remove router_interface vrif
+remove vlan v200
+remove_switch
+@@@@ script 07-acl-copp
+# Policers, CoPP (a policed trap group; its traps become field entries), ACL tables / counters /
+# entries, table groups bound to ports, entry changes, teardown.
+switch
+create policer pol METER_TYPE=PACKETS MODE=SR_TCM CIR=600 CBS=600 RED_PACKET_ACTION=DROP
+get policer pol CIR RED_PACKET_ACTION COLOR_SOURCE
+set policer pol CIR=1000
+create hostif_trap_group grp QUEUE=4 POLICER=pol
+create hostif_trap t_arp TRAP_TYPE=ARP_REQUEST PACKET_ACTION=COPY TRAP_GROUP=grp
+create hostif_trap t_lacp TRAP_TYPE=LACP PACKET_ACTION=TRAP TRAP_GROUP=grp
+create hostif_trap t_bgp TRAP_TYPE=BGP PACKET_ACTION=TRAP TRAP_GROUP=grp
+create hostif_trap t_ip2me TRAP_TYPE=IP2ME PACKET_ACTION=TRAP TRAP_GROUP=grp
+set policer pol RED_PACKET_ACTION=FORWARD
+set hostif_trap t_lacp PACKET_ACTION=DROP
+set hostif_trap_group grp POLICER=null
+remove hostif_trap t_arp
+remove hostif_trap t_lacp
+remove hostif_trap t_bgp
+remove hostif_trap t_ip2me
+remove hostif_trap_group grp
+create acl_table t ACL_STAGE=INGRESS ACL_BIND_POINT_TYPE_LIST=[PORT,LAG] FIELD_ETHER_TYPE=true FIELD_DST_IP=true FIELD_L4_DST_PORT=true FIELD_ACL_RANGE_TYPE=[L4_SRC_PORT_RANGE,L4_DST_PORT_RANGE]
+create acl_counter k TABLE_ID=t ENABLE_PACKET_COUNT=true ENABLE_BYTE_COUNT=true
+create acl_entry e TABLE_ID=t PRIORITY=9000 ADMIN_STATE=true ACTION_COUNTER=k FIELD_DST_IP=10.0.0.1/255.255.255.255 ACTION_PACKET_ACTION=DROP
+create acl_table_group g ACL_STAGE=INGRESS ACL_BIND_POINT_TYPE_LIST=[PORT] TYPE=PARALLEL
+set port port2 INGRESS_ACL=g
+create acl_table_group_member gm ACL_TABLE_GROUP_ID=g ACL_TABLE_ID=t PRIORITY=100
+set port port3 INGRESS_ACL=g
+get acl_counter k PACKETS BYTES
+set acl_entry e ACTION_PACKET_ACTION=FORWARD
+set acl_entry e ADMIN_STATE=false
+set acl_entry e ADMIN_STATE=true
+get acl_entry e PRIORITY FIELD_DST_IP ACTION_PACKET_ACTION
+remove acl_table t
+remove acl_entry e
+remove acl_counter k
+remove acl_table_group_member gm
+set port port2 INGRESS_ACL=null
+set port port3 INGRESS_ACL=null
+remove acl_table_group g
+remove acl_table t
+remove policer pol
+remove_switch
+@@@@ script 08-qos
+# QoS on a backend with the QoS group on: maps (complete tables, port binding, update),
+# default TC, PFC, schedulers on scheduler groups / queues / the port, WRED, buffer pools and
+# profiles on queues and PGs; first the same objects with the group off (kept, not programmed).
+switch
+create qos_map m0 TYPE=DSCP_TO_TC MAP_TO_VALUE_LIST=[dscp:46=tc:5]
+set port port1 QOS_DSCP_TO_TC_MAP=m0
+set port port1 QOS_DSCP_TO_TC_MAP=null
+remove qos_map m0
+feature qos on
+get port port1 QOS_NUMBER_OF_SCHEDULER_GROUPS QOS_SCHEDULER_GROUP_LIST QOS_QUEUE_LIST
+create qos_map m1 TYPE=DSCP_TO_TC MAP_TO_VALUE_LIST=[dscp:46=tc:5,dscp:8=tc:1]
+set port port1 QOS_DSCP_TO_TC_MAP=m1
+create qos_map md TYPE=DOT1P_TO_TC MAP_TO_VALUE_LIST=[dot1p:5=tc:3]
+set port port1 QOS_DSCP_TO_TC_MAP=md
+set qos_map m1 MAP_TO_VALUE_LIST=[dscp:46=tc:7]
+get qos_map md TYPE MAP_TO_VALUE_LIST
+set port port1 QOS_DEFAULT_TC=3
+set port port1 PRIORITY_FLOW_CONTROL=0x18
+create scheduler sd SCHEDULING_TYPE=DWRR SCHEDULING_WEIGHT=20
+create scheduler sh SCHEDULING_TYPE=DWRR SCHEDULING_WEIGHT=1 MAX_BANDWIDTH_RATE=125000000 MAX_BANDWIDTH_BURST_RATE=65536
+set scheduler_group scheduler_group#4 SCHEDULER_PROFILE_ID=sd
+set scheduler sd SCHEDULING_WEIGHT=50
+set port port1 QOS_SCHEDULER_PROFILE_ID=sh
+create wred w GREEN_ENABLE=true GREEN_MIN_THRESHOLD=100000 GREEN_MAX_THRESHOLD=2000000 GREEN_DROP_PROBABILITY=5 ECN_MARK_MODE=GREEN
+set queue queue#4 WRED_PROFILE_ID=w
+create buffer_pool pin TYPE=INGRESS SIZE=20000000 THRESHOLD_MODE=DYNAMIC
+create buffer_pool peg TYPE=EGRESS SIZE=10000000 THRESHOLD_MODE=DYNAMIC
+create buffer_profile bq POOL_ID=peg RESERVED_BUFFER_SIZE=1518 SHARED_DYNAMIC_TH=3
+set queue queue#1 BUFFER_PROFILE_ID=bq
+stats queue queue#4 PACKETS BYTES
+set queue queue#1 BUFFER_PROFILE_ID=null
+set queue queue#4 WRED_PROFILE_ID=null
+set port port1 QOS_SCHEDULER_PROFILE_ID=null
+set scheduler_group scheduler_group#4 SCHEDULER_PROFILE_ID=null
+set port port1 QOS_DSCP_TO_TC_MAP=null
+remove buffer_profile bq
+remove buffer_pool pin
+remove buffer_pool peg
+remove wred w
+remove scheduler sd
+remove scheduler sh
+remove qos_map m1
+remove qos_map md
+feature qos off
+remove_switch
+@@@@ script 09-mirror-sample-hash
+# Mirror sessions (SPAN, ERSPAN) and port mirroring, SAMPLEPACKET on a port, the switch's LAG /
+# ECMP hash objects, storm control and VLAN flood control (optional backend groups on).
+switch
+feature mirror on
+create mirror_session span TYPE=LOCAL MONITOR_PORT=port2
+set port port1 INGRESS_MIRROR_SESSION=[span]
+set port port1 EGRESS_MIRROR_SESSION=[span]
+get port port1 INGRESS_MIRROR_SESSION
+set mirror_session span MONITOR_PORT=port3
+create mirror_session er TYPE=ENHANCED_REMOTE MONITOR_PORT=port2 ERSPAN_ENCAPSULATION_TYPE=MIRROR_L3_GRE_TUNNEL IPHDR_VERSION=4 TOS=32 TTL=64 SRC_IP_ADDRESS=10.99.1.1 DST_IP_ADDRESS=10.99.1.2 SRC_MAC_ADDRESS=10:11:12:13:14:15 DST_MAC_ADDRESS=20:21:22:23:24:25 GRE_PROTOCOL_TYPE=0x88be
+set mirror_session er DST_IP_ADDRESS=10.99.1.3
+set port port1 INGRESS_MIRROR_SESSION=[]
+set port port1 EGRESS_MIRROR_SESSION=[]
+remove mirror_session er
+remove mirror_session span
+create samplepacket smp SAMPLE_RATE=1000
+set port port1 INGRESS_SAMPLEPACKET_ENABLE=smp
+set samplepacket smp SAMPLE_RATE=500
+remove samplepacket smp
+set port port1 INGRESS_SAMPLEPACKET_ENABLE=null
+remove samplepacket smp
+feature mirror off
+get switch switch LAG_HASH
+feature l2 on
+get switch switch LAG_HASH ECMP_HASH
+set hash hash#2 NATIVE_HASH_FIELD_LIST=[SRC_IP,DST_IP,L4_SRC_PORT]
+get hash hash#2 NATIVE_HASH_FIELD_LIST
+set switch switch LAG_DEFAULT_HASH_SEED=77
+create policer sp METER_TYPE=PACKETS MODE=SR_TCM CIR=1000 CBS=1000
+set port port1 FLOOD_STORM_CONTROL_POLICER_ID=sp
+create vlan v300 VLAN_ID=300
+set vlan v300 BROADCAST_FLOOD_CONTROL_TYPE=NONE
+set vlan v300 BROADCAST_FLOOD_CONTROL_TYPE=ALL
+set port port1 FLOOD_STORM_CONTROL_POLICER_ID=null
+remove policer sp
+remove vlan v300
+feature l2 off
+remove_switch
+@@@@ script 10-ext-phy
+# The external-PHY runtime (link gate, admin sequences) through the SAI API, on the table
+# the differential writes (@EXT_PHY_TABLE@: kExtPhyGood of sai-openbcm's tests/test_tables.h
+# without its hold-off, so nothing depends on the clock), after tests/test_extphy.inc.
+profile SAI_OPENBCM_FAKE_PORTS=4
+profile SAI_OPENBCM_FAKE_LANES=4
+profile SAI_OPENBCM_FAKE_SPEED=100000
+profile SAI_OPENBCM_EXT_PHY_FILE=@EXT_PHY_TABLE@
+switch
+# a port the table does not list: link follows the ASIC
+set port port2 ADMIN_STATE=true
+linkscan
+get port port2 OPER_STATUS
+# port 0, line side down: admin up runs admin-up, the port stays down
+mdio 10 1 a101 0
+set port port0 ADMIN_STATE=true
+linkscan
+get port port0 OPER_STATUS
+# line side up: two polls up (up-polls 2) before the port comes up
+mdio 10 1 a101 3
+linkscan
+linkscan
+get port port0 OPER_STATUS
+linkscan
+get port port0 OPER_STATUS
+# line side down again: the port goes down at once
+mdio 10 1 a101 0
+linkscan
+get port port0 OPER_STATUS
+set port port0 ADMIN_STATE=false
+linkscan
+set port port1 ADMIN_STATE=true
+mdio 11 1 a101 3
+linkscan
+linkscan
+linkscan
+get port port1 OPER_STATUS
+set port port1 ADMIN_STATE=false
+remove_switch
+@@@@ script 11-macsec
+# MACsec objects through the SAI API on the made-up PHY table of sai-openbcm's
+# tests/test_tables.h (ms_table(): port 0 = lane 1 = PHY 0x10), after tests/test_macsec.inc.
+# @EXT_MACSEC_TABLE@ is the table file the differential writes (tests/differential.rs).
+profile SAI_OPENBCM_FAKE_PORTS=4
+profile SAI_OPENBCM_FAKE_LANES=4
+profile SAI_OPENBCM_PORT_IFG=128
+profile SAI_OPENBCM_EXT_MACSEC_FILE=@EXT_MACSEC_TABLE@
+switch
+# the SA sequences poll 1.2?f for 1
+mdio 10 1 20f 1
+mdio 10 1 21f 1
+mdio 11 1 20f 1
+mdio 11 1 21f 1
+create macsec me DIRECTION=EGRESS PHYSICAL_BYPASS_ENABLE=true
+create macsec mi DIRECTION=INGRESS PHYSICAL_BYPASS_ENABLE=true
+create macsec mx DIRECTION=INGRESS
+create macsec my DIRECTION=INGRESS ENABLE_POST=true
+get macsec mi SCI_IN_INGRESS_MACSEC_ACL
+get macsec me MAX_SECURE_ASSOCIATIONS_PER_SC XPN_64BIT_SUPPORTED
+set macsec me PHYSICAL_BYPASS_ENABLE=false
+set macsec me DIRECTION=INGRESS
+create macsec_port bad MACSEC_DIRECTION=EGRESS PORT_ID=port2
+create macsec_port mpe MACSEC_DIRECTION=EGRESS PORT_ID=port0
+create macsec_port mpi MACSEC_DIRECTION=INGRESS PORT_ID=port0
+create macsec_port dup MACSEC_DIRECTION=INGRESS PORT_ID=port0
+set port port0 SPEED=100000
+set macsec_port mpe CTAG_ENABLE=false
+set macsec_port mpe CTAG_ENABLE=true
+create macsec_flow fe MACSEC_DIRECTION=EGRESS
+create macsec_flow fi MACSEC_DIRECTION=INGRESS
+set macsec_flow fe MACSEC_DIRECTION=INGRESS
+create acl_table te ACL_STAGE=EGRESS_MACSEC ACL_BIND_POINT_TYPE_LIST=[PORT] FIELD_DST_MAC=true FIELD_ETHER_TYPE=true
+create acl_table ti ACL_STAGE=INGRESS_MACSEC ACL_BIND_POINT_TYPE_LIST=[PORT] FIELD_DST_MAC=true FIELD_ETHER_TYPE=true
+create acl_entry eapole TABLE_ID=te PRIORITY=1000 ADMIN_STATE=true FIELD_ETHER_TYPE=0x888e/0xffff ACTION_PACKET_ACTION=FORWARD
+create acl_entry eapoli TABLE_ID=ti PRIORITY=1000 ADMIN_STATE=true FIELD_ETHER_TYPE=0x888e/0xffff ACTION_PACKET_ACTION=FORWARD
+set port port0 EGRESS_MACSEC_ACL=te
+set port port0 INGRESS_MACSEC_ACL=ti
+get port port0 EGRESS_MACSEC_ACL INGRESS_MACSEC_ACL
+set port port0 EGRESS_MACSEC_ACL=ti
+create macsec_sc scx MACSEC_DIRECTION=EGRESS FLOW_ID=fe MACSEC_SCI=0x0100d52b380bea1c ENCRYPTION_ENABLE=false MACSEC_EXPLICIT_SCI_ENABLE=true MACSEC_CIPHER_SUITE=GCM_AES_128
+create macsec_sc scy MACSEC_DIRECTION=EGRESS FLOW_ID=fi MACSEC_SCI=0x0100d52b380bea1c ENCRYPTION_ENABLE=true MACSEC_EXPLICIT_SCI_ENABLE=true MACSEC_CIPHER_SUITE=GCM_AES_128
+create macsec_sc sce MACSEC_DIRECTION=EGRESS FLOW_ID=fe MACSEC_SCI=0x0100d52b380bea1c ENCRYPTION_ENABLE=true MACSEC_EXPLICIT_SCI_ENABLE=true MACSEC_CIPHER_SUITE=GCM_AES_128
+create macsec_sc sc2 MACSEC_DIRECTION=EGRESS FLOW_ID=fe MACSEC_SCI=0x0100d52b380bea1c ENCRYPTION_ENABLE=true MACSEC_EXPLICIT_SCI_ENABLE=true MACSEC_CIPHER_SUITE=GCM_AES_128
+create macsec_sc sci MACSEC_DIRECTION=INGRESS FLOW_ID=fi MACSEC_SCI=0x0100d52b380bea1c ENCRYPTION_ENABLE=true MACSEC_EXPLICIT_SCI_ENABLE=true MACSEC_CIPHER_SUITE=GCM_AES_XPN_256 MACSEC_REPLAY_PROTECTION_ENABLE=true MACSEC_REPLAY_PROTECTION_WINDOW=0x1234
+create acl_entry datae TABLE_ID=te PRIORITY=1 ADMIN_STATE=true ACTION_PACKET_ACTION=DROP
+create acl_entry datai TABLE_ID=ti PRIORITY=1 ADMIN_STATE=true ACTION_PACKET_ACTION=DROP
+# an SA before its flow is bound: kept, nothing on the bus
+create macsec_sa sae0 MACSEC_DIRECTION=EGRESS SC_ID=sce AN=0 CONFIGURED_EGRESS_XPN=7 SAK=00000000000000000000000000000000c0c1c2c3c4c5c6c7c8c9cacbcccdcecf AUTH_KEY=808182838485868788898a8b8c8d8e8f
+get macsec_sa sae0 CURRENT_XPN
+set acl_entry datae ACTION_MACSEC_FLOW=fe
+set acl_entry datae ACTION_PACKET_ACTION=off
+# rekey: AN 1 goes in, AN 0 goes
+create macsec_sa sae1 MACSEC_DIRECTION=EGRESS SC_ID=sce AN=1 CONFIGURED_EGRESS_XPN=1 SAK=00000000000000000000000000000000c1c2c3c4c5c6c7c8c9cacbcccdcecfd0 AUTH_KEY=808182838485868788898a8b8c8d8e8f
+create macsec_sa sae9 MACSEC_DIRECTION=EGRESS SC_ID=sce AN=1 CONFIGURED_EGRESS_XPN=1 SAK=00000000000000000000000000000000c1c2c3c4c5c6c7c8c9cacbcccdcecfd0 AUTH_KEY=808182838485868788898a8b8c8d8e8f
+get macsec_sc sce ACTIVE_EGRESS_SA_ID
+remove macsec_sa sae0
+mdio 10 1 402 5
+stats macsec_sa sae1 OUT_PKTS_ENCRYPTED
+mdio 10 1 402 3
+mdio 10 1 403 1
+stats macsec_sa sae1 OUT_PKTS_ENCRYPTED OCTETS_ENCRYPTED
+mdio 10 1 4f0 9
+stats macsec_flow fe CONTROL_PKTS
+stats macsec_flow fe CONTROL_PKTS
+mdio 10 1 504 2222
+mdio 10 1 505 1111
+mdio 10 1 506 ffff
+get macsec_sa sae1 CURRENT_XPN
+get macsec_sa sae1 SAK
+set macsec_sa sae1 CONFIGURED_EGRESS_XPN=5
+set macsec_sc sce MACSEC_CIPHER_SUITE=GCM_AES_256
+clear macsec_flow fe CONTROL_PKTS
+clear macsec_sa sae1 OUT_PKTS_ENCRYPTED
+# ingress: the flow is active first, the SA goes in at once (XPN-256, replay protection)
+set acl_entry datai ACTION_MACSEC_FLOW=fi
+set acl_entry datai ACTION_PACKET_ACTION=off
+create macsec_sa sai0 MACSEC_DIRECTION=INGRESS SC_ID=sci AN=0 MINIMUM_INGRESS_XPN=1 SAK=c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf AUTH_KEY=808182838485868788898a8b8c8d8e8f SALT=505152535455565758595a5b MACSEC_SSCI=0x01020304
+set macsec_sa sai0 MINIMUM_INGRESS_XPN=100
+stats macsec_sa sai0 IN_PKTS_OK
+# teardown, in MACsecOrch's order
+remove macsec_sa sai0
+remove macsec_sa sae1
+set acl_entry datae ACTION_MACSEC_FLOW=off
+set acl_entry datai ACTION_MACSEC_FLOW=off
+remove acl_entry datae
+remove acl_entry datai
+remove macsec_sc sce
+remove macsec_sc sci
+remove macsec_flow fe
+remove macsec_flow fi
+set port port0 EGRESS_MACSEC_ACL=null
+set port port0 INGRESS_MACSEC_ACL=null
+remove acl_entry eapole
+remove acl_entry eapoli
+remove acl_table te
+remove acl_table ti
+remove macsec_port mpe
+remove macsec_port mpi
+remove macsec me
+remove macsec mi
+remove_switch
+@@@@ table ext-phy.tbl
+ext-phy 1
+# comment
+poll-ms 0
+up-polls 2
+holdoff-ms 0
+port 1
+link
+  R 10 1 8221
+  W 10 1 a002 c161
+  W 10 1 8222 1111
+  P 10 1 8221 11e3 ffff 3 0
+  E 10 1 a100 2
+  C 10 1 a101 3 3
+admin-down
+  W 10 1 d139 351
+admin-up
+  E 10 1 d0e1 a008 ff7f
+  W 10 1 d139 350
+port 5
+link
+  C 11 1 a101 3 3
+@@@@ table ext-macsec.tbl
+ext-macsec 1
+# test table
+counters clear-on-read
+ifg-bits 384
+port 1 10
+port 5 11
+seq probe.egress
+X p 1 100 bypass[0]
+seq reset.egress
+W p 1 110 1
+seq enable.egress
+W p 1 100 0
+D 10
+seq disable.egress
+W p 1 100 1
+seq gate-open.egress
+W p 1 120 1
+seq gate-close.egress
+W p 1 120 0
+seq stats-flow.egress
+X p 1 4f0 control_pkts[0]
+X p 1 4f1 control_pkts[1]
+X p 1 4f2 x_unknown[0]
+seq sa-add.egress.0.gcm-aes-128
+W p 1 200 0
+W p 1 201 key[1].key[0]
+W p 1 202 key[15].key[14]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 0
+W p 1 207 window[1].window[0]
+P p 1 20f 1 1 3 0
+seq sa-add-first.egress.0.gcm-aes-128
+W p 1 200 100
+W p 1 201 key[1].key[0]
+W p 1 202 key[15].key[14]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 0
+W p 1 207 window[1].window[0]
+P p 1 20f 1 1 3 0
+seq sa-add.egress.0.gcm-aes-256
+W p 1 200 10
+W p 1 201 key[1].key[0]
+W p 1 202 key[31].key[30]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 0
+W p 1 207 window[1].window[0]
+P p 1 20f 1 1 3 0
+seq sa-add-first.egress.0.gcm-aes-256
+W p 1 200 110
+W p 1 201 key[1].key[0]
+W p 1 202 key[31].key[30]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 0
+W p 1 207 window[1].window[0]
+P p 1 20f 1 1 3 0
+seq sa-add.egress.0.gcm-aes-xpn-128
+W p 1 200 20
+W p 1 201 key[1].key[0]
+W p 1 202 key[15].key[14]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 pn[5].pn[4]
+W p 1 207 window[1].window[0]
+W p 1 208 iv[0].iv[3]
+W p 1 209 iv[4].iv[11]
+W p 1 20a ssci[0].salt[0]
+P p 1 20f 1 1 3 0
+seq sa-add-first.egress.0.gcm-aes-xpn-128
+W p 1 200 120
+W p 1 201 key[1].key[0]
+W p 1 202 key[15].key[14]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 pn[5].pn[4]
+W p 1 207 window[1].window[0]
+W p 1 208 iv[0].iv[3]
+W p 1 209 iv[4].iv[11]
+W p 1 20a ssci[0].salt[0]
+P p 1 20f 1 1 3 0
+seq sa-add.egress.0.gcm-aes-xpn-256
+W p 1 200 30
+W p 1 201 key[1].key[0]
+W p 1 202 key[31].key[30]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 pn[5].pn[4]
+W p 1 207 window[1].window[0]
+W p 1 208 iv[0].iv[3]
+W p 1 209 iv[4].iv[11]
+W p 1 20a ssci[0].salt[0]
+P p 1 20f 1 1 3 0
+seq sa-add-first.egress.0.gcm-aes-xpn-256
+W p 1 200 130
+W p 1 201 key[1].key[0]
+W p 1 202 key[31].key[30]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 pn[5].pn[4]
+W p 1 207 window[1].window[0]
+W p 1 208 iv[0].iv[3]
+W p 1 209 iv[4].iv[11]
+W p 1 20a ssci[0].salt[0]
+P p 1 20f 1 1 3 0
+seq sa-del.egress.0
+W p 1 300 1
+seq sa-del-last.egress.0
+W p 1 300 8001
+seq pn.egress.0
+X p 1 500 pn[0]
+X p 1 501 pn[1]
+X p 1 502 pn[2]
+X p 1 503 pn[3]
+seq stats-sa.egress.0
+X p 1 400 out_pkts_encrypted[0]
+X p 1 401 out_pkts_encrypted[1]
+seq sa-add.egress.1.gcm-aes-128
+W p 1 200 1
+W p 1 201 key[1].key[0]
+W p 1 202 key[15].key[14]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 0
+W p 1 207 window[1].window[0]
+P p 1 20f 1 1 3 0
+seq sa-add-first.egress.1.gcm-aes-128
+W p 1 200 101
+W p 1 201 key[1].key[0]
+W p 1 202 key[15].key[14]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 0
+W p 1 207 window[1].window[0]
+P p 1 20f 1 1 3 0
+seq sa-add.egress.1.gcm-aes-256
+W p 1 200 11
+W p 1 201 key[1].key[0]
+W p 1 202 key[31].key[30]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 0
+W p 1 207 window[1].window[0]
+P p 1 20f 1 1 3 0
+seq sa-add-first.egress.1.gcm-aes-256
+W p 1 200 111
+W p 1 201 key[1].key[0]
+W p 1 202 key[31].key[30]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 0
+W p 1 207 window[1].window[0]
+P p 1 20f 1 1 3 0
+seq sa-add.egress.1.gcm-aes-xpn-128
+W p 1 200 21
+W p 1 201 key[1].key[0]
+W p 1 202 key[15].key[14]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 pn[5].pn[4]
+W p 1 207 window[1].window[0]
+W p 1 208 iv[0].iv[3]
+W p 1 209 iv[4].iv[11]
+W p 1 20a ssci[0].salt[0]
+P p 1 20f 1 1 3 0
+seq sa-add-first.egress.1.gcm-aes-xpn-128
+W p 1 200 121
+W p 1 201 key[1].key[0]
+W p 1 202 key[15].key[14]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 pn[5].pn[4]
+W p 1 207 window[1].window[0]
+W p 1 208 iv[0].iv[3]
+W p 1 209 iv[4].iv[11]
+W p 1 20a ssci[0].salt[0]
+P p 1 20f 1 1 3 0
+seq sa-add.egress.1.gcm-aes-xpn-256
+W p 1 200 31
+W p 1 201 key[1].key[0]
+W p 1 202 key[31].key[30]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 pn[5].pn[4]
+W p 1 207 window[1].window[0]
+W p 1 208 iv[0].iv[3]
+W p 1 209 iv[4].iv[11]
+W p 1 20a ssci[0].salt[0]
+P p 1 20f 1 1 3 0
+seq sa-add-first.egress.1.gcm-aes-xpn-256
+W p 1 200 131
+W p 1 201 key[1].key[0]
+W p 1 202 key[31].key[30]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 pn[5].pn[4]
+W p 1 207 window[1].window[0]
+W p 1 208 iv[0].iv[3]
+W p 1 209 iv[4].iv[11]
+W p 1 20a ssci[0].salt[0]
+P p 1 20f 1 1 3 0
+seq sa-del.egress.1
+W p 1 301 1
+seq sa-del-last.egress.1
+W p 1 301 8001
+seq pn.egress.1
+X p 1 504 pn[0]
+X p 1 505 pn[1]
+X p 1 506 pn[2]
+X p 1 507 pn[3]
+seq stats-sa.egress.1
+X p 1 402 out_pkts_encrypted[0]
+X p 1 403 out_pkts_encrypted[1]
+seq sa-add.egress.2.gcm-aes-128
+W p 1 200 2
+W p 1 201 key[1].key[0]
+W p 1 202 key[15].key[14]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 0
+W p 1 207 window[1].window[0]
+P p 1 20f 1 1 3 0
+seq sa-add-first.egress.2.gcm-aes-128
+W p 1 200 102
+W p 1 201 key[1].key[0]
+W p 1 202 key[15].key[14]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 0
+W p 1 207 window[1].window[0]
+P p 1 20f 1 1 3 0
+seq sa-add.egress.2.gcm-aes-256
+W p 1 200 12
+W p 1 201 key[1].key[0]
+W p 1 202 key[31].key[30]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 0
+W p 1 207 window[1].window[0]
+P p 1 20f 1 1 3 0
+seq sa-add-first.egress.2.gcm-aes-256
+W p 1 200 112
+W p 1 201 key[1].key[0]
+W p 1 202 key[31].key[30]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 0
+W p 1 207 window[1].window[0]
+P p 1 20f 1 1 3 0
+seq sa-add.egress.2.gcm-aes-xpn-128
+W p 1 200 22
+W p 1 201 key[1].key[0]
+W p 1 202 key[15].key[14]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 pn[5].pn[4]
+W p 1 207 window[1].window[0]
+W p 1 208 iv[0].iv[3]
+W p 1 209 iv[4].iv[11]
+W p 1 20a ssci[0].salt[0]
+P p 1 20f 1 1 3 0
+seq sa-add-first.egress.2.gcm-aes-xpn-128
+W p 1 200 122
+W p 1 201 key[1].key[0]
+W p 1 202 key[15].key[14]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 pn[5].pn[4]
+W p 1 207 window[1].window[0]
+W p 1 208 iv[0].iv[3]
+W p 1 209 iv[4].iv[11]
+W p 1 20a ssci[0].salt[0]
+P p 1 20f 1 1 3 0
+seq sa-add.egress.2.gcm-aes-xpn-256
+W p 1 200 32
+W p 1 201 key[1].key[0]
+W p 1 202 key[31].key[30]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 pn[5].pn[4]
+W p 1 207 window[1].window[0]
+W p 1 208 iv[0].iv[3]
+W p 1 209 iv[4].iv[11]
+W p 1 20a ssci[0].salt[0]
+P p 1 20f 1 1 3 0
+seq sa-add-first.egress.2.gcm-aes-xpn-256
+W p 1 200 132
+W p 1 201 key[1].key[0]
+W p 1 202 key[31].key[30]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 pn[5].pn[4]
+W p 1 207 window[1].window[0]
+W p 1 208 iv[0].iv[3]
+W p 1 209 iv[4].iv[11]
+W p 1 20a ssci[0].salt[0]
+P p 1 20f 1 1 3 0
+seq sa-del.egress.2
+W p 1 302 1
+seq sa-del-last.egress.2
+W p 1 302 8001
+seq pn.egress.2
+X p 1 508 pn[0]
+X p 1 509 pn[1]
+X p 1 5010 pn[2]
+X p 1 5011 pn[3]
+seq stats-sa.egress.2
+X p 1 404 out_pkts_encrypted[0]
+X p 1 405 out_pkts_encrypted[1]
+seq sa-add.egress.3.gcm-aes-128
+W p 1 200 3
+W p 1 201 key[1].key[0]
+W p 1 202 key[15].key[14]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 0
+W p 1 207 window[1].window[0]
+P p 1 20f 1 1 3 0
+seq sa-add-first.egress.3.gcm-aes-128
+W p 1 200 103
+W p 1 201 key[1].key[0]
+W p 1 202 key[15].key[14]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 0
+W p 1 207 window[1].window[0]
+P p 1 20f 1 1 3 0
+seq sa-add.egress.3.gcm-aes-256
+W p 1 200 13
+W p 1 201 key[1].key[0]
+W p 1 202 key[31].key[30]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 0
+W p 1 207 window[1].window[0]
+P p 1 20f 1 1 3 0
+seq sa-add-first.egress.3.gcm-aes-256
+W p 1 200 113
+W p 1 201 key[1].key[0]
+W p 1 202 key[31].key[30]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 0
+W p 1 207 window[1].window[0]
+P p 1 20f 1 1 3 0
+seq sa-add.egress.3.gcm-aes-xpn-128
+W p 1 200 23
+W p 1 201 key[1].key[0]
+W p 1 202 key[15].key[14]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 pn[5].pn[4]
+W p 1 207 window[1].window[0]
+W p 1 208 iv[0].iv[3]
+W p 1 209 iv[4].iv[11]
+W p 1 20a ssci[0].salt[0]
+P p 1 20f 1 1 3 0
+seq sa-add-first.egress.3.gcm-aes-xpn-128
+W p 1 200 123
+W p 1 201 key[1].key[0]
+W p 1 202 key[15].key[14]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 pn[5].pn[4]
+W p 1 207 window[1].window[0]
+W p 1 208 iv[0].iv[3]
+W p 1 209 iv[4].iv[11]
+W p 1 20a ssci[0].salt[0]
+P p 1 20f 1 1 3 0
+seq sa-add.egress.3.gcm-aes-xpn-256
+W p 1 200 33
+W p 1 201 key[1].key[0]
+W p 1 202 key[31].key[30]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 pn[5].pn[4]
+W p 1 207 window[1].window[0]
+W p 1 208 iv[0].iv[3]
+W p 1 209 iv[4].iv[11]
+W p 1 20a ssci[0].salt[0]
+P p 1 20f 1 1 3 0
+seq sa-add-first.egress.3.gcm-aes-xpn-256
+W p 1 200 133
+W p 1 201 key[1].key[0]
+W p 1 202 key[31].key[30]
+W p 1 203 hkey[15].hkey[0]
+W p 1 204 sci[0].sci[7]
+W p 1 205 pn[1].pn[0]
+W p 1 206 pn[5].pn[4]
+W p 1 207 window[1].window[0]
+W p 1 208 iv[0].iv[3]
+W p 1 209 iv[4].iv[11]
+W p 1 20a ssci[0].salt[0]
+P p 1 20f 1 1 3 0
+seq sa-del.egress.3
+W p 1 303 1
+seq sa-del-last.egress.3
+W p 1 303 8001
+seq pn.egress.3
+X p 1 5012 pn[0]
+X p 1 5013 pn[1]
+X p 1 5014 pn[2]
+X p 1 5015 pn[3]
+seq stats-sa.egress.3
+X p 1 406 out_pkts_encrypted[0]
+X p 1 407 out_pkts_encrypted[1]
+seq probe.ingress
+X p 1 101 bypass[0]
+seq reset.ingress
+W p 1 111 1
+seq enable.ingress
+W p 1 101 0
+D 10
+seq disable.ingress
+W p 1 101 1
+seq gate-open.ingress
+W p 1 121 1
+seq gate-close.ingress
+W p 1 121 0
+seq stats-flow.ingress
+X p 1 4f0 control_pkts[0]
+X p 1 4f1 control_pkts[1]
+X p 1 4f2 x_unknown[0]
+seq sa-add.ingress.0.gcm-aes-128
+W p 1 210 0
+W p 1 211 key[1].key[0]
+W p 1 212 key[15].key[14]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 0
+W p 1 217 window[1].window[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|1
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.0.gcm-aes-128
+W p 1 210 100
+W p 1 211 key[1].key[0]
+W p 1 212 key[15].key[14]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 0
+W p 1 217 window[1].window[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|1
+P p 1 21f 1 1 3 0
+seq sa-add.ingress.0.gcm-aes-256
+W p 1 210 10
+W p 1 211 key[1].key[0]
+W p 1 212 key[31].key[30]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 0
+W p 1 217 window[1].window[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|1
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.0.gcm-aes-256
+W p 1 210 110
+W p 1 211 key[1].key[0]
+W p 1 212 key[31].key[30]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 0
+W p 1 217 window[1].window[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|1
+P p 1 21f 1 1 3 0
+seq sa-add.ingress.0.gcm-aes-xpn-128
+W p 1 210 20
+W p 1 211 key[1].key[0]
+W p 1 212 key[15].key[14]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 pn[5].pn[4]
+W p 1 217 window[1].window[0]
+W p 1 218 iv[0].iv[3]
+W p 1 219 iv[4].iv[11]
+W p 1 21a ssci[0].salt[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|1
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.0.gcm-aes-xpn-128
+W p 1 210 120
+W p 1 211 key[1].key[0]
+W p 1 212 key[15].key[14]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 pn[5].pn[4]
+W p 1 217 window[1].window[0]
+W p 1 218 iv[0].iv[3]
+W p 1 219 iv[4].iv[11]
+W p 1 21a ssci[0].salt[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|1
+P p 1 21f 1 1 3 0
+seq sa-add.ingress.0.gcm-aes-xpn-256
+W p 1 210 30
+W p 1 211 key[1].key[0]
+W p 1 212 key[31].key[30]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 pn[5].pn[4]
+W p 1 217 window[1].window[0]
+W p 1 218 iv[0].iv[3]
+W p 1 219 iv[4].iv[11]
+W p 1 21a ssci[0].salt[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|1
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.0.gcm-aes-xpn-256
+W p 1 210 130
+W p 1 211 key[1].key[0]
+W p 1 212 key[31].key[30]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 pn[5].pn[4]
+W p 1 217 window[1].window[0]
+W p 1 218 iv[0].iv[3]
+W p 1 219 iv[4].iv[11]
+W p 1 21a ssci[0].salt[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|1
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.0.gcm-aes-128.replay
+W p 1 210 f00
+W p 1 217 window[1].window[0]
+P p 1 21f 1 1 3 0
+seq sa-del.ingress.0
+W p 1 310 1
+seq sa-del-last.ingress.0
+W p 1 310 8001
+seq pn.ingress.0
+X p 1 510 pn[0]
+X p 1 511 pn[1]
+X p 1 512 pn[2]
+X p 1 513 pn[3]
+seq stats-sa.ingress.0
+X p 1 410 in_pkts_ok[0]
+X p 1 411 in_pkts_ok[1]
+seq sa-add.ingress.1.gcm-aes-128
+W p 1 210 1
+W p 1 211 key[1].key[0]
+W p 1 212 key[15].key[14]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 0
+W p 1 217 window[1].window[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|2
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.1.gcm-aes-128
+W p 1 210 101
+W p 1 211 key[1].key[0]
+W p 1 212 key[15].key[14]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 0
+W p 1 217 window[1].window[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|2
+P p 1 21f 1 1 3 0
+seq sa-add.ingress.1.gcm-aes-256
+W p 1 210 11
+W p 1 211 key[1].key[0]
+W p 1 212 key[31].key[30]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 0
+W p 1 217 window[1].window[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|2
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.1.gcm-aes-256
+W p 1 210 111
+W p 1 211 key[1].key[0]
+W p 1 212 key[31].key[30]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 0
+W p 1 217 window[1].window[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|2
+P p 1 21f 1 1 3 0
+seq sa-add.ingress.1.gcm-aes-xpn-128
+W p 1 210 21
+W p 1 211 key[1].key[0]
+W p 1 212 key[15].key[14]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 pn[5].pn[4]
+W p 1 217 window[1].window[0]
+W p 1 218 iv[0].iv[3]
+W p 1 219 iv[4].iv[11]
+W p 1 21a ssci[0].salt[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|2
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.1.gcm-aes-xpn-128
+W p 1 210 121
+W p 1 211 key[1].key[0]
+W p 1 212 key[15].key[14]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 pn[5].pn[4]
+W p 1 217 window[1].window[0]
+W p 1 218 iv[0].iv[3]
+W p 1 219 iv[4].iv[11]
+W p 1 21a ssci[0].salt[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|2
+P p 1 21f 1 1 3 0
+seq sa-add.ingress.1.gcm-aes-xpn-256
+W p 1 210 31
+W p 1 211 key[1].key[0]
+W p 1 212 key[31].key[30]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 pn[5].pn[4]
+W p 1 217 window[1].window[0]
+W p 1 218 iv[0].iv[3]
+W p 1 219 iv[4].iv[11]
+W p 1 21a ssci[0].salt[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|2
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.1.gcm-aes-xpn-256
+W p 1 210 131
+W p 1 211 key[1].key[0]
+W p 1 212 key[31].key[30]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 pn[5].pn[4]
+W p 1 217 window[1].window[0]
+W p 1 218 iv[0].iv[3]
+W p 1 219 iv[4].iv[11]
+W p 1 21a ssci[0].salt[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|2
+P p 1 21f 1 1 3 0
+seq sa-del.ingress.1
+W p 1 311 1
+seq sa-del-last.ingress.1
+W p 1 311 8001
+seq pn.ingress.1
+X p 1 514 pn[0]
+X p 1 515 pn[1]
+X p 1 516 pn[2]
+X p 1 517 pn[3]
+seq stats-sa.ingress.1
+X p 1 412 in_pkts_ok[0]
+X p 1 413 in_pkts_ok[1]
+seq sa-add.ingress.2.gcm-aes-128
+W p 1 210 2
+W p 1 211 key[1].key[0]
+W p 1 212 key[15].key[14]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 0
+W p 1 217 window[1].window[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|3
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.2.gcm-aes-128
+W p 1 210 102
+W p 1 211 key[1].key[0]
+W p 1 212 key[15].key[14]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 0
+W p 1 217 window[1].window[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|3
+P p 1 21f 1 1 3 0
+seq sa-add.ingress.2.gcm-aes-256
+W p 1 210 12
+W p 1 211 key[1].key[0]
+W p 1 212 key[31].key[30]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 0
+W p 1 217 window[1].window[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|3
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.2.gcm-aes-256
+W p 1 210 112
+W p 1 211 key[1].key[0]
+W p 1 212 key[31].key[30]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 0
+W p 1 217 window[1].window[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|3
+P p 1 21f 1 1 3 0
+seq sa-add.ingress.2.gcm-aes-xpn-128
+W p 1 210 22
+W p 1 211 key[1].key[0]
+W p 1 212 key[15].key[14]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 pn[5].pn[4]
+W p 1 217 window[1].window[0]
+W p 1 218 iv[0].iv[3]
+W p 1 219 iv[4].iv[11]
+W p 1 21a ssci[0].salt[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|3
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.2.gcm-aes-xpn-128
+W p 1 210 122
+W p 1 211 key[1].key[0]
+W p 1 212 key[15].key[14]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 pn[5].pn[4]
+W p 1 217 window[1].window[0]
+W p 1 218 iv[0].iv[3]
+W p 1 219 iv[4].iv[11]
+W p 1 21a ssci[0].salt[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|3
+P p 1 21f 1 1 3 0
+seq sa-add.ingress.2.gcm-aes-xpn-256
+W p 1 210 32
+W p 1 211 key[1].key[0]
+W p 1 212 key[31].key[30]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 pn[5].pn[4]
+W p 1 217 window[1].window[0]
+W p 1 218 iv[0].iv[3]
+W p 1 219 iv[4].iv[11]
+W p 1 21a ssci[0].salt[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|3
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.2.gcm-aes-xpn-256
+W p 1 210 132
+W p 1 211 key[1].key[0]
+W p 1 212 key[31].key[30]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 pn[5].pn[4]
+W p 1 217 window[1].window[0]
+W p 1 218 iv[0].iv[3]
+W p 1 219 iv[4].iv[11]
+W p 1 21a ssci[0].salt[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|3
+P p 1 21f 1 1 3 0
+seq sa-del.ingress.2
+W p 1 312 1
+seq sa-del-last.ingress.2
+W p 1 312 8001
+seq pn.ingress.2
+X p 1 518 pn[0]
+X p 1 519 pn[1]
+X p 1 5110 pn[2]
+X p 1 5111 pn[3]
+seq stats-sa.ingress.2
+X p 1 414 in_pkts_ok[0]
+X p 1 415 in_pkts_ok[1]
+seq sa-add.ingress.3.gcm-aes-128
+W p 1 210 3
+W p 1 211 key[1].key[0]
+W p 1 212 key[15].key[14]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 0
+W p 1 217 window[1].window[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|4
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.3.gcm-aes-128
+W p 1 210 103
+W p 1 211 key[1].key[0]
+W p 1 212 key[15].key[14]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 0
+W p 1 217 window[1].window[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|4
+P p 1 21f 1 1 3 0
+seq sa-add.ingress.3.gcm-aes-256
+W p 1 210 13
+W p 1 211 key[1].key[0]
+W p 1 212 key[31].key[30]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 0
+W p 1 217 window[1].window[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|4
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.3.gcm-aes-256
+W p 1 210 113
+W p 1 211 key[1].key[0]
+W p 1 212 key[31].key[30]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 0
+W p 1 217 window[1].window[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|4
+P p 1 21f 1 1 3 0
+seq sa-add.ingress.3.gcm-aes-xpn-128
+W p 1 210 23
+W p 1 211 key[1].key[0]
+W p 1 212 key[15].key[14]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 pn[5].pn[4]
+W p 1 217 window[1].window[0]
+W p 1 218 iv[0].iv[3]
+W p 1 219 iv[4].iv[11]
+W p 1 21a ssci[0].salt[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|4
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.3.gcm-aes-xpn-128
+W p 1 210 123
+W p 1 211 key[1].key[0]
+W p 1 212 key[15].key[14]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 pn[5].pn[4]
+W p 1 217 window[1].window[0]
+W p 1 218 iv[0].iv[3]
+W p 1 219 iv[4].iv[11]
+W p 1 21a ssci[0].salt[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|4
+P p 1 21f 1 1 3 0
+seq sa-add.ingress.3.gcm-aes-xpn-256
+W p 1 210 33
+W p 1 211 key[1].key[0]
+W p 1 212 key[31].key[30]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 pn[5].pn[4]
+W p 1 217 window[1].window[0]
+W p 1 218 iv[0].iv[3]
+W p 1 219 iv[4].iv[11]
+W p 1 21a ssci[0].salt[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|4
+P p 1 21f 1 1 3 0
+seq sa-add-first.ingress.3.gcm-aes-xpn-256
+W p 1 210 133
+W p 1 211 key[1].key[0]
+W p 1 212 key[31].key[30]
+W p 1 213 hkey[15].hkey[0]
+W p 1 214 sci[0].sci[7]
+W p 1 215 pn[1].pn[0]
+W p 1 216 pn[5].pn[4]
+W p 1 217 window[1].window[0]
+W p 1 218 iv[0].iv[3]
+W p 1 219 iv[4].iv[11]
+W p 1 21a ssci[0].salt[0]
+X p 1 310 $0
+W p 1 310 $0&ff00|4
+P p 1 21f 1 1 3 0
+seq sa-del.ingress.3
+W p 1 313 1
+seq sa-del-last.ingress.3
+W p 1 313 8001
+seq pn.ingress.3
+X p 1 5112 pn[0]
+X p 1 5113 pn[1]
+X p 1 5114 pn[2]
+X p 1 5115 pn[3]
+seq stats-sa.ingress.3
+X p 1 416 in_pkts_ok[0]
+X p 1 417 in_pkts_ok[1]

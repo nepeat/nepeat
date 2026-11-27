@@ -76,7 +76,7 @@ rustPlatform.buildRustPackage {
     test -n "$so"
     # 1. test_sai through the test port (exit 0 unless the harness broke, or strict and red)
     LIBSAI=$PWD/$so SUMMARY=$TMPDIR/parity/test-port.txt BUILD_DIR=$TMPDIR/test-port CPP_REF=build \
-      ${lib.optionalString strict "HARNESS_STRICT=1"} bash tests/test-port/run.sh 2>&1 | tee $TMPDIR/parity/test-port-run.txt
+      ${lib.optionalString strict "HARNESS_STRICT=1"} bash tests/test-port/run.sh --self-test 2>&1 | tee $TMPDIR/parity/test-port-run.txt
     # The summaries in $out are reproducible (nix build --rebuild): the test binaries are built first
     # (cargo's "Compiling" lines come in no fixed order: they go to the build log, not to $out), the
     # runs are single-threaded (libtest prints results in completion order) and their timings are cut.

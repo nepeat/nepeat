@@ -22,21 +22,23 @@
 //! Denied at the crate root; allowed in `dl` (`dlopen`, `dlsym`, `dlerror` and its text, a
 //! symbol as its function type), `ffi` (one call site per C signature, the method table read),
 //! `raw` (zeroed C structs, the bytes of a value union the library wrote, an FDB event's object id),
-//! `callback` (the profile and notification callbacks' pointer reads and writes) and `tee`
-//! (`dup2`). Each block has one unsafe operation and its contract. Everything else is safe code.
+//! `callback` (the profile and notification callbacks' pointer reads and writes), `mock` (the mock
+//! libifcs's test hooks of the end-to-end test, one call each) and `tee` (`dup2`). Each block has one unsafe operation and its contract. Everything else is safe code.
 #![deny(unsafe_code)]
 
 mod callback;
 mod dispatch;
 mod dl;
 mod ffi;
+pub mod mock;
 mod raw;
 pub mod tee;
 mod value;
 
 use std::path::{Path, PathBuf};
 
-pub use callback::{Event, set_event_sink, set_profile};
+pub use callback::{Event, replace_profile, set_event_sink, set_profile};
+pub use mock::Mock;
 pub use sai_sys as sys;
 pub use value::{AclAction, AclData, AclField, Attr, Notify, Prefix, QosMapEntry, QosParams, Value};
 
@@ -319,6 +321,55 @@ impl Sai {
             dispatch::Slot::Fn(f) => ffi::stats(f, oid, ids, &mut out),
         };
         (st, out)
+    }
+
+    /// `get_<type>_stats_ext(oid, n, ids, mode, values)` (port, router interface, queue): the
+    /// status and the values.
+    pub fn stats_ext(
+        &self,
+        object_type: sys::sai_object_type_t,
+        oid: sys::sai_object_id_t,
+        ids: &[sys::sai_stat_id_t],
+        mode: sys::sai_stats_mode_t,
+    ) -> (Status, Vec<u64>) {
+        let mut out = vec![0u64; ids.len()];
+        let st = match self.tables.stats_ext(object_type) {
+            dispatch::Slot::Missing => NOT_SUPPORTED,
+            dispatch::Slot::Null => NOT_IMPLEMENTED,
+            dispatch::Slot::Fn(f) => ffi::stats_ext(f, oid, ids, mode, &mut out),
+        };
+        (st, out)
+    }
+
+    /// `clear_<type>_stats(oid, n, ids)` (port, router interface, queue).
+    pub fn clear_stats(
+        &self,
+        object_type: sys::sai_object_type_t,
+        oid: sys::sai_object_id_t,
+        ids: &[sys::sai_stat_id_t],
+    ) -> Status {
+        match self.tables.clear_stats(object_type) {
+            dispatch::Slot::Missing => NOT_SUPPORTED,
+            dispatch::Slot::Null => NOT_IMPLEMENTED,
+            dispatch::Slot::Fn(f) => ffi::clear_stats(f, oid, ids),
+        }
+    }
+
+    /// `clear_port_all_stats(port)`.
+    pub fn clear_port_all_stats(&self, port: sys::sai_object_id_t) -> Status {
+        match self.tables.clear_port_all_stats() {
+            dispatch::Slot::Fn(f) => ffi::remove(f, port),
+            _ => NOT_IMPLEMENTED,
+        }
+    }
+
+    /// `get_<entry>_attribute` of a route / neighbour / FDB entry; afterwards every attribute holds
+    /// what the library wrote (see [`Sai::get`]).
+    pub fn get_entry(&self, switch: sys::sai_object_id_t, key: &Entry, attrs: &mut [Attr]) -> Status {
+        let mut enc = value::Encoded::new(attrs);
+        let st = self.tables.entry_get(switch, key, &mut enc);
+        enc.decode(attrs);
+        st
     }
 
     /// A route / neighbour / FDB entry call (`Set`: the first attribute).

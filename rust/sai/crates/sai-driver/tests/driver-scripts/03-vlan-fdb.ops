@@ -1,0 +1,38 @@
+# VLANs, bridge ports, STP, FDB: static / dynamic entries, flush, hardware learning, ageing and
+# moves reported as FDB events.
+switch
+get vlan vlan1 VLAN_ID MEMBER_LIST
+get bridge bridge TYPE PORT_LIST
+get vlan_member vlan_member#1 VLAN_ID BRIDGE_PORT_ID VLAN_TAGGING_MODE
+remove bridge_port bport0
+remove vlan_member vlan_member#1
+remove bridge_port bport0
+create bridge_port bp0 TYPE=PORT PORT_ID=port0 ADMIN_STATE=true FDB_LEARNING_MODE=DISABLE
+create bridge_port bpx TYPE=PORT PORT_ID=port0 ADMIN_STATE=true
+create vlan v100 VLAN_ID=100
+create vlan v100b VLAN_ID=100
+create vlan bad VLAN_ID=4095
+create vlan_member m100 VLAN_ID=v100 BRIDGE_PORT_ID=bp0 VLAN_TAGGING_MODE=TAGGED
+set vlan_member m100 VLAN_TAGGING_MODE=UNTAGGED
+set port port0 PORT_VLAN_ID=100
+get vlan v100 MEMBER_LIST
+get stp stp0 VLAN_LIST
+create fdb_entry 00:11:22:33:44:55@vlan1 TYPE=STATIC BRIDGE_PORT_ID=bport1 PACKET_ACTION=FORWARD
+create fdb_entry 00:11:22:33:44:55@vlan1 TYPE=STATIC BRIDGE_PORT_ID=bport1
+create fdb_entry 00:11:22:33:44:66@vlan1 TYPE=DYNAMIC BRIDGE_PORT_ID=bport1
+get fdb_entry 00:11:22:33:44:55@vlan1 TYPE BRIDGE_PORT_ID PACKET_ACTION
+flush BRIDGE_PORT_ID=bport1 ENTRY_TYPE=DYNAMIC
+get fdb_entry 00:11:22:33:44:66@vlan1 TYPE
+inject fdb learned 00:aa:bb:cc:dd:01 1 port2
+get fdb_entry 00:aa:bb:cc:dd:01@vlan1 TYPE BRIDGE_PORT_ID
+inject fdb aged 00:aa:bb:cc:dd:01 1 port2
+create fdb_entry 00:11:22:33:44:77@vlan1 TYPE=DYNAMIC BRIDGE_PORT_ID=bport1
+inject fdb learned 00:11:22:33:44:77 1 port1
+inject fdb learned 00:11:22:33:44:77 1 port2
+remove fdb_entry 00:11:22:33:44:55@vlan1
+remove fdb_entry 00:11:22:33:44:55@vlan1
+flush
+remove vlan v100
+remove vlan_member m100
+remove vlan v100
+remove_switch

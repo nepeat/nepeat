@@ -58,7 +58,7 @@ let
       cargo fmt ${lib.concatStringsSep " " pkgFlags} --check
       cargo clippy --offline ${lib.concatStringsSep " " pkgFlags} --all-targets --features cli --profile "$cargoCheckType" -- -D warnings
       export SAI_RS_TEST_TMPDIR=$NIX_BUILD_TOP/t; mkdir -p $SAI_RS_TEST_TMPDIR
-      export SAI_SCRIPT_DIFF_REQUIRE=1 SAI_SCRIPT_DIFF_FIXTURES=${fixtures} SAI_SCRIPT_DIFF_SCRIPTS=${parity.tlFiles}/oracle/scripts
+      export SAI_SCRIPT_DIFF_REQUIRE=1 SAI_SCRIPT_DIFF_FIXTURES=${fixtures} SAI_SCRIPT_DIFF_SCRIPTS=${parity.oracleSrc}/scripts
       export SAI_SCRIPT_DIFF_LIBS=cpp=${cppTeralynx}/lib/libsai.so.1.0.0,rust=${libsai}/lib/libsai.so.1.0.0
       export SAI_SCRIPT_DIFF_RUNNER=$PWD/target/${triple}/$cargoBuildType/sai-script
       export SAI_SCRIPT_DIFF_OUT=$NIX_BUILD_TOP/sai-script-diff

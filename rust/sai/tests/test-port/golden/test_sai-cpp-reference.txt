@@ -1,0 +1,86 @@
+# GOLDEN: the C++ reference run of test_sai (3014 checks, 0 failures), per section. Captured from the C++ side only.
+# NOT to be regenerated from the Rust output: it is what the Rust libsai is judged against once the C++ is deleted.
+# Columns (tab): section, checks (exclusive of nested sections), failures, state, first FAIL file:line ("-": none).
+# Rows in run order; nested sections (test_port_quirks, test_ext_phy, test_macsec) follow test_dump_and_teardown; TOTAL last.
+# Check names/lines are not part of it: the suite prints nothing for a passing check (stdout is "3014 checks, 0 failures"),
+# so the per-section counts are all the C++ run emits; a failing check would show as file:line in the fails/first-FAIL columns.
+#
+# What was run: the unmodified suite (cpp/test_sai.cpp + .inc + headers, sha256 below; the files are byte-identical to the
+# frozen frontend's tests/) linked with the C++ test port and the C++ libsai (frontend/src/*.cpp + temp_files.c, the fake
+# backend only) by rust/sai/tests/test-port/run.sh, counted exactly by section_trace.cpp (ptrace: g_checks/g_fail at every
+# section entry/return) and plan.awk/summary.awk. No seeds: the suite is deterministic and takes no input.
+# Capture (2026-11-26, c++ (GCC) 15.3.0, CXXFLAGS "-O2 -g", test_sai.o with -fno-inline; the dev env of rust/sai):
+#   SAI_INC=<sonic-sairedis>/SAI/inc SAI_OPENBCM_TESTS=ai_re/nix/packages/sai-teralynx/frontend/tests \
+#   LIBSAI=<libsai.so built with: cargo build -p sai-ffi --features test-port> CPP_REF=build BUILD_DIR=<dir> \
+#     rust/sai/tests/test-port/run.sh
+#   body of this file = <dir>/run-cpp/sections.tsv (the C++ reference run's table, unedited).
+# Proofs: run.sh prints "golden: N sections equal" for the Rust run and "golden: live C++ reference == golden" when the
+# C++ reference is built (CPP_REF=build); --self-test mutates copies of this file and expects both comparisons to differ.
+#
+# sha256 of the C++ side (rust/sai/tests/test-port/cpp/ == ai_re/nix/packages/sai-teralynx/frontend/tests/ for these 7 files):
+# ab7118e21f1cd7f598389b35f2105465b031a014fc0b4cfb0dc422bfffd92af0 cpp/test_sai.cpp
+# 5909b37e10bcde877120714097f6bb32237036f58cf80e6994465126997c2a21 cpp/test_acl.inc
+# 6f5c18eedbcff83c159402b576241fb311bbc1c04eefe16a21a9368f1f327b69 cpp/test_extphy.inc
+# 9c866e789f2826c077614ef5f742cc042b89841bf90845d85843e77b39777bd4 cpp/test_macsec.inc
+# d56339961610b8cb1dd69da7ac103fd5fb4d976c8539c4f0b77b81227aa3838b cpp/test_qos.inc
+# cf1c94e604ff7e2533ca9ad3a52f47430b0f929424542053f957814765601bad cpp/test_port.h
+# be9cade4b01baeaa3b71b07fe36d81d58fdcea26d5fc5a7e98a172d0cec91665 cpp/test_tables.h
+# ec52f1377add27b41d042f6581485173b5b115e2c5ccb5c04f10ffe8d7258392 frontend/tests/test_port_cpp.cpp
+# b2c6dd326a4d65989d65dc753b56e80a2c923697e2108291068f0314600b3ae9 frontend/src/fake_backend.cpp
+# b2c39c1bf5a1975f132b2ab63990ddcec0a9c9623800019ce07c03813856c0c1 frontend/src/recording_backend.cpp
+# 51edd775348f945c5f2552ef95db530800047e656bf3a92d66cf0dc857b8ef71 frontend/src/sai_acl.cpp
+# c097cdf06e1bdaf8cafacc92311c24808c49130391abb5dc93b10e3d65720a90 frontend/src/sai_api.cpp
+# da0c69b479bfddf3aa3db4907608cbd0707f3fb8626935cc38adf1e5207a08f9 frontend/src/sai_caps.cpp
+# e9035629ec4e67b503702a10c684a02c774d4736c3deb6ad79e52e34cd85b3e6 frontend/src/sai_diag.cpp
+# 45fce25b404ed3dd5fed0d2b2e6bbf14e7ec600dc1fecb63b6e301cf15dfff02 frontend/src/sai_extmacsec.cpp
+# ab211c51ea01c05b20ad628527bdff4f644d46b990f7973e2bade24b468ee53d frontend/src/sai_extphy.cpp
+# 613afb149986dd1c4612f43e7e2c26ab3bfdd037536be14138dd77d666dffeef frontend/src/sai_hash.cpp
+# ccfb853d373f99691b2cdb44dec15255323e64a217f187b5fda9b7d738ac8d3a frontend/src/sai_hostif.cpp
+# 2857aff47e3daaff643bd2d6542e4dd1cab874a534764ce6ecaecd1826deb0b2 frontend/src/sai_l2.cpp
+# 1fdae8ff42e6826032d05282a63b1f567fbd2b7731695dafabdfbbdec6a32e0c frontend/src/sai_l3.cpp
+# 350be1db439d267dc10fe38480688b8e5d90ceab1077ceaf1b29002733da92ab frontend/src/sai_lag.cpp
+# e1eea76ba84fbad3baeb3043c12d83e9c6d78a36802e303cdc042d00be66c2fa frontend/src/sai_macsec.cpp
+# 538e79f978382c9440d3028fc4efc9edac98470537055ebaa2ce79d4c9392af9 frontend/src/sai_mirror.cpp
+# 0b194459fcc0ab3c69b8eaff0391aa9b0aada4739916b41e7c1d54bfb989eee5 frontend/src/sai_port.cpp
+# 8a3ae30304e563e755f6b87c1906f5d9fff1b0048c7e5dae239606599ddfd9ee frontend/src/sai_qos.cpp
+# 2dc1e447d2696c982d4df98e0ea06181f8c5e6827570b88a22b4a885774a8968 frontend/src/sai_switch.cpp
+# 7935e059d8255be9d4a531738180673f972c75f6c05bd0bfc5b69823f39d0a8d frontend/src/sai_temp.cpp
+# e0e377938d0a20cddbc307ba152f4f76e207daae80550f8d6f436cb64cb44b03 frontend/src/openbcm_diag.c
+# fda712c52f7ecffafc8cb28acb4a5a97cfb571c78c8d6ab70a038a9488a24539 frontend/src/temp_files.c
+# 2d599726eb076a695b44408338a93e6b26ac3a9063d09c70fd9e76248c00a842 frontend/src/backend.h
+# 6aba76f928701eea496eaa52094275edb29266886b9468f284c4b16952c53150 frontend/src/ext_macsec.h
+# 1d59a8e869269ec3e0f8da8317878dd574a41c3fb9b4779e6c44428a5a746804 frontend/src/ext_phy.h
+# 680fc402a36ff2f1bbcb2e937740d35a0e9d13102ecc734c35531a7cbc8c8e4a frontend/src/fake_backend.h
+# 94d7bc2dc7de58b41360b73dc0a3a81c617373fe81c680d88130f4d1e3f3b577 frontend/src/recording_backend.h
+# ec89b27c6ab2c177d8a517aefe0d9380e37c8b72702e65e47efa4a86f1a326b7 frontend/src/sai_internal.h
+# c29d10c3006a11c2ddccde46e37c62000e4f37991ad71369a3ecdedabd207457 frontend/src/sdk_glue.h
+# 84e816f057395f87bae38e37f0c1f1b0cabac85f5b2c1a98beb9b771b7ee4dc1 frontend/src/temp_files.h
+# 544f329fd7fc3d045899c3dc26fe98480fb9d528ba9c1f14a3d90b08dca2aa55 frontend/src/libsai.map
+# 5455193cbbf5743a792f1d991118a6a678cced6bba8bd2de09cb34ff906628c1 test-port/plan.awk
+# 6bc75ce99cceb72dafdd737391f98d183f3e16db61c21d8599d149440b478453 test-port/summary.awk
+# e6feb177e59917c43bf4623415eaa543560876c2a00868eda0288fd7160ae7f4 test-port/section_trace.cpp
+#
+test_oid_encoding	11	0	ok	-
+test_init_and_backend_selection	41	0	ok	-
+test_switch_create	65	0	ok	-
+test_ports	95	0	ok	-
+test_vlan_bridge	70	0	ok	-
+test_fdb	35	0	ok	-
+test_hostif	35	0	ok	-
+test_l3	52	0	ok	-
+test_vrf	1098	0	ok	-
+test_ecmp	88	0	ok	-
+test_lag	208	0	ok	-
+test_temperature	19	0	ok	-
+test_capabilities	114	0	ok	-
+test_capacity	62	0	ok	-
+test_policer_copp	76	0	ok	-
+test_acl	256	0	ok	-
+test_qos	266	0	ok	-
+test_l2_extras	35	0	ok	-
+test_diag	16	0	ok	-
+test_dump_and_teardown	24	0	ok	-
+test_port_quirks	55	0	ok	-
+test_ext_phy	118	0	ok	-
+test_macsec	175	0	ok	-
+TOTAL	3014	0	ok	-

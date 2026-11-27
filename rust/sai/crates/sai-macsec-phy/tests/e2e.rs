@@ -15,7 +15,8 @@
 //! (prebuilt by sai-macsec's build.rs for a cross build), else compiled here from
 //! `SAI_OPENBCM_SRC` (the C++ frontend's `src`, frozen since 2026-11-23 in
 //! `ai_re/nix/packages/sai-teralynx/frontend/src`: a live comparison) and `SAI_INC`; neither:
-//! SKIPPED (said on stderr).
+//! SKIPPED (said on stderr). Since 2026-11-26 the C++ side is also a golden (`golden/e2e-*.txt`, captured
+//! from it) which the Rust path is held to without the C++.
 //!
 //! Scripts never move a flow between ports (variables of one parity only meet the port of that
 //! parity): there the two differ on purpose (sai-macsec's D1). For sai-macsec's D9 and D10 (the
@@ -53,6 +54,8 @@ use sai_macsec::{
 };
 use sai_macsec_phy::{BusStatus, IfgSink, PhySeqRunner, model_table};
 use sai_sys as sys;
+#[path = "../../sai-macsec/tests/common/golden.rs"]
+mod golden;
 #[path = "../../sai-macsec/tests/cpp/listed_fixes.rs"]
 mod listed_fixes;
 #[path = "../../sai-macsec/tests/common/seeded.rs"]
@@ -1233,6 +1236,389 @@ fn run_random(driver: &Driver, table: &Path, board: &Board, n: u64, max_random: 
     run.seeds()
 }
 
+/// sai-macsec's D9 script `d9_another_entry_takes_over_after_the_entry_was_disabled` at MDIO level (synthetic table).
+fn d9_script() -> String {
+    format!(
+        "{}flow f5 1\nmport p3 1 1\nflow f3 1\ntable t3 1\nbind 1 1 t3\nentry e3 t3 1 - 1 0\nsc c3 1 f3 0 0 1234 3\n\
+         sa a3 1 c3 0 7 3\neflow e3 f3\neadmin e3 0\nsa a7 1 c3 1 1 7\nentry e1 t3 1 f5 0 0\nsapn a3\nstatus\n\
+         rm sa a3\nsa a11 1 c3 2 100000002 11\nactive c3\nstatus\n",
+        synthetic_board().head
+    )
+}
+
+// ------------------------------------------------------------------ the golden C++ side (H5-0)
+//
+// The C++ side is also held in files captured from it (2026-11-26, header of the files): the
+// scripts ('golden/e2e-inputs.txt') and, per script, the normalised bus-access outputs of the
+// unmodified C++ and of the C++ with D9 / D10 as digests plus the full text of a few cases
+// ('golden/e2e-cpp.txt'). The Rust path is held to them without the C++
+// ('rust_agrees_with_the_golden_cpp'); with the C++ around, the golden is held to it
+// ('the_golden_equals_the_live_cpp'). The AS7772 table is not in the golden (Nix generates it):
+// its cases run only when SAI_MACSEC_E2E_TABLE names a file of the pinned length and FNV-1a.
+
+const GOLDEN_INPUTS: &str = include_str!("golden/e2e-inputs.txt");
+const GOLDEN_CPP: &str = include_str!("golden/e2e-cpp.txt");
+/// The seeds of the golden's random scripts: first seed .. + count, longest random part.
+const SYNTHETIC_SEEDS: (u64, u64, usize) = (20_261_126, 64, 80);
+const AS7772_SEEDS: (u64, u64, usize) = (20_261_226, 48, 60);
+/// The cases whose full outputs the golden keeps.
+const GOLDEN_TEXT: &[&str] = &[
+    "syn-bb-c0",
+    "syn-bb-c1",
+    "syn-bb-c2",
+    "syn-bb-c3",
+    "as-bb-c0",
+    "as-bb-c1",
+    "as-bb-c2",
+    "as-bb-c3",
+    "named-d9",
+    "syn-rnd-20261141",
+];
+
+struct Input {
+    id: String,
+    tag: &'static str,
+    script: String,
+}
+
+fn synthetic_inputs() -> Vec<Input> {
+    let board = synthetic_board();
+    let mut out: Vec<Input> = backbones(&board)
+        .into_iter()
+        .enumerate()
+        .map(|(c, script)| Input {
+            id: format!("syn-bb-c{c}"),
+            tag: "synthetic",
+            script,
+        })
+        .collect();
+    out.push(Input {
+        id: "named-d9".to_owned(),
+        tag: "synthetic",
+        script: d9_script(),
+    });
+    let (first, n, max) = SYNTHETIC_SEEDS;
+    let strategy = script(&board, max);
+    out.extend((0..n).map(|i| Input {
+        id: format!("syn-rnd-{}", first + i),
+        tag: "synthetic",
+        script: seeded::value(&strategy, first + i),
+    }));
+    out
+}
+
+fn as7772_inputs(table: &str) -> Vec<Input> {
+    let board = as7772_board(table);
+    let mut out: Vec<Input> = as7772_backbones(table, &board)
+        .into_iter()
+        .enumerate()
+        .map(|(c, script)| Input {
+            id: format!("as-bb-c{c}"),
+            tag: "as7772",
+            script,
+        })
+        .collect();
+    let (first, n, max) = AS7772_SEEDS;
+    let strategy = script(&board, max);
+    out.extend((0..n).map(|i| Input {
+        id: format!("as-rnd-{}", first + i),
+        tag: "as7772",
+        script: seeded::value(&strategy, first + i),
+    }));
+    out
+}
+
+fn golden_files() -> (golden::Golden, golden::Inputs) {
+    (
+        golden::parse_golden(GOLDEN_CPP).unwrap_or_else(|e| panic!("golden/e2e-cpp.txt: {e}")),
+        golden::parse_inputs(GOLDEN_INPUTS).unwrap_or_else(|e| panic!("golden/e2e-inputs.txt: {e}")),
+    )
+}
+
+/// The AS7772 table SAI_MACSEC_E2E_TABLE names, when it is the one the golden pins; else None
+/// (said on stderr: its cases of the golden are SKIPPED).
+fn pinned_as7772(inputs: &golden::Inputs) -> Option<(PathBuf, String)> {
+    let Some(path) = std::env::var_os("SAI_MACSEC_E2E_TABLE").map(PathBuf::from) else {
+        summary("e2e golden: SAI_MACSEC_E2E_TABLE is not set: the AS7772 cases of the golden are SKIPPED");
+        return None;
+    };
+    let text = std::fs::read_to_string(&path).unwrap();
+    let pinned = inputs.pinned.get("as7772").copied();
+    if pinned != Some((text.len(), golden::fnv1a(&text))) {
+        summary(&format!(
+            "e2e golden: {} is not the AS7772 table the golden pins ({pinned:?}): its cases are SKIPPED",
+            path.display()
+        ));
+        return None;
+    }
+    Some((path, text))
+}
+
+/// The table text of a golden case: stored, or the pinned AS7772 table (None: not available).
+fn table_of(inputs: &golden::Inputs, tag: &str, as7772: Option<&(PathBuf, String)>) -> Option<String> {
+    if tag == "as7772" {
+        as7772.map(|(_, text)| text.clone())
+    } else {
+        Some(
+            inputs
+                .tables
+                .get(tag)
+                .unwrap_or_else(|| panic!("no stored table {tag}"))
+                .clone(),
+        )
+    }
+}
+
+/// "none", "D9@<line>" or "D10@<line>": where the two C++ first differ (the rule of sai-macsec's
+/// differential: a cipher change is D10, any other difference D9).
+fn listed_text(plain: &str, fixed: &str) -> String {
+    let Some(at) = first_difference(plain, fixed) else {
+        return "none".to_owned();
+    };
+    let line = fixed.lines().nth(at).unwrap_or_default();
+    let which = if line.starts_with("scset ") && line.contains(" cipher ") {
+        "D10"
+    } else {
+        "D9"
+    };
+    format!("{which}@{at}")
+}
+
+fn golden_case(id: &str, tag: &str, plain: &str, fixed: &str) -> golden::Case {
+    golden::Case {
+        id: id.to_owned(),
+        tag: tag.to_owned(),
+        rust_differs: false,
+        plain: golden::Digest::of(plain),
+        fixed: golden::Digest::of(fixed),
+        listed: listed_text(plain, fixed),
+    }
+}
+
+/// A file of the table text for the driver (the golden stores the synthetic one).
+fn table_file(driver: &Driver, tag: &str, text: &str) -> PathBuf {
+    let p = driver.dir.join(format!("golden-{tag}.tbl"));
+    std::fs::write(&p, text).unwrap();
+    p
+}
+
+/// Capture (ignored: it needs the C++ and the AS7772 table): writes `e2e-inputs.txt` and `e2e-cpp.txt`
+/// (records without their header comments) to `$SAI_MACSEC_CAPTURE_DIR` from the C++ drivers' own output;
+/// the Rust output never enters the golden.
+///   SAI_MACSEC_CAPTURE_DIR=<dir> SAI_MACSEC_E2E_TABLE=<as7772 ext-macsec table> \
+///     cargo test -p sai-macsec-phy --test e2e -- --ignored capture_golden_from_the_cpp
+#[test]
+#[ignore = "writes the golden from the C++ (needs the C++, SAI_MACSEC_CAPTURE_DIR and SAI_MACSEC_E2E_TABLE)"]
+fn capture_golden_from_the_cpp() {
+    let driver = driver().expect("the C++ driver is needed to capture");
+    let dir = PathBuf::from(std::env::var_os("SAI_MACSEC_CAPTURE_DIR").expect("SAI_MACSEC_CAPTURE_DIR"));
+    let as_path = PathBuf::from(std::env::var_os("SAI_MACSEC_E2E_TABLE").expect("SAI_MACSEC_E2E_TABLE"));
+    let as_text = std::fs::read_to_string(&as_path).unwrap();
+    let (mut inputs, mut golden) = (golden::Inputs::default(), golden::Golden::default());
+    inputs.tables.insert("synthetic".to_owned(), synthetic_table());
+    inputs
+        .pinned
+        .insert("as7772".to_owned(), (as_text.len(), golden::fnv1a(&as_text)));
+    for input in synthetic_inputs().into_iter().chain(as7772_inputs(&as_text)) {
+        let path = if input.tag == "as7772" {
+            as_path.clone()
+        } else {
+            table_file(driver, input.tag, &synthetic_table())
+        };
+        let (plain, fixed) = (
+            normalise(&driver.output(&path, &input.script)),
+            normalise(&driver.fixed_output(&path, &input.script)),
+        );
+        if GOLDEN_TEXT.contains(&input.id.as_str()) {
+            if plain != fixed {
+                golden
+                    .texts
+                    .insert((input.id.clone(), "plain".to_owned()), plain.clone());
+            }
+            golden
+                .texts
+                .insert((input.id.clone(), "fixed".to_owned()), fixed.clone());
+        }
+        golden.cases.push(golden_case(&input.id, input.tag, &plain, &fixed));
+        inputs.scripts.push((input.id, input.tag.to_owned(), input.script));
+    }
+    let (inputs_text, golden_text) = (golden::emit_inputs(&inputs), golden::emit_golden(&golden));
+    assert_eq!(
+        golden::parse_inputs(&inputs_text).as_ref(),
+        Ok(&inputs),
+        "inputs round trip"
+    );
+    assert_eq!(
+        golden::parse_golden(&golden_text).as_ref(),
+        Ok(&golden),
+        "golden round trip"
+    );
+    std::fs::write(dir.join("e2e-inputs.txt"), inputs_text).unwrap();
+    std::fs::write(dir.join("e2e-cpp.txt"), golden_text).unwrap();
+}
+
+/// The stored inputs are what the generators of this file make for the fixed seeds (the
+/// AS7772 part with the pinned table, when it is there).
+#[test]
+fn the_golden_inputs_are_the_fixed_corpus() {
+    let (golden, inputs) = golden_files();
+    assert_eq!(inputs.tables.get("synthetic"), Some(&synthetic_table()));
+    let mut corpus = synthetic_inputs();
+    let have_as7772 = pinned_as7772(&inputs);
+    if let Some((_, text)) = &have_as7772 {
+        corpus.extend(as7772_inputs(text));
+    }
+    for input in &corpus {
+        let stored = inputs
+            .scripts
+            .iter()
+            .find(|(id, ..)| *id == input.id)
+            .unwrap_or_else(|| panic!("no stored script {}", input.id));
+        assert_eq!(
+            (input.tag, &input.script),
+            (stored.1.as_str(), &stored.2),
+            "{}",
+            input.id
+        );
+    }
+    assert_eq!(inputs.scripts.len(), golden.cases.len());
+    assert_eq!(inputs.scripts.len(), 4 + 1 + 64 + 4 + 48);
+    assert_eq!(corpus.len(), if have_as7772.is_some() { 121 } else { 69 });
+}
+
+/// The Rust path against the golden C++ (the C++ is not needed): per script the Rust output
+/// (every SAI status, value, status text and bus access in order) equals the C++ with D9 / D10,
+/// to the end; where that differs from the unmodified C++ the script reached D9 / D10.
+#[test]
+fn rust_agrees_with_the_golden_cpp() {
+    let (golden, inputs) = golden_files();
+    let as7772 = pinned_as7772(&inputs);
+    let (mut compared, mut ops, mut events, mut listed) = (0, 0, 0, 0);
+    for case in &golden.cases {
+        let Some(table) = table_of(&inputs, &case.tag, as7772.as_ref()) else {
+            continue;
+        };
+        let script = &inputs.scripts.iter().find(|(id, ..)| *id == case.id).unwrap().2;
+        let rust = normalise(&rust_output(table.as_bytes(), script));
+        let reached =
+            golden::rust_vs_golden(&golden, case, &rust).unwrap_or_else(|why| panic!("{why}\n--- script\n{script}"));
+        listed += usize::from(reached.is_some());
+        compared += 1;
+        ops += rust.lines().filter(|l| l.contains(" => ")).count();
+        events += rust.matches(" R").count() + rust.matches(" W").count();
+    }
+    summary(&format!(
+        "e2e golden: the Rust path equals the golden C++ (with D9 / D10) on {compared} scripts, {ops} operations, \
+         {events} bus accesses; {listed} reached D9 / D10"
+    ));
+    assert!(compared >= 69);
+}
+
+/// The D9 case at MDIO level keeps the lines of the live test of the same name.
+#[test]
+fn the_golden_keeps_the_d9_difference() {
+    let (golden, inputs) = golden_files();
+    let case = golden.cases.iter().find(|c| c.id == "named-d9").unwrap();
+    let script = &inputs.scripts.iter().find(|(id, ..)| *id == case.id).unwrap().2;
+    let rust = rust_output(inputs.tables["synthetic"].as_bytes(), script);
+    let cpp = &golden.texts[&("named-d9".to_owned(), "plain".to_owned())];
+    let fixed = &golden.texts[&("named-d9".to_owned(), "fixed".to_owned())];
+    let line = |text: &str| text.lines().find(|l| l.starts_with("entry e1")).unwrap().to_owned();
+    assert_eq!(line(cpp), "entry e1 t3 1 f5 0 0 => 0 R11.1.1f3=0 W11.1.121=1");
+    assert_eq!(line(&rust), "entry e1 t3 1 f5 0 0 => 0 W11.1.310=8001");
+    assert_eq!(line(fixed), line(&rust));
+    assert!(case.listed.starts_with("D9@"), "{}", case.listed);
+}
+
+/// The golden is what the live C++ prints (the proof that it was captured from this C++): every
+/// script of the golden (the AS7772's with the pinned table) on both drivers.
+#[test]
+fn the_golden_equals_the_live_cpp() {
+    let Some(driver) = driver() else { return };
+    let (golden, inputs) = golden_files();
+    let as7772 = pinned_as7772(&inputs);
+    let mut checked = 0;
+    for case in &golden.cases {
+        let path = if case.tag == "as7772" {
+            match &as7772 {
+                Some((path, _)) => path.clone(),
+                None => continue,
+            }
+        } else {
+            table_file(driver, &case.tag, &inputs.tables[&case.tag])
+        };
+        let script = &inputs.scripts.iter().find(|(id, ..)| *id == case.id).unwrap().2;
+        let (plain, fixed) = (
+            normalise(&driver.output(&path, script)),
+            normalise(&driver.fixed_output(&path, script)),
+        );
+        golden::live_vs_golden(&golden, case, &plain, &fixed, &listed_text(&plain, &fixed))
+            .unwrap_or_else(|why| panic!("{why}"));
+        checked += 1;
+    }
+    summary(&format!(
+        "e2e golden: the golden equals the live C++ on {checked} scripts ({} with full texts)",
+        golden.kept()
+    ));
+}
+
+/// Negative controls of the golden: a changed byte, digest, count or class, or a changed input,
+/// is reported by the comparison.
+#[test]
+fn the_golden_notices_a_change() {
+    let (golden, inputs) = golden_files();
+    let find = |id: &str| golden.cases.iter().find(|c| c.id == id).unwrap().clone();
+    let rust_of = |id: &str, inputs: &golden::Inputs| {
+        let script = &inputs.scripts.iter().find(|(i, ..)| i == id).unwrap().2;
+        normalise(&rust_output(inputs.tables["synthetic"].as_bytes(), script))
+    };
+    for id in ["named-d9", "syn-bb-c3", "syn-rnd-20261126"] {
+        assert!(
+            golden::rust_vs_golden(&golden, &find(id), &rust_of(id, &inputs)).is_ok(),
+            "{id}"
+        );
+    }
+    // a changed byte of a kept text (a key word on the bus)
+    let mut changed = golden.clone();
+    let key = ("syn-bb-c3".to_owned(), "fixed".to_owned());
+    let text = changed.texts.get_mut(&key).unwrap();
+    let at = text.find("W10.1.6000=").unwrap() + "W10.1.6000=".len();
+    text.replace_range(at..=at, "9");
+    assert_ne!(changed.texts[&key], golden.texts[&key]);
+    assert!(golden::rust_vs_golden(&changed, &find("syn-bb-c3"), &rust_of("syn-bb-c3", &inputs)).is_err());
+    // a changed digest of a digest-only case, and a changed line count
+    let rnd = find("syn-rnd-20261126");
+    let rust = rust_of("syn-rnd-20261126", &inputs);
+    let mut bad = rnd.clone();
+    bad.fixed.fnv ^= 1;
+    assert!(golden::rust_vs_golden(&golden, &bad, &rust).is_err());
+    let mut bad = rnd.clone();
+    bad.fixed.lines += 1;
+    assert!(golden::rust_vs_golden(&golden, &bad, &rust).is_err());
+    // a changed class: D9 recorded as none
+    let mut bad = find("named-d9");
+    assert_ne!(bad.listed, "none");
+    bad.listed = "none".to_owned();
+    assert!(golden::rust_vs_golden(&golden, &bad, &rust_of("named-d9", &inputs)).is_err());
+    // a changed input: one key seed of the script
+    let mut other = inputs.clone();
+    let script = other.scripts.iter_mut().find(|(id, ..)| id == "syn-bb-c3").unwrap();
+    assert!(script.2.contains("sa a4 0 c0 1 1 4"));
+    script.2 = script.2.replacen("sa a4 0 c0 1 1 4", "sa a4 0 c0 1 1 5", 1);
+    assert!(golden::rust_vs_golden(&golden, &find("syn-bb-c3"), &rust_of("syn-bb-c3", &other)).is_err());
+    // the golden against the live C++: a changed byte of what the C++ printed is seen
+    let d9 = find("named-d9");
+    let (plain, fixed) = (
+        golden.texts[&("named-d9".to_owned(), "plain".to_owned())].clone(),
+        golden.texts[&("named-d9".to_owned(), "fixed".to_owned())].clone(),
+    );
+    assert!(golden::live_vs_golden(&golden, &d9, &plain, &fixed, &d9.listed).is_ok());
+    let tampered = plain.replacen("W11.1.121=1", "W11.1.121=0", 1);
+    assert_ne!(tampered, plain);
+    assert!(golden::live_vs_golden(&golden, &d9, &tampered, &fixed, &d9.listed).is_err());
+    assert!(golden::live_vs_golden(&golden, &d9, &plain, &fixed, "none").is_err());
+}
+
 // ------------------------------------------------------------------ tests
 
 /// The Rust path alone, always: the backbone completes on the synthetic table, the key words
@@ -1344,12 +1730,7 @@ fn as7772_random_scripts_agree_with_the_cpp() {
 fn d9_another_entry_takes_over_after_the_entry_was_disabled() {
     let Some(driver) = driver() else { return };
     let table = synthetic_path(driver);
-    let script = format!(
-        "{}flow f5 1\nmport p3 1 1\nflow f3 1\ntable t3 1\nbind 1 1 t3\nentry e3 t3 1 - 1 0\nsc c3 1 f3 0 0 1234 3\n\
-         sa a3 1 c3 0 7 3\neflow e3 f3\neadmin e3 0\nsa a7 1 c3 1 1 7\nentry e1 t3 1 f5 0 0\nsapn a3\nstatus\n\
-         rm sa a3\nsa a11 1 c3 2 100000002 11\nactive c3\nstatus\n",
-        synthetic_board().head
-    );
+    let script = d9_script();
     let cpp = driver.output(&table, &script);
     let rust = rust_output(&std::fs::read(&table).unwrap(), &script);
     let line = |text: &str| text.lines().find(|l| l.starts_with("entry e1")).unwrap().to_owned();

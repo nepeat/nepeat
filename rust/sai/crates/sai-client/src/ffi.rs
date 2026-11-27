@@ -33,6 +33,16 @@ pub(crate) type GetFn = unsafe extern "C" fn(sys::sai_object_id_t, u32, *mut sys
 /// `get_<type>_stats`
 pub(crate) type StatsFn =
     unsafe extern "C" fn(sys::sai_object_id_t, u32, *const sys::sai_stat_id_t, *mut u64) -> Status;
+/// `get_<type>_stats_ext`
+pub(crate) type StatsExtFn = unsafe extern "C" fn(
+    sys::sai_object_id_t,
+    u32,
+    *const sys::sai_stat_id_t,
+    sys::sai_stats_mode_t,
+    *mut u64,
+) -> Status;
+/// `clear_<type>_stats`
+pub(crate) type ClearStatsFn = unsafe extern "C" fn(sys::sai_object_id_t, u32, *const sys::sai_stat_id_t) -> Status;
 /// `flush_fdb_entries`
 pub(crate) type FlushFn = unsafe extern "C" fn(sys::sai_object_id_t, u32, *const sys::sai_attribute_t) -> Status;
 /// `create_<entry>`
@@ -41,6 +51,8 @@ pub(crate) type EntryCreateFn<K> = unsafe extern "C" fn(*const K, u32, *const sy
 pub(crate) type EntryRemoveFn<K> = unsafe extern "C" fn(*const K) -> Status;
 /// `set_<entry>_attribute`
 pub(crate) type EntrySetFn<K> = unsafe extern "C" fn(*const K, *const sys::sai_attribute_t) -> Status;
+/// `get_<entry>_attribute`
+pub(crate) type EntryGetFn<K> = unsafe extern "C" fn(*const K, u32, *mut sys::sai_attribute_t) -> Status;
 
 /// The loaded library's global functions.
 pub(crate) struct Lib {
@@ -224,6 +236,23 @@ pub(crate) fn stats(f: StatsFn, oid: sys::sai_object_id_t, ids: &[sys::sai_stat_
     unsafe { f(oid, len, ids.as_ptr(), out.as_mut_ptr()) }
 }
 
+pub(crate) fn stats_ext(
+    f: StatsExtFn,
+    oid: sys::sai_object_id_t,
+    ids: &[sys::sai_stat_id_t],
+    mode: sys::sai_stats_mode_t,
+    out: &mut [u64],
+) -> Status {
+    let len = n(ids.len().min(out.len()));
+    // SAFETY: `len` ids to read and `len` writable counters.
+    unsafe { f(oid, len, ids.as_ptr(), mode, out.as_mut_ptr()) }
+}
+
+pub(crate) fn clear_stats(f: ClearStatsFn, oid: sys::sai_object_id_t, ids: &[sys::sai_stat_id_t]) -> Status {
+    // SAFETY: `ids.len()` ids to read.
+    unsafe { f(oid, n(ids.len()), ids.as_ptr()) }
+}
+
 pub(crate) fn flush(f: FlushFn, switch: sys::sai_object_id_t, e: &Encoded) -> Status {
     // SAFETY: as create_switch.
     unsafe { f(switch, n(e.raw.len()), arr(e)) }
@@ -237,6 +266,18 @@ pub(crate) fn entry_create<K>(f: EntryCreateFn<K>, key: &K, e: &Encoded) -> Stat
 pub(crate) fn entry_remove<K>(f: EntryRemoveFn<K>, key: &K) -> Status {
     // SAFETY: a key the caller built in full.
     unsafe { f(key) }
+}
+
+pub(crate) fn entry_get<K>(f: EntryGetFn<K>, key: &K, e: &mut Encoded) -> Status {
+    let len = n(e.raw.len());
+    let p = if e.raw.is_empty() {
+        core::ptr::null_mut()
+    } else {
+        e.raw.as_mut_ptr()
+    };
+    // SAFETY: a key the caller built in full, and `len` writable attributes (or NULL for none) whose
+    // list members point into `e`'s storage with room for the counts they carry.
+    unsafe { f(key, len, p) }
 }
 
 pub(crate) fn entry_set<K>(f: EntrySetFn<K>, key: &K, e: &Encoded) -> Status {

@@ -1,0 +1,899 @@
+{
+ "name": "traps: SONiC CoPP (copp_cfg.json groups, queues, policers) + hostifs",
+ "steps": [
+  {
+   "op": "create_switch",
+   "attrs": [
+    [
+     "INIT_SWITCH",
+     "bool",
+     true
+    ],
+    [
+     "PORT_STATE_CHANGE_NOTIFY",
+     "ptr",
+     "port_state"
+    ],
+    [
+     "SWITCH_SHUTDOWN_REQUEST_NOTIFY",
+     "ptr",
+     "shutdown"
+    ]
+   ]
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "PORT_LIST",
+    "oidlist",
+    64
+   ],
+   "as": "ports"
+  },
+  {
+   "op": "get",
+   "obj": "switch",
+   "attr": [
+    "DEFAULT_TRAP_GROUP",
+    "oid"
+   ],
+   "as": "default_group"
+  },
+  {
+   "op": "create",
+   "type": "POLICER",
+   "as": "pol_default",
+   "desc": "default 600pps",
+   "attrs": [
+    [
+     "METER_TYPE",
+     "s32",
+     "PACKETS"
+    ],
+    [
+     "MODE",
+     "s32",
+     "SR_TCM"
+    ],
+    [
+     "CIR",
+     "u64",
+     600
+    ],
+    [
+     "CBS",
+     "u64",
+     600
+    ],
+    [
+     "RED_PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$default_group",
+   "attr": [
+    "POLICER",
+    "oid",
+    "$pol_default"
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "q4g1",
+   "desc": "queue4_group1 (bgp,lacp)",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "POLICER",
+   "as": "pol_q4g2",
+   "desc": "queue4_group2 600pps",
+   "attrs": [
+    [
+     "METER_TYPE",
+     "s32",
+     "PACKETS"
+    ],
+    [
+     "MODE",
+     "s32",
+     "SR_TCM"
+    ],
+    [
+     "CIR",
+     "u64",
+     600
+    ],
+    [
+     "CBS",
+     "u64",
+     600
+    ],
+    [
+     "RED_PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "q4g2",
+   "desc": "queue4_group2 (arp,nd)",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     4
+    ],
+    [
+     "POLICER",
+     "oid",
+     "$pol_q4g2"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "POLICER",
+   "as": "pol_q4g3",
+   "desc": "queue4_group3 300pps",
+   "attrs": [
+    [
+     "METER_TYPE",
+     "s32",
+     "PACKETS"
+    ],
+    [
+     "MODE",
+     "s32",
+     "SR_TCM"
+    ],
+    [
+     "CIR",
+     "u64",
+     300
+    ],
+    [
+     "CBS",
+     "u64",
+     300
+    ],
+    [
+     "RED_PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "q4g3",
+   "desc": "queue4_group3 (lldp,dhcp,udld,eapol)",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     4
+    ],
+    [
+     "POLICER",
+     "oid",
+     "$pol_q4g3"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "POLICER",
+   "as": "pol_q1g1",
+   "desc": "queue1_group1 6000pps",
+   "attrs": [
+    [
+     "METER_TYPE",
+     "s32",
+     "PACKETS"
+    ],
+    [
+     "MODE",
+     "s32",
+     "SR_TCM"
+    ],
+    [
+     "CIR",
+     "u64",
+     6000
+    ],
+    [
+     "CBS",
+     "u64",
+     6000
+    ],
+    [
+     "RED_PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "q1g1",
+   "desc": "queue1_group1 (ip2me)",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     1
+    ],
+    [
+     "POLICER",
+     "oid",
+     "$pol_q1g1"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "POLICER",
+   "as": "pol_q1g2",
+   "desc": "queue1_group2 600pps",
+   "attrs": [
+    [
+     "METER_TYPE",
+     "s32",
+     "PACKETS"
+    ],
+    [
+     "MODE",
+     "s32",
+     "SR_TCM"
+    ],
+    [
+     "CIR",
+     "u64",
+     600
+    ],
+    [
+     "CBS",
+     "u64",
+     600
+    ],
+    [
+     "RED_PACKET_ACTION",
+     "s32",
+     "DROP"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP_GROUP",
+   "as": "q1g2",
+   "desc": "queue1_group2 (ttl, mtu, neighbor miss)",
+   "attrs": [
+    [
+     "QUEUE",
+     "u32",
+     1
+    ],
+    [
+     "POLICER",
+     "oid",
+     "$pol_q1g2"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_bgp",
+   "desc": "BGP",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "BGP"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q4g1"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_bgpv6",
+   "desc": "BGPV6",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "BGPV6"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q4g1"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_lacp",
+   "desc": "LACP",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "LACP"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q4g1"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_arpreq",
+   "desc": "ARP_REQUEST",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "ARP_REQUEST"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "COPY"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q4g2"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_arpresp",
+   "desc": "ARP_RESPONSE",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "ARP_RESPONSE"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "COPY"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q4g2"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_nd",
+   "desc": "IPV6_NEIGHBOR_DISCOVERY",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "IPV6_NEIGHBOR_DISCOVERY"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "COPY"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q4g2"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_lldp",
+   "desc": "LLDP",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "LLDP"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q4g3"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_dhcp",
+   "desc": "DHCP",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "DHCP"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q4g3"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_dhcpv6",
+   "desc": "DHCPV6",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "DHCPV6"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q4g3"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_udld",
+   "desc": "UDLD",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "UDLD"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q4g3"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_eapol",
+   "desc": "EAPOL",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "EAPOL"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q4g3"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     4
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_ip2me",
+   "desc": "IP2ME",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "IP2ME"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q1g1"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     1
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_ttl",
+   "desc": "TTL_ERROR",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "TTL_ERROR"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q1g2"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     1
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_mtu",
+   "desc": "L3_MTU_ERROR",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "L3_MTU_ERROR"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q1g2"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     1
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_nbrmiss",
+   "desc": "NEIGHBOR_MISS",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "NEIGHBOR_MISS"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q1g2"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     1
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_bfd",
+   "desc": "BFD",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "BFD"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q4g1"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     4
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TRAP",
+   "as": "t_bfdv6",
+   "desc": "BFDV6",
+   "attrs": [
+    [
+     "TRAP_TYPE",
+     "s32",
+     "BFDV6"
+    ],
+    [
+     "PACKET_ACTION",
+     "s32",
+     "TRAP"
+    ],
+    [
+     "TRAP_GROUP",
+     "oid",
+     "$q4g1"
+    ],
+    [
+     "TRAP_PRIORITY",
+     "u32",
+     4
+    ]
+   ],
+   "may_fail": true
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif0",
+   "desc": "Ethernet0",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[0]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet0"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF",
+   "as": "hif1",
+   "desc": "Ethernet120",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "NETDEV"
+    ],
+    [
+     "OBJ_ID",
+     "oid",
+     "$ports[1]"
+    ],
+    [
+     "NAME",
+     "chardata",
+     "Ethernet120"
+    ]
+   ]
+  },
+  {
+   "op": "create",
+   "type": "HOSTIF_TABLE_ENTRY",
+   "as": "wild",
+   "desc": "wildcard -> netdev of the port",
+   "attrs": [
+    [
+     "TYPE",
+     "s32",
+     "WILDCARD"
+    ],
+    [
+     "CHANNEL_TYPE",
+     "s32",
+     "NETDEV_PHYSICAL_PORT"
+    ]
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$pol_q4g3",
+   "desc": "lldp group policer -> 10pps",
+   "attr": [
+    "CIR",
+    "u64",
+    10
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$t_lldp",
+   "desc": "lldp -> drop",
+   "attr": [
+    "PACKET_ACTION",
+    "s32",
+    "DROP"
+   ]
+  },
+  {
+   "op": "set",
+   "obj": "$t_lldp",
+   "desc": "lldp -> trap",
+   "attr": [
+    "PACKET_ACTION",
+    "s32",
+    "TRAP"
+   ]
+  },
+  {
+   "op": "remove",
+   "obj": "$wild"
+  },
+  {
+   "op": "remove",
+   "obj": "$hif0"
+  },
+  {
+   "op": "remove",
+   "obj": "$hif1"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_lldp"
+  },
+  {
+   "op": "remove",
+   "obj": "$t_bgp"
+  },
+  {
+   "op": "remove_switch"
+  }
+ ]
+}

@@ -100,6 +100,9 @@ pub struct LineDiff {
     pub first: Option<(usize, Option<String>, Option<String>)>,
     /// Lines only one side has, counted as multisets (C++ only, Rust only).
     pub only: (usize, usize),
+    /// The reference is a golden's digest, not its lines: `first` is looked for in the stored head
+    /// only, `only` and `canonical_equal` are not known ([`crate::golden::diff_ref`]).
+    pub reduced: bool,
 }
 
 /// Compares two runs of lines.
@@ -129,13 +132,39 @@ pub fn diff_lines(cpp: &[String], rust: &[String]) -> LineDiff {
             usize::try_from(only_cpp).unwrap_or(usize::MAX),
             usize::try_from(only_rust).unwrap_or(usize::MAX),
         ),
+        reduced: false,
     }
+}
+
+/// [`describe`] of a difference against a golden (only the digest and the head are known).
+fn describe_reduced(d: &LineDiff) -> String {
+    let mut text = format!(
+        "DIFFERS from the golden C++ ({} golden / {} Rust lines)",
+        d.counts.0, d.counts.1
+    );
+    match &d.first {
+        Some((at, golden, rust)) => {
+            let show = |l: &Option<String>| l.as_deref().map_or_else(|| "(end)".to_owned(), |l| format!("'{l}'"));
+            let _ = write!(
+                text,
+                "; first at line {}: C++ {} / Rust {}",
+                at + 1,
+                show(golden),
+                show(rust)
+            );
+        }
+        None => text.push_str("; beyond the stored head (digest differs)"),
+    }
+    text
 }
 
 /// One line of a [`LineDiff`] for a report.
 pub fn describe(d: &LineDiff) -> String {
     if d.raw_equal {
         return format!("equal ({} lines)", d.counts.0);
+    }
+    if d.reduced {
+        return describe_reduced(d);
     }
     let mut s = format!(
         "{} ({} C++ / {} Rust lines; {} only in C++, {} only in Rust)",

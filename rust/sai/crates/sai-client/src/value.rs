@@ -180,6 +180,8 @@ enum Store {
     U32(usize),
     S32(usize),
     Maps(usize),
+    /// an ACL field whose data is an object list (a get decodes its count and list)
+    AclOids(usize),
 }
 
 /// The C form of an attribute list for one call.
@@ -391,6 +393,7 @@ impl Encoded {
                 u.u32range = sys::sai_u32_range_t { min: *lo, max: *hi };
             }
             Value::AclField(f) => {
+                let mut store = Store::None;
                 u.aclfield.enable = f.enable;
                 match &f.data {
                     AclData::None => {}
@@ -402,7 +405,11 @@ impl Encoded {
                     AclData::Ip6(n) => u.aclfield.data.ip6 = *n,
                     AclData::Mac(n) => u.aclfield.data.mac = *n,
                     AclData::Oid(n) => u.aclfield.data.oid = *n,
-                    AclData::Oids(l) => u.aclfield.data.objlist = self.oid_list(l).1,
+                    AclData::Oids(l) => {
+                        let (i, list) = self.oid_list(l);
+                        u.aclfield.data.objlist = list;
+                        store = Store::AclOids(i);
+                    }
                 }
                 match &f.mask {
                     AclData::None | AclData::Oid(_) | AclData::Oids(_) => {}
@@ -414,6 +421,7 @@ impl Encoded {
                     AclData::Ip6(n) => u.aclfield.mask.ip6 = *n,
                     AclData::Mac(n) => u.aclfield.mask.mac = *n,
                 }
+                return store;
             }
             Value::AclAction(a) => {
                 u.aclaction.enable = a.enable;
@@ -491,6 +499,18 @@ impl Encoded {
                             })
                             .collect(),
                     )
+                }
+                (Value::AclField(f), Store::AclOids(i)) => {
+                    // the field's object list: its count (first in the data union) and entries
+                    let n = read_u32(&b, offset_of!(sys::sai_acl_field_data_t, data));
+                    a.count = n;
+                    Value::AclField(AclField {
+                        enable: b
+                            .get(offset_of!(sys::sai_acl_field_data_t, enable))
+                            .is_some_and(|v| *v != 0),
+                        data: AclData::Oids(head(self.oids.get(*i), n)),
+                        mask: f.mask.clone(),
+                    })
                 }
                 (v, _) => v.clone(),
             };

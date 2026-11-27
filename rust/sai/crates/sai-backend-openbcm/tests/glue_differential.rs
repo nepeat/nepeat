@@ -74,7 +74,12 @@ const IN_TREE: [(&str, &str); 3] = [
 ];
 /// Where scripts 01-09 live now (they moved with sai-openbcm's frontend tests), relative to this
 /// crate's directory in a checkout of the monorepo; compared with the golden when there.
-const MOVED: [&str; 1] = ["../../../../ai_re/nix/packages/sai-teralynx/frontend/tests/driver-scripts"];
+/// (H5-1: they moved to sai-driver's `tests/driver-scripts`, unchanged; the frontend's copy stays until
+/// the C++ package is deleted.)
+const MOVED: [&str; 2] = [
+    "../sai-driver/tests/driver-scripts",
+    "../../../../ai_re/nix/packages/sai-teralynx/frontend/tests/driver-scripts",
+];
 /// The table files of the golden inputs and the script token each replaces.
 const TABLES: [(&str, &str); 2] = [
     ("ext-phy.tbl", "@EXT_PHY_TABLE@"),

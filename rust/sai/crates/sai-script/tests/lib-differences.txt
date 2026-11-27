@@ -1,0 +1,9 @@
+# Where the Rust libsai's answers depart from the C++ libsai's on the mock (so from the golden of the C++ runner on the
+# C++ libsai, tests/golden/sai-script-cpp.txt): per oracle script, the first stream unit that differs. Used for every
+# library of SAI_SCRIPT_DIFF_LIBS but the one named "cpp". The first difference must be at that unit (everything before it
+# equal); what follows it is not compared. Both are deliberate and listed in crates/sai-teralynx-parity/tests/parity-allow.txt
+# (the script's TYPE "GENETLINK" resolves in sai_script.cpp's name table to the table-entry channel type 5, not
+# SAI_HOSTIF_TYPE_GENETLINK 2: the C++ libsai answers ATTR_NOT_SUPPORTED_0, the Rust one INVALID_ATTR_VALUE_0; no IFCS line on either side).
+#   <stem> TAB <unit tag>
+mirror	0.25 create genetlink psample
+hostif-counters	0.23 create genetlink psample hostif

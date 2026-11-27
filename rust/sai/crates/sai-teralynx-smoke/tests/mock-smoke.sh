@@ -141,6 +141,48 @@ if [ -n "$cpp_smoke" ] && [ -n "$cpp_libdir" ]; then
     [ $c -eq 2 ] && [ $r -eq 2 ] && say "C++ form usage: exit 2 both" || bad "usage: C++ $c, Rust $r"
   done
 fi
+
+# the C++ program's golden (tests/golden/smoke-cpp.txt, captured from sai_smoke.cpp on the C++ library, never from the
+# Rust program): the Rust program on the Rust library gives it (the 3 argument sets: exit code and stdout; usage: exit
+# code), a changed golden is reported (negative control), and, where the C++ program is given, the live C++ program on
+# the C++ library gives it too (live == golden). SMOKE_CAPTURE=<file> instead writes the golden's body from the C++
+# program on the C++ library (CPP_SMOKE and CPP_LIBDIR needed) and ends.
+golden=$here/golden/smoke-cpp.txt
+smoke_blocks() {   # program libdir dir: the golden's body for it
+  local prog=$1 l=$2 d=$3 a
+  mkdir -p "$d"
+  for a in "4 1:smoke0 9" "2 1 999" "2 0x41"; do
+    profile "$d"
+    # shellcheck disable=SC2086
+    ( cd "$d" && rm -f "$sock" && LD_LIBRARY_PATH=$l SAI_LIBSAI=$l/libsai.so.1 timeout 120 "$prog" profile $a > b.out 2> b.err ); rc=$?
+    echo "case $a exit $rc"
+    sed 's/^/|/' "$d/b.out"
+  done
+  "$prog" a > /dev/null 2>&1; echo "case usage exit $?"
+}
+body() { grep -v '^#' "$1"; }
+if [ -n "${SMOKE_CAPTURE:-}" ]; then
+  [ -n "$cpp_smoke" ] && [ -n "$cpp_libdir" ] || { echo "SMOKE_CAPTURE needs CPP_SMOKE and CPP_LIBDIR" >&2; exit 2; }
+  smoke_blocks "$cpp_smoke" "$cpp_libdir" "$work/capture" > "$SMOKE_CAPTURE"
+  exit 0
+fi
+smoke_blocks "$smoke" "$libdir" "$work/golden-rust" > "$work/golden-rust.txt"
+if body "$golden" | cmp -s - "$work/golden-rust.txt"; then
+  say "the Rust program on the Rust library equals the golden of the C++ program ($(grep -c '^case' "$work/golden-rust.txt") argument sets incl. usage, $(body "$golden" | wc -l) lines)"
+else
+  bad "the Rust program differs from the golden of the C++ program"; body "$golden" | diff - "$work/golden-rust.txt" | head -20
+fi
+# negative control: one changed line of the golden must be a difference
+body "$golden" | sed '0,/^|/s/^|/|X/' > "$work/golden-mutated.txt"
+if cmp -s "$work/golden-mutated.txt" "$work/golden-rust.txt"; then bad "negative control: a changed golden was NOT reported"; else say "negative control: a changed golden line is reported"; fi
+if [ -n "$cpp_smoke" ] && [ -n "$cpp_libdir" ]; then
+  smoke_blocks "$cpp_smoke" "$cpp_libdir" "$work/golden-cpp" > "$work/golden-cpp.txt"
+  if body "$golden" | cmp -s - "$work/golden-cpp.txt"; then
+    say "live == golden: the C++ program on the C++ library equals the golden ($(grep -c '^case' "$work/golden-cpp.txt") argument sets incl. usage)"
+  else
+    bad "live == golden: the C++ program differs from the golden"; body "$golden" | diff - "$work/golden-cpp.txt" | head -20
+  fi
+fi
 rm -f "$sock"
 [ $red -eq 0 ] && say "GREEN" || say "RED"
 exit $red

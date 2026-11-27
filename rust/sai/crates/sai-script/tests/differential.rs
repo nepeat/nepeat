@@ -27,12 +27,16 @@
 )]
 
 use std::collections::BTreeMap;
+use std::fmt::Write as _;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use sai_teralynx_parity::oracle;
 use sai_teralynx_parity::stream as oracle_unit;
+
+/// The runs share one diag socket path per process: the two runner tests do not overlap.
+static SERIAL: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
 struct Run {
     code: Option<i32>,
@@ -135,59 +139,204 @@ fn fixes(stderr: &str) -> Vec<String> {
         .collect()
 }
 
+/// What a run is compared by (the golden holds exactly this): the exit code, the `script error`
+/// lines, the stdout without times (the `event` lines apart, sorted) and the stream's steps
+/// (`oracle::steps`: names, line counts, digests of the lines and of the lines up to the end marker).
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct Norm {
+    code: Option<i32>,
+    errors: Vec<String>,
+    out: Vec<String>,
+    events: Vec<String>,
+    units: Vec<UnitDigest>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct UnitDigest {
+    name: String,
+    lines: usize,
+    all: u64,
+    upto_end: u64,
+}
+
+fn fnv_lines(lines: &[String]) -> u64 {
+    let mut h = 0xcbf2_9ce4_8422_2325_u64;
+    for l in lines {
+        for b in l.bytes().chain(*b"\n") {
+            h = (h ^ u64::from(b)).wrapping_mul(0x0000_0100_0000_01b3);
+        }
+    }
+    h
+}
+
+/// The unit's lines up to its end marker (the C++ run's script error stops right after it: its
+/// "M done" and the teardown's lines follow there).
+fn upto_end(u: &oracle_unit::Unit) -> Vec<String> {
+    let mut v = Vec::new();
+    for l in &u.lines {
+        v.push(l.clone());
+        if l.starts_with("M end ") {
+            break;
+        }
+    }
+    v
+}
+
+/// The diag socket's per-run path (`ssd-<pid>.sock` in the test's temporary directory) as `<diag.sock>`.
+fn mask_socket(line: &str) -> String {
+    line.split(' ')
+        .map(|w| {
+            if w.contains("/ssd-") && Path::new(w).extension().is_some_and(|x| x.eq_ignore_ascii_case("sock")) {
+                "<diag.sock>"
+            } else {
+                w
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// The run's working directory in the stream's `cfg=<dir>/run/config.yaml` words as `<work>`.
+fn mask_work_dir(stream: &str) -> String {
+    let mut out = String::with_capacity(stream.len());
+    for line in stream.lines() {
+        let words: Vec<String> = line
+            .split(' ')
+            .map(|w| match w.strip_prefix("cfg=") {
+                Some(p) if p.ends_with("/run/config.yaml") => "cfg=<work>/run/config.yaml".to_owned(),
+                _ => w.to_owned(),
+            })
+            .collect();
+        out += &words.join(" ");
+        out.push('\n');
+    }
+    out
+}
+
+fn norm(r: &Run) -> Norm {
+    let (out, events) = oracle::stdout(&r.stdout);
+    Norm {
+        code: r.code,
+        errors: script_error(&r.stderr).into_iter().map(mask_socket).collect(),
+        out,
+        events,
+        units: oracle::steps(&mask_work_dir(&r.stream))
+            .iter()
+            .map(|u| UnitDigest {
+                name: u.name.clone(),
+                lines: u.lines.len(),
+                all: fnv_lines(&u.lines),
+                upto_end: fnv_lines(&upto_end(u)),
+            })
+            .collect(),
+    }
+}
+
+/// The golden's text of one run (`script <stem>` then its parts; `out` and `ev` lines are the text).
+fn render(stem: &str, n: &Norm) -> String {
+    let mut s = format!(
+        "script {stem}\ncode {}\n",
+        n.code.map_or("none".to_owned(), |c| c.to_string())
+    );
+    for e in &n.errors {
+        let _ = writeln!(s, "err {e}");
+    }
+    for l in &n.out {
+        let _ = writeln!(s, "out {l}");
+    }
+    for l in &n.events {
+        let _ = writeln!(s, "ev {l}");
+    }
+    for u in &n.units {
+        let _ = writeln!(s, "unit {}\t{}\t{:016x}\t{:016x}", u.name, u.lines, u.all, u.upto_end);
+    }
+    s
+}
+
+fn parse_golden(text: &str) -> BTreeMap<String, Norm> {
+    let mut out: BTreeMap<String, Norm> = BTreeMap::new();
+    let mut cur: Option<String> = None;
+    for line in text.lines().filter(|l| !l.starts_with('#')) {
+        if let Some(stem) = line.strip_prefix("script ") {
+            cur = Some(stem.to_owned());
+            out.insert(
+                stem.to_owned(),
+                Norm {
+                    code: None,
+                    errors: Vec::new(),
+                    out: Vec::new(),
+                    events: Vec::new(),
+                    units: Vec::new(),
+                },
+            );
+            continue;
+        }
+        let n = out.get_mut(cur.as_deref().unwrap()).unwrap();
+        let (tag, rest) = line.split_once(' ').unwrap_or((line, ""));
+        match tag {
+            "code" => n.code = rest.parse().ok(),
+            "err" => n.errors.push(rest.to_owned()),
+            "out" => n.out.push(rest.to_owned()),
+            "ev" => n.events.push(rest.to_owned()),
+            "unit" => {
+                let w: Vec<&str> = rest.split('\t').collect();
+                n.units.push(UnitDigest {
+                    name: w[0].to_owned(),
+                    lines: w[1].parse().unwrap(),
+                    all: u64::from_str_radix(w[2], 16).unwrap(),
+                    upto_end: u64::from_str_radix(w[3], 16).unwrap(),
+                });
+            }
+            other => panic!("golden: unknown line kind {other:?}"),
+        }
+    }
+    out
+}
+
+/// The golden of the C++ runner on the C++ libsai over the mock (tests/golden/sai-script-cpp.txt),
+/// captured from `sai_script.cpp`, never from the Rust runner.
+const GOLDEN: &str = include_str!("golden/sai-script-cpp.txt");
+
 /// The first difference of two runs (stream units, stdout lines, events, exit, script error), if any,
 /// and the index of the first differing stream unit.
-fn first_difference(a: &Run, b: &Run) -> Option<(String, Option<String>)> {
-    let (sa, sb) = (oracle::steps(&a.stream), oracle::steps(&b.stream));
-    for i in 0..sa.len().max(sb.len()) {
-        if sa.get(i) != sb.get(i) {
-            let unit = sa.get(i).or(sb.get(i)).map(|u| u.name.clone());
+fn first_difference(a: &Norm, b: &Norm) -> Option<(String, Option<String>)> {
+    for i in 0..a.units.len().max(b.units.len()) {
+        if a.units.get(i) != b.units.get(i) {
+            let unit = a.units.get(i).or(b.units.get(i)).map(|u| u.name.clone());
             return Some((format!("stream unit {i} ({})", unit.clone().unwrap_or_default()), unit));
         }
     }
-    let ((la, ea), (lb, eb)) = (oracle::stdout(&a.stdout), oracle::stdout(&b.stdout));
+    let (la, lb) = (&a.out, &b.out);
     if la != lb {
         let i = la
             .iter()
-            .zip(&lb)
+            .zip(lb)
             .position(|(x, y)| x != y)
             .unwrap_or(la.len().min(lb.len()));
         return Some((format!("stdout line {i}: {:?} / {:?}", la.get(i), lb.get(i)), None));
     }
-    if ea != eb {
+    if a.events != b.events {
         return Some(("event lines".to_owned(), None));
     }
     if a.code != b.code {
         return Some((format!("exit {:?} / {:?}", a.code, b.code), None));
     }
-    if script_error(&a.stderr) != script_error(&b.stderr) {
+    if a.errors != b.errors {
         return Some(("script error line".to_owned(), None));
     }
     None
 }
 
 /// Both runs equal up to (not including) the stream unit `tag` and its stdout line.
-fn equal_before(a: &Run, b: &Run, tag: &str) -> Result<(), String> {
-    let (sa, sb) = (oracle::steps(&a.stream), oracle::steps(&b.stream));
-    // the unit before the fix ends at its end marker (the C++ run's script error stops right after it:
-    // its "M done" and the teardown's lines follow there)
-    let upto_end = |u: &oracle_unit::Unit| -> Vec<String> {
-        let mut v = Vec::new();
-        for l in &u.lines {
-            v.push(l.clone());
-            if l.starts_with("M end ") {
-                break;
-            }
-        }
-        v
-    };
-    for (i, (x, y)) in sa.iter().zip(&sb).enumerate() {
+fn equal_before(a: &Norm, b: &Norm, tag: &str) -> Result<(), String> {
+    // the unit before the fix ends at its end marker
+    for (i, (x, y)) in a.units.iter().zip(&b.units).enumerate() {
         if y.name == tag {
             break;
         }
-        let next_is_fix = sb.get(i + 1).is_some_and(|n| n.name == tag);
+        let next_is_fix = b.units.get(i + 1).is_some_and(|n| n.name == tag);
         let differ = if next_is_fix {
-            upto_end(x) != upto_end(y)
+            x.name != y.name || x.upto_end != y.upto_end
         } else {
             x != y
         };
@@ -195,9 +344,8 @@ fn equal_before(a: &Run, b: &Run, tag: &str) -> Result<(), String> {
             return Err(format!("stream unit {i} ({}) differs before the first fix", x.name));
         }
     }
-    let ((la, _), (lb, _)) = (oracle::stdout(&a.stdout), oracle::stdout(&b.stdout));
     let cut = format!("STEP {tag} ");
-    for (x, y) in la.iter().zip(&lb) {
+    for (x, y) in a.out.iter().zip(&b.out) {
         if x.starts_with(&cut) || y.starts_with(&cut) {
             break;
         }
@@ -208,6 +356,68 @@ fn equal_before(a: &Run, b: &Run, tag: &str) -> Result<(), String> {
     Ok(())
 }
 
+/// Whether a difference is the listed departure of the Rust libsai: at unit `allow`, equal before it.
+fn departs_at(base: &Norm, run: &Norm, unit: Option<&str>, allow: Option<&str>) -> bool {
+    matches!((unit, allow), (Some(u), Some(a)) if u == a) && equal_before(base, run, allow.unwrap_or_default()).is_ok()
+}
+
+/// `tests/lib-differences.txt`: per script, the unit where the Rust libsai departs from the C++ libsai.
+fn lib_differences() -> BTreeMap<String, String> {
+    include_str!("lib-differences.txt")
+        .lines()
+        .filter(|l| !l.starts_with('#') && !l.trim().is_empty())
+        .filter_map(|l| {
+            let mut w = l.split('\t');
+            Some((w.next()?.to_owned(), w.next()?.to_owned()))
+        })
+        .collect()
+}
+
+/// The Rust runner's two modes against a base (the C++ runner's run, or its golden): `--cpp-names`
+/// identical; fixed identical without FIX lines, else equal up to the first one and never ending in
+/// a script error. Returns the first FIX tag; the failures go into `red`.
+///
+/// `allow`: the stream unit at which the Rust libsai's answers legitimately depart from the C++
+/// libsai's (`tests/lib-differences.txt`): the first difference must be at that unit and everything
+/// before it equal; what follows is not compared.
+fn check_modes(
+    who: &str,
+    label: &str,
+    base: &Norm,
+    k: &Run,
+    f: &Run,
+    allow: Option<&str>,
+    red: &mut Vec<String>,
+) -> Option<String> {
+    let nk = norm(k);
+    if let Some((d, unit)) = first_difference(base, &nk) {
+        if !departs_at(base, &nk, unit.as_deref(), allow) {
+            red.push(format!("{label}: --cpp-names differs from {who}: {d}"));
+        }
+    }
+    let nf = norm(f);
+    let tags = fixes(&f.stderr);
+    match (tags.first(), first_difference(base, &nf)) {
+        (None, Some((d, unit))) => {
+            if !departs_at(base, &nf, unit.as_deref(), allow) {
+                red.push(format!(
+                    "{label}: the fixed run differs from {who} without a FIX line: {d}"
+                ));
+            }
+        }
+        (Some(first), _) => {
+            if let Err(e) = equal_before(base, &nf, first) {
+                red.push(format!("{label}: {who}: {e}"));
+            }
+            if f.code == Some(2) || !script_error(&f.stderr).is_empty() {
+                red.push(format!("{label}: the fixed run ends in a script error"));
+            }
+        }
+        (None, None) => {}
+    }
+    tags.first().cloned()
+}
+
 #[test]
 #[allow(
     clippy::too_many_lines,
@@ -215,6 +425,7 @@ fn equal_before(a: &Run, b: &Run, tag: &str) -> Result<(), String> {
     reason = "one differential, its parts in order; c / k / f: the C++, --cpp-names and fixed runs"
 )]
 fn rust_runner_against_the_cpp_runner_on_the_mock() {
+    let _one_at_a_time = SERIAL.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
     let (Some(fx), Some(scripts), Some(libs), Some(rs)) = (
         env("SAI_SCRIPT_DIFF_FIXTURES"),
         env("SAI_SCRIPT_DIFF_SCRIPTS"),
@@ -253,6 +464,11 @@ fn rust_runner_against_the_cpp_runner_on_the_mock() {
     assert!(!all.is_empty(), "no scripts in {scripts}");
     let mut report = Vec::new();
     let mut red = Vec::new();
+    let golden = parse_golden(GOLDEN);
+    let departures = lib_differences();
+    let capture = env("SAI_SCRIPT_CAPTURE").map(PathBuf::from);
+    let mut captured = String::new();
+    let mut golden_runs = 0;
     for spec in libs.split(',') {
         let (name, lib) = spec.split_once('=').expect("name=path");
         let ld = lib_dir(&work, name, lib, &fx);
@@ -277,11 +493,35 @@ fn rust_runner_against_the_cpp_runner_on_the_mock() {
                 fs::write(out.join(format!("{stem}.{tag}.stderr.txt")), &r.stderr).unwrap();
                 fs::write(out.join(format!("{stem}.{tag}.stream.txt")), &r.stream).unwrap();
             }
-            if let Some((d, _)) = first_difference(&c, &k) {
+            let (nc, nk, nf) = (norm(&c), norm(&k), norm(&f));
+            if let Some((d, _)) = first_difference(&nc, &nk) {
                 red.push(format!("{name} {stem}: --cpp-names differs from the C++ runner: {d}"));
             }
+            // live == golden: the C++ runner on this libsai gives what the golden holds, and the Rust
+            // runner agrees with the golden too
+            if capture.is_some() && name == "cpp" {
+                captured += &render(&stem, &nc);
+            } else if capture.is_none() {
+                match golden.get(&stem) {
+                    Some(g) => {
+                        let allow = if name == "cpp" {
+                            None
+                        } else {
+                            departures.get(&stem).map(String::as_str)
+                        };
+                        if let Some((d, unit)) = first_difference(g, &nc) {
+                            if !departs_at(g, &nc, unit.as_deref(), allow) {
+                                red.push(format!("{name} {stem}: the C++ runner differs from the golden: {d}"));
+                            }
+                        }
+                        check_modes("the golden", &format!("{name} {stem}"), g, &k, &f, allow, &mut red);
+                        golden_runs += 1;
+                    }
+                    None => red.push(format!("{name} {stem}: not in the golden")),
+                }
+            }
             let fx_tags = fixes(&f.stderr);
-            let row = match (fx_tags.first(), first_difference(&c, &f)) {
+            let row = match (fx_tags.first(), first_difference(&nc, &nf)) {
                 (None, None) => {
                     same += 1;
                     "identical".to_owned()
@@ -293,7 +533,7 @@ fn rust_runner_against_the_cpp_runner_on_the_mock() {
                 (Some(first), _) => {
                     fixed_n += 1;
                     fixed_seen.push(stem.clone());
-                    if let Err(e) = equal_before(&c, &f, first) {
+                    if let Err(e) = equal_before(&nc, &nf, first) {
                         red.push(format!("{name} {stem}: {e}"));
                     }
                     if f.code == Some(2) || !script_error(&f.stderr).is_empty() {
@@ -311,7 +551,7 @@ fn rust_runner_against_the_cpp_runner_on_the_mock() {
             report.push(format!(
                 "{name} {stem}: C++ exit {:?}, --cpp-names identical: {}; fixed: {row}",
                 c.code,
-                first_difference(&c, &k).is_none()
+                first_difference(&nc, &nk).is_none()
             ));
         }
         let want: Vec<&String> = listed.keys().collect();
@@ -360,9 +600,27 @@ fn rust_runner_against_the_cpp_runner_on_the_mock() {
             &exec,
             &[("ORACLE", "/nonexistent")],
         );
+        let nce = norm(&ce);
         for (what, r) in [("plain", &re), ("--tool", &te)] {
-            if let Some((d, _)) = first_difference(&ce, r) {
+            if let Some((d, _)) = first_difference(&nce, &norm(r)) {
                 red.push(format!("{name} exec ({what}): {d}"));
+            }
+            if capture.is_none() {
+                match golden.get("exec") {
+                    Some(g) => {
+                        if let Some((d, _)) = first_difference(g, &norm(r)) {
+                            red.push(format!("{name} exec ({what}): differs from the golden: {d}"));
+                        }
+                    }
+                    None => red.push(format!("{name} exec: not in the golden")),
+                }
+            }
+        }
+        if capture.is_some() && name == "cpp" {
+            captured += &render("exec", &nce);
+        } else if let Some(g) = golden.get("exec") {
+            if let Some((d, _)) = first_difference(g, &nce) {
+                red.push(format!("{name} exec: the C++ runner differs from the golden: {d}"));
             }
         }
         let lines = oracle::stdout(&ce.stdout).0;
@@ -388,6 +646,18 @@ fn rust_runner_against_the_cpp_runner_on_the_mock() {
         }
     );
     fs::write(work.join("report.txt"), &text).unwrap();
+    if let Some(out) = capture {
+        fs::write(out, captured).unwrap();
+        return;
+    }
+    assert_eq!(
+        golden.len(),
+        all.len() + 1,
+        "the golden covers every script and the exec interface"
+    );
+    summary(&format!(
+        "sai-script live == golden: {golden_runs} (library, script) runs of the C++ runner equal the golden, the Rust runner agrees with it"
+    ));
     summary(&format!(
         "sai-script differential: {}",
         text.lines()
@@ -397,4 +667,139 @@ fn rust_runner_against_the_cpp_runner_on_the_mock() {
     ));
     println!("{text}");
     assert!(red.is_empty(), "{text}");
+}
+
+/// The Rust runner against the golden of the C++ runner alone: no C++ runner, no C++ libsai (the
+/// fixtures' mock, tap and oracle-prep, and the Rust libsai(s) of `SAI_SCRIPT_DIFF_LIBS`).
+#[test]
+fn rust_runner_against_the_golden_of_the_cpp_runner() {
+    let _one_at_a_time = SERIAL.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+    let (Some(fx), Some(scripts), Some(libs), Some(rs)) = (
+        env("SAI_SCRIPT_DIFF_FIXTURES"),
+        env("SAI_SCRIPT_DIFF_SCRIPTS"),
+        env("SAI_SCRIPT_DIFF_LIBS"),
+        env("SAI_SCRIPT_DIFF_RUNNER"),
+    ) else {
+        assert!(
+            env("SAI_SCRIPT_DIFF_REQUIRE").is_none(),
+            "SAI_SCRIPT_DIFF_REQUIRE is set but the SAI_SCRIPT_DIFF_* inputs are not"
+        );
+        summary("sai-script golden: SKIPPED (no SAI_SCRIPT_DIFF_* environment)");
+        return;
+    };
+    let fx = PathBuf::from(fx);
+    let work = std::env::temp_dir().join(format!("sai-script-gold-{}", std::process::id()));
+    fs::create_dir_all(&work).unwrap();
+    let golden = parse_golden(GOLDEN);
+    let departures = lib_differences();
+    let mut all: Vec<PathBuf> = fs::read_dir(&scripts)
+        .unwrap()
+        .filter_map(Result::ok)
+        .map(|e| e.path())
+        .filter(|p| p.extension().is_some_and(|x| x == "json"))
+        .collect();
+    all.sort();
+    assert_eq!(
+        golden.len(),
+        all.len() + 1,
+        "the golden covers every script and the exec interface"
+    );
+    let mut listed: Vec<String> = include_str!("fixed-scripts.txt")
+        .lines()
+        .filter(|l| !l.starts_with('#') && !l.trim().is_empty())
+        .filter_map(|l| l.split_once('\t').map(|(a, _)| a.to_owned()))
+        .collect();
+    listed.sort();
+    let mut red = Vec::new();
+    let mut runs = 0;
+    for spec in libs.split(',') {
+        let (name, lib) = spec.split_once('=').expect("name=path");
+        let ld = lib_dir(&work, name, lib, &fx);
+        let mut fixed_seen = Vec::new();
+        for s in &all {
+            let stem = s.file_stem().unwrap().to_string_lossy().into_owned();
+            let prepped = work.join(format!("{stem}.prep.json"));
+            let p = Command::new(fx.join("bin/oracle-prep"))
+                .arg(s)
+                .arg(&prepped)
+                .output()
+                .unwrap();
+            assert!(p.status.success(), "oracle-prep {stem}");
+            let k = run(&fx, &ld, &work, &rs, &["--cpp-names"], &prepped, &[]);
+            let f = run(&fx, &ld, &work, &rs, &[], &prepped, &[]);
+            let g = golden.get(&stem).unwrap_or_else(|| panic!("{stem}: not in the golden"));
+            let allow = if name == "cpp" {
+                None
+            } else {
+                departures.get(&stem).map(String::as_str)
+            };
+            if check_modes("the golden", &format!("{name} {stem}"), g, &k, &f, allow, &mut red).is_some() {
+                fixed_seen.push(stem.clone());
+            }
+            runs += 1;
+        }
+        fixed_seen.sort();
+        if fixed_seen != listed {
+            red.push(format!(
+                "{name}: scripts with FIX lines {fixed_seen:?}, tests/fixed-scripts.txt lists {listed:?}"
+            ));
+        }
+        // the exec interface against the golden of the C++ runner's exec run
+        let tools = work.join("tools/bin");
+        fs::create_dir_all(&tools).unwrap();
+        let tool = tools.join("frame-tool");
+        fs::write(
+            &tool,
+            "#!/bin/sh\nif [ \"$1\" = fail ]; then echo \"frame-tool: fail\"; exit 3; fi; echo \"frame-tool: $*\"\n",
+        )
+        .unwrap();
+        let mut perm = fs::metadata(&tool).unwrap().permissions();
+        std::os::unix::fs::PermissionsExt::set_mode(&mut perm, 0o755);
+        fs::set_permissions(&tool, perm).unwrap();
+        let oracle_dir = work.join("tools").to_string_lossy().into_owned();
+        let exec = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/exec-script.txt");
+        let re = run(&fx, &ld, &work, &rs, &[], &exec, &[("ORACLE", &oracle_dir)]);
+        if let Some((d, _)) = first_difference(&golden["exec"], &norm(&re)) {
+            red.push(format!("{name} exec: differs from the golden: {d}"));
+        }
+    }
+    let _ = fs::remove_dir_all(&work);
+    assert!(red.is_empty(), "{}", red.join("\n"));
+    summary(&format!(
+        "sai-script golden: {runs} (library, script) runs of the Rust runner (--cpp-names and fixed) agree with the golden of sai_script.cpp"
+    ));
+}
+
+/// Negative control: a changed exit code, stdout line, event, unit digest or dropped unit of the
+/// golden is a difference, and a golden shifted by one unit is too.
+#[test]
+fn the_golden_comparison_reports_a_changed_golden() {
+    let golden = parse_golden(GOLDEN);
+    assert!(golden.len() > 20, "the golden has the scripts");
+    assert_eq!(
+        parse_golden(&golden.iter().map(|(k, n)| render(k, n)).collect::<String>()),
+        golden
+    );
+    let (stem, base) = golden.iter().max_by_key(|(_, n)| n.units.len()).unwrap();
+    assert!(base.units.len() > 2 && !base.out.is_empty(), "{stem}");
+    assert!(first_difference(base, base).is_none());
+    let mut m = base.clone();
+    m.code = m.code.map(|c| c + 1).or(Some(0));
+    assert!(first_difference(base, &m).is_some());
+    let mut m = base.clone();
+    m.out[0].push('x');
+    assert!(first_difference(base, &m).is_some());
+    let mut m = base.clone();
+    m.units[1].all ^= 1;
+    assert!(first_difference(base, &m).is_some());
+    let mut m = base.clone();
+    m.units.remove(1);
+    assert!(first_difference(base, &m).is_some());
+    let mut m = base.clone();
+    m.errors.push("script error: x".to_owned());
+    assert!(first_difference(base, &m).is_some());
+    // the text form: one changed byte of the golden file is read as a changed run
+    let text = render(stem, base);
+    let bad = text.replacen("out ", "out Z", 1);
+    assert_ne!(parse_golden(&bad)[stem.as_str()], *base);
 }

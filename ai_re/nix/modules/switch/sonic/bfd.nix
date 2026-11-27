@@ -66,8 +66,8 @@ let
     };
     # No ordering against bgpcfgd/bgpd (it only talks to redis): it takes ~1 s
     # to stop (select timeout), and a unit ordered after it would wait for that
-    # on every stop, enough for "config reload" (sonic-nix reload: stop
-    # sonic.target, load, start) to start the stack before it is down.
+    # on every stop. (Before 2026-11-27 that was also enough for "config reload"
+    # to start the stack before it was down; sonic-nix reload now waits.)
     staticroutebfd = svc {
       description = "SONiC staticroutebfd (STATIC_ROUTE bfd=true -> BFD sessions, APPL_DB STATIC_ROUTE_TABLE)";
       exec = "${routing.bgpcfgd}/bin/staticroutebfd";

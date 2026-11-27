@@ -18,12 +18,15 @@
 //! every struct and attribute argument of every IFCS call into the stream as `@B` lines; loaded as
 //! `SAI_TERALYNX_IFCS_TRACE` by both libsais, so the parts compare what libifcs receives byte for byte,
 //! padding included, where the mock compares fields). Nothing of the compared programs or the mock is
-//! changed. [`run`] runs and judges; [`areas`] says what is pending.
+//! changed. [`run`] runs and judges; [`areas`] says what is pending. [`golden`]: the C++ side captured
+//! (H5-0) into `tests/golden/`, so the Rust side can be judged without the C++ (`--golden`).
 #![forbid(unsafe_code)]
 
 pub mod areas;
 pub mod checks;
+pub mod golden;
 pub mod lists;
 pub mod oracle;
 pub mod run;
+pub mod sha256;
 pub mod stream;

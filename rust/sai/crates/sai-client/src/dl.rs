@@ -32,10 +32,42 @@ impl Library {
             .ok_or_else(|| format!("dlopen {path}: {}", last_error()))
     }
 
+    /// `dlopen(path, RTLD_NOW | RTLD_NOLOAD)`: the handle of a library the process has loaded
+    /// already (the mock libifcs that the libsai opened), `None` if it is not loaded.
+    pub(crate) fn attach(path: &str) -> Option<Self> {
+        let c = CString::new(path).ok()?;
+        // SAFETY: a NUL-terminated path; NOLOAD never loads or runs anything, it only returns the
+        // handle of a library that is loaded (or NULL).
+        let h = unsafe { libc::dlopen(c.as_ptr(), libc::RTLD_NOW | libc::RTLD_NOLOAD) };
+        NonNull::new(h).map(Self)
+    }
+
     /// `dlsym(handle, name)`.
     fn sym(&self, name: &CStr) -> Option<NonNull<c_void>> {
         // SAFETY: a live handle (never closed) and a NUL-terminated name; dlsym only reads both.
         NonNull::new(unsafe { libc::dlsym(self.0.as_ptr(), name.as_ptr()) })
+    }
+
+    /// The address of a symbol (a code address handed on as a pointer).
+    pub(crate) fn address(&self, name: &str) -> Option<NonNull<c_void>> {
+        self.sym(&CString::new(name).ok()?)
+    }
+
+    /// A function of the library by name, as `F` (see [`Library::function`]).
+    pub(crate) fn function_named<F: Copy>(&self, name: &str) -> Option<F> {
+        self.function(&CString::new(name).ok()?)
+    }
+
+    /// A function of the process's global scope (`dlsym(RTLD_DEFAULT)`: what a library loaded
+    /// `RTLD_GLOBAL` exports), as `F` (see [`Library::function`]).
+    pub(crate) fn global_function<F: Copy>(name: &str) -> Option<F> {
+        const { assert!(size_of::<F>() == size_of::<*mut c_void>()) };
+        let c = CString::new(name).ok()?;
+        // SAFETY: RTLD_DEFAULT with a NUL-terminated name; dlsym only reads it.
+        let p = NonNull::new(unsafe { libc::dlsym(libc::RTLD_DEFAULT, c.as_ptr()) })?;
+        // SAFETY: as `function`: `F` is a function pointer type of a data pointer's size
+        // (asserted) and the caller names the C function's prototype.
+        Some(unsafe { core::mem::transmute_copy::<NonNull<c_void>, F>(&p) })
     }
 
     /// A function of the library as the function pointer type `F` the SAI header gives it.

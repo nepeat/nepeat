@@ -20,15 +20,112 @@
     clippy::missing_panics_doc
 )]
 
+use std::collections::BTreeMap;
+use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Mutex, OnceLock};
 use std::thread;
 use std::time::Duration;
 use tl_frames::bytes::{find, ne32};
 use tl_frames::os::{PACKET_OUTGOING, Sock, if_nametoindex};
 
 const INNER: &str = "TL_FRAMES_INNER";
+
+/// The C tools' recorded behaviour (H5-0 golden, captured once from the C tools; see its header).
+/// Never regenerate it from the Rust output.
+const GOLDEN: &str = include_str!("golden/frames-cpp.txt");
+
+/// Records seen by this run, by scenario key (checked for coverage; written in capture mode).
+static SEEN: Mutex<BTreeMap<String, String>> = Mutex::new(BTreeMap::new());
+
+/// One scenario's behaviour as text: exit status, masked stdout / stderr (escaped, one line each),
+/// then the frames on the wire, one hex line each.
+fn record(status: i32, stdout: &str, stderr: &str, frames: &[Vec<u8>]) -> String {
+    let mut r = format!(
+        "status {status}\nstdout {stdout:?}\nstderr {stderr:?}\nframes {}\n",
+        frames.len()
+    );
+    for f in frames {
+        r.push_str("f ");
+        for b in f {
+            write!(r, "{b:02x}").unwrap();
+        }
+        r.push('\n');
+    }
+    r
+}
+
+fn run_record(r: &Run) -> String {
+    record(r.status, &r.stdout, &r.stderr, &r.frames)
+}
+
+/// Golden text -> records by key (`@@ key` starts a record; `#` lines before the first are the header).
+fn parse_golden(text: &str) -> BTreeMap<String, String> {
+    let mut m = BTreeMap::new();
+    let mut cur: Option<String> = None;
+    for line in text.lines() {
+        if let Some(k) = line.strip_prefix("@@ ") {
+            assert!(
+                m.insert(k.to_owned(), String::new()).is_none(),
+                "duplicate golden key {k}"
+            );
+            cur = Some(k.to_owned());
+        } else if let Some(k) = &cur {
+            let e = m.get_mut(k).unwrap();
+            e.push_str(line);
+            e.push('\n');
+        }
+    }
+    m
+}
+
+fn golden() -> &'static BTreeMap<String, String> {
+    static G: OnceLock<BTreeMap<String, String>> = OnceLock::new();
+    G.get_or_init(|| parse_golden(GOLDEN))
+}
+
+/// Ok when `rec` is exactly the golden record of `key`; else the first difference.
+fn golden_check(golden_map: &BTreeMap<String, String>, key: &str, rec: &str) -> Result<(), String> {
+    let Some(want) = golden_map.get(key) else {
+        return Err(format!("{key}: no golden record"));
+    };
+    if want == rec {
+        return Ok(());
+    }
+    let (mut want_lines, mut got_lines) = (want.lines(), rec.lines());
+    let mut line_no = 1;
+    loop {
+        let (want_line, got_line) = (want_lines.next(), got_lines.next());
+        if want_line != got_line {
+            return Err(format!("{key}: line {line_no}: golden {want_line:?} vs {got_line:?}"));
+        }
+        if want_line.is_none() {
+            return Err(format!("{key}: records differ"));
+        }
+        line_no += 1;
+    }
+}
+
+fn capturing() -> bool {
+    std::env::var("TL_FRAMES_CAPTURE").is_ok()
+}
+
+/// Judges one run (`who` is "C" or "Rust") against the golden, and notes the scenario as covered.
+/// In capture mode (`TL_FRAMES_CAPTURE=<file>`, C tools only) it records the C run instead.
+fn judge(key: &str, who: &str, rec: String) {
+    if capturing() {
+        if who == "C" {
+            SEEN.lock().unwrap().insert(key.to_owned(), rec);
+        }
+        return;
+    }
+    if let Err(e) = golden_check(golden(), key, &rec) {
+        panic!("{who} vs golden: {e}");
+    }
+    SEEN.lock().unwrap().insert(key.to_owned(), rec);
+}
 
 fn tools_dir() -> Option<PathBuf> {
     if let Ok(d) = std::env::var("TL_FRAMES_C_TOOLS") {
@@ -85,9 +182,12 @@ fn differential_in_a_user_namespace() {
     if std::env::var(INNER).is_ok() {
         return;
     }
-    let Some(src) = tools_dir() else {
-        return skip("the C tool sources are not available (TL_FRAMES_C_TOOLS)");
-    };
+    // without the C sources the run is golden-only (the Rust tools against the recorded C behaviour)
+    let src = tools_dir().filter(|_| std::env::var("TL_FRAMES_NO_C").is_err());
+    assert!(
+        src.is_some() || !capturing(),
+        "capture needs the C tool sources (TL_FRAMES_C_TOOLS)"
+    );
     if !have("unshare", "--help")
         || !Command::new("unshare")
             .args(["-rn", "true"])
@@ -101,11 +201,14 @@ fn differential_in_a_user_namespace() {
     }
     let cc = std::env::var("CC").unwrap_or_else(|_| "cc".into());
     if !have(&cc, "--version") {
-        return skip("no C compiler");
+        return skip("no C compiler (the psample shim needs one)");
     }
     let tmp = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(format!("tl-frames-diff-{}", std::process::id()));
     let cbin = tmp.join("c");
-    build_c(&src, &cbin);
+    std::fs::create_dir_all(&tmp).unwrap();
+    if let Some(src) = &src {
+        build_c(src, &cbin);
+    }
     let shim = tmp.join("psample_shim.so");
     let st = Command::new(&cc)
         .args(["-shared", "-fPIC", "-w", "-o"])
@@ -121,7 +224,7 @@ fn differential_in_a_user_namespace() {
         .arg(&exe)
         .args(["--exact", "inner", "--nocapture", "--test-threads=1"])
         .env(INNER, "1")
-        .env("TL_FRAMES_CBIN", &cbin)
+        .envs(src.as_ref().map(|_| ("TL_FRAMES_CBIN", &cbin)))
         .env("TL_FRAMES_SHIM", &shim)
         .env("TL_FRAMES_TMP", &tmp)
         .output()
@@ -136,12 +239,15 @@ fn differential_in_a_user_namespace() {
 
 struct Tool {
     name: &'static str,
+    /// the C tool binary; used only when `live`
     c: PathBuf,
+    /// the C tools were built: compare live as well as against the golden
+    live: bool,
     rust: PathBuf,
 }
 
 fn tool(name: &'static str) -> Tool {
-    let cbin = PathBuf::from(std::env::var("TL_FRAMES_CBIN").unwrap());
+    let cbin = std::env::var("TL_FRAMES_CBIN").ok().map(PathBuf::from);
     let rust = match name {
         "trap-frames" => env!("CARGO_BIN_EXE_trap-frames"),
         "qos-frames" => env!("CARGO_BIN_EXE_qos-frames"),
@@ -151,7 +257,8 @@ fn tool(name: &'static str) -> Tool {
     };
     Tool {
         name,
-        c: cbin.join(name),
+        c: cbin.clone().unwrap_or_default().join(name),
+        live: cbin.is_some(),
         rust: PathBuf::from(rust),
     }
 }
@@ -161,9 +268,33 @@ fn ip(args: &[&str]) {
     assert!(st.success(), "ip {args:?}");
 }
 
+/// A fixed hardware address for a veth end (the kernel picks random ones, which tools put in the
+/// source MAC of their frames: the golden needs the same bytes every run).
+fn mac_of(name: &str) -> String {
+    let hash = name.bytes().fold(0x811c_9dc5_u32, |acc, byte| {
+        (acc ^ u32::from(byte)).wrapping_mul(0x0100_0193)
+    });
+    let [b0, b1, b2, b3] = hash.to_be_bytes();
+    format!("02:7e:{b0:02x}:{b1:02x}:{b2:02x}:{b3:02x}")
+}
+
 /// A veth pair, both ends up.
 fn veth(a: &str, b: &str) {
-    ip(&["link", "add", "name", a, "type", "veth", "peer", "name", b]);
+    ip(&[
+        "link",
+        "add",
+        "name",
+        a,
+        "address",
+        &mac_of(a),
+        "type",
+        "veth",
+        "peer",
+        "name",
+        b,
+        "address",
+        &mac_of(b),
+    ]);
     ip(&["link", "set", "dev", a, "up"]);
     ip(&["link", "set", "dev", b, "up"]);
 }
@@ -291,9 +422,9 @@ fn one(t: &Tool, bin: &Path, sc: &Scenario) -> Run {
         .collect();
     Run {
         status: out.status.code().unwrap_or(-1),
-        stdout: mask(&String::from_utf8_lossy(&out.stdout), &TIME_KEYS, &t.c)
+        stdout: mask(&String::from_utf8_lossy(&out.stdout), &TIME_KEYS, bin)
             .replace(&t.rust.to_string_lossy().into_owned(), "PROG"),
-        stderr: mask(&String::from_utf8_lossy(&out.stderr), &TIME_KEYS, &t.c)
+        stderr: mask(&String::from_utf8_lossy(&out.stderr), &TIME_KEYS, bin)
             .replace(&t.rust.to_string_lossy().into_owned(), "PROG"),
         frames,
     }
@@ -320,17 +451,24 @@ fn zero_valid_v6_checksum(f: &mut [u8]) {
 }
 
 fn compare(t: &Tool, sc: &Scenario) {
-    let c = one(t, &t.c, sc);
+    let c = if t.live { one(t, &t.c, sc) } else { one(t, &t.rust, sc) };
     let r = one(t, &t.rust, sc);
     println!(
-        "[{}] {}: C status={} frames={} / Rust status={} frames={}",
+        "[{}] {}: {} status={} frames={} / Rust status={} frames={}",
         t.name,
         sc.label,
+        if t.live { "C" } else { "golden-only (Rust)" },
         c.status,
         c.frames.len(),
         r.status,
         r.frames.len()
     );
+    let key = format!("{}/{}", t.name, sc.label);
+    if t.live {
+        // live C == golden (the capture proof), then Rust == golden
+        judge(&key, "C", run_record(&c));
+    }
+    judge(&key, "Rust", run_record(&r));
     assert_eq!(c.status, r.status, "{} {}: exit status", t.name, sc.label);
     assert_eq!(c.stderr, r.stderr, "{} {}: stderr", t.name, sc.label);
     assert_eq!(
@@ -939,10 +1077,20 @@ fn run_sflow(bin: &Path, args: &[String], env: &[(&str, &str)]) -> (i32, String,
 
 fn sflow_netdev(label: &str, t: &Tool, args: &[&str], env: &[(&str, &str)]) {
     let a = s(args);
-    let (cs, co, ce) = run_sflow(&t.c, &a, env);
+    let (cs, co, ce) = if t.live {
+        run_sflow(&t.c, &a, env)
+    } else {
+        run_sflow(&t.rust, &a, env)
+    };
     let (rs, ro, re) = run_sflow(&t.rust, &a, env);
-    let (co, ro) = (mask(&co, &TIME_KEYS, &t.c), mask(&ro, &TIME_KEYS, &t.rust));
-    let (ce, re) = (mask(&ce, &TIME_KEYS, &t.c), mask(&re, &TIME_KEYS, &t.rust));
+    let cp = if t.live { &t.c } else { &t.rust };
+    let (co, ro) = (mask(&co, &TIME_KEYS, cp), mask(&ro, &TIME_KEYS, &t.rust));
+    let (ce, re) = (mask(&ce, &TIME_KEYS, cp), mask(&re, &TIME_KEYS, &t.rust));
+    let key = format!("sflow-probe/{label}");
+    if t.live {
+        judge(&key, "C", record(cs, &co, &ce, &[]));
+    }
+    judge(&key, "Rust", record(rs, &ro, &re, &[]));
     println!("[sflow-probe] {label}: status {cs}/{rs}\n{ro}");
     assert_eq!(cs, rs, "{label}: status");
     assert_eq!(ce, re, "{label}: stderr");
@@ -1056,6 +1204,25 @@ fn sflow_scenarios() {
     );
 }
 
+/// `iif=5(sga)` -> `iif=*(sga)` (the kernel's interface index is not stable across runs).
+fn mask_ifindex(text: &str) -> String {
+    let mut out = String::new();
+    let mut rest = text;
+    while let Some(p) = rest.find("iif=") {
+        let (head, tail) = rest.split_at(p + 4);
+        out.push_str(head);
+        let digits = tail.bytes().take_while(u8::is_ascii_digit).count();
+        if digits > 0 && tail[digits..].starts_with('(') {
+            out.push('*');
+            rest = &tail[digits..];
+        } else {
+            rest = tail;
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
 /// psample mode against the canned family and messages of `tests/fixtures/psample_shim.c`.
 fn psample_scenarios() {
     let t = tool("sflow-probe");
@@ -1096,7 +1263,14 @@ fn psample_scenarios() {
                 mask(&String::from_utf8_lossy(&o.stderr), &TIME_KEYS, bin),
             )
         };
-        let (c, r) = (run(&t.c), run(&t.rust));
+        let r = run(&t.rust);
+        let c = if t.live { run(&t.c) } else { r.clone() };
+        let key = format!("sflow-probe/psample {label}");
+        // the ifindex of the veth depends on which group created its pair first: not part of the golden
+        if t.live {
+            judge(&key, "C", record(c.0, &mask_ifindex(&c.1), &c.2, &[]));
+        }
+        judge(&key, "Rust", record(r.0, &mask_ifindex(&r.1), &r.2, &[]));
         println!("[sflow-probe] psample {label}: status {}/{}\n{}", c.0, r.0, r.1);
         assert_eq!(c.0, r.0, "{label}: status");
         assert_eq!(c.2, r.2, "{label}: stderr");
@@ -1137,4 +1311,91 @@ fn inner() {
         }
     }
     assert!(failed.is_empty(), "differential failed for {failed:?}");
+    let seen = SEEN.lock().unwrap();
+    if let Ok(path) = std::env::var("TL_FRAMES_CAPTURE") {
+        // capture mode: the C tools' records, in key order (the golden's body)
+        let body: String = seen
+            .iter()
+            .map(|(key, rec)| ["@@ ", key.as_str(), "\n", rec.as_str()].concat())
+            .collect();
+        std::fs::write(path, body).unwrap();
+        return;
+    }
+    // every golden scenario ran, and nothing ran that the golden does not hold
+    let want: Vec<&String> = golden().keys().collect();
+    let got: Vec<&String> = seen.keys().collect();
+    assert_eq!(want, got, "scenarios run vs golden scenarios");
+}
+
+/// The golden holds the 70 scenarios of the C tools' behaviour and names its sources.
+#[test]
+fn golden_shape() {
+    let g = golden();
+    assert_eq!(g.len(), 70, "scenarios in the golden");
+    for (k, v) in g {
+        assert!(v.starts_with("status "), "{k}: record shape");
+    }
+    for tool in ["trap-frames", "qos-frames", "raw-frames", "l3-frames", "sflow-probe"] {
+        assert!(
+            g.keys().any(|k| k.starts_with(&format!("{tool}/"))),
+            "{tool}: no scenario"
+        );
+    }
+    assert!(GOLDEN.contains("NOT to be regenerated from the Rust output"));
+    // the header pins each C source by sha256
+    for f in [
+        "trap_frames.c",
+        "qos_frames.c",
+        "raw_frames.c",
+        "l3_frames.c",
+        "sflow_probe.c",
+    ] {
+        assert!(GOLDEN.contains(f), "header lacks {f}");
+    }
+}
+
+/// Negative control: one changed byte (a frame, the status, the stdout) or a missing scenario makes
+/// the comparison fail, so the golden cannot pass by being ignored.
+#[test]
+fn golden_negative_control() {
+    let g = golden();
+    let (key, rec) = g
+        .iter()
+        .find(|(_, v)| v.contains("\nf "))
+        .expect("a scenario with frames");
+    assert!(golden_check(g, key, rec).is_ok(), "an unchanged record matches");
+    // flip one hex digit of the first frame
+    let at = rec.find("\nf ").unwrap() + 3;
+    let mut bad = rec.clone().into_bytes();
+    bad[at] = if bad[at] == b'0' { b'1' } else { b'0' };
+    let bad = String::from_utf8(bad).unwrap();
+    assert!(
+        golden_check(g, key, &bad).is_err(),
+        "a changed frame byte must be reported"
+    );
+    // a dropped frame, a changed status, a changed stdout, an unknown scenario
+    let dropped: String = rec.lines().take(4 + 1).map(|l| [l, "\n"].concat()).collect();
+    assert!(
+        golden_check(g, key, &dropped).is_err(),
+        "a missing frame must be reported"
+    );
+    let status = rec.replacen("status 0", "status 9", 1);
+    assert!(
+        golden_check(g, key, &status).is_err(),
+        "a changed status must be reported"
+    );
+    let out = rec.replacen("stdout \"", "stdout \"x", 1);
+    assert!(golden_check(g, key, &out).is_err(), "a changed stdout must be reported");
+    assert!(
+        golden_check(g, "nonesuch/none", rec).is_err(),
+        "an unknown scenario must be reported"
+    );
+    // the whole-text control: mutate the embedded golden itself in memory
+    let mut text = GOLDEN.to_owned().into_bytes();
+    let p = GOLDEN.rfind("\nf ").map_or(GOLDEN.len() - 2, |i| i + 3);
+    text[p] = if text[p] == b'0' { b'1' } else { b'0' };
+    let mutated = parse_golden(&String::from_utf8(text).unwrap());
+    assert_ne!(&mutated, g, "the mutated golden differs");
+    let k = mutated.keys().find(|k| mutated[*k] != g[*k]).unwrap();
+    assert!(golden_check(g, k, &mutated[k]).is_err());
 }

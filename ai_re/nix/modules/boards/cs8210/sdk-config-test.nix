@@ -1,5 +1,5 @@
 # Build-time tests of the CS8210 IFCS config generator (./sdk-config.nix +
-# packages/sai-teralynx/configs/teralynx7.py): pinned output for 32x400 (the
+# ./teralynx7/teralynx7.py): pinned output for 32x400 (the
 # sku line masked: its store path follows nixpkgs), devport numbering of
 # breakouts (subports consecutive, later cages shifted), the lab layout (cage 2
 # 4x10G on lanes 0-3, which services.sonic's ports.nix cannot express yet, so
@@ -13,7 +13,7 @@
 let
   inherit (pkgs) lib;
   sonic = import ../../../packages/sonic { inherit pkgs; };
-  teralynx = import ../../../packages/sai-teralynx/configs { inherit pkgs; };
+  teralynx = import ./teralynx7 { inherit pkgs; };
   gen = media: ports: import ./sdk-config.nix { inherit pkgs sonic media; } { inherit ports; };
   withSettings = import ./sdk-config.nix { inherit pkgs sonic; } {
     ports = portsOf { };

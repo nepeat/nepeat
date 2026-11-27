@@ -19,9 +19,13 @@
 #   - the byte negative control: a Rust libsai built with IFCS_POISON_PADDING=1 (the key members' tail
 #     padding 0xa5, as the bug left it) must make the run red on an @B line with those bytes, while
 #     test_ifcs still passes on it (the mock cannot see padding);
+#   - the golden C++ side (crates/sai-teralynx-parity/tests/golden, captured from the C++ libsai at H5-0): the live
+#     C++ side must render to its records byte for byte (check-golden.txt: required), the Rust side alone is run
+#     against it strictly (golden.txt: reported, required with strict = true) and a golden with a changed digest
+#     must make that run red on its section, op block and step (negative-golden.txt: required);
 #   - strict mode (the G2 gate) is run and reported, not required (strict = true: required).
-# $out/share/sai-rs/teralynx-parity/: report.txt (progress), strict.txt, negative.txt, details.txt,
-# gate.txt; $out/bin/sai-teralynx-parity-run: the harness over another Rust libsai (an area owner's
+# $out/share/sai-rs/teralynx-parity/: report.txt (progress), strict.txt, negative.txt, negative-bytes.txt,
+# check-golden.txt, golden.txt, negative-golden.txt, details.txt, gate.txt; $out/bin/sai-teralynx-parity-run: the harness over another Rust libsai (an area owner's
 # local run: sai-teralynx-parity-run --rust-lib target/debug/libsai.so [--parts sections --only l2,lag]
 # from rust/sai, reads that checkout's tests/ lists).
 #   pkgs.callPackage ./teralynx-parity.nix { saiRs = <./package.nix>; cppTeralynx = <sai-teralynx>; }
@@ -46,8 +50,8 @@
 }:
 let
   tl = saiRs.teralynxSrc;
-  # what the fixtures read of the C++ package: tests (test_ifcs, the mock), the shim's C, the frozen
-  # frontend's driver and headers, the oracle's runner and scripts; nothing of its library
+  # what the fixtures read of the C++ package: tests (test_ifcs), the shim's C, the frozen
+  # frontend's driver and headers; nothing of its library (the mock, the oracle and the scripts: below)
   tlFiles = builtins.path {
     path = tl;
     name = "sai-teralynx-parity-src";
@@ -56,15 +60,32 @@ let
         rel = lib.removePrefix (toString tl + "/") (toString p);
         under = d: lib.hasPrefix (d + "/") rel;
       in
-      builtins.elem rel [ "src" "tests" "frontend" "frontend/src" "frontend/tests" "frontend/tests/driver-scripts" "oracle" "oracle/scripts" ]
-      || builtins.elem rel [ "src/shim.c" "src/ifcs_guard.c" "oracle/sai_script.cpp" "oracle/gen_tracer.py" "oracle/trace_rt.h" ]
+      builtins.elem rel [ "src" "tests" "frontend" "frontend/src" "frontend/tests" ]
+      || builtins.elem rel [ "src/shim.c" "src/ifcs_guard.c" ]
       || (under "src" && lib.hasSuffix ".h" rel)
       || under "tests"
       || (under "frontend/src" && lib.hasSuffix ".h" rel)
       || builtins.elem rel [ "frontend/tests/frontend_driver.cpp" "frontend/tests/test_port.h" "frontend/tests/driver_names.awk" ]
-      || under "frontend/tests/driver-scripts"
-      || under "oracle/scripts";
+      ;
   };
+  # the oracle (moved unchanged from the C++ package's oracle/, H5-1): the tracer generator, its runtime header,
+  # sai_script.cpp and the scripts
+  oracleSrc = builtins.path {
+    path = ../../../ai_re/nix/packages/ifcs-oracle;
+    name = "ifcs-oracle-parity-src";
+    filter = p: t:
+      let rel = lib.removePrefix (toString ../../../ai_re/nix/packages/ifcs-oracle + "/") (toString p); in
+      rel == "scripts" || lib.hasPrefix "scripts/" rel
+      || builtins.elem rel [ "gen_tracer.py" "trace_rt.h" "sai_script.cpp" ];
+  };
+  # the Teralynx driver scripts 01-09 (moved unchanged from the frontend's tests/driver-scripts, H5-1, to
+  # sai-driver's tests/driver-scripts, which also holds the AS7772's 10 and 11)
+  driverScripts = lib.fileset.toSource {
+    root = ../crates/sai-driver/tests/driver-scripts;
+    fileset = lib.fileset.fileFilter (f: f.hasExt "ops" && lib.hasPrefix "0" f.name) ../crates/sai-driver/tests/driver-scripts;
+  };
+  # the one mock libifcs of every Teralynx test (./teralynx-mock.nix)
+  mock = callPackage ./teralynx-mock.nix { inherit (saiRs) ifcsHeaders; };
   crate = ../crates/sai-teralynx-parity;
   lists = ../crates/sai-backend-teralynx/tests;
   rustLib = callPackage ./libsai-teralynx.nix { inherit saiRs cppTeralynx; };
@@ -91,14 +112,14 @@ let
   arch = stdenv.hostPlatform.parsed.cpu.name;
   # the programs into $fx (CC / CXX / NM: the target's)
   fixturesScript = ''
-    PYTHON=${buildPackages.python3}/bin/python3 CC=${stdenv.cc.targetPrefix}cc CXX=${stdenv.cc.targetPrefix}c++ bash ${crate}/build-fixtures.sh $fx ${tlFiles} \
+    MOCK_LIBIFCS=${mock}/mock/libifcs.so ORACLE_SRC=${oracleSrc} PYTHON=${buildPackages.python3}/bin/python3 CC=${stdenv.cc.targetPrefix}cc CXX=${stdenv.cc.targetPrefix}c++ bash ${crate}/build-fixtures.sh $fx ${tlFiles} \
       ${saiRs.ifcsHeaders}/include ${saiRs.saiHeaders} ${cppLib} ${nlohmann_json}/include'';
   # the runs over $fx and the gate (toolBin: the harness's command)
   checksScript = toolBin: ''
     lists() {
       echo --areas ${lists}/areas.txt --expected ${lists}/test_ifcs-expected.txt \
         --allow ${crate}/tests/parity-allow.txt --pending ${crate}/tests/parity-pending.txt \
-        --driver-scripts ${tlFiles}/frontend/tests/driver-scripts --oracle-scripts ${tlFiles}/oracle/scripts
+        --driver-scripts ${driverScripts} --oracle-scripts ${oracleSrc}/scripts
     }
     run() {   # out-name, extra args
       local name=$1; shift
@@ -123,10 +144,37 @@ let
       echo "byte negative control: poisoned key padding was NOT reported on an @B line (exit $brc)"; cat negative-bytes.txt; exit 1
     fi
     echo "byte negative control: the poisoned key padding made the run red on its @B lines (test_ifcs still 1047 / 1047), as it must"
+    # the golden C++ side (crates/sai-teralynx-parity/tests/golden, captured from the C++ libsai at H5-0): the live C++
+    # renders to its records byte for byte (required: the golden is what the C++ gives), and the Rust side alone is
+    # judged against it with the same report and strictness (the C++ library is not read)
+    gold=${crate}/tests/golden
+    ${toolBin} --fixtures $fx --work $NIX_BUILD_TOP/w-check --cpp-lib ${cppLib} $(lists) --check-golden $gold --no-repeat > check-golden.txt 2>&1 || {
+      echo "golden: the live C++ side is NOT the golden (a changed C++ library, program or input)"; cat check-golden.txt; exit 1; }
+    cat check-golden.txt
+    ggrc=0; ${toolBin} --fixtures $fx --work $NIX_BUILD_TOP/w-golden --rust-lib ${rustLib}/lib/libsai.so.1.0.0 $(lists) --golden $gold --strict --no-repeat > golden.txt 2>&1 || ggrc=$?
+    sed -n '/^== checks/p; /^== sections/p; /^== driver/p; /^== oracle/p; /^== verdict/p' golden.txt
+    ${lib.optionalString strict ''[ $ggrc -eq 0 ] || { echo "parity (golden): RED (exit $ggrc)"; exit 1; }''}
+    # its negative control: a changed digest in the golden (a test_ifcs section, a driver op block, an oracle step) is red
+    cp -r $gold neg-golden && chmod -R u+w neg-golden
+    flip() {   # file, record tag, field with the name, name: the first sha256 of that record with its first digit changed
+      awk -F'\t' -v OFS='\t' -v tag="$2" -v col="$3" -v name="$4" '$1==tag && $col==name && !done { c=substr($3,1,1); $3=(c=="0"?"1":"0") substr($3,2); done=1 } { print }' neg-golden/$1 > neg-golden/$1.new
+      cmp -s neg-golden/$1 neg-golden/$1.new && { echo "golden negative control: no record $2 '$4' to change"; exit 1; }
+      mv neg-golden/$1.new neg-golden/$1
+    }
+    flip test_ifcs-cpp.txt section 5 l2
+    flip driver-cpp.txt block 4 'set switch switch SRC_MAC_ADDRESS=02:00:00:00:aa:01'
+    flip oracle-cpp.txt step 4 '0.3 create L3 table (aclorch)'
+    ngrc=0; ${toolBin} --fixtures $fx --work $NIX_BUILD_TOP/w-neg-golden --rust-lib ${rustLib}/lib/libsai.so.1.0.0 $(lists) --golden neg-golden --strict --no-repeat > negative-golden.txt 2>&1 || ngrc=$?
+    if [ $ngrc -ne 1 ] || ! grep -q "test_ifcs section l2 " negative-golden.txt || ! grep -q "driver 01-switch block" negative-golden.txt \
+        || ! grep -q "oracle acl step '0.3 create L3 table (aclorch)'" negative-golden.txt; then
+      echo "golden negative control: a changed digest in the golden was NOT reported (exit $ngrc)"; cat negative-golden.txt; exit 1
+    fi
+    echo "golden negative control: a changed digest in the golden made the run red on its section, op block and step, as it must"
     {
       grep '^== checks' report.txt
       grep '^pending areas' report.txt
       echo "progress mode: exit $rc; strict mode: exit $src ($(grep '^== verdict' strict.txt))"
+      echo "golden C++ side: live C++ == golden (check-golden: $(grep '^== verdict' check-golden.txt)); Rust against the golden: exit $ggrc ($(grep '^== verdict' golden.txt))"
     } > gate.txt
     cat gate.txt'';
   # cross: the programs built here, run in ./emulated
@@ -169,13 +217,13 @@ let
     ''}
     d=$out/share/sai-rs/teralynx-parity
     mkdir -p $d
-    cp report.txt strict.txt negative.txt negative-bytes.txt details.txt gate.txt machine $d/
+    cp report.txt strict.txt negative.txt negative-bytes.txt check-golden.txt golden.txt negative-golden.txt details.txt gate.txt machine $d/
     ${lib.optionalString (reference != null) "cp arch.txt $d/"}
   '';
 in
 if !canRun then
   assert runnerPkgs != null;
-  emulated.overrideAttrs (old: { passthru = { inherit tool rustLib rustLibPoisoned tlFiles fixtures; }; })
+  emulated.overrideAttrs (old: { passthru = { inherit tool rustLib rustLibPoisoned tlFiles oracleSrc driverScripts mock fixtures; }; })
 else
 stdenv.mkDerivation {
   pname = "sai-teralynx-parity";
@@ -196,20 +244,20 @@ stdenv.mkDerivation {
     runHook preInstall
     d=$out/share/sai-rs/teralynx-parity
     mkdir -p $d $out/bin $out/libexec/sai-teralynx-parity
-    cp report.txt strict.txt negative.txt negative-bytes.txt details.txt gate.txt $d/
+    cp report.txt strict.txt negative.txt negative-bytes.txt check-golden.txt golden.txt negative-golden.txt details.txt gate.txt $d/
     cp -r fixtures/bin fixtures/mock fixtures/cfg $out/libexec/sai-teralynx-parity/
     cp ${tool}/bin/sai-teralynx-parity $out/bin/
     # an area owner's run from a checkout of rust/sai: that tree's lists, the store's fixtures and C++
     makeWrapper $out/bin/sai-teralynx-parity $out/bin/sai-teralynx-parity-run \
       --add-flags "--fixtures $out/libexec/sai-teralynx-parity --cpp-lib ${cppLib}" \
-      --add-flags "--driver-scripts ${tlFiles}/frontend/tests/driver-scripts --oracle-scripts ${tlFiles}/oracle/scripts" \
+      --add-flags "--driver-scripts ${driverScripts} --oracle-scripts ${oracleSrc}/scripts" \
       --run 'if [ -f crates/sai-teralynx-parity/Cargo.toml ]; then set -- --areas crates/sai-backend-teralynx/tests/areas.txt --expected crates/sai-backend-teralynx/tests/test_ifcs-expected.txt --allow crates/sai-teralynx-parity/tests/parity-allow.txt --pending crates/sai-teralynx-parity/tests/parity-pending.txt "$@"; else echo "sai-teralynx-parity-run: run it from rust/sai (the lists are read from the checkout)" >&2; exit 2; fi' \
       --run 'case " $* " in *" --work "*) ;; *) set -- --work "''${SAI_RS_TEST_TMPDIR:-$PWD/target/teralynx-parity}" "$@" ;; esac'
     runHook postInstall
   '';
 
   dontStrip = true;
-  passthru = { inherit tool rustLib rustLibPoisoned tlFiles; };
+  passthru = { inherit tool rustLib rustLibPoisoned tlFiles oracleSrc driverScripts mock; };
 
   meta = {
     description = "Parity of the Rust and the C++ Teralynx libsai on the mock libifcs (test_ifcs, call streams, driver and oracle scripts)";

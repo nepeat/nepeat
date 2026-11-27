@@ -1,0 +1,1860 @@
+# Golden C++ side of the op-script differential (crates/sai-driver/tests/differential.rs): per op
+# script of tests/driver-scripts (golden/differential-inputs.txt, 11 scripts, 455 ops), the COMPLETE
+# stdout of the C++ frontend_driver (tests/frontend_driver.cpp of the frozen frontend) linked with the
+# C++ library on its fake backend plus recording_backend.cpp: per op its echo ("> ..."), status,
+# values, the recording backend's calls ("  be ...") and notifications, exactly as the C++ printed
+# them. The test compares the Rust driver's output with it op block by op block (sai_driver::compare)
+# and, when the C++ is available, that the live C++ output equals this file byte for byte.
+# Captured 2026-11-26 at commit f900ea0 (frontend/ unchanged in the tree) from these C/C++ files
+# (sha256; the library sources are all of frontend/src, built as cpp_build.rs does: the CORE .cpp
+# + fake_backend + recording_backend + temp_files.c + test_port_cpp.cpp + driver_names.inc, the awk
+# of tests/driver_names.awk over sairedis' SAI/inc/sai*.h, here
+# /nix/store/5k8mxysqnhql71s99gw13fn4964dh828-source/SAI/inc):
+#   2d599726eb076a695b44408338a93e6b26ac3a9063d09c70fd9e76248c00a842  ai_re/nix/packages/sai-teralynx/frontend/src/backend.h
+#   6aba76f928701eea496eaa52094275edb29266886b9468f284c4b16952c53150  ai_re/nix/packages/sai-teralynx/frontend/src/ext_macsec.h
+#   1d59a8e869269ec3e0f8da8317878dd574a41c3fb9b4779e6c44428a5a746804  ai_re/nix/packages/sai-teralynx/frontend/src/ext_phy.h
+#   b2c6dd326a4d65989d65dc753b56e80a2c923697e2108291068f0314600b3ae9  ai_re/nix/packages/sai-teralynx/frontend/src/fake_backend.cpp
+#   680fc402a36ff2f1bbcb2e937740d35a0e9d13102ecc734c35531a7cbc8c8e4a  ai_re/nix/packages/sai-teralynx/frontend/src/fake_backend.h
+#   544f329fd7fc3d045899c3dc26fe98480fb9d528ba9c1f14a3d90b08dca2aa55  ai_re/nix/packages/sai-teralynx/frontend/src/libsai.map
+#   e0e377938d0a20cddbc307ba152f4f76e207daae80550f8d6f436cb64cb44b03  ai_re/nix/packages/sai-teralynx/frontend/src/openbcm_diag.c
+#   b2c39c1bf5a1975f132b2ab63990ddcec0a9c9623800019ce07c03813856c0c1  ai_re/nix/packages/sai-teralynx/frontend/src/recording_backend.cpp
+#   94d7bc2dc7de58b41360b73dc0a3a81c617373fe81c680d88130f4d1e3f3b577  ai_re/nix/packages/sai-teralynx/frontend/src/recording_backend.h
+#   51edd775348f945c5f2552ef95db530800047e656bf3a92d66cf0dc857b8ef71  ai_re/nix/packages/sai-teralynx/frontend/src/sai_acl.cpp
+#   c097cdf06e1bdaf8cafacc92311c24808c49130391abb5dc93b10e3d65720a90  ai_re/nix/packages/sai-teralynx/frontend/src/sai_api.cpp
+#   da0c69b479bfddf3aa3db4907608cbd0707f3fb8626935cc38adf1e5207a08f9  ai_re/nix/packages/sai-teralynx/frontend/src/sai_caps.cpp
+#   e9035629ec4e67b503702a10c684a02c774d4736c3deb6ad79e52e34cd85b3e6  ai_re/nix/packages/sai-teralynx/frontend/src/sai_diag.cpp
+#   45fce25b404ed3dd5fed0d2b2e6bbf14e7ec600dc1fecb63b6e301cf15dfff02  ai_re/nix/packages/sai-teralynx/frontend/src/sai_extmacsec.cpp
+#   ab211c51ea01c05b20ad628527bdff4f644d46b990f7973e2bade24b468ee53d  ai_re/nix/packages/sai-teralynx/frontend/src/sai_extphy.cpp
+#   613afb149986dd1c4612f43e7e2c26ab3bfdd037536be14138dd77d666dffeef  ai_re/nix/packages/sai-teralynx/frontend/src/sai_hash.cpp
+#   ccfb853d373f99691b2cdb44dec15255323e64a217f187b5fda9b7d738ac8d3a  ai_re/nix/packages/sai-teralynx/frontend/src/sai_hostif.cpp
+#   ec89b27c6ab2c177d8a517aefe0d9380e37c8b72702e65e47efa4a86f1a326b7  ai_re/nix/packages/sai-teralynx/frontend/src/sai_internal.h
+#   2857aff47e3daaff643bd2d6542e4dd1cab874a534764ce6ecaecd1826deb0b2  ai_re/nix/packages/sai-teralynx/frontend/src/sai_l2.cpp
+#   1fdae8ff42e6826032d05282a63b1f567fbd2b7731695dafabdfbbdec6a32e0c  ai_re/nix/packages/sai-teralynx/frontend/src/sai_l3.cpp
+#   350be1db439d267dc10fe38480688b8e5d90ceab1077ceaf1b29002733da92ab  ai_re/nix/packages/sai-teralynx/frontend/src/sai_lag.cpp
+#   e1eea76ba84fbad3baeb3043c12d83e9c6d78a36802e303cdc042d00be66c2fa  ai_re/nix/packages/sai-teralynx/frontend/src/sai_macsec.cpp
+#   538e79f978382c9440d3028fc4efc9edac98470537055ebaa2ce79d4c9392af9  ai_re/nix/packages/sai-teralynx/frontend/src/sai_mirror.cpp
+#   0b194459fcc0ab3c69b8eaff0391aa9b0aada4739916b41e7c1d54bfb989eee5  ai_re/nix/packages/sai-teralynx/frontend/src/sai_port.cpp
+#   8a3ae30304e563e755f6b87c1906f5d9fff1b0048c7e5dae239606599ddfd9ee  ai_re/nix/packages/sai-teralynx/frontend/src/sai_qos.cpp
+#   2dc1e447d2696c982d4df98e0ea06181f8c5e6827570b88a22b4a885774a8968  ai_re/nix/packages/sai-teralynx/frontend/src/sai_switch.cpp
+#   7935e059d8255be9d4a531738180673f972c75f6c05bd0bfc5b69823f39d0a8d  ai_re/nix/packages/sai-teralynx/frontend/src/sai_temp.cpp
+#   c29d10c3006a11c2ddccde46e37c62000e4f37991ad71369a3ecdedabd207457  ai_re/nix/packages/sai-teralynx/frontend/src/sdk_glue.h
+#   fda712c52f7ecffafc8cb28acb4a5a97cfb571c78c8d6ab70a038a9488a24539  ai_re/nix/packages/sai-teralynx/frontend/src/temp_files.c
+#   84e816f057395f87bae38e37f0c1f1b0cabac85f5b2c1a98beb9b771b7ee4dc1  ai_re/nix/packages/sai-teralynx/frontend/src/temp_files.h
+#   0dd92a38e717f9897e3cbf7673d5aba4fbf60cbb883aace581205cdc0939f29f  ai_re/nix/packages/sai-teralynx/frontend/tests/frontend_driver.cpp
+#   e6f2899368a1a8fc5cd0a8a81c2beb0a76761260735eea23f9357cce5704500f  ai_re/nix/packages/sai-teralynx/frontend/tests/driver_names.awk
+#   ec52f1377add27b41d042f6581485173b5b115e2c5ccb5c04f10ffe8d7258392  ai_re/nix/packages/sai-teralynx/frontend/tests/test_port_cpp.cpp
+#   cf1c94e604ff7e2533ca9ad3a52f47430b0f929424542053f957814765601bad  ai_re/nix/packages/sai-teralynx/frontend/tests/test_port.h
+#   be9cade4b01baeaa3b71b07fe36d81d58fdcea26d5fc5a7e98a172d0cec91665  ai_re/nix/packages/sai-teralynx/frontend/tests/test_tables.h
+# Inputs: golden/differential-inputs.txt holds the 11 scripts as captured and the two table files
+# (written by a three-line C++ program over tests/test_tables.h: ms_table() and kExtPhyGood with
+# "holdoff-ms 50" turned into "holdoff-ms 0"). sha256 of the scripts (rust/sai/crates/sai-driver/
+# tests/driver-scripts/*.ops, as in the tree at capture) and of the tables:
+#   540af26430cea69852129b4b8bbc5f0945adf990cf6a327f933aea658f54e53f  01-switch.ops
+#   854857f0e265cbd5b2117e77fb60c82b48f1078035311f237a2104bee11db61b  02-ports.ops
+#   9b2ff93592f13804d24474a9757e41c78e86c01fb44c64b745cd7425ed4e7ea6  03-vlan-fdb.ops
+#   0b971a1d9d3ad2f30dde1d9b0dbb47ba44d007cbee6e278d505f360c00d95f39  04-lag.ops
+#   cfc2b56fe535e196b2c6e33d67edb255b570385451579a14a71ef000b3e7cf69  05-hostif-traps.ops
+#   14a9e8956e2f2e3318af1141adf548fa209d103298f86a1adb6e173405174044  06-l3.ops
+#   ad50839914664d98dcb38d2a5ae9284f7649e994a78700fe031eb2eead235213  07-acl-copp.ops
+#   e6d27e84887dce407e6fe707650d56826f1bdf4ca0eb362da26f98f15e8b7654  08-qos.ops
+#   8648824bd4bc7e30178882da8f8ecb3dd6c54997fcfbcbd90d17d29ae4ea0fa9  09-mirror-sample-hash.ops
+#   908dbd35144c5484ea4fed4c890b29bb11c89c032819bbcc082c1bebf99cb13b  10-ext-phy.ops
+#   a2bbdd0289fbb44747cf4172a81e0db16211da03b0aa67de16ec095aa863d646  11-macsec.ops
+#   aecc9fac5d22a71ba02c1cf1ae7097ecee5690d543a5b4c9b4dd794410b49add  ext-macsec.tbl
+#   a12dc36576331bdb084d303fa90c8ca71cb3c1153ededa8924edf27acd8fd8ea  ext-phy.tbl
+# Produced by: cargo test -p sai-driver --test differential (SAI_OPENBCM_TESTS=ai_re/nix/packages/
+# sai-teralynx/frontend/tests, SAI_OPENBCM_SRC=.../frontend/src, SAI_INC as above; no seeds: the
+# scripts are fixed), which built the C++ driver and reported "11 scripts, 455 ops, 455 identical,
+# 0 differ, 0 allow-list entries"; then, for each script S of the inputs, in a fresh directory:
+#   <that driver> S 2>/dev/null          (S with @EXT_PHY_TABLE@ / @EXT_MACSEC_TABLE@ replaced by the
+#                                          absolute path of the table file of the inputs)
+# the stdout is the section "@@@@ cpp <stem>" verbatim, except that those two table paths are
+# written back as @EXT_PHY_TABLE@ / @EXT_MACSEC_TABLE@ (the test writes the Rust output and the live
+# C++ output the same way). Stderr (the library's log lines) is not part of the comparison.
+# NOT to be regenerated from the Rust output (the C++ frontend is deleted after H5; regenerating from
+# Rust would make the test compare Rust with itself). A deliberate behaviour change edits the
+# affected lines by hand, or adds an entry to tests/differential-allow.txt, with a reason.
+@@@@ cpp 01-switch
+> profile SAI_OPENBCM_FAKE_PORTS=4
+= SUCCESS
+> switch SRC_MAC_ADDRESS=02:11:22:33:44:55 FDB_AGING_TIME=300
+= SUCCESS
+  be init(profile={SAI_OPENBCM_BACKEND="openbcm",SAI_OPENBCM_FAKE_LANES="4",SAI_OPENBCM_FAKE_PORTS="4",SAI_OPENBCM_FAKE_SPEED="100000"}) -> SUCCESS
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false}]
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false}]
+  be port_admin_set(hw=1, up=false) -> SUCCESS
+  be port_link_get(hw=1) -> SUCCESS up=false
+  be port_admin_set(hw=5, up=false) -> SUCCESS
+  be port_link_get(hw=5) -> SUCCESS up=false
+  be port_admin_set(hw=9, up=false) -> SUCCESS
+  be port_link_get(hw=9) -> SUCCESS up=false
+  be port_admin_set(hw=13, up=false) -> SUCCESS
+  be port_link_get(hw=13) -> SUCCESS up=false
+  be vlan_members(vid=1) -> SUCCESS out=[(1,true),(5,true),(9,true),(13,true)]
+  be l2_age_set(seconds=300) -> SUCCESS
+> get switch switch PORT_NUMBER CPU_PORT PORT_LIST DEFAULT_VLAN_ID DEFAULT_VIRTUAL_ROUTER_ID DEFAULT_1Q_BRIDGE_ID
+= SUCCESS
+  PORT_NUMBER=4
+  CPU_PORT=cpu
+  PORT_LIST=[port0,port1,port2,port3]
+  DEFAULT_VLAN_ID=vlan1
+  DEFAULT_VIRTUAL_ROUTER_ID=vr0
+  DEFAULT_1Q_BRIDGE_ID=bridge
+> get switch switch DEFAULT_STP_INST_ID DEFAULT_TRAP_GROUP SRC_MAC_ADDRESS FDB_AGING_TIME
+= SUCCESS
+  DEFAULT_STP_INST_ID=stp0
+  DEFAULT_TRAP_GROUP=trapgroup0
+  SRC_MAC_ADDRESS=02:11:22:33:44:55
+  FDB_AGING_TIME=300
+> get switch switch PORT_LIST
+= SUCCESS
+  PORT_LIST=[port0,port1,port2,port3]
+> set switch switch SRC_MAC_ADDRESS=02:00:00:00:aa:01
+= SUCCESS
+> get switch switch SRC_MAC_ADDRESS
+= SUCCESS
+  SRC_MAC_ADDRESS=02:00:00:00:aa:01
+> set switch switch FDB_AGING_TIME=600
+= SUCCESS
+  be l2_age_set(seconds=600) -> SUCCESS
+> get switch switch FDB_AGING_TIME
+= SUCCESS
+  FDB_AGING_TIME=600
+> set switch switch ECMP_DEFAULT_HASH_SEED=1234
+= SUCCESS
+> get switch switch ECMP_DEFAULT_HASH_SEED
+= SUCCESS
+  ECMP_DEFAULT_HASH_SEED=1234
+> get switch switch ECMP_HASH
+= ATTR_NOT_SUPPORTED_0
+> get switch switch ACL_ENTRY_MINIMUM_PRIORITY ACL_ENTRY_MAXIMUM_PRIORITY MAX_ACL_ACTION_COUNT
+= SUCCESS
+  ACL_ENTRY_MINIMUM_PRIORITY=0
+  ACL_ENTRY_MAXIMUM_PRIORITY=2147483647
+  MAX_ACL_ACTION_COUNT=3
+> get switch switch NUMBER_OF_ECMP_GROUPS ECMP_MEMBERS MAX_ECMP_MEMBER_COUNT TOTAL_BUFFER_SIZE
+= SUCCESS
+  NUMBER_OF_ECMP_GROUPS=4096
+  ECMP_MEMBERS=64
+  MAX_ECMP_MEMBER_COUNT=16384
+  TOTAL_BUFFER_SIZE=16384
+> get switch switch AVAILABLE_IPV4_ROUTE_ENTRY AVAILABLE_IPV6_ROUTE_ENTRY AVAILABLE_IPV4_NEXTHOP_ENTRY AVAILABLE_FDB_ENTRY
+= SUCCESS
+  AVAILABLE_IPV4_ROUTE_ENTRY=16384
+  AVAILABLE_IPV6_ROUTE_ENTRY=8192
+  AVAILABLE_IPV4_NEXTHOP_ENTRY=32768
+  AVAILABLE_FDB_ENTRY=32768
+  be table_usage() -> SUCCESS u={v4_routes_free=16384,v6_routes_free=8192,hosts_free=16384,egress_free=32768,fdb_free=32768,ecmp_groups_free=4096,ecmp_members_free=16384}
+  be table_usage() -> SUCCESS u={v4_routes_free=16384,v6_routes_free=8192,hosts_free=16384,egress_free=32768,fdb_free=32768,ecmp_groups_free=4096,ecmp_members_free=16384}
+  be table_usage() -> SUCCESS u={v4_routes_free=16384,v6_routes_free=8192,hosts_free=16384,egress_free=32768,fdb_free=32768,ecmp_groups_free=4096,ecmp_members_free=16384}
+  be table_usage() -> SUCCESS u={v4_routes_free=16384,v6_routes_free=8192,hosts_free=16384,egress_free=32768,fdb_free=32768,ecmp_groups_free=4096,ecmp_members_free=16384}
+> get switch switch AVAILABLE_IPV4_NEIGHBOR_ENTRY AVAILABLE_IPV6_NEIGHBOR_ENTRY AVAILABLE_NEXT_HOP_GROUP_ENTRY
+= SUCCESS
+  AVAILABLE_IPV4_NEIGHBOR_ENTRY=16384
+  AVAILABLE_IPV6_NEIGHBOR_ENTRY=8192
+  AVAILABLE_NEXT_HOP_GROUP_ENTRY=4096
+  be table_usage() -> SUCCESS u={v4_routes_free=16384,v6_routes_free=8192,hosts_free=16384,egress_free=32768,fdb_free=32768,ecmp_groups_free=4096,ecmp_members_free=16384}
+  be table_usage() -> SUCCESS u={v4_routes_free=16384,v6_routes_free=8192,hosts_free=16384,egress_free=32768,fdb_free=32768,ecmp_groups_free=4096,ecmp_members_free=16384}
+  be table_usage() -> SUCCESS u={v4_routes_free=16384,v6_routes_free=8192,hosts_free=16384,egress_free=32768,fdb_free=32768,ecmp_groups_free=4096,ecmp_members_free=16384}
+> get switch switch MAX_NUMBER_OF_TEMP_SENSORS TEMP_LIST MAX_TEMP AVERAGE_TEMP
+= SUCCESS
+  MAX_NUMBER_OF_TEMP_SENSORS=8
+  TEMP_LIST=[40,42,43,45,46,48,49,51]
+  MAX_TEMP=51
+  AVERAGE_TEMP=45
+  be asic_temperatures() -> SUCCESS cur=[400,415,430,445,460,475,490,505] peak=[405,420,435,450,465,480,495,510]
+  be asic_temperatures() -> SUCCESS cur=[400,415,430,445,460,475,490,505] peak=[405,420,435,450,465,480,495,510]
+  be asic_temperatures() -> SUCCESS cur=[400,415,430,445,460,475,490,505] peak=[405,420,435,450,465,480,495,510]
+  be asic_temperatures() -> SUCCESS cur=[400,415,430,445,460,475,490,505] peak=[405,420,435,450,465,480,495,510]
+> set switch switch MAX_TEMP=1
+= ATTR_NOT_SUPPORTED_0
+> remove_switch
+= SUCCESS
+  be shutdown() -> void
+> switch
+= SUCCESS
+  be init(profile={SAI_OPENBCM_BACKEND="openbcm",SAI_OPENBCM_FAKE_LANES="4",SAI_OPENBCM_FAKE_PORTS="4",SAI_OPENBCM_FAKE_SPEED="100000"}) -> SUCCESS
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false}]
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false}]
+  be port_admin_set(hw=1, up=false) -> SUCCESS
+  be port_link_get(hw=1) -> SUCCESS up=false
+  be port_admin_set(hw=5, up=false) -> SUCCESS
+  be port_link_get(hw=5) -> SUCCESS up=false
+  be port_admin_set(hw=9, up=false) -> SUCCESS
+  be port_link_get(hw=9) -> SUCCESS up=false
+  be port_admin_set(hw=13, up=false) -> SUCCESS
+  be port_link_get(hw=13) -> SUCCESS up=false
+  be vlan_members(vid=1) -> SUCCESS out=[(1,true),(5,true),(9,true),(13,true)]
+> get switch switch NUMBER_OF_ACTIVE_PORTS
+= SUCCESS
+  NUMBER_OF_ACTIVE_PORTS=4
+> remove_switch
+= SUCCESS
+  be shutdown() -> void
+@@@@ cpp 02-ports
+> switch
+= SUCCESS
+  be init(profile={SAI_OPENBCM_BACKEND="openbcm",SAI_OPENBCM_FAKE_LANES="4",SAI_OPENBCM_FAKE_PORTS="8",SAI_OPENBCM_FAKE_SPEED="100000"}) -> SUCCESS
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false},{hw=17,lanes=[17,18,19,20],speed=100000,name="ce4",autoneg=false},{hw=21,lanes=[21,22,23,24],speed=100000,name="ce5",autoneg=false},{hw=25,lanes=[25,26,27,28],speed=100000,name="ce6",autoneg=false},{hw=29,lanes=[29,30,31,32],speed=100000,name="ce7",autoneg=false}]
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false},{hw=17,lanes=[17,18,19,20],speed=100000,name="ce4",autoneg=false},{hw=21,lanes=[21,22,23,24],speed=100000,name="ce5",autoneg=false},{hw=25,lanes=[25,26,27,28],speed=100000,name="ce6",autoneg=false},{hw=29,lanes=[29,30,31,32],speed=100000,name="ce7",autoneg=false}]
+  be port_admin_set(hw=1, up=false) -> SUCCESS
+  be port_link_get(hw=1) -> SUCCESS up=false
+  be port_admin_set(hw=5, up=false) -> SUCCESS
+  be port_link_get(hw=5) -> SUCCESS up=false
+  be port_admin_set(hw=9, up=false) -> SUCCESS
+  be port_link_get(hw=9) -> SUCCESS up=false
+  be port_admin_set(hw=13, up=false) -> SUCCESS
+  be port_link_get(hw=13) -> SUCCESS up=false
+  be port_admin_set(hw=17, up=false) -> SUCCESS
+  be port_link_get(hw=17) -> SUCCESS up=false
+  be port_admin_set(hw=21, up=false) -> SUCCESS
+  be port_link_get(hw=21) -> SUCCESS up=false
+  be port_admin_set(hw=25, up=false) -> SUCCESS
+  be port_link_get(hw=25) -> SUCCESS up=false
+  be port_admin_set(hw=29, up=false) -> SUCCESS
+  be port_link_get(hw=29) -> SUCCESS up=false
+  be vlan_members(vid=1) -> SUCCESS out=[(1,true),(5,true),(9,true),(13,true),(17,true),(21,true),(25,true),(29,true)]
+> get port port0 HW_LANE_LIST SPEED SUPPORTED_SPEED ADMIN_STATE OPER_STATUS MTU
+= SUCCESS
+  HW_LANE_LIST=[1,2,3,4]
+  SPEED=100000
+  SUPPORTED_SPEED=[40000,100000]
+  ADMIN_STATE=false
+  OPER_STATUS=DOWN
+  MTU=1514
+  be port_speed_get(hw=1) -> SUCCESS mbps=100000
+  be port_supported_speeds(hw=1) -> SUCCESS out=[40000,100000]
+  be port_link_get(hw=1) -> SUCCESS up=false
+> set port port0 SPEED=40000
+= SUCCESS
+  be port_speed_set(hw=1, mbps=40000) -> SUCCESS
+> get port port0 SPEED
+= SUCCESS
+  SPEED=40000
+  be port_speed_get(hw=1) -> SUCCESS mbps=40000
+> set port port0 SPEED=25000
+= ATTR_NOT_SUPPORTED_0
+  be port_speed_set(hw=1, mbps=25000) -> NOT_SUPPORTED
+> set port port0 SPEED=100000
+= SUCCESS
+  be port_speed_set(hw=1, mbps=100000) -> SUCCESS
+> set port port0 MTU=9100
+= SUCCESS
+  be port_frame_max_set(hw=1, bytes=9108) -> SUCCESS
+> set port port0 MTU=20000
+= INVALID_ATTR_VALUE_0
+> set port port0 FEC_MODE=RS
+= SUCCESS
+  be port_fec_set(hw=1, fec=Rs) -> SUCCESS
+> get port port0 FEC_MODE
+= SUCCESS
+  FEC_MODE=RS
+> set port port0 AUTO_NEG_MODE=true
+= SUCCESS
+  be port_autoneg_set(hw=1, on=true) -> SUCCESS
+> set port port0 ADMIN_STATE=true
+= SUCCESS
+  be event link(hw=1, up=true)
+  be port_admin_set(hw=1, up=true) -> SUCCESS
+  notify port port0 UP
+> get port port0 OPER_STATUS
+= SUCCESS
+  OPER_STATUS=UP
+  be port_link_get(hw=1) -> SUCCESS up=true
+> inject link port0 down
+= SUCCESS
+  be event link(hw=1, up=false)
+  notify port port0 DOWN
+> get port port0 OPER_STATUS
+= SUCCESS
+  OPER_STATUS=DOWN
+  be port_link_get(hw=1) -> SUCCESS up=false
+> linkscan
+= SUCCESS
+  be event link(hw=1, up=true)
+  notify port port0 UP
+> set port port0 ADMIN_STATE=false
+= SUCCESS
+  be event link(hw=1, up=false)
+  be port_admin_set(hw=1, up=false) -> SUCCESS
+  notify port port0 DOWN
+> set port port1 LOOPBACK_MODE=MAC
+= SUCCESS
+  be port_loopback_set(hw=5, lb=Mac) -> SUCCESS
+> set port port1 ADMIN_STATE=true
+= SUCCESS
+  be event link(hw=5, up=true)
+  be port_admin_set(hw=5, up=true) -> SUCCESS
+  notify port port1 UP
+> get port port1 OPER_STATUS LOOPBACK_MODE
+= SUCCESS
+  OPER_STATUS=UP
+  LOOPBACK_MODE=MAC
+  be port_link_get(hw=5) -> SUCCESS up=true
+> set port port1 ADMIN_STATE=false
+= SUCCESS
+  be event link(hw=5, up=false)
+  be port_admin_set(hw=5, up=false) -> SUCCESS
+  notify port port1 DOWN
+> get port cpu TYPE
+= SUCCESS
+  TYPE=CPU
+> set port cpu ADMIN_STATE=false
+= ATTR_NOT_SUPPORTED_0
+> get port port0 QOS_NUMBER_OF_QUEUES QOS_QUEUE_LIST
+= SUCCESS
+  QOS_NUMBER_OF_QUEUES=8
+  QOS_QUEUE_LIST=[queue#1,queue#2,queue#3,queue#4,queue#5,queue#6,queue#7,queue#8]
+> get queue queue#3 PORT INDEX TYPE
+= SUCCESS
+  PORT=port0
+  INDEX=2
+  TYPE=UNICAST
+> inject stat port0 IF_IN_OCTETS 1000
+= SUCCESS
+> inject stat port0 IF_OUT_UCAST_PKTS 7
+= SUCCESS
+> stats port port0 IF_IN_OCTETS IF_OUT_UCAST_PKTS
+= SUCCESS
+  IF_IN_OCTETS=1000
+  IF_OUT_UCAST_PKTS=7
+  be port_stat_get(hw=1, stat=InOctets) -> SUCCESS v=1000
+  be port_stat_get(hw=1, stat=OutUcastPkts) -> SUCCESS v=7
+> stats port port0 PFC_0_RX_PKTS
+= NOT_SUPPORTED
+> clear port port0 IF_IN_OCTETS
+= NOT_SUPPORTED
+> set port port0 PORT_VLAN_ID=4095
+= INVALID_ATTR_VALUE_0
+> remove_switch
+= SUCCESS
+  be shutdown() -> void
+@@@@ cpp 03-vlan-fdb
+> switch
+= SUCCESS
+  be init(profile={SAI_OPENBCM_BACKEND="openbcm",SAI_OPENBCM_FAKE_LANES="4",SAI_OPENBCM_FAKE_PORTS="8",SAI_OPENBCM_FAKE_SPEED="100000"}) -> SUCCESS
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false},{hw=17,lanes=[17,18,19,20],speed=100000,name="ce4",autoneg=false},{hw=21,lanes=[21,22,23,24],speed=100000,name="ce5",autoneg=false},{hw=25,lanes=[25,26,27,28],speed=100000,name="ce6",autoneg=false},{hw=29,lanes=[29,30,31,32],speed=100000,name="ce7",autoneg=false}]
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false},{hw=17,lanes=[17,18,19,20],speed=100000,name="ce4",autoneg=false},{hw=21,lanes=[21,22,23,24],speed=100000,name="ce5",autoneg=false},{hw=25,lanes=[25,26,27,28],speed=100000,name="ce6",autoneg=false},{hw=29,lanes=[29,30,31,32],speed=100000,name="ce7",autoneg=false}]
+  be port_admin_set(hw=1, up=false) -> SUCCESS
+  be port_link_get(hw=1) -> SUCCESS up=false
+  be port_admin_set(hw=5, up=false) -> SUCCESS
+  be port_link_get(hw=5) -> SUCCESS up=false
+  be port_admin_set(hw=9, up=false) -> SUCCESS
+  be port_link_get(hw=9) -> SUCCESS up=false
+  be port_admin_set(hw=13, up=false) -> SUCCESS
+  be port_link_get(hw=13) -> SUCCESS up=false
+  be port_admin_set(hw=17, up=false) -> SUCCESS
+  be port_link_get(hw=17) -> SUCCESS up=false
+  be port_admin_set(hw=21, up=false) -> SUCCESS
+  be port_link_get(hw=21) -> SUCCESS up=false
+  be port_admin_set(hw=25, up=false) -> SUCCESS
+  be port_link_get(hw=25) -> SUCCESS up=false
+  be port_admin_set(hw=29, up=false) -> SUCCESS
+  be port_link_get(hw=29) -> SUCCESS up=false
+  be vlan_members(vid=1) -> SUCCESS out=[(1,true),(5,true),(9,true),(13,true),(17,true),(21,true),(25,true),(29,true)]
+> get vlan vlan1 VLAN_ID MEMBER_LIST
+= SUCCESS
+  VLAN_ID=1
+  MEMBER_LIST=[vlan_member#1,vlan_member#2,vlan_member#3,vlan_member#4,vlan_member#5,vlan_member#6,vlan_member#7,vlan_member#8]
+> get bridge bridge TYPE PORT_LIST
+= SUCCESS
+  TYPE=1Q
+  PORT_LIST=[bport0,bport1,bport2,bport3,bport4,bport5,bport6,bport7]
+> get vlan_member vlan_member#1 VLAN_ID BRIDGE_PORT_ID VLAN_TAGGING_MODE
+= SUCCESS
+  VLAN_ID=vlan1
+  BRIDGE_PORT_ID=bport0
+  VLAN_TAGGING_MODE=UNTAGGED
+> remove bridge_port bport0
+= OBJECT_IN_USE
+> remove vlan_member vlan_member#1
+= SUCCESS
+  be vlan_port_remove(vid=1, hw=1) -> SUCCESS
+> remove bridge_port bport0
+= SUCCESS
+  be l2_flush(hw=1, vid=-1, statics=false, dynamics=true) -> SUCCESS
+> create bridge_port bp0 TYPE=PORT PORT_ID=port0 ADMIN_STATE=true FDB_LEARNING_MODE=DISABLE
+= SUCCESS
+  be port_learn_set(hw=1, mode=Disable) -> SUCCESS
+> create bridge_port bpx TYPE=PORT PORT_ID=port0 ADMIN_STATE=true
+= ITEM_ALREADY_EXISTS
+> create vlan v100 VLAN_ID=100
+= SUCCESS
+  be vlan_create(vid=100) -> SUCCESS
+> create vlan v100b VLAN_ID=100
+= ITEM_ALREADY_EXISTS
+> create vlan bad VLAN_ID=4095
+= INVALID_ATTR_VALUE_0
+> create vlan_member m100 VLAN_ID=v100 BRIDGE_PORT_ID=bp0 VLAN_TAGGING_MODE=TAGGED
+= SUCCESS
+  be vlan_port_add(vid=100, hw=1, untagged=false) -> SUCCESS
+> set vlan_member m100 VLAN_TAGGING_MODE=UNTAGGED
+= SUCCESS
+  be vlan_port_add(vid=100, hw=1, untagged=true) -> SUCCESS
+> set port port0 PORT_VLAN_ID=100
+= SUCCESS
+  be port_pvid_set(hw=1, vid=100) -> SUCCESS
+> get vlan v100 MEMBER_LIST
+= SUCCESS
+  MEMBER_LIST=[m100]
+> get stp stp0 VLAN_LIST
+= SUCCESS
+  VLAN_LIST=[1,100]
+> create fdb_entry 00:11:22:33:44:55@vlan1 TYPE=STATIC BRIDGE_PORT_ID=bport1 PACKET_ACTION=FORWARD
+= SUCCESS
+  be l2_add(mac=00:11:22:33:44:55, vid=1, hw=5, is_static=true, discard=false) -> SUCCESS
+> create fdb_entry 00:11:22:33:44:55@vlan1 TYPE=STATIC BRIDGE_PORT_ID=bport1
+= ITEM_ALREADY_EXISTS
+> create fdb_entry 00:11:22:33:44:66@vlan1 TYPE=DYNAMIC BRIDGE_PORT_ID=bport1
+= SUCCESS
+  be l2_add(mac=00:11:22:33:44:66, vid=1, hw=5, is_static=false, discard=false) -> SUCCESS
+> get fdb_entry 00:11:22:33:44:55@vlan1 TYPE BRIDGE_PORT_ID PACKET_ACTION
+= SUCCESS
+  TYPE=STATIC
+  BRIDGE_PORT_ID=bport1
+  PACKET_ACTION=FORWARD
+> flush BRIDGE_PORT_ID=bport1 ENTRY_TYPE=DYNAMIC
+= SUCCESS
+  be l2_flush(hw=5, vid=-1, statics=false, dynamics=true) -> SUCCESS
+> get fdb_entry 00:11:22:33:44:66@vlan1 TYPE
+= ITEM_NOT_FOUND
+> inject fdb learned 00:aa:bb:cc:dd:01 1 port2
+= SUCCESS
+  be event fdb(learned=true, mac=00:aa:bb:cc:dd:01, vid=1, hw_port=9)
+  notify fdb LEARNED 00:aa:bb:cc:dd:01@vlan1 bridge_port=bport2
+> get fdb_entry 00:aa:bb:cc:dd:01@vlan1 TYPE BRIDGE_PORT_ID
+= SUCCESS
+  TYPE=DYNAMIC
+  BRIDGE_PORT_ID=bport2
+> inject fdb aged 00:aa:bb:cc:dd:01 1 port2
+= SUCCESS
+  be event fdb(learned=false, mac=00:aa:bb:cc:dd:01, vid=1, hw_port=9)
+  notify fdb AGED 00:aa:bb:cc:dd:01@vlan1 bridge_port=bport2
+> create fdb_entry 00:11:22:33:44:77@vlan1 TYPE=DYNAMIC BRIDGE_PORT_ID=bport1
+= SUCCESS
+  be l2_add(mac=00:11:22:33:44:77, vid=1, hw=5, is_static=false, discard=false) -> SUCCESS
+> inject fdb learned 00:11:22:33:44:77 1 port1
+= SUCCESS
+  be event fdb(learned=true, mac=00:11:22:33:44:77, vid=1, hw_port=5)
+> inject fdb learned 00:11:22:33:44:77 1 port2
+= SUCCESS
+  be event fdb(learned=true, mac=00:11:22:33:44:77, vid=1, hw_port=9)
+  notify fdb MOVE 00:11:22:33:44:77@vlan1 bridge_port=bport2
+> remove fdb_entry 00:11:22:33:44:55@vlan1
+= SUCCESS
+  be l2_delete(mac=00:11:22:33:44:55, vid=1) -> SUCCESS
+> remove fdb_entry 00:11:22:33:44:55@vlan1
+= ITEM_NOT_FOUND
+> flush
+= SUCCESS
+  be l2_flush(hw=-1, vid=-1, statics=false, dynamics=true) -> SUCCESS
+> remove vlan v100
+= OBJECT_IN_USE
+> remove vlan_member m100
+= SUCCESS
+  be vlan_port_remove(vid=100, hw=1) -> SUCCESS
+> remove vlan v100
+= SUCCESS
+  be vlan_destroy(vid=100) -> SUCCESS
+> remove_switch
+= SUCCESS
+  be shutdown() -> void
+@@@@ cpp 04-lag
+> switch
+= SUCCESS
+  be init(profile={SAI_OPENBCM_BACKEND="openbcm",SAI_OPENBCM_FAKE_LANES="4",SAI_OPENBCM_FAKE_PORTS="8",SAI_OPENBCM_FAKE_SPEED="100000"}) -> SUCCESS
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false},{hw=17,lanes=[17,18,19,20],speed=100000,name="ce4",autoneg=false},{hw=21,lanes=[21,22,23,24],speed=100000,name="ce5",autoneg=false},{hw=25,lanes=[25,26,27,28],speed=100000,name="ce6",autoneg=false},{hw=29,lanes=[29,30,31,32],speed=100000,name="ce7",autoneg=false}]
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false},{hw=17,lanes=[17,18,19,20],speed=100000,name="ce4",autoneg=false},{hw=21,lanes=[21,22,23,24],speed=100000,name="ce5",autoneg=false},{hw=25,lanes=[25,26,27,28],speed=100000,name="ce6",autoneg=false},{hw=29,lanes=[29,30,31,32],speed=100000,name="ce7",autoneg=false}]
+  be port_admin_set(hw=1, up=false) -> SUCCESS
+  be port_link_get(hw=1) -> SUCCESS up=false
+  be port_admin_set(hw=5, up=false) -> SUCCESS
+  be port_link_get(hw=5) -> SUCCESS up=false
+  be port_admin_set(hw=9, up=false) -> SUCCESS
+  be port_link_get(hw=9) -> SUCCESS up=false
+  be port_admin_set(hw=13, up=false) -> SUCCESS
+  be port_link_get(hw=13) -> SUCCESS up=false
+  be port_admin_set(hw=17, up=false) -> SUCCESS
+  be port_link_get(hw=17) -> SUCCESS up=false
+  be port_admin_set(hw=21, up=false) -> SUCCESS
+  be port_link_get(hw=21) -> SUCCESS up=false
+  be port_admin_set(hw=25, up=false) -> SUCCESS
+  be port_link_get(hw=25) -> SUCCESS up=false
+  be port_admin_set(hw=29, up=false) -> SUCCESS
+  be port_link_get(hw=29) -> SUCCESS up=false
+  be vlan_members(vid=1) -> SUCCESS out=[(1,true),(5,true),(9,true),(13,true),(17,true),(21,true),(25,true),(29,true)]
+> get vlan vlan1 MEMBER_LIST
+= SUCCESS
+  MEMBER_LIST=[vlan_member#1,vlan_member#2,vlan_member#3,vlan_member#4,vlan_member#5,vlan_member#6,vlan_member#7,vlan_member#8]
+> remove vlan_member vlan_member#5
+= SUCCESS
+  be vlan_port_remove(vid=1, hw=17) -> SUCCESS
+> remove bridge_port bport4
+= SUCCESS
+  be l2_flush(hw=17, vid=-1, statics=false, dynamics=true) -> SUCCESS
+> remove vlan_member vlan_member#6
+= SUCCESS
+  be vlan_port_remove(vid=1, hw=21) -> SUCCESS
+> remove bridge_port bport5
+= SUCCESS
+  be l2_flush(hw=21, vid=-1, statics=false, dynamics=true) -> SUCCESS
+> remove vlan_member vlan_member#7
+= SUCCESS
+  be vlan_port_remove(vid=1, hw=25) -> SUCCESS
+> remove bridge_port bport6
+= SUCCESS
+  be l2_flush(hw=25, vid=-1, statics=false, dynamics=true) -> SUCCESS
+> create lag lag1
+= SUCCESS
+  be lag_create() -> SUCCESS tid=1
+> get lag lag1 PORT_VLAN_ID TPID PORT_LIST
+= SUCCESS
+  PORT_VLAN_ID=1
+  TPID=33024
+  PORT_LIST=[]
+> create lag_member lm4 LAG_ID=lag1 PORT_ID=port4 EGRESS_DISABLE=true INGRESS_DISABLE=true
+= SUCCESS
+  be lag_set_members(tid=1, members=[{hw=17,egress_disable=true,ingress_disable=true}]) -> SUCCESS
+  be port_pvid_set(hw=17, vid=1) -> SUCCESS
+> set lag_member lm4 INGRESS_DISABLE=false
+= SUCCESS
+  be lag_set_members(tid=1, members=[{hw=17,egress_disable=true,ingress_disable=false}]) -> SUCCESS
+> set lag_member lm4 EGRESS_DISABLE=false
+= SUCCESS
+  be lag_set_members(tid=1, members=[{hw=17,egress_disable=false,ingress_disable=false}]) -> SUCCESS
+> create lag_member lm5 LAG_ID=lag1 PORT_ID=port5
+= SUCCESS
+  be lag_set_members(tid=1, members=[{hw=17,egress_disable=false,ingress_disable=false},{hw=21,egress_disable=false,ingress_disable=false}]) -> SUCCESS
+  be port_pvid_set(hw=21, vid=1) -> SUCCESS
+> create lag_member lmx LAG_ID=lag1 PORT_ID=port7
+= OBJECT_IN_USE
+> get lag lag1 PORT_LIST
+= SUCCESS
+  PORT_LIST=[lm4,lm5]
+> set lag lag1 PORT_VLAN_ID=300
+= SUCCESS
+  be port_pvid_set(hw=17, vid=300) -> SUCCESS
+  be port_pvid_set(hw=21, vid=300) -> SUCCESS
+> create bridge_port lbp TYPE=PORT PORT_ID=lag1 FDB_LEARNING_MODE=DISABLE
+= SUCCESS
+  be port_learn_set(hw=17, mode=Disable) -> SUCCESS
+  be port_learn_set(hw=21, mode=Disable) -> SUCCESS
+> set bridge_port lbp FDB_LEARNING_MODE=HW
+= SUCCESS
+  be port_learn_set(hw=17, mode=Hw) -> SUCCESS
+  be port_learn_set(hw=21, mode=Hw) -> SUCCESS
+> create vlan v300 VLAN_ID=300
+= SUCCESS
+  be vlan_create(vid=300) -> SUCCESS
+> create vlan_member vm VLAN_ID=v300 BRIDGE_PORT_ID=lbp VLAN_TAGGING_MODE=TAGGED
+= SUCCESS
+  be vlan_port_add(vid=300, hw=17, untagged=false) -> SUCCESS
+  be vlan_port_add(vid=300, hw=21, untagged=false) -> SUCCESS
+> set vlan_member vm VLAN_TAGGING_MODE=UNTAGGED
+= SUCCESS
+  be vlan_port_add(vid=300, hw=17, untagged=true) -> SUCCESS
+  be vlan_port_add(vid=300, hw=21, untagged=true) -> SUCCESS
+> create lag_member lm6 LAG_ID=lag1 PORT_ID=port6
+= SUCCESS
+  be lag_set_members(tid=1, members=[{hw=17,egress_disable=false,ingress_disable=false},{hw=21,egress_disable=false,ingress_disable=false},{hw=25,egress_disable=false,ingress_disable=false}]) -> SUCCESS
+  be port_learn_set(hw=25, mode=Hw) -> SUCCESS
+  be vlan_port_add(vid=300, hw=25, untagged=true) -> SUCCESS
+  be port_pvid_set(hw=25, vid=300) -> SUCCESS
+> remove lag_member lm6
+= SUCCESS
+  be lag_set_members(tid=1, members=[{hw=17,egress_disable=false,ingress_disable=false},{hw=21,egress_disable=false,ingress_disable=false}]) -> SUCCESS
+  be vlan_port_remove(vid=300, hw=25) -> SUCCESS
+  be port_learn_set(hw=25, mode=Hw) -> SUCCESS
+  be port_pvid_set(hw=25, vid=1) -> SUCCESS
+> create fdb_entry 00:11:22:33:44:91@v300 TYPE=STATIC BRIDGE_PORT_ID=lbp
+= SUCCESS
+  be l2_add(mac=00:11:22:33:44:91, vid=300, hw=1073741825, is_static=true, discard=false) -> SUCCESS
+> inject fdb learned 00:aa:bb:cc:dd:92 300 lag1
+= SUCCESS
+  be event fdb(learned=true, mac=00:aa:bb:cc:dd:92, vid=300, hw_port=1073741825)
+  notify fdb LEARNED 00:aa:bb:cc:dd:92@v300 bridge_port=lbp
+> flush BRIDGE_PORT_ID=lbp ENTRY_TYPE=DYNAMIC
+= SUCCESS
+  be l2_flush(hw=1073741825, vid=-1, statics=false, dynamics=true) -> SUCCESS
+> remove fdb_entry 00:11:22:33:44:91@v300
+= SUCCESS
+  be l2_delete(mac=00:11:22:33:44:91, vid=300) -> SUCCESS
+> remove vlan_member vm
+= SUCCESS
+  be vlan_port_remove(vid=300, hw=17) -> SUCCESS
+  be vlan_port_remove(vid=300, hw=21) -> SUCCESS
+> remove vlan v300
+= SUCCESS
+  be vlan_destroy(vid=300) -> SUCCESS
+> remove bridge_port lbp
+= SUCCESS
+  be l2_flush(hw=1073741825, vid=-1, statics=false, dynamics=true) -> SUCCESS
+> create router_interface lrif VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=lag1
+= SUCCESS
+  be vlan_create(vid=4094) -> SUCCESS
+  be vlan_port_add(vid=4094, hw=17, untagged=true) -> SUCCESS
+  be vlan_port_add(vid=4094, hw=21, untagged=true) -> SUCCESS
+  be port_pvid_set(hw=17, vid=4094) -> SUCCESS
+  be port_pvid_set(hw=21, vid=4094) -> SUCCESS
+  be l3_station_add(mac=02:00:00:00:00:01) -> SUCCESS station_id=1
+  be l3_intf_create(mac=02:00:00:00:00:01, vid=4094, mtu=1514, vrf=0) -> SUCCESS intf_id=1
+> get lag lag1 PORT_VLAN_ID
+= SUCCESS
+  PORT_VLAN_ID=4094
+> create neighbor_entry 10.1.0.2@lrif DST_MAC_ADDRESS=00:00:5e:00:53:07
+= SUCCESS
+  be l3_egress_create(intf_id=1, dmac=00:00:5e:00:53:07, hw=1073741825, vid=4094) -> SUCCESS egress_id=100002
+  be l3_host_add(vrf=0, ip=10.1.0.2, egress_id=100002) -> SUCCESS
+> remove lag lag1
+= OBJECT_IN_USE
+> remove neighbor_entry 10.1.0.2@lrif
+= SUCCESS
+  be l3_host_delete(vrf=0, ip=10.1.0.2) -> SUCCESS
+  be l3_egress_cpu() -> SUCCESS egress_id=100003
+  be l3_egress_drop() -> SUCCESS egress_id=100004
+  be l3_egress_glean() -> SUCCESS egress_id=100003
+  be l3_egress_destroy(egress_id=100002) -> SUCCESS
+> remove router_interface lrif
+= SUCCESS
+  be l3_intf_destroy(intf_id=1) -> SUCCESS
+  be vlan_port_remove(vid=4094, hw=17) -> SUCCESS
+  be vlan_port_remove(vid=4094, hw=21) -> SUCCESS
+  be port_pvid_set(hw=17, vid=1) -> SUCCESS
+  be port_pvid_set(hw=21, vid=1) -> SUCCESS
+  be vlan_destroy(vid=4094) -> SUCCESS
+> remove lag_member lm4
+= SUCCESS
+  be lag_set_members(tid=1, members=[{hw=21,egress_disable=false,ingress_disable=false}]) -> SUCCESS
+  be port_pvid_set(hw=17, vid=1) -> SUCCESS
+> remove lag_member lm5
+= SUCCESS
+  be lag_set_members(tid=1, members=[]) -> SUCCESS
+  be port_pvid_set(hw=21, vid=1) -> SUCCESS
+> remove lag lag1
+= SUCCESS
+  be lag_destroy(tid=1) -> SUCCESS
+> remove_switch
+= SUCCESS
+  be shutdown() -> void
+@@@@ cpp 05-hostif-traps
+> switch
+= SUCCESS
+  be init(profile={SAI_OPENBCM_BACKEND="openbcm",SAI_OPENBCM_FAKE_LANES="4",SAI_OPENBCM_FAKE_PORTS="8",SAI_OPENBCM_FAKE_SPEED="100000"}) -> SUCCESS
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false},{hw=17,lanes=[17,18,19,20],speed=100000,name="ce4",autoneg=false},{hw=21,lanes=[21,22,23,24],speed=100000,name="ce5",autoneg=false},{hw=25,lanes=[25,26,27,28],speed=100000,name="ce6",autoneg=false},{hw=29,lanes=[29,30,31,32],speed=100000,name="ce7",autoneg=false}]
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false},{hw=17,lanes=[17,18,19,20],speed=100000,name="ce4",autoneg=false},{hw=21,lanes=[21,22,23,24],speed=100000,name="ce5",autoneg=false},{hw=25,lanes=[25,26,27,28],speed=100000,name="ce6",autoneg=false},{hw=29,lanes=[29,30,31,32],speed=100000,name="ce7",autoneg=false}]
+  be port_admin_set(hw=1, up=false) -> SUCCESS
+  be port_link_get(hw=1) -> SUCCESS up=false
+  be port_admin_set(hw=5, up=false) -> SUCCESS
+  be port_link_get(hw=5) -> SUCCESS up=false
+  be port_admin_set(hw=9, up=false) -> SUCCESS
+  be port_link_get(hw=9) -> SUCCESS up=false
+  be port_admin_set(hw=13, up=false) -> SUCCESS
+  be port_link_get(hw=13) -> SUCCESS up=false
+  be port_admin_set(hw=17, up=false) -> SUCCESS
+  be port_link_get(hw=17) -> SUCCESS up=false
+  be port_admin_set(hw=21, up=false) -> SUCCESS
+  be port_link_get(hw=21) -> SUCCESS up=false
+  be port_admin_set(hw=25, up=false) -> SUCCESS
+  be port_link_get(hw=25) -> SUCCESS up=false
+  be port_admin_set(hw=29, up=false) -> SUCCESS
+  be port_link_get(hw=29) -> SUCCESS up=false
+  be vlan_members(vid=1) -> SUCCESS out=[(1,true),(5,true),(9,true),(13,true),(17,true),(21,true),(25,true),(29,true)]
+> create hostif h0 TYPE=NETDEV OBJ_ID=port0 NAME=Ethernet0
+= SUCCESS
+  be netif_create(ifname="Ethernet0", hw=1, vid=1, mac=02:00:00:00:00:01, keep_tag=false) -> SUCCESS netif_id=1 filter_id=2
+  be netif_carrier_set(ifname="Ethernet0", up=false) -> SUCCESS
+> create hostif hdup TYPE=NETDEV OBJ_ID=port0 NAME=Ethernet0
+= ITEM_ALREADY_EXISTS
+> create hostif hcpu TYPE=NETDEV OBJ_ID=cpu NAME=cpu
+= NOT_SUPPORTED
+> set hostif h0 OPER_STATUS=true
+= SUCCESS
+  be netif_carrier_set(ifname="Ethernet0", up=true) -> SUCCESS
+> set hostif h0 VLAN_TAG=KEEP
+= SUCCESS
+  be netif_set_keep_tag(netif_id=1, hw=1, keep_tag=true, filter_id=-1) -> SUCCESS filter_id=3
+> get hostif h0 NAME TYPE OBJ_ID OPER_STATUS VLAN_TAG
+= SUCCESS
+  NAME="Ethernet0"
+  TYPE=NETDEV
+  OBJ_ID=port0
+  OPER_STATUS=true
+  VLAN_TAG=KEEP
+> create hostif_trap_group grp QUEUE=4
+= SUCCESS
+> create hostif_trap t_arp TRAP_TYPE=ARP_REQUEST PACKET_ACTION=COPY TRAP_GROUP=grp
+= SUCCESS
+  be trap_program(t={type=8192,action=2,priority=0,queue=4,group_up=true,policer=-1,yellow_drop=false,red_drop=false}, remove=false) -> NOT_SUPPORTED
+  be trap_set(kind=ArpRequest, to_cpu=true) -> SUCCESS
+> create hostif_trap t_arp2 TRAP_TYPE=ARP_REQUEST PACKET_ACTION=COPY TRAP_GROUP=grp
+= ITEM_ALREADY_EXISTS
+> create hostif_trap t_bgp TRAP_TYPE=BGP PACKET_ACTION=TRAP TRAP_GROUP=grp
+= SUCCESS
+  be trap_program(t={type=16387,action=4,priority=0,queue=4,group_up=true,policer=-1,yellow_drop=false,red_drop=false}, remove=false) -> NOT_SUPPORTED
+  be trap_set(kind=Other, to_cpu=true) -> NOT_SUPPORTED
+> create hostif_trap t_lacp TRAP_TYPE=LACP PACKET_ACTION=TRAP
+= SUCCESS
+  be trap_program(t={type=1,action=4,priority=0,queue=0,group_up=true,policer=-1,yellow_drop=false,red_drop=false}, remove=false) -> NOT_SUPPORTED
+  be trap_set(kind=Lacp, to_cpu=true) -> SUCCESS
+> create hostif_trap t_lldp TRAP_TYPE=LLDP PACKET_ACTION=TRAP
+= SUCCESS
+  be trap_program(t={type=3,action=4,priority=0,queue=0,group_up=true,policer=-1,yellow_drop=false,red_drop=false}, remove=false) -> NOT_SUPPORTED
+  be trap_set(kind=Lldp, to_cpu=true) -> SUCCESS
+> remove hostif_trap_group grp
+= OBJECT_IN_USE
+> set hostif_trap t_arp PACKET_ACTION=DROP
+= SUCCESS
+  be trap_program(t={type=8192,action=0,priority=0,queue=4,group_up=true,policer=-1,yellow_drop=false,red_drop=false}, remove=false) -> NOT_SUPPORTED
+  be trap_set(kind=ArpRequest, to_cpu=false) -> SUCCESS
+> get hostif_trap t_arp TRAP_TYPE PACKET_ACTION TRAP_GROUP
+= SUCCESS
+  TRAP_TYPE=ARP_REQUEST
+  PACKET_ACTION=DROP
+  TRAP_GROUP=grp
+> create hostif_table_entry te TYPE=WILDCARD CHANNEL_TYPE=NETDEV_PHYSICAL_PORT
+= SUCCESS
+> remove hostif_table_entry te
+= SUCCESS
+> remove hostif_trap t_arp
+= SUCCESS
+  be trap_set(kind=ArpRequest, to_cpu=false) -> SUCCESS
+> remove hostif_trap t_bgp
+= SUCCESS
+> remove hostif_trap t_lacp
+= SUCCESS
+  be trap_set(kind=Lacp, to_cpu=false) -> SUCCESS
+> remove hostif_trap t_lldp
+= SUCCESS
+  be trap_set(kind=Lldp, to_cpu=false) -> SUCCESS
+> remove hostif_trap_group grp
+= SUCCESS
+> remove hostif_trap_group trapgroup0
+= OBJECT_IN_USE
+> remove hostif h0
+= SUCCESS
+  be netif_destroy(netif_id=1, filter_id=3) -> SUCCESS
+> remove hostif h0
+= INVALID_OBJECT_ID
+> remove_switch
+= SUCCESS
+  be shutdown() -> void
+@@@@ cpp 06-l3
+> switch
+= SUCCESS
+  be init(profile={SAI_OPENBCM_BACKEND="openbcm",SAI_OPENBCM_FAKE_LANES="4",SAI_OPENBCM_FAKE_PORTS="8",SAI_OPENBCM_FAKE_SPEED="100000"}) -> SUCCESS
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false},{hw=17,lanes=[17,18,19,20],speed=100000,name="ce4",autoneg=false},{hw=21,lanes=[21,22,23,24],speed=100000,name="ce5",autoneg=false},{hw=25,lanes=[25,26,27,28],speed=100000,name="ce6",autoneg=false},{hw=29,lanes=[29,30,31,32],speed=100000,name="ce7",autoneg=false}]
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false},{hw=17,lanes=[17,18,19,20],speed=100000,name="ce4",autoneg=false},{hw=21,lanes=[21,22,23,24],speed=100000,name="ce5",autoneg=false},{hw=25,lanes=[25,26,27,28],speed=100000,name="ce6",autoneg=false},{hw=29,lanes=[29,30,31,32],speed=100000,name="ce7",autoneg=false}]
+  be port_admin_set(hw=1, up=false) -> SUCCESS
+  be port_link_get(hw=1) -> SUCCESS up=false
+  be port_admin_set(hw=5, up=false) -> SUCCESS
+  be port_link_get(hw=5) -> SUCCESS up=false
+  be port_admin_set(hw=9, up=false) -> SUCCESS
+  be port_link_get(hw=9) -> SUCCESS up=false
+  be port_admin_set(hw=13, up=false) -> SUCCESS
+  be port_link_get(hw=13) -> SUCCESS up=false
+  be port_admin_set(hw=17, up=false) -> SUCCESS
+  be port_link_get(hw=17) -> SUCCESS up=false
+  be port_admin_set(hw=21, up=false) -> SUCCESS
+  be port_link_get(hw=21) -> SUCCESS up=false
+  be port_admin_set(hw=25, up=false) -> SUCCESS
+  be port_link_get(hw=25) -> SUCCESS up=false
+  be port_admin_set(hw=29, up=false) -> SUCCESS
+  be port_link_get(hw=29) -> SUCCESS up=false
+  be vlan_members(vid=1) -> SUCCESS out=[(1,true),(5,true),(9,true),(13,true),(17,true),(21,true),(25,true),(29,true)]
+> create router_interface rif3 VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=port3
+= SUCCESS
+  be vlan_create(vid=4094) -> SUCCESS
+  be vlan_port_add(vid=4094, hw=13, untagged=true) -> SUCCESS
+  be port_pvid_set(hw=13, vid=4094) -> SUCCESS
+  be l3_station_add(mac=02:00:00:00:00:01) -> SUCCESS station_id=1
+  be l3_intf_create(mac=02:00:00:00:00:01, vid=4094, mtu=1514, vrf=0) -> SUCCESS intf_id=1
+> create router_interface rifdup VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=port3
+= ITEM_ALREADY_EXISTS
+> create next_hop nh1 TYPE=IP IP=10.0.0.2 ROUTER_INTERFACE_ID=rif3
+= SUCCESS
+  be l3_egress_glean() -> SUCCESS egress_id=100002
+> create route_entry 192.168.0.0/24@vr0 NEXT_HOP_ID=nh1
+= SUCCESS
+  be l3_route_add(vrf=0, p=192.168.0.0/24, target=100002, ecmp=false, replace=false) -> SUCCESS
+> create neighbor_entry 10.0.0.2@rif3 DST_MAC_ADDRESS=00:00:5e:00:53:01
+= SUCCESS
+  be l3_egress_create(intf_id=1, dmac=00:00:5e:00:53:01, hw=13, vid=4094) -> SUCCESS egress_id=100003
+  be l3_host_add(vrf=0, ip=10.0.0.2, egress_id=100003) -> SUCCESS
+  be l3_route_add(vrf=0, p=192.168.0.0/24, target=100003, ecmp=false, replace=true) -> SUCCESS
+> create route_entry 10.0.0.1/32@vr0 NEXT_HOP_ID=cpu
+= SUCCESS
+  be l3_egress_cpu() -> SUCCESS egress_id=100002
+  be l3_route_add(vrf=0, p=10.0.0.1/32, target=100002, ecmp=false, replace=false) -> SUCCESS
+> create route_entry 0.0.0.0/0@vr0 PACKET_ACTION=DROP
+= SUCCESS
+  be l3_egress_drop() -> SUCCESS egress_id=100004
+  be l3_route_add(vrf=0, p=0.0.0.0/0, target=100004, ecmp=false, replace=false) -> SUCCESS
+> get route_entry 192.168.0.77/24@vr0 NEXT_HOP_ID PACKET_ACTION
+= SUCCESS
+  NEXT_HOP_ID=nh1
+  PACKET_ACTION=FORWARD
+> create virtual_router vr1 SRC_MAC_ADDRESS=02:00:00:00:0a:01
+= SUCCESS
+> get virtual_router vr1 SRC_MAC_ADDRESS
+= SUCCESS
+  SRC_MAC_ADDRESS=02:00:00:00:0a:01
+> create router_interface rif6 VIRTUAL_ROUTER_ID=vr1 TYPE=PORT PORT_ID=port6
+= SUCCESS
+  be vlan_create(vid=4093) -> SUCCESS
+  be vlan_port_add(vid=4093, hw=25, untagged=true) -> SUCCESS
+  be port_pvid_set(hw=25, vid=4093) -> SUCCESS
+  be l3_station_add(mac=02:00:00:00:0a:01) -> SUCCESS station_id=2
+  be l3_intf_create(mac=02:00:00:00:0a:01, vid=4093, mtu=1514, vrf=1) -> SUCCESS intf_id=2
+> create router_interface rif7 VIRTUAL_ROUTER_ID=vr0 TYPE=PORT PORT_ID=port7
+= SUCCESS
+  be vlan_create(vid=4092) -> SUCCESS
+  be vlan_port_add(vid=4092, hw=29, untagged=true) -> SUCCESS
+  be port_pvid_set(hw=29, vid=4092) -> SUCCESS
+  be l3_intf_create(mac=02:00:00:00:00:01, vid=4092, mtu=1514, vrf=0) -> SUCCESS intf_id=3
+> set router_interface rif6 MTU=9100
+= SUCCESS
+  be l3_intf_update(intf_id=2, mac=02:00:00:00:0a:01, vid=4093, mtu=9100, vrf=1) -> SUCCESS
+> create neighbor_entry 10.9.0.1@rif6 DST_MAC_ADDRESS=00:00:5e:00:53:11
+= SUCCESS
+  be l3_egress_create(intf_id=2, dmac=00:00:5e:00:53:11, hw=25, vid=4093) -> SUCCESS egress_id=100005
+  be l3_host_add(vrf=1, ip=10.9.0.1, egress_id=100005) -> SUCCESS
+> create neighbor_entry 10.9.0.1@rif7 DST_MAC_ADDRESS=00:00:5e:00:53:12
+= SUCCESS
+  be l3_egress_create(intf_id=3, dmac=00:00:5e:00:53:12, hw=29, vid=4092) -> SUCCESS egress_id=100006
+  be l3_host_add(vrf=0, ip=10.9.0.1, egress_id=100006) -> SUCCESS
+> create next_hop nh6 TYPE=IP IP=10.9.0.1 ROUTER_INTERFACE_ID=rif6
+= SUCCESS
+> create next_hop nh7 TYPE=IP IP=10.9.0.1 ROUTER_INTERFACE_ID=rif7
+= SUCCESS
+> create route_entry 198.51.100.0/24@vr1 NEXT_HOP_ID=nh6
+= SUCCESS
+  be l3_route_add(vrf=1, p=198.51.100.0/24, target=100005, ecmp=false, replace=false) -> SUCCESS
+> create route_entry 203.0.113.0/24@vr1 NEXT_HOP_ID=nh7
+= SUCCESS
+  be l3_route_add(vrf=1, p=203.0.113.0/24, target=100006, ecmp=false, replace=false) -> SUCCESS
+> create next_hop nhb TYPE=IP IP=10.8.1.1 ROUTER_INTERFACE_ID=rif7
+= SUCCESS
+  be l3_egress_glean() -> SUCCESS egress_id=100002
+> create next_hop_group grp TYPE=ECMP
+= SUCCESS
+> create route_entry 192.0.2.0/24@vr0 NEXT_HOP_ID=grp
+= SUCCESS
+  be l3_egress_drop() -> SUCCESS egress_id=100004
+  be l3_route_add(vrf=0, p=192.0.2.0/24, target=100004, ecmp=false, replace=false) -> SUCCESS
+> create next_hop_group_member ma NEXT_HOP_GROUP_ID=grp NEXT_HOP_ID=nh7
+= SUCCESS
+  be l3_egress_cpu() -> SUCCESS egress_id=100002
+  be l3_egress_drop() -> SUCCESS egress_id=100004
+  be l3_egress_glean() -> SUCCESS egress_id=100002
+  be l3_ecmp_create(egress=[100006]) -> SUCCESS ecmp_id=200000
+  be l3_route_add(vrf=0, p=192.0.2.0/24, target=200000, ecmp=true, replace=true) -> SUCCESS
+> create next_hop_group_member mb NEXT_HOP_GROUP_ID=grp NEXT_HOP_ID=nhb WEIGHT=2
+= SUCCESS
+  be l3_egress_cpu() -> SUCCESS egress_id=100002
+  be l3_egress_drop() -> SUCCESS egress_id=100004
+  be l3_egress_glean() -> SUCCESS egress_id=100002
+  be l3_egress_cpu() -> SUCCESS egress_id=100002
+  be l3_egress_drop() -> SUCCESS egress_id=100004
+  be l3_egress_glean() -> SUCCESS egress_id=100002
+> create neighbor_entry 10.8.1.1@rif7 DST_MAC_ADDRESS=00:00:5e:00:53:22
+= SUCCESS
+  be l3_egress_create(intf_id=3, dmac=00:00:5e:00:53:22, hw=29, vid=4092) -> SUCCESS egress_id=100007
+  be l3_host_add(vrf=0, ip=10.8.1.1, egress_id=100007) -> SUCCESS
+  be l3_egress_cpu() -> SUCCESS egress_id=100002
+  be l3_egress_drop() -> SUCCESS egress_id=100004
+  be l3_egress_glean() -> SUCCESS egress_id=100002
+  be l3_egress_cpu() -> SUCCESS egress_id=100002
+  be l3_egress_drop() -> SUCCESS egress_id=100004
+  be l3_egress_glean() -> SUCCESS egress_id=100002
+  be l3_ecmp_update(ecmp_id=200000, egress=[100006,100007,100007]) -> SUCCESS
+> set next_hop_group_member ma WEIGHT=3
+= SUCCESS
+  be l3_egress_cpu() -> SUCCESS egress_id=100002
+  be l3_egress_drop() -> SUCCESS egress_id=100004
+  be l3_egress_glean() -> SUCCESS egress_id=100002
+  be l3_egress_cpu() -> SUCCESS egress_id=100002
+  be l3_egress_drop() -> SUCCESS egress_id=100004
+  be l3_egress_glean() -> SUCCESS egress_id=100002
+  be l3_ecmp_update(ecmp_id=200000, egress=[100006,100006,100006,100007,100007]) -> SUCCESS
+> get next_hop_group grp NEXT_HOP_COUNT NEXT_HOP_MEMBER_LIST
+= SUCCESS
+  NEXT_HOP_COUNT=2
+  NEXT_HOP_MEMBER_LIST=[ma,mb]
+> get switch switch AVAILABLE_NEXT_HOP_GROUP_ENTRY AVAILABLE_NEXT_HOP_GROUP_MEMBER_ENTRY
+= SUCCESS
+  AVAILABLE_NEXT_HOP_GROUP_ENTRY=4095
+  AVAILABLE_NEXT_HOP_GROUP_MEMBER_ENTRY=16379
+  be table_usage() -> SUCCESS u={v4_routes_free=16378,v6_routes_free=8192,hosts_free=16380,egress_free=32762,fdb_free=32768,ecmp_groups_free=4095,ecmp_members_free=16379}
+  be table_usage() -> SUCCESS u={v4_routes_free=16378,v6_routes_free=8192,hosts_free=16380,egress_free=32762,fdb_free=32768,ecmp_groups_free=4095,ecmp_members_free=16379}
+> remove next_hop nh7
+= OBJECT_IN_USE
+> remove next_hop_group_member ma
+= SUCCESS
+  be l3_egress_cpu() -> SUCCESS egress_id=100002
+  be l3_egress_drop() -> SUCCESS egress_id=100004
+  be l3_egress_glean() -> SUCCESS egress_id=100002
+  be l3_ecmp_update(ecmp_id=200000, egress=[100007,100007]) -> SUCCESS
+> remove next_hop_group_member mb
+= SUCCESS
+  be l3_egress_drop() -> SUCCESS egress_id=100004
+  be l3_route_add(vrf=0, p=192.0.2.0/24, target=100004, ecmp=false, replace=true) -> SUCCESS
+  be l3_ecmp_destroy(ecmp_id=200000) -> SUCCESS
+> remove route_entry 192.0.2.0/24@vr0
+= SUCCESS
+  be l3_route_delete(vrf=0, p=192.0.2.0/24) -> SUCCESS
+> remove next_hop_group grp
+= SUCCESS
+> remove route_entry 198.51.100.0/24@vr1
+= SUCCESS
+  be l3_route_delete(vrf=1, p=198.51.100.0/24) -> SUCCESS
+> remove route_entry 203.0.113.0/24@vr1
+= SUCCESS
+  be l3_route_delete(vrf=1, p=203.0.113.0/24) -> SUCCESS
+> remove next_hop nh6
+= SUCCESS
+> remove next_hop nh7
+= SUCCESS
+> remove next_hop nhb
+= SUCCESS
+> remove neighbor_entry 10.9.0.1@rif6
+= SUCCESS
+  be l3_host_delete(vrf=1, ip=10.9.0.1) -> SUCCESS
+  be l3_egress_cpu() -> SUCCESS egress_id=100002
+  be l3_egress_drop() -> SUCCESS egress_id=100004
+  be l3_egress_glean() -> SUCCESS egress_id=100002
+  be l3_egress_destroy(egress_id=100005) -> SUCCESS
+> remove neighbor_entry 10.9.0.1@rif7
+= SUCCESS
+  be l3_host_delete(vrf=0, ip=10.9.0.1) -> SUCCESS
+  be l3_egress_cpu() -> SUCCESS egress_id=100002
+  be l3_egress_drop() -> SUCCESS egress_id=100004
+  be l3_egress_glean() -> SUCCESS egress_id=100002
+  be l3_egress_destroy(egress_id=100006) -> SUCCESS
+> remove neighbor_entry 10.8.1.1@rif7
+= SUCCESS
+  be l3_host_delete(vrf=0, ip=10.8.1.1) -> SUCCESS
+  be l3_egress_cpu() -> SUCCESS egress_id=100002
+  be l3_egress_drop() -> SUCCESS egress_id=100004
+  be l3_egress_glean() -> SUCCESS egress_id=100002
+  be l3_egress_destroy(egress_id=100007) -> SUCCESS
+> remove router_interface rif6
+= SUCCESS
+  be l3_intf_destroy(intf_id=2) -> SUCCESS
+  be l3_station_delete(station_id=2) -> SUCCESS
+  be vlan_port_remove(vid=4093, hw=25) -> SUCCESS
+  be port_pvid_set(hw=25, vid=1) -> SUCCESS
+  be vlan_destroy(vid=4093) -> SUCCESS
+> remove router_interface rif7
+= SUCCESS
+  be l3_intf_destroy(intf_id=3) -> SUCCESS
+  be vlan_port_remove(vid=4092, hw=29) -> SUCCESS
+  be port_pvid_set(hw=29, vid=1) -> SUCCESS
+  be vlan_destroy(vid=4092) -> SUCCESS
+> remove virtual_router vr1
+= SUCCESS
+> remove route_entry 192.168.0.0/24@vr0
+= SUCCESS
+  be l3_route_delete(vrf=0, p=192.168.0.0/24) -> SUCCESS
+> remove next_hop nh1
+= SUCCESS
+> remove neighbor_entry 10.0.0.2@rif3
+= SUCCESS
+  be l3_host_delete(vrf=0, ip=10.0.0.2) -> SUCCESS
+  be l3_egress_cpu() -> SUCCESS egress_id=100002
+  be l3_egress_drop() -> SUCCESS egress_id=100004
+  be l3_egress_glean() -> SUCCESS egress_id=100002
+  be l3_egress_destroy(egress_id=100003) -> SUCCESS
+> remove route_entry 10.0.0.1/32@vr0
+= SUCCESS
+  be l3_route_delete(vrf=0, p=10.0.0.1/32) -> SUCCESS
+> remove route_entry 0.0.0.0/0@vr0
+= SUCCESS
+  be l3_route_delete(vrf=0, p=0.0.0.0/0) -> SUCCESS
+> remove router_interface rif3
+= SUCCESS
+  be l3_intf_destroy(intf_id=1) -> SUCCESS
+  be vlan_port_remove(vid=4094, hw=13) -> SUCCESS
+  be port_pvid_set(hw=13, vid=1) -> SUCCESS
+  be vlan_destroy(vid=4094) -> SUCCESS
+> create vlan v200 VLAN_ID=200
+= SUCCESS
+  be vlan_create(vid=200) -> SUCCESS
+> create router_interface vrif VIRTUAL_ROUTER_ID=vr0 TYPE=VLAN VLAN_ID=v200
+= SUCCESS
+  be l3_intf_create(mac=02:00:00:00:00:01, vid=200, mtu=1514, vrf=0) -> SUCCESS intf_id=4
+> remove router_interface vrif
+= SUCCESS
+  be l3_intf_destroy(intf_id=4) -> SUCCESS
+> remove vlan v200
+= SUCCESS
+  be vlan_destroy(vid=200) -> SUCCESS
+> remove_switch
+= SUCCESS
+  be shutdown() -> void
+@@@@ cpp 07-acl-copp
+> switch
+= SUCCESS
+  be init(profile={SAI_OPENBCM_BACKEND="openbcm",SAI_OPENBCM_FAKE_LANES="4",SAI_OPENBCM_FAKE_PORTS="8",SAI_OPENBCM_FAKE_SPEED="100000"}) -> SUCCESS
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false},{hw=17,lanes=[17,18,19,20],speed=100000,name="ce4",autoneg=false},{hw=21,lanes=[21,22,23,24],speed=100000,name="ce5",autoneg=false},{hw=25,lanes=[25,26,27,28],speed=100000,name="ce6",autoneg=false},{hw=29,lanes=[29,30,31,32],speed=100000,name="ce7",autoneg=false}]
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false},{hw=17,lanes=[17,18,19,20],speed=100000,name="ce4",autoneg=false},{hw=21,lanes=[21,22,23,24],speed=100000,name="ce5",autoneg=false},{hw=25,lanes=[25,26,27,28],speed=100000,name="ce6",autoneg=false},{hw=29,lanes=[29,30,31,32],speed=100000,name="ce7",autoneg=false}]
+  be port_admin_set(hw=1, up=false) -> SUCCESS
+  be port_link_get(hw=1) -> SUCCESS up=false
+  be port_admin_set(hw=5, up=false) -> SUCCESS
+  be port_link_get(hw=5) -> SUCCESS up=false
+  be port_admin_set(hw=9, up=false) -> SUCCESS
+  be port_link_get(hw=9) -> SUCCESS up=false
+  be port_admin_set(hw=13, up=false) -> SUCCESS
+  be port_link_get(hw=13) -> SUCCESS up=false
+  be port_admin_set(hw=17, up=false) -> SUCCESS
+  be port_link_get(hw=17) -> SUCCESS up=false
+  be port_admin_set(hw=21, up=false) -> SUCCESS
+  be port_link_get(hw=21) -> SUCCESS up=false
+  be port_admin_set(hw=25, up=false) -> SUCCESS
+  be port_link_get(hw=25) -> SUCCESS up=false
+  be port_admin_set(hw=29, up=false) -> SUCCESS
+  be port_link_get(hw=29) -> SUCCESS up=false
+  be vlan_members(vid=1) -> SUCCESS out=[(1,true),(5,true),(9,true),(13,true),(17,true),(21,true),(25,true),(29,true)]
+> create policer pol METER_TYPE=PACKETS MODE=SR_TCM CIR=600 CBS=600 RED_PACKET_ACTION=DROP
+= SUCCESS
+  be policer_create(cfg={tr_tcm=false,packets=true,color_blind=false,cir=600,cbs=600,pir=0,pbs=0}) -> SUCCESS pid=1
+> get policer pol CIR RED_PACKET_ACTION COLOR_SOURCE
+= SUCCESS
+  CIR=600
+  RED_PACKET_ACTION=DROP
+  COLOR_SOURCE=AWARE
+> set policer pol CIR=1000
+= SUCCESS
+  be policer_set(pid=1, cfg={tr_tcm=false,packets=true,color_blind=false,cir=1000,cbs=600,pir=0,pbs=0}) -> SUCCESS
+> create hostif_trap_group grp QUEUE=4 POLICER=pol
+= SUCCESS
+> create hostif_trap t_arp TRAP_TYPE=ARP_REQUEST PACKET_ACTION=COPY TRAP_GROUP=grp
+= SUCCESS
+  be trap_program(t={type=8192,action=2,priority=0,queue=4,group_up=true,policer=1,yellow_drop=false,red_drop=true}, remove=false) -> NOT_SUPPORTED
+  be trap_set(kind=ArpRequest, to_cpu=true) -> SUCCESS
+  be fp_group_create(qset=[EtherType,IpType,IpProtocol,L4SrcPort,L4DstPort,IcmpTypeCode,DstMac,DstCpu], priority=1000) -> SUCCESS gid=1
+  be fp_entry_create(gid=1, r={priority=200,m={IpType=8},drop=false,drop_cancel=false,copy_cpu=false,counter=false,policer=1,green_drop=false,yellow_drop=false,red_drop=true,cpu_copy_only=true,mirror_ingress=[],mirror_egress=[],redirect=-1,redirect_egress=false,set_tc=-1,set_dscp=-1}) -> SUCCESS eid=1
+> create hostif_trap t_lacp TRAP_TYPE=LACP PACKET_ACTION=TRAP TRAP_GROUP=grp
+= SUCCESS
+  be trap_program(t={type=1,action=4,priority=0,queue=4,group_up=true,policer=1,yellow_drop=false,red_drop=true}, remove=false) -> NOT_SUPPORTED
+  be trap_set(kind=Lacp, to_cpu=true) -> SUCCESS
+  be fp_entry_create(gid=1, r={priority=200,m={EtherType=0x8809/0xffff},drop=false,drop_cancel=false,copy_cpu=false,counter=false,policer=1,green_drop=false,yellow_drop=false,red_drop=true,cpu_copy_only=false,mirror_ingress=[],mirror_egress=[],redirect=-1,redirect_egress=false,set_tc=-1,set_dscp=-1}) -> SUCCESS eid=2
+> create hostif_trap t_bgp TRAP_TYPE=BGP PACKET_ACTION=TRAP TRAP_GROUP=grp
+= SUCCESS
+  be trap_program(t={type=16387,action=4,priority=0,queue=4,group_up=true,policer=1,yellow_drop=false,red_drop=true}, remove=false) -> NOT_SUPPORTED
+  be trap_set(kind=Other, to_cpu=true) -> NOT_SUPPORTED
+  be fp_entry_create(gid=1, r={priority=150,m={EtherType=0x800/0xffff,IpProtocol=0x6/0xff,L4SrcPort=0xb3/0xffff,DstCpu=true},drop=false,drop_cancel=false,copy_cpu=false,counter=false,policer=1,green_drop=false,yellow_drop=false,red_drop=true,cpu_copy_only=false,mirror_ingress=[],mirror_egress=[],redirect=-1,redirect_egress=false,set_tc=-1,set_dscp=-1}) -> SUCCESS eid=3
+  be fp_entry_create(gid=1, r={priority=150,m={EtherType=0x800/0xffff,IpProtocol=0x6/0xff,L4DstPort=0xb3/0xffff,DstCpu=true},drop=false,drop_cancel=false,copy_cpu=false,counter=false,policer=1,green_drop=false,yellow_drop=false,red_drop=true,cpu_copy_only=false,mirror_ingress=[],mirror_egress=[],redirect=-1,redirect_egress=false,set_tc=-1,set_dscp=-1}) -> SUCCESS eid=4
+> create hostif_trap t_ip2me TRAP_TYPE=IP2ME PACKET_ACTION=TRAP TRAP_GROUP=grp
+= SUCCESS
+  be trap_program(t={type=16384,action=4,priority=0,queue=4,group_up=true,policer=1,yellow_drop=false,red_drop=true}, remove=false) -> NOT_SUPPORTED
+  be trap_set(kind=Other, to_cpu=true) -> NOT_SUPPORTED
+  be fp_entry_create(gid=1, r={priority=100,m={DstCpu=true},drop=false,drop_cancel=false,copy_cpu=false,counter=false,policer=1,green_drop=false,yellow_drop=false,red_drop=true,cpu_copy_only=false,mirror_ingress=[],mirror_egress=[],redirect=-1,redirect_egress=false,set_tc=-1,set_dscp=-1}) -> SUCCESS eid=5
+> set policer pol RED_PACKET_ACTION=FORWARD
+= SUCCESS
+  be policer_set(pid=1, cfg={tr_tcm=false,packets=true,color_blind=false,cir=1000,cbs=600,pir=0,pbs=0}) -> SUCCESS
+  be fp_entry_destroy(eid=5) -> SUCCESS
+  be fp_entry_destroy(eid=3) -> SUCCESS
+  be fp_entry_destroy(eid=4) -> SUCCESS
+  be fp_entry_destroy(eid=2) -> SUCCESS
+  be fp_entry_destroy(eid=1) -> SUCCESS
+  be fp_entry_create(gid=1, r={priority=100,m={DstCpu=true},drop=false,drop_cancel=false,copy_cpu=false,counter=false,policer=1,green_drop=false,yellow_drop=false,red_drop=false,cpu_copy_only=false,mirror_ingress=[],mirror_egress=[],redirect=-1,redirect_egress=false,set_tc=-1,set_dscp=-1}) -> SUCCESS eid=6
+  be fp_entry_create(gid=1, r={priority=150,m={EtherType=0x800/0xffff,IpProtocol=0x6/0xff,L4SrcPort=0xb3/0xffff,DstCpu=true},drop=false,drop_cancel=false,copy_cpu=false,counter=false,policer=1,green_drop=false,yellow_drop=false,red_drop=false,cpu_copy_only=false,mirror_ingress=[],mirror_egress=[],redirect=-1,redirect_egress=false,set_tc=-1,set_dscp=-1}) -> SUCCESS eid=7
+  be fp_entry_create(gid=1, r={priority=150,m={EtherType=0x800/0xffff,IpProtocol=0x6/0xff,L4DstPort=0xb3/0xffff,DstCpu=true},drop=false,drop_cancel=false,copy_cpu=false,counter=false,policer=1,green_drop=false,yellow_drop=false,red_drop=false,cpu_copy_only=false,mirror_ingress=[],mirror_egress=[],redirect=-1,redirect_egress=false,set_tc=-1,set_dscp=-1}) -> SUCCESS eid=8
+  be fp_entry_create(gid=1, r={priority=200,m={EtherType=0x8809/0xffff},drop=false,drop_cancel=false,copy_cpu=false,counter=false,policer=1,green_drop=false,yellow_drop=false,red_drop=false,cpu_copy_only=false,mirror_ingress=[],mirror_egress=[],redirect=-1,redirect_egress=false,set_tc=-1,set_dscp=-1}) -> SUCCESS eid=9
+  be fp_entry_create(gid=1, r={priority=200,m={IpType=8},drop=false,drop_cancel=false,copy_cpu=false,counter=false,policer=1,green_drop=false,yellow_drop=false,red_drop=false,cpu_copy_only=true,mirror_ingress=[],mirror_egress=[],redirect=-1,redirect_egress=false,set_tc=-1,set_dscp=-1}) -> SUCCESS eid=10
+> set hostif_trap t_lacp PACKET_ACTION=DROP
+= SUCCESS
+  be trap_program(t={type=1,action=0,priority=0,queue=4,group_up=true,policer=1,yellow_drop=false,red_drop=false}, remove=false) -> NOT_SUPPORTED
+  be trap_set(kind=Lacp, to_cpu=false) -> SUCCESS
+  be fp_entry_destroy(eid=9) -> SUCCESS
+> set hostif_trap_group grp POLICER=null
+= SUCCESS
+  be fp_entry_destroy(eid=6) -> SUCCESS
+  be fp_entry_destroy(eid=7) -> SUCCESS
+  be fp_entry_destroy(eid=8) -> SUCCESS
+  be fp_entry_destroy(eid=10) -> SUCCESS
+  be fp_group_destroy(gid=1) -> SUCCESS
+> remove hostif_trap t_arp
+= SUCCESS
+  be trap_set(kind=ArpRequest, to_cpu=false) -> SUCCESS
+> remove hostif_trap t_lacp
+= SUCCESS
+  be trap_set(kind=Lacp, to_cpu=false) -> SUCCESS
+> remove hostif_trap t_bgp
+= SUCCESS
+> remove hostif_trap t_ip2me
+= SUCCESS
+> remove hostif_trap_group grp
+= SUCCESS
+> create acl_table t ACL_STAGE=INGRESS ACL_BIND_POINT_TYPE_LIST=[PORT,LAG] FIELD_ETHER_TYPE=true FIELD_DST_IP=true FIELD_L4_DST_PORT=true FIELD_ACL_RANGE_TYPE=[L4_SRC_PORT_RANGE,L4_DST_PORT_RANGE]
+= SUCCESS
+  be fp_group_create_ex(qset=[InPorts,EtherType,DstIp,L4DstPort], priority=1, x={egress=false,src_range=false,dst_range=false,out_ports=false,redirect=false,set_tc=false,set_dscp=false,mirror=false}) -> SUCCESS gid=2
+> create acl_counter k TABLE_ID=t ENABLE_PACKET_COUNT=true ENABLE_BYTE_COUNT=true
+= SUCCESS
+> create acl_entry e TABLE_ID=t PRIORITY=9000 ADMIN_STATE=true ACTION_COUNTER=k FIELD_DST_IP=10.0.0.1/255.255.255.255 ACTION_PACKET_ACTION=DROP
+= SUCCESS
+> create acl_table_group g ACL_STAGE=INGRESS ACL_BIND_POINT_TYPE_LIST=[PORT] TYPE=PARALLEL
+= SUCCESS
+> set port port2 INGRESS_ACL=g
+= SUCCESS
+> create acl_table_group_member gm ACL_TABLE_GROUP_ID=g ACL_TABLE_ID=t PRIORITY=100
+= SUCCESS
+  be fp_entry_create(gid=2, r={priority=9000,m={InPorts=[9],DstIp=10.0.0.1/255.255.255.255},drop=true,drop_cancel=false,copy_cpu=false,counter=true,policer=-1,green_drop=false,yellow_drop=false,red_drop=false,cpu_copy_only=false,mirror_ingress=[],mirror_egress=[],redirect=-1,redirect_egress=false,set_tc=-1,set_dscp=-1}) -> SUCCESS eid=11
+> set port port3 INGRESS_ACL=g
+= SUCCESS
+  be fp_entry_counter(eid=11) -> SUCCESS packets=0 bytes=0
+  be fp_entry_destroy(eid=11) -> SUCCESS
+  be fp_entry_create(gid=2, r={priority=9000,m={InPorts=[9,13],DstIp=10.0.0.1/255.255.255.255},drop=true,drop_cancel=false,copy_cpu=false,counter=true,policer=-1,green_drop=false,yellow_drop=false,red_drop=false,cpu_copy_only=false,mirror_ingress=[],mirror_egress=[],redirect=-1,redirect_egress=false,set_tc=-1,set_dscp=-1}) -> SUCCESS eid=12
+> get acl_counter k PACKETS BYTES
+= SUCCESS
+  PACKETS=0
+  BYTES=0
+  be fp_entry_counter(eid=12) -> SUCCESS packets=0 bytes=0
+> set acl_entry e ACTION_PACKET_ACTION=FORWARD
+= SUCCESS
+  be fp_entry_counter(eid=12) -> SUCCESS packets=0 bytes=0
+  be fp_entry_destroy(eid=12) -> SUCCESS
+  be fp_entry_create(gid=2, r={priority=9000,m={InPorts=[9,13],DstIp=10.0.0.1/255.255.255.255},drop=false,drop_cancel=true,copy_cpu=false,counter=true,policer=-1,green_drop=false,yellow_drop=false,red_drop=false,cpu_copy_only=false,mirror_ingress=[],mirror_egress=[],redirect=-1,redirect_egress=false,set_tc=-1,set_dscp=-1}) -> SUCCESS eid=13
+> set acl_entry e ADMIN_STATE=false
+= SUCCESS
+  be fp_entry_counter(eid=13) -> SUCCESS packets=0 bytes=0
+  be fp_entry_destroy(eid=13) -> SUCCESS
+> set acl_entry e ADMIN_STATE=true
+= SUCCESS
+  be fp_entry_create(gid=2, r={priority=9000,m={InPorts=[9,13],DstIp=10.0.0.1/255.255.255.255},drop=false,drop_cancel=true,copy_cpu=false,counter=true,policer=-1,green_drop=false,yellow_drop=false,red_drop=false,cpu_copy_only=false,mirror_ingress=[],mirror_egress=[],redirect=-1,redirect_egress=false,set_tc=-1,set_dscp=-1}) -> SUCCESS eid=14
+> get acl_entry e PRIORITY FIELD_DST_IP ACTION_PACKET_ACTION
+= SUCCESS
+  PRIORITY=9000
+  FIELD_DST_IP=10.0.0.1/255.255.255.255
+  ACTION_PACKET_ACTION=FORWARD
+> remove acl_table t
+= OBJECT_IN_USE
+> remove acl_entry e
+= SUCCESS
+  be fp_entry_counter(eid=14) -> SUCCESS packets=0 bytes=0
+  be fp_entry_destroy(eid=14) -> SUCCESS
+> remove acl_counter k
+= SUCCESS
+> remove acl_table_group_member gm
+= SUCCESS
+> set port port2 INGRESS_ACL=null
+= SUCCESS
+> set port port3 INGRESS_ACL=null
+= SUCCESS
+> remove acl_table_group g
+= SUCCESS
+> remove acl_table t
+= SUCCESS
+  be fp_group_destroy(gid=2) -> SUCCESS
+> remove policer pol
+= SUCCESS
+  be policer_destroy(pid=1) -> SUCCESS
+> remove_switch
+= SUCCESS
+  be shutdown() -> void
+@@@@ cpp 08-qos
+> switch
+= SUCCESS
+  be init(profile={SAI_OPENBCM_BACKEND="openbcm",SAI_OPENBCM_FAKE_LANES="4",SAI_OPENBCM_FAKE_PORTS="8",SAI_OPENBCM_FAKE_SPEED="100000"}) -> SUCCESS
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false},{hw=17,lanes=[17,18,19,20],speed=100000,name="ce4",autoneg=false},{hw=21,lanes=[21,22,23,24],speed=100000,name="ce5",autoneg=false},{hw=25,lanes=[25,26,27,28],speed=100000,name="ce6",autoneg=false},{hw=29,lanes=[29,30,31,32],speed=100000,name="ce7",autoneg=false}]
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false},{hw=17,lanes=[17,18,19,20],speed=100000,name="ce4",autoneg=false},{hw=21,lanes=[21,22,23,24],speed=100000,name="ce5",autoneg=false},{hw=25,lanes=[25,26,27,28],speed=100000,name="ce6",autoneg=false},{hw=29,lanes=[29,30,31,32],speed=100000,name="ce7",autoneg=false}]
+  be port_admin_set(hw=1, up=false) -> SUCCESS
+  be port_link_get(hw=1) -> SUCCESS up=false
+  be port_admin_set(hw=5, up=false) -> SUCCESS
+  be port_link_get(hw=5) -> SUCCESS up=false
+  be port_admin_set(hw=9, up=false) -> SUCCESS
+  be port_link_get(hw=9) -> SUCCESS up=false
+  be port_admin_set(hw=13, up=false) -> SUCCESS
+  be port_link_get(hw=13) -> SUCCESS up=false
+  be port_admin_set(hw=17, up=false) -> SUCCESS
+  be port_link_get(hw=17) -> SUCCESS up=false
+  be port_admin_set(hw=21, up=false) -> SUCCESS
+  be port_link_get(hw=21) -> SUCCESS up=false
+  be port_admin_set(hw=25, up=false) -> SUCCESS
+  be port_link_get(hw=25) -> SUCCESS up=false
+  be port_admin_set(hw=29, up=false) -> SUCCESS
+  be port_link_get(hw=29) -> SUCCESS up=false
+  be vlan_members(vid=1) -> SUCCESS out=[(1,true),(5,true),(9,true),(13,true),(17,true),(21,true),(25,true),(29,true)]
+> create qos_map m0 TYPE=DSCP_TO_TC MAP_TO_VALUE_LIST=[dscp:46=tc:5]
+= SUCCESS
+> set port port1 QOS_DSCP_TO_TC_MAP=m0
+= SUCCESS
+> set port port1 QOS_DSCP_TO_TC_MAP=null
+= SUCCESS
+> remove qos_map m0
+= SUCCESS
+> feature qos on
+= SUCCESS
+> get port port1 QOS_NUMBER_OF_SCHEDULER_GROUPS QOS_SCHEDULER_GROUP_LIST QOS_QUEUE_LIST
+= SUCCESS
+  QOS_NUMBER_OF_SCHEDULER_GROUPS=8
+  QOS_SCHEDULER_GROUP_LIST=[scheduler_group#1,scheduler_group#2,scheduler_group#3,scheduler_group#4,scheduler_group#5,scheduler_group#6,scheduler_group#7,scheduler_group#8]
+  QOS_QUEUE_LIST=[queue#1,queue#2,queue#3,queue#4,queue#5,queue#6,queue#7,queue#8]
+> create qos_map m1 TYPE=DSCP_TO_TC MAP_TO_VALUE_LIST=[dscp:46=tc:5,dscp:8=tc:1]
+= SUCCESS
+  be qos_map_create(kind=DscpToTc, entries=[0.0=0.0,1.0=0.0,2.0=0.0,3.0=0.0,4.0=0.0,5.0=0.0,6.0=0.0,7.0=0.0,8.0=1.0,9.0=0.0,10.0=0.0,11.0=0.0,12.0=0.0,13.0=0.0,14.0=0.0,15.0=0.0,16.0=0.0,17.0=0.0,18.0=0.0,19.0=0.0,20.0=0.0,21.0=0.0,22.0=0.0,23.0=0.0,24.0=0.0,25.0=0.0,26.0=0.0,27.0=0.0,28.0=0.0,29.0=0.0,30.0=0.0,31.0=0.0,32.0=0.0,33.0=0.0,34.0=0.0,35.0=0.0,36.0=0.0,37.0=0.0,38.0=0.0,39.0=0.0,40.0=0.0,41.0=0.0,42.0=0.0,43.0=0.0,44.0=0.0,45.0=0.0,46.0=5.0,47.0=0.0,48.0=0.0,49.0=0.0,50.0=0.0,51.0=0.0,52.0=0.0,53.0=0.0,54.0=0.0,55.0=0.0,56.0=0.0,57.0=0.0,58.0=0.0,59.0=0.0,60.0=0.0,61.0=0.0,62.0=0.0,63.0=0.0]) -> SUCCESS id=1
+> set port port1 QOS_DSCP_TO_TC_MAP=m1
+= SUCCESS
+  be port_qos_map_set(hw=5, kind=DscpToTc, id=1) -> SUCCESS
+> create qos_map md TYPE=DOT1P_TO_TC MAP_TO_VALUE_LIST=[dot1p:5=tc:3]
+= SUCCESS
+  be qos_map_create(kind=Dot1pToTc, entries=[0.0=0.0,1.0=0.0,2.0=0.0,3.0=0.0,4.0=0.0,5.0=3.0,6.0=0.0,7.0=0.0]) -> SUCCESS id=2
+> set port port1 QOS_DSCP_TO_TC_MAP=md
+= INVALID_ATTR_VALUE_0
+> set qos_map m1 MAP_TO_VALUE_LIST=[dscp:46=tc:7]
+= SUCCESS
+  be qos_map_update(id=1, entries=[0.0=0.0,1.0=0.0,2.0=0.0,3.0=0.0,4.0=0.0,5.0=0.0,6.0=0.0,7.0=0.0,8.0=0.0,9.0=0.0,10.0=0.0,11.0=0.0,12.0=0.0,13.0=0.0,14.0=0.0,15.0=0.0,16.0=0.0,17.0=0.0,18.0=0.0,19.0=0.0,20.0=0.0,21.0=0.0,22.0=0.0,23.0=0.0,24.0=0.0,25.0=0.0,26.0=0.0,27.0=0.0,28.0=0.0,29.0=0.0,30.0=0.0,31.0=0.0,32.0=0.0,33.0=0.0,34.0=0.0,35.0=0.0,36.0=0.0,37.0=0.0,38.0=0.0,39.0=0.0,40.0=0.0,41.0=0.0,42.0=0.0,43.0=0.0,44.0=0.0,45.0=0.0,46.0=7.0,47.0=0.0,48.0=0.0,49.0=0.0,50.0=0.0,51.0=0.0,52.0=0.0,53.0=0.0,54.0=0.0,55.0=0.0,56.0=0.0,57.0=0.0,58.0=0.0,59.0=0.0,60.0=0.0,61.0=0.0,62.0=0.0,63.0=0.0]) -> SUCCESS
+> get qos_map md TYPE MAP_TO_VALUE_LIST
+= SUCCESS
+  TYPE=DOT1P_TO_TC
+  MAP_TO_VALUE_LIST=[0.0.5.0.0.0.0.0.0=3.0.0.0.0.0.0.0.0]
+> set port port1 QOS_DEFAULT_TC=3
+= SUCCESS
+  be port_default_tc_set(hw=5, tc=3) -> SUCCESS
+> set port port1 PRIORITY_FLOW_CONTROL=0x18
+= SUCCESS
+  be port_pfc_set(hw=5, separate=false, tx=24, rx=24) -> SUCCESS
+> create scheduler sd SCHEDULING_TYPE=DWRR SCHEDULING_WEIGHT=20
+= SUCCESS
+> create scheduler sh SCHEDULING_TYPE=DWRR SCHEDULING_WEIGHT=1 MAX_BANDWIDTH_RATE=125000000 MAX_BANDWIDTH_BURST_RATE=65536
+= SUCCESS
+> set scheduler_group scheduler_group#4 SCHEDULER_PROFILE_ID=sd
+= SUCCESS
+  be queue_scheduler_set(hw=5, queue=3, cfg={strict=false,weight=20,packets=false,min_rate=0,min_burst=0,max_rate=0,max_burst=0}) -> SUCCESS
+> set scheduler sd SCHEDULING_WEIGHT=50
+= SUCCESS
+  be queue_scheduler_set(hw=5, queue=3, cfg={strict=false,weight=50,packets=false,min_rate=0,min_burst=0,max_rate=0,max_burst=0}) -> SUCCESS
+> set port port1 QOS_SCHEDULER_PROFILE_ID=sh
+= SUCCESS
+  be port_scheduler_set(hw=5, cfg={strict=false,weight=1,packets=false,min_rate=0,min_burst=0,max_rate=125000000,max_burst=65536}) -> SUCCESS
+> create wred w GREEN_ENABLE=true GREEN_MIN_THRESHOLD=100000 GREEN_MAX_THRESHOLD=2000000 GREEN_DROP_PROBABILITY=5 ECN_MARK_MODE=GREEN
+= SUCCESS
+  be wred_create(cfg={enable=[true,false,false],min=[100000,0,0],max=[2000000,0,0],prob=[5,100,100],weight=0,ecn=1}) -> SUCCESS id=3
+> set queue queue#4 WRED_PROFILE_ID=w
+= SUCCESS
+  be queue_wred_set(hw=5, queue=3, id=3) -> SUCCESS
+> create buffer_pool pin TYPE=INGRESS SIZE=20000000 THRESHOLD_MODE=DYNAMIC
+= SUCCESS
+> create buffer_pool peg TYPE=EGRESS SIZE=10000000 THRESHOLD_MODE=DYNAMIC
+= SUCCESS
+> create buffer_profile bq POOL_ID=peg RESERVED_BUFFER_SIZE=1518 SHARED_DYNAMIC_TH=3
+= SUCCESS
+> set queue queue#1 BUFFER_PROFILE_ID=bq
+= SUCCESS
+  be queue_buffer_set(hw=5, queue=0, cfg={ingress=false,dynamic=true,dynamic_th=3,static_th=0,reserved=1518,xoff=0,xon=0,xon_offset=0,pool_size=10000000,pool_xoff=0}) -> SUCCESS
+> stats queue queue#4 PACKETS BYTES
+= SUCCESS
+  PACKETS=0
+  BYTES=0
+  be queue_stats_get(hw=5, queue=3, ids=[0,1]) -> SUCCESS values=[0,0]
+> set queue queue#1 BUFFER_PROFILE_ID=null
+= SUCCESS
+  be queue_buffer_set(hw=5, queue=0, cfg=none) -> SUCCESS
+> set queue queue#4 WRED_PROFILE_ID=null
+= SUCCESS
+  be queue_wred_set(hw=5, queue=3, id=-1) -> SUCCESS
+> set port port1 QOS_SCHEDULER_PROFILE_ID=null
+= SUCCESS
+  be port_scheduler_set(hw=5, cfg=none) -> SUCCESS
+> set scheduler_group scheduler_group#4 SCHEDULER_PROFILE_ID=null
+= SUCCESS
+  be queue_scheduler_set(hw=5, queue=3, cfg=none) -> SUCCESS
+> set port port1 QOS_DSCP_TO_TC_MAP=null
+= SUCCESS
+  be port_qos_map_set(hw=5, kind=DscpToTc, id=-1) -> SUCCESS
+> remove buffer_profile bq
+= SUCCESS
+> remove buffer_pool pin
+= SUCCESS
+> remove buffer_pool peg
+= SUCCESS
+> remove wred w
+= SUCCESS
+  be wred_destroy(id=3) -> SUCCESS
+> remove scheduler sd
+= SUCCESS
+> remove scheduler sh
+= SUCCESS
+> remove qos_map m1
+= SUCCESS
+  be qos_map_destroy(id=1) -> SUCCESS
+> remove qos_map md
+= SUCCESS
+  be qos_map_destroy(id=2) -> SUCCESS
+> feature qos off
+= SUCCESS
+> remove_switch
+= SUCCESS
+  be shutdown() -> void
+@@@@ cpp 09-mirror-sample-hash
+> switch
+= SUCCESS
+  be init(profile={SAI_OPENBCM_BACKEND="openbcm",SAI_OPENBCM_FAKE_LANES="4",SAI_OPENBCM_FAKE_PORTS="8",SAI_OPENBCM_FAKE_SPEED="100000"}) -> SUCCESS
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false},{hw=17,lanes=[17,18,19,20],speed=100000,name="ce4",autoneg=false},{hw=21,lanes=[21,22,23,24],speed=100000,name="ce5",autoneg=false},{hw=25,lanes=[25,26,27,28],speed=100000,name="ce6",autoneg=false},{hw=29,lanes=[29,30,31,32],speed=100000,name="ce7",autoneg=false}]
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false},{hw=17,lanes=[17,18,19,20],speed=100000,name="ce4",autoneg=false},{hw=21,lanes=[21,22,23,24],speed=100000,name="ce5",autoneg=false},{hw=25,lanes=[25,26,27,28],speed=100000,name="ce6",autoneg=false},{hw=29,lanes=[29,30,31,32],speed=100000,name="ce7",autoneg=false}]
+  be port_admin_set(hw=1, up=false) -> SUCCESS
+  be port_link_get(hw=1) -> SUCCESS up=false
+  be port_admin_set(hw=5, up=false) -> SUCCESS
+  be port_link_get(hw=5) -> SUCCESS up=false
+  be port_admin_set(hw=9, up=false) -> SUCCESS
+  be port_link_get(hw=9) -> SUCCESS up=false
+  be port_admin_set(hw=13, up=false) -> SUCCESS
+  be port_link_get(hw=13) -> SUCCESS up=false
+  be port_admin_set(hw=17, up=false) -> SUCCESS
+  be port_link_get(hw=17) -> SUCCESS up=false
+  be port_admin_set(hw=21, up=false) -> SUCCESS
+  be port_link_get(hw=21) -> SUCCESS up=false
+  be port_admin_set(hw=25, up=false) -> SUCCESS
+  be port_link_get(hw=25) -> SUCCESS up=false
+  be port_admin_set(hw=29, up=false) -> SUCCESS
+  be port_link_get(hw=29) -> SUCCESS up=false
+  be vlan_members(vid=1) -> SUCCESS out=[(1,true),(5,true),(9,true),(13,true),(17,true),(21,true),(25,true),(29,true)]
+> feature mirror on
+= SUCCESS
+> create mirror_session span TYPE=LOCAL MONITOR_PORT=port2
+= SUCCESS
+  be mirror_create(cfg={erspan=false,monitor=9,truncate=0,sample_rate=0,tos=0,ttl=255,src=0.0.0.0,dst=0.0.0.0,smac=00:00:00:00:00:00,dmac=00:00:00:00:00:00,gre_type=35006,vlan=false,vlan_tpid=33024,vlan_id=0,vlan_pri=0,vlan_cfi=0}) -> SUCCESS id=1
+> set port port1 INGRESS_MIRROR_SESSION=[span]
+= SUCCESS
+  be port_mirror_set(hw=5, ingress=true, ids=[1]) -> SUCCESS
+> set port port1 EGRESS_MIRROR_SESSION=[span]
+= SUCCESS
+  be port_mirror_set(hw=5, ingress=false, ids=[1]) -> SUCCESS
+> get port port1 INGRESS_MIRROR_SESSION
+= SUCCESS
+  INGRESS_MIRROR_SESSION=[span]
+> set mirror_session span MONITOR_PORT=port3
+= SUCCESS
+  be mirror_update(id=1, cfg={erspan=false,monitor=13,truncate=0,sample_rate=0,tos=0,ttl=255,src=0.0.0.0,dst=0.0.0.0,smac=00:00:00:00:00:00,dmac=00:00:00:00:00:00,gre_type=35006,vlan=false,vlan_tpid=33024,vlan_id=0,vlan_pri=0,vlan_cfi=0}) -> SUCCESS
+> create mirror_session er TYPE=ENHANCED_REMOTE MONITOR_PORT=port2 ERSPAN_ENCAPSULATION_TYPE=MIRROR_L3_GRE_TUNNEL IPHDR_VERSION=4 TOS=32 TTL=64 SRC_IP_ADDRESS=10.99.1.1 DST_IP_ADDRESS=10.99.1.2 SRC_MAC_ADDRESS=10:11:12:13:14:15 DST_MAC_ADDRESS=20:21:22:23:24:25 GRE_PROTOCOL_TYPE=0x88be
+= SUCCESS
+  be mirror_create(cfg={erspan=true,monitor=9,truncate=0,sample_rate=0,tos=32,ttl=64,src=10.99.1.1,dst=10.99.1.2,smac=10:11:12:13:14:15,dmac=20:21:22:23:24:25,gre_type=35006,vlan=false,vlan_tpid=33024,vlan_id=0,vlan_pri=0,vlan_cfi=0}) -> SUCCESS id=2
+> set mirror_session er DST_IP_ADDRESS=10.99.1.3
+= SUCCESS
+  be mirror_update(id=2, cfg={erspan=true,monitor=9,truncate=0,sample_rate=0,tos=32,ttl=64,src=10.99.1.1,dst=10.99.1.3,smac=10:11:12:13:14:15,dmac=20:21:22:23:24:25,gre_type=35006,vlan=false,vlan_tpid=33024,vlan_id=0,vlan_pri=0,vlan_cfi=0}) -> SUCCESS
+> set port port1 INGRESS_MIRROR_SESSION=[]
+= SUCCESS
+  be port_mirror_set(hw=5, ingress=true, ids=[]) -> SUCCESS
+> set port port1 EGRESS_MIRROR_SESSION=[]
+= SUCCESS
+  be port_mirror_set(hw=5, ingress=false, ids=[]) -> SUCCESS
+> remove mirror_session er
+= SUCCESS
+  be mirror_destroy(id=2) -> SUCCESS
+> remove mirror_session span
+= SUCCESS
+  be mirror_destroy(id=1) -> SUCCESS
+> create samplepacket smp SAMPLE_RATE=1000
+= SUCCESS
+  be sample_create(rate=1000) -> SUCCESS id=3
+> set port port1 INGRESS_SAMPLEPACKET_ENABLE=smp
+= SUCCESS
+  be port_sample_set(hw=5, ingress=true, id=3) -> SUCCESS
+> set samplepacket smp SAMPLE_RATE=500
+= SUCCESS
+  be sample_update(id=3, rate=500) -> SUCCESS
+> remove samplepacket smp
+= OBJECT_IN_USE
+> set port port1 INGRESS_SAMPLEPACKET_ENABLE=null
+= SUCCESS
+  be port_sample_set(hw=5, ingress=true, id=-1) -> SUCCESS
+> remove samplepacket smp
+= SUCCESS
+  be sample_destroy(id=3) -> SUCCESS
+> feature mirror off
+= SUCCESS
+> get switch switch LAG_HASH
+= ATTR_NOT_SUPPORTED_0
+> feature l2 on
+= SUCCESS
+> get switch switch LAG_HASH ECMP_HASH
+= SUCCESS
+  LAG_HASH=hash#1
+  ECMP_HASH=hash#2
+> set hash hash#2 NATIVE_HASH_FIELD_LIST=[SRC_IP,DST_IP,L4_SRC_PORT]
+= SUCCESS
+  be hash_set(lag=false, fields=[0,1,7], seed=0) -> SUCCESS
+> get hash hash#2 NATIVE_HASH_FIELD_LIST
+= SUCCESS
+  NATIVE_HASH_FIELD_LIST=[SRC_IP,DST_IP,L4_SRC_PORT]
+> set switch switch LAG_DEFAULT_HASH_SEED=77
+= SUCCESS
+  be hash_set(lag=true, fields=[], seed=77) -> SUCCESS
+> create policer sp METER_TYPE=PACKETS MODE=SR_TCM CIR=1000 CBS=1000
+= SUCCESS
+  be policer_create(cfg={tr_tcm=false,packets=true,color_blind=false,cir=1000,cbs=1000,pir=0,pbs=0}) -> SUCCESS pid=1
+> set port port1 FLOOD_STORM_CONTROL_POLICER_ID=sp
+= SUCCESS
+  be port_storm_set(hw=5, kind=UnknownUnicast, policer=1) -> SUCCESS
+> create vlan v300 VLAN_ID=300
+= SUCCESS
+  be vlan_create(vid=300) -> SUCCESS
+> set vlan v300 BROADCAST_FLOOD_CONTROL_TYPE=NONE
+= SUCCESS
+  be vlan_flood_set(vid=300, kind=Broadcast, on=false) -> SUCCESS
+> set vlan v300 BROADCAST_FLOOD_CONTROL_TYPE=ALL
+= SUCCESS
+  be vlan_flood_set(vid=300, kind=Broadcast, on=true) -> SUCCESS
+> set port port1 FLOOD_STORM_CONTROL_POLICER_ID=null
+= SUCCESS
+  be port_storm_set(hw=5, kind=UnknownUnicast, policer=-1) -> SUCCESS
+> remove policer sp
+= SUCCESS
+  be policer_destroy(pid=1) -> SUCCESS
+> remove vlan v300
+= SUCCESS
+  be vlan_destroy(vid=300) -> SUCCESS
+> feature l2 off
+= SUCCESS
+> remove_switch
+= SUCCESS
+  be shutdown() -> void
+@@@@ cpp 10-ext-phy
+> profile SAI_OPENBCM_FAKE_PORTS=4
+= SUCCESS
+> profile SAI_OPENBCM_FAKE_LANES=4
+= SUCCESS
+> profile SAI_OPENBCM_FAKE_SPEED=100000
+= SUCCESS
+> profile SAI_OPENBCM_EXT_PHY_FILE=@EXT_PHY_TABLE@
+= SUCCESS
+> switch
+= SUCCESS
+  be init(profile={SAI_OPENBCM_BACKEND="openbcm",SAI_OPENBCM_EXT_PHY_FILE="@EXT_PHY_TABLE@",SAI_OPENBCM_FAKE_LANES="4",SAI_OPENBCM_FAKE_PORTS="4",SAI_OPENBCM_FAKE_SPEED="100000"}) -> SUCCESS
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false}]
+  be mdio_c45_read(phy=0, dev=1, reg=0) -> SUCCESS val=0
+  be port_link_gate(hw=1, gate=set) -> SUCCESS
+  be port_link_gate(hw=5, gate=set) -> SUCCESS
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false}]
+  be port_admin_set(hw=1, up=false) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=53561, val=849) -> SUCCESS
+  be port_link_get(hw=1) -> SUCCESS up=false
+  be port_admin_set(hw=5, up=false) -> SUCCESS
+  be port_link_get(hw=5) -> SUCCESS up=false
+  be port_admin_set(hw=9, up=false) -> SUCCESS
+  be port_link_get(hw=9) -> SUCCESS up=false
+  be port_admin_set(hw=13, up=false) -> SUCCESS
+  be port_link_get(hw=13) -> SUCCESS up=false
+  be vlan_members(vid=1) -> SUCCESS out=[(1,true),(5,true),(9,true),(13,true)]
+> set port port2 ADMIN_STATE=true
+= SUCCESS
+  be event link(hw=9, up=true)
+  be port_admin_set(hw=9, up=true) -> SUCCESS
+  notify port port2 UP
+> linkscan
+= SUCCESS
+> get port port2 OPER_STATUS
+= SUCCESS
+  OPER_STATUS=UP
+  be port_link_get(hw=9) -> SUCCESS up=true
+> mdio 10 1 a101 0
+= SUCCESS
+> set port port0 ADMIN_STATE=true
+= SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=53473) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_write(phy=16, dev=1, reg=40962, val=49505) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=33314, val=4369) -> SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be port_admin_set(hw=1, up=true) -> SUCCESS
+> linkscan
+= SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_write(phy=16, dev=1, reg=40962, val=49505) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=33314, val=4369) -> SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+> get port port0 OPER_STATUS
+= SUCCESS
+  OPER_STATUS=DOWN
+  be port_link_get(hw=1) -> SUCCESS up=false
+> mdio 10 1 a101 3
+= SUCCESS
+> linkscan
+= SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_write(phy=16, dev=1, reg=40962, val=49505) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=33314, val=4369) -> SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+> linkscan
+= SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_write(phy=16, dev=1, reg=40962, val=49505) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=33314, val=4369) -> SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+> get port port0 OPER_STATUS
+= SUCCESS
+  OPER_STATUS=DOWN
+  be port_link_get(hw=1) -> SUCCESS up=false
+> linkscan
+= SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_write(phy=16, dev=1, reg=40962, val=49505) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=33314, val=4369) -> SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+> get port port0 OPER_STATUS
+= SUCCESS
+  OPER_STATUS=DOWN
+  be port_link_get(hw=1) -> SUCCESS up=false
+> mdio 10 1 a101 0
+= SUCCESS
+> linkscan
+= SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_write(phy=16, dev=1, reg=40962, val=49505) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=33314, val=4369) -> SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=33313) -> SUCCESS val=0
+> get port port0 OPER_STATUS
+= SUCCESS
+  OPER_STATUS=DOWN
+  be port_link_get(hw=1) -> SUCCESS up=false
+> set port port0 ADMIN_STATE=false
+= SUCCESS
+  be port_admin_set(hw=1, up=false) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=53561, val=849) -> SUCCESS
+> linkscan
+= SUCCESS
+> set port port1 ADMIN_STATE=true
+= SUCCESS
+  be mdio_c45_read(phy=17, dev=1, reg=41217) -> SUCCESS val=0
+  be port_admin_set(hw=5, up=true) -> SUCCESS
+> mdio 11 1 a101 3
+= SUCCESS
+> linkscan
+= SUCCESS
+  be mdio_c45_read(phy=17, dev=1, reg=41217) -> SUCCESS val=3
+> linkscan
+= SUCCESS
+  be mdio_c45_read(phy=17, dev=1, reg=41217) -> SUCCESS val=3
+  be event link(hw=5, up=true)
+  notify port port1 UP
+> linkscan
+= SUCCESS
+  be mdio_c45_read(phy=17, dev=1, reg=41217) -> SUCCESS val=3
+> get port port1 OPER_STATUS
+= SUCCESS
+  OPER_STATUS=UP
+  be port_link_get(hw=5) -> SUCCESS up=true
+> set port port1 ADMIN_STATE=false
+= SUCCESS
+  be event link(hw=5, up=false)
+  be port_admin_set(hw=5, up=false) -> SUCCESS
+  notify port port1 DOWN
+> remove_switch
+= SUCCESS
+  be port_link_gate(hw=1, gate=empty) -> SUCCESS
+  be port_link_gate(hw=5, gate=empty) -> SUCCESS
+  be shutdown() -> void
+@@@@ cpp 11-macsec
+> profile SAI_OPENBCM_FAKE_PORTS=4
+= SUCCESS
+> profile SAI_OPENBCM_FAKE_LANES=4
+= SUCCESS
+> profile SAI_OPENBCM_PORT_IFG=128
+= SUCCESS
+> profile SAI_OPENBCM_EXT_MACSEC_FILE=@EXT_MACSEC_TABLE@
+= SUCCESS
+> switch
+= SUCCESS
+  be init(profile={SAI_OPENBCM_BACKEND="openbcm",SAI_OPENBCM_EXT_MACSEC_FILE="@EXT_MACSEC_TABLE@",SAI_OPENBCM_FAKE_LANES="4",SAI_OPENBCM_FAKE_PORTS="4",SAI_OPENBCM_FAKE_SPEED="100000",SAI_OPENBCM_PORT_IFG="128"}) -> SUCCESS
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false}]
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false}]
+  be mdio_c45_read(phy=16, dev=1, reg=256) -> SUCCESS val=0
+  be mdio_c45_write(phy=16, dev=1, reg=272, val=1) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=256, val=1) -> SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=257) -> SUCCESS val=0
+  be mdio_c45_write(phy=16, dev=1, reg=273, val=1) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=257, val=1) -> SUCCESS
+  be mdio_c45_read(phy=17, dev=1, reg=256) -> SUCCESS val=0
+  be mdio_c45_write(phy=17, dev=1, reg=272, val=1) -> SUCCESS
+  be mdio_c45_write(phy=17, dev=1, reg=256, val=1) -> SUCCESS
+  be mdio_c45_read(phy=17, dev=1, reg=257) -> SUCCESS val=0
+  be mdio_c45_write(phy=17, dev=1, reg=273, val=1) -> SUCCESS
+  be mdio_c45_write(phy=17, dev=1, reg=257, val=1) -> SUCCESS
+  be ports() -> [{hw=1,lanes=[1,2,3,4],speed=100000,name="ce0",autoneg=false},{hw=5,lanes=[5,6,7,8],speed=100000,name="ce1",autoneg=false},{hw=9,lanes=[9,10,11,12],speed=100000,name="ce2",autoneg=false},{hw=13,lanes=[13,14,15,16],speed=100000,name="ce3",autoneg=false}]
+  be port_admin_set(hw=1, up=false) -> SUCCESS
+  be port_ifg_set(hw=1, bits=128) -> SUCCESS
+  be port_link_get(hw=1) -> SUCCESS up=false
+  be port_admin_set(hw=5, up=false) -> SUCCESS
+  be port_ifg_set(hw=5, bits=128) -> SUCCESS
+  be port_link_get(hw=5) -> SUCCESS up=false
+  be port_admin_set(hw=9, up=false) -> SUCCESS
+  be port_ifg_set(hw=9, bits=128) -> SUCCESS
+  be port_link_get(hw=9) -> SUCCESS up=false
+  be port_admin_set(hw=13, up=false) -> SUCCESS
+  be port_ifg_set(hw=13, bits=128) -> SUCCESS
+  be port_link_get(hw=13) -> SUCCESS up=false
+  be vlan_members(vid=1) -> SUCCESS out=[(1,true),(5,true),(9,true),(13,true)]
+> mdio 10 1 20f 1
+= SUCCESS
+> mdio 10 1 21f 1
+= SUCCESS
+> mdio 11 1 20f 1
+= SUCCESS
+> mdio 11 1 21f 1
+= SUCCESS
+> create macsec me DIRECTION=EGRESS PHYSICAL_BYPASS_ENABLE=true
+= SUCCESS
+> create macsec mi DIRECTION=INGRESS PHYSICAL_BYPASS_ENABLE=true
+= SUCCESS
+> create macsec mx DIRECTION=INGRESS
+= ITEM_ALREADY_EXISTS
+> create macsec my DIRECTION=INGRESS ENABLE_POST=true
+= ATTR_NOT_SUPPORTED_1
+> get macsec mi SCI_IN_INGRESS_MACSEC_ACL
+= SUCCESS
+  SCI_IN_INGRESS_MACSEC_ACL=false
+> get macsec me MAX_SECURE_ASSOCIATIONS_PER_SC XPN_64BIT_SUPPORTED
+= SUCCESS
+  MAX_SECURE_ASSOCIATIONS_PER_SC=FOUR
+  XPN_64BIT_SUPPORTED=true
+> set macsec me PHYSICAL_BYPASS_ENABLE=false
+= SUCCESS
+> set macsec me DIRECTION=INGRESS
+= ATTR_NOT_SUPPORTED_0
+> create macsec_port bad MACSEC_DIRECTION=EGRESS PORT_ID=port2
+= NOT_SUPPORTED
+> create macsec_port mpe MACSEC_DIRECTION=EGRESS PORT_ID=port0
+= SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=272, val=1) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=256, val=0) -> SUCCESS
+  be port_ifg_set(hw=1, bits=384) -> SUCCESS
+> create macsec_port mpi MACSEC_DIRECTION=INGRESS PORT_ID=port0
+= SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=273, val=1) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=257, val=0) -> SUCCESS
+  be port_ifg_set(hw=1, bits=384) -> SUCCESS
+> create macsec_port dup MACSEC_DIRECTION=INGRESS PORT_ID=port0
+= ITEM_ALREADY_EXISTS
+> set port port0 SPEED=100000
+= SUCCESS
+  be port_speed_set(hw=1, mbps=100000) -> SUCCESS
+  be port_ifg_set(hw=1, bits=384) -> SUCCESS
+> set macsec_port mpe CTAG_ENABLE=false
+= SUCCESS
+> set macsec_port mpe CTAG_ENABLE=true
+= ATTR_NOT_SUPPORTED_0
+> create macsec_flow fe MACSEC_DIRECTION=EGRESS
+= SUCCESS
+> create macsec_flow fi MACSEC_DIRECTION=INGRESS
+= SUCCESS
+> set macsec_flow fe MACSEC_DIRECTION=INGRESS
+= ATTR_NOT_SUPPORTED_0
+> create acl_table te ACL_STAGE=EGRESS_MACSEC ACL_BIND_POINT_TYPE_LIST=[PORT] FIELD_DST_MAC=true FIELD_ETHER_TYPE=true
+= SUCCESS
+> create acl_table ti ACL_STAGE=INGRESS_MACSEC ACL_BIND_POINT_TYPE_LIST=[PORT] FIELD_DST_MAC=true FIELD_ETHER_TYPE=true
+= SUCCESS
+> create acl_entry eapole TABLE_ID=te PRIORITY=1000 ADMIN_STATE=true FIELD_ETHER_TYPE=0x888e/0xffff ACTION_PACKET_ACTION=FORWARD
+= SUCCESS
+> create acl_entry eapoli TABLE_ID=ti PRIORITY=1000 ADMIN_STATE=true FIELD_ETHER_TYPE=0x888e/0xffff ACTION_PACKET_ACTION=FORWARD
+= SUCCESS
+> set port port0 EGRESS_MACSEC_ACL=te
+= SUCCESS
+> set port port0 INGRESS_MACSEC_ACL=ti
+= SUCCESS
+> get port port0 EGRESS_MACSEC_ACL INGRESS_MACSEC_ACL
+= SUCCESS
+  EGRESS_MACSEC_ACL=te
+  INGRESS_MACSEC_ACL=ti
+> set port port0 EGRESS_MACSEC_ACL=ti
+= INVALID_ATTR_VALUE_0
+> create macsec_sc scx MACSEC_DIRECTION=EGRESS FLOW_ID=fe MACSEC_SCI=0x0100d52b380bea1c ENCRYPTION_ENABLE=false MACSEC_EXPLICIT_SCI_ENABLE=true MACSEC_CIPHER_SUITE=GCM_AES_128
+= ATTR_NOT_SUPPORTED_3
+> create macsec_sc scy MACSEC_DIRECTION=EGRESS FLOW_ID=fi MACSEC_SCI=0x0100d52b380bea1c ENCRYPTION_ENABLE=true MACSEC_EXPLICIT_SCI_ENABLE=true MACSEC_CIPHER_SUITE=GCM_AES_128
+= INVALID_PARAMETER
+> create macsec_sc sce MACSEC_DIRECTION=EGRESS FLOW_ID=fe MACSEC_SCI=0x0100d52b380bea1c ENCRYPTION_ENABLE=true MACSEC_EXPLICIT_SCI_ENABLE=true MACSEC_CIPHER_SUITE=GCM_AES_128
+= SUCCESS
+> create macsec_sc sc2 MACSEC_DIRECTION=EGRESS FLOW_ID=fe MACSEC_SCI=0x0100d52b380bea1c ENCRYPTION_ENABLE=true MACSEC_EXPLICIT_SCI_ENABLE=true MACSEC_CIPHER_SUITE=GCM_AES_128
+= INSUFFICIENT_RESOURCES
+> create macsec_sc sci MACSEC_DIRECTION=INGRESS FLOW_ID=fi MACSEC_SCI=0x0100d52b380bea1c ENCRYPTION_ENABLE=true MACSEC_EXPLICIT_SCI_ENABLE=true MACSEC_CIPHER_SUITE=GCM_AES_XPN_256 MACSEC_REPLAY_PROTECTION_ENABLE=true MACSEC_REPLAY_PROTECTION_WINDOW=0x1234
+= SUCCESS
+> create acl_entry datae TABLE_ID=te PRIORITY=1 ADMIN_STATE=true ACTION_PACKET_ACTION=DROP
+= SUCCESS
+> create acl_entry datai TABLE_ID=ti PRIORITY=1 ADMIN_STATE=true ACTION_PACKET_ACTION=DROP
+= SUCCESS
+> create macsec_sa sae0 MACSEC_DIRECTION=EGRESS SC_ID=sce AN=0 CONFIGURED_EGRESS_XPN=7 SAK=00000000000000000000000000000000c0c1c2c3c4c5c6c7c8c9cacbcccdcecf AUTH_KEY=808182838485868788898a8b8c8d8e8f
+= SUCCESS
+> get macsec_sa sae0 CURRENT_XPN
+= SUCCESS
+  CURRENT_XPN=7
+> set acl_entry datae ACTION_MACSEC_FLOW=fe
+= SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=512, val=256) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=513, val=49600) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=514, val=53198) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=515, val=36736) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=516, val=7169) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=517, val=7) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=518, val=0) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=519, val=0) -> SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=527) -> SUCCESS val=1
+  be mdio_c45_write(phy=16, dev=1, reg=288, val=1) -> SUCCESS
+> set acl_entry datae ACTION_PACKET_ACTION=off
+= SUCCESS
+> create macsec_sa sae1 MACSEC_DIRECTION=EGRESS SC_ID=sce AN=1 CONFIGURED_EGRESS_XPN=1 SAK=00000000000000000000000000000000c1c2c3c4c5c6c7c8c9cacbcccdcecfd0 AUTH_KEY=808182838485868788898a8b8c8d8e8f
+= SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=512, val=1) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=513, val=49857) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=514, val=53455) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=515, val=36736) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=516, val=7169) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=517, val=1) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=518, val=0) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=519, val=0) -> SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=527) -> SUCCESS val=1
+> create macsec_sa sae9 MACSEC_DIRECTION=EGRESS SC_ID=sce AN=1 CONFIGURED_EGRESS_XPN=1 SAK=00000000000000000000000000000000c1c2c3c4c5c6c7c8c9cacbcccdcecfd0 AUTH_KEY=808182838485868788898a8b8c8d8e8f
+= ITEM_ALREADY_EXISTS
+> get macsec_sc sce ACTIVE_EGRESS_SA_ID
+= SUCCESS
+  ACTIVE_EGRESS_SA_ID=sae1
+> remove macsec_sa sae0
+= SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=768, val=1) -> SUCCESS
+> mdio 10 1 402 5
+= SUCCESS
+> stats macsec_sa sae1 OUT_PKTS_ENCRYPTED
+= SUCCESS
+  OUT_PKTS_ENCRYPTED=5
+  be mdio_c45_read(phy=16, dev=1, reg=1026) -> SUCCESS val=5
+  be mdio_c45_read(phy=16, dev=1, reg=1027) -> SUCCESS val=0
+> mdio 10 1 402 3
+= SUCCESS
+> mdio 10 1 403 1
+= SUCCESS
+> stats macsec_sa sae1 OUT_PKTS_ENCRYPTED OCTETS_ENCRYPTED
+= SUCCESS
+  OUT_PKTS_ENCRYPTED=65544
+  OCTETS_ENCRYPTED=0
+  be mdio_c45_read(phy=16, dev=1, reg=1026) -> SUCCESS val=3
+  be mdio_c45_read(phy=16, dev=1, reg=1027) -> SUCCESS val=1
+> mdio 10 1 4f0 9
+= SUCCESS
+> stats macsec_flow fe CONTROL_PKTS
+= SUCCESS
+  CONTROL_PKTS=9
+  be mdio_c45_read(phy=16, dev=1, reg=1264) -> SUCCESS val=9
+  be mdio_c45_read(phy=16, dev=1, reg=1265) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=1266) -> SUCCESS val=0
+> stats macsec_flow fe CONTROL_PKTS
+= SUCCESS
+  CONTROL_PKTS=18
+  be mdio_c45_read(phy=16, dev=1, reg=1264) -> SUCCESS val=9
+  be mdio_c45_read(phy=16, dev=1, reg=1265) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=1266) -> SUCCESS val=0
+> mdio 10 1 504 2222
+= SUCCESS
+> mdio 10 1 505 1111
+= SUCCESS
+> mdio 10 1 506 ffff
+= SUCCESS
+> get macsec_sa sae1 CURRENT_XPN
+= SUCCESS
+  CURRENT_XPN=286335522
+  be mdio_c45_read(phy=16, dev=1, reg=1284) -> SUCCESS val=8738
+  be mdio_c45_read(phy=16, dev=1, reg=1285) -> SUCCESS val=4369
+  be mdio_c45_read(phy=16, dev=1, reg=1286) -> SUCCESS val=65535
+  be mdio_c45_read(phy=16, dev=1, reg=1287) -> SUCCESS val=0
+> get macsec_sa sae1 SAK
+= ATTR_NOT_SUPPORTED_0
+> set macsec_sa sae1 CONFIGURED_EGRESS_XPN=5
+= ATTR_NOT_SUPPORTED_0
+> set macsec_sc sce MACSEC_CIPHER_SUITE=GCM_AES_256
+= OBJECT_IN_USE
+> clear macsec_flow fe CONTROL_PKTS
+= SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=1264) -> SUCCESS val=9
+  be mdio_c45_read(phy=16, dev=1, reg=1265) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=1266) -> SUCCESS val=0
+> clear macsec_sa sae1 OUT_PKTS_ENCRYPTED
+= SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=1026) -> SUCCESS val=3
+  be mdio_c45_read(phy=16, dev=1, reg=1027) -> SUCCESS val=1
+> set acl_entry datai ACTION_MACSEC_FLOW=fi
+= SUCCESS
+> set acl_entry datai ACTION_PACKET_ACTION=off
+= SUCCESS
+> create macsec_sa sai0 MACSEC_DIRECTION=INGRESS SC_ID=sci AN=0 MINIMUM_INGRESS_XPN=1 SAK=c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf AUTH_KEY=808182838485868788898a8b8c8d8e8f SALT=505152535455565758595a5b MACSEC_SSCI=0x01020304
+= SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=528, val=304) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=529, val=49600) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=530, val=57310) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=531, val=36736) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=532, val=7169) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=533, val=1) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=534, val=0) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=535, val=4660) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=536, val=20823) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=537, val=21595) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=538, val=336) -> SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=784) -> SUCCESS val=0
+  be mdio_c45_write(phy=16, dev=1, reg=784, val=1) -> SUCCESS
+  be mdio_c45_read(phy=16, dev=1, reg=543) -> SUCCESS val=1
+  be mdio_c45_write(phy=16, dev=1, reg=289, val=1) -> SUCCESS
+> set macsec_sa sai0 MINIMUM_INGRESS_XPN=100
+= SUCCESS
+> stats macsec_sa sai0 IN_PKTS_OK
+= SUCCESS
+  IN_PKTS_OK=0
+  be mdio_c45_read(phy=16, dev=1, reg=1040) -> SUCCESS val=0
+  be mdio_c45_read(phy=16, dev=1, reg=1041) -> SUCCESS val=0
+> remove macsec_sa sai0
+= SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=289, val=0) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=784, val=32769) -> SUCCESS
+> remove macsec_sa sae1
+= SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=288, val=0) -> SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=769, val=32769) -> SUCCESS
+> set acl_entry datae ACTION_MACSEC_FLOW=off
+= SUCCESS
+> set acl_entry datai ACTION_MACSEC_FLOW=off
+= SUCCESS
+> remove acl_entry datae
+= SUCCESS
+> remove acl_entry datai
+= SUCCESS
+> remove macsec_sc sce
+= SUCCESS
+> remove macsec_sc sci
+= SUCCESS
+> remove macsec_flow fe
+= SUCCESS
+> remove macsec_flow fi
+= SUCCESS
+> set port port0 EGRESS_MACSEC_ACL=null
+= SUCCESS
+> set port port0 INGRESS_MACSEC_ACL=null
+= SUCCESS
+> remove acl_entry eapole
+= SUCCESS
+> remove acl_entry eapoli
+= SUCCESS
+> remove acl_table te
+= SUCCESS
+> remove acl_table ti
+= SUCCESS
+> remove macsec_port mpe
+= SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=256, val=1) -> SUCCESS
+  be port_ifg_set(hw=1, bits=384) -> SUCCESS
+> remove macsec_port mpi
+= SUCCESS
+  be mdio_c45_write(phy=16, dev=1, reg=257, val=1) -> SUCCESS
+  be port_ifg_set(hw=1, bits=128) -> SUCCESS
+> remove macsec me
+= SUCCESS
+> remove macsec mi
+= SUCCESS
+> remove_switch
+= SUCCESS
+  be shutdown() -> void

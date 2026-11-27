@@ -7,7 +7,9 @@
 #        aarch64, 16-byte SSE accesses as 8-byte pairs (no LDXP/STXP)
 # Entry (x86_64-linux build host; the box binary is cross-built):
 #   import ./qemu-ipd { pkgs = import <nixpkgs> { system = "x86_64-linux"; }; }
-{ pkgs }:
+# ifcsHeaders: optional, `{ pkgs, saiSrc }: <the IFCS declarations of that package set>` (rust/sai/nix/ifcs-headers.nix, which
+# path:./nix cannot reach: the root git flake / tests/nixtargets.py / ifcs-oracle/run-oracle.sh pass it); without it no oracle-ours.
+{ pkgs, ifcsHeaders ? null }:
 assert pkgs.stdenv.hostPlatform.system == "x86_64-linux";
 let
   inherit (pkgs) lib;
@@ -48,7 +50,7 @@ let
     installPhase = "install -Dm755 libipd-devmem.so $out/lib/libipd-devmem.so";
   };
 
-  # isai-smoke: the generic SAI client sai-teralynx/tools/sai_smoke.cpp;
+  # isai-smoke: the generic SAI client ../ifcs-oracle/tools/sai_smoke.cpp;
   # isai-version: loads libsai, prints its SAI version, no device access.
   # Both against isai's SAI 1.16.1 headers.
   smoke = pkgs.stdenv.mkDerivation {
@@ -57,7 +59,7 @@ let
     dontUnpack = true;
     buildPhase = ''
       sai="-I${libsai}/include/sai -L${libsai}/lib -lsai -Wl,-rpath,${libsai}/lib"
-      $CXX -O2 -std=c++17 -o isai-smoke ${../sai-teralynx/tools/sai_smoke.cpp} $sai
+      $CXX -O2 -std=c++17 -o isai-smoke ${../ifcs-oracle/tools/sai_smoke.cpp} $sai
       $CC -O2 -o isai-version ${./guest/isai_version.c} $sai
       $CXX -O2 -std=c++17 -o sai-bench ${./tools/sai_bench.cpp} $sai -ldl
     '';
@@ -113,26 +115,31 @@ let
     installPhase = "install -Dm755 -t $out/bin sai-bench";
   };
 
-  # The oracle (../sai-teralynx/oracle): the same SAI script on both SAIs with
+  # The oracle (../ifcs-oracle): the same SAI script on both SAIs with
   # their libifcs calls traced. isai: tracer generated from its ctypes file,
   # LD_PRELOAD'ed in the guest (ISAI_QEMU_PRELOAD); ours: the tracer for our
   # backend's table (SAI_TERALYNX_IFCS_TRACE) and the runner on our libsai.
-  oracle-isai = pkgs.callPackage ../sai-teralynx/oracle {
+  oracle-isai = pkgs.callPackage ../ifcs-oracle {
     saiInc = "${libsai}/include/sai";
     saiLib = libsai;
     abi = "isai-6.2.0";
     ctypes = "${libsai}/share/isai/pyctypes/ifcs_ctypes.py";
   };
-  oracle-ours = cross.callPackage ../sai-teralynx/oracle {
+  # (the IFCS declarations the library builds with: ifcs-gen's, from ifcsHeaders)
+  oracle-ours = cross.callPackage ../ifcs-oracle {
     saiInc = sai-teralynx.saiHeaders;
     saiLib = sai-teralynx;
     abi = "ifcs-0.12.41";
+    ifcsHeaders = ifcsHeaders { pkgs = cross; saiSrc = (import ../sonic { pkgs = cross; }).sources.sairedis; };
   };
 
   self = {
     qemu-ipd = qemuFor cross;          # for the CS8210 (aarch64 host)
     qemu-ipd-native = qemuFor pkgs;    # same patches, x86_64 host: offline tests
-    inherit isai libsai ortools-stub devmem smoke syncd syncd-202505 sai-teralynx bench-native oracle-isai oracle-ours;
+  } // lib.optionalAttrs (ifcsHeaders != null) {
+    inherit oracle-ours;
+  } // {
+    inherit isai libsai ortools-stub devmem smoke syncd syncd-202505 sai-teralynx bench-native oracle-isai;
 
     # arm64 runner: isai-qemu PROGRAM [ARGS...] (see sai-qemu.md, phase 2)
     runner = cross.writeShellScriptBin "isai-qemu" ''

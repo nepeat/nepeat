@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # The parity harness's programs (crate sai-teralynx-parity, README "Parity"), built from sources that
-# stay UNMODIFIED (ai_re/nix/packages/sai-teralynx: tests/, tests/mock/, src/shim.c + src/ifcs_guard.c,
-# frontend/tests/frontend_driver.cpp, oracle/sai_script.cpp) and this crate's c/:
+# stay UNMODIFIED (ai_re/nix/packages/sai-teralynx: tests/, src/shim.c + src/ifcs_guard.c,
+# frontend/tests/frontend_driver.cpp) and ifcs-oracle's sai_script.cpp (ORACLE_SRC) and this crate's c/:
 #
 #   build-fixtures.sh OUT TERALYNX_SRC IFCS_INC SAI_INC LINK_LIBSAI [NLOHMANN_INC]
 #
-#   OUT/mock/libifcs.so          the mock libifcs, as sai-teralynx's Makefile builds it
+#   OUT/mock/libifcs.so          the mock libifcs (rust/sai/tests/teralynx-mock; MOCK_LIBIFCS: its nix derivation)
 #   OUT/bin/libsai-teralynx-shim.so   the C shim, as the Makefile builds it (put next to each libsai)
 #   OUT/bin/libparity-tap.so     c/tap.c (LD_PRELOAD: every mock line into one stream)
 #   OUT/bin/libparity-bytes.so   the byte tap: oracle/gen_tracer.py's wrappers over the generated header with
@@ -23,17 +23,27 @@ set -euo pipefail
 out=$1 tl=$2 gen=$3 sai=$4 link=$5 nlo=${6:-}
 here=$(cd "$(dirname "$0")" && pwd)
 cc=${CC:-cc} cxx=${CXX:-c++}
+# the oracle's tracer generator, runtime header and runner: ai_re/nix/packages/ifcs-oracle (ORACLE_SRC), moved
+# unchanged from sai-teralynx/oracle (H5-1)
+oracle=${ORACLE_SRC:-$here/../../../../ai_re/nix/packages/ifcs-oracle}
 warn="-Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers"
 mkdir -p "$out/bin" "$out/mock" "$out/cfg" "$out/obj" "$out/link"
 cp -f "$link" "$out/link/libsai.so.1"
 $cc -std=gnu11 -fPIC -shared -Wall -fno-builtin -fno-tree-loop-distribute-patterns -O2 -g \
   -Wl,-soname,libsai-teralynx-shim.so -o "$out/bin/libsai-teralynx-shim.so" "$tl/src/shim.c" "$tl/src/ifcs_guard.c" -lpthread
-$cc -std=gnu11 -fPIC -shared $warn -Werror=incompatible-pointer-types -O2 -g -I"$tl/src" -I"$gen" -I"$tl/tests/mock" \
-  -Wl,--no-undefined -o "$out/mock/libifcs.so" "$tl"/tests/mock/*.c -lpthread
+# the mock: MOCK_LIBIFCS (nix/teralynx-mock.nix, the one derivation of every user), else compiled from
+# tests/teralynx-mock (MOCK_SRC) with the same flags
+if [ -n "${MOCK_LIBIFCS:-}" ]; then
+  cp -f "$MOCK_LIBIFCS" "$out/mock/libifcs.so"
+else
+  mock=${MOCK_SRC:-$here/../../tests/teralynx-mock}
+  $cc -std=gnu11 -fPIC -shared $warn -Werror=incompatible-pointer-types -O2 -g -I"$gen" -I"$mock" \
+    -Wl,--no-undefined -o "$out/mock/libifcs.so" "$mock"/*.c -lpthread
+fi
 $cc -std=gnu11 -fPIC -shared -Wall -Wextra -Werror -O2 -g -Wl,-soname,libparity-tap.so \
   -o "$out/bin/libparity-tap.so" "$here/c/tap.c" -ldl -lpthread
-${PYTHON:-python3} -I -B "$tl/oracle/gen_tracer.py" --header "$gen/ifcs_api.h" --abi parity-bytes -o "$out/obj/bytes_gen.c"
-$cc -std=gnu11 -fPIC -shared -Wall -Werror -O2 -g -I"$tl/oracle" -I"$gen" -Wl,-soname,libparity-bytes.so \
+${PYTHON:-python3} -I -B "$oracle/gen_tracer.py" --header "$gen/ifcs_api.h" --abi parity-bytes -o "$out/obj/bytes_gen.c"
+$cc -std=gnu11 -fPIC -shared -Wall -Werror -O2 -g -I"$oracle" -I"$gen" -Wl,-soname,libparity-bytes.so \
   -o "$out/bin/libparity-bytes.so" "$out/obj/bytes_gen.c" "$here/c/bytes_rt.c" -ldl -lpthread
 wraps=$(grep -v '^#' "$here/c/wrap-symbols.txt" | sed 's/^/-Wl,--wrap=/' | tr '\n' ' ')
 # shellcheck disable=SC2086
@@ -55,7 +65,7 @@ $cxx -std=c++17 -O1 -Wall -Wextra -Werror -Wno-unused-parameter -ffunction-secti
 $cxx -o "$out/bin/tl-frontend-driver" "$out/obj/frontend_driver.o" "$out/obj/tl_port.o" -Wl,--gc-sections \
   -Wl,--wrap=sai_api_query -L"$out/link" -l:libsai.so.1 -ldl -lpthread
 if [ -n "$nlo" ]; then
-  $cxx -std=c++17 -O2 -Wall -I"$sai" -I"$sai/../experimental" -I"$nlo" -o "$out/bin/sai-script" "$tl/oracle/sai_script.cpp" \
+  $cxx -std=c++17 -O2 -Wall -I"$sai" -I"$sai/../experimental" -I"$nlo" -o "$out/bin/sai-script" "$oracle/sai_script.cpp" \
     -L"$out/link" -l:libsai.so.1 -ldl -lpthread
   $cxx -std=c++17 -O2 -Wall -Wextra -Werror -I"$nlo" -o "$out/bin/oracle-prep" "$here/c/oracle_prep.cpp"
 fi

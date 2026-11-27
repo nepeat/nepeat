@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # test_ifcs (ai_re/nix/packages/sai-teralynx/tests: test_ifcs.cpp + t_*.cpp + harness.h,
 # UNMODIFIED, compiled as its Makefile does) against a Rust libsai with the teralynx feature, on
-# the C mock libifcs (tests/mock/*.c, the Makefile's flags) with the C shim next to it (src/shim.c
+# the C mock libifcs (rust/sai/tests/teralynx-mock, nix/teralynx-mock.nix) with the C shim next to it (src/shim.c
 # + src/ifcs_guard.c); then the IFCS call log of create_switch / remove_switch (tests/c/create_remove.c)
 # of that libsai and, if given, of the C++ sai-teralynx libsai on the same mock: they must be equal.
 #
@@ -26,11 +26,18 @@ set -e
 cp -f "$libsai" "$out/lib/libsai.so.1.0.0"
 ln -sf libsai.so.1.0.0 "$out/lib/libsai.so.1"
 ln -sf libsai.so.1 "$out/lib/libsai.so"
-# the shim and the mock as sai-teralynx's Makefile builds them
+# the shim as sai-teralynx's Makefile builds it (and the mock, below)
 $cc -std=gnu11 -fPIC -shared -Wall -fno-builtin -fno-tree-loop-distribute-patterns -O2 -g \
   -Wl,-soname,libsai-teralynx-shim.so -o "$out/lib/libsai-teralynx-shim.so" "$tl/src/shim.c" "$tl/src/ifcs_guard.c" -lpthread
-$cc -std=gnu11 -fPIC -shared $warn -Werror=incompatible-pointer-types -O2 -g -I"$tl/src" -I"$gen" -I"$tl/tests/mock" \
-  -Wl,--no-undefined -o "$out/mock/libifcs.so" "$tl"/tests/mock/*.c -lpthread
+# the mock: MOCK_LIBIFCS (nix/teralynx-mock.nix, the one derivation of every user), else compiled from
+# tests/teralynx-mock (MOCK_SRC) with the same flags
+if [ -n "${MOCK_LIBIFCS:-}" ]; then
+  cp -f "$MOCK_LIBIFCS" "$out/mock/libifcs.so"
+else
+  mock=${MOCK_SRC:-$here/../../../tests/teralynx-mock}
+  $cc -std=gnu11 -fPIC -shared $warn -Werror=incompatible-pointer-types -O2 -g -I"$gen" -I"$mock" \
+    -Wl,--no-undefined -o "$out/mock/libifcs.so" "$mock"/*.c -lpthread
+fi
 $cxx -std=c++17 $warn -O2 -g -I"$sai" -I"$sai/../experimental" -I"$tl/tests" -o "$out/lib/test_ifcs" \
   "$tl/tests/test_ifcs.cpp" "$tl"/tests/t_*.cpp "$out/lib/libsai.so.1.0.0" -Wl,-rpath,'$ORIGIN' -ldl -lpthread
 $cc -std=gnu11 -Wall -Wextra -O1 -g -I"$sai" -I"$sai/../experimental" -o "$out/create_remove" "$here/c/create_remove.c" -ldl

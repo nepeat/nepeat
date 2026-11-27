@@ -1,0 +1,34 @@
+# Ports: lanes, speeds, MTU, FEC, autoneg, admin state and link, loopback, counters, queues,
+# link events from the backend, bad values.
+switch
+get port port0 HW_LANE_LIST SPEED SUPPORTED_SPEED ADMIN_STATE OPER_STATUS MTU
+set port port0 SPEED=40000
+get port port0 SPEED
+set port port0 SPEED=25000
+set port port0 SPEED=100000
+set port port0 MTU=9100
+set port port0 MTU=20000
+set port port0 FEC_MODE=RS
+get port port0 FEC_MODE
+set port port0 AUTO_NEG_MODE=true
+set port port0 ADMIN_STATE=true
+get port port0 OPER_STATUS
+inject link port0 down
+get port port0 OPER_STATUS
+linkscan
+set port port0 ADMIN_STATE=false
+set port port1 LOOPBACK_MODE=MAC
+set port port1 ADMIN_STATE=true
+get port port1 OPER_STATUS LOOPBACK_MODE
+set port port1 ADMIN_STATE=false
+get port cpu TYPE
+set port cpu ADMIN_STATE=false
+get port port0 QOS_NUMBER_OF_QUEUES QOS_QUEUE_LIST
+get queue queue#3 PORT INDEX TYPE
+inject stat port0 IF_IN_OCTETS 1000
+inject stat port0 IF_OUT_UCAST_PKTS 7
+stats port port0 IF_IN_OCTETS IF_OUT_UCAST_PKTS
+stats port port0 PFC_0_RX_PKTS
+clear port port0 IF_IN_OCTETS
+set port port0 PORT_VLAN_ID=4095
+remove_switch
