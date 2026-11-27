@@ -1,13 +1,13 @@
 # CS8210-32X
 
-## Status (2026-11-26)
+## Status (2026-11-27)
 
-- **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-59 (C++ SAI; Rust generation system-61 is selectable), from the SSD; a cold cycle of both feeds (`lab-power cs8210 cycle`,
-  2026-11-26) came back unattended, 0 failed units; either PSU alone carries it under traffic. **SONiC at boot** on our C++ `sai-teralynx` (HEAD's frozen
-  frontend, first on this box 2026-11-25); its Rust replacement is at parity offline and passed H1 and H2 on the chip (H1: smoke + a short SONiC run on generation system-60; H2: 37 feature scripts Rust = C++ with SONiC stopped; box back on system-59 / C++; logs 2026-11-26 (h), (i)); H3 (SONiC under a production-like config, soak, reboots on Rust) passed too (log (j)); H4 (Rust as default) waits for the coordinator. Cabling (owner, 2026-11-25; cage 1 and 2 modules replaced 2026-11-26): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
+- **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-62 (Rust SAI, boot default; C++ generation system-59 stays in the U-Boot menu as rollback), from the SSD; a cold cycle of both feeds (`lab-power cs8210 cycle`,
+  2026-11-26) came back unattended, 0 failed units; either PSU alone carries it under traffic. **SONiC at boot** on our Rust Teralynx libsai
+  (`rust/sai`; the default since H4, log 2026-11-27 (a); H1-H3 on the chip: logs 2026-11-26 (h)-(j)); the C++ `sai-teralynx` (HEAD's frozen frontend) stays selectable until H5 (`hardware.cs8210.sonic.saiImplementation = "cpp"`, or boot system-59). Cabling (owner, 2026-11-25; cage 1 and 2 modules replaced 2026-11-26): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
   400G-DR4 QSFP-DD optics (MPO loops), 3 <-> 17 TE 2459398-1 400G CR8 DAC; nothing to the house. CONFIG_DB = the Nix
   base: those six ports 1x400G RS FEC, far ends in Vrf-a/b/c with /31s, 26 ports down ([sonic.md](sonic.md) "Running it").
-  **3 <-> 17 up; 31 <-> 32 down at cage 32 as of 2026-11-27 ~02:00Z (log (j)); 1 <-> 2 was up 10:09-10:27 (cat fur on the fibre / optic faces, both modules replaced)
+  **3 <-> 17 up; 31 <-> 32 (cage 32 marginal: down at ~02:00Z, log (j)) up again after the H4 reboot, not used since; 1 <-> 2 was up 10:09-10:27 (cat fur on the fibre / optic faces, both modules replaced)
   and is down again after the reboots: cage 1 Rx lane 3 -7.4 dBm + CDR loss of lock** ([reboots-20261126.txt](evidence/reboots-20261126.txt)).
 - **Cages:** `cs8210-optics` (`rust/cs8210`) is the one owner of the I2C FPGA: declared cages (= admin-up ports) out of
   reset and brought up (CMIS app select 4x100G -> 400G-DR4), all others held in reset; xcvrd and `show interfaces
@@ -27,7 +27,7 @@
 - **Open:** **three fan modules with a dead rotor** (FAN5 rear, FAN6 front, FAN12 rear; LED solid red, still following the
   zone duty): 3 failed rotors <= 4, fand degraded on its curve (~52 %, ASIC ~63 C); replace them, then `fand release`
   the slot if it was swapped while off ([board-control.md](board-control.md) "Fan CPLD register map"); `lab-power cs8210 cycle` once failed with
-  NetBotz "E101: Command Not Found" (not reproduced; lab-power now resends once on E101); the 1 <-> 2 fibre into cage 1; port LEDs 2-4 (slot codes and colours unknown, I; all LED registers proven R/W at H2 and restored, V; the panel effect needs the owner's replay of [led-panel-checklist.md](led-panel-checklist.md); H1 read LED_CFG = 0x805: libifcs' LEARN_MSG-based read-modify-write left no junk in bits 4-10, V); Rust SAI: R1 (IFCS key padding) found at H2 and fixed (byte twins, ABI fixture, byte-level parity tap); H4 (the default switch) pending the coordinator's OK; cage 32 (lane 1 Rx ~-8.3 dBm, FEC errors under load, DOWN: fibre/module to check); `sonic-nix reload` VRF race and FRR's BFD staying on the old interface after a PortChannel move ([sonic.md](sonic.md) "Running it"); our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
+  NetBotz "E101: Command Not Found" (not reproduced; lab-power now resends once on E101); the 1 <-> 2 fibre into cage 1; port LEDs 2-4 (slot codes and colours unknown, I; all LED registers proven R/W at H2 and restored, V; the panel effect needs the owner's replay of [led-panel-checklist.md](led-panel-checklist.md); H1 read LED_CFG = 0x805: libifcs' LEARN_MSG-based read-modify-write left no junk in bits 4-10, V); Rust SAI: H5 (goldens from the C++, then its deletion) after H4 has run a while, coordinator's OK; cage 32 (lane 1 Rx ~-8.3 dBm, FEC errors under load, DOWN: fibre/module to check); `sonic-nix reload` VRF race (cause found at H4: its `systemctl stop sonic.target` returns before the units stop and the start cancels their stop jobs; fix proposed for the shared sonic-nix.py, not applied, log (a)), bgpcfgd needs a Loopback0 for default-VRF peers, FRR's BFD staying on the old interface after a PortChannel move ([sonic.md](sonic.md) "Running it"), al_eth refcount WARN at power-off; our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
   ([sai-features.md](sai-features.md)); MACsec under SONiC; CRM panels empty; learn-wedge watch (L0s off, [learn-wedge.md](learn-wedge.md)).
 
 ## Identity
@@ -132,6 +132,14 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-27 (a) — H4: the Rust SAI is the CS8210 default
+
+- `hardware.cs8210.sonic.saiImplementation` defaults to "rust" (`nix/nixos/module/cs8210/sonic`; "cpp" selectable until H5). system-62 (nxgr84rc…; drop-in 9c145w73…, libsai sha256 4b177bab…, H3's R1-fixed build; diff-closures vs system-61: source only) deployed with `switch`, boot default; system-59 (C++) stays in the U-Boot menu ([01](evidence/rust-h4/01-build.txt), [02](evidence/rust-h4/02-deploy-switch.txt)).
+- One reboot: 0 failed units, syncd at 51 s, guard GOT 1/1/1, 3 <-> 17 up. H3's overlay cut to 3 <-> 17 ([box/overlay.json](evidence/rust-h4/box/overlay.json)): BGP + BFD 2/2, routes, LACP (selected in 3 s, BGP + BFD in 8 s), ACL +200 for 200 probes, flex QUEUE/RIF/ACL, CRM, CoPP, sFlow (85 samples, 1 in 100) all PASS; overlay removed, CONFIG_DB identical to the Nix base dump ([00-index](evidence/rust-h4/00-index.txt)). sFlow frames must be routed (into a blackhole or with no route: 0 samples).
+- 25-min ring soak on 3 <-> 17 alone (new `SONIC_RING_LOOPS=1` in sonic-ring.sh): 366 / 386 Gbit/s per direction, 0 discards / errors / uncorrectable FEC, watchdog quiet, no learn-ring event, syncd RSS 243.5-245.7 MB, ASIC <= 62.3 C, restored and verified ([11](evidence/rust-h4/11-soak-seg-1.txt)).
+- Fixed: ring-soak.sh stops only on learn-ring guard events (0x4860 / 0x4864 / 0x485c), refused im_mallocs and the watchdog; an all-ones read of another register (0x104) is counted and printed ([15](evidence/rust-h4/15-fix-a-ring-soak.txt)). The restarted Rust syncd read 0x104 as all-ones once at init (counted; also on C++ inits, H1).
+- Not fixed: `systemctl stop sonic.target` + an immediate start. The target is After= its 40 units, so its stop job ends first (0.1 s, 19 unit stop jobs still queued) and the start cancels them: vrfmgrd / intfmgrd restarted, syncd / orchagent / bgpd did not. `sonic-nix reload` does the same (stop, flush + load CONFIG_DB, start), which explains its VRF race. Stopping the target together with its ConsistsOf units waits for all of them (5.3 s, nothing left) ([12](evidence/rust-h4/12-target-stopstart-cause.txt)). The fix belongs in the shared sonic-nix.py and would change the AS7772 / AS7760 systems, so it is only proposed ([13](evidence/rust-h4/13-fix-b-proposed.txt)).
 
 ### 2026-11-26 (j) — H3: SONiC on the Rust SAI like a production config
 

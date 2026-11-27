@@ -7,7 +7,7 @@ per object/attribute group, edited in place. Status:
 - **chip**: programmed and checked on the CS8210 (what was checked is in the row);
 - **mock**: backend call sequence checked against the mock libifcs only;
 - **frontend**: kept by the frontend (stored, answered), nothing programmed;
-- **Rust** column: the Rust libsai ([rust/sai](../../../rust/sai/README.md) "Teralynx backend"; the box's SAI is still the C++). Offline
+- **Rust** column: the Rust libsai ([rust/sai](../../../rust/sai/README.md) "Teralynx backend"; the box's default SAI since H4, 2026-11-27; the C++ stays selectable until H5). Offline
   (2026-11-26): `offline: t_x` = those `test_ifcs` files pass on it and every `test_ifcs` section's IFCS calls equal
   the C++'s on the mock; `oracle x` = that script's SAI steps equal through both libsais on the mock (parity harness,
   strict green). On the chip: `hw H1` = proven under the Rust libsai with SONiC stopped (`sai-teralynx-smoke`, PROGRESS log (h));

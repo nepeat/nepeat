@@ -240,13 +240,13 @@ in
     };
     saiImplementation = mkOption {
       type = types.enum [ "cpp" "rust" ];
-      default = "cpp";
+      default = "rust";
       description = ''
-        The libsai syncd links: "cpp" = ai_re/nix/packages/sai-teralynx (the C++ IFCS
-        backend), "rust" = rust/sai/nix/sai-teralynx-rs.nix (the Rust drop-in: the same
-        lib/, bin/ layout, the same exports + 2, the same profile keys; adds
-        SAI_TERALYNX_POST_INIT_REGS / SAI_TERALYNX_DIAG_REGS). Rollback: "cpp" or the
-        previous generation.
+        The libsai syncd links: "rust" (default since H4, 2026-11-27) =
+        rust/sai/nix/sai-teralynx-rs.nix (the Rust drop-in: the same lib/, bin/ layout,
+        the same exports + 2, the same profile keys; adds SAI_TERALYNX_POST_INIT_REGS /
+        SAI_TERALYNX_DIAG_REGS), "cpp" = ai_re/nix/packages/sai-teralynx (the C++ IFCS
+        backend, still selectable until H5). Rollback: "cpp" or the previous generation.
       '';
     };
     macAddress = mkOption {

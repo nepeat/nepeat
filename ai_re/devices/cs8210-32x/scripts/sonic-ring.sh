@@ -26,7 +26,11 @@ st_args "$@"
 export SONIC_CLI_IFACE_MODE=default
 # SONIC_RING_LOOPS=2: only 3 <-> 17 and 31 <-> 32 (while 1 <-> 2 is down): Ethernet16 -> DAC -> Ethernet128 =Vlan100=>
 # Ethernet240 -> MPO -> Ethernet248 =Vlan200=> Ethernet16 ... and the reverse.
+# SONIC_RING_LOOPS=1: 3 <-> 17 alone (2026-11-27, cage 32 down): Ethernet16 -> DAC -> Ethernet128 =Vlan100=> Ethernet16 ...
+# (d1, injected on Ethernet16) and the reverse (d2, injected on Ethernet128); a1 enters the VLAN only on Ethernet128, a2 only
+# on Ethernet16: learnt once, never moves.
 LOOPS=${SONIC_RING_LOOPS:-3}
+IDLE=
 case "$LOOPS" in
 3)
   P4="Ethernet0 Ethernet8 Ethernet16 Ethernet128 Ethernet240 Ethernet248"   # the ring ports (the lib's name)
@@ -42,7 +46,15 @@ case "$LOOPS" in
   PEERS="Ethernet16:Ethernet128 Ethernet128:Ethernet16 Ethernet240:Ethernet248 Ethernet248:Ethernet240"
   INJECT="Ethernet16 Ethernet128"
   FDB="Vlan100:d1:Ethernet240 Vlan200:d1:Ethernet16 Vlan200:d2:Ethernet248 Vlan100:d2:Ethernet128" ;;
-*) echo "SONIC_RING_LOOPS=$LOOPS: 2 or 3"; exit 2 ;;
+1)
+  P4="Ethernet16 Ethernet128"
+  M4="Vlan100:Ethernet16 Vlan100:Ethernet128"
+  VLANS="Vlan100"
+  PEERS="Ethernet16:Ethernet128 Ethernet128:Ethernet16"
+  INJECT="Ethernet16 Ethernet128"
+  FDB="Vlan100:d1:Ethernet16 Vlan100:d2:Ethernet128"
+  IDLE="Ethernet0 Ethernet8 Ethernet240 Ethernet248" ;;   # the other cabled loops: may be up (LLDP must still see this switch), carry nothing
+*) echo "SONIC_RING_LOOPS=$LOOPS: 1, 2 or 3"; exit 2 ;;
 esac
 NPORTS=$(echo $P4 | wc -w) NFDB=$(echo $FDB | wc -w)
 export NFDB
@@ -99,7 +111,8 @@ ring_check() {
     p=${k#PORT_TABLE:} v=$(st_r "$APPL" hget "$k" oper_status)
     case " $P4 " in
       *" $p "*) [ "$v" = up ] || st_refuse "APPL_DB $k oper_status=${v:-none}: a ring port is not up" ;;
-      *) [ "$v" = up ] && st_refuse "APPL_DB $k oper_status=up: only the $NPORTS ring ports may be up" ;;
+      *) case " $IDLE " in *" $p "*) continue ;; esac
+         [ "$v" = up ] && st_refuse "APPL_DB $k oper_status=up: only the $NPORTS ring ports may be up" ;;
     esac
   done
   host=$(st_hget 'DEVICE_METADATA|localhost' hostname); host=${host:-$(hostname)}

@@ -93,7 +93,10 @@ stack's bond0/vrf-fp (off with SONiC), networkd deleting vrfmgrd's local rule on
 resetting a PortChannel's mac_addr. Notes from the AS7760 runs: [sonic-nixos](../sonic-nixos/PROGRESS.md).
 
 Found at H3 (SAI-independent, same on the C++ and the Rust SAI; [evidence](evidence/rust-h3/00-index.txt)): `sonic-nix reload` races
-the VRFs (intfmgrd binds Ethernet128 to Vrf-b before vrfmgrd has re-created it), and FRR keeps BFD on the old interface when an
+the VRFs (intfmgrd binds Ethernet128 to Vrf-b before vrfmgrd has re-created it; cause, H4: its `systemctl stop sonic.target`
+returns before the PartOf units stop, the start cancels their queued stop jobs, so only some daemons restart around the CONFIG_DB
+flush; until the shared sonic-nix.py names the units, stop with `systemctl stop sonic.target $(systemctl show -p ConsistsOf --value sonic.target)`,
+[evidence](evidence/rust-h4/12-target-stopstart-cause.txt)), and FRR keeps BFD on the old interface when an
 address moves onto a PortChannel (workaround not verified).
 
 ## Optics: cs8210-optics (the I2C FPGA's one owner)

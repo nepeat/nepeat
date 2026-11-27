@@ -24,9 +24,10 @@ Status, stated plainly:
   (`test_sai` 3014 / 3014 through the test port, the op-script differential, the MACsec differentials, the
   `openbcm-diag` client); golden files captured at commit 50a6aa7 from the deleted C / C++ (the MDIO
   interpreter and tool, `openbcm-asic-temp`, the table checkers, the glue-call differential, the error table).
-- **CS8210 (Teralynx 7): H1 and H2 passed on the chip, H3 next.** The Rust Teralynx libsai and shim are at parity with the C++
-  `sai-teralynx` on the mock libifcs ([Parity](#parity)) and passed the chip's smoke (H1) and feature matrix (H2); the box
-  keeps the C++ as its default until H3 (SONiC under load on the Rust libsai).
+- **CS8210 (Teralynx 7): the Rust libsai is the box's default since H4 (2026-11-27).** The Rust Teralynx libsai and shim are
+  at parity with the C++ `sai-teralynx` on the mock libifcs ([Parity](#parity)) and passed the chip's smoke (H1), feature
+  matrix (H2) and SONiC under a production-like config with soak, reboots and rollback (H3); the C++ stays selectable
+  (`saiImplementation = "cpp"`, or the previous generation) until H5.
 
 ## Migration status
 
@@ -483,8 +484,8 @@ libsdk), `bin/sai-openbcm-smoke`, `share/sai-openbcm/backends` (`fake openbcm` /
 `bin/openbcm-diag`, `bin/sai-teralynx-smoke`, `bin/sai-script` (the last two wrappers around `libexec/`, host libstdc++ on `LD_LIBRARY_PATH`; [Teralynx tools](#teralynx-tools-sai-client-sai-script-sai-teralynx-smoke)),
 `share/sai-rs/` (the parts' reports, `drop-in.txt`). Checked: every file of the C++ package has a
 counterpart, 17 exports (the C++'s 15 + `sai_bulk_get_attribute`, `sai_query_object_stage`). Targets:
-`sai-teralynx-rs` (native, the mock checks), `cs8210-sai-teralynx-rs` (aarch64). Not selected by any
-system yet (`nix/nixos/module/cs8210/sonic` picks the package).
+`sai-teralynx-rs` (native, the mock checks), `cs8210-sai-teralynx-rs` (aarch64). The CS8210 system links it
+by default (`nix/nixos/module/cs8210/sonic`, option `saiImplementation`, "rust" since H4).
 
 ### mdio-script
 
@@ -1084,11 +1085,11 @@ model refused them (now a placeholder, never read); the workspace build gave the
   sai.profile, LED / rc program, port_config.ini, hwsku tree) are unchanged by the migration (the same
   store paths as the C++ system at 50a6aa7) and pinned in `boards/as7760/sdk-config-test.nix`. No VM test
   runs its 4x25G break-out on the virtual backend (`SAI_RS_VIRTUAL_PORT_MAP` exists for it).
-- The CS8210's default SAI is still the C++ `sai-teralynx` (`hardware.cs8210.sonic.saiImplementation`). The Rust Teralynx
-  libsai and shim passed H1 (smoke, a short SONiC run) and H2 on the chip (2026-11-26, device PROGRESS logs (h), (i)): the
-  37 feature scripts, Rust vs C++ equal step for step with the same tools, learn-ring guard injection equal; H2 found R1
-  (above), fixed. H3 is next: a soak and reboots with SONiC on the Rust libsai, the watchdog's guard signal on it, the LED
-  panel replay (owner), and the call to switch the default; the C++ stays until then.
+- The CS8210's default SAI is the Rust one since H4 (2026-11-27; `hardware.cs8210.sonic.saiImplementation`, "cpp" still
+  selectable until H5). The Rust Teralynx libsai and shim passed H1 (smoke, a short SONiC run), H2 (the 37 feature scripts,
+  Rust vs C++ equal step for step with the same tools, learn-ring guard injection equal; R1 found and fixed) and H3 (SONiC
+  with BGP/BFD/LACP/ACL/sFlow, reboots, a cold cycle, a 128-minute soak, rollback) on the chip (device PROGRESS logs
+  2026-11-26 (h)-(j), 2026-11-27 (a)). Not done: H5 (goldens from the C++, then its deletion), the LED panel replay (owner).
   Still unproven on the chip: the board's post-init register list beyond the register-level LED walk (the panel effect).
 - `sdk-glue`'s FFI module `real.rs` runs off-target on the glue stub (x86_64, valgrind), not in the
   ppc64 bundle; with the real glue on a chip only (the AS7772 since G2). The glue-call

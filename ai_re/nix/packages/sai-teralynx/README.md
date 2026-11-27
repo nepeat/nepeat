@@ -7,7 +7,9 @@ Celestica CS8210-32X: the C++ SAI frontend that sai-openbcm had, **frozen** in
 in `src/` behind the frontend's backend interface (`backend.h`, the
 "openbcm" slot: `SAI_OPENBCM_BACKEND=openbcm`). The vendor SDK (IFCS 0.12.41,
 2020, arm64) is **dlopen'ed at run time** from the switch; nothing vendor is
-linked, built or stored. Status: passes its tests on x86 against a mock
+linked, built or stored. Since H4 (2026-11-27) the CS8210 boots the Rust drop-in
+(`rust/sai`, option `hardware.cs8210.sonic.saiImplementation`); this package stays selectable ("cpp") and is
+the parity reference until H5. Status: passes its tests on x86 against a mock
 libifcs; **on the chip (2026-11-16, no syncd yet)**: init, 32 ports, admin/oper
 state and link events on the 400G loop, adopted netdevs, temperature, clean
 teardown ([evidence](../../../devices/sonic-nixos/cs8210-sai-hw-20261116.txt)), and
