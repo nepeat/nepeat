@@ -2,12 +2,12 @@
 
 ## Status (2026-11-26)
 
-- **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-59, from the SSD; a cold cycle of both feeds (`lab-power cs8210 cycle`,
+- **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-59 (C++ SAI; Rust generation system-61 is selectable), from the SSD; a cold cycle of both feeds (`lab-power cs8210 cycle`,
   2026-11-26) came back unattended, 0 failed units; either PSU alone carries it under traffic. **SONiC at boot** on our C++ `sai-teralynx` (HEAD's frozen
-  frontend, first on this box 2026-11-25); its Rust replacement is at parity offline and passed H1 and H2 on the chip (H1: smoke + a short SONiC run on generation system-60; H2: 37 feature scripts Rust = C++ with SONiC stopped; box back on system-59 / C++; logs 2026-11-26 (h), (i)); H3 (SONiC under load on Rust) is next. Cabling (owner, 2026-11-25; cage 1 and 2 modules replaced 2026-11-26): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
+  frontend, first on this box 2026-11-25); its Rust replacement is at parity offline and passed H1 and H2 on the chip (H1: smoke + a short SONiC run on generation system-60; H2: 37 feature scripts Rust = C++ with SONiC stopped; box back on system-59 / C++; logs 2026-11-26 (h), (i)); H3 (SONiC under a production-like config, soak, reboots on Rust) passed too (log (j)); H4 (Rust as default) waits for the coordinator. Cabling (owner, 2026-11-25; cage 1 and 2 modules replaced 2026-11-26): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
   400G-DR4 QSFP-DD optics (MPO loops), 3 <-> 17 TE 2459398-1 400G CR8 DAC; nothing to the house. CONFIG_DB = the Nix
   base: those six ports 1x400G RS FEC, far ends in Vrf-a/b/c with /31s, 26 ports down ([sonic.md](sonic.md) "Running it").
-  **3 <-> 17 and 31 <-> 32 up; 1 <-> 2 was up 10:09-10:27 (cat fur on the fibre / optic faces, both modules replaced)
+  **3 <-> 17 up; 31 <-> 32 down at cage 32 as of 2026-11-27 ~02:00Z (log (j)); 1 <-> 2 was up 10:09-10:27 (cat fur on the fibre / optic faces, both modules replaced)
   and is down again after the reboots: cage 1 Rx lane 3 -7.4 dBm + CDR loss of lock** ([reboots-20261126.txt](evidence/reboots-20261126.txt)).
 - **Cages:** `cs8210-optics` (`rust/cs8210`) is the one owner of the I2C FPGA: declared cages (= admin-up ports) out of
   reset and brought up (CMIS app select 4x100G -> 400G-DR4), all others held in reset; xcvrd and `show interfaces
@@ -27,7 +27,7 @@
 - **Open:** **three fan modules with a dead rotor** (FAN5 rear, FAN6 front, FAN12 rear; LED solid red, still following the
   zone duty): 3 failed rotors <= 4, fand degraded on its curve (~52 %, ASIC ~63 C); replace them, then `fand release`
   the slot if it was swapped while off ([board-control.md](board-control.md) "Fan CPLD register map"); `lab-power cs8210 cycle` once failed with
-  NetBotz "E101: Command Not Found" (not reproduced; lab-power now resends once on E101); the 1 <-> 2 fibre into cage 1; port LEDs 2-4 (slot codes and colours unknown, I; all LED registers proven R/W at H2 and restored, V; the panel effect needs the owner's replay of [led-panel-checklist.md](led-panel-checklist.md); H1 read LED_CFG = 0x805: libifcs' LEARN_MSG-based read-modify-write left no junk in bits 4-10, V); Rust SAI: R1 (IFCS key padding) found at H2 and fixed (byte twins, ABI fixture, byte-level parity tap); H3 next (soak and reboots on Rust, the watchdog's guard signal on it, the default switch); our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
+  NetBotz "E101: Command Not Found" (not reproduced; lab-power now resends once on E101); the 1 <-> 2 fibre into cage 1; port LEDs 2-4 (slot codes and colours unknown, I; all LED registers proven R/W at H2 and restored, V; the panel effect needs the owner's replay of [led-panel-checklist.md](led-panel-checklist.md); H1 read LED_CFG = 0x805: libifcs' LEARN_MSG-based read-modify-write left no junk in bits 4-10, V); Rust SAI: R1 (IFCS key padding) found at H2 and fixed (byte twins, ABI fixture, byte-level parity tap); H4 (the default switch) pending the coordinator's OK; cage 32 (lane 1 Rx ~-8.3 dBm, FEC errors under load, DOWN: fibre/module to check); `sonic-nix reload` VRF race and FRR's BFD staying on the old interface after a PortChannel move ([sonic.md](sonic.md) "Running it"); our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
   ([sai-features.md](sai-features.md)); MACsec under SONiC; CRM panels empty; learn-wedge watch (L0s off, [learn-wedge.md](learn-wedge.md)).
 
 ## Identity
@@ -132,6 +132,13 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-26 (j) — H3: SONiC on the Rust SAI like a production config
+
+- system-61 (Rust drop-in 9c145w73…, libsai 4b177bab…) on the base CONFIG_DB plus a runtime overlay (BGP+BFD on both loops, LACP on 3<->17, ACL, flex counters, CRM, sFlow): every check equals the C++ (system-59), side by side; guard injection under syncd gives the same watchdog behaviour (x120: one syncd restart, no escalation) ([rust-h3/](evidence/rust-h3/00-index.txt)).
+- Rust: syncd restart, kill -9, stop/start, two warm reboots (BGP at 64-66 s) and a cold cycle (BGP at 74/101 s) all recover; a 128-minute ring soak at ~380 Gbit/s had no watchdog trigger, no learn-ring event, flat RSS and ASIC <= 63 C. One counted all-ones read of 0x104 is seen on the C++ too.
+- Rollback 61->59->61->59 clean; box back on system-59 (C++), boot default. H4 (Rust as default) waits for the coordinator.
+- Found (not SAI): `sonic-nix reload` VRF race (intfmgrd binds Ethernet128 to Vrf-b before vrfmgrd re-creates it), bgpcfgd needs a Loopback0 for default-VRF peers, FRR keeps BFD on the old interface after the address moves to a PortChannel, al_eth refcount WARN at power-off, `stop sonic.target` + immediate start stops nothing, ring-soak.sh stops on non-learn all-ones reads (0x104); cage 32 degrading (lane 1 Rx ~-8.3 dBm, FEC errors under load, slow or absent link on both SAIs; DOWN after the final boot: owner to check fibre/module).
 
 ### 2026-11-26 (i) — H2: the feature matrix on the chip with the Rust SAI
 

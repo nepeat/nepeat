@@ -92,6 +92,10 @@ ending in /bin (cs8210-qsfp not found), a stale /tmp/cls_phy_fifo hanging the Cr
 stack's bond0/vrf-fp (off with SONiC), networkd deleting vrfmgrd's local rule on a restart, teamd respawn
 resetting a PortChannel's mac_addr. Notes from the AS7760 runs: [sonic-nixos](../sonic-nixos/PROGRESS.md).
 
+Found at H3 (SAI-independent, same on the C++ and the Rust SAI; [evidence](evidence/rust-h3/00-index.txt)): `sonic-nix reload` races
+the VRFs (intfmgrd binds Ethernet128 to Vrf-b before vrfmgrd has re-created it), and FRR keeps BFD on the old interface when an
+address moves onto a PortChannel (workaround not verified).
+
 ## Optics: cs8210-optics (the I2C FPGA's one owner)
 
 `cs8210-optics` (Rust, monorepo `rust/cs8210`; NixOS `nixos/module/cs8210/optics`, unit `cs8210-optics`) is the
