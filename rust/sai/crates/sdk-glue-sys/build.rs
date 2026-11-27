@@ -143,9 +143,8 @@ fn command(words: &str) -> Command {
 
 /// Where the glue's header may be, in order: `SDK_GLUE_INC` (must hold `sdk_glue.h` when set),
 /// then the monorepo's copy next to this workspace (`ai_re/nix/packages/sai-openbcm/src`).
-/// (`MDIO_SCRIPT_C_DIR` / `SAI_OPENBCM_SRC` named it until the C/C++ beside it was deleted on
-/// 2026-11-23; `SAI_OPENBCM_SRC` now names the frozen C++ frontend, whose copy of the header is
-/// not the glue's.)
+/// (`MDIO_SCRIPT_C_DIR` and an older variable named it until the C/C++ beside it was deleted on
+/// 2026-11-23; neither is read any more.)
 fn candidate_dirs() -> Vec<(String, PathBuf)> {
     let mut dirs = Vec::new();
     println!("cargo:rerun-if-env-changed=SDK_GLUE_INC");

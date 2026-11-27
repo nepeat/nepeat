@@ -5,134 +5,37 @@
 # ifcs-sys generates the same in its build script (IFCS_CTYPES) and compares them with these
 # (IFCS_API_EXPECT, ./package.nix); the C fixtures (mock libifcs, test_ifcs, the shim) compile
 # against these.
-#   pkgs.callPackage ./ifcs-headers.nix { teralynxSrc = <ai_re/nix/packages/sai-teralynx>; saiSrc = <sairedis>; }
+#   pkgs.callPackage ./ifcs-headers.nix { }
 # $out/include/{ifcs_api.h,ifcs_api_qos.h}, checked against the sha256 golden
-# crates/ifcs-gen/tests/golden/ishell-2.0.1.sha256. No Python in this derivation. Until the C++
-# package goes (H5) it also needs passthru.identity, the live comparison with its Python generator
-# (tools/gen_ifcs_api.py, ifcs_ctypes_model.py; the only Python left here, deleted with it):
-#   - crates/ifcs-gen/templates equal sai-teralynx's src/ (ifcs_api*.h.in, ifcs_overrides.txt);
-#   - the headers equal the C++ package's own Makefile output (build/gen);
-#   - the two models agree on every fact of the ctypes file (ifcs-gen --dump-model against the
-#     Python model printing the same: every assigned name's value, every struct / union size and
-#     alignment, every function's argument count and return type presence);
-#   - on the synthetic fixtures (crates/ifcs-gen/tests/fixtures): the same output for the template
-#     of every directive, and for the template of errors the same error lines in the same order
-#     and the same --keep-going output.
+# crates/ifcs-gen/tests/golden/ishell-2.0.1.sha256 (and the crate's tests against the model-fact digest
+# ishell-2.0.1.model.sha256). No Python: the Python generator this replaced (the C++ package's
+# tools/gen_ifcs_api.py, deleted in H5 on 2026-11-27, last in the tree at commit 767d9b0) was proven
+# byte-equal to ifcs-gen on these inputs (headers, the model's 43,268 facts, the synthetic fixtures).
 # The 0.12.41 equivalence (the box's ctypes without overrides = ishell 2.0.1 with them, byte for
-# byte) is a fact about these inputs, recorded with the Python generator on 2026-11-17 (sai-teralynx
-# README "IFCS declarations"); ifcs-gen writes the same bytes as that generator on ishell 2.0.1.
+# byte) is a fact about these inputs, recorded with that generator on 2026-11-17.
 {
-  lib,
   runCommand,
   buildPackages,
   callPackage,
-  teralynxSrc,
-  saiSrc,
 }:
 let
   crate = ../crates/ifcs-gen;
   templates = builtins.path { path = crate + "/templates"; name = "ifcs-gen-templates"; };
-  fixtures = builtins.path { path = crate + "/tests/fixtures"; name = "ifcs-gen-fixtures"; };
   golden = crate + "/tests/golden/ishell-2.0.1.sha256";
   ifcsGen = buildPackages.callPackage ./ifcs-gen.nix { };
-  # the C++ package as its callers build it, for its passthru (the ctypes it pins) and the identity check
-  cpp = callPackage teralynxSrc { sonic = { sources.sairedis = saiSrc; }; };
   # the pinned ctypes: ./ifcs-ctypes.nix (moved from the C++ package, same store path)
   inherit (callPackage ./ifcs-ctypes.nix { }) ifcsCtypes;
   generate = out: ''
     (cd ${templates} && ${ifcsGen}/bin/ifcs-gen --ctypes ${ifcsCtypes} --overrides ifcs_overrides.txt \
       -o ${out} ifcs_api.h.in ifcs_api_qos.h.in)
   '';
-
-  # ---- the live comparison with the Python generator (until H5) ----
-  # only the generator, its templates and overrides of the C++ package
-  pyGen = builtins.path {
-    path = teralynxSrc;
-    name = "sai-teralynx-ifcs-generator";
-    filter = p: _:
-      let rel = lib.removePrefix (toString teralynxSrc + "/") (toString p); in
-      builtins.elem rel [ "tools" "src" "tools/gen_ifcs_api.py" "tools/ifcs_ctypes_model.py"
-        "src/ifcs_api.h.in" "src/ifcs_api_qos.h.in" "src/ifcs_overrides.txt" ];
-  };
-  # The C++ package's Makefile rule for build/gen/ifcs_api*.h, in its own derivation setup (same
-  # src, makeFlags, ctypes): its two headers.
-  cppGen = cpp.overrideAttrs (_: {
-    pname = "sai-teralynx-gen-headers";
-    buildFlags = [ "build/gen/ifcs_api.h" ];
-    doCheck = false;
-    installPhase = "mkdir -p $out && cp build/gen/ifcs_api.h build/gen/ifcs_api_qos.h $out/";
-    dontFixup = true;
-  });
-  # the Python model's facts in ifcs-gen --dump-model's format (the ctypes file read as data, as always)
-  modelDump = builtins.toFile "ifcs-model-dump.py" ''
-    import ctypes, sys
-    sys.path.insert(0, sys.argv[1])
-    from ifcs_ctypes_model import Model
-    m = Model(sys.argv[2])
-    out = []
-    for n in sorted(m.assign):
-        try:
-            v = m.value(n)
-        except Exception:
-            v = "ERR"
-        out.append("v %s %s" % (n, v))
-    for a in sorted(m.aggs):
-        try:
-            c = m.agg_ctype(a)
-            out.append("a %s %s %d %d" % (a, m.aggs[a], ctypes.sizeof(c), ctypes.alignment(c)))
-        except Exception:
-            out.append("a %s %s ERR" % (a, m.aggs[a]))
-    for f in sorted(m.args):
-        out.append("f %s %d %s" % (f, len(m.args[f]), f in m.ret))
-    sys.stdout.write("".join(line + "\n" for line in out))
-  '';
-  identity = runCommand "ifcs-api-headers-identity" { nativeBuildInputs = [ buildPackages.python3 ]; } ''
-    set -euo pipefail
-    top=$PWD
-    py() { python3 -I -B ${pyGen}/tools/gen_ifcs_api.py "$@"; }
-    rs() { ${ifcsGen}/bin/ifcs-gen "$@"; }
-    for f in ifcs_api.h.in ifcs_api_qos.h.in ifcs_overrides.txt; do
-      cmp ${templates}/$f ${pyGen}/src/$f
-    done
-    echo "templates: crates/ifcs-gen/templates = sai-teralynx src/ (3 files)" > report
-    mkdir rs
-    ${generate "$top/rs"}
-    for h in ifcs_api.h ifcs_api_qos.h; do
-      cmp rs/$h ${cppGen}/$h
-      echo "$h: $(sha256sum < rs/$h | cut -c1-64) (= sai-teralynx build/gen)" >> report
-    done
-    rs --dump-model ${ifcsCtypes} > model-rs.txt
-    python3 -I -B -W ignore ${modelDump} ${pyGen}/tools ${ifcsCtypes} > model-py.txt
-    cmp model-py.txt model-rs.txt
-    echo "model: $(wc -l < model-rs.txt) facts equal ($(grep -c '^v ' model-rs.txt) values, $(grep -c '^a ' model-rs.txt) layouts, $(grep -c '^f ' model-rs.txt) functions)" >> report
-    f=$top/f
-    mkdir -p $f/py $f/rs $f/pyb $f/rsb
-    cd ${fixtures}
-    py --ctypes mini_ctypes.py --overrides mini_overrides.txt --source "the test" -o $f/py mini_api.h.in
-    rs --ctypes mini_ctypes.py --overrides mini_overrides.txt --source "the test" -o $f/rs mini_api.h.in
-    cmp $f/py/mini_api.h $f/rs/mini_api.h
-    for g in py rs; do
-      if $g --keep-going --ctypes mini_ctypes.py --overrides bad_overrides.txt -o $f/''${g}b bad_api.h.in 2> $f/$g.err; then
-        echo "$g: the template of errors did not fail" >&2
-        exit 1
-      fi
-      grep '^  ' $f/$g.err > $f/$g.errors
-    done
-    cmp $f/py.errors $f/rs.errors
-    cmp $f/pyb/bad_api.h $f/rsb/bad_api.h
-    echo "fixtures: mini_api.h equal; bad_api.h.in: $(wc -l < $f/rs.errors) errors equal, --keep-going output equal" >> $top/report
-    mkdir -p $out
-    cp $top/report $out/identity.txt
-  '';
 in
 runCommand "ifcs-api-headers"
   {
-    passthru = { inherit ifcsCtypes ifcsGen cppGen identity; };
+    passthru = { inherit ifcsCtypes ifcsGen; };
   }
   ''
     mkdir -p $out/include
     ${generate "$out/include"}
     (cd $out/include && sha256sum -c --quiet ${golden})
-    # until H5: the live comparison with the Python generator
-    test -s ${identity}/identity.txt
   ''

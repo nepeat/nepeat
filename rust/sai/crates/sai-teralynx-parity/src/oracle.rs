@@ -1,4 +1,5 @@
-//! The oracle runner's (`sai-script`, ai_re/nix/packages/sai-teralynx/oracle/sai_script.cpp) output on
+//! The oracle runner's (the Rust `sai-script --cpp-names`, equal to the C++ `sai_script.cpp` of
+//! ai_re/nix/packages/ifcs-oracle that the golden was captured with) output on
 //! the mock: its step markers (`M step <tag>`, `M end <tag> status=<n> ms=<t>`, written to
 //! `IFCS_TRACE_FILE`, the same file as the tap's stream) cut the IFCS lines into steps; its stdout
 //! (`STEP <tag> <status> <ms> ms <values>`) compared without the times, the asynchronous `event`

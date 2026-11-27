@@ -1,9 +1,10 @@
-//! ifcs-gen against goldens the Python generator (`gen_ifcs_api.py`) wrote from the SYNTHETIC
+//! ifcs-gen against goldens the Python generator (`gen_ifcs_api.py`, deleted in H5 on 2026-11-27, last in the
+//! tree at commit 767d9b0) wrote from the SYNTHETIC
 //! fixtures (`tests/fixtures`: our own ctypesgen-shaped file and templates, no vendor content),
-//! negative inputs, and properties. The live comparison on the real input (ishell 2.0.1) is
-//! `nix/ifcs-headers.nix`'s (the input is not in the repository).
+//! negative inputs, and properties. The comparison on the real input (ishell 2.0.1) is `ishell_golden.rs`
+//! (the input is not in the repository). The templates in `templates/` are the only copy now.
 
-use ifcs_gen::{Fatal, Generated, Input, generate, templates};
+use ifcs_gen::{Fatal, Generated, Input, generate};
 use proptest::prelude::*;
 
 const MINI: &str = include_str!("fixtures/mini_ctypes.py");
@@ -167,31 +168,6 @@ fn provenance_line() {
         "{head}"
     );
     assert!(head.ends_with(").") && !head.contains(", "), "{head}");
-}
-
-/// The Rust copies of the templates equal sai-teralynx's `src/` (until that package goes, H5);
-/// `nix/ifcs-headers.nix` checks the same where the checkout is not at hand (the Nix build).
-#[test]
-fn templates_equal_sai_teralynx_src() {
-    let src = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../../ai_re/nix/packages/sai-teralynx/src");
-    if !src.is_dir() {
-        eprintln!(
-            "skipped: {} not here (nix/ifcs-headers.nix compares them)",
-            src.display()
-        );
-        return;
-    }
-    for (name, text) in [
-        ("ifcs_api.h.in", templates::IFCS_API_H_IN),
-        ("ifcs_api_qos.h.in", templates::IFCS_API_QOS_H_IN),
-        ("ifcs_overrides.txt", templates::IFCS_OVERRIDES_TXT),
-    ] {
-        assert_eq!(
-            std::fs::read_to_string(src.join(name)).expect("read"),
-            text,
-            "{name} differs from sai-teralynx/src"
-        );
-    }
 }
 
 proptest! {

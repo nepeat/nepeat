@@ -1,10 +1,11 @@
-//! The oracle's JSON SAI script runner in Rust: `ai_re/nix/packages/sai-teralynx/oracle/sai_script.cpp`
-//! with the same command line, script format (its README "Script format"), output (`STEP` / `EXEC` /
+//! The oracle's JSON SAI script runner in Rust: `sai_script.cpp` (now in
+//! `ai_re/nix/packages/ifcs-oracle`; the C++ runner itself was deleted in H5 on 2026-11-27, last in the tree at
+//! commit 767d9b0, its outputs are the goldens of `tests/differential.rs`) with the same command line, script format (its README "Script format"), output (`STEP` / `EXEC` /
 //! `DIAG` / `FILL` / `event` lines), trace markers (`IFCS_TRACE_FILE`) and exit codes, as a SAI C API
 //! client of any `libsai.so` (crate `sai-client`), so the `hw:*` scripts run on either Teralynx libsai.
 //!
 //! Deliberate differences (the default; `--cpp-names` turns all of them off, so that mode must equal
-//! the C++ runner exactly). Each says `sai-script: FIX <step>: ...` on stderr where it applies:
+//! the C++ runner's golden exactly). Each says `sai-script: FIX <step>: ...` on stderr where it applies:
 //!
 //! - **null object of a failed create**: a step on `$x` where `x`'s `create` failed (id 0) gets the
 //!   type the create asked for; the C++ asks `sai_object_type_query(0)` = NULL, finds no attribute

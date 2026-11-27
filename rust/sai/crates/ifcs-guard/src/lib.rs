@@ -1,5 +1,6 @@
 //! The learn-ring read guard of `libsai-teralynx-shim.so`, as safe Rust: the decisions of
-//! `ai_re/nix/packages/sai-teralynx/src/ifcs_guard.c` (why: `ai_re/devices/cs8210-32x/learn-wedge.md`
+//! `src/ifcs_guard.c` of the C++ sai-teralynx (deleted in H5 on 2026-11-27, last in the tree at commit 767d9b0;
+//! its traces are the golden of `ifcs-shim`) (why: `ai_re/devices/cs8210-32x/learn-wedge.md`
 //! sections 1-2), as a state machine over injected I/O ([`Io`]: the original register accessors, the
 //! clocks, the 3 ms sleep, the journal, the stats and inject files). The C ABI around it (the GOT
 //! targets libifcs calls) is crate `ifcs-shim`.

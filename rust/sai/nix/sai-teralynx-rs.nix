@@ -1,48 +1,48 @@
-# The Rust drop-in for the CS8210's SAI package (ai_re/nix/packages/sai-teralynx, the C++ one, which stays
-# the box's SAI until the hardware proof): the same output layout, every file a Rust build
-# (README "Teralynx tools", "Drop-in package"):
+# The CS8210's SAI package in Rust, the drop-in for the C++ one it replaced (the sai-teralynx package,
+# deleted in H5 on 2026-11-27, last in the tree at commit 767d9b0): the same output layout, every file a Rust
+# build (README "Teralynx tools", "Drop-in package"):
 #   lib/libsai.so -> libsai.so.1 -> libsai.so.1.0.0   sai-ffi + sai-backend-teralynx (./libsai-teralynx.nix: its checks)
-#   lib/libsai-teralynx-shim.so    crates ifcs-shim + ifcs-guard (./ifcs-shim.nix: its checks, the C differential)
+#   lib/libsai-teralynx-shim.so    crates ifcs-shim + ifcs-guard (./ifcs-shim.nix: its checks, the C golden)
 #   bin/openbcm-diag               crate openbcm-diag (the diag socket client; the workspace build's openbcm-diag-rs)
-#   bin/sai-teralynx-smoke         crate sai-teralynx-smoke: the C++ tools/sai_smoke.cpp's form + the H1 gate
-#   bin/sai-script                 crate sai-script: the oracle's JSON script runner (oracle/sai_script.cpp; the C++
-#                                  package does not install it: the oracle derivation builds it)
+#   bin/sai-teralynx-smoke         crate sai-teralynx-smoke: the C++ program's form (sai_smoke.cpp) + the H1 gate
+#   bin/sai-script                 crate sai-script: the oracle's JSON script runner (the C++ runner sai_script.cpp's
+#                                  form; the C++ package did not install it)
 #   share/sai-rs/                  the parts' reports, drop-in.txt (this file's checks)
 #
 #   native (x86_64: the mock checks run):
-#     pkgs.callPackage ./sai-teralynx-rs.nix { saiRs = <./package.nix>; cppTeralynx = <sai-teralynx>; }
-#   aarch64 (the CS8210): pkgsCross.aarch64-multiplatform.callPackage ./sai-teralynx-rs.nix { saiRs = ...; cppTeralynx = ...; }
-# cppTeralynx: the C++ package for the same pkgs, read only (the file list and exports compared; natively
-# its libsai, smoke program and the oracle runner are the references of the checks below).
+#     pkgs.callPackage ./sai-teralynx-rs.nix { saiRs = <./package.nix>; }
+#   aarch64 (the CS8210): pkgsCross.aarch64-multiplatform.callPackage ./sai-teralynx-rs.nix { saiRs = ...; }
+# The C++ package's file list and exports, recorded when it was deleted: ./golden/sai-teralynx-package.txt.
 #
 # Checked (a failure fails the build):
-#   - always: every file and link the C++ package installs has one here; libsai.so.1.0.0 exports exactly the
+#   - always: every file and link the C++ package installed has one here; libsai.so.1.0.0 exports exactly the
 #     17 symbols of the virtual-backend library (the C++ one's 15 among them; +sai_bulk_get_attribute,
 #     +sai_query_object_stage); soname libsai.so.1
 #   - native (the tools' build): fmt, clippy -D warnings and the tests of sai-client, sai-script and
-#     sai-teralynx-smoke; sai-script's differential (crates/sai-script/tests/differential.rs) against the C++
-#     runner on the mock, through the C++ and the Rust libsai: --cpp-names identical on every oracle script,
-#     the fixed mode identical but on tests/fixed-scripts.txt's scripts, which run to their end; the exec
+#     sai-teralynx-smoke; sai-script against the golden of the C++ runner (crates/sai-script/tests/differential.rs,
+#     tests/golden/sai-script-cpp.txt) on the mock through the Rust libsai: --cpp-names identical on every oracle
+#     script, the fixed mode identical but on tests/fixed-scripts.txt's scripts, which run to their end; the exec
 #     interface (--tool); the smoke program on the mock (crates/sai-teralynx-smoke/tests/mock-smoke.sh) with
-#     this package's lib/: the gate's full run, --recreate, --hold, the failure paths and refusals, the gate on
-#     the C++ library, the C++ form identical to the C++ program on both libraries
+#     this package's lib/: the gate's full run, --recreate, --hold, the failure paths and refusals, the C++
+#     program's form identical to its golden (tests/golden/smoke-cpp.txt); the mock test hooks of sai-client
+#     (feature mock) are in no shipped program (nm)
 {
   lib,
   stdenv,
   callPackage,
   makeWrapper,
   saiRs,
-  cppTeralynx,
 }:
 let
   canRun = stdenv.buildPlatform.canExecute stdenv.hostPlatform;
   bin = "${stdenv.cc.bintools.bintools}/bin/${stdenv.cc.targetPrefix}";
   triple = stdenv.hostPlatform.rust.rustcTarget;
-  libsai = callPackage ./libsai-teralynx.nix ({ inherit saiRs; } // lib.optionalAttrs canRun { inherit cppTeralynx; });
-  shim = callPackage ./ifcs-shim.nix { inherit saiRs; saiTeralynx = cppTeralynx; };
-  # the oracle fixtures (mock libifcs, C shim, tap, the C++ sai-script and oracle-prep, port maps) and the
-  # scripts, as the parity harness built them (natively only)
-  parity = callPackage ./teralynx-parity.nix { inherit saiRs cppTeralynx; };
+  libsai = callPackage ./libsai-teralynx.nix { inherit saiRs; };
+  shim = callPackage ./ifcs-shim.nix { inherit saiRs; };
+  # the oracle fixtures (mock libifcs, Rust shim, tap, oracle-prep, port maps) and the scripts, as the parity
+  # harness built them (natively only)
+  parity = callPackage ./teralynx-parity.nix { inherit saiRs; };
+  golden = ./golden/sai-teralynx-package.txt;
   fixtures = "${parity}/libexec/sai-teralynx-parity";
   crates = [ "sai-client" "sai-script" "sai-teralynx-smoke" ];
   pkgFlags = lib.concatMap (c: [ "-p" c ]) crates;
@@ -50,18 +50,19 @@ let
     pname = "sai-teralynx-tools";
     cargoBuildFlags = [ "-p" "sai-script" "-p" "sai-teralynx-smoke" "--features" "cli" ];
     cargoTestFlags = pkgFlags;
-    # only what these crates need: not the board tables or the frozen frontend the workspace build's goldens
-    # read; sai-driver (its enumerator names) does not prebuild the C++ frontend driver here
-    env = builtins.removeAttrs old.env [ "PHY_SEQ_TABLES" "SAI_OPENBCM_SRC" ] // { SAI_DRIVER_PREBUILD = "0"; };
+    # only what these crates need: not the board tables the workspace build's goldens read
+    env = builtins.removeAttrs old.env [ "PHY_SEQ_TABLES" ];
     doCheck = canRun;
     preCheck = lib.optionalString canRun ''
       cargo fmt ${lib.concatStringsSep " " pkgFlags} --check
       cargo clippy --offline ${lib.concatStringsSep " " pkgFlags} --all-targets --features cli --profile "$cargoCheckType" -- -D warnings
       export SAI_RS_TEST_TMPDIR=$NIX_BUILD_TOP/t; mkdir -p $SAI_RS_TEST_TMPDIR
       export SAI_SCRIPT_DIFF_REQUIRE=1 SAI_SCRIPT_DIFF_FIXTURES=${fixtures} SAI_SCRIPT_DIFF_SCRIPTS=${parity.oracleSrc}/scripts
-      export SAI_SCRIPT_DIFF_LIBS=cpp=${cppTeralynx}/lib/libsai.so.1.0.0,rust=${libsai}/lib/libsai.so.1.0.0
+      export SAI_SCRIPT_DIFF_LIBS=rust=${libsai}/lib/libsai.so.1.0.0
       export SAI_SCRIPT_DIFF_RUNNER=$PWD/target/${triple}/$cargoBuildType/sai-script
-      export SAI_SCRIPT_DIFF_OUT=$NIX_BUILD_TOP/sai-script-diff
+      # the tests' summary lines (the sai-script golden comparison's counts among them)
+      mkdir -p $NIX_BUILD_TOP/sai-script-diff
+      export SAI_RS_TEST_SUMMARY=$NIX_BUILD_TOP/sai-script-diff/report.txt
       test -x $SAI_SCRIPT_DIFF_RUNNER
     '';
     postCheck = lib.optionalString canRun ''
@@ -70,12 +71,14 @@ let
       ln -s libsai.so.1.0.0 $lib/libsai.so.1
       CC=${stdenv.cc}/bin/${stdenv.cc.targetPrefix}cc bash crates/sai-teralynx-smoke/tests/mock-smoke.sh $NIX_BUILD_TOP/mock-smoke \
         $PWD/target/${triple}/$cargoBuildType/sai-teralynx-smoke $lib ${fixtures} crates/sai-backend-teralynx/tests \
-        ${cppTeralynx}/bin/sai-teralynx-smoke ${cppTeralynx}/lib | tee $NIX_BUILD_TOP/mock-smoke.txt
+        | tee $NIX_BUILD_TOP/mock-smoke.txt
+      [ "''${PIPESTATUS[0]}" -eq 0 ] || { echo "mock-smoke: red"; exit 1; }
     '';
     postInstall = ''
       mkdir -p $out/share/sai-rs
     '' + lib.optionalString canRun ''
       cp $NIX_BUILD_TOP/mock-smoke.txt $out/share/sai-rs/smoke-mock.txt
+      grep -q . $NIX_BUILD_TOP/sai-script-diff/report.txt
       cp $NIX_BUILD_TOP/sai-script-diff/report.txt $out/share/sai-rs/sai-script-differential.txt
     '';
     meta = old.meta // { description = "sai-teralynx-smoke and sai-script (Rust) for the CS8210"; };
@@ -114,12 +117,14 @@ stdenv.mkDerivation {
     report=$out/share/sai-rs/drop-in.txt
     exports() { ${bin}nm -D --defined-only "$1" | awk '{ print $3 }' | LC_ALL=C sort; }
     exports $out/lib/libsai.so.1.0.0 > exports.rust
-    exports ${cppTeralynx}/lib/libsai.so.1.0.0 > exports.cpp
+    section() { awk -v want="== $1" '/^== / { on = ($0 == want); next } on && NF' ${golden}; }
+    section "libsai.so.1.0.0 exports" > exports.cpp
     exports ${saiRs}/lib/libsai.so.1.0.0 > exports.virtual
-    (cd ${cppTeralynx} && find . -mindepth 1 \( -type f -o -type l \) | LC_ALL=C sort) > files.cpp
+    section files > files.cpp
+    test -s exports.cpp && test -s files.cpp
     (cd $out && find . -mindepth 1 \( -type f -o -type l \) -not -path './share/*' | LC_ALL=C sort) > files.rust
     {
-      echo "sai-teralynx-rs: the Rust drop-in of ${cppTeralynx.name}, ${stdenv.hostPlatform.config}"
+      echo "sai-teralynx-rs: the Rust drop-in of the C++ sai-teralynx (its files and exports: ${golden}), ${stdenv.hostPlatform.config}"
       echo "== files (C++ package -> here)"
       while read -r f; do
         if [ -e "$out/$f" ] || [ -L "$out/$f" ]; then echo "$f  ok"; else echo "$f  MISSING"; fi
@@ -138,6 +143,13 @@ stdenv.mkDerivation {
     if [ -n "$(comm -13 exports.rust exports.cpp)" ]; then echo "drop-in: the C++ library exports more"; exit 1; fi
     ${bin}readelf -d $out/lib/libsai.so.1.0.0 | grep -q 'SONAME.*\[libsai.so.1\]' || { echo "drop-in: wrong soname"; exit 1; }
     ${bin}readelf -d $out/lib/libsai-teralynx-shim.so | grep -q 'SONAME.*\[libsai-teralynx-shim.so\]' || { echo "drop-in: wrong shim soname"; exit 1; }
+    # sai-client's mock test hooks (feature mock: the end-to-end test only) are in no shipped program
+    for t in sai-teralynx-smoke sai-script; do
+      if grep -a -q -E 'mock_(fire_link|ifcs_log_clear|learn_pass|reg_set)' $out/libexec/$t; then
+        echo "drop-in: libexec/$t carries the mock libifcs's test hooks (sai-client feature mock)"; exit 1
+      fi
+      echo "libexec/$t: no mock test hooks (sai-client without feature mock)" >> $report
+    done
     # the wrappers' LD_LIBRARY_PATH holds a libstdc++.so.6 of the host platform's machine type
     machine() { ${bin}readelf -h "$1" | awk -F: '/Machine:/ { gsub(/^ +/, "", $2); print $2 }'; }
     want=$(machine $out/lib/libsai.so.1.0.0)

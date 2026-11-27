@@ -1,6 +1,7 @@
 //! The tap's stream (`c/tap.c`): every IFCS call line the mock logged, in order, with the markers
-//! of the program that ran (`c/sections.cpp`: `@@ begin <section>` / `@@ end <section>` /
-//! `@@ died-in <section>`), cut into named units and compared unit by unit.
+//! of the program that ran (written into the stream through `PARITY_TAP_FILE`: `@@ begin <section>` /
+//! `@@ end <section>` / `@@ died-in <section>`, as the C++ `c/sections.cpp` did, deleted in H5), cut into
+//! named units and compared unit by unit.
 #![forbid(unsafe_code)]
 
 use regex::Regex;

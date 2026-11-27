@@ -1,32 +1,28 @@
-//! End to end against the C++: the whole Rust path (the `sai-macsec` model, this crate's runner,
-//! the `phy-seq` executor on a recording fake bus) and the whole C++ path (`sai_macsec.cpp` +
-//! `sai_extmacsec.cpp` on the fake backend, through the SAI API: `sai-macsec/tests/cpp/driver.cpp`)
-//! run the same scripts of SAI object operations over the same table. Per operation the SAI
-//! status, the values read (packet numbers, counters, lists, capabilities, the inter-frame gap),
-//! the diag status text (failure messages included), and every bus event in order must be the
-//! same text: each read with the value read, each write with the value written (key words
-//! included: this is where a wrong byte order of a key or a packet number would show), each
-//! delay, each access the bus refused.
+//! End to end against the golden of the C++: the whole Rust path (the `sai-macsec` model, this
+//! crate's runner, the `phy-seq` executor on a recording fake bus) runs scripts of SAI object
+//! operations over a table, and per operation the SAI status, the values read (packet numbers,
+//! counters, lists, capabilities, the inter-frame gap), the diag status text (failure messages
+//! included), and every bus event in order must be the same text the C++ printed: each read with the
+//! value read, each write with the value written (key words included: this is where a wrong byte
+//! order of a key or a packet number would show), each delay, each access the bus refused.
 //!
-//! Tables: a synthetic one made here (always), and the board's real one when
-//! `SAI_MACSEC_E2E_TABLE` names it (the AS7772 table as generated for the system,
-//! `sys.as7772.config.services.sonic.sai.profile.SAI_OPENBCM_EXT_MACSEC_FILE`; read where it is,
-//! never copied). The C++ side: `$SAI_RS_TEST_BIN/sai-macsec-cpp-chip-driver` and `...-fixed`
-//! (prebuilt by sai-macsec's build.rs for a cross build), else compiled here from
-//! `SAI_OPENBCM_SRC` (the C++ frontend's `src`, frozen since 2026-11-23 in
-//! `ai_re/nix/packages/sai-teralynx/frontend/src`: a live comparison) and `SAI_INC`; neither:
-//! SKIPPED (said on stderr). Since 2026-11-26 the C++ side is also a golden (`golden/e2e-*.txt`, captured
-//! from it) which the Rust path is held to without the C++.
+//! The C++ side (`sai_macsec.cpp` + `sai_extmacsec.cpp` on the fake backend, through the SAI API:
+//! `sai-macsec/tests/cpp/driver.cpp`, built with `-DSAI_MACSEC_DRIVER_CHIP`) was deleted in H5 on
+//! 2026-11-27; it was last in the tree at commit 767d9b0, and its outputs are the goldens in
+//! `golden/e2e-*.txt` (captured 2026-11-26; frozen, never regenerated). Tables: a synthetic one made
+//! here (always), and the board's real one when `SAI_MACSEC_E2E_TABLE` names it (the AS7772 table as
+//! generated for the system, `sys.as7772.config.services.sonic.sai.profile.SAI_OPENBCM_EXT_MACSEC_FILE`;
+//! read where it is, never copied; the golden pins its length and FNV-1a, and its cases are skipped,
+//! said on stderr, where it is not named: Nix generates that table, the golden cannot carry it).
 //!
 //! Scripts never move a flow between ports (variables of one parity only meet the port of that
 //! parity): there the two differ on purpose (sai-macsec's D1). For sai-macsec's D9 and D10 (the
-//! owner's fixes of the C++) the Rust output must equal, to the end of every script, that of the
-//! same driver on the C++ with exactly those edits (`sai-macsec/tests/cpp/listed_fixes.rs`): the
-//! scripts where that one differs from the unmodified C++ are the ones that reach D9 / D10.
+//! owner's fixes of the C++) the Rust output must equal, to the end of every script, the golden's
+//! "fixed" output (the C++ with exactly those edits, `listed_fixes.rs` at commit 767d9b0): the
+//! scripts where that differs from the unmodified C++ ("plain") are the ones that reach D9 / D10.
 //!
-//! Random scripts are deterministic per seed (sai-macsec's `tests/common/seeded.rs`):
-//! `SAI_MACSEC_SEED` (default random, printed in the summary line and on failure),
-//! `SAI_MACSEC_E2E_CASES` (per random test; defaults 32 to 64).
+//! The random scripts are deterministic per seed (sai-macsec's `tests/common/seeded.rs`): the
+//! golden's are seeds 20261126 and up (synthetic) and 20261226 and up (AS7772).
 
 #![allow(
     clippy::doc_markdown,
@@ -56,21 +52,11 @@ use sai_macsec_phy::{BusStatus, IfgSink, PhySeqRunner, model_table};
 use sai_sys as sys;
 #[path = "../../sai-macsec/tests/common/golden.rs"]
 mod golden;
-#[path = "../../sai-macsec/tests/cpp/listed_fixes.rs"]
-mod listed_fixes;
 #[path = "../../sai-macsec/tests/common/seeded.rs"]
 mod seeded;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
-use std::path::{Path, PathBuf};
-use std::process::Command;
-use std::sync::OnceLock;
-use std::sync::atomic::{AtomicU64, Ordering};
-
-/// sai-macsec's driver.cpp built with -DSAI_MACSEC_DRIVER_CHIP (read-only overlay registers).
-const DRIVER_NAME: &str = "sai-macsec-cpp-chip-driver";
-/// The same on `sai_macsec.cpp` with sai-macsec's D9 and D10.
-const FIXED_NAME: &str = "sai-macsec-cpp-chip-driver-fixed";
+use std::path::PathBuf;
 
 /// A line for whoever runs the suite: on stderr, and appended to the file `$SAI_RS_TEST_SUMMARY`
 /// names (the target-test bundle collects these; captured stderr of a passing test is not shown).
@@ -89,183 +75,6 @@ const PORTS: u32 = 32;
 const DEAD: i32 = -1;
 
 // ------------------------------------------------------------------ the C++ side
-
-const CPP: &[&str] = &[
-    "sai_api",
-    "sai_switch",
-    "sai_port",
-    "sai_l2",
-    "sai_hostif",
-    "sai_l3",
-    "sai_lag",
-    "sai_temp",
-    "sai_caps",
-    "sai_diag",
-    "sai_acl",
-    "sai_qos",
-    "sai_mirror",
-    "sai_hash",
-    "sai_extphy",
-    "sai_extmacsec",
-    "sai_macsec",
-    "fake_backend",
-];
-
-struct Driver {
-    exe: PathBuf,
-    /// The C++ with the owner's fixes (sai-macsec's D9, D10).
-    fixed: PathBuf,
-    dir: PathBuf,
-}
-
-fn scratch_dir() -> Result<PathBuf, String> {
-    let base = std::env::var_os("SAI_RS_TEST_TMPDIR")
-        .map_or_else(|| PathBuf::from(env!("CARGO_TARGET_TMPDIR")), PathBuf::from);
-    let dir = base.join(format!("sai-macsec-phy-e2e-{}", std::process::id()));
-    std::fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
-    Ok(dir)
-}
-
-fn driver() -> Option<&'static Driver> {
-    static DRIVER: OnceLock<Option<Result<Driver, String>>> = OnceLock::new();
-    let built = DRIVER.get_or_init(|| {
-        if let Some(bin) = std::env::var_os("SAI_RS_TEST_BIN") {
-            let (exe, fixed) = (Path::new(&bin).join(DRIVER_NAME), Path::new(&bin).join(FIXED_NAME));
-            if exe.is_file() && fixed.is_file() {
-                return Some(scratch_dir().map(|dir| Driver {
-                    exe,
-                    fixed,
-                    dir,
-                }));
-            }
-        }
-        let src = std::env::var_os("SAI_OPENBCM_SRC")
-            .map(PathBuf::from)
-            .filter(|d| d.join("sai_macsec.cpp").is_file());
-        let inc = std::env::var_os("SAI_INC").map(PathBuf::from);
-        let driver_src = Path::new(env!("CARGO_MANIFEST_DIR")).join("../sai-macsec/tests/cpp/driver.cpp");
-        match (src, inc) {
-            (Some(src), Some(inc)) if driver_src.is_file() => Some(build(&src, &inc, &driver_src)),
-            _ => {
-                summary(&format!(
-                    "e2e: no $SAI_RS_TEST_BIN/{DRIVER_NAME} + {FIXED_NAME}, and SAI_OPENBCM_SRC + SAI_INC + sai-macsec's driver.cpp are not all \
-                     there: the end-to-end comparison with the C++ is SKIPPED"
-                ));
-                None
-            }
-        }
-    });
-    built.as_ref().map(|b| b.as_ref().unwrap_or_else(|e| panic!("{e}")))
-}
-
-fn build(src: &Path, inc: &Path, driver_src: &Path) -> Result<Driver, String> {
-    let dir = scratch_dir()?;
-    let cxx = std::env::var_os("CXX").unwrap_or_else(|| "c++".into());
-    let cc = std::env::var_os("CC").unwrap_or_else(|| "cc".into());
-    let includes = |c: &mut Command| {
-        c.arg("-I")
-            .arg(inc)
-            .arg("-I")
-            .arg(inc.join("../experimental"))
-            .arg("-I")
-            .arg(src);
-    };
-    let mut jobs = Vec::new();
-    for unit in CPP {
-        let mut c = Command::new(&cxx);
-        c.args(["-std=c++17", "-O1", "-w", "-c"]);
-        includes(&mut c);
-        c.arg(src.join(format!("{unit}.cpp")))
-            .arg("-o")
-            .arg(dir.join(format!("{unit}.o")));
-        jobs.push((
-            unit.to_string(),
-            c.spawn().map_err(|e| format!("{}: {e}", cxx.display()))?,
-        ));
-    }
-    // sai-macsec's D9 / D10: an edited copy of sai_macsec.cpp next to the objects
-    let fixed_src = listed_fixes::write_fixed(src, &dir)?;
-    let mut c = Command::new(&cxx);
-    c.args(["-std=c++17", "-O1", "-w", "-c"]);
-    includes(&mut c);
-    c.arg(&fixed_src).arg("-o").arg(dir.join("sai_macsec_fixed.o"));
-    jobs.push((
-        "sai_macsec_fixed".to_owned(),
-        c.spawn().map_err(|e| format!("{}: {e}", cxx.display()))?,
-    ));
-    let mut c = Command::new(&cc);
-    c.args(["-std=gnu11", "-O1", "-w", "-c", "-I"]).arg(src);
-    c.arg(src.join("temp_files.c")).arg("-o").arg(dir.join("temp_files.o"));
-    jobs.push((
-        "temp_files".to_owned(),
-        c.spawn().map_err(|e| format!("{}: {e}", cc.display()))?,
-    ));
-    for (unit, job) in jobs {
-        if !job
-            .wait_with_output()
-            .map_err(|e| format!("{unit}: {e}"))?
-            .status
-            .success()
-        {
-            return Err(format!("{unit} does not compile"));
-        }
-    }
-    let (exe, fixed) = (dir.join(DRIVER_NAME), dir.join(FIXED_NAME));
-    for (bin, macsec) in [(&exe, "sai_macsec"), (&fixed, "sai_macsec_fixed")] {
-        let mut link = Command::new(&cxx);
-        link.args(["-std=c++17", "-O1", "-Wall", "-DSAI_MACSEC_DRIVER_CHIP"]);
-        includes(&mut link);
-        link.arg(driver_src);
-        for unit in CPP.iter().chain(&["temp_files"]) {
-            let unit = if *unit == "sai_macsec" { macsec } else { unit };
-            link.arg(dir.join(format!("{unit}.o")));
-        }
-        let out = link
-            .arg("-o")
-            .arg(bin)
-            .arg("-lpthread")
-            .output()
-            .map_err(|e| e.to_string())?;
-        if !out.status.success() {
-            return Err(format!(
-                "the C++ driver does not compile:\n{}",
-                String::from_utf8_lossy(&out.stderr)
-            ));
-        }
-    }
-    Ok(Driver { exe, fixed, dir })
-}
-
-impl Driver {
-    fn output(&self, table: &Path, script: &str) -> String {
-        self.run(&self.exe, table, script)
-    }
-
-    /// The C++ with sai-macsec's D9 / D10.
-    fn fixed_output(&self, table: &Path, script: &str) -> String {
-        self.run(&self.fixed, table, script)
-    }
-
-    fn run(&self, exe: &Path, table: &Path, script: &str) -> String {
-        static N: AtomicU64 = AtomicU64::new(0);
-        let s = self.dir.join(format!("script-{}", N.fetch_add(1, Ordering::Relaxed)));
-        std::fs::write(&s, script).unwrap();
-        let out = Command::new(exe)
-            .arg(table)
-            .arg(&s)
-            .env("SAI_MACSEC_DRIVER_PORTS", PORTS.to_string())
-            .env("SAI_MACSEC_DRIVER_DELAYS", "1")
-            .output()
-            .unwrap();
-        let _ = std::fs::remove_file(&s);
-        assert!(
-            out.status.success(),
-            "driver failed: {}",
-            String::from_utf8_lossy(&out.stderr)
-        );
-        String::from_utf8(out.stdout).unwrap()
-    }
-}
 
 // ------------------------------------------------------------------ the Rust side
 
@@ -783,80 +592,6 @@ fn normalise(text: &str) -> String {
         .collect()
 }
 
-static COMPARED: AtomicU64 = AtomicU64::new(0);
-static EVENTS: AtomicU64 = AtomicU64::new(0);
-/// Scripts that reached sai-macsec's D9 or D10 (equal to the C++ with those fixes).
-static LISTED: AtomicU64 = AtomicU64::new(0);
-
-fn first_difference(a: &str, b: &str) -> Option<usize> {
-    if a == b {
-        return None;
-    }
-    Some(
-        a.lines()
-            .zip(b.lines())
-            .position(|(x, y)| x != y)
-            .unwrap_or_else(|| a.lines().count().min(b.lines().count())),
-    )
-}
-
-fn counted(text: &str) {
-    COMPARED.fetch_add(
-        text.lines().filter(|l| l.contains(" => ")).count() as u64,
-        Ordering::Relaxed,
-    );
-    EVENTS.fetch_add(
-        text.matches(" R").count() as u64 + text.matches(" W").count() as u64,
-        Ordering::Relaxed,
-    );
-}
-
-/// `other` (normalised) against the C++ (`cpp`'s two drivers), the owner's rule: `other` must
-/// equal, to the end of the script, the C++ with exactly sai-macsec's D9 / D10 edits; where that
-/// one differs from the unmodified C++ the script reached a listed fix (counted). Any other
-/// difference fails, and so does an `other` equal to the unmodified C++ where the fixed C++ is
-/// not (D9 / D10 missing). `what`: the name of `other` in the message.
-fn held_to_the_cpp(cpp: &Driver, table: &Path, script: &str, other: &str, what: &str) -> Result<(), String> {
-    let plain = normalise(&cpp.output(table, script));
-    let fixed = normalise(&cpp.fixed_output(table, script));
-    let Some(at) = first_difference(&fixed, other) else {
-        counted(&fixed);
-        if fixed != plain {
-            LISTED.fetch_add(1, Ordering::Relaxed);
-        }
-        return Ok(());
-    };
-    let show = |text: &str, at: usize| -> String {
-        text.lines()
-            .skip(at.saturating_sub(3))
-            .take(5)
-            .map(|l| format!("{}\n", l.get(..3000).unwrap_or(l)))
-            .collect()
-    };
-    let against_plain = match first_difference(&plain, other) {
-        None => "it equals the unmodified C++: D9 / D10 missing".to_owned(),
-        Some(p) => format!("from the unmodified C++ at line {}", p + 1),
-    };
-    let fixes = first_difference(&plain, &fixed).map_or_else(
-        || "the two C++ agree".to_owned(),
-        |l| format!("the two C++ first differ at line {}", l + 1),
-    );
-    Err(format!(
-        "not a listed difference: {what} differs from the C++ with D9 / D10 at output line {}, {against_plain}; {fixes}\n\
-         --- C++ with D9 / D10\n{}--- {what}\n{}--- unmodified C++\n{}--- script\n{script}",
-        at + 1,
-        show(&fixed, at),
-        show(other, at),
-        show(&plain, at),
-    ))
-}
-
-fn compare(driver: &Driver, table: &Path, script: &str) -> Result<(), String> {
-    let text = std::fs::read(table).unwrap();
-    let rust = normalise(&rust_output(&text, script));
-    held_to_the_cpp(driver, table, script, &rust, "Rust")
-}
-
 // ------------------------------------------------------------------ tables and scripts
 
 /// A synthetic table (no relation to any chip): every sequence the model runs, reads that
@@ -1189,10 +924,6 @@ fn script(board: &Board, max_random: usize) -> impl Strategy<Value = String> {
         })
 }
 
-fn cases(default: u64) -> u64 {
-    seeded::cases("SAI_MACSEC_E2E_CASES", default)
-}
-
 fn backbones(board: &Board) -> Vec<String> {
     let mut out = Vec::new();
     for cipher in 0..4 {
@@ -1204,36 +935,6 @@ fn backbones(board: &Board) -> Vec<String> {
         out.push(format!("{}{}\n", board.head, lines.join("\n")));
     }
     out
-}
-
-fn synthetic_path(driver: &Driver) -> PathBuf {
-    // one file per call: the tests run in parallel
-    static N: AtomicU64 = AtomicU64::new(0);
-    let p = driver
-        .dir
-        .join(format!("synthetic-{}.tbl", N.fetch_add(1, Ordering::Relaxed)));
-    std::fs::write(&p, synthetic_table()).unwrap();
-    p
-}
-
-fn report(what: &str) {
-    summary(&format!(
-        "e2e: {what}; so far in this run {} operations and {} bus accesses agree with the C++ (comparisons), \
-         {} scripts reached D9 / D10 (equal to the C++ with them)",
-        COMPARED.load(Ordering::Relaxed),
-        EVENTS.load(Ordering::Relaxed),
-        LISTED.load(Ordering::Relaxed)
-    ));
-}
-
-/// `n` random scripts (deterministic per seed: sai-macsec's `tests/common/seeded.rs`), each
-/// held to the C++; every seed runs, the failing ones are reported. Returns the seeds' text.
-fn run_random(driver: &Driver, table: &Path, board: &Board, n: u64, max_random: usize, what: &str) -> String {
-    let run = seeded::run(seeded::first_seed(), n, &script(board, max_random), |s| {
-        compare(driver, table, &s).map_err(TestCaseError::fail)
-    });
-    run.assert_ok(what, "SAI_MACSEC_E2E_CASES");
-    run.seeds()
 }
 
 /// sai-macsec's D9 script `d9_another_entry_takes_over_after_the_entry_was_disabled` at MDIO level (synthetic table).
@@ -1248,13 +949,12 @@ fn d9_script() -> String {
 
 // ------------------------------------------------------------------ the golden C++ side (H5-0)
 //
-// The C++ side is also held in files captured from it (2026-11-26, header of the files): the
+// The C++ side is held in files captured from it (2026-11-26, header of the files; the C++ is
+// deleted, last in the tree at commit 767d9b0): the
 // scripts ('golden/e2e-inputs.txt') and, per script, the normalised bus-access outputs of the
 // unmodified C++ and of the C++ with D9 / D10 as digests plus the full text of a few cases
-// ('golden/e2e-cpp.txt'). The Rust path is held to them without the C++
-// ('rust_agrees_with_the_golden_cpp'); with the C++ around, the golden is held to it
-// ('the_golden_equals_the_live_cpp'). The AS7772 table is not in the golden (Nix generates it):
-// its cases run only when SAI_MACSEC_E2E_TABLE names a file of the pinned length and FNV-1a.
+// ('golden/e2e-cpp.txt'). The Rust path is held to them ('rust_agrees_with_the_golden_cpp').
+// The AS7772 table is not in the golden (Nix generates it): its cases run only when SAI_MACSEC_E2E_TABLE names a file of the pinned length and FNV-1a.
 
 const GOLDEN_INPUTS: &str = include_str!("golden/e2e-inputs.txt");
 const GOLDEN_CPP: &str = include_str!("golden/e2e-cpp.txt");
@@ -1369,94 +1069,6 @@ fn table_of(inputs: &golden::Inputs, tag: &str, as7772: Option<&(PathBuf, String
     }
 }
 
-/// "none", "D9@<line>" or "D10@<line>": where the two C++ first differ (the rule of sai-macsec's
-/// differential: a cipher change is D10, any other difference D9).
-fn listed_text(plain: &str, fixed: &str) -> String {
-    let Some(at) = first_difference(plain, fixed) else {
-        return "none".to_owned();
-    };
-    let line = fixed.lines().nth(at).unwrap_or_default();
-    let which = if line.starts_with("scset ") && line.contains(" cipher ") {
-        "D10"
-    } else {
-        "D9"
-    };
-    format!("{which}@{at}")
-}
-
-fn golden_case(id: &str, tag: &str, plain: &str, fixed: &str) -> golden::Case {
-    golden::Case {
-        id: id.to_owned(),
-        tag: tag.to_owned(),
-        rust_differs: false,
-        plain: golden::Digest::of(plain),
-        fixed: golden::Digest::of(fixed),
-        listed: listed_text(plain, fixed),
-    }
-}
-
-/// A file of the table text for the driver (the golden stores the synthetic one).
-fn table_file(driver: &Driver, tag: &str, text: &str) -> PathBuf {
-    let p = driver.dir.join(format!("golden-{tag}.tbl"));
-    std::fs::write(&p, text).unwrap();
-    p
-}
-
-/// Capture (ignored: it needs the C++ and the AS7772 table): writes `e2e-inputs.txt` and `e2e-cpp.txt`
-/// (records without their header comments) to `$SAI_MACSEC_CAPTURE_DIR` from the C++ drivers' own output;
-/// the Rust output never enters the golden.
-///   SAI_MACSEC_CAPTURE_DIR=<dir> SAI_MACSEC_E2E_TABLE=<as7772 ext-macsec table> \
-///     cargo test -p sai-macsec-phy --test e2e -- --ignored capture_golden_from_the_cpp
-#[test]
-#[ignore = "writes the golden from the C++ (needs the C++, SAI_MACSEC_CAPTURE_DIR and SAI_MACSEC_E2E_TABLE)"]
-fn capture_golden_from_the_cpp() {
-    let driver = driver().expect("the C++ driver is needed to capture");
-    let dir = PathBuf::from(std::env::var_os("SAI_MACSEC_CAPTURE_DIR").expect("SAI_MACSEC_CAPTURE_DIR"));
-    let as_path = PathBuf::from(std::env::var_os("SAI_MACSEC_E2E_TABLE").expect("SAI_MACSEC_E2E_TABLE"));
-    let as_text = std::fs::read_to_string(&as_path).unwrap();
-    let (mut inputs, mut golden) = (golden::Inputs::default(), golden::Golden::default());
-    inputs.tables.insert("synthetic".to_owned(), synthetic_table());
-    inputs
-        .pinned
-        .insert("as7772".to_owned(), (as_text.len(), golden::fnv1a(&as_text)));
-    for input in synthetic_inputs().into_iter().chain(as7772_inputs(&as_text)) {
-        let path = if input.tag == "as7772" {
-            as_path.clone()
-        } else {
-            table_file(driver, input.tag, &synthetic_table())
-        };
-        let (plain, fixed) = (
-            normalise(&driver.output(&path, &input.script)),
-            normalise(&driver.fixed_output(&path, &input.script)),
-        );
-        if GOLDEN_TEXT.contains(&input.id.as_str()) {
-            if plain != fixed {
-                golden
-                    .texts
-                    .insert((input.id.clone(), "plain".to_owned()), plain.clone());
-            }
-            golden
-                .texts
-                .insert((input.id.clone(), "fixed".to_owned()), fixed.clone());
-        }
-        golden.cases.push(golden_case(&input.id, input.tag, &plain, &fixed));
-        inputs.scripts.push((input.id, input.tag.to_owned(), input.script));
-    }
-    let (inputs_text, golden_text) = (golden::emit_inputs(&inputs), golden::emit_golden(&golden));
-    assert_eq!(
-        golden::parse_inputs(&inputs_text).as_ref(),
-        Ok(&inputs),
-        "inputs round trip"
-    );
-    assert_eq!(
-        golden::parse_golden(&golden_text).as_ref(),
-        Ok(&golden),
-        "golden round trip"
-    );
-    std::fs::write(dir.join("e2e-inputs.txt"), inputs_text).unwrap();
-    std::fs::write(dir.join("e2e-cpp.txt"), golden_text).unwrap();
-}
-
 /// The stored inputs are what the generators of this file make for the fixed seeds (the
 /// AS7772 part with the pinned table, when it is there).
 #[test]
@@ -1484,16 +1096,19 @@ fn the_golden_inputs_are_the_fixed_corpus() {
     assert_eq!(inputs.scripts.len(), golden.cases.len());
     assert_eq!(inputs.scripts.len(), 4 + 1 + 64 + 4 + 48);
     assert_eq!(corpus.len(), if have_as7772.is_some() { 121 } else { 69 });
+    // the golden keeps full texts for exactly the cases named in GOLDEN_TEXT
+    let kept: BTreeSet<&str> = golden.texts.keys().map(|(id, _)| id.as_str()).collect();
+    assert_eq!(kept, GOLDEN_TEXT.iter().copied().collect());
 }
 
-/// The Rust path against the golden C++ (the C++ is not needed): per script the Rust output
+/// The Rust path against the golden C++: per script the Rust output
 /// (every SAI status, value, status text and bus access in order) equals the C++ with D9 / D10,
 /// to the end; where that differs from the unmodified C++ the script reached D9 / D10.
 #[test]
 fn rust_agrees_with_the_golden_cpp() {
     let (golden, inputs) = golden_files();
     let as7772 = pinned_as7772(&inputs);
-    let (mut compared, mut ops, mut events, mut listed) = (0, 0, 0, 0);
+    let (mut compared, mut ops, mut events, mut listed, mut installs) = (0, 0, 0, 0, 0);
     for case in &golden.cases {
         let Some(table) = table_of(&inputs, &case.tag, as7772.as_ref()) else {
             continue;
@@ -1506,15 +1121,25 @@ fn rust_agrees_with_the_golden_cpp() {
         compared += 1;
         ops += rust.lines().filter(|l| l.contains(" => ")).count();
         events += rust.matches(" R").count() + rust.matches(" W").count();
+        // not vacuous on the board's table: engines on, SAs installed, gates open
+        if case.id.starts_with("as-bb-c") {
+            installs +=
+                rust.matches(" SA AN ").count() + rust.lines().filter(|l| l.contains(" on     open   sa")).count();
+        }
     }
     summary(&format!(
         "e2e golden: the Rust path equals the golden C++ (with D9 / D10) on {compared} scripts, {ops} operations, \
          {events} bus accesses; {listed} reached D9 / D10"
     ));
     assert!(compared >= 69);
+    if as7772.is_some() {
+        assert!(installs >= 16, "the AS7772 backbones installed too little ({installs})");
+    }
 }
 
-/// The D9 case at MDIO level keeps the lines of the live test of the same name.
+/// The D9 case at MDIO level: after `eadmin e3 0`, a second entry sends port 1's ingress data to a flow
+/// without an SC. The C++ opens the gate on the old SC's SA (Q7), the Rust takes that SA out (D9) and
+/// leaves the gate closed; the C++ with D9 does the same as the Rust, to the end of the script.
 #[test]
 fn the_golden_keeps_the_d9_difference() {
     let (golden, inputs) = golden_files();
@@ -1528,38 +1153,6 @@ fn the_golden_keeps_the_d9_difference() {
     assert_eq!(line(&rust), "entry e1 t3 1 f5 0 0 => 0 W11.1.310=8001");
     assert_eq!(line(fixed), line(&rust));
     assert!(case.listed.starts_with("D9@"), "{}", case.listed);
-}
-
-/// The golden is what the live C++ prints (the proof that it was captured from this C++): every
-/// script of the golden (the AS7772's with the pinned table) on both drivers.
-#[test]
-fn the_golden_equals_the_live_cpp() {
-    let Some(driver) = driver() else { return };
-    let (golden, inputs) = golden_files();
-    let as7772 = pinned_as7772(&inputs);
-    let mut checked = 0;
-    for case in &golden.cases {
-        let path = if case.tag == "as7772" {
-            match &as7772 {
-                Some((path, _)) => path.clone(),
-                None => continue,
-            }
-        } else {
-            table_file(driver, &case.tag, &inputs.tables[&case.tag])
-        };
-        let script = &inputs.scripts.iter().find(|(id, ..)| *id == case.id).unwrap().2;
-        let (plain, fixed) = (
-            normalise(&driver.output(&path, script)),
-            normalise(&driver.fixed_output(&path, script)),
-        );
-        golden::live_vs_golden(&golden, case, &plain, &fixed, &listed_text(&plain, &fixed))
-            .unwrap_or_else(|why| panic!("{why}"));
-        checked += 1;
-    }
-    summary(&format!(
-        "e2e golden: the golden equals the live C++ on {checked} scripts ({} with full texts)",
-        golden.kept()
-    ));
 }
 
 /// Negative controls of the golden: a changed byte, digest, count or class, or a changed input,
@@ -1606,17 +1199,6 @@ fn the_golden_notices_a_change() {
     assert!(script.2.contains("sa a4 0 c0 1 1 4"));
     script.2 = script.2.replacen("sa a4 0 c0 1 1 4", "sa a4 0 c0 1 1 5", 1);
     assert!(golden::rust_vs_golden(&golden, &find("syn-bb-c3"), &rust_of("syn-bb-c3", &other)).is_err());
-    // the golden against the live C++: a changed byte of what the C++ printed is seen
-    let d9 = find("named-d9");
-    let (plain, fixed) = (
-        golden.texts[&("named-d9".to_owned(), "plain".to_owned())].clone(),
-        golden.texts[&("named-d9".to_owned(), "fixed".to_owned())].clone(),
-    );
-    assert!(golden::live_vs_golden(&golden, &d9, &plain, &fixed, &d9.listed).is_ok());
-    let tampered = plain.replacen("W11.1.121=1", "W11.1.121=0", 1);
-    assert_ne!(tampered, plain);
-    assert!(golden::live_vs_golden(&golden, &d9, &tampered, &fixed, &d9.listed).is_err());
-    assert!(golden::live_vs_golden(&golden, &d9, &plain, &fixed, "none").is_err());
 }
 
 // ------------------------------------------------------------------ tests
@@ -1636,107 +1218,4 @@ fn the_rust_path_runs_the_backbone() {
     assert!(install.contains(" W10.1.206=7 W10.1.207=0"), "{install}");
     assert!(install.contains(" W10.1.8000=5151"), "{install}");
     assert!(out.contains("active c0 => 0 active=a8"), "{out}");
-}
-
-#[test]
-fn synthetic_backbones_agree_with_the_cpp() {
-    let Some(driver) = driver() else { return };
-    let (table, board) = (synthetic_path(driver), synthetic_board());
-    for s in backbones(&board) {
-        compare(driver, &table, &s).unwrap_or_else(|why| panic!("{why}"));
-    }
-    report("synthetic table, 4 backbone scripts");
-}
-
-#[test]
-fn synthetic_random_scripts_agree_with_the_cpp() {
-    let Some(driver) = driver() else { return };
-    let (table, board) = (synthetic_path(driver), synthetic_board());
-    let n = cases(64);
-    let seeds = run_random(
-        driver,
-        &table,
-        &board,
-        n,
-        80,
-        "synthetic_random_scripts_agree_with_the_cpp",
-    );
-    report(&format!("synthetic table, {n} random scripts ({seeds})"));
-}
-
-/// The comparison is not vacuous: one key byte of difference is seen.
-#[test]
-fn the_comparison_notices_a_key_difference() {
-    let Some(driver) = driver() else { return };
-    let (table, board) = (synthetic_path(driver), synthetic_board());
-    let script = format!("{}{}\n", board.head, skeleton(0, 0, 0, false).join("\n"));
-    let other = script.replace("sa a4 0 c0 1 1 4", "sa a4 0 c0 1 1 5");
-    let text = std::fs::read(&table).unwrap();
-    assert_ne!(
-        normalise(&driver.output(&table, &script)),
-        normalise(&rust_output(&text, &other))
-    );
-}
-
-/// The board's real table (SAI_MACSEC_E2E_TABLE): the backbones in every cipher suite.
-#[test]
-fn as7772_backbones_agree_with_the_cpp() {
-    let Some(table) = std::env::var_os("SAI_MACSEC_E2E_TABLE").map(PathBuf::from) else {
-        summary("e2e: SAI_MACSEC_E2E_TABLE is not set: the AS7772 table comparison is SKIPPED");
-        return;
-    };
-    let Some(driver) = driver() else { return };
-    let text = std::fs::read_to_string(&table).unwrap();
-    let board = as7772_board(&text);
-    let mut installs = 0;
-    for s in as7772_backbones(&text, &board) {
-        compare(driver, &table, &s).unwrap_or_else(|why| panic!("{why}"));
-        // not vacuous: engines on, SAs installed (their key words on the bus), gates open
-        let out = driver.output(&table, &s);
-        installs += out.matches(" SA AN ").count() + out.lines().filter(|l| l.contains(" on     open   sa")).count();
-    }
-    assert!(installs >= 16, "the AS7772 backbones installed too little ({installs})");
-    report(&format!(
-        "AS7772 table, 4 backbone scripts ({installs} engine lines with an installed SA and an open gate)"
-    ));
-}
-
-/// The board's real table: random scripts.
-#[test]
-fn as7772_random_scripts_agree_with_the_cpp() {
-    let Some(table) = std::env::var_os("SAI_MACSEC_E2E_TABLE").map(PathBuf::from) else {
-        summary("e2e: SAI_MACSEC_E2E_TABLE is not set: the AS7772 table comparison is SKIPPED");
-        return;
-    };
-    let Some(driver) = driver() else { return };
-    let board = as7772_board(&std::fs::read_to_string(&table).unwrap());
-    let n = cases(48);
-    let seeds = run_random(
-        driver,
-        &table,
-        &board,
-        n,
-        60,
-        "as7772_random_scripts_agree_with_the_cpp",
-    );
-    report(&format!("AS7772 table, {n} random scripts ({seeds})"));
-}
-
-/// sai-macsec's `d9_another_entry_takes_over_after_the_entry_was_disabled` at MDIO level: after
-/// `eadmin e3 0`, a second entry sends port 1's ingress data to a flow without an SC. The C++
-/// opens the gate on the old SC's SA (Q7), the Rust takes that SA out (D9) and leaves the gate
-/// closed; the C++ with D9 does the same as the Rust, to the end of the script.
-#[test]
-fn d9_another_entry_takes_over_after_the_entry_was_disabled() {
-    let Some(driver) = driver() else { return };
-    let table = synthetic_path(driver);
-    let script = d9_script();
-    let cpp = driver.output(&table, &script);
-    let rust = rust_output(&std::fs::read(&table).unwrap(), &script);
-    let line = |text: &str| text.lines().find(|l| l.starts_with("entry e1")).unwrap().to_owned();
-    assert_eq!(line(&cpp), "entry e1 t3 1 f5 0 0 => 0 R11.1.1f3=0 W11.1.121=1");
-    assert_eq!(line(&rust), "entry e1 t3 1 f5 0 0 => 0 W11.1.310=8001");
-    let before = LISTED.load(Ordering::Relaxed);
-    compare(driver, &table, &script).unwrap_or_else(|why| panic!("{why}"));
-    assert!(LISTED.load(Ordering::Relaxed) > before, "a listed difference");
 }

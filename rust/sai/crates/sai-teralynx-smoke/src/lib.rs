@@ -4,7 +4,8 @@
 //! Two command lines:
 //!
 //! - `sai-teralynx-smoke PROFILE SECONDS [FIRST_LANE[:IFNAME] ...]`: the C++ program
-//!   (`ai_re/nix/packages/sai-teralynx/tools/sai_smoke.cpp`) line for line ([`legacy`]): the same steps,
+//!   (`tools/sai_smoke.cpp` of the C++ sai-teralynx, deleted in H5 on 2026-11-27, last in the tree at commit
+//!   767d9b0; its outputs are `tests/golden/smoke-cpp.txt`) line for line ([`legacy`]): the same steps,
 //!   output and exit codes (0 / 1 / 2).
 //! - `sai-teralynx-smoke --dry` / `--sonic-is-stopped --profile P ...`: the H1 gate of the CS-B plan
 //!   ([`gate`]): PASS / FAIL / SKIP per step, the cabled loops as devport pairs (default the CS8210's

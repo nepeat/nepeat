@@ -1,28 +1,38 @@
-//! The runs and the verdict: the same programs (built by `build-fixtures.sh`) on the C++ libsai
-//! (the reference) and on the Rust libsai, each on the same mock libifcs, in the same directories
-//! (so every path in the output is the same), then compared part by part:
+//! The runs and the verdict: the Rust libsai on the mock libifcs, judged against the golden C++ side
+//! (`tests/golden`, [`crate::golden`]: what the C++ libsai of the CS8210 gave on the same mock, captured at H5-0
+//! from the C++ sai-teralynx package, deleted at H5 on 2026-11-27, last in the tree at commit 767d9b0). There
+//! is no C++ side to run: nothing here compiles or starts C or C++ of that package. The programs are
+//! the fixtures' (`build-fixtures.sh`), each run in the same directories (so every path in the output is the
+//! same), then compared part by part:
 //!
-//! - **checks**: `test_ifcs` (unmodified, `c/sections.cpp` beside it) on both; the gate value "Rust
-//!   passes N of M", every Rust FAIL line with its area, the checks not reached;
-//! - **sections**: the same runs' IFCS call streams (`TEST_IFCS_DUMP=1`, the tap), section by section;
-//! - **driver**: the frozen frontend's op scripts through `frontend_driver.cpp` (unmodified, `c/tl_port.cpp`
-//!   beside it) on both, op block by op block (status, values, the op's IFCS lines, notifications);
-//! - **oracle**: the oracle's JSON scripts (their SAI steps: `c/oracle_prep.cpp`) through its runner
-//!   `sai-script` (unmodified) on both, step by step.
+//! - **checks**: the Rust `test_ifcs` (`Config::test_ifcs`: the test binary of
+//!   crates/sai-backend-teralynx/tests/ifcs_e2e, the port of the C++ `test_ifcs`, which marks its sections in the
+//!   stream and writes their counts as the C++ test's section wrappers did): its per-section counts (the gate
+//!   value "Rust passes N of M"), every Rust FAIL line with its area, the checks not reached;
+//! - **sections**: the same run's IFCS call streams (the tap), section by section;
+//! - **driver**: `bin/tl-frontend-driver`: the op scripts (sai-driver's `tests/driver-scripts`) through the
+//!   libsai, op block by op block (status, values, the op's IFCS lines, notifications);
+//! - **oracle**: the oracle's JSON scripts (their SAI steps: `c/oracle_prep.cpp`) through the Rust
+//!   `sai-script --cpp-names` (crate sai-script: in that mode equal to the C++ runner the golden was captured
+//!   with, its own differential), step by step.
 //!
-//! **Argument bytes** (`bytes`, on unless `--no-bytes`): every run has the byte tap
-//! (`bin/libparity-bytes.so`, `c/bytes_rt.c`) as `SAI_TERALYNX_IFCS_TRACE`, so the stream holds an
-//! `@B` line per IFCS call with ALL the bytes of every struct argument (padding and union bytes
-//! included) and of every attribute: the sections and oracle comparisons compare them with the mock's
-//! lines, the driver part compares each script's `@B` lines besides its op blocks. The mock compares
-//! fields, libifcs compares bytes (evidence rust-h2/06-ifcs-key-padding.txt): this is what catches
-//! a padding byte the C++ has zero and the Rust has not.
+//! Nothing builds `tl-frontend-driver` since H5: it was the C++ frontend driver (`frontend_driver.cpp` of the
+//! deleted frozen frontend) linked against the Rust libsai, and no Rust program drives the op scripts through a
+//! libsai's C ABI. A run that asks for the driver part without it stops with exit 2 saying so (README
+//! "Parity"); it never skips the part. Its golden stays (tests/golden/driver-cpp.txt, checked by tests/golden.rs).
+//!
+//! **Argument bytes**: every run has the byte tap (`bin/libparity-bytes.so`, `c/bytes_rt.c`) as
+//! `SAI_TERALYNX_IFCS_TRACE`, so the stream holds an `@B` line per IFCS call with ALL the bytes of every struct
+//! argument (padding and union bytes included) and of every attribute: the sections and oracle
+//! comparisons compare them with the mock's lines, the driver part compares each script's `@B` lines
+//! besides its op blocks. The mock compares fields, libifcs compares bytes (evidence
+//! rust-h2/06-ifcs-key-padding.txt): this is what catches a padding byte the C++ had zero and the Rust has not.
 //!
 //! A difference is **allowed** (`tests/parity-allow.txt`, deliberate), **pending** (its area, or the
 //! area a `tests/parity-pending.txt` entry names, is still pending: [`crate::areas`]),
 //! **downstream** (after a pending difference in the same run: state the unported area left
-//! behind), or **red**. `strict` (the G2 gate): only allowed differences pass. The C++ reference must
-//! pass every check and give the same output twice (`repeat_reference`).
+//! behind), or **red**. `strict` (the G2 gate): only allowed differences pass. The golden's own integrity
+//! (digests, inputs, the changed-golden negative controls) is checked by `tests/golden.rs`.
 #![forbid(unsafe_code)]
 
 use crate::areas::Areas;
@@ -32,7 +42,7 @@ use crate::lists::{self, Pending};
 use crate::oracle;
 use crate::sha256;
 use crate::stream::{self, LineDiff, Unit};
-use sai_driver::compare::{self, Entry};
+use sai_driver::compare::Entry;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
 use std::fs;
@@ -56,6 +66,8 @@ pub enum Part {
 impl Part {
     /// Every part.
     pub const ALL: [Self; 4] = [Self::Checks, Self::Sections, Self::Driver, Self::Oracle];
+    /// The parts a run has by default: those with a program since H5 (not the driver's: `Part::program`).
+    pub const DEFAULT: [Self; 3] = [Self::Checks, Self::Sections, Self::Oracle];
 
     /// Its name on the command line.
     pub fn name(self) -> &'static str {
@@ -71,38 +83,34 @@ impl Part {
     pub fn parse(s: &str) -> Option<Self> {
         Self::ALL.into_iter().find(|p| p.name() == s)
     }
-}
 
-/// What the run does.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Mode {
-    /// The C++ libsai and the Rust libsai, compared (the live parity).
-    Live,
-    /// The Rust libsai against the golden C++ side (`Config::golden`; no C++ needed).
-    Golden,
-    /// The live C++ side rendered again and required equal to the golden (the proof that the golden
-    /// is what the C++ gives; no Rust needed).
-    CheckGolden,
-    /// The live C++ side captured into `Config::golden` (no header: the capture's header is written
-    /// by hand over it, README "Parity").
-    Capture,
+    /// The fixtures program the part runs on the libsai, if it is one: the driver's (the `test_ifcs` parts run
+    /// `Config::test_ifcs`, the oracle `Config::sai_script`).
+    pub fn program(self) -> &'static str {
+        match self {
+            Self::Driver => "bin/tl-frontend-driver",
+            Self::Checks | Self::Sections | Self::Oracle => "",
+        }
+    }
 }
 
 /// What to run.
 #[derive(Clone, Debug)]
 pub struct Config {
-    /// What the run does.
-    pub mode: Mode,
-    /// The golden directory ([`Mode::Golden`], [`Mode::CheckGolden`]: read; [`Mode::Capture`]: written).
-    pub golden: Option<PathBuf>,
+    /// The golden directory (`tests/golden`).
+    pub golden: PathBuf,
     /// `build-fixtures.sh`'s output: `bin/`, `mock/libifcs.so`, `cfg/`.
     pub fixtures: PathBuf,
     /// Scratch directory (short: the diag socket's path lives under it).
     pub work: PathBuf,
-    /// The C++ libsai (`libsai.so.1.0.0` of ai_re/nix/packages/sai-teralynx; empty in [`Mode::Golden`]).
-    pub cpp_lib: PathBuf,
-    /// The Rust libsai (sai-ffi with the teralynx feature; empty in the modes without Rust).
+    /// The Rust libsai (sai-ffi with the teralynx feature).
     pub rust_lib: PathBuf,
+    /// The Rust `sai-script` program (crate sai-script, feature cli) the oracle part runs.
+    pub sai_script: PathBuf,
+    /// The Rust `test_ifcs` the checks and sections parts run: the test binary of
+    /// crates/sai-backend-teralynx/tests/ifcs_e2e (beside it `golden/` and `CHECK-MAP.txt`, or none: then its
+    /// own source tree's).
+    pub test_ifcs: PathBuf,
     /// `crates/sai-backend-teralynx/tests/areas.txt`.
     pub areas: PathBuf,
     /// `crates/sai-backend-teralynx/tests/test_ifcs-expected.txt` (the pending areas).
@@ -123,10 +131,6 @@ pub struct Config {
     pub only: Vec<String>,
     /// Negative control: the Rust side's tap marks stream lines containing this text.
     pub mutate: Option<String>,
-    /// Run the C++ reference twice and require equal outputs.
-    pub repeat_reference: bool,
-    /// The byte tap in every run (`bin/libparity-bytes.so` as `SAI_TERALYNX_IFCS_TRACE`).
-    pub bytes: bool,
     /// Per program run.
     pub timeout: Duration,
 }
@@ -140,21 +144,6 @@ pub struct Outcome {
     pub red: Vec<String>,
     /// The gate value (passed, total) of `test_ifcs` on Rust, if run.
     pub gate: Option<(u32, u32)>,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum Side {
-    Cpp,
-    Rust,
-}
-
-impl Side {
-    fn name(self) -> &'static str {
-        match self {
-            Self::Cpp => "cpp",
-            Self::Rust => "rust",
-        }
-    }
 }
 
 /// How one differing unit is judged.
@@ -185,8 +174,8 @@ struct Ctx<'a> {
     allow_used: Vec<usize>,
     pend: Vec<Pending>,
     pend_used: Vec<usize>,
-    /// The golden C++ side, when it is the reference ([`Mode::Golden`]).
-    golden: Option<Golden>,
+    /// The golden C++ side: the reference.
+    golden: Golden,
     /// What differs between machines in a text (the golden's streams are normalised).
     norm: Norm,
     out: String,
@@ -255,9 +244,9 @@ impl Ctx<'_> {
         self.cfg.fixtures.join(rel)
     }
 
-    /// The byte tap of the runs, if on.
-    fn bytes_tap(&self) -> Option<PathBuf> {
-        self.cfg.bytes.then(|| self.fixture("bin/libparity-bytes.so"))
+    /// The byte tap of the runs.
+    fn bytes_tap(&self) -> PathBuf {
+        self.fixture("bin/libparity-bytes.so")
     }
 
     fn out_dir(&self, rel: &str) -> Result<PathBuf, String> {
@@ -266,15 +255,11 @@ impl Ctx<'_> {
         Ok(d)
     }
 
-    /// The libsai directory of a side: the library, its sonames, the C shim next to it.
-    fn lib_dir(&self, side: Side) -> Result<PathBuf, String> {
-        let d = self.cfg.work.join(format!("lib-{}", side.name()));
+    /// The libsai directory: the library, its sonames, the shim next to it.
+    fn lib_dir(&self) -> Result<PathBuf, String> {
+        let d = self.cfg.work.join("lib-rust");
         fresh(&d)?;
-        let lib = match side {
-            Side::Cpp => &self.cfg.cpp_lib,
-            Side::Rust => &self.cfg.rust_lib,
-        };
-        copy(lib, &d.join("libsai.so.1.0.0"))?;
+        copy(&self.cfg.rust_lib, &d.join("libsai.so.1.0.0"))?;
         std::os::unix::fs::symlink("libsai.so.1.0.0", d.join("libsai.so.1")).map_err(|e| e.to_string())?;
         std::os::unix::fs::symlink("libsai.so.1", d.join("libsai.so")).map_err(|e| e.to_string())?;
         copy(
@@ -284,20 +269,12 @@ impl Ctx<'_> {
         Ok(d)
     }
 
-    /// Runs a fixture program on a side's libsai with the tap.
-    fn run(
-        &self,
-        side: Side,
-        prog: &str,
-        args: &[&str],
-        cwd: &Path,
-        tap: &Path,
-        env: &[(&str, String)],
-    ) -> Result<Ran, String> {
-        let lib = self.cfg.work.join(format!("lib-{}", side.name()));
+    /// Runs a program on the libsai with the tap.
+    fn run(&self, prog: &Path, args: &[&str], cwd: &Path, tap: &Path, env: &[(&str, String)]) -> Result<Ran, String> {
+        let lib = self.cfg.work.join("lib-rust");
         let (so, se) = (cwd.join(".stdout"), cwd.join(".stderr"));
         let file = |p: &Path| fs::File::create(p).map_err(|e| format!("{}: {e}", p.display()));
-        let mut c = Command::new(self.fixture(&format!("bin/{prog}")));
+        let mut c = Command::new(prog);
         c.args(args)
             .current_dir(cwd)
             .stdin(Stdio::null())
@@ -308,18 +285,20 @@ impl Ctx<'_> {
             .env("PARITY_TAP_FILE", tap)
             .env("PARITY_MOCK", self.fixture("mock/libifcs.so"))
             .env_remove("PARITY_TAP_MUTATE")
-            .env_remove("PARITY_PROFILE_ADD");
-        if let Some(t) = self.bytes_tap() {
-            // test_ifcs's fixed profile gets the key through sections.cpp's sai_api_initialize wrap
-            c.env("PARITY_PROFILE_ADD", format!("SAI_TERALYNX_IFCS_TRACE={}", t.display()));
-        }
-        if let (Side::Rust, Some(m)) = (side, &self.cfg.mutate) {
+            .env_remove("SAI_SCRIPT_TOOLS")
+            .env_remove("SAI_LIBSAI")
+            // a program whose profile is fixed (test_ifcs's) gets the byte tap's key through this
+            .env(
+                "PARITY_PROFILE_ADD",
+                format!("SAI_TERALYNX_IFCS_TRACE={}", self.bytes_tap().display()),
+            );
+        if let Some(m) = &self.cfg.mutate {
             c.env("PARITY_TAP_MUTATE", m);
         }
         for (k, v) in env {
             c.env(k, v);
         }
-        let mut child = c.spawn().map_err(|e| format!("{prog}: {e}"))?;
+        let mut child = c.spawn().map_err(|e| format!("{}: {e}", prog.display()))?;
         let deadline = Instant::now() + self.cfg.timeout;
         let mut timed_out = false;
         let status = loop {
@@ -345,6 +324,28 @@ impl Ctx<'_> {
             stdout: text(&so),
             stderr: text(&se),
         })
+    }
+
+    /// The program of a part, or the error that says it is not there (a part is never skipped).
+    fn program(&self, part: Part) -> Result<PathBuf, String> {
+        let (p, what) = match part {
+            Part::Checks | Part::Sections => (self.cfg.test_ifcs.clone(), "--test-ifcs (the ifcs_e2e test binary)"),
+            Part::Oracle => (self.cfg.sai_script.clone(), "--sai-script"),
+            Part::Driver => (
+                self.fixture(part.program()),
+                "a frontend driver in the fixtures: nothing builds it since H5 (it was the C++ frontend_driver.cpp, deleted; README \"Parity\"); run --parts without driver",
+            ),
+        };
+        if p.is_file() {
+            Ok(p)
+        } else {
+            Err(format!(
+                "the {} part needs {} ({}), which is not there",
+                part.name(),
+                what,
+                p.display()
+            ))
+        }
     }
 
     /// Judges a differing unit (`own`: the unit's areas).
@@ -392,18 +393,7 @@ fn context(cfg: &Config) -> Result<Ctx<'_>, String> {
         }
     }
     fs::create_dir_all(&cfg.work).map_err(|e| format!("{}: {e}", cfg.work.display()))?;
-    let golden = match (cfg.mode, &cfg.golden) {
-        (Mode::Golden, Some(dir)) => {
-            if !cfg.bytes {
-                return Err(
-                    "--golden needs the byte tap (the golden's streams hold the @B lines): no --no-bytes".to_owned(),
-                );
-            }
-            Some(Golden::load(dir)?)
-        }
-        (Mode::Golden, None) => return Err("--golden DIR is required".to_owned()),
-        _ => None,
-    };
+    let golden = Golden::load(&cfg.golden)?;
     Ok(Ctx {
         cfg,
         areas,
@@ -423,15 +413,12 @@ fn context(cfg: &Config) -> Result<Ctx<'_>, String> {
 /// Runs everything the configuration asks for.
 pub fn run(cfg: &Config) -> Result<Outcome, String> {
     let mut x = context(cfg)?;
-    match cfg.mode {
-        Mode::Capture | Mode::CheckGolden => return golden_cpp(&mut x),
-        Mode::Live | Mode::Golden => {}
+    // every part asked for has its program, before anything runs
+    for p in &cfg.parts {
+        x.program(*p)?;
     }
     header(&mut x);
-    if cfg.mode == Mode::Live {
-        x.lib_dir(Side::Cpp)?;
-    }
-    x.lib_dir(Side::Rust)?;
+    x.lib_dir()?;
     let mut gate = None;
     if cfg.parts.contains(&Part::Checks) || cfg.parts.contains(&Part::Sections) {
         gate = test_ifcs(&mut x)?;
@@ -454,13 +441,14 @@ pub fn run(cfg: &Config) -> Result<Outcome, String> {
 fn header(x: &mut Ctx<'_>) {
     let cfg = x.cfg;
     x.line(format!(
-        "sai-teralynx parity ({} mode): reference {}, candidate Rust {}",
+        "sai-teralynx parity ({} mode): reference the golden C++ side {}, candidate Rust {}",
         if cfg.strict { "strict: the G2 gate" } else { "progress" },
-        match &cfg.golden {
-            Some(g) if cfg.mode == Mode::Golden => format!("the golden C++ side {}", g.display()),
-            _ => format!("C++ {}", cfg.cpp_lib.display()),
-        },
+        cfg.golden.display(),
         cfg.rust_lib.display()
+    ));
+    x.line(format!(
+        "parts: {}",
+        cfg.parts.iter().map(|p| p.name()).collect::<Vec<_>>().join(", ")
     ));
     let pa: Vec<String> = x
         .pending_areas
@@ -551,7 +539,7 @@ struct IfcsRun {
     status: String,
 }
 
-fn run_test_ifcs(x: &Ctx<'_>, side: Side, tag: &str) -> Result<IfcsRun, String> {
+fn run_test_ifcs(x: &Ctx<'_>) -> Result<IfcsRun, String> {
     let dir = x.cfg.work.join("t");
     fresh(&dir)?;
     let ct = dir.join("ct");
@@ -564,20 +552,29 @@ fn run_test_ifcs(x: &Ctx<'_>, side: Side, tag: &str) -> Result<IfcsRun, String> 
     }
     let tap = dir.join("tap.txt");
     let counts = dir.join("counts.txt");
-    let mock = x.fixture("mock/libifcs.so");
-    let (mock_s, ct_s) = (mock.to_string_lossy().into_owned(), ct.to_string_lossy().into_owned());
+    let s = |p: &Path| p.to_string_lossy().into_owned();
+    let prog = x.program(Part::Checks)?;
+    // the test binary's golden and check map: beside it when installed (a Nix build), else its source tree's
+    let mut env = vec![
+        ("IFCS_E2E_REQUIRE", "1".to_owned()),
+        ("IFCS_E2E_LIBSAI", s(&x.cfg.work.join("lib-rust/libsai.so.1.0.0"))),
+        ("IFCS_E2E_MOCK", s(&x.fixture("mock/libifcs.so"))),
+        // the C++ test's scratch directory (its second argument): the same paths in the stream
+        ("IFCS_E2E_DIR", s(&ct)),
+        ("TEST_IFCS_DUMP", "1".to_owned()),
+        ("PARITY_COUNTS_FILE", s(&counts)),
+    ];
+    if let Some(d) = prog.parent().filter(|d| d.join("CHECK-MAP.txt").is_file()) {
+        env.push(("IFCS_E2E_FIXTURES", s(d)));
+    }
     let r = x.run(
-        side,
-        "test_ifcs-sections",
-        &[&mock_s, &ct_s],
+        &prog,
+        &["--exact", "ifcs_e2e", "--nocapture", "--test-threads=1"],
         &dir,
         &tap,
-        &[
-            ("TEST_IFCS_DUMP", "1".to_owned()),
-            ("PARITY_COUNTS_FILE", counts.to_string_lossy().into_owned()),
-        ],
+        &env,
     )?;
-    let keep = x.out_dir(&format!("test_ifcs/{tag}"))?;
+    let keep = x.out_dir("test_ifcs/rust")?;
     let tap_text = fs::read_to_string(&tap).unwrap_or_default();
     let counts_text = fs::read_to_string(&counts).unwrap_or_default();
     for (name, text) in [
@@ -598,7 +595,7 @@ fn run_test_ifcs(x: &Ctx<'_>, side: Side, tag: &str) -> Result<IfcsRun, String> 
     })
 }
 
-/// The C++ side of `test_ifcs`: from the live run or from the golden.
+/// The C++ side of `test_ifcs`: what the golden holds.
 struct IfcsRef {
     status: String,
     stdout_last: String,
@@ -619,109 +616,52 @@ fn bytes_lines(stream: &str) -> Vec<String> {
         .collect()
 }
 
-/// The tap's check: the final `TEST_IFCS_DUMP` (the mock's own buffer since its last clear) is the
-/// tail of the stream before `switch_remove`: the lines in common at the end.
-fn dump_tail(run: &IfcsRun) -> usize {
-    let stream: Vec<&str> = run
-        .tap
-        .lines()
-        .take_while(|l| *l != "@@ begin switch_remove")
-        .filter(|l| !l.starts_with("@@ ") && !l.starts_with(BYTES))
-        .collect();
-    let err: Vec<&str> = run
-        .stderr
-        .lines()
-        .take_while(|l| *l != "--- mock log at failure ---")
-        .collect();
-    stream
-        .iter()
-        .rev()
-        .zip(err.iter().rev())
-        .take_while(|(a, b)| a == b)
-        .count()
-}
-
 #[allow(clippy::too_many_lines, reason = "one part's report, in order")]
 fn test_ifcs(x: &mut Ctx<'_>) -> Result<Option<(u32, u32)>, String> {
-    // the reference: the live C++ run, or the golden (captured from it, tests/golden)
-    let cpp = if x.golden.is_some() {
-        None
-    } else {
-        Some(run_test_ifcs(x, Side::Cpp, "cpp")?)
+    let mut rust = run_test_ifcs(x)?;
+    // the reference: the golden's record of the C++ run (tests/golden)
+    let reference = IfcsRef {
+        status: x.golden.ifcs.status.clone(),
+        stdout_last: x.golden.ifcs.stdout_last.clone(),
+        counts: x.golden.ifcs.counts.clone(),
+        bytes: x.golden.ifcs.bytes,
+        sections: x.golden.ifcs.sections.clone(),
     };
-    let mut rust = run_test_ifcs(x, Side::Rust, "rust")?;
-    let reference = match (&cpp, &x.golden) {
-        (Some(c), _) => IfcsRef {
-            status: c.status.clone(),
-            stdout_last: c.stdout.lines().last().unwrap_or("").to_owned(),
-            counts: c.counts.clone(),
-            bytes: bytes_lines(&c.tap).len(),
-            sections: stream::sections(&c.tap).iter().map(RefUnit::live).collect(),
-        },
-        (None, Some(g)) => IfcsRef {
-            status: g.ifcs.status.clone(),
-            stdout_last: g.ifcs.stdout_last.clone(),
-            counts: g.ifcs.counts.clone(),
-            bytes: g.ifcs.bytes,
-            sections: g.ifcs.sections.clone(),
-        },
-        (None, None) => return Err("test_ifcs: neither a C++ run nor a golden".to_owned()),
-    };
-    if cpp.is_none() {
-        // the golden's streams are normalised (work and fixtures directories, store paths)
-        rust.tap = x.norm.text(&rust.tap);
-    }
+    // the golden's streams are normalised (work and fixtures directories, store paths)
+    rust.tap = x.norm.text(&rust.tap);
     let cpp_total: u32 = reference.counts.iter().map(|c| c.checks).sum();
     let cpp_failed: u32 = reference.counts.iter().map(|c| c.failed).sum();
     x.line(format!(
-        "== test_ifcs (unmodified) on {}: C++ reference {} checks, {} failed ({}; '{}'); Rust: {}",
-        if cpp.is_some() {
-            "both"
-        } else {
-            "Rust, the C++ side as the golden captured"
-        },
-        cpp_total,
-        cpp_failed,
-        reference.status,
-        reference.stdout_last,
-        rust.status
+        "== test_ifcs on Rust, the C++ side as the golden captured: C++ reference {cpp_total} checks, {cpp_failed} failed ({}; '{}'); Rust: {}",
+        reference.status, reference.stdout_last, rust.status
     ));
     if cpp_failed > 0 || reference.counts.iter().any(|c| c.incomplete) || reference.status != "exit 0" {
         x.redden(format!(
-            "the C++ reference does not pass test_ifcs ({} failed, {})",
+            "the golden's C++ reference does not pass test_ifcs ({} failed, {})",
             cpp_failed, reference.status
         ));
     }
-    if let Some(c) = &cpp {
-        let tail = dump_tail(c);
-        x.line(format!(
-            "   tap check: the C++ run's final TEST_IFCS_DUMP equals the stream's tail ({tail} lines in common)"
-        ));
-        if tail == 0 {
-            x.redden("tap check: the stream does not end as the mock's own log (the tap misses lines)".to_owned());
-        }
-    } else {
-        x.line("   tap check: made at capture (--capture refuses a stream that does not end as the mock's own log)");
+    x.line("   tap check: made at capture (the capture refused a stream that did not end as the mock's own log)");
+    let (cb, rb) = (reference.bytes, bytes_lines(&rust.tap).len());
+    x.line(format!(
+        "   byte tap: {cb} C++ / {rb} Rust @B lines (every IFCS call's argument bytes, compared in the sections)"
+    ));
+    if cb == 0 || rb == 0 {
+        x.redden("byte tap: a side's stream has no @B lines (SAI_TERALYNX_IFCS_TRACE not taken)".to_owned());
     }
-    if x.cfg.bytes {
-        let (cb, rb) = (reference.bytes, bytes_lines(&rust.tap).len());
-        x.line(format!(
-            "   byte tap: {cb} C++ / {rb} Rust @B lines (every IFCS call's argument bytes, compared in the sections)"
+    // how the Rust test_ifcs ended: its summary line as the C++ test's last stdout line (the test binary's
+    // own lines are around it, its "test ifcs_e2e ... " may begin the same line)
+    let rust_last = rust
+        .stdout
+        .lines()
+        .rev()
+        .find_map(|l| l.find("test_ifcs: ").and_then(|i| l.get(i..)))
+        .unwrap_or("(none)");
+    if rust.status != reference.status || rust_last != reference.stdout_last {
+        x.redden(format!(
+            "test_ifcs on Rust ended {} '{rust_last}', the golden's C++ run {} '{}'",
+            rust.status, reference.status, reference.stdout_last
         ));
-        if cb == 0 || rb == 0 {
-            x.redden("byte tap: a side's stream has no @B lines (SAI_TERALYNX_IFCS_TRACE not taken)".to_owned());
-        }
-    }
-    if let (true, Some(c)) = (x.cfg.repeat_reference, &cpp) {
-        let again = run_test_ifcs(x, Side::Cpp, "cpp-again")?;
-        if again.tap != c.tap || again.counts != c.counts {
-            x.redden(
-                "the C++ reference's test_ifcs run is not deterministic (stream or counts differ between two runs)"
-                    .to_owned(),
-            );
-        } else {
-            x.line("   reference repeatable: a second C++ run gave the same stream and counts");
-        }
     }
     let gate = Gate::new(&reference.counts, &rust.counts);
     let sec_areas = |x: &Ctx<'_>, name: &str| x.areas.of_section(name).to_vec();
@@ -833,11 +773,6 @@ fn test_ifcs(x: &mut Ctx<'_>) -> Result<Option<(u32, u32)>, String> {
             } else {
                 let j = x.judge("test_ifcs", &c.name, &own, after_pending);
                 after_pending |= matches!(j, Judged::Pending(_));
-                // a golden keeps no lines to write (the head and the digest: tests/golden)
-                if let RefLines::Full(lines) = &c.lines {
-                    fs::write(keep.join(format!("{}.cpp.txt", c.name)), lines.join("\n") + "\n")
-                        .map_err(|e| e.to_string())?;
-                }
                 fs::write(keep.join(format!("{}.rust.txt", c.name)), r.lines.join("\n") + "\n")
                     .map_err(|e| e.to_string())?;
                 (
@@ -855,7 +790,7 @@ fn test_ifcs(x: &mut Ctx<'_>) -> Result<Option<(u32, u32)>, String> {
         }
         let summary: Vec<String> = stats.iter().map(|(k, n)| format!("{n} {k}")).collect();
         x.line(format!(
-            "== sections (test_ifcs IFCS calls per area, TEST_IFCS_DUMP=1 + tap): {} sections: {}",
+            "== sections (test_ifcs IFCS calls per area, the tap): {} sections: {}",
             cs.len(),
             summary.join(", ")
         ));
@@ -875,18 +810,10 @@ fn test_ifcs(x: &mut Ctx<'_>) -> Result<Option<(u32, u32)>, String> {
                 verdict
             ));
             if judged == Some(Judged::Red) {
-                let hint = if x.golden.is_some() {
-                    format!(
-                        "the Rust side's lines: {}/{name}.rust.txt; the golden keeps the digest and the head",
-                        keep.display()
-                    )
-                } else {
-                    format!(
-                        "diff -u {}/{name}.cpp.txt {}/{name}.rust.txt",
-                        keep.display(),
-                        keep.display()
-                    )
-                };
+                let hint = format!(
+                    "the Rust side's lines: {}/{name}.rust.txt; the golden keeps the digest and the head",
+                    keep.display()
+                );
                 x.red.push(format!(
                     "test_ifcs section {name} ({}) differs: {} ({hint})",
                     own.join(","),
@@ -896,12 +823,6 @@ fn test_ifcs(x: &mut Ctx<'_>) -> Result<Option<(u32, u32)>, String> {
         }
     }
     Ok(Some((gate.passed(), gate.total())))
-}
-
-impl IfcsRun {
-    fn code_bad(&self) -> bool {
-        self.status != "exit 0"
-    }
 }
 
 // ============================================================== driver scripts
@@ -935,20 +856,18 @@ fn driver_profile(x: &Ctx<'_>, dir: &Path) -> String {
         // the host interfaces as netdevs the library creates (test_ifcs's mode): the build host has no
         // Ethernet<n> to adopt (the box's default), so adopt would only compare the refusal
         "profile SAI_TERALYNX_NETDEV=create\n".to_owned(),
-        x.bytes_tap()
-            .map_or_else(String::new, |t| key("SAI_TERALYNX_IFCS_TRACE", &t)),
+        key("SAI_TERALYNX_IFCS_TRACE", &x.bytes_tap()),
     ]
     .concat()
 }
 
-fn run_driver(x: &Ctx<'_>, side: Side, script: &Path, tag: &str) -> Result<(String, String, String), String> {
+fn run_driver(x: &Ctx<'_>, script: &Path) -> Result<(String, String, String), String> {
     let dir = x.cfg.work.join("d");
     fresh(&dir)?;
     let text = driver_profile(x, &dir) + &read(script)?;
     fs::write(dir.join("script.ops"), text).map_err(|e| e.to_string())?;
     let r = x.run(
-        side,
-        "tl-frontend-driver",
+        &x.program(Part::Driver)?,
         &["script.ops"],
         &dir,
         &dir.join("tap.txt"),
@@ -956,10 +875,10 @@ fn run_driver(x: &Ctx<'_>, side: Side, script: &Path, tag: &str) -> Result<(Stri
     )?;
     let keep = x.out_dir("driver")?;
     let name = stem(script);
-    fs::write(keep.join(format!("{name}.{tag}.txt")), &r.stdout).map_err(|e| e.to_string())?;
-    fs::write(keep.join(format!("{name}.{tag}.stderr.txt")), &r.stderr).map_err(|e| e.to_string())?;
+    fs::write(keep.join(format!("{name}.rust.txt")), &r.stdout).map_err(|e| e.to_string())?;
+    fs::write(keep.join(format!("{name}.rust.stderr.txt")), &r.stderr).map_err(|e| e.to_string())?;
     let tap = fs::read_to_string(dir.join("tap.txt")).unwrap_or_default();
-    fs::write(keep.join(format!("{name}.{tag}.tap.txt")), &tap).map_err(|e| e.to_string())?;
+    fs::write(keep.join(format!("{name}.rust.tap.txt")), &tap).map_err(|e| e.to_string())?;
     let status = r.status();
     Ok((r.stdout, status, tap))
 }
@@ -1005,75 +924,44 @@ fn driver(x: &mut Ctx<'_>) -> Result<(), String> {
     let mut rows = Vec::new();
     let mut kinds: BTreeMap<&'static str, usize> = BTreeMap::new();
     let (mut bytes_total, mut bytes_differ) = (0usize, 0usize);
-    // against a golden: its scripts are the directory's, byte for byte (the inputs are digested)
-    if let Some(g) = &x.golden {
-        let (have, want): (Vec<String>, Vec<String>) = (
-            g.driver.scripts.iter().map(|s| s.name.clone()).collect(),
-            scripts.iter().map(|p| stem(p)).collect(),
-        );
-        if have != want {
-            return Err(format!(
-                "the golden's driver scripts {have:?} are not the directory's {want:?}"
-            ));
-        }
+    // its scripts are the directory's, byte for byte (the inputs are digested)
+    let (have, want): (Vec<String>, Vec<String>) = (
+        x.golden.driver.scripts.iter().map(|s| s.name.clone()).collect(),
+        scripts.iter().map(|p| stem(p)).collect(),
+    );
+    if have != want {
+        return Err(format!(
+            "the golden's driver scripts {have:?} are not the directory's {want:?}"
+        ));
     }
     for script in &scripts {
         let name = stem(script);
-        let gold = x.golden.as_ref().and_then(|g| g.driver.script(&name)).cloned();
-        let live = if gold.is_some() {
-            None
-        } else {
-            Some(run_driver(x, Side::Cpp, script, "cpp")?)
-        };
-        let (rust, rust_st, rust_tap) = run_driver(x, Side::Rust, script, "rust")?;
+        let gold = x
+            .golden
+            .driver
+            .script(&name)
+            .cloned()
+            .ok_or_else(|| format!("driver {name}: not in the golden"))?;
+        let (rust, rust_st, rust_tap) = run_driver(x, script)?;
         // the reference: its status, its answers compared op by op, its byte-tap lines
-        let (cpp_st, cb) = match (&live, &gold) {
-            (Some((_, st, tap)), _) => (st.clone(), RefLines::Full(bytes_lines(tap))),
-            (None, Some(g)) => (g.status.clone(), RefLines::Digest(g.bytes.clone())),
-            (None, None) => return Err(format!("driver {name}: neither a C++ run nor a golden")),
-        };
-        if cpp_st != "exit 0" {
-            x.redden(format!("driver {name}: the C++ reference run ended {cpp_st}"));
+        let cb = RefLines::Digest(gold.bytes.clone());
+        if gold.status != "exit 0" {
+            x.redden(format!(
+                "driver {name}: the golden's C++ reference run ended {}",
+                gold.status
+            ));
         }
-        if let Some(g) = &gold {
-            let input = sha256::hex(read(script)?.as_bytes());
-            if input != g.input {
-                x.redden(format!(
-                    "driver {name}: the script's sha256 {input} is not the golden's input digest {}",
-                    g.input
-                ));
-            }
+        let input = sha256::hex(read(script)?.as_bytes());
+        if input != gold.input {
+            x.redden(format!(
+                "driver {name}: the script's sha256 {input} is not the golden's input digest {}",
+                gold.input
+            ));
         }
-        if let (true, Some((cpp, _, cpp_tap))) = (x.cfg.repeat_reference, &live) {
-            let (again, _, again_tap) = run_driver(x, Side::Cpp, script, "cpp-again")?;
-            if again != *cpp || bytes_lines(&again_tap) != bytes_lines(cpp_tap) {
-                x.redden(format!(
-                    "driver {name}: the C++ reference is not deterministic (two runs differ)"
-                ));
-            }
-        }
-        let (rust, rust_tap) = if gold.is_some() {
-            (x.norm.text(&rust), x.norm.text(&rust_tap))
-        } else {
-            (rust, rust_tap)
-        };
-        let c = match (&live, &gold) {
-            (Some((cpp, _, _)), _) => compare::compare(&name, cpp, &rust).map(|c| golden::RefComparison {
-                blocks: c.blocks,
-                diffs: c
-                    .diffs
-                    .iter()
-                    .map(|d| golden::RefDiff {
-                        index: d.index,
-                        op: d.op.clone(),
-                        first: d.first_difference(),
-                    })
-                    .collect(),
-            }),
-            (None, Some(g)) => golden::compare_blocks(&name, &g.blocks, &rust),
-            (None, None) => Err("no reference".to_owned()),
-        }
-        .map_err(|e| format!("driver {name}: {e} (Rust run: {rust_st})"))?;
+        // the golden's streams are normalised (work and fixtures directories, store paths)
+        let (rust, rust_tap) = (x.norm.text(&rust), x.norm.text(&rust_tap));
+        let c = golden::compare_blocks(&name, &gold.blocks, &rust)
+            .map_err(|e| format!("driver {name}: {e} (Rust run: {rust_st})"))?;
         total += c.blocks;
         differing += c.diffs.len();
         let mut after_pending = false;
@@ -1113,28 +1001,24 @@ fn driver(x: &mut Ctx<'_>) -> Result<(), String> {
                 j == Judged::Red,
             ));
         }
-        if x.cfg.bytes {
-            let (n, differs, red) = driver_bytes(x, &name, &cb, &rust_tap, &mut lines);
-            bytes_total += n;
-            bytes_differ += usize::from(differs);
-            red_here += usize::from(red);
-        }
+        let (n, differs, red) = driver_bytes(x, &name, &cb, &rust_tap, &mut lines);
+        bytes_total += n;
+        bytes_differ += usize::from(differs);
+        red_here += usize::from(red);
         rows.push((name, c.blocks, c.diffs.len(), red_here, rust_st, lines));
     }
     let k: Vec<String> = kinds.iter().map(|(k, n)| format!("{n} {k}")).collect();
     x.line(format!(
-        "== driver scripts (frontend driver-scripts through frontend_driver.cpp {}): {} scripts, {total} ops, {} identical, {differing} differ{}",
-        if x.golden.is_some() { "on the Rust libsai, the C++ side as the golden captured" } else { "on both libsais" },
+        "== driver scripts (driver-scripts through {} on the Rust libsai, the C++ side as the golden captured): {} scripts, {total} ops, {} identical, {differing} differ{}",
+        x.program(Part::Driver)?.file_name().map_or_else(String::new, |n| n.to_string_lossy().into_owned()),
         scripts.len(),
         total - differing,
         if k.is_empty() { String::new() } else { format!(" ({})", k.join(", ")) }
     ));
-    if x.cfg.bytes {
-        x.line(format!(
-            "   argument bytes (@B lines of the byte tap, whole script): {bytes_total} lines, {} scripts equal, {bytes_differ} differ",
-            scripts.len() - bytes_differ
-        ));
-    }
+    x.line(format!(
+        "   argument bytes (@B lines of the byte tap, whole script): {bytes_total} lines, {} scripts equal, {bytes_differ} differ",
+        scripts.len() - bytes_differ
+    ));
     for (name, blocks, diffs, red_here, rust_st, lines) in rows {
         x.line(format!(
             "   {name}: {blocks} ops, {} identical, {diffs} differ{} (Rust run: {rust_st})",
@@ -1159,9 +1043,7 @@ fn driver(x: &mut Ctx<'_>) -> Result<(), String> {
 // ============================================================== oracle scripts
 
 fn oracle_profile(x: &Ctx<'_>, dir: &Path) -> String {
-    let bytes = x
-        .bytes_tap()
-        .map_or_else(String::new, |t| format!("SAI_TERALYNX_IFCS_TRACE={}\n", t.display()));
+    let bytes = format!("SAI_TERALYNX_IFCS_TRACE={}\n", x.bytes_tap().display());
     bytes
         + &format!(
             "SAI_OPENBCM_BACKEND=openbcm\nSAI_TERALYNX_NETDEV=create\nSAI_TERALYNX_LIBIFCS={}\nSAI_TERALYNX_PORT_MAP={}\nSAI_INIT_CONFIG_FILE={}\nSAI_TERALYNX_RUN_DIR={}\nSAI_OPENBCM_DIAG_SOCKET={}\n",
@@ -1179,25 +1061,28 @@ struct OracleRun {
     status: String,
 }
 
-fn run_oracle(x: &Ctx<'_>, side: Side, prepped: &Path, name: &str, tag: &str) -> Result<OracleRun, String> {
+fn run_oracle(x: &Ctx<'_>, prepped: &Path, name: &str) -> Result<OracleRun, String> {
     let dir = x.cfg.work.join("o");
     fresh(&dir)?;
     fs::write(dir.join("profile"), oracle_profile(x, &dir)).map_err(|e| e.to_string())?;
     let stream_file = dir.join("stream.txt");
     let script = prepped.to_string_lossy().into_owned();
+    // the Rust sai-script in the C++ runner's own mode (crate sai-script: --cpp-names is equal to sai_script.cpp)
+    let lib = x.cfg.work.join("lib-rust").join("libsai.so.1");
+    let lib = lib.to_string_lossy().into_owned();
+    let sai_script = x.cfg.sai_script.clone();
     let r = x.run(
-        side,
-        "sai-script",
-        &["profile", &script],
+        &sai_script,
+        &["--cpp-names", "--libsai", &lib, "profile", &script],
         &dir,
         &stream_file,
         &[("IFCS_TRACE_FILE", stream_file.to_string_lossy().into_owned())],
     )?;
     let stream = fs::read_to_string(&stream_file).unwrap_or_default();
     let keep = x.out_dir("oracle")?;
-    fs::write(keep.join(format!("{name}.{tag}.stream.txt")), &stream).map_err(|e| e.to_string())?;
-    fs::write(keep.join(format!("{name}.{tag}.stdout.txt")), &r.stdout).map_err(|e| e.to_string())?;
-    fs::write(keep.join(format!("{name}.{tag}.stderr.txt")), &r.stderr).map_err(|e| e.to_string())?;
+    fs::write(keep.join(format!("{name}.rust.stream.txt")), &stream).map_err(|e| e.to_string())?;
+    fs::write(keep.join(format!("{name}.rust.stdout.txt")), &r.stdout).map_err(|e| e.to_string())?;
+    fs::write(keep.join(format!("{name}.rust.stderr.txt")), &r.stderr).map_err(|e| e.to_string())?;
     let status = r.status();
     Ok(OracleRun {
         stream,
@@ -1206,7 +1091,7 @@ fn run_oracle(x: &Ctx<'_>, side: Side, prepped: &Path, name: &str, tag: &str) ->
     })
 }
 
-/// The script without its frame-sender steps (`oracle-prep`, a fixture of both sides), and what it dropped.
+/// The script without its frame-sender steps (`oracle-prep`, a fixture), and what it dropped.
 fn oracle_prep(x: &Ctx<'_>, script: &Path, name: &str) -> Result<(PathBuf, String), String> {
     let prepped = x.out_dir("oracle")?.join(format!("{name}.json"));
     let prep = Command::new(x.fixture("bin/oracle-prep"))
@@ -1235,70 +1120,45 @@ fn oracle_part(x: &mut Ctx<'_>) -> Result<(), String> {
     let mut equal = Vec::new();
     let mut rows = Vec::new();
     let mut kinds: BTreeMap<&'static str, usize> = BTreeMap::new();
-    // against a golden: its scripts are the directory's
-    if let Some(g) = &x.golden {
-        let (have, want): (Vec<String>, Vec<String>) = (
-            g.oracle.scripts.iter().map(|s| s.name.clone()).collect(),
-            scripts.iter().map(|p| stem(p)).collect(),
-        );
-        if have != want {
-            return Err(format!(
-                "the golden's oracle scripts {have:?} are not the directory's {want:?}"
-            ));
-        }
+    // its scripts are the directory's
+    let (have, want): (Vec<String>, Vec<String>) = (
+        x.golden.oracle.scripts.iter().map(|s| s.name.clone()).collect(),
+        scripts.iter().map(|p| stem(p)).collect(),
+    );
+    if have != want {
+        return Err(format!(
+            "the golden's oracle scripts {have:?} are not the directory's {want:?}"
+        ));
     }
     for script in &scripts {
         let name = stem(script);
         let (prepped, skipped) = oracle_prep(x, script, &name)?;
-        let gold = x.golden.as_ref().and_then(|g| g.oracle.script(&name)).cloned();
-        let live = if gold.is_some() {
-            None
-        } else {
-            Some(run_oracle(x, Side::Cpp, &prepped, &name, "cpp")?)
-        };
-        let mut rust = run_oracle(x, Side::Rust, &prepped, &name, "rust")?;
-        if let (true, Some(cpp)) = (x.cfg.repeat_reference, &live) {
-            let again = run_oracle(x, Side::Cpp, &prepped, &name, "cpp-again")?;
-            if oracle::steps(&again.stream) != oracle::steps(&cpp.stream)
-                || oracle::stdout(&again.stdout) != oracle::stdout(&cpp.stdout)
-            {
-                x.redden(format!(
-                    "oracle {name}: the C++ reference is not deterministic (two runs differ)"
-                ));
-            }
-        }
+        let g = x
+            .golden
+            .oracle
+            .script(&name)
+            .cloned()
+            .ok_or_else(|| format!("oracle {name}: not in the golden"))?;
+        let mut rust = run_oracle(x, &prepped, &name)?;
         // the reference: its steps, its answers, how it ended
-        let (cs, co, ce, cpp_status): (Vec<RefUnit>, Vec<String>, Vec<String>, String) = match (&live, &gold) {
-            (Some(cpp), _) => {
-                let (co, ce) = oracle::stdout(&cpp.stdout);
-                (
-                    oracle::steps(&cpp.stream).iter().map(RefUnit::live).collect(),
-                    co,
-                    ce,
-                    cpp.status.clone(),
-                )
-            }
-            (None, Some(g)) => {
-                let input = sha256::hex(read(script)?.as_bytes());
-                if input != g.input {
-                    x.redden(format!(
-                        "oracle {name}: the script's sha256 {input} is not the golden's input digest {}",
-                        g.input
-                    ));
-                }
-                if skipped != g.skipped {
-                    x.redden(format!(
-                        "oracle {name}: oracle-prep says '{skipped}', the golden was captured with '{}'",
-                        g.skipped
-                    ));
-                }
-                // the golden's streams are normalised (work and fixtures directories, store paths)
-                rust.stream = x.norm.text(&rust.stream);
-                rust.stdout = x.norm.text(&rust.stdout);
-                (g.steps.clone(), g.out.clone(), g.events.clone(), g.status.clone())
-            }
-            (None, None) => return Err(format!("oracle {name}: neither a C++ run nor a golden")),
-        };
+        let input = sha256::hex(read(script)?.as_bytes());
+        if input != g.input {
+            x.redden(format!(
+                "oracle {name}: the script's sha256 {input} is not the golden's input digest {}",
+                g.input
+            ));
+        }
+        if skipped != g.skipped {
+            x.redden(format!(
+                "oracle {name}: oracle-prep says '{skipped}', the golden was captured with '{}'",
+                g.skipped
+            ));
+        }
+        // the golden's streams are normalised (work and fixtures directories, store paths)
+        rust.stream = x.norm.text(&rust.stream);
+        rust.stdout = x.norm.text(&rust.stdout);
+        let (cs, co, ce, cpp_status): (Vec<RefUnit>, Vec<String>, Vec<String>, String) =
+            (g.steps.clone(), g.out.clone(), g.events.clone(), g.status.clone());
         let rs = oracle::steps(&rust.stream);
         let (ro, re) = oracle::stdout(&rust.stdout);
         let n = cs.len().max(rs.len());
@@ -1379,12 +1239,7 @@ fn oracle_part(x: &mut Ctx<'_>) -> Result<(), String> {
     }
     let k: Vec<String> = kinds.iter().map(|(k, n)| format!("{n} {k}")).collect();
     x.line(format!(
-        "== oracle scripts (oracle/scripts through sai-script {}, SAI steps only): {} scripts: {}",
-        if x.golden.is_some() {
-            "on the Rust libsai, the C++ side as the golden captured"
-        } else {
-            "on both libsais"
-        },
+        "== oracle scripts (oracle/scripts through the Rust sai-script --cpp-names on the Rust libsai, the C++ side as the golden captured, SAI steps only): {} scripts: {}",
         scripts.len(),
         k.join(", ")
     ));
@@ -1410,15 +1265,6 @@ fn oracle_part(x: &mut Ctx<'_>) -> Result<(), String> {
     Ok(())
 }
 
-// ============================================================== the golden: capture and check
-
-/// The three golden files' records of one capture.
-struct Rendered {
-    ifcs: String,
-    driver: String,
-    oracle: String,
-}
-
 /// The Teralynx driver scripts (01-09) of a directory that also holds the AS7772's (10, 11).
 fn teralynx_driver_scripts(dir: &Path) -> Result<Vec<PathBuf>, String> {
     Ok(ops_files(dir, "ops")?
@@ -1427,162 +1273,18 @@ fn teralynx_driver_scripts(dir: &Path) -> Result<Vec<PathBuf>, String> {
         .collect())
 }
 
-/// Runs the C++ side of every part once and renders what a golden keeps of it (normalised: [`Norm`]).
-fn capture_once(x: &Ctx<'_>) -> Result<Rendered, String> {
-    // test_ifcs: it must pass everything, and the tap must end as the mock's own log
-    let r = run_test_ifcs(x, Side::Cpp, "cpp")?;
-    let failed: u32 = r.counts.iter().map(|c| c.failed).sum();
-    if failed > 0 || r.counts.iter().any(|c| c.incomplete) || r.code_bad() {
-        return Err(format!(
-            "the C++ reference does not pass test_ifcs ({failed} failed, {})",
-            r.status
-        ));
-    }
-    if dump_tail(&r) == 0 {
-        return Err("tap check: the stream does not end as the mock's own log (the tap misses lines)".to_owned());
-    }
-    let tap = x.norm.text(&r.tap);
-    let ifcs = golden::IfcsGolden::capture(
-        &r.status,
-        r.stdout.lines().last().unwrap_or(""),
-        bytes_lines(&tap).len(),
-        &r.counts,
-        &stream::sections(&tap),
-    )
-    .render();
-    // the driver scripts
-    let mut drv = golden::DriverGolden::default();
-    for script in teralynx_driver_scripts(&x.cfg.driver_scripts)? {
-        let name = stem(&script);
-        let (stdout, status, tap) = run_driver(x, Side::Cpp, &script, "cpp")?;
-        if status != "exit 0" {
-            return Err(format!("driver {name}: the C++ reference run ended {status}"));
-        }
-        drv.scripts.push(golden::DriverScript::capture(
-            &name,
-            &status,
-            &sha256::hex(read(&script)?.as_bytes()),
-            &x.norm.text(&stdout),
-            &bytes_lines(&x.norm.text(&tap)),
-        ));
-    }
-    // the oracle scripts
-    let dir = x
-        .cfg
-        .oracle_scripts
-        .clone()
-        .ok_or_else(|| "the golden needs --oracle-scripts".to_owned())?;
-    let mut orc = golden::OracleGolden::default();
-    for script in ops_files(&dir, "json")? {
-        let name = stem(&script);
-        let (prepped, skipped) = oracle_prep(x, &script, &name)?;
-        let run = run_oracle(x, Side::Cpp, &prepped, &name, "cpp")?;
-        if !run.status.starts_with("exit ") {
-            return Err(format!("oracle {name}: the C++ reference run ended {}", run.status));
-        }
-        let (out, events) = oracle::stdout(&x.norm.text(&run.stdout));
-        orc.scripts.push(golden::OracleScript {
-            name,
-            status: run.status,
-            input: sha256::hex(read(&script)?.as_bytes()),
-            skipped,
-            steps: oracle::steps(&x.norm.text(&run.stream))
-                .iter()
-                .map(RefUnit::kept)
-                .collect(),
-            out,
-            events,
-        });
-    }
-    Ok(Rendered {
-        ifcs,
-        driver: drv.render(),
-        oracle: orc.render(),
-    })
-}
-
-/// [`Mode::Capture`] and [`Mode::CheckGolden`]: the live C++ side, twice (it must be deterministic),
-/// written as the golden files' records, or required equal to the golden's.
-fn golden_cpp(x: &mut Ctx<'_>) -> Result<Outcome, String> {
-    let cfg = x.cfg;
-    let dir = cfg
-        .golden
-        .clone()
-        .ok_or_else(|| "--capture / --check-golden DIR is required".to_owned())?;
-    x.line(format!(
-        "sai-teralynx parity golden ({}): C++ {}",
-        if cfg.mode == Mode::Capture { "capture" } else { "check" },
-        cfg.cpp_lib.display()
-    ));
-    x.lib_dir(Side::Cpp)?;
-    let first = capture_once(x)?;
-    if cfg.repeat_reference {
-        let second = capture_once(x)?;
-        for (part, a, b) in [
-            ("test_ifcs", &first.ifcs, &second.ifcs),
-            ("driver", &first.driver, &second.driver),
-            ("oracle", &first.oracle, &second.oracle),
-        ] {
-            if let Some(d) = golden::first_line_difference(a, b) {
-                return Err(format!("the C++ reference's {part} run is not deterministic: {d}"));
-            }
-        }
-        x.line("   reference repeatable: a second C++ run rendered the same records");
-    }
-    let files = [
-        (golden::IFCS_FILE, &first.ifcs),
-        (golden::DRIVER_FILE, &first.driver),
-        (golden::ORACLE_FILE, &first.oracle),
-    ];
-    if cfg.mode == Mode::Capture {
-        fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
-        for (f, text) in files {
-            let p = dir.join(f);
-            fs::write(&p, text).map_err(|e| format!("{}: {e}", p.display()))?;
-            x.line(format!(
-                "   wrote {} ({} records, {} bytes)",
-                p.display(),
-                text.lines().count(),
-                text.len()
-            ));
-        }
-    } else {
-        for (f, text) in files {
-            let want = golden::data_lines(&read(&dir.join(f))?);
-            match golden::first_line_difference(&want, text) {
-                None => x.line(format!(
-                    "   {f}: the live C++ renders to the golden's {} records, byte for byte",
-                    text.lines().count()
-                )),
-                Some(d) => x.redden(format!("{f}: the live C++ is not the golden: {d}")),
-            }
-        }
-    }
-    let verdict = if x.red.is_empty() {
-        "GREEN".to_owned()
-    } else {
-        format!("RED ({} items)", x.red.len())
-    };
-    x.line(format!("== verdict: {verdict}"));
-    Ok(Outcome {
-        report: std::mem::take(&mut x.out),
-        red: std::mem::take(&mut x.red),
-        gate: None,
-    })
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     fn cfg(strict: bool) -> Config {
         Config {
-            mode: Mode::Live,
-            golden: None,
+            golden: PathBuf::new(),
             fixtures: PathBuf::new(),
             work: PathBuf::new(),
-            cpp_lib: PathBuf::new(),
             rust_lib: PathBuf::new(),
+            sai_script: PathBuf::new(),
+            test_ifcs: PathBuf::new(),
             areas: PathBuf::new(),
             expected: PathBuf::new(),
             allow: PathBuf::new(),
@@ -1593,8 +1295,6 @@ mod tests {
             parts: BTreeSet::new(),
             only: Vec::new(),
             mutate: None,
-            repeat_reference: false,
-            bytes: false,
             timeout: Duration::from_secs(1),
         }
     }
@@ -1611,7 +1311,17 @@ mod tests {
             allow_used: Vec::new(),
             pend: lists::parse_pending("01-x\t^switch\tl2\tthe aging time\n01-x\t^get\tqos\tnot pending\n").unwrap(),
             pend_used: Vec::new(),
-            golden: None,
+            golden: Golden {
+                ifcs: golden::IfcsGolden {
+                    status: String::new(),
+                    stdout_last: String::new(),
+                    bytes: 0,
+                    counts: Vec::new(),
+                    sections: Vec::new(),
+                },
+                driver: golden::DriverGolden::default(),
+                oracle: golden::OracleGolden::default(),
+            },
             norm: Norm::default(),
             out: String::new(),
             detail: String::new(),
@@ -1652,24 +1362,39 @@ mod tests {
     }
 
     #[test]
-    fn the_tap_check_counts_the_dump_at_the_streams_end() {
-        let run = |tap: &str, stderr: &str| IfcsRun {
-            tap: tap.to_owned(),
-            counts: Vec::new(),
-            stdout: String::new(),
-            stderr: stderr.to_owned(),
-            status: "exit 0".to_owned(),
-        };
-        let tap = "a\n@@ end main\nb\nc\n@@ begin switch_remove\nd\n";
-        assert_eq!(dump_tail(&run(tap, "noise\nb\nc\n")), 2);
-        assert_eq!(dump_tail(&run(tap, "c\nb\n")), 0);
-        assert_eq!(dump_tail(&run(tap, "b\nc\n--- mock log at failure ---\nzzz\n")), 2);
-    }
-
-    #[test]
     fn parts_by_name() {
         assert_eq!(Part::parse("oracle"), Some(Part::Oracle));
         assert_eq!(Part::parse("x"), None);
         assert!(Part::ALL.iter().all(|p| Part::parse(p.name()) == Some(*p)));
+    }
+
+    #[test]
+    fn a_part_without_its_program_is_an_error_not_a_skip() {
+        let dir = std::env::temp_dir().join(format!("parity-fx-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        fs::create_dir_all(dir.join("bin")).unwrap();
+        let mut c = cfg(true);
+        c.fixtures = dir.clone();
+        c.test_ifcs = dir.join("ifcs_e2e");
+        c.sai_script = dir.join("sai-script");
+        let x = ctx(&c);
+        for (part, needs) in [
+            (Part::Driver, "tl-frontend-driver"),
+            (Part::Checks, "--test-ifcs"),
+            (Part::Sections, "--test-ifcs"),
+            (Part::Oracle, "--sai-script"),
+        ] {
+            let e = x.program(part).unwrap_err();
+            assert!(
+                e.contains(&format!("the {} part needs", part.name())) && e.contains(needs),
+                "{e}"
+            );
+        }
+        for f in ["bin/tl-frontend-driver", "ifcs_e2e", "sai-script"] {
+            fs::write(dir.join(f), "").unwrap();
+        }
+        assert!(Part::ALL.iter().all(|p| x.program(*p).is_ok()));
+        assert!(!Part::DEFAULT.contains(&Part::Driver));
+        let _ = fs::remove_dir_all(&dir);
     }
 }

@@ -1,20 +1,19 @@
-//! The Rust `libsai-teralynx-shim.so` against the C one, live: `tests/c/guard_harness.c` runs each
-//! script (the corpus in `tests/corpus` and fixed-seed generated ones) once with the C library,
-//! built here from `ai_re/nix/packages/sai-teralynx/src/{shim.c,ifcs_guard.c}` unmodified with the
-//! Makefile's flags, and once with this crate's cdylib; the two traces must be equal line for line
-//! (but for the one deliberate difference, [`compare_allowing_text_cap`]: a counters' text the C's
-//! 4096-byte buffer cannot hold is written and answered by the Rust guard; corpus
-//! `allones-overflow.txt`):
-//! every return code and value, every original-accessor call (the re-reads), every sleep, every
-//! stderr byte, every version of the counters' file, the inject file's removal, the text, the
-//! `CPython` stubs' answers and the copy loop's results. Beside the traces, per step: the Rust
-//! library allocates no more than the C one, and neither registers a thread-local destructor.
+//! The Rust `libsai-teralynx-shim.so` against the golden of the C one: `tests/c/guard_harness.c` runs
+//! each script (the corpus in `tests/corpus` and fixed-seed generated ones) with this crate's cdylib,
+//! and the trace must equal the one stored in `tests/golden/guard-traces-cpp.txt`, captured on
+//! 2026-11-26 from the C library (`shim.c` + `ifcs_guard.c`, deleted in H5 on 2026-11-27, last in the
+//! tree at commit 767d9b0), line for line but for the one deliberate difference
+//! ([`compare_allowing_text_cap`]: a counters' text the C's 4096-byte buffer cannot hold is written and
+//! answered by the Rust guard; corpus `allones-overflow.txt`): every return code and value, every
+//! original-accessor call (the re-reads), every sleep, every stderr byte, every version of the counters'
+//! file, the inject file's removal, the text, the `CPython` stubs' answers and the copy loop's results.
+//! Beside the traces, the Rust library registers no thread-local destructor.
 //!
-//! Inputs: `IFCS_SHIM_C_SRC` (the directory with `shim.c` / `ifcs_guard.c`; default: the
-//! monorepo's), `CC` (default `cc`), `IFCS_SHIM_LIB` (the Rust library; default: the cdylib of
-//! this test build). Without the C sources or a compiler the test skips with a line, unless
-//! `IFCS_SHIM_DIFF_REQUIRE=1` (`nix/ifcs-shim.nix`): then it fails. `IFCS_SHIM_DIFF_DUMP=<dir>` copies every
-//! script there (the aarch64 run of `nix/ifcs-shim.nix` replays them under emulation).
+//! The golden is frozen: it is never regenerated, and there is no live C side any more. Inputs: `CC` (default
+//! `cc`, compiles the harness), `IFCS_SHIM_LIB` (the Rust library; default: the cdylib of this build, which a
+//! plain `cargo test` does not build: then the comparison says SKIPPED; nix/ifcs-shim.nix always passes it).
+//! `IFCS_SHIM_DIFF_DUMP=<dir>` copies every script there (the aarch64 run of `nix/ifcs-shim.nix`
+//! replays them under emulation).
 #![allow(
     clippy::unwrap_used,
     clippy::expect_used,
@@ -27,23 +26,6 @@
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
-
-fn required() -> bool {
-    std::env::var("IFCS_SHIM_DIFF_REQUIRE").is_ok_and(|v| v == "1")
-}
-
-fn skip(why: &str) {
-    assert!(!required(), "ifcs-shim differential required but: {why}");
-    eprintln!("ifcs-shim differential: SKIPPED ({why})");
-}
-
-fn c_src() -> Option<PathBuf> {
-    let dir = std::env::var_os("IFCS_SHIM_C_SRC").map_or_else(
-        || Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../../ai_re/nix/packages/sai-teralynx/src"),
-        PathBuf::from,
-    );
-    (dir.join("ifcs_guard.c").is_file() && dir.join("shim.c").is_file()).then_some(dir)
-}
 
 fn rust_lib() -> Option<PathBuf> {
     if let Some(lib) = std::env::var_os("IFCS_SHIM_LIB") {
@@ -440,22 +422,6 @@ fn parse_golden(text: &str) -> Vec<Entry> {
     out
 }
 
-fn entry_text(name: &str, input: &str, trace: &str, full: bool) -> String {
-    let mut s = format!(
-        "script {name} input {:016x} lines {} bytes {} fnv64 {:016x}\n",
-        fnv(input.as_bytes(), 0xcbf2_9ce4_8422_2325),
-        trace.lines().count(),
-        trace.len(),
-        fnv(trace.as_bytes(), 0xcbf2_9ce4_8422_2325)
-    );
-    if full {
-        for l in trace.lines() {
-            let _ = writeln!(s, "|{l}");
-        }
-    }
-    s
-}
-
 fn same_trace(e: &Entry, trace: &str) -> bool {
     e.lines == trace.lines().count()
         && e.bytes == trace.len()
@@ -472,23 +438,6 @@ fn entry_for<'a>(golden: &'a [Entry], name: &str, input: &str) -> Result<&'a Ent
         Ok(e)
     } else {
         Err(format!("{name}: the script differs from the golden's input digest"))
-    }
-}
-
-/// The C library's live trace against the golden: equal in every byte (digest, and the full text
-/// where stored).
-fn golden_equals_c(e: &Entry, trace: &str) -> Result<(), String> {
-    if !same_trace(e, trace) {
-        return Err(format!(
-            "{}: the C trace differs from the golden (size or digest)",
-            e.name
-        ));
-    }
-    match &e.full {
-        Some(f) if f.iter().map(String::as_str).ne(trace.lines()) => {
-            Err(format!("{}: the C trace differs from the golden's text", e.name))
-        }
-        _ => Ok(()),
     }
 }
 
@@ -513,7 +462,10 @@ fn golden_vs_rust(e: &Entry, trace: &str) -> Result<usize, String> {
 #[test]
 fn rust_shim_equals_the_golden_of_the_c_guard() {
     let Some(rust) = rust_lib() else {
-        return skip("no Rust libsai_teralynx_shim.so (IFCS_SHIM_LIB)");
+        eprintln!(
+            "ifcs-shim golden: SKIPPED: no Rust libsai_teralynx_shim.so (IFCS_SHIM_LIB, or `cargo build -p ifcs-shim` first)"
+        );
+        return;
     };
     let dir = std::env::temp_dir().join(format!("ifcs-shim-gold-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
@@ -524,6 +476,19 @@ fn rust_shim_equals_the_golden_of_the_c_guard() {
     for (name, path) in &scripts {
         let e = entry_for(&golden, name, &std::fs::read_to_string(path).unwrap()).unwrap();
         let r = run(&harness, &rust, path, &dir.join("work-rust"));
+        assert!(r.trace.contains("\nend: "), "{name}: no end line");
+        assert!(
+            !r.trace.contains("NOT in do_malloc")
+                && !r.trace.contains("NOT ZEROED")
+                && !r.trace.contains("WRONG")
+                && !r.trace.contains("OTHER"),
+            "{name}: a harness check failed:\n{}",
+            r.trace
+        );
+        assert!(
+            r.allocs.iter().all(|(_, _, tls)| *tls == 0),
+            "{name}: a thread-local destructor was registered"
+        );
         allowed += golden_vs_rust(e, &r.trace).unwrap();
         full += usize::from(e.full.is_some());
     }
@@ -546,11 +511,10 @@ fn the_guard_golden_comparison_reports_a_changed_golden() {
         .find(|e| e.full.is_some())
         .expect("a script with stored text");
     let trace = with_text.full.as_ref().unwrap().join("\n") + "\n";
-    assert!(golden_equals_c(with_text, &trace).is_ok(), "the golden equals itself");
+    assert!(golden_vs_rust(with_text, &trace).is_ok(), "the golden equals itself");
     // one byte of the trace changed
     let bad = trace.replacen("rc ", "rd ", 1).replacen("end: ", "enD: ", 1);
     assert_ne!(bad, trace);
-    assert!(golden_equals_c(with_text, &bad).is_err());
     assert!(golden_vs_rust(with_text, &bad).is_err());
     // a changed digest in the golden
     let plain = golden.iter().find(|e| e.full.is_none()).unwrap();
@@ -570,165 +534,3 @@ fn the_guard_golden_comparison_reports_a_changed_golden() {
 
 /// The lines of the one deliberate difference in the whole corpus (see the golden's header).
 const ALLOWED_LINES: usize = 6;
-
-#[test]
-fn rust_shim_equals_the_c_shim() {
-    let Some(src) = c_src() else {
-        return skip("no ifcs_guard.c / shim.c (IFCS_SHIM_C_SRC)");
-    };
-    let Some(rust) = rust_lib() else {
-        return skip("no Rust libsai_teralynx_shim.so (IFCS_SHIM_LIB)");
-    };
-    let dir = std::env::temp_dir().join(format!("ifcs-shim-diff-{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let c_lib = dir.join("c/libsai-teralynx-shim.so");
-    std::fs::create_dir_all(c_lib.parent().unwrap()).unwrap();
-    // exactly the Makefile's rule for build/libsai-teralynx-shim.so (CFLAGS -O2 -g)
-    let built = cc(&[
-        "-std=gnu11",
-        "-fPIC",
-        "-shared",
-        "-Wall",
-        "-fno-builtin",
-        "-fno-tree-loop-distribute-patterns",
-        "-O2",
-        "-g",
-        "-Wl,-soname,libsai-teralynx-shim.so",
-        "-o",
-    ]
-    .map(std::ffi::OsStr::new)
-    .iter()
-    .copied()
-    .chain([
-        c_lib.as_os_str(),
-        src.join("shim.c").as_os_str(),
-        src.join("ifcs_guard.c").as_os_str(),
-        std::ffi::OsStr::new("-lpthread"),
-    ])
-    .collect::<Vec<_>>());
-    if !built {
-        return skip("the C shim does not compile (CC)");
-    }
-    let (harness, scripts) = harness_and_scripts(&dir);
-
-    let (mut steps, mut lines, mut logs, mut proms, mut reads) = (0_usize, 0_usize, 0_usize, 0_usize, 0_usize);
-    let mut allowed = 0_usize;
-    let (mut alloc_c, mut alloc_r, mut tls) = (0_u64, 0_u64, 0_u64);
-    let mut failures = Vec::new();
-    let golden = parse_golden(GOLDEN);
-    let capture = std::env::var_os("IFCS_SHIM_CAPTURE").map(PathBuf::from);
-    assert!(
-        capture.is_some() || golden.len() == scripts.len(),
-        "the golden covers every script"
-    );
-    let capture_all = std::env::var_os("IFCS_SHIM_CAPTURE_ALL").is_some();
-    let mut captured = String::new();
-    let mut golden_allowed = 0;
-    for (name, path) in &scripts {
-        let c = run(&harness, &c_lib, path, &dir.join("work-c"));
-        let r = run(&harness, &rust, path, &dir.join("work-rust"));
-        let input = std::fs::read_to_string(path).unwrap();
-        if capture.is_some() {
-            // the C trace only; the text is kept for the corpus and where the Rust trace differs
-            captured += &entry_text(
-                name,
-                &input,
-                &c.trace,
-                capture_all || !name.starts_with("gen-") || c.trace != r.trace,
-            );
-        }
-        // live == golden: the C library's trace equals the golden, and the Rust one agrees with it
-        if capture.is_none() {
-            let entry = entry_for(&golden, name, &input).unwrap();
-            golden_equals_c(entry, &c.trace).unwrap();
-            golden_allowed += golden_vs_rust(entry, &r.trace).unwrap();
-        }
-        if c.trace != r.trace {
-            let (cl, rl): (Vec<&str>, Vec<&str>) = (c.trace.lines().collect(), r.trace.lines().collect());
-            match compare_allowing_text_cap(&cl, &rl) {
-                Ok(n) => allowed += n,
-                Err((k, j)) => {
-                    let ctx =
-                        |v: &[&str], k: usize| v[k.saturating_sub(3).min(v.len())..(k + 3).min(v.len())].join("\n");
-                    failures.push(format!(
-                        "{name}: traces differ at line {} (C) / {} (Rust)\n--- C\n{}\n--- Rust\n{}",
-                        k + 1,
-                        j + 1,
-                        ctx(&cl, k),
-                        ctx(&rl, j)
-                    ));
-                    continue;
-                }
-            }
-        }
-        assert!(c.trace.contains("\nend: "), "{name}: no end line");
-        steps += c
-            .trace
-            .lines()
-            .filter(|l| !l.starts_with("  ") && !l.starts_with("end:"))
-            .count();
-        lines += c.trace.lines().count();
-        logs += c
-            .trace
-            .lines()
-            .filter(|l| l.starts_with("  log "))
-            .map(|l| l.matches("\\n").count())
-            .sum::<usize>();
-        proms += c.trace.lines().filter(|l| l.starts_with("  prom ")).count();
-        reads += c
-            .trace
-            .lines()
-            .filter(|l| l.starts_with("  calls "))
-            .map(|l| l.matches(" R").count() + usize::from(l.starts_with("  calls R")))
-            .sum::<usize>();
-        assert!(
-            !c.trace.contains("NOT in do_malloc")
-                && !c.trace.contains("NOT ZEROED")
-                && !c.trace.contains("WRONG")
-                && !c.trace.contains("OTHER"),
-            "{name}: a harness check failed:\n{}",
-            c.trace
-        );
-        assert_eq!(c.allocs.len(), r.allocs.len(), "{name}");
-        for ((op, ca, ct), (_, ra, rt)) in c.allocs.iter().zip(&r.allocs) {
-            // init copies the inject variable (std::env::var_os; the C's getenv does not copy): the
-            // one place the Rust allocates more, once per create_switch. Writing the counters' file,
-            // the C's fopen allocates its FILE and std::fs nothing.
-            if ra > ca && op != "init" {
-                failures.push(format!("{name}: a {op} step allocated {ra} times in Rust, {ca} in C"));
-            }
-            alloc_c += ca;
-            alloc_r += ra;
-            tls += ct + rt;
-        }
-    }
-    assert!(
-        failures.is_empty(),
-        "{} of {} scripts differ:\n{}",
-        failures.len(),
-        scripts.len(),
-        failures.join("\n\n")
-    );
-    assert_eq!(tls, 0, "a thread-local destructor was registered");
-    if let Some(out) = capture {
-        std::fs::write(out, captured).unwrap();
-    } else {
-        assert_eq!(golden_allowed, ALLOWED_LINES, "the golden's allowed lines");
-        eprintln!(
-            "ifcs-shim live == golden: {} C traces equal the golden, the Rust ones agree with it ({golden_allowed} allowed lines)",
-            scripts.len()
-        );
-    }
-    eprintln!(
-        "ifcs-shim differential: {allowed} trace lines differ by the one deliberate difference (counters' text of at least \
-         {C_TEXT_CAP} bytes: written / answered by Rust, not by the C)"
-    );
-    eprintln!(
-        "ifcs-shim differential: {} scripts ({} corpus + {GENERATED} generated), {steps} steps, {lines} trace lines equal \
-         ({reads} original-accessor reads, {logs} journal lines, {proms} file versions); allocations in steps: C {alloc_c}, \
-         Rust {alloc_r}; thread-local destructors registered: 0",
-        scripts.len(),
-        scripts.len() - usize::try_from(GENERATED).unwrap()
-    );
-    let _ = std::fs::remove_dir_all(&dir);
-}

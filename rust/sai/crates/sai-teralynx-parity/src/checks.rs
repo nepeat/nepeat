@@ -1,5 +1,7 @@
-//! `test_ifcs`'s checks per section (`c/sections.cpp`'s counts file) and its FAIL lines: the gate
-//! value "Rust passes N of M" (M: the C++ reference's checks), every failure with its area.
+//! `test_ifcs`'s checks per section (the counts file `PARITY_COUNTS_FILE` of the program that runs them:
+//! `section <name> checks <n> failed <n>[ incomplete]` per line; the C++ `c/sections.cpp` wrote it, deleted in H5)
+//! and its FAIL lines: the gate value "Rust passes N of M" (M: the golden C++ reference's checks), every
+//! failure with its area.
 #![forbid(unsafe_code)]
 
 use crate::areas::Fail;

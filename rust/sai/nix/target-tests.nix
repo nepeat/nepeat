@@ -12,11 +12,9 @@
 #                         package ships (the C harness runs against both)
 #   bin/harness           crates/sai-ffi/tests/harness.c, built with the target's C compiler
 #   bin/...               the workspace's own binaries as the tests build them (the MDIO tool on
-#                         the Rust fake of the glue, the phy-seq tools) and C/C++ helpers crates prebuilt
-#                         in their build scripts (OUT_DIR/target-tests): the frozen C++ frontend's
-#                         drivers and C client the Rust ones are compared with live (with the
-#                         package's cppFrontendSrc); the comparisons with deleted C / C++ are
-#                         goldens compiled into the test executables
+#                         the Rust fake of the glue, the phy-seq tools) and C helpers crates prebuilt
+#                         in their build scripts (OUT_DIR/target-tests); the comparisons with the
+#                         deleted C / C++ are goldens compiled into the test executables
 #   sysroot/              the target's loader, libc, libgcc_s: the bundle runs on a machine
 #                         whose own glibc is another version or lives elsewhere
 #                         (run.sh probes each helper by starting it without arguments: a helper
@@ -67,7 +65,6 @@ let
         cp -L ${stdenv.cc.libc}/lib/$l $out/sysroot/
       done
       cp -L $(${cc} -print-file-name=libgcc_s.so.1) $out/sysroot/
-      cp -L $(${cc} -print-file-name=libstdc++.so.6) $out/sysroot/   # C++ helpers (sai-macsec's driver)
       cp ${./target-tests-run.sh} $out/run.sh
       chmod +x $out/run.sh
       ls $out/tests | sed 's/-[0-9a-f]*$//' | sort > $out/SUITES

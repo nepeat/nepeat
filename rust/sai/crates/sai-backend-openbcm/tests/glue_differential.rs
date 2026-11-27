@@ -72,14 +72,10 @@ const IN_TREE: [(&str, &str); 3] = [
     ),
     ("12-glue-extras", include_str!("glue-scripts/12-glue-extras.ops")),
 ];
-/// Where scripts 01-09 live now (they moved with sai-openbcm's frontend tests), relative to this
-/// crate's directory in a checkout of the monorepo; compared with the golden when there.
-/// (H5-1: they moved to sai-driver's `tests/driver-scripts`, unchanged; the frontend's copy stays until
-/// the C++ package is deleted.)
-const MOVED: [&str; 2] = [
-    "../sai-driver/tests/driver-scripts",
-    "../../../../ai_re/nix/packages/sai-teralynx/frontend/tests/driver-scripts",
-];
+/// Where scripts 01-09 live (H5-1: they moved from the C++ frontend's tests to sai-driver's
+/// `tests/driver-scripts`, unchanged; the C++ frontend was deleted in H5 on 2026-11-27), relative to this
+/// crate's directory; compared with the golden, and a missing directory fails.
+const MOVED: [&str; 1] = ["../sai-driver/tests/driver-scripts"];
 /// The table files of the golden inputs and the script token each replaces.
 const TABLES: [(&str, &str); 2] = [
     ("ext-phy.tbl", "@EXT_PHY_TABLE@"),
@@ -334,6 +330,11 @@ fn scripts_unchanged(scripts: &[Script]) -> (String, String) {
     for rel in MOVED {
         let dir = manifest.join(rel);
         if !dir.is_dir() {
+            let _ = writeln!(
+                failures,
+                "script changed since the golden: the moved 01-09 are not in {}",
+                dir.display()
+            );
             continue;
         }
         moved_found += 1;
@@ -365,15 +366,8 @@ fn scripts_unchanged(scripts: &[Script]) -> (String, String) {
             }
         }
     }
-    let note = format!(
-        "{} script copies equal to the golden's{}",
-        checked.len(),
-        if moved_found == 0 {
-            " (the moved 01-09 not found beside this tree: not checked)"
-        } else {
-            ""
-        }
-    );
+    assert!(moved_found > 0, "the moved scripts 01-09 were not checked");
+    let note = format!("{} script copies equal to the golden's", checked.len());
     (failures, note)
 }
 

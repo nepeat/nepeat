@@ -1,24 +1,10 @@
-//! Two jobs:
-//!
-//! 1. The enumerator name table (`$OUT_DIR/names.rs`): every enumerator of every
-//!    `typedef enum _sai_<x>_t { ... } sai_<x>_t;` block of `$SAI_INC/sai*.h`, in header order,
-//!    as `(type, name, value)`. It is what `tests/driver_names.awk` gives the C++ driver
-//!    (`E(T, N)`); the values are `sai-sys` constants, so the numbers are the C compiler's.
-//! 2. For a cross build (or `SAI_DRIVER_PREBUILD=1`): the C++ `frontend_driver` built for the
-//!    target into `$OUT_DIR/target-tests/sai-cpp-frontend-driver`, with the op scripts and the
-//!    allow-list beside it in `target-tests/sai-driver/` (README "Big-endian runs": no compiler
-//!    at run time; the test finds them through `$SAI_RS_TEST_BIN`). Never with
-//!    `SAI_DRIVER_PREBUILD=0`; a native test run compiles the driver itself.
-//!
-//! Inputs of 2: `SAI_OPENBCM_TESTS` (the frozen C++ frontend's `tests` directory,
-//! `ai_re/nix/packages/sai-teralynx/frontend/tests`) or `$SAI_OPENBCM_SRC/../tests`,
-//! `SAI_OPENBCM_SRC` (else `<tests>/../src`), `SAI_INC`, and the target's compilers:
-//! `SAI_DRIVER_CXX` / `SAI_DRIVER_CC`, else derived from `SAI_SYS_ABI_CC`, else (native) `CXX` / `CC`.
+//! The enumerator name table (`$OUT_DIR/names.rs`): every enumerator of every
+//! `typedef enum _sai_<x>_t { ... } sai_<x>_t;` block of `$SAI_INC/sai*.h`, in header order,
+//! as `(type, name, value)` (the scan the C++ driver's `driver_names.awk` did; the awk was in the C++
+//! frontend, deleted in H5 on 2026-11-27); the values are `sai-sys` constants, so the numbers are the C
+//! compiler's.
 // A build script reports a failure by panicking with a message.
 #![allow(clippy::expect_used, clippy::panic, clippy::too_many_lines)]
-
-#[path = "src/cpp_build.rs"]
-mod cpp_build;
 
 use std::env;
 use std::fmt::Write as _;
@@ -37,7 +23,7 @@ fn names(inc: &Path, out: &Path) {
                     .is_some_and(|n| n.starts_with("sai"))
         })
         .collect();
-    // the shell's glob order (the awk reads `$(SAI_INC)/sai*.h`)
+    // the shell's glob order (what the awk's `$(SAI_INC)/sai*.h` was)
     headers.sort();
     let mut table = String::from("&[\n");
     let mut count = 0usize;
@@ -87,18 +73,9 @@ fn names(inc: &Path, out: &Path) {
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=src/cpp_build.rs");
     // DEP_SAI_HEADERS_INCLUDE: exported by sai-sys's build script (links = "sai-headers").
     let inc = PathBuf::from(env::var_os("DEP_SAI_HEADERS_INCLUDE").expect("sai-sys exports the header directory"));
     println!("cargo:rerun-if-changed={}", inc.display());
     let out = PathBuf::from(env::var_os("OUT_DIR").expect("OUT_DIR"));
     names(&inc, &out);
-    match cpp_build::prebuild(&out) {
-        Ok(note) if note.is_empty() => {}
-        Ok(note) => println!("cargo:warning=C++ frontend driver {note}"),
-        Err(why) => {
-            eprintln!("sai-driver build.rs: SAI_DRIVER_PREBUILD is set, but: {why}");
-            std::process::exit(1);
-        }
-    }
 }

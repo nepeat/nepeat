@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
-// Differential harness of libsai-teralynx-shim.so (tests/differential.rs): runs one script of
-// register reads / writes / im_malloc calls / inject files / clock steps against ONE shim library
-// (the C one built from ai_re/nix/packages/sai-teralynx/src/{shim.c,ifcs_guard.c} unmodified, or the
-// Rust one) and prints a trace; the test runs it once per library and compares the traces.
+// Harness of libsai-teralynx-shim.so (tests/differential.rs): runs one script of
+// register reads / writes / im_malloc calls / inject files / clock steps against the shim library
+// (the Rust cdylib of crates/ifcs-shim) and prints a trace; the test compares the trace with the golden
+// tests/golden/guard-traces-cpp.txt, captured with this harness from the C library (shim.c +
+// ifcs_guard.c of the C++ sai-teralynx, deleted in H5 on 2026-11-27, last in the tree at commit 767d9b0).
 //
 //   guard_harness <libsai-teralynx-shim.so> <script> <work dir>
 //
@@ -11,7 +12,7 @@
 // libraries see the script's clock and their sleeps are recorded (and advance the clock) instead of
 // slept; stderr (fd 2) is a file read back after every step; malloc / calloc / realloc / free /
 // posix_memalign / aligned_alloc / memalign and __cxa_thread_atexit_impl are counted while a step
-// runs (into <work dir>/counts.txt: the libraries may differ there, the test checks Rust <= C).
+// runs (into <work dir>/counts.txt: the test checks that the Rust library registers no thread-local destructor).
 #define _GNU_SOURCE
 #include <dlfcn.h>
 #include <errno.h>

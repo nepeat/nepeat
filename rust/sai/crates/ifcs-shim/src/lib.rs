@@ -1,5 +1,6 @@
-//! `libsai-teralynx-shim.so` in Rust: the drop-in for `ai_re/nix/packages/sai-teralynx/src/shim.c` +
-//! `ifcs_guard.c`. libsai's loader dlopens it (`RTLD_NOW | RTLD_GLOBAL`, from libsai's own directory)
+//! `libsai-teralynx-shim.so` in Rust: the drop-in for the C `shim.c` +
+//! `ifcs_guard.c` of the C++ sai-teralynx (deleted in H5 on 2026-11-27, last in the tree at commit 767d9b0;
+//! the C guard's traces are the golden of `tests/differential.rs`). libsai's loader dlopens it (`RTLD_NOW | RTLD_GLOBAL`, from libsai's own directory)
 //! before the vendor `libifcs.so` 0.12.41 and points libifcs' GOT entries at its functions:
 //!
 //! * the 19 `CPython` 2.7 functions libifcs references (its CLI hooks; without them `dlopen` fails):
@@ -12,7 +13,7 @@
 //!
 //! This crate is the rim: the exported C functions, the calls through the original accessors'
 //! pointers, the volatile copy, `calloc` / `errno` / `clock_gettime`. The exports are exactly the
-//! C library's (26 functions; nix/ifcs-shim.nix compares `nm -D`), the soname is the same, the
+//! deleted C library's (26 functions; nix/ifcs-shim.nix compares `nm -D`), the soname is the same, the
 //! stderr lines are the same text.
 //!
 //! The hot path (libifcs' learn thread calls the read wrapper about once a second, other threads

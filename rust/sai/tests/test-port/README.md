@@ -1,32 +1,31 @@
 # test-port: the C++ suite on the Rust libsai
 
 Runs the **unmodified** suite of the C++ frontend (`cpp/test_sai.cpp` + its `.inc` files and headers, frozen since
-2026-11-23, moved here from `ai_re/nix/packages/sai-teralynx/frontend/tests` by H5-1 with their bytes unchanged; the
-frontend's own copy stays there until the C++ package is deleted) against the Rust
+2026-11-23, moved here from the C++ sai-teralynx package's frozen frontend by H5-1 with their bytes unchanged; the
+frontend itself was deleted in H5, 2026-11-27: this copy is a C-ABI client kept as a fixture) against the Rust
 `libsai.so` and prints progress per section. The suite reaches a library only through the SAI C ABI and
 `test_port.h`; `test_port_rust.cpp` (here) implements that header over the library's test-only function
 `sai_rs_test_query` (crate `sai-test-port`, `sai-ffi` feature `test-port`).
 
-    SAI_INC=<dir with sai.h> ./run.sh [--strict] [--no-cpp-ref]
+    SAI_INC=<dir with sai.h> ./run.sh [--strict] [--self-test]
 
 `run.sh -h` lists the environment (`LIBSAI` = a prebuilt library instead of `cargo build -p sai-ffi --features
-test-port`, `SAI_OPENBCM_TESTS` (the frozen frontend's tests: the reference run only), `CXX`, `CXXFLAGS`, `BUILD_DIR`, `SUMMARY`, `CPP_REF`, `TEST_TIMEOUT`,
+test-port`, `CXX`, `CXXFLAGS`, `BUILD_DIR`, `SUMMARY`, `GOLDEN`, `TEST_TIMEOUT`,
 `HARNESS_STRICT`). It only reads the source tree; everything goes to `BUILD_DIR` (default: a new temp dir),
-the suite runs with `BUILD_DIR/run-<rust|cpp>` as its working directory. Exit 0 whatever the suite's result
+the suite runs with `BUILD_DIR/run-rust` as its working directory. Exit 0 whatever the suite's result
 (progress view); `--strict`: 1 on any failure, crash or non-zero test exit; 2: the harness itself failed.
 
 Build: `test_sai.o` with the C++ Makefile's flags (`-std=c++17`, its `WARN`, `CXXFLAGS`, SAI include
 dirs + `experimental`, `-Itests`) **plus `-fno-inline`** so every `test_*` function keeps a symbol; linked
-`-no-pie` with `test_port_rust.o` and the library (rpath). The C++ reference (`CPP_REF`, default: built from
-`SAI_OPENBCM_TESTS/../src` on its fake backend and `SAI_OPENBCM_TESTS/test_port_cpp.cpp`) links the **same** `test_sai.o` with `test_port_cpp.o` and that
-C++ `libsai.a`, so the comparison columns line up section by section.
+`-no-pie` with `test_port_rust.o` and the library (rpath). The comparison columns are the golden's rows (the C++
+reference run: the **same** `test_sai.o` with the C++ test port and library, until H5), section by section.
 
 ## The golden
 
 `golden/test_sai-cpp-reference.txt` holds the C++ reference run's per-section results (23 sections, 3014 / 3014),
 captured once from the C++ side (header: sha256 of the C++ sources, the command; never regenerate it from the Rust output).
-Every run compares the Rust run with it (`golden: N sections equal`, also with `CPP_REF=none`) and, when the C++
-reference is built, checks live C++ == golden. `--strict` fails on a difference; `--self-test` runs the negative
+Every run compares the Rust run with it (`golden: N sections equal`; until H5 also live C++ == golden). `--strict`
+fails on a difference; `--self-test` runs the negative
 controls (a golden with a changed number / a dropped row must differ). `GOLDEN=<file>` overrides the path.
 
 ## Sections and counting

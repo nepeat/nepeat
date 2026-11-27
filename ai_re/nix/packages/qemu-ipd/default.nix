@@ -7,9 +7,10 @@
 #        aarch64, 16-byte SSE accesses as 8-byte pairs (no LDXP/STXP)
 # Entry (x86_64-linux build host; the box binary is cross-built):
 #   import ./qemu-ipd { pkgs = import <nixpkgs> { system = "x86_64-linux"; }; }
-# ifcsHeaders: optional, `{ pkgs, saiSrc }: <the IFCS declarations of that package set>` (rust/sai/nix/ifcs-headers.nix, which
-# path:./nix cannot reach: the root git flake / tests/nixtargets.py / ifcs-oracle/run-oracle.sh pass it); without it no oracle-ours.
-{ pkgs, ifcsHeaders ? null }:
+# ifcsHeaders, saiTeralynx: optional, `{ pkgs }: <the IFCS declarations / the CS8210's SAI package of that package set>`
+# (rust/sai/nix/ifcs-headers.nix, rust/sai/nix/sai-teralynx-rs.nix, which path:./nix cannot reach:
+# tests/nixtargets.py / ifcs-oracle/run-oracle.sh pass them); without them no oracle-ours, sai-teralynx, bench-native.
+{ pkgs, ifcsHeaders ? null, saiTeralynx ? null }:
 assert pkgs.stdenv.hostPlatform.system == "x86_64-linux";
 let
   inherit (pkgs) lib;
@@ -102,8 +103,8 @@ let
     sha256 = "1xi53rlslcprybsvrmipm69ypd3g3hr7wkxvzc73ag8296yclyll";
   }) { system = "x86_64-linux"; }).doxygen;
 
-  # the comparison: our SAI (arm64, native) with the same benchmark tool
-  sai-teralynx = cross.callPackage ../sai-teralynx { sonic = import ../sonic { pkgs = cross; }; };
+  # the comparison: our SAI (arm64, native: the Rust package, rust/sai/nix/sai-teralynx-rs.nix) with the same benchmark tool
+  sai-teralynx = saiTeralynx { pkgs = cross; };
   bench-native = cross.stdenv.mkDerivation {
     pname = "sai-bench-teralynx";
     version = "1";
@@ -130,16 +131,16 @@ let
     saiInc = sai-teralynx.saiHeaders;
     saiLib = sai-teralynx;
     abi = "ifcs-0.12.41";
-    ifcsHeaders = ifcsHeaders { pkgs = cross; saiSrc = (import ../sonic { pkgs = cross; }).sources.sairedis; };
+    ifcsHeaders = ifcsHeaders { pkgs = cross; };
   };
 
   self = {
     qemu-ipd = qemuFor cross;          # for the CS8210 (aarch64 host)
     qemu-ipd-native = qemuFor pkgs;    # same patches, x86_64 host: offline tests
-  } // lib.optionalAttrs (ifcsHeaders != null) {
-    inherit oracle-ours;
+  } // lib.optionalAttrs (ifcsHeaders != null && saiTeralynx != null) {
+    inherit oracle-ours sai-teralynx bench-native;
   } // {
-    inherit isai libsai ortools-stub devmem smoke syncd syncd-202505 sai-teralynx bench-native oracle-isai;
+    inherit isai libsai ortools-stub devmem smoke syncd syncd-202505 oracle-isai;
 
     # arm64 runner: isai-qemu PROGRAM [ARGS...] (see sai-qemu.md, phase 2)
     runner = cross.writeShellScriptBin "isai-qemu" ''

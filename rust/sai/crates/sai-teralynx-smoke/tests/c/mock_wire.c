@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0
- * mock-wire: cables for the mock libifcs (ai_re/nix/packages/sai-teralynx/tests/mock, unmodified), for the
+ * mock-wire: cables for the mock libifcs (the teralynx mock, rust/sai/tests/teralynx-mock), for the
  * smoke program's test on the mock (crate sai-teralynx-smoke, tests/mock-smoke.sh). LD_PRELOADed: a thread
  * finds the mock's test hooks once the library under test has loaded it (RTLD_GLOBAL), then every 5 ms
  * looks at the admin state of the wired devports (mock_admin) and fires the mock's link scan event for

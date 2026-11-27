@@ -1,7 +1,7 @@
 //! The golden C++ side of the parity harness (README "Parity", kind "golden"): what the C++ libsai
-//! of ai_re/nix/packages/sai-teralynx gave on the mock libifcs, captured once (H5-0, `--capture`) and
-//! stored in `tests/golden/`, so the Rust side can be judged against it when the C++ is gone
-//! (`--golden DIR`, no `--cpp-lib`).
+//! of the CS8210 (the C++ sai-teralynx package, deleted in H5 on 2026-11-27, last in the tree at commit
+//! 767d9b0) gave on the mock libifcs, captured once (H5-0) and stored in `tests/golden/`, so the Rust side
+//! is judged against it (`--golden DIR`). The goldens are frozen: never regenerated, never edited.
 //!
 //! The streams are big (the oracle's alone are about 98 MB), so a golden keeps per UNIT (a
 //! `test_ifcs` section, a driver op block, an oracle step): the line count, the SHA-256 of its lines
@@ -9,15 +9,15 @@
 //! difference can be named and located. The digest decides; the head only describes. Small things
 //! are stored whole: the per-section check counts, the oracle runner's answers (its stdout without
 //! times). Every golden file begins with a `#` header (the C / C++ files with their sha256, the
-//! capture command); the records below it are what [`IfcsGolden::render`] and friends write, and
-//! `--check-golden` proves the live C++ still renders to exactly those records.
+//! capture command, by design naming the deleted sources); the records below it are what
+//! [`IfcsGolden::render`] and friends write back out (`tests/golden.rs` proves the parse is lossless).
 #![forbid(unsafe_code)]
 
 use crate::checks::Count;
 use crate::sha256::Sha256;
 use crate::stream::{self, LineDiff};
 use regex::Regex;
-use sai_driver::compare::{self, Block};
+use sai_driver::compare;
 use std::fmt::Write as _;
 use std::path::Path;
 use std::sync::LazyLock;
@@ -37,7 +37,7 @@ pub const ORACLE_FILE: &str = "oracle-cpp.txt";
 static STORE: LazyLock<Option<Regex>> = LazyLock::new(|| Regex::new(r"/nix/store/[a-z0-9]{32}-[^/ ]*").ok());
 
 /// Takes what differs between machines out of a text: the work directory, the fixtures directory and
-/// nix store paths. Applied to the C++ side at capture and to the Rust side against a golden.
+/// nix store paths. Applied to the C++ side at capture (H5-0) and to the Rust side against the golden.
 #[derive(Clone, Debug, Default)]
 pub struct Norm {
     first: (String, &'static str),
@@ -105,10 +105,11 @@ pub fn digest(lines: &[String]) -> Digest {
     }
 }
 
-/// The reference side of one unit: the C++ run's lines themselves (live) or a golden's digest.
+/// The reference side of one unit: its lines themselves (a unit without lines, a test's small expectation) or a
+/// golden's digest.
 #[derive(Clone, Debug)]
 pub enum RefLines {
-    /// The live C++ run's lines.
+    /// The lines themselves.
     Full(Vec<String>),
     /// What a golden file keeps.
     Digest(Digest),
@@ -140,8 +141,8 @@ impl RefLines {
     }
 }
 
-/// Compares the reference's lines with the Rust side's. A live reference: [`stream::diff_lines`]. A
-/// golden: the digests decide; the first difference is looked for in the stored head only.
+/// Compares the reference's lines with the Rust side's. Whole lines: [`stream::diff_lines`]. A
+/// digest: the digests decide; the first difference is looked for in the stored head only.
 pub fn diff_ref(r: &RefLines, actual: &[String]) -> LineDiff {
     match r {
         RefLines::Full(v) => stream::diff_lines(v, actual),
@@ -182,24 +183,6 @@ pub struct RefUnit {
 }
 
 impl RefUnit {
-    /// A live unit.
-    pub fn live(u: &stream::Unit) -> Self {
-        Self {
-            name: u.name.clone(),
-            died: u.died,
-            lines: RefLines::Full(u.lines.clone()),
-        }
-    }
-
-    /// A unit as a golden keeps it.
-    pub fn kept(u: &stream::Unit) -> Self {
-        Self {
-            name: u.name.clone(),
-            died: u.died,
-            lines: RefLines::Digest(digest(&u.lines)),
-        }
-    }
-
     /// Whether the Rust unit is this one.
     pub fn same(&self, r: &stream::Unit) -> bool {
         self.name == r.name && self.lines.matches(&r.lines)
@@ -321,18 +304,6 @@ pub fn data_lines(text: &str) -> String {
         })
 }
 
-/// Where two renderings first differ (for `--check-golden`).
-pub fn first_line_difference(golden: &str, live: &str) -> Option<String> {
-    let (g, l): (Vec<&str>, Vec<&str>) = (golden.lines().collect(), live.lines().collect());
-    (0..g.len().max(l.len())).find_map(|i| {
-        let (a, b) = (g.get(i), l.get(i));
-        (a != b).then(|| {
-            let show = |x: Option<&&str>| x.map_or_else(|| "(end)".to_owned(), |s| format!("'{}'", cap(s)));
-            format!("record {}: golden {} / live C++ {}", i + 1, show(a), show(b))
-        })
-    })
-}
-
 // ------------------------------------------------------------------ test_ifcs
 
 /// The `test_ifcs` part: checks per section, the sections' IFCS calls.
@@ -351,17 +322,6 @@ pub struct IfcsGolden {
 }
 
 impl IfcsGolden {
-    /// The golden of a normalised run.
-    pub fn capture(status: &str, stdout_last: &str, bytes: usize, counts: &[Count], sections: &[stream::Unit]) -> Self {
-        Self {
-            status: status.to_owned(),
-            stdout_last: stdout_last.to_owned(),
-            bytes,
-            counts: counts.to_vec(),
-            sections: sections.iter().map(RefUnit::kept).collect(),
-        }
-    }
-
     /// The records.
     pub fn render(&self) -> String {
         let mut s = format!(
@@ -454,26 +414,6 @@ pub struct DriverScript {
     pub blocks: Vec<RefBlock>,
     /// The `@B` lines of the byte tap, the whole script.
     pub bytes: Digest,
-}
-
-impl DriverScript {
-    /// The golden of a normalised run.
-    pub fn capture(name: &str, status: &str, input: &str, stdout: &str, bytes: &[String]) -> Self {
-        Self {
-            name: name.to_owned(),
-            status: status.to_owned(),
-            input: input.to_owned(),
-            blocks: compare::blocks(stdout).iter().map(kept_block).collect(),
-            bytes: digest(bytes),
-        }
-    }
-}
-
-fn kept_block(b: &Block) -> RefBlock {
-    RefBlock {
-        op: b.op.clone(),
-        d: digest(&b.lines),
-    }
 }
 
 /// The driver part.
@@ -790,6 +730,22 @@ impl Golden {
 mod tests {
     use super::*;
 
+    /// A unit as a golden keeps it (the digest of its lines).
+    fn kept(u: &stream::Unit) -> RefUnit {
+        RefUnit {
+            name: u.name.clone(),
+            died: u.died,
+            lines: RefLines::Digest(digest(&u.lines)),
+        }
+    }
+
+    fn kept_block(b: &compare::Block) -> RefBlock {
+        RefBlock {
+            op: b.op.clone(),
+            d: digest(&b.lines),
+        }
+    }
+
     fn v(s: &[&str]) -> Vec<String> {
         s.iter().map(|x| (*x).to_owned()).collect()
     }
@@ -845,7 +801,7 @@ mod tests {
 
     #[test]
     fn the_records_round_trip() {
-        let sec = vec![stream::Unit {
+        let sec = [stream::Unit {
             name: "l2".to_owned(),
             lines: v(&["x", "y"]),
             died: false,
@@ -856,17 +812,23 @@ mod tests {
             failed: 0,
             incomplete: false,
         }];
-        let i = IfcsGolden::capture("exit 0", "test_ifcs: 42 checks, 0 failed", 1, &counts, &sec);
+        let i = IfcsGolden {
+            status: "exit 0".to_owned(),
+            stdout_last: "test_ifcs: 42 checks, 0 failed".to_owned(),
+            bytes: 1,
+            counts,
+            sections: sec.iter().map(kept).collect(),
+        };
         let text = i.render();
         assert_eq!(IfcsGolden::parse(&text).unwrap().render(), text);
         let d = DriverGolden {
-            scripts: vec![DriverScript::capture(
-                "01-x",
-                "exit 0",
-                &"0".repeat(64),
-                "> a\n= S\n> b\n",
-                &v(&["@B z"]),
-            )],
+            scripts: vec![DriverScript {
+                name: "01-x".to_owned(),
+                status: "exit 0".to_owned(),
+                input: "0".repeat(64),
+                blocks: compare::blocks("> a\n= S\n> b\n").iter().map(kept_block).collect(),
+                bytes: digest(&v(&["@B z"])),
+            }],
         };
         let text = d.render();
         assert_eq!(DriverGolden::parse(&text).unwrap().render(), text);
@@ -876,7 +838,7 @@ mod tests {
                 status: "exit 2".to_owned(),
                 input: "1".repeat(64),
                 skipped: "0 exec dropped".to_owned(),
-                steps: sec.iter().map(RefUnit::kept).collect(),
+                steps: sec.iter().map(kept).collect(),
                 out: v(&["STEP 0.0 x 0 ", ""]),
                 events: v(&["event a"]),
             }],
@@ -886,6 +848,5 @@ mod tests {
         assert!(OracleGolden::parse("O\tx\n").is_err());
         assert!(IfcsGolden::parse("status\texit 0\n").is_err());
         assert_eq!(data_lines("# c\n\nx\ty\n"), "x\ty\n");
-        assert!(first_line_difference("a\nb\n", "a\nc\n").is_some_and(|s| s.starts_with("record 2")));
     }
 }

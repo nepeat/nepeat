@@ -1,6 +1,6 @@
 # CS8210-32X: what the isai oracle showed (2026-11-16)
 
-The oracle ([packages/sai-teralynx/oracle](../../nix/packages/sai-teralynx/oracle/README.md)) runs one
+The oracle ([packages/ifcs-oracle](../../nix/packages/ifcs-oracle/README.md)) runs one
 SAI script on our SAI (native) and on isai 6.2.0 (under qemu-ipd) with every libifcs call traced,
 and diffs them per SAI step. Findings that changed our code; traces are local
 (`analysis/oracle/<run>/`, sha256 prefix in brackets).

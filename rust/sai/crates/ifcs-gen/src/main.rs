@@ -1,4 +1,4 @@
-//! `ifcs-gen`: the generator as a program, with `gen_ifcs_api.py`'s arguments:
+//! `ifcs-gen`: the generator as a program, with the arguments of the deleted Python generator `gen_ifcs_api.py`:
 //!
 //! ```text
 //! ifcs-gen --ctypes <ifcs_ctypes.py> [--overrides ifcs_overrides.txt] [--source "<what>"]

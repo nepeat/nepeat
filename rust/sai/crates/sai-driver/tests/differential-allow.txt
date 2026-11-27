@@ -2,8 +2,8 @@
 # <script stem or *> TAB <regex on the op line, without its "> "> TAB <reason>
 # A differing op block passes only if an entry covers it (the first covering entry counts it);
 # an entry that counts no block fails the test, so this list only shrinks.
-# SAI_DRIVER_ALLOW_UPDATE=1 rewrites it: one entry per differing block, the reasons of entries
-# that still cover kept, "TODO: <first differing line pair>" otherwise.
+# (`compare::regenerate` writes one entry per differing block, the reasons of entries that still cover kept; no
+# test calls it since the live C++ leg went in H5 on 2026-11-27.)
 #
 # Empty since 2026-11-23 (integration): every op block of every script is identical. The three
 # entries before it went: the driver passes the C++ driver's profile and makes no extra ports()

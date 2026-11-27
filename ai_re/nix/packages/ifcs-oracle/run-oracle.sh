@@ -25,7 +25,15 @@ build() {
   nix build --impure --max-jobs 1 --cores 4 --no-link --print-out-paths --expr "
     let f = builtins.getFlake \"path:$airoot/nix\";
         pkgs = import f.inputs.nixpkgs { system = \"x86_64-linux\"; config.allowUnfree = true; };
-    in (import $airoot/nix/packages/qemu-ipd { inherit pkgs; }).$1"
+        rs = $airoot/../rust/sai/nix;   # our side: rust/sai (outside path:./nix), as tests/nixtargets.py passes it
+        sonicSrc = p: (import $airoot/nix/packages/sonic { pkgs = p; }).sources.sairedis;
+    in (import $airoot/nix/packages/qemu-ipd {
+      inherit pkgs;
+      ifcsHeaders = { pkgs }: pkgs.callPackage (rs + \"/ifcs-headers.nix\") { };
+      saiTeralynx = { pkgs }: pkgs.callPackage (rs + \"/sai-teralynx-rs.nix\") {
+        saiRs = pkgs.callPackage (rs + \"/package.nix\") { saiSrc = sonicSrc pkgs; glueSrc = $airoot/nix/packages/sai-openbcm/src; };
+      };
+    }).$1"
 }
 oours=$(build oracle-ours); oisai=$(build oracle-isai); sai=$(build sai-teralynx); runner=$(build runner)
 ld=$(nix build --impure --no-link --print-out-paths --expr "

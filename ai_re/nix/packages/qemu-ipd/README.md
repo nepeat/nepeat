@@ -16,7 +16,7 @@ and the hardware plan: [devices/cs8210-32x/sai-qemu.md](../../../devices/cs8210-
 | `syncd` | the pinned SONiC sairedis/syncd (../sonic) linked against this libsai: **does not work** with isai (SAI 1.19.2 vs 1.16.1: `sai_attribute_t` 64 vs 48 bytes) |
 | `syncd-202505` | sairedis of SONiC 202505 (SAI 1.16.1) on this libsai, doxygen 1.9.5 (`doxygen-1_9`), [capability patch](patches/sairedis-202505-capability-unknown-attr.patch) |
 | `syncd-runner` | arm64 `bin/syncd` = isai-qemu + syncd-202505 (services.sonic.sai.package; [sonic-isai.nix](sonic-isai.nix)) |
-| `bench-native`, `sai-teralynx` | [tools/sai_bench.cpp](tools/sai_bench.cpp) on our SAI (arm64); the amd64 build is in `smoke` |
+| `bench-native`, `sai-teralynx` | [tools/sai_bench.cpp](tools/sai_bench.cpp) on our SAI (arm64: the Rust package, rust/sai/nix/sai-teralynx-rs.nix, passed in as `saiTeralynx`; without it these and `oracle-ours` are absent); the amd64 build is in `smoke` |
 | `oracle-isai`, `oracle-ours` | libifcs call tracer + SAI script runner for isai (amd64, generated from its pyctypes) and ours (arm64): [oracle](../ifcs-oracle/README.md) |
 | `guest` | the amd64 closure to copy to the box |
 | `tests.{layout,passthrough,codegen,aarch64}` | offline tests, see [tests/default.nix](tests/default.nix) |

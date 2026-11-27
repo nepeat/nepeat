@@ -11,6 +11,21 @@ use std::time::Duration;
 pub use sai_client::sys;
 pub use sai_client::{Api, Attr, Entry, EntryOp, Event, Mock, Prefix, SUCCESS, Sai, Status, Value};
 
+/// A marker line `@@ <text>` in the parity harness's stream (`PARITY_TAP_FILE`, which its tap appends the
+/// mock's call lines to; one write per line, as the tap's): nothing without it.
+fn tap_mark(text: &str) {
+    use std::io::Write as _;
+    let Some(path) = std::env::var_os("PARITY_TAP_FILE") else {
+        return;
+    };
+    let mut f = std::fs::OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open(path)
+        .expect("PARITY_TAP_FILE");
+    f.write_all(format!("@@ {text}\n").as_bytes()).expect("PARITY_TAP_FILE");
+}
+
 /// One check of the test: the C++ id it ports (`t_port.cpp:50`, the line of the `CHECK` /
 /// `CHECK_EQ` / `OK`), where in Rust, what it did.
 #[derive(Debug, Default)]
@@ -24,9 +39,36 @@ pub struct Ck {
 }
 
 impl Ck {
-    /// A new section: the checks that follow count there.
+    /// A new section: the checks that follow count there. Under the parity harness (crate
+    /// sai-teralynx-parity, `PARITY_TAP_FILE`) the stream gets the markers the C++ test's section
+    /// wrappers wrote (its `c/sections.cpp`, deleted in H5): `@@ end <previous>`, then `@@ begin <name>`
+    /// (none for the first, `main`: the stream's start, and none for `uninit`, what follows the last area;
+    /// [`Ck::finish`] ends it).
     pub fn section(&mut self, name: &str) {
+        if let Some((prev, _, _)) = self.sections.last() {
+            tap_mark(&format!("end {prev}"));
+            if name != "uninit" {
+                tap_mark(&format!("begin {name}"));
+            }
+        }
         self.sections.push((name.to_owned(), 0, 0));
+    }
+
+    /// The end of the run: the last section's end marker, and the checks per section into
+    /// `PARITY_COUNTS_FILE` when it is set (`section <name> checks <n> failed <n>`, the parity harness's
+    /// counts, as the C++ test's section wrappers wrote them).
+    pub fn finish(&self) {
+        if let Some((last, _, _)) = self.sections.last() {
+            tap_mark(&format!("end {last}"));
+        }
+        if let Some(path) = std::env::var_os("PARITY_COUNTS_FILE") {
+            let text: String = self
+                .sections
+                .iter()
+                .map(|(name, checks, failed)| format!("section {name} checks {checks} failed {failed}\n"))
+                .collect();
+            std::fs::write(&path, text).expect("PARITY_COUNTS_FILE");
+        }
     }
 
     /// Records one check execution (`rust`: `file:line` of the assertion); a failure is printed as
@@ -40,7 +82,8 @@ impl Ck {
         let site = self.sites.entry(id.to_owned()).or_insert_with(|| (rust.to_owned(), 0));
         site.1 += 1;
         if !ok {
-            eprintln!("FAIL {id} ({rust}): {}", detail());
+            // the C++ test's form (the parity harness's FAIL lines: "FAIL <file>:<line>: ..."), then the Rust site
+            eprintln!("FAIL {id}: {} (Rust {rust})", detail());
         }
     }
 

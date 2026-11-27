@@ -1,5 +1,5 @@
-//! Calls into `libsai-teralynx-shim.so` (the C shim of `sai-teralynx/src/{shim.c,ifcs_guard.c}`,
-//! or its Rust replacement `crates/ifcs-shim`, which exports the same symbols) and the call
+//! Calls into `libsai-teralynx-shim.so` (the C shim `shim.c` + `ifcs_guard.c` of the deleted C++ sai-teralynx,
+//! now its Rust replacement `crates/ifcs-shim`, which exports the same symbols) and the call
 //! tracer's bind function, by the signatures those files declare.
 #![allow(unsafe_code)]
 

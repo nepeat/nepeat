@@ -2,9 +2,9 @@
 
 ## Status (2026-11-27)
 
-- **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-62 (Rust SAI, boot default; C++ generation system-59 stays in the U-Boot menu as rollback), from the SSD; a cold cycle of both feeds (`lab-power cs8210 cycle`,
+- **Runs:** NixOS 26.11 (2f709fe), Linux 7.3.4, generation system-63 (Rust SAI from the H5 tree, boot default, log 2026-11-27 (b); C++ generation system-59 stays in the U-Boot menu as rollback), from the SSD; a cold cycle of both feeds (`lab-power cs8210 cycle`,
   2026-11-26) came back unattended, 0 failed units; either PSU alone carries it under traffic. **SONiC at boot** on our Rust Teralynx libsai
-  (`rust/sai`; the default since H4, log 2026-11-27 (a); H1-H3 on the chip: logs 2026-11-26 (h)-(j)); the C++ `sai-teralynx` (HEAD's frozen frontend) stays selectable until H5 (`hardware.cs8210.sonic.saiImplementation = "cpp"`, or boot system-59). Cabling (owner, 2026-11-25; cage 1 and 2 modules replaced 2026-11-26): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
+  (`rust/sai`; the default since H4, log 2026-11-27 (a); H1-H3 on the chip: logs 2026-11-26 (h)-(j)); the C++ `sai-teralynx` and its frozen frontend are deleted (H5, 2026-11-27, last at 767d9b0); rollback = system-59 (C++) in the boot menu. Cabling (owner, 2026-11-25; cage 1 and 2 modules replaced 2026-11-26): cages 1 <-> 2 and 31 <-> 32 Molex 1064281405
   400G-DR4 QSFP-DD optics (MPO loops), 3 <-> 17 TE 2459398-1 400G CR8 DAC; nothing to the house. CONFIG_DB = the Nix
   base: those six ports 1x400G RS FEC, far ends in Vrf-a/b/c with /31s, 26 ports down ([sonic.md](sonic.md) "Running it").
   **3 <-> 17 up; 31 <-> 32 (cage 32 marginal: down at ~02:00Z, log (j)) up again after the H4 reboot, not used since; 1 <-> 2 was up 10:09-10:27 (cat fur on the fibre / optic faces, both modules replaced)
@@ -27,7 +27,7 @@
 - **Open:** **three fan modules with a dead rotor** (FAN5 rear, FAN6 front, FAN12 rear; LED solid red, still following the
   zone duty): 3 failed rotors <= 4, fand degraded on its curve (~52 %, ASIC ~63 C); replace them, then `fand release`
   the slot if it was swapped while off ([board-control.md](board-control.md) "Fan CPLD register map"); `lab-power cs8210 cycle` once failed with
-  NetBotz "E101: Command Not Found" (not reproduced; lab-power now resends once on E101); the 1 <-> 2 fibre into cage 1; port LEDs 2-4 (slot codes and colours unknown, I; all LED registers proven R/W at H2 and restored, V; the panel effect needs the owner's replay of [led-panel-checklist.md](led-panel-checklist.md); H1 read LED_CFG = 0x805: libifcs' LEARN_MSG-based read-modify-write left no junk in bits 4-10, V); Rust SAI: H5 (goldens from the C++, then its deletion) after H4 has run a while, coordinator's OK; cage 32 (lane 1 Rx ~-8.3 dBm, FEC errors under load, DOWN: fibre/module to check); `sonic-nix reload` VRF race (cause found at H4: its `systemctl stop sonic.target` returns before the units stop and the start cancels their stop jobs; fix proposed for the shared sonic-nix.py, not applied, log (a)), bgpcfgd needs a Loopback0 for default-VRF peers, FRR's BFD staying on the old interface after a PortChannel move ([sonic.md](sonic.md) "Running it"), al_eth refcount WARN at power-off; our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
+  NetBotz "E101: Command Not Found" (not reproduced; lab-power now resends once on E101); the 1 <-> 2 fibre into cage 1; port LEDs 2-4 (slot codes and colours unknown, I; all LED registers proven R/W at H2 and restored, V; the panel effect needs the owner's replay of [led-panel-checklist.md](led-panel-checklist.md); H1 read LED_CFG = 0x805: libifcs' LEARN_MSG-based read-modify-write left no junk in bits 4-10, V); Rust SAI: the parity harness's driver part has no program since H5 (385 ops, golden kept; log (b)); cage 32 (lane 1 Rx ~-8.3 dBm, FEC errors under load, DOWN: fibre/module to check); `sonic-nix reload` VRF race (cause found at H4: its `systemctl stop sonic.target` returns before the units stop and the start cancels their stop jobs; fix proposed for the shared sonic-nix.py, not applied, log (a)), bgpcfgd needs a Loopback0 for default-VRF peers, FRR's BFD staying on the old interface after a PortChannel move ([sonic.md](sonic.md) "Running it"), al_eth refcount WARN at power-off; our U-Boot items ([u-boot-port.md](u-boot-port.md)); publishing `ifcs_api.h` (owner); SAI gaps
   ([sai-features.md](sai-features.md)); MACsec under SONiC; CRM panels empty; learn-wedge watch (L0s off, [learn-wedge.md](learn-wedge.md)).
 
 ## Identity
@@ -132,6 +132,25 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-27 (b) — H5: the C++ Teralynx SAI and the frozen frontend are deleted
+
+- Every comparison with the C++ is a golden now (captured at H5-0 from the tree at f900ea0 / 767d9b0); `ai_re/nix/packages/sai-teralynx`
+  removed (165 files, 71,324 lines incl. the frozen frontend; last in git at 767d9b0); option `saiImplementation` removed (the
+  Rust package only); details: rust/sai/README.md "Parity", "Migration status". The parity harness now runs the Rust
+  test_ifcs (`ifcs_e2e`): strict green vs golden, 1047 / 1047, 17 / 17 sections byte-equal, oracle 25 + 2 allowed.
+  **Coverage loss:** its driver part (driver-scripts 01-09, 385 ops through the C++ `frontend_driver.cpp`) has no program
+  any more (golden kept); owner to decide on a Rust runner. Kept in ifcs-oracle for the isai oracle: `sai_script.cpp`,
+  `sai_smoke.cpp`, the C frame tools (isai's SAI 1.16 ABI).
+- system-63 (m2dj0zxm…, drop-in x8a9hg10…, libsai sha256 1f78fd80…: vs system-62's 4b177bab… only the NOT_IMPLEMENTED log
+  text differs; shim identical) deployed with `switch`, boot default, rebooted; system-59 (C++) in the boot menu
+  ([01](evidence/rust-h5/01-build.txt)-[03](evidence/rust-h5/03-reboot.txt)).
+- After the boot: 0 failed units, 3 <-> 17 up, guard GOT 1/1/1, ASIC 60 C ([04](evidence/rust-h5/04-base-check.txt)). The
+  neighbor-name flake's checks: no `NEIGH_TABLE:inno_0_*`, no route via `inno_0_*`; neighsyncd and fpmsyncd start after
+  the last rename (58.40 s < 58.71 / 58.89 s; `systemd`'s "Started" of fpmsyncd is its PortInitDone wrapper)
+  ([05](evidence/rust-h5/05-flake-checks-1-2.txt)); with the H4 overlay (BGP + BFD on 3 <-> 17) 3x `restart sonic.target`:
+  healthy in 59-72 s, the BGP-learned 10.66.2.0/24 in ASIC_DB each time, overlay removed, CONFIG_DB as before
+  ([06](evidence/rust-h5/06-flake-check-3-restarts.txt), [07](evidence/rust-h5/07-final-check.txt)).
 
 ### 2026-11-27 (a) — H4: the Rust SAI is the CS8210 default
 
@@ -275,13 +294,4 @@ can contain device configuration or secrets. Summarized findings belong here.
 - Found: fand sits in failsafe (100 %) ~65 s on every boot (also on 11-16 and 11-18 boots); Credo die temperatures are
   not exported (only the LM75s beside the PHYs, in fand's board zone).
 
-### 2026-11-18 — learn-wedge A/B done; powered off (plug 1)
-
-- Crossover blocks 1-3 + forced L0s A/B: L0s causes the link errors (on 64-84 CE lines/h, off 0); stalls 2 on / 0 off,
-  p = 0.25; production keeps L0s off ([learn-wedge.md](learn-wedge.md), `1a9bfb1`). 5 h after: clean.
-- `systemctl poweroff` 02:49 PST: al_eth's shutdown path warns twice (`__flush_work` from `cancel_delayed_work_sync` in
-  `al_eth_close`; refcount underflow in `phy_device_free`, i.e. a double put), then `reboot: Power down` does not cut power
-  (hard LOCKUP 10 s later; same open PSCI item). Plug 1 off. Open: fix al_eth close/remove on shutdown.
-  [shutdown-lockup-20261118.txt](shutdown-lockup-20261118.txt) (sha256 2595cd38aa3300a4…).
-
-Older entries (2026-11-17 scheme A' install, update and MDIO FPGA BAR entries and before): [HISTORY.md](HISTORY.md).
+Older entries (2026-11-18 learn-wedge A/B, 2026-11-17 scheme A' install, update and MDIO FPGA BAR entries and before): [HISTORY.md](HISTORY.md).

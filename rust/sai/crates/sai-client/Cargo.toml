@@ -11,5 +11,11 @@ sai-sys.workspace = true
 # dlopen / dlsym / dlerror and dup2 (the stderr tee); the workspace's features, nothing added
 libc.workspace = true
 
+[features]
+# `Mock`: the mock libifcs's test hooks of the end-to-end test (crates/sai-backend-teralynx/tests/ifcs_e2e). Off by default so
+# that the programs built on this crate (sai-script, sai-teralynx-smoke) carry none of it; the test crate turns it on
+# through its dev-dependency.
+mock = []
+
 [lints]
 workspace = true

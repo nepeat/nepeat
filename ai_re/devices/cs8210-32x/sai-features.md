@@ -1,13 +1,13 @@
 # CS8210-32X: our SAI, feature by feature
 
-What `sai-teralynx` (sai-openbcm frontend + IFCS backend, [README](../../nix/packages/sai-teralynx/README.md))
+What our Teralynx SAI ([Rust backend README](../../../rust/sai/crates/sai-backend-teralynx/README.md); the C++ sai-teralynx = sai-openbcm frontend + IFCS backend)
 does per SAI object, how far it is verified, and which test covers it. Keep this current: one row
 per object/attribute group, edited in place. Status:
 
 - **chip**: programmed and checked on the CS8210 (what was checked is in the row);
 - **mock**: backend call sequence checked against the mock libifcs only;
 - **frontend**: kept by the frontend (stored, answered), nothing programmed;
-- **Rust** column: the Rust libsai ([rust/sai](../../../rust/sai/README.md) "Teralynx backend"; the box's default SAI since H4, 2026-11-27; the C++ stays selectable until H5). Offline
+- **Rust** column: the Rust libsai ([rust/sai](../../../rust/sai/README.md) "Teralynx backend"; the box's only SAI since H5, 2026-11-27). The **C++** column = the C++ sai-teralynx as last measured, frozen at the goldens' commit 767d9b0 (deleted in H5, 2026-11-27). Offline
   (2026-11-26): `offline: t_x` = those `test_ifcs` files pass on it and every `test_ifcs` section's IFCS calls equal
   the C++'s on the mock; `oracle x` = that script's SAI steps equal through both libsais on the mock (parity harness,
   strict green). On the chip: `hw H1` = proven under the Rust libsai with SONiC stopped (`sai-teralynx-smoke`, PROGRESS log (h));
@@ -18,9 +18,9 @@ per object/attribute group, edited in place. Status:
   where a script touched them (WRED, CIR 10 pps); `offline`-only rows were not exercised.
 - **missing**: NOT_IMPLEMENTED / NOT_SUPPORTED.
 
-Tests: `t_*` = `packages/sai-teralynx/tests/t_<area>.cpp` (make check), `hw:x` = oracle script
-`oracle/scripts/x.json` on the box ([oracle](../../nix/packages/sai-teralynx/oracle/README.md)),
-`bench` = qemu-ipd `tools/sai_bench.cpp`, `smoke` = `tools/sai_smoke.cpp` (2026-11-16 runs),
+Tests: `t_*` = the C++ package's `tests/t_<area>.cpp` at 767d9b0 (ported: `rust/sai/crates/sai-backend-teralynx/tests/ifcs_e2e`), `hw:x` = oracle script
+`scripts/x.json` on the box ([ifcs-oracle](../../nix/packages/ifcs-oracle/README.md)),
+`bench` = qemu-ipd `tools/sai_bench.cpp`, `smoke` = [`sai_smoke.cpp`](../../nix/packages/ifcs-oracle/tools/sai_smoke.cpp) (2026-11-16 runs),
 `sonic` = under SONiC on the loop ([sai-hw-sonic-20261116.txt](sai-hw-sonic-20261116.txt)).
 How isai does an object on this chip: [sai-oracle.md](sai-oracle.md).
 

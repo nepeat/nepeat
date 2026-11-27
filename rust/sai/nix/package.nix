@@ -4,14 +4,12 @@
 # (ai_re: sonic.sources.sairedis); the bindings are generated from its SAI/inc.
 # glueSrc: the directory of the C SDK glue (sdk_glue.h, sdk_glue.c; ai_re/nix/packages/sai-openbcm/src):
 # sdk-glue-sys's bindings are generated from and checked against that header.
-# cppFrontendSrc: optional, the C++ frontend frozen in ai_re/nix/packages/sai-teralynx/frontend/src:
-# the live differentials against it (sai-macsec, sai-macsec-phy's e2e, openbcm-diag) then run;
-# without it they skip. The comparisons with deleted C/C++ are goldens in the crates' tests/golden.
+# The comparisons with the deleted C/C++ (the frozen frontend and the C++ sai-teralynx, deleted in H5 on
+# 2026-11-27, last in the tree at 767d9b0) are goldens in the crates' tests/golden; nothing here reads them.
 # phySeqTables: optional board tables (the AS7772's generated ext-macsec / ext-phy): phy-seq's
 # goldens of them then run (PHY_SEQ_TABLES); a table the golden does not know is skipped.
-# teralynxSrc: the C++ Teralynx package (ai_re/nix/packages/sai-teralynx), read only: the ctypes file it
-# pins, from which ifcs-sys's build generates the IFCS headers with ifcs-gen (IFCS_CTYPES; equal to
-# ./ifcs-headers.nix's: IFCS_API_EXPECT) on the targets the
+# The pinned ctypes file (./ifcs-ctypes.nix), from which ifcs-sys's build generates the IFCS headers with
+# ifcs-gen (IFCS_CTYPES; equal to ./ifcs-headers.nix's: IFCS_API_EXPECT) on the targets the
 # Teralynx crates are built for (x86_64, aarch64; elsewhere they are empty and need nothing).
 # Source: this workspace only (its own lock file), so edits elsewhere, to READMEs or to
 # these .nix files do not rebuild it. Tests, clippy and the C ABI harness run on native
@@ -25,9 +23,7 @@
   valgrind,
   saiSrc,
   glueSrc ? ../../../ai_re/nix/packages/sai-openbcm/src,
-  cppFrontendSrc ? null,
   phySeqTables ? [ ],
-  teralynxSrc ? ../../../ai_re/nix/packages/sai-teralynx,
   callPackage,
 }:
 let
@@ -44,7 +40,7 @@ let
   # the Teralynx crates (ifcs-sys, elf-got, ifcs, sai-backend-teralynx): x86_64 (tests on the
   # mock) and aarch64 (the CS8210) only
   teralynxTarget = stdenv.hostPlatform.isx86_64 || stdenv.hostPlatform.isAarch64;
-  ifcsHeaders = callPackage ./ifcs-headers.nix { inherit teralynxSrc saiSrc; };
+  ifcsHeaders = callPackage ./ifcs-headers.nix { };
 in
 rustPlatform.buildRustPackage {
   pname = "sai-rs";
@@ -83,8 +79,7 @@ rustPlatform.buildRustPackage {
     IFCS_API_EXPECT = "${ifcsHeaders}/include";
     IFCS_SYS_ABI_CHECK = "require";
     IFCS_SYS_ABI_CC = "${stdenv.cc}/bin/${stdenv.cc.targetPrefix}cc";
-  } // lib.optionalAttrs (cppFrontendSrc != null) { SAI_OPENBCM_SRC = "${cppFrontendSrc}"; }
-    // lib.optionalAttrs (phySeqTables != [ ]) { PHY_SEQ_TABLES = lib.concatStringsSep ":" (map toString phySeqTables); };
+  } // lib.optionalAttrs (phySeqTables != [ ]) { PHY_SEQ_TABLES = lib.concatStringsSep ":" (map toString phySeqTables); };
 
   # bindgenHook hands libclang nixpkgs' name of the big-endian ppc64 ELFv2 platform as the
   # target; clang does not know that spelling (it then assumes ELFv1 and looks for glibc
@@ -127,7 +122,7 @@ rustPlatform.buildRustPackage {
 
   passthru = {
     saiHeaders = "${saiSrc}/SAI/inc";
-    inherit ifcsHeaders teralynxSrc;
+    inherit ifcsHeaders;
   };
 
   meta = {

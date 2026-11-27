@@ -2,9 +2,9 @@
 //! (`templates/ifcs_api.h.in`, `templates/ifcs_api_qos.h.in`: names only, ours) with the values,
 //! field lists and signatures of a ctypesgen file (the public ishell 2.0.1 `ifcs_ctypes.py`), read
 //! as **data**, never executed, plus `templates/ifcs_overrides.txt` (the values where the target's
-//! libifcs 0.12.41 differs). A port of `ai_re/nix/packages/sai-teralynx/tools/gen_ifcs_api.py` and
-//! `ifcs_ctypes_model.py`: on the same input it writes the same bytes (`nix/ifcs-headers.nix`
-//! compares the two live while the Python exists, and keeps a sha256 golden of the output).
+//! libifcs 0.12.41 differs). A port of the Python generator `gen_ifcs_api.py` and
+//! `ifcs_ctypes_model.py` (deleted in H5 on 2026-11-27, last in the tree at commit 767d9b0): on the same input
+//! it writes the same bytes, held by the sha256 goldens of `tests/ishell_golden.rs` (the Python's output).
 //!
 //! The output is vendor-derived: it exists only in a build (`ifcs-sys`'s build script, or the
 //! `ifcs-gen` program of feature `cli` for the C fixtures), never in git.
@@ -28,8 +28,7 @@ use std::fmt;
 pub use layout::Layout;
 pub use model::Model;
 
-/// Our templates and overrides (copies of sai-teralynx's `src/` until that package goes, H5:
-/// `nix/ifcs-headers.nix` checks they are equal).
+/// Our templates and overrides (`templates/`: the only copy; the C++ sai-teralynx's `src/` ones were deleted in H5).
 pub mod templates {
     /// `ifcs_api.h.in`.
     pub const IFCS_API_H_IN: &str = include_str!("../templates/ifcs_api.h.in");

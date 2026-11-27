@@ -1,9 +1,9 @@
 # The mock libifcs (tests/teralynx-mock/*.c, mock.h): the C stand-in for the vendor libifcs.so that
 # the Teralynx tests run on (it records every IFCS call; test_ifcs, the parity harness, the smoke and
 # syncd tests dlopen it as SAI_TERALYNX_LIBIFCS). ONE derivation for every user (the libsai test run
-# and its target bundle, the parity fixtures, the syncd VM test); moved unchanged from
-# ai_re/nix/packages/sai-teralynx/tests/mock (H5-1), where the C++ package keeps its copy until it goes.
-# Compiled as that package's Makefile does (same flags), against the generated IFCS declarations.
+# and its target bundle, the parity fixtures, the syncd VM test); moved unchanged from the C++
+# sai-teralynx package's tests/mock (H5-1; the package was deleted in H5 on 2026-11-27).
+# Compiled as that package's Makefile did (same flags), against the generated IFCS declarations.
 #   pkgs.callPackage ./teralynx-mock.nix { ifcsHeaders = <./ifcs-headers.nix>; }  ->  $out/mock/libifcs.so
 {
   lib,

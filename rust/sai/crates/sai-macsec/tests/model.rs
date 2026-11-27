@@ -701,7 +701,7 @@ fn d9_a_flow_switch_takes_the_old_scs_sas_out() {
 /// SA stays and the gate closes, as in the C++), then another entry of the same table sends the
 /// port's data to a flow without an SC. That is a flow switch too: the old SC's SA comes out and
 /// the gate stays closed. (The C++ opens the gate on that SA, Q7: data of the new flow would be
-/// accepted through an SC no enabled entry selects.) `tests/differential.rs` shows the C++ side.
+/// accepted through an SC no enabled entry selects.) `tests/differential.rs` keeps the C++ side as a golden (`named-d9-takeover`).
 #[test]
 fn d9_a_flow_switch_through_a_disabled_entry() {
     let mut w = good();
@@ -733,7 +733,7 @@ fn d9_a_flow_switch_through_a_disabled_entry() {
     w.m.check_invariants().unwrap();
 }
 
-/// D1, without the C++ (tests/differential.rs shows the C++ side of it).
+/// D1, without the C++ (tests/differential.rs keeps the C++ side of it as the golden case `named-d1`).
 #[test]
 fn d1_an_sa_is_removed_from_the_port_that_holds_it() {
     let mut w = good();

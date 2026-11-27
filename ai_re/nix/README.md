@@ -93,7 +93,7 @@ tail of the build log in the failure.
 | --- | --- |
 | `just test-eval` | every target evaluates to a derivation + the coverage guards; builds nothing (about 1.5 min) |
 | `just test-uboot` | every `uboot-*` output (all boards, the qemu fixtures, `uboot-*-tests`) |
-| `just test-packages` | the other package outputs (kernels, drivers, SDK kmods, `*-test`) and what has no flake output: SONiC packages, the Rust SAI (rust/sai, `-k sai`), libsdk, sai-teralynx, qemu-ipd, sonic_platform, `sdk-config-test` of each board |
+| `just test-packages` | the other package outputs (kernels, drivers, SDK kmods, `*-test`) and what has no flake output: SONiC packages, the Rust SAI (rust/sai, `-k sai`; the CS8210's `sai-teralynx-rs` and its harnesses), libsdk, qemu-ipd, sonic_platform, `sdk-config-test` of each board |
 | `just test-systems` | NixOS toplevels and images from `path:./nix` (the working tree, untracked files included) |
 | `just test-deploy` | the root flake as a git flake, the form `deploy.sh` uses: tracked files only, fand/consoled from `rust/`. Fails for a file that is not `git add`ed yet |
 | `just test-vm` | NixOS VM tests of the SONiC stack (kvm) |

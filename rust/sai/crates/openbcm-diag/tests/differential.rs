@@ -1,12 +1,10 @@
-//! Differential test against the C client: the same command lines and environment for
-//! `openbcm-diag` built from `openbcm_diag.c` (frozen in sai-teralynx/frontend/src; live) and for this crate's binary, against
-//! a fake server that records what it receives; exit code, stdout, stderr and the bytes the
-//! server got must be equal.
-//!
-//! The C client is built by `build.rs` (never at test time). Where the build tree is not (a
-//! copied test executable), `SAI_RS_TEST_BIN` names a directory with `openbcm-diag-c` (from
-//! `$OUT_DIR/target-tests`) and `openbcm-diag-rs`. Without the C client the test says so and
-//! passes.
+//! Differential test against the C client `openbcm_diag.c`, held to a golden: the same command lines
+//! and environment for this crate's binary, against a fake server that records what it receives;
+//! exit code, stdout, stderr and the bytes the server got must equal the golden transcript
+//! (`golden/diag-client-cpp.txt`) of the C client. The C client (`openbcm_diag.c`, in the C++
+//! frontend) was deleted in H5 on 2026-11-27; it was last in the tree at commit 767d9b0, and its
+//! outputs are the goldens in `tests/golden` (frozen, never regenerated from the Rust output).
+//! `SAI_RS_TEST_BIN` may name a directory with a copied `openbcm-diag-rs` (README "Big-endian runs").
 #![allow(clippy::unwrap_used, clippy::panic, clippy::indexing_slicing, missing_docs)]
 
 use std::ffi::OsString;
@@ -28,22 +26,6 @@ fn summary(line: &str) {
             let _ = writeln!(f, "{line}");
         }
     }
-}
-
-fn tools() -> Option<(PathBuf, PathBuf)> {
-    let bundle = std::env::var_os("SAI_RS_TEST_BIN").map(PathBuf::from);
-    let built = Some(env!("OPENBCM_DIAG_C_HELPERS"))
-        .filter(|d| !d.is_empty())
-        .map(PathBuf::from);
-    let helpers = bundle
-        .clone()
-        .filter(|d| d.join("openbcm-diag-c").is_file())
-        .or(built)?;
-    let rust = bundle
-        .map(|d| d.join("openbcm-diag-rs"))
-        .filter(|p| p.is_file())
-        .unwrap_or_else(|| PathBuf::from(env!("CARGO_BIN_EXE_openbcm-diag-rs")));
-    Some((helpers.join("openbcm-diag-c"), rust))
 }
 
 /// A fake syncd: records each request (read to EOF) and answers by its first word.
@@ -146,7 +128,7 @@ fn run(exe: &Path, args: &[OsString], env: Option<&OsString>, fake: &Fake) -> Ru
 }
 
 /// The golden transcript of the C client (tests/golden/diag-client-cpp.txt), captured from the C
-/// client `openbcm_diag.c`, never from this crate's binary.
+/// client `openbcm_diag.c` (deleted in H5, last at commit 767d9b0), never from this crate's binary.
 const GOLDEN: &str = include_str!("golden/diag-client-cpp.txt");
 
 fn fnv64(bytes: &[u8]) -> u64 {
@@ -341,51 +323,4 @@ fn the_golden_comparison_reports_a_changed_transcript() {
         .join("\n");
     assert!(compare(&dropped, GOLDEN).is_err());
     assert!(compare(&format!("{GOLDEN}extra\n"), GOLDEN).is_err());
-}
-
-/// Writes a golden body from the C client (`OPENBCM_DIAG_CAPTURE=<file>`; the C client only).
-#[test]
-fn capture_the_c_transcript_when_asked() {
-    let (Some(out), Some((c, _))) = (std::env::var_os("OPENBCM_DIAG_CAPTURE"), tools()) else {
-        return;
-    };
-    std::fs::write(out, transcript(&c, "cap").0).unwrap();
-}
-
-#[test]
-fn the_rust_client_behaves_like_openbcm_diag_c() {
-    let Some((c, rust)) = tools() else {
-        summary(
-            "openbcm-diag differential: the C client was not built (SAI_OPENBCM_SRC at build time, or SAI_RS_TEST_BIN): SKIPPED",
-        );
-        return;
-    };
-    let (live, _) = transcript(&c, "live");
-    compare(GOLDEN, &live).unwrap();
-    summary("openbcm-diag live == golden: the live C client's transcript equals the golden");
-    let base = std::env::var_os("SAI_RS_TEST_TMPDIR").map_or_else(std::env::temp_dir, PathBuf::from);
-    let dir = base.join(format!("obd-{}", std::process::id()));
-    let _ = std::fs::remove_dir_all(&dir);
-    std::fs::create_dir_all(&dir).unwrap();
-    let sock = dir.join("d.sock");
-    let s = sock.to_str().unwrap().to_owned();
-    let fake = Fake::start(&sock);
-    let (env_sock, env_empty, env_missing) = (
-        OsString::from(&s),
-        OsString::new(),
-        OsString::from("/nonexistent/diag.sock"),
-    );
-    let cases = cases(&s, &env_sock, &env_empty, &env_missing);
-    let mut n = 0;
-    for (args, env) in &cases {
-        let expected = run(&c, args, env.as_ref(), &fake);
-        let got = run(&rust, args, env.as_ref(), &fake);
-        assert_eq!(got, expected, "args {args:?}, OPENBCM_DIAG_SOCKET {env:?}");
-        n += 1;
-    }
-    drop(fake);
-    std::fs::remove_dir_all(&dir).unwrap();
-    summary(&format!(
-        "openbcm-diag differential: {n} command lines agree with openbcm_diag.c (exit code, stdout, stderr, bytes sent)"
-    ));
 }

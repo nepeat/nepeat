@@ -18,7 +18,7 @@
 //!   count). The `MACsec` types: no metadata check (the model's statuses), as the rim. Values are built as [`sai_core::value::Value`] straight from
 //!   the script text by the attribute's metadata (`sai-meta`: names, `@type` text, member) and
 //!   the driver's kind, which is the C++ driver's (`vt_of` over the same `@type` text). Enum names
-//!   come from the SAI headers (`build.rs`, the same scan as `tests/driver_names.awk`) and print
+//!   come from the SAI headers (`build.rs`, the scan the C++ driver's `driver_names.awk` did) and print
 //!   as the C++ `enum_name`: the first enumerator of the value that is not a range marker,
 //!   without its type's prefix.
 //! - **Object types** (`implemented`): a type the core has no id type for is `NOT_IMPLEMENTED`.

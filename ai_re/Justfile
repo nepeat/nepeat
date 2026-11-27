@@ -96,7 +96,6 @@ sai-rs-test-on host *ssh:
           saiRs = ppc.callPackage (dir + "/package.nix") {
             saiSrc = (import (f.outPath + "/packages/sonic") { pkgs = ppc; }).sources.sairedis;
             glueSrc = f.outPath + "/packages/sai-openbcm/src";
-            cppFrontendSrc = builtins.path { path = f.outPath + "/packages/sai-teralynx/frontend/src"; name = "sai-cpp-frontend-src"; };
           };
       in (ppc.callPackage (dir + "/target-tests.nix") {
         inherit saiRs;

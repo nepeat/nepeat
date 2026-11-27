@@ -1,7 +1,9 @@
 //! The SAI MACsec object model for a MACsec engine in an external PHY that is driven by
 //! named board sequences: a port of `sai_macsec.cpp` of the C++ sai-openbcm
-//! (since 2026-11-23 frozen, verbatim, in `ai_re/nix/packages/sai-teralynx/frontend/src`; line
-//! numbers below are that file's unless another file is named). No chip knowledge, no bus access, no `unsafe`.
+//! (frozen verbatim on 2026-11-23 in the C++ sai-teralynx package's frontend, deleted in H5 on
+//! 2026-11-27; last in the tree at commit 767d9b0; the line numbers below are that file's unless another file is
+//! named, kept as quoted text; its outputs are the goldens in `tests/golden`). No chip knowledge, no bus access,
+//! no `unsafe`.
 //!
 //! # What it is
 //!
@@ -74,8 +76,8 @@
 //!   :977, :379). Once a flow moved to another port and got a new SA there, removing an old
 //!   SA runs nothing in the C++ and returns success: the key stays in the first port's PHY
 //!   and its AN stays taken; its counters and PN are read from the wrong PHY. Shown against
-//!   the real C++ in `tests/differential.rs`
-//!   (`where_a_flow_moved_the_cpp_leaves_the_key_in_the_phy`). Without a moving flow the two
+//!   the golden of the real C++ in `tests/differential.rs` (case `named-d1`, asserted by
+//!   `the_golden_keeps_the_documented_differences`). Without a moving flow the two
 //!   are the same port.
 //! - **D2** Values are typed. A value of another kind than the attribute's is
 //!   `INVALID_ATTR_VALUE` at its index (the C++ reads the union member blindly); an object id
@@ -111,8 +113,9 @@
 //!   in two steps (an entry disabled, then another entry, or the same one with another flow,
 //!   gives the port a flow): there the C++ opens the gate on the old SC's SA for a flow it does
 //!   not belong to (:311). Tests: `d9_a_flow_switch_takes_the_old_scs_sas_out`,
-//!   `d9_a_flow_switch_through_a_disabled_entry`; against the C++: `tests/differential.rs`, which
-//!   holds the model to the C++ with exactly this edit and D10's (`tests/cpp/listed_fixes.rs`).
+//!   `d9_a_flow_switch_through_a_disabled_entry`; against the C++'s golden: `tests/differential.rs`, which
+//!   holds the model to the golden of the C++ with exactly this edit and D10's (the edit by anchors,
+//!   `tests/cpp/listed_fixes.rs` at commit 767d9b0; its output is the golden's "fixed" variant).
 //!   SONiC does not reach D9: with `SCI_IN_INGRESS_MACSEC_ACL` false (:457) MACsecOrch gives
 //!   every SC of a port and direction the port's one flow, and removes an SC's SAs before its
 //!   ACL entry.

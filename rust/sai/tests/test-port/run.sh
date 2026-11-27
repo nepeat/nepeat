@@ -1,45 +1,37 @@
 #!/usr/bin/env bash
 # The UNMODIFIED C++ suite (cpp/test_sai.cpp + its .inc files and headers, the C++ frontend's tests, frozen
-# since 2026-11-23 and moved here unchanged by H5-1) against the Rust libsai through the test
-# port (test_port_rust.cpp here, over sai_rs_test_query), with a per-section progress table. See
-# README.md.
+# since 2026-11-23 and moved here unchanged by H5-1: a C-ABI client, kept as a fixture) against the Rust
+# libsai through the test port (test_port_rust.cpp here, over sai_rs_test_query), with a per-section
+# progress table, compared with the golden of the C++ reference run (the C++ frontend and its test port
+# were deleted in H5 on 2026-11-27, last in the tree at commit 767d9b0). See README.md.
 #
-#   run.sh [--strict] [--no-cpp-ref] [--self-test]
+#   run.sh [--strict] [--self-test]
 # Environment (all optional except SAI_INC):
 #   SAI_INC            dir with sai.h (its ../experimental is added too)              required
 #   LIBSAI             a prebuilt libsai.so with the test port (else: cargo build -p sai-ffi --features test-port)
-#   SAI_OPENBCM_TESTS  the frozen frontend's tests dir (the C++ reference run only: test_port_cpp.cpp and
-#                      ../src)  default: the repo's ai_re/nix/packages/sai-teralynx/frontend/tests
 #   SAI_RS_TEST_INC    dir with sai_rs_test.h      default: the repo's crates/sai-test-port/include
 #   CXX, CXXFLAGS, CC  default c++, "-O2 -g" (the C++ Makefile's default), cc
 #   BUILD_DIR          build + run dir             default: a new mktemp dir (the source tree stays read-only)
 #   SUMMARY            the table is written here   default: $BUILD_DIR/summary.txt
-#   CPP_REF            build | none | <dir>        the C++ reference run for the comparison columns: build it from
-#                      SAI_OPENBCM_TESTS/../src (default when that tree has it), skip it, or take
-#                      <dir>/test_port_cpp.o, recording_backend.o, libsai.a from a build of your own
 #   TEST_TIMEOUT       seconds per test run        default 900
 #   TRACE=0            run untraced (as when ptrace is refused): FAIL-line attribution only
 #   HARNESS_STRICT=1   like --strict: exit 1 on any failure, crash or non-zero test exit
 #   GOLDEN             the C++ reference's per-section results, captured once from the C++ side
-#                      (default: golden/test_sai-cpp-reference.txt here). The Rust run is ALWAYS compared
-#                      with it ("golden: N sections equal"), also with CPP_REF=none; with a live C++
-#                      reference the golden is checked against the live table too (live == golden).
-#                      --strict: a difference in either comparison exits 1.
+#                      (default: golden/test_sai-cpp-reference.txt here; frozen). The Rust run is compared
+#                      with it ("golden: N sections equal"); --strict: a difference exits 1.
 #   --self-test        negative controls: a copy of the golden with one number changed, and one with a
-#                      row dropped, must each be reported as different from the run(s); exit 1 if not.
+#                      row dropped, must each be reported as different from the run; exit 1 if not.
 # Exit: 0 when the harness built and ran the suite (whatever the suite's result), 1 with --strict
 # on any failure, 2 when the harness itself could not build or run.
 set -eu
 
 strict=${HARNESS_STRICT:-0}
 self_test=0
-cpp_ref=${CPP_REF:-}
 for a in "$@"; do
     case $a in
     --strict) strict=1 ;;
-    --no-cpp-ref) cpp_ref=none ;;
     --self-test) self_test=1 ;;
-    -h | --help) sed -n '2,32p' "$0"; exit 0 ;;
+    -h | --help) sed -n '2,26p' "$0"; exit 0 ;;
     *) echo "run.sh: unknown argument $a" >&2; exit 2 ;;
     esac
 done
@@ -52,9 +44,6 @@ ws=$(cd "$here/../.." && pwd)   # rust/sai
 tests=$here/cpp
 [ -f "$tests/test_sai.cpp" ] || die "no test_sai.cpp in $tests"
 [ -f "$here/test_port_rust.cpp" ] || die "no test_port_rust.cpp in $here"
-# the frozen frontend's tests and src: only for the C++ reference run (a missing tree: no reference)
-fe_tests=${SAI_OPENBCM_TESTS:-$ws/../../ai_re/nix/packages/sai-teralynx/frontend/tests}
-[ -d "$fe_tests" ] && fe_tests=$(cd "$fe_tests" && pwd)
 golden=${GOLDEN:-$here/golden/test_sai-cpp-reference.txt}
 [ -f "$golden" ] || die "no golden $golden"
 rs_inc=${SAI_RS_TEST_INC:-$ws/crates/sai-test-port/include}
@@ -66,9 +55,6 @@ mkdir -p "$BUILD_DIR"
 BUILD_DIR=$(cd "$BUILD_DIR" && pwd)
 SUMMARY=${SUMMARY:-$BUILD_DIR/summary.txt}
 timeout_s=${TEST_TIMEOUT:-900}
-if [ -z "$cpp_ref" ]; then
-    if [ -f "$fe_tests/test_port_cpp.cpp" ] && [ -f "$fe_tests/../src/sai_api.cpp" ]; then cpp_ref=build; else cpp_ref=none; fi
-fi
 
 # The C++ Makefile's flags for test_sai.o (sai-teralynx's, as sai-openbcm's were), plus -fno-inline: every test_* function keeps
 # its own symbol for section_trace (the checks are the same code, just not inlined).
@@ -116,38 +102,6 @@ else
 fi
 awk -f "$here/plan.awk" "$tests/test_sai.cpp" "$tests"/test_*.inc >"$B/plan.tsv" || die "plan.awk failed"
 
-# ---- C++ reference (same test_sai.o, the C++ test port and library)
-ref_bin=
-if [ "$cpp_ref" = build ]; then
-    log "building the C++ reference (CPP_REF=none skips it)"
-    # as the C++ Makefile builds them: every frontend .cpp but the test-only recording backend
-    # into libsai.a with temp_files.c, the fake backend only (no SDK backend: a null factory)
-    src=$(cd "$fe_tests/../src" && pwd) r=$B/cpp-ref
-    rm -rf "$r"
-    mkdir -p "$r"
-    printf '#include "backend.h"\nnamespace ob { Backend* make_openbcm_backend() { return nullptr; } }\n' >"$r/backend_none.cpp"
-    # shellcheck disable=SC2086
-    if (set -e
-        flags="-std=c++17 -fPIC $WARN $CXXFLAGS -I$SAI_INC -I$SAI_INC/../experimental -I$src"
-        for c in "$src"/*.cpp "$r/backend_none.cpp"; do $CXX $flags -c "$c" -o "$r/$(basename "$c" .cpp).o"; done
-        $CC -std=gnu11 -fPIC $WARN -O2 -g -I"$src" -c "$src/temp_files.c" -o "$r/temp_files.o"
-        $CXX $flags -I"$fe_tests" -c "$fe_tests/test_port_cpp.cpp" -o "$r/test_port_cpp.o"
-        ar rcs "$r/libsai.a" $(ls "$r"/*.o | grep -v -e /recording_backend.o -e /test_port_cpp.o)
-       ) >"$B/cpp-ref.build.txt" 2>&1; then
-        cpp_ref=$r
-    else
-        log "C++ reference did not build (log: $B/cpp-ref.build.txt); no comparison"
-        cpp_ref=none
-    fi
-fi
-if [ "$cpp_ref" != none ]; then
-    for f in test_port_cpp.o recording_backend.o libsai.a; do [ -f "$cpp_ref/$f" ] || die "CPP_REF=$cpp_ref has no $f"; done
-    # shellcheck disable=SC2086
-    $CXX -std=c++17 $CXXFLAGS -no-pie -o "$B/test_sai_cpp" "$B/test_sai.o" "$cpp_ref/test_port_cpp.o" "$cpp_ref/recording_backend.o" \
-        "$cpp_ref/libsai.a" -lpthread || die "test_sai_cpp did not link"
-    ref_bin=$B/test_sai_cpp
-fi
-
 # ---- d. run (traced when possible) and summarise
 # run <label> <binary>: $B/run-<label>/{stdout,stderr,events}.txt, sections.tsv, table.txt; sets rc_<label>
 run() {
@@ -182,8 +136,9 @@ run() {
     fi
     ev=
     [ "$traced" = 1 ] && ev=$dir/events.txt
-    refv=
-    [ "$label" = rust ] && [ -n "$ref_bin" ] && [ -f "$B/run-cpp/sections.tsv" ] && refv=$B/run-cpp/sections.tsv
+    # the comparison columns: the golden's rows (the C++ reference run's sections.tsv, captured)
+    grep -v '^#' "$golden" >"$B/golden-rows.tsv"
+    refv=$B/golden-rows.tsv
     # the failing checks' sites (the tracer's watchpoint PCs) as file:line
     : >"$dir/sites.tsv"
     if [ "$traced" = 1 ] && grep -q '^fail' "$dir/events.txt" && command -v addr2line >/dev/null 2>&1; then
@@ -205,10 +160,6 @@ run() {
     eval "rc_$label=$rc"
 }
 
-if [ -n "$ref_bin" ]; then
-    log "running the C++ reference"
-    run cpp "$ref_bin"
-fi
 log "running test_sai against $libsai"
 run rust "$B/test_sai_rust"
 
@@ -216,11 +167,6 @@ run rust "$B/test_sai_rust"
     echo "== test_sai (unmodified) on the Rust libsai: $libsai"
     echo "   build dir $B; stderr: $B/run-rust/stderr.txt"
     cat "$B/run-rust/table.txt"
-    if [ -n "$ref_bin" ]; then
-        echo
-        echo "== C++ reference (same test_sai.o, tests/test_port_cpp.cpp, C++ libsai)"
-        cat "$B/run-cpp/table.txt"
-    fi
 } >"$SUMMARY"
 cat "$SUMMARY"
 
@@ -228,7 +174,7 @@ cat "$SUMMARY"
 # golden_diff <golden> <tsv>: the golden's data rows (no '#' lines) against a run's sections.tsv; prints the
 # difference, status 0 = equal. The comparison is whole-line, so a changed number, name, row or state differs.
 golden_diff() { grep -v '^#' "$1" | diff -u --label golden --label "$3" - "$2"; }
-golden_ok=1 live_ok=1
+golden_ok=1
 if grep -q '[?]' "$B/run-rust/sections.tsv"; then
     echo "golden: not compared (untraced run: checks per section unknown)"
 elif golden_diff "$golden" "$B/run-rust/sections.tsv" rust >"$B/golden-rust.diff"; then
@@ -238,15 +184,6 @@ else
     echo "golden: rust run DIFFERENT from $golden:"
     cat "$B/golden-rust.diff"
     golden_ok=0
-fi
-if [ -n "$ref_bin" ]; then
-    if golden_diff "$golden" "$B/run-cpp/sections.tsv" cpp-live >"$B/golden-live.diff"; then
-        echo "golden: live C++ reference == golden ($(grep -vc '^#' "$golden") rows)"
-    else
-        echo "golden: live C++ reference DIFFERENT from the golden:"
-        cat "$B/golden-live.diff"
-        live_ok=0
-    fi
 fi
 if [ "$self_test" = 1 ]; then
     # negative controls on temp copies of the golden: a changed number, a dropped row
@@ -260,15 +197,12 @@ if [ "$self_test" = 1 ]; then
         else
             echo "golden self-test: ok (a golden with a changed $m is reported as different from the rust run)"
         fi
-        if [ -n "$ref_bin" ] && golden_diff "$B/golden-mut-$m.txt" "$B/run-cpp/sections.tsv" cpp-live >/dev/null; then
-            echo "golden self-test: FAILED, a golden with a changed $m is not reported as different from the live C++" >&2; st=1
-        fi
     done
     [ "$st" = 0 ] || exit 1
 fi
 
 if [ "$strict" = 1 ]; then
-    if [ "$golden_ok" != 1 ] || [ "$live_ok" != 1 ]; then
+    if [ "$golden_ok" != 1 ]; then
         echo "run.sh: --strict: the golden comparison differs (see above)" >&2
         exit 1
     fi

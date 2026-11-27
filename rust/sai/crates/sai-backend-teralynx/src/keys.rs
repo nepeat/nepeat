@@ -1,4 +1,4 @@
-//! The backend's profile keys (sai-teralynx README "Profile keys"), read as the C++ reads them:
+//! The backend's profile keys (this crate's README "Profile keys"), read as the C++ read them:
 //! `Core::key(k, default)` is the profile's value when the key is set (even empty), else the
 //! default; numbers go through the C library's `strtoul` / `strtoull` (base 0: `0x` hex, a leading
 //! `0` octal, stopping at the first character that does not fit, no digits = 0) or `atoi`, as the

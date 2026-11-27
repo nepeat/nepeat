@@ -1,6 +1,6 @@
 //! The only unsafe rim for libifcs, the Teralynx 7 SDK of the CS8210-32X (`libifcs.so` 0.12.41,
 //! `dlopen`ed at run time from the switch; nothing vendor is linked). The Rust counterpart of
-//! `ai_re/nix/packages/sai-teralynx/src/ifcs_lib.{h,cpp}` plus the call forms of `tl_core.h`.
+//! `src/ifcs_lib.{h,cpp}` of the C++ sai-teralynx (deleted in H5 on 2026-11-27, last in the tree at commit 767d9b0) plus the call forms of `tl_core.h`.
 //!
 //! - [`load`]: the loader, step for step as `ifcs_lib_load`: absolute path, the shim
 //!   `libsai-teralynx-shim.so` from next to `libsai.so` (`RTLD_NOW | RTLD_GLOBAL`, before libifcs),

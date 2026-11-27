@@ -1,4 +1,4 @@
-//! The enumerators of the SAI headers by name (built by `build.rs`, as `tests/driver_names.awk` does
+//! The enumerators of the SAI headers by name (built by `build.rs`, as the C++ driver's `driver_names.awk` did
 //! for the C++ driver), and the C++ driver's rules for reading and printing them.
 use sai_sys as sys;
 use std::collections::BTreeSet;

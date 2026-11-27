@@ -1,14 +1,14 @@
 //! The golden C++ side (tests/golden): its integrity, its inputs, and the negative controls of its
-//! comparisons. The goldens are embedded (`include_str!`), so this runs without the C++. Two more
-//! tests run the harness itself when the fixtures are there (`SAI_PARITY_FIXTURES` plus
-//! `SAI_PARITY_CPP_LIB` / `SAI_PARITY_RUST_LIB`; nix/teralynx-parity.nix does it with the
-//! program): the live C++ renders to the golden byte for byte (live == golden), and the Rust side
-//! passes against the golden strictly and fails against a changed one.
+//! comparisons. The goldens are embedded (`include_str!`), so this runs without the C++ (deleted in H5 on
+//! 2026-11-27). One more test runs the harness itself when the fixtures and programs are there
+//! (`SAI_PARITY_FIXTURES`, `SAI_PARITY_RUST_LIB`, `SAI_PARITY_TEST_IFCS`, `SAI_PARITY_SAI_SCRIPT`;
+//! nix/teralynx-parity.nix does the same with the program): the Rust side passes against the golden strictly
+//! and fails against a changed one.
 #![forbid(unsafe_code)]
 
 use sai_driver::compare;
 use sai_teralynx_parity::golden::{self, DriverGolden, Golden, HEAD, IfcsGolden, OracleGolden, RefBlock, RefLines};
-use sai_teralynx_parity::run::{self, Config, Mode, Part};
+use sai_teralynx_parity::run::{self, Config, Part};
 use sai_teralynx_parity::sha256;
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
@@ -167,8 +167,8 @@ fn the_digests_hold_and_a_changed_byte_is_reported() {
     );
     assert!(!golden::diff_ref(&bsec.lines, &[]).raw_equal);
     assert!(!sec.lines.matches(&["x".to_owned()]), "a line the golden does not have");
-    // the whole-file check (--check-golden): one changed record is named
-    assert!(golden::first_line_difference(&golden::data_lines(IFCS), &bad.render()).is_some());
+    // the changed record renders differently (the parse is lossless: the digest is what was read)
+    assert_ne!(golden::data_lines(IFCS), bad.render());
 }
 
 /// The driver's comparison, on small blocks stored whole (op line + answer): equal; one changed digest
@@ -215,14 +215,15 @@ fn the_driver_comparison_reports_a_changed_block() {
     assert!(golden::compare_blocks(&script.name, &blocks, &stdout.replacen("> ", "> x", 1)).is_err());
 }
 
-fn harness_config(mode: Mode, golden_dir: PathBuf, fixtures: &str, work: &str) -> Config {
+fn harness_config(golden_dir: PathBuf, fixtures: &str, work: &str) -> Config {
+    let env = |k: &str| PathBuf::from(std::env::var(k).unwrap_or_default());
     Config {
-        mode,
-        golden: Some(golden_dir),
+        golden: golden_dir,
         fixtures: fixtures.into(),
         work: work.into(),
-        cpp_lib: std::env::var("SAI_PARITY_CPP_LIB").unwrap_or_default().into(),
-        rust_lib: std::env::var("SAI_PARITY_RUST_LIB").unwrap_or_default().into(),
+        rust_lib: env("SAI_PARITY_RUST_LIB"),
+        sai_script: env("SAI_PARITY_SAI_SCRIPT"),
+        test_ifcs: env("SAI_PARITY_TEST_IFCS"),
         areas: manifest("../sai-backend-teralynx/tests/areas.txt"),
         expected: manifest("../sai-backend-teralynx/tests/test_ifcs-expected.txt"),
         allow: manifest("tests/parity-allow.txt"),
@@ -230,11 +231,9 @@ fn harness_config(mode: Mode, golden_dir: PathBuf, fixtures: &str, work: &str) -
         driver_scripts: manifest("../sai-driver/tests/driver-scripts"),
         oracle_scripts: Some(manifest("../../../../ai_re/nix/packages/ifcs-oracle/scripts")),
         strict: true,
-        parts: Part::ALL.into_iter().collect::<BTreeSet<_>>(),
+        parts: Part::DEFAULT.into_iter().collect::<BTreeSet<_>>(),
         only: Vec::new(),
         mutate: None,
-        repeat_reference: false,
-        bytes: true,
         timeout: Duration::from_secs(600),
     }
 }
@@ -245,35 +244,17 @@ fn fixtures() -> Option<(String, String)> {
     Some((fx, work))
 }
 
-/// Live == golden: the C++ libsai renders to the golden's records byte for byte (needs the fixtures
-/// and the C++ library: `SAI_PARITY_FIXTURES`, `SAI_PARITY_CPP_LIB`).
-#[test]
-fn the_live_cpp_renders_to_the_golden() {
-    let (Some((fx, work)), true) = (fixtures(), std::env::var_os("SAI_PARITY_CPP_LIB").is_some()) else {
-        eprintln!("skipped: no SAI_PARITY_FIXTURES / SAI_PARITY_CPP_LIB (the C++ side)");
-        return;
-    };
-    let mut cfg = harness_config(
-        Mode::CheckGolden,
-        manifest("tests/golden"),
-        &fx,
-        &format!("{work}-live"),
-    );
-    cfg.repeat_reference = true;
-    let o = run::run(&cfg).unwrap();
-    assert!(o.red.is_empty(), "{}", o.report);
-}
-
 /// The Rust libsai against the golden alone: strictly green; against a golden with one changed
 /// digest per file: red, naming the units.
 #[test]
 fn the_rust_side_against_the_golden_and_a_changed_one() {
-    let (Some((fx, work)), true) = (fixtures(), std::env::var_os("SAI_PARITY_RUST_LIB").is_some()) else {
-        eprintln!("skipped: no SAI_PARITY_FIXTURES / SAI_PARITY_RUST_LIB");
+    let programs = ["SAI_PARITY_RUST_LIB", "SAI_PARITY_TEST_IFCS", "SAI_PARITY_SAI_SCRIPT"];
+    let (Some((fx, work)), true) = (fixtures(), programs.iter().all(|k| std::env::var_os(k).is_some())) else {
+        eprintln!("skipped: no SAI_PARITY_FIXTURES / {}", programs.join(" / "));
         return;
     };
     let dir = manifest("tests/golden");
-    let o = run::run(&harness_config(Mode::Golden, dir.clone(), &fx, &format!("{work}-rust"))).unwrap();
+    let o = run::run(&harness_config(dir.clone(), &fx, &format!("{work}-rust"))).unwrap();
     assert!(o.red.is_empty(), "{}", o.report);
     assert_eq!(o.gate, Some((1047, 1047)));
     // the changed copy
@@ -284,10 +265,10 @@ fn the_rust_side_against_the_golden_and_a_changed_one() {
     w(golden::DRIVER_FILE, flip(DRIVER, "block", "set switch"));
     w(golden::ORACLE_FILE, flip(ORACLE, "step", "create L3 table (aclorch)"));
     assert!(Golden::load(&bad).is_ok());
-    let o = run::run(&harness_config(Mode::Golden, bad, &fx, &format!("{work}-rust2"))).unwrap();
+    let o = run::run(&harness_config(bad, &fx, &format!("{work}-rust2"))).unwrap();
     let text = o.red.join("\n");
     assert!(text.contains("test_ifcs section l2"), "{text}");
-    assert!(text.contains("driver 01-switch"), "{text}");
+    // (the driver part has no program since H5: its changed digest is not run)
     assert!(
         text.contains("oracle acl step '0.3 create L3 table (aclorch)'"),
         "{text}"

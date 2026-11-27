@@ -1,4 +1,4 @@
-//! Python's text semantics where the reference generator (`gen_ifcs_api.py`) relies on them:
+//! Python's text semantics where the reference generator (`gen_ifcs_api.py`, deleted in H5) relies on them:
 //! what counts as whitespace (`str.isspace`, the `re` class `\s`) and as a word character
 //! (`\w`), `str.splitlines`, the universal newlines of a text-mode read, `int(s, 0)` and the
 //! integer part of `format(value, spec)`.

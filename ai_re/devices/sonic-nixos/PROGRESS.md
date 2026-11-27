@@ -46,7 +46,7 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 ## 2026-11-16 — CS8210-32X: own Teralynx SAI, first runs on the chip
 
 - No arm64 Teralynx SAI is published (98 packages, all amd64: [list](cs8210-sai-search-20261115.txt)),
-  so [packages/sai-teralynx](../../nix/packages/sai-teralynx/README.md) = sai-openbcm's frontend
+  so packages/sai-teralynx (deleted in H5, 2026-11-27; the CS8210 runs the Rust SAI since) = sai-openbcm's frontend
   (unchanged; built from its `src/` by path) + an IFCS 0.12.41 backend, `libifcs.so` dlopen'ed from
   the vendor SDK on the switch. Tests: 127 backend checks on a mock libifcs + sai-openbcm's 2353.
 - Board layer [boards/cs8210](../../nix/modules/boards/cs8210/sonic.nix): 32x8-lane port map, IFCS

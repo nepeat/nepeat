@@ -1,7 +1,7 @@
 # syncd + the SONiC control plane on the Rust Teralynx libsai over the mock libifcs (NixOS VM, no chip):
 # the CS8210's own board layer (ai_re/nix/modules/boards/cs8210/sonic.nix: port map, generated IFCS init
 # yaml and its sidecars, sai.profile, cs8210-sai-files.service) with a stand-in vendor SDK tree whose
-# libifcs.so is sai-teralynx's C mock (tests/mock, as the parity harness builds it), the Rust
+# libifcs.so is the C mock (rust/sai/tests/teralynx-mock, ./teralynx-mock.nix, as the parity harness has it), the Rust
 # libsai-teralynx-shim.so next to the Rust libsai, and the SDK's inno_0_<sysport> netdevs (made by
 # libifcs' ipd driver on the box) stood in for by dummies, so the default netdev mode (adopt) runs (a
 # permanent neighbor on one more dummy stands in for the management port's: neighsyncd fills its link
@@ -14,18 +14,17 @@
 # What the stand-ins do not show: anything of the real libifcs (its config parsing, link, netdevs, traps
 # on the wire); the vendor tables' values (the stand-in tables have one synthetic line per cage).
 #   import ./test-syncd-teralynx.nix { pkgs = p; sonic = <ai_re sonic set>; aiReNix = <ai_re/nix>;
-#     saiRs = <./package.nix>; cppTeralynx = <sai-teralynx>; [sairedis = <syncd built against any libsai>]; }
+#     saiRs = <./package.nix>; [sairedis = <syncd built against any libsai>]; }
 # ai_re: target "vm-sai-teralynx-syncd" (just test-vm -k sai-teralynx).
 {
   pkgs,
   sonic,
   aiReNix,
   saiRs,
-  cppTeralynx,
   # the Rust libsai (sai-ffi, feature teralynx), the Rust shim, the mock + tap (parity fixtures)
-  libsai ? pkgs.callPackage ./libsai-teralynx.nix { inherit saiRs cppTeralynx; },
-  shim ? pkgs.callPackage ./ifcs-shim.nix { inherit saiRs; saiTeralynx = cppTeralynx; },
-  parity ? pkgs.callPackage ./teralynx-parity.nix { inherit saiRs cppTeralynx; },
+  libsai ? pkgs.callPackage ./libsai-teralynx.nix { inherit saiRs; },
+  shim ? pkgs.callPackage ./ifcs-shim.nix { inherit saiRs; },
+  parity ? pkgs.callPackage ./teralynx-parity.nix { inherit saiRs; },
   # syncd: linked against libsai.so.1 of any build (the SAI C API); LD_LIBRARY_PATH (sai.libraryPath)
   # puts this test's library first
   sairedis ? sonic.sairedis-openbcm libsai,

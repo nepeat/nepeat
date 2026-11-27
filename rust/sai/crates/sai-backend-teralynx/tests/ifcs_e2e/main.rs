@@ -1,5 +1,5 @@
-//! The Teralynx libsai end to end: `test_ifcs` (ai_re/nix/packages/sai-teralynx/tests: test_ifcs.cpp,
-//! t_<area>.cpp, harness.h) in Rust. The BUILT Rust `libsai.so` (with the Teralynx backend) is driven
+//! The Teralynx libsai end to end: the C++ `test_ifcs` (test_ifcs.cpp, t_<area>.cpp, harness.h of the C++
+//! sai-teralynx, deleted in H5 on 2026-11-27, last in the tree at commit 767d9b0) in Rust. The BUILT Rust `libsai.so` (with the Teralynx backend) is driven
 //! through its C ABI by `sai-client` while the C mock libifcs (`rust/sai/tests/teralynx-mock`) stands
 //! in for the vendor libifcs.so; the mock's hooks (call log, link and L2 events, state counters)
 //! are called by name as the C++ test does with `dlsym`. Same profile files, same areas in the same
@@ -8,7 +8,7 @@
 //!
 //! The run is compared with `golden/test_ifcs-checks-cpp.txt`: the C++ test's own checks (its
 //! macros instrumented to print each one's file:line and outcome) on the C++ libsai, in order, with
-//! the per-section counts. Equal sequence and equal sections, all passing, is the gate.
+//! the per-section counts (frozen, captured before the C++ was deleted). Equal sequence and equal sections, all passing, is the gate.
 //!
 //! Inputs (environment): `IFCS_E2E_LIBSAI` (absolute path of the Rust libsai; the shim is loaded
 //! from its directory), `IFCS_E2E_MOCK` (absolute path of the mock libifcs.so), `IFCS_E2E_DIR`
@@ -114,9 +114,21 @@ impl Profile {
         self.0.insert(k.to_owned(), v.to_owned());
     }
 
-    /// Serves this profile to the library from now on.
+    /// Serves this profile to the library from now on. Under the parity harness, `PARITY_PROFILE_ADD=<key>=<value>`
+    /// is one more key, served after the others (the byte tap's `SAI_TERALYNX_IFCS_TRACE`: the profile is fixed
+    /// otherwise), as the C++ test's `sai_api_initialize` wrapper did.
     fn serve(&self) {
-        sai_client::replace_profile(self.0.iter().map(|(k, v)| (k.clone(), v.clone())).collect());
+        let mut pairs: Vec<(String, String)> = self.0.iter().map(|(k, v)| (k.clone(), v.clone())).collect();
+        if let Some((k, v)) = std::env::var("PARITY_PROFILE_ADD")
+            .ok()
+            .as_deref()
+            .and_then(|a| a.split_once('='))
+        {
+            if !self.0.contains_key(k) {
+                pairs.push((k.to_owned(), v.to_owned()));
+            }
+        }
+        sai_client::replace_profile(pairs);
     }
 }
 
@@ -273,35 +285,6 @@ fn main_area(cfg: &Config) -> Env {
     e
 }
 
-/// The checks of the C++ test that ran, from its sources (when they are there): every
-/// `CHECK(` / `CHECK_EQ(` / `OK(` with the file and line it starts at.
-fn cpp_static_sites(dir: &Path) -> Option<BTreeSet<String>> {
-    let mut sites = BTreeSet::new();
-    let mut files = 0;
-    for entry in std::fs::read_dir(dir).ok()? {
-        let path = entry.ok()?.path();
-        let name = path.file_name()?.to_string_lossy().into_owned();
-        let is_test = name == "test_ifcs.cpp" || (name.starts_with("t_") && name.ends_with(".cpp"));
-        if !is_test {
-            continue;
-        }
-        files += 1;
-        let text = std::fs::read_to_string(&path).ok()?;
-        for (i, line) in text.lines().enumerate() {
-            for (at, _) in line.match_indices('(') {
-                let word_start = line[..at]
-                    .rfind(|c: char| !(c.is_ascii_alphanumeric() || c == '_'))
-                    .map_or(0, |p| p + 1);
-                let word = &line[word_start..at];
-                if matches!(word, "CHECK" | "CHECK_EQ" | "OK") {
-                    sites.insert(format!("{name}:{}", i + 1));
-                }
-            }
-        }
-    }
-    (files == 15).then_some(sites)
-}
-
 fn parse_golden(text: &str) -> (Vec<(String, u32, u32)>, Vec<(String, bool)>) {
     let mut sections = Vec::new();
     let mut seq = Vec::new();
@@ -422,6 +405,7 @@ fn ifcs_e2e() {
     e.ck.section("uninit");
     ok!(e, "test_ifcs.cpp:179", e.sai.uninitialize());
 
+    e.ck.finish();
     println!("test_ifcs: {} checks, {} failed", e.ck.checks(), e.ck.failed());
     if e.ck.failed() > 0 {
         eprintln!("--- mock log at failure ---\n{}", e.m().log());
@@ -493,22 +477,12 @@ fn ifcs_e2e() {
             &actual,
             &ran,
         );
-        let zero: Vec<&String> = rows.iter().filter(|(_, _, n)| *n == 0).map(|(id, _, _)| id).collect();
         if let Some(declared) = &declared {
             // the sources agree with the map: every declared id is a row, every zero row is declared
             let in_map: BTreeSet<&String> = rows.iter().map(|(id, _, _)| id).collect();
             let decl: BTreeSet<&String> = declared.keys().collect();
             assert_eq!(in_map, decl, "the ids in the Rust sources and in CHECK-MAP.txt differ");
         }
-        // ... and, while the C++ sources are in the tree, every check site of theirs is a row
-        let cpp = std::env::var_os("IFCS_E2E_CPP_TESTS").map_or_else(
-            || dir.join("../../../../../../ai_re/nix/packages/sai-teralynx/tests"),
-            PathBuf::from,
-        );
-        if let Some(sites) = cpp_static_sites(&cpp) {
-            let in_map: BTreeSet<String> = rows.iter().map(|(id, _, _)| id.clone()).collect();
-            assert_eq!(in_map, sites, "the C++ check sites and the map's rows differ");
-            let _ = zero;
-        }
+        // the C++ sources are gone: the map's rows (frozen at the deletion) are the list of the C++ check sites
     }
 }

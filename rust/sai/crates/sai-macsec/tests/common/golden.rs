@@ -16,7 +16,6 @@
 #![allow(dead_code, reason = "each test file uses part of it")]
 
 use std::collections::BTreeMap;
-use std::fmt::Write as _;
 
 /// FNV-1a 64 of the bytes of `text`.
 pub(crate) fn fnv1a(text: &str) -> u64 {
@@ -38,10 +37,6 @@ impl Digest {
             lines: text.lines().count(),
             fnv: fnv1a(text),
         }
-    }
-
-    fn show(self) -> String {
-        format!("{}:{:016x}", self.lines, self.fnv)
     }
 
     fn parse(s: &str) -> Option<Self> {
@@ -195,52 +190,6 @@ pub(crate) fn parse_golden(text: &str) -> Result<Golden, String> {
     Ok(golden)
 }
 
-fn body(out: &mut String, text: &str) {
-    for l in text.lines() {
-        out.push('>');
-        out.push_str(l);
-        out.push('\n');
-    }
-}
-
-pub(crate) fn emit_inputs(inputs: &Inputs) -> String {
-    let mut out = String::new();
-    for (tag, (len, fnv)) in &inputs.pinned {
-        writeln!(out, "pinned {tag} {len} {fnv:016x}").unwrap();
-    }
-    for (tag, table) in &inputs.tables {
-        writeln!(out, "== table {tag}").unwrap();
-        body(&mut out, table);
-    }
-    for (id, tag, script) in &inputs.scripts {
-        writeln!(out, "== script {id} {tag}").unwrap();
-        body(&mut out, script);
-    }
-    out
-}
-
-pub(crate) fn emit_golden(golden: &Golden) -> String {
-    let mut out = String::new();
-    for c in &golden.cases {
-        writeln!(
-            out,
-            "case {} {} rust={} plain={} fixed={} listed={}",
-            c.id,
-            c.tag,
-            if c.rust_differs { "differs" } else { "fixed" },
-            c.plain.show(),
-            c.fixed.show(),
-            c.listed
-        )
-        .unwrap();
-    }
-    for ((id, kind), text) in &golden.texts {
-        writeln!(out, "== text {id} {kind}").unwrap();
-        body(&mut out, text);
-    }
-    out
-}
-
 /// The first line (1-based) where two texts differ, with both lines.
 fn first_line_difference(a: &str, b: &str) -> String {
     let (mut x, mut y) = (a.lines(), b.lines());
@@ -310,38 +259,4 @@ pub(crate) fn rust_vs_golden(golden: &Golden, case: &Case, rust: &str) -> Result
         .next()
         .filter(|k| *k != "none")
         .map(str::to_owned))
-}
-
-/// What the live C++ printed (normalised) against the golden of `case`: the proof that the golden was
-/// captured from this C++.
-pub(crate) fn live_vs_golden(
-    golden: &Golden,
-    case: &Case,
-    plain: &str,
-    fixed: &str,
-    listed: &str,
-) -> Result<(), String> {
-    held_to(
-        case,
-        "plain",
-        case.plain,
-        golden.text(case, "plain"),
-        plain,
-        "the live C++",
-    )?;
-    held_to(
-        case,
-        "fixed",
-        case.fixed,
-        golden.text(case, "fixed"),
-        fixed,
-        "the live C++ with D9 / D10",
-    )?;
-    if listed != case.listed {
-        return Err(format!(
-            "case {}: live listed={listed}, golden {}",
-            case.id, case.listed
-        ));
-    }
-    Ok(())
 }

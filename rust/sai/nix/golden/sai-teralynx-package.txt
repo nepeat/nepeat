@@ -1,0 +1,57 @@
+# What the C++ package ai_re/nix/packages/sai-teralynx installed (the Rust drop-in, ./sai-teralynx-rs.nix, must
+# have a counterpart of every file, export every symbol of the C++ libsai and exactly the shim's exports).
+# Captured on 2026-11-27 (H5-3) from the package built from the tree at commit 767d9b0 (x86_64-linux
+# mfdysqp9vhssi6x2kiwpw4qyj4zm0an0-sai-teralynx-0.1.0
+# and aarch64-linux ym9kw3dvj2y6hgk2c36jvbsyv0vn4xm5-sai-teralynx-aarch64-unknown-linux-gnu-0.1.0: the file list and both
+# export lists are identical on the two), by: find . -mindepth 1 \( -type f -o -type l \) | LC_ALL=C sort
+# and nm -D --defined-only LIB | awk '{ print $3 }' | LC_ALL=C sort. Never regenerate it from Rust output.
+== files
+./bin/openbcm-diag
+./bin/sai-teralynx-smoke
+./lib/libsai-teralynx-shim.so
+./lib/libsai.so
+./lib/libsai.so.1
+./lib/libsai.so.1.0.0
+== libsai.so.1.0.0 exports
+sai_api_initialize
+sai_api_query
+sai_api_uninitialize
+sai_dbg_generate_dump
+sai_get_maximum_attribute_count
+sai_get_object_count
+sai_get_object_key
+sai_log_set
+sai_object_type_get_availability
+sai_object_type_query
+sai_query_api_version
+sai_query_attribute_capability
+sai_query_attribute_enum_values_capability
+sai_query_stats_capability
+sai_switch_id_query
+== libsai-teralynx-shim.so exports
+PyCallable_Check
+PyErr_Occurred
+PyErr_Print
+PyGILState_Ensure
+PyGILState_Release
+PyImport_Import
+PyInt_AsLong
+PyInt_FromLong
+PyList_GetItem
+PyList_New
+PyList_SetItem
+PyLong_AsLong
+PyObject_CallFunctionObjArgs
+PyObject_CallObject
+PyObject_GetAttrString
+PyUnicodeUCS2_FromString
+Py_BuildValue
+Py_Finalize
+Py_Initialize
+tl_devmem_memcpy
+tl_ifcs_guard_init
+tl_ifcs_guard_installed
+tl_ifcs_guard_text
+tl_ifcs_im_malloc
+tl_ifcs_reg_read32
+tl_ifcs_reg_write32

@@ -22,7 +22,7 @@ first analysis: [reviews/2026-11-10-sdk-learn-crash.md](reviews/2026-11-10-sdk-l
 - The thread polls about once a second, so on 2026-11-16 0x4860 read correctly ~290 times between the CPU path
   dying (16:00:55) and the bad read (16:05:45).
 
-## 2. The guard (`ai_re/nix/packages/sai-teralynx/src/ifcs_guard.c`, in libsai-teralynx-shim.so)
+## 2. The guard (now [`rust/sai/crates/ifcs-guard`](../../../rust/sai/crates/ifcs-guard); this section describes the C original `sai-teralynx/src/ifcs_guard.c`, deleted in H5)
 
 ifcs_lib.cpp points libifcs's GOT entries for `node_pci_reg_read32`, `node_pci_reg_write32` and `im_malloc` at the
 shim (as it already does for memcpy), before `ifcs_init` starts the thread. Only 0x4860 / 0x4864 / 0x485c are
@@ -34,9 +34,9 @@ All-ones from any other offset is only counted (first 16 offsets by name, one li
 returns NULL instead of malloc + memset. Journal: `sai-teralynx: ifcs guard: ...` (at most 20 lines per 10 min,
 written outside its lock); counters in `/run/sai-teralynx/ifcs-guard.prom` (`sai_teralynx_ifcs_guard_*`, invalid
 reads also by error return: `invalid_rc_total`). Profile keys and the test
-hook: [README](../../nix/packages/sai-teralynx/README.md). Vendor stack: not guarded (innovium.user is the vendor's
+hook: [README](../../../rust/sai/crates/sai-backend-teralynx/README.md#profile-keys). Vendor stack: not guarded (innovium.user is the vendor's
 binary; an LD_PRELOAD build of the same code would interpose the PLT calls, not written).
-Rust drop-in (not deployed): crates `ifcs-shim` + `ifcs-guard` ([rust/sai README](../../../rust/sai/README.md) "Teralynx shim"), proven offline: `test_ifcs` 1047 / 1047 with the C++ libsai, differential against this C on 416 scripts (x86_64 and aarch64 emulated), one deliberate difference: the counters' text buffer is sized for the worst case (the C's 4096 bytes overflow with all 16 all-ones names in use, and the `.prom` file then stops updating).
+Rust replacement (deployed since H4, the only one since H5): crates `ifcs-shim` + `ifcs-guard` ([rust/sai README](../../../rust/sai/README.md#teralynx-shim-ifcs-shim-ifcs-guard)), proven offline: `test_ifcs` 1047 / 1047 with the C++ libsai, differential against this C on 416 scripts (x86_64 and aarch64 emulated), one deliberate difference: the counters' text buffer is sized for the worst case (the C's 4096 bytes overflow with all 16 all-ones names in use, and the `.prom` file then stops updating).
 
 ## 3. What dies first (2026-11-16, V from VictoriaMetrics, I where marked)
 

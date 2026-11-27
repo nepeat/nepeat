@@ -199,7 +199,7 @@ impl Arg for Params {}
 impl sealed::Sealed for NetdevInfo {}
 impl Arg for NetdevInfo {}
 
-/// `int tl_ipd_ioctl(int fd, unsigned long req, void* arg)` (`tests/mock/mock_sflow.c`).
+/// `int tl_ipd_ioctl(int fd, unsigned long req, void* arg)` (`rust/sai/tests/teralynx-mock/mock_sflow.c`).
 pub(crate) type Hook = unsafe extern "C" fn(c_int, c_ulong, *mut c_void) -> c_int;
 
 /// The hook at `p` (dlsym's answer for `tl_ipd_ioctl` in libifcs).

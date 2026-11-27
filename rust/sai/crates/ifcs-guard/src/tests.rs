@@ -569,7 +569,7 @@ fn counters_beyond_the_c_buffer_are_written() {
     assert!(io.prom().len() >= C_TEXT_CAP);
 }
 
-/// The mock libifcs' learn pass (`tests/mock/mock_learn_thread.c`) over the guard.
+/// The mock libifcs' learn pass (`rust/sai/tests/teralynx-mock/mock_learn_thread.c`) over the guard.
 struct Learn {
     a: u32,
     wedged: bool,

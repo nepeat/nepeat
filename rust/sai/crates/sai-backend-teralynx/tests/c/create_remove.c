@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: Apache-2.0
- * The IFCS call log of create_switch and remove_switch on the mock libifcs (sai-teralynx
- * tests/mock), for a libsai given on the command line: the C++ sai-teralynx one and the Rust one
- * print the same, line for line, or the call sequences differ (nix/libsai-teralynx.nix diffs them).
- * The profile and files are test_ifcs.cpp's main(). Between the two: the temperature list five
+ * The IFCS call log of create_switch and remove_switch on the mock libifcs (rust/sai/tests/teralynx-mock),
+ * for a libsai given on the command line (tests/test-ifcs.sh runs it on the Rust one; the C++ sai-teralynx
+ * libsai, deleted in H5 on 2026-11-27, printed the same, line for line).
+ * The profile and files are those of the C++ test_ifcs.cpp's main(). Between the two: the temperature list five
  * times and once more (round-robin, then cached), MAX_TEMP and AVAILABLE_IPV4_ROUTE_ENTRY (table
  * usage), and the learn-ring guard's state (installed by the loader's GOT redirects).
  * Usage: create_remove <libsai.so> <mock libifcs.so, absolute> <scratch dir, absolute> [regs file [watch file]]

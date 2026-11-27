@@ -1,11 +1,11 @@
-# CHECK MAP of the Rust port of test_ifcs (ai_re/nix/packages/sai-teralynx/tests: test_ifcs.cpp, t_<area>.cpp):
+# CHECK MAP of the Rust port of test_ifcs (the C++ sai-teralynx's tests/: test_ifcs.cpp, t_<area>.cpp):
 # one row per C++ check site (every CHECK( / CHECK_EQ( / OK( of those files, by the file and line it starts at) ->
 # the Rust assertion that ports it (check! / check_eq! / ok! in this directory: file:line, as of the last
 # regeneration; the line is informational, the test compares the C++ id, the Rust file and the executions) ->
 # how often it runs in the one run (a loop's check runs several times; the sum is the C++ test's 1047).
 # The test (main.rs) enforces: the run's rows equal these; its sequence of check executions and the checks per
-# section equal golden/test_ifcs-checks-cpp.txt (the C++ test's own, in order, all passing); and, while the C++
-# sources are in the tree, every check site found in them is a row here.
+# section equal golden/test_ifcs-checks-cpp.txt (the C++ test's own, in order, all passing). The C++ sources
+# (deleted in H5 on 2026-11-27, last in the tree at commit 767d9b0) are gone: these rows are the list of their check sites.
 # Regenerate after editing the port:  IFCS_E2E_WRITE_MAP=<this file> cargo test -p sai-backend-teralynx --test ifcs_e2e
 # (with IFCS_E2E_LIBSAI and IFCS_E2E_MOCK set; the header lines are kept).
 # columns: C++ id TAB Rust file:line TAB executions

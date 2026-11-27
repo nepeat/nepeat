@@ -8,7 +8,7 @@ Cross-device notes and the stack itself: [sonic-nixos](../sonic-nixos/PROGRESS.m
   three loops ("Running it"); all three loops up with ping across since 2026-11-26 (1 <-> 2 had been down on lane 4:
   cat fur on the fibre / optic faces, both modules replaced by the owner; PROGRESS 2026-11-26).
   Cages: cs8210-optics ("Optics"); LEDs: "LEDs".
-- **Our SAI runs the chip** (`sai-teralynx`: sai-openbcm's frontend + an IFCS backend dlopen()ing the
+- **Our SAI runs the chip** (the Rust `sai-teralynx-rs`: sai-openbcm's frontend ported + an IFCS backend dlopen()ing the
   vendor `libifcs.so` 0.12.41): every phase B/C feature passes its sai-script chip test on the 400G
   cage 1 <-> 16 loop ([sai-features.md](sai-features.md), [sai-hw-integration-20261116.txt](sai-hw-integration-20261116.txt)).
 - **SONiC at boot** (deployed 2026-11-16, two reboots: BGP/LACP ~62 s, BFD ~64 s after kernel start; [evidence](sai-hw-sonic-boot-20261116.txt)):
@@ -24,7 +24,7 @@ Cross-device notes and the stack itself: [sonic-nixos](../sonic-nixos/PROGRESS.m
 - **Recover:** `systemctl stop sonic.target` (or `systemctl start cs8210-switch`, which stops syncd), boot
   an older generation from the U-Boot menu, or `autoStart = false`. A dead FPGA (`/run/cs8210-qsfp.dead`, or the
   cage guard refusing) took a power cycle on 2026-11-16 (PCIe remove/rescan not tried).
-- **Code:** [packages/sai-teralynx](../../nix/packages/sai-teralynx/README.md), [boards/cs8210](../../nix/modules/boards/cs8210/sonic.nix)
+- **Code:** [rust/sai/nix/sai-teralynx-rs.nix](../../../rust/sai/nix/sai-teralynx-rs.nix) + [sai-backend-teralynx](../../../rust/sai/crates/sai-backend-teralynx/README.md) (the C++ sai-teralynx was deleted in H5), [boards/cs8210](../../nix/modules/boards/cs8210/sonic.nix)
   (ports, IFCS yaml, sai.profile incl. the diag socket, buffermgrd, pmon), `nepeat/nix`
   `nixos/module/cs8210/sonic` (cross build, Credo unit, guard, watchdog), `nixos/module/cs8210/optics` + `rust/cs8210`
   (cages, LEDs).
@@ -207,7 +207,7 @@ cs8210-macsec. 45-52 C idle (2026-11-26). Not a fand input (fan policy is the ow
 - **Chosen:** sai-openbcm's hardware-agnostic frontend (shared with the AS7760; its optional backend hooks default to the AS7760's behaviour)
   + a new IFCS backend. SAI ABI = sairedis' pin (OCP SAI 1.19.2), by construction. IFCS
   declarations are generated at build time from a public ctypes file (ishell 2.0.1), equal to the
-  SDK's 0.12.41 for everything used ([README](../../nix/packages/sai-teralynx/README.md#ifcs-declarations)).
+  SDK's 0.12.41 for everything used ([README](../../../rust/sai/crates/sai-backend-teralynx/README.md#ifcs-declarations)).
 - **Kernel driver:** the existing ipd 0.16.2 with `legacy_abi=1` (the 2020 libifcs speaks 0.12.41).
 
 ## Vendor files at run time (never in git or the store)

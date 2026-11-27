@@ -34,6 +34,7 @@ impl Library {
 
     /// `dlopen(path, RTLD_NOW | RTLD_NOLOAD)`: the handle of a library the process has loaded
     /// already (the mock libifcs that the libsai opened), `None` if it is not loaded.
+    #[cfg(feature = "mock")]
     pub(crate) fn attach(path: &str) -> Option<Self> {
         let c = CString::new(path).ok()?;
         // SAFETY: a NUL-terminated path; NOLOAD never loads or runs anything, it only returns the
@@ -49,17 +50,20 @@ impl Library {
     }
 
     /// The address of a symbol (a code address handed on as a pointer).
+    #[cfg(feature = "mock")]
     pub(crate) fn address(&self, name: &str) -> Option<NonNull<c_void>> {
         self.sym(&CString::new(name).ok()?)
     }
 
     /// A function of the library by name, as `F` (see [`Library::function`]).
+    #[cfg(feature = "mock")]
     pub(crate) fn function_named<F: Copy>(&self, name: &str) -> Option<F> {
         self.function(&CString::new(name).ok()?)
     }
 
     /// A function of the process's global scope (`dlsym(RTLD_DEFAULT)`: what a library loaded
     /// `RTLD_GLOBAL` exports), as `F` (see [`Library::function`]).
+    #[cfg(feature = "mock")]
     pub(crate) fn global_function<F: Copy>(name: &str) -> Option<F> {
         const { assert!(size_of::<F>() == size_of::<*mut c_void>()) };
         let c = CString::new(name).ok()?;

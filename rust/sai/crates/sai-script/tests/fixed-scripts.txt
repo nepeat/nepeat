@@ -1,5 +1,5 @@
-# The oracle scripts (ai_re/nix/packages/sai-teralynx/oracle/scripts) where the Rust runner's default
-# mode deliberately differs from sai_script.cpp (crate docs: the fixes), and why; tests/differential.rs
+# The oracle scripts (the oracle scripts, ai_re/nix/packages/ifcs-oracle) where the Rust runner's default
+# mode deliberately differs from the golden of sai_script.cpp (crate docs: the fixes), and why; tests/differential.rs
 # requires exactly these to show FIX lines (on each libsai), and every other script to be identical.
 #   <stem> TAB <the fix>
 acl	null object of failed creates: 19 removes of ACL entries / tables the mock refused; the C++ stops at the first (unknown value ACTION_PACKET_ACTION)

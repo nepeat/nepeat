@@ -1,14 +1,14 @@
-//! Differential test: the five Rust tools against the C tools they replace
-//! (ai_re/nix/packages/sai-teralynx/tools/*.c, read only), over veth pairs inside an unprivileged
-//! network namespace (`unshare -rn`).
+//! Golden test: the five Rust tools against the recorded behaviour of the C tools they replaced
+//! (`tests/golden/frames-cpp.txt`, captured once from the C tools `trap_frames.c`, `qos_frames.c`,
+//! `raw_frames.c`, `l3_frames.c` and `sflow_probe.c` of the C++ sai-teralynx, deleted in H5 on 2026-11-27,
+//! last in the tree at commit 767d9b0), over veth pairs inside an unprivileged network namespace
+//! (`unshare -rn`).
 //!
-//! The outer test builds the C tools from the sources (`TL_FRAMES_C_TOOLS`, default: the checkout's
-//! tools directory), then re-runs this test binary under `unshare -rn` (the inner test, selected by
-//! `TL_FRAMES_INNER`). Inside, every scenario runs the C tool and the Rust tool with the same
-//! command line against the same topology and compares, after masking times and run ids:
-//! exit status, standard output, standard error and every frame the tool put on the wire (captured
-//! on the veth peer). The outer test skips (loudly) where user namespaces, ip(8) or a C compiler are
-//! missing, unless `TL_FRAMES_REQUIRE_DIFF=1`.
+//! The outer test re-runs this test binary under `unshare -rn` (the inner test, selected by
+//! `TL_FRAMES_INNER`). Inside, every scenario runs the Rust tool against the same topology and
+//! compares, after masking times and run ids, exit status, standard output, standard error and every
+//! frame the tool put on the wire (captured on the veth peer) with the golden record. The test never
+//! skips: where user namespaces, ip(8) or a C compiler (for the psample shim) are missing it fails.
 // test harness: a failure is a panic with its message
 #![allow(
     clippy::too_many_lines,
@@ -34,10 +34,10 @@ use tl_frames::os::{PACKET_OUTGOING, Sock, if_nametoindex};
 const INNER: &str = "TL_FRAMES_INNER";
 
 /// The C tools' recorded behaviour (H5-0 golden, captured once from the C tools; see its header).
-/// Never regenerate it from the Rust output.
+/// Frozen: never regenerate it, least of all from the Rust output.
 const GOLDEN: &str = include_str!("golden/frames-cpp.txt");
 
-/// Records seen by this run, by scenario key (checked for coverage; written in capture mode).
+/// Records seen by this run, by scenario key (checked for coverage against the golden).
 static SEEN: Mutex<BTreeMap<String, String>> = Mutex::new(BTreeMap::new());
 
 /// One scenario's behaviour as text: exit status, masked stdout / stderr (escaped, one line each),
@@ -108,32 +108,12 @@ fn golden_check(golden_map: &BTreeMap<String, String>, key: &str, rec: &str) -> 
     }
 }
 
-fn capturing() -> bool {
-    std::env::var("TL_FRAMES_CAPTURE").is_ok()
-}
-
-/// Judges one run (`who` is "C" or "Rust") against the golden, and notes the scenario as covered.
-/// In capture mode (`TL_FRAMES_CAPTURE=<file>`, C tools only) it records the C run instead.
-fn judge(key: &str, who: &str, rec: String) {
-    if capturing() {
-        if who == "C" {
-            SEEN.lock().unwrap().insert(key.to_owned(), rec);
-        }
-        return;
-    }
+/// Judges one run against the golden, and notes the scenario as covered.
+fn judge(key: &str, rec: String) {
     if let Err(e) = golden_check(golden(), key, &rec) {
-        panic!("{who} vs golden: {e}");
+        panic!("Rust vs golden: {e}");
     }
     SEEN.lock().unwrap().insert(key.to_owned(), rec);
-}
-
-fn tools_dir() -> Option<PathBuf> {
-    if let Ok(d) = std::env::var("TL_FRAMES_C_TOOLS") {
-        return Some(PathBuf::from(d));
-    }
-    let here = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let d = here.join("../../../../ai_re/nix/packages/sai-teralynx/tools");
-    d.join("trap_frames.c").exists().then_some(d)
 }
 
 fn have(cmd: &str, arg: &str) -> bool {
@@ -145,70 +125,27 @@ fn have(cmd: &str, arg: &str) -> bool {
         .is_ok_and(|s| s.success())
 }
 
-fn skip(reason: &str) {
-    assert!(
-        std::env::var("TL_FRAMES_REQUIRE_DIFF").is_err(),
-        "differential required but: {reason}"
-    );
-    eprintln!("SKIPPED differential: {reason}");
-}
-
-/// (source file, binary name, extra libs)
-const C_TOOLS: [(&str, &str, &[&str]); 5] = [
-    ("trap_frames.c", "trap-frames", &["-lpthread"]),
-    ("qos_frames.c", "qos-frames", &["-lpthread"]),
-    ("raw_frames.c", "raw-frames", &["-lpthread"]),
-    ("l3_frames.c", "l3-frames", &[]),
-    ("sflow_probe.c", "sflow-probe", &["-lpthread", "-lm"]),
-];
-
-fn build_c(src: &Path, out: &Path) {
-    std::fs::create_dir_all(out).unwrap();
-    let cc = std::env::var("CC").unwrap_or_else(|_| "cc".into());
-    for (file, bin, libs) in C_TOOLS {
-        let st = Command::new(&cc)
-            .args(["-O2", "-w", "-o"])
-            .arg(out.join(bin))
-            .arg(src.join(file))
-            .args(libs)
-            .status()
-            .unwrap();
-        assert!(st.success(), "compiling {file}");
-    }
-}
-
 #[test]
 fn differential_in_a_user_namespace() {
     if std::env::var(INNER).is_ok() {
         return;
     }
-    // without the C sources the run is golden-only (the Rust tools against the recorded C behaviour)
-    let src = tools_dir().filter(|_| std::env::var("TL_FRAMES_NO_C").is_err());
     assert!(
-        src.is_some() || !capturing(),
-        "capture needs the C tool sources (TL_FRAMES_C_TOOLS)"
+        have("unshare", "--help")
+            && Command::new("unshare")
+                .args(["-rn", "true"])
+                .status()
+                .is_ok_and(|s| s.success()),
+        "the golden test needs unprivileged user + network namespaces (unshare -rn)"
     );
-    if !have("unshare", "--help")
-        || !Command::new("unshare")
-            .args(["-rn", "true"])
-            .status()
-            .is_ok_and(|s| s.success())
-    {
-        return skip("unprivileged user + network namespaces are not available");
-    }
-    if !have("ip", "-V") {
-        return skip("ip(8) is not available");
-    }
+    assert!(have("ip", "-V"), "the golden test needs ip(8)");
     let cc = std::env::var("CC").unwrap_or_else(|_| "cc".into());
-    if !have(&cc, "--version") {
-        return skip("no C compiler (the psample shim needs one)");
-    }
+    assert!(
+        have(&cc, "--version"),
+        "the golden test needs a C compiler (the psample shim)"
+    );
     let tmp = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(format!("tl-frames-diff-{}", std::process::id()));
-    let cbin = tmp.join("c");
     std::fs::create_dir_all(&tmp).unwrap();
-    if let Some(src) = &src {
-        build_c(src, &cbin);
-    }
     let shim = tmp.join("psample_shim.so");
     let st = Command::new(&cc)
         .args(["-shared", "-fPIC", "-w", "-o"])
@@ -224,7 +161,6 @@ fn differential_in_a_user_namespace() {
         .arg(&exe)
         .args(["--exact", "inner", "--nocapture", "--test-threads=1"])
         .env(INNER, "1")
-        .envs(src.as_ref().map(|_| ("TL_FRAMES_CBIN", &cbin)))
         .env("TL_FRAMES_SHIM", &shim)
         .env("TL_FRAMES_TMP", &tmp)
         .output()
@@ -239,15 +175,10 @@ fn differential_in_a_user_namespace() {
 
 struct Tool {
     name: &'static str,
-    /// the C tool binary; used only when `live`
-    c: PathBuf,
-    /// the C tools were built: compare live as well as against the golden
-    live: bool,
     rust: PathBuf,
 }
 
 fn tool(name: &'static str) -> Tool {
-    let cbin = std::env::var("TL_FRAMES_CBIN").ok().map(PathBuf::from);
     let rust = match name {
         "trap-frames" => env!("CARGO_BIN_EXE_trap-frames"),
         "qos-frames" => env!("CARGO_BIN_EXE_qos-frames"),
@@ -257,8 +188,6 @@ fn tool(name: &'static str) -> Tool {
     };
     Tool {
         name,
-        c: cbin.clone().unwrap_or_default().join(name),
-        live: cbin.is_some(),
         rust: PathBuf::from(rust),
     }
 }
@@ -431,7 +360,7 @@ fn one(t: &Tool, bin: &Path, sc: &Scenario) -> Run {
 }
 
 /// An IPv6 UDP checksum covers the run id (random per run): it must verify, then it is zeroed so
-/// the C and Rust frames can be compared.
+/// the frames can be compared with the golden.
 fn zero_valid_v6_checksum(f: &mut [u8]) {
     if f.get(12..14) != Some(&[0x86, 0xdd][..]) {
         return;
@@ -451,48 +380,23 @@ fn zero_valid_v6_checksum(f: &mut [u8]) {
 }
 
 fn compare(t: &Tool, sc: &Scenario) {
-    let c = if t.live { one(t, &t.c, sc) } else { one(t, &t.rust, sc) };
     let r = one(t, &t.rust, sc);
     println!(
-        "[{}] {}: {} status={} frames={} / Rust status={} frames={}",
+        "[{}] {}: status={} frames={}",
         t.name,
         sc.label,
-        if t.live { "C" } else { "golden-only (Rust)" },
-        c.status,
-        c.frames.len(),
         r.status,
         r.frames.len()
     );
-    let key = format!("{}/{}", t.name, sc.label);
-    if t.live {
-        // live C == golden (the capture proof), then Rust == golden
-        judge(&key, "C", run_record(&c));
-    }
-    judge(&key, "Rust", run_record(&r));
-    assert_eq!(c.status, r.status, "{} {}: exit status", t.name, sc.label);
-    assert_eq!(c.stderr, r.stderr, "{} {}: stderr", t.name, sc.label);
-    assert_eq!(
-        c.stdout, r.stdout,
-        "{} {}: stdout\n--- C\n{}\n--- Rust\n{}",
-        t.name, sc.label, c.stdout, r.stdout
-    );
+    // at least this many frames: an empty == empty match cannot pass
     assert!(
-        c.frames.len() >= sc.min_frames,
+        r.frames.len() >= sc.min_frames,
         "{} {}: only {} frames captured",
         t.name,
         sc.label,
-        c.frames.len()
+        r.frames.len()
     );
-    assert_eq!(
-        c.frames.len(),
-        r.frames.len(),
-        "{} {}: frames on the wire",
-        t.name,
-        sc.label
-    );
-    for (k, (a, b)) in c.frames.iter().zip(&r.frames).enumerate() {
-        assert_eq!(a, b, "{} {}: frame {k} differs", t.name, sc.label);
-    }
+    judge(&format!("{}/{}", t.name, sc.label), run_record(&r));
 }
 
 fn s(v: &[&str]) -> Vec<String> {
@@ -1076,25 +980,10 @@ fn run_sflow(bin: &Path, args: &[String], env: &[(&str, &str)]) -> (i32, String,
 }
 
 fn sflow_netdev(label: &str, t: &Tool, args: &[&str], env: &[(&str, &str)]) {
-    let a = s(args);
-    let (cs, co, ce) = if t.live {
-        run_sflow(&t.c, &a, env)
-    } else {
-        run_sflow(&t.rust, &a, env)
-    };
-    let (rs, ro, re) = run_sflow(&t.rust, &a, env);
-    let cp = if t.live { &t.c } else { &t.rust };
-    let (co, ro) = (mask(&co, &TIME_KEYS, cp), mask(&ro, &TIME_KEYS, &t.rust));
-    let (ce, re) = (mask(&ce, &TIME_KEYS, cp), mask(&re, &TIME_KEYS, &t.rust));
-    let key = format!("sflow-probe/{label}");
-    if t.live {
-        judge(&key, "C", record(cs, &co, &ce, &[]));
-    }
-    judge(&key, "Rust", record(rs, &ro, &re, &[]));
-    println!("[sflow-probe] {label}: status {cs}/{rs}\n{ro}");
-    assert_eq!(cs, rs, "{label}: status");
-    assert_eq!(ce, re, "{label}: stderr");
-    assert_eq!(co, ro, "{label}: stdout\n--- C\n{co}\n--- Rust\n{ro}");
+    let (rs, ro, re) = run_sflow(&t.rust, &s(args), env);
+    let (ro, re) = (mask(&ro, &TIME_KEYS, &t.rust), mask(&re, &TIME_KEYS, &t.rust));
+    judge(&format!("sflow-probe/{label}"), record(rs, &ro, &re, &[]));
+    println!("[sflow-probe] {label}: status {rs}\n{ro}");
 }
 
 fn sflow_scenarios() {
@@ -1264,23 +1153,16 @@ fn psample_scenarios() {
             )
         };
         let r = run(&t.rust);
-        let c = if t.live { run(&t.c) } else { r.clone() };
         let key = format!("sflow-probe/psample {label}");
         // the ifindex of the veth depends on which group created its pair first: not part of the golden
-        if t.live {
-            judge(&key, "C", record(c.0, &mask_ifindex(&c.1), &c.2, &[]));
-        }
-        judge(&key, "Rust", record(r.0, &mask_ifindex(&r.1), &r.2, &[]));
-        println!("[sflow-probe] psample {label}: status {}/{}\n{}", c.0, r.0, r.1);
-        assert_eq!(c.0, r.0, "{label}: status");
-        assert_eq!(c.2, r.2, "{label}: stderr");
-        assert_eq!(c.1, r.1, "{label}: stdout\n--- C\n{}\n--- Rust\n{}", c.1, r.1);
+        judge(&key, record(r.0, &mask_ifindex(&r.1), &r.2, &[]));
+        println!("[sflow-probe] psample {label}: status {}\n{}", r.0, r.1);
         assert!(
-            c.1.contains("PSAMPLE family=55 group_packets=101"),
+            r.1.contains("PSAMPLE family=55 group_packets=101"),
             "{label}: the canned family was not used: {}",
-            c.1
+            r.1
         );
-        assert!(c.1.contains("META iif="), "{label}: no metadata: {}", c.1);
+        assert!(r.1.contains("META iif="), "{label}: no metadata: {}", r.1);
     }
 }
 
@@ -1312,15 +1194,6 @@ fn inner() {
     }
     assert!(failed.is_empty(), "differential failed for {failed:?}");
     let seen = SEEN.lock().unwrap();
-    if let Ok(path) = std::env::var("TL_FRAMES_CAPTURE") {
-        // capture mode: the C tools' records, in key order (the golden's body)
-        let body: String = seen
-            .iter()
-            .map(|(key, rec)| ["@@ ", key.as_str(), "\n", rec.as_str()].concat())
-            .collect();
-        std::fs::write(path, body).unwrap();
-        return;
-    }
     // every golden scenario ran, and nothing ran that the golden does not hold
     let want: Vec<&String> = golden().keys().collect();
     let got: Vec<&String> = seen.keys().collect();

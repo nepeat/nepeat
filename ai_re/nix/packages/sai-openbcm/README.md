@@ -6,8 +6,8 @@ openbcm backends, `openbcm-diag`, `openbcm-mdio-script`, `openbcm-asic-temp`, th
 their tests and VM tests) was replaced by the Rust SAI in `rust/sai` and deleted (gates G5 / G6,
 `rust/sai/README.md`). The AS7760 and AS7772 run the Rust package
 (`rust/sai/nix/sai-openbcm-rs.nix`, `hardware.openbcm` in `nix/modules/switch/openbcm.nix`) under the
-names this package had. The C++ frontend lives on, frozen, in
-[`../sai-teralynx/frontend`](../sai-teralynx/README.md#frozen-frontend) until the CS8210 runs Rust.
+names this package had. Its C++ frontend lived on, frozen, in the CS8210's C++ sai-teralynx package until
+that was deleted too (H5, 2026-11-27; last in the tree at commit 767d9b0): the CS8210 runs the Rust SAI.
 
 History: this README as it described the C++ SAI is `git show 50a6aa7:ai_re/nix/packages/sai-openbcm/README.md`
 (design, profile keys, supported objects, ACL / CoPP, what orchagent reads, the external PHY and

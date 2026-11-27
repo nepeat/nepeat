@@ -1,23 +1,21 @@
 # libsai.so of the Rust SAI with the Teralynx 7 backend (crate sai-backend-teralynx, the CS8210-32X:
 # libifcs.so dlopen'ed at run time, nothing vendor linked). README "Teralynx backend".
-#   native (x86_64: the checks below run):  pkgs.callPackage ./libsai-teralynx.nix { saiRs = <./package.nix>; cppTeralynx = <sai-teralynx>; }
+#   native (x86_64: the checks below run):  pkgs.callPackage ./libsai-teralynx.nix { saiRs = <./package.nix>; }
 #   aarch64 (the CS8210):                   pkgsCross.aarch64-multiplatform.callPackage ./libsai-teralynx.nix { saiRs = <./package.nix for it>; }
-# saiRs: ./package.nix for the same pkgs (its passthru: the SAI headers, the generated IFCS headers,
-# the C++ Teralynx package's source). cppTeralynx: optional, the C++ sai-teralynx package for the same
-# pkgs (its lib/libsai.so.1.0.0: the reference of the create / remove call-log comparison).
+# saiRs: ./package.nix for the same pkgs (its passthru: the SAI headers, the generated IFCS headers).
 #
 # Checked at build time (results in $out/share/sai-rs/):
 #   - -z defs, soname libsai.so.1, the exports of the virtual-backend library of saiRs (libsai-teralynx.txt)
 #   - natively: the Teralynx crates' tests (ifcs-sys, elf-got, ifcs, sai-backend-teralynx), then
-#     crates/sai-backend-teralynx/tests/test-ifcs.sh: test_ifcs (unmodified) on this library with the C
-#     mock libifcs and the C shim, every FAIL line one of tests/test_ifcs-expected.txt; the IFCS call log
-#     of create_switch / remove_switch equal to the C++ library's (test_ifcs.txt, create_remove.diff);
-#     then the same test in Rust (crates/sai-backend-teralynx/tests/ifcs_e2e: the built libsai through
-#     sai-client on the same mock and shim; its checks, in order, equal to the C++ test's golden;
-#     ifcs_e2e.txt)
+#     crates/sai-backend-teralynx/tests/test-ifcs.sh: this library with the C mock libifcs and the Rust shim
+#     (./ifcs-shim.nix): the IFCS call log of create_switch / remove_switch (create_remove.txt) and the
+#     post-init register list (test_ifcs.txt); then test_ifcs in Rust (crates/sai-backend-teralynx/tests/ifcs_e2e:
+#     the built libsai through sai-client on the same mock and shim; its checks, in order, equal to the C++
+#     test's golden; ifcs_e2e.txt). The C++ test_ifcs and the C++ library's call log are gone (H5, 2026-11-27):
+#     the parity harness (./teralynx-parity.nix) holds the IFCS calls of every test_ifcs section to the C++ golden.
 #   - a cross build: the bindings' layout checks for the target (ifcs-sys's build, the target's cc);
-#     passthru.testBundle has this library, the mock, the shim, test_ifcs and the call-log driver built
-#     for the target, to run under binfmt (./teralynx-target-run.nix), and the ifcs crate's ABI test
+#     passthru.testBundle has this library, the mock, the Rust shim, the call-log driver and the Rust test_ifcs
+#     built for the target, to run under binfmt (./teralynx-target-run.nix), and the ifcs crate's ABI test
 #     (crates/ifcs/tests/abi.rs with its C fixture: the byte twins passed as the target's C passes the
 #     structs, every byte libifcs receives defined)
 {
@@ -25,28 +23,17 @@
   stdenv,
   callPackage,
   saiRs,
-  cppTeralynx ? null,
 }:
 let
   cc = "${stdenv.cc}/bin/${stdenv.cc.targetPrefix}cc";
-  cxx = "${stdenv.cc}/bin/${stdenv.cc.targetPrefix}c++";
   bin = "${stdenv.cc.bintools.bintools}/bin/${stdenv.cc.targetPrefix}";
   triple = stdenv.hostPlatform.rust.rustcTarget;
   canRun = stdenv.buildPlatform.canExecute stdenv.hostPlatform;
-  tl = saiRs.teralynxSrc;
-  tlFiles = builtins.path {
-    path = tl;
-    name = "sai-teralynx-test-src";
-    # what the test reads: the shim (C), test_ifcs; nothing of the C++ library itself (the mock: ./teralynx-mock.nix)
-    filter = p: t:
-      let rel = lib.removePrefix (toString tl + "/") (toString p); in
-      rel == "src" || rel == "tests"
-      || builtins.elem rel [ "src/shim.c" "src/ifcs_guard.c" "tests/harness.h" ]
-      || (lib.hasPrefix "tests/" rel && lib.hasSuffix ".cpp" rel);
-  };
   gen = "${saiRs.ifcsHeaders}/include";
   # the one mock libifcs of every Teralynx test (./teralynx-mock.nix)
   mock = callPackage ./teralynx-mock.nix { inherit (saiRs) ifcsHeaders; };
+  # the Rust libsai-teralynx-shim.so for the same platform (./ifcs-shim.nix: its checks), next to the libsai
+  shim = (callPackage ./ifcs-shim.nix { inherit saiRs; }).shim;
   libsai = saiRs.overrideAttrs (old: {
   pname = "sai-rs-libsai-teralynx";
 
@@ -65,8 +52,8 @@ let
     so=$PWD/target/${triple}/$cargoBuildType/libsai.so
     test -f "$so"
     mkdir -p $NIX_BUILD_TOP/tl
-    CC=${cc} CXX=${cxx} MOCK_LIBIFCS=${mock}/mock/libifcs.so bash crates/sai-backend-teralynx/tests/test-ifcs.sh $NIX_BUILD_TOP/tl "$so" ${tlFiles} ${gen} ${saiRs.saiHeaders} \
-      ${lib.optionalString (cppTeralynx != null) "${cppTeralynx}/lib/libsai.so.1.0.0"}
+    CC=${cc} MOCK_LIBIFCS=${mock}/mock/libifcs.so bash crates/sai-backend-teralynx/tests/test-ifcs.sh $NIX_BUILD_TOP/tl "$so" \
+      ${shim}/lib/libsai-teralynx-shim.so ${gen} ${saiRs.saiHeaders}
     # test_ifcs in Rust: the cargo test binary of the check phase, now with the libsai, the mock and the
     # shim that test-ifcs.sh put in $NIX_BUILD_TOP/tl/lib (a short scratch path: the diag socket)
     e2e=$(ls -t target/${triple}/$cargoBuildType/deps/ifcs_e2e-* | grep -v '\.d$' | head -1)
@@ -101,11 +88,10 @@ let
       cp $NIX_BUILD_TOP/tl/test_ifcs-result.txt $out/share/sai-rs/test_ifcs.txt
       cp $NIX_BUILD_TOP/tl/create_remove-rust.txt $out/share/sai-rs/create_remove.txt
       cp $NIX_BUILD_TOP/tl/ifcs_e2e.txt $out/share/sai-rs/ifcs_e2e.txt
-      if [ -f $NIX_BUILD_TOP/tl/create_remove.diff ]; then cp $NIX_BUILD_TOP/tl/create_remove.diff $out/share/sai-rs/; fi
     ''}
   '';
 
-  passthru = (old.passthru or { }) // { inherit cppTeralynx tlFiles ifcsTests e2eTests; testBundle = bundle; };
+  passthru = (old.passthru or { }) // { inherit shim ifcsTests e2eTests; testBundle = bundle; };
 
   meta = old.meta // {
     description = "Rust libsai.so with the Teralynx 7 backend (libifcs loaded at run time) for the CS8210-32X";
@@ -149,8 +135,8 @@ let
     meta = old.meta // { description = "the Teralynx end-to-end test (tests/ifcs_e2e) built for the target, with its golden"; };
   });
 
-  # this library and the C test programs built for the target, to run where the target executes
-  # (./teralynx-target-run.nix: binfmt); the same programs test-ifcs.sh builds natively
+  # this library, the Rust shim, the mock, the call-log driver and the Rust test_ifcs built for the target, to run
+  # where the target executes (./teralynx-target-run.nix: binfmt); what test-ifcs.sh and the check phase run natively
   bundle = stdenv.mkDerivation {
     pname = "sai-rs-teralynx-test-bundle";
     inherit (libsai) version;
@@ -161,17 +147,12 @@ let
       cp ${libsai}/lib/libsai.so.1.0.0 $out/lib/libsai.so.1.0.0
       ln -s libsai.so.1.0.0 $out/lib/libsai.so.1
       ln -s libsai.so.1 $out/lib/libsai.so
-      warn="-Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers"
-      ${cc} -std=gnu11 -fPIC -shared -Wall -fno-builtin -fno-tree-loop-distribute-patterns -O2 -g \
-        -Wl,-soname,libsai-teralynx-shim.so -o $out/lib/libsai-teralynx-shim.so ${tlFiles}/src/shim.c ${tlFiles}/src/ifcs_guard.c -lpthread
+      cp ${shim}/lib/libsai-teralynx-shim.so $out/lib/libsai-teralynx-shim.so
       cp ${mock}/mock/libifcs.so $out/mock/libifcs.so
-      ${cxx} -std=c++17 $warn -O2 -g -I${saiRs.saiHeaders} -I${saiRs.saiHeaders}/../experimental -I${tlFiles}/tests -o $out/lib/test_ifcs \
-        ${tlFiles}/tests/test_ifcs.cpp ${tlFiles}/tests/t_*.cpp $out/lib/libsai.so.1.0.0 -Wl,-rpath,'$ORIGIN' -ldl -lpthread
       ${cc} -std=gnu11 -Wall -Wextra -O1 -g -I${saiRs.saiHeaders} -I${saiRs.saiHeaders}/../experimental \
         -o $out/create_remove ${../crates/sai-backend-teralynx/tests/c/create_remove.c} -ldl
       cp ${../crates/sai-backend-teralynx/tests/test-ifcs.sh} $out/test-ifcs.sh
-      cp ${../crates/sai-backend-teralynx/tests/test_ifcs-expected.txt} $out/test_ifcs-expected.txt
-      cp ${../crates/sai-backend-teralynx/tests/areas.txt} $out/areas.txt
+      cp ${../crates/sai-backend-teralynx/tests/c/create_remove-cpp.txt} $out/create_remove-cpp.txt
       cp ${../crates/sai-backend-teralynx/tests/post-init-regs.txt} $out/post-init-regs.txt
       cp ${../crates/sai-backend-teralynx/tests/diag-regs.txt} $out/diag-regs.txt
       cp -r ${ifcsTests}/ifcs $out/ifcs

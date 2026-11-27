@@ -1,6 +1,6 @@
 [package]
 name = "ifcs-gen"
-description = "The IFCS header generator (sai-teralynx's gen_ifcs_api.py in Rust): our templates filled from a ctypesgen file read as data; ifcs-sys's build dependency"
+description = "The IFCS header generator (the C++ sai-teralynx's gen_ifcs_api.py, deleted in H5, in Rust): our templates filled from a ctypesgen file read as data; ifcs-sys's build dependency"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

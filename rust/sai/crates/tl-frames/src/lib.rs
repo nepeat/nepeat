@@ -1,5 +1,5 @@
 //! Hardware test frame senders and counters for the CS8210 SAI tests: the Rust ports of
-//! `tools/{trap,qos,raw,l3}_frames.c` and `tools/sflow_probe.c` of the C++ sai-teralynx package, with the
+//! `tools/{trap,qos,raw,l3}_frames.c` and `tools/sflow_probe.c` of the C++ sai-teralynx package (deleted in H5 on 2026-11-27, last in the tree at commit 767d9b0), with the
 //! same command lines, output text and exit codes (the oracle's `hw:*` scripts call them by name and read
 //! their output).
 //!
@@ -11,8 +11,8 @@
 //!   `poll`, interface lookup and the up / MAC ioctls).
 //!
 //! The binaries (`trap-frames`, `qos-frames`, `raw-frames`, `l3-frames`, `sflow-probe`) are behind the
-//! `cli` feature; `tests/differential.rs` runs them against the C tools over veth pairs in a user
-//! namespace.
+//! `cli` feature; `tests/differential.rs` runs them over veth pairs in a user
+//! namespace against the recorded behaviour of the C tools (`tests/golden/frames-cpp.txt`).
 #![deny(unsafe_code)]
 // the ports keep the C tools' short names (b, s, i, n, o, f) so they read against the originals
 #![allow(clippy::many_single_char_names)]

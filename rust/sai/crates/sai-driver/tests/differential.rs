@@ -1,37 +1,20 @@
-//! The C++-vs-Rust frontend differential: every op script of this crate's `tests/driver-scripts/*.ops`
-//! (01-09: the frozen C++ frontend's scripts, moved here unchanged; 10-11: the external-PHY runtime
-//! and the `MACsec` objects) runs through the C++ `frontend_driver` (the C++ libsai on its fake
-//! backend, frozen since 2026-11-23 in `ai_re/nix/packages/sai-teralynx/frontend`) and through this
-//! crate's driver (the Rust core on its virtual backend); the outputs are compared op block by op
-//! block (`sai_driver::compare`). Every differing block must be covered by an entry of
-//! `tests/differential-allow.txt`, and every entry must cover a block. Two legs:
+//! The C++-vs-Rust frontend differential, against the golden. Every op script of this crate's
+//! `tests/driver-scripts/*.ops` (01-09: the C++ frontend's scripts, moved here unchanged; 10-11: the
+//! external-PHY runtime and the `MACsec` objects) runs through this crate's driver (the Rust core on its
+//! virtual backend); its output is compared op block by op block (`sai_driver::compare`) with the output
+//! of the C++ `frontend_driver` (the C++ libsai on its fake backend; the C++ frontend was deleted in H5 on
+//! 2026-11-27, last in the tree at commit 767d9b0), as captured on 2026-11-26 in
+//! `tests/golden/differential-cpp.txt`; its inputs, the 11 scripts and the two table files, are
+//! `tests/golden/differential-inputs.txt`. Every differing block must be covered by an entry of
+//! `tests/differential-allow.txt`, and every entry must cover a block. Always runs: no C++, no compiler, no
+//! environment. A script of the tree that differs from the golden's copy fails ("script changed since the
+//! golden"). The golden is never regenerated from Rust output (nor at all: the C++ is gone).
+//! Negative controls: a changed line of the golden output, a changed script, and a dropped block are
+//! reported.
 //!
-//! * GOLDEN (always runs, no C++, no compiler): the Rust driver against the C++ driver's output as
-//!   captured on 2026-11-26 (`tests/golden/differential-cpp.txt`; its inputs, the 11 scripts and the two
-//!   table files, are `tests/golden/differential-inputs.txt`). A script of the tree that differs from
-//!   the golden's copy fails ("script changed since the golden"). Never regenerated from Rust output.
-//!   Negative controls: a changed line of the golden output, a changed script, and a dropped block are
-//!   reported.
-//! * LIVE (only with the C++ sources; else SKIPPED, said on stderr and in `$SAI_RS_TEST_SUMMARY`): the
-//!   same comparison against the live C++ driver, and `live_cpp_output_equals_the_golden`: the live C++
-//!   output (and its table files) is byte-equal to the golden, the proof that the golden is the C++'s.
-//!
-//! The C++ driver of the live leg:
-//! - `SAI_DRIVER_CPP`: a prebuilt `frontend_driver` (a Nix check passes one in); or
-//! - `$SAI_RS_TEST_BIN/sai-cpp-frontend-driver`, with the scripts and the allow-list in
-//!   `$SAI_RS_TEST_BIN/sai-driver/` (prebuilt by `build.rs` for a target without a compiler; the scripts
-//!   that need the C++ tables are not in it); or
-//! - built here from `SAI_OPENBCM_TESTS` (the frozen frontend's `tests`; else `$SAI_OPENBCM_SRC/../tests`)
-//!   and `SAI_INC`, with `$CXX` / `$CC` (cached in the target's temp directory by a hash of the inputs).
-//!
-//! Scripts 10 and 11 name two table files by token (`@EXT_PHY_TABLE@`, `@EXT_MACSEC_TABLE@`): the live leg
-//! writes the tables of the frontend's `tests/test_tables.h` (`kExtPhyGood`, without its hold-off so
-//! nothing depends on the clock; `ms_table()`), printed by a three-line C++ program built with `$CXX`; the
-//! golden leg writes the golden's copies. Outputs are compared with the table paths written as the tokens.
-//!
-//! With the C++ sources, a missing allow-list fails. `SAI_DRIVER_ALLOW` names another allow-list;
-//! `SAI_DRIVER_ALLOW_UPDATE=1` rewrites it from today's differences (reasons kept where an entry still
-//! covers) and passes.
+//! Scripts 10 and 11 name two table files by token (`@EXT_PHY_TABLE@`, `@EXT_MACSEC_TABLE@`): the test writes
+//! the golden's copies of the tables (`kExtPhyGood` and `ms_table()` of the C++ frontend's
+//! `test_tables.h`) into the scratch area. Outputs are compared with the table paths written as the tokens.
 #![allow(
     clippy::unwrap_used,
     clippy::expect_used,
@@ -40,18 +23,11 @@
     reason = "test code: a failed unwrap is a failed test"
 )]
 
-#[path = "../src/cpp_build.rs"]
-mod cpp_build;
-
 use sai_driver::compare::{self, Diff};
 use sai_driver::{Driver, OnHardware, Options};
 use std::collections::BTreeMap;
-use std::collections::hash_map::DefaultHasher;
 use std::fmt::Write as _;
-use std::hash::{Hash as _, Hasher as _};
-use std::path::{Path, PathBuf};
-use std::process::Command;
-use std::sync::OnceLock;
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 /// The golden C++ outputs (`@@@@ cpp <stem>` sections) and their inputs (`@@@@ script <stem>`,
@@ -118,26 +94,6 @@ fn tokens_back(text: &str, t: &Tables) -> String {
 
 fn scratch() -> PathBuf {
     var("SAI_RS_TEST_TMPDIR").map_or_else(|| PathBuf::from(env!("CARGO_TARGET_TMPDIR")), PathBuf::from)
-}
-
-/// A hash of everything the C++ build reads.
-fn inputs_hash(s: &cpp_build::Sources, inc: &Path, cxx: &str, cc: &str) -> String {
-    let mut h = DefaultHasher::new();
-    (inc, cxx, cc).hash(&mut h);
-    for dir in [&s.src, &s.tests] {
-        let mut files: Vec<PathBuf> = std::fs::read_dir(dir)
-            .unwrap()
-            .filter_map(Result::ok)
-            .map(|e| e.path())
-            .filter(|p| p.is_file())
-            .collect();
-        files.sort();
-        for f in files {
-            f.hash(&mut h);
-            std::fs::read(&f).unwrap_or_default().hash(&mut h);
-        }
-    }
-    format!("{:016x}", h.finish())
 }
 
 fn options() -> Options {
@@ -395,313 +351,4 @@ fn the_golden_comparison_reports_a_changed_golden_line_script_or_block() {
     summary(
         "sai-driver differential: negative controls ok (a changed golden byte in each of 11 scripts, a dropped block, a changed script, a missing script)",
     );
-}
-
-// ---- the live leg ----------------------------------------------------------------------------
-
-struct Setup {
-    exe: PathBuf,
-    scripts: Vec<PathBuf>,
-    allow: PathBuf,
-    /// The tables of the frontend's `tests/test_tables.h`, written into the scratch area (needs the C++ sources).
-    tables: Option<Tables>,
-}
-
-/// One script through the live C++ driver.
-struct Run {
-    stem: String,
-    /// The script text as run (tokens replaced by the table files).
-    text: String,
-    /// The C++ driver's stdout.
-    cpp: String,
-}
-
-struct Live {
-    setup: Setup,
-    runs: Vec<Run>,
-}
-
-fn setup() -> Option<Setup> {
-    let manifest_allow = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/differential-allow.txt");
-    let own_scripts = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/driver-scripts");
-    let bin_data = var("SAI_RS_TEST_BIN").map(|b| Path::new(&b).join("sai-driver"));
-    let sources = cpp_build::find_sources();
-    // the scripts: this crate's (with the sources, for the C++ tables), else the prebuilt bundle's copy
-    let scripts_dir = match (&sources, &bin_data) {
-        (Ok(_), _) => Some(own_scripts),
-        (Err(_), Some(d)) if d.join("driver-scripts").is_dir() => Some(d.join("driver-scripts")),
-        _ => None,
-    };
-    let allow = var("SAI_DRIVER_ALLOW").map_or_else(
-        || match (&sources, &bin_data) {
-            (Err(_), Some(d)) if d.join("differential-allow.txt").is_file() => d.join("differential-allow.txt"),
-            _ => manifest_allow.clone(),
-        },
-        PathBuf::from,
-    );
-    let prebuilt = var("SAI_DRIVER_CPP").map(PathBuf::from).or_else(|| {
-        var("SAI_RS_TEST_BIN")
-            .map(|b| Path::new(&b).join(cpp_build::DRIVER))
-            .filter(|p| p.is_file())
-    });
-    let Some(scripts_dir) = scripts_dir else {
-        summary(&format!(
-            "sai-driver differential: live leg SKIPPED: no op scripts ({}; no $SAI_RS_TEST_BIN/sai-driver/driver-scripts)",
-            sources.err().unwrap_or_default()
-        ));
-        return None;
-    };
-    let exe = match (prebuilt, &sources) {
-        (Some(exe), _) => exe,
-        (None, Ok(s)) => {
-            let Some(inc) = var("SAI_INC").map(PathBuf::from) else {
-                summary("sai-driver differential: live leg SKIPPED: the C++ sources are there but SAI_INC is not set");
-                return None;
-            };
-            let cxx = var("CXX").unwrap_or_else(|| "c++".to_owned());
-            let cc = var("CC").unwrap_or_else(|| "cc".to_owned());
-            let dir = scratch().join("sai-driver-cpp").join(inputs_hash(s, &inc, &cxx, &cc));
-            let exe = dir.join(cpp_build::DRIVER);
-            if !exe.is_file() {
-                let tc = cpp_build::Toolchain {
-                    cxx: &cxx,
-                    cc: &cc,
-                    static_runtime: false,
-                };
-                cpp_build::build(s, &inc, &tc, &dir).unwrap_or_else(|e| panic!("building the C++ driver: {e}"));
-            }
-            exe
-        }
-        (None, Err(_)) => {
-            summary(
-                "sai-driver differential: live leg SKIPPED: scripts but no C++ driver (SAI_DRIVER_CPP, $SAI_RS_TEST_BIN)",
-            );
-            return None;
-        }
-    };
-    let tables = sources.as_ref().ok().and_then(|s| {
-        let cxx = var("CXX").unwrap_or_else(|| "c++".to_owned());
-        match cpp_build::tables(&s.tests, &scratch().join("sai-driver-extra"), &cxx) {
-            Ok(t) => Some(t),
-            Err(why) => {
-                summary(&format!(
-                    "sai-driver differential: the scripts that need the C++ tables SKIPPED in the live leg ({why})"
-                ));
-                None
-            }
-        }
-    });
-    if tables.is_none() && sources.is_err() {
-        summary(
-            "sai-driver differential: the scripts that need the C++ tables SKIPPED in the live leg (no C++ frontend tests dir)",
-        );
-    }
-    let mut scripts = cpp_build::scripts(&scripts_dir).unwrap();
-    assert!(!scripts.is_empty(), "no *.ops in {}", scripts_dir.display());
-    // a script that names a table token runs only where the tables are: with them replaced, in the scratch area
-    let mut runnable = Vec::new();
-    for script in scripts.drain(..) {
-        let text = std::fs::read_to_string(&script).unwrap();
-        if !text.contains(EXT_PHY_TOKEN) && !text.contains(EXT_MACSEC_TOKEN) {
-            runnable.push(script);
-        } else if let Some(t) = &tables {
-            let to = scratch().join("sai-driver-extra").join(script.file_name().unwrap());
-            std::fs::write(&to, with_tables(&text, t)).unwrap();
-            runnable.push(to);
-        }
-    }
-    Some(Setup {
-        exe,
-        scripts: runnable,
-        allow,
-        tables,
-    })
-}
-
-/// The live C++ driver on every script, once for all tests of this binary.
-fn live() -> Option<&'static Live> {
-    static LIVE: OnceLock<Option<Live>> = OnceLock::new();
-    LIVE.get_or_init(|| {
-        let setup = setup()?;
-        let dir = scratch();
-        let mut runs = Vec::new();
-        for script in &setup.scripts {
-            let stem = script.file_stem().unwrap().to_string_lossy().into_owned();
-            let out = Command::new(&setup.exe)
-                .arg(script)
-                .current_dir(&dir)
-                .output()
-                .unwrap_or_else(|e| panic!("{}: {e}", setup.exe.display()));
-            assert!(
-                out.status.success(),
-                "C++ driver on {stem}: {}\n{}",
-                out.status,
-                String::from_utf8_lossy(&out.stderr)
-            );
-            runs.push(Run {
-                stem,
-                text: std::fs::read_to_string(script).unwrap(),
-                cpp: String::from_utf8(out.stdout).unwrap(),
-            });
-        }
-        Some(Live { setup, runs })
-    })
-    .as_ref()
-}
-
-/// The proof that the golden is the C++'s: the live C++ driver's output, with the table paths written
-/// as tokens, is byte-equal to the golden section of every script it ran, and the tables it printed
-/// are byte-equal to the golden's.
-#[test]
-fn live_cpp_output_equals_the_golden() {
-    let Some(live) = live() else { return };
-    let golden = golden_cpp(CPP_GOLDEN);
-    let mut failures = String::new();
-    for run in &live.runs {
-        let normalized = live
-            .setup
-            .tables
-            .as_ref()
-            .map_or_else(|| run.cpp.clone(), |t| tokens_back(&run.cpp, t));
-        match golden.iter().find(|(s, _)| *s == run.stem) {
-            Some((_, text)) if *text == normalized => {}
-            Some((_, text)) => {
-                let _ = writeln!(
-                    failures,
-                    "{}: the live C++ output differs from the golden ({} bytes live, {} golden)",
-                    run.stem,
-                    normalized.len(),
-                    text.len()
-                );
-            }
-            None => {
-                let _ = writeln!(failures, "{}: no golden C++ output", run.stem);
-            }
-        }
-    }
-    if let Some((macsec, ext_phy)) = &live.setup.tables {
-        let (_, tables) = golden_inputs(INPUTS_GOLDEN);
-        for (name, path) in [("ext-macsec.tbl", macsec), ("ext-phy.tbl", ext_phy)] {
-            if std::fs::read_to_string(path).unwrap() != tables[name] {
-                let _ = writeln!(failures, "table {name}: the live C++ table differs from the golden's");
-            }
-        }
-    }
-    let (golden_scripts, _) = golden_inputs(INPUTS_GOLDEN);
-    for run in &live.runs {
-        // the script as run is the golden's input with the tokens replaced
-        if let (Some(t), Some((_, text))) = (&live.setup.tables, golden_scripts.iter().find(|(s, _)| *s == run.stem)) {
-            if run.text != with_tables(text, t) {
-                let _ = writeln!(
-                    failures,
-                    "{}: the script run live differs from the golden's input",
-                    run.stem
-                );
-            }
-        }
-    }
-    assert!(failures.is_empty(), "{failures}");
-    assert!(!live.runs.is_empty());
-    summary(&format!(
-        "sai-driver differential: live C++ output equals the golden: {} of {} scripts byte-equal{}",
-        live.runs.len(),
-        golden.len(),
-        if live.setup.tables.is_some() {
-            ", tables equal"
-        } else {
-            ""
-        }
-    ));
-}
-
-#[test]
-fn cpp_and_rust_drivers_agree_but_for_the_allow_list() {
-    let Some(live) = live() else { return };
-    let setup = &live.setup;
-    let mut diffs: Vec<Diff> = Vec::new();
-    let mut per_script: BTreeMap<String, (usize, usize)> = BTreeMap::new(); // (blocks, differing)
-    let mut all_ops: Vec<(String, String)> = Vec::new(); // (script, op)
-    for run in &live.runs {
-        let stem = &run.stem;
-        let rust = Driver::new(options()).run_script(&run.text);
-        let c = compare::compare(stem, &run.cpp, &rust).unwrap_or_else(|e| panic!("{e}"));
-        per_script.insert(stem.clone(), (c.blocks, c.diffs.len()));
-        all_ops.extend(compare::blocks(&run.cpp).into_iter().map(|b| (stem.clone(), b.op)));
-        diffs.extend(c.diffs);
-    }
-    let total: usize = per_script.values().map(|(b, _)| b).sum();
-
-    if var("SAI_DRIVER_ALLOW_UPDATE").as_deref() == Some("1") {
-        let old = std::fs::read_to_string(&setup.allow).unwrap_or_default();
-        let entries = compare::parse_allow(&old).unwrap_or_default();
-        std::fs::write(&setup.allow, compare::regenerate(&entries, &diffs)).unwrap();
-        summary(&format!(
-            "sai-driver differential: allow-list REWRITTEN ({}): {} ops, {} identical, {} entries",
-            setup.allow.display(),
-            total,
-            total - diffs.len(),
-            diffs.len()
-        ));
-        return;
-    }
-
-    let text = std::fs::read_to_string(&setup.allow).unwrap_or_else(|e| {
-        panic!(
-            "the C++ sources are here, but the allow-list {} is not readable ({e}); SAI_DRIVER_ALLOW_UPDATE=1 writes one",
-            setup.allow.display()
-        )
-    });
-    let entries = compare::parse_allow(&text).unwrap_or_else(|e| panic!("{}: {e}", setup.allow.display()));
-    let verdict = compare::judge(&entries, &diffs);
-
-    // the burn-down numbers
-    summary(&format!(
-        "sai-driver differential: {} scripts, {total} ops, {} identical, {} differ (allowed {}, NOT allowed {}), {} allow-list entries ({} stale)",
-        live.runs.len(),
-        total - diffs.len(),
-        diffs.len(),
-        diffs.len() - verdict.uncovered().len(),
-        verdict.uncovered().len(),
-        entries.len(),
-        verdict.stale().len()
-    ));
-    for (script, (blocks, differing)) in &per_script {
-        summary(&format!(
-            "  {script}: {blocks} ops, {} identical, {differing} differ",
-            blocks - differing
-        ));
-    }
-    let ops_per_area = compare::tally(
-        all_ops
-            .iter()
-            .map(|(_, op)| compare::area(op))
-            .collect::<Vec<_>>()
-            .iter()
-            .map(String::as_str),
-    );
-    let diff_areas: Vec<String> = diffs.iter().map(|d| compare::area(&d.op)).collect();
-    let diffs_per_area = compare::tally(diff_areas.iter().map(String::as_str));
-    let areas: Vec<String> = ops_per_area
-        .iter()
-        .map(|(a, n)| format!("{a} {}/{n}", diffs_per_area.get(a).copied().unwrap_or(0)))
-        .collect();
-    summary(&format!("  differing/ops per area: {}", areas.join(", ")));
-    for (i, e) in entries.iter().enumerate() {
-        let changed: Vec<String> = diffs
-            .iter()
-            .zip(&verdict.covered_by)
-            .filter(|(_, c)| **c == Some(i))
-            .map(|(d, _)| d.changed_lines().to_string())
-            .collect();
-        eprintln!(
-            "  entry line {}: {} block(s) [changed lines {}]: {}",
-            e.line,
-            verdict.uses.get(i).copied().unwrap_or(0),
-            changed.join(","),
-            e.reason
-        );
-    }
-
-    let failures = failure_text(&entries, &verdict, &diffs);
-    assert!(failures.is_empty(), "{failures}");
 }

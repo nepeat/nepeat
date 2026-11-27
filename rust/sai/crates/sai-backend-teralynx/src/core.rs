@@ -109,7 +109,9 @@ impl Core {
         {
             log::warn(
                 ssys::SAI_API_SWITCH,
-                format_args!("teralynx backend: {what} is NOT_IMPLEMENTED (see sai-teralynx README)"),
+                format_args!(
+                    "teralynx backend: {what} is NOT_IMPLEMENTED (see rust/sai crates/sai-backend-teralynx/README.md, 'What is mapped')"
+                ),
             );
         }
         Error::NotImplemented

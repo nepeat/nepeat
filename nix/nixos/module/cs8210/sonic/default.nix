@@ -1,10 +1,11 @@
 # hardware.cs8210.sonic: SONiC's switch stack (ai_re services.sonic) on this
 # box instead of the vendor SDK stack (cs8210-switch). Default off.
 #
-#   * syncd links our own libsai (ai_re/nix/packages/sai-teralynx: the
-#     sai-openbcm SAI frontend + an IFCS backend that dlopen()s the vendor
-#     libifcs.so 0.12.41 from the SDK root at run time; nothing vendor is in
-#     the store). No arm64 Teralynx SAI exists (ai_re/devices/cs8210-32x/sonic.md).
+#   * syncd links our own libsai (rust/sai/nix/sai-teralynx-rs.nix: the Rust SAI
+#     with its Teralynx backend, which dlopen()s the vendor libifcs.so 0.12.41
+#     from the SDK root at run time; nothing vendor is in the store). The C++ one
+#     it replaced (the sai-teralynx package of ai_re) was deleted in H5, 2026-11-27.
+#     No vendor arm64 Teralynx SAI exists (ai_re/devices/cs8210-32x/sonic.md).
 #   * Board layer (ports, IFCS init yaml, sai.profile, pmon):
 #     ai_re/nix/modules/boards/cs8210.
 #   * The Credo PHYs (cages 1-16) are not a SAI gearbox here: a oneshot runs the
@@ -46,22 +47,16 @@ let
         inherit (config.nixpkgs) overlays;
       };
   sonic = import (aiRe + "/packages/sonic") { pkgs = spkgs; };
-  # The libsai syncd links (option saiImplementation). The Rust drop-in has the C++ package's
-  # lib/ and bin/ layout, so everything below uses ${sai} either way. rust/sai is outside
-  # ai_re's path:./nix: a "rust" system builds from the root git flake (new files: git add -N).
+  # The libsai syncd links: the Rust SAI package (the deleted C++ package's lib/ and bin/ layout).
+  # rust/sai is outside ai_re's path:./nix: the system builds from the root git flake (new files:
+  # git add -N).
   rustSai = ../../../../../rust/sai;
-  saiCpp = spkgs.callPackage (aiRe + "/packages/sai-teralynx") { inherit sonic; };
-  sai =
-    if cfg.saiImplementation == "rust" then
-      spkgs.callPackage (rustSai + "/nix/sai-teralynx-rs.nix") {
-        saiRs = spkgs.callPackage (rustSai + "/nix/package.nix") {
-          saiSrc = sonic.sources.sairedis;
-          glueSrc = aiRe + "/packages/sai-openbcm/src";
-        };
-        cppTeralynx = saiCpp; # read only: the file-list / export checks
-      }
-    else
-      saiCpp;
+  sai = spkgs.callPackage (rustSai + "/nix/sai-teralynx-rs.nix") {
+    saiRs = spkgs.callPackage (rustSai + "/nix/package.nix") {
+      saiSrc = sonic.sources.sairedis;
+      glueSrc = aiRe + "/packages/sai-openbcm/src";
+    };
+  };
   sdkRoot = "/var/lib/cs8210-sdk/root";
   sdkDir = config.hardware.cs8210.sonic.sdkDir; # host path, under sdkRoot
   # the same directory as seen inside the SDK chroot (the Credo tools run there)
@@ -185,6 +180,9 @@ in
   imports = [
     (aiRe + "/modules/switch/sonic")
     (aiRe + "/modules/boards/cs8210")
+    # H5 (2026-11-27): the C++ libsai is deleted; the Rust one is the only SAI (rollback: an older generation)
+    (lib.mkRemovedOptionModule [ "hardware" "cs8210" "sonic" "saiImplementation" ]
+      "the C++ sai-teralynx was deleted in H5 (2026-11-27): syncd links the Rust SAI (rust/sai/nix/sai-teralynx-rs.nix) only")
   ];
 
   options.hardware.cs8210.sonic = {
@@ -236,17 +234,6 @@ in
         global OOM killer taking the box's memory (2026-11-16). The IFCS
         watchdog restarts syncd at 3/4 of it. Raise it for large route
         tables; null: no limit.
-      '';
-    };
-    saiImplementation = mkOption {
-      type = types.enum [ "cpp" "rust" ];
-      default = "rust";
-      description = ''
-        The libsai syncd links: "rust" (default since H4, 2026-11-27) =
-        rust/sai/nix/sai-teralynx-rs.nix (the Rust drop-in: the same lib/, bin/ layout,
-        the same exports + 2, the same profile keys; adds SAI_TERALYNX_POST_INIT_REGS /
-        SAI_TERALYNX_DIAG_REGS), "cpp" = ai_re/nix/packages/sai-teralynx (the C++ IFCS
-        backend, still selectable until H5). Rollback: "cpp" or the previous generation.
       '';
     };
     macAddress = mkOption {

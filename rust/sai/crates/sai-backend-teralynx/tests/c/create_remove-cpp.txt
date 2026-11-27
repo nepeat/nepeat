@@ -1,0 +1,72 @@
+# Golden: the IFCS call log of create_switch / remove_switch (tests/c/create_remove.c) on the C++ libsai of the CS8210
+# (the C++ sai-teralynx package, deleted in H5 on 2026-11-27, last in the tree at commit 767d9b0), on the mock libifcs.
+# Captured 2026-11-27 at HEAD 701826d (the C++ package unmodified in the tree), the live comparison tests/test-ifcs.sh ran
+# until then (the Rust log was identical, line for line):
+#   9846dbbc33351e96e90eef8449ad09cec33240e39c095eed9d4a7991aa8e73d5  <store>-sai-teralynx-0.1.0/lib/libsai.so.1.0.0 (with its C shim beside it)
+#   35b2a5c30aaef2418144a8b319f231774c4253fd1e93d040e85f7979fecbf7d5  mock/libifcs.so (nix/teralynx-mock.nix, rust/sai/tests/teralynx-mock)
+#   8a05ea30ea65ea40f6fdfeaea97f8692e93df857cad90a96df357613cd37feb9  tests/c/create_remove.c (at 701826d; later edits: comments only)
+# Command: create_remove <libsai.so.1.0.0> <mock libifcs.so> <scratch>/cr; the scratch directory is written <cr>.
+# Frozen: never regenerated (the C++ is gone); a deliberate change of the Rust call sequence edits it by hand, with the reason here.
+create_switch: 0
+== create_switch IFCS calls
+ifcs_init cfg=<cr>/run/config.yaml log=sai-teralynx boot=0 first=# generated init config
+ifcs_log_function_register
+ifcs_node_create node=0 count=0 attrs=null
+ifcs_node_attr_set node=0 count=1 id=82 u32=1
+ifcs_node_attr_set node=0 count=1 id=46 u32=0
+ifcs_node_attr_set node=0 count=1 id=45 u32=4
+ifcs_node_attr_set node=0 count=1 id=48 u32=0
+ifcs_node_attr_set node=0 count=1 id=47 u32=4
+ifcs_attr_t_init
+ifcs_attr_t_id_set id=0
+ifcs_attr_t_value_data_set 1
+ifcs_node_attr_set node=0 count=1 id=0 u32=1
+ifcs_devport_attr_set dp=1 id=23 u32=0
+ifcs_devport_attr_set dp=2 id=23 u32=0
+ifcs_devport_attr_set dp=3 id=23 u32=0
+ifcs_devport_attr_set dp=1 id=49 u32=1
+ifcs_devport_attr_set dp=1 id=43 i8=[2,2,2,2,2,2,2,2]
+ifcs_devport_attr_set dp=2 id=50 u8=[1,2,3,4]
+ifcs_devport_attr_set dp=3 id=53 u32l=[5]
+ifcs_devport_attr_set dp=1 id=21 u32=1
+ifcs_linkscan_event_register_notify node=0
+ifcs_l2_event_register_notify node=0
+ifcs_stp_create h=0x100 count=0
+ifcs_stp_port_add stp=0x100 members=4 attrs=1 state=3 first=0x3e2003e8
+ifcs_mdg_create h=0x101 count=0
+ifcs_l2vni_create vni=1 count=4 stp=0x100 flood=0x101
+ifcs_extended_field_list_create h=0xe200102 elements=6,5,7,12,13,16
+ifcs_node_attr_set node=0 count=1 id=84 u32=236978434
+ifcs_extended_field_list_create h=0xe200103 elements=6,5,7,16
+ifcs_node_attr_set node=0 count=1 id=85 u32=236978435
+ifcs_extended_field_list_create h=0xe200104 elements=9,8,10,12,13,16
+ifcs_node_attr_set node=0 count=1 id=86 u32=236978436
+ifcs_extended_field_list_create h=0xe200105 elements=9,8,10,16
+ifcs_node_attr_set node=0 count=1 id=87 u32=236978437
+ifcs_extended_field_list_create h=0xe200106 elements=16
+ifcs_node_attr_set node=0 count=1 id=88 u32=236978438
+ifcs_node_attr_set node=0 count=1 id=35 u32=10
+ifcs_devport_attr_set dp=1 id=23 u32=0
+ifcs_devport_attr_set dp=2 id=23 u32=0
+ifcs_devport_attr_set dp=3 id=23 u32=0
+TEMP_LIST 0: 0, 1 monitors, reads 1: 56
+TEMP_LIST 1: 0, 2 monitors, reads 2: 56 54
+TEMP_LIST 2: 0, 3 monitors, reads 3: 56 54 54
+TEMP_LIST 3: 0, 3 monitors, reads 4: 56 54 54
+TEMP_LIST 4: 0, 4 monitors, reads 5: 56 54 54 52
+TEMP_LIST 5: 0, 4 monitors, reads 5: 56 54 54 52
+MAX_TEMP: 0 56
+AVAILABLE_IPV4_ROUTE_ENTRY: 0 24576
+AVAILABLE_FDB_ENTRY: 0 45056
+== get IFCS calls
+guard: sai_teralynx_ifcs_guard_installed 1
+remove_switch: 0
+== remove_switch IFCS calls
+ifcs_devport_attr_set dp=1 id=23 u32=0
+ifcs_devport_attr_set dp=2 id=23 u32=0
+ifcs_devport_attr_set dp=3 id=23 u32=0
+ifcs_linkscan_event_unregister_notify node=0
+ifcs_l2_event_unregister_notify node=0
+ifcs_deinit type=0
+mock_inited: 0
+sai_api_uninitialize: 0

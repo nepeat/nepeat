@@ -1,36 +1,33 @@
 #!/usr/bin/env bash
-# The parity harness's programs (crate sai-teralynx-parity, README "Parity"), built from sources that
-# stay UNMODIFIED (ai_re/nix/packages/sai-teralynx: tests/, src/shim.c + src/ifcs_guard.c,
-# frontend/tests/frontend_driver.cpp) and ifcs-oracle's sai_script.cpp (ORACLE_SRC) and this crate's c/:
+# The parity harness's fixtures (crate sai-teralynx-parity, README "Parity"): the mock libifcs, the taps, the
+# oracle's script filter and the port maps, from this crate's c/, rust/sai/tests/teralynx-mock and
+# ai_re/nix/packages/ifcs-oracle's tracer generator (ORACLE_SRC). The programs the harness runs on the
+# libsai are given to it (the Rust test_ifcs, crates/sai-backend-teralynx/tests/ifcs_e2e; the Rust
+# sai-script): the C++ ones this script used to build (test_ifcs, frontend_driver.cpp, sai_script.cpp, the
+# C shim) were deleted with the C++ sai-teralynx in H5 on 2026-11-27.
 #
-#   build-fixtures.sh OUT TERALYNX_SRC IFCS_INC SAI_INC LINK_LIBSAI [NLOHMANN_INC]
+#   build-fixtures.sh OUT SHIM IFCS_INC [NLOHMANN_INC]
 #
 #   OUT/mock/libifcs.so          the mock libifcs (rust/sai/tests/teralynx-mock; MOCK_LIBIFCS: its nix derivation)
-#   OUT/bin/libsai-teralynx-shim.so   the C shim, as the Makefile builds it (put next to each libsai)
+#   OUT/bin/libsai-teralynx-shim.so   SHIM, the Rust shim (crates/ifcs-shim; put next to the libsai)
 #   OUT/bin/libparity-tap.so     c/tap.c (LD_PRELOAD: every mock line into one stream)
-#   OUT/bin/libparity-bytes.so   the byte tap: oracle/gen_tracer.py's wrappers over the generated header with
+#   OUT/bin/libparity-bytes.so   the byte tap: ifcs-oracle's gen_tracer.py wrappers over the generated header with
 #                                c/bytes_rt.c (SAI_TERALYNX_IFCS_TRACE: every IFCS call's argument bytes into
 #                                the same stream; PYTHON: the build platform's python3)
-#   OUT/bin/test_ifcs-sections   test_ifcs.cpp + t_*.cpp (the Makefile's flags) + c/sections.cpp,
-#                                -Wl,--wrap for each area main() calls (c/wrap-symbols.txt)
-#   OUT/bin/tl-frontend-driver   frontend_driver.cpp + c/tl_port.cpp, a SAI C API client of any libsai.so.1
-#   OUT/bin/sai-script, oracle-prep   the oracle's runner and c/oracle_prep.cpp (only with NLOHMANN_INC)
+#   OUT/bin/oracle-prep          c/oracle_prep.cpp (only with NLOHMANN_INC)
 #   OUT/cfg/                     port maps (8 ports for the driver scripts, 32 for the oracle's), init yaml
 #
-# The programs link against LINK_LIBSAI (any libsai.so.1 with the SAI exports: the soname is what
-# counts) and find the library under test through LD_LIBRARY_PATH at run time. CC / CXX: compilers.
+# CC / CXX: the target's compilers.
 set -euo pipefail
-out=$1 tl=$2 gen=$3 sai=$4 link=$5 nlo=${6:-}
+out=$1 shim=$2 gen=$3 nlo=${4:-}
 here=$(cd "$(dirname "$0")" && pwd)
 cc=${CC:-cc} cxx=${CXX:-c++}
-# the oracle's tracer generator, runtime header and runner: ai_re/nix/packages/ifcs-oracle (ORACLE_SRC), moved
+# the oracle's tracer generator and runtime header: ai_re/nix/packages/ifcs-oracle (ORACLE_SRC), moved
 # unchanged from sai-teralynx/oracle (H5-1)
 oracle=${ORACLE_SRC:-$here/../../../../ai_re/nix/packages/ifcs-oracle}
 warn="-Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers"
-mkdir -p "$out/bin" "$out/mock" "$out/cfg" "$out/obj" "$out/link"
-cp -f "$link" "$out/link/libsai.so.1"
-$cc -std=gnu11 -fPIC -shared -Wall -fno-builtin -fno-tree-loop-distribute-patterns -O2 -g \
-  -Wl,-soname,libsai-teralynx-shim.so -o "$out/bin/libsai-teralynx-shim.so" "$tl/src/shim.c" "$tl/src/ifcs_guard.c" -lpthread
+mkdir -p "$out/bin" "$out/mock" "$out/cfg" "$out/obj"
+cp -f "$shim" "$out/bin/libsai-teralynx-shim.so"
 # the mock: MOCK_LIBIFCS (nix/teralynx-mock.nix, the one derivation of every user), else compiled from
 # tests/teralynx-mock (MOCK_SRC) with the same flags
 if [ -n "${MOCK_LIBIFCS:-}" ]; then
@@ -45,28 +42,7 @@ $cc -std=gnu11 -fPIC -shared -Wall -Wextra -Werror -O2 -g -Wl,-soname,libparity-
 ${PYTHON:-python3} -I -B "$oracle/gen_tracer.py" --header "$gen/ifcs_api.h" --abi parity-bytes -o "$out/obj/bytes_gen.c"
 $cc -std=gnu11 -fPIC -shared -Wall -Werror -O2 -g -I"$oracle" -I"$gen" -Wl,-soname,libparity-bytes.so \
   -o "$out/bin/libparity-bytes.so" "$out/obj/bytes_gen.c" "$here/c/bytes_rt.c" -ldl -lpthread
-wraps=$(grep -v '^#' "$here/c/wrap-symbols.txt" | sed 's/^/-Wl,--wrap=/' | tr '\n' ' ')
-# shellcheck disable=SC2086
-$cxx -std=c++17 $warn -O2 -g -I"$sai" -I"$sai/../experimental" -I"$tl/tests" -o "$out/bin/test_ifcs-sections" \
-  "$tl/tests/test_ifcs.cpp" "$tl"/tests/t_*.cpp "$here/c/sections.cpp" $wraps -Wl,--wrap=sai_api_initialize -L"$out/link" -l:libsai.so.1 -ldl -lpthread
-# every wrapped area must exist (a renamed area would silently lose its section)
-for s in $(grep -v '^#' "$here/c/wrap-symbols.txt"); do
-  nm "$out/bin/test_ifcs-sections" | grep -q " T $s\$" || { echo "build-fixtures: $s is not an area of test_ifcs" >&2; exit 1; }
-  nm "$out/bin/test_ifcs-sections" | grep -q " T __wrap_$s\$" || { echo "build-fixtures: $s is not wrapped" >&2; exit 1; }
-done
-fe=$tl/frontend
-awk -f "$fe/tests/driver_names.awk" $(ls "$sai"/sai*.h | LC_ALL=C sort) > "$out/obj/driver_names.inc"
-$cxx -std=c++17 -O1 -w -ffunction-sections -fdata-sections -I"$sai" -I"$sai/../experimental" -I"$fe/src" -I"$fe/tests" \
-  -I"$out/obj" -c "$fe/tests/frontend_driver.cpp" -o "$out/obj/frontend_driver.o"
-$cxx -std=c++17 -O1 -Wall -Wextra -Werror -Wno-unused-parameter -ffunction-sections -fdata-sections -I"$sai" -I"$sai/../experimental" \
-  -I"$fe/src" -I"$fe/tests" -I"$gen" -I"$tl/src" -c "$here/c/tl_port.cpp" -o "$out/obj/tl_port.o"
-# --gc-sections: the driver's factory over the frontend's fake backend is never called (the library
-# has its own backend) and goes with the recorder it names
-$cxx -o "$out/bin/tl-frontend-driver" "$out/obj/frontend_driver.o" "$out/obj/tl_port.o" -Wl,--gc-sections \
-  -Wl,--wrap=sai_api_query -L"$out/link" -l:libsai.so.1 -ldl -lpthread
 if [ -n "$nlo" ]; then
-  $cxx -std=c++17 -O2 -Wall -I"$sai" -I"$sai/../experimental" -I"$nlo" -o "$out/bin/sai-script" "$oracle/sai_script.cpp" \
-    -L"$out/link" -l:libsai.so.1 -ldl -lpthread
   $cxx -std=c++17 -O2 -Wall -Wextra -Werror -I"$nlo" -o "$out/bin/oracle-prep" "$here/c/oracle_prep.cpp"
 fi
 {

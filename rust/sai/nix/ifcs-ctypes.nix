@@ -2,7 +2,7 @@
 # of Innovium's public ishell 2.0.1 deb (Innovium/SONiC debian/202111/T2.0.1, amd64; the file is
 # arch-neutral python). Its declarations of everything ifcs-gen's templates use equal the box's
 # 0.12.41 ones except the overrides (crates/ifcs-gen/templates/ifcs_overrides.txt) and one @prefix struct.
-# Moved here unchanged from ai_re/nix/packages/sai-teralynx/default.nix (H5-1): the same derivations, the
+# Moved here unchanged from the C++ sai-teralynx package's default.nix (H5-1): the same derivations, the
 # same store paths (nix/ifcs-ctypes.nix in rust/sai is now the one every user takes it from).
 #   pkgs.callPackage ./ifcs-ctypes.nix { }  ->  { ishellDeb, ifcsCtypes }
 { fetchurl, buildPackages }:

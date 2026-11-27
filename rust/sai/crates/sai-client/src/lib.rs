@@ -1,8 +1,8 @@
 //! A SAI user's side of the C ABI, as syncd (or a C program linked against `libsai.so`) has it:
 //! a `libsai.so` loaded with `dlopen` and driven through the SAI C API only. Used by the Teralynx
 //! smoke program (`sai-teralynx-smoke`) and the oracle's JSON script runner (`sai-script`), which
-//! must run on EITHER Teralynx libsai (the C++ one of `ai_re/nix/packages/sai-teralynx` and the
-//! Rust one), so nothing here knows which library it talks to.
+//! ran on EITHER Teralynx libsai (the C++ one, deleted in H5 on 2026-11-27, last in the tree at
+//! commit 767d9b0, and the Rust one), so nothing here knows which library it talks to.
 //!
 //! - [`Sai`]: the loaded library: `sai_api_initialize` with this crate's service method table
 //!   (the profile of [`set_profile`]), `sai_api_query` per API ([`Api`]), `sai_api_uninitialize`,
@@ -22,7 +22,7 @@
 //! Denied at the crate root; allowed in `dl` (`dlopen`, `dlsym`, `dlerror` and its text, a
 //! symbol as its function type), `ffi` (one call site per C signature, the method table read),
 //! `raw` (zeroed C structs, the bytes of a value union the library wrote, an FDB event's object id),
-//! `callback` (the profile and notification callbacks' pointer reads and writes), `mock` (the mock
+//! `callback` (the profile and notification callbacks' pointer reads and writes), `mock` (feature `mock`, off by default: the mock
 //! libifcs's test hooks of the end-to-end test, one call each) and `tee` (`dup2`). Each block has one unsafe operation and its contract. Everything else is safe code.
 #![deny(unsafe_code)]
 
@@ -30,6 +30,7 @@ mod callback;
 mod dispatch;
 mod dl;
 mod ffi;
+#[cfg(feature = "mock")]
 pub mod mock;
 mod raw;
 pub mod tee;
@@ -38,6 +39,7 @@ mod value;
 use std::path::{Path, PathBuf};
 
 pub use callback::{Event, replace_profile, set_event_sink, set_profile};
+#[cfg(feature = "mock")]
 pub use mock::Mock;
 pub use sai_sys as sys;
 pub use value::{AclAction, AclData, AclField, Attr, Notify, Prefix, QosMapEntry, QosParams, Value};

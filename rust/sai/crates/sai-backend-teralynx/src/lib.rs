@@ -1,7 +1,8 @@
 //! The Teralynx 7 backend of the Rust SAI (Celestica CS8210-32X): [`sai_core::backend::Backend`]
 //! over the vendor IFCS 0.12.41 SDK, `libifcs.so` `dlopen`ed at run time through the `ifcs` rim
 //! (nothing vendor is linked). A port of the C++ IFCS backend of
-//! `ai_re/nix/packages/sai-teralynx/src` (`ifcs_backend.cpp` + `tl_*.cpp`), area by area, with the
+//! `sai-teralynx/src` (`ifcs_backend.cpp` + `tl_*.cpp`; deleted in H5 on 2026-11-27, last in the tree at commit
+//! 767d9b0), area by area, with the
 //! same IFCS calls in the same order and arguments. No `unsafe` here: all of it is in `ifcs`.
 //!
 //! # Areas (one module per C++ file, same names)

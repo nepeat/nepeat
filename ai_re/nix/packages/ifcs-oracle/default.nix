@@ -2,8 +2,10 @@
 # SAI script runner for one libsai, plus oracle.py and the scripts. Moved here from
 # sai-teralynx/oracle (H5-1): the sources are unchanged; "ours" takes its IFCS declarations from
 # ifcs-gen (rust/sai/nix/ifcs-headers.nix: byte-identical to the Python generator's, its identity
-# check) instead of running tools/gen_ifcs_api.py. tools/: the frame tools and the generic SAI client
-# built here and by qemu-ipd (copies of sai-teralynx/tools until the C++ package goes).
+# check) instead of running tools/gen_ifcs_api.py. tools/: the C frame tools and the generic SAI client
+# built here and by qemu-ipd (copies of the deleted C++ package's tools/; they stay for the isai side, which
+# builds them against isai's own SAI 1.16 headers: the Rust ports, tl-frames and sai-script, are built
+# against the pinned SAI 1.19.2, whose sai_attribute_t is 64 bytes to isai's 48).
 #   ours (arm64, IFCS 0.12.41 via our backend's table):
 #     cross.callPackage ./ifcs-oracle { saiInc = sai.saiHeaders; saiLib = sai; abi = "ifcs-0.12.41"; ifcsHeaders = <ifcs-headers>; }
 #   isai (amd64, IFCS 0.16.2 inside isai's libsai, LD_PRELOAD under qemu-ipd):

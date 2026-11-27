@@ -1,6 +1,6 @@
 //! GOT redirect: point the imports of one function by an already loaded ELF shared object at
 //! another function, by rewriting its `JUMP_SLOT` / `GLOB_DAT` GOT entries. The Teralynx
-//! loader's `redirect_cb` (`ai_re/nix/packages/sai-teralynx/src/ifcs_lib.cpp`) in Rust: libifcs'
+//! loader's `redirect_cb` (`src/ifcs_lib.cpp` of the C++ sai-teralynx, deleted in H5 on 2026-11-27, last in the tree at commit 767d9b0) in Rust: libifcs'
 //! `memcpy` goes to the shim's Device-memory-safe copy, its `node_pci_reg_read32` / `_write32` /
 //! `im_malloc` to the learn-ring guard (README "Teralynx backend").
 //!

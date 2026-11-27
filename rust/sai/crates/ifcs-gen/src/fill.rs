@@ -1,4 +1,4 @@
-//! The template filler: `gen_ifcs_api.py`'s `Gen` line for line (its regular expressions
+//! The template filler: the Python generator `gen_ifcs_api.py`'s `Gen` line for line (its regular expressions
 //! matched by hand with the same leftmost, greedy / lazy choices). The directives:
 //!
 //! - `NAME = @`, `#define NAME @`: NAME's value; `@{NAME}` / `@{NAME:spec}`: formatted;
@@ -6,7 +6,8 @@
 //!   members are left out), `@alias A = B`, `@fn f ...` (`IFCS_FN(ret, f, (args))`), `@prefix A f1
 //!   f2 ...`, `@bits A ...`, `@as T A ...`;
 //!
-//! the rules are the Python generator's docstring (`ai_re/nix/packages/sai-teralynx/tools`).
+//! the rules were the Python generator's docstring (the generator was deleted in H5 on 2026-11-27, last in the
+//! tree at commit 767d9b0).
 //! Errors the Python collects are collected here in the same words and order; an exception of
 //! the Python is a [`Fatal`].
 
